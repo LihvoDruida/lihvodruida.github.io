@@ -1,0 +1,51 @@
+---
+layout: default
+title: Донат
+---
+<style>
+  body {
+    background-color: #fafafa;
+  }
+</style>
+
+<div class="jumbotron">
+  <div class="container">
+
+    <h1>Донат</h1>
+    <p>Тут ти можеш підтримати автора грошима.</p>
+  </div>
+</div>
+
+<div class="container post">
+  <div class="row-donate">
+    <div class="col-lg-7 pb-4">
+      <div class="col-sm user-info mb-3">
+        <div class="userpic-container">
+
+          <img id="channel-avatar" src="" class="userpic" alt="user">
+
+        </div>
+        <div class="mt-3">
+          <h3 class="user-name"><strong id="channel-title"></strong></h3>
+          <p id="channel-description" class="user-title font-gray font-14">
+          </p>
+        </div>
+      </div>
+      <div class="card-danator radius disclaimer-container disclaimer-container-md mb-3">
+        <h5><strong class="">Зверни увагу!</strong></h5>
+        <p class="font-14 mb-0">Натиснувши будь-яку кнопку нижче та завершивши транзакцію, ви тим самим підтверджуєте,
+          що ви є
+          законним власником коштів.</p>
+      </div>
+      {% include donate_content.html %}
+    </div>
+    <div class="col-lg-5 pb-4">
+      <div class="card-danator radius top-donator-container mb-4">
+        <h5 class="text-center mb-3"><strong>Останні 5</strong></h5>
+        <ul class="list-group-donater list-group-flush donator-name">
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
