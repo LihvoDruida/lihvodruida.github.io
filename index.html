@@ -10,7 +10,7 @@ disable_anchor: true
   </div>
 </div>
 
-<section class="security bg-dark">
+<section class="security rio-background--header">
   <div class="container">
     <div class="justify-content-between align-items-center">
       <div id="character-info-container" class="rio-characterbanner-padding">
@@ -35,7 +35,7 @@ disable_anchor: true
               <div class="rio-align-center--max-small">
                 <div>
                   <h3 class="slds-text-heading--large" style="margin: 0; padding: 0;">
-                    <span id="character-name" class="rio-faction-color--alliance"></span><a
+                    <span id="character-name" class="rio-faction-color--alliance rio-text-shadow--heavy"></span><a
                       href="https://worldofwarcraft.com/en-gb/character/eu/terokkar/Molaf" title="Link to Armory"
                       target="_blank" class="rio-realm-link slds-text-body--small slds-m-left--x-small" rel="noopener">
                       <i class="material-icons"
@@ -43,54 +43,79 @@ disable_anchor: true
                   </h3>
                 </div>
                 <div>
-                  <div class="slds-text-body--regular text-white">
+                  <div class="slds-text-body--regular text-white rio-text-shadow--normal">
                     <span class="" id="guild-name"></span>
                   </div>
                 </div>
                 <div>
-                  <h3 class="slds-text-body--regular text-white" style="margin: 0; padding: 0;">
+                  <h3 class="slds-text-body--regular text-white rio-text-shadow--normal" style="margin: 0; padding: 0;">
                     <span class="" id="realm-name"></span>
                   </h3>
                 </div>
                 <div>
-                  <h3 class="slds-text-body--regular class-color--11" style="margin: 0; padding: 0;">
+                  <h3 class="slds-text-body--regular class-color--11 rio-text-shadow--normal"
+                    style="margin: 0; padding: 0;">
                     <span id="race-name" class="rio-faction-color--alliance"></span> <span id="class-name"></span>
                   </h3>
-                </div>
-              </div>
-              <div class="slds-text-align--center slds-col slds-m-top--small">
-                <span id="gear-icon" class="Icon Media-icon Icon--swords Icon--svg"><svg
-                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="injected-svg Icon-svg"
-                    data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/swords.01e57e65afe77495544524c74b7cd100.svg#swords"
-                    xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
-                    <path xmlns="http://www.w3.org/2000/svg"
-                      d="M13.593 18.962l-6.729 7.035c-.135.142-.061.383.128.417l3.932.683a.23.23 0 00.205-.068l3.428-3.584 7.684 7.93 3.927-4.106.346-.362 3.725-3.896-7.684-7.928 3.646-3.814a.252.252 0 00.066-.213l-.654-4.112a.232.232 0 00-.398-.133l-6.853 7.167L7.485 4.401V.428A.42.42 0 007.075 0H.791a.419.419 0 00-.409.428v6.571c0 .236.183.427.409.427h3.512l9.29 11.536zm27.505 15.599l-3.8 3.972-.24.251-3.958 4.139 18.652 19.411L61.562 64l-1.671-9.882-18.793-19.557zM63.209.017h-6.283a.418.418 0 00-.409.428v3.672L45.483 13.83l-6.728-7.034c-.135-.143-.366-.065-.397.132l-.654 4.111a.253.253 0 00.066.214l3.428 3.585L4.002 53.726 2.408 63.983l9.451-1.748 37.336-39.036 3.646 3.812a.23.23 0 00.205.069l3.931-.684c.188-.031.263-.274.128-.415l-6.854-7.166L59.41 7.442h3.799a.418.418 0 00.409-.428V.444a.418.418 0 00-.409-.427z"
-                      id="swords-2"></path>
-                  </svg></span>
-                <div class="slds-p-horizontal--x-small slds-m-top--small">
-                  <span id="character-gear"
-                    class="rio-badge-size--medium slds-badge rio-badge rio-badge-color--light rio-border--light rio-shadow--small"></span>
-                  <div class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small">Item Level
-                  </div>
                 </div>
               </div>
             </div>
           </h1>
           <div class="slds-text-align--center slds-col slds-m-top--small">
-            <div class="slds-p-horizontal--x-small">
+            <span id="gear-icon" class="Icon Media-icon Icon--swords Icon--svg"><svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 64 64" class="injected-svg Icon-svg"
+                data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/swords.01e57e65afe77495544524c74b7cd100.svg#swords"
+                xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
+                <path xmlns="http://www.w3.org/2000/svg"
+                  d="M13.593 18.962l-6.729 7.035c-.135.142-.061.383.128.417l3.932.683a.23.23 0 00.205-.068l3.428-3.584 7.684 7.93 3.927-4.106.346-.362 3.725-3.896-7.684-7.928 3.646-3.814a.252.252 0 00.066-.213l-.654-4.112a.232.232 0 00-.398-.133l-6.853 7.167L7.485 4.401V.428A.42.42 0 007.075 0H.791a.419.419 0 00-.409.428v6.571c0 .236.183.427.409.427h3.512l9.29 11.536zm27.505 15.599l-3.8 3.972-.24.251-3.958 4.139 18.652 19.411L61.562 64l-1.671-9.882-18.793-19.557zM63.209.017h-6.283a.418.418 0 00-.409.428v3.672L45.483 13.83l-6.728-7.034c-.135-.143-.366-.065-.397.132l-.654 4.111a.253.253 0 00.066.214l3.428 3.585L4.002 53.726 2.408 63.983l9.451-1.748 37.336-39.036 3.646 3.812a.23.23 0 00.205.069l3.931-.684c.188-.031.263-.274.128-.415l-6.854-7.166L59.41 7.442h3.799a.418.418 0 00.409-.428V.444a.418.418 0 00-.409-.427z"
+                  id="swords-2"></path>
+              </svg></span>
+            <div class="slds-p-horizontal--x-small slds-m-top--small">
+              <span id="character-gear"
+                class="rio-badge-size--medium slds-badge rio-badge rio-badge-color--light rio-border--light rio-shadow--small"></span>
+              <div
+                class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small rio-text-shadow--normal">
+                Item Level
+              </div>
+            </div>
+          </div>
+          <div class="slds-text-align--center slds-col slds-m-top--small">
+            <span id="m-plus-icon" class="Icon Media-icon Icon--swords Icon--svg" style="fill: #ff7c0a;"><svg
+                xmlns="http://www.w3.org/2000/svg" version="1.1" id="minus" x="0" y="0" viewBox="0 0 100 100"
+                xml:space="preserve" class="injected-svg Icon-svg"
+                data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/hourglass.9e14e07810c00697237c2b7b11fbe3a3.svg#hourglass"
+                xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
+                <path
+                  d="M12.5 91.2h75v9.8h-75zM12.5.5h75v9.8h-75zM87.3 20.3v-4.6H12.6v4.6c.1 12.6 7.5 24.2 19 30.4C20.1 57 12.7 68.6 12.7 81.2v4.6h74.6v-4.6c-.1-12.6-7.5-24.2-19-30.4 11.6-6.3 19-18 19-30.5zM50 46.2c-13.3 0-24.7-9.1-27.1-21.3h54.3C74.7 37.2 63.3 46.2 50 46.2zM22.8 76.6C25.3 64.4 36.7 55.3 50 55.3c13.3 0 24.7 9.1 27.1 21.3H22.8z">
+                </path>
+              </svg></span>
+            <div class="slds-p-horizontal--x-small slds-m-top--small">
               <span id="character-mythic-prev-scores"
                 class="rio-badge-size--medium slds-badge rio-badge rio-badge-color--light rio-border--light rio-shadow--small"
                 style="color: #efffe8;"></span>
-              <div class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small">Mythic+ Score
+              <div
+                class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small rio-text-shadow--normal">
+                Mythic+ Score
               </div>
               <div class="slds-text-body--small text-white">DF Season 1</div>
             </div>
           </div>
           <div class="slds-text-align--center slds-col slds-m-top--small">
-            <div class="slds-p-horizontal--x-small">
+            <span id="m-plus-icon" class="Icon Media-icon Icon--swords Icon--svg" style="fill: #ff7c0a;"><svg
+                xmlns="http://www.w3.org/2000/svg" version="1.1" id="minus" x="0" y="0" viewBox="0 0 100 100"
+                xml:space="preserve" class="injected-svg Icon-svg"
+                data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/hourglass.9e14e07810c00697237c2b7b11fbe3a3.svg#hourglass"
+                xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
+                <path
+                  d="M12.5 91.2h75v9.8h-75zM12.5.5h75v9.8h-75zM87.3 20.3v-4.6H12.6v4.6c.1 12.6 7.5 24.2 19 30.4C20.1 57 12.7 68.6 12.7 81.2v4.6h74.6v-4.6c-.1-12.6-7.5-24.2-19-30.4 11.6-6.3 19-18 19-30.5zM50 46.2c-13.3 0-24.7-9.1-27.1-21.3h54.3C74.7 37.2 63.3 46.2 50 46.2zM22.8 76.6C25.3 64.4 36.7 55.3 50 55.3c13.3 0 24.7 9.1 27.1 21.3H22.8z">
+                </path>
+              </svg></span>
+            <div class="slds-p-horizontal--x-small slds-m-top--small">
               <span id="character-mythic-scores"
                 class="rio-badge-size--medium slds-badge rio-badge rio-badge-color--light rio-border--light rio-shadow--small"></span>
-              <div class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small">Mythic+ Score
+              <div
+                class="slds-text-heading--small text-white slds-m-top--small slds-m-bottom--xx-small rio-text-shadow--normal">
+                Mythic+ Score
               </div>
               <div class="slds-text-body--small text-white">DF Season 2</div>
             </div>
