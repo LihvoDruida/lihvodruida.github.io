@@ -30,8 +30,13 @@ async function getChannelInfo() {
   const loaderTwElement = document.getElementById("loader-tw");
   const twitchInfoElement = document.getElementById("twitch-info");
 
-  loaderTwElement.style.display = "block";
-  twitchInfoElement.style.display = "none";
+  if (
+    loaderTwElement &&
+    twitchInfoElement
+  ) {
+    loaderTwElement.style.display = "inline-flex";
+    twitchInfoElement.style.display = "none";
+  }
 
   try {
     // Отримання access token
@@ -111,12 +116,21 @@ async function getChannelInfo() {
     }
 
     // Після отримання інформації, ховаємо анімацію завантаження та показуємо блок з інформацією
-    loaderTwElement.style.display = "none";
-    twitchInfoElement.style.display = "block";
+    if (
+      loaderTwElement &&
+      twitchInfoElement
+    ) {
+      loaderTwElement.style.display = "none";
+      twitchInfoElement.style.display = "inline-flex";
+    }
   } catch (error) {
     console.log(error);
     // При виникненні помилки, також ховаємо анімацію завантаження
-    loaderTwElement.style.display = "none";
+    if (
+      loaderTwElement &&
+    ) {
+      loaderTwElement.style.display = "none";
+    }
   }
 }
 
