@@ -2,6 +2,12 @@ const API_KEY = "AIzaSyD7b-k0z5XUHXIgBr1BIDesY-6sqNQpnWw";
 const CHANNEL_ID = "UCWex56K6Xev50zIF7hVCyMQ";
 
 function getChannelInfo() {
+  const loaderElement = document.getElementById("loader");
+  const youtubeInfoElement = document.getElementById("youtube-info");
+
+  loaderElement.style.display = "block";
+  youtubeInfoElement.style.display = "none";
+
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
 
   fetch(url)
@@ -52,9 +58,15 @@ function getChannelInfo() {
       if (channelLinkElement) {
         channelLinkElement.href = channelUrl;
       }
+
+      // Після отримання інформації, ховаємо анімацію завантаження та показуємо блок з інформацією
+      loaderElement.style.display = "none";
+      youtubeInfoElement.style.display = "block";
     })
     .catch((error) => {
       console.error("Произошла ошибка:", error);
+      // При виникненні помилки, також ховаємо анімацію завантаження
+      loaderElement.style.display = "none";
     });
 }
 

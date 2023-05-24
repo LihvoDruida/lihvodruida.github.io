@@ -112,31 +112,34 @@ disable_anchor: true
       <h3 class="font-weight-bold">Медіа канали</h3>
       <hr>
       <div class="channel-info">
-        <img id="channel-avatar" class="ytd-channel-avatar" src="" alt="Аватар канала">
-        <div class="channel-text header-container">
-          <h3>
-            <span class="Icon Media-icon Icon--swords Icon--svg" style="fill: #f00;"><svg
-                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 461.001 461.001" class="injected-svg Icon-svg-media-ytb"
-                data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/swords.01e57e65afe77495544524c74b7cd100.svg#swords"
-                xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
-                <path xmlns="http://www.w3.org/2000/svg"
-                  d="M365.257,67.393H95.744C42.866,67.393,0,110.259,0,163.137v134.728 c0,52.878,42.866,95.744,95.744,95.744h269.513c52.878,0,95.744-42.866,95.744-95.744V163.137 C461.001,110.259,418.135,67.393,365.257,67.393z M300.506,237.056l-126.06,60.123c-3.359,1.602-7.239-0.847-7.239-4.568V168.607 c0-3.774,3.982-6.22,7.348-4.514l126.06,63.881C304.363,229.873,304.298,235.248,300.506,237.056z"
-                  id="swords-2"></path>
-              </svg></span>
-            <span id="channel-title"></span><a id="channel-link" href="" title="Link to YouTube" target="_blank"
-              class="slds-text-body--small slds-m-left--x-small" rel="noopener">
-              <i class="material-icons"
-                style="margin-top: -7px; font-size: 18px; position: relative; margin-right: 3px;">open_in_new</i></a>
-          </h3>
+        <div id="loader" class="loader"></div>
+        <div id="youtube-info" style="display: none;">
+          <div class="channel-text header-container">
+            <h3>
+              <span class="Icon Media-icon Icon--swords Icon--svg" style="fill: #f00;"><svg
+                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 461.001 461.001"
+                  class="injected-svg Icon-svg-media-ytb"
+                  data-src="https://assets.worldofwarcraft.blizzard.com/static/components/Icon/svg/swords.01e57e65afe77495544524c74b7cd100.svg#swords"
+                  xmlns:xlink="http://www.w3.org/1999/xlink" data-queryselectoralways-ignore="">
+                  <path xmlns="http://www.w3.org/2000/svg"
+                    d="M365.257,67.393H95.744C42.866,67.393,0,110.259,0,163.137v134.728 c0,52.878,42.866,95.744,95.744,95.744h269.513c52.878,0,95.744-42.866,95.744-95.744V163.137 C461.001,110.259,418.135,67.393,365.257,67.393z M300.506,237.056l-126.06,60.123c-3.359,1.602-7.239-0.847-7.239-4.568V168.607 c0-3.774,3.982-6.22,7.348-4.514l126.06,63.881C304.363,229.873,304.298,235.248,300.506,237.056z"
+                    id="swords-2"></path>
+                </svg></span>
+              <span id="channel-title"></span><a id="channel-link" href="" title="Link to YouTube" target="_blank"
+                class="slds-text-body--small slds-m-left--x-small" rel="noopener">
+                <i class="material-icons"
+                  style="margin-top: -7px; font-size: 18px; position: relative; margin-right: 3px;">open_in_new</i></a>
+            </h3>
 
-          <div class="slds-text-body--regular">
-            <p>Підписники: <span id="subscriber-count"></span></p>
-          </div>
-          <div class="slds-text-body--regular">
-            <p id="video-count"></p>
-          </div>
-          <div class="slds-text-body--regular">
-            <p id="view-count"></p>
+            <div class="slds-text-body--regular">
+              <p>Підписники: <span id="subscriber-count"></span></p>
+            </div>
+            <div class="slds-text-body--regular">
+              <p id="video-count"></p>
+            </div>
+            <div class="slds-text-body--regular">
+              <p id="view-count"></p>
+            </div>
           </div>
         </div>
       </div>
