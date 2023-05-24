@@ -710,10 +710,17 @@ svg:not(:root) {
   width: 36px;
   height: 36px;
   animation: spin 2s linear infinite;
+}
+
+.loader-yt {
   margin: 0 0 0 24px;
   margin-right: auto;
 }
 
+.loader-tw {
+  margin: 0 24px 0 0;
+  margin-left: auto;
+}
 @keyframes spin {
   0% {
     transform: rotate(0deg);
