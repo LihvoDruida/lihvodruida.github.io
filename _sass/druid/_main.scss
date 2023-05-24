@@ -704,12 +704,14 @@ svg:not(:root) {
 }
 
 .loader {
-  border: 6px solid #b6b6b6;
+  border: 6px solid #c9d0d7;
   border-top: 6px solid;
   border-radius: 50%;
   width: 36px;
   height: 36px;
   animation: spin 2s linear infinite;
+  border-top-style: dotted;
+  border-block-color: $brand-primary;
 }
 
 .loader-yt {
