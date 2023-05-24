@@ -721,6 +721,12 @@ svg:not(:root) {
   margin: 0 24px 0 0;
   margin-left: auto;
 }
+
+.loader-rio {
+  margin: 24px 0 24px 0;
+  margin-right: auto;
+  margin-left: auto;
+}
 @keyframes spin {
   0% {
     transform: rotate(0deg);

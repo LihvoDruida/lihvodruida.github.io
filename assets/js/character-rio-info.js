@@ -16,6 +16,14 @@ const scoresPrevElement = document.getElementById(
 );
 const avatarElement = document.getElementById("character-avatar");
 
+const loaderRioElement = document.getElementById("loader-rio");
+const rioElement = document.getElementById("rio");
+
+if (loaderRioElement && rioElement) {
+  loaderRioElement.style.display = "block";
+  rioElement.style.display = "none";
+}
+
 fetch(
   `https://raider.io/api/v1/characters/profile?region=${region}&realm=${realm}&name=${characterName}&fields=guild%2Cmythic_plus_scores_by_season%3Acurrent%2Cprevious_mythic_plus_scores%2Cgear`
 )
@@ -58,8 +66,18 @@ fetch(
     scoresPrevElement.textContent = previousMythicScores;
     avatarElement.src = avatarUrl;
     guildElement.textContent = `<${guildName}>`;
+
+    if (loaderRioElement && rioElement) {
+      loaderRioElement.style.display = "none";
+      rioElement.style.display = "grid";
+    }
   })
-  .catch((error) => console.error(error));
+  .catch((error) => {
+    console.error(error);
+    if (loaderRioElement) {
+      loaderRioElement.style.display = "none";
+    }
+  });
 
 function getRaceName(race) {
   switch (race) {
