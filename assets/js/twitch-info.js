@@ -30,10 +30,7 @@ async function getChannelInfo() {
   const loaderTwElement = document.getElementById("loader-tw");
   const twitchInfoElement = document.getElementById("twitch-info");
 
-  if (
-    loaderTwElement &&
-    twitchInfoElement
-  ) {
+  if (loaderTwElement && twitchInfoElement) {
     loaderTwElement.style.display = "inline-flex";
     twitchInfoElement.style.display = "none";
   }
@@ -88,7 +85,7 @@ async function getChannelInfo() {
     const channelInfoData = await channelInfoResponse.json();
     const channelDisplayName = channelInfoData.data[0].display_name;
     const channelAvatarUrl = channelInfoData.data[0].profile_image_url;
-    const channelViews = channelInfoData.data[0].view_count; //  Отримання кількості переглядів каналу
+    const channelViews = channelInfoData.data[0].view_count; // Отримання кількості переглядів каналу
     const channelUrl = `https://www.twitch.tv/${channelName}`;
 
     // Виведення на сторінку
@@ -116,19 +113,14 @@ async function getChannelInfo() {
     }
 
     // Після отримання інформації, ховаємо анімацію завантаження та показуємо блок з інформацією
-    if (
-      loaderTwElement &&
-      twitchInfoElement
-    ) {
+    if (loaderTwElement && twitchInfoElement) {
       loaderTwElement.style.display = "none";
       twitchInfoElement.style.display = "inline-flex";
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     // При виникненні помилки, також ховаємо анімацію завантаження
-    if (
-      loaderTwElement &&
-    ) {
+    if (loaderTwElement) {
       loaderTwElement.style.display = "none";
     }
   }

@@ -5,13 +5,11 @@ function getChannelInfo() {
   const loaderElement = document.getElementById("loader");
   const youtubeInfoElement = document.getElementById("youtube-info");
 
-  if (
-    loaderElement &&
-    youtubeInfoElement
-  ) {
+  if (loaderElement && youtubeInfoElement) {
     loaderElement.style.display = "inline-flex";
     youtubeInfoElement.style.display = "none";
   }
+
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
 
   fetch(url)
@@ -64,10 +62,7 @@ function getChannelInfo() {
       }
 
       // Після отримання інформації, ховаємо анімацію завантаження та показуємо блок з інформацією
-      if (
-        loaderElement &&
-        youtubeInfoElement
-      ) {
+      if (loaderElement && youtubeInfoElement) {
         loaderElement.style.display = "none";
         youtubeInfoElement.style.display = "inline-flex";
       }
@@ -75,9 +70,7 @@ function getChannelInfo() {
     .catch((error) => {
       console.error("Произошла ошибка:", error);
       // При виникненні помилки, також ховаємо анімацію завантаження
-      if (
-        loaderElement &&
-      ) {
+      if (loaderElement) {
         loaderElement.style.display = "none";
       }
     });
