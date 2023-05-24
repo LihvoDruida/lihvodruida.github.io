@@ -704,8 +704,8 @@ svg:not(:root) {
 }
 
 .loader {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #3498db;
+  border: 6px solid #b6b6b6;
+  border-top: 6px solid;
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -723,15 +723,27 @@ svg:not(:root) {
 }
 
 .loader-rio {
-  margin: 24px 0 24px 0;
+  margin: 8px 0 48px 0;
   margin-right: auto;
   margin-left: auto;
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
+    border-top-color: $brand-primary;
+  }
+  25% {
+    border-top-color: #fbbc04;
+  }
+  50% {
+    border-top-color: #34a853;
+  }
+  75% {
+    border-top-color: #ea4335;
   }
   100% {
     transform: rotate(360deg);
+    border-top-color: $brand-primary;
   }
 }
