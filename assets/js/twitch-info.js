@@ -1,5 +1,3 @@
-// Замініть "your_twitch_channel" на свій Twitch канал
-
 const twitchApiUrl = "https://api.twitch.tv/helix/";
 const clientIds = "eqc00t4q2b61t12tloyzl6vgc6bfq7";
 const secretIds = "k2j1qyttkv6cnmdm0w31xenpg2kyut";
@@ -29,12 +27,18 @@ const secretId = decrypt(secretIds, 5);
 
 // Функція для отримання інформації про канал
 async function getChannelInfo() {
+  const loaderElement = document.getElementById("loader-tw");
+  const twitchInfoElement = document.getElementById("twitch-info");
+
+  loaderElement.style.display = "block";
+  twitchInfoElement.style.display = "none";
+
   try {
     // Отримання access token
     const tokenResponse = await fetch(
       `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${secretId}&grant_type=client_credentials`,
       {
-        method: "POST",
+        method: "POST"
       }
     );
     const tokenData = await tokenResponse.json();
@@ -46,8 +50,8 @@ async function getChannelInfo() {
       {
         headers: {
           "Client-ID": clientId,
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
     const channelData = await channelResponse.json();
@@ -59,8 +63,8 @@ async function getChannelInfo() {
       {
         headers: {
           "Client-ID": clientId,
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
     const followersData = await followersResponse.json();
@@ -72,8 +76,8 @@ async function getChannelInfo() {
       {
         headers: {
           "Client-ID": clientId,
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
     const channelInfoData = await channelInfoResponse.json();
@@ -91,13 +95,28 @@ async function getChannelInfo() {
     const channelLinkElement = document.getElementById("channel-link-tw");
     const channelViewsElement = document.getElementById("channel-views");
 
-    channelNameElement.textContent = channelDisplayName;
-    followersCountElement.textContent = followersCount;
-    channelViewsElement.textContent = `${channelViews} переглядів`;
-    channelAvatarElement.src = channelAvatarUrl;
-    channelLinkElement.href = channelUrl;
+    if (
+      channelNameElement &&
+      followersCountElement &&
+      channelAvatarElement &&
+      channelLinkElement &&
+      channelViewsElement
+    ) {
+      // Виведення на сторінку
+      channelNameElement.textContent = channelDisplayName;
+      followersCountElement.textContent = followersCount;
+      channelViewsElement.textContent = `${channelViews} переглядів`;
+      channelAvatarElement.src = channelAvatarUrl;
+      channelLinkElement.href = channelUrl;
+    }
+
+    // Після отримання інформації, ховаємо анімацію завантаження та показуємо блок з інформацією
+    loaderElement.style.display = "none";
+    twitchInfoElement.style.display = "block";
   } catch (error) {
     console.log(error);
+    // При виникненні помилки, також ховаємо анімацію завантаження
+    loaderElement.style.display = "none";
   }
 }
 
