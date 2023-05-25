@@ -1,42 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
-    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+<head>
+  <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 
-    <link href="{{ site.baseurl }}/assets/css/material-kit.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet">
+  {% include meta.html %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-    <script src="{{ site.baseurl }}/assets/js/main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.2/anchor.min.js" integrity="sha256-WofcoLT8gToeaSmVRe28qpnlFxdBJH1n4K6Bk3YowvU=" crossorigin="anonymous"></script>
+  <link href="{{ site.baseurl }}/assets/css/material-kit.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ "images/favicons/apple-touch-icon.png" | relative_url }}">
-    <link rel="icon" type="image/png" href="{{ "images/favicons/favicon-32x32.png" | relative_url }}" sizes="32x32">
-    <link rel="icon" type="image/png" href="{{ "images/favicons/favicon-16x16.png" | relative_url }}" sizes="16x16">
-    <link rel="manifest" href="{{ "images/favicons/manifest.json" | relative_url }}">
-    <link rel="mask-icon" href="{{ "images/favicons/safari-pinned-tab.svg" | relative_url }}" color="#167c80">
-    <link rel="shortcut icon" href="{{ "images/favicons/favicon.ico" | relative_url }}">
-    <meta name="msapplication-config" content="{{ "images/favicons/browserconfig.xml" | relative_url }}">
-    <meta name="theme-color" content="#ffffff">
-  </head>
-  <body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"
+    integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+  <script src="{{ site.baseurl }}/assets/js/main.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.2/anchor.min.js"
+    integrity="sha256-WofcoLT8gToeaSmVRe28qpnlFxdBJH1n4K6Bk3YowvU=" crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VP2KQQ7HCN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-    {% include layout/navbar.html %}
+    gtag('config', 'G-VP2KQQ7HCN');
+  </script>
 
-    <div class="main-content">
 
-      {{ content }}
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ " images/favicons/apple-touch-icon.png" | relative_url }}">
+  <link rel="icon" type="image/png" href="{{ " images/favicons/favicon-32x32.png" | relative_url }}" sizes="32x32">
+  <link rel="icon" type="image/png" href="{{ " images/favicons/favicon-16x16.png" | relative_url }}" sizes="16x16">
+  <link rel="manifest" href="{{ " images/favicons/manifest.json" | relative_url }}">
+  <link rel="mask-icon" href="{{ " images/favicons/safari-pinned-tab.svg" | relative_url }}" color="#167c80">
+  <link rel="shortcut icon" href="{{ " images/favicons/favicon.ico" | relative_url }}">
+</head>
 
-    </div>
+<body>
 
-    {% include layout/footer.html %}
+  {% include layout/navbar.html %}
 
-    {% unless page.disable_anchor %}<script>anchors.add().remove('h1');</script>{% endunless %}
+  <div class="main-content">
 
-  </body>
+    {{ content }}
+
+  </div>
+
+  {% include layout/footer.html %}
+
+  {% unless page.disable_anchor %}
+  <script>anchors.add().remove('h1');</script>{% endunless %}
+
+</body>
+
 </html>
