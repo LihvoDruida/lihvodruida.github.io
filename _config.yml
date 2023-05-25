@@ -7,6 +7,14 @@ title: Лігво Друїда
 company_name: Лігво Друїда Project
 # this appears in the footer
 
+description: "Лігво Друїда Wiki"
+# the description is used in the feed.xml file
+
+# needed for sitemap.xml file only
+url: https://lihvo-druida.github.io
+
+github: [metadata]
+
 host: 127.0.0.1
 # the preview server used. Leave as is.
 
@@ -62,15 +70,13 @@ defaults:
 
 # these are defaults used for the frontmatter for these file types
 
+# Set the Sass partials directory, as we're using @imports
 sass:
   style: :compressed # You might prefer to minify using :compressed
   sourcemap: true
-
-description: "Лігво Друїда Wiki"
-# the description is used in the feed.xml file
-
-# needed for sitemap.xml file only
-url: https://lihvo-druida.github.io
+# Use the following plug-ins
+gems:
+  - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
 
 plugins:
   - jekyll-redirect-from
