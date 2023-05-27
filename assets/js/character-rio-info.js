@@ -84,9 +84,6 @@ fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
   .then((data) => {
     const affixes = data.affix_details;
     const affixContainer = document.getElementById("affix-container");
-    const leaderboardLinkElement = document.getElementById("leaderboard-link");
-
-    leaderboardLinkElement.href = data.leaderboard_url;
 
     affixes.forEach((affix) => {
       const affixElement = document.createElement("div");
