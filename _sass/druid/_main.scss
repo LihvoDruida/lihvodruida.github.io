@@ -776,8 +776,7 @@ svg:not(:root) {
   margin: 0 3px;
   position: relative;
 }
-.affixes-info a:hover,
-.affixes-info a:focus {
+.affixes-info a:hover {
   box-shadow: none;
   border-color: $brand-primary;
   filter: brightness(1.35);
