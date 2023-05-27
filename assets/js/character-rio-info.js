@@ -18,10 +18,16 @@ const avatarElement = document.getElementById("character-avatar");
 
 const loaderRioElement = document.getElementById("loader-rio");
 const rioElement = document.getElementById("rio");
+const loaderAffixesElement = document.getElementById("loader-affixes");
+const affixesElement = document.getElementById("affix-container");
 
 if (loaderRioElement && rioElement) {
   loaderRioElement.style.display = "block";
   rioElement.style.display = "none";
+}
+if (loaderAffixesElement && affixesElement) {
+  loaderAffixesElement.style.display = "block";
+  affixesElement.style.display = "none";
 }
 
 fetch(
@@ -90,15 +96,23 @@ fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
       affixLinkElement.href = affix.wowhead_url;
 
       const affixImageElement = document.createElement("img");
-      affixImageElement.src = affix.icon;
+      affixImageElement.src = `https://wow.zamimg.com/images/wow/icons/large/${affix.icon}.jpg`;
       affixImageElement.alt = affix.name;
       affixLinkElement.appendChild(affixImageElement);
 
       affixContainer.appendChild(affixLinkElement);
+
+      if (loaderAffixesElement && affixesElement) {
+        loaderAffixesElement.style.display = "none";
+        affixesElement.style.display = "block";
+      }
     });
   })
   .catch((error) => {
     console.error(error);
+    if (loaderAffixesElement) {
+      loaderAffixesElement.style.display = "none";
+    }
   });
 
 function getRaceName(race) {
