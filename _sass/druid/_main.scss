@@ -758,3 +758,29 @@ svg:not(:root) {
   background-image: url(https://cdnassets.raider.io/images/profile/masthead_backdrops/v2/classbanner_druid1.jpg);
   box-shadow: $brand-primary 0px 0px 2px 0px inset;
 }
+
+.affixes-info a {
+  background-position: center;
+  background-size: cover;
+  border: 2px solid #444;
+  border-radius: 4px;
+  box-sizing: border-box;
+  height: 34px;
+  overflow: hidden;
+  width: 34px;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+}
+.affixes-info a:hover,
+.affixes-info a:focus {
+  box-shadow: none;
+  border-color: #fff;
+  filter: brightness(1.35);
+}
+
+.affixes-info a img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
