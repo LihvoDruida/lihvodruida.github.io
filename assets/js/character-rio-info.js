@@ -104,7 +104,7 @@ fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
 
       if (loaderAffixesElement && affixesElement) {
         loaderAffixesElement.style.display = "none";
-        affixesElement.style.display = "block";
+        affixesElement.style.display = "flex";
       }
     });
   })
