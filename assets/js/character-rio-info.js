@@ -86,28 +86,15 @@ fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
     const affixContainer = document.getElementById("affix-container");
 
     affixes.forEach((affix) => {
-      const affixElement = document.createElement("div");
-      affixElement.classList.add("affix");
+      const affixLinkElement = document.createElement("a");
+      affixLinkElement.href = affix.wowhead_url;
 
-      const iconElement = document.createElement("img");
-      iconElement.src = affix.icon;
-      iconElement.alt = affix.name;
-      affixElement.appendChild(iconElement);
+      const affixImageElement = document.createElement("img");
+      affixImageElement.src = affix.icon;
+      affixImageElement.alt = affix.name;
+      affixLinkElement.appendChild(affixImageElement);
 
-      const nameElement = document.createElement("h3");
-      nameElement.textContent = affix.name;
-      affixElement.appendChild(nameElement);
-
-      const descriptionElement = document.createElement("p");
-      descriptionElement.textContent = affix.description;
-      affixElement.appendChild(descriptionElement);
-
-      const wowheadLinkElement = document.createElement("a");
-      wowheadLinkElement.href = affix.wowhead_url;
-      wowheadLinkElement.textContent = "Learn More";
-      affixElement.appendChild(wowheadLinkElement);
-
-      affixContainer.appendChild(affixElement);
+      affixContainer.appendChild(affixLinkElement);
     });
   })
   .catch((error) => {
