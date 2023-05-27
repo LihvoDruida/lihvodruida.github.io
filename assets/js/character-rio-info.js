@@ -79,6 +79,46 @@ fetch(
     }
   });
 
+fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
+  .then((response) => response.json())
+  .then((data) => {
+    const affixes = data.affix_details;
+    const affixContainer = document.getElementById("affix-container");
+    const affixTitleElement = document.getElementById("affix-title");
+    const leaderboardLinkElement = document.getElementById("leaderboard-link");
+
+    affixTitleElement.textContent = data.title;
+    leaderboardLinkElement.href = data.leaderboard_url;
+
+    affixes.forEach((affix) => {
+      const affixElement = document.createElement("div");
+      affixElement.classList.add("affix");
+
+      const iconElement = document.createElement("img");
+      iconElement.src = affix.icon;
+      iconElement.alt = affix.name;
+      affixElement.appendChild(iconElement);
+
+      const nameElement = document.createElement("h3");
+      nameElement.textContent = affix.name;
+      affixElement.appendChild(nameElement);
+
+      const descriptionElement = document.createElement("p");
+      descriptionElement.textContent = affix.description;
+      affixElement.appendChild(descriptionElement);
+
+      const wowheadLinkElement = document.createElement("a");
+      wowheadLinkElement.href = affix.wowhead_url;
+      wowheadLinkElement.textContent = "Learn More";
+      affixElement.appendChild(wowheadLinkElement);
+
+      affixContainer.appendChild(affixElement);
+    });
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
 function getRaceName(race) {
   switch (race) {
     case "Night Elf":
