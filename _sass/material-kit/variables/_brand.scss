@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+// Bootstrap brand color customization
+
+/*     brand Colors              */
+
+$brand-primary: #ff7d0a !default;
+// Генеруємо значення $brand-info на основі $brand-primary
+$brand-info: lighten($brand-primary, 20%) !default;
+$brand-success: #38853b !default;
+$brand-warning: #f4ac45 !default;
+$brand-danger: #d0422d !default;
+$brand-rose: $pink-500 !default;
+$brand-inverse: $black-color !default;

@@ -1,0 +1,24 @@
+<footer class="footer mt-5 px-2 py-4 ">
+  <script src="{{ site.baseurl }}/assets/js/character-rio-info.js"></script>
+  <script src="{{ site.baseurl }}/assets/js/twitch-info.js"></script>
+  <script src="{{ site.baseurl }}/assets/js/youtube-info.js"></script>
+  <script src="{{ site.baseurl }}/assets/js/donatello-info.js"></script>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md text-center text-md-left">
+
+        <p class="footer-text my-0"><b>&copy; 2023 - {{ site.time | date: '%Y' }} {{site.company_name}}</b><br />
+          Note: Lihvo Druida LLC is not a 501(c)(3) non-profit, as such donations are not tax-exempt.</p>
+      </div>
+      <div class="col-md">
+        <div class="footer-icons text-md-right">
+          {% include footer-icons.html %}<br />
+          <p class="text-center text-md-right footer-text">Licensed under <a
+              href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.<br />
+            {% if page.last_updated %}Page last updated: {{page.last_updated}}<br />{% endif %} Site last generated: {{
+            site.time | date: "%b %-d, %Y" }}</p>
+        </div>
+      </div>
+    </div>
+</footer>
