@@ -43,10 +43,14 @@ fetch(
     const race = data.race;
     const region = data.region;
     const avatarUrl = data.thumbnail_url;
-    const mythicScores = data.mythic_plus_scores_by_season[0].scores.all;
-    const mythicColor = data.mythic_plus_scores_by_season[0].segments.all.color;
+    const mythicScores =
+      data.mythic_plus_scores_by_season[0]?.scores?.all || "Немає даних";
+    const mythicColor =
+      data.mythic_plus_scores_by_season[0]?.segments?.all?.color || "#000000";
+
     const mythicSeason = data.mythic_plus_scores_by_season[0].season;
-    const previousMythicScores = data.previous_mythic_plus_scores.all;
+    const previousMythicScores =
+      data.previous_mythic_plus_scores?.all || "Немає даних";
     const guildName = data.guild.name;
     const guildRealm = data.guild.realm;
 
