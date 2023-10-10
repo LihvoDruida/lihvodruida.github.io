@@ -1,5 +1,14 @@
 @charset "UTF-8";
 
+:root {
+  --index: calc(1vw + 1vh);
+  --transition: 1.5s cubic-bezier(0.05, 0.5, 0, 1);
+}
+* {
+  outline: none;
+  transition: all 0.3s linear;
+}
+
 // Links
 a.anchorjs-link {
   text-decoration: none;
@@ -412,7 +421,6 @@ div#toc > ul::before {
 
 .main-content {
   min-height: calc(100vh - 163px);
-  padding-top: 60px;
   word-break: break-word;
 }
 

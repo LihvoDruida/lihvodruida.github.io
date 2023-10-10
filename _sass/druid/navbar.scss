@@ -10,7 +10,7 @@
   box-shadow: none;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: #1e1e1e !important;
-  color: #9f9f9f;
+  color: $grey-500;
 
   > .container,
   > .container-fluid {
@@ -102,7 +102,7 @@
 
 .nav-item:hover,
 .nav-item:focus {
-  color: #fff;
+  color: $brand-primary;
   transform: scale(1.03);
 }
 
