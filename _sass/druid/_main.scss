@@ -649,19 +649,25 @@ a {
   display: block;
   line-height: 0.8em;
 }
-.channel-text a,
-.channel-text-tw a {
-  color: #3c4858;
-}
-.channel-text a:hover,
-a:focus {
-  color: #c00;
+
+.channel-text,
+.channel-text a {
+  color: $brand-primary !important;
+  &:hover,
+  &:focus {
+    color: #c00;
+  }
 }
 
-.channel-text-tw a:hover,
-a:focus {
-  color: #7a2fe7;
+.channel-text-tw,
+.channel-text-tw a {
+  color: $brand-primary !important;
+  &:hover,
+  &:focus {
+    color: #7a2fe7;
+  }
 }
+
 .channel-text p,
 .channel-text-tw p {
   font-size: 0.8125rem;
