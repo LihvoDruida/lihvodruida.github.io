@@ -7,7 +7,7 @@ title: Лігво Друїда
 company_name: Лігво Друїда Project
 # this appears in the footer
 
-description: "Лігво Друїда Wiki"
+description: "Вітаємо на сайті Lihvo Druida! Приєднуйтесь до нашої спільноти, щоб бути в курсі останніх доповнень, аддонів і всього, що покращить ваш ігровий досвід!"
 # the description is used in the feed.xml file
 
 # needed for sitemap.xml file only
@@ -27,6 +27,11 @@ footer-links:
   twitch: lihvo_druida
   telegram: lihvo_druida_chat
   rss: true
+
+languages: ["en", "ua"]
+default_lang: "ua"
+exclude_from_localization: ["assets/css", "assets/img"]
+parallel_localization: true
 
 exclude:
   - .idea/
@@ -78,3 +83,4 @@ sass:
 plugins:
   - jekyll-sitemap
   - jekyll-redirect-from
+  - jekyll-polyglot

@@ -1,18 +1,12 @@
 ---
 layout: default
-title: Донат
+title: {{ site.data.l10n.donate | escape }}
 ---
-<style>
-  body {
-    background-color: #fafafa;
-  }
-</style>
 
 <div class="jumbotron">
   <div class="container">
-
-    <h1>Донат</h1>
-    <p>Тут ти можеш підтримати автора грошима.</p>
+    <h1>{{ site.data.l10n.donate | escape }}</h1>
+    <p>{{ site.data.l10n.donate_desc | escape }}</p>
   </div>
 </div>
 
@@ -32,10 +26,8 @@ title: Донат
         </div>
       </div>
       <div class="card-danator radius disclaimer-container disclaimer-container-md mb-3">
-        <h5><strong class="">Зверни увагу!</strong></h5>
-        <p class="font-14 mb-0">Натиснувши будь-яку кнопку нижче та завершивши транзакцію, ви тим самим підтверджуєте,
-          що ви є
-          законним власником коштів.</p>
+        <h5><strong class="">{{ site.data.l10n.donate_attention | escape }}</strong></h5>
+        <p class="font-14 mb-0">{{ site.data.l10n.donate_attention_desc | escape }}</p>
       </div>
       {% include donate_content.html %}
     </div>

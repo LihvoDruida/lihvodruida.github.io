@@ -5,8 +5,8 @@ disable_anchor: true
 ---
 <div class="welcome bg-primary text-white py-4">
   <div class="container">
-    <h1 class="text-lg-left text-center">Вітаю в Лігво Друїда!</h1>
-    <p class="lead text-lg-left text-center">--- Очікується текст ---</p>
+    <h1 class="text-lg-left text-center">{{ site.data.l10n.title | escape }}</h1>
+    <p class="lead text-lg-left text-center">{{ site.data.l10n.description | escape }}</p>
   </div>
 </div>
 
@@ -126,22 +126,79 @@ disable_anchor: true
   </div>
 </section>
 
-<div class="container mt-2">
-  <div class="row">
+<div class="container mt-4">
 
-    <div class="col-sm-6">
-      <h3 class="font-weight-bold">Новини</h3>
+    <div class="card-b">
+      <div class="row">
+      <div class="col-sm-6">
+      <div class="group-head">
+        <h3 class="font-weight-bold group-text-first">{{ site.data.l10n.news | escape }}</h3><a
+          class="font-weight-bold group-text-second" href="{{ site.url }}/blog" target="_blank">{{
+          site.data.l10n.view_all | escape }}
+        </a>
+      </div>
       <hr>
-      <p>Розділ новин знаходится в розробці.</p>
-    </div>
+      <div class="group-grid-root">
+        {% for post in site.categories.blog limit:6 %}
+        <div class="group-grid-paper">
+          <div class="group-grid-body">
+            <div class="group-grid-cm1">
+              <div class="group-svg-color"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" class="lucide lucide-calendar">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg></div>
+              <h2 class="group-grid-text-large">{{ post.date | date:
+                '%b %d'}}</h2>
+              <div class="group-grid-text-small">{{ post.date | date: '%Y' }}</div>
+            </div>
+            <div class="group-grid-content">
+              <h3 class="font-weight-bold group-text-title">
+                <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+              </h3>
+              <div class="group-text-desc">
+                <p>{{ post.excerpt }}</p>
+              </div>
 
+              <div class="group-grid-footer">
+                <p class="group-svg-avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"
+                    stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-message-circle">
+                    <path
+                      d="M0.877014 7.49988C0.877014 3.84219 3.84216 0.877045 7.49985 0.877045C11.1575 0.877045 14.1227 3.84219 14.1227 7.49988C14.1227 11.1575 11.1575 14.1227 7.49985 14.1227C3.84216 14.1227 0.877014 11.1575 0.877014 7.49988ZM7.49985 1.82704C4.36683 1.82704 1.82701 4.36686 1.82701 7.49988C1.82701 8.97196 2.38774 10.3131 3.30727 11.3213C4.19074 9.94119 5.73818 9.02499 7.50023 9.02499C9.26206 9.02499 10.8093 9.94097 11.6929 11.3208C12.6121 10.3127 13.1727 8.97172 13.1727 7.49988C13.1727 4.36686 10.6328 1.82704 7.49985 1.82704ZM10.9818 11.9787C10.2839 10.7795 8.9857 9.97499 7.50023 9.97499C6.01458 9.97499 4.71624 10.7797 4.01845 11.9791C4.97952 12.7272 6.18765 13.1727 7.49985 13.1727C8.81227 13.1727 10.0206 12.727 10.9818 11.9787ZM5.14999 6.50487C5.14999 5.207 6.20212 4.15487 7.49999 4.15487C8.79786 4.15487 9.84999 5.207 9.84999 6.50487C9.84999 7.80274 8.79786 8.85487 7.49999 8.85487C6.20212 8.85487 5.14999 7.80274 5.14999 6.50487ZM7.49999 5.10487C6.72679 5.10487 6.09999 5.73167 6.09999 6.50487C6.09999 7.27807 6.72679 7.90487 7.49999 7.90487C8.27319 7.90487 8.89999 7.27807 8.89999 6.50487C8.89999 5.73167 8.27319 5.10487 7.49999 5.10487Z"
+                      fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+                  </svg>{% if post.author %} {{ post.author }}{% endif %}
+                </p>
+                <a class="group-grid-text2" href="{{ site.baseurl }}{{ post.url }}" target="_blank">{{
+                  site.data.l10n.read_more | escape }}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-arrow-right">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
     <div class="col-sm-6">
-      <h3 class="font-weight-bold">MYTHIC+ AFFIXES</h3>
+      <div class="group-head">
+      <h3 class="font-weight-bold group-text-first">MYTHIC+ AFFIXES</h3>
+      </div>
       <hr>
       <div id="loader-affixes" class="loader loader-affixes"></div>
       <div id="affix-container" class="affixes-info" style="display: none;">
       </div>
-      <h3 class="font-weight-bold">Медіа канали</h3>
+      <div class="group-head">
+      <h3 class="font-weight-bold group-text-first">Медіа канали</h3>
+    </div>
       <hr>
       <div class="channel-info">
         <div id="loader" class="loader loader-yt"></div>
@@ -209,15 +266,7 @@ disable_anchor: true
             </div>
           </div>
           <img id="channel-twitch-avatar" class="tw-channel-avatar" src="" alt="Аватар канала">
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-12">
-      <h3 class="font-weight-bold">Twitch</h3>
-      <hr>
-      <iframe src="https://player.twitch.tv/?channel=lihvo_druida&parent=www.lihvodruida.pp.ua" frameborder="0"
-        allowfullscreen="true" scrolling="no" height="512" width="100%"></iframe>
+        </div>      
     </div>
   </div>
 </div>

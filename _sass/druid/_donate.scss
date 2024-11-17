@@ -389,14 +389,19 @@ img.btc-style {
   background: #1e1e1e;
   box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .userpic {
   border-radius: 50%;
   width: 100px;
-  height: 100px;
   object-fit: cover;
+}
+
+.post .userpic svg {
+  padding-top: 10px;
+  width: 100%;
+  height: 100%;
+  fill: #2196f3;
 }
 
 .card-danator {
@@ -442,8 +447,8 @@ p {
   .userpic-container {
     position: absolute;
     top: -50px;
-    border: 5px solid white;
     border-radius: 50%;
+    text-align: center;
   }
 
   .userpic {

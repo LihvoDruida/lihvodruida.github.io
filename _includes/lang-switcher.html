@@ -1,0 +1,44 @@
+<script>
+    // Функція для зміни мови
+    function changeLanguage(lang) {
+        var langLinks = document.querySelectorAll('.lang-switcher a');
+        langLinks.forEach(function (link) {
+            link.classList.remove('active-lang');
+        });
+
+        var activeLangLink = document.getElementById('lang-link-' + lang);
+        activeLangLink.classList.add('active-lang');
+
+        // Оновлення локального сховища браузера з активною мовою
+        localStorage.setItem('active_lang', lang);
+
+        // Формування посилання відповідно до обраної мови
+        var pageUrl = lang === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + lang + '{{ page.url }}';
+        activeLangLink.setAttribute('href', pageUrl);
+    }
+
+    // Перевірка локального сховища браузера при завантаженні сторінки
+    document.addEventListener('DOMContentLoaded', function () {
+        var activeLang = localStorage.getItem('active_lang');
+        if (activeLang) {
+            changeLanguage(activeLang);
+        }
+    });
+</script>
+
+
+<div class="lang-switcher">
+    {% for lang in site.languages %}
+    {% assign lang_name = site.data[lang].l10n.lang_name %}
+    {% if lang == site.active_lang %}
+    <span>{{ lang_name }}</span>
+    {% else %}
+    {% if lang == site.default_lang %}
+    <a href="{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name }}</a>
+    {% else %}
+    <a href="/{{ lang }}{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name
+        }}</a>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+</div>

@@ -79,7 +79,7 @@ $light: $gray-100 !default;
 $dark: $gray-800 !default;
 
 //Lineage Colors
-$lineage-primary: #ff5e1c !default;
+$lineage-primary: $brand-primary !default;
 $lineage-warning: #f4ac45 !default;
 $lineage-danger: #d0422d !default;
 $lineage-success: #38853b !default;

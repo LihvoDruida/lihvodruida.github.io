@@ -1,0 +1,31 @@
+lang_name: "English"
+
+title: "Lihvo Druida"
+description: "Welcome! Join our community to stay updated on the latest additions, addons, and everything that will enhance your gaming experience!"
+
+donate: "Donate"
+community: "Community"
+
+news: "News"
+view_all: "View All"
+read_more: "Continue Reading"
+
+community_desc: "A method of communication for solving various problems, as well as supporting users."
+contribute_craftrom_github: "Maintenance of various devices based on the custom Android operating system."
+support_craftrom: "Support CraftRom"
+telegram_group: "Telegram group"
+telegram_group_text: "For a discussion of devices, features, or just a general conversation about Android, check out our telegram."
+telegram_news_channel: "Telegram news channel"
+telegram_news_channel_text: "Update ROMs, kernels and other news."
+
+footer_note: "Note: Lihvo Druida LLC is not a 501(c)(3) non-profit, as such donations are not tax-exempt."
+footer_page_last_update: "Page last updated:"
+footer_site_last_update: "Site last generated:"
+
+donate_desc: "Here you have the opportunity to contribute financially to the development of the project."
+donate_attention: "Attention!"
+donate_attention_desc: "By clicking any button below and completing the transaction, you confirm that you are the legitimate owner of the funds."
+
+404_title: "404 - Page not found"
+404_desc: "Sorry, we can’t find that page that you’re looking for."
+404_btn: "Back to homepage"

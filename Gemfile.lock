@@ -43,6 +43,8 @@ GEM
       jekyll (>= 3.7, < 5.0)
     jekyll-watch (2.2.1)
       listen (~> 3.0)
+    jekyll-polyglot (1.8.0)
+      jekyll (>= 4.0, >= 3.0)
     json-schema (2.8.0)
       addressable (>= 2.4)
     kramdown (2.4.0)
@@ -83,6 +85,7 @@ DEPENDENCIES
   jekyll-sass-converter (= 3.0.0)
   jekyll-seo-tag (= 2.8.0)
   jekyll-sitemap (= 1.4.0)
+  jekyll-polyglot
   json-schema (= 2.8.0)
   kramdown (= 2.4.0)
   kramdown-parser-gfm (= 1.1.0)
@@ -93,4 +96,4 @@ DEPENDENCIES
   yalphabetize (~> 0.7.0)
 
 BUNDLED WITH
-   2.3.26
+   2.4.10

@@ -1,10 +1,11 @@
-FROM docker.io/ruby:3.0
+FROM docker.io/ruby:3.2
 
 WORKDIR /src
 ADD Gemfile /src
 ADD Gemfile.lock /src
 RUN gem install bundler -v 2.3.26
 RUN bundle install
+RUN bundle exec jekyll build
 
 VOLUME /src
 EXPOSE 4000

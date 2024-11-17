@@ -1,0 +1,31 @@
+---
+layout: default
+permalink: /community/
+---
+
+<div class="jumbotron">
+  <div class="container">
+
+    <h1>{{ site.data.l10n.community | escape }}</h1>
+    <p>{{ site.data.l10n.community_desc | escape }}</p>
+
+  </div>
+</div>
+<div class="container">
+  <div class="page-content">
+    {% assign lang = site.active_lang %}
+    {% for section in site.data[lang].community_data %}
+    <h2>{{ section.name }}</h2>
+    <div class="row">
+      {% for item in section.data %}
+      <div class="col-sm-6">
+        <h3><a href="{{ item.url }}">{{ item.name }}</a></h3>
+        <p>{{ item.text }}</p>
+      </div>
+      {% endfor %}
+    </div><br />
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Some parts of the text on this page are taken from the CyanogenMod Project. Licensed under Creative Commons Share Alike 3.0 -->
