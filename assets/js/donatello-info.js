@@ -1,28 +1,35 @@
-const proxyUrl = "https://proxy.cors.sh/";
 const apiUrl = "https://donatello.to/api/v1/clients";
+const token = "fd4d0163ace81cf144e74f300ea83b3d";
 
-fetch(proxyUrl + apiUrl, {
-  headers: {
-    "X-Token": "fd4d0163ace81cf144e74f300ea83b3d",
-  },
-})
-  .then((response) => {
+async function fetchDonators() {
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        "X-Token": token,
+      },
+    });
+
+    // Перевірка на помилку авторизації
     if (!response.ok) {
       throw new Error("Помилка авторизації");
     }
-    return response.json();
-  })
-  .then((data) => {
+
+    const data = await response.json();
     const clients = data.clients;
 
     // Вибір блоку для вставки донатів
     const donatorList = document.querySelector(".list-group-donater");
 
+    // Перевірка, чи є елемент списку
+    if (!donatorList) {
+      throw new Error("Елемент списку донаторів не знайдено.");
+    }
+
     // Виведення п'яти донатів
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5 && i < clients.length; i++) {
       const client = clients[i];
 
-      // Перевірка, чи об'єкт client не є undefined
+      // Перевірка на існування даних клієнта
       if (client) {
         // Створення елементів списку
         const listItem = document.createElement("li");
@@ -50,11 +57,15 @@ fetch(proxyUrl + apiUrl, {
         donatorList.appendChild(listItem);
       }
     }
-  })
-  .catch((error) => {
+  } catch (error) {
     const donatorList = document.querySelector(".list-group-donater");
-    const errorItem = document.createElement("p");
-    errorItem.classList.add("text-danger", "api-danger");
-    errorItem.textContent = `Помилка: ${error.message}`;
-    donatorList.appendChild(errorItem);
-  });
+    if (donatorList) {
+      const errorItem = document.createElement("p");
+      errorItem.classList.add("text-danger", "api-danger");
+      errorItem.textContent = `Помилка: ${error.message}`;
+      donatorList.appendChild(errorItem);
+    }
+  }
+}
+
+fetchDonators();
