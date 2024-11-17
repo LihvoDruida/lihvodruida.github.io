@@ -7,31 +7,32 @@ async function fetchDonators() {
       headers: {
         "X-Token": token,
       },
+      mode: "no-cors",  // This disables CORS
     });
 
-    // Перевірка на помилку авторизації
+    // Check for authorization error
     if (!response.ok) {
-      throw new Error("Помилка авторизації");
+      throw new Error("Authorization error");
     }
 
     const data = await response.json();
     const clients = data.clients;
 
-    // Вибір блоку для вставки донатів
+    // Select the block for inserting donors
     const donatorList = document.querySelector(".list-group-donater");
 
-    // Перевірка, чи є елемент списку
+    // Check if the donator list element exists
     if (!donatorList) {
-      throw new Error("Елемент списку донаторів не знайдено.");
+      throw new Error("Donator list element not found.");
     }
 
-    // Виведення п'яти донатів
+    // Display the top 5 donors
     for (let i = 0; i < 5 && i < clients.length; i++) {
       const client = clients[i];
 
-      // Перевірка на існування даних клієнта
+      // Check if client data exists
       if (client) {
-        // Створення елементів списку
+        // Create list item
         const listItem = document.createElement("li");
         listItem.classList.add(
           "list-group-item-donater",
@@ -51,7 +52,7 @@ async function fetchDonators() {
         donationAmount.style.color = "#2196f3";
         donationAmount.textContent = `${client.totalAmount}₴`;
 
-        // Додавання елементів до списку
+        // Append elements to the list
         listItem.appendChild(donatorName);
         listItem.appendChild(donationAmount);
         donatorList.appendChild(listItem);
@@ -62,10 +63,11 @@ async function fetchDonators() {
     if (donatorList) {
       const errorItem = document.createElement("p");
       errorItem.classList.add("text-danger", "api-danger");
-      errorItem.textContent = `Помилка: ${error.message}`;
+      errorItem.textContent = `Error: ${error.message}`;
       donatorList.appendChild(errorItem);
     }
   }
 }
 
+// Call the function to fetch and display the donators
 fetchDonators();
