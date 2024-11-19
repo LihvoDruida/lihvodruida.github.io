@@ -7,13 +7,13 @@
     <span id="lang-span-{{ lang }}" class="active-lang">{{ lang_name }}</span>
     {% else %}
     <!-- Для неактивних мов — посилання -->
-    <a href="{{ lang == site.default_lang ? page.url : '/' + lang + page.url }}" id="lang-link-{{ lang }}"
-        onclick="changeLanguage('{{ lang }}'); return false;">
+    <a href="javascript:void(0);" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">
         {{ lang_name }}
     </a>
     {% endif %}
     {% endfor %}
 </div>
+
 
 <script>
     // Функція для зміни мови
@@ -25,9 +25,9 @@
             // Перетворення <span> назад у <a>
             const newLink = document.createElement('a');
             newLink.id = 'lang-link-' + langCode;
-            newLink.href = langCode === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + langCode + '{{ page.url }}';
+            newLink.href = 'javascript:void(0);';
             newLink.textContent = activeSpan.textContent;
-            newLink.setAttribute('onclick', `changeLanguage('${langCode}'); return false;`);
+            newLink.setAttribute('onclick', `changeLanguage('${langCode}')`);
             activeSpan.replaceWith(newLink);
         }
 
@@ -44,12 +44,18 @@
             // Оновлення локального сховища браузера з активною мовою
             localStorage.setItem('active_lang', lang);
 
-            // Формування посилання для переходу
-            const pageUrl = lang === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + lang + '{{ page.url }}';
-            window.location.href = pageUrl;
+            // Логіка для оновлення вмісту сторінки (якщо потрібно)
+            updateContentForLanguage(lang);
         } else {
             console.error('No link found for language:', lang);
         }
+    }
+
+    // Оновлення вмісту сторінки для вибраної мови (приклад)
+    function updateContentForLanguage(lang) {
+        console.log(`Content updated for language: ${lang}`);
+        // Додайте логіку для зміни контенту відповідно до вибраної мови
+        // Наприклад, AJAX-запит для динамічного завантаження текстів.
     }
 
     // Перевірка локального сховища браузера при завантаженні сторінки
@@ -58,4 +64,5 @@
         console.log('Activating language:', activeLang);
         changeLanguage(activeLang);
     });
+
 </script>
