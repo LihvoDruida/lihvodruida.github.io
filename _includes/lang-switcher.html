@@ -18,26 +18,45 @@
     // Функція для зміни мови
     function changeLanguage(lang) {
         var langLinks = document.querySelectorAll('.lang-switcher a');
+        
+        // Видалення класу активної мови з усіх посилань
         langLinks.forEach(function (link) {
             link.classList.remove('active-lang');
         });
 
+        // Знаходимо посилання для активної мови
         var activeLangLink = document.getElementById('lang-link-' + lang);
-        activeLangLink.classList.add('active-lang');
+        
+        // Якщо посилання знайдено, додаємо клас активної мови
+        if (activeLangLink) {
+            activeLangLink.classList.add('active-lang');
+        } else {
+            console.error('No link found for language:', lang);
+        }
 
         // Оновлення локального сховища браузера з активною мовою
         localStorage.setItem('active_lang', lang);
 
         // Формування посилання відповідно до обраної мови
         var pageUrl = lang === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + lang + '{{ page.url }}';
-        activeLangLink.setAttribute('href', pageUrl);
+        
+        // Якщо посилання знайдено, оновлюємо атрибут href
+        if (activeLangLink) {
+            activeLangLink.setAttribute('href', pageUrl);
+        }
     }
 
     // Перевірка локального сховища браузера при завантаженні сторінки
     document.addEventListener('DOMContentLoaded', function () {
         var activeLang = localStorage.getItem('active_lang');
+        
+        // Якщо в локальному сховищі є інформація про активну мову, застосовуємо її
         if (activeLang) {
             changeLanguage(activeLang);
+        } else {
+            // Якщо немає активної мови в локальному сховищі, можна встановити мову за замовчуванням
+            // Наприклад, встановлюємо мову за замовчуванням
+            changeLanguage('{{ site.default_lang }}');
         }
     });
 </script>
