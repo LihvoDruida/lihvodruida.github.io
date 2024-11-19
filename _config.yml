@@ -23,8 +23,8 @@ port: 4000
 
 # Includes an icon in the footer for each username you enter
 footer-links:
-  youtube: @lihvo_druida
-  tiktok: @lihvo_druida
+  youtube: "@lihvo_druida"
+  tiktok: "@lihvo_druida"
   twitch: lihvo_druida
   discord: SR8JsQBCxn
   telegram: lihvo_druida_chat
