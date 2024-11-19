@@ -39,6 +39,12 @@
         </script>
       </form>
 
+      <div class="nav-item">
+        <button id="current-language">
+          {% assign current_lang_name = site.data[site.active_lang].l10n.lang_name %}
+          {{ current_lang_name }}
+      </button>
+      </div>
     </div>
   </div>
 </nav>
