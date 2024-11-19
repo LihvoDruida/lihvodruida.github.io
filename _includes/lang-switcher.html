@@ -14,55 +14,32 @@
     {% endfor %}
 </div>
 
-
 <script>
     // Функція для зміни мови
     function changeLanguage(lang) {
-        // Видалення існуючого елемента <span> активної мови
-        const activeSpan = document.querySelector('.lang-switcher .active-lang');
-        if (activeSpan) {
-            const langCode = activeSpan.id.replace('lang-span-', '');
-            // Перетворення <span> назад у <a>
-            const newLink = document.createElement('a');
-            newLink.id = 'lang-link-' + langCode;
-            newLink.href = 'javascript:void(0);';
-            newLink.textContent = activeSpan.textContent;
-            newLink.setAttribute('onclick', `changeLanguage('${langCode}')`);
-            activeSpan.replaceWith(newLink);
-        }
+        console.log(`Switching language to: ${lang}`);
 
-        // Знаходимо нове посилання для активної мови
-        const newActiveLink = document.getElementById('lang-link-' + lang);
-        if (newActiveLink) {
-            // Перетворення <a> у <span> для активної мови
-            const newSpan = document.createElement('span');
-            newSpan.id = 'lang-span-' + lang;
-            newSpan.className = 'active-lang';
-            newSpan.textContent = newActiveLink.textContent;
-            newActiveLink.replaceWith(newSpan);
+        // Зберігаємо активну мову в локальному сховищі
+        localStorage.setItem('active_lang', lang);
 
-            // Оновлення локального сховища браузера з активною мовою
-            localStorage.setItem('active_lang', lang);
+        // Формуємо URL для нової мови
+        const isDefaultLang = lang === '{{ site.default_lang }}';
+        const newUrl = isDefaultLang ? '{{ page.url }}' : `/${lang}{{ page.url }}`;
 
-            // Логіка для оновлення вмісту сторінки (якщо потрібно)
-            updateContentForLanguage(lang);
-        } else {
-            console.error('No link found for language:', lang);
-        }
+        // Перенаправляємо користувача на нову сторінку
+        window.location.href = newUrl;
     }
 
-    // Оновлення вмісту сторінки для вибраної мови (приклад)
-    function updateContentForLanguage(lang) {
-        console.log(`Content updated for language: ${lang}`);
-        // Додайте логіку для зміни контенту відповідно до вибраної мови
-        // Наприклад, AJAX-запит для динамічного завантаження текстів.
-    }
-
-    // Перевірка локального сховища браузера при завантаженні сторінки
+    // Ініціалізація при завантаженні сторінки
     document.addEventListener('DOMContentLoaded', () => {
         const activeLang = localStorage.getItem('active_lang') || '{{ site.default_lang }}';
-        console.log('Activating language:', activeLang);
-        changeLanguage(activeLang);
+        console.log('Detected active language:', activeLang);
+
+        // Встановлюємо активну мову без перезавантаження (візуально)
+        const activeSpan = document.getElementById('lang-span-' + activeLang);
+        if (!activeSpan) {
+            changeLanguage(activeLang);
+        }
     });
 
 </script>
