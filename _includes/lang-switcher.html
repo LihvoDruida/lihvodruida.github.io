@@ -1,3 +1,19 @@
+<div class="lang-switcher">
+    {% for lang in site.languages %}
+    {% assign lang_name = site.data[lang].l10n.lang_name %}
+    {% if lang == site.active_lang %}
+    <span>{{ lang_name }}</span>
+    {% else %}
+    {% if lang == site.default_lang %}
+    <a href="{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name }}</a>
+    {% else %}
+    <a href="/{{ lang }}{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name
+        }}</a>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+</div>
+
 <script>
     // Функція для зміни мови
     function changeLanguage(lang) {
@@ -25,20 +41,3 @@
         }
     });
 </script>
-
-
-<div class="lang-switcher">
-    {% for lang in site.languages %}
-    {% assign lang_name = site.data[lang].l10n.lang_name %}
-    {% if lang == site.active_lang %}
-    <span>{{ lang_name }}</span>
-    {% else %}
-    {% if lang == site.default_lang %}
-    <a href="{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name }}</a>
-    {% else %}
-    <a href="/{{ lang }}{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name
-        }}</a>
-    {% endif %}
-    {% endif %}
-    {% endfor %}
-</div>
