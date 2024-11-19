@@ -428,6 +428,15 @@ b,
 strong {
   font-weight: 500;
 }
+
+.welcome{
+    background-size: cover;
+    position: relative;
+    width: 100%;
+    background-image: url(../img/belameth-baner.jpg);
+    box-shadow: 0 0 2px 0px rgba(0, 0, 0, .3) inset;
+}
+
 .welcome p.lead {
   font-size: 1.125rem;
   line-height: 1.6;
