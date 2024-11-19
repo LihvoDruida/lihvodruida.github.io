@@ -14,52 +14,55 @@
 </div>
 
 <script>
-    // Логування доступних мов
-    console.log('Available languages:', {{ site.languages | jsonify }});
-
     // Функція для зміни мови
-    function changeLanguage(lang) {
-        var langLinks = document.querySelectorAll('.lang-switcher a');
-        
-        // Видалення класу активної мови з усіх посилань
-        langLinks.forEach(function (link) {
-            link.classList.remove('active-lang');
-        });
+function changeLanguage(lang) {
+    var langLinks = document.querySelectorAll('.lang-switcher a');
+    
+    // Видалення класу активної мови з усіх посилань
+    langLinks.forEach(function (link) {
+        link.classList.remove('active-lang');
+    });
 
-        // Знаходимо посилання для активної мови
-        var activeLangLink = document.getElementById('lang-link-' + lang);
-        
-        // Логування і перевірка, чи є елемент
-        console.log('Changing language to:', lang);
-        if (activeLangLink) {
-            activeLangLink.classList.add('active-lang');
-        } else {
-            console.error('No link found for language:', lang);
-        }
-
-        // Оновлення локального сховища браузера з активною мовою
-        localStorage.setItem('active_lang', lang);
-
-        // Формування посилання відповідно до обраної мови
-        var pageUrl = lang === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + lang + '{{ page.url }}';
-        
-        // Якщо посилання знайдено, оновлюємо атрибут href
-        if (activeLangLink) {
-            activeLangLink.setAttribute('href', pageUrl);
-        }
+    // Знаходимо посилання для активної мови
+    var activeLangLink = document.getElementById('lang-link-' + lang);
+    
+    // Логування для перевірки, чи є посилання для вибраної мови
+    console.log('Changing language to:', lang);
+    
+    if (activeLangLink) {
+        activeLangLink.classList.add('active-lang');
+    } else {
+        console.error('No link found for language:', lang);
     }
 
-    // Перевірка локального сховища браузера при завантаженні сторінки
-    document.addEventListener('DOMContentLoaded', function () {
-        var activeLang = localStorage.getItem('active_lang');
-        
-        // Якщо в локальному сховищі є інформація про активну мову, застосовуємо її
-        if (activeLang) {
-            console.log('Activating language from localStorage:', activeLang);
+    // Оновлення локального сховища браузера з активною мовою
+    localStorage.setItem('active_lang', lang);
+
+    // Формування посилання відповідно до обраної мови
+    var pageUrl = lang === '{{ site.default_lang }}' ? '{{ page.url }}' : '/' + lang + '{{ page.url }}';
+    
+    // Якщо посилання знайдено, оновлюємо атрибут href
+    if (activeLangLink) {
+        activeLangLink.setAttribute('href', pageUrl);
+    }
+}
+
+// Перевірка локального сховища браузера при завантаженні сторінки
+document.addEventListener('DOMContentLoaded', function () {
+    var activeLang = localStorage.getItem('active_lang');
+    
+    // Якщо в локальному сховищі є інформація про активну мову, застосовуємо її
+    if (activeLang) {
+        console.log('Activating language from localStorage:', activeLang);
+        setTimeout(function() {
             changeLanguage(activeLang);
-        } else {
-            // Якщо немає активної мови в локальному сховищі, можна встановити мову за замовчуванням
+        }, 100); // Затримка в 100 мс
+    } else {
+        // Якщо немає активної мови в локальному сховищі, встановлюємо мову за замовчуванням
+        console.log('No language in localStorage, setting default to:', '{{ site.default_lang }}');
+        setTimeout(function() {
             changeLanguage('{{ site.default_lang }}');
-        }
-    });
+        }, 100); // Затримка в 100 мс
+    }
+});
 </script>
