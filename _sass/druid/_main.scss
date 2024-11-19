@@ -768,7 +768,7 @@ svg:not(:root) {
   position: relative;
   width: 100%;
   background-image: url(https://cdnassets.raider.io/images/profile/masthead_backdrops/v2/classbanner_druid1.jpg);
-  box-shadow: $brand-primary 0px 0px 2px 0px inset;
+  box-shadow: 0 0 2px 0px rgba(0, 0, 0, .3) inset;
 }
 
 .affixes-info {
