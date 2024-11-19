@@ -1,21 +1,82 @@
-<div class="lang-switcher">
-    {% for lang in site.languages %}
-    {% assign lang_name = site.data[lang].l10n.lang_name %}
+<style>
+    .language-selector {
+        position: relative;
+        display: inline-block;
+    }
 
-    {% if lang == site.active_lang %}
-    <!-- Активна мова відображається як текст (span) -->
-    <span id="lang-span-{{ lang }}" class="active-lang">{{ lang_name }}</span>
-    {% else %}
-    <!-- Для неактивних мов — посилання -->
-    <a href="javascript:void(0);" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">
-        {{ lang_name }}
-    </a>
-    {% endif %}
-    {% endfor %}
+    .dropdown-btn {
+        background-color: #007BFF;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .dropdown-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .dropdown-content a,
+    .dropdown-content span {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .language-selector:hover .dropdown-content {
+        display: block;
+    }
+
+    .active-lang {
+        font-weight: bold;
+        color: #007BFF;
+        pointer-events: none;
+    }
+</style>
+
+<div class="language-selector">
+    <button id="current-language" class="dropdown-btn">
+        {% assign current_lang_name = site.data[site.active_lang].l10n.lang_name %}
+        {{ current_lang_name }}
+    </button>
+    <div class="dropdown-content">
+        {% for lang in site.languages %}
+        {% assign lang_name = site.data[lang].l10n.lang_name %}
+
+        {% if lang == site.active_lang %}
+        <!-- Активна мова відображається як текст -->
+        <span id="lang-span-{{ lang }}" class="active-lang">{{ lang_name }}</span>
+        {% else %}
+        <!-- Для неактивних мов — посилання -->
+        <a href="javascript:void(0);" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">
+            {{ lang_name }}
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
 </div>
 
 <script>
-    // Функція для зміни мови
+    // Відображення вибраної мови у випадаючому меню
     function changeLanguage(lang) {
         console.log(`Switching language to: ${lang}`);
 
@@ -33,13 +94,16 @@
     // Ініціалізація при завантаженні сторінки
     document.addEventListener('DOMContentLoaded', () => {
         const activeLang = localStorage.getItem('active_lang') || '{{ site.default_lang }}';
-        console.log('Detected active language:', activeLang);
 
-        // Встановлюємо активну мову без перезавантаження (візуально)
-        const activeSpan = document.getElementById('lang-span-' + activeLang);
-        if (!activeSpan) {
-            changeLanguage(activeLang);
+        // Встановлюємо текст кнопки відповідно до активної мови
+        const langButton = document.getElementById('current-language');
+        const langName = document.querySelector(`#lang-span-${activeLang}`)?.textContent ||
+            document.querySelector(`#lang-link-${activeLang}`)?.textContent;
+
+        if (langName) {
+            langButton.textContent = langName;
+        } else {
+            changeLanguage(activeLang); // Якщо мова відсутня у локальному сховищі
         }
     });
-
 </script>
