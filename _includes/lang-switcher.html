@@ -7,14 +7,16 @@
     {% if lang == site.default_lang %}
     <a href="{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name }}</a>
     {% else %}
-    <a href="/{{ lang }}{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name
-        }}</a>
+    <a href="/{{ lang }}{{ page.url }}" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">{{ lang_name }}</a>
     {% endif %}
     {% endif %}
     {% endfor %}
 </div>
 
 <script>
+    // Логування доступних мов
+    console.log('Available languages:', {{ site.languages | jsonify }});
+
     // Функція для зміни мови
     function changeLanguage(lang) {
         var langLinks = document.querySelectorAll('.lang-switcher a');
@@ -27,7 +29,8 @@
         // Знаходимо посилання для активної мови
         var activeLangLink = document.getElementById('lang-link-' + lang);
         
-        // Якщо посилання знайдено, додаємо клас активної мови
+        // Логування і перевірка, чи є елемент
+        console.log('Changing language to:', lang);
         if (activeLangLink) {
             activeLangLink.classList.add('active-lang');
         } else {
@@ -52,10 +55,10 @@
         
         // Якщо в локальному сховищі є інформація про активну мову, застосовуємо її
         if (activeLang) {
+            console.log('Activating language from localStorage:', activeLang);
             changeLanguage(activeLang);
         } else {
             // Якщо немає активної мови в локальному сховищі, можна встановити мову за замовчуванням
-            // Наприклад, встановлюємо мову за замовчуванням
             changeLanguage('{{ site.default_lang }}');
         }
     });
