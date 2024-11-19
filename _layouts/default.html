@@ -43,6 +43,12 @@
   {% include layout/navbar.html %}
 
   <div class="main-content">
+    
+    <section class="welcome bg-primary text-white py-4">
+      <div class="container">
+        <p class="lead text-center">{{ site.data.l10n.description | escape }}</p>
+      </div>
+    </section>
 
     {{ content }}
 
