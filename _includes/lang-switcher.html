@@ -1,5 +1,4 @@
 <script>
-    // Відображення вибраної мови у випадаючому меню
     function changeLanguage(lang) {
         console.log(`Switching language to: ${lang}`);
 
@@ -7,34 +6,20 @@
         localStorage.setItem('active_lang', lang);
 
         // Формуємо URL для нової мови
-        const currentPath = window.location.pathname;
-        const currentLangPrefix = currentPath.split('/')[1];
         const isDefaultLang = lang === '{{ site.default_lang }}';
+        const newUrl = isDefaultLang ? '{{ page.url }}' : `/${lang}{{ page.url }}`;
 
-        // Формуємо новий шлях без зайвих / або з мовним префіксом
-        let newPath;
-        if (isDefaultLang) {
-            newPath = currentPath.replace(`/${currentLangPrefix}`, '') || '/';
-        } else {
-            newPath = `/${lang}${currentPath.replace(`/${currentLangPrefix}`, '')}`;
+        // Перевірка, чи сторінка не перенаправляється на порожню сторінку
+        if (window.location.href !== newUrl) {
+            window.location.href = newUrl;
         }
-
-        // Уникаємо помилок через порожній шлях
-        if (!newPath.startsWith('/')) {
-            newPath = '/' + newPath;
-        }
-
-        // Перенаправляємо користувача на нову сторінку
-        const newUrl = window.location.origin + newPath;
-        console.log(`Redirecting to: ${newUrl}`);
-        window.location.href = newUrl;
     }
 
     // Ініціалізація при завантаженні сторінки
     document.addEventListener('DOMContentLoaded', () => {
         const activeLang = localStorage.getItem('active_lang') || '{{ site.default_lang }}';
-
-        // Встановлюємо текст кнопки відповідно до активної мови
+        
+        // Перевірка наявності активної мови
         const langButton = document.getElementById('current-language');
         const langName = document.querySelector(`#lang-span-${activeLang}`)?.textContent ||
             document.querySelector(`#lang-link-${activeLang}`)?.textContent;
@@ -46,3 +31,4 @@
         }
     });
 </script>
+
