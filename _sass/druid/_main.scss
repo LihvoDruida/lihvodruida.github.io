@@ -429,12 +429,16 @@ strong {
   font-weight: 500;
 }
 
-.welcome{
-    background-size: cover;
-    position: relative;
-    width: 100%;
-    background-image: url(../img/belameth-baner.jpg);
-    box-shadow: 0 0 2px 0px rgba(0, 0, 0, .3) inset;
+.welcome {
+  background-size: cover;
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background-image: url(../img/belameth-baner.jpg);
+  box-shadow: 0 0 2px 0px rgba(0, 0, 0, .3) inset;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
 .welcome p.lead {
