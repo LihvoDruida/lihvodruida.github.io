@@ -43,7 +43,22 @@
         <button id="current-language">
           {% assign current_lang_name = site.data[site.active_lang].l10n.lang_name %}
           {{ current_lang_name }}
-      </button>
+        </button>
+        <div class="dropdown-content">
+          {% for lang in site.languages %}
+          {% assign lang_name = site.data[lang].l10n.lang_name %}
+
+          {% if lang == site.active_lang %}
+          <!-- Активна мова відображається як текст -->
+          <span id="lang-span-{{ lang }}" class="active-lang">{{ lang_name }}</span>
+          {% else %}
+          <!-- Для неактивних мов — посилання -->
+          <a href="javascript:void(0);" id="lang-link-{{ lang }}" onclick="changeLanguage('{{ lang }}')">
+            {{ lang_name }}
+          </a>
+          {% endif %}
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
