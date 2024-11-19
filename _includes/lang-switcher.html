@@ -1,4 +1,3 @@
-
 <script>
     // Відображення вибраної мови у випадаючому меню
     function changeLanguage(lang) {
@@ -8,10 +7,26 @@
         localStorage.setItem('active_lang', lang);
 
         // Формуємо URL для нової мови
+        const currentPath = window.location.pathname;
+        const currentLangPrefix = currentPath.split('/')[1];
         const isDefaultLang = lang === '{{ site.default_lang }}';
-        const newUrl = isDefaultLang ? '{{ page.url }}' : `/${lang}{{ page.url }}`;
+
+        // Формуємо новий шлях без зайвих / або з мовним префіксом
+        let newPath;
+        if (isDefaultLang) {
+            newPath = currentPath.replace(`/${currentLangPrefix}`, '') || '/';
+        } else {
+            newPath = `/${lang}${currentPath.replace(`/${currentLangPrefix}`, '')}`;
+        }
+
+        // Уникаємо помилок через порожній шлях
+        if (!newPath.startsWith('/')) {
+            newPath = '/' + newPath;
+        }
 
         // Перенаправляємо користувача на нову сторінку
+        const newUrl = window.location.origin + newPath;
+        console.log(`Redirecting to: ${newUrl}`);
         window.location.href = newUrl;
     }
 
