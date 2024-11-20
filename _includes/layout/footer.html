@@ -15,8 +15,10 @@
         </div>
       </div>
       <div class="col-md">
-        <div class="footer-icons text-md-right">
-          {% include footer-icons.html %}<br />
+        <div class="text-md-right">
+          <div class="social-links">
+            {% include footer-icons.html %}
+          </div><br />
           <p class="text-center text-md-right footer-text">Licensed under <a
               href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.<br />
             {% if page.last_updated %}{{ site.data.l10n.footer_page_last_update | escape }}
