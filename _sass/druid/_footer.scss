@@ -71,10 +71,6 @@
     padding: 20px 15px;
   }
 
-  #logo-social .content {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  }
-
   .social-links {
     display: flex;
     gap: 16px;
@@ -125,6 +121,14 @@
         color: $brand-primary !important;
       }
 
+    }
+
+    #logo-social {
+      padding: 0 15px;
+    }
+
+    #logo-social .content {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     }
 
     .social-links {
