@@ -65,6 +65,16 @@
     grid-row-start: 2;
   }
 
+  #footer .content {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px 15px;
+  }
+
+  #logo-social .content {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
   .social-links {
     display: flex;
     gap: 16px;
