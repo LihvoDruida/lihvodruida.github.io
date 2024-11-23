@@ -1,12 +1,12 @@
 a.btn-donut:hover {
-  color:  $brand-primary;
+  color: #ffffff;
   background-color: rgba(0, 0, 0, 0.3);
   transform: scale(1.05);
   text-decoration: none;
 }
 
 a.btn-donut {
-  background: #242424;
+  color:  $brand-primary;
   border: 1px solid #494949;
   border-radius: 30px;
   padding: 0.25rem 0.5rem;
@@ -14,7 +14,7 @@ a.btn-donut {
   font-size: 18px;
   text-align: center;
   align-items: center;
-  color: #9f9f9f;
+  color: #ffffff;
   font-family: Google Sans Regular;
   text-decoration: none;
 }
