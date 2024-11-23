@@ -107,6 +107,13 @@
 
 @media (min-width: 481px) {
   .footer {
+
+    .content {
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 15px;
+    }
+
     .foot-links {
       margin-bottom: 0;
     }
