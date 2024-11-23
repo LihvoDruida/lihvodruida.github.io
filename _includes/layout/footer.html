@@ -3,28 +3,32 @@
   <script src="{{ site.baseurl }}/assets/js/twitch-info.js"></script>
   <script src="{{ site.baseurl }}/assets/js/youtube-info.js"></script>
   <script src="{{ site.baseurl }}/assets/js/donatello-info.js"></script>
-
+  {%- include lang-switcher.html -%}
   <div class="container">
     <div class="row">
-      <div class="col-md text-center text-md-left">
-
-        <p class="footer-text my-0"><b>&copy; 2023 - {{ site.time | date: '%Y' }} {{site.company_name}}</b><br />
-          {{ site.data.l10n.footer_note | escape }}</p>
-        <div class="lang-switcher">
-          {%- include lang-switcher.html -%}
+      <section id="logo-social">
+        <div class="content grid-12">
+          <div class="logo-wrapper col-xs-1-12 col-sm-6-12">
+            <a class="headlogo" href="../" title="Лігво Друїда">Лігво Друїда</a>
+          </div>
+          <div class="social-wrapper col-xs-1-12 col-sm-6-12 col-sm-pad-6-12">
+            <div class="social-links">
+              {% include footer-icons.html %}
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-md">
-        <div class="text-md-right">
-          <div class="social-links">
-            {% include footer-icons.html %}
-          </div><br />
-          <p class="text-center text-md-right footer-text">Licensed under <a
-              href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.<br />
-            {% if page.last_updated %}{{ site.data.l10n.footer_page_last_update | escape }}
+      </section>
+      <section id="foot">
+        <div class="content">
+          <span class="copyright">Copyright © 2023 - {{ site.time | date: '%Y' }} <br> {{ site.data.l10n.footer_note |
+            escape }}</span>
+          <div class="foot-links">
+            Licensed under <a target="_blank" rel="noreferrer" href="https://creativecommons.org/licenses/by-sa/3.0/">CC
+              BY-SA 3.0</a> <br> {% if page.last_updated %}{{ site.data.l10n.footer_page_last_update | escape }}
             {{page.last_updated}}<br />{% endif %} {{ site.data.l10n.footer_site_last_update | escape }} {{
-            site.time | date: "%b %-d, %Y" }}</p>
+            site.time | date: "%b %-d, %Y" }}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
 </footer>

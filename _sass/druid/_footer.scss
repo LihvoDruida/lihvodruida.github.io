@@ -2,22 +2,75 @@
 
 .footer {
   z-index: 1;
-  display: grid;
-  grid-area: footer;
+  display: block;
   position: relative;
   background-color: #1e1e1e !important;
   color: $grey-500;
   padding: 1rem 0;
   margin-top: 3rem;
 
+  .headlogo {
+    height: 35px;
+    overflow: hidden;
+    float: left;
+  }
+
+  .row {
+    display: block;
+  }
+
+  .content {
+    padding: 20px 0;
+  }
+
+  .foot-links,
+  .foot-links a {
+    color: white;
+  }
+
+  .foot-links {
+    margin-bottom: 15px;
+  }
+
+  #foot .content {
+    display: flex;
+    flex-direction: column-reverse;
+    text-align: center;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 0 0 20px 0;
+  }
+
+  .copyright {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .content.grid-12 {
+    -ms-grid-columns: 1fr;
+    grid-template-columns: 1fr;
+    -ms-grid-rows: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-row-gap: 16px;
+  }
+
+  .col-xs-1-12 {
+    -ms-grid-column-span: 1;
+    grid-column-end: span 1;
+  }
+
+  .logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-row-start: 2;
+  }
+
   .social-links {
     display: flex;
     gap: 16px;
-    justify-content: flex-end;
+    justify-content: space-around;
     width: 250px;
-    margin-left: auto;
-    /* Вирівнювання блоку праворуч */
-    margin-right: 0;
+    margin: auto;
 
     a {
       opacity: 0.6;
@@ -34,17 +87,66 @@
       img.icon {
         display: block;
         border: 0;
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
       }
     }
   }
 }
 
+
 @media (min-width: 481px) {
-  .social-links {
-    width: auto;
-    flex: 1;
+  .footer {
+    .foot-links {
+      margin-bottom: 0;
+    }
+
+    .foot-links a {
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
+        color: $brand-primary !important;
+      }
+
+    }
+
+    .social-links {
+      justify-content: flex-end;
+      width: auto;
+      flex: 1;
+    }
+
+    .social-wrapper {
+      display: flex;
+    }
+
+    .logo-wrapper {
+      display: block;
+      grid-row-start: 1;
+    }
+
+    .col-sm-pad-6-12 {
+      -ms-grid-column: 7;
+      grid-column-start: 7;
+    }
+
+    .col-sm-6-12 {
+      -ms-grid-column-span: 6;
+      grid-column-end: span 6;
+    }
+
+    .content.grid-12 {
+      -ms-grid-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(12, 1fr);
+      -ms-grid-rows: 1fr;
+      grid-template-rows: 1fr;
+    }
+
+    #foot .content {
+      flex-direction: row;
+      text-align: left;
+      padding: 20px 15px;
+    }
   }
 }
 
