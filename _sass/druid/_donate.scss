@@ -1,8 +1,7 @@
 a.btn-donut:hover {
-  color: #2196f3;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-color: (0, 0, 0, 0.1);
-  transform: scale(1.03);
+  color:  $brand-primary;
+  background-color: rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
   text-decoration: none;
 }
 
