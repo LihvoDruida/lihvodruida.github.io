@@ -19,10 +19,6 @@
     display: block;
   }
 
-  .content {
-    padding: 20px 0;
-  }
-
   .foot-links,
   .foot-links a {
     color: white;
@@ -88,8 +84,8 @@
       img.icon {
         display: block;
         border: 0;
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
       }
     }
   }
@@ -102,6 +98,7 @@
     .content {
       width: 100%;
       margin: 0 auto;
+      padding: 20px 0;
     }
 
     .foot-links {
@@ -129,6 +126,11 @@
       justify-content: flex-end;
       width: auto;
       flex: 1;
+
+      img.icon {
+        width: 24px;
+        height: 24px;
+      }
     }
 
     .social-wrapper {
