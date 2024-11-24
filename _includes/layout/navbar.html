@@ -14,7 +14,7 @@
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a href="{{ site.baseurl }}/donate" class="nav-link">{{ site.data.l10n.donate | escape }}</a>
+          <a href="{{ site.baseurl }}/donate" class="nav-link rubik-wet-paint">{{ site.data.l10n.donate | escape }}</a>
         </li>
       </ul>
 
@@ -41,7 +41,7 @@
 
       <div class="nav-item">
         <div class="language-selector">
-          <button id="current-language" class="dropdown-btn">
+          <button id="current-language" class="dropdown-btn rubik-wet-paint">
             {% assign current_lang_name = site.data[site.active_lang].l10n.lang_name %}
             {{ current_lang_name }}
           </button>
