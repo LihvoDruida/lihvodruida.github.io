@@ -32,7 +32,9 @@ body {
   color: $grey-200;
   border: 0;
   font-size: 100%;
-  font-family: inherit;
+  font-family: "Montserrat", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
   font-weight: inherit;
   overflow-x: clip;
 }
