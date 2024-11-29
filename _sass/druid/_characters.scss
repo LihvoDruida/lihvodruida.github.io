@@ -1,0 +1,42 @@
+@media (min-width: 1280px) {
+  .Character-wrapper {
+      display:flex;
+      align-items: center;
+      justify-content: space-between
+  }
+}
+
+@media (min-width: 540px) {
+  .CharacterHeader {
+      display:table;
+      position: relative
+  }
+
+  .CharacterHeader>.List-item {
+      vertical-align: middle
+  }
+
+  .CharacterHeader .CharacterHeader-character {
+      margin-bottom: 0
+  }
+
+  .CharacterHeader .CharacterHeader-nameTitle {
+      padding-right: 20px;
+      margin-right: 20px;
+      border-right: 1px solid hsla(0,0%,100%,.2)
+  }
+}
+
+.CharacterHeader-character {
+  display: table;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.padding-top-medium {
+  padding-top: 40px !important;
+}
+
+.padding-bottom-small {
+  padding-bottom: 10px !important;
+}
