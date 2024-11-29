@@ -33,6 +33,36 @@
   margin-bottom: 10px;
 }
 
+.CharacterHeader-logoArea {
+  vertical-align: middle;
+  height: 100%;
+  display: none
+}
+
+@media (min-width: 720px) {
+  .CharacterHeader-logoArea {
+      display:block
+  }
+}
+
+.CharacterHeader-logo.Logo--alliance,.CharacterHeader-logo.Logo--horde {
+  margin-right: 20px
+}
+
+.CharacterHeader-nameArea {
+  display: table-cell;
+  vertical-align: middle;
+  height: 100%
+}
+
+.CharacterHeader-name {
+  font-weight: 700;
+  font-size: 2.2395rem;
+  line-height: 1.5;
+  line-height: 1em
+}
+
+
 .padding-top-medium {
   padding-top: 40px !important;
 }
