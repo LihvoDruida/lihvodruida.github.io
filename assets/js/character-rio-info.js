@@ -11,10 +11,8 @@ const realmElement = document.getElementById("realm-name");
 const classElement = document.getElementById("class-name");
 const raceElement = document.getElementById("race-name");
 const scoresElement = document.getElementById("character-mythic-scores");
-const loaderRioElement = document.getElementById("loader-rio");
 const rioElement = document.getElementById("character-info-container");
 
-if (loaderRioElement) showElement(loaderRioElement);
 if (rioElement) hideElement(rioElement);
 
 // Отримання даних Raider.IO
@@ -50,12 +48,10 @@ fetch(
 
     // Відображення основного контейнера
     // Ховаємо завантажувач та показуємо основний контейнер
-    hideElement(loaderRioElement);
     showElement(rioElement);
   })
   .catch((error) => {
     console.error("Помилка завантаження даних:", error);
-    if (loaderRioElement) hideElement(loaderRioElement);
   });
 
 // Функції перекладу
