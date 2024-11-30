@@ -49,8 +49,6 @@ fetch(
       data.mythic_plus_scores_by_season[0]?.segments?.all?.color || "#000000";
 
     const mythicSeason = data.mythic_plus_scores_by_season[0].season;
-    const previousMythicScores =
-      data.previous_mythic_plus_scores?.all || "Немає даних";
     const guildName = data.guild.name;
     const guildRealm = data.guild.realm;
 
@@ -61,19 +59,11 @@ fetch(
 
     nameElement.textContent = name;
     gearElement.textContent = gear;
-    if (gear > 400) {
-      gearElement.style.color = "#a335ee";
-      gearIconElement.style.fill = "#a335ee";
-    } else {
-      gearElement.style.color = "#0070dd";
-      gearIconElement.style.fill = "#0070dd";
-    }
     classElement.textContent = `${className} (${specName})`;
     raceElement.textContent = raceName;
     realmElement.textContent = `(${regionName}) ${realm}`;
     scoresElement.textContent = mythicScores;
     scoresElement.style.color = mythicColor;
-    scoresPrevElement.textContent = previousMythicScores;
     avatarElement.src = avatarUrl;
     guildElement.textContent = `<${guildName}>`;
 
