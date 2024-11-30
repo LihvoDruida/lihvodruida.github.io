@@ -50,7 +50,7 @@ fetch(
 
     // Відображення основного контейнера
     if (loaderRioElement) loaderRioElement.style.display = "none";
-    if (rioElement) rioElement.style.display = "block";
+    if (rioElement) rioElement.style.display = "table";
   })
   .catch((error) => {
     console.error("Помилка завантаження даних:", error);
