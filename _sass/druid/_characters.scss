@@ -219,20 +219,15 @@ ul.stats li {
 }
 
 .titlestat {
-  font-size: 10px;
 }
 
 .stat {
-  font-size: 12px;
+  font-weight: 700;
 }
 
 @media (max-width: 767px) {
   .icon-stat {
     display: none;
-  }
-
-  .stat {
-    font-weight: 700;
   }
 }
 
