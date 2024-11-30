@@ -2,7 +2,8 @@ const region = "eu";
 const realm = "terokkar";
 const characterName = "Sebas";
 
-const container = document.getElementById("character-info-container");
+// Отримання елементів
+const avatarElement = document.getElementById("character-avatar");
 const nameElement = document.getElementById("character-name");
 const guildElement = document.getElementById("guild-name");
 const gearElement = document.getElementById("character-gear");
@@ -10,101 +11,53 @@ const realmElement = document.getElementById("realm-name");
 const classElement = document.getElementById("class-name");
 const raceElement = document.getElementById("race-name");
 const scoresElement = document.getElementById("character-mythic-scores");
-const avatarElement = document.getElementById("character-avatar");
-
 const loaderRioElement = document.getElementById("loader-rio");
-const rioElement = document.getElementById("rio");
-const loaderAffixesElement = document.getElementById("loader-affixes");
-const affixesElement = document.getElementById("affix-container");
+const rioElement = document.getElementById("character-info-container");
 
-if (loaderRioElement && rioElement) {
-  loaderRioElement.style.display = "block";
-  rioElement.style.display = "none";
-}
-if (loaderAffixesElement && affixesElement) {
-  loaderAffixesElement.style.display = "block";
-  affixesElement.style.display = "none";
-}
+if (loaderRioElement) loaderRioElement.style.display = "block";
+if (rioElement) rioElement.style.display = "none";
 
+// Отримання даних Raider.IO
 fetch(
-  `https://raider.io/api/v1/characters/profile?region=${region}&realm=${realm}&name=${characterName}&fields=guild%2Cmythic_plus_scores_by_season%3Acurrent%2Cprevious_mythic_plus_scores%2Cgear`
+  `https://raider.io/api/v1/characters/profile?region=${region}&realm=${realm}&name=${characterName}&fields=guild,mythic_plus_scores_by_season:current,gear`
 )
   .then((response) => response.json())
   .then((data) => {
+    // Витягування даних
     const name = data.name;
-    const realm = data.realm;
-    const gear = data.gear.item_level_equipped;
-    const class_name = data.class;
-    const spec_name = data.active_spec_name;
-    const race = data.race;
-    const region = data.region;
     const avatarUrl = data.thumbnail_url;
+    const gear = data.gear.item_level_equipped;
+    const className = getClassName(data.class);
+    const specName = getSpecName(data.active_spec_name);
+    const raceName = getRaceName(data.race);
+    const realmName = `(${getRegionName(data.region)}) ${data.realm}`;
+    const guildName = data.guild ? `<${data.guild.name}>` : "Без гільдії";
     const mythicScores =
       data.mythic_plus_scores_by_season[0]?.scores?.all || "Немає даних";
     const mythicColor =
       data.mythic_plus_scores_by_season[0]?.segments?.all?.color || "#000000";
 
-    const mythicSeason = data.mythic_plus_scores_by_season[0].season;
-    const guildName = data.guild.name;
-    const guildRealm = data.guild.realm;
-
-    const raceName = getRaceName(race);
-    const regionName = getRegionName(region);
-    const className = getClassName(class_name);
-    const specName = getSpecName(spec_name);
-
+    // Оновлення HTML
+    avatarElement.src = avatarUrl;
     nameElement.textContent = name;
     gearElement.textContent = gear;
     classElement.textContent = `${className} (${specName})`;
     raceElement.textContent = raceName;
-    realmElement.textContent = `(${regionName}) ${realm}`;
+    realmElement.textContent = realmName;
+    guildElement.textContent = guildName;
     scoresElement.textContent = mythicScores;
     scoresElement.style.color = mythicColor;
-    avatarElement.src = avatarUrl;
-    guildElement.textContent = `<${guildName}>`;
 
-    if (loaderRioElement && rioElement) {
-      loaderRioElement.style.display = "none";
-      rioElement.style.display = "grid";
-    }
+    // Відображення основного контейнера
+    if (loaderRioElement) loaderRioElement.style.display = "none";
+    if (rioElement) rioElement.style.display = "block";
   })
   .catch((error) => {
-    console.error(error);
-    if (loaderRioElement) {
-      loaderRioElement.style.display = "none";
-    }
+    console.error("Помилка завантаження даних:", error);
+    if (loaderRioElement) loaderRioElement.style.display = "none";
   });
 
-fetch("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en")
-  .then((response) => response.json())
-  .then((data) => {
-    const affixes = data.affix_details;
-    const affixContainer = document.getElementById("affix-container");
-
-    affixes.forEach((affix) => {
-      const affixLinkElement = document.createElement("a");
-      affixLinkElement.href = affix.wowhead_url;
-
-      const affixImageElement = document.createElement("img");
-      affixImageElement.src = `https://wow.zamimg.com/images/wow/icons/large/${affix.icon}.jpg`;
-      affixImageElement.alt = affix.name;
-      affixLinkElement.appendChild(affixImageElement);
-
-      affixContainer.appendChild(affixLinkElement);
-
-      if (loaderAffixesElement && affixesElement) {
-        loaderAffixesElement.style.display = "none";
-        affixesElement.style.display = "flex";
-      }
-    });
-  })
-  .catch((error) => {
-    console.error(error);
-    if (loaderAffixesElement) {
-      loaderAffixesElement.style.display = "none";
-    }
-  });
-
+// Функції перекладу
 function getRaceName(race) {
   switch (race) {
     case "Night Elf":
@@ -113,35 +66,37 @@ function getRaceName(race) {
       return race;
   }
 }
-function getClassName(class_name) {
-  switch (class_name) {
+
+function getClassName(className) {
+  switch (className) {
     case "Druid":
       return "Друїд";
     default:
-      return class_name;
+      return className;
   }
 }
-function getSpecName(spec_name) {
-  switch (spec_name) {
+
+function getSpecName(specName) {
+  switch (specName) {
     case "Restoration":
       return "Відновлення";
     default:
-      return spec_name;
+      return specName;
   }
 }
 
 function getRegionName(region) {
   switch (region) {
     case "us":
-      return "US";
+      return "США";
     case "eu":
-      return "EU";
+      return "ЄС";
     case "tw":
-      return "TW";
+      return "Тайвань";
     case "kr":
-      return "KR";
+      return "Корея";
     case "cn":
-      return "CN";
+      return "Китай";
     default:
       return region;
   }
