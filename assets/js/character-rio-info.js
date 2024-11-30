@@ -14,8 +14,8 @@ const scoresElement = document.getElementById("character-mythic-scores");
 const loaderRioElement = document.getElementById("loader-rio");
 const rioElement = document.getElementById("character-info-container");
 
-if (loaderRioElement) loaderRioElement.style.display = "block";
-if (rioElement) rioElement.style.display = "none";
+if (loaderRioElement) showElement(loaderRioElement);
+if (rioElement) hideElement(rioElement);
 
 // Отримання даних Raider.IO
 fetch(
@@ -49,12 +49,13 @@ fetch(
     scoresElement.style.color = mythicColor;
 
     // Відображення основного контейнера
-    if (loaderRioElement) loaderRioElement.style.display = "none";
-    if (rioElement) rioElement.style.display = "table";
+    // Ховаємо завантажувач та показуємо основний контейнер
+    hideElement(loaderRioElement);
+    showElement(rioElement);
   })
   .catch((error) => {
     console.error("Помилка завантаження даних:", error);
-    if (loaderRioElement) loaderRioElement.style.display = "none";
+    if (loaderRioElement) hideElement(loaderRioElement);
   });
 
 // Функції перекладу
@@ -101,3 +102,18 @@ function getRegionName(region) {
       return region;
   }
 }
+
+function showElement(element) {
+  if (element) {
+    element.classList.remove("hidden");
+    element.classList.add("visible");
+  }
+}
+
+function hideElement(element) {
+  if (element) {
+    element.classList.remove("visible");
+    element.classList.add("hidden");
+  }
+}
+
