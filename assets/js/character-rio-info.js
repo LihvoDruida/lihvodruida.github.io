@@ -10,10 +10,6 @@ const realmElement = document.getElementById("realm-name");
 const classElement = document.getElementById("class-name");
 const raceElement = document.getElementById("race-name");
 const scoresElement = document.getElementById("character-mythic-scores");
-const gearIconElement = document.getElementById("gear-icon");
-const scoresPrevElement = document.getElementById(
-  "character-mythic-prev-scores"
-);
 const avatarElement = document.getElementById("character-avatar");
 
 const loaderRioElement = document.getElementById("loader-rio");
