@@ -38,8 +38,9 @@
 }
 
 .CharacterHeader-details {
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.75rem;
+  /* Дуже компактний базовий розмір */
+  line-height: 1.2;
 }
 
 .CharacterHeader-detail {
@@ -73,7 +74,8 @@
   }
 
   .CharacterHeader-details {
-    font-size: 1.02rem;
+    font-size: 0.8rem;
+    /* Зменшено для середніх екранів */
   }
 
   .CharacterHeader-links {
@@ -94,7 +96,8 @@
   }
 
   .CharacterHeader-details {
-    font-size: 1.2rem;
+    font-size: 0.9rem;
+    /* Оптимально для великих екранів */
   }
 
   .CharacterHeader-links {
@@ -140,4 +143,98 @@
 
 .position-relative {
   position: relative !important;
+}
+
+
+ul.stats {
+  margin: 0;
+  padding: 2px 0 0;
+  color: #fff;
+  float: left;
+  list-style: none;
+}
+
+.clearfix {}
+
+.clearfix:before,
+.clearfix:after {
+  content: " ";
+  display: table;
+}
+
+@media (max-width: 767px) {
+  ul.stats li {
+    margin: 0 15px 0 0;
+  }
+}
+
+@media (max-width: 1460px) {
+  ul.stats li {
+    margin: 0 8px 0 0;
+  }
+}
+
+ul.stats li {
+  float: left;
+  margin: 0 14px 0 0;
+}
+
+ul.stats li {
+  float: left;
+  margin: 0 14px 0 0;
+}
+
+
+@media (max-width: 767px) {
+  ul.stats {
+    margin: 0;
+  }
+}
+
+@media (max-width: 767px) {
+
+  ul.modactions,
+  ul.stats {
+    float: none;
+    margin-top: 10px !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  ul.stats {
+    margin: 0 0 15px;
+    padding: 0;
+    float: left;
+  }
+}
+
+.icon-stat {
+  width: 26px;
+  height: 26px;
+  fill: #fff;
+  float: left;
+  margin: 3px 8px 0 0;
+}
+
+.statitem {
+  float: left;
+  color: #ddd;
+}
+
+.titlestat {
+  font-size: 10px;
+}
+
+.stat {
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .icon-stat {
+    display: none;
+  }
+
+  .stat {
+    font-weight: 700;
+  }
 }
