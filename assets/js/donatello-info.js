@@ -7,15 +7,21 @@ async function fetchDonators() {
       headers: {
         "X-Token": token,
       },
-      mode: "no-cors",  // This disables CORS
     });
 
     // Check for authorization error
     if (!response.ok) {
-      throw new Error("Authorization error");
+      if (response.status === 401) {
+        throw new Error("Authorization error: Invalid token");
+      } else {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
     }
 
     const data = await response.json();
+    if (!data.clients) {
+      throw new Error("No clients data found");
+    }
     const clients = data.clients;
 
     // Select the block for inserting donors
