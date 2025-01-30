@@ -12,8 +12,19 @@
             const state = params.get("state");
 
             if (code) {
-                // Перенаправляємо у ваш мобільний додаток (Deep Link)
-                window.location.href = `lihvodruida://callback?code=${code}&state=${state}`;
+                // Створюємо глибоке посилання (Deep Link)
+                const deepLink = `lihvodruida://callback?code=${code}&state=${state}`;
+
+                // Додаємо затримку перед редиректом
+                setTimeout(() => {
+                    window.location.href = deepLink;
+                }, 100); // 100 мс, щоб браузер встиг обробити
+
+                // Додаємо кнопку на випадок, якщо редирект не спрацює
+                document.body.innerHTML = `
+                    <h2>Redirecting...</h2>
+                    <p>If you are not redirected, <a id="redirectLink" href="${deepLink}">click here</a>.</p>
+                `;
             } else {
                 document.body.innerHTML = "<h2>Error: Authorization code not found.</h2>";
             }
@@ -24,3 +35,4 @@
     <h2>Redirecting...</h2>
 </body>
 </html>
+
