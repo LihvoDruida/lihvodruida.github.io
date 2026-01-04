@@ -284,19 +284,34 @@ footer {
   .nav-container nav { gap: 20px; }
   #characters .character { min-height: 120px; }
   .char-avatar { width: 55px; height: 55px; }
+  .cards { grid-template-columns: 1fr; }
 }
 
 /* Смартфони (Горизонтальні) */
 @media (max-width: 768px) {
   main { padding: 20px 15px; }
   
-  .socials-card {
+  .cards, #characters {
+    grid-template-columns: 1fr !important;
+    gap: 12px; 
+  }
+
+ .socials-card {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* Центруємо для телефону */
+    text-align: center;
   }
   
   .nav-container nav { gap: 15px; }
-  #characters { gap: 12px; }
+
+  #characters .character {
+    flex-direction: row; 
+    align-items: center;
+  }
+
+  main {
+    padding: 20px 15px;
+  }
 }
 
 /* Смартфони (Вертикальні) */
@@ -310,16 +325,21 @@ footer {
   }
 
   #characters .character {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
+    text-align: left;
     min-height: auto;
+    padding: 12px;
     gap: 10px;
   }
 
-  .char-avatar {
-    width: 60px;
-    height: 60px;
+ .char-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .char-info strong {
+    font-size: 15px;
   }
 
   .btn-social {
@@ -327,7 +347,12 @@ footer {
     justify-content: center;
   }
 
+  .socials-links {
+    width: 100%;
+    flex-direction: column;
+  }
+
   .scores {
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
