@@ -3,7 +3,7 @@
   
   <div id="characters">
     {% for char in site.data.characters %}
-      <div class="character class-{{ char.class | slugify }}">
+      <a href="{{ char.link }}" class="character class-{{ char.class | slugify }}">
         <div class="char-avatar-container">
            <img src="{{ char.avatar }}" alt="{{ char.class }}" class="char-avatar">
         </div>
@@ -31,7 +31,8 @@
             {% endif %}
           </div>
         </div>
-      </div>
+      </a>
     {% endfor %}
   </div>
 </section>
+

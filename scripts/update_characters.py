@@ -25,6 +25,7 @@ for char in characters:
         "region": data.get("region"),
         "realm": data.get("realm"),
         "avatar": data.get("thumbnail_url"),
+        "link": data.get("profile_url"),
         "guild": {
             "name": data.get("guild", {}).get("name"),
             "realm": data.get("guild", {}).get("realm")

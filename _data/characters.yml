@@ -9,6 +9,7 @@
   healer:
     color: '#406ae0'
     score: 3005.9
+  link: https://raider.io/characters/eu/terokkar/Sebas
   name: Sebas
   race: Night Elf
   realm: Terokkar
@@ -27,6 +28,7 @@
   healer:
     color: '#ffffff'
     score: 0
+  link: https://raider.io/characters/eu/terokkar/Krouli
   name: Krouli
   race: Night Elf
   realm: Terokkar
@@ -45,6 +47,7 @@
   healer:
     color: '#ffffff'
     score: 0
+  link: https://raider.io/characters/eu/terokkar/Kashin
   name: Kashin
   race: Night Elf
   realm: Terokkar
