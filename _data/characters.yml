@@ -1,57 +1,57 @@
-- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/58/182523706-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+- name: Sebas
+  race: Night Elf
   class: Druid
-  dps:
-    color: '#daffcb'
-    score: 643.1
+  region: eu
+  realm: Terokkar
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/58/182523706-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  link: https://raider.io/characters/eu/terokkar/Sebas
   guild:
     name: Ababagalamaga
     realm: Ravencrest
+  dps:
+    score: 643.1
+    color: '#daffcb'
   healer:
-    color: '#406ae0'
     score: 3005.9
-  link: https://raider.io/characters/eu/terokkar/Sebas
-  name: Sebas
-  race: Night Elf
-  realm: Terokkar
-  region: eu
+    color: '#406ae0'
   tank:
-    color: '#ffffff'
     score: 0
-- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    color: '#ffffff'
+- name: Krouli
+  race: Night Elf
   class: Demon Hunter
-  dps:
-    color: '#eaffe0'
-    score: 458.8
-  guild:
-    name: Mistblossom Vanguard
-    realm: Terokkar
-  healer:
-    color: '#ffffff'
-    score: 0
+  region: eu
+  realm: Terokkar
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   link: https://raider.io/characters/eu/terokkar/Krouli
-  name: Krouli
-  race: Night Elf
-  realm: Terokkar
-  region: eu
-  tank:
-    color: '#ffffff'
-    score: 0
-- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  class: Druid
-  dps:
-    color: '#ffffff'
-    score: 0
   guild:
     name: Mistblossom Vanguard
     realm: Terokkar
+  dps:
+    score: 458.8
+    color: '#eaffe0'
   healer:
-    color: '#ffffff'
     score: 0
-  link: https://raider.io/characters/eu/terokkar/Kashin
-  name: Kashin
-  race: Night Elf
-  realm: Terokkar
-  region: eu
+    color: '#ffffff'
   tank:
-    color: '#ffffff'
     score: 0
+    color: '#ffffff'
+- name: Kashin
+  race: Night Elf
+  class: Druid
+  region: eu
+  realm: Terokkar
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  link: https://raider.io/characters/eu/terokkar/Kashin
+  guild:
+    name: Mistblossom Vanguard
+    realm: Terokkar
+  dps:
+    score: 0
+    color: '#ffffff'
+  healer:
+    score: 0
+    color: '#ffffff'
+  tank:
+    score: 0
+    color: '#ffffff'
