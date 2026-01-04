@@ -1,22 +1,56 @@
 import requests
 import yaml
+import time
 
-# Дані персонажів
+API_URL = "https://raider.io/api/v1/characters/profile"
+FIELDS = "guild,mythic_plus_scores_by_season:current"
+
+DELAY = 2            # пауза між запитами (сек)
+MAX_RETRIES = 3      # скільки разів пробувати при 429
+
 characters = [
     {"region": "eu", "realm": "terokkar", "name": "sebas"},
     {"region": "eu", "realm": "terokkar", "name": "krouli"},
     {"region": "eu", "realm": "terokkar", "name": "kashin"}
 ]
 
+def fetch_character(char):
+    params = {
+        "region": char["region"],
+        "realm": char["realm"],
+        "name": char["name"],
+        "fields": FIELDS
+    }
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        r = requests.get(API_URL, params=params, timeout=15)
+
+        if r.status_code == 200:
+            return r.json()
+
+        if r.status_code == 429:
+            wait = attempt * 5
+            print(f"⚠️ Rate limit for {char['name']}. Retry in {wait}s...")
+            time.sleep(wait)
+            continue
+
+        print(f"❌ Failed {char['name']} — HTTP {r.status_code}")
+        return None
+
+    print(f"❌ Rate limit exceeded for {char['name']}")
+    return None
+
+
 output = []
 
 for char in characters:
-    url = f"https://raider.io/api/v1/characters/profile?region={char['region']}&realm={char['realm']}&name={char['name']}&fields=guild,mythic_plus_scores_by_season:current"
-    r = requests.get(url)
-    if r.status_code != 200:
-        print(f"Failed to fetch {char['name']}")
+    data = fetch_character(char)
+    if not data:
         continue
-    data = r.json()
+
+    season = data.get("mythic_plus_scores_by_season", [{}])[0]
+    scores = season.get("scores", {})
+    segments = season.get("segments", {})
 
     char_data = {
         "name": data.get("name"),
@@ -31,21 +65,24 @@ for char in characters:
             "realm": data.get("guild", {}).get("realm")
         },
         "dps": {
-            "score": data.get("mythic_plus_scores_by_season", [{}])[0].get("scores", {}).get("dps", 0),
-            "color": data.get("mythic_plus_scores_by_season", [{}])[0].get("segments", {}).get("dps", {}).get("color", "#ffffff")
+            "score": scores.get("dps", 0),
+            "color": segments.get("dps", {}).get("color", "#ffffff")
         },
         "healer": {
-            "score": data.get("mythic_plus_scores_by_season", [{}])[0].get("scores", {}).get("healer", 0),
-            "color": data.get("mythic_plus_scores_by_season", [{}])[0].get("segments", {}).get("healer", {}).get("color", "#ffffff")
+            "score": scores.get("healer", 0),
+            "color": segments.get("healer", {}).get("color", "#ffffff")
         },
         "tank": {
-            "score": data.get("mythic_plus_scores_by_season", [{}])[0].get("scores", {}).get("tank", 0),
-            "color": data.get("mythic_plus_scores_by_season", [{}])[0].get("segments", {}).get("tank", {}).get("color", "#ffffff")
+            "score": scores.get("tank", 0),
+            "color": segments.get("tank", {}).get("color", "#ffffff")
         }
     }
 
     output.append(char_data)
+    time.sleep(DELAY)
 
-# Запис у файл _data/characters.yml (Jekyll читає YAML з _data)
+# Запис у Jekyll data
 with open("_data/characters.yml", "w", encoding="utf-8") as f:
-    yaml.dump(output, f, allow_unicode=True)
+    yaml.dump(output, f, allow_unicode=True, sort_keys=False)
+
+print("✅ Characters updated successfully")
