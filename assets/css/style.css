@@ -16,9 +16,21 @@
     margin: 0;
     padding: 0;
 }
+html
+ {
+    font-family: Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    tab-size: 4;
+    word-break: normal;
+}
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: Roboto, sans-serif;
   color: var(--text);
   background: radial-gradient(circle at top, #2a2118, var(--bg));
   line-height: 1.5;
@@ -200,6 +212,7 @@ h1 {
   font-weight: 500;
   color: var(--text);
   letter-spacing: 0.3px;
+  margin-bottom: 0.8rem;
 }
 
 .socials-links {
@@ -229,21 +242,28 @@ h1 {
   box-shadow: 0 0 10px rgba(200, 155, 60, 0.4), 0 0 20px rgba(200, 155, 60, 0.2);
 }
 
+.btn-social.tw:hover {
+  background: #9146ff;
+  border-color: #a970ff;
+  box-shadow: 0 0 20px rgba(145, 70, 255, 0.4);
+}
+
+.btn-social.dc:hover {
+  background: #5865F2;
+  border-color: #7983f5;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+}
+
 .btn-social.yt:hover {
   background: #ff0000;
   border-color: #ff4444;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-social.tt:hover {
   background: #010101;
   border-color: #69C9D0;
   box-shadow: 2px 2px 0 #EE1D52, -2px -2px 0 #69C9D0;
-}
-
-.btn-social.tw:hover {
-  background: #9146ff;
-  border-color: #a970ff;
-  box-shadow: 0 0 20px rgba(145, 70, 255, 0.4);
 }
 
 .donate {
@@ -325,7 +345,7 @@ footer {
     justify-content: center;
     margin: 0 auto;
     max-width: 1400px;
-    padding: 4rem 2rem;
+    padding: 3rem 0rem;
     position: relative;
     z-index: 2;
 }
@@ -337,17 +357,17 @@ footer {
 
 /* Заголовок Stay Updated */
 .stay-updated {
-    display: inline-block;
-    padding: 5px 15px;
-    background: rgba(43, 30, 22, 0.5);
-    border: 1px solid #4d3a2b;
+    background: #e2855226;
+    border: 1px solid rgba(226, 133, 82, .3);
     border-radius: 20px;
-    color: #c89b3c;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
+    color: var(--primary);
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    margin-bottom: 1rem;
+    padding: .375rem 1rem;
     text-transform: uppercase;
-    margin-bottom: 15px;
 }
 
 /* Latest News заголовок */
