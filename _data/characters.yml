@@ -1,17 +1,54 @@
-- name: Sebas
-  level: 55
-  region: EAST
-  gs: 3651
-  played: 49
-
-- name: Lunara
-  level: 42
-  region: EAST
-  gs: 2980
-  played: 21
-
-- name: Thorn
-  level: 33
-  region: EAST
-  gs: 2105
-  played: 12
+- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/58/182523706-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  class: Druid
+  dps:
+    color: '#daffcb'
+    score: 643.1
+  guild:
+    name: Ababagalamaga
+    realm: Ravencrest
+  healer:
+    color: '#406ae0'
+    score: 3005.9
+  name: Sebas
+  race: Night Elf
+  realm: Terokkar
+  region: eu
+  tank:
+    color: '#ffffff'
+    score: 0
+- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  class: Demon Hunter
+  dps:
+    color: '#eaffe0'
+    score: 458.8
+  guild:
+    name: Mistblossom Vanguard
+    realm: Terokkar
+  healer:
+    color: '#ffffff'
+    score: 0
+  name: Krouli
+  race: Night Elf
+  realm: Terokkar
+  region: eu
+  tank:
+    color: '#ffffff'
+    score: 0
+- avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  class: Druid
+  dps:
+    color: '#ffffff'
+    score: 0
+  guild:
+    name: Mistblossom Vanguard
+    realm: Terokkar
+  healer:
+    color: '#ffffff'
+    score: 0
+  name: Kashin
+  race: Night Elf
+  realm: Terokkar
+  region: eu
+  tank:
+    color: '#ffffff'
+    score: 0
