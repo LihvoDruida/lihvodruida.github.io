@@ -51,7 +51,6 @@ body {
 
 .nav-container nav a {
   text-decoration: none;
-  font-family: "Segoe UI", sans-serif;
   font-size: 14px;
   font-weight: 400;
   color: #e6e1d8;
@@ -278,81 +277,34 @@ footer {
   animation: subtleGlow 4s ease-in-out infinite;
 }
 
-/* Планшети та малі ноутбуки */
+/* Адаптивність сучасна */
+@media (max-width: 1200px) {
+  main { padding: 25px 15px; }
+  h1 { font-size: 26px; }
+}
+
 @media (max-width: 992px) {
   h1 { font-size: 24px; }
-  .nav-container nav { gap: 20px; }
-  #characters .character { min-height: 120px; }
+  #characters { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  #characters .character { min-height: 110px; padding: 14px; gap: 12px; }
   .char-avatar { width: 55px; height: 55px; }
-  .cards { grid-template-columns: 1fr; }
 }
 
-/* Смартфони (Горизонтальні) */
 @media (max-width: 768px) {
-  main { padding: 20px 15px; }
-  
-  .cards, #characters {
-    grid-template-columns: 1fr !important;
-    gap: 12px; 
-  }
-
- .socials-card {
-    flex-direction: column;
-    align-items: center; /* Центруємо для телефону */
-    text-align: center;
-  }
-  
+  main { padding: 20px 12px; }
+  #characters { grid-template-columns: 1fr; gap: 12px; }
+  .socials-card { flex-direction: column; align-items: center; text-align: center; }
   .nav-container nav { gap: 15px; }
-
-  #characters .character {
-    flex-direction: row; 
-    align-items: center;
-  }
-
-  main {
-    padding: 20px 15px;
-  }
+  #characters .character { flex-direction: row; align-items: center; }
 }
 
-/* Смартфони (Вертикальні) */
 @media (max-width: 480px) {
-  .nav-container nav {
-    gap: 10px;
-  }
-  
-  .nav-container nav a {
-    font-size: 13px;
-  }
-
-  #characters .character {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    min-height: auto;
-    padding: 12px;
-    gap: 10px;
-  }
-
- .char-avatar {
-    width: 50px;
-    height: 50px;
-  }
-
-  .char-info strong {
-    font-size: 15px;
-  }
-
-  .btn-social {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .socials-links {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .scores {
-    justify-content: flex-start;
-  }
+  .nav-container nav { gap: 10px; }
+  .nav-container nav a { font-size: 13px; }
+  #characters .character { flex-direction: column; align-items: center; text-align: center; min-height: auto; padding: 12px; gap: 10px; }
+  .char-avatar { width: 50px; height: 50px; }
+  .char-info strong { font-size: 15px; }
+  .btn-social { width: 100%; justify-content: center; }
+  .socials-links { width: 100%; flex-direction: column; }
+  .scores { justify-content: center; }
 }
