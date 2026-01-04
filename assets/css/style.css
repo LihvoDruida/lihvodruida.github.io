@@ -1,0 +1,157 @@
+:root {
+margin-bottom: 30px;
+}
+
+
+.card {
+background: var(--panel);
+border-radius: 16px;
+padding: 20px;
+}
+
+
+.card h3 {
+margin-top: 0;
+color: var(--accent);
+}
+
+.card {
+  position: relative;
+  transition: 
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 0 0 1px rgba(200, 155, 60, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(200, 155, 60, 0.25);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at top,
+    rgba(200,155,60,0.25),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+
+/* Characters */
+.character {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: var(--panel-soft);
+padding: 14px 18px;
+border-radius: 12px;
+margin-bottom: 12px;
+}
+
+.character {
+  transition: 
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.character:hover {
+  background: rgba(200,155,60,0.08);
+  box-shadow: inset 0 0 0 1px rgba(200,155,60,0.35);
+  transform: translateX(4px);
+}
+
+
+.char-info strong {
+font-size: 16px;
+}
+
+
+.stats {
+font-size: 13px;
+color: var(--muted);
+}
+
+
+/* Socials */
+.socials a {
+display: inline-block;
+margin-right: 10px;
+padding: 8px 14px;
+border-radius: 20px;
+background: var(--panel-soft);
+color: var(--text);
+text-decoration: none;
+font-size: 14px;
+}
+
+
+.socials a:hover {
+background: var(--accent);
+color: #000;
+}
+
+.socials a,
+.donate a {
+  position: relative;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+.socials a:hover,
+.donate a:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 10px rgba(200,155,60,0.6),
+    0 0 25px rgba(200,155,60,0.4);
+}
+
+
+/* Donate */
+.donate {
+border: 1px solid rgba(200,155,60,0.3);
+}
+
+
+.donate a {
+display: inline-block;
+margin-top: 10px;
+padding: 10px 18px;
+border-radius: 12px;
+background: var(--accent);
+color: #000;
+font-weight: bold;
+text-decoration: none;
+}
+
+
+footer {
+margin-top: 40px;
+font-size: 13px;
+color: var(--muted);
+}
+
+@keyframes subtleGlow {
+  0%   { box-shadow: 0 0 10px rgba(200,155,60,0.15); }
+  50%  { box-shadow: 0 0 20px rgba(200,155,60,0.35); }
+  100% { box-shadow: 0 0 10px rgba(200,155,60,0.15); }
+}
+
+.card.featured {
+  animation: subtleGlow 4s ease-in-out infinite;
+}

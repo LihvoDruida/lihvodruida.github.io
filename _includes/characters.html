@@ -1,0 +1,15 @@
+<section id="characters" class="card featured">
+  <h3>Мої персонажі</h3>
+
+  {% for char in site.data.characters %}
+    <div class="character">
+      <div class="char-info">
+        <strong>{{ char.name }}</strong>
+        <div class="stats">
+          {{ char.level }} рівень · {{ char.region }} · {{ char.gs }} GS
+        </div>
+      </div>
+      <div class="stats">{{ char.played }} год</div>
+    </div>
+  {% endfor %}
+</section>
