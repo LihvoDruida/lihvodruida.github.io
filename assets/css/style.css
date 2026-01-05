@@ -4,6 +4,8 @@
   --panel-soft: rgba(40, 32, 26, 0.85);
   --accent: #c89b3c;
   --primary: #e28552;
+  --primary-light: #e79e6f;
+  --primary-dark: #d86324;
   --green: #4caf50;
   --text: #e6e1d8;
   --text-primary: #fff;
@@ -336,155 +338,173 @@ footer {
 }
 
 
-/* Контейнер секції */
-.news-container {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: center;
-    margin: 0 auto;
-    max-width: 1400px;
-    padding: 3rem 0rem;
-    position: relative;
-    z-index: 2;
+/* === SECTION === */
+.area.section {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  padding: 80px 20px;
 }
 
-.section-header {
-  margin-bottom: 2rem;
+.area.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.area-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
 }
 
-/* Заголовок Stay Updated */
-.stay-updated {
-    background: #e2855226;
-    border: 1px solid rgba(226, 133, 82, .3);
-    border-radius: 20px;
-    color: var(--primary);
-    display: inline-block;
-    font-size: .75rem;
-    font-weight: 600;
-    letter-spacing: .1em;
-    margin-bottom: 1rem;
-    padding: .375rem 1rem;
-    text-transform: uppercase;
+/* === HEADER === */
+.section-header {
+  margin-bottom: 46px;
 }
 
-/* Latest News заголовок */
-.section-title {
-    color: var(--text-primary);
-    font-family: Philosopher, sans-serif;
-    font-size: 2.75rem;
-    font-weight: 700;
+.section-tag {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ff9b55;
+  background: rgba(255, 140, 60, 0.15);
+  margin-bottom: 16px;
 }
 
-/* Сітка */
-.news-grid-classic {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(3, 1fr);
-    margin-bottom: 2rem;
-    max-width: 1200px;
-    width: 100%;
+.section-header h1 {
+  font-size: 44px;
+  font-weight: 600;
+  color: #fff;
 }
 
-/* Картка новини */
-.news-card-classic {
-    background: #16120f;
-    border: 1px solid rgba(200, 155, 60, 0.05);
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    text-decoration: none;
-    transition: all .3s ease;
-    text-align: center;
-    align-items: center; 
+/* === GRID === */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
 }
 
-.news-card-classic:hover {
-    background: #1c1714;
-    border-color: rgba(200, 155, 60, 0.2);
-    transform: translateY(-5px);
+/* === CARD === */
+.news-card {
+  position: relative;
+  display: block;
+  padding: 28px;
+  border-radius: 16px;
+  text-align: left;
+  background: var(--panel);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+  text-decoration: none;
+  color: #fff;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-/* Дата */
-.date-tag {
-    color: var(--primary);
-    font-size: .75rem;
-    font-weight: 500;
-    margin-bottom: .75rem;
+.news-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255,155,85,0.25),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
-/* Заголовок в картці */
-.card-title {
-    color: var(--text-primary);
-    font-family: Philosopher, sans-serif;
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.3;
-    margin-top: 0;
-    margin-bottom: .75rem;
+.news-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 35px 80px rgba(0,0,0,0.75);
 }
 
-/* Опис */
-.card-description {
-    color: var(--text-secondary);
-    flex: 1;
-    font-size: .9375rem;
-    line-height: 1.5;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    overflow: hidden;
+.news-card:hover::after {
+  opacity: 1;
 }
 
-/* Посилання Read More — ЛІВЕ ВИРІВНЮВАННЯ */
-.card-link {
-    align-items: center;
-    color: var(--primary);
-    display: inline-flex;
-    font-size: .875rem;
-    font-weight: 600;
-    gap: .25rem;
-    margin-top: 1rem;
-    text-decoration: none;
-    align-self: flex-start; 
-    transition: 0.2s;
+/* === CONTENT === */
+.news-date {
+  font-size: 12px;
+  color: #ff9b55;
+  margin-bottom: 12px;
 }
 
-.card-link:hover {
-    opacity: 0.8;
-    transform: translateX(5px);
+.news-card h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  line-height: 1.3;
 }
 
-/* Кнопка внизу */
-.btn-view-all {
-    background: #d37d46;
-    color: #fff;
-    align-items: center;
-    border-radius: 8px;
-    display: inline-flex;
-    font-size: 1rem;
-    font-weight: 600;
-    gap: .5rem;
-    padding: .875rem 1.75rem;
-    text-decoration: none;
-    transition: all .3s ease;
+.news-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d0d0d0;
+  margin-bottom: 22px;
 }
 
+/* === READ MORE === */
+.read-more {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ff9b55;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-.btn-view-all:hover {
-    background: #d86324;
+/* === ACTION BUTTON === */
+.news-actions {
+  text-align: center;
+}
+
+.btn-primary-hero {
+  background: var(--primary);
+  color: #fff;
+  align-items: center;
+  border-radius: 12px;
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: .5rem;
+  padding: .875rem 1.75rem;
+  text-decoration: none;
+  transition: all .3s ease;
+}
+
+.btn-primary-hero:hover {
+    background: var(--primary-dark);
     box-shadow: 0 8px 20px #e285524d;
     transform: translateY(-2px);
 }
-/* АДАПТАЦІЯ */
-@media (max-width: 1200px) {
-    .news-grid-classic { grid-template-columns: repeat(2, 1fr); }
+.bounce-icon {
+  animation: bounce 1.8s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 992px) {
+  .section-header h1 { font-size: 36px; }
+  .area.section { padding: 90px 16px; }
 }
 
 @media (max-width: 768px) {
-    .news-grid-classic { grid-template-columns: 1fr; }
-    .section-title { font-size: 36px; }
-    .news-card-classic { padding: 25px; }
+  .section-header h1 { font-size: 32px; }
+  .news-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .section-header h1 { font-size: 28px; }
+  .news-card { padding: 22px; }
 }

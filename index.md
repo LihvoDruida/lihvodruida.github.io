@@ -9,33 +9,49 @@ layout: default
 
 {% include characters.html %}
 
-<section id="news" class="news-container">
+<section id="News" class="area section">
+
+  <div class="area-content news-area">
+
     <div class="section-header">
-        <span class="stay-updated">Будь в темі</span>
-        <h2 class="section-title">Останні новини</h2>
+      <span class="section-tag">Будь в курсі</span>
+      <h1>Останні новини</h1>
     </div>
 
-    <div class="news-feed">
-        {% assign all_news = site.news | sort: 'date' | reverse %}
-        
-        <div class="news-grid-classic">
-            {% for post in all_news limit: 3 %}
-            <article class="news-card-classic">
-      
-                <span class="date-tag">{{ post.date | date: "%d %b. %Y р." }}</span>
-                <h3 class="card-title">{{ post.title }}</h3>
-                <p class="card-description">{{ post.description | truncate: 120 }}</p>
-                
-                <a href="{{ post.url | relative_url }}" class="card-link">
-                    Read More <i class="mdi mdi-arrow-right" aria-hidden="true">→</i>
-                </a>
-            </article>
-            {% endfor %}
-        </div>
+    {% assign all_news = site.news | sort: "date" | reverse %}
+    <div class="news-grid">
+
+      {% for post in all_news limit: 3 %}
+      <a href="{{ post.url | relative_url }}" class="news-card">
+
+        <time class="news-date" datetime="{{ post.date | date_to_xmlschema }}">
+          {{ post.date | date: "%d %B %Y р." }}
+        </time>
+
+        <h3>{{ post.title }}</h3>
+
+        {% if post.description %}
+        <p>
+          {{ post.description | strip_html | truncate: 140 }}
+        </p>
+        {% endif %}
+
+        <span class="read-more">
+          Читати все <span class="arrow">→</span>
+        </span>
+
+      </a>
+      {% endfor %}
+
     </div>
 
-    <div class="view-all-wrap">
-        <a href="/news/" class="btn-view-all">View All News →</a>
+    <div class="news-actions">
+      <a href="{{ "/news/" | relative_url }}" class="btn-primary-hero">
+        Всі новини <span class="arrow">→</span>
+      </a>
     </div>
+
+  </div>
 </section>
+
 
