@@ -1,0 +1,96 @@
+---
+layout: default
+title: Підтримати сервер
+permalink: /donate/
+---
+
+
+<section class="donate-section">
+  <!-- HEADER -->
+  <header class="donate-header">
+    <h1>Підтримати Стрімера</h1>
+    <p>Ваші донати допомагають мені створювати контент і проводити трансляції</p>
+  </header>
+
+  <!-- SUBTITLE -->
+  <h2 class="donate-subtitle">Оберіть спосіб підтримки</h2>
+
+  <!-- GRID OF DONATION METHODS -->
+  <div class="methods-grid">
+    <!-- FEATURED METHOD -->
+    <a href="https://send.monobank.ua/jar/36G5vBXMkK" rel="noopener noreferrer" target="_blank"  class="card method-card featured">
+      <div class="featured-badge">★ Рекомендовано</div>
+      <div class="method-icon"><img src="/assets/img/monobank-logo.png" alt="Monobank"></div>
+      <h3>Monobank</h3>
+      <p>Миттєва підтримка карткою українського банку</p>
+      <div class="method-features">
+        <span>✔ Швидко</span>
+        <span>✔ Безпечно</span>
+      </div>
+    </a>
+
+   <a href="https://donatello.to/lihvo_druida" rel="noopener noreferrer" target="_blank"  class="card method-card">
+      <div class="method-icon"><img src="/assets/img/donatello-logo.png" alt="Donatello"></div>
+      <h3>Donatello</h3>
+      <p>Швидкі донати з України та інших країн</p>
+      <div class="method-features">
+        <span>✔ Анонімно</span>
+        <span>✔ Миттєво</span>
+        <span>✔ Голосові повідомлення</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- ALTERNATIVE METHODS
+  <div class="alternative-section">
+    <button class="toggle-alternatives">Інші способи підтримки ↓</button>
+    <div class="alternative-methods">
+      <div class="card method-card">
+        <h3>PayPal</h3>
+        <p>Міжнародна платіжна система</p>
+        <div class="method-features">
+          <span>✔ Швидко</span>
+          <span>✔ Безпечно</span>
+        </div>
+      </div>
+      <div class="card method-card">
+        <h3>Portmone</h3>
+        <p>Оплата з банківських карток</p>
+        <div class="method-features">
+          <span>✔ Українські банки</span>
+          <span>✔ Простий процес</span>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- INFO / CREDITS -->
+  <div class="credits-info">
+    <h4>Дякую за підтримку!</h4>
+    <p>
+      Кожен донат допомагає мені покращувати трансляції, купувати обладнання та створювати більше контенту для вас.
+      Ви також можете залишати повідомлення під час донату, щоб я бачив вашу підтримку на стрімі.
+    </p>
+  </div>
+
+  <!-- DONATION HISTORY -->
+  <div class="history-card">
+    <h2>Iсторія підтримки</h2>
+    <div class="empty-state">
+      <p>Поки що немає донатів</p>
+      <span>Iсторія донатів з’явиться тут</span>
+    </div>
+  </div>
+</section>
+
+<!-- JS для toggle альтернатив -->
+<script>
+const toggleBtn = document.querySelector('.toggle-alternatives');
+const altMethods = document.querySelector('.alternative-methods');
+toggleBtn.addEventListener('click', () => {
+  altMethods.classList.toggle('show');
+  toggleBtn.textContent = altMethods.classList.contains('show') 
+    ? 'Інші способи підтримки ↑' 
+    : 'Інші способи підтримки ↓';
+});
+</script>
