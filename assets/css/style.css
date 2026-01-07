@@ -1,5 +1,6 @@
 @import "./base/variables.css";
 @import "./donate.css";
+@import "./404.css";
 @import "./responsive.css";
 
 * {
