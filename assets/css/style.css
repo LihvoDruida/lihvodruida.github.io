@@ -293,7 +293,7 @@ h1 {
   font-size: 28px;
 }
 
-.cards {
+.ui-blocks {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;

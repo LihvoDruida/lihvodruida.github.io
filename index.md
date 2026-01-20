@@ -2,9 +2,9 @@
 layout: default
 ---
 
-<section id="account" class="cards">
-{% include socials.html %}
-{% include donate.html %}
+<section id="profile" class="ui-blocks">
+{% include community.html %}
+{% include support_project.html %}
 </section>
 
 {% include characters.html %}
