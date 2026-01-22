@@ -10,7 +10,7 @@
     realm: Ravencrest
   dps:
     score: 643.1
-    color: '#daffcb'
+    color: '#d9ffca'
   healer:
     score: 3005.9
     color: '#406ae0'
@@ -29,7 +29,7 @@
     realm: Terokkar
   dps:
     score: 635.5
-    color: '#daffcb'
+    color: '#d9ffca'
   healer:
     score: 0
     color: '#ffffff'
