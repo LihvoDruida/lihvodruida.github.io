@@ -2,49 +2,67 @@
 layout: default
 ---
 
-<article class="single-post-container">
+<div class="article-page">
   
-  <header class="post-header">
-    <div class="post-cover" style="background-image: url('{{ page.image | default: '/assets/img/news-placeholder.jpg' }}');">
-      <div class="post-cover-overlay"></div>
-    </div>
-
-    <div class="post-header-content">
-      <a href="/news/" class="back-link">
-        <svg style="width:16px;height:16px;transform:rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" /></svg>
-        Назад до новин
-      </a>
-
-      <div class="post-meta-top">
-        {% if page.categories %}
-          <span class="post-badge">
-            {% if page.categories[1] %}{{ page.categories[1] }}{% else %}{{ page.categories[0] }}{% endif %}
-          </span>
-        {% endif %}
-        <time class="post-date" datetime="{{ page.date | date_to_xmlschema }}">
-          {{ page.date | date: "%d %b. %Y" }}
-        </time>
-      </div>
-
-      <h1>{{ page.title }}</h1>
-    </div>
-  </header>
-
-  <div class="post-body card">
-    <div class="news-content">
-      {{ content }}
-    </div>
-
-    {% if page.tags.size > 0 %}
-      <footer class="post-footer">
-        <span class="tags-label">Теги:</span>
-        <div class="tags-list">
-          {% for tag in page.tags %}
-            <span class="badge tag">#{{ tag }}</span>
-          {% endfor %}
-        </div>
-      </footer>
-    {% endif %}
+  <div class="article-bg">
+    <div class="bg-image" style="background-image: url('{{ page.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
+    <div class="bg-overlay"></div>
   </div>
 
-</article>
+  <div class="article-container">
+    
+    <div class="article-nav">
+      <a href="/guides/" class="back-btn">
+        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        <span>До списку гайдів</span>
+      </a>
+    </div>
+
+    <article class="article-wrapper">
+      
+      <header class="article-header">
+        <div class="article-meta">
+          <span class="category-badge">
+            {% if page.categories[1] %}
+              {{ page.categories[1] }}
+            {% else %}
+              {{ page.categories[0] }}
+            {% endif %}
+          </span>
+          <span class="date">
+            {{ page.date | date: "%d %B %Y р." }}
+          </span>
+        </div>
+
+        <h1>{{ page.title }}</h1>
+        
+        {% if page.description %}
+        <p class="article-description">{{ page.description }}</p>
+        {% endif %}
+      </header>
+
+      <div class="article-body">
+        {{ content }}
+      </div>
+
+      <footer class="article-footer">
+        
+        <div class="share-section">
+          <span class="share-label">Поділитися</span>
+          <div class="share-buttons">
+            <button class="share-btn" title="Копіювати посилання">
+              <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <a href="/guides/" class="btn-primary">
+          <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20M4,6V18H20V6H4Z" /></svg>
+          Усі гайди
+        </a>
+
+      </footer>
+
+    </article>
+  </div>
+</div>

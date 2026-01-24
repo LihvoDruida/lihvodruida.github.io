@@ -1,36 +1,127 @@
+/* =========================================
+   RESPONSIVE & MOBILE
+   ========================================= */
+
+/* Large Screens (max-width: 1200px) */
 @media (max-width: 1200px) {
-  main { padding: 25px 15px; }
-  h1 { font-size: 26px; }
+    main { padding: 25px 15px; }
+    h1 { font-size: 26px; }
 }
 
+/* Laptops (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .nav-container { padding: 0 15px; }
+    .nav-left { gap: 15px; }
+    .dropdown-menu a { font-size: 14px; }
+}
+
+/* Tablets Landscape (max-width: 992px) */
 @media (max-width: 992px) {
-  h1 { font-size: 24px; }
-  #characters { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
-  #characters .character { min-height: 110px; padding: 14px; gap: 12px; }
-  .char-avatar { width: 55px; height: 55px; }
-  .section-header h1 { font-size: 36px; }
-  .area.section { padding: 90px 16px; }
+    h1 { font-size: 24px; }
+    .section-header h1 { font-size: 36px; }
+    .area.section { padding: 60px 16px; }
+    
+    /* Characters Grid Adjustment */
+    #characters { 
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+        gap: 14px; 
+    }
+    #characters .character { 
+        min-height: 110px; 
+        padding: 14px; 
+        gap: 12px; 
+    }
+    .char-avatar { width: 55px; height: 55px; }
 }
 
+/* Tablets Portrait & Mobile (max-width: 768px) */
 @media (max-width: 768px) {
-  main { padding: 20px 12px; }
-  #characters { grid-template-columns: 1fr; gap: 12px; }
-  .socials-card { flex-direction: column; align-items: center; text-align: center; }
-  .nav-container nav { gap: 15px; }
-  #characters .character { flex-direction: row; align-items: center; }
-  .section-header h1 { font-size: 32px; }
-  .news-grid { grid-template-columns: 1fr; }
+    /* -- Layout & Body -- */
+    body { padding-top: 56px; }
+    .top-nav { height: 56px; }
+    main { padding: 20px 15px; }
+    
+    /* -- Navigation -- */
+    /* УВАГА: Це приховає меню. Потрібен JS для мобільного меню (гамбургер) */
+    .nav-left { display: none; } 
+    .nav-container nav { gap: 15px; }
+
+    /* -- Grids to 1 Column -- */
+    .ui-blocks,
+    #characters,
+    .news-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    /* -- Hero News Card (Featured) -- */
+    .featured-article {
+        grid-template-columns: 1fr;
+        grid-template-rows: 200px auto; /* Картинка зверху, текст знизу */
+        height: auto;
+    }
+    .featured-image {
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .featured-content { padding: 1.5rem; }
+    .featured-content h2 { font-size: 1.5rem; }
+
+    /* -- Article Page (Single) -- */
+    .article-header, .article-body, .article-footer { padding: 1.5rem; }
+    .article-header h1 { font-size: 1.75rem; }
+    
+    /* -- Components -- */
+    .section-header h1 { font-size: 32px; }
+    
+    .socials-card { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        justify-content: center;
+    }
+    .socials-links { 
+        justify-content: center; 
+    }
+    
+    .card, .news-card { padding: 20px; }
+    
+    #characters .character { 
+        flex-direction: row; 
+        align-items: center; 
+    }
 }
 
+/* Small Mobile (max-width: 480px) */
 @media (max-width: 480px) {
-  .section-header h1 { font-size: 28px; }
-  .news-card { padding: 22px; }
-  .nav-container nav { gap: 10px; }
-  .nav-container nav a { font-size: 13px; }
-  #characters .character { flex-direction: column; align-items: center; text-align: center; min-height: auto; padding: 12px; gap: 10px; }
-  .char-avatar { width: 50px; height: 50px; }
-  .char-info strong { font-size: 15px; }
-  .btn-social { width: 100%; justify-content: center; }
-  .socials-links { width: 100%; flex-direction: column; }
-  .scores { justify-content: center; }
+    /* -- Typography -- */
+    .section-header h1 { font-size: 28px; }
+    .nav-container nav { gap: 10px; }
+    .nav-container nav a { font-size: 13px; }
+    
+    /* -- Characters Stacked -- */
+    #characters .character { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        min-height: auto; 
+        padding: 12px; 
+        gap: 10px; 
+    }
+    .char-avatar { width: 50px; height: 50px; }
+    .char-info strong { font-size: 15px; }
+    
+    /* -- Socials Full Width -- */
+    .btn-social { 
+        width: 100%; 
+        justify-content: center; 
+    }
+    .socials-links { 
+        width: 100%; 
+        flex-direction: column; 
+    }
+    
+    .scores { justify-content: center; }
+    .news-card { padding: 22px; }
 }

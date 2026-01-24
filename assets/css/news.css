@@ -1,51 +1,108 @@
 /* =========================================
-   ARCHEAGE STYLE NEWS LAYOUT
+   GLOBAL VARIABLES & RESET
+   ========================================= */
+:root {
+  /* Основні кольори */
+  --primary: #e28552;
+  --primary-light: #e79e6f;
+  --accent: #c89b3c; /* Золотий акцент */
+  
+  /* Фонові кольори */
+  --bg-page: #110e0c;
+  --bg-card: rgba(33, 27, 23, 0.95); /* Основний фон карток */
+  --bg-card-dark: #1a1714; /* Темніший фон для малих карток */
+  
+  /* Межі та Тіні */
+  --border-color: rgba(226, 133, 82, 0.15);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 10px 30px rgba(0,0,0,0.3);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,0.5);
+
+  /* Текст */
+  --text-primary: #fff;
+  --text-secondary: hsla(0, 0%, 100%, 0.7);
+  --text-muted: #888;
+}
+
+/* =========================================
+   SHARED COMPONENTS (Reusable Styles)
    ========================================= */
 
-/* --- HERO CARD (FEATURED) --- */
-/* Оновлена структура на основі оригіналу (Grid 400px + Auto) */
-.featured-article {
-  background: var(--panel); /* Темна підкладка з ваших змінних */
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* Базовий стиль картки */
+.featured-article, 
+.visual-news-card, 
+.article-wrapper {
   border-radius: 16px;
-  display: grid;
-  grid-template-columns: 400px 1fr; /* Фіксована ширина картинки + контент */
-  margin-bottom: 2.5rem;
   overflow: hidden;
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
   text-decoration: none;
-  color: var(--text);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  transition: all 0.2s ease;
+  color: var(--text-primary);
 }
 
-.featured-article:hover {
+.featured-article:hover, 
+.visual-news-card:hover {
   transform: translateY(-4px);
-  border-color: var(--accent); /* Золота рамка при наведенні */
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Ліва частина: Картинка */
+/* Бейджі категорій */
+.category-badge, 
+.card-badge {
+  display: inline-block;
+  background: rgba(226, 133, 82, 0.15);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+}
+
+/* Кнопки */
+.btn-primary, 
+.share-btn, 
+.back-btn {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* =========================================
+   NEWS FEED (LIST VIEW)
+   ========================================= */
+
+/* --- HERO CARD --- */
+.featured-article {
+  background: var(--bg-card);
+  display: grid;
+  grid-template-columns: 400px 1fr; /* PC: Фіксована картинка + контент */
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
 .featured-image {
   height: 100%;
-  min-height: 240px; /* Мінімальна висота */
+  min-height: 240px;
   overflow: hidden;
   position: relative;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--border-light);
 }
 
-.featured-image img {
+.featured-image img, 
+.media-img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Заповнює блок, не сплющуючись */
+  object-fit: cover;
   display: block;
   transition: transform 0.5s ease;
 }
 
-.featured-article:hover .featured-image img {
+.featured-article:hover .featured-image img,
+.visual-news-card:hover .media-img {
   transform: scale(1.05);
 }
 
-/* Права частина: Контент */
 .featured-content {
   display: flex;
   flex-direction: column;
@@ -54,7 +111,6 @@
   position: relative;
 }
 
-/* Мета дані (Бейдж + Дата) */
 .featured-meta {
   display: flex;
   align-items: center;
@@ -63,64 +119,39 @@
 }
 
 .category-badge {
-  background: rgba(200, 155, 60, 0.15);
-  color: var(--accent);
-  border: 1px solid rgba(200, 155, 60, 0.3);
   padding: 4px 10px;
-  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.featured-meta .date {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* Типографіка Hero */
 .featured-content h2 {
-  font-family: 'Times New Roman', serif; /* Стиль ArcheAge */
-  font-size: 2rem;
   font-weight: 700;
-  color: #fff;
   margin: 0 0 12px 0;
-  line-height: 1.2;
+  font-size: 1.5rem;
+  line-height: 1.3;
 }
 
 .featured-content p {
   font-size: 1rem;
-  color: #b0b0b0;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  /* Обрізка до 2-3 рядків */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Кнопка читати далі */
 .read-more {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--accent);
-  margin-top: auto; 
-  transition: gap 0.2s ease;
+  color: var(--primary);
+  margin-top: auto;
 }
 
-.featured-article:hover .read-more {
-  gap: 10px;
-  color: #fff;
-}
-
-/* =========================================
-   GRID CARDS (Нижня частина)
-   ========================================= */
+/* --- GRID CARDS --- */
 .news-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -128,23 +159,11 @@
 }
 
 .visual-news-card {
-  background: #1a1714;
-  border-radius: 12px;
-  overflow: hidden;
-  text-decoration: none;
+  background: var(--bg-card-dark);
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(255,255,255,0.03);
 }
 
-.visual-news-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-  border-color: var(--accent);
-}
-
-/* Верхня частина картки з картинкою */
 .card-media {
   position: relative;
   height: 160px;
@@ -153,35 +172,21 @@
 }
 
 .media-img {
-  width: 100%;
-  height: 100%;
   background-size: cover;
   background-position: center;
-  transition: transform 0.5s ease;
 }
 
-.visual-news-card:hover .media-img {
-  transform: scale(1.1);
-}
-
-/* Бейдж на картці */
 .card-badge {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.75); /* Темніша підкладка для читабельності */
   backdrop-filter: blur(4px);
-  color: var(--accent);
-  border: 1px solid rgba(200, 155, 60, 0.3);
   z-index: 2;
   padding: 3px 8px;
   font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 4px;
 }
 
-/* Текст картки */
 .card-info {
   padding: 18px;
   display: flex;
@@ -193,21 +198,20 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
 
 .visual-news-card .card-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
   margin: 0 0 8px 0;
   line-height: 1.3;
 }
 
 .visual-news-card .card-desc {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -217,27 +221,261 @@
 }
 
 /* =========================================
-   RESPONSIVE (Мобільна адаптація)
+   SINGLE ARTICLE PAGE
    ========================================= */
+.article-page {
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 40px;
+}
+
+/* Background Logic */
+.article-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  filter: blur(8px) brightness(0.7);
+  transform: scale(1.1);
+}
+
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 15, 12, 0.6);
+}
+
+/* Content Container */
+.article-container {
+  margin: 0 auto;
+  max-width: 900px;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+  margin-top: 40px;
+}
+
+/* Navigation */
+.article-nav {
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.back-btn:hover {
+  color: var(--primary);
+}
+
+/* Article Card Wrapper */
+.article-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+/* Header */
+.article-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 2.5rem 2.5rem 2rem;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.category-badge {
+  padding: 4px 12px;
+}
+
+.article-header .date {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.article-header h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.article-description {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* Body */
+.article-body {
+  padding: 2.5rem;
+  color: var(--text-secondary);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.article-body p {
+  margin-bottom: 1.5rem;
+}
+
+.article-body h2, 
+.article-body h3 {
+  color: var(--text-primary);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.article-body a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* Footer */
+.article-footer {
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0,0,0,0.2);
+}
+
+.share-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.share-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.share-btn {
+  background: rgba(255,255,255,0.05);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(226, 133, 82, 0.4);
+}
+
+/* =========================================
+   RESPONSIVE (UNIFIED MEDIA QUERIES)
+   ========================================= */
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .news-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Менші картки */
+  }
+}
+
+/* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
-  /* Перебудовуємо Hero в одну колонку */
+  /* -- Global -- */
+  .article-container {
+    padding: 1rem;
+    margin-top: 20px;
+  }
+  
+  /* -- Hero Card -- */
   .featured-article {
-    grid-template-columns: 1fr;
-    grid-template-rows: 200px auto; /* Картинка зверху, текст знизу */
+    grid-template-columns: 1fr; /* Одна колонка */
+    grid-template-rows: auto auto; 
     height: auto;
   }
 
   .featured-image {
     height: 200px;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-light);
   }
 
   .featured-content {
     padding: 1.5rem;
   }
-  
+
   .featured-content h2 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  /* -- Article Page -- */
+  .article-header, 
+  .article-body, 
+  .article-footer {
+    padding: 1.5rem;
+  }
+  .article-body,
+  .article-description{
+    font-size: 1rem;
+  }
+  
+  .article-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .article-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .share-section {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .btn-primary {
+    justify-content: center;
+    width: 100%;
   }
 }

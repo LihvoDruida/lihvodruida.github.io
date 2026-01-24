@@ -2,34 +2,83 @@
 layout: default
 ---
 
-<article class="card news-article">
-  <header class="news-header">
-    <h1>{{ page.title }}</h1>
-
-    <div class="news-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">
-        {{ page.date | date: "%d.%m.%Y" }}
-      </time>
-
-      {% if page.categories %}
-        <span class="news-categories">
-          {% for cat in page.categories %}
-            <span class="badge category">{{ cat }}</span>
-          {% endfor %}
-        </span>
-      {% endif %}
-    </div>
-  </header>
-
-  <div class="news-content">
-    {{ content }}
+<div class="article-page">
+  
+  <div class="article-bg">
+    <div class="bg-image" style="background-image: url('{{ page.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
+    <div class="bg-overlay"></div>
   </div>
 
-  {% if page.tags %}
-    <footer class="news-tags">
-      {% for tag in page.tags %}
-        <span class="badge tag">#{{ tag }}</span>
-      {% endfor %}
-    </footer>
-  {% endif %}
-</article>
+  <div class="article-container">
+    
+    <div class="article-nav">
+      <a href="/news/" class="back-btn">
+        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        <span>Назад до новин</span>
+      </a>
+    </div>
+
+    <article class="article-wrapper">
+      
+      <header class="article-header">
+        <div class="article-meta">
+          <span class="category-badge">
+            {% if page.categories[1] %}
+              {{ page.categories[1] }}
+            {% else %}
+              {{ page.categories[0] }}
+            {% endif %}
+          </span>
+          <span class="date">
+            {% assign m = page.date | date: "%-m" %}
+            {{ page.date | date: "%d" }}
+            {% case m %}
+              {% when '1' %}січня
+              {% when '2' %}лютого
+              {% when '3' %}березня
+              {% when '4' %}квітня
+              {% when '5' %}травня
+              {% when '6' %}червня
+              {% when '7' %}липня
+              {% when '8' %}серпня
+              {% when '9' %}вересня
+              {% when '10' %}жовтня
+              {% when '11' %}листопада
+              {% when '12' %}грудня
+            {% endcase %}
+            {{ page.date | date: "%Y р." }}
+          </span>
+        </div>
+
+        <h1>{{ page.title }}</h1>
+        
+        {% if page.description %}
+        <p class="article-description">{{ page.description }}</p>
+        {% endif %}
+      </header>
+
+      <div class="article-body">
+        {{ content }}
+      </div>
+
+      <footer class="article-footer">
+        
+        <div class="share-section">
+          <span class="share-label">Поділитися новиною</span>
+          <div class="share-buttons">
+            <button class="share-btn" title="Копіювати посилання">
+              <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <a href="/news/" class="btn-primary">
+          <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20M4,6V18H20V6H4Z" /></svg>
+          Усі новини
+        </a>
+
+      </footer>
+
+    </article>
+  </div>
+</div>
