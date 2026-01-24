@@ -1,0 +1,50 @@
+---
+layout: default
+---
+
+<article class="single-post-container">
+  
+  <header class="post-header">
+    <div class="post-cover" style="background-image: url('{{ page.image | default: '/assets/img/news-placeholder.jpg' }}');">
+      <div class="post-cover-overlay"></div>
+    </div>
+
+    <div class="post-header-content">
+      <a href="/news/" class="back-link">
+        <svg style="width:16px;height:16px;transform:rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" /></svg>
+        Назад до новин
+      </a>
+
+      <div class="post-meta-top">
+        {% if page.categories %}
+          <span class="post-badge">
+            {% if page.categories[1] %}{{ page.categories[1] }}{% else %}{{ page.categories[0] }}{% endif %}
+          </span>
+        {% endif %}
+        <time class="post-date" datetime="{{ page.date | date_to_xmlschema }}">
+          {{ page.date | date: "%d %b. %Y" }}
+        </time>
+      </div>
+
+      <h1>{{ page.title }}</h1>
+    </div>
+  </header>
+
+  <div class="post-body card">
+    <div class="news-content">
+      {{ content }}
+    </div>
+
+    {% if page.tags.size > 0 %}
+      <footer class="post-footer">
+        <span class="tags-label">Теги:</span>
+        <div class="tags-list">
+          {% for tag in page.tags %}
+            <span class="badge tag">#{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </footer>
+    {% endif %}
+  </div>
+
+</article>

@@ -1,11 +1,15 @@
 title: Sebas — Gaming Profile
 description: Профіль гравця та центр новин про World of Warcraft, адони та контент.
 lang: uk
+author: Sebas
 
 collections:
   news:
     output: true
-    permalink: /news/:title/
+    permalink: /news/:slug/
+  guides:
+    output: true
+    permalink: /guides/:slug/
 
 defaults:
   - scope:
@@ -15,6 +19,12 @@ defaults:
       layout: news
       categories: ["новини"]
       tags: []
-
-author: Sebas
+  
+  - scope:
+      path: ""
+      type: guides
+    values:
+      layout: guide
+      categories: ["гайди"]
+      tags: []
 
