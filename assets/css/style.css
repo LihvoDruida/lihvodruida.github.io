@@ -1,5 +1,6 @@
 @import "./base/variables.css";
 @import "./donate.css";
+@import "./news.css";
 @import "./404.css";
 @import "./responsive.css";
 
@@ -553,6 +554,7 @@ footer {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
   margin-bottom: 50px;
+  justify-items: center;
 }
 
 /* === CARD === */

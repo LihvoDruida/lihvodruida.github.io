@@ -1,0 +1,243 @@
+/* =========================================
+   ARCHEAGE STYLE NEWS LAYOUT
+   ========================================= */
+
+/* --- HERO CARD (FEATURED) --- */
+/* Оновлена структура на основі оригіналу (Grid 400px + Auto) */
+.featured-article {
+  background: var(--panel); /* Темна підкладка з ваших змінних */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 400px 1fr; /* Фіксована ширина картинки + контент */
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+}
+
+.featured-article:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent); /* Золота рамка при наведенні */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+/* Ліва частина: Картинка */
+.featured-image {
+  height: 100%;
+  min-height: 240px; /* Мінімальна висота */
+  overflow: hidden;
+  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.featured-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Заповнює блок, не сплющуючись */
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.featured-article:hover .featured-image img {
+  transform: scale(1.05);
+}
+
+/* Права частина: Контент */
+.featured-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Мета дані (Бейдж + Дата) */
+.featured-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.category-badge {
+  background: rgba(200, 155, 60, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(200, 155, 60, 0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.featured-meta .date {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Типографіка Hero */
+.featured-content h2 {
+  font-family: 'Times New Roman', serif; /* Стиль ArcheAge */
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+}
+
+.featured-content p {
+  font-size: 1rem;
+  color: #b0b0b0;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  /* Обрізка до 2-3 рядків */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Кнопка читати далі */
+.read-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: auto; 
+  transition: gap 0.2s ease;
+}
+
+.featured-article:hover .read-more {
+  gap: 10px;
+  color: #fff;
+}
+
+/* =========================================
+   GRID CARDS (Нижня частина)
+   ========================================= */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.visual-news-card {
+  background: #1a1714;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.visual-news-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+  border-color: var(--accent);
+}
+
+/* Верхня частина картки з картинкою */
+.card-media {
+  position: relative;
+  height: 160px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.media-img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.5s ease;
+}
+
+.visual-news-card:hover .media-img {
+  transform: scale(1.1);
+}
+
+/* Бейдж на картці */
+.card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  color: var(--accent);
+  border: 1px solid rgba(200, 155, 60, 0.3);
+  z-index: 2;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+/* Текст картки */
+.card-info {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.visual-news-card .news-date {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.visual-news-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.visual-news-card .card-desc {
+  font-size: 0.85rem;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* =========================================
+   RESPONSIVE (Мобільна адаптація)
+   ========================================= */
+@media (max-width: 768px) {
+  /* Перебудовуємо Hero в одну колонку */
+  .featured-article {
+    grid-template-columns: 1fr;
+    grid-template-rows: 200px auto; /* Картинка зверху, текст знизу */
+    height: auto;
+  }
+
+  .featured-image {
+    height: 200px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .featured-content {
+    padding: 1.5rem;
+  }
+  
+  .featured-content h2 {
+    font-size: 1.5rem;
+  }
+}
