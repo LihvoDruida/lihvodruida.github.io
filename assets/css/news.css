@@ -1,34 +1,33 @@
 /* =========================================
-   GLOBAL VARIABLES & RESET
+   1. VARIABLES & THEME (Local Scope)
    ========================================= */
 :root {
-  /* Основні кольори */
-  --primary: #e28552;
-  --primary-light: #e79e6f;
-  --accent: #c89b3c; /* Золотий акцент */
+  /* Colors */
+  --news-primary:       #e28552;
+  --news-primary-light: #e79e6f;
+  --news-accent:        #c89b3c;
   
-  /* Фонові кольори */
-  --bg-page: #110e0c;
-  --bg-card: rgba(33, 27, 23, 0.95); /* Основний фон карток */
-  --bg-card-dark: #1a1714; /* Темніший фон для малих карток */
+  /* Backgrounds */
+  --bg-card:       rgba(33, 27, 23, 0.95);
+  --bg-card-dark:  #1a1714;
   
-  /* Межі та Тіні */
-  --border-color: rgba(226, 133, 82, 0.15);
-  --border-light: rgba(255, 255, 255, 0.05);
-  --shadow-sm: 0 10px 30px rgba(0,0,0,0.3);
-  --shadow-lg: 0 20px 50px rgba(0,0,0,0.5);
+  /* Borders & Shadows */
+  --border-color:  rgba(226, 133, 82, 0.15);
+  --border-light:  rgba(255, 255, 255, 0.05);
+  --shadow-sm:     0 10px 30px rgba(0,0,0,0.3);
+  --shadow-lg:     0 20px 50px rgba(0,0,0,0.5);
 
-  /* Текст */
-  --text-primary: #fff;
+  /* Typography */
+  --text-primary:   #fff;
   --text-secondary: hsla(0, 0%, 100%, 0.7);
-  --text-muted: #888;
+  --text-muted:     #888;
 }
 
 /* =========================================
-   SHARED COMPONENTS (Reusable Styles)
+   2. SHARED INTERACTIVE COMPONENTS
    ========================================= */
 
-/* Базовий стиль картки */
+/* --- Card Base Styles --- */
 .featured-article, 
 .visual-news-card, 
 .article-wrapper {
@@ -38,45 +37,55 @@
   transition: all 0.3s ease;
   text-decoration: none;
   color: var(--text-primary);
+  display: block; /* Essential for card-links */
+  position: relative; /* For badges positioning */
 }
 
-.featured-article:hover, 
-.visual-news-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-lg);
+/* Desktop Hover Effects (Disabled on Touch to prevent flickering) */
+@media (hover: hover) {
+  .featured-article:hover, 
+  .visual-news-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--news-primary);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
-/* Бейджі категорій */
+/* --- Badges --- */
 .category-badge, 
 .card-badge {
   display: inline-block;
   background: rgba(226, 133, 82, 0.15);
-  color: var(--primary);
-  border: 1px solid var(--primary);
+  color: var(--news-primary);
+  border: 1px solid var(--news-primary);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.5px;
   border-radius: 4px;
 }
 
-/* Кнопки */
-.btn-primary, 
-.share-btn, 
-.back-btn {
-  transition: all 0.2s ease;
+/* --- Buttons (Touch Optimized) --- */
+.btn-primary, .share-btn, .back-btn {
+  transition: background-color 0.2s ease, transform 0.1s ease;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent; /* Removes blue highlight on mobile */
+  touch-action: manipulation; /* Improves touch response */
+}
+
+/* Active State (Haptic visual feedback) */
+.btn-primary:active, .share-btn:active, .back-btn:active {
+  transform: scale(0.96);
 }
 
 /* =========================================
-   NEWS FEED (LIST VIEW)
+   3. NEWS FEED (LIST VIEW)
    ========================================= */
 
-/* --- HERO CARD --- */
+/* --- Featured Article (Hero) --- */
 .featured-article {
   background: var(--bg-card);
   display: grid;
-  grid-template-columns: 400px 1fr; /* PC: Фіксована картинка + контент */
+  grid-template-columns: 400px 1fr; /* Image | Content */
   margin-bottom: 2.5rem;
   box-shadow: var(--shadow-sm);
 }
@@ -98,11 +107,6 @@
   transition: transform 0.5s ease;
 }
 
-.featured-article:hover .featured-image img,
-.visual-news-card:hover .media-img {
-  transform: scale(1.05);
-}
-
 .featured-content {
   display: flex;
   flex-direction: column;
@@ -118,16 +122,13 @@
   margin-bottom: 1rem;
 }
 
-.category-badge {
-  padding: 4px 10px;
-  font-size: 0.75rem;
-}
+.category-badge { padding: 4px 10px; font-size: 0.75rem; }
 
 .featured-content h2 {
   font-weight: 700;
   margin: 0 0 12px 0;
-  font-size: 1.5rem;
-  line-height: 1.3;
+  font-size: 1.75rem;
+  line-height: 1.2;
 }
 
 .featured-content p {
@@ -147,26 +148,28 @@
   gap: 6px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--news-primary);
   margin-top: auto;
 }
 
-/* --- GRID CARDS --- */
+/* --- News Grid Layout --- */
 .news-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
 }
 
+/* --- Grid Card Item --- */
 .visual-news-card {
   background: var(--bg-card-dark);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .card-media {
   position: relative;
-  height: 160px;
+  height: 180px;
   width: 100%;
   overflow: hidden;
 }
@@ -178,39 +181,40 @@
 
 .card-badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.75); /* Темніша підкладка для читабельності */
+  top: 10px; left: 10px;
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(4px);
   z-index: 2;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: 0.7rem;
+  border: none;
+  color: #fff;
 }
 
 .card-info {
-  padding: 18px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .visual-news-card .news-date {
-  font-size: 11px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .visual-news-card .card-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
 }
 
 .visual-news-card .card-desc {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
@@ -221,15 +225,17 @@
 }
 
 /* =========================================
-   SINGLE ARTICLE PAGE
+   4. SINGLE ARTICLE PAGE
    ========================================= */
+
 .article-page {
   min-height: 100vh;
   position: relative;
-  padding-bottom: 40px;
+  /* Safe Area for iPhone Home Indicator */
+  padding-bottom: max(40px, env(safe-area-inset-bottom));
 }
 
-/* Background Logic */
+/* --- Backgrounds --- */
 .article-bg {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -237,8 +243,7 @@
 }
 
 .bg-image {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   background-size: cover;
   background-position: center top;
   filter: blur(8px) brightness(0.7);
@@ -246,25 +251,20 @@
 }
 
 .bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(18, 15, 12, 0.6);
+  position: absolute; inset: 0;
+  background: rgba(18, 15, 12, 0.7);
 }
 
-/* Content Container */
+/* --- Container & Navigation --- */
 .article-container {
   margin: 0 auto;
   max-width: 900px;
-  padding: 2rem;
   position: relative;
   z-index: 1;
   margin-top: 40px;
 }
 
-/* Navigation */
-.article-nav {
-  margin-bottom: 20px;
-}
+.article-nav { margin-bottom: 24px; }
 
 .back-btn {
   display: inline-flex;
@@ -272,15 +272,16 @@
   gap: 8px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 10px 14px; /* Larger hit area */
+  margin-left: -14px;
+  border-radius: 8px;
 }
 
-.back-btn:hover {
-  color: var(--primary);
-}
+.back-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
 
-/* Article Card Wrapper */
+/* --- Article Content Wrapper --- */
 .article-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -288,55 +289,48 @@
   backdrop-filter: blur(10px);
 }
 
-/* Header */
+/* --- Header --- */
 .article-header {
   border-bottom: 1px solid var(--border-color);
-  padding: 2.5rem 2.5rem 2rem;
+  padding: 3rem;
 }
 
 .article-meta {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.category-badge {
-  padding: 4px 12px;
+  margin-bottom: 1.5rem;
 }
 
 .article-header .date {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .article-header h1 {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 1rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
   color: var(--text-primary);
 }
 
 .article-description {
   color: var(--text-secondary);
-  font-size: 1.125rem;
+  font-size: 1.2rem;
   line-height: 1.6;
 }
 
-/* Body */
+/* --- Body Typography (Markdown) --- */
 .article-body {
-  padding: 2.5rem;
+  padding: 3rem;
   color: var(--text-secondary);
-  font-size: 1.0625rem;
+  font-size: 1.1rem;
   line-height: 1.8;
 }
 
-.article-body p {
-  margin-bottom: 1.5rem;
-}
+.article-body p { margin-bottom: 1.5rem; }
 
-/* --- MARKDOWN CONTENT STYLES (Typography) --- */
 .article-body h2, 
 .article-body h3, 
 .article-body h4 {
@@ -348,60 +342,41 @@
 }
 
 .article-body h2 {
-  font-family: 'Times New Roman', serif;
-  font-size: 1.75rem;
+  font-family: 'Lexend Variable', sans-serif; /* Consistent with site font */
+  font-size: 1.8rem;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5rem;
-  color: var(--accent); /* Золотий заголовок */
+  color: var(--news-accent);
 }
 
-.article-body h3 {
-  font-size: 1.4rem;
-  color: #fff;
-}
+.article-body h3 { font-size: 1.4rem; color: #fff; }
 
-/* --- СПИСКИ (UL / OL) --- */
 .article-body ul, 
 .article-body ol {
   margin-bottom: 1.5rem;
   padding-left: 1.5rem;
 }
 
-.article-body li {
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
-}
+.article-body ul li::marker { color: var(--news-primary); font-size: 1.2em; }
+.article-body ol li::marker { color: var(--news-accent); font-weight: bold; }
 
-/* Маркери */
-.article-body ul li::marker {
-  color: var(--primary); /* Помаранчеві крапки */
-  font-size: 1.2em;
-}
-
-.article-body ol li::marker {
-  color: var(--accent); /* Золоті цифри */
-  font-family: 'Times New Roman', serif;
-  font-weight: bold;
-  font-style: italic;
-}
-
-/* --- ЦИТАТИ (BLOCKQUOTE) --- */
+/* Quotes */
 .article-body blockquote {
   position: relative;
   margin: 2rem 0;
   padding: 1.5rem 2rem;
   background: rgba(0, 0, 0, 0.2);
-  border-left: 4px solid var(--accent);
+  border-left: 4px solid var(--news-accent);
   border-radius: 0 8px 8px 0;
   font-style: italic;
   color: #d0d0d0;
 }
 
-/* --- КОД (CODE & PRE) --- */
+/* Code Blocks (Inertia Scroll) */
 .article-body code {
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: 'Consolas', monospace;
   background: rgba(226, 133, 82, 0.1);
-  color: var(--primary-light);
+  color: var(--news-primary-light);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;
@@ -414,237 +389,90 @@
   border-radius: 8px;
   padding: 1.5rem;
   margin: 1.5rem 0;
+  /* Inertia Scroll for mobile */
   overflow-x: auto;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+  -webkit-overflow-scrolling: touch;
 }
-
 .article-body pre code {
-  background: none;
-  color: #e0e0e0;
-  padding: 0;
-  border: none;
-  font-size: 0.95em;
-  display: block;
-  line-height: 1.5;
+  background: none; color: #e0e0e0; padding: 0; border: none; display: block;
 }
 
-/* --- ТАБЛИЦІ --- */
+/* Tables (Inertia Scroll) */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 2rem 0;
+    border-radius: 8px;
+}
+
 .article-body table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 2rem 0;
-  font-size: 0.95rem;
+  width: 100%; border-collapse: collapse;
   background: rgba(0,0,0,0.2);
-  border-radius: 8px;
-  overflow: hidden;
+  min-width: 500px; /* Ensure table doesn't squash on mobile */
 }
 
 .article-body th {
-  background: rgba(226, 133, 82, 0.1);
-  color: var(--accent);
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 2px solid var(--border-color);
+  background: rgba(226, 133, 82, 0.1); color: var(--news-accent);
+  padding: 12px 15px; text-align: left; border-bottom: 2px solid var(--border-color);
 }
-
 .article-body td {
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.article-body tr:last-child td { border-bottom: none; }
-.article-body tr:hover td { background: rgba(255,255,255,0.02); }
-
-/* --- ЛІНІЯ РОЗДІЛЕННЯ --- */
-.article-body hr {
-  border: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
-  margin: 3rem 0;
-}
-
-/* --- ЗОБРАЖЕННЯ ТА ПОСИЛАННЯ --- */
+/* Links & Images */
 .article-body a:not(.btn-primary) {
-  color: var(--primary);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: all 0.2s ease;
+  color: var(--news-primary); text-decoration: none; border-bottom: 1px solid transparent;
 }
-
-.article-body a:not(.btn-primary):hover {
-  color: var(--primary-light);
-  border-bottom-color: var(--primary-light);
-}
-
 .article-body img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 1.5rem 0;
+  max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0;
   border: 1px solid var(--border-color);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* Footer */
+/* --- Footer & Actions --- */
 .article-footer {
   border-top: 1px solid var(--border-color);
-  padding: 1.5rem 2.5rem;
+  padding: 2rem 3rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   background: rgba(0,0,0,0.2);
 }
 
-.share-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.share-label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
+.share-section { display: flex; align-items: center; gap: 1rem; }
+.share-label { color: var(--text-secondary); font-size: 0.9rem; }
 
 .share-btn {
   background: rgba(255,255,255,0.05);
   border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 44px; /* Minimum touch target */
+  height: 44px;
+  border-radius: 12px;
   color: #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
 }
 
-.share-btn:hover {
-  background: var(--primary);
-  color: #fff;
-}
+.share-btn:hover { background: var(--news-primary); color: #fff; }
 
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  background: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--news-primary);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  gap: 0.6rem;
+  padding: 0.8rem 1.75rem;
   text-decoration: none;
+  min-height: 44px; /* Touch target */
+  box-shadow: 0 4px 10px rgba(226, 133, 82, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--primary-light);
+  background: var(--news-primary-light);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(226, 133, 82, 0.4);
-}
-
-
-/* =========================================
-   RESPONSIVE (UNIFIED MEDIA QUERIES)
-   ========================================= */
-
-/* Tablet (max-width: 1024px) */
-@media (max-width: 1024px) {
-  .news-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Менші картки */
-  }
-}
-
-/* Mobile (max-width: 768px) */
-@media (max-width: 768px) {
-  /* -- Global -- */
-  .article-container {
-    padding: 1rem;
-    margin-top: 20px;
-  }
-  
-  /* -- Hero Card -- */
-  .featured-article {
-    grid-template-columns: 1fr; /* Одна колонка */
-    grid-template-rows: auto auto; 
-    height: auto;
-  }
-
-  .featured-image {
-    height: 200px;
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .featured-content {
-    padding: 1.5rem;
-  }
-
-  .featured-content h2 {
-    font-size: 1.25rem;
-  }
-
-  /* -- Article Page -- */
-  .article-header, 
-  .article-body, 
-  .article-footer {
-    padding: 1.5rem;
-  }
-  
-  /* Mobile Typography */
-  .article-body,
-  .article-description {
-    font-size: 1rem;
-  }
-  
-  .article-header h1 {
-    font-size: 1.75rem;
-  }
-  
-  /* Markdown Elements */
-  .article-body h2 { font-size: 1.5rem; margin-top: 2rem; }
-  .article-body h3 { font-size: 1.25rem; margin-top: 1.5rem; }
-  
-  .article-body blockquote { 
-    margin: 1.5rem 0; 
-    padding: 1rem 1.25rem; 
-    font-size: 0.95rem; 
-  }
-  
-  .article-body pre { padding: 1rem; font-size: 0.85rem; }
-  
-  /* Tables with horizontal scroll */
-  .article-body table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-  }
-  
-  .article-body th, .article-body td {
-    padding: 10px;
-    font-size: 0.85rem;
-  }
-
-  /* Footer Actions */
-  .article-footer {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .share-section {
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .btn-primary {
-    justify-content: center;
-    width: 100%;
-  }
+  box-shadow: 0 8px 20px rgba(226, 133, 82, 0.4);
 }

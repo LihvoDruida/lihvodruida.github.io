@@ -4,19 +4,77 @@
 @import "./404.css";
 
 /* =========================================
-   VARIABLES & RESET
+    1. MOBILE & ACCESSIBILITY ENHANCEMENTS
    ========================================= */
-:root {
-    /* Локальні змінні для цього файлу (якщо їх немає в variables.css) */
-    --orange-light: #ffb26a;
-    --orange-main: #ff9b55;
-    --orange-dark: #ff7a2f;
-    --nav-bg-start: rgba(20, 14, 10, .85);
-    --nav-bg-end: rgba(20, 14, 10, .65);
-    --transition-fast: all 0.25s ease;
-    --transition-medium: all 0.35s ease;
+
+/* iOS / Android tap highlight */
+* {
+    -webkit-tap-highlight-color: rgba(255,255,255,0.15);
 }
 
+/* Мінімальний touch target */
+button,
+a,
+.btn-social,
+.dropdown-toggle {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Натуральний клік */
+button:active,
+a:active {
+    filter: brightness(0.92);
+}
+
+/* Менше руху — якщо користувач просить */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* Вимикаємо hover на тач-пристроях */
+@media (hover: none) {
+    .card:hover,
+    .news-card:hover,
+    .btn-social:hover,
+    .character:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* iOS input zoom fix */
+input,
+textarea,
+select {
+    font-size: 16px;
+}
+
+/* =========================================
+   2. GLOBAL VARIABLES & SETTINGS
+   ========================================= */
+:root {
+    --orange-light: #ffb26a;
+    --orange-main:  #ff9b55;
+    --orange-dark:  #ff7a2f;
+
+    --nav-bg-start: rgba(20,14,10,.85);
+    --nav-bg-end:   rgba(20,14,10,.65);
+
+    --transition-fast:   all .25s ease;
+    --transition-medium: all .35s ease;
+
+    --z-dropdown: 1000;
+    --z-navbar:   9999;
+}
+
+/* =========================================
+   3. RESET & BASE
+   ========================================= */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -25,21 +83,29 @@
 
 html {
     font-family: "Nunito Sans", sans-serif;
-    font-size: 100%; /* 16px base */
+    font-size: 100%;
     line-height: 1.5;
     overflow-x: hidden;
-    overflow-y: scroll;
-    text-rendering: optimizeLegibility;
-    tab-size: 4;
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
 }
 
 body {
-    padding-top: 64px;
-    color: var(--text);
     background: radial-gradient(circle at top, #2a2118, var(--bg));
+    color: var(--text);
     min-height: 100vh;
+    touch-action: manipulation;
 }
 
+/* Focus accessibility */
+:focus-visible {
+    outline: 2px solid var(--orange-main);
+    outline-offset: 2px;
+}
+
+/* =========================================
+   4. LAYOUT
+   ========================================= */
 .layout {
     display: flex;
     flex-direction: column;
@@ -51,40 +117,50 @@ main {
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
-    flex: 1; /* Щоб футер притискався до низу */
+    flex: 1;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+/* Grids */
+.ui-blocks,
+#characters,
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
 }
 
 /* =========================================
-   TYPOGRAPHY
+   5. TYPOGRAPHY
    ========================================= */
 h1, h2, h3, #navigation-links {
-    text-transform: uppercase;
     font-family: 'Lexend Variable', sans-serif;
+    text-transform: uppercase;
     font-weight: 700;
 }
 
 h1, h2, h3 {
-    color: transparent; /* Fallback handled by background-clip */
+    color: transparent;
     background: linear-gradient(#f5fbff, #bfe6ff);
-    -webkit-background-clip: text;
     background-clip: text;
-    margin-bottom: 1rem;
+    -webkit-background-clip: text;
 }
 
-h1 { font-size: 1.4em; } /* Можливо, варто збільшити, бо 1.4em це мало для H1 */
-h2 { font-size: 1.1em; }
-h3 { font-size: 0.9em; }
+h1 { font-size: 1.6em; }
+h2 { font-size: 1.25em; }
+h3 { font-size: 1.1em; }
 
 /* =========================================
-   NAVIGATION
+   6. NAVIGATION
    ========================================= */
 .top-nav {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 64px;
-    z-index: 9999;
+    position: sticky;
+    top: 0;
+    height: 64px;
+    z-index: var(--z-navbar);
     background: linear-gradient(to bottom, var(--nav-bg-start), var(--nav-bg-end));
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,.06);
 }
 
 .nav-container {
@@ -94,7 +170,7 @@ h3 { font-size: 0.9em; }
     padding: 0 24px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Адаптивність */
+    justify-content: space-between;
 }
 
 .nav-left {
@@ -103,7 +179,7 @@ h3 { font-size: 0.9em; }
     align-items: center;
 }
 
-/* Nav Links & Toggles Shared Styles */
+/* Стилі посилань меню */
 .nav-left > a,
 .dropdown-toggle {
     color: #e6e1db;
@@ -126,7 +202,7 @@ h3 { font-size: 0.9em; }
     color: var(--orange-light);
 }
 
-/* Underline Animation */
+/* Анімація підкреслення */
 .nav-left > a::after,
 .dropdown-toggle::after {
     content: "";
@@ -145,7 +221,7 @@ h3 { font-size: 0.9em; }
     transform: scaleX(1);
 }
 
-/* Dropdown Logic */
+/* --- Dropdown Menu Logic --- */
 .nav-dropdown {
     position: relative;
 }
@@ -169,23 +245,26 @@ h3 { font-size: 0.9em; }
     background: radial-gradient(120% 120% at top left, rgba(50,35,25,.95), rgba(18,12,9,.98));
     border-radius: 16px;
     border: 1px solid rgba(255,190,120,.12);
-    box-shadow: 0 40px 90px rgba(0,0,0,.85), 0 0 35px rgba(255,155,85,.18), inset 0 0 0 1px rgba(255,255,255,.02);
+    box-shadow: 0 40px 90px rgba(0,0,0,.85), 
+                0 0 35px rgba(255,155,85,.18), 
+                inset 0 0 0 1px rgba(255,255,255,.02);
     
     opacity: 0;
     pointer-events: none;
     transform: translateY(-6px) scale(0.98);
     filter: blur(6px);
     transition: opacity .28s ease, transform .28s ease, filter .28s ease;
-    z-index: 1000;
+    z-index: var(--z-dropdown);
 }
 
-/* Glow line top */
+/* Невидима зона, щоб меню не зникало при русі миші */
 .dropdown-menu::before {
     content: "";
     position: absolute;
     top: -18px; left: 0; right: 0; height: 18px;
 }
 
+/* Відкриття меню */
 .nav-dropdown:hover .dropdown-menu,
 .nav-dropdown:focus-within .dropdown-menu {
     opacity: 1;
@@ -194,7 +273,7 @@ h3 { font-size: 0.9em; }
     filter: blur(0);
 }
 
-/* Dropdown Items */
+/* Елементи Dropdown */
 .dropdown-menu a {
     position: relative;
     display: flex;
@@ -206,7 +285,7 @@ h3 { font-size: 0.9em; }
     text-decoration: none;
     font-size: 14.5px;
     font-weight: 500;
-    margin-top: 4px; /* Separator replacement */
+    margin-top: 4px; 
     transition: var(--transition-fast);
 }
 
@@ -218,7 +297,7 @@ h3 { font-size: 0.9em; }
     transform: translateX(4px);
 }
 
-/* Item Glow Indicator */
+/* Індикатор (світіння) зліва при наведенні */
 .dropdown-menu a::before {
     content: "";
     position: absolute;
@@ -241,21 +320,8 @@ h3 { font-size: 0.9em; }
 }
 
 /* =========================================
-   LAYOUT GRIDS & SECTIONS
+   7. SECTIONS & HERO AREAS
    ========================================= */
-/* Unified Grid System */
-.ui-blocks,
-#characters,
-.news-grid {
-    display: grid;
-    /* Minmax 280px is better for mobile than 300px */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-    gap: 20px;
-}
-
-.news-grid { gap: 30px; justify-items: center; margin-bottom: 50px; }
-
-/* Section Header */
 .section-header { margin-bottom: 46px; }
 .section-header h1 { font-size: 44px; font-weight: 600; color: #fff; }
 
@@ -283,7 +349,6 @@ h3 { font-size: 0.9em; }
     position: absolute;
     inset: 0;
     z-index: 0;
-    /* Optional: Add background overlay here if needed */
 }
 
 .area-content {
@@ -295,7 +360,7 @@ h3 { font-size: 0.9em; }
 }
 
 /* =========================================
-   CARDS (Base & Variants)
+   8. COMPONENTS: CARDS
    ========================================= */
 .card,
 .news-card,
@@ -304,7 +369,7 @@ h3 { font-size: 0.9em; }
     transition: var(--transition-medium);
 }
 
-/* Generic Card */
+/* --- Generic Card --- */
 .card {
     background: var(--panel);
     padding: 24px;
@@ -321,7 +386,7 @@ h3 { font-size: 0.9em; }
     animation: subtleGlow 4s ease-in-out infinite;
 }
 
-/* Character Card */
+/* --- Character Card --- */
 #characters .character {
     background: var(--panel-soft);
     padding: 16px;
@@ -368,7 +433,7 @@ h3 { font-size: 0.9em; }
     letter-spacing: 0.5px;
 }
 
-/* News Card */
+/* --- News Card --- */
 .news-card {
     position: relative;
     display: block;
@@ -408,7 +473,7 @@ h3 { font-size: 0.9em; }
 }
 
 /* =========================================
-   BUTTONS & SOCIALS
+   9. BUTTONS & INTERACTIVE ELEMENTS
    ========================================= */
 .socials-card {
     display: flex; flex-wrap: wrap; align-items: center;
@@ -422,7 +487,7 @@ h3 { font-size: 0.9em; }
 
 .socials-links { display: flex; gap: 10px; flex-wrap: wrap; }
 
-/* Unified Button Base */
+/* Базові стилі для кнопок */
 .btn-social,
 .donate a,
 .btn-primary-hero {
@@ -432,9 +497,10 @@ h3 { font-size: 0.9em; }
     border-radius: 12px;
     transition: var(--transition-fast);
     font-weight: 600;
+    cursor: pointer;
 }
 
-/* Social Buttons */
+/* Соціальні кнопки */
 .btn-social {
     gap: 8px;
     padding: 8px 18px;
@@ -450,13 +516,13 @@ h3 { font-size: 0.9em; }
     box-shadow: 0 0 10px rgba(200, 155, 60, 0.4), 0 0 20px rgba(200, 155, 60, 0.2);
 }
 
-/* Specific Social Colors */
+/* Кольори брендів */
 .btn-social.tw:hover { background: #9146ff; border-color: #a970ff; box-shadow: 0 0 20px rgba(145, 70, 255, 0.4); }
 .btn-social.dc:hover { background: #5865F2; border-color: #7983f5; box-shadow: 0 0 20px rgba(88, 101, 242, 0.4); }
 .btn-social.yt:hover { background: #ff0000; border-color: #ff4444; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
 .btn-social.tt:hover { background: #010101; border-color: #69C9D0; box-shadow: 2px 2px 0 #EE1D52, -2px -2px 0 #69C9D0; }
 
-/* Donate Button */
+/* Кнопка донату */
 .donate { border: 1px solid rgba(200,155,60,0.3); }
 .donate a {
     margin-top: 10px;
@@ -470,7 +536,7 @@ h3 { font-size: 0.9em; }
     box-shadow: 0 0 20px rgba(200, 155, 60, 0.5);
 }
 
-/* Hero Button */
+/* Hero Button (Основна дія) */
 .news-actions { text-align: center; }
 .btn-primary-hero {
     background: var(--primary);
@@ -485,18 +551,24 @@ h3 { font-size: 0.9em; }
     transform: translateY(-2px);
 }
 
-/* Animations */
+/* =========================================
+   10. ANIMATIONS
+   ========================================= */
 .bounce-icon { animation: bounce 1.8s infinite; }
 
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(8px); }
-}
-@keyframes subtleGlow {
-    0%, 100% { box-shadow: 0 0 10px rgba(200,155,60,0.15); }
-    50% { box-shadow: 0 0 20px rgba(200,155,60,0.35); }
+    50%      { transform: translateY(8px); }
 }
 
+@keyframes subtleGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(200,155,60,0.15); }
+    50%      { box-shadow: 0 0 20px rgba(200,155,60,0.35); }
+}
+
+/* =========================================
+   11. FOOTER
+   ========================================= */
 footer {
     margin-top: 40px;
     font-size: 13px;
@@ -504,7 +576,34 @@ footer {
 }
 
 /* =========================================
-   RESPONSIVE & MOBILE
+   UX ENHANCEMENTS (GLOBAL & MOBILE)
+   ========================================= */
+
+/* 1. Button Haptic Feedback (Вібрація/Відгук) */
+/* Додаємо ефект натискання для всіх кнопок */
+.btn-social:active,
+.donate a:active,
+.btn-primary-hero:active,
+.dropdown-toggle:active,
+button:active,
+a.button:active {
+    transform: scale(0.96); /* Легке зменшення при кліку */
+    transition: transform 0.1s ease-out; /* Миттєва реакція */
+}
+
+/* 2. Inertial Scrolling (Інерційний скрол) */
+/* Для таблиць, блоків коду та горизонтальних списків */
+.table-responsive,
+pre,
+code,
+.scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Магія iOS для плавності */
+    overscroll-behavior-x: contain; /* Запобігає скролу сторінки */
+}
+
+/* =========================================
+   RESPONSIVE MEDIA QUERIES
    ========================================= */
 
 /* Large Screens (max-width: 1200px) */
@@ -541,10 +640,25 @@ footer {
 
 /* Tablets Portrait & Mobile (max-width: 768px) */
 @media (max-width: 768px) {
-    /* -- Layout & Body -- */
-    body { padding-top: 56px; }
-    .top-nav { height: 56px; }
-    main { padding: 20px 15px; }
+    /* -- 3. iPhone Safe Area Support -- */
+    body {
+        /* Запобігає накладанню на системний "home indicator" знизу */
+        padding-bottom: env(safe-area-inset-bottom); 
+        /* Запобігає накладанню на закруглені кути/чубчик в ландшафті */
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    .top-nav { 
+        height: 56px; 
+        /* Хедер також має враховувати верхній відступ (status bar) */
+        padding-top: env(safe-area-inset-top);
+        height: calc(56px + env(safe-area-inset-top));
+    }
+
+    main { 
+        padding: 20px 15px; 
+    }
     
     /* -- Navigation -- */
     /* УВАГА: Це приховає меню. Потрібен JS для мобільного меню (гамбургер) */
@@ -559,10 +673,21 @@ footer {
         gap: 12px;
     }
 
+    /* -- 4. Full Bleed Images (Картинки на всю ширину) -- */
+    /* Витягує картинки за межі паддінгів контейнера */
+    .article-body img,
+    .news-card img,
+    .full-width-mobile {
+        width: calc(100% + 30px); /* 100% + сума лівого і правого padding main */
+        margin-left: -15px;       /* Зсув вліво на розмір padding main */
+        border-radius: 0;         /* Прибираємо закруглення, щоб виглядало нативно */
+        display: block;
+    }
+
     /* -- Hero News Card (Featured) -- */
     .featured-article {
         grid-template-columns: 1fr;
-        grid-template-rows: 200px auto; /* Картинка зверху, текст знизу */
+        grid-template-rows: 200px auto;
         height: auto;
     }
     .featured-image {
@@ -617,14 +742,17 @@ footer {
     .char-avatar { width: 50px; height: 50px; }
     .char-info strong { font-size: 15px; }
     
-    /* -- Socials Full Width -- */
+    /* -- Socials Full Width (Touch Targets) -- */
+    /* Збільшуємо зону натискання для зручності пальців */
     .btn-social { 
         width: 100%; 
         justify-content: center; 
+        padding: 12px; /* Більше простору для пальця */
     }
     .socials-links { 
         width: 100%; 
         flex-direction: column; 
+        gap: 12px;
     }
     
     .scores { justify-content: center; }
