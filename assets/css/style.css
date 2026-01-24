@@ -793,6 +793,7 @@ code,
     
     /* Ховаємо десктопне меню */
     .nav-left { display: none; }
+    .nav-container { justify-content: flex-end; }
     .nav-container nav { gap: 15px; }
 
     /* -- Grids to 1 Column -- */
