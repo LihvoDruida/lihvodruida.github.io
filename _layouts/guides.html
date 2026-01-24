@@ -30,7 +30,7 @@ layout: default
             {% endif %}
           </span>
           <span class="date">
-            {{ page.date | date: "%d %B %Y р." }}
+            {% include date-uk.html date=page.date %}
           </span>
         </div>
 

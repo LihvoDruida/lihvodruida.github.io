@@ -30,7 +30,7 @@ permalink: /guides/
             {{ featured.categories[0] }}
           {% endif %}
         </span>
-        <span class="date">{{ featured.date | date: "%d %b. %Y" }}</span>
+        <span class="date">{% include date-uk.html date=featured.date %}</span>
       </div>
 
       <h2>{{ featured.title }}</h2>
@@ -62,7 +62,7 @@ permalink: /guides/
         </div>
 
         <div class="card-info">
-          <div class="news-date">{{ post.date | date: "%d.%m.%Y" }}</div>
+          <div class="news-date">{% include date-uk.html date=post.date %}</div>
           <h3 class="card-title">{{ post.title }}</h3>
           <p class="card-desc">{{ post.content | strip_html | truncatewords: 12 }}</p>
         </div>

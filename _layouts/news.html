@@ -30,23 +30,7 @@ layout: default
             {% endif %}
           </span>
           <span class="date">
-            {% assign m = page.date | date: "%-m" %}
-            {{ page.date | date: "%d" }}
-            {% case m %}
-              {% when '1' %}січня
-              {% when '2' %}лютого
-              {% when '3' %}березня
-              {% when '4' %}квітня
-              {% when '5' %}травня
-              {% when '6' %}червня
-              {% when '7' %}липня
-              {% when '8' %}серпня
-              {% when '9' %}вересня
-              {% when '10' %}жовтня
-              {% when '11' %}листопада
-              {% when '12' %}грудня
-            {% endcase %}
-            {{ page.date | date: "%Y р." }}
+            {% include date-uk.html date=page.date %}
           </span>
         </div>
 

@@ -25,7 +25,7 @@ layout: default
       <a href="{{ post.url | relative_url }}" class="news-card">
 
         <time class="news-date" datetime="{{ post.date | date_to_xmlschema }}">
-          {{ post.date | date: "%d %B %Y р." }}
+          {% include date-uk.html date=post.date %}
         </time>
 
         <h3>{{ post.title }}</h3>

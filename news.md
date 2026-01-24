@@ -29,14 +29,14 @@ permalink: /news/
             {{ featured.categories[0] }}
           {% endif %}
         </span>
-        <span class="date">{{ featured.date | date: "%d %b. %Y" }}</span>
+        <span class="date">{% include date-uk.html date=featured.date %}</span>
       </div>
 
       <h2>{{ featured.title }}</h2>
       <p>{{ featured.content | strip_html | truncatewords: 25 }}</p>
 
       <span class="read-more">
-        Read Full Article 
+        Читати статтю
         <svg style="width:16px;height:16px;margin-left:4px;" viewBox="0 0 24 24">
             <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
         </svg>
@@ -59,7 +59,7 @@ permalink: /news/
           </div>
         </div>
         <div class="card-info">
-          <div class="news-date">{{ post.date | date: "%d.%m.%Y" }}</div>
+          <div class="news-date">{% include date-uk.html date=post.date %}</div>
           <h3 class="card-title">{{ post.title }}</h3>
           <p class="card-desc">{{ post.content | strip_html | truncatewords: 12 }}</p>
         </div>
