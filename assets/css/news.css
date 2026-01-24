@@ -336,16 +336,155 @@
   margin-bottom: 1.5rem;
 }
 
+/* --- MARKDOWN CONTENT STYLES (Typography) --- */
 .article-body h2, 
-.article-body h3 {
+.article-body h3, 
+.article-body h4 {
   color: var(--text-primary);
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
-.article-body a {
+.article-body h2 {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  color: var(--accent); /* Золотий заголовок */
+}
+
+.article-body h3 {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+/* --- СПИСКИ (UL / OL) --- */
+.article-body ul, 
+.article-body ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.article-body li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+/* Маркери */
+.article-body ul li::marker {
+  color: var(--primary); /* Помаранчеві крапки */
+  font-size: 1.2em;
+}
+
+.article-body ol li::marker {
+  color: var(--accent); /* Золоті цифри */
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-style: italic;
+}
+
+/* --- ЦИТАТИ (BLOCKQUOTE) --- */
+.article-body blockquote {
+  position: relative;
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #d0d0d0;
+}
+
+/* --- КОД (CODE & PRE) --- */
+.article-body code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  background: rgba(226, 133, 82, 0.1);
+  color: var(--primary-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid rgba(226, 133, 82, 0.2);
+}
+
+.article-body pre {
+  background: #0f0c0a;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.article-body pre code {
+  background: none;
+  color: #e0e0e0;
+  padding: 0;
+  border: none;
+  font-size: 0.95em;
+  display: block;
+  line-height: 1.5;
+}
+
+/* --- ТАБЛИЦІ --- */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.95rem;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.article-body th {
+  background: rgba(226, 133, 82, 0.1);
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.article-body td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.article-body tr:last-child td { border-bottom: none; }
+.article-body tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* --- ЛІНІЯ РОЗДІЛЕННЯ --- */
+.article-body hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  margin: 3rem 0;
+}
+
+/* --- ЗОБРАЖЕННЯ ТА ПОСИЛАННЯ --- */
+.article-body a:not(.btn-primary) {
   color: var(--primary);
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.article-body a:not(.btn-primary):hover {
+  color: var(--primary-light);
+  border-bottom-color: var(--primary-light);
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 /* Footer */
@@ -408,6 +547,7 @@
   box-shadow: 0 5px 15px rgba(226, 133, 82, 0.4);
 }
 
+
 /* =========================================
    RESPONSIVE (UNIFIED MEDIA QUERIES)
    ========================================= */
@@ -454,15 +594,44 @@
   .article-footer {
     padding: 1.5rem;
   }
+  
+  /* Mobile Typography */
   .article-body,
-  .article-description{
+  .article-description {
     font-size: 1rem;
   }
   
   .article-header h1 {
     font-size: 1.75rem;
   }
+  
+  /* Markdown Elements */
+  .article-body h2 { font-size: 1.5rem; margin-top: 2rem; }
+  .article-body h3 { font-size: 1.25rem; margin-top: 1.5rem; }
+  
+  .article-body blockquote { 
+    margin: 1.5rem 0; 
+    padding: 1rem 1.25rem; 
+    font-size: 0.95rem; 
+  }
+  
+  .article-body pre { padding: 1rem; font-size: 0.85rem; }
+  
+  /* Tables with horizontal scroll */
+  .article-body table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  
+  .article-body th, .article-body td {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
 
+  /* Footer Actions */
   .article-footer {
     flex-direction: column;
     align-items: stretch;
