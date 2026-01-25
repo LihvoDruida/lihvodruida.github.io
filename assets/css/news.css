@@ -428,51 +428,146 @@
   border: 1px solid var(--border-color);
 }
 
-/* --- Footer & Actions --- */
+/* =========================================
+   5. FOOTER & ACTIONS (UPDATED)
+   ========================================= */
+
+/* --- Footer Styling --- */
 .article-footer {
   border-top: 1px solid var(--border-color);
   padding: 2rem 3rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
   background: rgba(0,0,0,0.2);
 }
 
-.share-section { display: flex; align-items: center; gap: 1rem; }
-.share-label { color: var(--text-secondary); font-size: 0.9rem; }
+/* Share Section */
+.share-section {
+  display: flex;
+  flex-wrap: wrap; /* Дозволяє перенос елементів */
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
 
+.share-label {
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Кнопки соцмереж */
 .share-btn {
-  background: rgba(255,255,255,0.05);
-  border: none;
-  width: 44px; /* Minimum touch target */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
   height: 44px;
   border-radius: 12px;
-  color: #ccc;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
-}
-
-.share-btn:hover { background: var(--news-primary); color: #fff; }
-
-.btn-primary {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--news-primary);
-  border: none;
-  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
   color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.6rem;
-  padding: 0.8rem 1.75rem;
-  text-decoration: none;
-  min-height: 44px; /* Touch target */
-  box-shadow: 0 4px 10px rgba(226, 133, 82, 0.25);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.btn-primary:hover {
-  background: var(--news-primary-light);
+.share-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.share-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Кольори брендів при наведенні */
+.share-btn.telegram:hover { background: #2481cc; border-color: #2481cc; }
+.share-btn.facebook:hover { background: #1877f2; border-color: #1877f2; }
+
+/* Кнопка "Копіювати" (ширша, з текстом) */
+.share-btn.copy-btn {
+  width: auto;
+  padding: 0 16px;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.share-btn.copy-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #fff;
+}
+.share-btn.copy-btn.copied {
+  background: #28a745; /* Зелений колір при успіху */
+  border-color: #28a745;
+}
+
+/* Кнопка "Всі гайди" - притиснута вправо */
+.all-guides {
+  margin-left: auto;
+}
+
+.btn-primary.all-guides {
+  /* Inherits base btn-primary styles but ensures specific positioning */
+  display: inline-flex;
+  align-items: center;
+}
+
+/* --- Навігація внизу (Prev/Next) --- */
+.post-navigation {
+  display: flex;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  flex-wrap: wrap;
+}
+
+.post-navigation a {
+  flex: 1;
+  min-width: 250px; /* Мінімальна ширина для мобілок */
+  padding: 15px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.post-navigation a:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--news-primary, #e28552);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(226, 133, 82, 0.4);
+}
+
+.post-navigation a span {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Мобільна адаптація */
+@media (max-width: 768px) {
+  .share-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .all-guides {
+    margin-left: 0;
+    width: 100%; /* Кнопка на всю ширину */
+  }
+  .post-navigation {
+    flex-direction: column;
+  }
+  .post-navigation a {
+    width: 100%;
+  }
 }

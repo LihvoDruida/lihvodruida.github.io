@@ -1,9 +1,13 @@
 ---
 layout: guides
-title: "Гайд: Запуск World of Warcraft на Android через Winlator"
-description: "Покрокова інструкція з налаштування Winlator для гри в WoW на вашому смартфоні. Оптимальний Config.wtf та налаштування контейнера."
+title: "Як запустити WoW 3.3.5a на Android: Повний Гайд Winlator"
+slug: wow-android-winlator-guide
+description: "Грайте в World of Warcraft на смартфоні! Налаштування Winlator, драйвер Turnip, оптимізація Config.wtf для 60 FPS та керування."
 date: 2026-01-24
+last_modified_at: 2026-01-25
+author: Sebas
 categories: [Android, Гайди]
+tags: [WoW, Winlator, Emulation, 3.3.5a, Optimization]
 image: /assets/img-content/wow-winlator-cover.jpg
 ---
 
@@ -11,7 +15,7 @@ image: /assets/img-content/wow-winlator-cover.jpg
 
 ---
 
-### 📋 Що знадобиться
+## 📋 Що знадобиться
 
 Перед початком переконайтеся, що у вас є:
 
@@ -21,7 +25,7 @@ image: /assets/img-content/wow-winlator-cover.jpg
 
 ---
 
-### 🚀 Крок 1: Підготовка файлів
+## 🚀 Крок 1: Підготовка файлів
 
 > ⚠️ **Важливо:** Не намагайтеся завантажити гру через Battle.net лаунчер на телефоні — це займе вічність і може викликати помилки.
 
@@ -30,7 +34,7 @@ image: /assets/img-content/wow-winlator-cover.jpg
 
 ---
 
-### ⚙️ Крок 2: Налаштування Winlator
+## ⚙️ Крок 2: Налаштування Winlator
 
 1.  Встановіть `.apk` файл Winlator та запустіть його. Дочекайтеся розпакування системних файлів (OBB).
 2.  Натисніть **"+"** (плюс) у кутку, щоб створити новий контейнер.
@@ -44,7 +48,7 @@ image: /assets/img-content/wow-winlator-cover.jpg
 
 ---
 
-### 🛠️ Крок 3: Оптимізація файлу конфігурації (Важливо!)
+## 🛠️ Крок 3: Оптимізація файлу конфігурації (Важливо!)
 
 Для максимальної продуктивності та стабільності ми рекомендуємо **не налаштовувати графіку в грі**, а вручну прописати готовий конфіг. Це вимкне зайві шейдери, тіні та ефекти, які "душать" мобільний процесор.
 
@@ -53,7 +57,7 @@ image: /assets/img-content/wow-winlator-cover.jpg
 3.  Відкрийте файл `Config.wtf` як текст (або створіть його, якщо немає).
 4.  **Повністю замініть** його вміст на цей код:
 
-<pre style="background: #2b2b2b; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto;">
+<pre style="background: #2b2b2b; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: monospace;">
 SET locale "enUS"
 SET accounttype "LK"
 SET readTOS "1"
@@ -98,7 +102,7 @@ SET movie "0"
 
 ---
 
-### 🎮 Крок 4: Запуск гри
+## 🎮 Крок 4: Запуск гри
 
 1.  Поверніться у головне меню **Winlator**.
 2.  Натисніть на меню (три крапки) біля вашого контейнера та оберіть **Run**.
@@ -110,7 +114,7 @@ SET movie "0"
 
 ---
 
-### 💡 Поради щодо керування
+## 💡 Поради щодо керування
 
 Грати на сенсорному екрані без попереднього налаштування незручно. Щоб зробити геймплей комфортним:
 

@@ -140,17 +140,40 @@ h1, h2, h3, #navigation-links {
     text-transform: uppercase;
     font-weight: 700;
 }
-
 h1, h2, h3 {
-    color: transparent;
-    background: linear-gradient(#f5fbff, #bfe6ff);
+    color: #ebf7ff; 
+    background: linear-gradient(to bottom, #f5fbff 0%, #bfe6ff 100%);
     background-clip: text;
     -webkit-background-clip: text;
+    position: relative;
+    padding-top: 0.2em;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
-h1 { font-size: 1.6em; }
-h2 { font-size: 1.25em; }
-h3 { font-size: 1.1em; }
+h1 {
+    font-size: 26px;
+    font-weight: 800;
+    padding-bottom: 5px;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+}
+
+h2 {
+    font-size: 24px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(191, 230, 255, 0.1);
+    margin-bottom: 12px;
+}
+
+h3 {
+    font-size: 21px;
+    font-weight: 700;
+    padding-bottom: 10px;
+    opacity: 0.9;
+}
 
 /* =========================================
    6. NAVIGATION
@@ -729,7 +752,7 @@ code,
     }
 
 /* =========================================
-   RESPONSIVE MEDIA QUERIES
+   RESPONSIVE MEDIA QUERIES (COMPACT FONTS)
    ========================================= */
 
 /* Large Screens (max-width: 1200px) */
@@ -748,10 +771,10 @@ code,
 /* Tablets Landscape (max-width: 992px) */
 @media (max-width: 992px) {
     h1 { font-size: 24px; }
-    .section-header h1 { font-size: 36px; }
-    .area.section { padding: 60px 16px; }
+    .section-header h1 { font-size: 32px; } /* Зменшено з 36px */
+    .area.section { padding: 50px 16px; }
     
-    /* Characters Grid Adjustment */
+    /* Characters Grid */
     #characters { 
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
         gap: 14px; 
@@ -766,101 +789,106 @@ code,
 
 /* Tablets Portrait & Mobile (max-width: 768px) */
 @media (max-width: 768px) {
-    /* -- 3. iPhone Safe Area Support -- */
+    /* -- 1. Safe Area & Layout -- */
     body {
-        /* Запобігає накладанню на системний "home indicator" знизу */
         padding-bottom: env(safe-area-inset-bottom); 
-        /* Запобігає накладанню на закруглені кути/чубчик в ландшафті */
         padding-left: env(safe-area-inset-left);
         padding-right: env(safe-area-inset-right);
     }
 
     .top-nav { 
         height: 56px; 
-        /* Хедер також має враховувати верхній відступ (status bar) */
         padding-top: env(safe-area-inset-top);
         height: calc(56px + env(safe-area-inset-top));
     }
 
-    main { 
-        padding: 20px 15px; 
-    }
+    main { padding: 20px 15px; }
     
-    /* -- Navigation -- */
-    /* УВАГА: Це приховає меню. Потрібен JS для мобільного меню (гамбургер) */
+    /* -- 2. Navigation -- */
     .hamburger { display: flex; }
     .mobile-menu { display: block; }
-    
-    /* Ховаємо десктопне меню */
     .nav-left { display: none; }
     .nav-container { justify-content: flex-end; }
     .nav-container nav { gap: 15px; }
 
-    /* -- Grids to 1 Column -- */
-    .ui-blocks,
-    #characters,
-    .news-grid {
+    /* -- 3. Grids to 1 Column -- */
+    .ui-blocks, #characters, .news-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
 
-    /* -- 4. Full Bleed Images (Картинки на всю ширину) -- */
-    /* Витягує картинки за межі паддінгів контейнера */
-    .article-body img,
-    .news-card img,
-    .full-width-mobile {
-        width: calc(100% + 30px); /* 100% + сума лівого і правого padding main */
-        margin-left: -15px;       /* Зсув вліво на розмір padding main */
-        border-radius: 0;         /* Прибираємо закруглення, щоб виглядало нативно */
+    /* -- 4. Typography Compact (Зменшені шрифти) -- */
+    h1 { font-size: 22px; }
+    .section-header h1 { font-size: 26px; margin-bottom: 5px; }
+    .section-subtitle { font-size: 14px; margin-top: 0; }
+    
+    p, li { font-size: 15px; line-height: 1.5; } /* Компактний текст */
+
+    /* -- 5. Full Bleed Images -- */
+    .article-body img, .news-card img, .full-width-mobile {
+        width: calc(100% + 30px);
+        margin-left: -15px;
+        border-radius: 0;
         display: block;
     }
 
-    /* -- Hero News Card (Featured) -- */
+    /* -- 6. Hero News Card -- */
     .featured-article {
         grid-template-columns: 1fr;
-        grid-template-rows: 200px auto;
+        grid-template-rows: 180px auto; /* Менша картинка */
         height: auto;
     }
     .featured-image {
-        height: 200px;
+        height: 180px;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .featured-content { padding: 1.5rem; }
-    .featured-content h2 { font-size: 1.5rem; }
+    .featured-content { padding: 1.25rem; }
+    .featured-content h2 { font-size: 1.3rem; line-height: 1.3; } /* Компактний заголовок */
+    .featured-content p { font-size: 0.95rem; line-height: 1.5; -webkit-line-clamp: 3; } /* Менше тексту */
 
-    /* -- Article Page (Single) -- */
-    .article-header, .article-body, .article-footer { padding: 1.5rem; }
-    .article-header h1 { font-size: 1.75rem; }
-    
-    /* -- Components -- */
-    .section-header h1 { font-size: 32px; }
-    
+    /* -- 7. Article Page -- */
+    .article-header { padding: 1.25rem; }
+    .article-body { padding: 1.25rem; font-size: 16px; } /* Трохи менший шрифт статті */
+    .article-footer { padding: 1.25rem; }
+    .article-header h1 { font-size: 1.6rem; line-height: 1.2; } /* Компактний H1 */
+    .article-description { font-size: 1.05rem; line-height: 1.5; }
+
+    /* -- 8. Components -- */
     .socials-card { 
         flex-direction: column; 
         align-items: center; 
         text-align: center; 
-        justify-content: center;
     }
-    .socials-links { 
-        justify-content: center; 
-    }
+    .socials-links { justify-content: center; }
     
-    .card, .news-card { padding: 20px; }
+    .card, .news-card { padding: 16px; } /* Менші відступи в картках */
     
     #characters .character { 
         flex-direction: row; 
         align-items: center; 
+        padding: 12px;
     }
+    .char-info strong { font-size: 16px; }
+    .char-info span { font-size: 13px; }
 }
 
 /* Small Mobile (max-width: 480px) */
 @media (max-width: 480px) {
-    /* -- Typography -- */
-    .section-header h1 { font-size: 28px; }
+    /* -- Compact Fonts for Small Screens -- */
+    .section-header h1 { font-size: 24px; }
+    .section-tag { font-size: 0.75rem; }
+    
     .nav-container nav { gap: 10px; }
     .nav-container nav a { font-size: 13px; }
     
+    /* -- Article Compact -- */
+    .article-header h1 { font-size: 1.4rem; }
+    .article-description { font-size: 1rem; }
+    .article-body { font-size: 15px; line-height: 1.6; }
+    .article-body h2 { font-size: 1.3rem; margin-top: 1.5rem; }
+    .article-body h3 { font-size: 1.15rem; }
+
     /* -- Characters Stacked -- */
     #characters .character { 
         flex-direction: column; 
@@ -868,24 +896,16 @@ code,
         text-align: center; 
         min-height: auto; 
         padding: 12px; 
-        gap: 10px; 
+        gap: 8px; 
     }
-    .char-avatar { width: 50px; height: 50px; }
+    .char-avatar { width: 48px; height: 48px; }
     .char-info strong { font-size: 15px; }
     
-    /* -- Socials Full Width (Touch Targets) -- */
-    /* Збільшуємо зону натискання для зручності пальців */
-    .btn-social { 
-        width: 100%; 
-        justify-content: center; 
-        padding: 12px; /* Більше простору для пальця */
-    }
-    .socials-links { 
-        width: 100%; 
-        flex-direction: column; 
-        gap: 12px;
-    }
+    /* -- Touch Targets -- */
+    .btn-social { width: 100%; justify-content: center; padding: 10px; }
+    .socials-links { width: 100%; flex-direction: column; gap: 10px; }
     
     .scores { justify-content: center; }
-    .news-card { padding: 22px; }
+    .news-card { padding: 15px; }
+    .card-title { font-size: 1.1rem; }
 }

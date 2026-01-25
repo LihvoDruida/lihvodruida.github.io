@@ -8,7 +8,7 @@ permalink: /guides/
   
   <div class="section-header">
     <span class="section-tag">База знань</span>
-    <h1>Корисна всячина</h1>
+    <p class="section-subtitle">Оптимізація, аддони та секрети гри</p>
   </div>
 
   {% assign guides_list = site.guides | sort: 'date' | reverse %}
