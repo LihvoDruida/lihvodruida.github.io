@@ -1,30 +1,82 @@
+# ==============================================================================
+# SITE SETTINGS
+# ==============================================================================
 title: Sebas — Gaming Profile
-description: Профіль гравця та центр новин про World of Warcraft, адони та контент.
+description: >-
+  Профіль гравця та центр новин про World of Warcraft, адони, 
+  тактики та корисний контент для спільноти.
 lang: uk
 author: Sebas
+email: lihvo.druida@gmail.com
 
+url: "https://lihvodruida.pp.ua" 
+baseurl: ""
+
+# ==============================================================================
+# BUILD SETTINGS
+# ==============================================================================
+markdown: kramdown
+highlighter: rouge
+permalink: /:categories/:title/
+
+sass:
+  style: compressed
+
+# ==============================================================================
+# COLLECTIONS
+# ==============================================================================
 collections:
   news:
     output: true
     permalink: /news/:slug/
+    sort_by: date 
+    
   guides:
     output: true
     permalink: /guides/:slug/
 
+# ==============================================================================
+# DEFAULTS
+# ==============================================================================
 defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+      image: /assets/img/news-placeholder.jpg
+  
   - scope:
       path: ""
       type: news
     values:
       layout: news
       categories: ["новини"]
-      tags: []
+      comments: true
   
   - scope:
       path: ""
       type: guides
     values:
-      layout: guide
+      layout: guides
       categories: ["гайди"]
-      tags: []
+      toc: true
 
+# ==============================================================================
+# PLUGINS (Стандартний набір GitHub Pages)
+# ==============================================================================
+plugins:
+  - jekyll-seo-tag  # Автоматично генерує мета-теги для Google та Facebook
+  - jekyll-sitemap  # Створює sitemap.xml для Google Search Console
+  - jekyll-feed     # Створює RSS стрічку
+  - jekyll-include-cache # Пришвидшує збірку сайту
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+  - LICENSE
