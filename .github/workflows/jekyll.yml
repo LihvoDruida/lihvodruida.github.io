@@ -5,7 +5,7 @@ on:
     branches: ["live"]
   workflow_dispatch:
   workflow_run:
-    workflows: ["Update Characters"]
+    workflows: ["Update Characters", "Update Guild Data"]
     types:
       - completed
     branches: ["live"]
@@ -31,7 +31,7 @@ jobs:
           ref: 'live'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@bfefad842bb982ff05b233bcbc1571d97a87e69f # v1.206.0
+        uses: ruby/setup-ruby@bfefad842bb982ff05b233bcbc1571d97a87e69f
         with:
           ruby-version: '3.2'
           bundler-cache: true
