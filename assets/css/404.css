@@ -1,303 +1,257 @@
 /* =========================
-   404 PAGE
+   404 PAGE STYLES (WARM DARK THEME)
 ========================= */
 
-.error-container {
-    align-items: center;
+/* --- Container --- */
+.error-page-container {
     display: flex;
+    align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 80vh;
+    padding: 15px;
     position: relative;
     z-index: 1;
 }
 
-.error-card {
-    --card-border: rgba(226, 133, 82, .15);
-    --primary: #e28552;
-    background: var(--panel);
-    border: 1px solid var(--card-border);
-    border-radius: 24px;
-    box-shadow: 0 25px 50px -12px #00000080;
-    max-width: 560px;
-    padding: 3rem 2.5rem;
-    text-align: center;
+/* --- Main Card --- */
+.empty-state-wow.error-state {
     width: 100%;
-  animation: subtleGlow 6s ease-in-out infinite;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    
+    /* Dark background matching the screenshots */
+    background: radial-gradient(circle at top center, #1e222b, #11141a);
+    
+    /* Subtle border */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    
+    /* Shadows */
+    box-shadow: 
+        0 20px 50px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    
+    animation: fadeInUp 0.6s ease-out;
 }
 
-/* === ICON === */
-.error-icon {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ffb066, #ff7a2f);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 46px;
-  margin: 0 auto 20px;
-  box-shadow:
-    0 0 25px rgba(255,155,85,.7),
-    0 0 60px rgba(255,120,40,.35);
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* FLOAT + PULSE */
+/* --- Icon (Warm Glow) --- */
+.empty-icon-glow {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Warm/Gold Tint */
+    background: rgba(255, 180, 100, 0.03); 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    color: #e0e0e0;
+    
+    /* Warm Glow Shadow */
+    box-shadow: 0 0 25px rgba(255, 160, 80, 0.05); 
+}
+
+.empty-icon-glow svg {
+    width: 28px;
+    height: 28px;
+    opacity: 0.8;
+}
+
+/* --- Floating Animation --- */
 .floating {
-  animation:
-    float 3.2s ease-in-out infinite,
-    pulse 2.4s ease-in-out infinite;
+    animation: floatingIcon 4s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes floatingIcon {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
 }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 25px rgba(255,155,85,.6); }
-  50% { box-shadow: 0 0 45px rgba(255,155,85,.9); }
-  100% { box-shadow: 0 0 25px rgba(255,155,85,.6); }
+/* --- 404 Error Code --- */
+.error-code-wrapper {
+    margin-bottom: 5px;
 }
 
-/* === REDIRECT BOX === */
-.redirect-box {
-  margin: 24px 0;
-  padding: 16px;
-  border-radius: 14px;
-  background: rgba(0,0,0,.45);
+.error-code-text {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.08); /* Subtle watermark style */
+    letter-spacing: 2px;
 }
 
-.redirect-title {
-  font-size: 13px;
-  color: #ff9b55;
-  margin-bottom: 10px;
-}
-
-.redirect-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.redirect-links a {
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: rgba(255,155,85,.15);
-  color: #fff;
-  text-decoration: none;
-  transition: background .25s ease;
-}
-
-.redirect-links a:hover {
-  background: rgba(255,155,85,.35);
-}
-
-/* CODE */
-
-.error-code {
-  font-size: 56px;
-  font-weight: 700;
-  color: #ffb26a;
-  letter-spacing: 4px;
-  margin-bottom: 8px;
-}
-
-/* TEXT */
-
+/* --- Typography --- */
 .error-title {
-  font-size: 22px;
-  margin-bottom: 8px;
-  color: #fff;
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
 }
 
 .error-description {
-  font-size: 14px;
-  color: #cfc6bd;
-  margin-bottom: 22px;
+    font-size: 0.9rem;
+    color: #8890a0; /* Muted gray-blue */
+    margin-bottom: 30px;
+    line-height: 1.6;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* FUN FACT */
+/* --- Fun Fact Box (Darker Inner Container) --- */
+.wow-tip-large {
+    background: #0b0d12; /* Very dark inner box */
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 30px;
+    text-align: left;
+    position: relative;
+    min-height: 100px; /* Prevent jumping when text changes */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-.fun-content {
-  background: #4caf501a;
-  border: 1px solid rgba(76, 175, 80, .2);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  text-align: left;
+/* Gold Accent Line */
+.wow-tip-large::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: #c89b3c; /* WoW Gold */
+    border-radius: 3px 0 0 3px;
+    opacity: 1;
 }
 
 .fun-header {
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #8fe18f;
-  gap: .5rem;
-  margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
+.tip-icon { font-size: 1rem; line-height: 1; }
+
+.tip-label {
+    font-weight: 700;
+    color: #c89b3c;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1.2px;
+}
+
+/* --- Text Animation Styles --- */
 .fun-text {
-    color: #d9f5d9;
-    font-size: .9375rem;
-    line-height: 1.6;
+    font-style: italic;
+    color: #ccc;
     margin: 0;
-}
-/* ACTIONS */
-
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-primary,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .875rem 1.75rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  transition: all .25s ease;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    
+    /* Animation Properties */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: #000;
-  font-weight: bold;
-  text-decoration: none;
-  transition: all 0.25s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(200, 155, 60, 0.5);
-}
-
-/* SECONDARY */
-
-.btn-secondary {
-  background: rgba(255,255,255,.06);
-  color: #e6e1db;
-  border: 1px solid rgba(255,255,255,.12);
-}
-
-.btn-secondary:hover {
-  background: rgba(255,255,255,.12);
-  transform: translateY(-2px);
+.fun-text.fade-out {
+    opacity: 0;
+    transform: translateY(5px);
 }
 
 .easter-egg {
-  color: #7cffb2;
-  font-weight: 600;
-  text-shadow:
-    0 0 8px rgba(120, 255, 180, 0.6),
-    0 0 18px rgba(80, 200, 140, 0.4);
+    color: #ff8000 !important; /* Legendary Orange */
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255, 128, 0, 0.3);
 }
 
+/* --- Action Buttons --- */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+}
 
+.btn-primary, .back-history-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1;
+    white-space: nowrap;
+    min-width: 160px;
+}
+
+/* Gold Button (Matches site tags) */
+.btn-primary {
+    background: #c89b3c;
+    color: #1a1510;
+    border: 1px solid #c89b3c;
+    box-shadow: 0 4px 15px rgba(200, 155, 60, 0.15);
+}
+
+.btn-primary:hover {
+    background: #e6b345;
+    color: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(200, 155, 60, 0.3);
+}
+
+/* Secondary Button (Ghost) */
+.back-history-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #b0b0b0;
+}
+
+.back-history-btn:hover {
+    border-color: #fff;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
 
 /* =========================
-   RESPONSIVE FIXES
+   RESPONSIVE
 ========================= */
+@media (max-width: 500px) {
+    .empty-state-wow.error-state {
+        padding: 30px 20px;
+    }
 
-/* ===== Tablets ===== */
-@media (max-width: 1024px) {
+    .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
 
-  .error-card {
-    max-width: 520px;
-    padding: 32px 28px;
-  }
-
-  .error-code {
-    font-size: 48px;
-  }
-
-  .error-icon {
-    width: 88px;
-    height: 88px;
-    font-size: 42px;
-  }
-}
-
-/* ===== Mobile ===== */
-@media (max-width: 768px) {
-
-  .error-card {
-    border-radius: 16px;
-    padding: 28px 22px;
-    box-shadow:
-      0 28px 60px rgba(0,0,0,.85),
-      0 0 28px rgba(255,155,85,.18);
-  }
-
-  .error-code {
-    font-size: 42px;
-    letter-spacing: 2px;
-  }
-
-  .error-title {
-    font-size: 20px;
-  }
-
-  .error-description {
-    font-size: 13px;
-  }
-
-  .fun-content {
-    padding: 12px 14px;
-    border-radius: 12px;
-  }
-
-  .fun-header {
-    font-size: 12px;
-  }
-
-  .lemur-fact {
-    font-size: 12px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 16px;
-  }
-}
-
-/* ===== Small phones ===== */
-@media (max-width: 420px) {
-
-  .error-card {
-    padding: 22px 18px;
-  }
-
-  .error-icon {
-    width: 72px;
-    height: 72px;
-    font-size: 36px;
-  }
-
-  .error-code {
-    font-size: 36px;
-  }
-
-  .error-title {
-    font-size: 18px;
-  }
-
-  .fun-content {
-    margin-bottom: 20px;
-  }
+    .btn-primary, .back-history-btn {
+        width: 100%;
+        padding: 14px;
+    }
 }

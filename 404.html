@@ -1,38 +1,47 @@
 ---
 layout: default
-title: Сторінку не знайдено
+title: Сторінку не знайдено (404)
 permalink: /404.html
 ---
 
-<section class="error-container">
-  <div class="error-card">
-
-    <div class="error-icon floating">
-      ⚔️
+<div class="error-page-container">
+  
+  <div class="empty-state-wow error-state">
+    
+    <div class="empty-icon-glow floating">
+      <svg viewBox="0 0 24 24" class="scroll-icon">
+        <path fill="currentColor" d="M15,19L9,16.89V5L15,7.11M20.5,3C20.44,3 20.39,3 20.34,3L15,5.1L9,3L3.36,4.9C3.15,4.97 3,5.15 3,5.38V20.5A0.5,0.5 0 0,0 3.5,21C3.55,21 3.61,21 3.66,21L9,18.9L15,21L20.64,19.1C20.85,19.03 21,18.85 21,18.62V3.5A0.5,0.5 0 0,0 20.5,3Z" />
+      </svg>
     </div>
 
-    <div class="error-code">404</div>
+    <div class="error-code-wrapper">
+      <span class="error-code-text">404</span>
+    </div>
+
     <h1 class="error-title">Ця сторінка загубилась у туманах Азероту</h1>
 
     <p class="error-description">
-      Можливо, вона затрималась у Порожнечі між світами, серед руїн Стародавніх Королівств, де сховались тіні минулого.
+      Можливо, її викрав Смертекрил, або вона зникла у розломі Порожнечі. 
+      Наші гноми-інженери вже шукають спосіб її повернути.
     </p>
 
-    <!-- RANDOM FACT -->
-    <div class="fun-content">
-      <div class="fun-header">📜 <span>Чи знав ти?</span></div>
-      <p id="random-fact" class="fun-text"></p>
+    <div class="fun-content wow-tip-large">
+      <div class="fun-header">
+        <span class="tip-icon">📜</span> 
+        <span class="tip-label">Чи знав ти?</span>
+      </div>
+      <p id="random-fact" class="fun-text">Завантаження факту...</p>
     </div>
 
     <div class="action-buttons">
       <a href="/" class="btn-primary">Повернутись додому</a>
-      <button onclick="history.back()" class="btn-secondary">
+      <button onclick="history.back()" class="share-btn back-history-btn">
         Назад у портал
       </button>
     </div>
 
   </div>
-</section>
+</div>
 
 <script src="/assets/js/404-facts.js"></script>
 

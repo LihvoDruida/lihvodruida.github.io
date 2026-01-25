@@ -41,7 +41,7 @@ const wowFacts = [
 ];
 
 /* =========================
-   🥚 ПАСХАЛКА (1%)
+   🥚 ПАСХАЛКА (2%)
 ========================= */
 const easterEgg =
   "🐉 Пасхалка знайдена! RNG боги посміхнулись. /roll 100 — легендарка майже твоя.";
@@ -49,31 +49,70 @@ const easterEgg =
 /* =========================
    ⚙️ НАЛАШТУВАННЯ
 ========================= */
-// mode: "class" | "general" | "mixed"
-const mode = "mixed";
+const CONFIG = {
+  mode: "mixed",       // "class" | "general" | "mixed"
+  interval: 7000,      // Час між зміною фактів (мс)
+  animDuration: 500    // Тривалість анімації (має співпадати з CSS transition)
+};
 
 const factEl = document.getElementById("random-fact");
+let lastFactIndex = -1; // Щоб не повторювати той самий факт двічі підряд
 
 /* =========================
    🎲 ЛОГІКА
 ========================= */
 function getFactPool() {
-  if (mode === "class") return druidFacts;
-  if (mode === "general") return wowFacts;
+  if (CONFIG.mode === "class") return druidFacts;
+  if (CONFIG.mode === "general") return wowFacts;
   return [...druidFacts, ...wowFacts];
 }
 
-function setRandomFact() {
-  // 1% шанс пасхалки
+function getRandomFact() {
+  // 2% шанс пасхалки
   if (Math.random() < 0.02) {
-    factEl.textContent = easterEgg;
-    factEl.classList.add("easter-egg");
-    return;
+    return { text: easterEgg, isRare: true };
   }
 
   const pool = getFactPool();
-  const randomIndex = Math.floor(Math.random() * pool.length);
-  factEl.textContent = pool[randomIndex];
+  let randomIndex;
+
+  // Простий захист від повтору: генеруємо індекс, поки він не відрізнятиметься від попереднього
+  do {
+    randomIndex = Math.floor(Math.random() * pool.length);
+  } while (randomIndex === lastFactIndex && pool.length > 1);
+
+  lastFactIndex = randomIndex;
+  return { text: pool[randomIndex], isRare: false };
 }
 
-setRandomFact();
+function updateFact() {
+  // 1. Додаємо клас для зникнення (fade-out)
+  factEl.classList.add("fade-out");
+
+  // 2. Чекаємо поки пройде анімація зникнення
+  setTimeout(() => {
+    const factData = getRandomFact();
+    
+    // Оновлюємо текст
+    factEl.textContent = factData.text;
+
+    // Керування класом пасхалки
+    if (factData.isRare) {
+      factEl.classList.add("easter-egg");
+    } else {
+      factEl.classList.remove("easter-egg");
+    }
+
+    // 3. Прибираємо клас зникнення (текст плавно з'являється)
+    factEl.classList.remove("fade-out");
+    
+  }, CONFIG.animDuration);
+}
+
+// Запуск при завантаженні (перший факт без анімації)
+const initialFact = getRandomFact();
+factEl.textContent = initialFact.text;
+if (initialFact.isRare) factEl.classList.add("easter-egg");
+
+// Запуск інтервалу
+setInterval(updateFact, CONFIG.interval);
