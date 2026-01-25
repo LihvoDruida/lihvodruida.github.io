@@ -1,7 +1,9 @@
 ---
 layout: default
-title: Новини
+title: Новини та Події
 permalink: /news/
+description: "Останні новини сервера, оновлення World of Warcraft 3.3.5a та події спільноти."
+image: /assets/img/og-image-default.jpg
 ---
 
 <div class="area-content">
@@ -11,60 +13,84 @@ permalink: /news/
   </div>
 
   {% assign news_list = site.news | sort: 'date' | reverse %}
-  {% assign featured = news_list.first %}
 
-  {% if featured %}
-  <a href="{{ featured.url }}" class="featured-article">
-    
-    <div class="featured-image">
-      <img src="{{ featured.image | default: '/assets/img/news-placeholder.jpg' }}" alt="{{ featured.title }}">
+  {% if news_list.size == 0 %}
+
+    <div class="empty-state-wow">
+        <div class="empty-icon-glow">
+            <svg viewBox="0 0 24 24" class="scroll-icon">
+                <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M8,12V14H16V12H8M8,16V18H13V16H8Z" />
+            </svg>
+        </div>
+        
+        <h2>Свиток порожній...</h2>
+        
+        <p>
+            Наші гінці ще не повернулися з Нордсколу, а гобліни-друкарі вимагають подвійну плату за чорнила. 
+            Зазирайте пізніше, герою!
+        </p>
+        
+        <div class="empty-action">
+            <span class="wow-tip">Поки чекаєте, перегляньте <a href="/guides/">Гайди</a>.</span>
+        </div>
     </div>
-    
-    <div class="featured-content">
-      <div class="featured-meta">
-        <span class="category-badge">
-          {% if featured.categories[1] %}
-            {{ featured.categories[1] }}
-          {% else %}
-            {{ featured.categories[0] }}
-          {% endif %}
-        </span>
-        <span class="date">{% include date-uk.html date=featured.date %}</span>
+
+  {% else %}
+
+    {% assign featured = news_list.first %}
+
+    {% if featured %}
+    <a href="{{ featured.url }}" class="featured-article">
+      
+      <div class="featured-image">
+        <img src="{{ featured.image | default: '/assets/img/news-placeholder.jpg' }}" alt="{{ featured.title }}">
       </div>
+      
+      <div class="featured-content">
+        <div class="featured-meta">
+          <span class="category-badge">
+            {{ featured.categories | last | default: "Новини" }}
+          </span>
+          <span class="date">
+            <svg style="width:14px;height:14px;margin-right:4px;vertical-align:middle;opacity:0.7" viewBox="0 0 24 24"><path fill="currentColor" d="M19 19H5V8H19M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3 3.9 3 5V19A2 2 0 0 0 5 21H19A2 2 0 0 0 21 19V5A2 2 0 0 0 19 3M17 12H12V17H17V12Z" /></svg>
+            {% include date-uk.html date=featured.date %}
+          </span>
+        </div>
 
-      <h2>{{ featured.title }}</h2>
-      <p>{{ featured.content | strip_html | truncatewords: 25 }}</p>
+        <h2>{{ featured.title }}</h2>
+        <p>{{ featured.description | default: featured.excerpt | strip_html | truncate: 150 }}</p>
 
-      <span class="read-more">
-        Читати статтю
-        <svg style="width:16px;height:16px;margin-left:4px;" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
-        </svg>
-      </span>
-    </div>
-  </a>
-  {% endif %}
+        <span class="read-more">
+          Читати далі
+          <svg style="width:16px;height:16px;margin-left:4px;" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
+          </svg>
+        </span>
+      </div>
+    </a>
+    {% endif %}
 
-  <div class="news-grid">
-    {% for post in news_list offset:1 %}
-      <a href="{{ post.url }}" class="visual-news-card">
-        <div class="card-media">
-          <div class="media-img" style="background-image: url('{{ post.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
-          <div class="news-badge card-badge">
-            {% if post.categories[1] %}
-              {{ post.categories[1] }}
-            {% else %}
-              {{ post.categories[0] }}
-            {% endif %}
+    <div class="news-grid">
+      {% for post in news_list offset:1 %}
+        <a href="{{ post.url }}" class="visual-news-card">
+          <div class="card-media">
+            <div class="media-img" style="background-image: url('{{ post.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
+            <div class="card-badge">
+              {{ post.categories | last | default: "Новини" }}
+            </div>
           </div>
-        </div>
-        <div class="card-info">
-          <div class="news-date">{% include date-uk.html date=post.date %}</div>
-          <h3 class="card-title">{{ post.title }}</h3>
-          <p class="card-desc">{{ post.content | strip_html | truncatewords: 12 }}</p>
-        </div>
-      </a>
-    {% endfor %}
-  </div>
+          <div class="card-info">
+            <div class="news-date">
+                <svg style="width:12px;height:12px;margin-right:3px;vertical-align:-1px;" viewBox="0 0 24 24"><path fill="currentColor" d="M19 19H5V8H19M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3 3.9 3 5V19A2 2 0 0 0 5 21H19A2 2 0 0 0 21 19V5A2 2 0 0 0 19 3M17 12H12V17H17V12Z" /></svg>
+                {% include date-uk.html date=post.date %}
+            </div>
+            <h3 class="card-title">{{ post.title }}</h3>
+            <p class="card-desc">{{ post.description | default: post.excerpt | strip_html | truncate: 90 }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+  {% endif %}
 
 </div>

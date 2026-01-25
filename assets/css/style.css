@@ -751,6 +751,67 @@ code,
         line-height: 0.1em;
     }
 
+
+/* --- Empty State --- */
+.empty-state-wow {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    margin: 40px 0;
+    position: relative;
+    overflow: hidden;
+}
+.empty-icon-glow {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: rgba(191, 230, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 30px rgba(191, 230, 255, 0.1);
+    color: var(--frost-end);
+}
+.scroll-icon { width: 40px; height: 40px; opacity: 0.8; }
+.empty-state-wow h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    background: var(--gradient-frost);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.empty-state-wow p {
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto 25px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+.wow-tip {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.wow-tip a {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: bold;
+}
+.wow-tip a:hover { text-decoration: underline; }
+.section-subtitle {
+    color: var(--text-secondary, #aaa);
+    margin: 10px 0 0 0;
+    font-size: 1.1rem;
+}
+
 /* =========================================
    RESPONSIVE MEDIA QUERIES (COMPACT FONTS)
    ========================================= */
