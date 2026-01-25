@@ -1,8 +1,8 @@
-name: Update Characters
+name: Update Guild Data
 
 on:
   schedule:
-    - cron: '0 */8 * * *'
+    - cron: '0 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -24,15 +24,15 @@ jobs:
         run: pip install requests pyyaml
 
       - name: Fetch Raider.IO and update YAML
-        run: python scripts/update_characters.py
+        run: python scripts/update_guild.py
 
-      - name: Commit and push changes if any
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _data/characters.yml
+          git add _data/guild.yml
           if ! git diff --cached --quiet; then
-            git commit -m "chore: auto-update characters from Raider.IO"
+            git commit -m "chore: auto-update guild stats from Raider.IO"
             git push
           else
             echo "No changes to commit"

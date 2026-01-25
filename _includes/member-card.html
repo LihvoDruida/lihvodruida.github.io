@@ -1,0 +1,22 @@
+<a href="{{ include.char.profile_url }}" target="_blank" class="member-card">
+  <div class="avatar-wrapper">
+    {% if include.char.avatar %}
+      <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">
+    {% else %}
+      <div class="placeholder">{{ include.char.name | slice: 0 }}</div>
+    {% endif %}
+  </div>
+  
+  <div class="info-wrapper">
+    <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">
+      {{ include.char.name }}
+    </span>
+    <span class="char-meta">
+      {{ include.char.spec }} {{ include.char.class }} • {{ include.char.race }}
+    </span>
+  </div>
+
+  <div class="rank-badge">
+    R{{ include.char.rank }}
+  </div>
+</a>
