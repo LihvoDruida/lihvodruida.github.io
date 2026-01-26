@@ -1,18 +1,26 @@
-<a href="{{ include.char.profile_url }}" target="_blank" class="member-card">
+<a href="{{ include.char.profile_url }}" target="_blank" class="member-card faction-{{ include.char.faction | downcase }}">
   <div class="avatar-wrapper">
     {% if include.char.avatar %}
       <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">
     {% else %}
       <div class="placeholder">{{ include.char.name | slice: 0 }}</div>
     {% endif %}
+    
+    <div class="faction-indicator" title="{{ include.char.faction }}"></div>
   </div>
   
   <div class="info-wrapper">
     <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">
       {{ include.char.name }}
+      <span class="char-realm">
+        ({{ include.char.region | upcase }}-{{ include.char.realm }})
+      </span>
     </span>
+
     <span class="char-meta">
-      {{ include.char.spec }} {{ include.char.class }} • {{ include.char.race }}
+      <span class="faction-text">{{ include.char.faction | capitalize }}</span> • 
+      {{ include.char.spec }} {{ include.char.class }} • 
+      {{ include.char.race }} 
     </span>
   </div>
 

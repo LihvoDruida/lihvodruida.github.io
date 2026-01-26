@@ -1,8 +1,12 @@
-name: Mistblossom Vanguard
-faction: alliance
-realm: Terokkar
-region: eu
-profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
+metadata:
+  updated_at: '2026-01-26 18:37:08'
+  source: Raider.IO API
+guild_info:
+  name: Mistblossom Vanguard
+  faction: alliance
+  realm: Terokkar
+  region: eu
+  profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
   blackrock-depths:
     summary: 0/8 N
@@ -196,99 +200,243 @@ raid_rankings:
       region: 0
       realm: 0
 members:
-- rank: 99
+- rank: 4
   name: Булкрит
   class: Paladin
   race: Blood Elf
-  spec: Protection
-  role: TANK
+  spec: Retribution
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Gordunni
   avatar: null
   profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-- rank: 99
+- rank: 4
   name: Asasinas
   class: Druid
   race: Zandalari Troll
   spec: Balance
   role: DPS
+  gender: female
+  faction: horde
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Asasinas
-- rank: 99
+- rank: 3
+  name: Drackavun
+  class: Evoker
+  race: Dracthyr
+  spec: Devastation
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  avatar: null
+  profile_url: https://raider.io/characters/eu/terokkar/Drackavun
+- rank: 4
   name: Katsyt
   class: Paladin
   race: Lightforged Draenei
   spec: Retribution
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Katsyt
-- rank: 99
+- rank: 1
   name: Krouli
   class: Demon Hunter
   race: Night Elf
   spec: Devourer
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Krouli
-- rank: 99
+- rank: 1
   name: Ironbelly
   class: Monk
   race: Kul Tiran
   spec: Windwalker
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
   avatar: null
   profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
-- rank: 99
+- rank: 4
   name: Threataan
   class: Paladin
   race: Human
   spec: Retribution
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
   avatar: null
   profile_url: https://raider.io/characters/eu/silvermoon/Threataan
-- rank: 99
+- rank: 1
   name: Odeskiy
   class: Druid
   race: Zandalari Troll
   spec: Guardian
   role: TANK
+  gender: male
+  faction: horde
+  region: eu
+  realm: Tarren Mill
   avatar: null
   profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
-- rank: 99
+- rank: 1
   name: Lishiy
   class: Warrior
   race: Dark Iron Dwarf
   spec: Fury
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Ragnaros
   avatar: null
   profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
-- rank: 99
+- rank: 4
+  name: Komatoznic
+  class: Demon Hunter
+  race: Blood Elf
+  spec: Havoc
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Tarren Mill
+  avatar: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Komatoznic
+- rank: 0
   name: Kashin
   class: Druid
   race: Night Elf
   spec: Balance
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Kashin
-- rank: 99
+- rank: 4
   name: Nwlck
   class: Warlock
   race: Dwarf
   spec: Destruction
   role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Ravencrest
   avatar: null
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-- rank: 99
+- rank: 2
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
   spec: Havoc
   role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Ahilles
-- rank: 99
+- rank: 4
+  name: Jakeyo
+  class: Shaman
+  race: Dwarf
+  spec: Restoration
+  role: HEALING
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Ravencrest
+  avatar: null
+  profile_url: https://raider.io/characters/eu/ravencrest/Jakeyo
+- rank: 4
   name: Duszi
   class: Warrior
   race: Orc
   spec: Protection
   role: TANK
+  gender: male
+  faction: horde
+  region: eu
+  realm: Terokkar
   avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Duszi
+- rank: 4
+  name: Valemor
+  class: Mage
+  race: Void Elf
+  spec: Frost
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  avatar: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Valemor
+- rank: 4
+  name: Дупця
+  class: Demon Hunter
+  race: Night Elf
+  spec: Devourer
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  avatar: null
+  profile_url: https://raider.io/characters/eu/gordunni/Дупця
+- rank: 4
+  name: Azuriel
+  class: Paladin
+  race: Lightforged Draenei
+  spec: null
+  role: null
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  avatar: null
+  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+- rank: 4
+  name: Бафометище
+  class: Druid
+  race: Tauren
+  spec: null
+  role: null
+  gender: male
+  faction: horde
+  region: eu
+  realm: Eversong
+  avatar: null
+  profile_url: https://raider.io/characters/eu/eversong/Бафометище
+- rank: 4
+  name: Даркселик
+  class: Death Knight
+  race: Worgen
+  spec: null
+  role: null
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Booty Bay
+  avatar: null
+  profile_url: https://raider.io/characters/eu/booty-bay/Даркселик

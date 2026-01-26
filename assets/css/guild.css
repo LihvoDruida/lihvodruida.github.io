@@ -27,6 +27,12 @@
   --class-shaman:   #0070DE;
   --class-warlock:  #9482C9;
   --class-warrior:  #C79C6E;
+
+  /* Faction Colors */
+  --faction-alliance: #0078ff;
+  --faction-horde: #b30000;
+  --faction-alliance-bg: rgba(0, 120, 255, 0.08);
+  --faction-horde-bg: rgba(179, 0, 0, 0.08);
 }
 
 .guild-page-container {
@@ -357,30 +363,147 @@
 .tank-header { color: #6db4ff; border-color: #6db4ff; }
 .heal-header { color: #4eff4e; border-color: #4eff4e; }
 .dps-header { color: #ff6e6e; border-color: #ff6e6e; }
+.other-header { color: #9e9e9e; border-color: #9e9e9e; }
 
 .member-grid { display: flex; flex-direction: column; gap: 8px; }
 
-/* Member Card */
-.member-card {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--bg-card); padding: 8px 12px;
-  border-radius: 8px; border: 1px solid transparent;
-  text-decoration: none; transition: all 0.2s;
-}
-.member-card:hover {
-  background: var(--bg-card-hover); border-color: var(--gold-primary);
-  transform: translateX(4px);
-}
-.avatar-wrapper img, .avatar-wrapper .placeholder {
-  width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
-  background: #2a2a2a; display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: bold;
-}
-.info-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-.char-name { font-size: 0.95rem; font-weight: 700; color: var(--text-white); line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-.char-meta { font-size: 0.75rem; color: var(--text-grey); }
-.rank-badge { font-size: 0.7rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--text-grey); }
+/* --- MEMBER CARD UPDATE --- */
 
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent; /* Базовий бордер */
+  border-left: 3px solid var(--border-subtle); /* Дефолтна ліва смужка */
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ефект наведення */
+.member-card:hover {
+  background: var(--bg-card-hover);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* --- СТИЛІ ФРАКЦІЙ --- */
+
+/* Alliance Styling */
+.member-card.faction-alliance {
+  border-left-color: var(--faction-alliance);
+}
+.member-card.faction-alliance:hover {
+  background: linear-gradient(90deg, var(--faction-alliance-bg) 0%, var(--bg-card-hover) 100%);
+  border-top-color: rgba(0, 120, 255, 0.2);
+  border-bottom-color: rgba(0, 120, 255, 0.2);
+  border-right-color: rgba(0, 120, 255, 0.2);
+}
+
+/* Horde Styling */
+.member-card.faction-horde {
+  border-left-color: var(--faction-horde);
+}
+.member-card.faction-horde:hover {
+  background: linear-gradient(90deg, var(--faction-horde-bg) 0%, var(--bg-card-hover) 100%);
+  border-top-color: rgba(179, 0, 0, 0.2);
+  border-bottom-color: rgba(179, 0, 0, 0.2);
+  border-right-color: rgba(179, 0, 0, 0.2);
+}
+
+/* --- ВНУТРІШНІ ЕЛЕМЕНТИ --- */
+
+.avatar-wrapper {
+  position: relative; /* Щоб позиціонувати індикатор фракції, якщо потрібно */
+}
+
+.avatar-wrapper img, 
+.avatar-wrapper .placeholder {
+  width: 42px; /* Трохи збільшив для кращої читабельності */
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.info-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0; /* Важливо для обрізки довгого тексту */
+}
+
+.char-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-white);
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+/* Стиль для Realm (Region-Realm) */
+.char-realm {
+  font-size: 0.75rem;
+  color: var(--text-grey);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.6;
+}
+
+.char-meta {
+  font-size: 0.75rem;
+  color: var(--text-grey);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Текст фракції в мета-даних */
+.faction-text {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+.member-card.faction-alliance .faction-text { color: var(--faction-alliance); }
+.member-card.faction-horde .faction-text { color: var(--faction-horde); }
+
+/* Іконка статі */
+.gender-icon {
+  font-size: 0.85rem;
+  margin-left: 2px;
+  font-weight: bold;
+}
+
+/* Ранк (справа) */
+.rank-badge {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.05);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--text-grey);
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.05);
+  white-space: nowrap;
+}
 /* Class Colors Utility */
 .class-death-knight { color: var(--class-dk); }
 .class-demon-hunter { color: var(--class-dh); }
@@ -400,7 +523,6 @@
 @media (max-width: 768px) {
   .guild-header { flex-direction: column; text-align: center; }
   .header-content { flex-direction: column; }
-  .roster-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .modern-header {
