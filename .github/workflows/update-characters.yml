@@ -35,5 +35,6 @@ jobs:
             git commit -m "chore: auto-update characters from Raider.IO"
             git push
           else
-            echo "No changes to commit"
+            echo "::error::No changes to commit. Workflow stopped."
+            exit 1
           fi
