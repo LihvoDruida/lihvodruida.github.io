@@ -528,9 +528,6 @@
   .modern-header {
     align-items: flex-start;
   }
-  .stat-badge {
-    display: none;
-  }
 }
 @media (max-width: 500px) {
   .guild-actions { flex-direction: column; width: 100%; margin-top: 12px; }
