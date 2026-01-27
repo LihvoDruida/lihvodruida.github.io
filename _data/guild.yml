@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-01-27 04:50:38'
+  updated_at: '2026-01-27 10:10:51'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -210,8 +210,18 @@ members:
   faction: horde
   region: eu
   realm: Gordunni
-  avatar: null
   profile_url: https://raider.io/characters/eu/gordunni/Булкрит
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 2656.1
+      color: '#5292b9'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 1175.5
+      color: '#9dff81'
 - rank: 4
   name: Asasinas
   class: Druid
@@ -222,8 +232,18 @@ members:
   faction: horde
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Asasinas
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/253/186247421-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 3012.3
+      color: '#406ae0'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 3
   name: Drackavun
   class: Evoker
@@ -234,8 +254,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Drackavun
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/170/185844906-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -246,8 +276,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Katsyt
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/186136183-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 1
   name: Krouli
   class: Demon Hunter
@@ -258,8 +298,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Krouli
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 797.6
+      color: '#caffb6'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -270,8 +320,18 @@ members:
   faction: alliance
   region: eu
   realm: Silvermoon
-  avatar: null
   profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 2890.7
+      color: '#2476d7'
+    healer:
+      score: 2653.3
+      color: '#5292b9'
+    tank:
+      score: 3019.3
+      color: '#406ae0'
 - rank: 4
   name: Threataan
   class: Paladin
@@ -282,8 +342,18 @@ members:
   faction: alliance
   region: eu
   realm: Silvermoon
-  avatar: null
   profile_url: https://raider.io/characters/eu/silvermoon/Threataan
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 155.2
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 1
   name: Odeskiy
   class: Druid
@@ -294,8 +364,18 @@ members:
   faction: horde
   region: eu
   realm: Tarren Mill
-  avatar: null
   profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
+  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 329.5
+      color: '#f4ffef'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 3054.9
+      color: '#715be5'
 - rank: 1
   name: Lishiy
   class: Warrior
@@ -306,8 +386,18 @@ members:
   faction: alliance
   region: eu
   realm: Ragnaros
-  avatar: null
   profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
+  avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 1506.3
+      color: '#6dff51'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Komatoznic
   class: Demon Hunter
@@ -318,8 +408,18 @@ members:
   faction: horde
   region: eu
   realm: Tarren Mill
-  avatar: null
   profile_url: https://raider.io/characters/eu/tarren-mill/Komatoznic
+  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/140/187899020-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 0
   name: Kashin
   class: Druid
@@ -330,8 +430,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Kashin
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Nwlck
   class: Warlock
@@ -342,8 +452,18 @@ members:
   faction: alliance
   region: eu
   realm: Ravencrest
-  avatar: null
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
+  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 2809.8
+      color: '#397ece'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 2
   name: Ahilles
   class: Demon Hunter
@@ -354,8 +474,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Ahilles
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 590.5
+      color: '#ddffd0'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Jakeyo
   class: Shaman
@@ -366,8 +496,18 @@ members:
   faction: alliance
   region: eu
   realm: Ravencrest
-  avatar: null
   profile_url: https://raider.io/characters/eu/ravencrest/Jakeyo
+  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175589321-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 737.4
+      color: '#cfffbc'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Duszi
   class: Warrior
@@ -378,8 +518,18 @@ members:
   faction: horde
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Duszi
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 2029.7
+      color: '#51e05b'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 3008.6
+      color: '#406ae0'
 - rank: 4
   name: Valemor
   class: Mage
@@ -390,8 +540,18 @@ members:
   faction: alliance
   region: eu
   realm: Silvermoon
-  avatar: null
   profile_url: https://raider.io/characters/eu/silvermoon/Valemor
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/62/223406910-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 169
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Дупця
   class: Demon Hunter
@@ -402,8 +562,18 @@ members:
   faction: alliance
   region: eu
   realm: Gordunni
-  avatar: null
   profile_url: https://raider.io/characters/eu/gordunni/Дупця
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/66/264777282-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Azuriel
   class: Paladin
@@ -414,8 +584,18 @@ members:
   faction: alliance
   region: eu
   realm: Terokkar
-  avatar: null
   profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Бафометище
   class: Druid
@@ -426,8 +606,18 @@ members:
   faction: horde
   region: eu
   realm: Eversong
-  avatar: null
   profile_url: https://raider.io/characters/eu/eversong/Бафометище
+  avatar: https://render.worldofwarcraft.com/eu/character/eversong/191/264527551-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 4
   name: Даркселик
   class: Death Knight
@@ -438,5 +628,15 @@ members:
   faction: alliance
   region: eu
   realm: Booty Bay
-  avatar: null
   profile_url: https://raider.io/characters/eu/booty-bay/Даркселик
+  avatar: https://render.worldofwarcraft.com/eu/character/booty-bay/149/264907925-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'

@@ -5,23 +5,47 @@
     {% else %}
       <div class="placeholder">{{ include.char.name | slice: 0 }}</div>
     {% endif %}
-    
     <div class="faction-indicator" title="{{ include.char.faction }}"></div>
   </div>
   
   <div class="info-wrapper">
-    <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">
-      {{ include.char.name }}
-      <span class="char-realm">
-        ({{ include.char.region | upcase }}-{{ include.char.realm }})
+    <div class="char-details">
+      <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">
+        {{ include.char.name }}
+        <span class="char-realm">
+          ({{ include.char.region | upcase }}-{{ include.char.realm }})
+        </span>
       </span>
-    </span>
 
-    <span class="char-meta">
-      <span class="faction-text">{{ include.char.faction | capitalize }}</span> • 
-      {{ include.char.spec }} {{ include.char.class }} • 
-      {{ include.char.race }} 
-    </span>
+      <span class="char-meta">
+        {{ include.char.spec  | capitalize }} {{ include.char.class  | capitalize }} • 
+        {{ include.char.race  | capitalize }}
+      </span>
+    </div>
+
+    {% if include.char.mythic_plus_scores %}
+    <div class="rio-scores">
+      
+      {% if include.char.mythic_plus_scores.tank.score > 0 %}
+        <div class="rio-pill" style="color: {{ include.char.mythic_plus_scores.tank.color }}; border-color: {{ include.char.mythic_plus_scores.tank.color }}40;" title="Tank Score">
+          <span class="role-icon">🛡️</span> {{ include.char.mythic_plus_scores.tank.score | round }}
+        </div>
+      {% endif %}
+
+      {% if include.char.mythic_plus_scores.healer.score > 0 %}
+        <div class="rio-pill" style="color: {{ include.char.mythic_plus_scores.healer.color }}; border-color: {{ include.char.mythic_plus_scores.healer.color }}40;" title="Healer Score">
+          <span class="role-icon">💚</span> {{ include.char.mythic_plus_scores.healer.score | round }}
+        </div>
+      {% endif %}
+
+      {% if include.char.mythic_plus_scores.dps.score > 0 %}
+        <div class="rio-pill" style="color: {{ include.char.mythic_plus_scores.dps.color }}; border-color: {{ include.char.mythic_plus_scores.dps.color }}40;" title="DPS Score">
+          <span class="role-icon">⚔️</span> {{ include.char.mythic_plus_scores.dps.score | round }}
+        </div>
+      {% endif %}
+
+    </div>
+    {% endif %}
   </div>
 
   <div class="rank-badge">

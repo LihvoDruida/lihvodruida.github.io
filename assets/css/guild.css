@@ -385,12 +385,11 @@
 }
 
 /* Ефект наведення */
-.member-card:hover {
+.member-card:hover .rio-pill{
   background: var(--bg-card-hover);
   transform: translateX(4px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-
 /* --- СТИЛІ ФРАКЦІЙ --- */
 
 /* Alliance Styling */
@@ -441,7 +440,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 0; /* Важливо для обрізки довгого тексту */
+  min-width: 0;
 }
 
 .char-name {
@@ -477,7 +476,6 @@
   text-overflow: ellipsis;
 }
 
-/* Текст фракції в мета-даних */
 .faction-text {
   font-weight: 700;
   font-size: 0.7rem;
@@ -503,6 +501,35 @@
   font-weight: 600;
   border: 1px solid rgba(255,255,255,0.05);
   white-space: nowrap;
+}
+
+/* --- RIO SCORES STYLING --- */
+.rio-scores {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.rio-pill {
+  /* Стиль як у .rank-badge */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.rio-pill .role-icon {
+  font-size: 0.7rem;
+  opacity: 0.8;
 }
 /* Class Colors Utility */
 .class-death-knight { color: var(--class-dk); }
@@ -532,4 +559,11 @@
 @media (max-width: 500px) {
   .guild-actions { flex-direction: column; width: 100%; margin-top: 12px; }
   .btn-discord, .btn-primary { justify-content: center; width: 100%; }
+  .rio-scores {
+    gap: 4px;
+  }
+  .rio-pill {
+    font-size: 0.7rem;
+    padding: 1px 4px;
+  }
 }
