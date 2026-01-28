@@ -13,7 +13,7 @@
     color: '#d8ffc9'
   healer:
     score: 3005.9
-    color: '#406ae0'
+    color: '#3b6bdf'
   tank:
     score: 0
     color: '#ffffff'
