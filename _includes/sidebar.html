@@ -1,18 +1,30 @@
 <header class="top-nav">
   <div class="nav-container">
 
+    <a href="/" class="nav-brand" style="text-decoration: none; font-weight: 800; font-size: 1.2rem; color: #fff; text-transform: uppercase; margin-right: auto; display: flex; align-items: center; gap: 8px;">
+      Лігво
+    </a>
+
     <nav class="nav-left">
       <a href="/">Головна</a>
       <a href="/news/">Новини</a>
-      <a href="/guides/">Корисне</a>
+      <a href="/guild/">Гільдія</a>
       
       <div class="nav-dropdown">
-        <a href="#" class="dropdown-toggle" aria-haspopup="true">
-          Інше <span class="arrow">▾</span>
-        </a>
+        <button class="dropdown-toggle" type="button" aria-expanded="false" style="cursor: default;">
+          Ресурси <span class="arrow">▾</span>
+        </button>
+        
         <div class="dropdown-menu">
-          <a href="/guild"><span class="icon">🛡</span> Гільдія</a>
-          <a href="/tools/map"><span class="icon">🗺</span> Корисна інформація</a>
+          <a href="/mods/">
+            <span class="icon">🛠️</span> Мої Адони
+          </a>
+          <a href="/guides/">
+            <span class="icon">📚</span> Гайди
+          </a>
+          <a href="404">
+            <span class="icon">🗺️</span> 404
+          </a>
         </div>
       </div>
     </nav>
@@ -27,15 +39,18 @@
     <div class="mobile-menu-inner">
       <a href="/" class="mobile-link">Головна</a>
       <a href="/news/" class="mobile-link">Новини</a>
-      <a href="/guides/" class="mobile-link">Корисне</a>
+      <a href="/guild/" class="mobile-link">Гільдія</a>
       
-      <div class="mobile-divider">Інше</div>
+      <div class="mobile-divider">Ресурси</div>
       
-      <a href="/guild" class="mobile-link">
-        <span class="icon">🛡</span> Гільдія
+      <a href="/mods/" class="mobile-link">
+        <span class="icon">🛠️</span> Адони
       </a>
-      <a href="/tools/map" class="mobile-link">
-        <span class="icon">🗺</span> Інфо
+      <a href="/guides/" class="mobile-link">
+        <span class="icon">📚</span> Гайди
+      </a>
+      <a href="404" class="mobile-link">
+        <span class="icon">🗺️</span> 404
       </a>
     </div>
   </div>

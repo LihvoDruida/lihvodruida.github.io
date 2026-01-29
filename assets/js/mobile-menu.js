@@ -1,6 +1,5 @@
 /**
- * UIController - Клас для керування мобільною навігацією.
- * Використовує патерн EventListenerObject для обробки подій.
+ * UIController - Mobile Navigation Logic
  */
 class NavigationInterface {
     constructor(selectors) {
@@ -11,26 +10,22 @@ class NavigationInterface {
         };
 
         this.state = {
-            activeClass: 'is-active',
-            openClass: 'is-open',
-            locked: 'hidden'
+            activeClass: 'is-active', // Для кнопки (хрестик)
+            openClass: 'is-open',     // Для меню (видимість)
+            locked: 'hidden'          // Для body (блокування скролу)
         };
 
-        // Ініціалізація тільки якщо елементи існують в DOM
         if (this.refs.trigger && this.refs.overlay) {
             this.init();
         }
     }
 
     init() {
-        // Магія: передаємо 'this' замість колбеку. 
-        // Браузер автоматично викличе метод handleEvent цього класу.
         this.refs.trigger.addEventListener('click', this);
         this.refs.overlay.addEventListener('click', this);
         document.addEventListener('keydown', this);
     }
 
-    // Єдина точка входу для всіх подій (Router подій)
     handleEvent(e) {
         switch (e.type) {
             case 'click':
@@ -66,7 +61,7 @@ class NavigationInterface {
     }
 
     handleOverlayClick(e) {
-        // Закриваємо, якщо клік по фону АБО по посиланню
+        // Закриваємо при кліку на посилання або на затемнений фон
         if (e.target === this.refs.overlay || e.target.closest('a')) {
             this.close();
         }
@@ -77,7 +72,7 @@ class NavigationInterface {
     }
 }
 
-// Запуск після завантаження DOM
+// Ініціалізація
 document.addEventListener('DOMContentLoaded', () => {
     new NavigationInterface({
         trigger: '.hamburger',

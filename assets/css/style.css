@@ -249,56 +249,125 @@ h3 {
     transform: scaleX(1);
 }
 
-/* --- Dropdown Menu Logic --- */
+/* =========================================
+   COMPONENT: DROPDOWN MENU
+   ========================================= */
+
+/* --- Container & Trigger --- */
 .nav-dropdown {
     position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .arrow {
-    font-size: 12px;
-    margin-left: 4px;
-    transition: transform 0.25s ease;
+    font-size: 0.75em; /* Використовуємо em для масштабування */
+    margin-left: 6px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавніша крива Безьє */
+    will-change: transform;
 }
 
-.nav-dropdown:hover .arrow {
+/* Rotate arrow on hover */
+.nav-dropdown:hover .arrow,
+.nav-dropdown:focus-within .arrow {
     transform: rotate(180deg);
 }
 
+/* --- Dropdown Panel --- */
 .dropdown-menu {
+    /* 1. Positioning */
     position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    min-width: 240px;
-    padding: 14px;
-    background: radial-gradient(120% 120% at top left, rgba(50,35,25,.95), rgba(18,12,9,.98));
-    border-radius: 16px;
-    border: 1px solid rgba(255,190,120,.12);
-    box-shadow: 0 40px 90px rgba(0,0,0,.85), 
-                0 0 35px rgba(255,155,85,.18), 
-                inset 0 0 0 1px rgba(255,255,255,.02);
+    top: calc(100% + 8px); /* Трохи більше повітря */
+    right: 0;              /* Вирівнювання по правому краю */
+    left: auto;
+    z-index: var(--z-dropdown, 1000);
+
+    /* 2. Box Model */
+    min-width: 260px;
+    padding: 12px;
     
+    /* 3. Visual Styling (Glassmorphism & Depth) */
+    background: rgba(25, 20, 15, 0.95); /* Глибокий темний фон */
+    backdrop-filter: blur(16px);        /* Сильне розмиття фону */
+    -webkit-backdrop-filter: blur(16px);
+    
+    border-radius: 12px;
+    border: 1px solid rgba(255, 190, 120, 0.08); /* Тонкий акцент */
+    
+    /* Складна тінь для глибини */
+    box-shadow: 
+        0 10px 40px -10px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+
+    /* 4. Initial State (Hidden) */
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transform: translateY(-6px) scale(0.98);
-    filter: blur(6px);
-    transition: opacity .28s ease, transform .28s ease, filter .28s ease;
-    z-index: var(--z-dropdown);
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: top right;
+    
+    /* 5. Transitions */
+    transition: 
+        opacity 0.2s ease,
+        transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), /* Ефект пружини */
+        visibility 0.2s;
+        
+    will-change: opacity, transform;
 }
 
-/* Невидима зона, щоб меню не зникало при русі миші */
+/* --- Interaction Bridge (UX Fix) --- */
+/* Створює невидиму зону, щоб курсор не "губив" меню при переході */
 .dropdown-menu::before {
     content: "";
     position: absolute;
-    top: -18px; left: 0; right: 0; height: 18px;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: 20px; /* Зона перекриття */
+    pointer-events: auto;
 }
 
-/* Відкриття меню */
+/* --- Active State --- */
 .nav-dropdown:hover .dropdown-menu,
 .nav-dropdown:focus-within .dropdown-menu {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
     transform: translateY(0) scale(1);
-    filter: blur(0);
+    
+    /* Затримка зникнення розмиття, якщо потрібно */
+    transition-duration: 0.3s; 
+}
+
+/* --- Dropdown Items (Optional Polish) --- */
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu a:hover {
+    background: rgba(255, 155, 85, 0.08);
+    color: #fff;
+    transform: translateX(4px);
+}
+
+/* Іконки всередині меню */
+.dropdown-menu .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
 }
 
 /* Елементи Dropdown */
