@@ -5,7 +5,8 @@ on:
     branches: ["live"]
   workflow_dispatch:
   workflow_run:
-    workflows: ["Update Characters", "Update Guild Data"]
+    # Додаємо сюди назви всіх воркфлоу, які оновлюють дані
+    workflows: ["Update Characters", "Update Guild Data", "Update Mods"]
     types:
       - completed
     branches: ["live"]
@@ -22,6 +23,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Ця перевірка критично важлива:
+    # Білд запуститься ТІЛЬКИ якщо воркфлоу-джерело (наприклад, Update Mods) завершився успішно (зеленим).
+    # Якщо там було "No changes" (червоний exit 1), то цей білд пропуститься.
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
     
     steps:
