@@ -37,22 +37,18 @@ def fetch_author_mods(author_id):
 
 def extract_game_versions(mod):
     """
-    Збирає унікальні версії та сортує їх як числа (11.0 > 3.4).
+    Збирає унікальні версії гри та сортує їх.
     """
     latest_files = mod.get('latestFiles', [])
     unique_versions = set()
     
     for file in latest_files:
         for v in file.get('gameVersions', []):
-            # Беремо тільки те, що починається з цифри
             if v and v[0].isdigit():
                 unique_versions.add(v)
     
-    # --- ЛОГІКА СОРТУВАННЯ ---
     def version_key(v):
         try:
-            # Розбиваємо "11.0.7" на список чисел [11, 0, 7]
-            # Це дозволяє Python зрозуміти, що 11 більше за 4
             parts = []
             for p in v.split('.'):
                 if p.isdigit():
@@ -61,8 +57,34 @@ def extract_game_versions(mod):
         except:
             return [0]
 
-    # Сортуємо за ключем (числами), reverse=True означає від більшого до меншого
     return sorted(list(unique_versions), key=version_key, reverse=True)
+
+def extract_mod_version(mod):
+    """
+    Отримує версію самого адону (назву останнього файлу).
+    Наприклад: "v1.0.2" або "Release 2.5"
+    """
+    latest_files = mod.get('latestFiles', [])
+    
+    if not latest_files:
+        return "Unknown"
+        
+    # Сортуємо файли за датою (найновіші - перші)
+    # fileDate зазвичай у форматі ISO, тому текстове сортування працює
+    sorted_files = sorted(latest_files, key=lambda x: x.get('fileDate', ''), reverse=True)
+    
+    # Беремо найновіший файл
+    latest_file = sorted_files[0]
+    
+    # displayName - це те, як автор назвав файл (наприклад "MyAddon v1.0")
+    # Якщо його немає, беремо fileName
+    version_name = latest_file.get('displayName', latest_file.get('fileName', 'Unknown'))
+    
+    # Очищуємо від ".zip", якщо це ім'я файлу
+    if version_name.endswith('.zip'):
+        version_name = version_name.replace('.zip', '')
+        
+    return version_name
 
 # --- ОСНОВНА ЛОГІКА ---
 
@@ -75,6 +97,7 @@ if mods_list:
     for mod in mods_list:
         website_url = mod.get('links', {}).get('websiteUrl', '')
         game_versions = extract_game_versions(mod)
+        mod_version = extract_mod_version(mod) # Отримуємо версію адону
 
         mod_data = {
             "id": mod.get("id"),
@@ -85,12 +108,12 @@ if mods_list:
             "link": website_url,
             "logo": mod.get("logo", {}).get("thumbnailUrl"),
             "categories": [cat.get("name") for cat in mod.get("categories", [])],
-            "game_versions": game_versions 
+            "game_versions": game_versions,
+            "version": mod_version  # <-- Нове поле
         }
 
         output.append(mod_data)
-        # Виводимо для перевірки (перші 3 версії)
-        print(f"   -> {mod_data['name']} {game_versions[:3]}...")
+        print(f"   -> {mod_data['name']} [Mod: {mod_version}] [Game: {game_versions[:1]}...]")
 
     if not os.path.exists('_data'):
         os.makedirs('_data')

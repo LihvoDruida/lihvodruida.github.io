@@ -3,7 +3,7 @@
   summary: This addon is designed to automatically set the maximum available camera
     distance. Hopefully, this will help you avoid tricky moments during boss fights.
     You can also use commands to change the maximum values.
-  downloads: 284935
+  downloads: 284945
   updated_at: '2026-01-29T20:10:26.033Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/875/697/256/256/638298662334502270.jpeg
@@ -22,6 +22,7 @@
   - 3.4.3
   - 2.5.4
   - 1.15.2
+  version: v6.1
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
@@ -47,6 +48,7 @@
   - 2.5.4
   - 1.15.3
   - 1.14.4
+  version: v1.5.1
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
@@ -62,6 +64,7 @@
   - 10.1.7
   - 3.4.2
   - 1.14.4
+  version: release-v3
 - id: 1076978
   name: Quick AutoLoot Enabler
   summary: Automates loot collection in World of Warcraft. It enables auto-loot with
@@ -81,6 +84,7 @@
   - 4.4.2
   - 4.4.1
   - 3.4.0
+  version: v4.3
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
@@ -94,6 +98,7 @@
   game_versions:
   - 10.1.7
   - 10.1.5
+  version: release-1.5.2
 - id: 1180208
   name: Mythic Affix Helper
   summary: MythicAffixHelper is a World of Warcraft addon that enhances your Mythic+
@@ -109,3 +114,4 @@
   - Tooltip
   game_versions:
   - 11.0.7
+  version: release-v1.0
