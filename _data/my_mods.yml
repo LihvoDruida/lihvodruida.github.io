@@ -3,7 +3,7 @@
   summary: This addon is designed to automatically set the maximum available camera
     distance. Hopefully, this will help you avoid tricky moments during boss fights.
     You can also use commands to change the maximum values.
-  downloads: 285047
+  downloads: 285918
   updated_at: '2026-01-30T07:08:58.943Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/875/697/256/256/638298662334502270.jpeg
@@ -55,7 +55,7 @@
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
-  downloads: 4667
+  downloads: 4670
   updated_at: '2023-09-10T06:00:53.857Z'
   link: https://www.curseforge.com/wow/addons/deadly-boss-mods-dbm-ukrainian-countdown-pack
   logo: https://media.forgecdn.net/avatars/thumbnails/849/488/256/256/638250468272545947.jpeg
@@ -74,7 +74,7 @@
     minimal setup, ensuring easy activation and compatibility with the latest game
     versions. Install, configure, and enjoy automatic loot collection with an intuitive
     interface.
-  downloads: 1954
+  downloads: 1955
   updated_at: '2025-06-12T17:28:41.107Z'
   link: https://www.curseforge.com/wow/addons/quicklootenabler
   logo: https://media.forgecdn.net/avatars/thumbnails/1052/780/256/256/638583080114749769.jpg
@@ -91,7 +91,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 3305
+  downloads: 3306
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
