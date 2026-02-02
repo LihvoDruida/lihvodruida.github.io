@@ -4,8 +4,8 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 290152
-  updated_at: '2026-01-30T16:46:27.083Z'
+  downloads: 293240
+  updated_at: '2026-02-01T18:48:53.243Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/875/697/256/256/638298662334502270.jpeg
   categories:
@@ -26,14 +26,15 @@
   - 4.4.2
   - 4.4.0
   - 3.4.3
+  - 2.5.5
   - 2.5.4
   - 1.15.2
-  version: v7.1
+  version: v7.2
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 14100
+  downloads: 14111
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
@@ -58,7 +59,7 @@
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
-  downloads: 4686
+  downloads: 4699
   updated_at: '2023-09-10T06:00:53.857Z'
   link: https://www.curseforge.com/wow/addons/deadly-boss-mods-dbm-ukrainian-countdown-pack
   logo: https://media.forgecdn.net/avatars/thumbnails/849/488/256/256/638250468272545947.jpeg
@@ -94,7 +95,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 3343
+  downloads: 3357
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
