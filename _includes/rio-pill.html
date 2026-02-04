@@ -1,0 +1,26 @@
+{% assign role = include.role %}
+{% assign score = include.score %}
+{% assign color = include.color %}
+{% assign icon = "" %}
+{% assign label = "" %}
+
+{% case role %}
+  {% when 'tank' %}
+    {% assign icon = "🛡️" %}
+    {% assign label = "Tank Score" %}
+  {% when 'healer' %}
+    {% assign icon = "💚" %}
+    {% assign label = "Healer Score" %}
+  {% when 'dps' %}
+    {% assign icon = "⚔️" %}
+    {% assign label = "DPS Score" %}
+{% endcase %}
+
+<div class="rio-pill" style="color: {{ color }}; border-color: {{ color }}40;">
+  <span class="role-icon">{{ icon }}</span> {{ score | round }}
+
+  <div class="rio-tooltip">
+    <div class="tooltip-header">{{ label }}</div>
+    <div class="tooltip-text" style="color: {{ color }} !important;">{{ score }}</div>
+  </div>
+</div>
