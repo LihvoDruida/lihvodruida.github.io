@@ -381,11 +381,12 @@
   text-decoration: none;
   transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Ефект наведення */
-.member-card:hover .rio-pill{
+.member-card:hover {
+  z-index: 10;
   background: var(--bg-card-hover);
   transform: translateX(4px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -493,13 +494,137 @@
 
 /* Ранк (справа) */
 .rank-badge {
-  font-size: 0.7rem;
+  position: relative; 
+  cursor: help;
+
+  font-size: 0.75rem; 
+  font-weight: 600;
+  text-transform: uppercase;
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 24px;
+  
   background: rgba(255,255,255,0.05);
-  padding: 3px 8px;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 4px;
   color: var(--text-grey);
+  white-space: nowrap;
+}
+
+/* --- КОЛЬОРИ РАНГІВ ТА ТУЛТІПІВ --- */
+
+/* 0: GM - Guild Master (Legendary Orange) */
+.rank-badge.rank-0 { 
+  color: #ff8000; 
+  border-color: rgba(255, 128, 0, 0.4);
+  background: rgba(255, 128, 0, 0.1);
+  text-shadow: 0 0 5px rgba(255, 128, 0, 0.3);
+}
+
+.rank-badge.rank-0 .tooltip-text {
+  color: #ff8000;
+  text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+}
+
+/* 1: OF - Officer (Epic Purple) */
+.rank-badge.rank-1 { 
+  color: var(--diff-mythic); 
+  border-color: rgba(163, 53, 238, 0.4);
+  background: rgba(163, 53, 238, 0.1);
+}
+.rank-badge.rank-1 .tooltip-text {
+  color: var(--diff-mythic);
+}
+
+/* 2: VT - Veteran (Rare Blue) */
+.rank-badge.rank-2 { 
+  color: var(--diff-heroic); 
+  border-color: rgba(0, 112, 221, 0.4);
+  background: rgba(0, 112, 221, 0.1);
+}
+.rank-badge.rank-2 .tooltip-text {
+  color: var(--diff-heroic);
+}
+
+/* 3: MB - Member (Uncommon Green) */
+.rank-badge.rank-3 { 
+  color: var(--diff-normal); 
+  border-color: rgba(30, 255, 0, 0.3);
+  background: rgba(30, 255, 0, 0.05);
+}
+.rank-badge.rank-3 .tooltip-text {
+  color: var(--diff-normal);
+}
+
+/* 4: IN - Initiate (Common Grey) */
+.rank-badge.rank-4 { 
+  color: #9d9d9d; 
+  border-color: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.02);
+}
+.rank-badge.rank-4 .tooltip-text {
+  color: #9d9d9d;
+}
+
+/* --- TOOLTIP STYLES --- */
+
+.rank-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  
+  background: #161920;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+  border-radius: 6px;
+  padding: 8px 12px;
+  
+  width: max-content;
+  min-width: 80px;
+  z-index: 1000;
+  pointer-events: none;
+  
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rank-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #161920 transparent transparent transparent;
+}
+
+.rank-badge:hover .rank-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.rank-tooltip .tooltip-header {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  color: #8a8d95;
+  margin-bottom: 2px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 2px;
+  text-shadow: none !important;
+}
+
+.rank-tooltip .tooltip-text {
+  font-size: 0.7rem;
   font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.05);
   white-space: nowrap;
 }
 

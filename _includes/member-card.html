@@ -48,7 +48,5 @@
     {% endif %}
   </div>
 
-  <div class="rank-badge">
-    R{{ include.char.rank }}
-  </div>
+  {% include rank-badge.html rank=include.char.rank %}
 </a>

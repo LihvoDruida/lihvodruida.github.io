@@ -1,0 +1,33 @@
+{% assign rank_id = include.rank %}
+{% assign short_name = "" %}
+{% assign full_name = "" %}
+
+{% case rank_id %}
+  {% when 0 %}
+    {% assign short_name = "GM" %}
+    {% assign full_name = "Guild Master" %}
+  {% when 1 %}
+    {% assign short_name = "OF" %}
+    {% assign full_name = "Officer" %}
+  {% when 2 %}
+    {% assign short_name = "VT" %}
+    {% assign full_name = "Veteran" %}
+  {% when 3 %}
+    {% assign short_name = "MB" %}
+    {% assign full_name = "Member" %}
+  {% when 4 %}
+    {% assign short_name = "IN" %}
+    {% assign full_name = "Initiate" %}
+  {% else %}
+    {% assign short_name = "R" | append: rank_id %}
+    {% assign full_name = "Rank " | append: rank_id %}
+{% endcase %}
+
+<div class="rank-badge rank-{{ rank_id }}">
+  {{ short_name }}
+  
+  <div class="rank-tooltip">
+    <div class="tooltip-header">Rank</div>
+    <div class="tooltip-text">{{ full_name }}</div>
+  </div>
+</div>
