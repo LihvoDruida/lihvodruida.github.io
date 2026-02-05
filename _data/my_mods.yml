@@ -4,8 +4,8 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 300180
-  updated_at: '2026-02-03T18:46:58.5Z'
+  downloads: 304625
+  updated_at: '2026-02-04T10:24:28.18Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/875/697/256/256/638298662334502270.jpeg
   categories:
@@ -29,12 +29,12 @@
   - 2.5.5
   - 2.5.4
   - 1.15.2
-  version: v7.3.2
+  version: v7.3.4
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 14123
+  downloads: 14127
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
@@ -59,7 +59,7 @@
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
-  downloads: 4715
+  downloads: 4723
   updated_at: '2023-09-10T06:00:53.857Z'
   link: https://www.curseforge.com/wow/addons/deadly-boss-mods-dbm-ukrainian-countdown-pack
   logo: https://media.forgecdn.net/avatars/thumbnails/849/488/256/256/638250468272545947.jpeg
@@ -78,7 +78,7 @@
     minimal setup, ensuring easy activation and compatibility with the latest game
     versions. Install, configure, and enjoy automatic loot collection with an intuitive
     interface.
-  downloads: 1958
+  downloads: 1960
   updated_at: '2025-06-12T17:28:41.107Z'
   link: https://www.curseforge.com/wow/addons/quicklootenabler
   logo: https://media.forgecdn.net/avatars/thumbnails/1052/780/256/256/638583080114749769.jpg
@@ -95,7 +95,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 3364
+  downloads: 3366
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
