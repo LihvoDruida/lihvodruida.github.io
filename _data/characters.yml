@@ -10,7 +10,7 @@
     realm: Ravencrest
   dps:
     score: 643.1
-    color: '#d8ffc8'
+    color: '#d7ffc7'
   healer:
     score: 3005.9
     color: '#3b6bdf'
@@ -28,8 +28,8 @@
     name: Mistblossom Vanguard
     realm: Terokkar
   dps:
-    score: 970.9
-    color: '#b6ff9e'
+    score: 1137.6
+    color: '#9fff84'
   healer:
     score: 0
     color: '#ffffff'
