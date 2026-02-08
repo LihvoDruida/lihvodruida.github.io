@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-07 05:07:11'
+  updated_at: '2026-02-08 05:24:36'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -215,13 +215,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 2656.1
-      color: '#5192b9'
+      color: '#5191ba'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 1175.5
-      color: '#9bff7f'
+      color: '#99ff7d'
 - rank: 4
   name: Asasinas
   class: Druid
@@ -302,8 +302,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 970.9
-      color: '#b6ff9e'
+      score: 1137.6
+      color: '#9fff84'
     healer:
       score: 0
       color: '#ffffff'
@@ -325,10 +325,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 2890.7
-      color: '#2376d7'
+      color: '#2375d7'
     healer:
       score: 2653.3
-      color: '#5192b9'
+      color: '#5191ba'
     tank:
       score: 3019.3
       color: '#3b6bdf'
@@ -391,7 +391,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1506.3
-      color: '#69ff4d'
+      color: '#65ff49'
     healer:
       score: 0
       color: '#ffffff'
@@ -457,7 +457,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2809.8
-      color: '#397ece'
+      color: '#387ecf'
     healer:
       score: 0
       color: '#ffffff'
@@ -479,7 +479,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 590.5
-      color: '#ddffcf'
+      color: '#dcffce'
     healer:
       score: 0
       color: '#ffffff'
@@ -504,7 +504,7 @@ members:
       color: '#ffffff'
     healer:
       score: 737.4
-      color: '#ceffbb'
+      color: '#cdffba'
     tank:
       score: 0
       color: '#ffffff'
@@ -523,7 +523,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2029.7
-      color: '#53de5f'
+      color: '#55dc62'
     healer:
       score: 0
       color: '#ffffff'
