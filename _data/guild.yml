@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-09 05:38:37'
+  updated_at: '2026-02-10 05:39:06'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -244,7 +244,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 3
+- rank: 99
   name: Drackavun
   class: Evoker
   race: Dracthyr
@@ -398,7 +398,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 4
+- rank: 99
   name: Komatoznic
   class: Demon Hunter
   race: Blood Elf
@@ -468,8 +468,8 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Vengeance
-  role: TANK
+  spec: Devourer
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -486,7 +486,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 4
+- rank: 99
   name: Jakeyo
   class: Shaman
   race: Dwarf
