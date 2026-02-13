@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-12 05:26:23'
+  updated_at: '2026-02-13 05:22:37'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -302,8 +302,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1137.6
-      color: '#9fff84'
+      score: 1295.4
+      color: '#8bff6e'
     healer:
       score: 0
       color: '#ffffff'
