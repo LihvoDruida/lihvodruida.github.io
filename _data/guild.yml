@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-15 05:20:39'
+  updated_at: '2026-02-16 05:38:15'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -215,13 +215,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 2714.9
-      color: '#4889c3'
+      color: '#4888c3'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 1175.5
-      color: '#99ff7d'
+      color: '#96ff7b'
 - rank: 4
   name: Asasinas
   class: Druid
@@ -302,8 +302,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1616.5
-      color: '#4eff34'
+      score: 1635.6
+      color: '#40ff27'
     healer:
       score: 0
       color: '#ffffff'
@@ -324,11 +324,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2890.7
-      color: '#2375d7'
+      score: 2923.7
+      color: '#1773da'
     healer:
       score: 2653.3
-      color: '#5191ba'
+      color: '#5090bb'
     tank:
       score: 3019.3
       color: '#3b6bdf'
@@ -369,7 +369,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 329.5
-      color: '#f4ffef'
+      color: '#f4ffee'
     healer:
       score: 0
       color: '#ffffff'
@@ -391,7 +391,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1506.3
-      color: '#65ff49'
+      color: '#60ff45'
     healer:
       score: 0
       color: '#ffffff'
@@ -457,7 +457,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2809.8
-      color: '#387ecf'
+      color: '#387dcf'
     healer:
       score: 0
       color: '#ffffff'
@@ -479,7 +479,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 590.5
-      color: '#dcffce'
+      color: '#dbffcd'
     healer:
       score: 0
       color: '#ffffff'
@@ -504,7 +504,7 @@ members:
       color: '#ffffff'
     healer:
       score: 737.4
-      color: '#cdffba'
+      color: '#ccffb9'
     tank:
       score: 0
       color: '#ffffff'
@@ -523,7 +523,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2029.7
-      color: '#55dc62'
+      color: '#56d965'
     healer:
       score: 0
       color: '#ffffff'
