@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-16 05:38:15'
+  updated_at: '2026-02-17 05:23:05'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -468,8 +468,8 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Devourer
-  role: DPS
+  spec: Vengeance
+  role: TANK
   gender: male
   faction: alliance
   region: eu
