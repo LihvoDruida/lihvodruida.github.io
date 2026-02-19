@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-19 05:23:14'
+  updated_at: '2026-02-19 21:14:31'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -244,7 +244,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 99
+- rank: 3
   name: Drackavun
   class: Evoker
   race: Dracthyr
@@ -288,7 +288,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 1
+- rank: 0
   name: Krouli
   class: Demon Hunter
   race: Night Elf
@@ -398,7 +398,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 99
+- rank: 4
   name: Komatoznic
   class: Demon Hunter
   race: Blood Elf
@@ -420,7 +420,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 0
+- rank: 1
   name: Kashin
   class: Druid
   race: Night Elf
@@ -486,7 +486,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-- rank: 99
+- rank: 4
   name: Jakeyo
   class: Shaman
   race: Dwarf
