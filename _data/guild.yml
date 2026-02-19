@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-18 05:24:31'
+  updated_at: '2026-02-19 05:23:14'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -380,8 +380,8 @@ members:
   name: Lishiy
   class: Warrior
   race: Dark Iron Dwarf
-  spec: Fury
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: alliance
   region: eu
@@ -556,8 +556,8 @@ members:
   name: Дупця
   class: Demon Hunter
   race: Night Elf
-  spec: Devourer
-  role: DPS
+  spec: Vengeance
+  role: TANK
   gender: female
   faction: alliance
   region: eu
@@ -608,28 +608,6 @@ members:
   realm: Eversong
   profile_url: https://raider.io/characters/eu/eversong/Бафометище
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/191/264527551-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
-  mythic_plus_scores:
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-- rank: 4
-  name: Даркселик
-  class: Death Knight
-  race: Worgen
-  spec: Blood
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Booty Bay
-  profile_url: https://raider.io/characters/eu/booty-bay/Даркселик
-  avatar: https://render.worldofwarcraft.com/eu/character/booty-bay/149/264907925-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
