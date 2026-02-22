@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-21 05:07:40'
+  updated_at: '2026-02-22 05:17:10'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -214,7 +214,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2714.9
+      score: 2720
       color: '#4888c3'
     healer:
       score: 0
