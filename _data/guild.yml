@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-23 05:27:30'
+  updated_at: '2026-02-24 05:22:54'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -302,8 +302,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1648.3
-      color: '#40ff27'
+      score: 1663.8
+      color: '#37ff1e'
     healer:
       score: 0
       color: '#ffffff'
@@ -468,8 +468,8 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Vengeance
-  role: TANK
+  spec: Havoc
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -478,8 +478,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 590.5
-      color: '#dbffcd'
+      score: 760.5
+      color: '#c9ffb6'
     healer:
       score: 0
       color: '#ffffff'
