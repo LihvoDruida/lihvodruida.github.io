@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-25 05:24:23'
+  updated_at: '2026-02-26 05:20:56'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -215,13 +215,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 2720
-      color: '#4888c3'
+      color: '#4788c4'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 1175.5
-      color: '#96ff7b'
+      color: '#94ff78'
 - rank: 4
   name: Asasinas
   class: Druid
@@ -302,8 +302,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1663.8
-      color: '#37ff1e'
+      score: 1683.3
+      color: '#1eff00'
     healer:
       score: 0
       color: '#ffffff'
@@ -325,7 +325,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2923.7
-      color: '#1773da'
+      color: '#1673da'
     healer:
       score: 2653.3
       color: '#5090bb'
@@ -369,7 +369,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 329.5
-      color: '#f4ffee'
+      color: '#f3ffee'
     healer:
       score: 0
       color: '#ffffff'
@@ -391,7 +391,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1506.3
-      color: '#60ff45'
+      color: '#5cff41'
     healer:
       score: 0
       color: '#ffffff'
@@ -457,7 +457,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2809.8
-      color: '#387dcf'
+      color: '#377dcf'
     healer:
       score: 0
       color: '#ffffff'
@@ -479,7 +479,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 760.5
-      color: '#c9ffb6'
+      color: '#c8ffb4'
     healer:
       score: 0
       color: '#ffffff'
@@ -504,7 +504,7 @@ members:
       color: '#ffffff'
     healer:
       score: 737.4
-      color: '#ccffb9'
+      color: '#cbffb8'
     tank:
       score: 0
       color: '#ffffff'
@@ -523,7 +523,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2029.7
-      color: '#56d965'
+      color: '#57d768'
     healer:
       score: 0
       color: '#ffffff'
