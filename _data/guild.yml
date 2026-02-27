@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-02-26 05:20:56'
+  updated_at: '2026-02-27 05:16:09'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -288,6 +288,28 @@ members:
     tank:
       score: 0
       color: '#ffffff'
+- rank: 99
+  name: Darthkenobi
+  class: Warrior
+  race: Human
+  spec: null
+  role: null
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Tarren Mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
+  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 391.3
+      color: '#efffe7'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
 - rank: 0
   name: Krouli
   class: Demon Hunter
@@ -302,7 +324,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1683.3
+      score: 1685.1
       color: '#1eff00'
     healer:
       score: 0
@@ -478,8 +500,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 760.5
-      color: '#c8ffb4'
+      score: 929
+      color: '#b4ff9c'
     healer:
       score: 0
       color: '#ffffff'
@@ -615,6 +637,28 @@ members:
     healer:
       score: 0
       color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+- rank: 99
+  name: Lightass
+  class: Paladin
+  race: Human
+  spec: Holy
+  role: HEALING
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Lightass
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 871.1
+      color: '#bdffa7'
     tank:
       score: 0
       color: '#ffffff'
