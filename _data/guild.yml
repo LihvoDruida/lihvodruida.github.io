@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-02 05:16:20'
+  updated_at: '2026-03-03 05:15:36'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -8,6 +8,12 @@ guild_info:
   region: eu
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
+  tier-mn-1:
+    summary: 0/9 N
+    total_bosses: 9
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
   blackrock-depths:
     summary: 0/8 N
     total_bosses: 8
@@ -27,48 +33,25 @@ raid_progression:
     heroic_bosses_killed: 0
     mythic_bosses_killed: 0
   nerubar-palace:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  aberrus-the-shadowed-crucible:
-    summary: 0/9 N
-    total_bosses: 9
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  amirdrassil-the-dreams-hope:
-    summary: 0/9 N
-    total_bosses: 9
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  awakened-aberrus-the-shadowed-crucible:
-    summary: 0/9 N
-    total_bosses: 9
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  awakened-amirdrassil-the-dreams-hope:
-    summary: 0/9 N
-    total_bosses: 9
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  awakened-vault-of-the-incarnates:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  vault-of-the-incarnates:
     summary: 0/8 N
     total_bosses: 8
     normal_bosses_killed: 0
     heroic_bosses_killed: 0
     mythic_bosses_killed: 0
 raid_rankings:
+  tier-mn-1:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
   blackrock-depths:
     normal:
       world: 0
@@ -109,84 +92,6 @@ raid_rankings:
       region: 0
       realm: 0
   nerubar-palace:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  aberrus-the-shadowed-crucible:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  amirdrassil-the-dreams-hope:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  awakened-aberrus-the-shadowed-crucible:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  awakened-amirdrassil-the-dreams-hope:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  awakened-vault-of-the-incarnates:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  vault-of-the-incarnates:
     normal:
       world: 0
       region: 0
@@ -214,14 +119,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2720
-      color: '#4788c4'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
-      score: 1175.5
-      color: '#94ff78'
+      score: 0
+      color: '#ff8000'
 - rank: 4
   name: Asasinas
   class: Druid
@@ -236,14 +141,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/253/186247421-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
   mythic_plus_scores:
     dps:
-      score: 3012.3
-      color: '#3b6bdf'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 3
   name: Drackavun
   class: Evoker
@@ -259,13 +164,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -281,13 +186,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 99
   name: Darthkenobi
   class: Warrior
@@ -302,14 +207,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 391.3
-      color: '#efffe7'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 0
   name: Krouli
   class: Demon Hunter
@@ -324,14 +229,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1685.1
-      color: '#1eff00'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -346,14 +251,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2923.7
-      color: '#1673da'
+      score: 0
+      color: '#ff8000'
     healer:
-      score: 2653.3
-      color: '#5090bb'
+      score: 0
+      color: '#ff8000'
     tank:
-      score: 3019.3
-      color: '#3b6bdf'
+      score: 0
+      color: '#ff8000'
 - rank: 4
   name: Threataan
   class: Paladin
@@ -368,14 +273,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 155.2
-      color: '#ffffff'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 1
   name: Odeskiy
   class: Druid
@@ -390,14 +295,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
   mythic_plus_scores:
     dps:
-      score: 329.5
-      color: '#f3ffee'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
-      score: 3054.9
-      color: '#695ee4'
+      score: 0
+      color: '#ff8000'
 - rank: 1
   name: Lishiy
   class: Warrior
@@ -412,14 +317,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1506.3
-      color: '#5cff41'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Komatoznic
   class: Demon Hunter
@@ -435,13 +340,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 1
   name: Kashin
   class: Druid
@@ -457,13 +362,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Nwlck
   class: Warlock
@@ -478,14 +383,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
     dps:
-      score: 2809.8
-      color: '#377dcf'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 2
   name: Ahilles
   class: Demon Hunter
@@ -500,14 +405,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
-      score: 929
-      color: '#b4ff9c'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Jakeyo
   class: Shaman
@@ -523,13 +428,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
-      score: 737.4
-      color: '#cbffb8'
+      score: 0
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Duszi
   class: Warrior
@@ -544,14 +449,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2029.7
-      color: '#57d768'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
-      score: 3008.6
-      color: '#3b6bdf'
+      score: 0
+      color: '#ff8000'
 - rank: 4
   name: Valemor
   class: Mage
@@ -566,14 +471,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/62/223406910-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
   mythic_plus_scores:
     dps:
-      score: 169
-      color: '#ffffff'
+      score: 0
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Дупця
   class: Demon Hunter
@@ -589,13 +494,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Azuriel
   class: Paladin
@@ -611,13 +516,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 4
   name: Бафометище
   class: Druid
@@ -633,13 +538,13 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
 - rank: 99
   name: Lightass
   class: Paladin
@@ -655,10 +560,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
-      score: 871.1
-      color: '#bdffa7'
+      score: 0
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
