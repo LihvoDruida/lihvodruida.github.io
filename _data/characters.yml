@@ -10,13 +10,13 @@
     realm: Ravencrest
   dps:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   healer:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   tank:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
 - name: Krouli
   race: Night Elf
   class: Demon Hunter
@@ -29,13 +29,13 @@
     realm: Terokkar
   dps:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   healer:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   tank:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
 - name: Kashin
   race: Night Elf
   class: Druid
@@ -48,10 +48,10 @@
     realm: Terokkar
   dps:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   healer:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
   tank:
     score: 0
-    color: '#ffffff'
+    color: '#ff8000'
