@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-03 05:15:36'
+  updated_at: '2026-03-04 05:10:08'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -105,6 +105,28 @@ raid_rankings:
       region: 0
       realm: 0
 members:
+- rank: 99
+  name: Котто
+  class: Rogue
+  race: Void Elf
+  spec: Subtlety
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Котто
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
 - rank: 4
   name: Булкрит
   class: Paladin
@@ -307,8 +329,8 @@ members:
   name: Lishiy
   class: Warrior
   race: Dark Iron Dwarf
-  spec: null
-  role: null
+  spec: Protection
+  role: TANK
   gender: male
   faction: alliance
   region: eu
