@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-05 05:14:31'
+  updated_at: '2026-03-06 05:11:18'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -105,11 +105,33 @@ raid_rankings:
       region: 0
       realm: 0
 members:
-- rank: 99
+- rank: 3
+  name: Люмината
+  class: Priest
+  race: Void Elf
+  spec: Shadow
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Люмината
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/183/179793335-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Скяльди
   class: Demon Hunter
   race: Blood Elf
-  spec: Havoc
+  spec: Devourer
   role: DPS
   gender: male
   faction: horde
@@ -127,7 +149,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Котто
   class: Rogue
   race: Void Elf
@@ -149,7 +171,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Булкрит
   class: Paladin
   race: Blood Elf
@@ -216,6 +238,28 @@ members:
       score: 0
       color: '#ff8000'
 - rank: 4
+  name: Elderwizard
+  class: Mage
+  race: Human
+  spec: Arcane
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
   name: Katsyt
   class: Paladin
   race: Lightforged Draenei
@@ -237,7 +281,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Darthkenobi
   class: Warrior
   race: Human
@@ -259,7 +303,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 0
+- rank: 4
   name: Krouli
   class: Demon Hunter
   race: Night Elf
@@ -315,6 +359,28 @@ members:
   realm: Silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Threataan
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Алак
+  class: Mage
+  race: Night Elf
+  spec: Arcane
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Goldrinn
+  profile_url: https://raider.io/characters/eu/goldrinn/Алак
+  avatar: https://render.worldofwarcraft.com/eu/character/goldrinn/150/181764502-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -435,7 +501,29 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 2
+- rank: 99
+  name: Smolderfist
+  class: Monk
+  race: Dark Iron Dwarf
+  spec: Brewmaster
+  role: TANK
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 1
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
@@ -545,7 +633,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 1
   name: Azuriel
   class: Paladin
   race: Lightforged Draenei
@@ -589,7 +677,29 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 1
+  name: Mafik
+  class: Mage
+  race: Undead
+  spec: Frost
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Mafik
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Lightass
   class: Paladin
   race: Human
@@ -601,6 +711,116 @@ members:
   realm: Terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Lightass
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Дрендара
+  class: Druid
+  race: Haranir
+  spec: Balance
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Дрендара
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Bierdestroer
+  class: Warlock
+  race: Worgen
+  spec: Affliction
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Christmans
+  class: Paladin
+  race: Human
+  spec: Protection
+  role: TANK
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Christmans
+  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 0
+  name: Khayen
+  class: Druid
+  race: Haranir
+  spec: Balance
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Khayen
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
+  name: Hexxoffender
+  class: Shaman
+  race: Dark Iron Dwarf
+  spec: Elemental
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
