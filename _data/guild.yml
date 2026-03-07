@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-06 05:11:18'
+  updated_at: '2026-03-07 05:01:47'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -237,12 +237,34 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 99
+  name: Sonechco
+  class: Druid
+  race: Night Elf
+  spec: Guardian
+  role: TANK
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 99
   name: Elderwizard
   class: Mage
   race: Human
-  spec: Arcane
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: alliance
   region: eu
@@ -369,7 +391,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 3
+- rank: 99
   name: Алак
   class: Mage
   race: Night Elf
@@ -677,12 +699,12 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 1
+- rank: 99
   name: Mafik
   class: Mage
   race: Undead
-  spec: Frost
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: horde
   region: eu
@@ -791,8 +813,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Balance
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: alliance
   region: eu
