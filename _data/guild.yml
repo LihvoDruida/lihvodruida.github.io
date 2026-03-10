@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-09 05:20:50'
+  updated_at: '2026-03-10 05:11:34'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -106,7 +106,7 @@ raid_rankings:
       realm: 0
 members:
 - rank: 3
-  name: Люмината
+  name: Люмината-24244163
   class: Priest
   race: Void Elf
   spec: Shadow
@@ -115,23 +115,23 @@ members:
   faction: alliance
   region: eu
   realm: Gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Люмината
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/183/179793335-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+  profile_url: https://raider.io/characters/eu/gordunni/Люмината-24244163
+  avatar: null
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     healer:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     tank:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
 - rank: 3
   name: Скяльди
   class: Demon Hunter
   race: Blood Elf
-  spec: Devourer
+  spec: Havoc
   role: DPS
   gender: male
   faction: horde
@@ -725,8 +725,8 @@ members:
   name: Lightass
   class: Paladin
   race: Human
-  spec: Retribution
-  role: DPS
+  spec: Holy
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -744,7 +744,7 @@ members:
       score: 0
       color: '#ff8000'
 - rank: 3
-  name: Дрендара
+  name: Дрендара-299717587
   class: Druid
   race: Haranir
   spec: Balance
@@ -753,18 +753,18 @@ members:
   faction: alliance
   region: eu
   realm: Gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дрендара
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+  profile_url: https://raider.io/characters/eu/gordunni/Дрендара-299717587
+  avatar: null
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     healer:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     tank:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
 - rank: 3
   name: Bierdestroer
   class: Warlock
