@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OAuth Redirect</title>
     <script>
-        (function() {
-            // Отримуємо код авторизації з URL
+        (function () {
             const params = new URLSearchParams(window.location.search);
+
             const code = params.get("code");
             const state = params.get("state");
+            const error = params.get("error");
+            const errorDescription = params.get("error_description");
 
-            if (code) {
-                // Створюємо глибоке посилання (Deep Link)
-                const deepLink = `lihvodruida://callback?code=${code}&state=${state}`;
+            const qp = new URLSearchParams();
 
-                // Додаємо затримку перед редиректом
+            if (code) qp.set("code", code);
+            if (state) qp.set("state", state);
+            if (error) qp.set("error", error);
+            if (errorDescription) qp.set("error_description", errorDescription);
+
+            const deepLink = `lihvodruida://callback?${qp.toString()}`;
+
+            if (code || error) {
                 setTimeout(() => {
                     window.location.href = deepLink;
-                }, 100); // 100 мс, щоб браузер встиг обробити
+                }, 120);
 
-                // Додаємо кнопку на випадок, якщо редирект не спрацює
-                document.body.innerHTML = `
-                    <h2>Redirecting...</h2>
-                    <p>If you are not redirected, <a id="redirectLink" href="${deepLink}">click here</a>.</p>
-                `;
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.innerHTML = `
+                        <h2>Redirecting...</h2>
+                        <p>If the app did not open automatically,
+                        <a id="redirectLink" href="${deepLink}">tap here</a>.</p>
+                    `;
+                });
             } else {
-                document.body.innerHTML = "<h2>Error: Authorization code not found.</h2>";
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.innerHTML =
+                        "<h2>Error: Authorization code or error payload not found.</h2>";
+                });
             }
         })();
     </script>
@@ -35,4 +47,3 @@
     <h2>Redirecting...</h2>
 </body>
 </html>
-
