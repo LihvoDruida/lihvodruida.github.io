@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-10 05:11:34'
+  updated_at: '2026-03-11 05:13:09'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -175,8 +175,8 @@ members:
   name: Булкрит
   class: Paladin
   race: Blood Elf
-  spec: Retribution
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: horde
   region: eu
@@ -263,8 +263,8 @@ members:
   name: Elderwizard
   class: Mage
   race: Human
-  spec: null
-  role: null
+  spec: Frost
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -703,8 +703,8 @@ members:
   name: Mafik
   class: Mage
   race: Undead
-  spec: null
-  role: null
+  spec: Frost
+  role: DPS
   gender: male
   faction: horde
   region: eu
