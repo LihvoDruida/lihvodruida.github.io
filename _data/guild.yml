@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-12 05:17:04'
+  updated_at: '2026-03-13 05:14:38'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -711,6 +711,28 @@ members:
   realm: Terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Mafik
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 99
+  name: Kensshi
+  class: Druid
+  race: Night Elf
+  spec: Balance
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Kensshi
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/81/212966225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
