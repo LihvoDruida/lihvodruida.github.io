@@ -1,5 +1,5 @@
 /**
- * UIController - Mobile Navigation Logic
+ * Mobile navigation with scroll lock and safe resize handling.
  */
 class NavigationInterface {
     constructor(selectors) {
@@ -10,10 +10,12 @@ class NavigationInterface {
         };
 
         this.state = {
-            activeClass: 'is-active', // Для кнопки (хрестик)
-            openClass: 'is-open',     // Для меню (видимість)
-            locked: 'hidden'          // Для body (блокування скролу)
+            activeClass: 'is-active',
+            openClass: 'is-open',
+            bodyClass: 'nav-open'
         };
+
+        this.mediaQuery = window.matchMedia('(max-width: 768px)');
 
         if (this.refs.trigger && this.refs.overlay) {
             this.init();
@@ -21,9 +23,12 @@ class NavigationInterface {
     }
 
     init() {
+        this.refs.overlay.setAttribute('aria-hidden', 'true');
         this.refs.trigger.addEventListener('click', this);
         this.refs.overlay.addEventListener('click', this);
         document.addEventListener('keydown', this);
+        this.mediaQuery.addEventListener?.('change', this);
+        window.addEventListener('resize', this);
     }
 
     handleEvent(e) {
@@ -38,6 +43,10 @@ class NavigationInterface {
             case 'keydown':
                 if (e.key === 'Escape') this.close();
                 break;
+            case 'change':
+            case 'resize':
+                if (!this.mediaQuery.matches) this.close();
+                break;
         }
     }
 
@@ -50,29 +59,25 @@ class NavigationInterface {
         this.refs.trigger.classList.add(this.state.activeClass);
         this.refs.overlay.classList.add(this.state.openClass);
         this.refs.trigger.setAttribute('aria-expanded', 'true');
-        this.toggleScroll(true);
+        this.refs.overlay.setAttribute('aria-hidden', 'false');
+        this.refs.body.classList.add(this.state.bodyClass);
     }
 
     close() {
         this.refs.trigger.classList.remove(this.state.activeClass);
         this.refs.overlay.classList.remove(this.state.openClass);
         this.refs.trigger.setAttribute('aria-expanded', 'false');
-        this.toggleScroll(false);
+        this.refs.overlay.setAttribute('aria-hidden', 'true');
+        this.refs.body.classList.remove(this.state.bodyClass);
     }
 
     handleOverlayClick(e) {
-        // Закриваємо при кліку на посилання або на затемнений фон
         if (e.target === this.refs.overlay || e.target.closest('a')) {
             this.close();
         }
     }
-
-    toggleScroll(lock) {
-        this.refs.body.style.overflow = lock ? this.state.locked : '';
-    }
 }
 
-// Ініціалізація
 document.addEventListener('DOMContentLoaded', () => {
     new NavigationInterface({
         trigger: '.hamburger',
