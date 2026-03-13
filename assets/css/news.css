@@ -966,6 +966,50 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0));
 }
 
+
+@media (min-width: 769px) {
+  .article-body table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  .article-body th,
+  .article-body td {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .article-table-wrap {
+    --table-edge-fade: 0px;
+    margin: 1.35rem 0 1.8rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .article-table-scroll {
+    overflow: visible;
+    scrollbar-width: none;
+  }
+
+  .article-table-scroll > table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+  }
+
+  .article-table-wrap::before,
+  .article-table-wrap::after,
+  .table-scroll-hint {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .bg-image {
     filter: blur(6px) brightness(0.42) saturate(0.9);

@@ -134,9 +134,35 @@ function copyLink() {
 }
 
 function enhanceArticleTables() {
-  const tables = document.querySelectorAll('.article-body table');
+  const mobileQuery = window.matchMedia('(max-width: 768px)');
 
-  tables.forEach((table) => {
+  const syncOverflowState = (wrap) => {
+    const scroll = wrap.querySelector('.article-table-scroll');
+    const hint = wrap.querySelector('.table-scroll-hint');
+    if (!scroll) return;
+
+    const hasOverflow = scroll.scrollWidth > scroll.clientWidth + 8;
+    const atStart = scroll.scrollLeft <= 8;
+    const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 8;
+
+    wrap.classList.toggle('has-overflow', hasOverflow);
+    wrap.classList.toggle('is-overflowing', hasOverflow && !atEnd);
+    wrap.classList.toggle('is-scrolled', hasOverflow && !atStart);
+
+    if (hint) {
+      hint.hidden = !hasOverflow;
+    }
+  };
+
+  const unwrapTable = (table) => {
+    const wrap = table.closest('.article-table-wrap');
+    if (!wrap) return;
+
+    wrap.parentNode.insertBefore(table, wrap);
+    wrap.remove();
+  };
+
+  const wrapTable = (table) => {
     if (table.closest('.article-table-wrap')) return;
 
     const wrap = document.createElement('div');
@@ -155,29 +181,39 @@ function enhanceArticleTables() {
     scroll.appendChild(table);
     wrap.appendChild(hint);
 
-    const syncOverflowState = () => {
-      const maxScrollLeft = Math.max(0, scroll.scrollWidth - scroll.clientWidth);
-      const hasOverflow = maxScrollLeft > 8;
-      const scrollLeft = Math.max(0, scroll.scrollLeft);
-      const atStart = scrollLeft <= 4;
-      const atEnd = scrollLeft >= maxScrollLeft - 4;
+    const update = () => syncOverflowState(wrap);
 
-      wrap.classList.toggle('is-overflowing', hasOverflow && !atEnd);
-      wrap.classList.toggle('is-scrolled', hasOverflow && !atStart);
-      hint.hidden = !hasOverflow;
-    };
+    scroll.addEventListener('scroll', update, { passive: true });
+    requestAnimationFrame(update);
+  };
 
-    scroll.addEventListener('scroll', syncOverflowState, { passive: true });
-    window.addEventListener('resize', syncOverflowState, { passive: true });
+  const refreshTables = () => {
+    const isMobile = mobileQuery.matches;
+    const tables = document.querySelectorAll('.article-body table');
 
-    if ('ResizeObserver' in window) {
-      const resizeObserver = new ResizeObserver(syncOverflowState);
-      resizeObserver.observe(scroll);
-      resizeObserver.observe(table);
+    tables.forEach((table) => {
+      if (isMobile) {
+        wrapTable(table);
+      } else {
+        unwrapTable(table);
+      }
+    });
+
+    if (isMobile) {
+      document.querySelectorAll('.article-table-wrap').forEach(syncOverflowState);
     }
+  };
 
-    requestAnimationFrame(syncOverflowState);
-  });
+  const scheduleRefresh = () => requestAnimationFrame(refreshTables);
+
+  refreshTables();
+  window.addEventListener('resize', scheduleRefresh, { passive: true });
+
+  if (mobileQuery.addEventListener) {
+    mobileQuery.addEventListener('change', scheduleRefresh);
+  } else if (mobileQuery.addListener) {
+    mobileQuery.addListener(scheduleRefresh);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', enhanceArticleTables);
