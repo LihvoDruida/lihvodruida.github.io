@@ -1143,3 +1143,449 @@ body.nav-open {
         background: rgba(255,255,255,0.03);
     }
 }
+
+/* =========================================
+   GLOBAL TYPOGRAPHY CALIBRATION
+   Desktop + Mobile
+   ========================================= */
+
+@media (min-width: 1025px) {
+    html {
+        font-size: 16px;
+    }
+
+    body {
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    p,
+    li,
+    .card p,
+    .news-card p,
+    .section-subtitle,
+    .guild-meta,
+    .mod-summary,
+    .credits-info,
+    .empty-state,
+    .error-description,
+    .fun-text {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    h1 {
+        font-size: clamp(1.95rem, 1.78rem + 0.55vw, 2.3rem);
+        line-height: 1.14;
+    }
+
+    h2 {
+        font-size: clamp(1.55rem, 1.42rem + 0.42vw, 1.85rem);
+        line-height: 1.2;
+    }
+
+    h3 {
+        font-size: clamp(1.26rem, 1.18rem + 0.28vw, 1.45rem);
+        line-height: 1.24;
+    }
+
+    .top-nav {
+        height: 68px;
+    }
+
+    .nav-brand {
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+    }
+
+    .nav-left > a,
+    .dropdown-toggle,
+    .dropdown-menu a,
+    .nav-container nav a {
+        font-size: 0.96rem;
+    }
+
+    .section-header h1 {
+        font-size: clamp(2.2rem, 1.95rem + 0.95vw, 2.85rem);
+        line-height: 1.08;
+        margin-bottom: 0.55rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.02rem;
+        line-height: 1.65;
+    }
+
+    .card-title,
+    .news-card h3,
+    .visual-news-card .card-title,
+    .mod-name {
+        font-size: 1.16rem;
+        line-height: 1.34;
+    }
+
+    .featured-content h2 {
+        font-size: clamp(1.8rem, 1.65rem + 0.42vw, 2.05rem);
+        line-height: 1.16;
+    }
+
+    .featured-content p,
+    .visual-news-card .card-desc,
+    .news-card p,
+    .mod-summary,
+    .char-meta,
+    .stats,
+    .guild {
+        font-size: 0.97rem;
+        line-height: 1.65;
+    }
+
+    .news-date,
+    .visual-news-card .news-date,
+    .category-badge,
+    .card-badge,
+    .section-tag {
+        font-size: 0.78rem;
+    }
+
+    .char-info strong {
+        font-size: 1.02rem;
+        line-height: 1.3;
+    }
+
+    .char-info span,
+    .guild-meta,
+    .stat-item,
+    .version-badge,
+    .mod-tag,
+    .tooltip-header,
+    .tooltip-tag {
+        font-size: 0.82rem;
+    }
+
+    .guild-name {
+        font-size: clamp(2rem, 1.8rem + 0.85vw, 2.45rem);
+        line-height: 1.06;
+    }
+
+    .modern-header .section-title,
+    .section-title {
+        font-size: 1.35rem;
+        line-height: 1.2;
+    }
+
+    .article-header h1 {
+        font-size: clamp(2.15rem, 1.92rem + 0.95vw, 2.8rem);
+        line-height: 1.08;
+        letter-spacing: 0.02em;
+    }
+
+    .article-description {
+        font-size: 1.08rem;
+        line-height: 1.72;
+    }
+
+    .article-body {
+        font-size: 1.01rem;
+        line-height: 1.76;
+    }
+
+    .article-body h2 {
+        font-size: clamp(1.58rem, 1.45rem + 0.45vw, 1.9rem);
+        line-height: 1.18;
+    }
+
+    .article-body h3 {
+        font-size: clamp(1.24rem, 1.16rem + 0.26vw, 1.4rem);
+        line-height: 1.24;
+    }
+
+    .article-body h4 {
+        font-size: 1.06rem;
+        line-height: 1.32;
+    }
+
+    .article-body table {
+        font-size: 0.95rem;
+    }
+
+    .article-body td,
+    .article-body th {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .article-body th {
+        font-size: 0.84rem;
+        letter-spacing: 0.03em;
+    }
+
+    .donate-header h1 {
+        font-size: clamp(2.2rem, 2rem + 0.9vw, 2.8rem);
+        line-height: 1.08;
+    }
+
+    .donate-header p,
+    .credits-info,
+    .empty-state {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .donate-subtitle {
+        font-size: 1.38rem;
+        line-height: 1.2;
+    }
+
+    .featured-badge,
+    .method-features span,
+    .toggle-alternatives,
+    .btn-mod-download,
+    .btn-primary,
+    .btn-discord,
+    .read-more,
+    .share-btn,
+    .back-btn {
+        font-size: 0.95rem;
+    }
+
+    .error-code-text {
+        font-size: 1.7rem;
+    }
+
+    .error-title {
+        font-size: 1.4rem;
+        line-height: 1.25;
+    }
+
+    .error-description,
+    .fun-text,
+    .btn-primary,
+    .back-history-btn {
+        font-size: 0.96rem;
+    }
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 15px;
+    }
+
+    body {
+        font-size: 1rem;
+        line-height: 1.58;
+    }
+
+    p,
+    li,
+    .card p,
+    .news-card p,
+    .section-subtitle,
+    .guild-meta,
+    .mod-summary,
+    .credits-info,
+    .empty-state,
+    .error-description,
+    .fun-text {
+        font-size: 0.98rem;
+        line-height: 1.62;
+    }
+
+    h1 {
+        font-size: clamp(1.48rem, 1.32rem + 0.8vw, 1.72rem);
+        line-height: 1.16;
+    }
+
+    h2 {
+        font-size: clamp(1.24rem, 1.16rem + 0.45vw, 1.42rem);
+        line-height: 1.22;
+    }
+
+    h3 {
+        font-size: clamp(1.08rem, 1.02rem + 0.3vw, 1.18rem);
+        line-height: 1.25;
+    }
+
+    .nav-brand {
+        font-size: 0.92rem;
+        letter-spacing: 0.06em;
+    }
+
+    .section-header h1 {
+        font-size: clamp(1.68rem, 1.52rem + 0.7vw, 2rem);
+        line-height: 1.1;
+    }
+
+    .section-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.58;
+    }
+
+    .featured-content h2,
+    .news-card h3,
+    .visual-news-card .card-title,
+    .card-title,
+    .mod-name {
+        font-size: 1.08rem;
+        line-height: 1.32;
+    }
+
+    .featured-content p,
+    .visual-news-card .card-desc,
+    .news-card p,
+    .mod-summary,
+    .stats,
+    .guild {
+        font-size: 0.94rem;
+        line-height: 1.58;
+    }
+
+    .news-date,
+    .visual-news-card .news-date,
+    .category-badge,
+    .card-badge,
+    .section-tag,
+    .version-badge,
+    .mod-tag,
+    .tooltip-header,
+    .tooltip-tag,
+    .stat-item {
+        font-size: 0.76rem;
+    }
+
+    .char-info strong {
+        font-size: 0.98rem;
+    }
+
+    .char-info span,
+    .guild-meta {
+        font-size: 0.82rem;
+    }
+
+    .guild-name {
+        font-size: 1.62rem;
+        line-height: 1.08;
+    }
+
+    .modern-header .section-title,
+    .section-title,
+    .donate-subtitle {
+        font-size: 1.18rem;
+        line-height: 1.22;
+    }
+
+    .article-header h1 {
+        font-size: clamp(1.48rem, 1.36rem + 0.65vw, 1.8rem);
+        line-height: 1.12;
+    }
+
+    .article-description {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .article-body {
+        font-size: 0.98rem;
+        line-height: 1.68;
+    }
+
+    .article-body h2 {
+        font-size: 1.28rem;
+        line-height: 1.18;
+    }
+
+    .article-body h3 {
+        font-size: 1.1rem;
+        line-height: 1.23;
+    }
+
+    .article-body h4 {
+        font-size: 1rem;
+    }
+
+    .article-body td,
+    .article-body th {
+        line-height: 1.42;
+    }
+
+    .donate-header h1 {
+        font-size: 1.86rem;
+        line-height: 1.1;
+    }
+
+    .donate-header p,
+    .credits-info,
+    .empty-state,
+    .error-description,
+    .fun-text {
+        font-size: 0.95rem;
+        line-height: 1.62;
+    }
+
+    .featured-badge,
+    .method-features span,
+    .toggle-alternatives,
+    .btn-mod-download,
+    .btn-primary,
+    .btn-discord,
+    .read-more,
+    .share-btn,
+    .back-btn,
+    .back-history-btn {
+        font-size: 0.92rem;
+    }
+
+    .error-code-text {
+        font-size: 1.35rem;
+    }
+
+    .error-title {
+        font-size: 1.16rem;
+        line-height: 1.28;
+    }
+}
+
+@media (max-width: 480px) {
+    html {
+        font-size: 14.5px;
+    }
+
+    .section-header h1 {
+        font-size: clamp(1.52rem, 1.38rem + 0.7vw, 1.78rem);
+    }
+
+    .featured-content h2,
+    .news-card h3,
+    .visual-news-card .card-title,
+    .card-title,
+    .mod-name {
+        font-size: 1.02rem;
+    }
+
+    .article-header h1 {
+        font-size: 1.38rem;
+    }
+
+    .article-body {
+        font-size: 0.96rem;
+    }
+
+    .article-body h2 {
+        font-size: 1.22rem;
+    }
+
+    .article-body h3,
+    .modern-header .section-title,
+    .section-title,
+    .donate-subtitle {
+        font-size: 1.06rem;
+    }
+
+    .guild-name {
+        font-size: 1.44rem;
+    }
+
+    .donate-header h1 {
+        font-size: 1.68rem;
+    }
+}
