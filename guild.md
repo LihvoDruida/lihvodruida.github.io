@@ -7,43 +7,56 @@ permalink: /guild/
 <div class="guild-page-container">
 
   <header class="guild-header">
-    <div class="header-content">
-      <div class="guild-badge">
-        <span class="faction-icon {{ site.data.guild.guild_info.faction | downcase }}">
-            {% if site.data.guild.guild_info.faction == 'horde' %}🛡️{% else %}🦁{% endif %}
+  <div class="guild-header-glow"></div>
+
+  <div class="header-content">
+    <div class="guild-badge">
+      <img
+        src="/assets/img/guild-logo.png"
+        alt="Mistblossom Vanguard logo"
+        class="guild-logo"
+        loading="lazy"
+        decoding="async"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
+      >
+      <span class="guild-logo-fallback faction-icon {{ site.data.guild.guild_info.faction | downcase }}">
+        {% if site.data.guild.guild_info.faction == 'horde' %}🛡️{% else %}🦁{% endif %}
+      </span>
+    </div>
+
+    <div class="guild-info">
+      <div class="guild-eyebrow">World of Warcraft Guild</div>
+      <h1 class="guild-name">{{ site.data.guild.guild_info.name }}</h1>
+
+      <div class="guild-meta">
+        <span class="meta-tag">{{ site.data.guild.guild_info.region | upcase }}</span>
+        <span class="meta-tag">{{ site.data.guild.guild_info.realm }}</span>
+        <span class="meta-tag faction-{{ site.data.guild.guild_info.faction | downcase }}">
+          {{ site.data.guild.guild_info.faction | capitalize }}
         </span>
       </div>
-      <div class="guild-info">
-        <h1 class="guild-name">{{ site.data.guild.guild_info.name }}</h1>
-        <div class="guild-meta">
-          <span class="meta-tag">{{ site.data.guild.guild_info.region | upcase }}</span>
-          <span class="meta-separator">/</span>
-          <span class="meta-tag">{{ site.data.guild.guild_info.realm }}</span>
-          <span class="meta-separator">/</span>
-          <span class="meta-tag faction-{{ site.data.guild.guild_info.faction | downcase }}">
-            {{ site.data.guild.guild_info.faction | capitalize }}
-          </span>
-        </div>
-        <div class="guild-updated">
-           <small>Оновлено: {{ site.data.guild.metadata.updated_at }}</small>
-        </div>
+
+      <div class="guild-updated">
+        <span class="updated-pill">Оновлено: {{ site.data.guild.metadata.updated_at }}</span>
       </div>
     </div>
-    
-    <div class="guild-actions">
-      <a href="{{ site.data.guild.guild_info.profile_url }}" target="_blank" class="btn-primary">
-        Raider.IO <span>↗</span>
-      </a>
-      {% if site.data.socials.discord %}
-      <a href="{{ site.data.socials.discord }}" target="_blank" class="btn-discord">
-        <svg class="discord-icon" viewBox="0 0 127.14 96.36" width="20" height="15">
-          <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c1.24-23.23-13.26-47.57-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-        </svg>
-        Discord
-      </a>
-      {% endif %}
-    </div>
-  </header>
+  </div>
+
+  <div class="guild-actions">
+    <a href="{{ site.data.guild.guild_info.profile_url }}" target="_blank" rel="noopener" class="btn-primary">
+      <span>Raider.IO</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    {% if site.data.socials.discord %}
+    <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener" class="btn-discord">
+      <svg class="discord-icon" viewBox="0 0 127.14 96.36" aria-hidden="true">
+        <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c1.24-23.23-13.26-47.57-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+      </svg>
+      <span>Discord</span>
+    </a>
+    {% endif %}
+  </div>
+</header>
 
   <section class="guild-section">
     <div class="modern-header">
