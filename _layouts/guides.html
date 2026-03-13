@@ -156,13 +156,26 @@ function enhanceArticleTables() {
     wrap.appendChild(hint);
 
     const syncOverflowState = () => {
-      const hasOverflow = scroll.scrollWidth > scroll.clientWidth + 8;
-      const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 8;
+      const maxScrollLeft = Math.max(0, scroll.scrollWidth - scroll.clientWidth);
+      const hasOverflow = maxScrollLeft > 8;
+      const scrollLeft = Math.max(0, scroll.scrollLeft);
+      const atStart = scrollLeft <= 4;
+      const atEnd = scrollLeft >= maxScrollLeft - 4;
+
       wrap.classList.toggle('is-overflowing', hasOverflow && !atEnd);
+      wrap.classList.toggle('is-scrolled', hasOverflow && !atStart);
+      hint.hidden = !hasOverflow;
     };
 
     scroll.addEventListener('scroll', syncOverflowState, { passive: true });
     window.addEventListener('resize', syncOverflowState, { passive: true });
+
+    if ('ResizeObserver' in window) {
+      const resizeObserver = new ResizeObserver(syncOverflowState);
+      resizeObserver.observe(scroll);
+      resizeObserver.observe(table);
+    }
+
     requestAnimationFrame(syncOverflowState);
   });
 }
