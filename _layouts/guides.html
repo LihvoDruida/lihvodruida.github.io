@@ -132,4 +132,40 @@ function copyLink() {
   document.body.removeChild(tempInput);
   onSuccess();
 }
+
+function enhanceArticleTables() {
+  const tables = document.querySelectorAll('.article-body table');
+
+  tables.forEach((table) => {
+    if (table.closest('.article-table-wrap')) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'article-table-wrap';
+
+    const scroll = document.createElement('div');
+    scroll.className = 'article-table-scroll';
+
+    const hint = document.createElement('div');
+    hint.className = 'table-scroll-hint';
+    hint.textContent = 'Проведи таблицю вбік →';
+
+    const parent = table.parentNode;
+    parent.insertBefore(wrap, table);
+    wrap.appendChild(scroll);
+    scroll.appendChild(table);
+    wrap.appendChild(hint);
+
+    const syncOverflowState = () => {
+      const hasOverflow = scroll.scrollWidth > scroll.clientWidth + 8;
+      const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 8;
+      wrap.classList.toggle('is-overflowing', hasOverflow && !atEnd);
+    };
+
+    scroll.addEventListener('scroll', syncOverflowState, { passive: true });
+    window.addEventListener('resize', syncOverflowState, { passive: true });
+    requestAnimationFrame(syncOverflowState);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', enhanceArticleTables);
 </script>
