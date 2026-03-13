@@ -1073,3 +1073,73 @@ code,
     .news-card { padding: 15px; }
     .card-title { font-size: 1.1rem; }
 }
+
+/* =========================================
+   GUIDE / ARTICLE POLISH
+   ========================================= */
+
+body.nav-open {
+    overflow: hidden;
+    touch-action: none;
+}
+
+.nav-brand {
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #fff;
+    text-transform: uppercase;
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.08em;
+}
+
+.nav-brand-mark {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--orange-light), var(--orange-dark));
+    box-shadow: 0 0 0 5px rgba(255, 155, 85, 0.12);
+    flex: 0 0 auto;
+}
+
+.nav-brand-text {
+    white-space: nowrap;
+}
+
+.top-nav .dropdown-toggle {
+    cursor: pointer;
+}
+
+.article-body,
+.article-header,
+.article-footer {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    .nav-brand {
+        font-size: 0.95rem;
+        gap: 8px;
+    }
+
+    .nav-brand-mark {
+        width: 8px;
+        height: 8px;
+        box-shadow: 0 0 0 4px rgba(255, 155, 85, 0.12);
+    }
+
+    .mobile-menu-inner {
+        align-items: stretch;
+        gap: 14px;
+        padding-inline: 16px;
+    }
+
+    .mobile-link {
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        background: rgba(255,255,255,0.03);
+    }
+}

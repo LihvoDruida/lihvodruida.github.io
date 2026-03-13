@@ -10,8 +10,6 @@ tags: [The Voidspire, Midnight, Voidstorm, Raid]
 image: /assets/img-content/the-voidspire-raid.jpg
 ---
 
-# The Voidspire (Шпиль Бездни)
-
 **The Voidspire** — головний рейд першого сезону доповнення **World of Warcraft: Midnight**, реліз якого відбувся у **березні 2026 року**.  
 Рейд розташований у центрі нової зони **Voidstorm (Буря Бездни)**.
 
@@ -61,7 +59,7 @@ The Voidspire побудований навколо:
 
 ---
 
-# Детально по босах
+## Детально по босах
 
 ## 1. Imperator Averzian
 

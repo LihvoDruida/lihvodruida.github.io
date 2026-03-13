@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="{{ site.description | default: 'Сайт Sebas — контент та адони для World of Warcraft' }}">
-  <title>{{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | default: 'Сайт Sebas — контент та адони для World of Warcraft' }}">
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
 
   <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
@@ -34,7 +34,7 @@
   
   <script src="/assets/js/mobile-menu.js" defer></script>
 </head>
-<body>
+<body class="{% if page.layout %}layout-{{ page.layout }}{% endif %}">
   <div class="layout">
     <aside class="sidebar">
       {% include sidebar.html %}
