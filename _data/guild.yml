@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-13 05:14:38'
+  updated_at: '2026-03-14 05:12:13'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -175,8 +175,8 @@ members:
   name: Булкрит
   class: Paladin
   race: Blood Elf
-  spec: null
-  role: null
+  spec: Retribution
+  role: DPS
   gender: male
   faction: horde
   region: eu
@@ -857,8 +857,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Elemental
-  role: DPS
+  spec: null
+  role: null
   gender: male
   faction: alliance
   region: eu
