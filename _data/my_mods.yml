@@ -4,8 +4,8 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 377746
-  updated_at: '2026-03-01T12:15:56.303Z'
+  downloads: 382714
+  updated_at: '2026-03-14T11:32:47.253Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/1665/847/256/256/639060492329175207.png
   categories:
@@ -14,6 +14,7 @@
   - Audio & Video
   - PvP
   game_versions:
+  - 12.0.5
   - 12.0.1
   - 12.0.0
   - 11.2.5
@@ -21,6 +22,7 @@
   - 11.0.2
   - 11.0.0
   - 10.2.7
+  - 5.5.3
   - 5.5.2
   - 5.5.1
   - 4.4.2
@@ -28,13 +30,14 @@
   - 3.4.3
   - 2.5.5
   - 2.5.4
+  - 1.15.8
   - 1.15.2
-  version: v7.9.1
+  version: v7.9.2
 - id: 1458193
   name: Chatify (Chat Enhancer)
   summary: A lightweight and modular chat enhancement addon. Features include chat
     history, URL copying, spam filtering, visual customization, and sound alerts.
-  downloads: 4071
+  downloads: 4154
   updated_at: '2026-03-08T08:35:46.44Z'
   link: https://www.curseforge.com/wow/addons/chatify-chat-enhancer
   logo: https://media.forgecdn.net/avatars/thumbnails/1669/900/256/256/639062343636465468.png
@@ -52,7 +55,7 @@
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 14478
+  downloads: 14490
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
@@ -77,7 +80,7 @@
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
-  downloads: 5073
+  downloads: 5083
   updated_at: '2023-09-10T06:00:53.857Z'
   link: https://www.curseforge.com/wow/addons/deadly-boss-mods-dbm-ukrainian-countdown-pack
   logo: https://media.forgecdn.net/avatars/thumbnails/849/488/256/256/638250468272545947.jpeg
@@ -96,7 +99,7 @@
     minimal setup, ensuring easy activation and compatibility with the latest game
     versions. Install, configure, and enjoy automatic loot collection with an intuitive
     interface.
-  downloads: 2107
+  downloads: 2111
   updated_at: '2025-06-12T17:28:41.107Z'
   link: https://www.curseforge.com/wow/addons/quicklootenabler
   logo: https://media.forgecdn.net/avatars/thumbnails/1052/780/256/256/638583080114749769.jpg
@@ -113,7 +116,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 3653
+  downloads: 3661
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
