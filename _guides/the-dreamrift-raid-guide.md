@@ -4,8 +4,9 @@ title: "The Dreamrift — короткий гайд по рейду"
 slug: the-dreamrift-raid-guide
 description: "Короткий і структурований гайд по рейду The Dreamrift у World of Warcraft: Midnight."
 date: 2026-03-15
+last_modified_at: 2026-03-16
 author: Sebas
-categories: [WoW, Raid, Guides]
+categories: [WoW Midnight, Рейд]
 tags: [The Dreamrift, Chimaerus, Midnight, Harandar, Raid]
 image: /assets/img-content/the-dreamrift-raid.jpg
 ---

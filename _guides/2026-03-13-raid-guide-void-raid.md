@@ -5,7 +5,7 @@ slug: the-voidspire-raid-guide
 description: "Короткий і структурований гайд по рейду The Voidspire у World of Warcraft: Midnight."
 date: 2026-03-13
 author: Sebas
-categories: [Гайди, Рейд]
+categories: [WoW Midnight, Рейд]
 tags: [The Voidspire, Midnight, Voidstorm, Raid]
 image: /assets/img-content/the-voidspire-raid.jpg
 ---

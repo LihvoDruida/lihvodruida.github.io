@@ -6,7 +6,7 @@ description: "Грайте в World of Warcraft на смартфоні! Нал�
 date: 2026-01-24
 last_modified_at: 2026-01-25
 author: Sebas
-categories: [Android, Гайди]
+categories: [Android, Гайд]
 tags: [WoW, Winlator, Emulation, 3.3.5a, Optimization]
 image: /assets/img-content/wow-winlator-cover.jpg
 ---

@@ -5,7 +5,7 @@ slug: midnight-4-renown-items-246-ilvl
 description: "Повний і зрозумілий гайд по 4 Renown-предметах 246 ilvl у World of Warcraft: Midnight. Розбір квестів, активностей та нагород."
 date: 2026-03-13
 author: Sebas
-categories: [Гайди, World of Warcraft]
+categories: [WoW Midnight, Гайд]
 tags: [Midnight, Renown, 246 ilvl, The Singularity, The Hara'ti, Silvermoon Court, Amani Tribe]
 ---
 
