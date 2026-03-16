@@ -11,9 +11,9 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 ---
 
 **The Dreamrift** — однобосовий рейд першого сезону **World of Warcraft: Midnight**.  
-Рейд розташований у **Harandar**, глибоко в **Rift of Aln**, а єдиним босом тут є <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus, the Undreamt God</a>.
+Рейд розташований у **Harandar**, глибоко в **Rift of Aln**, а єдиний бос тут — <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus, the Undreamt God</a>.
 
-На відміну від великих рейдів, тут немає довгого маршруту й пачок трешу — ви заходите всередину й майже одразу починаєте бій. Зручно, швидко, боляче.
+На відміну від великих рейдів, тут немає довгого маршруту й пачок трешу: ви заходите всередину й майже одразу починаєте бій. Швидко, зручно і дуже боляче, якщо рейд незібраний.
 
 ---
 
@@ -26,7 +26,7 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 | **Боси** | 1 — <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus, the Undreamt God</a> |
 | **Мінімальний ilvl для LFR** | 220 |
 | **Головна нагорода** | chest tier token |
-| **Треш** | відсутній |
+| **Треш** | немає |
 
 ---
 
@@ -35,41 +35,41 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 Вхід до **The Dreamrift** розташований у **південно-східній частині Harandar**, у зоні **Rift of Aln**.
 
 - координати входу: **/way 61.0 64.2**
-- шукати потрібно **на нижньому рівні** зони
-- якщо здається, що входу не видно — спускайся нижче
+- шукати потрібно **на нижньому рівні** локації
+- якщо здається, що входу не видно, просто спустіться нижче
 
 > **Порада:** тут немає трешу, тому підготовка до бою починається майже одразу після входу.
 
 ---
 
-## Рекомендований склад рейду
+## Який склад рейду тут особливо корисний
 
-Оскільки це **один довгий бій** із сильним акцентом на **аддів**, **interrupt** і **перемикання цілей**, важливо мати:
+Це **один довгий бій**, у якому головне — контроль аддів, збивання кастів і швидке перемикання між цілями. Тому рейду дуже допоможуть:
 
-- стабільний набір **interrupt-ів**
-- достатньо **burst AoE**
-- гравців, які швидко перемикаються між пріоритетними цілями
-- сильні **raid cooldowns** на другу фазу
+- надійні **interrupt-и**
+- достатній **burst AoE**
+- гравці, які швидко перемикаються на пріоритетні цілі
+- сильні **рейдові захисні та healing cooldowns** на другу фазу
 
-### Особливо важливо
+### Що особливо важливо
 
-- **Haunting Essence** кастують небезпечні заклинання, які треба збивати
-- частина механік працює через <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> і поділ на два виміри
+- **Haunting Essence** кастують небезпечні заклинання, які потрібно збивати
+- частина механік зав’язана на <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> і поділ рейду між двома вимірами
 - слабкий контроль аддів тут карається дуже швидко
 
 ---
 
 ## Бос: <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus, the Undreamt God</a>
 
-**<a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a>** — єдиний бос рейду, і весь енкаунтер будується навколо однієї ідеї:
+Увесь бій проти <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a> побудований навколо однієї ідеї:
 
-> **не дати босу з’їсти Manifestations**
+> **не дати босу поглинути Manifestations**
 
-Якщо адди доживають до критичних моментів, бос отримує <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a>, лікується й починає бити дедалі сильніше. Якщо таких стеків назбирається багато — бій фактично втрачено.
+Якщо адди доживають до небезпечних моментів, бос отримує <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a>, лікується й починає бити дедалі сильніше. Якщо таких стеків назбирається багато, бій практично програний.
 
 ---
 
-## Головна умова вайпу
+## Головна причина вайпу
 
 ### <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a>
 
@@ -77,45 +77,45 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 
 - **лікує боса**
 - **збільшує його шкоду на 50%**
-- ефект **стакується**
+- ефект **накопичується**
 
-> **Суть бою:** якщо адди живуть занадто довго, бос стає майже невбивним.
+> **Суть бою:** що довше живуть адди, то ближче рейд до вайпу.
 
 ---
 
 # Фаза 1 — Insatiable Hunger
 
-Перша фаза — це основний цикл бою, де рейд працює з двома шарами реальності:
+Перша фаза — це основний цикл бою. У ній рейд працює одразу з двома шарами реальності:
 
 - **Reality**
 - **Rift / Aln**
 
-Після <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> частина гравців отримує <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> і потрапляє в Rift-вимір.  
-Саме ці гравці можуть бачити й атакувати **Manifestations** до того, як ті повністю вийдуть у звичайну реальність.
+Після <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> частина гравців отримує <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> і потрапляє у вимір Rift.  
+Саме ці гравці можуть бачити й бити **Manifestations** до того, як ті повністю вийдуть у звичайну реальність.
 
-## Основна логіка фази
+## Як працює фаза 1
 
-- гравці з <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> знищують Manifestations у Rift
-- якщо цього не зробити вчасно, адди переходять у **Reality**
-- далі вони йдуть до боса
-- якщо бос їх з’їдає — рейд отримує проблему у вигляді <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a>
+- гравці з <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> вбивають Manifestations у Rift
+- якщо не встигнути, адди переходять у **Reality**
+- після цього вони рухаються до боса
+- якщо бос їх поглинає, рейд отримує стек <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a>
 
 ---
 
 ## Основні здібності фази 1
 
-| Ability | Небезпека | Що робити |
+| Здібність | Небезпека | Що робити |
 |---|---|---|
-| <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> | Висока | Формує ротацію гравців із <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>. Треба заздалегідь визначити, хто заходить у Rift |
-| <a href="https://www.wowhead.com/spell=1258610/rift-emergence" data-wowhead="spell=1258610">Rift Emergence</a> | Висока | Саме з цієї механіки починається хвиля проблем — з’являються адди, а рейд отримує додатковий тиск |
-| **Titan Fragment Meld** | Дуже висока | Щит на Manifestations у Rift. Його мають ламати гравці з <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> |
-| <a href="https://www.wowhead.com/spell=1252863/insatiable" data-wowhead="spell=1252863">Insatiable</a> | Смертельна | Пасивка, через яку бос автоматично поглинає аддів у межах досяжності |
-| <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a> | Смертельна | Наприкінці каналу бос з’їдає всіх живих Manifestations поруч |
-| **Discordant Roar** | Висока | Колосальний адд завдає зростаючої raid-wide шкоди |
-| <a href="https://www.wowhead.com/spell=1249017/fearsome-cry" data-wowhead="spell=1249017">Fearsome Cry</a> | Середня / висока | Обов’язковий **interrupt** |
-| <a href="https://www.wowhead.com/spell=1257087/consuming-miasma" data-wowhead="spell=1257087">Consuming Miasma</a> *(Heroic+)* | Висока | Диспелити тільки подалі від рейду |
-| <a href="https://www.wowhead.com/spell=1246621/caustic-phlegm" data-wowhead="spell=1246621">Caustic Phlegm</a> | Середня | Постійний raid damage, який треба просто стабільно відхілювати |
-| <a href="https://www.wowhead.com/spell=1272726/rending-tear" data-wowhead="spell=1272726">Rending Tear</a> | Середня | Фронталка по танку — боса треба тримати відвернутим від рейду |
+| <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> | Висока | Визначає, хто отримає <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>. Заздалегідь розпишіть ротацію |
+| <a href="https://www.wowhead.com/spell=1258610/rift-emergence" data-wowhead="spell=1258610">Rift Emergence</a> | Висока | Починає нову хвилю проблем: з’являються адди, а рейд отримує додатковий тиск |
+| **Titan Fragment Meld** | Дуже висока | Щит на Manifestations у Rift. Його мають швидко зламати гравці з <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a> |
+| <a href="https://www.wowhead.com/spell=1252863/insatiable" data-wowhead="spell=1252863">Insatiable</a> | Смертельна | Пасивна механіка, через яку бос автоматично поглинає аддів у радіусі досяжності |
+| <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a> | Смертельна | Наприкінці каналу бос поглинає всіх живих Manifestations поруч |
+| **Discordant Roar** | Висока | Великий адд завдає дедалі сильнішої шкоди всьому рейду |
+| <a href="https://www.wowhead.com/spell=1249017/fearsome-cry" data-wowhead="spell=1249017">Fearsome Cry</a> | Середня / висока | Каст потрібно обов’язково збивати |
+| <a href="https://www.wowhead.com/spell=1257087/consuming-miasma" data-wowhead="spell=1257087">Consuming Miasma</a> *(Heroic+)* | Висока | Диспельте тільки подалі від рейду |
+| <a href="https://www.wowhead.com/spell=1246621/caustic-phlegm" data-wowhead="spell=1246621">Caustic Phlegm</a> | Середня | Постійна шкода по рейду, яку потрібно стабільно відхілювати |
+| <a href="https://www.wowhead.com/spell=1272726/rending-tear" data-wowhead="spell=1272726">Rending Tear</a> | Середня | Танкова фронталка — боса потрібно тримати відвернутим від рейду |
 | **Rift Madness** *(Mythic)* | Дуже висока | Гравці в Rift можуть шкодити союзникам і втрачати контроль |
 | **Dissonance** *(Mythic)* | Висока | Карає за неправильне позиціонування між вимірами |
 
@@ -123,71 +123,71 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 
 ## Що робити DPS
 
-### 1. Контролювати ротацію <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>
+### 1. Дотримуватися ротації <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>
 Не можна відправляти всіх у Rift одночасно.  
-Потрібна **чітка ротація**, щоб у кожній хвилі були люди, які можуть вбивати Manifestations.
+Потрібна чітка ротація, щоб у кожній хвилі були люди, які можуть убивати Manifestations.
 
-### 2. Вбивати Manifestations до переходу в Reality
-Чим довше живе адд, тим вищий шанс, що він:
-- перейде в реальність
+### 2. Убивати Manifestations до переходу в Reality
+Що довше живе адд, то вищий шанс, що він:
+- вийде в реальність
 - дійде до боса
 - стане їжею для <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a>
 
 ### 3. Збивати касти Haunting Essence
-Особливо небезпечні:
+Найнебезпечніші з них:
 - <a href="https://www.wowhead.com/spell=1249017/fearsome-cry" data-wowhead="spell=1249017">Fearsome Cry</a>
 - <a href="https://www.wowhead.com/spell=1261997/essence-bolt" data-wowhead="spell=1261997">Essence Bolt</a>
 
 ### 4. Не стояти в <a href="https://www.wowhead.com/spell=1263026/alndust-essence" data-wowhead="spell=1263026">Alndust Essence</a>
-Після смерті аддів лишаються калюжі:
+Після смерті аддів лишаються калюжі, які:
 - завдають шкоди
 - сповільнюють рух
 
-### 5. Швидко забирати Colossal Horror
-Ці адди небезпечні через **Discordant Roar**, який дедалі сильніше тисне на весь рейд.
+### 5. Швидко перемикатися на Colossal Horror
+Цей великий адд небезпечний через **Discordant Roar**, який дедалі сильніше тисне на весь рейд.
 
 ---
 
 ## Що робити хілерам
 
-### 1. Слідкувати за постійним тиском через <a href="https://www.wowhead.com/spell=1250953/rift-sickness" data-wowhead="spell=1250953">Rift Sickness</a>
-Кожен повноцінний вихід адда в Reality додає ще більше проблем для рейду.
+### 1. Стежити за тиском від <a href="https://www.wowhead.com/spell=1250953/rift-sickness" data-wowhead="spell=1250953">Rift Sickness</a>
+Кожен повноцінний вихід адда в Reality посилює навантаження на рейд.
 
-### 2. Акуратно працювати з <a href="https://www.wowhead.com/spell=1257087/consuming-miasma" data-wowhead="spell=1257087">Consuming Miasma</a>
+### 2. Обережно працювати з <a href="https://www.wowhead.com/spell=1257087/consuming-miasma" data-wowhead="spell=1257087">Consuming Miasma</a>
 На Heroic і вище:
 - це довгий DoT
 - диспел створює вибух
-- диспелити треба **поза стеком рейду**
+- диспелити потрібно **поза групою**
 
-### 3. Готувати cooldowns на Phase 2
-Не витрачайте все в першій фазі без потреби — у повітряній фазі буде значно важче.
+### 3. Берегти основні cooldowns на Phase 2
+Не витрачайте все у першій фазі без нагальної потреби — у повітряній фазі буде набагато важче.
 
 ---
 
 ## Що робити танкам
 
 ### 1. Одразу забирати Colossal Horror
-Якщо адд залишається без танка, він швидко створює хаос по рейду.
+Якщо великий адд лишається без танка, він дуже швидко влаштовує хаос.
 
 ### 2. Контролювати позицію боса перед <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a>
-Позиціонування напряму впливає на те, скільки аддів опиниться в радіусі поглинання.
+Від позиції боса прямо залежить, скільки аддів опиниться в радіусі поглинання.
 
-### 3. Тримати фронталку від рейду
-<a href="https://www.wowhead.com/spell=1272726/rending-tear" data-wowhead="spell=1272726">Rending Tear</a> не можна повертати в групу.
+### 3. Не повертати фронталку в рейд
+<a href="https://www.wowhead.com/spell=1272726/rending-tear" data-wowhead="spell=1272726">Rending Tear</a> не можна спрямовувати в групу.
 
 ### 4. На Heroic+ стежити за <a href="https://www.wowhead.com/spell=1253744/rift-vulnerability" data-wowhead="spell=1253744">Rift Vulnerability</a>
-Занадто довге перебування в Rift робить наступні механіки небезпечнішими.
+Надто довге перебування в Rift робить наступні механіки значно небезпечнішими.
 
 ---
 
 ## Коротка стратегія фази 1
 
-1. Розподілити гравців на **ротацію <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>**
-2. Ламати **Titan Fragment Meld**
-3. Вбивати Manifestations до їхнього повного виходу в Reality
-4. Збивати <a href="https://www.wowhead.com/spell=1249017/fearsome-cry" data-wowhead="spell=1249017">Fearsome Cry</a> і <a href="https://www.wowhead.com/spell=1261997/essence-bolt" data-wowhead="spell=1261997">Essence Bolt</a>
-5. Швидко забирати **Colossal Horror**
-6. Не допустити сильного накопичення живих аддів перед <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a>
+1. Розподіліть гравців у ротацію на <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>
+2. Ламайте **Titan Fragment Meld**
+3. Убивайте Manifestations до їхнього виходу в Reality
+4. Збивайте <a href="https://www.wowhead.com/spell=1249017/fearsome-cry" data-wowhead="spell=1249017">Fearsome Cry</a> і <a href="https://www.wowhead.com/spell=1261997/essence-bolt" data-wowhead="spell=1261997">Essence Bolt</a>
+5. Швидко забирайте **Colossal Horror**
+6. Не допускайте великої кількості живих аддів перед <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a>
 
 ---
 
@@ -206,22 +206,21 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 
 ## Основні здібності фази 2
 
-| Ability | Небезпека | Що робити |
+| Здібність | Небезпека | Що робити |
 |---|---|---|
-| <a href="https://www.wowhead.com/spell=1245486/corrupted-devastation" data-wowhead="spell=1245486">Corrupted Devastation</a> | Дуже висока | Головне вікно для **healing / defensive cooldowns** |
-| <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a> | Смертельна | До цього моменту треба максимально зачищати арену від живих аддів |
-| <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> *(Mythic, перед злетом)* | Висока | Дає ще більше хаосу перед повітряною фазою |
+| <a href="https://www.wowhead.com/spell=1245486/corrupted-devastation" data-wowhead="spell=1245486">Corrupted Devastation</a> | Дуже висока | Тут потрібні головні healing і defensive cooldowns |
+| <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a> | Смертельна | До цього моменту арену треба максимально зачистити від живих аддів |
+| <a href="https://www.wowhead.com/spell=1262289/alndust-upheaval" data-wowhead="spell=1262289">Alndust Upheaval</a> *(Mythic, перед злетом)* | Висока | Додає ще більше хаосу перед повітряною фазою |
 
 ---
 
-## Ключова ідея другої фази
+## Головна ідея другої фази
 
-> **Усі живі адди до <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a> = безкоштовні стаки <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a> для боса**
+> **Усі живі адди перед <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a> = безкоштовні стаки <a href="https://www.wowhead.com/spell=1245844/cannibalized-essence" data-wowhead="spell=1245844">Cannibalized Essence</a> для боса**
 
-Тобто друга фаза — це не просто “пережити AoE”.  
-Це одночасно:
+Тобто друга фаза — це не просто перевірка на виживання. Потрібно одночасно:
 
-- витримати масивний raid damage
+- пережити сильну шкоду по рейду
 - не втратити контроль над Manifestations
 - увійти в приземлення боса з максимально чистою ареною
 
@@ -229,35 +228,36 @@ image: /assets/img-content/the-dreamrift-raid.jpg
 
 ## Коротка стратегія фази 2
 
-- зберігати головні **raid cooldowns** саме сюди
-- не припиняти контроль аддів лише тому, що бос у повітрі
-- не заходити в приземлення з живими Manifestations
+- зберігайте головні **рейдові cooldowns** саме на цю фазу
+- не припиняйте контроль аддів лише тому, що бос у повітрі
+- не заходьте в приземлення з живими Manifestations
 - до <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a> арена має бути максимально зачищена
 
 ---
 
-## Загальні поради по рейду
+## Загальні поради
 
-- це **однобосовий рейд**, але він не є “легким”
+- це **однобосовий рейд**, але він зовсім не “безкоштовний”
 - головна перевірка тут — **координація**
-- найчастіша причина вайпу:
+- найчастіші причини вайпу:
   - слабка ротація <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>
-  - пропущені **interrupt-и**
-  - занадто багато живих аддів перед <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a> / <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a>
-- рейд має чітко розуміти:
-  - хто йде в Rift
-  - хто збиває касти
-  - хто забирає великих аддів
-  - які cooldowns лишаються на другу фазу
+  - пропущені interrupt-и
+  - занадто багато живих аддів перед <a href="https://www.wowhead.com/spell=1245396/consume" data-wowhead="spell=1245396">Consume</a> або <a href="https://www.wowhead.com/spell=1245406/ravenous-dive" data-wowhead="spell=1245406">Ravenous Dive</a>
+
+Рейд має чітко розуміти:
+- хто йде в Rift
+- хто збиває касти
+- хто забирає великих аддів
+- які cooldowns зберігаються на другу фазу
 
 ---
 
-## Чому рейд важливий
+## Чому цей рейд важливий
 
-The Dreamrift — це швидкий, але цінний рейд сезону:
+**The Dreamrift** — швидкий, але цінний рейд сезону:
 
 - лише **1 бос**
-- немає трешу
+- без трешу
 - швидкий weekly clear після освоєння
 - саме тут падає **chest tier token**
 
@@ -265,13 +265,13 @@ The Dreamrift — це швидкий, але цінний рейд сезону
 
 ## Підсумок
 
-**The Dreamrift** — короткий за структурою, але дуже вимогливий рейд.  
+**The Dreamrift** короткий за структурою, але дуже вимогливий за виконанням.  
 Бій із <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a> карає не за низький DPS сам по собі, а за:
 
 - слабкий контроль аддів
 - погану ротацію <a href="https://www.wowhead.com/spell=1245698/alnsight" data-wowhead="spell=1245698">Alnsight</a>
-- неправильні dispel / interrupt рішення
-- відсутність cooldown-плану на другу фазу
+- неправильні рішення з dispel та interrupt
+- відсутність плану cooldowns на другу фазу
 
-Якщо рейд дисципліновано працює з Manifestations і не годує ними боса — енкаунтер стає керованим.  
-Якщо ні — <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a> дуже швидко пояснює, хто тут насправді apex predator.
+Якщо рейд дисципліновано працює з Manifestations і не годує ними боса, енкаунтер стає керованим.  
+Якщо ні — <a href="https://www.wowhead.com/npc=256116/chimaerus" data-wowhead="npc=256116">Chimaerus</a> дуже швидко покаже, хто тут справжній apex predator.
