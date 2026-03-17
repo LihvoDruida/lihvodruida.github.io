@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-16 05:50:46'
+  updated_at: '2026-03-17 05:22:43'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -307,8 +307,8 @@ members:
   name: Darthkenobi
   class: Warrior
   race: Human
-  spec: null
-  role: null
+  spec: Fury
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -549,7 +549,7 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Havoc
+  spec: Devourer
   role: DPS
   gender: male
   faction: alliance
@@ -747,8 +747,8 @@ members:
   name: Lightass
   class: Paladin
   race: Human
-  spec: Holy
-  role: HEALING
+  spec: Retribution
+  role: DPS
   gender: male
   faction: alliance
   region: eu
