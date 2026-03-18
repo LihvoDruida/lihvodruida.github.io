@@ -92,18 +92,44 @@ permalink: /guild/
               <div class="raid-score">{{ stats.summary }}</div>
             </div>
 
-            <div class="rank-stats">
+            {% assign ranking_world = '-' %}
+            {% assign ranking_region = '-' %}
+            {% assign ranking_realm = '-' %}
+            {% assign ranking_label = '—' %}
+
+            {% if rankings.mythic and rankings.mythic.world and rankings.mythic.world > 0 %}
+              {% assign ranking_world = rankings.mythic.world %}
+              {% assign ranking_region = rankings.mythic.region %}
+              {% assign ranking_realm = rankings.mythic.realm %}
+              {% assign ranking_label = 'Mythic' %}
+            {% elsif rankings.heroic and rankings.heroic.world and rankings.heroic.world > 0 %}
+              {% assign ranking_world = rankings.heroic.world %}
+              {% assign ranking_region = rankings.heroic.region %}
+              {% assign ranking_realm = rankings.heroic.realm %}
+              {% assign ranking_label = 'Heroic' %}
+            {% elsif rankings.normal and rankings.normal.world and rankings.normal.world > 0 %}
+              {% assign ranking_world = rankings.normal.world %}
+              {% assign ranking_region = rankings.normal.region %}
+              {% assign ranking_realm = rankings.normal.realm %}
+              {% assign ranking_label = 'Normal' %}
+            {% endif %}
+
+            <div class="rank-stats" title="Актуальний рейтинг за найвищою складністю з прогресом">
+              <div class="rank-item rank-item-wide" title="Складність рейтингу">
+                <span class="rank-icon">⭐</span>
+                <span class="rank-label">{{ ranking_label }}</span>
+              </div>
               <div class="rank-item" title="Світовий ранг">
                 <span class="rank-icon">🌍</span>
-                <span class="rank-val">#{{ rankings.mythic.world | default: rankings.heroic.world | default: '-' }}</span>
+                <span class="rank-val">{% if ranking_world == '-' %}-{% else %}#{{ ranking_world }}{% endif %}</span>
               </div>
               <div class="rank-item" title="Ранг у регіоні (EU)">
                 <span class="rank-icon">🇪🇺</span>
-                <span class="rank-val">#{{ rankings.mythic.region | default: rankings.heroic.region | default: '-' }}</span>
+                <span class="rank-val">{% if ranking_region == '-' %}-{% else %}#{{ ranking_region }}{% endif %}</span>
               </div>
               <div class="rank-item" title="Ранг на сервері">
                 <span class="rank-icon">🏰</span>
-                <span class="rank-val">#{{ rankings.mythic.realm | default: rankings.heroic.realm | default: '-' }}</span>
+                <span class="rank-val">{% if ranking_realm == '-' %}-{% else %}#{{ ranking_realm }}{% endif %}</span>
               </div>
             </div>
 
