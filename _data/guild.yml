@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-17 05:22:43'
+  updated_at: '2026-03-18 05:27:29'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -106,28 +106,6 @@ raid_rankings:
       realm: 0
 members:
 - rank: 3
-  name: Люмината-24244163
-  class: Priest
-  race: Void Elf
-  spec: Shadow
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Люмината-24244163
-  avatar: null
-  mythic_plus_scores:
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-- rank: 3
   name: Скяльди
   class: Demon Hunter
   race: Blood Elf
@@ -193,7 +171,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Asasinas
   class: Druid
   race: Zandalari Troll
@@ -237,12 +215,12 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Sonechco
   class: Druid
   race: Night Elf
-  spec: Guardian
-  role: TANK
+  spec: Restoration
+  role: HEALING
   gender: female
   faction: alliance
   region: eu
@@ -259,7 +237,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Elderwizard
   class: Mage
   race: Human
@@ -325,7 +303,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 1
   name: Krouli
   class: Demon Hunter
   race: Night Elf
@@ -337,6 +315,28 @@ members:
   realm: Terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Krouli
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Redray
+  class: Death Knight
+  race: Tauren
+  spec: Unholy
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Redray
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -391,7 +391,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Алак
   class: Mage
   race: Night Elf
@@ -457,7 +457,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Komatoznic
   class: Demon Hunter
   race: Blood Elf
@@ -523,12 +523,12 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 1
   name: Smolderfist
   class: Monk
   race: Dark Iron Dwarf
-  spec: Brewmaster
-  role: TANK
+  spec: Windwalker
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -549,7 +549,7 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Devourer
+  spec: Havoc
   role: DPS
   gender: male
   faction: alliance
@@ -589,7 +589,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Duszi
   class: Warrior
   race: Orc
@@ -633,7 +633,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Дупця
   class: Demon Hunter
   race: Night Elf
@@ -699,7 +699,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 1
   name: Mafik
   class: Mage
   race: Undead
@@ -721,7 +721,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Kensshi
   class: Druid
   race: Night Elf
@@ -747,8 +747,8 @@ members:
   name: Lightass
   class: Paladin
   race: Human
-  spec: Retribution
-  role: DPS
+  spec: Holy
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -765,28 +765,6 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 3
-  name: Дрендара-299717587
-  class: Druid
-  race: Haranir
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дрендара-299717587
-  avatar: null
-  mythic_plus_scores:
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -853,18 +831,106 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 4
+- rank: 3
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: null
-  role: null
+  spec: Elemental
+  role: DPS
   gender: male
   faction: alliance
   region: eu
   realm: Silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 1
+  name: Пизнайка
+  class: Druid
+  race: Night Elf
+  spec: Balance
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Shennái
+  class: Priest
+  race: Void Elf
+  spec: Shadow
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Ravencrest
+  profile_url: https://raider.io/characters/eu/ravencrest/Shennái
+  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 1
+  name: Athang
+  class: Monk
+  race: Haranir
+  spec: Mistweaver
+  role: HEALING
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Athang
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
+  name: Travka
+  class: Druid
+  race: Haranir
+  spec: Guardian
+  role: TANK
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Travka
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     dps:
       score: 0
