@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-18 05:27:29'
+  updated_at: '2026-03-18 22:58:14'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -9,9 +9,9 @@ guild_info:
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
   tier-mn-1:
-    summary: 0/9 N
+    summary: 1/9 N
     total_bosses: 9
-    normal_bosses_killed: 0
+    normal_bosses_killed: 1
     heroic_bosses_killed: 0
     mythic_bosses_killed: 0
   blackrock-depths:
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 0
-      region: 0
-      realm: 0
+      world: 6120
+      region: 2826
+      realm: 25
     heroic:
       world: 0
       region: 0
@@ -161,6 +161,28 @@ members:
   realm: Gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Булкрит
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 99
+  name: Pwndyøurface
+  class: Priest
+  race: Night Elf
+  spec: Shadow
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Pwndyøurface
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/215/217204951-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -325,7 +347,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 3
+- rank: 99
   name: Redray
   class: Death Knight
   race: Tauren
