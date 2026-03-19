@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-18 22:58:14'
+  updated_at: '2026-03-19 05:23:39'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 6120
-      region: 2826
-      realm: 25
+      world: 6885
+      region: 2946
+      realm: 27
     heroic:
       world: 0
       region: 0
@@ -315,6 +315,28 @@ members:
   realm: Tarren Mill
   profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 99
+  name: Es
+  class: Warrior
+  race: Human
+  spec: Fury
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Es
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
