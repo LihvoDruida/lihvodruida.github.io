@@ -88,72 +88,67 @@ permalink: /guild/
           {% assign has_active_raids = true %}
           <div class="raid-card">
             <div class="raid-card-header">
-              <h3 class="raid-title">{{ raid_slug | replace: "-", " " | capitalize }}</h3>
+              <div class="raid-heading">
+                <h3 class="raid-title">{{ raid_slug | replace: "-", " " | capitalize }}</h3>
+                <span class="raid-subtitle">Актуальний прогрес рейду</span>
+              </div>
               <div class="raid-score">{{ stats.summary }}</div>
             </div>
 
-            {% assign ranking_world = '-' %}
-            {% assign ranking_region = '-' %}
-            {% assign ranking_realm = '-' %}
-            {% assign ranking_label = '—' %}
-
-            {% if rankings.mythic and rankings.mythic.world and rankings.mythic.world > 0 %}
-              {% assign ranking_world = rankings.mythic.world %}
-              {% assign ranking_region = rankings.mythic.region %}
-              {% assign ranking_realm = rankings.mythic.realm %}
-              {% assign ranking_label = 'Mythic' %}
-            {% elsif rankings.heroic and rankings.heroic.world and rankings.heroic.world > 0 %}
-              {% assign ranking_world = rankings.heroic.world %}
-              {% assign ranking_region = rankings.heroic.region %}
-              {% assign ranking_realm = rankings.heroic.realm %}
-              {% assign ranking_label = 'Heroic' %}
-            {% elsif rankings.normal and rankings.normal.world and rankings.normal.world > 0 %}
-              {% assign ranking_world = rankings.normal.world %}
-              {% assign ranking_region = rankings.normal.region %}
-              {% assign ranking_realm = rankings.normal.realm %}
-              {% assign ranking_label = 'Normal' %}
-            {% endif %}
-
-            <div class="rank-stats" title="Актуальний рейтинг за найвищою складністю з прогресом">
-              <div class="rank-item rank-item-wide" title="Складність рейтингу">
-                <span class="rank-icon">⭐</span>
-                <span class="rank-label">{{ ranking_label }}</span>
-              </div>
+            <div class="rank-stats">
               <div class="rank-item" title="Світовий ранг">
                 <span class="rank-icon">🌍</span>
-                <span class="rank-val">{% if ranking_world == '-' %}-{% else %}#{{ ranking_world }}{% endif %}</span>
+                <span class="rank-label">Світ</span>
+                <span class="rank-val">#{{ rankings.mythic.world | default: rankings.heroic.world | default: '-' }}</span>
               </div>
               <div class="rank-item" title="Ранг у регіоні (EU)">
                 <span class="rank-icon">🇪🇺</span>
-                <span class="rank-val">{% if ranking_region == '-' %}-{% else %}#{{ ranking_region }}{% endif %}</span>
+                <span class="rank-label">Європа</span>
+                <span class="rank-val">#{{ rankings.mythic.region | default: rankings.heroic.region | default: '-' }}</span>
               </div>
               <div class="rank-item" title="Ранг на сервері">
                 <span class="rank-icon">🏰</span>
-                <span class="rank-val">{% if ranking_realm == '-' %}-{% else %}#{{ ranking_realm }}{% endif %}</span>
+                <span class="rank-label">Сервер</span>
+                <span class="rank-val">#{{ rankings.mythic.realm | default: rankings.heroic.realm | default: '-' }}</span>
               </div>
             </div>
 
             <div class="raid-bars">
               <div class="progress-row">
                 <span class="diff-badge mythic">M</span>
-                <div class="progress-track">
-                  <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                <div class="progress-meta">
+                  <div class="progress-top">
+                    <span class="progress-name">Mythic</span>
+                    <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                  </div>
                 </div>
-                <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
               </div>
               <div class="progress-row">
                 <span class="diff-badge heroic">H</span>
-                <div class="progress-track">
-                  <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                <div class="progress-meta">
+                  <div class="progress-top">
+                    <span class="progress-name">Heroic</span>
+                    <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                  </div>
                 </div>
-                <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
               </div>
               <div class="progress-row">
                 <span class="diff-badge normal">N</span>
-                <div class="progress-track">
-                  <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                <div class="progress-meta">
+                  <div class="progress-top">
+                    <span class="progress-name">Normal</span>
+                    <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                  </div>
                 </div>
-                <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
               </div>
             </div>
           </div>
