@@ -194,6 +194,89 @@ permalink: /guild/
     </div>
   </section>
 
+  <section class="guild-section guild-stats-section">
+    <div class="modern-header">
+      <div class="header-left">
+        <div class="icon-box chart-glow">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M11 2a1 1 0 0 1 1 1v8h8a1 1 0 0 1 1 1 10 10 0 1 1-10-10zm1 18a8 8 0 0 0 7.94-7H11a1 1 0 0 1-1-1V4.06A8 8 0 1 0 12 20zm3.29-18A8 8 0 0 1 22 8.71 1 1 0 0 1 21 10h-5.71a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+          </svg>
+        </div>
+        <div class="title-wrapper">
+          <h2 class="section-title">Статистика складу</h2>
+          <span class="subtitle">Фракції, броня та спеки</span>
+        </div>
+      </div>
+
+      <div class="stat-badge stats-live-badge">
+        <span class="stat-val" id="stats-total-members">{{ site.data.guild.members | size }}</span>
+        <span class="stat-label">у складі</span>
+      </div>
+    </div>
+
+    <div class="guild-stats-layout">
+      <article class="stats-card donut-card">
+        <div class="stats-card-top">
+          <div>
+            <h3 class="stats-card-title">Фракції</h3>
+            <p class="stats-card-subtitle">Хто грає за Альянс, а хто за Орду</p>
+          </div>
+        </div>
+
+        <div class="donut-layout">
+          <div class="donut-visual" id="faction-chart" aria-label="Співвідношення фракцій">
+            <div class="donut-hole">
+              <span class="donut-value" id="faction-total">0</span>
+              <span class="donut-caption">гравців</span>
+            </div>
+          </div>
+
+          <div class="stats-legend" id="faction-legend"></div>
+        </div>
+      </article>
+
+      <article class="stats-card donut-card">
+        <div class="stats-card-top">
+          <div>
+            <h3 class="stats-card-title">Тип броні</h3>
+            <p class="stats-card-subtitle">Яку броню носять гравці гільдії</p>
+          </div>
+        </div>
+
+        <div class="donut-layout">
+          <div class="donut-visual" id="armor-chart" aria-label="Розподіл за типом броні">
+            <div class="donut-hole">
+              <span class="donut-value" id="armor-total">0</span>
+              <span class="donut-caption">гравців</span>
+            </div>
+          </div>
+
+          <div class="stats-legend" id="armor-legend"></div>
+        </div>
+      </article>
+
+      <article class="stats-card spec-card">
+        <div class="stats-card-top stats-card-top-wide">
+          <div>
+            <h3 class="stats-card-title">Класи та спеки</h3>
+            <p class="stats-card-subtitle">Кожен клас показаний окремо, а деталі по спеках — у підказці</p>
+          </div>
+
+          <div class="spec-role-summary" id="spec-role-summary"></div>
+        </div>
+
+        <div class="spec-chart-wrap">
+          <div class="spec-chart" id="spec-chart" aria-label="Графік популярності класів"></div>
+        </div>
+
+        <div class="spec-chart-footnote" id="spec-footnote"></div>
+      </article>
+    </div>
+
+    <script id="guild-members-json" type="application/json">{{ site.data.guild.members | jsonify }}</script>
+    <script src="/assets/js/guild-stats.js" defer></script>
+  </section>
+
   <section class="guild-section">
     <div class="modern-header">
       <div class="header-left">
