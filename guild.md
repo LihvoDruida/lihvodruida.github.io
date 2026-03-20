@@ -62,8 +62,13 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box trophy-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M5 2h14a1 1 0 0 1 1 1v4h1a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3h-1.25A6.97 6.97 0 0 1 13 18.91V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-1.09A6.97 6.97 0 0 1 4.25 15H3a3 3 0 0 1-3-3v-2a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1zm13 2H6v9.5c0 2.37 1.8 4.34 4.12 4.88a1 1 0 0 0 .47 0A5 5 0 0 0 18 13.5V4zM4 9v2a1 1 0 0 0 1 1h1V9H4zm16 0h-1v3h1a1 1 0 0 0 1-1V9z"/>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6.5 18.5h11"/>
+            <path d="M8 15V9"/>
+            <path d="M12 15V5.5"/>
+            <path d="M16 15v-3"/>
+            <path d="M4.5 20.5h15" opacity="0.55"/>
+            <path d="M10.8 4.5h2.4"/>
           </svg>
         </div>
         <div class="title-wrapper">
@@ -198,19 +203,16 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box chart-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M11 2a1 1 0 0 1 1 1v8h8a1 1 0 0 1 1 1 10 10 0 1 1-10-10zm1 18a8 8 0 0 0 7.94-7H11a1 1 0 0 1-1-1V4.06A8 8 0 1 0 12 20zm3.29-18A8 8 0 0 1 22 8.71 1 1 0 0 1 21 10h-5.71a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/>
+            <path d="M13.5 3.63A8.5 8.5 0 0 1 20.37 10H13.5z" opacity="0.72"/>
+            <path d="M12 7.5v4.5l3 1.75" opacity="0.7"/>
           </svg>
         </div>
         <div class="title-wrapper">
           <h2 class="section-title">Статистика складу</h2>
           <span class="subtitle">Фракції, броня та спеки</span>
         </div>
-      </div>
-
-      <div class="stat-badge stats-live-badge">
-        <span class="stat-val" id="stats-total-members">{{ site.data.guild.members | size }}</span>
-        <span class="stat-label">у складі</span>
       </div>
     </div>
 
@@ -281,8 +283,11 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box sword-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M14.75 22.14a1 1 0 0 1-1.37.36l-2.09-1.2a1.05 1.05 0 0 1-.41-.48l-.89-2.52a5.53 5.53 0 0 1-.09-.76l-3.32-6.57a3.11 3.11 0 0 1 .46-3.05l1.64-2.1a1 1 0 0 1 1.34-.17 1 1 0 0 1 .2.17l1.79 1.8a1.11 1.11 0 0 0 .54.28h.06l3.32.32a6.45 6.45 0 0 1 5.3 3.66 1 1 0 0 1-.29 1.19L14.75 19v3.14zM8.59 7l3.65 7.23.46 1.3 1.25.72 4.84-4.84a4.46 4.46 0 0 0-3.36-2.19l-3.33-.31-2-2L8.59 7z"/><path d="M7.74 13.29A1 1 0 0 1 7 13a1 1 0 0 1 0-1.41l3.54-3.54a1 1 0 0 1 1.41 1.41L8.45 13a1 1 0 0 1-.71.29zM5.71 18.66l-1.92 3.2a1 1 0 0 1-1.37.37 1 1 0 0 1-.36-1.37l3.2-5.32a1 1 0 0 1 1.82 1l-1.37 2.12z"/>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16.5 18.5a3.5 3.5 0 0 0-3.5-3h-2a3.5 3.5 0 0 0-3.5 3.5"/>
+            <path d="M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M18 17.5v-1a2.5 2.5 0 0 0-1.9-2.42" opacity="0.72"/>
+            <path d="M17.25 11.5a2.5 2.5 0 1 0 0-5" opacity="0.72"/>
           </svg>
         </div>
         <div class="title-wrapper">
@@ -293,7 +298,7 @@ permalink: /guild/
       
       <div class="stat-badge">
         <span class="stat-val">{{ site.data.guild.members | size }}</span>
-        <span class="stat-label">Member{% if site.data.guild.members.size != 1 %}s{% endif %}</span>
+        <span class="stat-label">Учасники{% if site.data.guild.members.size != 1 %}s{% endif %}</span>
       </div>
     </div>
 
@@ -320,7 +325,7 @@ permalink: /guild/
       {% if healers.size > 0 %}
       <div class="role-column">
         <div class="role-header heal-header">
-          <span class="role-icon">💚</span> Цілителі
+          <span class="role-icon">💚</span> Хіли
         </div>
         <div class="member-grid">
           {% for char in healers %}
@@ -333,7 +338,7 @@ permalink: /guild/
       {% if dps.size > 0 %}
       <div class="role-column">
         <div class="role-header dps-header">
-          <span class="role-icon">⚔️</span> Бійці
+          <span class="role-icon">⚔️</span> DPS
         </div>
         <div class="member-grid">
           {% for char in dps %}
@@ -346,7 +351,7 @@ permalink: /guild/
       {% if others.size > 0 %}
       <div class="role-column">
         <div class="role-header other-header">
-          <span class="role-icon">❔</span> Невзначились
+          <span class="role-icon">❔</span> Невизначились
         </div>
         <div class="member-grid">
           {% for char in others %}
