@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-20 23:38:53'
+  updated_at: '2026-03-21 05:08:06'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11657
-      region: 5421
-      realm: 48
+      world: 12344
+      region: 5572
+      realm: 49
     heroic:
       world: 0
       region: 0
