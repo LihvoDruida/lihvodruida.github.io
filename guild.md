@@ -298,6 +298,7 @@ permalink: /guild/
 
     <script id="guild-members-json" type="application/json">{{ site.data.guild.members | jsonify }}</script>
     <script src="/assets/js/guild-stats.js" defer></script>
+    <script src="/assets/js/guild-roster-search.js" defer></script>
   </section>
 
   <section class="guild-section">
@@ -316,7 +317,7 @@ permalink: /guild/
       
       <div class="stat-badge">
         <span class="stat-val">{{ site.data.guild.members | size }}</span>
-        <span class="stat-label">Учасники{% if site.data.guild.members.size != 1 %}s{% endif %}</span>
+        <span class="stat-label">Учасники</span>
       </div>
     </div>
 
@@ -325,7 +326,20 @@ permalink: /guild/
     {% assign dps = site.data.guild.members | where: "role", "DPS" %}
     {% assign others = site.data.guild.members | where: "role", nil %}
 
-    <div class="roster-layout">
+    <div class="roster-tools" aria-label="Пошук по складу гільдії">
+      <label class="roster-search" for="roster-search-input">
+        <span class="roster-search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l5.44 5.44a1 1 0 0 1-1.41 1.41l-5.44-5.44A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9"/></svg>
+        </span>
+        <input id="roster-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку" autocomplete="off" spellcheck="false" inputmode="search">
+        <button type="button" class="roster-search-clear" id="roster-search-clear" aria-label="Очистити пошук" hidden>×</button>
+      </label>
+      <div class="roster-search-meta" id="roster-search-meta">Показано всіх: {{ site.data.guild.members | size }}</div>
+    </div>
+
+    <p class="roster-empty" id="roster-empty" hidden>Нічого не знайдено. Спробуй інший нік.</p>
+
+    <div class="roster-layout" id="roster-layout">
       
       {% if tanks.size > 0 %}
       <div class="role-column">

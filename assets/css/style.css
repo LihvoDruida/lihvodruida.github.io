@@ -98,6 +98,34 @@ body {
     color: var(--text);
     min-height: 100vh;
     touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+    display: block;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+a {
+    text-underline-offset: 0.14em;
+}
+
+:target {
+    scroll-margin-top: 90px;
 }
 
 /* Focus accessibility */
@@ -1233,7 +1261,6 @@ body.nav-open {
     .visual-news-card .card-desc,
     .news-card p,
     .mod-summary,
-    .char-meta,
     .stats,
     .guild {
         font-size: 0.97rem;
