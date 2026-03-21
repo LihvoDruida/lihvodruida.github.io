@@ -52,20 +52,3 @@ jobs:
           else
             echo "No data changes detected."
           fi
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Build site
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./_site
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
