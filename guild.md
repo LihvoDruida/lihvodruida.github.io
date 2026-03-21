@@ -230,7 +230,7 @@ permalink: /guild/
           <div class="donut-visual" id="faction-chart" aria-label="Співвідношення фракцій">
             <div class="donut-hole">
               <span class="donut-value" id="faction-total">0</span>
-              <span class="donut-caption">гравців</span>
+              <span class="donut-caption">сер. ilvl</span>
             </div>
           </div>
 

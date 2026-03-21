@@ -142,6 +142,8 @@
   const roleRioSamples = { tank: 0, healing: 0, dps: 0 };
   let guildRioTotal = 0;
   let guildRioSamples = 0;
+  let guildItemLevelTotal = 0;
+  let guildItemLevelSamples = 0;
   const classCounts = new Map();
   const activeSpecs = new Set();
 
@@ -177,6 +179,12 @@
     if (relevantRio > 0) {
       guildRioTotal += relevantRio;
       guildRioSamples += 1;
+    }
+
+    const itemLevelEquipped = Number(member?.item_level_equipped || 0);
+    if (Number.isFinite(itemLevelEquipped) && itemLevelEquipped > 0) {
+      guildItemLevelTotal += itemLevelEquipped;
+      guildItemLevelSamples += 1;
     }
 
     if (!className) {
@@ -303,10 +311,15 @@
     ],
   });
 
+  const guildAverageItemLevel = guildItemLevelSamples > 0
+    ? Math.round(guildItemLevelTotal / guildItemLevelSamples)
+    : '—';
+
   renderDonut({
     chartId: 'armor-chart',
     totalId: 'armor-total',
     legendId: 'armor-legend',
+    centerValue: guildAverageItemLevel,
     items: [
       { label: 'Тканина', value: armorCounts['Тканина'] || 0, color: armorMeta['Тканина'] },
       { label: 'Шкіра', value: armorCounts['Шкіра'] || 0, color: armorMeta['Шкіра'] },

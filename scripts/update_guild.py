@@ -89,6 +89,16 @@ def ensure_parent_dir(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
+def round_item_level(value: Any) -> int:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return 0
+    if numeric <= 0:
+        return 0
+    return int(numeric + 0.5)
+
+
 # ------------------------------------------------------------
 # RAIDER.IO
 # ------------------------------------------------------------
@@ -110,7 +120,7 @@ def fetch_character_details(ctx: ApiContext, region: str, realm: str, name: str)
         "region": region,
         "realm": realm,
         "name": name,
-        "fields": "mythic_plus_scores_by_season:current",
+        "fields": "mythic_plus_scores_by_season:current,gear",
     }
 
     response = safe_get(ctx.session, CHAR_API_URL, params=params)
@@ -144,6 +154,7 @@ def fetch_character_details(ctx: ApiContext, region: str, realm: str, name: str)
     return {
         "thumbnail_url": thumbnail,
         "mythic_plus_scores": mp_data,
+        "item_level_equipped": round_item_level(data.get("gear", {}).get("item_level_equipped")),
     }
 
 
@@ -289,10 +300,12 @@ def build_guild_and_professions_data() -> tuple[Optional[Dict[str, Any]], Option
             "healer": {"score": 0, "color": "#ffffff"},
             "tank": {"score": 0, "color": "#ffffff"},
         }
+        item_level_equipped = 0
         if details:
             if details.get("thumbnail_url"):
                 char_thumbnail = details["thumbnail_url"]
             mp_scores = details["mythic_plus_scores"]
+            item_level_equipped = details.get("item_level_equipped", 0)
 
         member_data = {
             "rank": member["rank"],
@@ -309,6 +322,7 @@ def build_guild_and_professions_data() -> tuple[Optional[Dict[str, Any]], Option
             "profile_url": profile_url,
             "avatar": char_thumbnail,
             "mythic_plus_scores": mp_scores,
+            "item_level_equipped": item_level_equipped,
         }
         processed_members.append(member_data)
 

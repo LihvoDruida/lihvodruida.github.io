@@ -23,9 +23,9 @@
     {% assign full_name = "Rank " | append: rank_id %}
 {% endcase %}
 
-<div class="rank-badge rank-{{ rank_id }}">
-  {{ short_name }}
-  
+<div class="rank-badge member-chip rank-{{ rank_id }}" aria-label="{{ full_name }}">
+  <span class="chip-value">{{ short_name }}</span>
+
   <div class="rank-tooltip">
     <div class="tooltip-header">Rank</div>
     <div class="tooltip-text">{{ full_name }}</div>

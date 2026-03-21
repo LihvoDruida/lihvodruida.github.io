@@ -7,52 +7,45 @@
     {% endif %}
     <div class="faction-indicator" title="{{ include.char.faction }}"></div>
   </div>
-  
-  <div class="info-wrapper">
-    <div class="char-details">
-      <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">
-        {{ include.char.name }}
-        <span class="char-realm">
-          ({{ include.char.region | upcase }}-{{ include.char.realm }})
-        </span>
-      </span>
 
-      <span class="char-meta">
-        {{ include.char.spec  | capitalize }} {{ include.char.class  | capitalize }} • 
-        {{ include.char.race  | capitalize }}
-      </span>
+  <div class="info-wrapper">
+    <div class="member-main-row">
+      <div class="char-details">
+        <div class="char-name-row">
+          <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">{{ include.char.name }}</span>
+          <span class="char-realm">{{ include.char.region | upcase }}-{{ include.char.realm }}</span>
+        </div>
+
+        <span class="char-meta">{{ include.char.spec | capitalize }} {{ include.char.class | capitalize }} • {{ include.char.race | capitalize }}</span>
+      </div>
+
+      <div class="member-summary-badges">
+        {% if include.char.item_level_equipped and include.char.item_level_equipped > 0 %}
+          <div class="ilvl-badge member-chip" aria-label="Item level {{ include.char.item_level_equipped }}">
+            <span class="chip-value">{{ include.char.item_level_equipped }}</span>
+          </div>
+        {% endif %}
+
+        {% include rank-badge.html rank=include.char.rank %}
+      </div>
     </div>
 
-{% if include.char.mythic_plus_scores %}
-<div class="rio-scores">
-  
-  {% if include.char.mythic_plus_scores.tank.score > 0 %}
-    {% include rio-pill.html 
-       role="tank" 
-       score=include.char.mythic_plus_scores.tank.score 
-       color=include.char.mythic_plus_scores.tank.color 
-    %}
-  {% endif %}
+    {% if include.char.mythic_plus_scores %}
+      <div class="member-bottom-row">
+        <div class="rio-scores">
+          {% if include.char.mythic_plus_scores.tank.score > 0 %}
+            {% include rio-pill.html role="tank" score=include.char.mythic_plus_scores.tank.score color=include.char.mythic_plus_scores.tank.color %}
+          {% endif %}
 
-  {% if include.char.mythic_plus_scores.healer.score > 0 %}
-    {% include rio-pill.html 
-       role="healer" 
-       score=include.char.mythic_plus_scores.healer.score 
-       color=include.char.mythic_plus_scores.healer.color 
-    %}
-  {% endif %}
+          {% if include.char.mythic_plus_scores.healer.score > 0 %}
+            {% include rio-pill.html role="healer" score=include.char.mythic_plus_scores.healer.score color=include.char.mythic_plus_scores.healer.color %}
+          {% endif %}
 
-  {% if include.char.mythic_plus_scores.dps.score > 0 %}
-    {% include rio-pill.html 
-       role="dps" 
-       score=include.char.mythic_plus_scores.dps.score 
-       color=include.char.mythic_plus_scores.dps.color 
-    %}
-  {% endif %}
-
-</div>
-{% endif %}
+          {% if include.char.mythic_plus_scores.dps.score > 0 %}
+            {% include rio-pill.html role="dps" score=include.char.mythic_plus_scores.dps.score color=include.char.mythic_plus_scores.dps.color %}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
   </div>
-
-  {% include rank-badge.html rank=include.char.rank %}
 </a>
