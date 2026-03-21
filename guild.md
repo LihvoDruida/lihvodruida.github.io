@@ -62,14 +62,9 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box trophy-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M6.5 18.5h11"/>
-            <path d="M8 15V9"/>
-            <path d="M12 15V5.5"/>
-            <path d="M16 15v-3"/>
-            <path d="M4.5 20.5h15" opacity="0.55"/>
-            <path d="M10.8 4.5h2.4"/>
-          </svg>
+<svg viewBox="0 0 24 24">
+		<path fill="currentColor" d="M12,7.09L14.45,8.58L13.8,5.77L16,3.89L13.11,3.64L12,1L10.87,3.64L8,3.89L10.18,5.77L9.5,8.58L12,7.09M4,13.09L6.45,14.58L5.8,11.77L8,9.89L5.11,9.64L4,7L2.87,9.64L0,9.89L2.18,11.77L1.5,14.58L4,13.09M20,10.09L22.45,11.58L21.8,8.77L24,6.89L21.11,6.64L20,4L18.87,6.64L16,6.89L18.18,8.77L17.5,11.58L20,10.09M15,23H9V10H15V23M7,23H1V17H7V23M23,23H17V13H23V23Z"></path>
+	</svg>
         </div>
         <div class="title-wrapper">
           <h2 class="section-title">Рейдовий Прогрес</h2>
@@ -203,15 +198,21 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box chart-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/>
-            <path d="M13.5 3.63A8.5 8.5 0 0 1 20.37 10H13.5z" opacity="0.72"/>
-            <path d="M12 7.5v4.5l3 1.75" opacity="0.7"/>
-          </svg>
+  <svg viewBox="0 0 90 90" aria-hidden="true">
+    <rect x="45.7" y="77.53" width="12.3" height="9.3" fill="currentColor" />
+    <rect x="61.7" y="52.52" width="12.3" height="34.3" fill="currentColor" />
+    <rect x="77.7" y="67.53" width="12.3" height="19.3" fill="currentColor" />
+    <path fill="currentColor" d="M56.808 26.962c-.279 0-.557-.116-.755-.344-.362-.417-.318-1.048.099-1.411l16.956-14.747c.182-.158.415-.246.656-.246H89c.553 0 1 .448 1 1s-.447 1-1 1H74.138L57.464 26.717c-.19.165-.423.245-.656.245z"/>
+    <path fill="currentColor" d="M89 5.665H74.101c-.553 0-1-.448-1-1s.447-1 1-1H89c.553 0 1 .448 1 1s-.447 1-1 1z"/>
+    <path fill="currentColor" d="M16.236 71.271H1c-.552 0-1-.447-1-1s.448-1 1-1h14.862l16.673-14.502c.417-.361 1.049-.318 1.411.099.363.417.318 1.049-.098 1.411L16.893 71.025c-.183.159-.415.246-.657.246z"/>
+    <path fill="currentColor" d="M15.899 77.821H1c-.552 0-1-.447-1-1s.448-1 1-1h14.899c.552 0 1 .447 1 1s-.448 1-1 1z"/>
+    <path fill="currentColor" d="M59.433 28.98c-.758.659-1.692.982-2.623.982-1.118 0-2.229-.465-3.021-1.375-1.449-1.667-1.273-4.193.394-5.643L65.766 12.87c-5.129-4.157-11.527-6.81-18.529-7.271v30.675h30.675c-.435-6.605-2.818-12.674-6.576-17.647L59.433 28.98z"/>
+    <path fill="currentColor" d="M42.844 40.668V5.599C25.669 6.731 12.087 21.011 12.087 38.471c0 8.668 3.352 16.549 8.823 22.432l9.656-8.399c1.667-1.447 4.193-1.273 5.643.394s1.274 4.193-.393 5.644l-8.706 7.572c5.161 3.355 11.315 5.31 17.929 5.31 4.488 0 8.763-.903 12.661-2.528V52.525v-4h4H74h2.42c.801-2.503 1.313-5.134 1.492-7.857H42.844z"/>
+  </svg>
         </div>
         <div class="title-wrapper">
           <h2 class="section-title">Статистика складу</h2>
-          <span class="subtitle">Фракції, броня та спеки</span>
+          <span class="subtitle">Фракції, броня, RIO та спеки</span>
         </div>
       </div>
     </div>
@@ -257,6 +258,26 @@ permalink: /guild/
         </div>
       </article>
 
+      <article class="stats-card donut-card">
+        <div class="stats-card-top">
+          <div>
+            <h3 class="stats-card-title">Середній RIO гільдії</h3>
+            <p class="stats-card-subtitle">У центрі — середній Mythic+ рейтинг, по колу — співвідношення DPS, хілів і танків</p>
+          </div>
+        </div>
+
+        <div class="donut-layout">
+          <div class="donut-visual" id="rio-chart" aria-label="Середній RIO та розподіл ролей">
+            <div class="donut-hole">
+              <span class="donut-value" id="rio-total">0</span>
+              <span class="donut-caption">сер. RIO</span>
+            </div>
+          </div>
+
+          <div class="stats-legend" id="rio-legend"></div>
+        </div>
+      </article>
+
       <article class="stats-card spec-card">
         <div class="stats-card-top stats-card-top-wide">
           <div>
@@ -283,15 +304,12 @@ permalink: /guild/
     <div class="modern-header">
       <div class="header-left">
         <div class="icon-box sword-glow">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M16.5 18.5a3.5 3.5 0 0 0-3.5-3h-2a3.5 3.5 0 0 0-3.5 3.5"/>
-            <path d="M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M18 17.5v-1a2.5 2.5 0 0 0-1.9-2.42" opacity="0.72"/>
-            <path d="M17.25 11.5a2.5 2.5 0 1 0 0-5" opacity="0.72"/>
-          </svg>
+<svg viewBox="0 0 24 24">
+    	<path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path>
+	</svg>
         </div>
         <div class="title-wrapper">
-          <h2 class="section-title">Герої Гільдії</h2>
+          <h2 class="section-title">Склад Гільдії</h2>
           <span class="subtitle">Активний склад</span>
         </div>
       </div>
@@ -312,7 +330,7 @@ permalink: /guild/
       {% if tanks.size > 0 %}
       <div class="role-column">
         <div class="role-header tank-header">
-          <span class="role-icon">🛡️</span> Танки
+          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z"></path></svg></span> Танки
         </div>
         <div class="member-grid">
           {% for char in tanks %}
@@ -325,7 +343,7 @@ permalink: /guild/
       {% if healers.size > 0 %}
       <div class="role-column">
         <div class="role-header heal-header">
-          <span class="role-icon">💚</span> Хіли
+          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 14H14V18H10V14H6V10H10V6H14V10H18"></path></svg></span> Хіли
         </div>
         <div class="member-grid">
           {% for char in healers %}
@@ -338,7 +356,7 @@ permalink: /guild/
       {% if dps.size > 0 %}
       <div class="role-column">
         <div class="role-header dps-header">
-          <span class="role-icon">⚔️</span> DPS
+          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z"></path></svg></span> DPS
         </div>
         <div class="member-grid">
           {% for char in dps %}
@@ -351,7 +369,7 @@ permalink: /guild/
       {% if others.size > 0 %}
       <div class="role-column">
         <div class="role-header other-header">
-          <span class="role-icon">❔</span> Невизначились
+          <span class="role-icon" aria-hidden="true">?</span> Невизначились
         </div>
         <div class="member-grid">
           {% for char in others %}

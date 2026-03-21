@@ -22,6 +22,25 @@
     const rounded = Math.round(value * 10) / 10;
     return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
   };
+  const formatScore = (value) => new Intl.NumberFormat('uk-UA').format(Math.max(0, Math.round(Number(value) || 0)));
+  const getNumericScore = (value) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
+  };
+  const getRoleScore = (member, roleKey) => {
+    const scores = member?.mythic_plus_scores || {};
+    if (roleKey === 'healing') {
+      return getNumericScore(scores.healer?.score);
+    }
+    if (roleKey === 'tank' || roleKey === 'dps') {
+      return getNumericScore(scores[roleKey]?.score);
+    }
+    return Math.max(
+      getNumericScore(scores.dps?.score),
+      getNumericScore(scores.healer?.score),
+      getNumericScore(scores.tank?.score),
+    );
+  };
 
   const lightenColor = (hex, amount = 0.18) => {
     const clean = String(hex || '').replace('#', '');
@@ -119,6 +138,10 @@
   const factionCounts = { alliance: 0, horde: 0 };
   const armorCounts = { Тканина: 0, Шкіра: 0, Кольчуга: 0, Лати: 0 };
   const roleCounts = { tank: 0, healing: 0, dps: 0, other: 0 };
+  const roleRioTotals = { tank: 0, healing: 0, dps: 0 };
+  const roleRioSamples = { tank: 0, healing: 0, dps: 0 };
+  let guildRioTotal = 0;
+  let guildRioSamples = 0;
   const classCounts = new Map();
   const activeSpecs = new Set();
 
@@ -143,11 +166,22 @@
       roleCounts.other += 1;
     }
 
+    const normalizedRoleKey = roleKey in roleCounts ? roleKey : 'other';
+    const relevantRio = getRoleScore(member, normalizedRoleKey);
+
+    if (normalizedRoleKey in roleRioTotals && relevantRio > 0) {
+      roleRioTotals[normalizedRoleKey] += relevantRio;
+      roleRioSamples[normalizedRoleKey] += 1;
+    }
+
+    if (relevantRio > 0) {
+      guildRioTotal += relevantRio;
+      guildRioSamples += 1;
+    }
+
     if (!className) {
       return;
     }
-
-    const normalizedRoleKey = roleKey in roleCounts ? roleKey : 'other';
     if (!classCounts.has(className)) {
       classCounts.set(className, {
         className,
@@ -209,7 +243,7 @@
     `;
   };
 
-  const renderDonut = ({ chartId, totalId, legendId, items }) => {
+  const renderDonut = ({ chartId, totalId, legendId, items, centerValue = null }) => {
     const chartNode = document.getElementById(chartId);
     const totalNode = document.getElementById(totalId);
     const legendNode = document.getElementById(legendId);
@@ -219,7 +253,7 @@
     }
 
     const total = items.reduce((sum, item) => sum + item.value, 0);
-    totalNode.textContent = String(total);
+    totalNode.textContent = centerValue !== null ? String(centerValue) : String(total);
 
     if (total <= 0) {
       chartNode.style.background = 'conic-gradient(rgba(255,255,255,0.08) 0deg 360deg)';
@@ -251,7 +285,7 @@
                 <span class="legend-label">${item.label}</span>
                 <span class="legend-percent">${percent}%</span>
               </div>
-              <div class="legend-bottomline">${item.value} гравців</div>
+              <div class="legend-bottomline">${item.note || `${item.value} гравців`}</div>
             </div>
           </div>
         `;
@@ -278,6 +312,24 @@
       { label: 'Шкіра', value: armorCounts['Шкіра'] || 0, color: armorMeta['Шкіра'] },
       { label: 'Кольчуга', value: armorCounts['Кольчуга'] || 0, color: armorMeta['Кольчуга'] },
       { label: 'Лати', value: armorCounts['Лати'] || 0, color: armorMeta['Лати'] },
+    ],
+  });
+
+  const guildAverageRio = guildRioSamples > 0 ? guildRioTotal / guildRioSamples : 0;
+  const buildRoleRioNote = (roleKey) => {
+    const averageRoleRio = roleRioSamples[roleKey] > 0 ? roleRioTotals[roleKey] / roleRioSamples[roleKey] : 0;
+    return `${roleCounts[roleKey]} гравців • сер. RIO ${formatScore(averageRoleRio)}`;
+  };
+
+  renderDonut({
+    chartId: 'rio-chart',
+    totalId: 'rio-total',
+    legendId: 'rio-legend',
+    centerValue: formatScore(guildAverageRio),
+    items: [
+      { label: 'DPS', value: roleCounts.dps, color: roleMeta.dps.color, note: buildRoleRioNote('dps') },
+      { label: 'Хіли', value: roleCounts.healing, color: roleMeta.healing.color, note: buildRoleRioNote('healing') },
+      { label: 'Танки', value: roleCounts.tank, color: roleMeta.tank.color, note: buildRoleRioNote('tank') },
     ],
   });
 
@@ -366,7 +418,10 @@
     }
 
     if (specFootnoteNode) {
-      specFootnoteNode.textContent = `У гільдії ${members.length} гравців, ${classEntries.length} класів і ${activeSpecs.size} представлених спеків.`;
+      const rioScope = guildRioSamples > 0
+        ? `Середній RIO зараз ${formatScore(guildAverageRio)}.`
+        : 'Середній RIO з’явиться, коли будуть Mythic+ бали.';
+      specFootnoteNode.textContent = `У гільдії ${members.length} гравців, ${classEntries.length} класів і ${activeSpecs.size} представлених спеків. ${rioScope}`;
     }
   }
 

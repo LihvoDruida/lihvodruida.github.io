@@ -757,8 +757,32 @@
 .roster-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 
 .role-header {
-  font-size: 1rem; font-weight: 700; text-transform: uppercase;
-  margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid; letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid;
+  letter-spacing: 1px;
+}
+
+.role-header .role-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  line-height: 1;
+}
+
+.role-header .role-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .tank-header { color: #6db4ff; border-color: #6db4ff; }
 .heal-header { color: #4eff4e; border-color: #4eff4e; }
@@ -1169,7 +1193,7 @@
 
 .guild-stats-layout {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   min-width: 0;
 }
@@ -1203,6 +1227,11 @@
   grid-column: 1 / -1;
   overflow: visible;
   min-width: 0;
+}
+
+.donut-value {
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  letter-spacing: -0.02em;
 }
 
 .stats-card-top {
@@ -1656,11 +1685,17 @@
   line-height: 1.45;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1100px) {
   .guild-stats-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .spec-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
   .spec-role-summary {
     justify-content: flex-start;
   }
@@ -1678,6 +1713,14 @@
 }
 
 @media (max-width: 560px) {
+  .guild-stats-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .spec-card {
+    grid-column: auto;
+  }
+
   .stats-card {
     padding: 12px;
     border-radius: 16px;
