@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-21 23:59:54'
+  updated_at: '2026-03-21 22:35:35'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,8 +41,8 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13339
-      region: 6066
+      world: 13375
+      region: 6076
       realm: 52
     heroic:
       world: 0
@@ -120,7 +120,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1020
+      score: 0
       color: '#ff8000'
     healer:
       score: 0
@@ -693,18 +693,18 @@ members:
   realm: Ravencrest
   realm_slug: ravencrest
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+  avatar: null
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     healer:
       score: 0
-      color: '#ff8000'
+      color: '#ffffff'
     tank:
       score: 0
-      color: '#ff8000'
-  item_level_equipped: 719
+      color: '#ffffff'
+  item_level_equipped: 0
 - rank: 1
   name: Smolderfist
   class: Monk
