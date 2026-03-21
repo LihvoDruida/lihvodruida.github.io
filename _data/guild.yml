@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-21 05:08:06'
+  updated_at: '2026-03-21 15:20:10'
   source: Raider.IO API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12344
-      region: 5572
-      realm: 49
+      world: 12865
+      region: 5780
+      realm: 50
     heroic:
       world: 0
       region: 0
@@ -150,6 +150,28 @@ members:
       score: 0
       color: '#ff8000'
 - rank: 3
+  name: Characternuk
+  class: Death Knight
+  race: Human
+  spec: Blood
+  role: TANK
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Characternuk
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Булкрит
   class: Paladin
   race: Blood Elf
@@ -171,7 +193,29 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 4
+  name: ßøßk
+  class: Hunter
+  race: Worgen
+  spec: Survival
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/ßøßk
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Pwndyøurface
   class: Priest
   race: Night Elf
@@ -241,8 +285,8 @@ members:
   name: Sonechco
   class: Druid
   race: Night Elf
-  spec: Restoration
-  role: HEALING
+  spec: Guardian
+  role: TANK
   gender: female
   faction: alliance
   region: eu
@@ -307,8 +351,8 @@ members:
   name: Darthkenobi
   class: Warrior
   race: Human
-  spec: Fury
-  role: DPS
+  spec: Protection
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -325,7 +369,29 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 4
+  name: Allune
+  class: Druid
+  race: Night Elf
+  spec: Balance
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Allune
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Es
   class: Warrior
   race: Human
@@ -369,7 +435,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-- rank: 99
+- rank: 3
   name: Redray
   class: Death Knight
   race: Tauren
@@ -425,6 +491,28 @@ members:
   realm: Silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Threataan
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
+  name: Prayddh
+  class: Demon Hunter
+  race: Night Elf
+  spec: Devourer
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Prayddh
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/14/186365710-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -645,6 +733,28 @@ members:
   realm: Terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Duszi
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
+  name: Lishiyburn
+  class: Warlock
+  race: Orc
+  spec: Affliction
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Ragnaros
+  profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
+  avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -945,8 +1055,8 @@ members:
   name: Athang
   class: Monk
   race: Haranir
-  spec: Mistweaver
-  role: HEALING
+  spec: Brewmaster
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -964,6 +1074,28 @@ members:
       score: 0
       color: '#ff8000'
 - rank: 4
+  name: Тузольд
+  class: Death Knight
+  race: Night Elf
+  spec: Unholy
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Тузольд
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 3
   name: Travka
   class: Druid
   race: Haranir
@@ -975,6 +1107,50 @@ members:
   realm: Terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Travka
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
+  name: Mólfár
+  class: Warlock
+  race: Human
+  spec: null
+  role: null
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Mólfár
+  avatar: https://eu.battle.net/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+- rank: 4
+  name: Technoihor
+  class: Priest
+  race: Mechagnome
+  spec: null
+  role: null
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
+  avatar: https://eu.battle.net/wow/static/images/2d/avatar/37-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
