@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-21 22:35:35'
+  updated_at: '2026-03-21 22:57:06'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,8 +41,8 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13375
-      region: 6076
+      world: 13402
+      region: 6081
       realm: 52
     heroic:
       world: 0
@@ -693,18 +693,18 @@ members:
   realm: Ravencrest
   realm_slug: ravencrest
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-  avatar: null
+  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
     dps:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     healer:
       score: 0
-      color: '#ffffff'
+      color: '#ff8000'
     tank:
       score: 0
-      color: '#ffffff'
-  item_level_equipped: 0
+      color: '#ff8000'
+  item_level_equipped: 719
 - rank: 1
   name: Smolderfist
   class: Monk
@@ -1069,8 +1069,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Elemental
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -1088,7 +1088,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 238
+  item_level_equipped: 225
 - rank: 1
   name: Пизнайка
   class: Druid
