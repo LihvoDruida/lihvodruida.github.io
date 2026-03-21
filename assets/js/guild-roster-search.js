@@ -1,78 +1,117 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var input = document.getElementById("roster-search-input");
-  var clearButton = document.getElementById("roster-search-clear");
-  var meta = document.getElementById("roster-search-meta");
-  var emptyState = document.getElementById("roster-empty");
-  var rosterLayout = document.getElementById("roster-layout");
-
-  if (!input || !meta || !emptyState || !rosterLayout) return;
-
-  var memberCards = Array.prototype.slice.call(rosterLayout.querySelectorAll('.member-card'));
-  var roleColumns = Array.prototype.slice.call(rosterLayout.querySelectorAll('.role-column'));
-  var totalMembers = memberCards.length;
-
   function normalize(value) {
-    return (value || '')
+    return (value || "")
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
       .trim();
   }
 
-  function getNameText(node) {
-    if (!node) return '';
-    var text = '';
+  function getText(node) {
+    return node ? (node.textContent || "") : "";
+  }
 
-    for (var i = 0; i < node.childNodes.length; i += 1) {
-      var child = node.childNodes[i];
-      if (child.nodeType === Node.TEXT_NODE) {
-        text += child.textContent || '';
-      }
+  function initTabs() {
+    var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-guild-tab-target]"));
+    var panels = Array.prototype.slice.call(document.querySelectorAll("[data-guild-tab-panel]"));
+    if (!buttons.length || !panels.length) return;
+
+    function activate(target) {
+      buttons.forEach(function (button) {
+        var isActive = button.getAttribute("data-guild-tab-target") === target;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      panels.forEach(function (panel) {
+        var isActive = panel.getAttribute("data-guild-tab-panel") === target;
+        panel.classList.toggle("is-active", isActive);
+        panel.hidden = !isActive;
+      });
     }
 
-    return text || node.textContent || '';
-  }
-
-  function updateMeta(visibleCount, query) {
-    meta.textContent = query
-      ? 'Знайдено: ' + visibleCount + ' з ' + totalMembers
-      : 'Показано всіх: ' + totalMembers;
-  }
-
-  function applyFilter() {
-    var query = normalize(input.value);
-    var visibleCount = 0;
-
-    memberCards.forEach(function (card) {
-      var nameNode = card.querySelector('.char-name');
-      var realmNode = card.querySelector('.char-realm');
-      var name = normalize(getNameText(nameNode));
-      var realm = normalize(realmNode ? realmNode.textContent : '');
-      var matches = !query || name.indexOf(query) !== -1 || realm.indexOf(query) !== -1;
-
-      card.classList.toggle('is-hidden', !matches);
-      if (matches) visibleCount += 1;
-    });
-
-    roleColumns.forEach(function (column) {
-      var hasVisibleMembers = column.querySelector('.member-card:not(.is-hidden)');
-      column.classList.toggle('is-hidden', !hasVisibleMembers);
-    });
-
-    emptyState.hidden = visibleCount > 0;
-    if (clearButton) clearButton.hidden = !query;
-    updateMeta(visibleCount, query);
-  }
-
-  input.addEventListener('input', applyFilter);
-
-  if (clearButton) {
-    clearButton.addEventListener('click', function () {
-      input.value = '';
-      input.focus();
-      applyFilter();
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        activate(button.getAttribute("data-guild-tab-target"));
+      });
     });
   }
 
-  applyFilter();
+  function attachSearch(config) {
+    var input = document.getElementById(config.inputId);
+    var clearButton = document.getElementById(config.clearId);
+    var meta = document.getElementById(config.metaId);
+    var emptyState = document.getElementById(config.emptyId);
+    var layout = document.getElementById(config.layoutId);
+
+    if (!input || !meta || !emptyState || !layout) return;
+
+    var cards = Array.prototype.slice.call(layout.querySelectorAll(config.cardSelector));
+    var groups = config.groupSelector ? Array.prototype.slice.call(layout.querySelectorAll(config.groupSelector)) : [];
+    var total = cards.length;
+
+    function updateMeta(visibleCount, query) {
+      meta.textContent = query ? "Знайдено: " + visibleCount + " з " + total : "Показано всіх: " + total;
+    }
+
+    function applyFilter() {
+      var query = normalize(input.value);
+      var visibleCount = 0;
+
+      cards.forEach(function (card) {
+        var haystack = normalize(config.getSearchText(card));
+        var matches = !query || haystack.indexOf(query) !== -1;
+        card.classList.toggle("is-hidden", !matches);
+        if (matches) visibleCount += 1;
+      });
+
+      groups.forEach(function (group) {
+        var hasVisible = group.querySelector(config.cardSelector + ":not(.is-hidden)");
+        group.classList.toggle("is-hidden", !hasVisible);
+      });
+
+      emptyState.hidden = visibleCount > 0;
+      if (clearButton) clearButton.hidden = !query;
+      updateMeta(visibleCount, query);
+    }
+
+    input.addEventListener("input", applyFilter);
+
+    if (clearButton) {
+      clearButton.addEventListener("click", function () {
+        input.value = "";
+        input.focus();
+        applyFilter();
+      });
+    }
+
+    applyFilter();
+  }
+
+  initTabs();
+
+  attachSearch({
+    inputId: "roster-search-input",
+    clearId: "roster-search-clear",
+    metaId: "roster-search-meta",
+    emptyId: "roster-empty",
+    layoutId: "roster-layout",
+    cardSelector: ".member-card",
+    groupSelector: ".role-column",
+    getSearchText: function (card) {
+      return getText(card.querySelector(".char-name")) + " " + getText(card.querySelector(".char-realm"));
+    }
+  });
+
+  attachSearch({
+    inputId: "profession-search-input",
+    clearId: "profession-search-clear",
+    metaId: "profession-search-meta",
+    emptyId: "profession-empty",
+    layoutId: "profession-grid",
+    cardSelector: ".profession-card",
+    getSearchText: function (card) {
+      return card.getAttribute("data-profession-search") || card.textContent || "";
+    }
+  });
 });

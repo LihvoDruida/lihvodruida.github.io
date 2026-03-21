@@ -326,73 +326,183 @@ permalink: /guild/
     {% assign dps = site.data.guild.members | where: "role", "DPS" %}
     {% assign others = site.data.guild.members | where: "role", nil %}
 
-    <div class="roster-tools" aria-label="Пошук по складу гільдії">
-      <label class="roster-search" for="roster-search-input">
-        <span class="roster-search-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l5.44 5.44a1 1 0 0 1-1.41 1.41l-5.44-5.44A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9"/></svg>
-        </span>
-        <input id="roster-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку" autocomplete="off" spellcheck="false" inputmode="search">
-        <button type="button" class="roster-search-clear" id="roster-search-clear" aria-label="Очистити пошук" hidden>×</button>
-      </label>
-      <div class="roster-search-meta" id="roster-search-meta">Показано всіх: {{ site.data.guild.members | size }}</div>
+    <div class="guild-tab-switcher" role="tablist" aria-label="Перемикач між складом і професіями">
+      <button type="button" class="guild-tab-button is-active" id="guild-tab-button-roster" data-guild-tab-target="roster" role="tab" aria-selected="true" aria-controls="guild-tab-panel-roster">Склад</button>
+      <button type="button" class="guild-tab-button" id="guild-tab-button-professions" data-guild-tab-target="professions" role="tab" aria-selected="false" aria-controls="guild-tab-panel-professions">Професії</button>
     </div>
 
-    <p class="roster-empty" id="roster-empty" hidden>Нічого не знайдено. Спробуй інший нік.</p>
-
-    <div class="roster-layout" id="roster-layout">
-      
-      {% if tanks.size > 0 %}
-      <div class="role-column">
-        <div class="role-header tank-header">
-          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z"></path></svg></span> Танки
-        </div>
-        <div class="member-grid">
-          {% for char in tanks %}
-            {% include member-card.html char=char %}
-          {% endfor %}
-        </div>
+    <div class="guild-tab-panel is-active" id="guild-tab-panel-roster" data-guild-tab-panel="roster" role="tabpanel" aria-labelledby="guild-tab-button-roster">
+      <div class="roster-tools" aria-label="Пошук по складу гільдії">
+        <label class="roster-search" for="roster-search-input">
+          <span class="roster-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l5.44 5.44a1 1 0 0 1-1.41 1.41l-5.44-5.44A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9"/></svg>
+          </span>
+          <input id="roster-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку" autocomplete="off" spellcheck="false" inputmode="search">
+          <button type="button" class="roster-search-clear" id="roster-search-clear" aria-label="Очистити пошук" hidden>×</button>
+        </label>
+        <div class="roster-search-meta" id="roster-search-meta">Показано всіх: {{ site.data.guild.members | size }}</div>
       </div>
-      {% endif %}
 
-      {% if healers.size > 0 %}
-      <div class="role-column">
-        <div class="role-header heal-header">
-          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 14H14V18H10V14H6V10H10V6H14V10H18"></path></svg></span> Хіли
+      <p class="roster-empty" id="roster-empty" hidden>Нічого не знайдено. Спробуй інший нік.</p>
+
+      <div class="roster-layout" id="roster-layout">
+        
+        {% if tanks.size > 0 %}
+        <div class="role-column">
+          <div class="role-header tank-header">
+            <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z"></path></svg></span> Танки
+          </div>
+          <div class="member-grid">
+            {% for char in tanks %}
+              {% include member-card.html char=char %}
+            {% endfor %}
+          </div>
         </div>
-        <div class="member-grid">
-          {% for char in healers %}
-            {% include member-card.html char=char %}
-          {% endfor %}
+        {% endif %}
+
+        {% if healers.size > 0 %}
+        <div class="role-column">
+          <div class="role-header heal-header">
+            <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 14H14V18H10V14H6V10H10V6H14V10H18"></path></svg></span> Хіли
+          </div>
+          <div class="member-grid">
+            {% for char in healers %}
+              {% include member-card.html char=char %}
+            {% endfor %}
+          </div>
         </div>
+        {% endif %}
+
+        {% if dps.size > 0 %}
+        <div class="role-column">
+          <div class="role-header dps-header">
+            <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z"></path></svg></span> DPS
+          </div>
+          <div class="member-grid">
+            {% for char in dps %}
+              {% include member-card.html char=char %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if others.size > 0 %}
+        <div class="role-column">
+          <div class="role-header other-header">
+            <span class="role-icon" aria-hidden="true">?</span> Невизначились
+          </div>
+          <div class="member-grid">
+            {% for char in others %}
+              {% include member-card.html char=char %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
       </div>
-      {% endif %}
+    </div>
 
-      {% if dps.size > 0 %}
-      <div class="role-column">
-        <div class="role-header dps-header">
-          <span class="role-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z"></path></svg></span> DPS
-        </div>
-        <div class="member-grid">
-          {% for char in dps %}
-            {% include member-card.html char=char %}
-          {% endfor %}
-        </div>
+    <div class="guild-tab-panel" id="guild-tab-panel-professions" data-guild-tab-panel="professions" role="tabpanel" aria-labelledby="guild-tab-button-professions" hidden>
+      <div class="roster-tools" aria-label="Пошук по професіях гільдії">
+        <label class="roster-search" for="profession-search-input">
+          <span class="roster-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l5.44 5.44a1 1 0 0 1-1.41 1.41l-5.44-5.44A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9"/></svg>
+          </span>
+          <input id="profession-search-input" class="roster-search-input" type="search" placeholder="Пошук по професії або ніку" autocomplete="off" spellcheck="false" inputmode="search">
+          <button type="button" class="roster-search-clear" id="profession-search-clear" aria-label="Очистити пошук" hidden>×</button>
+        </label>
+        <div class="roster-search-meta" id="profession-search-meta">Показано всіх</div>
       </div>
-      {% endif %}
 
-      {% if others.size > 0 %}
-      <div class="role-column">
-        <div class="role-header other-header">
-          <span class="role-icon" aria-hidden="true">?</span> Невизначились
-        </div>
-        <div class="member-grid">
-          {% for char in others %}
-            {% include member-card.html char=char %}
+      <p class="roster-empty" id="profession-empty" hidden>Нічого не знайдено. Спробуй іншу професію або нік.</p>
+
+      <div class="profession-grid" id="profession-grid">
+        {% for prof_char in site.data.professions.characters %}
+          {% assign primary_professions = prof_char.professions.primaries %}
+          {% assign cooking_profession = nil %}
+          {% for secondary in prof_char.professions.secondaries %}
+            {% if secondary.name == "Cooking" %}
+              {% assign cooking_profession = secondary %}
+            {% endif %}
           {% endfor %}
-        </div>
+          {% assign has_any_profession = false %}
+          {% if primary_professions and primary_professions.size > 0 %}
+            {% assign has_any_profession = true %}
+          {% endif %}
+          {% if cooking_profession %}
+            {% assign has_any_profession = true %}
+          {% endif %}
+          {% if has_any_profession %}
+            {% capture profession_search_terms %}{{ prof_char.name }} {{ prof_char.realm }}{% for profession in primary_professions %} {{ profession.name }}{% endfor %}{% if cooking_profession %} {{ cooking_profession.name }}{% endif %}{% endcapture %}
+            <a href="{{ prof_char.profile_url }}" target="_blank" rel="noopener noreferrer" class="profession-card" data-profession-search="{{ profession_search_terms | downcase | strip | escape }}">
+              <div class="profession-card-head">
+                <div>
+                  <div class="profession-card-name">{{ prof_char.name }}</div>
+                  <div class="profession-card-realm">EU-{{ prof_char.realm }}</div>
+                </div>
+              </div>
+              {% if primary_professions and primary_professions.size > 0 %}
+              <div class="profession-block">
+                <div class="profession-block-title">Основні</div>
+                <div class="profession-list">
+                  {% for profession in primary_professions %}
+                    <div class="profession-entry">
+                      <div class="profession-entry-title-row">
+                        <span class="profession-entry-name">{{ profession.name }}</span>
+                      </div>
+                      <div class="profession-tier-list">
+                        {% for tier in profession.tiers %}
+                          {% if tier.max_points and tier.max_points > 0 %}
+                            {% assign progress = tier.learned_points | times: 100 | divided_by: tier.max_points %}
+                            <div class="profession-tier-row">
+                              <div class="profession-tier-top">
+                                <span class="profession-tier-name">{{ tier.name }}</span>
+                                <span class="profession-tier-value">{{ tier.learned_points }}/{{ tier.max_points }}</span>
+                              </div>
+                              <div class="profession-progress">
+                                <span class="profession-progress-bar" style="width: {{ progress }}%"></span>
+                              </div>
+                            </div>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if cooking_profession %}
+              <div class="profession-block">
+                <div class="profession-block-title">Cooking</div>
+                <div class="profession-list">
+                  <div class="profession-entry">
+                    <div class="profession-entry-title-row">
+                      <span class="profession-entry-name">{{ cooking_profession.name }}</span>
+                    </div>
+                    <div class="profession-tier-list">
+                      {% for tier in cooking_profession.tiers %}
+                        {% if tier.max_points and tier.max_points > 0 %}
+                          {% assign progress = tier.learned_points | times: 100 | divided_by: tier.max_points %}
+                          <div class="profession-tier-row">
+                            <div class="profession-tier-top">
+                              <span class="profession-tier-name">{{ tier.name }}</span>
+                              <span class="profession-tier-value">{{ tier.learned_points }}/{{ tier.max_points }}</span>
+                            </div>
+                            <div class="profession-progress">
+                              <span class="profession-progress-bar" style="width: {{ progress }}%"></span>
+                            </div>
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </a>
+          {% endif %}
+        {% endfor %}
       </div>
-      {% endif %}
-
     </div>
   </section>
 </div>

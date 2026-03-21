@@ -1948,3 +1948,195 @@
 .member-card.is-hidden {
   display: none !important;
 }
+
+
+.guild-tab-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  margin: 0 0 18px;
+  border: 1px solid rgba(255, 170, 40, 0.18);
+  border-radius: 18px;
+  background: rgba(18, 12, 10, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.guild-tab-button {
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255,255,255,0.72);
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.guild-tab-button:hover {
+  color: #fff;
+}
+
+.guild-tab-button.is-active {
+  background: linear-gradient(180deg, rgba(255, 164, 44, 0.22), rgba(255, 128, 32, 0.14));
+  color: #ffcf78;
+  box-shadow: 0 0 0 1px rgba(255, 170, 40, 0.22) inset;
+}
+
+.guild-tab-panel[hidden] {
+  display: none !important;
+}
+
+.profession-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.profession-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 24px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(255, 170, 40, 0.14);
+  background: linear-gradient(180deg, rgba(26, 18, 14, 0.96), rgba(17, 12, 10, 0.92));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profession-card:hover {
+  border-color: rgba(255, 170, 40, 0.24);
+  transform: translateY(-1px);
+}
+
+.profession-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profession-card-name {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.profession-card-realm {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.56);
+}
+
+.profession-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profession-block-title {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffbf59;
+}
+
+.profession-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profession-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.028);
+  border: 1px solid rgba(255, 170, 40, 0.08);
+}
+
+.profession-entry-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.profession-entry-name {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+}
+
+.profession-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profession-tier-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profession-tier-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.profession-tier-name {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.66);
+}
+
+.profession-tier-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffcf78;
+  white-space: nowrap;
+}
+
+.profession-progress {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 170, 40, 0.08);
+}
+
+.profession-progress-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff922d 0%, #ffb347 55%, #ffd76e 100%);
+  box-shadow: 0 0 12px rgba(255, 160, 60, 0.28);
+}
+
+@media (max-width: 760px) {
+  .guild-tab-switcher {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .guild-tab-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profession-grid {
+    grid-template-columns: 1fr;
+  }
+}
