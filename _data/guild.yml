@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-21 23:59:54'
+  updated_at: '2026-03-22 08:15:57'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13339
-      region: 6066
-      realm: 52
+      world: 13807
+      region: 6125
+      realm: 53
     heroic:
       world: 0
       region: 0
@@ -1069,8 +1069,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Elemental
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -1088,7 +1088,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 238
+  item_level_equipped: 225
 - rank: 1
   name: Пизнайка
   class: Druid
