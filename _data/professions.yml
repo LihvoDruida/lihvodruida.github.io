@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-22 08:15:57'
+  updated_at: '2026-03-22 23:04:12'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -260,6 +260,15 @@ characters:
         max_points: 300
       - name: Midnight Engineering
         learned_points: 3
+        max_points: 100
+    - name: Leatherworking
+      id: 165
+      tiers:
+      - name: Classic Leatherworking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Leatherworking
+        learned_points: 61
         max_points: 100
     secondaries: []
 - name: Pwndyøurface
@@ -1260,7 +1269,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Mining
-        learned_points: 78
+        learned_points: 80
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1359,7 +1368,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 23
+        learned_points: 24
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1378,7 +1387,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 1
+        learned_points: 28
         max_points: 100
     - name: Fishing
       id: 356
@@ -1910,7 +1919,7 @@ characters:
         learned_points: 1
         max_points: 200
       - name: Midnight Fishing
-        learned_points: 65
+        learned_points: 68
         max_points: 300
 - name: Пизнайка
   region: eu
@@ -2033,7 +2042,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 98
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2223,7 +2232,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 5
         max_points: 300
 - name: Mólfár
   region: eu

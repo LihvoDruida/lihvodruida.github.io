@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-22 08:15:57'
+  updated_at: '2026-03-22 23:04:12'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -9,9 +9,9 @@ guild_info:
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
   tier-mn-1:
-    summary: 1/9 N
+    summary: 6/9 N
     total_bosses: 9
-    normal_bosses_killed: 1
+    normal_bosses_killed: 6
     heroic_bosses_killed: 0
     mythic_bosses_killed: 0
   blackrock-depths:
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13807
-      region: 6125
-      realm: 53
+      world: 7864
+      region: 3479
+      realm: 23
     heroic:
       world: 0
       region: 0
@@ -128,7 +128,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 248
+  item_level_equipped: 246
 - rank: 3
   name: Котто
   class: Rogue
@@ -200,7 +200,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 247
+  item_level_equipped: 251
 - rank: 99
   name: ßøßk
   class: Hunter
@@ -224,7 +224,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 141
+  item_level_equipped: 231
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -320,7 +320,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 238
+  item_level_equipped: 244
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -992,7 +992,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 248
+  item_level_equipped: 252
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1045,8 +1045,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Balance
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -1064,7 +1064,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 246
+  item_level_equipped: 252
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -1112,7 +1112,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 251
+  item_level_equipped: 252
 - rank: 3
   name: Shennái
   class: Priest
@@ -1232,7 +1232,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 248
+  item_level_equipped: 251
 - rank: 4
   name: Technoihor
   class: Priest
