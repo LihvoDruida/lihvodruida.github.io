@@ -9,9 +9,9 @@ DELAY = 2            # пауза між запитами (сек)
 MAX_RETRIES = 3      # скільки разів пробувати при 429
 
 characters = [
-    {"region": "eu", "realm": "terokkar", "name": "sebas"},
+    {"region": "eu", "realm": "terokkar", "name": "khayen"},
     {"region": "eu", "realm": "terokkar", "name": "krouli"},
-    {"region": "eu", "realm": "terokkar", "name": "kashin"}
+    {"region": "eu", "realm": "terokkar", "name": "sebas"}
 ]
 
 def fetch_character(char):
