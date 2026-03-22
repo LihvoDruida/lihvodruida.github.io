@@ -2171,8 +2171,10 @@
   font-size: 0.88rem;
 }
 
+
 .role-column.is-hidden,
-.member-card.is-hidden {
+.member-card.is-hidden,
+.profession-card.is-hidden {
   display: none !important;
 }
 
