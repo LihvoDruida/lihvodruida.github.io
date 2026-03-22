@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-21 22:57:06'
+  updated_at: '2026-03-22 05:20:46'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1663,6 +1663,9 @@ characters:
         learned_points: 57
         max_points: 100
     secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
     - name: Cooking
       id: 185
       tiers:
