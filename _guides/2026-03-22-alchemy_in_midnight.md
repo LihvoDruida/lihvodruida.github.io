@@ -3,7 +3,7 @@ layout: guides
 title: "Alchemy in Midnight — короткий гайд"
 slug: alchemy-in-midnight-short-guide
 description: "Короткий і зрозумілий гайд по Alchemy у World of Warcraft: Midnight: які стати качати, яке спорядження брати і що робити для крафту та заробітку."
-date: 2026-03-17
+date: 2026-03-22
 author: Sebas
 categories: [Гайди, Професії]
 tags: [Midnight, Alchemy, Crafting, Professions]
