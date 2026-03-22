@@ -120,7 +120,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1020
+      score: 0
       color: '#ff8000'
     healer:
       score: 0
