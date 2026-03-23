@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-22 23:04:12'
+  updated_at: '2026-03-23 05:41:47'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,8 +41,8 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 7864
-      region: 3479
+      world: 8371
+      region: 3540
       realm: 23
     heroic:
       world: 0
@@ -1089,6 +1089,30 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 225
+- rank: 99
+  name: Нежнаяпулька
+  class: Hunter
+  race: Night Elf
+  spec: Marksmanship
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
+  avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+  item_level_equipped: 240
 - rank: 1
   name: Пизнайка
   class: Druid
