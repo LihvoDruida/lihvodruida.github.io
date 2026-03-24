@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-23 05:41:47'
+  updated_at: '2026-03-24 05:25:09'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,9 +41,9 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 8371
-      region: 3540
-      realm: 23
+      world: 9851
+      region: 4531
+      realm: 33
     heroic:
       world: 0
       region: 0
@@ -105,11 +105,35 @@ raid_rankings:
       region: 0
       realm: 0
 members:
+- rank: 4
+  name: Пандашоманко
+  class: Shaman
+  race: Pandaren
+  spec: Enhancement
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
+  avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+  item_level_equipped: 233
 - rank: 3
   name: Скяльди
   class: Demon Hunter
   race: Blood Elf
-  spec: Havoc
+  spec: Devourer
   role: DPS
   gender: male
   faction: horde
@@ -128,7 +152,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 246
+  item_level_equipped: 247
 - rank: 3
   name: Котто
   class: Rogue
@@ -152,8 +176,8 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 232
-- rank: 99
+  item_level_equipped: 234
+- rank: 3
   name: Characternuk
   class: Death Knight
   race: Human
@@ -177,6 +201,30 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 179
+- rank: 4
+  name: Daddyborn
+  class: Warrior
+  race: Human
+  spec: Protection
+  role: TANK
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+  item_level_equipped: 140
 - rank: 3
   name: Булкрит
   class: Paladin
@@ -201,11 +249,11 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 251
-- rank: 99
+- rank: 3
   name: ßøßk
   class: Hunter
   race: Worgen
-  spec: Beast Mastery
+  spec: Marksmanship
   role: DPS
   gender: male
   faction: alliance
@@ -320,7 +368,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 244
+  item_level_equipped: 246
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -393,7 +441,7 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 116
-- rank: 99
+- rank: 3
   name: Allune
   class: Druid
   race: Night Elf
@@ -537,12 +585,12 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 122
-- rank: 99
+- rank: 3
   name: Prayddh
   class: Demon Hunter
   race: Night Elf
-  spec: Vengeance
-  role: TANK
+  spec: Havoc
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -560,7 +608,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 233
+  item_level_equipped: 242
 - rank: 3
   name: Алак
   class: Mage
@@ -608,7 +656,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 168
+  item_level_equipped: 239
 - rank: 1
   name: Lishiy
   class: Warrior
@@ -709,8 +757,8 @@ members:
   name: Smolderfist
   class: Monk
   race: Dark Iron Dwarf
-  spec: Windwalker
-  role: DPS
+  spec: Brewmaster
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -728,7 +776,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 249
+  item_level_equipped: 248
 - rank: 1
   name: Ahilles
   class: Demon Hunter
@@ -801,11 +849,11 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 163
-- rank: 4
+- rank: 1
   name: Lishiyburn
   class: Warlock
   race: Orc
-  spec: Affliction
+  spec: Destruction
   role: DPS
   gender: male
   faction: horde
@@ -824,7 +872,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 111
+  item_level_equipped: 161
 - rank: 4
   name: Valemor
   class: Mage
@@ -949,7 +997,7 @@ members:
   name: Kensshi
   class: Druid
   race: Night Elf
-  spec: Balance
+  spec: Feral
   role: DPS
   gender: male
   faction: alliance
@@ -992,7 +1040,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 252
+  item_level_equipped: 253
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1016,7 +1064,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 244
+  item_level_equipped: 245
 - rank: 3
   name: Christmans
   class: Paladin
@@ -1089,7 +1137,7 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 225
-- rank: 99
+- rank: 3
   name: Нежнаяпулька
   class: Hunter
   race: Night Elf
@@ -1185,12 +1233,12 @@ members:
       score: 0
       color: '#ff8000'
   item_level_equipped: 246
-- rank: 99
+- rank: 3
   name: Тузольд
   class: Death Knight
   race: Night Elf
-  spec: Blood
-  role: TANK
+  spec: Unholy
+  role: DPS
   gender: female
   faction: alliance
   region: eu
@@ -1208,7 +1256,7 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 164
+  item_level_equipped: 239
 - rank: 3
   name: Travka
   class: Druid
@@ -1232,12 +1280,36 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 236
+  item_level_equipped: 250
 - rank: 4
+  name: Зулпот
+  class: Hunter
+  race: Troll
+  spec: Beast Mastery
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Howling Fjord
+  realm_slug: howling-fjord
+  profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
+  avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ff8000'
+    healer:
+      score: 0
+      color: '#ff8000'
+    tank:
+      score: 0
+      color: '#ff8000'
+  item_level_equipped: 233
+- rank: 3
   name: Mólfár
   class: Warlock
   race: Human
-  spec: Affliction
+  spec: Destruction
   role: DPS
   gender: male
   faction: alliance
@@ -1256,8 +1328,8 @@ members:
     tank:
       score: 0
       color: '#ff8000'
-  item_level_equipped: 251
-- rank: 4
+  item_level_equipped: 252
+- rank: 3
   name: Technoihor
   class: Priest
   race: Mechagnome
