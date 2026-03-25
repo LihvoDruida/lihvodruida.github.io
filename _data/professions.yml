@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-25 05:25:11'
+  updated_at: '2026-03-25 16:34:47'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -249,7 +249,37 @@ characters:
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Characternuk
   professions:
-    primaries: []
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Herbalism
+        learned_points: 6
+        max_points: 100
+      - name: Khaz Algar Herbalism
+        learned_points: 23
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 39
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Mining
+        learned_points: 10
+        max_points: 100
+      - name: Khaz Algar Mining
+        learned_points: 8
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 15
+        max_points: 100
     secondaries: []
 - name: Daddyborn
   region: eu
@@ -664,8 +694,41 @@ characters:
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Allune
   professions:
-    primaries: []
-    secondaries: []
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Herbalism
+        learned_points: 69
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 100
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 53
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 8
+        max_points: 300
 - name: Es
   region: eu
   realm: Terokkar
@@ -940,7 +1003,25 @@ characters:
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Prayddh
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 7
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 1
+        max_points: 100
     secondaries: []
 - name: Алак
   region: eu
@@ -1506,7 +1587,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 25
+        learned_points: 26
         max_points: 100
     - name: Tailoring
       id: 197

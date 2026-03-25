@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-25 05:25:11'
+  updated_at: '2026-03-25 16:34:47'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10490
-      region: 4748
+      world: 10740
+      region: 4812
       realm: 37
     heroic:
-      world: 8476
-      region: 4156
-      realm: 29
+      world: 8642
+      region: 4198
+      realm: 30
     mythic:
       world: 0
       region: 0
@@ -133,7 +133,7 @@ members:
   name: Скяльди
   class: Demon Hunter
   race: Blood Elf
-  spec: Devourer
+  spec: Havoc
   role: DPS
   gender: male
   faction: horde
@@ -152,7 +152,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 247
+  item_level_equipped: 246
 - rank: 3
   name: Котто
   class: Rogue
@@ -240,8 +240,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 445
+      color: '#b3ff9b'
     healer:
       score: 0
       color: '#ffffff'
@@ -654,9 +654,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 0
+      score: 170
       color: '#ffffff'
-  item_level_equipped: 249
+  item_level_equipped: 250
 - rank: 1
   name: Lishiy
   class: Warrior
@@ -805,8 +805,8 @@ members:
   name: Ahilles
   class: Demon Hunter
   race: Night Elf
-  spec: Havoc
-  role: DPS
+  spec: Vengeance
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -1059,12 +1059,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 0
-      color: '#ffffff'
+      score: 693.6
+      color: '#2bfb1e'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 256
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1117,8 +1117,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Restoration
-  role: HEALING
+  spec: Balance
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -1254,7 +1254,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 0
+      score: 167.4
       color: '#ffffff'
   item_level_equipped: 246
 - rank: 3
@@ -1344,15 +1344,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 230
+      color: '#f7fff4'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 254
 - rank: 3
   name: Technoihor
   class: Priest
