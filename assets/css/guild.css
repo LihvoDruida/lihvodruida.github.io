@@ -810,7 +810,8 @@
   text-decoration: none;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  isolation: isolate;
   min-width: 0;
   box-shadow:
     0 14px 34px rgba(0,0,0,0.20),
@@ -821,6 +822,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   border-radius: inherit;
   background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent 42%);
   pointer-events: none;
