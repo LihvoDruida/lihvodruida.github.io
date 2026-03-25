@@ -1,4 +1,28 @@
-<a href="{{ include.char.profile_url }}" target="_blank" class="member-card faction-{{ include.char.faction | downcase }}">
+{% assign tank_score = include.char.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
+{% assign healer_score = include.char.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
+{% assign dps_score = include.char.mythic_plus_scores.dps.score | default: 0 | plus: 0 %}
+{% assign best_score = dps_score %}
+{% assign best_role = "dps" %}
+{% assign best_color = include.char.mythic_plus_scores.dps.color | default: "#ffffff" %}
+
+{% if healer_score > best_score %}
+  {% assign best_score = healer_score %}
+  {% assign best_role = "healer" %}
+  {% assign best_color = include.char.mythic_plus_scores.healer.color | default: "#ffffff" %}
+{% endif %}
+
+{% if tank_score > best_score %}
+  {% assign best_score = tank_score %}
+  {% assign best_role = "tank" %}
+  {% assign best_color = include.char.mythic_plus_scores.tank.color | default: "#ffffff" %}
+{% endif %}
+
+{% if best_score <= 0 %}
+  {% assign best_role = "none" %}
+  {% assign best_color = "#d6d9de" %}
+{% endif %}
+
+<a href="{{ include.char.profile_url }}" target="_blank" class="member-card faction-{{ include.char.faction | downcase }}" data-member-name="{{ include.char.name | escape }}" data-member-class="{{ include.char.class | escape }}" data-member-spec="{{ include.char.spec | escape }}" data-rio-best-score="{{ best_score }}" data-rio-best-role="{{ best_role }}" data-rio-best-color="{{ best_color }}">
   <div class="avatar-wrapper">
     {% if include.char.avatar %}
       <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">

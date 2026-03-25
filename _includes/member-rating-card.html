@@ -1,0 +1,86 @@
+{% assign tank_score = include.char.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
+{% assign healer_score = include.char.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
+{% assign dps_score = include.char.mythic_plus_scores.dps.score | default: 0 | plus: 0 %}
+{% assign best_score = dps_score %}
+{% assign best_role = "dps" %}
+{% assign best_color = include.char.mythic_plus_scores.dps.color | default: "#ffffff" %}
+{% assign best_role_label = "DPS" %}
+
+{% if healer_score > best_score %}
+  {% assign best_score = healer_score %}
+  {% assign best_role = "healer" %}
+  {% assign best_color = include.char.mythic_plus_scores.healer.color | default: "#ffffff" %}
+  {% assign best_role_label = "Хіл" %}
+{% endif %}
+
+{% if tank_score > best_score %}
+  {% assign best_score = tank_score %}
+  {% assign best_role = "tank" %}
+  {% assign best_color = include.char.mythic_plus_scores.tank.color | default: "#ffffff" %}
+  {% assign best_role_label = "Танк" %}
+{% endif %}
+
+{% if best_score <= 0 %}
+  {% assign best_role = "none" %}
+  {% assign best_color = "#d6d9de" %}
+  {% assign best_role_label = "Без даних" %}
+{% endif %}
+
+<a href="{{ include.char.profile_url }}" target="_blank" rel="noopener noreferrer" class="ranking-card faction-{{ include.char.faction | downcase }}" data-ranking-score="{{ best_score }}" data-ranking-name="{{ include.char.name | downcase | escape }}" data-ranking-search="{{ include.char.name }} {{ include.char.realm }} {{ include.char.class }} {{ include.char.spec }} {{ best_role_label }}" data-ranking-role="{{ best_role }}">
+  <div class="ranking-position" aria-hidden="true">
+    <span class="ranking-position-value">#1</span>
+  </div>
+
+  <div class="avatar-wrapper ranking-avatar">
+    {% if include.char.avatar %}
+      <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">
+    {% else %}
+      <div class="placeholder">{{ include.char.name | slice: 0 }}</div>
+    {% endif %}
+  </div>
+
+  <div class="ranking-main">
+    <div class="ranking-header-row">
+      <div class="ranking-identity">
+        <div class="char-name-row">
+          <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">{{ include.char.name }}</span>
+          <span class="char-realm">{{ include.char.region | upcase }}-{{ include.char.realm }}</span>
+        </div>
+        <span class="char-meta">{{ include.char.spec | capitalize }} {{ include.char.class | capitalize }} • {{ include.char.race | capitalize }}</span>
+      </div>
+
+      <div class="ranking-summary-badges">
+        <span class="ranking-role-chip ranking-role-{{ best_role }}"{% if best_role != 'none' %} style="color: {{ best_color }}; border-color: {{ best_color }}40;"{% endif %}>{{ best_role_label }}</span>
+        {% if include.char.item_level_equipped and include.char.item_level_equipped > 0 %}
+          <span class="ilvl-badge member-chip" aria-label="Item level {{ include.char.item_level_equipped }}">
+            <span class="chip-value">{{ include.char.item_level_equipped }}</span>
+          </span>
+        {% endif %}
+        {% include rank-badge.html rank=include.char.rank %}
+      </div>
+    </div>
+
+    <div class="ranking-score-row">
+      <div class="ranking-score-block">
+        <span class="ranking-score-label">Raider.IO M+</span>
+        <span class="ranking-score-value"{% if best_score > 0 %} style="color: {{ best_color }};"{% endif %}>{{ best_score | round: 1 }}</span>
+      </div>
+
+      {% if include.char.mythic_plus_scores and best_score > 0 %}
+        <div class="rio-scores ranking-rio-breakdown">
+          {% if include.char.mythic_plus_scores.tank.score > 0 %}
+            {% include rio-pill.html role="tank" score=include.char.mythic_plus_scores.tank.score color=include.char.mythic_plus_scores.tank.color %}
+          {% endif %}
+          {% if include.char.mythic_plus_scores.healer.score > 0 %}
+            {% include rio-pill.html role="healer" score=include.char.mythic_plus_scores.healer.score color=include.char.mythic_plus_scores.healer.color %}
+          {% endif %}
+          {% if include.char.mythic_plus_scores.dps.score > 0 %}
+            {% include rio-pill.html role="dps" score=include.char.mythic_plus_scores.dps.score color=include.char.mythic_plus_scores.dps.color %}
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="ranking-empty-note">M+ активність ще не зафіксована</div>
+      {% endif %}
+    </div>
+  </div>
+</a>

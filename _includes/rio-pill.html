@@ -6,13 +6,13 @@
 
 {% case role %}
   {% when 'tank' %}
-    {% assign label = "Tank Score" %}
+    {% assign label = "Рейтинг танка" %}
     {% assign role_class = "is-tank" %}
   {% when 'healer' %}
-    {% assign label = "Healer Score" %}
+    {% assign label = "Рейтинг хіла" %}
     {% assign role_class = "is-healer" %}
   {% when 'dps' %}
-    {% assign label = "DPS Score" %}
+    {% assign label = "Рейтинг DPS" %}
     {% assign role_class = "is-dps" %}
 {% endcase %}
 

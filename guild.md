@@ -311,7 +311,7 @@ permalink: /guild/
         </div>
         <div class="title-wrapper">
           <h2 class="section-title">Склад Гільдії</h2>
-          <span class="subtitle">Активний склад</span>
+          <span class="subtitle">Склад, професії та M+ рейтинг</span>
         </div>
       </div>
       
@@ -326,8 +326,9 @@ permalink: /guild/
     {% assign dps = site.data.guild.members | where: "role", "DPS" %}
     {% assign others = site.data.guild.members | where: "role", nil %}
 
-    <div class="guild-tab-switcher" role="tablist" aria-label="Перемикач між складом і професіями">
+    <div class="guild-tab-switcher" role="tablist" aria-label="Перемикач між складом, рейтингом і професіями">
       <button type="button" class="guild-tab-button is-active" id="guild-tab-button-roster" data-guild-tab-target="roster" role="tab" aria-selected="true" aria-controls="guild-tab-panel-roster">Склад</button>
+      <button type="button" class="guild-tab-button" id="guild-tab-button-ranking" data-guild-tab-target="ranking" role="tab" aria-selected="false" aria-controls="guild-tab-panel-ranking">Рейтинг</button>
       <button type="button" class="guild-tab-button" id="guild-tab-button-professions" data-guild-tab-target="professions" role="tab" aria-selected="false" aria-controls="guild-tab-panel-professions">Професії</button>
     </div>
 
@@ -389,7 +390,7 @@ permalink: /guild/
         {% if others.size > 0 %}
         <div class="role-column">
           <div class="role-header other-header">
-            <span class="role-icon" aria-hidden="true">?</span> Невизначились
+            <span class="role-icon" aria-hidden="true">?</span> Інші
           </div>
           <div class="member-grid">
             {% for char in others %}
@@ -402,6 +403,35 @@ permalink: /guild/
       </div>
     </div>
 
+    <div class="guild-tab-panel" id="guild-tab-panel-ranking" data-guild-tab-panel="ranking" role="tabpanel" aria-labelledby="guild-tab-button-ranking" hidden>
+      <div class="ranking-panel-intro">
+        <div>
+          <div class="ranking-panel-title">Рейтинг Raider.IO</div>
+          <p class="ranking-panel-description">Сортування за найвищим Mythic+ рейтингом персонажа серед доступних ролей.</p>
+        </div>
+        <div class="ranking-chip">M+ рейтинг</div>
+      </div>
+
+      <div class="roster-tools" aria-label="Пошук по рейтингу гільдії">
+        <label class="roster-search" for="ranking-search-input">
+          <span class="roster-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l5.44 5.44a1 1 0 0 1-1.41 1.41l-5.44-5.44A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9"/></svg>
+          </span>
+          <input id="ranking-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку, класу або ролі" autocomplete="off" spellcheck="false" inputmode="search">
+          <button type="button" class="roster-search-clear" id="ranking-search-clear" aria-label="Очистити пошук" hidden>×</button>
+        </label>
+        <div class="roster-search-meta" id="ranking-search-meta">Позицій: {{ site.data.guild.members | size }}</div>
+      </div>
+
+      <p class="roster-empty" id="ranking-empty" hidden>Нічого не знайдено. Спробуй інший нік, клас або роль.</p>
+
+      <div class="ranking-list" id="ranking-list">
+        {% for char in site.data.guild.members %}
+          {% include member-rating-card.html char=char %}
+        {% endfor %}
+      </div>
+    </div>
+
     <div class="guild-tab-panel" id="guild-tab-panel-professions" data-guild-tab-panel="professions" role="tabpanel" aria-labelledby="guild-tab-button-professions" hidden>
       <div class="roster-tools" aria-label="Пошук по професіях гільдії">
         <label class="roster-search" for="profession-search-input">
@@ -411,7 +441,7 @@ permalink: /guild/
           <input id="profession-search-input" class="roster-search-input" type="search" placeholder="Пошук по професії або ніку" autocomplete="off" spellcheck="false" inputmode="search">
           <button type="button" class="roster-search-clear" id="profession-search-clear" aria-label="Очистити пошук" hidden>×</button>
         </label>
-        <div class="roster-search-meta" id="profession-search-meta">Показано всіх</div>
+        <div class="roster-search-meta" id="profession-search-meta">Показано всіх: {{ site.data.professions.characters | size }}</div>
       </div>
 
       <p class="roster-empty" id="profession-empty" hidden>Нічого не знайдено. Спробуй іншу професію або нік.</p>
@@ -473,7 +503,7 @@ permalink: /guild/
               {% endif %}
               {% if cooking_profession %}
               <div class="profession-block">
-                <div class="profession-block-title">Cooking</div>
+                <div class="profession-block-title">Кулінарія</div>
                 <div class="profession-list">
                   <div class="profession-entry">
                     <div class="profession-entry-title-row">
