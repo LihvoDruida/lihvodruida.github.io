@@ -2662,23 +2662,6 @@
     justify-content: flex-start;
   }
 
-  .ranking-panel-intro {
-    padding: 14px 16px;
-    border-radius: 18px;
-  }
-
-  .roster-tools {
-    align-items: stretch;
-  }
-
-  .roster-search {
-    width: 100%;
-  }
-
-  .roster-search-meta {
-    width: 100%;
-  }
-
   .profession-grid {
     grid-template-columns: 1fr;
   }
@@ -2686,10 +2669,6 @@
 
 
 @media (max-width: 640px) {
-  .ranking-list {
-    gap: 12px;
-  }
-
   .ranking-card {
     grid-template-columns: 60px 52px minmax(0, 1fr);
     gap: 12px;
@@ -2713,259 +2692,25 @@
     height: 52px;
     border-radius: 14px;
   }
-
-  .ranking-summary-badges {
-    gap: 6px;
-  }
-
-  .ranking-role-chip,
-  .ranking-summary-badges .member-chip,
-  .ranking-summary-badges .rank-badge {
-    min-height: 32px;
-  }
 }
 
 @media (max-width: 520px) {
-  .ranking-panel-intro {
-    gap: 12px;
-    padding: 13px 14px;
-    border-radius: 16px;
-  }
-
-  .ranking-panel-description {
-    font-size: 0.84rem;
-    line-height: 1.45;
-  }
-
-  .ranking-chip {
-    min-height: 30px;
-    padding: 0 11px;
-    font-size: 0.68rem;
-    letter-spacing: 0.07em;
-  }
-
   .ranking-card {
-    grid-template-columns: 46px minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    gap: 6px 12px;
-    align-items: start;
-    padding: 13px;
-    border-radius: 18px;
+    grid-template-columns: 1fr;
+  }
+
+  .ranking-position {
+    width: 58px;
+    min-height: 58px;
   }
 
   .ranking-avatar {
-    grid-column: 1;
-    grid-row: 1;
-    margin-top: 0;
-    align-self: end;
+    margin-top: -6px;
   }
 
-  .ranking-avatar img,
-  .ranking-avatar .placeholder {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-  }
-
-  .ranking-position {
-    grid-column: 1;
-    grid-row: 2;
-    width: 46px;
-    min-height: 34px;
-    border-radius: 12px;
-    align-self: start;
-  }
-
-  .ranking-position-value {
-    font-size: 0.86rem;
-  }
-
-  .ranking-main {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
-    gap: 10px;
-    padding-top: 1px;
-  }
-
-  .ranking-header-row {
-    gap: 10px;
-  }
-
-  .ranking-summary-badges {
-    width: 100%;
-    gap: 6px;
-  }
-
-  .ranking-role-chip,
-  .ranking-summary-badges .member-chip,
-  .ranking-summary-badges .rank-badge {
-    min-height: 30px;
-    padding-inline: 10px;
-  }
-
-  .ranking-role-chip {
-    font-size: 0.68rem;
-    letter-spacing: 0.035em;
-  }
-
-  .ranking-summary-badges .member-chip .chip-value,
-  .ranking-summary-badges .rank-badge {
+  .ranking-chip {
+    min-height: 32px;
+    padding: 0 12px;
     font-size: 0.72rem;
-  }
-
-  .ranking-score-row {
-    gap: 10px;
-  }
-
-  .ranking-score-block {
-    min-width: 0;
-  }
-
-  .ranking-score-label {
-    font-size: 0.68rem;
-  }
-
-  .ranking-score-value {
-    font-size: 1.3rem;
-  }
-
-  .ranking-rio-breakdown {
-    width: 100%;
-    gap: 6px;
-  }
-
-  .ranking-empty-note {
-    font-size: 0.78rem;
-    line-height: 1.4;
-  }
-
-  .ranking-identity .char-meta {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .ranking-identity .char-name-row {
-    gap: 6px;
-  }
-
-  .ranking-identity .char-realm {
-    min-height: 23px;
-    padding: 0 8px;
-    font-size: 0.58rem;
-    letter-spacing: 0.04em;
-  }
-}
-
-@media (max-width: 420px) {
-  .ranking-card {
-    grid-template-columns: 42px minmax(0, 1fr);
-    gap: 5px 10px;
-    padding: 12px;
-    border-radius: 17px;
-  }
-
-  .ranking-avatar img,
-  .ranking-avatar .placeholder {
-    width: 42px;
-    height: 42px;
-    border-radius: 11px;
-  }
-
-  .ranking-position {
-    width: 42px;
-    min-height: 31px;
-    border-radius: 11px;
-  }
-
-  .ranking-position-value {
-    font-size: 0.8rem;
-  }
-
-  .ranking-main {
-    gap: 9px;
-  }
-
-  .ranking-identity .char-name {
-    font-size: 0.96rem;
-  }
-
-  .ranking-identity .char-meta {
-    font-size: 0.71rem;
-    -webkit-line-clamp: 2;
-  }
-
-  .ranking-summary-badges {
-    gap: 5px;
-  }
-
-  .ranking-role-chip,
-  .ranking-summary-badges .member-chip,
-  .ranking-summary-badges .rank-badge {
-    min-height: 28px;
-    padding-inline: 9px;
-  }
-
-  .ranking-summary-badges .member-chip .chip-value,
-  .ranking-summary-badges .rank-badge,
-  .ranking-role-chip {
-    font-size: 0.68rem;
-  }
-
-  .ranking-rio-breakdown {
-    gap: 5px;
-  }
-
-  .ranking-rio-breakdown .rio-pill {
-    padding: 1px 5px;
-    font-size: 0.68rem;
-  }
-
-  .ranking-rio-breakdown .rio-pill .role-icon {
-    width: 12px;
-    height: 12px;
-    flex-basis: 12px;
-  }
-}
-
-@media (max-width: 360px) {
-  .ranking-card {
-    grid-template-columns: 38px minmax(0, 1fr);
-    gap: 4px 9px;
-    padding: 11px;
-  }
-
-  .ranking-avatar img,
-  .ranking-avatar .placeholder {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-  }
-
-  .ranking-position {
-    width: 38px;
-    min-height: 28px;
-    border-radius: 10px;
-  }
-
-  .ranking-position-value {
-    font-size: 0.75rem;
-  }
-
-  .ranking-identity .char-name {
-    font-size: 0.92rem;
-  }
-
-  .ranking-identity .char-realm {
-    min-height: 21px;
-    padding: 0 7px;
-    font-size: 0.54rem;
-  }
-
-  .ranking-score-value {
-    font-size: 1.18rem;
   }
 }
