@@ -10,13 +10,13 @@
     realm: Terokkar
   dps:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   healer:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   tank:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
 - name: Krouli
   race: Night Elf
   class: Demon Hunter
@@ -29,13 +29,13 @@
     realm: Terokkar
   dps:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   healer:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   tank:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
 - name: Sebas
   race: Night Elf
   class: Druid
@@ -48,10 +48,10 @@
     realm: Ravencrest
   dps:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   healer:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
   tank:
     score: 0
-    color: '#ff8000'
+    color: '#ffffff'
