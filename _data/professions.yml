@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-25 17:53:07'
+  updated_at: '2026-03-25 20:29:40'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -206,6 +206,15 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Котто
   professions:
     primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 16
+        max_points: 100
     - name: Herbalism
       id: 182
       tiers:
@@ -213,16 +222,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 61
-        max_points: 100
-    - name: Alchemy
-      id: 171
-      tiers:
-      - name: Classic Alchemy
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Alchemy
-        learned_points: 1
+        learned_points: 63
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2475,7 +2475,7 @@ characters:
         learned_points: 8
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 103
+        learned_points: 104
         max_points: 105
     - name: Alchemy
       id: 171

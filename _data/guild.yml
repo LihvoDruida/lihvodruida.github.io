@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-25 17:53:07'
+  updated_at: '2026-03-25 20:29:40'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10761
-      region: 4824
+      world: 10881
+      region: 4921
       realm: 37
     heroic:
-      world: 8656
-      region: 4207
+      world: 8757
+      region: 4288
       realm: 30
     mythic:
       world: 0
@@ -240,15 +240,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 490
-      color: '#9eff83'
+      score: 1140.4
+      color: '#5fb890'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 256
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -888,15 +888,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 368.4
+      color: '#d1ffc0'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 161
+  item_level_equipped: 214
 - rank: 4
   name: Valemor
   class: Mage
@@ -1059,12 +1059,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 693.6
-      color: '#2bfb1e'
+      score: 996.5
+      color: '#5cce75'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 255
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1131,12 +1131,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 0
-      color: '#ffffff'
+      score: 368.4
+      color: '#d1ffc0'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 253
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -1200,15 +1200,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 368.4
+      color: '#d1ffc0'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 253
 - rank: 3
   name: Shennái
   class: Priest
@@ -1254,9 +1254,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 167.4
-      color: '#ffffff'
-  item_level_equipped: 246
+      score: 535.8
+      color: '#8fff73'
+  item_level_equipped: 247
 - rank: 3
   name: Тузольд
   class: Death Knight
@@ -1345,7 +1345,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 492.9
-      color: '#9eff83'
+      color: '#a4ff8a'
     healer:
       score: 0
       color: '#ffffff'
