@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 01:19:17'
+  updated_at: '2026-03-26 05:28:44'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2528,7 +2528,7 @@ characters:
         learned_points: 8
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 104
+        learned_points: 105
         max_points: 105
     - name: Alchemy
       id: 171
