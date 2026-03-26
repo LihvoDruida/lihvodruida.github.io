@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-25 20:29:40'
+  updated_at: '2026-03-26 01:19:17'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10881
-      region: 4921
-      realm: 37
+      world: 11155
+      region: 5123
+      realm: 39
     heroic:
-      world: 8757
-      region: 4288
-      realm: 30
+      world: 9030
+      region: 4461
+      realm: 33
     mythic:
       world: 0
       region: 0
@@ -240,8 +240,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1140.4
-      color: '#5fb890'
+      score: 1563.1
+      color: '#4989c2'
     healer:
       score: 0
       color: '#ffffff'
@@ -798,9 +798,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 250
+      score: 760.8
+      color: '#32f829'
+  item_level_equipped: 251
 - rank: 1
   name: Ahilles
   class: Demon Hunter
@@ -889,7 +889,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 368.4
-      color: '#d1ffc0'
+      color: '#d4ffc3'
     healer:
       score: 0
       color: '#ffffff'
@@ -921,6 +921,30 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 660
+- rank: 99
+  name: Norddemon
+  class: Shaman
+  race: Troll
+  spec: Restoration
+  role: HEALING
+  gender: female
+  faction: horde
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Norddemon
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/221/223459293-avatar.jpg?alt=/wow/static/images/2d/avatar/8-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 697.4
+      color: '#40ff27'
+    tank:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 255
 - rank: 3
   name: Дупця
   class: Demon Hunter
@@ -1059,12 +1083,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 996.5
-      color: '#5cce75'
+      score: 1513.9
+      color: '#5090bb'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 256
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1128,15 +1152,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 495.7
+      color: '#aaff90'
     healer:
-      score: 368.4
-      color: '#d1ffc0'
+      score: 578
+      color: '#80ff64'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 254
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -1200,8 +1224,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 368.4
-      color: '#d1ffc0'
+      score: 1271.9
+      color: '#5fb198'
     healer:
       score: 0
       color: '#ffffff'
@@ -1237,8 +1261,8 @@ members:
   name: Athang
   class: Monk
   race: Haranir
-  spec: Brewmaster
-  role: TANK
+  spec: Windwalker
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -1254,9 +1278,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 535.8
-      color: '#8fff73'
-  item_level_equipped: 247
+      score: 705
+      color: '#1eff00'
+  item_level_equipped: 246
 - rank: 3
   name: Тузольд
   class: Death Knight
@@ -1344,15 +1368,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 492.9
-      color: '#a4ff8a'
+      score: 1073
+      color: '#5ec67f'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 254
+  item_level_equipped: 255
 - rank: 3
   name: Technoihor
   class: Priest
