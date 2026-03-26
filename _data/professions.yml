@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 16:53:31'
+  updated_at: '2026-03-26 20:27:30'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1599,9 +1599,15 @@ characters:
         learned_points: 54
         max_points: 100
     secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
     - name: Cooking
       id: 185
       tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
@@ -2219,7 +2225,7 @@ characters:
         learned_points: 32
         max_points: 100
       - name: Khaz Algar Skinning
-        learned_points: 89
+        learned_points: 90
         max_points: 100
       - name: Midnight Skinning
         learned_points: 100
@@ -2268,7 +2274,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Khaz Algar Cooking
-        learned_points: 86
+        learned_points: 95
         max_points: 100
       - name: Midnight Cooking
         learned_points: 100
