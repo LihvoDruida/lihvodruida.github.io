@@ -113,7 +113,7 @@
   background: transparent;
   border: 1px solid rgba(255,255,255,.1);
   padding: 14px 26px;
-  border-radius: 30px;
+  border-radius: var(--control-radius);
   cursor: pointer;
   transition: all .25s ease;
   font-weight: 600;

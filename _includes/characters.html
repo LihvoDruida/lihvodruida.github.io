@@ -19,17 +19,19 @@
             {% endif %}
           </div>
 
-          <div class="scores">
-            {% if char.healer.score > 0 %}
-              <span class="score-tag" style="color: {{ char.healer.color }}">Heal: {{ char.healer.score }}</span>
-            {% endif %}
-            {% if char.dps.score > 0 %}
-              <span class="score-tag" style="color: {{ char.dps.color }}">DPS: {{ char.dps.score }}</span>
-            {% endif %}
-            {% if char.tank.score > 0 %}
-              <span class="score-tag" style="color: {{ char.tank.color }}">Tank: {{ char.tank.score }}</span>
-            {% endif %}
-          </div>
+          {% if char.tank.score > 0 or char.healer.score > 0 or char.dps.score > 0 %}
+            <div class="rio-scores home-rio-scores">
+              {% if char.tank.score > 0 %}
+                {% include rio-pill.html role="tank" score=char.tank.score color=char.tank.color %}
+              {% endif %}
+              {% if char.healer.score > 0 %}
+                {% include rio-pill.html role="healer" score=char.healer.score color=char.healer.color %}
+              {% endif %}
+              {% if char.dps.score > 0 %}
+                {% include rio-pill.html role="dps" score=char.dps.score color=char.dps.color %}
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
       </a>
     {% endfor %}

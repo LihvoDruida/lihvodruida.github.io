@@ -11,4 +11,5 @@
   --text-primary: #fff;
   --muted: #9c948a;
   --text-secondary: hsla(0, 0%, 100%, .7);
+  --control-radius: 14px;
 }

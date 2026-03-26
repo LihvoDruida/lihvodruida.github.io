@@ -120,7 +120,7 @@
 .wow-tip-large {
     background: #0b0d12; /* Very dark inner box */
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
+    border-radius: var(--control-radius);
     padding: 16px 20px;
     margin-bottom: 30px;
     text-align: left;
@@ -199,7 +199,7 @@
     padding: 12px 24px;
     font-size: 0.9rem;
     font-weight: 700;
-    border-radius: 8px;
+    border-radius: var(--control-radius);
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;

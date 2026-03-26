@@ -320,7 +320,7 @@ h3 {
     backdrop-filter: blur(16px);        /* Сильне розмиття фону */
     -webkit-backdrop-filter: blur(16px);
     
-    border-radius: 12px;
+    border-radius: var(--control-radius);
     border: 1px solid rgba(255, 190, 120, 0.08); /* Тонкий акцент */
     
     /* Складна тінь для глибини */
@@ -523,6 +523,7 @@ h3 {
     gap: 16px;
     min-height: 100px;
     cursor: pointer;
+    overflow: visible;
 }
 
 #characters .character:hover {
@@ -549,6 +550,21 @@ h3 {
 .guild { font-size: 12px; color: var(--accent); margin-top: 2px; }
 
 .scores { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.home-rio-scores {
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.home-rio-scores .member-chip {
+    min-height: 30px;
+    min-width: 50px;
+    padding: 0 10px;
+}
+
+.home-rio-scores .member-chip .chip-value {
+    font-size: 0.72rem;
+}
+
 .score-tag {
     font-size: 11px; font-weight: bold;
     text-transform: uppercase;
@@ -619,7 +635,7 @@ h3 {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    border-radius: 12px;
+    border-radius: var(--control-radius);
     transition: var(--transition-fast);
     font-weight: 600;
     cursor: pointer;
@@ -1098,6 +1114,8 @@ code,
     .socials-links { width: 100%; flex-direction: column; gap: 10px; }
     
     .scores { justify-content: center; }
+    .home-rio-scores { justify-content: flex-start; }
+    .home-rio-scores .member-chip { min-height: 28px; padding: 0 9px; }
     .news-card { padding: 15px; }
     .card-title { font-size: 1.1rem; }
 }
