@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 12:51:39'
+  updated_at: '2026-03-26 16:43:57'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11570
-      region: 5223
+      world: 11656
+      region: 5240
       realm: 41
     heroic:
-      world: 9485
-      region: 4509
+      world: 9573
+      region: 4523
       realm: 33
     mythic:
       world: 0
@@ -240,15 +240,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1563.1
-      color: '#5192b9'
+      score: 1853.4
+      color: '#1873da'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 257
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -799,7 +799,7 @@ members:
       color: '#ffffff'
     tank:
       score: 760.8
-      color: '#29fc1a'
+      color: '#29fc19'
   item_level_equipped: 251
 - rank: 1
   name: Ahilles
@@ -1083,12 +1083,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1513.9
-      color: '#5698b3'
+      score: 1554.1
+      color: '#5496b5'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 255
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1271.9
-      color: '#5fb790'
+      color: '#5fba8d'
     healer:
       score: 0
       color: '#ffffff'
@@ -1393,7 +1393,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1595.7
-      color: '#4b8bc0'
+      color: '#5090bb'
     healer:
       score: 0
       color: '#ffffff'
