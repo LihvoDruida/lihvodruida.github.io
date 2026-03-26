@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 05:28:44'
+  updated_at: '2026-03-26 08:43:12'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11404
-      region: 5179
+      world: 11484
+      region: 5206
       realm: 41
     heroic:
-      world: 9290
-      region: 4486
+      world: 9365
+      region: 4496
       realm: 33
     mythic:
       world: 0
@@ -1165,8 +1165,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Restoration
-  role: HEALING
+  spec: Elemental
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -1176,15 +1176,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 591.1
+      color: '#89ff6c'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 225
+  item_level_equipped: 247
 - rank: 3
   name: Нежнаяпулька
   class: Hunter
@@ -1209,6 +1209,30 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 240
+- rank: 99
+  name: Oxydenis
+  class: Paladin
+  race: Human
+  spec: Retribution
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    dps:
+      score: 591.1
+      color: '#89ff6c'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 251
 - rank: 1
   name: Пизнайка
   class: Druid

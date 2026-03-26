@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 05:28:44'
+  updated_at: '2026-03-26 08:43:12'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2308,6 +2308,41 @@ characters:
         max_points: 100
       - name: Midnight Fishing
         learned_points: 136
+        max_points: 300
+- name: Oxydenis
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Engineering
+        learned_points: 5
+        max_points: 100
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 54
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 4
         max_points: 300
 - name: Пизнайка
   region: eu
