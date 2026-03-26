@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-26 08:43:12'
+  updated_at: '2026-03-26 12:51:39'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11484
-      region: 5206
+      world: 11570
+      region: 5223
       realm: 41
     heroic:
-      world: 9365
-      region: 4496
+      world: 9485
+      region: 4509
       realm: 33
     mythic:
       world: 0
@@ -1392,15 +1392,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1073
-      color: '#5ad171'
+      score: 1595.7
+      color: '#4b8bc0'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 257
 - rank: 3
   name: Technoihor
   class: Priest
