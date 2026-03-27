@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 08:41:04'
+  updated_at: '2026-03-27 12:40:19'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12431
-      region: 5537
+      world: 12545
+      region: 5544
       realm: 46
     heroic:
-      world: 10579
-      region: 4857
+      world: 10730
+      region: 4866
       realm: 40
     mythic:
       world: 0
@@ -213,7 +213,7 @@ members:
   realm: Silvermoon
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn
-  avatar: null
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
       score: 0
@@ -224,7 +224,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 0
+  item_level_equipped: 226
 - rank: 3
   name: Булкрит
   class: Paladin
@@ -241,7 +241,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2259.5
-      color: '#685fe4'
+      color: '#6161e3'
     healer:
       score: 0
       color: '#ffffff'
@@ -1083,8 +1083,8 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1778.5
-      color: '#4d8dbf'
+      score: 2076.9
+      color: '#0070dd'
     tank:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1271.9
-      color: '#5dcb79'
+      color: '#5ccc77'
     healer:
       score: 0
       color: '#ffffff'
@@ -1393,7 +1393,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1595.7
-      color: '#5aa1a9'
+      color: '#5ba3a7'
     healer:
       score: 0
       color: '#ffffff'
