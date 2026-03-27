@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 16:43:08'
+  updated_at: '2026-03-27 20:27:02'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -888,6 +888,68 @@ characters:
       - name: Dragon Isles Fishing
         learned_points: 20
         max_points: 100
+- name: Лилая
+  region: eu
+  realm: Grom
+  realm_slug: grom
+  profile_url: https://raider.io/characters/eu/grom/Лилая
+  professions:
+    primaries:
+    - name: Inscription
+      id: 773
+      tiers:
+      - name: Classic Inscription
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Inscription
+        learned_points: 96
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Draenor Alchemy
+        learned_points: 6
+        max_points: 100
+      - name: Cataclysm Alchemy
+        learned_points: 1
+        max_points: 75
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Alchemy
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Alchemy
+        learned_points: 54
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 25
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Ironbelly
   region: eu
   realm: Silvermoon

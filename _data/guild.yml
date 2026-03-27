@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 16:43:08'
+  updated_at: '2026-03-27 20:27:02'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12783
-      region: 5563
+      world: 13098
+      region: 5615
       realm: 46
     heroic:
-      world: 10960
-      region: 4883
-      realm: 40
+      world: 11262
+      region: 4951
+      realm: 41
     mythic:
       world: 0
       region: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#58ff3d'
+      color: '#6aff4f'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -240,15 +240,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2281.3
-      color: '#5c63e3'
+      score: 2353.2
+      color: '#6a5ee5'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -537,6 +537,30 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 97
+- rank: 99
+  name: Лилая
+  class: Druid
+  race: Night Elf
+  spec: Balance
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Grom
+  realm_slug: grom
+  profile_url: https://raider.io/characters/eu/grom/Лилая
+  avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    dps:
+      score: 338.7
+      color: '#e8ffde'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 240
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -697,7 +721,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 409.3
-      color: '#d6ffc6'
+      color: '#d9ffca'
     healer:
       score: 0
       color: '#ffffff'
@@ -799,7 +823,7 @@ members:
       color: '#ffffff'
     tank:
       score: 760.8
-      color: '#77ff5b'
+      color: '#84ff68'
   item_level_equipped: 251
 - rank: 1
   name: Ahilles
@@ -888,15 +912,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 368.4
-      color: '#e1ffd4'
+      score: 579.6
+      color: '#b3ff9b'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 214
+  item_level_equipped: 237
 - rank: 4
   name: Valemor
   class: Mage
@@ -939,8 +963,8 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 866.6
-      color: '#4aff30'
+      score: 1373.9
+      color: '#5dcb79'
     tank:
       score: 0
       color: '#ffffff'
@@ -1083,8 +1107,8 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2076.9
-      color: '#1773da'
+      score: 2194.4
+      color: '#236ede'
     tank:
       score: 0
       color: '#ffffff'
@@ -1153,10 +1177,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#28fc19'
+      color: '#37ff1e'
     healer:
-      score: 746.2
-      color: '#80ff64'
+      score: 957.4
+      color: '#1eff00'
     tank:
       score: 0
       color: '#ffffff'
@@ -1177,7 +1201,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#acff93'
+      color: '#b3ff9b'
     healer:
       score: 0
       color: '#ffffff'
@@ -1200,7 +1224,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 0
+      score: 165.3
       color: '#ffffff'
     healer:
       score: 0
@@ -1208,7 +1232,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 240
+  item_level_equipped: 243
 - rank: 99
   name: Oxydenis
   class: Paladin
@@ -1225,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#acff93'
+      color: '#b3ff9b'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1273,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1271.9
-      color: '#5ad270'
+      color: '#57d769'
     healer:
       score: 0
       color: '#ffffff'
@@ -1303,7 +1327,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#89ff6c'
+      color: '#93ff77'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1321,7 +1345,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 392.6
-      color: '#dbffcd'
+      color: '#deffd0'
     healer:
       score: 0
       color: '#ffffff'
@@ -1368,15 +1392,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     dps:
-      score: 769.9
-      color: '#77ff5b'
+      score: 978.8
+      color: '#29fc19'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 248
+  item_level_equipped: 252
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -1392,8 +1416,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1595.7
-      color: '#5da9a1'
+      score: 1886.6
+      color: '#4a8ac2'
     healer:
       score: 0
       color: '#ffffff'
