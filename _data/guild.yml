@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 01:19:03'
+  updated_at: '2026-03-27 05:29:34'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12063
-      region: 5477
+      world: 12329
+      region: 5524
       realm: 46
     heroic:
-      world: 10119
-      region: 4813
-      realm: 39
+      world: 10462
+      region: 4850
+      realm: 40
     mythic:
       world: 0
       region: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#28fc19'
+      color: '#1eff00'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -241,7 +241,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2259.5
-      color: '#6e5ce5'
+      color: '#6b5de5'
     healer:
       score: 0
       color: '#ffffff'
@@ -697,7 +697,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 409.3
-      color: '#ccffba'
+      color: '#d1ffbf'
     healer:
       score: 0
       color: '#ffffff'
@@ -799,7 +799,7 @@ members:
       color: '#ffffff'
     tank:
       score: 760.8
-      color: '#4fff35'
+      color: '#5cff41'
   item_level_equipped: 251
 - rank: 1
   name: Ahilles
@@ -889,7 +889,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 368.4
-      color: '#daffcb'
+      color: '#ddffcf'
     healer:
       score: 0
       color: '#ffffff'
@@ -940,7 +940,7 @@ members:
       color: '#ffffff'
     healer:
       score: 866.6
-      color: '#30f926'
+      color: '#29fc19'
     tank:
       score: 0
       color: '#ffffff'
@@ -1084,7 +1084,7 @@ members:
       color: '#ffffff'
     healer:
       score: 1778.5
-      color: '#4989c2'
+      color: '#4a8ac2'
     tank:
       score: 0
       color: '#ffffff'
@@ -1153,10 +1153,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#45ec46'
+      color: '#3cf338'
     healer:
       score: 746.2
-      color: '#50ff36'
+      color: '#69ff4d'
     tank:
       score: 0
       color: '#ffffff'
@@ -1177,7 +1177,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#96ff7a'
+      color: '#a0ff85'
     healer:
       score: 0
       color: '#ffffff'
@@ -1225,7 +1225,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#96ff7a'
+      color: '#a0ff85'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1271.9
-      color: '#5ec67f'
+      color: '#5ec87d'
     healer:
       score: 0
       color: '#ffffff'
@@ -1303,7 +1303,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#5fff44'
+      color: '#74ff57'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1321,7 +1321,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 392.6
-      color: '#d3ffc2'
+      color: '#d7ffc7'
     healer:
       score: 0
       color: '#ffffff'
@@ -1369,7 +1369,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 769.9
-      color: '#4fff35'
+      color: '#5cff41'
     healer:
       score: 0
       color: '#ffffff'
@@ -1393,7 +1393,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1595.7
-      color: '#5698b2'
+      color: '#599eac'
     healer:
       score: 0
       color: '#ffffff'
