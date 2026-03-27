@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 12:40:19'
+  updated_at: '2026-03-27 16:43:08'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2213,7 +2213,7 @@ characters:
         learned_points: 32
         max_points: 100
       - name: Khaz Algar Skinning
-        learned_points: 90
+        learned_points: 100
         max_points: 100
       - name: Midnight Skinning
         learned_points: 100
