@@ -28,7 +28,7 @@
   {% assign best_role_label = "Без даних" %}
 {% endif %}
 
-<a href="{{ include.char.profile_url }}" target="_blank" rel="noopener noreferrer" class="ranking-card faction-{{ include.char.faction | downcase }}" data-ranking-score="{{ best_score }}" data-ranking-name="{{ include.char.name | downcase | escape }}" data-ranking-search="{{ include.char.name }} {{ include.char.realm }} {{ include.char.class }} {{ include.char.spec }} {{ best_role_label }}" data-ranking-role="{{ best_role }}">
+<a href="{{ include.char.profile_url }}" target="_blank" rel="noopener noreferrer" class="ranking-card faction-{{ include.char.faction | downcase }}" data-ranking-score="{{ all_score }}" data-ranking-name="{{ include.char.name | downcase | escape }}" data-ranking-search="{{ include.char.name }} {{ include.char.realm }} {{ include.char.class }} {{ include.char.spec }} {{ best_role_label }}" data-ranking-role="{{ best_role }}">
   <div class="ranking-position" aria-hidden="true">
     <span class="ranking-position-value">#1</span>
   </div>
