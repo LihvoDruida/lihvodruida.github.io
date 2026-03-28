@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-27 20:27:02'
+  updated_at: '2026-03-28 01:12:33'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13098
-      region: 5615
-      realm: 46
+      world: 13364
+      region: 5722
+      realm: 47
     heroic:
-      world: 11262
-      region: 4951
+      world: 11497
+      region: 5031
       realm: 41
     mythic:
       world: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#6aff4f'
+      color: '#72ff56'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -241,7 +241,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2353.2
-      color: '#6a5ee5'
+      color: '#6261e3'
     healer:
       score: 0
       color: '#ffffff'
@@ -272,7 +272,7 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 231
+  item_level_equipped: 243
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -552,8 +552,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 338.7
-      color: '#e8ffde'
+      score: 504
+      color: '#c6ffb2'
     healer:
       score: 0
       color: '#ffffff'
@@ -721,7 +721,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 409.3
-      color: '#d9ffca'
+      color: '#daffcc'
     healer:
       score: 0
       color: '#ffffff'
@@ -822,8 +822,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 760.8
-      color: '#84ff68'
+      score: 996.9
+      color: '#36ff1d'
   item_level_equipped: 251
 - rank: 1
   name: Ahilles
@@ -912,15 +912,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 579.6
-      color: '#b3ff9b'
+      score: 873.3
+      color: '#69ff4d'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 237
+  item_level_equipped: 239
 - rank: 4
   name: Valemor
   class: Mage
@@ -964,7 +964,7 @@ members:
       color: '#ffffff'
     healer:
       score: 1373.9
-      color: '#5dcb79'
+      color: '#5cce75'
     tank:
       score: 0
       color: '#ffffff'
@@ -1107,8 +1107,8 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2194.4
-      color: '#236ede'
+      score: 2254.1
+      color: '#426ae0'
     tank:
       score: 0
       color: '#ffffff'
@@ -1177,14 +1177,14 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#37ff1e'
+      color: '#47ff2d'
     healer:
-      score: 957.4
-      color: '#1eff00'
+      score: 1041.5
+      color: '#31f926'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 256
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -1201,7 +1201,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#b3ff9b'
+      color: '#b6ff9e'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#b3ff9b'
+      color: '#b6ff9e'
     healer:
       score: 0
       color: '#ffffff'
@@ -1272,15 +1272,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 1271.9
-      color: '#57d769'
+      score: 1554.8
+      color: '#5fb692'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 259
 - rank: 3
   name: Shennái
   class: Priest
@@ -1327,7 +1327,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#93ff77'
+      color: '#97ff7c'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1345,7 +1345,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 392.6
-      color: '#deffd0'
+      color: '#dfffd2'
     healer:
       score: 0
       color: '#ffffff'
@@ -1392,8 +1392,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     dps:
-      score: 978.8
-      color: '#29fc19'
+      score: 1102.6
+      color: '#3cf338'
     healer:
       score: 0
       color: '#ffffff'
@@ -1416,15 +1416,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 1886.6
-      color: '#4a8ac2'
+      score: 2165.3
+      color: '#1873da'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 260
 - rank: 3
   name: Technoihor
   class: Priest
