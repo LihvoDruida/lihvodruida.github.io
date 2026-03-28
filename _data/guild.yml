@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 16:48:37'
+  updated_at: '2026-03-28 16:59:31'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13746
-      region: 5781
+      world: 13747
+      region: 5782
       realm: 47
     heroic:
-      world: 11827
-      region: 5076
+      world: 11828
+      region: 5077
       realm: 41
     mythic:
       world: 0
@@ -366,9 +366,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 621
-      color: '#baffa3'
-  item_level_equipped: 253
+      score: 959.5
+      color: '#63ff48'
+  item_level_equipped: 252
 - rank: 3
   name: Elderwizard
   class: Mage
