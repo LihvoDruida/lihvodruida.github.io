@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 12:32:22'
+  updated_at: '2026-03-28 16:22:11'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13678
-      region: 5764
+      world: 13734
+      region: 5781
       realm: 47
     heroic:
-      world: 11755
-      region: 5059
+      world: 11819
+      region: 5073
       realm: 41
     mythic:
       world: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#84ff67'
+      color: '#89ff6c'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -240,8 +240,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2353.2
-      color: '#5266e2'
+      score: 2389.3
+      color: '#5565e2'
     healer:
       score: 0
       color: '#ffffff'
@@ -265,7 +265,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 621
-      color: '#b8ffa1'
+      color: '#baffa3'
     healer:
       score: 0
       color: '#ffffff'
@@ -367,7 +367,7 @@ members:
       color: '#ffffff'
     tank:
       score: 621
-      color: '#b8ffa1'
+      color: '#baffa3'
   item_level_equipped: 251
 - rank: 3
   name: Elderwizard
@@ -553,7 +553,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 504
-      color: '#ccffb8'
+      color: '#cdffbb'
     healer:
       score: 0
       color: '#ffffff'
@@ -720,15 +720,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 594.3
-      color: '#bdffa7'
+      score: 755.4
+      color: '#9bff7f'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 250
+  item_level_equipped: 251
 - rank: 3
   name: Komatoznic
   class: Demon Hunter
@@ -822,9 +822,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 996.9
-      color: '#51ff36'
-  item_level_equipped: 251
+      score: 1166.9
+      color: '#3cf338'
+  item_level_equipped: 254
 - rank: 1
   name: Ahilles
   class: Demon Hunter
@@ -913,7 +913,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1605.4
-      color: '#5fb98f'
+      color: '#5fbc8b'
     healer:
       score: 0
       color: '#ffffff'
@@ -964,7 +964,7 @@ members:
       color: '#ffffff'
     healer:
       score: 1373.9
-      color: '#57d769'
+      color: '#56da64'
     tank:
       score: 0
       color: '#ffffff'
@@ -1056,15 +1056,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 391.5
+      color: '#e3ffd7'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 245
+  item_level_equipped: 249
 - rank: 3
   name: Kensshi
   class: Druid
@@ -1108,7 +1108,7 @@ members:
       color: '#ffffff'
     healer:
       score: 2498
-      color: '#8351e8'
+      color: '#8153e8'
     tank:
       score: 0
       color: '#ffffff'
@@ -1177,10 +1177,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#65ff49'
+      color: '#6cff50'
     healer:
-      score: 1041.5
-      color: '#35ff1c'
+      score: 1263
+      color: '#49e94c'
     tank:
       score: 0
       color: '#ffffff'
@@ -1201,7 +1201,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#bdffa7'
+      color: '#bfffa9'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#bdffa7'
+      color: '#bfffa9'
     healer:
       score: 0
       color: '#ffffff'
@@ -1273,7 +1273,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2192.8
-      color: '#1873da'
+      color: '#2476d7'
     healer:
       score: 0
       color: '#ffffff'
@@ -1344,15 +1344,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 392.6
-      color: '#e2ffd6'
+      score: 562.6
+      color: '#c4ffaf'
     healer:
       score: 0
       color: '#ffffff'
     tank:
-      score: 0
+      score: 221.5
       color: '#ffffff'
-  item_level_equipped: 241
+  item_level_equipped: 246
 - rank: 3
   name: Travka
   class: Druid
@@ -1393,7 +1393,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1102.6
-      color: '#31f926'
+      color: '#29fc19'
     healer:
       score: 0
       color: '#ffffff'
@@ -1417,7 +1417,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2305.4
-      color: '#396bdf'
+      color: '#286dde'
     healer:
       score: 0
       color: '#ffffff'
