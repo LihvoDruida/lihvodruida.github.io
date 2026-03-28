@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 01:12:33'
+  updated_at: '2026-03-28 05:18:19'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13364
-      region: 5722
+      world: 13536
+      region: 5743
       realm: 47
     heroic:
-      world: 11497
-      region: 5031
+      world: 11656
+      region: 5045
       realm: 41
     mythic:
       world: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#72ff56'
+      color: '#79ff5c'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -553,7 +553,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 504
-      color: '#c6ffb2'
+      color: '#c8ffb4'
     healer:
       score: 0
       color: '#ffffff'
@@ -721,7 +721,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 409.3
-      color: '#daffcc'
+      color: '#dbffcd'
     healer:
       score: 0
       color: '#ffffff'
@@ -901,7 +901,7 @@ members:
   name: Lishiyburn
   class: Warlock
   race: Orc
-  spec: Destruction
+  spec: Affliction
   role: DPS
   gender: male
   faction: horde
@@ -912,8 +912,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     dps:
-      score: 873.3
-      color: '#69ff4d'
+      score: 1207.7
+      color: '#4ce651'
     healer:
       score: 0
       color: '#ffffff'
@@ -964,7 +964,7 @@ members:
       color: '#ffffff'
     healer:
       score: 1373.9
-      color: '#5cce75'
+      color: '#5ad171'
     tank:
       score: 0
       color: '#ffffff'
@@ -1108,7 +1108,7 @@ members:
       color: '#ffffff'
     healer:
       score: 2254.1
-      color: '#426ae0'
+      color: '#376cdf'
     tank:
       score: 0
       color: '#ffffff'
@@ -1177,10 +1177,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#47ff2d'
+      color: '#53ff38'
     healer:
       score: 1041.5
-      color: '#31f926'
+      color: '#29fc19'
     tank:
       score: 0
       color: '#ffffff'
@@ -1201,7 +1201,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#b6ff9e'
+      color: '#b8ffa1'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#b6ff9e'
+      color: '#b8ffa1'
     healer:
       score: 0
       color: '#ffffff'
@@ -1272,8 +1272,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     dps:
-      score: 1554.8
-      color: '#5fb692'
+      score: 2192.8
+      color: '#1873da'
     healer:
       score: 0
       color: '#ffffff'
@@ -1327,7 +1327,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#97ff7c'
+      color: '#9bff80'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1345,7 +1345,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 392.6
-      color: '#dfffd2'
+      color: '#e0ffd3'
     healer:
       score: 0
       color: '#ffffff'
@@ -1416,15 +1416,15 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     dps:
-      score: 2165.3
-      color: '#1873da'
+      score: 2305.4
+      color: '#4f67e1'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 262
 - rank: 3
   name: Technoihor
   class: Priest
