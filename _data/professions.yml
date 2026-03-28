@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 08:27:56'
+  updated_at: '2026-03-28 12:32:22'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2296,7 +2296,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 57
+        learned_points: 60
         max_points: 100
     secondaries:
     - name: Archaeology

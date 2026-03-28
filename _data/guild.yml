@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 08:27:56'
+  updated_at: '2026-03-28 12:32:22'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13605
-      region: 5754
+      world: 13678
+      region: 5764
       realm: 47
     heroic:
-      world: 11700
-      region: 5052
+      world: 11755
+      region: 5059
       realm: 41
     mythic:
       world: 0
@@ -199,7 +199,7 @@ members:
       color: '#ffffff'
     tank:
       score: 843.5
-      color: '#7eff62'
+      color: '#84ff67'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -241,14 +241,14 @@ members:
   mythic_plus_scores:
     dps:
       score: 2353.2
-      color: '#5c63e3'
+      color: '#5266e2'
     healer:
       score: 0
       color: '#ffffff'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -264,8 +264,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 621
+      color: '#b8ffa1'
     healer:
       score: 0
       color: '#ffffff'
@@ -366,9 +366,9 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 246
+      score: 621
+      color: '#b8ffa1'
+  item_level_equipped: 251
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -553,7 +553,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 504
-      color: '#caffb6'
+      color: '#ccffb8'
     healer:
       score: 0
       color: '#ffffff'
@@ -721,7 +721,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 594.3
-      color: '#bbffa4'
+      color: '#bdffa7'
     healer:
       score: 0
       color: '#ffffff'
@@ -823,7 +823,7 @@ members:
       color: '#ffffff'
     tank:
       score: 996.9
-      color: '#45ff2c'
+      color: '#51ff36'
   item_level_equipped: 251
 - rank: 1
   name: Ahilles
@@ -913,7 +913,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1605.4
-      color: '#5fb692'
+      color: '#5fb98f'
     healer:
       score: 0
       color: '#ffffff'
@@ -964,7 +964,7 @@ members:
       color: '#ffffff'
     healer:
       score: 1373.9
-      color: '#59d46d'
+      color: '#57d769'
     tank:
       score: 0
       color: '#ffffff'
@@ -1107,12 +1107,12 @@ members:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2254.1
-      color: '#276ede'
+      score: 2498
+      color: '#8351e8'
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 260
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1177,10 +1177,10 @@ members:
   mythic_plus_scores:
     dps:
       score: 929.8
-      color: '#5cff41'
+      color: '#65ff49'
     healer:
       score: 1041.5
-      color: '#1eff00'
+      color: '#35ff1c'
     tank:
       score: 0
       color: '#ffffff'
@@ -1201,7 +1201,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#bbffa4'
+      color: '#bdffa7'
     healer:
       score: 0
       color: '#ffffff'
@@ -1249,7 +1249,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 591.1
-      color: '#bbffa4'
+      color: '#bdffa7'
     healer:
       score: 0
       color: '#ffffff'
@@ -1327,7 +1327,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#9fff84'
+      color: '#a3ff88'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1345,7 +1345,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 392.6
-      color: '#e1ffd5'
+      color: '#e2ffd6'
     healer:
       score: 0
       color: '#ffffff'
@@ -1393,7 +1393,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 1102.6
-      color: '#37f630'
+      color: '#31f926'
     healer:
       score: 0
       color: '#ffffff'
@@ -1417,7 +1417,7 @@ members:
   mythic_plus_scores:
     dps:
       score: 2305.4
-      color: '#4769e0'
+      color: '#396bdf'
     healer:
       score: 0
       color: '#ffffff'
