@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 16:22:11'
+  updated_at: '2026-03-28 16:48:37'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13734
+      world: 13746
       region: 5781
       realm: 47
     heroic:
-      world: 11819
-      region: 5073
+      world: 11827
+      region: 5076
       realm: 41
     mythic:
       world: 0
@@ -368,7 +368,7 @@ members:
     tank:
       score: 621
       color: '#baffa3'
-  item_level_equipped: 251
+  item_level_equipped: 253
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -823,7 +823,7 @@ members:
       color: '#ffffff'
     tank:
       score: 1166.9
-      color: '#3cf338'
+      color: '#37f630'
   item_level_equipped: 254
 - rank: 1
   name: Ahilles
@@ -1327,7 +1327,7 @@ members:
       color: '#ffffff'
     tank:
       score: 705
-      color: '#a3ff88'
+      color: '#a6ff8c'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
