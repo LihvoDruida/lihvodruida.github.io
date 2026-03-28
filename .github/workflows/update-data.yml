@@ -1,0 +1,114 @@
+name: Update Project Data
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: project-data-update
+  cancel-in-progress: false
+
+jobs:
+
+  update:
+    name: Update Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: mods
+            script: scripts/update_mods.py
+            files: "_data/my_mods.yml"
+            message: "chore: update mods data"
+
+          - name: guild
+            script: scripts/update_guild.py
+            files: "_data/guild.yml _data/professions.yml"
+            message: "chore: update guild data"
+
+          - name: characters
+            script: scripts/update_characters.py
+            files: "_data/characters.yml"
+            message: "chore: update characters data"
+
+    env:
+      BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
+      BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Save file hashes (before)
+        run: |
+          mkdir -p hashes
+          for f in ${{ matrix.task.files }}; do
+            if [ -f "$f" ]; then
+              sha256sum "$f" > hashes/$(basename $f).before
+            fi
+          done
+
+      - name: Run script (retry API)
+        run: |
+          for i in 1 2 3; do
+            python ${{ matrix.task.script }} && break
+            echo "Retry attempt $i..."
+            sleep 5
+          done
+
+      - name: Save file hashes (after)
+        run: |
+          for f in ${{ matrix.task.files }}; do
+            if [ -f "$f" ]; then
+              sha256sum "$f" > hashes/$(basename $f).after
+            fi
+          done
+
+      - name: Detect changes
+        id: diff
+        run: |
+          changed=false
+
+          for f in ${{ matrix.task.files }}; do
+            name=$(basename $f)
+
+            if ! diff hashes/$name.before hashes/$name.after >/dev/null 2>&1; then
+              changed=true
+            fi
+          done
+
+          echo "changed=$changed" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
+          git add ${{ matrix.task.files }}
+          git commit -m "${{ matrix.task.message }}"
+          git pull --rebase
+          git push
+
+          echo "✔ ${{ matrix.task.name }} updated" >> $GITHUB_STEP_SUMMARY
+
+      - name: No changes
+        if: steps.diff.outputs.changed != 'true'
+        run: |
+          echo "No changes for ${{ matrix.task.name }}" >> $GITHUB_STEP_SUMMARY
