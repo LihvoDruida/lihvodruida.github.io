@@ -1,6 +1,8 @@
 {% assign tank_score = include.char.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
 {% assign healer_score = include.char.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
 {% assign dps_score = include.char.mythic_plus_scores.dps.score | default: 0 | plus: 0 %}
+{% assign all_score = include.char.mythic_plus_scores.all.score | default: 0 | plus: 0 %}
+{% assign all_color = include.char.mythic_plus_scores.all.color | default: "#ffffff" %}
 {% assign best_score = dps_score %}
 {% assign best_role = "dps" %}
 {% assign best_color = include.char.mythic_plus_scores.dps.color | default: "#ffffff" %}
@@ -63,7 +65,7 @@
     <div class="ranking-score-row">
       <div class="ranking-score-block">
         <span class="ranking-score-label">Raider.IO M+</span>
-        <span class="ranking-score-value"{% if best_score > 0 %} style="color: {{ best_color }};"{% endif %}>{{ best_score | round: 1 }}</span>
+        <span class="ranking-score-value"{% if all_score > 0 %} style="color: {{ all_color }};"{% endif %}>{{ all_score | round: 1 }}</span>
       </div>
 
       {% if include.char.mythic_plus_scores and best_score > 0 %}
