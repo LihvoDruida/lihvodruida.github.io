@@ -3,10 +3,11 @@ name: Deploy Jekyll site to Pages
 on:
   push:
     branches: ["live"]
+
   workflow_dispatch:
+
   workflow_run:
-    # Додаємо сюди назви всіх воркфлоу, які оновлюють дані
-    workflows: ["Update Characters", "Update Guild Data", "Update Mods"]
+    workflows: ["Update Project Data"]
     types:
       - completed
     branches: ["live"]
@@ -17,48 +18,77 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Ця перевірка критично важлива:
-    # Білд запуститься ТІЛЬКИ якщо воркфлоу-джерело (наприклад, Update Mods) завершився успішно (зеленим).
-    # Якщо там було "No changes" (червоний exit 1), то цей білд пропуститься.
+
+    # запуск тільки якщо updater workflow завершився успішно
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
-    
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          ref: 'live'
+          ref: live
+          fetch-depth: 2
+
+      - name: Detect site changes
+        id: changes
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -E '(_data|_layouts|_includes|_posts|_pages|assets|\.md|\.html|\.scss|\.js)' > /dev/null; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          else
+            echo "build=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@bfefad842bb982ff05b233bcbc1571d97a87e69f
+        if: steps.changes.outputs.build == 'true'
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
-          cache-version: 0
 
-      - name: Setup Pages
+      - name: Cache Jekyll
+        if: steps.changes.outputs.build == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .jekyll-cache
+            .jekyll-metadata
+          key: jekyll-${{ runner.os }}-${{ hashFiles('**/*.yml', '**/*.md', '**/*.html', '**/*.scss') }}
+
+      - name: Setup GitHub Pages
+        if: steps.changes.outputs.build == 'true'
         id: pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
-      - name: Build with Jekyll
-        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+      - name: Build Jekyll site
+        if: steps.changes.outputs.build == 'true'
+        run: bundle exec jekyll build --incremental --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
+        if: steps.changes.outputs.build == 'true'
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+      - name: Skip build
+        if: steps.changes.outputs.build != 'true'
+        run: echo "No site changes detected — build skipped."
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
