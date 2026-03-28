@@ -41,7 +41,10 @@
       getNumericScore(scores.tank?.score),
     );
   };
-
+  const getAllScore = (member) => {
+      const scores = member?.mythic_plus_scores || {};
+      return getNumericScore(scores.all?.score);
+  };
   const lightenColor = (hex, amount = 0.18) => {
     const clean = String(hex || '').replace('#', '');
     if (!/^[0-9a-fA-F]{6}$/.test(clean)) {
@@ -169,16 +172,21 @@
     }
 
     const normalizedRoleKey = roleKey in roleCounts ? roleKey : 'other';
-    const relevantRio = getRoleScore(member, normalizedRoleKey);
 
-    if (normalizedRoleKey in roleRioTotals && relevantRio > 0) {
-      roleRioTotals[normalizedRoleKey] += relevantRio;
-      roleRioSamples[normalizedRoleKey] += 1;
+    // role specific RIO
+    const roleRio = getRoleScore(member, normalizedRoleKey);
+
+    if (normalizedRoleKey in roleRioTotals && roleRio > 0) {
+        roleRioTotals[normalizedRoleKey] += roleRio;
+        roleRioSamples[normalizedRoleKey] += 1;
     }
 
-    if (relevantRio > 0) {
-      guildRioTotal += relevantRio;
-      guildRioSamples += 1;
+    // REAL Raider.IO score
+    const allRio = getAllScore(member);
+
+    if (allRio > 0) {
+        guildRioTotal += allRio;
+        guildRioSamples += 1;
     }
 
     const itemLevelEquipped = Number(member?.item_level_equipped || 0);
