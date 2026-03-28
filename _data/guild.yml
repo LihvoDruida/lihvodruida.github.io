@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-28 16:59:31'
+  updated_at: '2026-03-28 17:12:41'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13747
+      world: 13748
       region: 5782
       realm: 47
     heroic:
-      world: 11828
-      region: 5077
+      world: 11830
+      region: 5078
       realm: 41
     mythic:
       world: 0
@@ -119,6 +119,9 @@ members:
   profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -126,6 +129,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 229
@@ -143,6 +158,9 @@ members:
   profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -150,6 +168,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 246
@@ -167,6 +197,9 @@ members:
   profile_url: https://raider.io/characters/eu/gordunni/Котто
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -174,6 +207,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 236
@@ -191,6 +236,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Characternuk
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 843.5
+      color: '#89ff6c'
     dps:
       score: 0
       color: '#ffffff'
@@ -200,6 +248,18 @@ members:
     tank:
       score: 843.5
       color: '#89ff6c'
+    spec_0:
+      score: 843.5
+      color: '#89ff6c'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
   item_level_equipped: 236
 - rank: 99
   name: Daddyborn
@@ -215,6 +275,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -222,6 +285,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 226
@@ -239,6 +314,9 @@ members:
   profile_url: https://raider.io/characters/eu/gordunni/Булкрит
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
+    all:
+      score: 2389.3
+      color: '#5565e2'
     dps:
       score: 2389.3
       color: '#5565e2'
@@ -246,6 +324,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2389.3
+      color: '#5565e2'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 259
@@ -263,6 +353,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/ßøßk
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
+    all:
+      score: 621
+      color: '#baffa3'
     dps:
       score: 621
       color: '#baffa3'
@@ -270,6 +363,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 621
+      color: '#baffa3'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 245
@@ -287,6 +392,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Pwndyøurface
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/215/217204951-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -294,6 +402,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 220
@@ -311,6 +431,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Asasinas
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/253/186247421-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -318,6 +441,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 165
@@ -335,6 +470,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Drackavun
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/170/185844906-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -342,6 +480,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 98
@@ -359,6 +509,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 959.5
+      color: '#63ff48'
     dps:
       score: 0
       color: '#ffffff'
@@ -368,6 +521,18 @@ members:
     tank:
       score: 959.5
       color: '#63ff48'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 959.5
+      color: '#63ff48'
+    spec_3:
+      score: 0
+      color: '#ffffff'
   item_level_equipped: 252
 - rank: 3
   name: Elderwizard
@@ -383,6 +548,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -390,6 +558,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 245
@@ -407,6 +587,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Katsyt
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/186136183-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -414,6 +597,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 95
@@ -431,6 +626,9 @@ members:
   profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -438,6 +636,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 116
@@ -455,6 +665,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Allune
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -462,6 +675,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 241
@@ -479,6 +704,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Es
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -486,6 +714,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 186
@@ -503,6 +743,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Krouli
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -510,6 +753,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 156
@@ -527,6 +782,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Redray
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -534,6 +792,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 97
@@ -551,6 +821,9 @@ members:
   profile_url: https://raider.io/characters/eu/grom/Лилая
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 504
+      color: '#cdffbb'
     dps:
       score: 504
       color: '#cdffbb'
@@ -558,6 +831,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 504
+      color: '#cdffbb'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 240
@@ -575,6 +860,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -582,6 +870,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 162
@@ -599,6 +899,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Threataan
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -606,6 +909,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 122
@@ -623,6 +938,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Prayddh
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/14/186365710-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -630,6 +948,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 242
@@ -647,6 +977,9 @@ members:
   profile_url: https://raider.io/characters/eu/goldrinn/Алак
   avatar: https://render.worldofwarcraft.com/eu/character/goldrinn/150/181764502-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -654,6 +987,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 182
@@ -671,6 +1016,9 @@ members:
   profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
   mythic_plus_scores:
+    all:
+      score: 170
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -679,6 +1027,18 @@ members:
       color: '#ffffff'
     tank:
       score: 170
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 170
+      color: '#ffffff'
+    spec_3:
+      score: 0
       color: '#ffffff'
   item_level_equipped: 250
 - rank: 1
@@ -695,6 +1055,9 @@ members:
   profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -702,6 +1065,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 157
@@ -719,6 +1094,9 @@ members:
   profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
+    all:
+      score: 755.4
+      color: '#9bff7f'
     dps:
       score: 755.4
       color: '#9bff7f'
@@ -726,6 +1104,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 594.3
+      color: '#bfffa9'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 161
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 251
@@ -743,6 +1133,9 @@ members:
   profile_url: https://raider.io/characters/eu/tarren-mill/Komatoznic
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/140/187899020-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -750,6 +1143,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 102
@@ -767,6 +1172,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Kashin
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -774,6 +1182,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 98
@@ -791,6 +1211,9 @@ members:
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -798,6 +1221,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 719
@@ -815,6 +1250,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
+    all:
+      score: 1166.9
+      color: '#37f630'
     dps:
       score: 0
       color: '#ffffff'
@@ -824,6 +1262,18 @@ members:
     tank:
       score: 1166.9
       color: '#37f630'
+    spec_0:
+      score: 1166.9
+      color: '#37f630'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
   item_level_equipped: 254
 - rank: 1
   name: Ahilles
@@ -839,6 +1289,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Ahilles
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -846,6 +1299,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 216
@@ -863,6 +1328,9 @@ members:
   profile_url: https://raider.io/characters/eu/ravencrest/Jakeyo
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175589321-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -870,6 +1338,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 678
@@ -887,6 +1367,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Duszi
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -894,6 +1377,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 163
@@ -911,6 +1406,9 @@ members:
   profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
+    all:
+      score: 1605.4
+      color: '#5fbc8b'
     dps:
       score: 1605.4
       color: '#5fbc8b'
@@ -918,6 +1416,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 1442.1
+      color: '#5ad171'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 368.4
+      color: '#e7ffdd'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 242
@@ -935,6 +1445,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Valemor
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/62/223406910-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -942,6 +1455,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 660
@@ -959,6 +1484,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Norddemon
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/221/223459293-avatar.jpg?alt=/wow/static/images/2d/avatar/8-1.jpg
   mythic_plus_scores:
+    all:
+      score: 1373.9
+      color: '#56da64'
     dps:
       score: 0
       color: '#ffffff'
@@ -966,6 +1494,18 @@ members:
       score: 1373.9
       color: '#56da64'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 1373.9
+      color: '#56da64'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 258
@@ -983,6 +1523,9 @@ members:
   profile_url: https://raider.io/characters/eu/gordunni/Дупця
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/66/264777282-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -990,6 +1533,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 119
@@ -1007,6 +1562,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Azuriel
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1014,6 +1572,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 102
@@ -1031,6 +1601,9 @@ members:
   profile_url: https://raider.io/characters/eu/eversong/Бафометище
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/191/264527551-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1038,6 +1611,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 612
@@ -1055,6 +1640,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Mafik
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
   mythic_plus_scores:
+    all:
+      score: 391.5
+      color: '#e3ffd7'
     dps:
       score: 391.5
       color: '#e3ffd7'
@@ -1064,7 +1652,19 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 249
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 391.5
+      color: '#e3ffd7'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 250
 - rank: 3
   name: Kensshi
   class: Druid
@@ -1079,6 +1679,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Kensshi
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/81/212966225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1086,6 +1689,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 235
@@ -1103,6 +1718,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Lightass
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 2498
+      color: '#8153e8'
     dps:
       score: 0
       color: '#ffffff'
@@ -1110,6 +1728,18 @@ members:
       score: 2498
       color: '#8153e8'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 2498
+      color: '#8153e8'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 260
@@ -1127,6 +1757,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1134,6 +1767,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 245
@@ -1151,6 +1796,9 @@ members:
   profile_url: https://raider.io/characters/eu/doomhammer/Christmans
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1158,6 +1806,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 185
@@ -1175,6 +1835,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Khayen
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
+    all:
+      score: 1598.2
+      color: '#5fbf88'
     dps:
       score: 929.8
       color: '#6cff50'
@@ -1184,6 +1847,18 @@ members:
     tank:
       score: 0
       color: '#ffffff'
+    spec_0:
+      score: 929.8
+      color: '#6cff50'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 1263
+      color: '#49e94c'
   item_level_equipped: 256
 - rank: 3
   name: Hexxoffender
@@ -1199,6 +1874,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
+    all:
+      score: 591.1
+      color: '#bfffa9'
     dps:
       score: 591.1
       color: '#bfffa9'
@@ -1206,6 +1884,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 591.1
+      color: '#bfffa9'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 247
@@ -1223,6 +1913,9 @@ members:
   profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 165.3
+      color: '#ffffff'
     dps:
       score: 165.3
       color: '#ffffff'
@@ -1230,6 +1923,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 165.3
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 243
@@ -1247,6 +1952,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 591.1
+      color: '#bfffa9'
     dps:
       score: 591.1
       color: '#bfffa9'
@@ -1254,6 +1962,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 591.1
+      color: '#bfffa9'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 251
@@ -1271,6 +1991,9 @@ members:
   profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 2192.8
+      color: '#2476d7'
     dps:
       score: 2192.8
       color: '#2476d7'
@@ -1278,6 +2001,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 2192.8
+      color: '#2476d7'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 259
@@ -1295,8 +2030,11 @@ members:
   profile_url: https://raider.io/characters/eu/ravencrest/Shennái
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
   mythic_plus_scores:
+    all:
+      score: 166.8
+      color: '#ffffff'
     dps:
-      score: 0
+      score: 166.8
       color: '#ffffff'
     healer:
       score: 0
@@ -1304,7 +2042,19 @@ members:
     tank:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 248
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 166.8
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 253
 - rank: 1
   name: Athang
   class: Monk
@@ -1319,6 +2069,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Athang
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
+    all:
+      score: 705
+      color: '#a6ff8c'
     dps:
       score: 0
       color: '#ffffff'
@@ -1328,6 +2081,18 @@ members:
     tank:
       score: 705
       color: '#a6ff8c'
+    spec_0:
+      score: 705
+      color: '#a6ff8c'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
   item_level_equipped: 246
 - rank: 3
   name: Тузольд
@@ -1343,6 +2108,9 @@ members:
   profile_url: https://raider.io/characters/eu/gordunni/Тузольд
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
+    all:
+      score: 562.6
+      color: '#c4ffaf'
     dps:
       score: 562.6
       color: '#c4ffaf'
@@ -1351,6 +2119,18 @@ members:
       color: '#ffffff'
     tank:
       score: 221.5
+      color: '#ffffff'
+    spec_0:
+      score: 221.5
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 562.6
+      color: '#c4ffaf'
+    spec_3:
+      score: 0
       color: '#ffffff'
   item_level_equipped: 246
 - rank: 3
@@ -1367,6 +2147,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Travka
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1374,6 +2157,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 250
@@ -1391,6 +2186,9 @@ members:
   profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
+    all:
+      score: 1102.6
+      color: '#29fc19'
     dps:
       score: 1102.6
       color: '#29fc19'
@@ -1398,6 +2196,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 1102.6
+      color: '#29fc19'
+    spec_1:
+      score: 167.6
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 252
@@ -1415,6 +2225,9 @@ members:
   profile_url: https://raider.io/characters/eu/terokkar/Mólfár
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
+    all:
+      score: 2305.4
+      color: '#286dde'
     dps:
       score: 2305.4
       color: '#286dde'
@@ -1422,6 +2235,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2305.4
+      color: '#286dde'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 262
@@ -1439,6 +2264,9 @@ members:
   profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/28/224554268-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
   mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
@@ -1446,6 +2274,18 @@ members:
       score: 0
       color: '#ffffff'
     tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
       score: 0
       color: '#ffffff'
   item_level_equipped: 215
