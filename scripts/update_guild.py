@@ -134,22 +134,17 @@ def fetch_character_details(ctx: ApiContext, region: str, realm: str, name: str)
     data = response.json()
     thumbnail = data.get("thumbnail_url")
 
-    mp_data = {
-        "dps": {"score": 0, "color": "#ffffff"},
-        "healer": {"score": 0, "color": "#ffffff"},
-        "tank": {"score": 0, "color": "#ffffff"},
-    }
+    mp_data = {}
 
     seasons = data.get("mythic_plus_scores_by_season", [])
     if seasons:
         current_season = seasons[0]
         segments = current_season.get("segments", {})
-        if "dps" in segments:
-            mp_data["dps"] = segments["dps"]
-        if "healer" in segments:
-            mp_data["healer"] = segments["healer"]
-        if "tank" in segments:
-            mp_data["tank"] = segments["tank"]
+    for segment_name, segment_data in segments.items():
+        mp_data[segment_name] = {
+            "score": segment_data.get("score", 0),
+            "color": segment_data.get("color", "#ffffff"),
+        }
 
     return {
         "thumbnail_url": thumbnail,
@@ -295,11 +290,7 @@ def build_guild_and_professions_data() -> tuple[Optional[Dict[str, Any]], Option
         professions = fetch_character_professions(ctx, region, realm_slug, name)
 
         char_thumbnail = char_basic.get("thumbnail_url")
-        mp_scores = {
-            "dps": {"score": 0, "color": "#ffffff"},
-            "healer": {"score": 0, "color": "#ffffff"},
-            "tank": {"score": 0, "color": "#ffffff"},
-        }
+        mp_scores = {}
         item_level_equipped = 0
         if details:
             if details.get("thumbnail_url"):
