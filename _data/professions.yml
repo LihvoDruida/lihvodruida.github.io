@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-29 05:44:50'
+  updated_at: '2026-03-29 08:42:18'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -356,7 +356,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 44
+        learned_points: 53
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -365,9 +365,18 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 62
+        learned_points: 65
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 83
+        max_points: 100
 - name: Pwndyøurface
   region: eu
   realm: Silvermoon
@@ -2020,7 +2029,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 18
+        learned_points: 19
         max_points: 100
     secondaries:
     - name: Archaeology
