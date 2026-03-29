@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-29 08:42:18'
+  updated_at: '2026-03-29 13:00:14'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 14146
-      region: 5908
+      world: 14181
+      region: 5915
       realm: 49
     heroic:
-      world: 12208
-      region: 5194
+      world: 12259
+      region: 5204
       realm: 44
     mythic:
       world: 0
@@ -315,11 +315,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2389.3
-      color: '#3e6ae0'
+      score: 2407.8
+      color: '#406ae0'
     dps:
-      score: 2389.3
-      color: '#3e6ae0'
+      score: 2407.8
+      color: '#406ae0'
     healer:
       score: 0
       color: '#ffffff'
@@ -333,8 +333,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2389.3
-      color: '#3e6ae0'
+      score: 2407.8
+      color: '#406ae0'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -510,8 +510,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1339.7
-      color: '#46ec47'
+      score: 1523.8
+      color: '#59d36e'
     dps:
       score: 0
       color: '#ffffff'
@@ -519,8 +519,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1339.7
-      color: '#46ec47'
+      score: 1523.8
+      color: '#59d36e'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -528,8 +528,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1339.7
-      color: '#46ec47'
+      score: 1523.8
+      color: '#59d36e'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1095,11 +1095,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 755.4
-      color: '#a7ff8d'
+      score: 846.6
+      color: '#98ff7d'
     dps:
-      score: 755.4
-      color: '#a7ff8d'
+      score: 846.6
+      color: '#98ff7d'
     healer:
       score: 0
       color: '#ffffff'
@@ -1107,8 +1107,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 594.3
-      color: '#c6ffb2'
+      score: 685.6
+      color: '#b5ff9d'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1252,7 +1252,7 @@ members:
   mythic_plus_scores:
     all:
       score: 1623.5
-      color: '#5ec57f'
+      color: '#5ec77e'
     dps:
       score: 0
       color: '#ffffff'
@@ -1261,10 +1261,10 @@ members:
       color: '#ffffff'
     tank:
       score: 1623.5
-      color: '#5ec57f'
+      color: '#5ec77e'
     spec_0:
       score: 1623.5
-      color: '#5ec57f'
+      color: '#5ec77e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1408,10 +1408,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1605.4
-      color: '#5ec57f'
+      color: '#5ec77e'
     dps:
       score: 1605.4
-      color: '#5ec57f'
+      color: '#5ec77e'
     healer:
       score: 0
       color: '#ffffff'
@@ -1420,7 +1420,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 1442.1
-      color: '#55dc62'
+      color: '#54dc61'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1486,13 +1486,13 @@ members:
   mythic_plus_scores:
     all:
       score: 1373.9
-      color: '#4de553'
+      color: '#4de652'
     dps:
       score: 0
       color: '#ffffff'
     healer:
       score: 1373.9
-      color: '#4de553'
+      color: '#4de652'
     tank:
       score: 0
       color: '#ffffff'
@@ -1504,7 +1504,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 1373.9
-      color: '#4de553'
+      color: '#4de652'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1720,19 +1720,19 @@ members:
   mythic_plus_scores:
     all:
       score: 2498
-      color: '#7659e6'
+      color: '#715be5'
     dps:
       score: 0
       color: '#ffffff'
     healer:
       score: 2498
-      color: '#7659e6'
+      color: '#715be5'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 2498
-      color: '#7659e6'
+      color: '#715be5'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1837,7 +1837,7 @@ members:
   mythic_plus_scores:
     all:
       score: 1664.6
-      color: '#5fbf87'
+      color: '#5fc185'
     dps:
       score: 929.8
       color: '#82ff65'
@@ -1914,11 +1914,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 332.3
-      color: '#edffe5'
+      score: 541.2
+      color: '#cfffbc'
     dps:
-      score: 332.3
-      color: '#edffe5'
+      score: 541.2
+      color: '#cfffbc'
     healer:
       score: 0
       color: '#ffffff'
@@ -1929,8 +1929,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 332.3
-      color: '#edffe5'
+      score: 541.2
+      color: '#cfffbc'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -1993,10 +1993,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2192.8
-      color: '#347cd0'
+      color: '#3a7ece'
     dps:
       score: 2192.8
-      color: '#347cd0'
+      color: '#3a7ece'
     healer:
       score: 0
       color: '#ffffff'
@@ -2005,7 +2005,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2192.8
-      color: '#347cd0'
+      color: '#3a7ece'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2109,11 +2109,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 945.2
-      color: '#82ff65'
+      score: 1247
+      color: '#37f531'
     dps:
-      score: 945.2
-      color: '#82ff65'
+      score: 1247
+      color: '#37f531'
     healer:
       score: 0
       color: '#ffffff'
@@ -2127,8 +2127,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 945.2
-      color: '#82ff65'
+      score: 1247
+      color: '#37f531'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2328,3 +2328,42 @@ members:
       score: 752.6
       color: '#a7ff8d'
   item_level_equipped: 258
+- rank: 99
+  name: Альянсс
+  class: Warrior
+  race: Human
+  spec: Fury
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 428
+      color: '#deffd1'
+    dps:
+      score: 428
+      color: '#deffd1'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 428
+      color: '#deffd1'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 234

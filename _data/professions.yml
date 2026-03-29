@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-29 08:42:18'
+  updated_at: '2026-03-29 13:00:14'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1423,74 +1423,8 @@ characters:
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist
   professions:
-    primaries:
-    - name: Engineering
-      id: 202
-      tiers:
-      - name: Northrend Engineering
-        learned_points: 2
-        max_points: 75
-      - name: Classic Engineering
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Engineering
-        learned_points: 1
-        max_points: 100
-      - name: Midnight Engineering
-        learned_points: 78
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 31
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Midnight Fishing
-        learned_points: 13
-        max_points: 300
+    primaries: []
+    secondaries: []
 - name: Ahilles
   region: eu
   realm: Terokkar
@@ -1607,7 +1541,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 32
+        learned_points: 67
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1616,7 +1550,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 60
+        learned_points: 61
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2853,7 +2787,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Herbalism
-        learned_points: 2
+        learned_points: 3
         max_points: 100
       - name: Midnight Herbalism
         learned_points: 100
@@ -2895,3 +2829,11 @@ characters:
       - name: Midnight Fishing
         learned_points: 12
         max_points: 300
+- name: Альянсс
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+  professions:
+    primaries: []
+    secondaries: []
