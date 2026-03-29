@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-29 16:37:38'
+  updated_at: '2026-03-29 20:35:48'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -406,6 +406,50 @@ characters:
         learned_points: 4
         max_points: 100
     secondaries: []
+- name: Plaguenjoyer
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Herbalism
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Herbalism
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 80
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Alchemy
+        learned_points: 67
+        max_points: 100
+      - name: Khaz Algar Alchemy
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 4
+        max_points: 100
 - name: Asasinas
   region: eu
   realm: Terokkar
@@ -2773,6 +2817,125 @@ characters:
       - name: Midnight Fishing
         learned_points: 71
         max_points: 300
+- name: Севатар
+  region: eu
+  realm: Lich King
+  realm_slug: lich-king
+  profile_url: https://raider.io/characters/eu/lich-king/Севатар
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Kul Tiran Engineering
+        learned_points: 3
+        max_points: 177
+      - name: Draenor Engineering
+        learned_points: 3
+        max_points: 102
+      - name: Cataclysm Engineering
+        learned_points: 3
+        max_points: 77
+      - name: Outland Engineering
+        learned_points: 14
+        max_points: 77
+      - name: Classic Engineering
+        learned_points: 302
+        max_points: 302
+      - name: Shadowlands Engineering
+        learned_points: 3
+        max_points: 102
+      - name: Dragon Isles Engineering
+        learned_points: 11
+        max_points: 102
+      - name: Khaz Algar Engineering
+        learned_points: 102
+        max_points: 102
+      - name: Midnight Engineering
+        learned_points: 98
+        max_points: 102
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Legion Mining
+        learned_points: 4
+        max_points: 102
+      - name: Cataclysm Mining
+        learned_points: 3
+        max_points: 77
+      - name: Outland Mining
+        learned_points: 24
+        max_points: 77
+      - name: Classic Mining
+        learned_points: 268
+        max_points: 302
+      - name: Shadowlands Mining
+        learned_points: 38
+        max_points: 152
+      - name: Dragon Isles Mining
+        learned_points: 24
+        max_points: 102
+      - name: Khaz Algar Mining
+        learned_points: 102
+        max_points: 102
+      - name: Midnight Mining
+        learned_points: 102
+        max_points: 102
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 11
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Khaz Algar Fishing
+        learned_points: 23
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 18
+        max_points: 300
 - name: Туманная
   region: eu
   realm: Ashenvale
@@ -2835,5 +2998,14 @@ characters:
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Альянсс
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 25
+        max_points: 100
     secondaries: []
