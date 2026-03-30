@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 09:15:32'
+  updated_at: '2026-03-30 13:24:13'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -589,7 +589,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 87
+        learned_points: 94
         max_points: 100
     - name: Mining
       id: 186
@@ -601,7 +601,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Mining
-        learned_points: 65
+        learned_points: 98
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1639,11 +1639,11 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Smolderfist
+- name: Smolderfist-251137170
   region: eu
   realm: Silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist
+  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist-251137170
   professions:
     primaries: []
     secondaries: []
@@ -3076,7 +3076,7 @@ characters:
         learned_points: 102
         max_points: 102
       - name: Midnight Engineering
-        learned_points: 98
+        learned_points: 99
         max_points: 102
     - name: Mining
       id: 186

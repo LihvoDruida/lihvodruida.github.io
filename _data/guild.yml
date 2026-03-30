@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 09:15:32'
+  updated_at: '2026-03-30 13:24:13'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 14771
-      region: 6168
+      world: 14817
+      region: 6181
       realm: 51
     heroic:
-      world: 11075
-      region: 4753
+      world: 11131
+      region: 4765
       realm: 34
     mythic:
       world: 0
@@ -1354,7 +1354,7 @@ members:
       color: '#ffffff'
   item_level_equipped: 719
 - rank: 1
-  name: Smolderfist
+  name: Smolderfist-251137170
   class: Monk
   race: Dark Iron Dwarf
   spec: Brewmaster
@@ -1364,12 +1364,12 @@ members:
   region: eu
   realm: Silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist
+  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist-251137170
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 1623.5
-      color: '#5ad26f'
+      score: 1644.9
+      color: '#5bcf74'
     dps:
       score: 0
       color: '#ffffff'
@@ -1377,11 +1377,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1623.5
-      color: '#5ad26f'
+      score: 1644.9
+      color: '#5bcf74'
     spec_0:
-      score: 1623.5
-      color: '#5ad26f'
+      score: 1644.9
+      color: '#5bcf74'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2343,11 +2343,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 1102.6
-      color: '#69ff4e'
+      score: 1427.7
+      color: '#46ec47'
     dps:
-      score: 1102.6
-      color: '#69ff4e'
+      score: 1427.7
+      color: '#46ec47'
     healer:
       score: 0
       color: '#ffffff'
@@ -2355,8 +2355,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1102.6
-      color: '#69ff4e'
+      score: 1427.7
+      color: '#46ec47'
     spec_1:
       score: 167.6
       color: '#ffffff'
