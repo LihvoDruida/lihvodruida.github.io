@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 02:37:49'
+  updated_at: '2026-03-30 06:00:28'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 14694
-      region: 6144
+      world: 14751
+      region: 6158
       realm: 51
     heroic:
-      world: 10968
-      region: 4716
+      world: 11041
+      region: 4737
       realm: 34
     mythic:
       world: 0
@@ -495,6 +495,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 239
+- rank: 99
+  name: Мортург
+  class: Paladin
+  race: Dwarf
+  spec: Holy
+  role: HEALING
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Мортург
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 1112.5
+      color: '#69ff4e'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 1112.5
+      color: '#69ff4e'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 1112.5
+      color: '#69ff4e'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 251
 - rank: 3
   name: Asasinas
   class: Druid
@@ -1509,6 +1548,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 242
+- rank: 99
+  name: Vîøn
+  class: Mage
+  race: Night Elf
+  spec: Frost
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 2553.7
+      color: '#7858e6'
+    dps:
+      score: 2553.7
+      color: '#7858e6'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 608.8
+      color: '#c8ffb5'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2495.6
+      color: '#5c63e3'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 263
 - rank: 4
   name: Valemor
   class: Mage
