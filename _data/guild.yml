@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 16:58:56'
+  updated_at: '2026-03-30 20:47:51'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -9,10 +9,10 @@ guild_info:
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
   tier-mn-1:
-    summary: 1/9 H
+    summary: 2/9 H
     total_bosses: 9
     normal_bosses_killed: 6
-    heroic_bosses_killed: 1
+    heroic_bosses_killed: 2
     mythic_bosses_killed: 0
   blackrock-depths:
     summary: 0/8 N
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 14848
-      region: 6189
-      realm: 51
+      world: 14965
+      region: 6288
+      realm: 53
     heroic:
-      world: 11178
-      region: 4781
-      realm: 34
+      world: 10274
+      region: 4533
+      realm: 36
     mythic:
       world: 0
       region: 0
@@ -109,8 +109,8 @@ members:
   name: Пандашоманко
   class: Shaman
   race: Pandaren
-  spec: Elemental
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: horde
   region: eu
@@ -120,13 +120,13 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
   mythic_plus_scores:
     all:
-      score: 0
+      score: 164.6
       color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 0
+      score: 164.6
       color: '#ffffff'
     tank:
       score: 0
@@ -138,12 +138,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 0
+      score: 164.6
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 229
+  item_level_equipped: 245
 - rank: 3
   name: Скяльди
   class: Demon Hunter
@@ -354,10 +354,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2437.2
+      score: 2441.6
       color: '#1873da'
     dps:
-      score: 2437.2
+      score: 2441.6
       color: '#1873da'
     healer:
       score: 0
@@ -372,7 +372,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2437.2
+      score: 2441.6
       color: '#1873da'
     spec_3:
       score: 0
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 257
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -1368,8 +1368,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 1794.5
-      color: '#5fbf87'
+      score: 1870.9
+      color: '#5fb692'
     dps:
       score: 0
       color: '#ffffff'
@@ -1377,11 +1377,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1794.5
-      color: '#5fbf87'
+      score: 1870.9
+      color: '#5fb692'
     spec_0:
-      score: 1794.5
-      color: '#5fbf87'
+      score: 1870.9
+      color: '#5fb692'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1664,7 +1664,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 3
   name: Дупця
   class: Demon Hunter
@@ -1898,7 +1898,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 263
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -1953,11 +1953,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 336.8
-      color: '#efffe8'
+      score: 674.3
+      color: '#c2ffad'
     dps:
-      score: 336.8
-      color: '#efffe8'
+      score: 674.3
+      color: '#c2ffad'
     healer:
       score: 0
       color: '#ffffff'
@@ -1971,8 +1971,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 336.8
-      color: '#efffe8'
+      score: 674.3
+      color: '#c2ffad'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1992,11 +1992,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 1751.4
-      color: '#5ec57f'
+      score: 2049.9
+      color: '#599dad'
     dps:
-      score: 1251.2
-      color: '#3eff25'
+      score: 1549.7
+      color: '#52df5d'
     healer:
       score: 1329.3
       color: '#29fc1a'
@@ -2004,8 +2004,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1251.2
-      color: '#3eff25'
+      score: 1549.7
+      color: '#52df5d'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2148,11 +2148,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2264.7
-      color: '#3f82ca'
+      score: 2293.7
+      color: '#3a7fcd'
     dps:
-      score: 2264.7
-      color: '#3f82ca'
+      score: 2293.7
+      color: '#3a7fcd'
     healer:
       score: 0
       color: '#ffffff'
@@ -2160,8 +2160,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2264.7
-      color: '#3f82ca'
+      score: 2293.7
+      color: '#3a7fcd'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2171,7 +2171,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 3
   name: Shennái
   class: Priest
@@ -2382,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2445.8
-      color: '#1873da'
+      score: 2498.6
+      color: '#4b68e1'
     dps:
-      score: 2445.8
-      color: '#1873da'
+      score: 2498.6
+      color: '#4b68e1'
     healer:
       score: 0
       color: '#ffffff'
@@ -2394,8 +2394,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1830.9
-      color: '#5fb98e'
+      score: 2171.4
+      color: '#4e8ebd'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2523,6 +2523,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 259
+- rank: 99
+  name: Vurush
+  class: Druid
+  race: Night Elf
+  spec: Balance
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Turalyon
+  realm_slug: turalyon
+  profile_url: https://raider.io/characters/eu/turalyon/Vurush
+  avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 1872.7
+      color: '#5fb692'
+    dps:
+      score: 1872.7
+      color: '#5fb692'
+    healer:
+      score: 304.1
+      color: '#f3ffed'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 1872.7
+      color: '#5fb692'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 304.1
+      color: '#f3ffed'
+  item_level_equipped: 258
 - rank: 99
   name: Туманная
   class: Druid

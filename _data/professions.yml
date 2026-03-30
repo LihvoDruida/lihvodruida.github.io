@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 16:58:56'
+  updated_at: '2026-03-30 20:47:51'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2072,7 +2072,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 97
+        learned_points: 98
         max_points: 100
     - name: Mining
       id: 186
@@ -2211,7 +2211,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 29
+        learned_points: 35
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3159,6 +3159,59 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 18
+        max_points: 300
+- name: Vurush
+  region: eu
+  realm: Turalyon
+  realm_slug: turalyon
+  profile_url: https://raider.io/characters/eu/turalyon/Vurush
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Cataclysm Enchanting
+        learned_points: 1
+        max_points: 75
+      - name: Classic Enchanting
+        learned_points: 17
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 91
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 100
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 10
         max_points: 300
 - name: Туманная
   region: eu
