@@ -9,11 +9,11 @@
     name: Mistblossom Vanguard
     realm: Terokkar
   dps:
-    score: 929.8
-    color: '#91ff75'
+    score: 1251.2
+    color: '#3eff25'
   healer:
     score: 1329.3
-    color: '#31f927'
+    color: '#29fc1a'
   tank:
     score: 0
     color: '#ffffff'
