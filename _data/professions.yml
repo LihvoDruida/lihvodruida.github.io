@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 06:00:28'
+  updated_at: '2026-03-30 09:15:32'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -589,7 +589,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 86
+        learned_points: 87
         max_points: 100
     - name: Mining
       id: 186
@@ -2211,7 +2211,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 27
+        learned_points: 29
         max_points: 100
     secondaries:
     - name: Archaeology

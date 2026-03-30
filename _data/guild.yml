@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 06:00:28'
+  updated_at: '2026-03-30 09:15:32'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 14751
-      region: 6158
+      world: 14771
+      region: 6168
       realm: 51
     heroic:
-      world: 11041
-      region: 4737
+      world: 11075
+      region: 4753
       realm: 34
     mythic:
       world: 0
@@ -277,7 +277,7 @@ members:
   mythic_plus_scores:
     all:
       score: 2613.1
-      color: '#8e49ea'
+      color: '#874fe9'
     dps:
       score: 0
       color: '#ffffff'
@@ -286,10 +286,10 @@ members:
       color: '#ffffff'
     tank:
       score: 2613.1
-      color: '#8e49ea'
+      color: '#874fe9'
     spec_0:
       score: 2613.1
-      color: '#8e49ea'
+      color: '#874fe9'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1564,10 +1564,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2553.7
-      color: '#7858e6'
+      color: '#715be5'
     dps:
       score: 2553.7
-      color: '#7858e6'
+      color: '#715be5'
     healer:
       score: 0
       color: '#ffffff'
@@ -1582,7 +1582,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 2495.6
-      color: '#5c63e3'
+      color: '#5764e2'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1876,19 +1876,19 @@ members:
   mythic_plus_scores:
     all:
       score: 2517.7
-      color: '#5c63e3'
+      color: '#5764e2'
     dps:
       score: 0
       color: '#ffffff'
     healer:
       score: 2517.7
-      color: '#5c63e3'
+      color: '#5764e2'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 2517.7
-      color: '#5c63e3'
+      color: '#5764e2'
     spec_1:
       score: 0
       color: '#ffffff'
