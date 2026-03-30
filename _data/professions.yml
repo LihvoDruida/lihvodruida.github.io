@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 13:24:13'
+  updated_at: '2026-03-30 16:58:56'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2531,7 +2531,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 5
+        learned_points: 35
         max_points: 100
     - name: Blacksmithing
       id: 164
@@ -2540,7 +2540,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 54
+        learned_points: 55
         max_points: 100
     secondaries:
     - name: Fishing
