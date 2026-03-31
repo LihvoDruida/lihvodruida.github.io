@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 09:03:08'
+  updated_at: '2026-03-31 13:23:57'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -391,6 +391,71 @@ characters:
       - name: Midnight Fishing
         learned_points: 82
         max_points: 300
+- name: Кибароу
+  region: eu
+  realm: Soulflayer
+  realm_slug: soulflayer
+  profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 62
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Dragon Isles Mining
+        learned_points: 53
+        max_points: 100
+      - name: Khaz Algar Mining
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 53
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 48
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 59
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 59
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 14
+        max_points: 300
 - name: Daddyborn
   region: eu
   realm: Silvermoon
@@ -478,7 +543,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 54
+        learned_points: 55
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -1763,7 +1828,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 67
+        learned_points: 69
         max_points: 100
     - name: Tailoring
       id: 197

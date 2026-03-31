@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 09:03:08'
+  updated_at: '2026-03-31 13:23:57'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15144
-      region: 6376
+      world: 15167
+      region: 6386
       realm: 55
     heroic:
-      world: 10585
-      region: 4667
+      world: 10617
+      region: 4676
       realm: 36
     mythic:
       world: 0
@@ -301,6 +301,45 @@ members:
       color: '#ffffff'
   item_level_equipped: 259
 - rank: 99
+  name: Кибароу
+  class: Paladin
+  race: Human
+  spec: Retribution
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Soulflayer
+  realm_slug: soulflayer
+  profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
+  avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/172/259861164-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 891.7
+      color: '#a0ff85'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 891.7
+      color: '#a0ff85'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 891.7
+      color: '#a0ff85'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 251
+- rank: 99
   name: Daddyborn
   class: Warrior
   race: Human
@@ -416,7 +455,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 256
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -499,8 +538,8 @@ members:
   name: Мортург
   class: Paladin
   race: Dwarf
-  spec: Holy
-  role: HEALING
+  spec: Retribution
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -510,20 +549,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 1330.8
-      color: '#1eff00'
+      score: 1489.3
+      color: '#46ec47'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1330.8
-      color: '#1eff00'
+      score: 1489.3
+      color: '#46ec47'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1330.8
-      color: '#1eff00'
+      score: 1489.3
+      color: '#46ec47'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -533,7 +572,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 247
 - rank: 3
   name: Asasinas
   class: Druid
@@ -650,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 263
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1212,11 +1251,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1182.8
-      color: '#60ff45'
+      score: 1521.1
+      color: '#4de553'
     dps:
-      score: 1182.8
-      color: '#60ff45'
+      score: 1521.1
+      color: '#4de553'
     healer:
       score: 0
       color: '#ffffff'
@@ -1224,8 +1263,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 851.8
-      color: '#a5ff8a'
+      score: 1190.1
+      color: '#60ff45'
     spec_1:
       score: 170
       color: '#ffffff'
@@ -1992,11 +2031,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1151.1
-      color: '#67ff4b'
+      score: 1317
+      color: '#30ff17'
     dps:
-      score: 1151.1
-      color: '#67ff4b'
+      score: 1317
+      color: '#30ff17'
     healer:
       score: 0
       color: '#ffffff'
@@ -2010,12 +2049,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1151.1
-      color: '#67ff4b'
+      score: 1317
+      color: '#30ff17'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 248
+  item_level_equipped: 250
 - rank: 0
   name: Khayen
   class: Druid
@@ -2538,11 +2577,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2129.9
-      color: '#5597b4'
+      score: 2161
+      color: '#5394b7'
     dps:
-      score: 2129.9
-      color: '#5597b4'
+      score: 2161
+      color: '#5394b7'
     healer:
       score: 0
       color: '#ffffff'
@@ -2556,12 +2595,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2129.9
-      color: '#5597b4'
+      score: 2161
+      color: '#5394b7'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 260
 - rank: 99
   name: Vurush
   class: Druid
