@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 02:32:36'
+  updated_at: '2026-03-31 05:45:44'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15080
-      region: 6352
-      realm: 54
+      world: 15121
+      region: 6369
+      realm: 55
     heroic:
-      world: 10476
-      region: 4624
+      world: 10555
+      region: 4660
       realm: 36
     mythic:
       world: 0
@@ -354,10 +354,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2440.9
+      score: 2467
       color: '#1873da'
     dps:
-      score: 2440.9
+      score: 2467
       color: '#1873da'
     healer:
       score: 0
@@ -372,12 +372,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2440.9
+      score: 2467
       color: '#1873da'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 260
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -1665,6 +1665,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 259
+- rank: 99
+  name: Кумбар
+  class: Shaman
+  race: Orc
+  spec: Elemental
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Кумбар
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/165/264583845-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2232.4
+      color: '#4b8bc1'
+    dps:
+      score: 2232.4
+      color: '#4b8bc1'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 2231.1
+      color: '#4b8bc1'
+    spec_1:
+      score: 1088.8
+      color: '#79ff5d'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 258
 - rank: 3
   name: Дупця
   class: Demon Hunter
@@ -1875,20 +1914,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2541.5
-      color: '#4f67e1'
+      score: 2567.5
+      color: '#6261e3'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2541.5
-      color: '#4f67e1'
+      score: 2567.5
+      color: '#6261e3'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2541.5
-      color: '#4f67e1'
+      score: 2567.5
+      color: '#6261e3'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2382,11 +2421,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2498.6
-      color: '#0070dd'
+      score: 2524.7
+      color: '#4f67e1'
     dps:
-      score: 2498.6
-      color: '#0070dd'
+      score: 2524.7
+      color: '#4f67e1'
     healer:
       score: 0
       color: '#ffffff'
@@ -2394,8 +2433,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2171.4
-      color: '#5091ba'
+      score: 2197.5
+      color: '#4e8ebd'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2405,7 +2444,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 263
 - rank: 3
   name: Technoihor
   class: Priest
@@ -2655,11 +2694,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 768
-      color: '#b5ff9d'
+      score: 819.1
+      color: '#adff94'
     dps:
-      score: 768
-      color: '#b5ff9d'
+      score: 819.1
+      color: '#adff94'
     healer:
       score: 0
       color: '#ffffff'
@@ -2670,8 +2709,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 768
-      color: '#b5ff9d'
+      score: 819.1
+      color: '#adff94'
     spec_2:
       score: 0
       color: '#ffffff'

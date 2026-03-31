@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 02:32:36'
+  updated_at: '2026-03-31 05:45:44'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -478,7 +478,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 53
+        learned_points: 54
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -1885,6 +1885,56 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 300
+        max_points: 300
+- name: Кумбар
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Кумбар
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 3
+        max_points: 300
+      - name: Khaz Algar Herbalism
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 80
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 90
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 30
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 98
         max_points: 300
 - name: Дупця
   region: eu
