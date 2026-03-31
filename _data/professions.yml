@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 17:00:11'
+  updated_at: '2026-03-31 20:45:05'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1455,7 +1455,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 14
+        learned_points: 50
         max_points: 100
     - name: Enchanting
       id: 333
@@ -1464,7 +1464,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 8
+        learned_points: 15
         max_points: 100
     secondaries: []
 - name: Алак
@@ -3479,7 +3479,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Herbalism
-        learned_points: 4
+        learned_points: 6
         max_points: 100
       - name: Midnight Herbalism
         learned_points: 100
@@ -3532,7 +3532,7 @@ characters:
       id: 164
       tiers:
       - name: Cataclysm Blacksmithing
-        learned_points: 1
+        learned_points: 10
         max_points: 75
       - name: Classic Blacksmithing
         learned_points: 1
@@ -3547,7 +3547,7 @@ characters:
       id: 186
       tiers:
       - name: Cataclysm Mining
-        learned_points: 22
+        learned_points: 57
         max_points: 80
       - name: Classic Mining
         learned_points: 6

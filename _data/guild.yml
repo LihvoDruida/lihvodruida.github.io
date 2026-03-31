@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 17:00:11'
+  updated_at: '2026-03-31 20:45:05'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15192
-      region: 6395
-      realm: 55
+      world: 15236
+      region: 6429
+      realm: 56
     heroic:
-      world: 10647
-      region: 4687
+      world: 10760
+      region: 4776
       realm: 36
     mythic:
       world: 0
@@ -432,11 +432,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2495.3
-      color: '#0070dd'
+      score: 2506.8
+      color: '#376cdf'
     dps:
-      score: 2495.3
-      color: '#0070dd'
+      score: 2506.8
+      color: '#376cdf'
     healer:
       score: 0
       color: '#ffffff'
@@ -450,8 +450,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2495.3
-      color: '#0070dd'
+      score: 2506.8
+      color: '#376cdf'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1290,10 +1290,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1521.1
+      score: 1538.7
       color: '#4de553'
     dps:
-      score: 1521.1
+      score: 1538.7
       color: '#4de553'
     healer:
       score: 0
@@ -1305,8 +1305,8 @@ members:
       score: 1190.1
       color: '#60ff45'
     spec_1:
-      score: 170
-      color: '#ffffff'
+      score: 447.1
+      color: '#e3ffd7'
     spec_2:
       score: 161
       color: '#ffffff'
@@ -1641,11 +1641,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2623.1
-      color: '#8c4bea'
+      score: 2644.6
+      color: '#9842ec'
     dps:
-      score: 2623.1
-      color: '#8c4bea'
+      score: 2644.6
+      color: '#9842ec'
     healer:
       score: 0
       color: '#ffffff'
@@ -1659,8 +1659,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2565
-      color: '#6261e3'
+      score: 2586.5
+      color: '#715be5'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1742,7 +1742,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 258
 - rank: 99
   name: Кумбар
   class: Shaman
@@ -2093,7 +2093,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 248
+  item_level_equipped: 250
 - rank: 0
   name: Khayen
   class: Druid
@@ -2115,8 +2115,8 @@ members:
       score: 1534.7
       color: '#4de553'
     healer:
-      score: 1313.3
-      color: '#30ff17'
+      score: 1355.8
+      color: '#29fc1a'
     tank:
       score: 0
       color: '#ffffff'
@@ -2130,9 +2130,9 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 1313.3
-      color: '#30ff17'
-  item_level_equipped: 258
+      score: 1355.8
+      color: '#29fc1a'
+  item_level_equipped: 260
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2616,11 +2616,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2173.3
-      color: '#5091ba'
+      score: 2214.9
+      color: '#4b8bc1'
     dps:
-      score: 2173.3
-      color: '#5091ba'
+      score: 2214.9
+      color: '#4b8bc1'
     healer:
       score: 0
       color: '#ffffff'
@@ -2634,8 +2634,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2173.3
-      color: '#5091ba'
+      score: 2214.9
+      color: '#4b8bc1'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2678,7 +2678,7 @@ members:
     spec_3:
       score: 304.1
       color: '#f3ffed'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 99
   name: Туманная
   class: Druid
@@ -2694,14 +2694,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 752.6
-      color: '#b5ff9d'
+      score: 919
+      color: '#9cff81'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 752.6
-      color: '#b5ff9d'
+      score: 919
+      color: '#9cff81'
     tank:
       score: 0
       color: '#ffffff'
@@ -2715,8 +2715,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 752.6
-      color: '#b5ff9d'
+      score: 919
+      color: '#9cff81'
   item_level_equipped: 258
 - rank: 99
   name: Thérion
@@ -2772,11 +2772,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 819.1
-      color: '#adff94'
+      score: 1163.9
+      color: '#67ff4b'
     dps:
-      score: 819.1
-      color: '#adff94'
+      score: 1163.9
+      color: '#67ff4b'
     healer:
       score: 0
       color: '#ffffff'
@@ -2787,12 +2787,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 819.1
-      color: '#adff94'
+      score: 1163.9
+      color: '#67ff4b'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 243
+  item_level_equipped: 248
