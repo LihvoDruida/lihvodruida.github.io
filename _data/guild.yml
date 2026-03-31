@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 13:23:57'
+  updated_at: '2026-03-31 17:00:11'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15167
-      region: 6386
+      world: 15192
+      region: 6395
       realm: 55
     heroic:
-      world: 10617
-      region: 4676
+      world: 10647
+      region: 4687
       realm: 36
     mythic:
       world: 0
@@ -222,6 +222,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 236
+- rank: 99
+  name: Графдекот
+  class: Druid
+  race: Night Elf
+  spec: Feral
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Графдекот
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 1585.7
+      color: '#52df5d'
+    dps:
+      score: 1585.7
+      color: '#52df5d'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 1585.7
+      color: '#52df5d'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 260
 - rank: 3
   name: Characternuk
   class: Death Knight
@@ -237,7 +276,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 843.5
+      score: 828.5
       color: '#a9ff8f'
     dps:
       score: 0
@@ -246,10 +285,10 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 843.5
+      score: 828.5
       color: '#a9ff8f'
     spec_0:
-      score: 843.5
+      score: 828.5
       color: '#a9ff8f'
     spec_1:
       score: 0
@@ -276,7 +315,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/198/184003526-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
   mythic_plus_scores:
     all:
-      score: 2613.1
+      score: 2598.1
       color: '#7f54e8'
     dps:
       score: 0
@@ -285,10 +324,10 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2613.1
+      score: 2598.1
       color: '#7f54e8'
     spec_0:
-      score: 2613.1
+      score: 2598.1
       color: '#7f54e8'
     spec_1:
       score: 0
@@ -393,11 +432,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2467
-      color: '#1873da'
+      score: 2495.3
+      color: '#0070dd'
     dps:
-      score: 2467
-      color: '#1873da'
+      score: 2495.3
+      color: '#0070dd'
     healer:
       score: 0
       color: '#ffffff'
@@ -411,12 +450,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2467
-      color: '#1873da'
+      score: 2495.3
+      color: '#0070dd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -822,13 +861,13 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 212.6
+      score: 197.6
       color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 212.6
+      score: 197.6
       color: '#ffffff'
     tank:
       score: 0
@@ -843,7 +882,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 212.6
+      score: 197.6
       color: '#ffffff'
   item_level_equipped: 241
 - rank: 3
@@ -1563,11 +1602,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1604.4
-      color: '#55dc62'
+      score: 1574.4
+      color: '#52df5d'
     dps:
-      score: 1604.4
-      color: '#55dc62'
+      score: 1574.4
+      color: '#52df5d'
     healer:
       score: 0
       color: '#ffffff'
@@ -1575,13 +1614,13 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1441.1
-      color: '#3df23a'
+      score: 1411.1
+      color: '#38f531'
     spec_1:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 367.4
+      score: 352.4
       color: '#edffe4'
     spec_3:
       score: 0
@@ -1602,11 +1641,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2588.9
-      color: '#715be5'
+      score: 2623.1
+      color: '#8c4bea'
     dps:
-      score: 2588.9
-      color: '#715be5'
+      score: 2623.1
+      color: '#8c4bea'
     healer:
       score: 0
       color: '#ffffff'
@@ -1620,8 +1659,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2530.8
-      color: '#4f67e1'
+      score: 2565
+      color: '#6261e3'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2031,11 +2070,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1317
-      color: '#30ff17'
+      score: 1483.3
+      color: '#46ec47'
     dps:
-      score: 1317
-      color: '#30ff17'
+      score: 1483.3
+      color: '#46ec47'
     healer:
       score: 0
       color: '#ffffff'
@@ -2049,18 +2088,18 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1317
-      color: '#30ff17'
+      score: 1483.3
+      color: '#46ec47'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 250
+  item_level_equipped: 248
 - rank: 0
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Restoration
-  role: HEALING
+  spec: Balance
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -2070,20 +2109,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 2048.9
-      color: '#5aa0aa'
+      score: 2033.9
+      color: '#5ba3a7'
     dps:
-      score: 1549.7
-      color: '#50e258'
+      score: 1534.7
+      color: '#4de553'
     healer:
-      score: 1328.3
-      color: '#1eff00'
+      score: 1313.3
+      color: '#30ff17'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1549.7
-      color: '#50e258'
+      score: 1534.7
+      color: '#4de553'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2091,9 +2130,9 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 1328.3
-      color: '#1eff00'
-  item_level_equipped: 259
+      score: 1313.3
+      color: '#30ff17'
+  item_level_equipped: 258
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2109,10 +2148,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     dps:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     healer:
       score: 0
@@ -2121,7 +2160,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     spec_1:
       score: 0
@@ -2148,11 +2187,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1185.2
-      color: '#60ff45'
+      score: 1140.2
+      color: '#6eff52'
     dps:
-      score: 1185.2
-      color: '#60ff45'
+      score: 1140.2
+      color: '#6eff52'
     healer:
       score: 0
       color: '#ffffff'
@@ -2163,8 +2202,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1185.2
-      color: '#60ff45'
+      score: 1140.2
+      color: '#6eff52'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2187,10 +2226,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     dps:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     healer:
       score: 0
@@ -2205,7 +2244,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 591.1
+      score: 576.1
       color: '#cfffbc'
     spec_3:
       score: 0
@@ -2265,11 +2304,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
   mythic_plus_scores:
     all:
-      score: 1061.2
-      color: '#7fff62'
+      score: 1046.2
+      color: '#84ff68'
     dps:
-      score: 1061.2
-      color: '#7fff62'
+      score: 1046.2
+      color: '#84ff68'
     healer:
       score: 0
       color: '#ffffff'
@@ -2283,8 +2322,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1061.2
-      color: '#7fff62'
+      score: 1046.2
+      color: '#84ff68'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2304,8 +2343,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 983.8
-      color: '#8eff72'
+      score: 968.8
+      color: '#93ff77'
     dps:
       score: 456.6
       color: '#e0ffd3'
@@ -2313,11 +2352,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 863.8
-      color: '#a5ff8a'
+      score: 848.8
+      color: '#a9ff8f'
     spec_0:
-      score: 863.8
-      color: '#a5ff8a'
+      score: 848.8
+      color: '#a9ff8f'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2343,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 1457.4
-      color: '#42ef41'
+      score: 1442.4
+      color: '#3df23a'
     dps:
-      score: 1457.4
-      color: '#42ef41'
+      score: 1442.4
+      color: '#3df23a'
     healer:
       score: 0
       color: '#ffffff'
@@ -2361,8 +2400,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1457.4
-      color: '#42ef41'
+      score: 1442.4
+      color: '#3df23a'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2382,7 +2421,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 442.6
+      score: 427.6
       color: '#e3ffd7'
     dps:
       score: 0
@@ -2391,7 +2430,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 442.6
+      score: 427.6
       color: '#e3ffd7'
     spec_0:
       score: 0
@@ -2400,7 +2439,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 442.6
+      score: 427.6
       color: '#e3ffd7'
     spec_3:
       score: 0
@@ -2421,11 +2460,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 1682.9
-      color: '#5ad26f'
+      score: 1637.9
+      color: '#58d56b'
     dps:
-      score: 1682.9
-      color: '#5ad26f'
+      score: 1637.9
+      color: '#58d56b'
     healer:
       score: 0
       color: '#ffffff'
@@ -2433,8 +2472,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1682.9
-      color: '#5ad26f'
+      score: 1637.9
+      color: '#58d56b'
     spec_1:
       score: 167.6
       color: '#ffffff'
@@ -2577,11 +2616,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2161
-      color: '#5394b7'
+      score: 2173.3
+      color: '#5091ba'
     dps:
-      score: 2161
-      color: '#5394b7'
+      score: 2173.3
+      color: '#5091ba'
     healer:
       score: 0
       color: '#ffffff'
@@ -2595,8 +2634,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2161
-      color: '#5394b7'
+      score: 2173.3
+      color: '#5091ba'
     spec_3:
       score: 0
       color: '#ffffff'
