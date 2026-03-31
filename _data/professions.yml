@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-30 20:58:18'
+  updated_at: '2026-03-31 02:32:36'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3268,6 +3268,65 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 12
+        max_points: 300
+- name: Thérion
+  region: eu
+  realm: Doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Thérion
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Cataclysm Blacksmithing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Blacksmithing
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Blacksmithing
+        learned_points: 100
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Cataclysm Mining
+        learned_points: 22
+        max_points: 80
+      - name: Classic Mining
+        learned_points: 6
+        max_points: 305
+      - name: Dragon Isles Mining
+        learned_points: 6
+        max_points: 105
+      - name: Midnight Mining
+        learned_points: 105
+        max_points: 105
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 8
         max_points: 300
 - name: Альянсс
   region: eu
