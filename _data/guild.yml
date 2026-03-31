@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 05:45:44'
+  updated_at: '2026-03-31 09:03:08'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15121
-      region: 6369
+      world: 15144
+      region: 6376
       realm: 55
     heroic:
-      world: 10555
-      region: 4660
+      world: 10585
+      region: 4667
       realm: 36
     mythic:
       world: 0
@@ -650,7 +650,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1212,11 +1212,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1012.8
-      color: '#89ff6d'
+      score: 1182.8
+      color: '#60ff45'
     dps:
-      score: 1012.8
-      color: '#89ff6d'
+      score: 1182.8
+      color: '#60ff45'
     healer:
       score: 0
       color: '#ffffff'
@@ -1227,7 +1227,7 @@ members:
       score: 851.8
       color: '#a5ff8a'
     spec_1:
-      score: 0
+      score: 170
       color: '#ffffff'
     spec_2:
       score: 161
@@ -1992,11 +1992,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 674.3
-      color: '#c4ffaf'
+      score: 1151.1
+      color: '#67ff4b'
     dps:
-      score: 674.3
-      color: '#c4ffaf'
+      score: 1151.1
+      color: '#67ff4b'
     healer:
       score: 0
       color: '#ffffff'
@@ -2010,12 +2010,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 674.3
-      color: '#c4ffaf'
+      score: 1151.1
+      color: '#67ff4b'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 246
+  item_level_equipped: 248
 - rank: 0
   name: Khayen
   class: Druid
@@ -2254,8 +2254,8 @@ members:
   name: Athang
   class: Monk
   race: Haranir
-  spec: Windwalker
-  role: DPS
+  spec: Brewmaster
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -2265,8 +2265,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 824.1
-      color: '#adff94'
+      score: 983.8
+      color: '#8eff72'
     dps:
       score: 456.6
       color: '#e0ffd3'
@@ -2274,11 +2274,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 704.1
-      color: '#bcffa6'
+      score: 863.8
+      color: '#a5ff8a'
     spec_0:
-      score: 704.1
-      color: '#bcffa6'
+      score: 863.8
+      color: '#a5ff8a'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2288,7 +2288,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 247
+  item_level_equipped: 249
 - rank: 3
   name: Тузольд
   class: Death Knight
@@ -2655,8 +2655,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 163.7
-      color: '#ffffff'
+      score: 331.3
+      color: '#f0ffe9'
     dps:
       score: 0
       color: '#ffffff'
@@ -2664,8 +2664,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 163.7
-      color: '#ffffff'
+      score: 331.3
+      color: '#f0ffe9'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2673,8 +2673,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 163.7
-      color: '#ffffff'
+      score: 331.3
+      color: '#f0ffe9'
     spec_3:
       score: 0
       color: '#ffffff'
