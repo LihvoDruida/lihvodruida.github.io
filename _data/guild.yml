@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-01 09:07:31'
+  updated_at: '2026-04-01 13:26:14'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15381
-      region: 6470
+      world: 15408
+      region: 6475
       realm: 56
     heroic:
-      world: 11033
-      region: 4830
+      world: 11070
+      region: 4840
       realm: 38
     mythic:
       world: 0
@@ -339,45 +339,6 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 215
-- rank: 99
-  name: Geppa
-  class: Death Knight
-  race: Mechagnome
-  spec: Blood
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Geppa
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/198/184003526-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2598.1
-      color: '#7957e7'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2598.1
-      color: '#7957e7'
-    spec_0:
-      score: 2598.1
-      color: '#7957e7'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 259
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -1079,7 +1040,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 241
+  item_level_equipped: 244
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -2137,8 +2098,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Balance
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
