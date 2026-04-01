@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-01 16:58:40'
+  updated_at: '2026-04-01 20:47:00'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15419
-      region: 6478
+      world: 15386
+      region: 6495
       realm: 56
     heroic:
-      world: 11092
-      region: 4848
+      world: 11200
+      region: 4946
       realm: 38
     mythic:
       world: 0
@@ -237,11 +237,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 1765.8
-      color: '#5dc97c'
+      score: 1824
+      color: '#5fc283'
     dps:
-      score: 1765.8
-      color: '#5dc97c'
+      score: 1824
+      color: '#5fc283'
     healer:
       score: 0
       color: '#ffffff'
@@ -252,15 +252,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1765.8
-      color: '#5dc97c'
+      score: 1824
+      color: '#5fc283'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 264
 - rank: 3
   name: Characternuk
   class: Death Knight
@@ -455,7 +455,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 267
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -494,7 +494,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 259
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -611,7 +611,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 255
 - rank: 3
   name: Asasinas
   class: Druid
@@ -1017,11 +1017,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 666.6
-      color: '#c5ffb1'
+      score: 836.6
+      color: '#abff91'
     dps:
-      score: 666.6
-      color: '#c5ffb1'
+      score: 836.6
+      color: '#abff91'
     healer:
       score: 0
       color: '#ffffff'
@@ -1029,8 +1029,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 666.6
-      color: '#c5ffb1'
+      score: 836.6
+      color: '#abff91'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1040,7 +1040,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 244
+  item_level_equipped: 245
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -1625,7 +1625,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 242
+  item_level_equipped: 252
 - rank: 99
   name: Vîøn
   class: Mage
@@ -1641,11 +1641,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2644.6
-      color: '#7f54e8'
+      score: 2679
+      color: '#9842ec'
     dps:
-      score: 2644.6
-      color: '#7f54e8'
+      score: 2679
+      color: '#9842ec'
     healer:
       score: 0
       color: '#ffffff'
@@ -1653,18 +1653,18 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 906.2
-      color: '#9fff84'
+      score: 1243.9
+      color: '#58ff3d'
     spec_1:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2586.5
-      color: '#6261e3'
+      score: 2609.8
+      color: '#715be5'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 265
 - rank: 4
   name: Valemor
   class: Mage
@@ -1742,7 +1742,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 260
 - rank: 99
   name: Кумбар
   class: Shaman
@@ -2015,7 +2015,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 266
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2070,11 +2070,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1515.2
-      color: '#4ae84d'
+      score: 1567.9
+      color: '#50e258'
     dps:
-      score: 1515.2
-      color: '#4ae84d'
+      score: 1567.9
+      color: '#50e258'
     healer:
       score: 0
       color: '#ffffff'
@@ -2088,12 +2088,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1515.2
-      color: '#4ae84d'
+      score: 1567.9
+      color: '#50e258'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 253
 - rank: 0
   name: Khayen
   class: Druid
@@ -2132,7 +2132,7 @@ members:
     spec_3:
       score: 1786.9
       color: '#5ec57f'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2145,33 +2145,9 @@ members:
   realm: Silvermoon
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1072.2
-      color: '#83ff66'
-    dps:
-      score: 1072.2
-      color: '#83ff66'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 1072.2
-      color: '#83ff66'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 259
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 3
   name: Нежнаяпулька
   class: Hunter
@@ -2265,11 +2241,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2359.9
-      color: '#347cd0'
+      score: 2384.9
+      color: '#2e79d4'
     dps:
-      score: 2359.9
-      color: '#347cd0'
+      score: 2384.9
+      color: '#2e79d4'
     healer:
       score: 0
       color: '#ffffff'
@@ -2277,8 +2253,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2359.9
-      color: '#347cd0'
+      score: 2384.9
+      color: '#2e79d4'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2288,7 +2264,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 267
 - rank: 3
   name: Shennái
   class: Priest
@@ -2327,7 +2303,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 254
+  item_level_equipped: 255
 - rank: 1
   name: Athang
   class: Monk
@@ -2639,7 +2615,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 265
 - rank: 99
   name: Vurush
   class: Druid
@@ -2678,7 +2654,7 @@ members:
     spec_3:
       score: 437.3
       color: '#e4ffd8'
-  item_level_equipped: 260
+  item_level_equipped: 265
 - rank: 99
   name: Корукк
   class: Hunter
@@ -2717,7 +2693,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 261
 - rank: 99
   name: Туманная
   class: Druid

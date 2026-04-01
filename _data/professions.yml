@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-01 16:58:40'
+  updated_at: '2026-04-01 20:47:00'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1973,6 +1973,9 @@ characters:
     - name: Skinning
       id: 393
       tiers:
+      - name: Cataclysm Skinning
+        learned_points: 2
+        max_points: 75
       - name: Classic Skinning
         learned_points: 1
         max_points: 300
@@ -2005,7 +2008,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 95
+        learned_points: 100
         max_points: 100
     - name: Fishing
       id: 356
@@ -2746,7 +2749,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 87
+        learned_points: 91
         max_points: 100
     - name: Herbalism
       id: 182
