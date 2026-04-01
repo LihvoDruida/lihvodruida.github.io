@@ -10,10 +10,10 @@
     realm: Terokkar
   dps:
     score: 1534.7
-    color: '#4de652'
+    color: '#4ae84d'
   healer:
     score: 1786.9
-    color: '#5ec482'
+    color: '#5ec57f'
   tank:
     score: 0
     color: '#ffffff'
