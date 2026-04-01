@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-03-31 20:45:05'
+  updated_at: '2026-04-01 02:44:34'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -406,6 +406,32 @@ characters:
         learned_points: 1
         max_points: 100
     secondaries: []
+- name: Кеенди
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Кеенди
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 21
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 15
+        max_points: 100
+    secondaries: []
 - name: Geppa
   region: eu
   realm: Terokkar
@@ -689,7 +715,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 65
+        learned_points: 68
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1727,7 +1753,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 70
+        learned_points: 74
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3464,6 +3490,41 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 10
+        max_points: 300
+- name: Корукк
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Корукк
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Herbalism
+        learned_points: 26
+        max_points: 105
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 61
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Туманная
   region: eu
