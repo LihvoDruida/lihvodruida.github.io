@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-01 13:26:14'
+  updated_at: '2026-04-01 16:58:40'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1200,7 +1200,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Inscription
-        learned_points: 96
+        learned_points: 97
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1631,7 +1631,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 74
+        learned_points: 75
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -1899,9 +1899,33 @@ characters:
     - name: Fishing
       id: 356
       tiers:
+      - name: Zandalari Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
       - name: Classic Fishing
         learned_points: 1
         max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
       - name: Midnight Fishing
         learned_points: 8
         max_points: 300
@@ -3383,7 +3407,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 26
+        learned_points: 27
         max_points: 105
     - name: Mining
       id: 186
@@ -3392,7 +3416,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 61
+        learned_points: 65
         max_points: 100
     secondaries:
     - name: Fishing
@@ -3410,56 +3434,8 @@ characters:
   realm_slug: ashenvale
   profile_url: https://raider.io/characters/eu/ashenvale/Туманная
   professions:
-    primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Herbalism
-        learned_points: 6
-        max_points: 100
-      - name: Midnight Herbalism
-        learned_points: 100
-        max_points: 100
-    - name: Inscription
-      id: 773
-      tiers:
-      - name: Classic Inscription
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Inscription
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 3
-        max_points: 100
-      - name: Midnight Cooking
-        learned_points: 100
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 12
-        max_points: 300
+    primaries: []
+    secondaries: []
 - name: Thérion
   region: eu
   realm: Doomhammer
