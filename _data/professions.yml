@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-01 20:47:00'
+  updated_at: '2026-04-02 02:28:48'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1218,7 +1218,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 61
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1760,6 +1760,15 @@ characters:
   profile_url: https://raider.io/characters/eu/terokkar/Ahilles
   professions:
     primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 3
+        max_points: 100
     - name: Mining
       id: 186
       tiers:
@@ -1771,15 +1780,6 @@ characters:
         max_points: 300
       - name: Midnight Mining
         learned_points: 80
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 1
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2749,7 +2749,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 91
+        learned_points: 94
         max_points: 100
     - name: Herbalism
       id: 182
@@ -3354,7 +3354,7 @@ characters:
       id: 333
       tiers:
       - name: Cataclysm Enchanting
-        learned_points: 1
+        learned_points: 2
         max_points: 75
       - name: Classic Enchanting
         learned_points: 17
@@ -3410,7 +3410,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 27
+        learned_points: 28
         max_points: 105
     - name: Mining
       id: 186
@@ -3419,7 +3419,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 65
+        learned_points: 70
         max_points: 100
     secondaries:
     - name: Fishing
