@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-02 05:43:24'
+  updated_at: '2026-04-02 09:00:53'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15481
-      region: 6521
+      world: 15501
+      region: 6531
       realm: 56
     heroic:
-      world: 11416
-      region: 4976
+      world: 11461
+      region: 4995
       realm: 38
     mythic:
       world: 0
@@ -2730,33 +2730,9 @@ members:
   realm: Ashenvale
   realm_slug: ashenvale
   profile_url: https://raider.io/characters/eu/ashenvale/Туманная
-  avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 919
-      color: '#a1ff86'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 919
-      color: '#a1ff86'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 919
-      color: '#a1ff86'
-  item_level_equipped: 261
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 99
   name: Thérion
   class: Warrior
