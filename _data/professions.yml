@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-02 16:59:16'
+  updated_at: '2026-04-02 20:38:19'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -86,7 +86,7 @@ characters:
         learned_points: 82
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 76
+        learned_points: 83
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2418,7 +2418,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 36
+        learned_points: 38
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2722,7 +2722,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 200
+        learned_points: 226
         max_points: 300
 - name: Oxydenis
   region: eu
@@ -2841,7 +2841,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 74
+        learned_points: 80
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3289,7 +3289,7 @@ characters:
       id: 186
       tiers:
       - name: Legion Mining
-        learned_points: 6
+        learned_points: 9
         max_points: 102
       - name: Cataclysm Mining
         learned_points: 3
