@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-02 09:00:53'
+  updated_at: '2026-04-02 13:17:54'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15501
-      region: 6531
+      world: 15522
+      region: 6538
       realm: 56
     heroic:
-      world: 11461
-      region: 4995
+      world: 11490
+      region: 4998
       realm: 38
     mythic:
       world: 0
@@ -2616,11 +2616,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2214.9
-      color: '#5394b7'
+      score: 2249.6
+      color: '#4e8ebd'
     dps:
-      score: 2214.9
-      color: '#5394b7'
+      score: 2249.6
+      color: '#4e8ebd'
     healer:
       score: 0
       color: '#ffffff'
@@ -2634,12 +2634,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2214.9
-      color: '#5394b7'
+      score: 2249.6
+      color: '#4e8ebd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 266
 - rank: 99
   name: Vurush
   class: Druid
@@ -2717,9 +2717,9 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 260
 - rank: 99
-  name: Туманная
+  name: Туманная-303967403
   class: Druid
   race: Night Elf
   spec: Restoration
@@ -2729,10 +2729,34 @@ members:
   region: eu
   realm: Ashenvale
   realm_slug: ashenvale
-  profile_url: https://raider.io/characters/eu/ashenvale/Туманная
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  profile_url: https://raider.io/characters/eu/ashenvale/Туманная-303967403
+  avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 919
+      color: '#a1ff86'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 919
+      color: '#a1ff86'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 919
+      color: '#a1ff86'
+  item_level_equipped: 261
 - rank: 99
   name: Thérion
   class: Warrior
