@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-03 08:57:11'
+  updated_at: '2026-04-03 13:07:40'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15696
-      region: 6597
-      realm: 57
+      world: 15738
+      region: 6623
+      realm: 58
     heroic:
-      world: 11981
-      region: 5142
+      world: 12058
+      region: 5168
       realm: 39
     mythic:
       world: 0
@@ -222,6 +222,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 236
+- rank: 99
+  name: Алфлейм
+  class: Warlock
+  race: Human
+  spec: Demonology
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Алфлейм
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/5/254901253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 640.5
+      color: '#ccffba'
+    dps:
+      score: 640.5
+      color: '#ccffba'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 640.5
+      color: '#ccffba'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 255
 - rank: 99
   name: Графдекот
   class: Druid
@@ -1641,11 +1680,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2679
-      color: '#7957e7'
+      score: 2703.6
+      color: '#884ee9'
     dps:
-      score: 2679
-      color: '#7957e7'
+      score: 2703.6
+      color: '#884ee9'
     healer:
       score: 0
       color: '#ffffff'
@@ -1653,8 +1692,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1243.9
-      color: '#69ff4e'
+      score: 1925
+      color: '#5fbf87'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1664,7 +1703,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 266
 - rank: 4
   name: Valemor
   class: Mage
@@ -1719,14 +1758,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/221/223459293-avatar.jpg?alt=/wow/static/images/2d/avatar/8-1.jpg
   mythic_plus_scores:
     all:
-      score: 1547.5
-      color: '#42ef41'
+      score: 1884.3
+      color: '#5fc283'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1547.5
-      color: '#42ef41'
+      score: 1884.3
+      color: '#5fc283'
     tank:
       score: 0
       color: '#ffffff'
@@ -1737,12 +1776,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1547.5
-      color: '#42ef41'
+      score: 1884.3
+      color: '#5fc283'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 99
   name: Кумбар
   class: Shaman
@@ -1758,11 +1797,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/165/264583845-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 2232.4
-      color: '#5597b4'
+      score: 2263.6
+      color: '#5394b7'
     dps:
-      score: 2232.4
-      color: '#5597b4'
+      score: 2263.6
+      color: '#5394b7'
     healer:
       score: 0
       color: '#ffffff'
@@ -1770,8 +1809,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2231.1
-      color: '#5597b4'
+      score: 2262.3
+      color: '#5394b7'
     spec_1:
       score: 1088.8
       color: '#89ff6c'
@@ -1781,7 +1820,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 260
 - rank: 3
   name: Дупця
   class: Demon Hunter
@@ -2717,7 +2756,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 227
 - rank: 99
   name: Туманная-303967403
   class: Druid
