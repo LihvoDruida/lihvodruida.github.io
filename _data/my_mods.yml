@@ -5,12 +5,12 @@
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
   downloads: 423329
-  updated_at: '2026-03-27T18:00:43.93Z'
+  updated_at: '2026-04-03T19:39:08.203Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/1665/847/256/256/639060492329175207.png
   categories:
-  - Bags & Inventory
   - Miscellaneous
+  - Bags & Inventory
   - Audio & Video
   - PvP
   game_versions:
@@ -32,7 +32,7 @@
   - 2.5.4
   - 1.15.8
   - 1.15.2
-  version: v8.0.2
+  version: v8.0.3
 - id: 1458193
   name: Chatify (Chat Enhancer)
   summary: A lightweight and modular chat enhancement addon. Features include chat
