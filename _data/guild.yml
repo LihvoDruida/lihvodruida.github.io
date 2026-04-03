@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-02 20:38:19'
+  updated_at: '2026-04-03 02:30:44'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15584
-      region: 6576
+      world: 15643
+      region: 6587
       realm: 57
     heroic:
-      world: 11634
-      region: 5092
+      world: 11852
+      region: 5131
       realm: 39
     mythic:
       world: 0
@@ -432,10 +432,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2532
+      score: 2534.8
       color: '#1873da'
     dps:
-      score: 2532
+      score: 2534.8
       color: '#1873da'
     healer:
       score: 0
@@ -450,7 +450,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2532
+      score: 2534.8
       color: '#1873da'
     spec_3:
       score: 0
@@ -1602,11 +1602,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1574.4
-      color: '#4ae84d'
+      score: 1712.2
+      color: '#58d56b'
     dps:
-      score: 1574.4
-      color: '#4ae84d'
+      score: 1712.2
+      color: '#58d56b'
     healer:
       score: 0
       color: '#ffffff'
@@ -1614,8 +1614,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1411.1
-      color: '#1eff00'
+      score: 1548.8
+      color: '#46ec47'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1625,7 +1625,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 253
 - rank: 99
   name: Vîøn
   class: Mage
@@ -1914,11 +1914,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
   mythic_plus_scores:
     all:
-      score: 848.1
-      color: '#afff96'
+      score: 1147.1
+      color: '#7bff5f'
     dps:
-      score: 848.1
-      color: '#afff96'
+      score: 1147.1
+      color: '#7bff5f'
     healer:
       score: 0
       color: '#ffffff'
@@ -1932,12 +1932,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 848.1
-      color: '#afff96'
+      score: 1147.1
+      color: '#7bff5f'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 255
 - rank: 3
   name: Kensshi
   class: Druid
@@ -2109,14 +2109,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 2230.1
-      color: '#5394b7'
+      score: 2248.8
+      color: '#5091ba'
     dps:
       score: 1534.7
       color: '#42ef41'
     healer:
-      score: 1795.3
-      color: '#5ccc78'
+      score: 1817
+      color: '#5dc97c'
     tank:
       score: 0
       color: '#ffffff'
@@ -2130,8 +2130,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 1795.3
-      color: '#5ccc78'
+      score: 1817
+      color: '#5dc97c'
   item_level_equipped: 262
 - rank: 3
   name: Hexxoffender
@@ -2343,8 +2343,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 968.8
-      color: '#9bff80'
+      score: 1447.4
+      color: '#31f927'
     dps:
       score: 456.6
       color: '#e2ffd5'
@@ -2352,11 +2352,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 848.8
-      color: '#afff96'
+      score: 1327.4
+      color: '#46ff2d'
     spec_0:
-      score: 848.8
-      color: '#afff96'
+      score: 1327.4
+      color: '#46ff2d'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2366,7 +2366,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 249
+  item_level_equipped: 252
 - rank: 3
   name: Тузольд
   class: Death Knight
@@ -2382,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 1442.4
-      color: '#29fc1a'
+      score: 1565.3
+      color: '#4ae84d'
     dps:
-      score: 1442.4
-      color: '#29fc1a'
+      score: 1565.3
+      color: '#4ae84d'
     healer:
       score: 0
       color: '#ffffff'
@@ -2400,8 +2400,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1442.4
-      color: '#29fc1a'
+      score: 1565.3
+      color: '#4ae84d'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2616,10 +2616,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2249.6
+      score: 2255.4
       color: '#5091ba'
     dps:
-      score: 2249.6
+      score: 2255.4
       color: '#5091ba'
     healer:
       score: 0
@@ -2634,12 +2634,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2249.6
+      score: 2255.4
       color: '#5091ba'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 267
 - rank: 99
   name: Vurush
   class: Druid
@@ -2655,11 +2655,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2008
-      color: '#5fb099'
+      score: 2077.6
+      color: '#5ca6a3'
     dps:
-      score: 2008
-      color: '#5fb099'
+      score: 2077.6
+      color: '#5ca6a3'
     healer:
       score: 437.3
       color: '#e5ffda'
@@ -2667,8 +2667,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2008
-      color: '#5fb099'
+      score: 2077.6
+      color: '#5ca6a3'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2795,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 256
 - rank: 99
   name: Альянсс
   class: Warrior
@@ -2828,6 +2828,45 @@ members:
     spec_1:
       score: 1193.1
       color: '#70ff54'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 248
+- rank: 99
+  name: Kremen
+  class: Warrior
+  race: Human
+  spec: Arms
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Kremen
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/16/189182736-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 1791.4
+      color: '#5ccc78'
+    dps:
+      score: 1791.4
+      color: '#5ccc78'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 1791.4
+      color: '#5ccc78'
     spec_2:
       score: 0
       color: '#ffffff'
