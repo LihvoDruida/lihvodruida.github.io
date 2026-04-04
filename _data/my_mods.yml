@@ -4,13 +4,13 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 425947
-  updated_at: '2026-04-03T19:39:08.203Z'
+  downloads: 426965
+  updated_at: '2026-04-04T06:54:23.953Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/1665/847/256/256/639060492329175207.png
   categories:
-  - Bags & Inventory
   - Miscellaneous
+  - Bags & Inventory
   - Audio & Video
   - PvP
   game_versions:
@@ -32,12 +32,12 @@
   - 2.5.4
   - 1.15.8
   - 1.15.2
-  version: v8.0.3
+  version: v8.0.4
 - id: 1458193
   name: Chatify (Chat Enhancer)
   summary: A lightweight and modular chat enhancement addon. Features include chat
     history, URL copying, spam filtering, visual customization, and sound alerts.
-  downloads: 8177
+  downloads: 8184
   updated_at: '2026-03-25T13:42:24.307Z'
   link: https://www.curseforge.com/wow/addons/chatify-chat-enhancer
   logo: https://media.forgecdn.net/avatars/thumbnails/1669/900/256/256/639062343636465468.png
@@ -55,7 +55,7 @@
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 14627
+  downloads: 14630
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
