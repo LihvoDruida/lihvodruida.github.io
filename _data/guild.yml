@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-04 05:22:31'
+  updated_at: '2026-04-04 08:43:28'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15940
-      region: 6713
+      world: 15946
+      region: 6715
       realm: 59
     heroic:
-      world: 12419
-      region: 5282
+      world: 12431
+      region: 5283
       realm: 39
     mythic:
       world: 0
@@ -276,11 +276,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2204.4
-      color: '#5a9fab'
+      score: 2252.7
+      color: '#5699b2'
     dps:
-      score: 2204.4
-      color: '#5a9fab'
+      score: 2252.7
+      color: '#5699b2'
     healer:
       score: 0
       color: '#ffffff'
@@ -291,8 +291,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2204.4
-      color: '#5a9fab'
+      score: 2252.7
+      color: '#5699b2'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -472,10 +472,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2649.1
-      color: '#5565e2'
+      color: '#4f67e1'
     dps:
       score: 2649.1
-      color: '#5565e2'
+      color: '#4f67e1'
     healer:
       score: 0
       color: '#ffffff'
@@ -490,7 +490,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 2649.1
-      color: '#5565e2'
+      color: '#4f67e1'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1681,10 +1681,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2786.4
-      color: '#a335ee'
+      color: '#9842ec'
     dps:
       score: 2786.4
-      color: '#a335ee'
+      color: '#9842ec'
     healer:
       score: 0
       color: '#ffffff'
@@ -2032,19 +2032,19 @@ members:
   mythic_plus_scores:
     all:
       score: 2680.4
-      color: '#695ee4'
+      color: '#6261e3'
     dps:
       score: 0
       color: '#ffffff'
     healer:
       score: 2680.4
-      color: '#695ee4'
+      color: '#6261e3'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 2680.4
-      color: '#695ee4'
+      color: '#6261e3'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2109,11 +2109,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1706
-      color: '#4ee455'
+      score: 1728.7
+      color: '#51e15a'
     dps:
-      score: 1706
-      color: '#4ee455'
+      score: 1728.7
+      color: '#51e15a'
     healer:
       score: 0
       color: '#ffffff'
@@ -2127,12 +2127,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1706
-      color: '#4ee455'
+      score: 1728.7
+      color: '#51e15a'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 258
 - rank: 0
   name: Khayen
   class: Druid
@@ -2305,10 +2305,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2729
-      color: '#884ee9'
+      color: '#7f54e8'
     dps:
       score: 2729
-      color: '#884ee9'
+      color: '#7f54e8'
     healer:
       score: 0
       color: '#ffffff'
@@ -2317,7 +2317,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2729
-      color: '#884ee9'
+      color: '#7f54e8'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2539,10 +2539,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2626.9
-      color: '#3b6bdf'
+      color: '#376cdf'
     dps:
       score: 2626.9
-      color: '#3b6bdf'
+      color: '#376cdf'
     healer:
       score: 0
       color: '#ffffff'
