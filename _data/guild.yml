@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-04 08:43:28'
+  updated_at: '2026-04-04 13:00:11'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 15946
-      region: 6715
+      world: 15963
+      region: 6717
       realm: 59
     heroic:
-      world: 12431
-      region: 5283
+      world: 12479
+      region: 5292
       realm: 39
     mythic:
       world: 0
@@ -471,11 +471,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2649.1
-      color: '#4f67e1'
+      score: 2695.7
+      color: '#715be5'
     dps:
-      score: 2649.1
-      color: '#4f67e1'
+      score: 2695.7
+      color: '#715be5'
     healer:
       score: 0
       color: '#ffffff'
@@ -489,8 +489,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2649.1
-      color: '#4f67e1'
+      score: 2695.7
+      color: '#715be5'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -767,7 +767,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 266
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1329,11 +1329,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 1627.9
-      color: '#43ee42'
+      score: 1707.4
+      color: '#4ee455'
     dps:
-      score: 1627.9
-      color: '#43ee42'
+      score: 1707.4
+      color: '#4ee455'
     healer:
       score: 0
       color: '#ffffff'
@@ -1341,8 +1341,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1279.3
-      color: '#6cff50'
+      score: 1519.8
+      color: '#1eff00'
     spec_1:
       score: 447.1
       color: '#e7ffdd'
@@ -1485,8 +1485,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2289.9
-      color: '#5496b5'
+      score: 2636.8
+      color: '#376cdf'
     dps:
       score: 0
       color: '#ffffff'
@@ -1494,11 +1494,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2289.9
-      color: '#5496b5'
+      score: 2636.8
+      color: '#376cdf'
     spec_0:
-      score: 2289.9
-      color: '#5496b5'
+      score: 2636.8
+      color: '#376cdf'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1664,7 +1664,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 99
   name: Vîøn
   class: Mage
@@ -2499,11 +2499,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 2020.8
-      color: '#5fb98e'
+      score: 2113.6
+      color: '#5eac9d'
     dps:
-      score: 2020.8
-      color: '#5fb98e'
+      score: 2113.6
+      color: '#5eac9d'
     healer:
       score: 0
       color: '#ffffff'
@@ -2511,8 +2511,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2020.8
-      color: '#5fb98e'
+      score: 2113.6
+      color: '#5eac9d'
     spec_1:
       score: 167.6
       color: '#ffffff'
