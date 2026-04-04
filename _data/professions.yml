@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-04 13:00:11'
+  updated_at: '2026-04-04 16:39:04'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3432,7 +3432,7 @@ characters:
         learned_points: 102
         max_points: 102
       - name: Midnight Engineering
-        learned_points: 100
+        learned_points: 101
         max_points: 102
     - name: Mining
       id: 186
