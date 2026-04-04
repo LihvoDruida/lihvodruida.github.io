@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-04 16:39:04'
+  updated_at: '2026-04-04 20:35:34'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -844,7 +844,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 97
+        learned_points: 98
         max_points: 100
     - name: Mining
       id: 186
@@ -2027,7 +2027,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 64
+        learned_points: 69
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2043,7 +2043,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 34
+        learned_points: 94
         max_points: 100
     - name: Fishing
       id: 356
@@ -3711,3 +3711,29 @@ characters:
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
+- name: Kokosik
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 68
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 67
+        max_points: 100
+    secondaries: []
