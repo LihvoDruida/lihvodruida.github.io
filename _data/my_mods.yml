@@ -4,15 +4,15 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 431930
+  downloads: 433267
   updated_at: '2026-04-05T07:43:50.997Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/1665/847/256/256/639060492329175207.png
   categories:
   - Bags & Inventory
-  - Miscellaneous
   - Audio & Video
   - PvP
+  - Miscellaneous
   game_versions:
   - 12.0.5
   - 12.0.1
@@ -37,8 +37,8 @@
   name: Chatify (Chat Enhancer)
   summary: A lightweight and modular chat enhancement addon. Features include chat
     history, URL copying, spam filtering, visual customization, and sound alerts.
-  downloads: 8247
-  updated_at: '2026-03-25T13:42:24.307Z'
+  downloads: 8380
+  updated_at: '2026-04-05T10:30:00.9Z'
   link: https://www.curseforge.com/wow/addons/chatify-chat-enhancer
   logo: https://media.forgecdn.net/avatars/thumbnails/1669/900/256/256/639062343636465468.png
   categories:
@@ -48,14 +48,17 @@
   game_versions:
   - 12.0.1
   - 12.0.0
+  - 11.2.7
   - 5.5.2
+  - 3.4.5
   - 2.5.5
-  version: v0.9.7
+  - 1.15.8
+  version: v0.9.8
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 14630
+  downloads: 14633
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
@@ -116,7 +119,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 3763
+  downloads: 3764
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
