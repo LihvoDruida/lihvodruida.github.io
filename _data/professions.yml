@@ -1,11 +1,178 @@
 metadata:
-  updated_at: '2026-04-05 13:01:42'
+  updated_at: '2026-04-05 16:39:33'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
   realm: Terokkar
   region: eu
 characters:
+- name: Дедика
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Дедика
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Zandalari Mining
+        learned_points: 175
+        max_points: 175
+      - name: Legion Mining
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Mining
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Mining
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Mining
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Mining
+        learned_points: 75
+        max_points: 75
+      - name: Outland Mining
+        learned_points: 75
+        max_points: 75
+      - name: Classic Mining
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Mining
+        learned_points: 150
+        max_points: 150
+      - name: Dragon Isles Mining
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Mining
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Zandalari Jewelcrafting
+        learned_points: 175
+        max_points: 175
+      - name: Legion Jewelcrafting
+        learned_points: 6
+        max_points: 100
+      - name: Draenor Jewelcrafting
+        learned_points: 55
+        max_points: 100
+      - name: Pandaria Jewelcrafting
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Jewelcrafting
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Jewelcrafting
+        learned_points: 75
+        max_points: 75
+      - name: Outland Jewelcrafting
+        learned_points: 75
+        max_points: 75
+      - name: Classic Jewelcrafting
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Jewelcrafting
+        learned_points: 100
+        max_points: 100
+      - name: Dragon Isles Jewelcrafting
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Jewelcrafting
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Jewelcrafting
+        learned_points: 86
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 150
+        max_points: 175
+      - name: Legion Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Outland Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 175
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 13
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 200
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 300
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 300
+        max_points: 300
 - name: Пандашоманко
   region: eu
   realm: Eversong
@@ -1323,7 +1490,7 @@ characters:
         learned_points: 5
         max_points: 150
       - name: Khaz Algar Mining
-        learned_points: 85
+        learned_points: 88
         max_points: 100
     secondaries:
     - name: Fishing
