@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-05 05:46:01'
+  updated_at: '2026-04-05 08:46:41'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 16162
-      region: 6787
+      world: 16175
+      region: 6789
       realm: 60
     heroic:
-      world: 12748
-      region: 5350
+      world: 12764
+      region: 5353
       realm: 39
     mythic:
       world: 0
@@ -510,11 +510,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 1946.6
-      color: '#5dca79'
+      score: 2217.3
+      color: '#5ca5a5'
     dps:
-      score: 1946.6
-      color: '#5dca79'
+      score: 2217.3
+      color: '#5ca5a5'
     healer:
       score: 0
       color: '#ffffff'
@@ -525,15 +525,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1946.6
-      color: '#5dca79'
+      score: 2217.3
+      color: '#5ca5a5'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 258
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -2132,7 +2132,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 245
+  item_level_equipped: 246
 - rank: 3
   name: Christmans
   class: Paladin
