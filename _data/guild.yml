@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-04 20:35:34'
+  updated_at: '2026-04-05 02:37:14'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 16038
-      region: 6752
+      world: 16119
+      region: 6777
       realm: 60
     heroic:
-      world: 12549
-      region: 5314
+      world: 12675
+      region: 5340
       realm: 39
     mythic:
       world: 0
@@ -351,9 +351,33 @@ members:
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Кеенди
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 133.2
+      color: '#ffffff'
+    dps:
+      score: 133.2
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 133.2
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 215
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -553,8 +577,8 @@ members:
   name: Plaguenjoyer
   class: Priest
   race: Night Elf
-  spec: Discipline
-  role: HEALING
+  spec: Shadow
+  role: DPS
   gender: female
   faction: alliance
   region: eu
@@ -564,20 +588,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 604.3
-      color: '#d4ffc4'
+      score: 874.6
+      color: '#b6ff9e'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 604.3
-      color: '#d4ffc4'
+      score: 874.6
+      color: '#b6ff9e'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 604.3
-      color: '#d4ffc4'
+      score: 874.6
+      color: '#b6ff9e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -587,7 +611,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 242
+  item_level_equipped: 243
 - rank: 99
   name: Мортург
   class: Paladin
@@ -1134,6 +1158,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 122
+- rank: 99
+  name: Квадрицепци
+  class: Demon Hunter
+  race: Night Elf
+  spec: Devourer
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Квадрицепци
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2269.5
+      color: '#599dad'
+    dps:
+      score: 2269.5
+      color: '#599dad'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 326.8
+      color: '#f2ffed'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2269.5
+      color: '#599dad'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 256
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -2319,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
   mythic_plus_scores:
     all:
-      score: 1365.8
-      color: '#65ff49'
+      score: 1748.2
+      color: '#4fe356'
     dps:
-      score: 1365.8
-      color: '#65ff49'
+      score: 1748.2
+      color: '#4fe356'
     healer:
       score: 0
       color: '#ffffff'
@@ -2337,12 +2400,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1365.8
-      color: '#65ff49'
+      score: 1748.2
+      color: '#4fe356'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 263
 - rank: 1
   name: Athang
   class: Monk
@@ -2503,7 +2566,7 @@ members:
   name: Mólfár
   class: Warlock
   race: Human
-  spec: Affliction
+  spec: Destruction
   role: DPS
   gender: male
   faction: alliance
@@ -2532,7 +2595,7 @@ members:
       score: 300.8
       color: '#f5fff0'
     spec_2:
-      score: 2383
+      score: 2386.3
       color: '#4d8dbf'
     spec_3:
       score: 0
@@ -2850,6 +2913,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 248
+- rank: 99
+  name: Щпикачечка
+  class: Demon Hunter
+  race: Night Elf
+  spec: Devourer
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Щпикачечка
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/72/265489736-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 352.1
+      color: '#f0ffe9'
+    dps:
+      score: 352.1
+      color: '#f0ffe9'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 352.1
+      color: '#f0ffe9'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 243
 - rank: 99
   name: Kremen
   class: Warrior
