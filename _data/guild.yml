@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-05 16:39:33'
+  updated_at: '2026-04-05 20:37:00'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -11,7 +11,7 @@ raid_progression:
   tier-mn-1:
     summary: 3/9 H
     total_bosses: 9
-    normal_bosses_killed: 6
+    normal_bosses_killed: 8
     heroic_bosses_killed: 3
     mythic_bosses_killed: 0
   blackrock-depths:
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 16225
-      region: 6800
-      realm: 60
-    heroic:
-      world: 12031
-      region: 5006
+      world: 9115
+      region: 3948
       realm: 35
+    heroic:
+      world: 12051
+      region: 5066
+      realm: 37
     mythic:
       world: 0
       region: 0
@@ -120,8 +120,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 1407.5
-      color: '#5eff43'
+      score: 1947.8
+      color: '#5ccd76'
     dps:
       score: 0
       color: '#ffffff'
@@ -129,21 +129,21 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1407.5
-      color: '#5eff43'
+      score: 1947.8
+      color: '#5ccd76'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1407.5
-      color: '#5eff43'
+      score: 1947.8
+      color: '#5ccd76'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 263
 - rank: 99
   name: Пандашоманко
   class: Shaman
@@ -277,10 +277,10 @@ members:
   mythic_plus_scores:
     all:
       score: 640.5
-      color: '#d2ffc1'
+      color: '#d3ffc2'
     dps:
       score: 640.5
-      color: '#d2ffc1'
+      color: '#d3ffc2'
     healer:
       score: 0
       color: '#ffffff'
@@ -292,7 +292,7 @@ members:
       color: '#ffffff'
     spec_1:
       score: 640.5
-      color: '#d2ffc1'
+      color: '#d3ffc2'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -316,10 +316,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2361.6
-      color: '#5091ba'
+      color: '#5192ba'
     dps:
       score: 2361.6
-      color: '#5091ba'
+      color: '#5192ba'
     healer:
       score: 0
       color: '#ffffff'
@@ -331,7 +331,7 @@ members:
       color: '#ffffff'
     spec_1:
       score: 2361.6
-      color: '#5091ba'
+      color: '#5192ba'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -355,7 +355,7 @@ members:
   mythic_plus_scores:
     all:
       score: 828.5
-      color: '#bbffa4'
+      color: '#bcffa6'
     dps:
       score: 0
       color: '#ffffff'
@@ -364,10 +364,10 @@ members:
       color: '#ffffff'
     tank:
       score: 828.5
-      color: '#bbffa4'
+      color: '#bcffa6'
     spec_0:
       score: 828.5
-      color: '#bbffa4'
+      color: '#bcffa6'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 215
+  item_level_equipped: 239
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -433,7 +433,7 @@ members:
   mythic_plus_scores:
     all:
       score: 891.7
-      color: '#b4ff9c'
+      color: '#b6ff9e'
     dps:
       score: 0
       color: '#ffffff'
@@ -442,13 +442,13 @@ members:
       color: '#ffffff'
     tank:
       score: 891.7
-      color: '#b4ff9c'
+      color: '#b6ff9e'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
       score: 891.7
-      color: '#b4ff9c'
+      color: '#b6ff9e'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -550,10 +550,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2217.3
-      color: '#5ca5a5'
+      color: '#5ca6a3'
     dps:
       score: 2217.3
-      color: '#5ca5a5'
+      color: '#5ca6a3'
     healer:
       score: 0
       color: '#ffffff'
@@ -565,14 +565,14 @@ members:
       color: '#ffffff'
     spec_1:
       score: 2217.3
-      color: '#5ca5a5'
+      color: '#5ca6a3'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 263
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -628,19 +628,19 @@ members:
   mythic_plus_scores:
     all:
       score: 1148.8
-      color: '#92ff76'
+      color: '#94ff78'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
       score: 1148.8
-      color: '#92ff76'
+      color: '#94ff78'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 1148.8
-      color: '#92ff76'
+      color: '#94ff78'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -666,20 +666,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 2146.4
-      color: '#5faf9a'
+      score: 2326.7
+      color: '#5495b6'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2146.4
-      color: '#5faf9a'
+      score: 2326.7
+      color: '#5495b6'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2146.4
-      color: '#5faf9a'
+      score: 2326.7
+      color: '#5495b6'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1213,10 +1213,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2543.7
-      color: '#2776d6'
+      color: '#2777d6'
     dps:
       score: 2543.7
-      color: '#2776d6'
+      color: '#2777d6'
     healer:
       score: 0
       color: '#ffffff'
@@ -1231,7 +1231,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 2543.7
-      color: '#2776d6'
+      color: '#2777d6'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1407,11 +1407,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 2010.1
-      color: '#5fc086'
+      score: 2042.1
+      color: '#5fbf88'
     dps:
-      score: 2010.1
-      color: '#5fc086'
+      score: 2042.1
+      color: '#5fbf88'
     healer:
       score: 0
       color: '#ffffff'
@@ -1419,18 +1419,18 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1992.5
-      color: '#5ec482'
+      score: 2024.6
+      color: '#5fc284'
     spec_1:
       score: 447.1
-      color: '#e8ffde'
+      color: '#e9ffdf'
     spec_2:
       score: 161
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 257
 - rank: 3
   name: Komatoznic
   class: Demon Hunter
@@ -1720,10 +1720,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2010.2
-      color: '#5fc086'
+      color: '#5fc284'
     dps:
       score: 2010.2
-      color: '#5fc086'
+      color: '#5fc284'
     healer:
       score: 0
       color: '#ffffff'
@@ -1732,13 +1732,13 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2010.2
-      color: '#5fc086'
+      color: '#5fc284'
     spec_1:
       score: 0
       color: '#ffffff'
     spec_2:
       score: 352.4
-      color: '#f0ffe9'
+      color: '#f0ffea'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1771,7 +1771,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2377.9
-      color: '#4d8dbe'
+      color: '#4e8ebd'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1876,10 +1876,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2291.7
-      color: '#579bb0'
+      color: '#589caf'
     dps:
       score: 2291.7
-      color: '#579bb0'
+      color: '#589caf'
     healer:
       score: 0
       color: '#ffffff'
@@ -1888,10 +1888,10 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2290.4
-      color: '#579bb0'
+      color: '#589caf'
     spec_1:
       score: 1088.8
-      color: '#99ff7e'
+      color: '#9bff80'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2032,10 +2032,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1299.3
-      color: '#78ff5c'
+      color: '#7cff5f'
     dps:
       score: 1299.3
-      color: '#78ff5c'
+      color: '#7cff5f'
     healer:
       score: 0
       color: '#ffffff'
@@ -2050,7 +2050,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 1299.3
-      color: '#78ff5c'
+      color: '#7cff5f'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2188,10 +2188,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1728.7
-      color: '#48ea4b'
+      color: '#45ed45'
     dps:
       score: 1728.7
-      color: '#48ea4b'
+      color: '#45ed45'
     healer:
       score: 0
       color: '#ffffff'
@@ -2206,7 +2206,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 1728.7
-      color: '#48ea4b'
+      color: '#45ed45'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2249,7 +2249,7 @@ members:
     spec_3:
       score: 2070.5
       color: '#5fbb8c'
-  item_level_equipped: 263
+  item_level_equipped: 264
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2305,10 +2305,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1419.5
-      color: '#5eff43'
+      color: '#63ff48'
     dps:
       score: 1419.5
-      color: '#5eff43'
+      color: '#63ff48'
     healer:
       score: 0
       color: '#ffffff'
@@ -2320,7 +2320,7 @@ members:
       color: '#ffffff'
     spec_1:
       score: 1419.5
-      color: '#5eff43'
+      color: '#63ff48'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2344,10 +2344,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1072.2
-      color: '#9dff82'
+      color: '#9fff84'
     dps:
       score: 1072.2
-      color: '#9dff82'
+      color: '#9fff84'
     healer:
       score: 0
       color: '#ffffff'
@@ -2362,7 +2362,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 1072.2
-      color: '#9dff82'
+      color: '#9fff84'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2422,10 +2422,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1748.2
-      color: '#4ce651'
+      color: '#49e94c'
     dps:
       score: 1748.2
-      color: '#4ce651'
+      color: '#49e94c'
     healer:
       score: 0
       color: '#ffffff'
@@ -2440,7 +2440,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 1748.2
-      color: '#4ce651'
+      color: '#49e94c'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2461,7 +2461,7 @@ members:
   mythic_plus_scores:
     all:
       score: 1447.4
-      color: '#58ff3e'
+      color: '#5eff43'
     dps:
       score: 456.6
       color: '#e6ffdb'
@@ -2470,10 +2470,10 @@ members:
       color: '#ffffff'
     tank:
       score: 1352.1
-      color: '#6aff4e'
+      color: '#6eff52'
     spec_0:
       score: 1352.1
-      color: '#6aff4e'
+      color: '#6eff52'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2499,11 +2499,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 1930.3
-      color: '#5cce75'
+      score: 2029.9
+      color: '#5fc284'
     dps:
-      score: 1930.3
-      color: '#5cce75'
+      score: 2029.9
+      color: '#5fc284'
     healer:
       score: 0
       color: '#ffffff'
@@ -2517,8 +2517,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1930.3
-      color: '#5cce75'
+      score: 2029.9
+      color: '#5fc284'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2539,7 +2539,7 @@ members:
   mythic_plus_scores:
     all:
       score: 427.6
-      color: '#e8ffde'
+      color: '#e9ffdf'
     dps:
       score: 0
       color: '#ffffff'
@@ -2548,7 +2548,7 @@ members:
       color: '#ffffff'
     tank:
       score: 427.6
-      color: '#e8ffde'
+      color: '#e9ffdf'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2557,7 +2557,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 427.6
-      color: '#e8ffde'
+      color: '#e9ffdf'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2578,10 +2578,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2328.3
-      color: '#5394b7'
+      color: '#5495b6'
     dps:
       score: 2328.3
-      color: '#5394b7'
+      color: '#5495b6'
     healer:
       score: 0
       color: '#ffffff'
@@ -2590,7 +2590,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2328.3
-      color: '#5394b7'
+      color: '#5495b6'
     spec_1:
       score: 167.6
       color: '#ffffff'
@@ -2600,7 +2600,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 265
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2629,13 +2629,13 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2272.7
-      color: '#579bb0'
+      color: '#589caf'
     spec_1:
       score: 300.8
-      color: '#f5fff0'
+      color: '#f5fff1'
     spec_2:
       score: 2386.3
-      color: '#4d8dbe'
+      color: '#4e8ebd'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2695,7 +2695,7 @@ members:
   mythic_plus_scores:
     all:
       score: 482.3
-      color: '#e3ffd7'
+      color: '#e3ffd8'
     dps:
       score: 0
       color: '#ffffff'
@@ -2704,7 +2704,7 @@ members:
       color: '#ffffff'
     tank:
       score: 482.3
-      color: '#e3ffd7'
+      color: '#e3ffd8'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2713,7 +2713,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 482.3
-      color: '#e3ffd7'
+      color: '#e3ffd8'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2733,11 +2733,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2273.7
-      color: '#579bb0'
+      score: 2276.4
+      color: '#589caf'
     dps:
-      score: 2273.7
-      color: '#579bb0'
+      score: 2276.4
+      color: '#589caf'
     healer:
       score: 0
       color: '#ffffff'
@@ -2751,8 +2751,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2273.7
-      color: '#579bb0'
+      score: 2276.4
+      color: '#589caf'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2795,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 265
 - rank: 99
   name: Vurush
   class: Druid
@@ -2812,19 +2812,19 @@ members:
   mythic_plus_scores:
     all:
       score: 2440.7
-      color: '#4283c8'
+      color: '#4284c8'
     dps:
       score: 2440.7
-      color: '#4283c8'
+      color: '#4284c8'
     healer:
       score: 437.3
-      color: '#e8ffde'
+      color: '#e9ffdf'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 2440.7
-      color: '#4283c8'
+      color: '#4284c8'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2833,7 +2833,7 @@ members:
       color: '#ffffff'
     spec_3:
       score: 437.3
-      color: '#e8ffde'
+      color: '#e9ffdf'
   item_level_equipped: 266
 - rank: 99
   name: Корукк
@@ -2850,11 +2850,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
   mythic_plus_scores:
     all:
-      score: 2457.4
-      color: '#4283c8'
+      score: 2599.8
+      color: '#1a73da'
     dps:
-      score: 2457.4
-      color: '#4283c8'
+      score: 2599.8
+      color: '#1a73da'
     healer:
       score: 0
       color: '#ffffff'
@@ -2865,15 +2865,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2457.4
-      color: '#4283c8'
+      score: 2599.8
+      color: '#1a73da'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 266
 - rank: 99
   name: Туманная-303967403
   class: Druid
@@ -2929,7 +2929,7 @@ members:
   mythic_plus_scores:
     all:
       score: 765.7
-      color: '#c4ffaf'
+      color: '#c5ffb0'
     dps:
       score: 0
       color: '#ffffff'
@@ -2938,7 +2938,7 @@ members:
       color: '#ffffff'
     tank:
       score: 765.7
-      color: '#c4ffaf'
+      color: '#c5ffb0'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2947,7 +2947,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 765.7
-      color: '#c4ffaf'
+      color: '#c5ffb0'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3007,10 +3007,10 @@ members:
   mythic_plus_scores:
     all:
       score: 352.1
-      color: '#f0ffe9'
+      color: '#f0ffea'
     dps:
       score: 352.1
-      color: '#f0ffe9'
+      color: '#f0ffea'
     healer:
       score: 0
       color: '#ffffff'
@@ -3025,11 +3025,11 @@ members:
       color: '#ffffff'
     spec_2:
       score: 352.1
-      color: '#f0ffe9'
+      color: '#f0ffea'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 243
+  item_level_equipped: 244
 - rank: 99
   name: Kremen
   class: Warrior
@@ -3046,10 +3046,10 @@ members:
   mythic_plus_scores:
     all:
       score: 1794
-      color: '#52df5d'
+      color: '#50e258'
     dps:
       score: 1794
-      color: '#52df5d'
+      color: '#50e258'
     healer:
       score: 0
       color: '#ffffff'
@@ -3061,7 +3061,7 @@ members:
       color: '#fdfffb'
     spec_1:
       score: 1791.4
-      color: '#52df5d'
+      color: '#50e258'
     spec_2:
       score: 0
       color: '#ffffff'
