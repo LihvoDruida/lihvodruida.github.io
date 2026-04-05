@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-05 08:46:41'
+  updated_at: '2026-04-05 13:01:42'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -881,7 +881,7 @@ characters:
         learned_points: 34
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 52
+        learned_points: 53
         max_points: 300
 - name: Asasinas
   region: eu
@@ -3443,13 +3443,13 @@ characters:
         learned_points: 3
         max_points: 102
       - name: Dragon Isles Engineering
-        learned_points: 11
+        learned_points: 12
         max_points: 102
       - name: Khaz Algar Engineering
         learned_points: 102
         max_points: 102
       - name: Midnight Engineering
-        learned_points: 101
+        learned_points: 102
         max_points: 102
     - name: Mining
       id: 186
@@ -3470,7 +3470,7 @@ characters:
         learned_points: 38
         max_points: 152
       - name: Dragon Isles Mining
-        learned_points: 24
+        learned_points: 26
         max_points: 102
       - name: Khaz Algar Mining
         learned_points: 102
@@ -3533,6 +3533,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 18
         max_points: 300
+- name: Ragnarøøk
+  region: eu
+  realm: Burning Legion
+  realm_slug: burning-legion
+  profile_url: https://raider.io/characters/eu/burning-legion/Ragnarøøk
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 74
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 63
+        max_points: 100
+    secondaries: []
 - name: Vurush
   region: eu
   realm: Turalyon
@@ -3646,7 +3672,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Blacksmithing
-        learned_points: 1
+        learned_points: 3
         max_points: 100
       - name: Midnight Blacksmithing
         learned_points: 100
@@ -3661,7 +3687,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Dragon Isles Mining
-        learned_points: 6
+        learned_points: 8
         max_points: 105
       - name: Midnight Mining
         learned_points: 105
