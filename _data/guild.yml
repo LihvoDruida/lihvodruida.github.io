@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-06 13:15:39'
+  updated_at: '2026-04-06 16:52:32'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 9626
-      region: 4087
+      world: 9726
+      region: 4124
       realm: 35
     heroic:
-      world: 10408
-      region: 4434
+      world: 10444
+      region: 4448
       realm: 31
     mythic:
       world: 0
@@ -120,8 +120,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 1947.8
-      color: '#5bcf73'
+      score: 1979.7
+      color: '#5ccb78'
     dps:
       score: 0
       color: '#ffffff'
@@ -129,14 +129,14 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1947.8
-      color: '#5bcf73'
+      score: 1979.7
+      color: '#5ccb78'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1947.8
-      color: '#5bcf73'
+      score: 1979.7
+      color: '#5ccb78'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -338,7 +338,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 269
 - rank: 3
   name: Characternuk
   class: Death Knight
@@ -384,20 +384,20 @@ members:
   race: Haranir
   spec: Elemental
   role: DPS
-  gender: male
+  gender: female
   faction: alliance
   region: eu
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Кеенди
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 854.9
-      color: '#baffa4'
+      score: 1131.8
+      color: '#97ff7b'
     dps:
-      score: 854.9
-      color: '#baffa4'
+      score: 1131.8
+      color: '#97ff7b'
     healer:
       score: 0
       color: '#ffffff'
@@ -405,8 +405,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 854.9
-      color: '#baffa4'
+      score: 1131.8
+      color: '#97ff7b'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 247
+  item_level_equipped: 248
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -616,8 +616,8 @@ members:
   name: Plaguenjoyer
   class: Priest
   race: Night Elf
-  spec: Shadow
-  role: DPS
+  spec: Discipline
+  role: HEALING
   gender: female
   faction: alliance
   region: eu
@@ -627,20 +627,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1148.8
-      color: '#97ff7b'
+      score: 1165.9
+      color: '#93ff77'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 1148.8
-      color: '#97ff7b'
+      score: 1165.9
+      color: '#93ff77'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1148.8
-      color: '#97ff7b'
+      score: 1165.9
+      color: '#93ff77'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -650,7 +650,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 244
+  item_level_equipped: 245
 - rank: 99
   name: Мортург
   class: Paladin
@@ -689,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 262
 - rank: 3
   name: Asasinas
   class: Druid
@@ -1201,7 +1201,7 @@ members:
   name: Квадрицепци
   class: Demon Hunter
   race: Night Elf
-  spec: Havoc
+  spec: Devourer
   role: DPS
   gender: male
   faction: alliance
@@ -1212,10 +1212,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2543.7
+      score: 2547.1
       color: '#2877d6'
     dps:
-      score: 2543.7
+      score: 2547.1
       color: '#2877d6'
     healer:
       score: 0
@@ -1230,7 +1230,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2543.7
+      score: 2547.1
       color: '#2877d6'
     spec_3:
       score: 0
@@ -3084,11 +3084,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
   mythic_plus_scores:
     all:
-      score: 674.2
-      color: '#d1ffc0'
+      score: 1802.7
+      color: '#4de553'
     dps:
-      score: 674.2
-      color: '#d1ffc0'
+      score: 1802.7
+      color: '#4de553'
     healer:
       score: 0
       color: '#ffffff'
@@ -3102,8 +3102,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 674.2
-      color: '#d1ffc0'
+      score: 1802.7
+      color: '#4de553'
     spec_3:
       score: 0
       color: '#ffffff'
