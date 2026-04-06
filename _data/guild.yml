@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-05 20:37:00'
+  updated_at: '2026-04-06 02:38:56'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -9,10 +9,10 @@ guild_info:
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
 raid_progression:
   tier-mn-1:
-    summary: 3/9 H
+    summary: 4/9 H
     total_bosses: 9
     normal_bosses_killed: 8
-    heroic_bosses_killed: 3
+    heroic_bosses_killed: 4
     mythic_bosses_killed: 0
   blackrock-depths:
     summary: 0/8 N
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 9115
-      region: 3948
+      world: 9381
+      region: 4022
       realm: 35
     heroic:
-      world: 12051
-      region: 5066
-      realm: 37
+      world: 10274
+      region: 4387
+      realm: 30
     mythic:
       world: 0
       region: 0
@@ -315,11 +315,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2361.6
-      color: '#5192ba'
+      score: 2495.1
+      color: '#377dcf'
     dps:
-      score: 2361.6
-      color: '#5192ba'
+      score: 2495.1
+      color: '#377dcf'
     healer:
       score: 0
       color: '#ffffff'
@@ -330,15 +330,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2361.6
-      color: '#5192ba'
+      score: 2495.1
+      color: '#377dcf'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 270
 - rank: 3
   name: Characternuk
   class: Death Knight
@@ -393,11 +393,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 133.2
-      color: '#ffffff'
+      score: 743.5
+      color: '#c8ffb4'
     dps:
-      score: 133.2
-      color: '#ffffff'
+      score: 743.5
+      color: '#c8ffb4'
     healer:
       score: 0
       color: '#ffffff'
@@ -405,8 +405,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 133.2
-      color: '#ffffff'
+      score: 743.5
+      color: '#c8ffb4'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 239
+  item_level_equipped: 246
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -549,11 +549,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 2217.3
-      color: '#5ca6a3'
+      score: 2547.5
+      color: '#2777d6'
     dps:
-      score: 2217.3
-      color: '#5ca6a3'
+      score: 2547.5
+      color: '#2777d6'
     healer:
       score: 0
       color: '#ffffff'
@@ -564,8 +564,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2217.3
-      color: '#5ca6a3'
+      score: 2547.5
+      color: '#2777d6'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -783,7 +783,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2591.8
+      score: 2595.1
       color: '#1a73da'
     dps:
       score: 0
@@ -792,7 +792,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2591.8
+      score: 2595.1
       color: '#1a73da'
     spec_0:
       score: 0
@@ -801,7 +801,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2591.8
+      score: 2595.1
       color: '#1a73da'
     spec_3:
       score: 0
@@ -2132,7 +2132,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 268
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2382,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2729
-      color: '#6a5ee5'
+      score: 2747.6
+      color: '#7858e6'
     dps:
-      score: 2729
-      color: '#6a5ee5'
+      score: 2747.6
+      color: '#7858e6'
     healer:
       score: 0
       color: '#ffffff'
@@ -2394,8 +2394,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2729
-      color: '#6a5ee5'
+      score: 2747.6
+      color: '#7858e6'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2499,11 +2499,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
   mythic_plus_scores:
     all:
-      score: 2029.9
-      color: '#5fc284'
+      score: 2128.5
+      color: '#5fb198'
     dps:
-      score: 2029.9
-      color: '#5fc284'
+      score: 2128.5
+      color: '#5fb198'
     healer:
       score: 0
       color: '#ffffff'
@@ -2517,12 +2517,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2029.9
-      color: '#5fc284'
+      score: 2128.5
+      color: '#5fb198'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 259
 - rank: 3
   name: Travka
   class: Druid
@@ -2694,8 +2694,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 482.3
-      color: '#e3ffd8'
+      score: 1075.7
+      color: '#9bff80'
     dps:
       score: 0
       color: '#ffffff'
@@ -2703,8 +2703,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 482.3
-      color: '#e3ffd8'
+      score: 1075.7
+      color: '#9bff80'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2712,12 +2712,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 482.3
-      color: '#e3ffd8'
+      score: 1075.7
+      color: '#9bff80'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 243
+  item_level_equipped: 250
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2733,11 +2733,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2276.4
-      color: '#589caf'
+      score: 2356
+      color: '#5192ba'
     dps:
-      score: 2276.4
-      color: '#589caf'
+      score: 2356
+      color: '#5192ba'
     healer:
       score: 0
       color: '#ffffff'
@@ -2751,12 +2751,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2276.4
-      color: '#589caf'
+      score: 2356
+      color: '#5192ba'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 266
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -2834,7 +2834,7 @@ members:
     spec_3:
       score: 437.3
       color: '#e9ffdf'
-  item_level_equipped: 266
+  item_level_equipped: 268
 - rank: 99
   name: Корукк
   class: Hunter
@@ -2873,7 +2873,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 267
 - rank: 99
   name: Туманная-303967403
   class: Druid
@@ -2889,14 +2889,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2195.8
-      color: '#5daaa0'
+      score: 2223
+      color: '#5ca6a3'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2195.8
-      color: '#5daaa0'
+      score: 2223
+      color: '#5ca6a3'
     tank:
       score: 0
       color: '#ffffff'
@@ -2910,8 +2910,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2195.8
-      color: '#5daaa0'
+      score: 2223
+      color: '#5ca6a3'
   item_level_equipped: 261
 - rank: 99
   name: Thérion

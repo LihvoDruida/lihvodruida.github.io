@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-05 20:37:00'
+  updated_at: '2026-04-06 02:38:56'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -736,7 +736,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 21
+        learned_points: 22
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1677,7 +1677,16 @@ characters:
       - name: Khaz Algar Enchanting
         learned_points: 4
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 95
+        max_points: 100
 - name: Prayddh
   region: eu
   realm: Terokkar
@@ -3578,7 +3587,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 22
+        learned_points: 23
         max_points: 100
     secondaries: []
 - name: Севатар
