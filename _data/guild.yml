@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 13:23:13'
+  updated_at: '2026-04-07 17:02:02'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10448
-      region: 4602
-      realm: 41
+      world: 10570
+      region: 4697
+      realm: 42
     heroic:
-      world: 10857
-      region: 4716
+      world: 10885
+      region: 4735
       realm: 35
     mythic:
       world: 0
@@ -666,20 +666,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1436.1
-      color: '#67ff4b'
+      score: 1692.3
+      color: '#2afb1c'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 1436.1
-      color: '#67ff4b'
+      score: 1692.3
+      color: '#2afb1c'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1436.1
-      color: '#67ff4b'
+      score: 1692.3
+      color: '#2afb1c'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -689,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 245
+  item_level_equipped: 249
 - rank: 99
   name: Мортург
   class: Paladin
@@ -822,7 +822,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2614.5
+      score: 2634.1
       color: '#1b73d9'
     dps:
       score: 0
@@ -831,7 +831,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2614.5
+      score: 2634.1
       color: '#1b73d9'
     spec_0:
       score: 0
@@ -840,12 +840,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2614.5
+      score: 2634.1
       color: '#1b73d9'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 270
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1134,11 +1134,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1537.1
-      color: '#50ff36'
+      score: 1641.2
+      color: '#2dff14'
     dps:
-      score: 1537.1
-      color: '#50ff36'
+      score: 1641.2
+      color: '#2dff14'
     healer:
       score: 0
       color: '#ffffff'
@@ -1146,8 +1146,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1537.1
-      color: '#50ff36'
+      score: 1641.2
+      color: '#2dff14'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1157,7 +1157,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 254
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -1251,11 +1251,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2665.2
-      color: '#0070dd'
+      score: 2695.1
+      color: '#4769e0'
     dps:
-      score: 2665.2
-      color: '#0070dd'
+      score: 2695.1
+      color: '#4769e0'
     healer:
       score: 0
       color: '#ffffff'
@@ -1269,8 +1269,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2665.2
-      color: '#0070dd'
+      score: 2695.1
+      color: '#4769e0'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1914,10 +1914,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/165/264583845-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 2291.7
+      score: 2292.1
       color: '#5aa0aa'
     dps:
-      score: 2291.7
+      score: 2292.1
       color: '#5aa0aa'
     healer:
       score: 0
@@ -1926,7 +1926,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2290.4
+      score: 2290.7
       color: '#5aa0aa'
     spec_1:
       score: 1088.8
@@ -2304,11 +2304,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     dps:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     healer:
       score: 0
       color: '#ffffff'
@@ -2316,8 +2316,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2327,7 +2327,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 264
 - rank: 3
   name: Нежнаяпулька
   class: Hunter
@@ -2382,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     dps:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     healer:
       score: 0
       color: '#ffffff'
@@ -2400,12 +2400,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1072.2
-      color: '#a3ff88'
+      score: 2118.3
+      color: '#5fb98e'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 217
+  item_level_equipped: 260
 - rank: 1
   name: Пизнайка
   class: Druid
@@ -2616,11 +2616,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 2328.3
-      color: '#5799b1'
+      score: 2371.2
+      color: '#5292b9'
     dps:
-      score: 2328.3
-      color: '#5799b1'
+      score: 2371.2
+      color: '#5292b9'
     healer:
       score: 0
       color: '#ffffff'
@@ -2628,8 +2628,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2328.3
-      color: '#5799b1'
+      score: 2371.2
+      color: '#5292b9'
     spec_1:
       score: 167.6
       color: '#ffffff'
@@ -2889,10 +2889,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
   mythic_plus_scores:
     all:
-      score: 2599.8
+      score: 2634.3
       color: '#1b73d9'
     dps:
-      score: 2599.8
+      score: 2634.3
       color: '#1b73d9'
     healer:
       score: 0
@@ -2904,7 +2904,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2599.8
+      score: 2634.3
       color: '#1b73d9'
     spec_2:
       score: 0
@@ -2912,7 +2912,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 266
 - rank: 99
   name: Туманная-303967403
   class: Druid
