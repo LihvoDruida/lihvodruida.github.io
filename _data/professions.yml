@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 09:06:11'
+  updated_at: '2026-04-07 13:23:13'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1840,7 +1840,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 95
+        learned_points: 96
         max_points: 100
 - name: Prayddh
   region: eu

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 09:06:11'
+  updated_at: '2026-04-07 13:23:13'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10416
-      region: 4586
+      world: 10448
+      region: 4602
       realm: 41
     heroic:
-      world: 10810
-      region: 4678
+      world: 10857
+      region: 4716
       realm: 35
     mythic:
       world: 0
@@ -549,11 +549,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2969.2
-      color: '#ae39e2'
+      score: 2982.9
+      color: '#b33add'
     dps:
-      score: 2969.2
-      color: '#ae39e2'
+      score: 2982.9
+      color: '#b33add'
     healer:
       score: 0
       color: '#ffffff'
@@ -567,8 +567,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2969.2
-      color: '#ae39e2'
+      score: 2982.9
+      color: '#b33add'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -666,20 +666,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1165.9
-      color: '#95ff7a'
+      score: 1436.1
+      color: '#67ff4b'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 1165.9
-      color: '#95ff7a'
+      score: 1436.1
+      color: '#67ff4b'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1165.9
-      color: '#95ff7a'
+      score: 1436.1
+      color: '#67ff4b'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -861,11 +861,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 512.3
-      color: '#e2ffd6'
+      score: 569.8
+      color: '#ddffcf'
     dps:
-      score: 512.3
-      color: '#e2ffd6'
+      score: 569.8
+      color: '#ddffcf'
     healer:
       score: 0
       color: '#ffffff'
@@ -879,8 +879,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 512.3
-      color: '#e2ffd6'
+      score: 569.8
+      color: '#ddffcf'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1251,10 +1251,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2656.8
+      score: 2665.2
       color: '#0070dd'
     dps:
-      score: 2656.8
+      score: 2665.2
       color: '#0070dd'
     healer:
       score: 0
@@ -1269,12 +1269,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2656.8
+      score: 2665.2
       color: '#0070dd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 267
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -2912,7 +2912,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 267
 - rank: 99
   name: Туманная-303967403
   class: Druid
