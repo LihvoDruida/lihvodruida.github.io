@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 05:48:24'
+  updated_at: '2026-04-07 09:06:11'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10325
-      region: 4516
-      realm: 39
+      world: 10416
+      region: 4586
+      realm: 41
     heroic:
-      world: 10783
-      region: 4663
+      world: 10810
+      region: 4678
       realm: 35
     mythic:
       world: 0
@@ -354,11 +354,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2521.3
-      color: '#387ecf'
+      score: 2588.1
+      color: '#1b73d9'
     dps:
-      score: 2521.3
-      color: '#387ecf'
+      score: 2588.1
+      color: '#1b73d9'
     healer:
       score: 0
       color: '#ffffff'
@@ -369,15 +369,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2521.3
-      color: '#387ecf'
+      score: 2588.1
+      color: '#1b73d9'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 271
 - rank: 3
   name: Characternuk
   class: Death Knight
@@ -728,7 +728,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 263
 - rank: 3
   name: Asasinas
   class: Druid
@@ -3123,11 +3123,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/16/189182736-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2391.5
-      color: '#5292b9'
+      score: 2437.1
+      color: '#4b8bc0'
     dps:
-      score: 2391.5
-      color: '#5292b9'
+      score: 2437.1
+      color: '#4b8bc0'
     healer:
       score: 0
       color: '#ffffff'
@@ -3138,15 +3138,15 @@ members:
       score: 228
       color: '#fdfffc'
     spec_1:
-      score: 2391.5
-      color: '#5292b9'
+      score: 2437.1
+      color: '#4b8bc0'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 254
 - rank: 99
   name: Kokosik
   class: Mage
