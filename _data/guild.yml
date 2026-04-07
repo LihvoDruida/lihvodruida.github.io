@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 02:33:45'
+  updated_at: '2026-04-07 05:48:24'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10247
-      region: 4475
+      world: 10325
+      region: 4516
       realm: 39
     heroic:
-      world: 10713
-      region: 4643
+      world: 10783
+      region: 4663
       realm: 35
     mythic:
       world: 0
@@ -2600,7 +2600,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 251
+  item_level_equipped: 255
 - rank: 99
   name: Зулпот
   class: Hunter
@@ -3123,11 +3123,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/16/189182736-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2252.7
-      color: '#5ca4a6'
+      score: 2391.5
+      color: '#5292b9'
     dps:
-      score: 2252.7
-      color: '#5ca4a6'
+      score: 2391.5
+      color: '#5292b9'
     healer:
       score: 0
       color: '#ffffff'
@@ -3138,8 +3138,8 @@ members:
       score: 228
       color: '#fdfffc'
     spec_1:
-      score: 2250
-      color: '#5ca4a6'
+      score: 2391.5
+      color: '#5292b9'
     spec_2:
       score: 0
       color: '#ffffff'
