@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-06 20:39:38'
+  updated_at: '2026-04-07 02:33:45'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -558,6 +558,143 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 127
+        max_points: 300
+- name: Eidis
+  region: eu
+  realm: Tarren Mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Zandalari Engineering
+        learned_points: 171
+        max_points: 175
+      - name: Legion Engineering
+        learned_points: 89
+        max_points: 100
+      - name: Draenor Engineering
+        learned_points: 36
+        max_points: 100
+      - name: Pandaria Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Engineering
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Outland Engineering
+        learned_points: 65
+        max_points: 75
+      - name: Classic Engineering
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Engineering
+        learned_points: 80
+        max_points: 100
+      - name: Dragon Isles Engineering
+        learned_points: 25
+        max_points: 100
+      - name: Midnight Engineering
+        learned_points: 1
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Zandalari Alchemy
+        learned_points: 1
+        max_points: 175
+      - name: Legion Alchemy
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Alchemy
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Alchemy
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Alchemy
+        learned_points: 1
+        max_points: 75
+      - name: Outland Alchemy
+        learned_points: 1
+        max_points: 75
+      - name: Classic Alchemy
+        learned_points: 51
+        max_points: 300
+      - name: Shadowlands Alchemy
+        learned_points: 154
+        max_points: 175
+      - name: Dragon Isles Alchemy
+        learned_points: 96
+        max_points: 100
+      - name: Midnight Alchemy
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 11
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 50
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 134
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 17
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 20
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 93
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 54
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 85
         max_points: 300
 - name: Графдекот
   region: eu
@@ -3198,7 +3335,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 88
+        learned_points: 91
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3904,6 +4041,56 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 8
+        max_points: 300
+- name: Мелиодас
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 53
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 86
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Альянсс
   region: eu
