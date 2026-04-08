@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-08 17:06:14'
+  updated_at: '2026-04-08 20:45:28'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10981
-      region: 4867
+      world: 11086
+      region: 4948
       realm: 43
     heroic:
-      world: 11339
-      region: 4822
-      realm: 35
+      world: 11503
+      region: 4969
+      realm: 39
     mythic:
       world: 0
       region: 0
@@ -338,7 +338,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 265
 - rank: 99
   name: Графдекот
   class: Druid
@@ -572,7 +572,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 271
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -861,11 +861,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1066.8
-      color: '#a5ff8b'
+      score: 1553.6
+      color: '#4fff35'
     dps:
-      score: 1066.8
-      color: '#a5ff8b'
+      score: 1553.6
+      color: '#4fff35'
     healer:
       score: 0
       color: '#ffffff'
@@ -879,12 +879,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1066.8
-      color: '#a5ff8b'
+      score: 1553.6
+      color: '#4fff35'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 252
+  item_level_equipped: 254
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -1251,10 +1251,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2695.1
+      score: 2695.7
       color: '#4369e0'
     dps:
-      score: 2695.1
+      score: 2695.7
       color: '#4369e0'
     healer:
       score: 0
@@ -1269,12 +1269,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2695.1
+      score: 2695.7
       color: '#4369e0'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 267
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -1820,7 +1820,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 269
 - rank: 4
   name: Valemor
   class: Mage
@@ -2171,7 +2171,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 270
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2444,7 +2444,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 273
 - rank: 3
   name: Shennái
   class: Priest
@@ -2639,7 +2639,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 268
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2772,11 +2772,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2428.6
-      color: '#4c8cbf'
+      score: 2457.1
+      color: '#4889c3'
     dps:
-      score: 2428.6
-      color: '#4c8cbf'
+      score: 2457.1
+      color: '#4889c3'
     healer:
       score: 0
       color: '#ffffff'
@@ -2790,8 +2790,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2428.6
-      color: '#4c8cbf'
+      score: 2457.1
+      color: '#4889c3'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2967,8 +2967,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 765.7
-      color: '#c8ffb4'
+      score: 1002.8
+      color: '#abff92'
     dps:
       score: 0
       color: '#ffffff'
@@ -2976,8 +2976,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 765.7
-      color: '#c8ffb4'
+      score: 1002.8
+      color: '#abff92'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2985,12 +2985,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 765.7
-      color: '#c8ffb4'
+      score: 1002.8
+      color: '#abff92'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 260
 - rank: 99
   name: Мелиодас
   class: Paladin
@@ -3201,11 +3201,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/96/189218656-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
   mythic_plus_scores:
     all:
-      score: 158.7
-      color: '#ffffff'
+      score: 358.7
+      color: '#f1ffeb'
     dps:
-      score: 158.7
-      color: '#ffffff'
+      score: 358.7
+      color: '#f1ffeb'
     healer:
       score: 0
       color: '#ffffff'
@@ -3219,9 +3219,9 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 158.7
-      color: '#ffffff'
+      score: 358.7
+      color: '#f1ffeb'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 216
+  item_level_equipped: 234
