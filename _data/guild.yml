@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 20:51:10'
+  updated_at: '2026-04-08 02:34:25'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10700
-      region: 4787
+      world: 10829
+      region: 4820
       realm: 42
     heroic:
-      world: 10946
-      region: 4779
+      world: 11115
+      region: 4803
       realm: 35
     mythic:
       world: 0
@@ -728,7 +728,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 264
 - rank: 3
   name: Asasinas
   class: Druid
@@ -861,11 +861,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 797.8
-      color: '#c4ffb0'
+      score: 1066.8
+      color: '#a3ff88'
     dps:
-      score: 797.8
-      color: '#c4ffb0'
+      score: 1066.8
+      color: '#a3ff88'
     healer:
       score: 0
       color: '#ffffff'
@@ -879,12 +879,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 797.8
-      color: '#c4ffb0'
+      score: 1066.8
+      color: '#a3ff88'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 251
+  item_level_equipped: 252
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -2561,13 +2561,13 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 262
 - rank: 3
   name: Travka
   class: Druid
   race: Haranir
-  spec: Guardian
-  role: TANK
+  spec: Feral
+  role: DPS
   gender: female
   faction: alliance
   region: eu
@@ -2577,8 +2577,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 427.6
-      color: '#e9ffe0'
+      score: 696.6
+      color: '#d0ffbe'
     dps:
       score: 0
       color: '#ffffff'
@@ -2586,8 +2586,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 427.6
-      color: '#e9ffe0'
+      score: 696.6
+      color: '#d0ffbe'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2595,8 +2595,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 427.6
-      color: '#e9ffe0'
+      score: 696.6
+      color: '#d0ffbe'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2756,7 +2756,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 250
+  item_level_equipped: 253
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2995,8 +2995,8 @@ members:
   name: Мелиодас
   class: Paladin
   race: Human
-  spec: Protection
-  role: TANK
+  spec: Retribution
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -3006,7 +3006,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2071.2
+      score: 2074.9
       color: '#5fc185'
     dps:
       score: 0
@@ -3015,13 +3015,13 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2071.2
+      score: 2074.9
       color: '#5fc185'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2071.2
+      score: 2074.9
       color: '#5fc185'
     spec_2:
       score: 0
@@ -3029,7 +3029,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 262
 - rank: 99
   name: Альянсс
   class: Warrior

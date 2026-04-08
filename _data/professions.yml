@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-07 20:51:10'
+  updated_at: '2026-04-08 02:34:25'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3742,7 +3742,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 23
+        learned_points: 24
         max_points: 100
     secondaries: []
 - name: Севатар
@@ -3901,7 +3901,7 @@ characters:
       id: 333
       tiers:
       - name: Cataclysm Enchanting
-        learned_points: 3
+        learned_points: 4
         max_points: 75
       - name: Classic Enchanting
         learned_points: 17
