@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-08 09:04:03'
+  updated_at: '2026-04-08 13:24:38'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1633,7 +1633,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 18
+        learned_points: 32
         max_points: 100
     secondaries:
     - name: Fishing
@@ -2366,7 +2366,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 75
+        learned_points: 92
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2915,7 +2915,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 42
+        learned_points: 43
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3270,7 +3270,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 95
+        learned_points: 100
         max_points: 100
     - name: Herbalism
       id: 182
@@ -4205,3 +4205,50 @@ characters:
         learned_points: 75
         max_points: 100
     secondaries: []
+- name: Mscapybara
+  region: eu
+  realm: Terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Mscapybara
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 40
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 14
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 21
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 14
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
