@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-08 02:34:25'
+  updated_at: '2026-04-08 05:49:26'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 10829
-      region: 4820
+      world: 10882
+      region: 4830
       realm: 42
     heroic:
-      world: 11115
-      region: 4803
+      world: 11246
+      region: 4807
       realm: 35
     mythic:
       world: 0
@@ -2850,11 +2850,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2480.3
-      color: '#4384c7'
+      score: 2519.4
+      color: '#387ecf'
     dps:
-      score: 2480.3
-      color: '#4384c7'
+      score: 2519.4
+      color: '#387ecf'
     healer:
       score: 437.3
       color: '#e9ffe0'
@@ -2862,8 +2862,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2480.3
-      color: '#4384c7'
+      score: 2519.4
+      color: '#387ecf'
     spec_1:
       score: 0
       color: '#ffffff'
