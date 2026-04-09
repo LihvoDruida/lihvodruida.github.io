@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-09 02:30:00'
+  updated_at: '2026-04-09 05:51:04'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11172
-      region: 4976
+      world: 11237
+      region: 4991
       realm: 43
     heroic:
-      world: 11692
-      region: 5035
+      world: 11780
+      region: 5039
       realm: 41
     mythic:
       world: 0
@@ -354,11 +354,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2595.2
-      color: '#1b73d9'
+      score: 2670.1
+      color: '#0070dd'
     dps:
-      score: 2595.2
-      color: '#1b73d9'
+      score: 2670.1
+      color: '#0070dd'
     healer:
       score: 0
       color: '#ffffff'
@@ -369,8 +369,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2595.2
-      color: '#1b73d9'
+      score: 2670.1
+      color: '#0070dd'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -3006,8 +3006,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 1002.8
-      color: '#abff92'
+      score: 1059.8
+      color: '#a5ff8b'
     dps:
       score: 0
       color: '#ffffff'
@@ -3015,8 +3015,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1002.8
-      color: '#abff92'
+      score: 1059.8
+      color: '#a5ff8b'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -3024,12 +3024,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1002.8
-      color: '#abff92'
+      score: 1059.8
+      color: '#a5ff8b'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 259
 - rank: 99
   name: Мелиодас
   class: Paladin
