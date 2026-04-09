@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-08 20:45:28'
+  updated_at: '2026-04-09 02:30:00'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1624,7 +1624,7 @@ characters:
         learned_points: 1
         max_points: 75
       - name: Classic Mining
-        learned_points: 6
+        learned_points: 28
         max_points: 300
       - name: Shadowlands Mining
         learned_points: 5
@@ -1633,7 +1633,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 32
+        learned_points: 34
         max_points: 100
     secondaries:
     - name: Fishing
@@ -1840,7 +1840,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 96
+        learned_points: 98
         max_points: 100
 - name: Prayddh
   region: eu
@@ -1868,6 +1868,74 @@ characters:
         learned_points: 15
         max_points: 100
     secondaries: []
+- name: Поливалочки
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Cataclysm Jewelcrafting
+        learned_points: 6
+        max_points: 80
+      - name: Classic Jewelcrafting
+        learned_points: 6
+        max_points: 305
+      - name: Khaz Algar Jewelcrafting
+        learned_points: 105
+        max_points: 105
+      - name: Midnight Jewelcrafting
+        learned_points: 80
+        max_points: 105
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 60
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 2
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Khaz Algar Fishing
+        learned_points: 121
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 60
+        max_points: 300
 - name: Алак
   region: eu
   realm: Goldrinn
@@ -3152,7 +3220,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 67
+        learned_points: 73
         max_points: 100
     secondaries:
     - name: Archaeology

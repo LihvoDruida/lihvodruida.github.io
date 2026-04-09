@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-08 20:45:28'
+  updated_at: '2026-04-09 02:30:00'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11086
-      region: 4948
+      world: 11172
+      region: 4976
       realm: 43
     heroic:
-      world: 11503
-      region: 4969
-      realm: 39
+      world: 11692
+      region: 5035
+      realm: 41
     mythic:
       world: 0
       region: 0
@@ -549,11 +549,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2982.9
-      color: '#ae39e2'
+      score: 3002.2
+      color: '#b33add'
     dps:
-      score: 2982.9
-      color: '#ae39e2'
+      score: 3002.2
+      color: '#b33add'
     healer:
       score: 0
       color: '#ffffff'
@@ -567,8 +567,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2982.9
-      color: '#ae39e2'
+      score: 3002.2
+      color: '#b33add'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -705,20 +705,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 2326.7
-      color: '#579ab0'
+      score: 2358.4
+      color: '#5597b4'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2326.7
-      color: '#579ab0'
+      score: 2358.4
+      color: '#5597b4'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2326.7
-      color: '#579ab0'
+      score: 2358.4
+      color: '#5597b4'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -728,7 +728,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 265
 - rank: 3
   name: Asasinas
   class: Druid
@@ -861,11 +861,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 1553.6
-      color: '#4fff35'
+      score: 1680.8
+      color: '#1eff00'
     dps:
-      score: 1553.6
-      color: '#4fff35'
+      score: 1680.8
+      color: '#1eff00'
     healer:
       score: 0
       color: '#ffffff'
@@ -879,8 +879,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1553.6
-      color: '#4fff35'
+      score: 1680.8
+      color: '#1eff00'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1134,11 +1134,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1690.6
-      color: '#1eff00'
+      score: 1821.9
+      color: '#4ae84e'
     dps:
-      score: 1690.6
-      color: '#1eff00'
+      score: 1821.9
+      color: '#4ae84e'
     healer:
       score: 0
       color: '#ffffff'
@@ -1146,8 +1146,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1690.6
-      color: '#1eff00'
+      score: 1821.9
+      color: '#4ae84e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1157,7 +1157,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 257
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -1251,11 +1251,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2695.7
-      color: '#4369e0'
+      score: 2747.2
+      color: '#6062e3'
     dps:
-      score: 2695.7
-      color: '#4369e0'
+      score: 2747.2
+      color: '#6062e3'
     healer:
       score: 0
       color: '#ffffff'
@@ -1269,12 +1269,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2695.7
-      color: '#4369e0'
+      score: 2747.2
+      color: '#6062e3'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 272
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -1314,6 +1314,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 250
+- rank: 99
+  name: Поливалочки
+  class: Paladin
+  race: Draenei
+  spec: Retribution
+  role: DPS
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/85/263543893-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 1278.3
+      color: '#85ff69'
+    dps:
+      score: 1278.3
+      color: '#85ff69'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 1278.3
+      color: '#85ff69'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 259
 - rank: 3
   name: Алак
   class: Mage
@@ -1602,8 +1641,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2941.1
-      color: '#a335ee'
+      score: 2960.4
+      color: '#a937e8'
     dps:
       score: 0
       color: '#ffffff'
@@ -1611,11 +1650,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2941.1
-      color: '#a335ee'
+      score: 2960.4
+      color: '#a937e8'
     spec_0:
-      score: 2941.1
-      color: '#a335ee'
+      score: 2960.4
+      color: '#a937e8'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2421,11 +2460,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2787.8
-      color: '#6c5de5'
+      score: 2807.2
+      color: '#7658e6'
     dps:
-      score: 2787.8
-      color: '#6c5de5'
+      score: 2807.2
+      color: '#7658e6'
     healer:
       score: 0
       color: '#ffffff'
@@ -2433,8 +2472,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2787.8
-      color: '#6c5de5'
+      score: 2807.2
+      color: '#7658e6'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2733,8 +2772,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 1371.4
-      color: '#79ff5d'
+      score: 1892.2
+      color: '#54dd60'
     dps:
       score: 0
       color: '#ffffff'
@@ -2742,8 +2781,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1371.4
-      color: '#79ff5d'
+      score: 1892.2
+      color: '#54dd60'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2751,12 +2790,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1371.4
-      color: '#79ff5d'
+      score: 1892.2
+      color: '#54dd60'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 262
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2772,11 +2811,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2457.1
-      color: '#4889c3'
+      score: 2506.1
+      color: '#3f81cb'
     dps:
-      score: 2457.1
-      color: '#4889c3'
+      score: 2506.1
+      color: '#3f81cb'
     healer:
       score: 0
       color: '#ffffff'
@@ -2790,12 +2829,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2457.1
-      color: '#4889c3'
+      score: 2506.1
+      color: '#3f81cb'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 271
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -2873,7 +2912,7 @@ members:
     spec_3:
       score: 437.3
       color: '#eaffe1'
-  item_level_equipped: 269
+  item_level_equipped: 271
 - rank: 99
   name: Корукк
   class: Hunter
@@ -2928,14 +2967,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2275.7
-      color: '#5ba2a8'
+      score: 2359.5
+      color: '#5597b4'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2275.7
-      color: '#5ba2a8'
+      score: 2359.5
+      color: '#5597b4'
     tank:
       score: 0
       color: '#ffffff'
@@ -2949,8 +2988,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2275.7
-      color: '#5ba2a8'
+      score: 2359.5
+      color: '#5597b4'
   item_level_equipped: 261
 - rank: 99
   name: Thérion
@@ -2995,8 +3034,8 @@ members:
   name: Мелиодас
   class: Paladin
   race: Human
-  spec: Retribution
-  role: DPS
+  spec: Protection
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -3029,7 +3068,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 264
 - rank: 99
   name: Альянсс
   class: Warrior
@@ -3162,11 +3201,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
   mythic_plus_scores:
     all:
-      score: 2033.9
-      color: '#5dca7a'
+      score: 2075.8
+      color: '#5fc383'
     dps:
-      score: 2033.9
-      color: '#5dca7a'
+      score: 2075.8
+      color: '#5fc383'
     healer:
       score: 0
       color: '#ffffff'
@@ -3180,8 +3219,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2033.9
-      color: '#5dca7a'
+      score: 2075.8
+      color: '#5fc383'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3224,4 +3263,4 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 234
+  item_level_equipped: 241
