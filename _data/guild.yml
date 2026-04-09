@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-09 05:51:04'
+  updated_at: '2026-04-09 09:11:14'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11237
-      region: 4991
+      world: 11272
+      region: 5011
       realm: 43
     heroic:
-      world: 11780
-      region: 5039
+      world: 11804
+      region: 5048
       realm: 41
     mythic:
       world: 0
@@ -2332,8 +2332,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Elemental
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -2343,11 +2343,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     dps:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     healer:
       score: 0
       color: '#ffffff'
@@ -2355,8 +2355,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2421,11 +2421,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     dps:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     healer:
       score: 0
       color: '#ffffff'
@@ -2439,12 +2439,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2118.3
-      color: '#5fbb8c'
+      score: 2171.8
+      color: '#5fb494'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 261
 - rank: 1
   name: Пизнайка
   class: Druid
@@ -2538,8 +2538,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 1672.4
-      color: '#2dff13'
+      score: 1749.7
+      color: '#3bf436'
     dps:
       score: 456.6
       color: '#e7ffdd'
@@ -2547,11 +2547,11 @@ members:
       score: 488.7
       color: '#e5ffda'
     tank:
-      score: 1417.2
-      color: '#70ff54'
+      score: 1494.4
+      color: '#61ff46'
     spec_0:
-      score: 1417.2
-      color: '#70ff54'
+      score: 1494.4
+      color: '#61ff46'
     spec_1:
       score: 488.7
       color: '#e5ffda'
