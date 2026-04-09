@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-09 17:10:10'
+  updated_at: '2026-04-09 20:54:46'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3290,7 +3290,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 257
+        learned_points: 271
         max_points: 300
 - name: Oxydenis
   region: eu
@@ -3681,7 +3681,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 27
+        learned_points: 67
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4226,29 +4226,6 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 9
-        max_points: 300
-- name: Kremen
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Kremen
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
         max_points: 300
 - name: Kokosik
   region: eu
