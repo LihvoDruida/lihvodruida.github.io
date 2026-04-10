@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-09 20:54:46'
+  updated_at: '2026-04-10 02:40:22'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -831,7 +831,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 131
+        learned_points: 138
         max_points: 300
 - name: Characternuk
   region: eu
@@ -3681,7 +3681,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 67
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Fishing

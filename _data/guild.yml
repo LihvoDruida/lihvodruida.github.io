@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-09 20:54:46'
+  updated_at: '2026-04-10 02:40:22'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11394
-      region: 5098
-      realm: 45
+      world: 11500
+      region: 5126
+      realm: 46
     heroic:
-      world: 12064
-      region: 5227
-      realm: 41
+      world: 12271
+      region: 5262
+      realm: 42
     mythic:
       world: 0
       region: 0
@@ -2187,20 +2187,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2771.2
-      color: '#6062e3'
+      score: 2811.7
+      color: '#6c5de5'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2771.2
-      color: '#6062e3'
+      score: 2811.7
+      color: '#6c5de5'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2771.2
-      color: '#6062e3'
+      score: 2811.7
+      color: '#6c5de5'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2655,11 +2655,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 2569.1
-      color: '#317ad2'
+      score: 2607.7
+      color: '#2877d6'
     dps:
-      score: 2569.1
-      color: '#317ad2'
+      score: 2607.7
+      color: '#2877d6'
     healer:
       score: 0
       color: '#ffffff'
@@ -2667,8 +2667,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2569.1
-      color: '#317ad2'
+      score: 2607.7
+      color: '#2877d6'
     spec_1:
       score: 167.6
       color: '#ffffff'
@@ -2678,7 +2678,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 267
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2772,8 +2772,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2214.9
-      color: '#5fb098'
+      score: 2516
+      color: '#3f81cb'
     dps:
       score: 0
       color: '#ffffff'
@@ -2781,8 +2781,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2214.9
-      color: '#5fb098'
+      score: 2516
+      color: '#3f81cb'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2790,12 +2790,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2214.9
-      color: '#5fb098'
+      score: 2516
+      color: '#3f81cb'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 265
 - rank: 99
   name: Севатар
   class: Rogue
@@ -3201,11 +3201,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/96/189218656-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
   mythic_plus_scores:
     all:
-      score: 969.2
-      color: '#b3ff9b'
+      score: 990.7
+      color: '#b0ff97'
     dps:
-      score: 969.2
-      color: '#b3ff9b'
+      score: 990.7
+      color: '#b0ff97'
     healer:
       score: 0
       color: '#ffffff'
@@ -3219,8 +3219,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 969.2
-      color: '#b3ff9b'
+      score: 990.7
+      color: '#b0ff97'
     spec_3:
       score: 0
       color: '#ffffff'
