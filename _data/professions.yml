@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 13:15:18'
+  updated_at: '2026-04-10 16:54:51'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -831,7 +831,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 138
+        learned_points: 141
         max_points: 300
 - name: Characternuk
   region: eu
@@ -3829,6 +3829,9 @@ characters:
       - name: Kul Tiran Engineering
         learned_points: 3
         max_points: 177
+      - name: Legion Engineering
+        learned_points: 3
+        max_points: 102
       - name: Draenor Engineering
         learned_points: 3
         max_points: 102
