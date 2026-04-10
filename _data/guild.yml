@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 02:40:22'
+  updated_at: '2026-04-10 05:59:40'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11500
-      region: 5126
+      world: 11539
+      region: 5137
       realm: 46
     heroic:
-      world: 12271
-      region: 5262
+      world: 12368
+      region: 5274
       realm: 42
     mythic:
       world: 0
@@ -2405,7 +2405,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 251
+  item_level_equipped: 254
 - rank: 99
   name: Oxydenis
   class: Paladin
@@ -2457,33 +2457,9 @@ members:
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2807.2
-      color: '#6c5de5'
-    dps:
-      score: 2807.2
-      color: '#6c5de5'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2807.2
-      color: '#6c5de5'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 273
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 3
   name: Shennái
   class: Priest
