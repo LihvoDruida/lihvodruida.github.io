@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 16:54:51'
+  updated_at: '2026-04-10 20:41:05'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11606
-      region: 5160
+      world: 11649
+      region: 5194
       realm: 46
     heroic:
-      world: 12468
-      region: 5314
+      world: 12552
+      region: 5379
       realm: 42
     mythic:
       world: 0
@@ -572,7 +572,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 228
+  item_level_equipped: 271
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -611,7 +611,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 269
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -884,7 +884,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 257
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -1170,9 +1170,33 @@ members:
   realm: Silvermoon
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 162
 - rank: 4
   name: Threataan
   class: Paladin
@@ -1484,7 +1508,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 260
 - rank: 3
   name: Komatoznic
   class: Demon Hunter
@@ -1812,11 +1836,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2841.4
-      color: '#7b56e7'
+      score: 2896.4
+      color: '#8c4bea'
     dps:
-      score: 2841.4
-      color: '#7b56e7'
+      score: 2896.4
+      color: '#8c4bea'
     healer:
       score: 0
       color: '#ffffff'
@@ -1830,12 +1854,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2609.8
-      color: '#2977d5'
+      score: 2664.7
+      color: '#1b74d9'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 269
 - rank: 4
   name: Valemor
   class: Mage
@@ -2108,7 +2132,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 260
 - rank: 3
   name: Kensshi
   class: Druid
@@ -2163,20 +2187,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2811.7
-      color: '#675fe4'
+      score: 2857.1
+      color: '#7b56e7'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2811.7
-      color: '#675fe4'
+      score: 2857.1
+      color: '#7b56e7'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2811.7
-      color: '#675fe4'
+      score: 2857.1
+      color: '#7b56e7'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2186,7 +2210,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 268
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2264,7 +2288,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 265
 - rank: 0
   name: Khayen
   class: Druid
@@ -2771,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 267
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2888,7 +2912,7 @@ members:
     spec_3:
       score: 437.3
       color: '#eaffe2'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 99
   name: Корукк
   class: Hunter

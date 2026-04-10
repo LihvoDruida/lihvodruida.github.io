@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 16:54:51'
+  updated_at: '2026-04-10 20:41:05'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1056,7 +1056,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 87
+        learned_points: 90
         max_points: 100
 - name: Pwndyøurface
   region: eu
@@ -1615,7 +1615,7 @@ characters:
         learned_points: 31
         max_points: 100
       - name: Midnight Blacksmithing
-        learned_points: 1
+        learned_points: 9
         max_points: 100
     - name: Mining
       id: 186
@@ -1633,7 +1633,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 34
+        learned_points: 37
         max_points: 100
     secondaries:
     - name: Fishing
@@ -1900,7 +1900,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 80
+        learned_points: 82
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -2196,7 +2196,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 75
+        learned_points: 78
         max_points: 100
     - name: Jewelcrafting
       id: 755
