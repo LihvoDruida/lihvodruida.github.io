@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 09:12:58'
+  updated_at: '2026-04-10 13:15:18'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11559
-      region: 5147
+      world: 11591
+      region: 5154
       realm: 46
     heroic:
-      world: 12399
-      region: 5289
+      world: 12428
+      region: 5297
       realm: 42
     mythic:
       world: 0
@@ -572,7 +572,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 227
+  item_level_equipped: 228
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -666,20 +666,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2017.9
-      color: '#5bd072'
+      score: 2274.4
+      color: '#5eab9f'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 2017.9
-      color: '#5bd072'
+      score: 2274.4
+      color: '#5eab9f'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2017.9
-      color: '#5bd072'
+      score: 2274.4
+      color: '#5eab9f'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3162,11 +3162,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
   mythic_plus_scores:
     all:
-      score: 2132.3
-      color: '#5fbd89'
+      score: 2230
+      color: '#5fb296'
     dps:
-      score: 2132.3
-      color: '#5fbd89'
+      score: 2230
+      color: '#5fb296'
     healer:
       score: 0
       color: '#ffffff'
@@ -3180,12 +3180,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2132.3
-      color: '#5fbd89'
+      score: 2230
+      color: '#5fb296'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 260
 - rank: 99
   name: Mscapybara
   class: Mage
