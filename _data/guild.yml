@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-11 13:02:19'
+  updated_at: '2026-04-11 16:40:12'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11855
-      region: 5248
+      world: 11872
+      region: 5255
       realm: 47
     heroic:
-      world: 12831
-      region: 5433
+      world: 12853
+      region: 5441
       realm: 42
     mythic:
       world: 0
@@ -105,6 +105,45 @@ raid_rankings:
       region: 0
       realm: 0
 members:
+- rank: 99
+  name: Бреинор
+  class: Paladin
+  race: Human
+  spec: Retribution
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Galakrond
+  realm_slug: galakrond
+  profile_url: https://raider.io/characters/eu/galakrond/Бреинор
+  avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 181.3
+      color: '#ffffff'
+    dps:
+      score: 181.3
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 181.3
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 259
 - rank: 99
   name: Дедика
   class: Paladin
@@ -432,11 +471,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 1546.4
-      color: '#68ff4c'
+      score: 1817.5
+      color: '#2bfb1e'
     dps:
-      score: 1546.4
-      color: '#68ff4c'
+      score: 1817.5
+      color: '#2bfb1e'
     healer:
       score: 0
       color: '#ffffff'
@@ -444,8 +483,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1546.4
-      color: '#68ff4c'
+      score: 1817.5
+      color: '#2bfb1e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1274,7 +1313,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 273
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -1836,11 +1875,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2920.2
-      color: '#8e4aea'
+      score: 2952.3
+      color: '#9544eb'
     dps:
-      score: 2920.2
-      color: '#8e4aea'
+      score: 2952.3
+      color: '#9544eb'
     healer:
       score: 0
       color: '#ffffff'
@@ -1854,8 +1893,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2768.1
-      color: '#4c67e1'
+      score: 2809.1
+      color: '#6361e4'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2811,11 +2850,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2550.4
-      color: '#3b7fcd'
+      score: 2603.5
+      color: '#2a78d5'
     dps:
-      score: 2550.4
-      color: '#3b7fcd'
+      score: 2603.5
+      color: '#2a78d5'
     healer:
       score: 0
       color: '#ffffff'
@@ -2829,12 +2868,12 @@ members:
       score: 254.5
       color: '#fbfff9'
     spec_2:
-      score: 2550.4
-      color: '#3b7fcd'
+      score: 2603.5
+      color: '#2a78d5'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 271
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -2912,7 +2951,7 @@ members:
     spec_3:
       score: 437.3
       color: '#ebffe3'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 99
   name: Корукк
   class: Hunter
@@ -2967,14 +3006,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2359.6
-      color: '#599eac'
+      score: 2393.1
+      color: '#579ab0'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2359.6
-      color: '#599eac'
+      score: 2393.1
+      color: '#579ab0'
     tank:
       score: 0
       color: '#ffffff'
@@ -2988,8 +3027,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2359.6
-      color: '#599eac'
+      score: 2393.1
+      color: '#579ab0'
   item_level_equipped: 261
 - rank: 99
   name: Thérion
@@ -3006,8 +3045,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 1059.8
-      color: '#acff92'
+      score: 1300.5
+      color: '#8cff70'
     dps:
       score: 0
       color: '#ffffff'
@@ -3015,8 +3054,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1059.8
-      color: '#acff92'
+      score: 1300.5
+      color: '#8cff70'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -3024,12 +3063,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1059.8
-      color: '#acff92'
+      score: 1300.5
+      color: '#8cff70'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 263
 - rank: 99
   name: Мелиодас
   class: Paladin
@@ -3123,11 +3162,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/72/265489736-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 891.3
-      color: '#bfffa9'
+      score: 1084.5
+      color: '#a9ff8f'
     dps:
-      score: 891.3
-      color: '#bfffa9'
+      score: 1084.5
+      color: '#a9ff8f'
     healer:
       score: 0
       color: '#ffffff'
@@ -3141,12 +3180,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 891.3
-      color: '#bfffa9'
+      score: 1084.5
+      color: '#a9ff8f'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 243
+  item_level_equipped: 244
 - rank: 99
   name: Kokosik
   class: Mage

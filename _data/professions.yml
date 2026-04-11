@@ -1,11 +1,127 @@
 metadata:
-  updated_at: '2026-04-11 13:02:19'
+  updated_at: '2026-04-11 16:40:12'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
   realm: Terokkar
   region: eu
 characters:
+- name: Бреинор
+  region: eu
+  realm: Galakrond
+  realm_slug: galakrond
+  profile_url: https://raider.io/characters/eu/galakrond/Бреинор
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Kul Tiran Mining
+        learned_points: 175
+        max_points: 175
+      - name: Legion Mining
+        learned_points: 15
+        max_points: 100
+      - name: Draenor Mining
+        learned_points: 5
+        max_points: 100
+      - name: Classic Mining
+        learned_points: 57
+        max_points: 300
+      - name: Shadowlands Mining
+        learned_points: 150
+        max_points: 150
+      - name: Dragon Isles Mining
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Mining
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 29
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 50
+        max_points: 175
+      - name: Legion Cooking
+        learned_points: 33
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 9
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 73
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 2
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 35
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 49
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 39
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 25
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 52
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 94
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 6
+        max_points: 300
 - name: Дедика
   region: eu
   realm: Eversong
@@ -1900,7 +2016,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 82
+        learned_points: 83
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -3109,18 +3225,6 @@ characters:
   profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
   professions:
     primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Cataclysm Herbalism
-        learned_points: 3
-        max_points: 75
-      - name: Classic Herbalism
-        learned_points: 25
-        max_points: 300
-      - name: Midnight Herbalism
-        learned_points: 100
-        max_points: 100
     - name: Alchemy
       id: 171
       tiers:
@@ -3132,6 +3236,15 @@ characters:
         max_points: 300
       - name: Midnight Alchemy
         learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 69
         max_points: 100
     secondaries:
     - name: Cooking
