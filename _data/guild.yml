@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-11 08:45:57'
+  updated_at: '2026-04-11 13:02:19'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11825
-      region: 5234
-      realm: 46
+      world: 11855
+      region: 5248
+      realm: 47
     heroic:
-      world: 12795
-      region: 5424
+      world: 12831
+      region: 5433
       realm: 42
     mythic:
       world: 0
@@ -338,7 +338,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 266
 - rank: 99
   name: Графдекот
   class: Druid
@@ -432,11 +432,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 1403.8
-      color: '#7dff61'
+      score: 1546.4
+      color: '#68ff4c'
     dps:
-      score: 1403.8
-      color: '#7dff61'
+      score: 1546.4
+      color: '#68ff4c'
     healer:
       score: 0
       color: '#ffffff'
@@ -444,8 +444,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1403.8
-      color: '#7dff61'
+      score: 1546.4
+      color: '#68ff4c'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1134,11 +1134,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1821.9
-      color: '#35f72d'
+      score: 1902
+      color: '#48ea4a'
     dps:
-      score: 1821.9
-      color: '#35f72d'
+      score: 1902
+      color: '#48ea4a'
     healer:
       score: 0
       color: '#ffffff'
@@ -1146,8 +1146,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1821.9
-      color: '#35f72d'
+      score: 1902
+      color: '#48ea4a'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1157,7 +1157,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 261
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -1836,11 +1836,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2896.4
-      color: '#864fe9'
+      score: 2920.2
+      color: '#8e4aea'
     dps:
-      score: 2896.4
-      color: '#864fe9'
+      score: 2920.2
+      color: '#8e4aea'
     healer:
       score: 0
       color: '#ffffff'
@@ -1854,12 +1854,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2664.7
-      color: '#1c74d9'
+      score: 2768.1
+      color: '#4c67e1'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 269
+  item_level_equipped: 271
 - rank: 4
   name: Valemor
   class: Mage
@@ -2811,11 +2811,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2506.1
-      color: '#4687c5'
+      score: 2550.4
+      color: '#3b7fcd'
     dps:
-      score: 2506.1
-      color: '#4687c5'
+      score: 2550.4
+      color: '#3b7fcd'
     healer:
       score: 0
       color: '#ffffff'
@@ -2829,12 +2829,12 @@ members:
       score: 254.5
       color: '#fbfff9'
     spec_2:
-      score: 2506.1
-      color: '#4687c5'
+      score: 2550.4
+      color: '#3b7fcd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 99
   name: Ragnarøøk
   class: Shaman

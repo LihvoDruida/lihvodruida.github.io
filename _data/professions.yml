@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-11 08:45:57'
+  updated_at: '2026-04-11 13:02:19'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1185,7 +1185,7 @@ characters:
         learned_points: 34
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 102
+        learned_points: 104
         max_points: 300
 - name: Asasinas
   region: eu
@@ -4262,47 +4262,5 @@ characters:
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Mscapybara
   professions:
-    primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 40
-        max_points: 300
-      - name: Midnight Herbalism
-        learned_points: 16
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 21
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 14
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Zandalari Cooking
-        learned_points: 1
-        max_points: 175
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Cataclysm Cooking
-        learned_points: 1
-        max_points: 75
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300
+    primaries: []
+    secondaries: []
