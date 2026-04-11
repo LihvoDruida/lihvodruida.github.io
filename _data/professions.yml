@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-10 20:41:05'
+  updated_at: '2026-04-11 02:26:16'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1662,13 +1662,13 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Inscription
-        learned_points: 98
+        learned_points: 100
         max_points: 100
     - name: Alchemy
       id: 171
       tiers:
       - name: Draenor Alchemy
-        learned_points: 6
+        learned_points: 8
         max_points: 100
       - name: Cataclysm Alchemy
         learned_points: 1
@@ -2443,7 +2443,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 93
+        learned_points: 94
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2844,7 +2844,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 98
+        learned_points: 99
         max_points: 100
     - name: Mining
       id: 186
@@ -3409,7 +3409,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 91
+        learned_points: 97
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3527,7 +3527,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 227
+        learned_points: 261
         max_points: 300
 - name: Athang
   region: eu
