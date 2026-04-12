@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 05:56:13'
+  updated_at: '2026-04-12 08:52:19'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1931,41 +1931,6 @@ characters:
         max_points: 200
       - name: Dragon Isles Fishing
         learned_points: 1
-        max_points: 100
-- name: Квадрицепци
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Квадрицепци
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Enchanting
-        learned_points: 4
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 1
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 98
         max_points: 100
 - name: Prayddh
   region: eu

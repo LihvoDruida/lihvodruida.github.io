@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 05:56:13'
+  updated_at: '2026-04-12 08:52:19'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12016
-      region: 5321
+      world: 12024
+      region: 5325
       realm: 48
     heroic:
-      world: 12861
-      region: 5409
-      realm: 42
+      world: 12885
+      region: 5415
+      realm: 43
     mythic:
       world: 0
       region: 0
@@ -1275,45 +1275,6 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 122
-- rank: 99
-  name: Квадрицепци
-  class: Demon Hunter
-  race: Night Elf
-  spec: Havoc
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Квадрицепци
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/252/263282940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 3008.1
-      color: '#a335ee'
-    dps:
-      score: 3008.1
-      color: '#a335ee'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 326.8
-      color: '#f4ffef'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 3008.1
-      color: '#a335ee'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 273
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -2293,8 +2254,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Restoration
-  role: HEALING
+  spec: Balance
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -2795,7 +2756,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 250
+  item_level_equipped: 253
 - rank: 99
   name: Медведдич
   class: Druid
@@ -3006,14 +2967,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2450.9
-      color: '#4e8ebd'
+      score: 2470.4
+      color: '#4b8bc1'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2450.9
-      color: '#4e8ebd'
+      score: 2470.4
+      color: '#4b8bc1'
     tank:
       score: 0
       color: '#ffffff'
@@ -3027,8 +2988,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2450.9
-      color: '#4e8ebd'
+      score: 2470.4
+      color: '#4b8bc1'
   item_level_equipped: 261
 - rank: 99
   name: Thérion
