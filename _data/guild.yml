@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 02:43:26'
+  updated_at: '2026-04-12 05:56:13'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11978
-      region: 5308
-      realm: 47
+      world: 12016
+      region: 5321
+      realm: 48
     heroic:
-      world: 12791
-      region: 5401
-      realm: 41
+      world: 12861
+      region: 5409
+      realm: 42
     mythic:
       world: 0
       region: 0
@@ -900,11 +900,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2367.2
-      color: '#599eac'
+      score: 2468.5
+      color: '#4e8ebd'
     dps:
-      score: 2367.2
-      color: '#599eac'
+      score: 2468.5
+      color: '#4e8ebd'
     healer:
       score: 0
       color: '#ffffff'
@@ -918,8 +918,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2367.2
-      color: '#599eac'
+      score: 2468.5
+      color: '#4e8ebd'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1547,7 +1547,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 260
 - rank: 3
   name: Komatoznic
   class: Demon Hunter
@@ -1939,45 +1939,6 @@ members:
       color: '#ffffff'
   item_level_equipped: 660
 - rank: 99
-  name: Norddemon
-  class: Shaman
-  race: Troll
-  spec: Restoration
-  role: HEALING
-  gender: female
-  faction: horde
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Norddemon
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/221/223459293-avatar.jpg?alt=/wow/static/images/2d/avatar/8-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2617.7
-      color: '#1c74d9'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 2617.7
-      color: '#1c74d9'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2617.7
-      color: '#1c74d9'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 265
-- rank: 99
   name: Кумбар
   class: Shaman
   race: Orc
@@ -2226,20 +2187,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2898.7
-      color: '#864fe9'
+      score: 2937.6
+      color: '#8e4aea'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2898.7
-      color: '#864fe9'
+      score: 2937.6
+      color: '#8e4aea'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2898.7
-      color: '#864fe9'
+      score: 2937.6
+      color: '#8e4aea'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2912,7 +2873,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 271
 - rank: 99
   name: Ragnarøøk
   class: Shaman
