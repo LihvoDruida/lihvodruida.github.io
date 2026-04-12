@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 13:05:58'
+  updated_at: '2026-04-12 16:42:37'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12033
-      region: 5327
+      world: 12049
+      region: 5331
       realm: 48
     heroic:
-      world: 12919
-      region: 5421
+      world: 12940
+      region: 5428
       realm: 43
     mythic:
       world: 0
@@ -159,8 +159,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2052.8
-      color: '#5ad270'
+      score: 2093.3
+      color: '#5dca7a'
     dps:
       score: 0
       color: '#ffffff'
@@ -168,14 +168,14 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2052.8
-      color: '#5ad270'
+      score: 2093.3
+      color: '#5dca7a'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2052.8
-      color: '#5ad270'
+      score: 2093.3
+      color: '#5dca7a'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -494,7 +494,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 260
 - rank: 99
   name: Кибароу
   class: Paladin
@@ -1599,9 +1599,33 @@ members:
   realm: Ravencrest
   realm_slug: ravencrest
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 719
 - rank: 1
   name: Smolderfist-251137170
   class: Monk
@@ -2732,7 +2756,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 257
 - rank: 99
   name: Медведдич
   class: Druid
