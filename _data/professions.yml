@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-11 20:36:30'
+  updated_at: '2026-04-12 02:43:26'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3918,6 +3918,23 @@ characters:
       - name: Midnight Fishing
         learned_points: 71
         max_points: 300
+- name: Галазард
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Галазард
+  professions:
+    primaries:
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 16
+        max_points: 100
+    secondaries: []
 - name: Медведдич
   region: eu
   realm: Gordunni
@@ -4255,7 +4272,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 55
+        learned_points: 56
         max_points: 100
     - name: Mining
       id: 186

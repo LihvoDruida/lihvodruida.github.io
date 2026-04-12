@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-11 20:36:30'
+  updated_at: '2026-04-12 02:43:26'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 11926
-      region: 5294
+      world: 11978
+      region: 5308
       realm: 47
     heroic:
-      world: 12673
-      region: 5367
+      world: 12791
+      region: 5401
       realm: 41
     mythic:
       world: 0
@@ -744,20 +744,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 2448.2
-      color: '#4e8ebd'
+      score: 2515.7
+      color: '#4687c5'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2448.2
-      color: '#4e8ebd'
+      score: 2515.7
+      color: '#4687c5'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2448.2
-      color: '#4e8ebd'
+      score: 2515.7
+      color: '#4687c5'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -900,11 +900,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2290.8
-      color: '#5eaa9f'
+      score: 2367.2
+      color: '#599eac'
     dps:
-      score: 2290.8
-      color: '#5eaa9f'
+      score: 2367.2
+      color: '#599eac'
     healer:
       score: 0
       color: '#ffffff'
@@ -918,12 +918,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2290.8
-      color: '#5eaa9f'
+      score: 2367.2
+      color: '#599eac'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 256
+  item_level_equipped: 263
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -1173,11 +1173,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1902
-      color: '#48ea4a'
+      score: 2069.5
+      color: '#5cce75'
     dps:
-      score: 1902
-      color: '#48ea4a'
+      score: 2069.5
+      color: '#5cce75'
     healer:
       score: 0
       color: '#ffffff'
@@ -1185,8 +1185,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1902
-      color: '#48ea4a'
+      score: 2069.5
+      color: '#5cce75'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1196,7 +1196,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 263
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -2249,7 +2249,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 271
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2304,11 +2304,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2219.6
-      color: '#5fb692'
+      score: 2247.2
+      color: '#5fb296'
     dps:
-      score: 2219.6
-      color: '#5fb692'
+      score: 2247.2
+      color: '#5fb296'
     healer:
       score: 0
       color: '#ffffff'
@@ -2322,12 +2322,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2219.6
-      color: '#5fb692'
+      score: 2247.2
+      color: '#5fb296'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 266
 - rank: 0
   name: Khayen
   class: Druid
@@ -2499,10 +2499,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2807.2
+      score: 2807.9
       color: '#6361e4'
     dps:
-      score: 2807.2
+      score: 2807.9
       color: '#6361e4'
     healer:
       score: 0
@@ -2511,7 +2511,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2807.2
+      score: 2807.9
       color: '#6361e4'
     spec_1:
       score: 0
@@ -2796,6 +2796,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 215
+- rank: 99
+  name: Галазард
+  class: Death Knight
+  race: Orc
+  spec: Blood
+  role: TANK
+  gender: male
+  faction: horde
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Галазард
+  avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2330.2
+      color: '#5ba2a8'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 2330.2
+      color: '#5ba2a8'
+    spec_0:
+      score: 2330.2
+      color: '#5ba2a8'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 250
 - rank: 99
   name: Медведдич
   class: Druid
@@ -3107,7 +3146,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 264
+  item_level_equipped: 267
 - rank: 99
   name: Альянсс
   class: Warrior
@@ -3279,20 +3318,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 751.6
-      color: '#ccffb9'
+      score: 1574.1
+      color: '#63ff48'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 751.6
-      color: '#ccffb9'
+      score: 1574.1
+      color: '#63ff48'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 751.6
-      color: '#ccffb9'
+      score: 1574.1
+      color: '#63ff48'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3302,4 +3341,4 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 234
+  item_level_equipped: 245
