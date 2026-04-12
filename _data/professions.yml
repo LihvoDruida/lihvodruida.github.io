@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 16:42:37'
+  updated_at: '2026-04-12 20:40:07'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -743,7 +743,7 @@ characters:
         learned_points: 51
         max_points: 300
       - name: Shadowlands Alchemy
-        learned_points: 154
+        learned_points: 159
         max_points: 175
       - name: Dragon Isles Alchemy
         learned_points: 96
