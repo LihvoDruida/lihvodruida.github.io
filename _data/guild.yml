@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 08:52:19'
+  updated_at: '2026-04-12 13:05:58'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12024
-      region: 5325
+      world: 12033
+      region: 5327
       realm: 48
     heroic:
-      world: 12885
-      region: 5415
+      world: 12919
+      region: 5421
       realm: 43
     mythic:
       world: 0
@@ -159,7 +159,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2049.1
+      score: 2052.8
       color: '#5ad270'
     dps:
       score: 0
@@ -168,13 +168,13 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2049.1
+      score: 2052.8
       color: '#5ad270'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2049.1
+      score: 2052.8
       color: '#5ad270'
     spec_2:
       score: 0
@@ -182,7 +182,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 266
 - rank: 99
   name: Пандашоманко
   class: Shaman
@@ -1599,33 +1599,9 @@ members:
   realm: Ravencrest
   realm_slug: ravencrest
   profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 719
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 1
   name: Smolderfist-251137170
   class: Monk
@@ -2148,20 +2124,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2937.6
-      color: '#8e4aea'
+      score: 2966.6
+      color: '#9c3ded'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2937.6
-      color: '#8e4aea'
+      score: 2966.6
+      color: '#9c3ded'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2937.6
-      color: '#8e4aea'
+      score: 2966.6
+      color: '#9c3ded'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2733,8 +2709,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 2330.2
-      color: '#5ba2a8'
+      score: 2412
+      color: '#5596b4'
     dps:
       score: 0
       color: '#ffffff'
@@ -2742,11 +2718,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2330.2
-      color: '#5ba2a8'
+      score: 2412
+      color: '#5596b4'
     spec_0:
-      score: 2330.2
-      color: '#5ba2a8'
+      score: 2412
+      color: '#5596b4'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2772,7 +2748,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2547.9
+      score: 2564.6
       color: '#3b7fcd'
     dps:
       score: 0
@@ -2781,7 +2757,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2547.9
+      score: 2564.6
       color: '#3b7fcd'
     spec_0:
       score: 0
@@ -2790,12 +2766,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2547.9
+      score: 2564.6
       color: '#3b7fcd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 268
 - rank: 99
   name: Севатар
   class: Rogue
