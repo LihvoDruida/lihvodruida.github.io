@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 13:30:26'
+  updated_at: '2026-04-13 17:05:58'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -674,6 +674,119 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 127
+        max_points: 300
+- name: Seidhe
+  region: eu
+  realm: Tarren Mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Seidhe
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Zandalari Blacksmithing
+        learned_points: 153
+        max_points: 175
+      - name: Legion Blacksmithing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Blacksmithing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Blacksmithing
+        learned_points: 63
+        max_points: 75
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Blacksmithing
+        learned_points: 66
+        max_points: 100
+      - name: Khaz Algar Blacksmithing
+        learned_points: 61
+        max_points: 100
+      - name: Midnight Blacksmithing
+        learned_points: 100
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Zandalari Alchemy
+        learned_points: 1
+        max_points: 175
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Alchemy
+        learned_points: 162
+        max_points: 175
+      - name: Dragon Isles Alchemy
+        learned_points: 85
+        max_points: 100
+      - name: Khaz Algar Alchemy
+        learned_points: 4
+        max_points: 100
+      - name: Midnight Alchemy
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Legion Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Outland Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 65
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 94
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 91
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 52
         max_points: 300
 - name: Eidis
   region: eu
@@ -2024,7 +2137,7 @@ characters:
         learned_points: 121
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 60
+        learned_points: 61
         max_points: 300
 - name: Алак
   region: eu
@@ -3164,7 +3277,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 70
+        learned_points: 72
         max_points: 100
     secondaries:
     - name: Cooking

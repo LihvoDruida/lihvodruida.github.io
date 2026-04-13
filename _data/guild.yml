@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 13:30:26'
+  updated_at: '2026-04-13 17:05:58'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12321
-      region: 5463
+      world: 12364
+      region: 5473
       realm: 49
     heroic:
-      world: 13414
-      region: 5659
+      world: 13448
+      region: 5664
       realm: 44
     mythic:
       world: 0
@@ -340,6 +340,45 @@ members:
       color: '#ffffff'
   item_level_equipped: 255
 - rank: 99
+  name: Seidhe
+  class: Paladin
+  race: Blood Elf
+  spec: Retribution
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Tarren Mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Seidhe
+  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/175155212-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2530.4
+      color: '#4888c3'
+    dps:
+      score: 2530.4
+      color: '#4888c3'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2530.4
+      color: '#4888c3'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 266
+- rank: 99
   name: Eidis
   class: Warrior
   race: Zandalari Troll
@@ -354,11 +393,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
   mythic_plus_scores:
     all:
-      score: 2435.5
-      color: '#5699b2'
+      score: 2530.4
+      color: '#4888c3'
     dps:
-      score: 2435.5
-      color: '#5699b2'
+      score: 2530.4
+      color: '#4888c3'
     healer:
       score: 0
       color: '#ffffff'
@@ -366,8 +405,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2435.5
-      color: '#5699b2'
+      score: 2530.4
+      color: '#4888c3'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -744,20 +783,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 2515.7
-      color: '#4c8cbf'
+      score: 2550.8
+      color: '#4384c8'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2515.7
-      color: '#4c8cbf'
+      score: 2550.8
+      color: '#4384c8'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2515.7
-      color: '#4c8cbf'
+      score: 2550.8
+      color: '#4384c8'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -767,7 +806,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 270
 - rank: 3
   name: Asasinas
   class: Druid
@@ -2382,11 +2421,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1425.8
-      color: '#82ff66'
+      score: 1650.8
+      color: '#5cff41'
     dps:
-      score: 1425.8
-      color: '#82ff66'
+      score: 1650.8
+      color: '#5cff41'
     healer:
       score: 0
       color: '#ffffff'
@@ -2397,8 +2436,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1425.8
-      color: '#82ff66'
+      score: 1650.8
+      color: '#5cff41'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2457,9 +2496,33 @@ members:
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 2807.9
+      color: '#5c63e3'
+    dps:
+      score: 2807.9
+      color: '#5c63e3'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 2807.9
+      color: '#5c63e3'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 273
 - rank: 3
   name: Shennái
   class: Priest
@@ -2620,7 +2683,7 @@ members:
   name: Зулпот
   class: Hunter
   race: Troll
-  spec: Beast Mastery
+  spec: Marksmanship
   role: DPS
   gender: male
   faction: horde
@@ -2654,7 +2717,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 269
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2904,11 +2967,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2546.3
-      color: '#4384c8'
+      score: 2570.3
+      color: '#3c80cc'
     dps:
-      score: 2546.3
-      color: '#4384c8'
+      score: 2570.3
+      color: '#3c80cc'
     healer:
       score: 437.3
       color: '#ecffe4'
@@ -2916,8 +2979,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2546.3
-      color: '#4384c8'
+      score: 2570.3
+      color: '#3c80cc'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2927,7 +2990,7 @@ members:
     spec_3:
       score: 437.3
       color: '#ecffe4'
-  item_level_equipped: 272
+  item_level_equipped: 271
 - rank: 99
   name: Корукк
   class: Hunter
