@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 09:57:26'
+  updated_at: '2026-04-13 13:30:26'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2618,6 +2618,32 @@ characters:
   professions:
     primaries: []
     secondaries: []
+- name: Berkinzee
+  region: eu
+  realm: Ravencrest
+  realm_slug: ravencrest
+  profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Engineering
+        learned_points: 45
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Кумбар
   region: eu
   realm: Gordunni
@@ -2993,7 +3019,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 57
+        learned_points: 63
         max_points: 100
     secondaries:
     - name: Archaeology
