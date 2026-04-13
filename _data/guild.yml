@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 06:17:20'
+  updated_at: '2026-04-13 09:57:26'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12244
-      region: 5430
-      realm: 48
+      world: 12287
+      region: 5457
+      realm: 49
     heroic:
-      world: 13301
-      region: 5627
+      world: 13358
+      region: 5646
       realm: 44
     mythic:
       world: 0
@@ -429,9 +429,33 @@ members:
   realm: Terokkar
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Characternuk
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 828.5
+      color: '#c6ffb2'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 828.5
+      color: '#c6ffb2'
+    spec_0:
+      score: 828.5
+      color: '#c6ffb2'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 236
 - rank: 99
   name: Кеенди
   class: Shaman
@@ -1107,9 +1131,33 @@ members:
   realm: Terokkar
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Redray
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 97
 - rank: 99
   name: Лилая
   class: Druid
@@ -2240,7 +2288,7 @@ members:
     spec_3:
       score: 2227.3
       color: '#5fbc8b'
-  item_level_equipped: 267
+  item_level_equipped: 268
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2747,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 269
+  item_level_equipped: 270
 - rank: 99
   name: Севатар
   class: Rogue
