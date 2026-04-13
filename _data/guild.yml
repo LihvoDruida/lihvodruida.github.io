@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 20:40:07'
+  updated_at: '2026-04-13 02:49:08'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12124
-      region: 5401
+      world: 12202
+      region: 5419
       realm: 48
     heroic:
-      world: 13124
-      region: 5593
-      realm: 43
+      world: 13238
+      region: 5617
+      realm: 44
     mythic:
       world: 0
       region: 0
@@ -1836,10 +1836,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2952.3
+      score: 2964
       color: '#9445eb'
     dps:
-      score: 2952.3
+      score: 2964
       color: '#9445eb'
     healer:
       score: 0
@@ -1854,8 +1854,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2809.1
-      color: '#5c63e3'
+      score: 2850.4
+      color: '#715be5'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2499,8 +2499,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
   mythic_plus_scores:
     all:
-      score: 1815
-      color: '#1eff00'
+      score: 1852.8
+      color: '#35f72d'
     dps:
       score: 456.6
       color: '#e9ffe0'
@@ -2508,11 +2508,11 @@ members:
       score: 488.7
       color: '#e7ffdd'
     tank:
-      score: 1719.7
-      color: '#46ff2d'
+      score: 1757.5
+      color: '#36ff1d'
     spec_0:
-      score: 1719.7
-      color: '#46ff2d'
+      score: 1757.5
+      color: '#36ff1d'
     spec_1:
       score: 488.7
       color: '#e7ffdd'
@@ -2772,8 +2772,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2564.6
-      color: '#4183c9'
+      score: 2570.8
+      color: '#3b7fcd'
     dps:
       score: 0
       color: '#ffffff'
@@ -2781,8 +2781,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2564.6
-      color: '#4183c9'
+      score: 2570.8
+      color: '#3b7fcd'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2790,12 +2790,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2564.6
-      color: '#4183c9'
+      score: 2570.8
+      color: '#3b7fcd'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 269
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2889,11 +2889,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2541.3
-      color: '#4687c5'
+      score: 2546.3
+      color: '#4183c9'
     dps:
-      score: 2541.3
-      color: '#4687c5'
+      score: 2546.3
+      color: '#4183c9'
     healer:
       score: 437.3
       color: '#ebffe3'
@@ -2901,8 +2901,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2541.3
-      color: '#4687c5'
+      score: 2546.3
+      color: '#4183c9'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2912,7 +2912,7 @@ members:
     spec_3:
       score: 437.3
       color: '#ebffe3'
-  item_level_equipped: 272
+  item_level_equipped: 271
 - rank: 99
   name: Корукк
   class: Hunter
@@ -3240,20 +3240,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 1773.4
-      color: '#36ff1d'
+      score: 1928.9
+      color: '#48ea4a'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1773.4
-      color: '#36ff1d'
+      score: 1928.9
+      color: '#48ea4a'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1773.4
-      color: '#36ff1d'
+      score: 1928.9
+      color: '#48ea4a'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3263,4 +3263,4 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 246
+  item_level_equipped: 252

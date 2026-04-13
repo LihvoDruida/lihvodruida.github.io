@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-12 20:40:07'
+  updated_at: '2026-04-13 02:49:08'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -4313,4 +4313,13 @@ characters:
       - name: Classic Enchanting
         learned_points: 1
         max_points: 300
-    secondaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 32
+        max_points: 100
