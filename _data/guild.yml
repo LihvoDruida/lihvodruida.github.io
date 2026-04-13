@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 17:05:58'
+  updated_at: '2026-04-13 20:58:44'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12364
-      region: 5473
-      realm: 49
+      world: 12404
+      region: 5505
+      realm: 52
     heroic:
-      world: 13448
-      region: 5664
+      world: 13554
+      region: 5760
       realm: 44
     mythic:
       world: 0
@@ -120,11 +120,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 181.3
-      color: '#ffffff'
+      score: 239.9
+      color: '#fdfffc'
     dps:
-      score: 181.3
-      color: '#ffffff'
+      score: 239.9
+      color: '#fdfffc'
     healer:
       score: 0
       color: '#ffffff'
@@ -138,8 +138,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 181.3
-      color: '#ffffff'
+      score: 239.9
+      color: '#fdfffc'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -315,11 +315,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/5/254901253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
   mythic_plus_scores:
     all:
-      score: 877.5
-      color: '#c2ffad'
+      score: 979.5
+      color: '#b8ffa1'
     dps:
-      score: 877.5
-      color: '#c2ffad'
+      score: 979.5
+      color: '#b8ffa1'
     healer:
       score: 0
       color: '#ffffff'
@@ -330,8 +330,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 877.5
-      color: '#c2ffad'
+      score: 979.5
+      color: '#b8ffa1'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 268
 - rank: 99
   name: Графдекот
   class: Druid
@@ -923,7 +923,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 273
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -2421,11 +2421,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1650.8
-      color: '#5cff41'
+      score: 1738.6
+      color: '#4cff32'
     dps:
-      score: 1650.8
-      color: '#5cff41'
+      score: 1738.6
+      color: '#4cff32'
     healer:
       score: 0
       color: '#ffffff'
@@ -2436,15 +2436,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1650.8
-      color: '#5cff41'
+      score: 1738.6
+      color: '#4cff32'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 261
 - rank: 99
   name: Oxydenis
   class: Paladin
@@ -2499,11 +2499,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2807.9
-      color: '#5c63e3'
+      score: 2853.6
+      color: '#715be5'
     dps:
-      score: 2807.9
-      color: '#5c63e3'
+      score: 2853.6
+      color: '#715be5'
     healer:
       score: 0
       color: '#ffffff'
@@ -2511,8 +2511,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2807.9
-      color: '#5c63e3'
+      score: 2853.6
+      color: '#715be5'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2717,7 +2717,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 269
+  item_level_equipped: 271
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2850,7 +2850,7 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2570.8
+      score: 2583
       color: '#3c80cc'
     dps:
       score: 0
@@ -2859,7 +2859,7 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2570.8
+      score: 2583
       color: '#3c80cc'
     spec_0:
       score: 0
@@ -2868,12 +2868,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2570.8
+      score: 2583
       color: '#3c80cc'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 270
+  item_level_equipped: 271
 - rank: 99
   name: Севатар
   class: Rogue
@@ -2912,7 +2912,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -2967,11 +2967,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2570.3
-      color: '#3c80cc'
+      score: 2598.9
+      color: '#357cd0'
     dps:
-      score: 2570.3
-      color: '#3c80cc'
+      score: 2598.9
+      color: '#357cd0'
     healer:
       score: 437.3
       color: '#ecffe4'
@@ -2979,8 +2979,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2570.3
-      color: '#3c80cc'
+      score: 2598.9
+      color: '#357cd0'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3073,8 +3073,8 @@ members:
   name: Thérion
   class: Warrior
   race: Highmountain Tauren
-  spec: Protection
-  role: TANK
+  spec: Arms
+  role: DPS
   gender: male
   faction: horde
   region: eu
@@ -3084,8 +3084,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 1300.5
-      color: '#93ff77'
+      score: 1536.4
+      color: '#73ff57'
     dps:
       score: 0
       color: '#ffffff'
@@ -3093,8 +3093,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1300.5
-      color: '#93ff77'
+      score: 1536.4
+      color: '#73ff57'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -3102,12 +3102,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1300.5
-      color: '#93ff77'
+      score: 1536.4
+      color: '#73ff57'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 245
 - rank: 99
   name: Мелиодас
   class: Paladin
@@ -3318,20 +3318,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 1928.9
-      color: '#3ef23a'
+      score: 1952.9
+      color: '#44ee44'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1928.9
-      color: '#3ef23a'
+      score: 1952.9
+      color: '#44ee44'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1928.9
-      color: '#3ef23a'
+      score: 1952.9
+      color: '#44ee44'
     spec_1:
       score: 0
       color: '#ffffff'
