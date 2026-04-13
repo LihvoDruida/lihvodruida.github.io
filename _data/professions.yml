@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 02:49:08'
+  updated_at: '2026-04-13 06:17:20'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -552,7 +552,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 70
+        learned_points: 73
         max_points: 100
     - name: Tailoring
       id: 197
