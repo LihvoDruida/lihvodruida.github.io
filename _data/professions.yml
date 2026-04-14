@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-14 13:45:27'
+  updated_at: '2026-04-14 17:12:27'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3315,6 +3315,9 @@ characters:
       - name: Dragon Isles Blacksmithing
         learned_points: 1
         max_points: 100
+      - name: Midnight Blacksmithing
+        learned_points: 1
+        max_points: 100
     - name: Mining
       id: 186
       tiers:
@@ -3331,7 +3334,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 66
+        learned_points: 67
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3660,7 +3663,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 67
+        learned_points: 74
         max_points: 100
     secondaries:
     - name: Fishing
