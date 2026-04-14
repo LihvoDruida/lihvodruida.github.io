@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 20:58:44'
+  updated_at: '2026-04-14 02:41:25'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -121,6 +121,173 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 6
+        max_points: 300
+- name: Клеосса
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Клеосса
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Zandalari Engineering
+        learned_points: 175
+        max_points: 175
+      - name: Legion Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Outland Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Classic Engineering
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Dragon Isles Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Engineering
+        learned_points: 91
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Zandalari Tailoring
+        learned_points: 175
+        max_points: 175
+      - name: Legion Tailoring
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Tailoring
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Tailoring
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Tailoring
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Tailoring
+        learned_points: 75
+        max_points: 75
+      - name: Outland Tailoring
+        learned_points: 75
+        max_points: 75
+      - name: Classic Tailoring
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Tailoring
+        learned_points: 100
+        max_points: 100
+      - name: Dragon Isles Tailoring
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Tailoring
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Tailoring
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 175
+        max_points: 175
+      - name: Legion Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Outland Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 91
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 175
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 200
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 255
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 300
         max_points: 300
 - name: Дедика
   region: eu

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-13 20:58:44'
+  updated_at: '2026-04-14 02:41:25'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12404
-      region: 5505
+      world: 12460
+      region: 5530
       realm: 52
     heroic:
-      world: 13554
-      region: 5760
+      world: 13639
+      region: 5789
       realm: 44
     mythic:
       world: 0
@@ -120,11 +120,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 239.9
-      color: '#fdfffc'
+      score: 409.9
+      color: '#eeffe7'
     dps:
-      score: 239.9
-      color: '#fdfffc'
+      score: 409.9
+      color: '#eeffe7'
     healer:
       score: 0
       color: '#ffffff'
@@ -138,12 +138,51 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 239.9
-      color: '#fdfffc'
+      score: 409.9
+      color: '#eeffe7'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 260
+- rank: 99
+  name: Клеосса
+  class: Warlock
+  race: Blood Elf
+  spec: Destruction
+  role: DPS
+  gender: female
+  faction: horde
+  region: eu
+  realm: Eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Клеосса
+  avatar: https://render.worldofwarcraft.com/eu/character/eversong/188/190326716-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 2123.2
+      color: '#5bcf73'
+    dps:
+      score: 2123.2
+      color: '#5bcf73'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2123.2
+      color: '#5bcf73'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 265
 - rank: 99
   name: Дедика
   class: Paladin
@@ -159,8 +198,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2093.3
-      color: '#59d46d'
+      score: 2123.2
+      color: '#5bcf73'
     dps:
       score: 0
       color: '#ffffff'
@@ -168,14 +207,14 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2093.3
-      color: '#59d46d'
+      score: 2123.2
+      color: '#5bcf73'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2093.3
-      color: '#59d46d'
+      score: 2123.2
+      color: '#5bcf73'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -510,11 +549,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
   mythic_plus_scores:
     all:
-      score: 2107.5
-      color: '#59d46d'
+      score: 2161.7
+      color: '#5ec77e'
     dps:
-      score: 2107.5
-      color: '#59d46d'
+      score: 2161.7
+      color: '#5ec77e'
     healer:
       score: 0
       color: '#ffffff'
@@ -522,8 +561,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2107.5
-      color: '#59d46d'
+      score: 2161.7
+      color: '#5ec77e'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -923,7 +962,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 272
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1893,7 +1932,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2850.4
+      score: 2853.3
       color: '#715be5'
     spec_3:
       score: 0
@@ -2226,20 +2265,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2966.6
-      color: '#9c3eed'
+      score: 3006.2
+      color: '#a335ee'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2966.6
-      color: '#9c3eed'
+      score: 3006.2
+      color: '#a335ee'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2966.6
-      color: '#9c3eed'
+      score: 3006.2
+      color: '#a335ee'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2683,7 +2722,7 @@ members:
   name: Зулпот
   class: Hunter
   race: Troll
-  spec: Marksmanship
+  spec: Beast Mastery
   role: DPS
   gender: male
   faction: horde
@@ -2694,11 +2733,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 2607.7
-      color: '#357cd0'
+      score: 2643.7
+      color: '#1d74d9'
     dps:
-      score: 2607.7
-      color: '#357cd0'
+      score: 2643.7
+      color: '#1d74d9'
     healer:
       score: 0
       color: '#ffffff'
@@ -2706,11 +2745,11 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2607.7
-      color: '#357cd0'
+      score: 2643.7
+      color: '#1d74d9'
     spec_1:
-      score: 167.6
-      color: '#ffffff'
+      score: 325.2
+      color: '#f5fff0'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2811,8 +2850,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
   mythic_plus_scores:
     all:
-      score: 2412
-      color: '#589dae'
+      score: 2451.6
+      color: '#5394b6'
     dps:
       score: 0
       color: '#ffffff'
@@ -2820,11 +2859,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2412
-      color: '#589dae'
+      score: 2451.6
+      color: '#5394b6'
     spec_0:
-      score: 2412
-      color: '#589dae'
+      score: 2451.6
+      color: '#5394b6'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2834,7 +2873,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 257
+  item_level_equipped: 259
 - rank: 99
   name: Медведдич
   class: Druid
@@ -2850,8 +2889,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2583
-      color: '#3c80cc'
+      score: 2606.6
+      color: '#357cd0'
     dps:
       score: 0
       color: '#ffffff'
@@ -2859,8 +2898,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2583
-      color: '#3c80cc'
+      score: 2606.6
+      color: '#357cd0'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -2868,8 +2907,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2583
-      color: '#3c80cc'
+      score: 2606.6
+      color: '#357cd0'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2912,7 +2951,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 271
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -3123,8 +3162,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2074.9
-      color: '#57d867'
+      score: 2114
+      color: '#59d46d'
     dps:
       score: 0
       color: '#ffffff'
@@ -3132,21 +3171,21 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2074.9
-      color: '#57d867'
+      score: 2114
+      color: '#59d46d'
     spec_0:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2074.9
-      color: '#57d867'
+      score: 2114
+      color: '#59d46d'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 268
 - rank: 99
   name: Альянсс
   class: Warrior
