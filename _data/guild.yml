@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-14 06:02:35'
+  updated_at: '2026-04-14 09:21:21'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12487
-      region: 5547
+      world: 12503
+      region: 5562
       realm: 52
     heroic:
-      world: 13678
-      region: 5798
+      world: 13697
+      region: 5811
       realm: 44
     mythic:
       world: 0
@@ -393,10 +393,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/175155212-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     dps:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     healer:
       score: 0
@@ -411,7 +411,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     spec_3:
       score: 0
@@ -432,10 +432,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
   mythic_plus_scores:
     all:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     dps:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     healer:
       score: 0
@@ -444,7 +444,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2531.5
+      score: 2534.3
       color: '#4888c3'
     spec_1:
       score: 0
@@ -689,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 231
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -962,7 +962,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 272
+  item_level_equipped: 273
 - rank: 3
   name: Elderwizard
   class: Mage
@@ -1508,7 +1508,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 250
+  item_level_equipped: 251
 - rank: 1
   name: Lishiy
   class: Warrior
@@ -2343,11 +2343,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2522
-      color: '#4888c3'
+      score: 2556.2
+      color: '#4384c8'
     dps:
-      score: 2522
-      color: '#4888c3'
+      score: 2556.2
+      color: '#4384c8'
     healer:
       score: 0
       color: '#ffffff'
@@ -2361,12 +2361,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2522
-      color: '#4888c3'
+      score: 2556.2
+      color: '#4384c8'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 268
 - rank: 0
   name: Khayen
   class: Druid
@@ -3084,14 +3084,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2511.9
-      color: '#4c8cbf'
+      score: 2523.8
+      color: '#4888c3'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2511.9
-      color: '#4c8cbf'
+      score: 2523.8
+      color: '#4888c3'
     tank:
       score: 0
       color: '#ffffff'
@@ -3105,8 +3105,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2511.9
-      color: '#4c8cbf'
+      score: 2523.8
+      color: '#4888c3'
   item_level_equipped: 261
 - rank: 99
   name: Thérion
@@ -3265,6 +3265,45 @@ members:
       color: '#ffffff'
   item_level_equipped: 244
 - rank: 99
+  name: Bernstorff
+  class: Mage
+  race: Void Elf
+  spec: Frost
+  role: DPS
+  gender: male
+  faction: alliance
+  region: eu
+  realm: Kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Bernstorff
+  avatar: https://render.worldofwarcraft.com/eu/character/kazzak/190/224938174-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 246
+- rank: 99
   name: Kokosik
   class: Mage
   race: Gnome
@@ -3357,19 +3396,19 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 1952.9
+      score: 1969.6
       color: '#44ee44'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1952.9
+      score: 1969.6
       color: '#44ee44'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 1952.9
+      score: 1969.6
       color: '#44ee44'
     spec_1:
       score: 0
