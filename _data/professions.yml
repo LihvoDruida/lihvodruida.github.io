@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-14 09:21:21'
+  updated_at: '2026-04-14 13:45:27'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -719,7 +719,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 75
+        learned_points: 77
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1355,11 +1355,11 @@ characters:
       - name: Midnight Fishing
         learned_points: 14
         max_points: 300
-- name: Daddyborn
+- name: Daddyborn-225651387
   region: eu
   realm: Silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn
+  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn-225651387
   professions:
     primaries: []
     secondaries: []
@@ -2212,6 +2212,38 @@ characters:
       - name: Dragon Isles Fishing
         learned_points: 1
         max_points: 100
+- name: Monkania
+  region: eu
+  realm: Terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Monkania
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 5
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 9
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Tailoring
+        learned_points: 71
+        max_points: 100
+      - name: Midnight Tailoring
+        learned_points: 1
+        max_points: 100
+    secondaries: []
 - name: Prayddh
   region: eu
   realm: Terokkar
@@ -4605,7 +4637,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 4
+        learned_points: 9
         max_points: 300
 - name: Kokosik
   region: eu

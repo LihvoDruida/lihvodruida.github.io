@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-14 09:21:21'
+  updated_at: '2026-04-14 13:45:27'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12503
-      region: 5562
+      world: 12510
+      region: 5567
       realm: 52
     heroic:
-      world: 13697
-      region: 5811
+      world: 13738
+      region: 5836
       realm: 44
     mythic:
       world: 0
@@ -613,7 +613,7 @@ members:
       color: '#ffffff'
   item_level_equipped: 251
 - rank: 99
-  name: Daddyborn
+  name: Daddyborn-225651387
   class: Warrior
   race: Human
   spec: Fury
@@ -623,7 +623,7 @@ members:
   region: eu
   realm: Silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn
+  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn-225651387
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
@@ -783,19 +783,19 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2275.4
+      score: 2279.5
       color: '#5fb692'
     dps:
       score: 166.8
       color: '#ffffff'
     healer:
-      score: 2275.4
+      score: 2279.5
       color: '#5fb692'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2275.4
+      score: 2279.5
       color: '#5fb692'
     spec_1:
       score: 0
@@ -806,7 +806,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 255
 - rank: 99
   name: Мортург
   class: Paladin
@@ -1084,8 +1084,8 @@ members:
   name: Allune
   class: Druid
   race: Night Elf
-  spec: Restoration
-  role: HEALING
+  spec: Balance
+  role: DPS
   gender: female
   faction: alliance
   region: eu
@@ -1118,7 +1118,7 @@ members:
     spec_3:
       score: 197.6
       color: '#ffffff'
-  item_level_equipped: 241
+  item_level_equipped: 243
 - rank: 3
   name: Es
   class: Warrior
@@ -1353,6 +1353,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 122
+- rank: 99
+  name: Monkania
+  class: Monk
+  race: Night Elf
+  spec: Mistweaver
+  role: HEALING
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Monkania
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 151
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -1903,7 +1942,7 @@ members:
   name: Vîøn
   class: Mage
   race: Night Elf
-  spec: Arcane
+  spec: Frost
   role: DPS
   gender: female
   faction: alliance
@@ -2343,11 +2382,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2556.2
-      color: '#4384c8'
+      score: 2621.8
+      color: '#2b78d5'
     dps:
-      score: 2556.2
-      color: '#4384c8'
+      score: 2621.8
+      color: '#2b78d5'
     healer:
       score: 0
       color: '#ffffff'
@@ -2361,12 +2400,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2556.2
-      color: '#4384c8'
+      score: 2621.8
+      color: '#2b78d5'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 268
+  item_level_equipped: 267
 - rank: 0
   name: Khayen
   class: Druid
@@ -2410,8 +2449,8 @@ members:
   name: Hexxoffender
   class: Shaman
   race: Dark Iron Dwarf
-  spec: Restoration
-  role: HEALING
+  spec: Elemental
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -2421,11 +2460,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     dps:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     healer:
       score: 0
       color: '#ffffff'
@@ -2433,8 +2472,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2499,11 +2538,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     dps:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     healer:
       score: 0
       color: '#ffffff'
@@ -2517,12 +2556,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2188.1
-      color: '#5fc283'
+      score: 2257.5
+      color: '#5fb692'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 261
+  item_level_equipped: 265
 - rank: 1
   name: Пизнайка
   class: Druid
@@ -2643,22 +2682,22 @@ members:
 - rank: 3
   name: Тузольд
   class: Death Knight
-  race: Worgen
+  race: Void Elf
   spec: Unholy
   role: DPS
-  gender: male
+  gender: female
   faction: alliance
   region: eu
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
   mythic_plus_scores:
     all:
-      score: 2286.2
+      score: 2301.2
       color: '#5fb297'
     dps:
-      score: 2286.2
+      score: 2301.2
       color: '#5fb297'
     healer:
       score: 0
@@ -2673,12 +2712,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2286.2
+      score: 2301.2
       color: '#5fb297'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 267
+  item_level_equipped: 269
 - rank: 3
   name: Travka
   class: Druid
@@ -2967,11 +3006,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/237/188733933-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2487.8
-      color: '#5090bb'
+      score: 2521.1
+      color: '#4888c3'
     dps:
-      score: 2487.8
-      color: '#5090bb'
+      score: 2521.1
+      color: '#4888c3'
     healer:
       score: 0
       color: '#ffffff'
@@ -2982,15 +3021,15 @@ members:
       score: 242.5
       color: '#fdfffc'
     spec_1:
-      score: 2487.8
-      color: '#5090bb'
+      score: 2521.1
+      color: '#4888c3'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 266
 - rank: 99
   name: Vurush
   class: Druid
@@ -3318,11 +3357,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
   mythic_plus_scores:
     all:
-      score: 2230.9
-      color: '#5fbe88'
+      score: 2286
+      color: '#5fb297'
     dps:
-      score: 2230.9
-      color: '#5fbe88'
+      score: 2286
+      color: '#5fb297'
     healer:
       score: 0
       color: '#ffffff'
@@ -3336,8 +3375,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2230.9
-      color: '#5fbe88'
+      score: 2286
+      color: '#5fb297'
     spec_3:
       score: 0
       color: '#ffffff'
