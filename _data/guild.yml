@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 17:06:49'
+  updated_at: '2026-04-15 20:52:38'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12615
-      region: 5601
+      world: 12642
+      region: 5625
       realm: 53
     heroic:
-      world: 14018
-      region: 5908
-      realm: 44
+      world: 14083
+      region: 5967
+      realm: 45
     mythic:
       world: 0
       region: 0
@@ -416,7 +416,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 266
+  item_level_equipped: 268
 - rank: 99
   name: Eidis
   class: Warrior
@@ -510,8 +510,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 828.5
-      color: '#c8ffb4'
+      score: 991.6
+      color: '#b9ffa2'
     dps:
       score: 0
       color: '#ffffff'
@@ -519,11 +519,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 828.5
-      color: '#c8ffb4'
+      score: 991.6
+      color: '#b9ffa2'
     spec_0:
-      score: 828.5
-      color: '#c8ffb4'
+      score: 991.6
+      color: '#b9ffa2'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -533,7 +533,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 236
+  item_level_equipped: 254
 - rank: 99
   name: Кеенди
   class: Shaman
@@ -689,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 276
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -1251,11 +1251,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2272.6
-      color: '#5fba8d'
+      score: 2331.6
+      color: '#5ead9b'
     dps:
-      score: 2272.6
-      color: '#5fba8d'
+      score: 2331.6
+      color: '#5ead9b'
     healer:
       score: 0
       color: '#ffffff'
@@ -1263,8 +1263,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2272.6
-      color: '#5fba8d'
+      score: 2331.6
+      color: '#5ead9b'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1274,7 +1274,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 265
 - rank: 1
   name: Ironbelly
   class: Monk
@@ -1368,13 +1368,13 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 0
+      score: 163.2
       color: '#ffffff'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 0
+      score: 163.2
       color: '#ffffff'
     tank:
       score: 0
@@ -1383,7 +1383,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 0
+      score: 163.2
       color: '#ffffff'
     spec_2:
       score: 0
@@ -1391,7 +1391,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 151
+  item_level_equipped: 245
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -2148,14 +2148,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
     all:
-      score: 1946.5
-      color: '#3ef23a'
+      score: 2015.2
+      color: '#49e94c'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1946.5
-      color: '#3ef23a'
+      score: 2015.2
+      color: '#49e94c'
     tank:
       score: 0
       color: '#ffffff'
@@ -2163,8 +2163,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1946.5
-      color: '#3ef23a'
+      score: 2015.2
+      color: '#49e94c'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -2366,7 +2366,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2795,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 256
 - rank: 99
   name: Зулпот
   class: Hunter
@@ -2964,9 +2964,33 @@ members:
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2669.8
+      color: '#1d74d9'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 2669.8
+      color: '#1d74d9'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2669.8
+      color: '#1d74d9'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 271
 - rank: 99
   name: Севатар
   class: Rogue
@@ -3005,7 +3029,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 275
 - rank: 99
   name: Ragnarøøk
   class: Shaman
@@ -3060,10 +3084,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2600.4
+      score: 2601.6
       color: '#3c80cc'
     dps:
-      score: 2600.4
+      score: 2601.6
       color: '#3c80cc'
     healer:
       score: 438.8
@@ -3072,7 +3096,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2600.4
+      score: 2601.6
       color: '#3c80cc'
     spec_1:
       score: 0
