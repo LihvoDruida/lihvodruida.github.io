@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 13:28:07'
+  updated_at: '2026-04-15 17:06:49'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12610
-      region: 5600
+      world: 12615
+      region: 5601
       realm: 53
     heroic:
-      world: 13983
-      region: 5899
+      world: 14018
+      region: 5908
       realm: 44
     mythic:
       world: 0
@@ -667,10 +667,10 @@ members:
   mythic_plus_scores:
     all:
       score: 3003.4
-      color: '#a335ee'
+      color: '#9c3eed'
     dps:
       score: 3003.4
-      color: '#a335ee'
+      color: '#9c3eed'
     healer:
       score: 0
       color: '#ffffff'
@@ -685,7 +685,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 3003.4
-      color: '#a335ee'
+      color: '#9c3eed'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -1251,11 +1251,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2069.5
-      color: '#54dc61'
+      score: 2272.6
+      color: '#5fba8d'
     dps:
-      score: 2069.5
-      color: '#54dc61'
+      score: 2272.6
+      color: '#5fba8d'
     healer:
       score: 0
       color: '#ffffff'
@@ -1263,8 +1263,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2069.5
-      color: '#54dc61'
+      score: 2272.6
+      color: '#5fba8d'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1759,7 +1759,7 @@ members:
   mythic_plus_scores:
     all:
       score: 3001.5
-      color: '#a335ee'
+      color: '#9c3eed'
     dps:
       score: 0
       color: '#ffffff'
@@ -1768,10 +1768,10 @@ members:
       color: '#ffffff'
     tank:
       score: 3001.5
-      color: '#a335ee'
+      color: '#9c3eed'
     spec_0:
       score: 3001.5
-      color: '#a335ee'
+      color: '#9c3eed'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1953,11 +1953,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2978.7
-      color: '#9b3eec'
+      score: 2995.7
+      color: '#9c3eed'
     dps:
-      score: 2978.7
-      color: '#9b3eec'
+      score: 2995.7
+      color: '#9c3eed'
     healer:
       score: 0
       color: '#ffffff'
@@ -1971,12 +1971,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2905.3
-      color: '#8053e8'
+      score: 2922.3
+      color: '#8351e8'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 274
 - rank: 4
   name: Valemor
   class: Mage
@@ -2171,7 +2171,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 254
+  item_level_equipped: 256
 - rank: 1
   name: Azuriel
   class: Paladin
@@ -2344,19 +2344,19 @@ members:
   mythic_plus_scores:
     all:
       score: 3006.2
-      color: '#a335ee'
+      color: '#9c3eed'
     dps:
       score: 0
       color: '#ffffff'
     healer:
       score: 3006.2
-      color: '#a335ee'
+      color: '#9c3eed'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
       score: 3006.2
-      color: '#a335ee'
+      color: '#9c3eed'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2617,10 +2617,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2854.7
-      color: '#6c5de5'
+      color: '#675fe4'
     dps:
       score: 2854.7
-      color: '#6c5de5'
+      color: '#675fe4'
     healer:
       score: 0
       color: '#ffffff'
@@ -2629,7 +2629,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2854.7
-      color: '#6c5de5'
+      color: '#675fe4'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2812,10 +2812,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2761.8
-      color: '#2e6ddf'
+      color: '#2c6dde'
     dps:
       score: 2761.8
-      color: '#2e6ddf'
+      color: '#2c6dde'
     healer:
       score: 0
       color: '#ffffff'
@@ -2824,7 +2824,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2761.8
-      color: '#2e6ddf'
+      color: '#2c6dde'
     spec_1:
       score: 325.2
       color: '#f5fff0'
@@ -2964,33 +2964,9 @@ members:
   realm: Gordunni
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2669.8
-      color: '#1d74d9'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2669.8
-      color: '#1d74d9'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2669.8
-      color: '#1d74d9'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 271
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 99
   name: Севатар
   class: Rogue
@@ -3006,11 +2982,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2603.5
-      color: '#3c80cc'
+      score: 2642.4
+      color: '#2b78d5'
     dps:
-      score: 2603.5
-      color: '#3c80cc'
+      score: 2642.4
+      color: '#2b78d5'
     healer:
       score: 0
       color: '#ffffff'
@@ -3024,8 +3000,8 @@ members:
       score: 254.5
       color: '#fbfff9'
     spec_2:
-      score: 2603.5
-      color: '#3c80cc'
+      score: 2642.4
+      color: '#2b78d5'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3045,11 +3021,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/237/188733933-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2521.1
-      color: '#4c8cbf'
+      score: 2567.7
+      color: '#4888c3'
     dps:
-      score: 2521.1
-      color: '#4c8cbf'
+      score: 2567.7
+      color: '#4888c3'
     healer:
       score: 0
       color: '#ffffff'
@@ -3060,8 +3036,8 @@ members:
       score: 242.5
       color: '#fdfffc'
     spec_1:
-      score: 2521.1
-      color: '#4c8cbf'
+      score: 2567.7
+      color: '#4888c3'
     spec_2:
       score: 0
       color: '#ffffff'

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 13:28:07'
+  updated_at: '2026-04-15 17:06:49'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -4627,8 +4627,47 @@ characters:
   realm_slug: kazzak
   profile_url: https://raider.io/characters/eu/kazzak/Bernstorff
   professions:
-    primaries: []
-    secondaries: []
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 100
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Alchemy
+        learned_points: 50
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 9
+        max_points: 300
 - name: Kokosik
   region: eu
   realm: Silvermoon
