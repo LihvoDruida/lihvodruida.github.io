@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 06:01:50'
+  updated_at: '2026-04-15 09:23:09'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2302,7 +2302,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 86
+        learned_points: 88
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -4150,7 +4150,16 @@ characters:
   realm_slug: eversong
   profile_url: https://raider.io/characters/eu/eversong/Галазард
   professions:
-    primaries: []
+    primaries:
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 16
+        max_points: 100
     secondaries: []
 - name: Медведдич
   region: eu
@@ -4300,7 +4309,25 @@ characters:
   realm_slug: burning-legion
   profile_url: https://raider.io/characters/eu/burning-legion/Ragnarøøk
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 74
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 66
+        max_points: 100
     secondaries: []
 - name: Vurush
   region: eu

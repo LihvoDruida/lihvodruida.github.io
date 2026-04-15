@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 06:01:50'
+  updated_at: '2026-04-15 09:23:09'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12594
-      region: 5598
+      world: 12602
+      region: 5600
       realm: 53
     heroic:
-      world: 13950
-      region: 5895
+      world: 13971
+      region: 5898
       realm: 44
     mythic:
       world: 0
@@ -2371,8 +2371,8 @@ members:
   name: Christmans
   class: Paladin
   race: Human
-  spec: Protection
-  role: TANK
+  spec: Retribution
+  role: DPS
   gender: male
   faction: alliance
   region: eu
@@ -2405,7 +2405,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 262
+  item_level_equipped: 269
 - rank: 0
   name: Khayen
   class: Druid
@@ -2600,7 +2600,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 276
 - rank: 3
   name: Shennái
   class: Priest
@@ -3424,8 +3424,8 @@ members:
   name: Sneydilio
   class: Paladin
   race: Dwarf
-  spec: Protection
-  role: TANK
+  spec: Holy
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -3435,20 +3435,20 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
   mythic_plus_scores:
     all:
-      score: 2059.4
-      color: '#51e15b'
+      score: 2094.4
+      color: '#57d867'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2059.4
-      color: '#51e15b'
+      score: 2094.4
+      color: '#57d867'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2059.4
-      color: '#51e15b'
+      score: 2094.4
+      color: '#57d867'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3458,4 +3458,4 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 255
