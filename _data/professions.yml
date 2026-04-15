@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 09:23:09'
+  updated_at: '2026-04-15 13:28:07'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3053,6 +3053,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 17
         max_points: 300
+- name: Vertyxa
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
+  professions:
+    primaries:
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Alchemy
+        learned_points: 39
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 61
+        max_points: 100
+    secondaries: []
 - name: Azuriel
   region: eu
   realm: Terokkar

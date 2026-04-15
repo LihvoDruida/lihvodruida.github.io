@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-15 09:23:09'
+  updated_at: '2026-04-15 13:28:07'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12602
+      world: 12610
       region: 5600
       realm: 53
     heroic:
-      world: 13971
-      region: 5898
+      world: 13983
+      region: 5899
       realm: 44
     mythic:
       world: 0
@@ -1953,11 +1953,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2964
-      color: '#9246eb'
+      score: 2978.7
+      color: '#9b3eec'
     dps:
-      score: 2964
-      color: '#9246eb'
+      score: 2978.7
+      color: '#9b3eec'
     healer:
       score: 0
       color: '#ffffff'
@@ -1971,8 +1971,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2853.3
-      color: '#6c5de5'
+      score: 2905.3
+      color: '#8053e8'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2133,6 +2133,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 119
+- rank: 99
+  name: Vertyxa
+  class: Monk
+  race: Dwarf
+  spec: Mistweaver
+  role: HEALING
+  gender: female
+  faction: alliance
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 1946.5
+      color: '#3ef23a'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 1946.5
+      color: '#3ef23a'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 1946.5
+      color: '#3ef23a'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 254
 - rank: 1
   name: Azuriel
   class: Paladin
@@ -2600,7 +2639,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 276
+  item_level_equipped: 277
 - rank: 3
   name: Shennái
   class: Priest
@@ -3068,7 +3107,7 @@ members:
     spec_3:
       score: 438.8
       color: '#ecffe4'
-  item_level_equipped: 271
+  item_level_equipped: 274
 - rank: 99
   name: Корукк
   class: Hunter
@@ -3123,14 +3162,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2595.1
-      color: '#3c80cc'
+      score: 2625.8
+      color: '#357cd0'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2595.1
-      color: '#3c80cc'
+      score: 2625.8
+      color: '#357cd0'
     tank:
       score: 0
       color: '#ffffff'
@@ -3144,8 +3183,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_3:
-      score: 2595.1
-      color: '#3c80cc'
+      score: 2625.8
+      color: '#357cd0'
   item_level_equipped: 261
 - rank: 99
   name: Thérion
