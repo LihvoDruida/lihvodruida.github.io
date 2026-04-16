@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 06:04:06'
+  updated_at: '2026-04-16 09:22:25'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1354,6 +1354,62 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 14
+        max_points: 300
+- name: Ohhchetos
+  region: eu
+  realm: Kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Ohhchetos
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Cataclysm Blacksmithing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Blacksmithing
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Blacksmithing
+        learned_points: 4
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Legion Mining
+        learned_points: 3
+        max_points: 100
+      - name: Pandaria Mining
+        learned_points: 17
+        max_points: 75
+      - name: Northrend Mining
+        learned_points: 23
+        max_points: 75
+      - name: Classic Mining
+        learned_points: 6
+        max_points: 300
+      - name: Shadowlands Mining
+        learned_points: 150
+        max_points: 150
+      - name: Khaz Algar Mining
+        learned_points: 19
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 8
         max_points: 300
 - name: Daddyborn-225651387
   region: eu

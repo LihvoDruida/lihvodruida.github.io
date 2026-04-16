@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 06:04:06'
+  updated_at: '2026-04-16 09:22:25'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,13 +41,13 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12677
-      region: 5631
+      world: 12690
+      region: 5633
       realm: 53
     heroic:
-      world: 14198
-      region: 6001
-      realm: 45
+      world: 14217
+      region: 6004
+      realm: 46
     mythic:
       world: 0
       region: 0
@@ -612,6 +612,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 251
+- rank: 99
+  name: Ohhchetos
+  class: Paladin
+  race: Tauren
+  spec: Retribution
+  role: DPS
+  gender: female
+  faction: horde
+  region: eu
+  realm: Kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Ohhchetos
+  avatar: https://render.worldofwarcraft.com/eu/character/kazzak/43/217005099-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
+  mythic_plus_scores:
+    all:
+      score: 2216.1
+      color: '#5fc283'
+    dps:
+      score: 2216.1
+      color: '#5fc283'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2216.1
+      color: '#5fc283'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 262
 - rank: 99
   name: Daddyborn-225651387
   class: Warrior
@@ -2756,7 +2795,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 269
+  item_level_equipped: 270
 - rank: 3
   name: Travka
   class: Druid
@@ -2811,11 +2850,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
   mythic_plus_scores:
     all:
-      score: 2761.8
-      color: '#2c6dde'
+      score: 2800.1
+      color: '#4f67e1'
     dps:
-      score: 2761.8
-      color: '#2c6dde'
+      score: 2800.1
+      color: '#4f67e1'
     healer:
       score: 0
       color: '#ffffff'
@@ -2823,8 +2862,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2761.8
-      color: '#2c6dde'
+      score: 2800.1
+      color: '#4f67e1'
     spec_1:
       score: 325.2
       color: '#f5fff0'
@@ -2834,7 +2873,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 274
 - rank: 3
   name: Mólfár
   class: Warlock
@@ -2886,33 +2925,9 @@ members:
   realm: Silvermoon
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/28/224554268-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 215
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 99
   name: Галазард
   class: Death Knight
