@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 02:47:14'
+  updated_at: '2026-04-16 06:04:06'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12664
-      region: 5628
+      world: 12677
+      region: 5631
       realm: 53
     heroic:
-      world: 14161
-      region: 5992
+      world: 14198
+      region: 6001
       realm: 45
     mythic:
       world: 0
@@ -499,8 +499,8 @@ members:
   name: Characternuk
   class: Death Knight
   race: Human
-  spec: Unholy
-  role: DPS
+  spec: Blood
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -533,7 +533,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 254
+  item_level_equipped: 255
 - rank: 99
   name: Кеенди
   class: Shaman
@@ -689,7 +689,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 276
+  item_level_equipped: 275
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -1391,7 +1391,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 258
+  item_level_equipped: 259
 - rank: 3
   name: Prayddh
   class: Demon Hunter
@@ -2990,7 +2990,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 271
+  item_level_equipped: 272
 - rank: 99
   name: Севатар
   class: Rogue
@@ -3006,10 +3006,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2643.2
+      score: 2645.2
       color: '#2b78d5'
     dps:
-      score: 2643.2
+      score: 2645.2
       color: '#2b78d5'
     healer:
       score: 0
@@ -3024,7 +3024,7 @@ members:
       score: 254.5
       color: '#fbfff9'
     spec_2:
-      score: 2643.2
+      score: 2645.2
       color: '#2b78d5'
     spec_3:
       score: 0

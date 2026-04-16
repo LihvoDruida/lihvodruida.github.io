@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 02:47:14'
+  updated_at: '2026-04-16 06:04:06'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -4716,7 +4716,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 5
+        learned_points: 8
         max_points: 100
     secondaries:
     - name: Cooking
