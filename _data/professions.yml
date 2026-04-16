@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 17:18:10'
+  updated_at: '2026-04-16 20:52:39'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2358,7 +2358,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 88
+        learned_points: 90
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -3561,7 +3561,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 72
+        learned_points: 73
         max_points: 100
     secondaries:
     - name: Cooking
@@ -4772,7 +4772,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 8
+        learned_points: 20
         max_points: 100
     secondaries:
     - name: Cooking
@@ -4784,3 +4784,12 @@ characters:
       - name: Midnight Cooking
         learned_points: 32
         max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
