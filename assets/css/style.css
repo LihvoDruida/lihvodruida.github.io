@@ -60,6 +60,8 @@ select {
    2. GLOBAL VARIABLES & SETTINGS
    ========================================= */
 :root {
+    --font-sans: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --orange-light: #ffb26a;
     --orange-main:  #ff9b55;
     --orange-dark:  #ff7a2f;
@@ -84,7 +86,7 @@ select {
 }
 
 html {
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--font-sans);
     font-size: 100%;
     line-height: 1.5;
     overflow-x: hidden;
@@ -93,7 +95,7 @@ html {
 }
 
 body {
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--font-sans);
     background: radial-gradient(circle at top, #2a2118, var(--bg));
     color: var(--text);
     min-height: 100vh;
@@ -134,6 +136,25 @@ a {
     outline-offset: 2px;
 }
 
+.skip-link {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 10001;
+    padding: 10px 14px;
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(18, 15, 12, 0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    text-decoration: none;
+    transform: translateY(-140%);
+    transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
 /* =========================================
    4. LAYOUT
    ========================================= */
@@ -167,7 +188,7 @@ main {
    5. TYPOGRAPHY
    ========================================= */
 h1, h2, h3, #navigation-links {
-    font-family: 'Lexend Variable', sans-serif;
+    font-family: var(--font-display);
     text-transform: uppercase;
     font-weight: 700;
 }
@@ -178,7 +199,7 @@ h1, h2, h3 {
     -webkit-background-clip: text;
     position: relative;
     padding-top: 0.2em;
-    font-family: 'Lexend', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -832,7 +853,7 @@ code,
     }
 
     .mobile-link {
-        font-family: 'Lexend Variable', sans-serif;
+        font-family: var(--font-display);
         font-size: 20px;
         font-weight: 600;
         color: #e6e1db;
@@ -1127,6 +1148,10 @@ code,
 body.nav-open {
     overflow: hidden;
     touch-action: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
 }
 
 .nav-brand {
@@ -1633,4 +1658,16 @@ body.nav-open {
     .donate-header h1 {
         font-size: 1.68rem;
     }
+}
+
+
+/* Deferred rendering for large below-the-fold sections */
+.area.section,
+.guild-section,
+.article-wrapper,
+.history-card,
+.methods-grid,
+.news-grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 900px;
 }

@@ -98,7 +98,7 @@
   border-right: 1px solid var(--border-light);
 }
 
-.featured-image img, 
+.featured-image img,
 .media-img {
   width: 100%;
   height: 100%;
@@ -175,8 +175,11 @@
 }
 
 .media-img {
-  background-size: cover;
-  background-position: center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  aspect-ratio: 16 / 9;
 }
 
 .card-badge {
@@ -240,12 +243,14 @@
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .bg-image {
-  width: 100%; height: 100%;
-  background-size: cover;
-  background-position: center top;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
   filter: blur(8px) brightness(0.7);
   transform: scale(1.1);
 }

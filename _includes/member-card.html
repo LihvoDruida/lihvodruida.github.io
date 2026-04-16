@@ -22,7 +22,7 @@
   {% assign best_color = "#d6d9de" %}
 {% endif %}
 
-<a href="{{ include.char.profile_url }}" target="_blank" class="member-card faction-{{ include.char.faction | downcase }}" data-member-name="{{ include.char.name | escape }}" data-member-class="{{ include.char.class | escape }}" data-member-spec="{{ include.char.spec | escape }}" data-rio-best-score="{{ best_score }}" data-rio-best-role="{{ best_role }}" data-rio-best-color="{{ best_color }}">
+<a href="{{ include.char.profile_url }}" target="_blank" rel="noopener noreferrer" class="member-card faction-{{ include.char.faction | downcase }}" data-member-name="{{ include.char.name | escape }}" data-member-class="{{ include.char.class | escape }}" data-member-spec="{{ include.char.spec | escape }}" data-rio-best-score="{{ best_score }}" data-rio-best-role="{{ best_role }}" data-rio-best-color="{{ best_color }}">
   <div class="avatar-wrapper">
     {% if include.char.avatar %}
       <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">

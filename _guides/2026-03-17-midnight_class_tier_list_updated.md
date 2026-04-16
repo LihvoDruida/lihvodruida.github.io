@@ -7,7 +7,7 @@ date: 2026-03-17
 author: Sebas
 categories: [Гайди, Класи]
 tags: [Midnight, Class Tier List, Season 1, DPS, Healer, Tank, Mythic+, Raid]
-image: /assets/img-content/best-classes-in-wow-midnight.jpg
+image: /assets/img-content/best-classes-in-wow-midnight.webp
 ---
 
 На старті **Midnight Season 1** немає одного-єдиного “правильного” tier list для всього одразу.  

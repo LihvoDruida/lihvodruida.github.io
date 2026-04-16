@@ -5,14 +5,14 @@ layout: default
 <div class="article-page">
   
   <div class="article-bg">
-    <div class="bg-image" style="background-image: url('{{ page.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
+    <img class="bg-image" src="{{ page.image | default: '/assets/img/news-placeholder.webp' }}" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
     <div class="bg-overlay"></div>
   </div>
 
   <div class="article-container">
     
     <div class="article-nav">
-      <a href="/guides/" class="back-btn">
+      <a href="{{ '/guides/' | relative_url }}" class="back-btn">
         <svg style="width:20px;height:20px" viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
         <span>До списку гайдів</span>
       </a>
@@ -70,13 +70,13 @@ layout: default
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.15 5.96C15.21 5.96 16.12 6.04 16.12 6.04V8.51H15.01C13.77 8.51 13.38 9.28 13.38 10.07V12.06H16.16L15.72 14.96H13.38V21.96C18.16 21.21 21.82 17.06 21.82 12.06C21.82 6.53 17.32 2.04 12 2.04Z" /></svg>
             </a>
 
-            <button class="share-btn copy-btn" onclick="copyLink()" title="Копіювати посилання">
+            <button class="share-btn copy-btn" type="button" title="Копіювати посилання">
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>
               <span id="copyText">Копіювати</span>
             </button>
           </div>
 
-          <a href="/guides/" class="btn-primary all-guides">
+          <a href="{{ '/guides/' | relative_url }}" class="btn-primary all-guides">
             <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6H20V8H4V6M4 11H20V13H4V11M4 16H20V18H4V16Z" /></svg>
             Всі гайди
           </a>
@@ -84,14 +84,14 @@ layout: default
 
         <div class="post-navigation">
             {% if page.previous.url %}
-            <a class="prev" href="{{ page.previous.url }}">
+            <a class="prev" href="{{ page.previous.url | relative_url }}">
                 <span>&laquo; Попередній</span>
                 {{ page.previous.title }}
             </a>
             {% endif %}
             
             {% if page.next.url %}
-            <a class="next" href="{{ page.next.url }}">
+            <a class="next" href="{{ page.next.url | relative_url }}">
                 <span>Наступний &raquo;</span>
                 {{ page.next.title }}
             </a>
@@ -104,117 +104,4 @@ layout: default
   </div>
 </div>
 
-<script>
-function copyLink() {
-  const textSpan = document.getElementById('copyText');
-  const button = document.querySelector('.copy-btn');
-  const originalText = textSpan ? textSpan.innerText : 'Копіювати';
-  const onSuccess = () => {
-    if (!textSpan || !button) return;
-    textSpan.innerText = 'Скопійовано!';
-    button.classList.add('copied');
-    setTimeout(() => {
-      textSpan.innerText = originalText;
-      button.classList.remove('copied');
-    }, 2000);
-  };
-
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(window.location.href).then(onSuccess);
-    return;
-  }
-
-  const tempInput = document.createElement('input');
-  tempInput.value = window.location.href;
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  document.execCommand('copy');
-  document.body.removeChild(tempInput);
-  onSuccess();
-}
-
-function enhanceArticleTables() {
-  const mobileQuery = window.matchMedia('(max-width: 768px)');
-
-  const syncOverflowState = (wrap) => {
-    const scroll = wrap.querySelector('.article-table-scroll');
-    const hint = wrap.querySelector('.table-scroll-hint');
-    if (!scroll) return;
-
-    const hasOverflow = scroll.scrollWidth > scroll.clientWidth + 8;
-    const atStart = scroll.scrollLeft <= 8;
-    const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 8;
-
-    wrap.classList.toggle('has-overflow', hasOverflow);
-    wrap.classList.toggle('is-overflowing', hasOverflow && !atEnd);
-    wrap.classList.toggle('is-scrolled', hasOverflow && !atStart);
-
-    if (hint) {
-      hint.hidden = !hasOverflow;
-    }
-  };
-
-  const unwrapTable = (table) => {
-    const wrap = table.closest('.article-table-wrap');
-    if (!wrap) return;
-
-    wrap.parentNode.insertBefore(table, wrap);
-    wrap.remove();
-  };
-
-  const wrapTable = (table) => {
-    if (table.closest('.article-table-wrap')) return;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'article-table-wrap';
-
-    const scroll = document.createElement('div');
-    scroll.className = 'article-table-scroll';
-
-    const hint = document.createElement('div');
-    hint.className = 'table-scroll-hint';
-    hint.textContent = 'Проведи таблицю вбік →';
-
-    const parent = table.parentNode;
-    parent.insertBefore(wrap, table);
-    wrap.appendChild(scroll);
-    scroll.appendChild(table);
-    wrap.appendChild(hint);
-
-    const update = () => syncOverflowState(wrap);
-
-    scroll.addEventListener('scroll', update, { passive: true });
-    requestAnimationFrame(update);
-  };
-
-  const refreshTables = () => {
-    const isMobile = mobileQuery.matches;
-    const tables = document.querySelectorAll('.article-body table');
-
-    tables.forEach((table) => {
-      if (isMobile) {
-        wrapTable(table);
-      } else {
-        unwrapTable(table);
-      }
-    });
-
-    if (isMobile) {
-      document.querySelectorAll('.article-table-wrap').forEach(syncOverflowState);
-    }
-  };
-
-  const scheduleRefresh = () => requestAnimationFrame(refreshTables);
-
-  refreshTables();
-  window.addEventListener('resize', scheduleRefresh, { passive: true });
-
-  if (mobileQuery.addEventListener) {
-    mobileQuery.addEventListener('change', scheduleRefresh);
-  } else if (mobileQuery.addListener) {
-    mobileQuery.addListener(scheduleRefresh);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', enhanceArticleTables);
-</script>
+<script src="{{ '/assets/js/article-tools.js' | relative_url }}" defer></script>

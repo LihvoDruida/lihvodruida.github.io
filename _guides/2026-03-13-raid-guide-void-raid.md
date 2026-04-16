@@ -7,7 +7,7 @@ date: 2026-03-13
 author: Sebas
 categories: [WoW Midnight, Рейд]
 tags: [The Voidspire, Midnight, Voidstorm, Raid]
-image: /assets/img-content/the-voidspire-raid.jpg
+image: /assets/img-content/the-voidspire-raid.webp
 ---
 
 **The Voidspire** — головний рейд першого сезону доповнення **World of Warcraft: Midnight**, реліз якого відбувся у **березні 2026 року**.  

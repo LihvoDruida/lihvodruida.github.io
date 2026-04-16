@@ -7,7 +7,7 @@ date: 2026-03-16
 author: Sebas
 categories: [Гайди, Mythic+]
 tags: [Midnight, Mythic+, Season 1, Keystone Master, Dungeons]
-image: /assets/img-content/Season-1.jpg
+image: /assets/img-content/Season-1.webp
 ---
 
 **Mythic+ у Midnight Season 1 відкривається 24 березня 2026 року.**  

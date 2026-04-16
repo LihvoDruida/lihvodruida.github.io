@@ -8,7 +8,7 @@ last_modified_at: 2026-03-16
 author: Sebas
 categories: [WoW Midnight, Рейд]
 tags: [The Dreamrift, Chimaerus, Midnight, Harandar, Raid]
-image: /assets/img-content/the-dreamrift-raid.jpg
+image: /assets/img-content/the-dreamrift-raid.webp
 ---
 
 **The Dreamrift** — однобосовий рейд першого сезону **World of Warcraft: Midnight**.  

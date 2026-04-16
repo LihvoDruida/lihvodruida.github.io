@@ -3,7 +3,7 @@ layout: default
 title: Новини та Події
 permalink: /news/
 description: "Останні новини сервера, оновлення World of Warcraft 3.3.5a та події спільноти."
-image: /assets/img/og-image-default.jpg
+image: /assets/img/og-image-default.webp
 ---
 
 <div class="area-content">
@@ -31,7 +31,7 @@ image: /assets/img/og-image-default.jpg
         </p>
         
         <div class="empty-action">
-            <span class="wow-tip">Поки чекаєте, перегляньте <a href="/guides/">Гайди</a>.</span>
+            <span class="wow-tip">Поки чекаєте, перегляньте <a href="{{ '/guides/' | relative_url }}">Гайди</a>.</span>
         </div>
     </div>
 
@@ -40,10 +40,10 @@ image: /assets/img/og-image-default.jpg
     {% assign featured = news_list.first %}
 
     {% if featured %}
-    <a href="{{ featured.url }}" class="featured-article">
+    <a href="{{ featured.url | relative_url }}" class="featured-article">
       
       <div class="featured-image">
-        <img src="{{ featured.image | default: '/assets/img/news-placeholder.jpg' }}" alt="{{ featured.title }}">
+        <img src="{{ featured.image | default: '/assets/img/news-placeholder.webp' }}" alt="{{ featured.title }}" loading="eager" decoding="async" fetchpriority="high">
       </div>
       
       <div class="featured-content">
@@ -72,9 +72,9 @@ image: /assets/img/og-image-default.jpg
 
     <div class="news-grid">
       {% for post in news_list offset:1 %}
-        <a href="{{ post.url }}" class="visual-news-card">
+        <a href="{{ post.url | relative_url }}" class="visual-news-card">
           <div class="card-media">
-            <div class="media-img" style="background-image: url('{{ post.image | default: '/assets/img/news-placeholder.jpg' }}');"></div>
+            <img class="media-img" src="{{ post.image | default: '/assets/img/news-placeholder.webp' }}" alt="{{ post.title }}" loading="lazy" decoding="async">
             <div class="card-badge">
               {{ post.categories | last | default: "Новини" }}
             </div>

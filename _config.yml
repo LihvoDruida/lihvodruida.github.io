@@ -3,14 +3,25 @@
 # ==============================================================================
 title: Sebas — Gaming Profile
 description: >-
-  Профіль гравця та центр новин про World of Warcraft, адони, 
+  Профіль гравця та центр новин про World of Warcraft, адони,
   тактики та корисний контент для спільноти.
 lang: uk
 author: Sebas
 email: lihvo.druida@gmail.com
+timezone: Europe/Kyiv
+logo: /assets/img/guild-logo.webp
+image: /assets/img/og-image-default.webp
 
-url: "https://lihvodruida.pp.ua" 
+url: "https://lihvodruida.pp.ua"
 baseurl: ""
+
+social:
+  name: Sebas
+  links:
+    - https://www.youtube.com/@lihvo_druida
+    - https://www.tiktok.com/@lihvo_druida
+    - https://www.twitch.tv/lihvo_druida/about
+    - https://discord.gg/SR8JsQBCxn
 
 # ==============================================================================
 # BUILD SETTINGS
@@ -43,7 +54,7 @@ defaults:
       path: ""
     values:
       layout: default
-      image: /assets/img/news-placeholder.jpg
+      image: /assets/img/news-placeholder.webp
   
   - scope:
       path: ""

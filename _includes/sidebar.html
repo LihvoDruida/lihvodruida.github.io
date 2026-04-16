@@ -1,58 +1,48 @@
 <header class="top-nav">
   <div class="nav-container">
+    {% assign current_url = page.url | default: '/' %}
 
-    <a href="/" class="nav-brand" aria-label="На головну">
+    <a href="{{ '/' | relative_url }}" class="nav-brand" aria-label="На головну">
       <span class="nav-brand-mark"></span>
       <span class="nav-brand-text">Лігво</span>
     </a>
 
-    <nav class="nav-left">
-      <a href="/">Головна</a>
-      <a href="/news/">Новини</a>
-      <a href="/guild/">Гільдія</a>
-      
+    <nav class="nav-left" aria-label="Основна навігація">
+      <a href="{{ '/' | relative_url }}"{% if current_url == '/' %} aria-current="page"{% endif %}>Головна</a>
+      <a href="{{ '/news/' | relative_url }}"{% if current_url == '/news/' %} aria-current="page"{% endif %}>Новини</a>
+      <a href="{{ '/guild/' | relative_url }}"{% if current_url == '/guild/' %} aria-current="page"{% endif %}>Гільдія</a>
+
       <div class="nav-dropdown">
-        <button class="dropdown-toggle" type="button" aria-expanded="false" >
+        <button class="dropdown-toggle" type="button" aria-expanded="false" aria-haspopup="true">
           Ресурси <span class="arrow">▾</span>
         </button>
-        
+
         <div class="dropdown-menu">
-          <a href="/mods/">
-            <span class="icon">🛠️</span> Мої Адони
-          </a>
-          <a href="/guides/">
-            <span class="icon">📚</span> Гайди
-          </a>
-          <a href="/404.html">
-            <span class="icon">🗺️</span> 404
-          </a>
+          <a href="{{ '/mods/' | relative_url }}"><span class="icon">🛠️</span> Мої адони</a>
+          <a href="{{ '/guides/' | relative_url }}"><span class="icon">📚</span> Гайди</a>
+          <a href="{{ '/donate/' | relative_url }}"><span class="icon">💛</span> Підтримка</a>
+          <a href="{{ '/404.html' | relative_url }}"><span class="icon">🗺️</span> 404</a>
         </div>
       </div>
     </nav>
 
-    <button class="hamburger" aria-label="Меню" aria-expanded="false">
+    <button class="hamburger" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">
       <div class="menu-button"></div>
     </button>
-
   </div>
 
-  <div class="mobile-menu">
+  <div class="mobile-menu" id="mobile-menu">
     <div class="mobile-menu-inner">
-      <a href="/" class="mobile-link">Головна</a>
-      <a href="/news/" class="mobile-link">Новини</a>
-      <a href="/guild/" class="mobile-link">Гільдія</a>
-      
+      <a href="{{ '/' | relative_url }}" class="mobile-link">Головна</a>
+      <a href="{{ '/news/' | relative_url }}" class="mobile-link">Новини</a>
+      <a href="{{ '/guild/' | relative_url }}" class="mobile-link">Гільдія</a>
+
       <div class="mobile-divider">Ресурси</div>
-      
-      <a href="/mods/" class="mobile-link">
-        <span class="icon">🛠️</span> Адони
-      </a>
-      <a href="/guides/" class="mobile-link">
-        <span class="icon">📚</span> Гайди
-      </a>
-      <a href="/404.html" class="mobile-link">
-        <span class="icon">🗺️</span> 404
-      </a>
+
+      <a href="{{ '/mods/' | relative_url }}" class="mobile-link"><span class="icon">🛠️</span> Адони</a>
+      <a href="{{ '/guides/' | relative_url }}" class="mobile-link"><span class="icon">📚</span> Гайди</a>
+      <a href="{{ '/donate/' | relative_url }}" class="mobile-link"><span class="icon">💛</span> Підтримка</a>
+      <a href="{{ '/404.html' | relative_url }}" class="mobile-link"><span class="icon">🗺️</span> 404</a>
     </div>
   </div>
 </header>

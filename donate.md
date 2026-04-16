@@ -20,7 +20,7 @@ permalink: /donate/
     <!-- FEATURED METHOD -->
     <a href="https://send.monobank.ua/jar/36G5vBXMkK" rel="noopener noreferrer" target="_blank"  class="card method-card featured">
       <div class="featured-badge">★ Рекомендовано</div>
-      <div class="method-icon"><img src="/assets/img/monobank-logo.png" alt="Monobank"></div>
+      <div class="method-icon"><img src="{{ '/assets/img/monobank-logo.webp' | relative_url }}" alt="Monobank" loading="lazy" decoding="async"></div>
       <h3>Monobank</h3>
       <p>Миттєва підтримка карткою українського банку</p>
       <div class="method-features">
@@ -30,7 +30,7 @@ permalink: /donate/
     </a>
 
    <a href="https://donatello.to/lihvo_druida" rel="noopener noreferrer" target="_blank"  class="card method-card">
-      <div class="method-icon"><img src="/assets/img/donatello-logo.png" alt="Donatello"></div>
+      <div class="method-icon"><img src="{{ '/assets/img/donatello-logo.webp' | relative_url }}" alt="Donatello" loading="lazy" decoding="async"></div>
       <h3>Donatello</h3>
       <p>Швидкі донати з України та інших країн</p>
       <div class="method-features">
@@ -82,15 +82,3 @@ permalink: /donate/
     </div>
   </div>
 </section>
-
-<!-- JS для toggle альтернатив -->
-<script>
-const toggleBtn = document.querySelector('.toggle-alternatives');
-const altMethods = document.querySelector('.alternative-methods');
-toggleBtn.addEventListener('click', () => {
-  altMethods.classList.toggle('show');
-  toggleBtn.textContent = altMethods.classList.contains('show') 
-    ? 'Інші способи підтримки ↑' 
-    : 'Інші способи підтримки ↓';
-});
-</script>

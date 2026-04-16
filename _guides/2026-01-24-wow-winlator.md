@@ -8,7 +8,7 @@ last_modified_at: 2026-01-25
 author: Sebas
 categories: [Android, Гайд]
 tags: [WoW, Winlator, Emulation, 3.3.5a, Optimization]
-image: /assets/img-content/wow-winlator-cover.jpg
+image: /assets/img-content/wow-winlator-cover.webp
 ---
 
 Запуск повноцінної версії **World of Warcraft** на телефоні став реальністю завдяки емулятору **Winlator**. У цьому гайді ми розглянемо, як налаштувати емулятор, оптимізувати конфігурацію гри та отримати стабільні 60 FPS навіть у рейдах.

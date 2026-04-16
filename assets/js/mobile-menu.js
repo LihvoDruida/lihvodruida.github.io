@@ -1,12 +1,13 @@
 /**
- * Mobile navigation with scroll lock and safe resize handling.
+ * Mobile navigation with safe scroll lock and resize handling.
  */
 class NavigationInterface {
     constructor(selectors) {
         this.refs = {
             trigger: document.querySelector(selectors.trigger),
             overlay: document.querySelector(selectors.menu),
-            body: document.body
+            body: document.body,
+            documentElement: document.documentElement
         };
 
         this.state = {
@@ -16,6 +17,7 @@ class NavigationInterface {
         };
 
         this.mediaQuery = window.matchMedia('(max-width: 768px)');
+        this.scrollTop = 0;
 
         if (this.refs.trigger && this.refs.overlay) {
             this.init();
@@ -28,7 +30,7 @@ class NavigationInterface {
         this.refs.overlay.addEventListener('click', this);
         document.addEventListener('keydown', this);
         this.mediaQuery.addEventListener?.('change', this);
-        window.addEventListener('resize', this);
+        window.addEventListener('resize', this, { passive: true });
     }
 
     handleEvent(e) {
@@ -55,20 +57,38 @@ class NavigationInterface {
         isOpen ? this.close() : this.open();
     }
 
+    lockScroll() {
+        this.scrollTop = window.scrollY || this.refs.documentElement.scrollTop || 0;
+        this.refs.body.style.top = `-${this.scrollTop}px`;
+        this.refs.body.classList.add(this.state.bodyClass);
+    }
+
+    unlockScroll() {
+        const previousTop = this.refs.body.style.top;
+        this.refs.body.classList.remove(this.state.bodyClass);
+        this.refs.body.style.top = '';
+        const offset = previousTop ? Math.abs(parseInt(previousTop, 10)) : this.scrollTop;
+        window.scrollTo(0, Number.isFinite(offset) ? offset : 0);
+    }
+
     open() {
         this.refs.trigger.classList.add(this.state.activeClass);
         this.refs.overlay.classList.add(this.state.openClass);
         this.refs.trigger.setAttribute('aria-expanded', 'true');
         this.refs.overlay.setAttribute('aria-hidden', 'false');
-        this.refs.body.classList.add(this.state.bodyClass);
+        this.lockScroll();
     }
 
     close() {
+        if (!this.refs.overlay.classList.contains(this.state.openClass)) {
+            return;
+        }
+
         this.refs.trigger.classList.remove(this.state.activeClass);
         this.refs.overlay.classList.remove(this.state.openClass);
         this.refs.trigger.setAttribute('aria-expanded', 'false');
         this.refs.overlay.setAttribute('aria-hidden', 'true');
-        this.refs.body.classList.remove(this.state.bodyClass);
+        this.unlockScroll();
     }
 
     handleOverlayClick(e) {

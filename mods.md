@@ -21,7 +21,7 @@ permalink: /mods/
       </div>
     </div>
     <div class="guild-actions">
-      <a href="https://www.curseforge.com/members/YOUR_NAME/projects" target="_blank" class="btn-discord">
+      <a href="https://www.curseforge.com/members/YOUR_NAME/projects" target="_blank" rel="noopener noreferrer" class="btn-discord">
         CurseForge Profile <span>↗</span>
       </a>
     </div>
@@ -113,7 +113,7 @@ permalink: /mods/
             </div>
 
           </div>
-          <a href="{{ mod.link }}" target="_blank" class="btn-mod-download">
+          <a href="{{ mod.link }}" target="_blank" rel="noopener noreferrer" class="btn-mod-download">
             Download
           </a>
         </div>
