@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-16 09:22:25'
+  updated_at: '2026-04-16 13:48:54'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2901,7 +2901,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 94
+        learned_points: 98
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3416,7 +3416,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 67
+        learned_points: 70
         max_points: 100
     secondaries:
     - name: Archaeology
