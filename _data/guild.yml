@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 13:24:17'
+  updated_at: '2026-04-17 16:58:03'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12796
-      region: 5677
+      world: 12800
+      region: 5678
       realm: 53
     heroic:
-      world: 14513
-      region: 6129
+      world: 14533
+      region: 6134
       realm: 48
     mythic:
       world: 0
@@ -577,8 +577,8 @@ members:
   name: Кибароу
   class: Paladin
   race: Human
-  spec: Retribution
-  role: DPS
+  spec: Protection
+  role: TANK
   gender: male
   faction: alliance
   region: eu
@@ -611,7 +611,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 251
+  item_level_equipped: 252
 - rank: 99
   name: Ohhchetos
   class: Paladin
@@ -706,10 +706,10 @@ members:
   mythic_plus_scores:
     all:
       score: 3003.4
-      color: '#9b3eec'
+      color: '#9445eb'
     dps:
       score: 3003.4
-      color: '#9b3eec'
+      color: '#9445eb'
     healer:
       score: 0
       color: '#ffffff'
@@ -724,11 +724,11 @@ members:
       color: '#ffffff'
     spec_2:
       score: 3003.4
-      color: '#9b3eec'
+      color: '#9445eb'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 247
+  item_level_equipped: 276
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -767,7 +767,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 269
+  item_level_equipped: 268
 - rank: 3
   name: Pwndyøurface
   class: Priest
@@ -811,8 +811,8 @@ members:
   name: Plaguenjoyer
   class: Priest
   race: Night Elf
-  spec: Discipline
-  role: HEALING
+  spec: Shadow
+  role: DPS
   gender: female
   faction: alliance
   region: eu
@@ -822,30 +822,30 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 2279.5
-      color: '#5fc185'
+      score: 2320
+      color: '#5fb88f'
     dps:
-      score: 166.8
-      color: '#ffffff'
+      score: 396.8
+      color: '#f1ffeb'
     healer:
-      score: 2279.5
-      color: '#5fc185'
+      score: 2320
+      color: '#5fb88f'
     tank:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2279.5
-      color: '#5fc185'
+      score: 2320
+      color: '#5fb88f'
     spec_1:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 166.8
-      color: '#ffffff'
+      score: 396.8
+      color: '#f1ffeb'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 255
+  item_level_equipped: 257
 - rank: 99
   name: Мортург
   class: Paladin
@@ -1197,6 +1197,45 @@ members:
       score: 0
       color: '#ffffff'
   item_level_equipped: 186
+- rank: 99
+  name: Hopeblood
+  class: Warlock
+  race: Undead
+  spec: Affliction
+  role: DPS
+  gender: male
+  faction: horde
+  region: eu
+  realm: Doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 1685.1
+      color: '#64ff48'
+    dps:
+      score: 1685.1
+      color: '#64ff48'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 1572.4
+      color: '#78ff5c'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 297.7
+      color: '#f9fff6'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 268
 - rank: 1
   name: Krouli
   class: Demon Hunter
@@ -1798,7 +1837,7 @@ members:
   mythic_plus_scores:
     all:
       score: 3001.5
-      color: '#9b3eec'
+      color: '#9445eb'
     dps:
       score: 0
       color: '#ffffff'
@@ -1807,10 +1846,10 @@ members:
       color: '#ffffff'
     tank:
       score: 3001.5
-      color: '#9b3eec'
+      color: '#9445eb'
     spec_0:
       score: 3001.5
-      color: '#9b3eec'
+      color: '#9445eb'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -1993,10 +2032,10 @@ members:
   mythic_plus_scores:
     all:
       score: 3066.2
-      color: '#a937e8'
+      color: '#a335ee'
     dps:
       score: 3066.2
-      color: '#a937e8'
+      color: '#a335ee'
     healer:
       score: 0
       color: '#ffffff'
@@ -2011,7 +2050,7 @@ members:
       color: '#f5fff1'
     spec_2:
       score: 3006.7
-      color: '#9b3eec'
+      color: '#9445eb'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2187,14 +2226,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
     all:
-      score: 2254.4
-      color: '#5ec580'
+      score: 2290.8
+      color: '#5fbc8a'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2254.4
-      color: '#5ec580'
+      score: 2290.8
+      color: '#5fbc8a'
     tank:
       score: 0
       color: '#ffffff'
@@ -2202,15 +2241,15 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2254.4
-      color: '#5ec580'
+      score: 2290.8
+      color: '#5fbc8a'
     spec_2:
       score: 0
       color: '#ffffff'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 259
+  item_level_equipped: 260
 - rank: 1
   name: Azuriel
   class: Paladin
@@ -2488,8 +2527,8 @@ members:
   name: Khayen
   class: Druid
   race: Haranir
-  spec: Balance
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: male
   faction: alliance
   region: eu
@@ -2522,7 +2561,7 @@ members:
     spec_3:
       score: 2228.8
       color: '#5dc97b'
-  item_level_equipped: 268
+  item_level_equipped: 269
 - rank: 3
   name: Hexxoffender
   class: Shaman
@@ -2613,15 +2652,39 @@ members:
   realm: Silvermoon
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2316.2
+      color: '#5fb88f'
+    dps:
+      score: 2316.2
+      color: '#5fb88f'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 2316.2
+      color: '#5fb88f'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 234
 - rank: 1
   name: Пизнайка
   class: Druid
   race: Night Elf
-  spec: Balance
-  role: DPS
+  spec: Restoration
+  role: HEALING
   gender: female
   faction: alliance
   region: eu
@@ -2632,10 +2695,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2855
-      color: '#6062e3'
+      color: '#5c63e3'
     dps:
       score: 2855
-      color: '#6062e3'
+      color: '#5c63e3'
     healer:
       score: 0
       color: '#ffffff'
@@ -2644,7 +2707,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2855
-      color: '#6062e3'
+      color: '#5c63e3'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2654,7 +2717,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 276
+  item_level_equipped: 277
 - rank: 3
   name: Shennái
   class: Priest
@@ -2827,10 +2890,10 @@ members:
   mythic_plus_scores:
     all:
       score: 2844.8
-      color: '#5366e2'
+      color: '#4f67e1'
     dps:
       score: 2844.8
-      color: '#5366e2'
+      color: '#4f67e1'
     healer:
       score: 0
       color: '#ffffff'
@@ -2839,7 +2902,7 @@ members:
       color: '#ffffff'
     spec_0:
       score: 2844.8
-      color: '#5366e2'
+      color: '#4f67e1'
     spec_1:
       score: 325.2
       color: '#f5fff1'
@@ -2983,7 +3046,7 @@ members:
   mythic_plus_scores:
     all:
       score: 2779.3
-      color: '#2e6ddf'
+      color: '#2c6dde'
     dps:
       score: 0
       color: '#ffffff'
@@ -2992,7 +3055,7 @@ members:
       color: '#ffffff'
     tank:
       score: 2779.3
-      color: '#2e6ddf'
+      color: '#2c6dde'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -3001,7 +3064,7 @@ members:
       color: '#ffffff'
     spec_2:
       score: 2779.3
-      color: '#2e6ddf'
+      color: '#2c6dde'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3099,10 +3162,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2605.7
+      score: 2610.6
       color: '#4385c7'
     dps:
-      score: 2605.7
+      score: 2610.6
       color: '#4385c7'
     healer:
       score: 438.8
@@ -3111,7 +3174,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2605.7
+      score: 2610.6
       color: '#4385c7'
     spec_1:
       score: 0

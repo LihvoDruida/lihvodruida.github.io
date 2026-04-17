@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 13:24:17'
+  updated_at: '2026-04-17 16:58:03'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -13,6 +13,15 @@ characters:
   profile_url: https://raider.io/characters/eu/galakrond/Бреинор
   professions:
     primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 50
+        max_points: 100
     - name: Mining
       id: 186
       tiers:
@@ -39,15 +48,6 @@ characters:
         max_points: 100
       - name: Midnight Mining
         learned_points: 100
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 29
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1982,6 +1982,98 @@ characters:
       - name: Midnight Fishing
         learned_points: 7
         max_points: 300
+- name: Hopeblood
+  region: eu
+  realm: Doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 2
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 45
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 65
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Tailoring
+        learned_points: 54
+        max_points: 100
+      - name: Midnight Tailoring
+        learned_points: 70
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Zandalari Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 6
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 48
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Khaz Algar Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 5
+        max_points: 300
 - name: Krouli
   region: eu
   realm: Terokkar
@@ -2094,7 +2186,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 56
+        learned_points: 57
         max_points: 100
     secondaries:
     - name: Fishing
