@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 16:58:03'
+  updated_at: '2026-04-17 20:48:05'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -1355,6 +1355,44 @@ characters:
       - name: Midnight Fishing
         learned_points: 14
         max_points: 300
+- name: Mexamer
+  region: eu
+  realm: Silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Enchanting
+        learned_points: 25
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Mining
+        learned_points: 78
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 64
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Ohhchetos
   region: eu
   realm: Kazzak
@@ -1779,8 +1817,11 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 1
+        learned_points: 26
         max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 26
+        max_points: 100
     - name: Tailoring
       id: 197
       tiers:
@@ -1788,7 +1829,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 1
+        learned_points: 28
         max_points: 100
     secondaries: []
 - name: Katsyt
@@ -2746,7 +2787,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 78
+        learned_points: 80
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3812,7 +3853,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 271
+        learned_points: 281
         max_points: 300
 - name: Oxydenis
   region: eu
@@ -4840,6 +4881,32 @@ characters:
         max_points: 300
       - name: Midnight Tailoring
         learned_points: 83
+        max_points: 100
+    secondaries: []
+- name: Straponeero
+  region: eu
+  realm: Tarren Mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 26
         max_points: 100
     secondaries: []
 - name: Mscapybara
