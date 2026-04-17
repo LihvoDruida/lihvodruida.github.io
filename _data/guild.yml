@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 06:05:59'
+  updated_at: '2026-04-17 09:20:43'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12782
-      region: 5672
+      world: 12793
+      region: 5675
       realm: 53
     heroic:
-      world: 14475
-      region: 6113
+      world: 14487
+      region: 6117
       realm: 48
     mythic:
       world: 0
@@ -429,9 +429,33 @@ members:
   realm: Tarren Mill
   realm_slug: tarren-mill
   profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 2687
+      color: '#2c78d4'
+    dps:
+      score: 2687
+      color: '#2c78d4'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 2687
+      color: '#2c78d4'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 270
 - rank: 99
   name: Графдекот
   class: Druid
@@ -704,7 +728,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 275
+  item_level_equipped: 247
 - rank: 3
   name: ßøßk
   class: Hunter
@@ -1968,10 +1992,10 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 3027.2
+      score: 3046.7
       color: '#a335ee'
     dps:
-      score: 3027.2
+      score: 3046.7
       color: '#a335ee'
     healer:
       score: 0
@@ -1983,11 +2007,11 @@ members:
       score: 2477.3
       color: '#579ab1'
     spec_1:
-      score: 0
-      color: '#ffffff'
+      score: 333.9
+      color: '#f5fff1'
     spec_2:
-      score: 2937.3
-      color: '#8053e8'
+      score: 2956.9
+      color: '#8a4de9'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2514,11 +2538,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     dps:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     healer:
       score: 0
       color: '#ffffff'
@@ -2526,8 +2550,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -2592,11 +2616,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     dps:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     healer:
       score: 0
       color: '#ffffff'
@@ -2610,8 +2634,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2257.5
-      color: '#5ec580'
+      score: 2316.2
+      color: '#5fb88f'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3205,7 +3229,7 @@ members:
   name: Thérion
   class: Warrior
   race: Highmountain Tauren
-  spec: Arms
+  spec: Fury
   role: DPS
   gender: male
   faction: horde
@@ -3216,8 +3240,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
   mythic_plus_scores:
     all:
-      score: 1537.6
-      color: '#7cff5f'
+      score: 1610.3
+      color: '#71ff54'
     dps:
       score: 0
       color: '#ffffff'
@@ -3225,8 +3249,8 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 1537.6
-      color: '#7cff5f'
+      score: 1610.3
+      color: '#71ff54'
     spec_0:
       score: 0
       color: '#ffffff'
@@ -3234,12 +3258,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1537.6
-      color: '#7cff5f'
+      score: 1610.3
+      color: '#71ff54'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 245
+  item_level_equipped: 266
 - rank: 99
   name: Мелиодас
   class: Paladin

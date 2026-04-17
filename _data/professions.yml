@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 06:05:59'
+  updated_at: '2026-04-17 09:20:43'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -2094,7 +2094,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 54
+        learned_points: 56
         max_points: 100
     secondaries:
     - name: Fishing
