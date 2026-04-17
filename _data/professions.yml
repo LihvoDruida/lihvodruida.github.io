@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 09:20:43'
+  updated_at: '2026-04-17 13:24:17'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -3123,7 +3123,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 39
+        learned_points: 41
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3132,7 +3132,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 61
+        learned_points: 62
         max_points: 100
     secondaries: []
 - name: Azuriel
@@ -4747,7 +4747,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 81
+        learned_points: 83
         max_points: 100
     secondaries: []
 - name: Mscapybara
