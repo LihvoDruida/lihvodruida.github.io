@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 02:42:24'
+  updated_at: '2026-04-17 06:05:59'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12761
-      region: 5669
+      world: 12782
+      region: 5672
       realm: 53
     heroic:
-      world: 14419
-      region: 6109
+      world: 14475
+      region: 6113
       realm: 48
     mythic:
       world: 0
@@ -429,33 +429,9 @@ members:
   realm: Tarren Mill
   realm_slug: tarren-mill
   profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2687
-      color: '#2c78d4'
-    dps:
-      score: 2687
-      color: '#2c78d4'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2687
-      color: '#2c78d4'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 270
+  avatar: null
+  mythic_plus_scores: {}
+  item_level_equipped: 0
 - rank: 99
   name: Графдекот
   class: Druid
@@ -1992,11 +1968,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 3010.7
-      color: '#9b3eec'
+      score: 3027.2
+      color: '#a335ee'
     dps:
-      score: 3010.7
-      color: '#9b3eec'
+      score: 3027.2
+      color: '#a335ee'
     healer:
       score: 0
       color: '#ffffff'
@@ -2004,8 +1980,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2460.8
-      color: '#599eac'
+      score: 2477.3
+      color: '#579ab1'
     spec_1:
       score: 0
       color: '#ffffff'
