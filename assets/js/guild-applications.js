@@ -56,11 +56,81 @@
     return Array.isArray(payload.items) ? payload.items : [];
   }
 
+
+  function initCustomSelect(scope) {
+    const selectRoot = scope ? scope.querySelector('[data-custom-select]') : null;
+    if (!selectRoot) return null;
+
+    const hiddenInput = selectRoot.querySelector('input[name="className"]');
+    const trigger = selectRoot.querySelector('.custom-select-trigger');
+    const label = selectRoot.querySelector('.custom-select-trigger__label');
+    const panel = selectRoot.querySelector('.custom-select-panel');
+    const options = Array.from(selectRoot.querySelectorAll('.custom-select-option'));
+
+    function close() {
+      selectRoot.classList.remove('is-open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function open() {
+      selectRoot.classList.add('is-open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function setValue(value) {
+      const option = options.find(function (item) { return item.dataset.value === value; });
+      if (!hiddenInput || !label) return;
+      hiddenInput.value = option ? option.dataset.value : '';
+      label.textContent = option ? option.textContent : 'Обери клас';
+      selectRoot.classList.toggle('is-placeholder', !option);
+      selectRoot.classList.remove('is-invalid');
+      options.forEach(function (item) {
+        item.classList.toggle('is-selected', option === item);
+        item.setAttribute('aria-selected', option === item ? 'true' : 'false');
+      });
+    }
+
+    if (trigger) {
+      trigger.addEventListener('click', function () {
+        if (selectRoot.classList.contains('is-open')) close();
+        else open();
+      });
+    }
+
+    options.forEach(function (option) {
+      option.addEventListener('click', function () {
+        setValue(option.dataset.value || '');
+        close();
+        if (trigger) trigger.focus();
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!selectRoot.contains(event.target)) close();
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') close();
+    });
+
+    setValue(hiddenInput && hiddenInput.value ? hiddenInput.value : '');
+    return {
+      getValue: function () { return hiddenInput ? hiddenInput.value.trim() : ''; },
+      validate: function () {
+        const ok = !!(hiddenInput && hiddenInput.value.trim());
+        selectRoot.classList.toggle('is-invalid', !ok);
+        return ok;
+      },
+      reset: function () { setValue(''); close(); }
+    };
+  }
+
   const applyPage = document.querySelector('.guild-application-page');
   if (applyPage) {
     const apiUrl = (applyPage.dataset.apiUrl || '').trim();
     const statusLimit = Number(applyPage.dataset.statusLimit || '8');
     const form = document.getElementById('guild-application-form');
+    const customSelect = initCustomSelect(applyPage);
     const feedback = document.getElementById('guild-application-feedback');
     const statusRoot = document.getElementById('guild-applications-status');
     const refreshButton = document.getElementById('guild-application-refresh');
@@ -113,12 +183,17 @@
         const payload = {
           characterName: (formData.get('characterName') || '').toString().trim(),
           realm: (formData.get('realm') || '').toString().trim(),
-          className: (formData.get('className') || '').toString().trim(),
+          className: (customSelect ? customSelect.getValue() : (formData.get('className') || '').toString().trim()),
           discord: (formData.get('discord') || '').toString().trim(),
           battleTag: (formData.get('battleTag') || '').toString().trim(),
           availability: (formData.get('availability') || '').toString().trim(),
           website: (formData.get('website') || '').toString().trim()
         };
+
+        if (customSelect && !customSelect.validate()) {
+          setFeedback('error', 'Оберіть клас персонажа, щоб продовжити.');
+          return;
+        }
 
         if (submitButton) submitButton.disabled = true;
 
@@ -138,6 +213,7 @@
           }
 
           form.reset();
+          if (customSelect) customSelect.reset();
           const realmField = form.querySelector('input[name="realm"]');
           if (realmField && !realmField.value) realmField.value = 'Terokkar';
           setFeedback('success', 'Заявку надіслано. ' +

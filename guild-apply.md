@@ -101,24 +101,28 @@ extra_js:
             <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
           </label>
 
-          <label class="form-field form-field--select">
+          <label class="form-field form-field--custom-select" data-custom-select>
             <span>Клас</span>
-            <select name="className" required>
-              <option value="" selected disabled>Обери клас</option>
-              <option value="Warrior">Warrior</option>
-              <option value="Paladin">Paladin</option>
-              <option value="Hunter">Hunter</option>
-              <option value="Rogue">Rogue</option>
-              <option value="Priest">Priest</option>
-              <option value="Death Knight">Death Knight</option>
-              <option value="Shaman">Shaman</option>
-              <option value="Mage">Mage</option>
-              <option value="Warlock">Warlock</option>
-              <option value="Monk">Monk</option>
-              <option value="Druid">Druid</option>
-              <option value="Demon Hunter">Demon Hunter</option>
-              <option value="Evoker">Evoker</option>
-            </select>
+            <input type="hidden" name="className" value="">
+            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="custom-select-trigger__label">Обери клас</span>
+              <span class="custom-select-trigger__icon" aria-hidden="true"></span>
+            </button>
+            <div class="custom-select-panel" role="listbox" tabindex="-1" aria-label="Вибір класу">
+              <button type="button" class="custom-select-option" data-value="Warrior" role="option">Warrior</button>
+              <button type="button" class="custom-select-option" data-value="Paladin" role="option">Paladin</button>
+              <button type="button" class="custom-select-option" data-value="Hunter" role="option">Hunter</button>
+              <button type="button" class="custom-select-option" data-value="Rogue" role="option">Rogue</button>
+              <button type="button" class="custom-select-option" data-value="Priest" role="option">Priest</button>
+              <button type="button" class="custom-select-option" data-value="Death Knight" role="option">Death Knight</button>
+              <button type="button" class="custom-select-option" data-value="Shaman" role="option">Shaman</button>
+              <button type="button" class="custom-select-option" data-value="Mage" role="option">Mage</button>
+              <button type="button" class="custom-select-option" data-value="Warlock" role="option">Warlock</button>
+              <button type="button" class="custom-select-option" data-value="Monk" role="option">Monk</button>
+              <button type="button" class="custom-select-option" data-value="Druid" role="option">Druid</button>
+              <button type="button" class="custom-select-option" data-value="Demon Hunter" role="option">Demon Hunter</button>
+              <button type="button" class="custom-select-option" data-value="Evoker" role="option">Evoker</button>
+            </div>
           </label>
         </div>
 
