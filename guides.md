@@ -55,7 +55,7 @@ tags: [World of Warcraft, WoW, гайди, Mythic+, рейди, професії
     <div class="content-toolbar">
       <div>
         <h2 class="toolbar-title">Свіжі гайди</h2>
-        <p class="toolbar-copy">Першим показується найактуальніший гайд, а далі — решта матеріалів у зручній сітці для ПК і мобільних пристроїв.</p>
+        <p class="toolbar-copy">Угорі — найсвіжіший гайд, нижче — інші корисні матеріали, щоб було легко вибрати потрібне.</p>
       </div>
       <div class="toolbar-links">
         <a href="{{ '/news/' | relative_url }}" class="btn-secondary-hero">Новини</a>

@@ -19,12 +19,13 @@ keywords: [Лігво Себаса, World of Warcraft, WoW, Raider.IO, гіль�
   <div class="area-content news-area">
     {% assign latest_content = site.news | concat: site.guides | sort: "date" | reverse %}
     {% assign latest_featured = latest_content.first %}
+    {% assign home_feed_limit = 4 %}
 
     <div class="section-header section-header--split">
       <div>
         <span class="section-tag">Свіжі публікації</span>
         <h1>Останні матеріали</h1>
-        <p class="section-subtitle">Тут зібрані не тільки новини, а й свіжі гайди, щоб головна не показувала половину контенту.</p>
+        <p class="section-subtitle">Останні новини та гайди зібрані в одному місці, щоб найважливіше було під рукою.</p>
       </div>
 
       <div class="header-actions">
@@ -67,7 +68,7 @@ keywords: [Лігво Себаса, World of Warcraft, WoW, Raider.IO, гіль�
       {% endif %}
 
       <div class="news-grid mixed-feed-grid">
-        {% for post in latest_content offset:1 limit:5 %}
+        {% for post in latest_content offset:1 limit:home_feed_limit %}
           <a href="{{ post.url | relative_url }}" class="visual-news-card mixed-feed-card mixed-feed-card--{{ post.collection | default: 'news' }}">
             <div class="card-media">
               <img class="media-img" src="{{ post.image | default: '/assets/img/news-placeholder.webp' }}" alt="{{ post.title }}" loading="lazy" decoding="async">

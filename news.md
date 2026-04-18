@@ -55,7 +55,7 @@ tags: [World of Warcraft, WoW, новини, гільдія, Mistblossom Vanguar
     <div class="content-toolbar">
       <div>
         <h2 class="toolbar-title">Свіжі новини</h2>
-        <p class="toolbar-copy">Головна картка показує найновіший матеріал, нижче — архів інших новин у сітці без дублювання.</p>
+        <p class="toolbar-copy">Угорі — найсвіжіша новина, нижче — ще кілька останніх публікацій.</p>
       </div>
       <div class="toolbar-links">
         <a href="{{ '/guides/' | relative_url }}" class="btn-secondary-hero">Гайди</a>
