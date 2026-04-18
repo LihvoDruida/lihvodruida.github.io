@@ -12,24 +12,49 @@ extra_js:
 ---
 
 <div class="guild-applications-directory" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="50">
-  <section class="applications-directory-hero">
-    <div class="application-section-head applications-directory-hero__content">
-      <span class="section-tag">Усі заявки</span>
-      <h1>Список заявок до Mistblossom Vanguard</h1>
-      <p>Тут зібрані всі заявки зі статусами. Можна швидко знайти персонажа за ніком і перевірити, чи заявка ще розглядається.</p>
-    </div>
+  <section class="applications-page-hero">
+    <div class="applications-page-hero__grid">
+      <div class="applications-page-hero__copy">
+        <span class="section-tag">Журнал заявок</span>
+        <h1>Усі заявки до Mistblossom Vanguard</h1>
+        <p class="section-subtitle">Тут зібрані всі звернення до гільдії. Можна швидко перевірити статус, знайти персонажа за ніком і відкрити оригінальну заявку.</p>
 
-    <div class="applications-directory-hero__actions">
-      <a href="{{ '/guild/apply/' | relative_url }}" class="application-primary-link">Заповнити заявку</a>
-      <a href="{{ '/guild/' | relative_url }}" class="application-secondary-link">Повернутися до гільдії</a>
+        <div class="applications-page-hero__actions">
+          <a href="{{ '/guild/apply/' | relative_url }}" class="application-primary-link">Заповнити заявку</a>
+          <a href="{{ '/guild/' | relative_url }}" class="application-secondary-link">До сторінки гільдії</a>
+        </div>
+      </div>
+
+      <div class="applications-page-hero__stats" aria-label="Зведення по заявках">
+        <div class="applications-hero-stat">
+          <span class="applications-hero-stat__label">Отримано заявок</span>
+          <strong id="applications-stat-total" class="applications-hero-stat__value">—</strong>
+        </div>
+        <div class="applications-hero-stat">
+          <span class="applications-hero-stat__label">Схвалено</span>
+          <strong id="applications-stat-approved" class="applications-hero-stat__value">—</strong>
+        </div>
+        <div class="applications-hero-stat">
+          <span class="applications-hero-stat__label">Ще на розгляді</span>
+          <strong id="applications-stat-open" class="applications-hero-stat__value">—</strong>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="applications-directory-panel">
-    <div class="applications-filter-bar">
+  <section class="applications-directory-panel applications-directory-panel--enhanced">
+    <div class="applications-panel-head">
+      <div>
+        <span class="section-tag">Пошук і фільтр</span>
+        <h2>Знайди потрібну заявку за кілька секунд</h2>
+        <p>Пошук працює по назві заявки та короткому опису персонажа.</p>
+      </div>
+    </div>
+
+    <div class="applications-filter-bar applications-filter-bar--enhanced">
       <label class="applications-search-field" for="applications-search-input">
         <span>Пошук за ніком</span>
-        <input id="applications-search-input" type="search" placeholder="Наприклад: Sebas" autocomplete="off">
+        <input id="applications-search-input" type="search" placeholder="Наприклад: Sebas або Illidonson" autocomplete="off">
       </label>
 
       <div class="applications-filter-actions">

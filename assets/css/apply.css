@@ -670,3 +670,518 @@
     font-size: 16px;
   }
 }
+
+
+/* === Applications pages refresh === */
+.applications-page-hero {
+  margin-bottom: 2rem;
+  border: 1px solid rgba(200, 155, 60, 0.16);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(226, 133, 82, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(31, 22, 16, 0.96), rgba(18, 14, 12, 0.98));
+  box-shadow: 0 24px 70px rgba(0,0,0,0.32);
+  overflow: hidden;
+}
+
+.applications-page-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+  gap: 1.5rem;
+  padding: 2rem;
+  align-items: stretch;
+}
+
+.applications-page-hero__copy h1 {
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.08;
+  margin: 0 0 .85rem;
+}
+
+.applications-page-hero__copy .section-subtitle {
+  max-width: 60ch;
+  margin-bottom: 1.2rem;
+}
+
+.applications-page-hero__actions,
+.application-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .85rem;
+  margin-top: 1.2rem;
+}
+
+.applications-page-hero__stats,
+.applications-page-hero__aside {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0,1fr));
+  gap: 1rem;
+}
+
+.applications-hero-stat,
+.applications-hero-card {
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  padding: 1.15rem 1.2rem;
+  backdrop-filter: blur(12px);
+}
+
+.applications-hero-stat__label {
+  display: block;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.62);
+  margin-bottom: .55rem;
+}
+
+.applications-hero-stat__value {
+  display: block;
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+  line-height: 1;
+  color: #fff;
+}
+
+.applications-hero-card h2 {
+  margin: .8rem 0 .75rem;
+  font-size: 1.35rem;
+}
+
+.applications-page-hero--apply .applications-page-hero__grid {
+  grid-template-columns: minmax(0, 1.22fr) minmax(320px, .78fr);
+}
+
+.guild-finder-section--compact {
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.guild-finder-card--image-compact img {
+  min-height: 100%;
+  object-fit: cover;
+}
+
+.finder-steps-grid--compact {
+  gap: 1rem;
+}
+
+.application-layout--refined {
+  align-items: start;
+  gap: 1.35rem;
+}
+
+.application-form-card--refined,
+.application-status-card--refined,
+.applications-directory-panel--enhanced {
+  border-radius: 28px;
+  border: 1px solid rgba(200, 155, 60, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(226, 133, 82, 0.10), transparent 28%),
+    linear-gradient(180deg, rgba(30, 22, 17, 0.96), rgba(17, 13, 11, 0.98));
+  box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+}
+
+.application-form-card--refined { padding: 1.55rem; }
+.application-status-card--refined { padding: 1.55rem; }
+
+.form-grid--selectors {
+  align-items: end;
+}
+
+.custom-select__trigger {
+  min-height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(41, 34, 29, 0.96), rgba(27, 22, 19, 0.98));
+  border: 1px solid rgba(200, 155, 60, 0.25);
+}
+
+.custom-select.is-open .custom-select__trigger,
+.custom-select__trigger:focus-visible {
+  border-color: rgba(236, 184, 73, 0.9);
+  box-shadow: 0 0 0 4px rgba(236, 184, 73, 0.12);
+}
+
+.custom-select__menu {
+  border-radius: 18px;
+  border: 1px solid rgba(200, 155, 60, 0.2);
+  background: linear-gradient(180deg, rgba(36,28,24,.98), rgba(18,14,12,.99));
+  box-shadow: 0 24px 55px rgba(0,0,0,.42);
+  padding: .45rem;
+}
+
+.custom-select__option {
+  border-radius: 12px;
+}
+
+.custom-select__option:hover,
+.custom-select__option.is-active {
+  background: rgba(236, 184, 73, 0.16);
+  color: #fff;
+}
+
+.application-status-list--compact {
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: .35rem;
+}
+
+.application-status-item {
+  border-radius: 22px;
+  padding: 1.25rem;
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.07);
+}
+
+.application-status-item__top {
+  gap: 1rem;
+}
+
+.application-status-item__title {
+  font-size: 1.22rem;
+  line-height: 1.25;
+}
+
+.application-status-item__meta {
+  color: rgba(255,255,255,.65);
+}
+
+.application-status-item__desc {
+  color: rgba(255,255,255,.88);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.application-status-badge {
+  border-radius: 999px;
+  padding: .7rem 1rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+.application-status-badge--open {
+  color: #161107;
+  background: linear-gradient(180deg, #f2c34d, #dfac2d);
+}
+
+.application-status-badge--closed {
+  color: #0d1d11;
+  background: linear-gradient(180deg, #63d58c, #3fb56b);
+}
+
+.applications-panel-head {
+  margin-bottom: 1.1rem;
+}
+
+.applications-panel-head h2 {
+  margin: .85rem 0 .5rem;
+  font-size: 1.6rem;
+}
+
+.applications-filter-bar--enhanced {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.applications-search-field {
+  gap: .55rem;
+}
+
+.applications-search-field input {
+  min-height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(41,34,29,.96), rgba(27,22,19,.98));
+  border: 1px solid rgba(200,155,60,.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.applications-directory-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.applications-directory-list .application-status-item {
+  padding: 1.4rem;
+}
+
+@media (max-width: 1100px) {
+  .applications-page-hero__grid,
+  .applications-page-hero--apply .applications-page-hero__grid,
+  .application-layout--refined,
+  .guild-finder-section--compact {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-page-hero__stats {
+    grid-template-columns: repeat(3, minmax(0,1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  .applications-page-hero__grid,
+  .application-form-card--refined,
+  .application-status-card--refined,
+  .applications-directory-panel--enhanced {
+    padding: 1.15rem;
+  }
+
+  .applications-page-hero__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-filter-bar--enhanced {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-page-hero__copy h1 {
+    font-size: 1.85rem;
+  }
+
+  .application-status-item__top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .application-status-badge {
+    align-self: flex-start;
+  }
+}
+
+
+/* === Final guild applications polish === */
+.guild-application-page,
+.guild-applications-directory {
+  gap: 28px;
+}
+
+.applications-page-hero {
+  position: relative;
+  border: 1px solid rgba(220, 167, 62, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(221, 136, 66, 0.12), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(182, 114, 46, 0.12), transparent 26%),
+    linear-gradient(135deg, rgba(28, 21, 17, 0.98), rgba(14, 11, 10, 0.98));
+}
+
+.applications-page-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent 24%, transparent 76%, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+
+.applications-page-hero__grid {
+  position: relative;
+  z-index: 1;
+  gap: 1.75rem;
+  padding: 2.15rem;
+}
+
+.applications-page-hero__copy,
+.applications-page-hero__stats,
+.applications-page-hero__aside {
+  min-width: 0;
+}
+
+.applications-page-hero__copy h1 {
+  letter-spacing: -0.02em;
+}
+
+.application-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.application-mini-stat {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.application-mini-stat__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.74rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.58);
+}
+
+.application-mini-stat__value {
+  display: block;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.application-form-card--refined,
+.application-status-card--refined,
+.applications-directory-panel--enhanced {
+  overflow: hidden;
+}
+
+.application-section-head--tight h2 {
+  margin-bottom: 10px;
+  line-height: 1.12;
+}
+
+.custom-select {
+  position: relative;
+  isolation: isolate;
+}
+
+.custom-select__trigger {
+  min-height: 58px;
+  padding-inline: 18px;
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.custom-select__menu {
+  display: none;
+  width: 100%;
+  padding: 8px;
+  gap: 0;
+  overflow: hidden auto;
+}
+
+.custom-select.is-open .custom-select__menu {
+  display: block;
+}
+
+.custom-select__option {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  text-decoration: none;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.custom-select__option + .custom-select__option {
+  margin-top: 4px;
+}
+
+.custom-select__option:hover,
+.custom-select__option:focus-visible,
+.custom-select__option.is-active {
+  background: linear-gradient(180deg, rgba(236, 184, 73, 0.18), rgba(236, 184, 73, 0.1));
+  border-color: rgba(236, 184, 73, 0.18);
+  color: #fff;
+}
+
+.custom-select__menu--tall {
+  max-height: 286px;
+}
+
+.application-status-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.application-status-actions .application-secondary-link,
+.application-status-actions .status-refresh-button {
+  width: 100%;
+}
+
+.application-status-list--compact {
+  max-height: 560px;
+  padding-right: 0.2rem;
+}
+
+.application-status-item,
+.applications-directory-list .application-status-item {
+  position: relative;
+  padding: 1.3rem;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(228, 177, 74, 0.08), transparent 36%),
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+}
+
+.application-status-item__top {
+  align-items: flex-start;
+}
+
+.application-status-item__title {
+  margin-bottom: 6px;
+}
+
+.application-status-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.application-status-item__sep {
+  color: rgba(255,255,255,0.24);
+}
+
+.application-status-item__desc {
+  margin-top: 14px;
+}
+
+.application-status-badge {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.applications-filter-bar--enhanced {
+  display: grid;
+}
+
+.applications-directory-summary {
+  margin-top: 8px;
+}
+
+@media (max-width: 980px) {
+  .application-mini-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 780px) {
+  .applications-page-hero__grid {
+    padding: 1.25rem;
+  }
+
+  .applications-page-hero__copy h1 {
+    font-size: 1.9rem;
+  }
+
+  .application-mini-stats {
+    gap: 10px;
+  }
+
+  .form-grid--two,
+  .form-grid--selectors,
+  .application-status-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-select__trigger,
+  .applications-search-field input,
+  .form-field input {
+    min-height: 54px;
+  }
+
+  .application-status-list--compact {
+    max-height: 480px;
+  }
+}

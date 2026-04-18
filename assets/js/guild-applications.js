@@ -30,13 +30,13 @@
     var meta = [];
     if (item.number) meta.push('№' + item.number);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
-    var description = item.summary || 'Деталі заявки доступні після відкриття картки.';
+    var description = item.summary || 'Короткий опис заявки буде доступний після відкриття картки.';
 
     return '<article class="application-status-item">' +
       '<div class="application-status-item__top">' +
         '<div class="application-status-item__title-group">' +
           '<h3 class="application-status-item__title">' + escapeHtml(item.title) + '</h3>' +
-          '<div class="application-status-item__meta">' + meta.map(escapeHtml).join('<span>•</span>') + '</div>' +
+          '<div class="application-status-item__meta">' + meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>') + '</div>' +
         '</div>' +
         '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
       '</div>' +
@@ -243,6 +243,9 @@
     const limit = Number(directoryPage.dataset.statusLimit || '50');
     const listRoot = document.getElementById('guild-applications-directory-list');
     const counter = document.getElementById('applications-directory-counter');
+    const statTotal = document.getElementById('applications-stat-total');
+    const statApproved = document.getElementById('applications-stat-approved');
+    const statOpen = document.getElementById('applications-stat-open');
     const searchInput = document.getElementById('applications-search-input');
     const clearButton = document.getElementById('applications-clear-search');
     const refreshButton = document.getElementById('applications-refresh');
@@ -262,13 +265,19 @@
     }
 
     function updateCounter(items) {
-      if (!counter) return;
       const total = allItems.length;
       const visible = items.length;
+      const approved = allItems.filter(function (item) { return item.state === 'closed'; }).length;
+      const open = total - approved;
       const q = getSearchValue();
-      counter.textContent = q
-        ? 'Знайдено ' + visible + ' із ' + total + ' заявок за поточним пошуком.'
-        : 'Усього заявок у списку: ' + total + '.';
+      if (counter) {
+        counter.textContent = q
+          ? 'Знайдено ' + visible + ' із ' + total + ' заявок за поточним пошуком.'
+          : 'Усього заявок у списку: ' + total + '.';
+      }
+      if (statTotal) statTotal.textContent = String(total);
+      if (statApproved) statApproved.textContent = String(approved);
+      if (statOpen) statOpen.textContent = String(open);
     }
 
     function renderDirectory(items) {
