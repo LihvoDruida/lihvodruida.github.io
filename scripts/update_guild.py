@@ -251,7 +251,10 @@ def fetch_raider_guild(
         "region": region,
         "realm": realm_slug,
         "name": guild_name,
-        "fields": "",
+        "fields": ",".join([
+            "raid_progression:current-expansion:previous-expansion",
+            "raid_rankings:current-expansion:previous-expansion",
+        ]),
     }
     if RAIDERIO_ACCESS_KEY:
         params["access_key"] = RAIDERIO_ACCESS_KEY
@@ -267,6 +270,9 @@ def fetch_raider_guild(
     data = response.json()
     return {
         "profile_url": data.get("profile_url"),
+        "last_crawled_at": data.get("last_crawled_at"),
+        "raid_progression": data.get("raid_progression") or {},
+        "raid_rankings": data.get("raid_rankings") or {},
     }
 
 
@@ -425,9 +431,10 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
     guild_output = {
         "metadata": {
             "updated_at": timestamp,
-            "source": "Blizzard Guild Roster API + Raider.IO Character API + Blizzard Professions API",
+            "source": "Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API",
             "region": WOW_REGION,
             "locale": BLIZZARD_LOCALE,
+            "raider_io_last_crawled_at": (raider_guild or {}).get("last_crawled_at"),
         },
         "guild": {
             "name": guild_block.get("name") or WOW_GUILD_NAME,
@@ -446,6 +453,8 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
             "achievement_points": (guild_summary or {}).get("achievement_points"),
             "created_timestamp": (guild_summary or {}).get("created_timestamp"),
         },
+        "raid_progression": (raider_guild or {}).get("raid_progression") or {},
+        "raid_rankings": (raider_guild or {}).get("raid_rankings") or {},
         "members": processed_members,
     }
 
@@ -455,6 +464,7 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
             "source": "Blizzard Character Professions API",
             "region": WOW_REGION,
             "locale": BLIZZARD_LOCALE,
+            "raider_io_last_crawled_at": (raider_guild or {}).get("last_crawled_at"),
         },
         "guild": {
             "name": guild_block.get("name") or WOW_GUILD_NAME,

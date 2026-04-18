@@ -42,17 +42,23 @@ permalink: /guild/
 
       <div class="guild-updated">
         <span class="updated-pill">Оновлено: {{ site.data.guild.metadata.updated_at }}</span>
+        {% if site.data.guild.metadata.raider_io_last_crawled_at %}
+        <span class="updated-pill">Raider.IO crawl: {{ site.data.guild.metadata.raider_io_last_crawled_at }}</span>
+        {% endif %}
       </div>
     </div>
   </div>
 
+  {% assign rio_url = site.data.guild.guild.profile_url %}
+  {% unless rio_url %}
+    {% capture rio_url %}https://raider.io/guilds/{{ site.data.guild.metadata.region }}/{{ site.data.guild.guild.realm.slug }}/{{ site.data.guild.guild.name | uri_escape }}{% endcapture %}
+  {% endunless %}
+
   <div class="guild-actions">
-    {% if site.data.guild.guild.profile_url %}
-    <a href="{{ site.data.guild.guild.profile_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary">
+    <a href="{{ rio_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary">
       <span>Raider.IO</span>
       <span aria-hidden="true">↗</span>
     </a>
-    {% endif %}
     {% if site.data.socials.discord %}
     <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="btn-discord">
       <svg class="discord-icon" viewBox="0 0 127.14 96.36" aria-hidden="true">
@@ -198,7 +204,7 @@ permalink: /guild/
       <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">📜</div>
         <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">У поточному експорті немає рейдового прогресу</h3>
-        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Новий guild.yml містить шапку, склад і Mythic+ дані. Для цього блоку потрібні ще raid_progression та raid_rankings.</p>
+        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">У поточному guild.yml ще немає raid_progression або raid_rankings. Після нового запуску update_guild.py цей блок знову наповниться з Raider.IO.</p>
       </div>
       {% endif %}
     </div>
