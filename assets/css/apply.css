@@ -793,6 +793,21 @@
   gap: 12px;
 }
 
+.applications-search-field {
+  min-width: 0;
+}
+
+.applications-search-field input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.applications-search-field input:focus {
+  border-color: rgba(228, 177, 74, 0.72);
+  box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.16);
+  background: rgba(255,255,255,0.075);
+  outline: none;
+}
+
 .applications-directory-summary {
   margin: 16px 0 18px;
   color: rgba(255,255,255,0.68);
@@ -823,7 +838,12 @@
   .guild-finder-card--content,
   .applications-directory-hero,
   .applications-directory-panel {
-    padding: 22px;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .guild-applications-directory {
+    gap: 18px;
   }
 
   .form-grid--two,
@@ -831,16 +851,51 @@
     grid-template-columns: 1fr;
   }
 
+  .application-status-item,
+  .applications-placeholder,
+  .applications-empty {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
   .application-status-item__top {
     flex-direction: column;
   }
 
   .applications-filter-bar,
-  .applications-filter-actions,
   .application-hero__actions,
   .applications-directory-hero__actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .applications-search-field {
+    width: 100%;
+    flex-basis: 100%;
+    gap: 6px;
+  }
+
+  .applications-search-field span {
+    font-size: 0.92rem;
+  }
+
+  .applications-search-field input {
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+
+  .applications-filter-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .applications-directory-summary {
+    margin: 14px 0 16px;
+    font-size: 0.95rem;
   }
 
   .application-primary-link,
@@ -864,14 +919,42 @@
     font-size: 0.84rem;
   }
 
+  .applications-directory-hero,
+  .applications-directory-panel,
+  .application-hero__content,
+  .application-info-card,
+  .application-form-card,
+  .application-status-card,
+  .guild-finder-card--content,
+  .guild-finder-card--image {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .applications-directory-hero__actions,
+  .applications-filter-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-search-field input,
   .form-field input,
   .form-field textarea,
   .form-field select {
     padding: 11px 13px;
+    font-size: 16px;
   }
 
   .application-section-head h2,
   .application-info-card h2 {
     font-size: 1.2rem;
+  }
+
+  .applications-directory-hero h1 {
+    font-size: 1.7rem;
+    line-height: 1.2;
+  }
+
+  .application-status-item__meta {
+    font-size: 0.84rem;
   }
 }
