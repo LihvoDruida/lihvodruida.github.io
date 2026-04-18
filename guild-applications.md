@@ -17,7 +17,7 @@ extra_js:
       <div class="applications-page-hero__copy">
         <span class="section-tag">Журнал заявок</span>
         <h1>Усі заявки до Mistblossom Vanguard</h1>
-        <p class="section-subtitle">Тут зібрані всі звернення до гільдії. Можна швидко перевірити статус, знайти персонажа за ніком і відкрити оригінальну заявку без зайвого пошуку.</p>
+        <p class="section-subtitle">Тут зібрані всі звернення до гільдії. Можна швидко перевірити статус, знайти персонажа за ніком і відкрити оригінальну заявку.</p>
 
         <div class="applications-page-hero__actions">
           <a href="{{ '/guild/apply/' | relative_url }}" class="application-primary-link">Заповнити заявку</a>
