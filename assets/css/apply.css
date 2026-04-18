@@ -1,35 +1,54 @@
+:root {
+  --apply-bg: linear-gradient(180deg, rgba(24, 17, 14, 0.96), rgba(15, 12, 10, 0.97));
+  --apply-surface: linear-gradient(180deg, rgba(34, 24, 18, 0.96), rgba(19, 15, 13, 0.98));
+  --apply-surface-2: linear-gradient(180deg, rgba(42, 30, 22, 0.95), rgba(20, 16, 14, 0.98));
+  --apply-border: rgba(232, 182, 88, 0.14);
+  --apply-border-strong: rgba(232, 182, 88, 0.34);
+  --apply-text: rgba(255, 248, 236, 0.96);
+  --apply-text-soft: rgba(236, 224, 207, 0.76);
+  --apply-text-dim: rgba(236, 224, 207, 0.58);
+  --apply-accent: #e4b34d;
+  --apply-accent-strong: #f1c457;
+  --apply-accent-dark: #140d04;
+  --apply-success: #61cf86;
+  --apply-danger: #f08e84;
+  --apply-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+  --apply-radius-xl: 28px;
+  --apply-radius-lg: 22px;
+  --apply-radius-md: 18px;
+  --apply-radius-sm: 14px;
+}
+
 .guild-application-page,
 .guild-applications-directory {
   display: grid;
   gap: 28px;
+  color: var(--apply-text);
+}
+
+.guild-application-page > section,
+.guild-applications-directory > section {
+  min-width: 0;
 }
 
 .applications-page-hero,
 .guild-finder-section,
 .application-layout,
-.applications-directory-panel,
-.application-form-card,
-.application-status-card,
-.guild-finder-card,
-.applications-hero-card,
-.applications-hero-stat {
+.applications-directory-panel {
   min-width: 0;
 }
 
-/* ===== Shared surfaces ===== */
-.applications-page-hero,
-.application-form-card,
-.application-status-card,
-.guild-finder-card,
-.applications-directory-panel {
+.applications-page-hero {
   position: relative;
-  border: 1px solid rgba(223, 167, 63, 0.14);
-  border-radius: 28px;
+  overflow: clip;
+  padding: 34px 36px;
+  border-radius: var(--apply-radius-xl);
+  border: 1px solid var(--apply-border);
   background:
-    radial-gradient(circle at top right, rgba(220, 144, 67, 0.12), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(169, 105, 39, 0.10), transparent 22%),
-    linear-gradient(180deg, rgba(27, 20, 16, 0.98), rgba(13, 10, 9, 0.98));
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.28);
+    radial-gradient(circle at top left, rgba(233, 177, 73, 0.16), transparent 36%),
+    radial-gradient(circle at 92% 10%, rgba(154, 89, 37, 0.18), transparent 28%),
+    var(--apply-bg);
+  box-shadow: var(--apply-shadow);
 }
 
 .applications-page-hero::after,
@@ -42,32 +61,65 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent 18%, transparent 82%, rgba(255,255,255,0.02));
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 32%, transparent 68%, rgba(255,255,255,0.02));
+  opacity: 0.9;
 }
 
 .applications-page-hero__grid,
-.application-form-card,
-.application-status-card,
-.guild-finder-card--content,
-.applications-directory-panel {
-  padding: 28px;
+.guild-finder-section,
+.application-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+.applications-page-hero__grid {
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+}
+
+.guild-finder-section,
+.application-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+}
+
+.applications-page-hero__copy,
+.applications-page-hero__aside,
+.applications-page-hero__stats {
+  min-width: 0;
 }
 
 .section-tag {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: fit-content;
+  gap: 8px;
   min-height: 36px;
-  padding: 0 14px;
-  margin-bottom: 14px;
+  padding: 0 16px;
+  margin: 0 0 18px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(149, 78, 27, 0.72), rgba(120, 58, 19, 0.58));
-  color: #ffb35c;
+  border: 1px solid rgba(255, 181, 90, 0.12);
+  background: linear-gradient(180deg, rgba(128, 67, 23, 0.72), rgba(92, 46, 17, 0.62));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  color: #ffa55f;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.applications-page-hero h1,
+.application-section-head h2,
+.applications-panel-head h2 {
+  margin: 0;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+.applications-page-hero h1 {
+  max-width: 16ch;
+  font-size: clamp(2.15rem, 4.4vw, 3.9rem);
+  text-wrap: balance;
 }
 
 .section-subtitle,
@@ -76,206 +128,194 @@
 .applications-panel-head p,
 .form-hint,
 .guild-finder-caption,
-.applications-directory-summary p {
-  color: rgba(255, 255, 255, 0.76);
-  line-height: 1.7;
+.applications-directory-summary p,
+.applications-placeholder,
+.applications-empty {
+  color: var(--apply-text-soft);
+  line-height: 1.72;
 }
 
-.application-section-head,
-.applications-panel-head {
-  margin-bottom: 18px;
-}
-
-.application-section-head--tight h2,
-.applications-panel-head h2,
-.applications-page-hero__copy h1 {
-  margin: 0 0 10px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-}
-
-.applications-page-hero__copy h1 {
-  font-size: clamp(2.1rem, 4vw, 3.3rem);
-}
-
-/* ===== Hero ===== */
-.applications-page-hero__grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.82fr);
-  gap: 24px;
-  align-items: stretch;
-}
-
-.applications-page-hero--apply .applications-page-hero__grid {
-  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
-}
-
-.applications-page-hero__copy,
-.applications-page-hero__stats,
-.applications-page-hero__aside {
-  min-width: 0;
+.section-subtitle {
+  max-width: 62ch;
+  margin: 16px 0 0;
+  font-size: 1.05rem;
 }
 
 .application-hero__chips,
 .applications-page-hero__actions,
 .application-status-actions,
 .applications-filter-actions,
-.form-actions {
+.form-actions,
+.application-mini-stats,
+.applications-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.application-hero__chips {
-  margin: 18px 0 0;
+.application-hero__chips,
+.application-mini-stats,
+.applications-page-hero__actions {
+  margin-top: 22px;
 }
 
-.application-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 14px;
+.application-chip,
+.application-mini-stat {
+  min-height: 42px;
+  padding: 0 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.045);
+  color: rgba(255,255,255,0.92);
   font-size: 0.92rem;
   font-weight: 700;
 }
 
-.application-mini-stats {
+.application-mini-stat {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.application-mini-stat,
-.applications-hero-stat,
-.applications-hero-card {
-  position: relative;
-  z-index: 1;
-  padding: 16px 18px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  gap: 2px;
+  min-width: 150px;
+  min-height: auto;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.035);
 }
 
 .application-mini-stat__label,
 .applications-hero-stat__label {
-  display: block;
-  margin-bottom: 6px;
-  color: rgba(255,255,255,0.6);
-  font-size: 0.76rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  color: var(--apply-text-dim);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .application-mini-stat__value,
 .applications-hero-stat__value {
-  display: block;
-  color: #fff;
+  color: var(--apply-text);
   font-size: 1rem;
   font-weight: 800;
 }
 
-.applications-hero-stat__value {
-  font-size: clamp(1.9rem, 3vw, 2.5rem);
-  line-height: 1;
-}
-
-.applications-page-hero__stats,
-.applications-page-hero__aside {
-  display: grid;
-  gap: 14px;
-}
-
-.applications-hero-card h2 {
-  margin: 4px 0 10px;
-  font-size: 1.35rem;
-}
-
-/* ===== Buttons ===== */
 .application-primary-link,
 .application-secondary-link,
+.application-submit-button,
 .status-refresh-button,
 .status-refresh-button--ghost,
-.application-submit-button,
 .application-discord-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: 50px;
   padding: 0 20px;
   border-radius: 16px;
-  font-weight: 800;
   text-decoration: none;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+  font-weight: 800;
+  font-size: 0.98rem;
+  line-height: 1;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
 }
 
 .application-primary-link,
 .application-submit-button {
-  color: #120c00;
-  background: linear-gradient(180deg, #f0c550, #dca43b);
-  box-shadow: 0 12px 26px rgba(212, 160, 61, 0.24);
-}
-
-.application-secondary-link,
-.status-refresh-button,
-.status-refresh-button--ghost,
-.application-discord-link {
-  color: #fff;
-  border-color: rgba(255,255,255,0.12);
-  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.03));
-}
-
-.status-refresh-button--ghost {
-  color: rgba(255,255,255,0.82);
+  border: 0;
+  color: var(--apply-accent-dark);
+  background: linear-gradient(180deg, var(--apply-accent-strong), #d9a53b);
+  box-shadow: 0 14px 28px rgba(228, 179, 77, 0.22);
 }
 
 .application-primary-link:hover,
+.application-submit-button:hover,
 .application-secondary-link:hover,
 .status-refresh-button:hover,
 .status-refresh-button--ghost:hover,
-.application-submit-button:hover,
 .application-discord-link:hover,
 .application-status-item__link:hover {
   transform: translateY(-1px);
 }
 
-.application-primary-link:disabled,
-.application-submit-button:disabled,
-.status-refresh-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
+.application-secondary-link,
+.status-refresh-button,
+.status-refresh-button--ghost,
+.application-discord-link {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.045);
+  color: var(--apply-text);
 }
 
-/* ===== Finder and layout ===== */
-.guild-finder-section,
-.application-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 24px;
-  align-items: start;
+.status-refresh-button--ghost {
+  background: rgba(255,255,255,0.035);
 }
 
-.guild-finder-card--image {
-  padding: 16px;
+.applications-page-hero__stats {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.applications-hero-stat,
+.applications-hero-card,
+.application-form-card,
+.application-status-card,
+.guild-finder-card,
+.applications-directory-panel,
+.finder-step-card,
+.application-status-item {
+  position: relative;
+  overflow: clip;
+  background:
+    radial-gradient(circle at top right, rgba(228, 179, 77, 0.08), transparent 34%),
+    var(--apply-surface);
+  border: 1px solid var(--apply-border);
+  border-radius: var(--apply-radius-lg);
+  box-shadow: var(--apply-shadow);
+}
+
+.applications-hero-stat {
+  padding: 20px 18px;
+}
+
+.applications-hero-card,
+.application-form-card,
+.application-status-card,
+.guild-finder-card,
+.applications-directory-panel {
+  padding: 30px;
+}
+
+.application-section-head,
+.applications-panel-head {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.application-section-head--tight {
+  margin-bottom: 20px;
+}
+
+.application-section-head h2,
+.applications-panel-head h2,
+.guild-finder-card h2 {
+  font-size: clamp(1.65rem, 2vw, 2.3rem);
+}
+
+.application-steps {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding-left: 22px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.72;
+}
+
+.application-steps--compact {
   gap: 12px;
 }
 
-.guild-finder-card--image img {
-  width: 100%;
-  display: block;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.08);
+.guild-finder-card--content,
+.guild-finder-card--image {
+  min-width: 0;
 }
 
 .finder-steps-grid {
@@ -288,153 +328,150 @@
 .finder-step-card {
   padding: 18px;
   border-radius: 18px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.finder-step-card h3 {
-  margin: 0 0 8px;
+  background: rgba(255,255,255,0.038);
 }
 
 .finder-step-card__num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
   margin-bottom: 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #e4b14a, #d49d37);
-  color: #120c00;
   font-weight: 900;
+  color: var(--apply-accent-dark);
+  background: linear-gradient(180deg, #efc85b, #dfaa43);
 }
 
-/* ===== Form ===== */
+.guild-finder-card--image {
+  display: grid;
+  gap: 14px;
+}
+
+.guild-finder-card--image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.guild-finder-caption {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 .guild-application-form {
-  position: relative;
-  z-index: 2;
   display: grid;
   gap: 18px;
 }
 
 .form-grid {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
-.form-grid--two,
-.form-grid--selectors {
+.form-grid--two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .form-field {
   display: grid;
-  gap: 8px;
+  gap: 9px;
   min-width: 0;
 }
 
 .form-field > span,
 .applications-search-field > span {
-  color: rgba(255,255,255,0.94);
-  font-weight: 700;
+  color: var(--apply-text);
+  font-weight: 800;
+  font-size: 0.98rem;
 }
 
 .form-field input,
 .form-field textarea,
-.applications-search-field input,
-.custom-select__trigger {
+.applications-search-field input {
   width: 100%;
-  min-height: 56px;
-  padding: 0 16px;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025));
+  color: var(--apply-text);
   border-radius: 18px;
-  border: 1px solid rgba(225, 171, 74, 0.18);
-  background: linear-gradient(180deg, rgba(43,34,28,0.96), rgba(26,20,17,0.98));
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  outline: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
 }
 
+.form-field input,
+.applications-search-field input {
+  min-height: 60px;
+  padding: 0 18px;
+  font-size: 1rem;
+}
+
 .form-field textarea {
-  min-height: 128px;
-  padding: 16px;
+  min-height: 132px;
+  padding: 16px 18px;
   resize: vertical;
+  font-size: 1rem;
 }
 
 .form-field input::placeholder,
 .form-field textarea::placeholder,
-.applications-search-field input::placeholder,
-.custom-select__value.is-placeholder {
-  color: rgba(255,255,255,0.46);
+.applications-search-field input::placeholder {
+  color: rgba(236, 224, 207, 0.52);
 }
 
 .form-field input:focus,
 .form-field textarea:focus,
 .applications-search-field input:focus,
-.custom-select__trigger:focus-visible,
-.custom-select.is-open .custom-select__trigger {
-  outline: none;
-  border-color: rgba(236, 184, 73, 0.82);
-  box-shadow: 0 0 0 4px rgba(236, 184, 73, 0.12);
+.custom-select.is-open .custom-select__trigger,
+.custom-select__trigger:focus-visible {
+  border-color: var(--apply-border-strong);
+  box-shadow: 0 0 0 4px rgba(228, 179, 77, 0.14);
 }
 
-.form-actions {
-  align-items: center;
-}
-
-.form-hint {
-  margin: 0;
-  max-width: 460px;
-}
-
-.form-feedback {
-  display: none;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  font-weight: 600;
-}
-
-.form-feedback.is-visible { display: block; }
-.form-feedback.is-success {
-  color: #e1ffd6;
-  background: rgba(44, 138, 66, 0.18);
-  border-color: rgba(44, 138, 66, 0.32);
-}
-.form-feedback.is-error {
-  color: #ffd6d6;
-  background: rgba(166, 40, 40, 0.18);
-  border-color: rgba(166, 40, 40, 0.32);
-}
-.form-feedback a { color: inherit; font-weight: 800; }
-
-/* ===== Custom selects ===== */
 .custom-select {
   position: relative;
-  z-index: 20;
   min-width: 0;
 }
 
 .custom-select__trigger {
+  width: 100%;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025));
+  color: var(--apply-text);
   text-align: left;
   cursor: pointer;
+  transition: border-color .18s ease, box-shadow .18s ease;
 }
 
 .custom-select__value {
-  flex: 1 1 auto;
-  min-width: 0;
+  display: block;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.custom-select__value.is-placeholder {
+  color: rgba(236, 224, 207, 0.54);
+  font-weight: 600;
 }
 
 .custom-select__icon {
   flex: 0 0 auto;
-  font-size: 1.05rem;
-  color: rgba(255,255,255,0.84);
+  color: rgba(255,255,255,0.78);
+  font-size: 1.18rem;
   transition: transform .18s ease;
 }
 
@@ -444,150 +481,186 @@
 
 .custom-select__menu {
   position: absolute;
-  inset: calc(100% + 10px) 0 auto;
-  z-index: 80;
-  display: none;
-  width: 100%;
-  padding: 8px;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 24;
+  display: grid;
+  gap: 8px;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(228, 177, 74, 0.26);
-  background: linear-gradient(180deg, rgba(25, 19, 15, 0.99), rgba(14, 11, 9, 0.985));
-  box-shadow: 0 24px 44px rgba(0,0,0,0.42);
-  max-height: 286px;
-  overflow: auto;
+  border: 1px solid transparent;
+  background: linear-gradient(180deg, rgba(31, 23, 18, 0.99), rgba(17, 14, 12, 0.99));
+  box-shadow: 0 22px 40px rgba(0,0,0,0.34);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity .16s ease, transform .16s ease, max-height .18s ease, padding .18s ease, border-color .18s ease;
 }
 
 .custom-select.is-open .custom-select__menu {
-  display: block;
+  max-height: 360px;
+  padding: 12px;
+  opacity: 1;
+  transform: translateY(0);
+  border-color: rgba(255,255,255,0.1);
+  overflow-y: auto;
 }
 
 .custom-select__menu--tall {
-  max-height: 320px;
+  max-height: 420px;
 }
 
 .custom-select__option {
-  display: flex;
-  align-items: center;
   width: 100%;
   min-height: 46px;
-  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-  color: rgba(255,255,255,0.92);
-  font-size: 0.98rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.035);
+  color: var(--apply-text);
   font-weight: 700;
-  line-height: 1.25;
   text-align: left;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.custom-select__option + .custom-select__option {
-  margin-top: 4px;
+  cursor: pointer;
+  transition: border-color .16s ease, background-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .custom-select__option:hover,
-.custom-select__option:focus-visible,
+.custom-select__option:focus-visible {
+  border-color: rgba(228, 179, 77, 0.28);
+  background: rgba(228, 179, 77, 0.1);
+  outline: 0;
+}
+
 .custom-select__option.is-active {
-  color: #fff;
-  border-color: rgba(236, 184, 73, 0.22);
-  background: linear-gradient(180deg, rgba(236, 184, 73, 0.18), rgba(236, 184, 73, 0.10));
-  outline: none;
+  color: var(--apply-accent-dark);
+  border-color: rgba(228, 179, 77, 0.34);
+  background: linear-gradient(180deg, rgba(241, 196, 87, 0.96), rgba(221, 165, 59, 0.96));
 }
 
-.custom-select__menu::-webkit-scrollbar,
-.application-status-list--compact::-webkit-scrollbar,
-.applications-directory-list::-webkit-scrollbar {
-  width: 10px;
+.form-actions {
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.custom-select__menu::-webkit-scrollbar-thumb,
-.application-status-list--compact::-webkit-scrollbar-thumb,
-.applications-directory-list::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(227, 174, 69, 0.34);
-  border: 2px solid rgba(19, 14, 11, 0.95);
+.form-hint {
+  margin: 0;
+  max-width: 38ch;
 }
 
-/* ===== Status / recent list ===== */
-.applications-legend,
-.status-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin: 0 0 16px;
-  color: rgba(255,255,255,0.82);
+.form-feedback {
+  display: none;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-weight: 700;
+  line-height: 1.6;
 }
 
-.applications-legend span,
-.status-legend span {
+.form-feedback a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.form-feedback.is-visible {
+  display: block;
+}
+
+.form-feedback.is-success {
+  color: #dbf5e1;
+  background: rgba(86, 178, 112, 0.12);
+  border-color: rgba(86, 178, 112, 0.22);
+}
+
+.form-feedback.is-error {
+  color: #ffe0dc;
+  background: rgba(202, 84, 70, 0.14);
+  border-color: rgba(202, 84, 70, 0.24);
+}
+
+.application-status-card {
+  display: grid;
+  gap: 18px;
+}
+
+.applications-legend {
+  gap: 18px;
+  color: var(--apply-text-soft);
+  font-weight: 700;
+  font-size: 0.94rem;
+}
+
+.applications-legend span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.legend-dot,
-.status-legend i {
+.legend-dot {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  display: inline-block;
+  background: #e6ba47;
 }
 
-.legend-dot--open,
-.status-legend .is-open { background: #efc146; }
-.legend-dot--closed,
-.status-legend .is-closed { background: #57c883; }
+.legend-dot--closed {
+  background: var(--apply-success);
+}
 
 .application-status-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
 }
 
-.application-status-actions > * {
-  width: 100%;
-}
-
-.application-status-list--compact {
-  max-height: 560px;
-  padding-right: 6px;
-  overflow: auto;
-}
-
-.applications-status-list,
+.application-status-list,
 .applications-directory-list {
   display: grid;
   gap: 16px;
 }
 
-.application-status-item,
-.applications-directory-list .application-status-item {
-  position: relative;
+.application-status-list {
+  max-height: 860px;
+  padding-right: 6px;
+  overflow: auto;
+}
+
+.application-status-list--compact {
+  max-height: 740px;
+}
+
+.application-status-list::-webkit-scrollbar,
+.custom-select.is-open .custom-select__menu::-webkit-scrollbar {
+  width: 10px;
+}
+
+.application-status-list::-webkit-scrollbar-thumb,
+.custom-select.is-open .custom-select__menu::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  background-clip: padding-box;
+}
+
+.application-status-item {
+  padding: 22px 22px 20px;
   display: grid;
   gap: 16px;
-  padding: 22px;
-  border-radius: 24px;
-  border: 1px solid rgba(226, 169, 65, 0.12);
-  background:
-    radial-gradient(circle at top right, rgba(228, 177, 74, 0.08), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
 .application-status-item__top {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
 }
 
 .application-status-item__title-group {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -595,11 +668,13 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: 0.38rem 0.75rem;
+  min-height: 34px;
+  padding: 0 12px;
   border-radius: 999px;
-  background: rgba(227, 171, 64, 0.12);
-  color: #f3c86c;
-  font-size: 0.74rem;
+  border: 1px solid rgba(255, 181, 90, 0.1);
+  background: rgba(255, 181, 90, 0.09);
+  color: #ffbf6f;
+  font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -607,38 +682,23 @@
 
 .application-status-item__title {
   margin: 0;
-  font-size: clamp(1.1rem, 2vw, 1.42rem);
-  line-height: 1.12;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.08;
   letter-spacing: -0.02em;
-  color: #fff;
+  text-wrap: balance;
 }
 
 .application-status-item__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  color: rgba(255,255,255,0.62);
-  font-size: 0.94rem;
+  gap: 10px;
+  color: var(--apply-text-dim);
+  font-size: 0.96rem;
+  font-weight: 700;
 }
 
 .application-status-item__sep {
-  color: rgba(255,255,255,0.3);
-}
-
-.application-status-item__desc {
-  margin: 0;
-  color: rgba(255,255,255,0.88);
-  line-height: 1.7;
-}
-
-.application-status-item__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: fit-content;
-  color: #f0c46c;
-  font-weight: 800;
-  text-decoration: none;
+  color: rgba(255,255,255,0.22);
 }
 
 .application-status-badge {
@@ -646,69 +706,80 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: 46px;
+  padding: 0 18px;
   border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 0.95rem;
   white-space: nowrap;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .application-status-badge--open {
-  color: #161107;
-  background: linear-gradient(180deg, #f2c34d, #dfac2d);
+  color: var(--apply-accent-dark);
+  background: linear-gradient(180deg, #efc85b, #deaa42);
 }
 
 .application-status-badge--closed {
-  color: #0d1d11;
-  background: linear-gradient(180deg, #63d58c, #3fb56b);
+  color: #102212;
+  background: linear-gradient(180deg, #75e39a, #59c87f);
 }
 
-.applications-placeholder,
-.applications-empty {
-  padding: 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.74);
+.application-status-item__desc {
+  color: rgba(255,255,255,0.88);
+  font-size: 1.02rem;
   line-height: 1.7;
 }
 
-/* ===== Directory ===== */
+.application-status-item__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: #ffcb61;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.applications-empty,
+.applications-placeholder {
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.025);
+}
+
 .applications-directory-panel {
-  padding: 28px;
+  position: relative;
+  overflow: clip;
 }
 
 .applications-filter-bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
+  gap: 16px;
   align-items: end;
 }
 
 .applications-search-field {
   display: grid;
-  gap: 8px;
+  gap: 9px;
   min-width: 0;
 }
 
 .applications-filter-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.applications-filter-actions > * {
-  width: 100%;
+  justify-content: flex-end;
 }
 
 .applications-directory-summary {
-  margin: 12px 0 18px;
+  margin: 16px 0 18px;
+}
+
+.applications-directory-summary p {
+  margin: 0;
 }
 
 .sr-only {
-  position: absolute;
+  position: absolute !important;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -719,106 +790,196 @@
   border: 0;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 1140px) {
+@media (max-width: 1160px) {
   .applications-page-hero__grid,
-  .applications-page-hero--apply .applications-page-hero__grid,
   .guild-finder-section,
   .application-layout {
     grid-template-columns: 1fr;
   }
 
-  .finder-steps-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 980px) {
-  .application-mini-stats,
   .applications-page-hero__stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 760px) {
-  .guild-application-page,
-  .guild-applications-directory {
-    gap: 20px;
-  }
-
-  .applications-page-hero__grid,
-  .application-form-card,
-  .application-status-card,
-  .guild-finder-card--content,
-  .applications-directory-panel {
-    padding: 20px;
-  }
-
+@media (max-width: 900px) {
   .applications-page-hero,
+  .applications-hero-card,
   .application-form-card,
   .application-status-card,
   .guild-finder-card,
-  .applications-directory-panel,
-  .application-status-item,
-  .applications-directory-list .application-status-item {
-    border-radius: 22px;
-  }
-
-  .applications-page-hero__copy h1 {
-    font-size: 1.95rem;
+  .applications-directory-panel {
+    padding: 24px;
   }
 
   .form-grid--two,
-  .form-grid--selectors,
+  .finder-steps-grid,
+  .applications-page-hero__stats,
   .applications-filter-bar,
-  .applications-filter-actions,
-  .application-status-actions,
-  .form-actions,
-  .applications-page-hero__actions {
+  .application-status-actions {
     grid-template-columns: 1fr;
-    flex-direction: column;
-    align-items: stretch;
   }
 
-  .application-primary-link,
-  .application-secondary-link,
-  .status-refresh-button,
-  .status-refresh-button--ghost,
-  .application-submit-button,
-  .application-discord-link {
-    width: 100%;
+  .applications-filter-actions {
+    justify-content: stretch;
   }
 
-  .form-hint {
-    max-width: none;
-  }
-
-  .custom-select__trigger,
-  .applications-search-field input,
-  .form-field input {
-    min-height: 54px;
-    font-size: 16px;
-  }
-
-  .custom-select__menu {
-    max-height: 236px;
-  }
-
-  .application-status-list--compact {
-    max-height: 500px;
-  }
-
-  .application-status-item,
-  .applications-directory-list .application-status-item {
-    padding: 18px;
+  .applications-filter-actions > * {
+    flex: 1 1 100%;
   }
 
   .application-status-item__top {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
 
   .application-status-badge {
-    width: fit-content;
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 680px) {
+  .guild-application-page,
+  .guild-applications-directory {
+    gap: 22px;
+  }
+
+  .applications-page-hero {
+    padding: 24px 18px;
+    border-radius: 24px;
+  }
+
+  .applications-page-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.7rem);
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .application-chip,
+  .application-mini-stat,
+  .application-primary-link,
+  .application-secondary-link,
+  .status-refresh-button,
+  .status-refresh-button--ghost,
+  .application-discord-link,
+  .application-submit-button {
+    width: 100%;
+  }
+
+  .application-mini-stat {
+    min-width: 0;
+  }
+
+  .applications-hero-card,
+  .application-form-card,
+  .application-status-card,
+  .guild-finder-card,
+  .applications-directory-panel {
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .application-section-head,
+  .applications-panel-head {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .application-section-head h2,
+  .applications-panel-head h2,
+  .guild-finder-card h2 {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+
+  .custom-select__trigger,
+  .form-field input,
+  .applications-search-field input {
+    min-height: 56px;
+    padding-inline: 16px;
+  }
+
+  .form-field textarea {
+    min-height: 116px;
+    padding: 14px 16px;
+  }
+
+  .application-status-list {
+    max-height: 680px;
+    padding-right: 4px;
+  }
+
+  .application-status-item {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .application-status-item__title {
+    font-size: 1.55rem;
+  }
+
+  .application-status-item__meta {
+    gap: 8px;
+    font-size: 0.92rem;
+  }
+
+  .application-status-badge {
+    width: 100%;
+    max-width: 210px;
+  }
+
+  .applications-legend {
+    display: grid;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .applications-page-hero {
+    padding: 22px 14px;
+  }
+
+  .section-tag {
+    min-height: 34px;
+    padding-inline: 14px;
+    margin-bottom: 14px;
+    font-size: 0.72rem;
+  }
+
+  .application-hero__chips,
+  .application-mini-stats,
+  .applications-page-hero__actions,
+  .form-actions,
+  .application-status-actions,
+  .applications-filter-actions {
+    gap: 10px;
+  }
+
+  .applications-hero-card,
+  .application-form-card,
+  .application-status-card,
+  .guild-finder-card,
+  .applications-directory-panel {
+    padding: 18px 14px;
+  }
+
+  .application-status-item__title {
+    font-size: 1.4rem;
+  }
+
+  .application-status-item__eyebrow {
+    min-height: 32px;
+    font-size: 0.72rem;
+  }
+
+  .application-status-item__desc {
+    font-size: 0.98rem;
+  }
+
+  .application-status-badge {
+    width: 100%;
+    max-width: none;
+    font-size: 0.92rem;
   }
 }
