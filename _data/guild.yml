@@ -1,3617 +1,5096 @@
 metadata:
-  updated_at: '2026-04-18 05:43:10'
-  source: Raider.IO API + Blizzard Professions API
-guild_info:
+  updated_at: '2026-04-18 10:50:54'
+  source: Blizzard Guild Roster API + Raider.IO Character API + Blizzard Professions API
+  region: eu
+  locale: en_US
+guild:
   name: Mistblossom Vanguard
-  faction: alliance
-  realm: Terokkar
-  region: eu
-  profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-raid_progression:
-  tier-mn-1:
-    summary: 4/9 H
-    total_bosses: 9
-    normal_bosses_killed: 8
-    heroic_bosses_killed: 4
-    mythic_bosses_killed: 0
-  blackrock-depths:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  liberation-of-undermine:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  manaforge-omega:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-  nerubar-palace:
-    summary: 0/8 N
-    total_bosses: 8
-    normal_bosses_killed: 0
-    heroic_bosses_killed: 0
-    mythic_bosses_killed: 0
-raid_rankings:
-  tier-mn-1:
-    normal:
-      world: 12874
-      region: 5718
-      realm: 54
-    heroic:
-      world: 14636
-      region: 6157
-      realm: 48
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  blackrock-depths:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  liberation-of-undermine:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  manaforge-omega:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
-  nerubar-palace:
-    normal:
-      world: 0
-      region: 0
-      realm: 0
-    heroic:
-      world: 0
-      region: 0
-      realm: 0
-    mythic:
-      world: 0
-      region: 0
-      realm: 0
+  id: 75441613
+  realm:
+    name: Terokkar
+    id: 1415
+    slug: terokkar
+  faction:
+    type: ALLIANCE
+    name: Alliance
+  profile_url: null
+  member_count: 99
+  achievement_points: 395
+  created_timestamp: 1764795965000
 members:
-- rank: 99
-  name: Бреинор
-  class: Paladin
-  race: Human
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Galakrond
-  realm_slug: galakrond
-  profile_url: https://raider.io/characters/eu/galakrond/Бреинор
-  avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 409.9
-      color: '#efffe8'
-    dps:
-      score: 409.9
-      color: '#efffe8'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 409.9
-      color: '#efffe8'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 260
-- rank: 99
-  name: Клеосса
-  class: Warlock
-  race: Blood Elf
-  spec: Destruction
-  role: DPS
-  gender: female
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Клеосса
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/188/190326716-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2152.3
-      color: '#56da64'
-    dps:
-      score: 2152.3
-      color: '#56da64'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2152.3
-      color: '#56da64'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 265
-- rank: 99
-  name: Дедика
-  class: Paladin
-  race: Blood Elf
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Дедика
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2152.3
-      color: '#56da64'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2152.3
-      color: '#56da64'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2152.3
-      color: '#56da64'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
-- rank: 99
-  name: Пандашоманко
-  class: Shaman
-  race: Pandaren
-  spec: Restoration
-  role: HEALING
-  gender: male
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 164.6
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 164.6
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 164.6
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 245
 - rank: 3
-  name: Скяльди
-  class: Demon Hunter
-  race: Blood Elf
-  spec: Havoc
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Howling Fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
-  avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 246
-- rank: 3
-  name: Котто
-  class: Rogue
-  race: Void Elf
-  spec: Subtlety
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Котто
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 239
-- rank: 99
-  name: Алфлейм
-  class: Warlock
-  race: Human
-  spec: Demonology
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Алфлейм
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/5/254901253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 979.5
-      color: '#bdffa6'
-    dps:
-      score: 979.5
-      color: '#bdffa6'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 979.5
-      color: '#bdffa6'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 255
-- rank: 99
-  name: Seidhe
-  class: Paladin
-  race: Blood Elf
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Seidhe
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/175155212-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2687
-      color: '#2d78d4'
-    dps:
-      score: 2687
-      color: '#2d78d4'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2687
-      color: '#2d78d4'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 271
-- rank: 99
-  name: Eidis
-  class: Warrior
-  race: Zandalari Troll
-  spec: Arms
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2687
-      color: '#2d78d4'
-    dps:
-      score: 2687
-      color: '#2d78d4'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2687
-      color: '#2d78d4'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 271
-- rank: 99
-  name: Графдекот
-  class: Druid
-  race: Night Elf
-  spec: Feral
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2711.6
-      color: '#1e74d9'
-    dps:
-      score: 2711.6
-      color: '#1e74d9'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2711.6
-      color: '#1e74d9'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 275
-- rank: 3
-  name: Characternuk
-  class: Death Knight
-  race: Human
-  spec: Blood
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Characternuk
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1098.4
-      color: '#b3ff9b'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 1098.4
-      color: '#b3ff9b'
-    spec_0:
-      score: 1098.4
-      color: '#b3ff9b'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 255
-- rank: 99
-  name: Кеенди
-  class: Shaman
-  race: Haranir
-  spec: Elemental
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Кеенди
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2162
-      color: '#56da64'
-    dps:
-      score: 2162
-      color: '#56da64'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2162
-      color: '#56da64'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 260
-- rank: 99
-  name: Кибароу
-  class: Paladin
-  race: Human
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Soulflayer
-  realm_slug: soulflayer
-  profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
-  avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/172/259861164-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 892.6
-      color: '#c6ffb2'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 892.6
-      color: '#c6ffb2'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 892.6
-      color: '#c6ffb2'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 252
-- rank: 99
-  name: Mexamer
-  class: Monk
-  race: Mechagnome
-  spec: Brewmaster
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/66/214528578-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2406.5
-      color: '#5da8a1'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2406.5
-      color: '#5da8a1'
-    spec_0:
-      score: 2406.5
-      color: '#5da8a1'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 260
-- rank: 99
-  name: Ohhchetos
-  class: Paladin
-  race: Tauren
-  spec: Retribution
-  role: DPS
-  gender: female
-  faction: horde
-  region: eu
-  realm: Kazzak
-  realm_slug: kazzak
-  profile_url: https://raider.io/characters/eu/kazzak/Ohhchetos
-  avatar: https://render.worldofwarcraft.com/eu/character/kazzak/43/217005099-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2659.1
-      color: '#367dd0'
-    dps:
-      score: 2659.1
-      color: '#367dd0'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2659.1
-      color: '#367dd0'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 265
-- rank: 99
-  name: Daddyborn-225651387
-  class: Warrior
-  race: Human
-  spec: Fury
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Daddyborn-225651387
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 226
-- rank: 3
-  name: Булкрит
-  class: Paladin
-  race: Blood Elf
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 3019.2
-      color: '#9c3eed'
-    dps:
-      score: 3019.2
-      color: '#9c3eed'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 3019.2
-      color: '#9c3eed'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 276
-- rank: 3
-  name: ßøßk
-  class: Hunter
-  race: Worgen
-  spec: Marksmanship
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/ßøßk
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2548.5
-      color: '#5292b9'
-    dps:
-      score: 2548.5
-      color: '#5292b9'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2548.5
-      color: '#5292b9'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 268
-- rank: 3
-  name: Pwndyøurface
-  class: Priest
-  race: Night Elf
-  spec: Shadow
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Pwndyøurface
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/215/217204951-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 225
-- rank: 99
-  name: Plaguenjoyer
-  class: Priest
-  race: Night Elf
-  spec: Shadow
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2320
-      color: '#5fba8d'
-    dps:
-      score: 396.8
-      color: '#f1ffeb'
-    healer:
-      score: 2320
-      color: '#5fba8d'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2320
-      color: '#5fba8d'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 396.8
-      color: '#f1ffeb'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 257
-- rank: 99
-  name: Мортург
-  class: Paladin
-  race: Dwarf
-  spec: Holy
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Мортург
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2620.7
-      color: '#3e81cb'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 2620.7
-      color: '#3e81cb'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2620.7
-      color: '#3e81cb'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 272
-- rank: 3
-  name: Asasinas
-  class: Druid
-  race: Zandalari Troll
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: horde
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Asasinas
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/253/186247421-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 165
-- rank: 3
-  name: Sonechco
-  class: Druid
-  race: Night Elf
-  spec: Guardian
-  role: TANK
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2684.6
-      color: '#2d78d4'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2684.6
-      color: '#2d78d4'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2684.6
-      color: '#2d78d4'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 274
-- rank: 3
-  name: Elderwizard
-  class: Mage
-  race: Human
-  spec: Frost
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2572
-      color: '#4e8ebd'
-    dps:
-      score: 2572
-      color: '#4e8ebd'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2572
-      color: '#4e8ebd'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 264
+  character:
+    name: Бреинор
+    id: 152007675
+    level: 90
+    realm:
+      id: 1614
+      slug: galakrond
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/galakrond/Бреинор
+    item_level_equipped: 260
+    mythic_plus_scores:
+      all:
+        score: 409.9
+        color: '#efffe8'
+      dps:
+        score: 409.9
+        color: '#efffe8'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 409.9
+        color: '#efffe8'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Katsyt
-  class: Paladin
-  race: Lightforged Draenei
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Katsyt
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/186136183-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 95
+  character:
+    name: Seidhe
+    id: 175155212
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/175155212-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Seidhe
+    item_level_equipped: 271
+    mythic_plus_scores:
+      all:
+        score: 2687
+        color: '#2d78d4'
+      dps:
+        score: 2687
+        color: '#2d78d4'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2687
+        color: '#2d78d4'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Darthkenobi
-  class: Warrior
-  race: Human
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 116
-- rank: 3
-  name: Allune
-  class: Druid
-  race: Night Elf
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Allune
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 197.6
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 197.6
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 197.6
-      color: '#ffffff'
-  item_level_equipped: 243
-- rank: 3
-  name: Es
-  class: Warrior
-  race: Human
-  spec: Fury
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Es
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 186
-- rank: 99
-  name: Hopeblood
-  class: Warlock
-  race: Undead
-  spec: Affliction
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
-  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1685.1
-      color: '#68ff4c'
-    dps:
-      score: 1685.1
-      color: '#68ff4c'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 1572.4
-      color: '#7bff5f'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 297.7
-      color: '#f9fff6'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 268
+  character:
+    name: Скяльди
+    id: 175295794
+    level: 90
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
+    item_level_equipped: 246
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Krouli
-  class: Demon Hunter
-  race: Night Elf
-  spec: Devourer
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Krouli
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 215
-- rank: 3
-  name: Redray
-  class: Death Knight
-  race: Tauren
-  spec: Unholy
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Redray
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 145
-- rank: 99
-  name: Лилая
-  class: Druid
-  race: Night Elf
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Grom
-  realm_slug: grom
-  profile_url: https://raider.io/characters/eu/grom/Лилая
-  avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2331.6
-      color: '#5fba8d'
-    dps:
-      score: 2331.6
-      color: '#5fba8d'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2331.6
-      color: '#5fba8d'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 269
-- rank: 1
-  name: Ironbelly
-  class: Monk
-  race: Kul Tiran
-  spec: Windwalker
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 162
+  character:
+    name: Senigør
+    id: 175476976
+    level: 82
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/240/175476976-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Senigør
+    item_level_equipped: 450
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Threataan
-  class: Paladin
-  race: Human
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Threataan
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 122
-- rank: 99
-  name: Monkania
-  class: Monk
-  race: Night Elf
-  spec: Mistweaver
-  role: HEALING
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Monkania
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 1719.2
-      color: '#63ff48'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 1719.2
-      color: '#63ff48'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 1719.2
-      color: '#63ff48'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 259
-- rank: 3
-  name: Prayddh
-  class: Demon Hunter
-  race: Night Elf
-  spec: Havoc
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Prayddh
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/14/186365710-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 191.8
-      color: '#ffffff'
-    dps:
-      score: 191.8
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 191.8
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 250
-- rank: 99
-  name: Поливалочки
-  class: Paladin
-  race: Draenei
-  spec: Retribution
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/85/263543893-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 1705.7
-      color: '#63ff48'
-    dps:
-      score: 1705.7
-      color: '#63ff48'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1705.7
-      color: '#63ff48'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 260
-- rank: 3
-  name: Алак
-  class: Mage
-  race: Night Elf
-  spec: Arcane
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Goldrinn
-  realm_slug: goldrinn
-  profile_url: https://raider.io/characters/eu/goldrinn/Алак
-  avatar: https://render.worldofwarcraft.com/eu/character/goldrinn/150/181764502-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 182
-- rank: 1
-  name: Odeskiy
-  class: Druid
-  race: Zandalari Troll
-  spec: Guardian
-  role: TANK
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 170
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 170
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 170
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 251
-- rank: 1
-  name: Lishiy
-  class: Warrior
-  race: Dark Iron Dwarf
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Ragnaros
-  realm_slug: ragnaros
-  profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
-  avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 157
-- rank: 99
-  name: Aimsniper
-  class: Hunter
-  race: Orc
-  spec: Beast Mastery
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2043
-      color: '#3ff13c'
-    dps:
-      score: 2043
-      color: '#3ff13c'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2025.5
-      color: '#3ff13c'
-    spec_1:
-      score: 447.1
-      color: '#edffe5'
-    spec_2:
-      score: 162.1
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 263
-- rank: 3
-  name: Komatoznic
-  class: Demon Hunter
-  race: Blood Elf
-  spec: Havoc
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Komatoznic
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/140/187899020-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 102
-- rank: 1
-  name: Kashin
-  class: Druid
-  race: Night Elf
-  spec: Balance
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Kashin
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 98
+  character:
+    name: Nwlck
+    id: 175498441
+    level: 80
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Destruction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
+    item_level_equipped: 719
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Nwlck
-  class: Warlock
-  race: Dwarf
-  spec: Destruction
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Ravencrest
-  realm_slug: ravencrest
-  profile_url: https://raider.io/characters/eu/ravencrest/Nwlck
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175498441-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 719
+  character:
+    name: Jakeyo
+    id: 175589321
+    level: 80
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175589321-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Jakeyo
+    item_level_equipped: 678
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Berkinzee
+    id: 176023633
+    level: 90
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Enhancement
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
+    item_level_equipped: 246
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 170
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 170
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Shennái
+    id: 176944582
+    level: 90
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Shennái
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 1811.5
+        color: '#50ff36'
+      dps:
+        score: 1811.5
+        color: '#50ff36'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1811.5
+        color: '#50ff36'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Eidis
+    id: 177685839
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 31
+      name: Zandalari Troll
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
+    item_level_equipped: 271
+    mythic_plus_scores:
+      all:
+        score: 2687
+        color: '#2d78d4'
+      dps:
+        score: 2687
+        color: '#2d78d4'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2687
+        color: '#2d78d4'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Алак
+    id: 181764502
+    level: 90
+    realm:
+      id: 1928
+      slug: goldrinn
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Arcane
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/goldrinn/150/181764502-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/goldrinn/Алак
+    item_level_equipped: 182
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Smolderfist-251137170
-  class: Monk
-  race: Dark Iron Dwarf
-  spec: Brewmaster
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Smolderfist-251137170
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 3017.4
-      color: '#9c3eed'
-    dps:
-      score: 335.8
-      color: '#f5fff1'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 3017.4
-      color: '#9c3eed'
-    spec_0:
-      score: 3017.4
-      color: '#9c3eed'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 335.8
-      color: '#f5fff1'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 253
-- rank: 1
-  name: Ahilles
-  class: Demon Hunter
-  race: Night Elf
-  spec: Vengeance
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Ahilles
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 222
+  character:
+    name: Characternuk
+    id: 182839435
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Characternuk
+    item_level_equipped: 255
+    mythic_plus_scores:
+      all:
+        score: 1098.4
+        color: '#b3ff9b'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 1098.4
+        color: '#b3ff9b'
+      spec_0:
+        score: 1098.4
+        color: '#b3ff9b'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Jakeyo
-  class: Shaman
-  race: Dwarf
-  spec: Restoration
-  role: HEALING
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Ravencrest
-  realm_slug: ravencrest
-  profile_url: https://raider.io/characters/eu/ravencrest/Jakeyo
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/201/175589321-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 678
+  character:
+    name: Hopeblood
+    id: 183698913
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 5
+      name: Undead
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+    item_level_equipped: 268
+    mythic_plus_scores:
+      all:
+        score: 1685.1
+        color: '#68ff4c'
+      dps:
+        score: 1685.1
+        color: '#68ff4c'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1572.4
+        color: '#7bff5f'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 297.7
+        color: '#f9fff6'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Duszi
-  class: Warrior
-  race: Orc
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: horde
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Duszi
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 163
-- rank: 1
-  name: Lishiyburn
-  class: Warlock
-  race: Orc
-  spec: Affliction
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Ragnaros
-  realm_slug: ragnaros
-  profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
-  avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2071.7
-      color: '#4ae84e'
-    dps:
-      score: 2071.7
-      color: '#4ae84e'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2031.3
-      color: '#3ff13c'
-    spec_1:
-      score: 541.7
-      color: '#e5ffda'
-    spec_2:
-      score: 352.4
-      color: '#f3ffee'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
-- rank: 99
-  name: Vîøn
-  class: Mage
-  race: Night Elf
-  spec: Arcane
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 3092.5
-      color: '#a937e8'
-    dps:
-      score: 3092.5
-      color: '#a937e8'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2477.3
-      color: '#589baf'
-    spec_1:
-      score: 333.9
-      color: '#f5fff1'
-    spec_2:
-      score: 3033
-      color: '#9c3eed'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 275
+  character:
+    name: Elderwizard
+    id: 184119943
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 2572
+        color: '#4e8ebd'
+      dps:
+        score: 2572
+        color: '#4e8ebd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2572
+        color: '#4e8ebd'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Darthkenobi
+    id: 185007029
+    level: 80
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
+    item_level_equipped: 116
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Valemor
-  class: Mage
-  race: Void Elf
-  spec: Frost
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Valemor
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/62/223406910-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 660
-- rank: 99
-  name: Berkinzee
-  class: Shaman
-  race: Dwarf
-  spec: Enhancement
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Ravencrest
-  realm_slug: ravencrest
-  profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 170
-      color: '#ffffff'
-    dps:
-      score: 170
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 170
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 246
-- rank: 99
-  name: Кумбар
-  class: Shaman
-  race: Orc
-  spec: Elemental
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Кумбар
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/165/264583845-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2322.5
-      color: '#5fba8d'
-    dps:
-      score: 2322.5
-      color: '#5fba8d'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2321.2
-      color: '#5fba8d'
-    spec_1:
-      score: 1090
-      color: '#b3ff9b'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 263
+  character:
+    name: Katsyt
+    id: 186136183
+    level: 80
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 30
+      name: Lightforged Draenei
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/186136183-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Katsyt
+    item_level_equipped: 95
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Дупця
-  class: Demon Hunter
-  race: Night Elf
-  spec: Havoc
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дупця
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/66/264777282-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 119
-- rank: 99
-  name: Vertyxa
-  class: Monk
-  race: Dwarf
-  spec: Mistweaver
-  role: HEALING
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2299.5
-      color: '#5fbf88'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 2299.5
-      color: '#5fbf88'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2299.5
-      color: '#5fbf88'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 263
+  character:
+    name: Asasinas
+    id: 186247421
+    level: 80
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 31
+      name: Zandalari Troll
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/253/186247421-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Asasinas
+    item_level_equipped: 165
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Allune
+    id: 186365617
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Allune
+    item_level_equipped: 243
+    mythic_plus_scores:
+      all:
+        score: 197.6
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 197.6
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 197.6
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Prayddh
+    id: 186365710
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/14/186365710-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Prayddh
+    item_level_equipped: 250
+    mythic_plus_scores:
+      all:
+        score: 191.8
+        color: '#ffffff'
+      dps:
+        score: 191.8
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 191.8
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Redray
+    id: 186629903
+    level: 84
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 6
+      name: Tauren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Redray
+    item_level_equipped: 145
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Es
+    id: 186745288
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Fury
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Es
+    item_level_equipped: 186
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Azuriel
-  class: Paladin
-  race: Lightforged Draenei
-  spec: Retribution
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 102
+  character:
+    name: Krouli
+    id: 187314454
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Krouli
+    item_level_equipped: 215
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Odeskiy
+    id: 187471446
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 31
+      name: Zandalari Troll
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
+    item_level_equipped: 251
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 170
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 170
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 4
-  name: Бафометище
-  class: Druid
-  race: Tauren
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Бафометище
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/191/264527551-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 612
+  character:
+    name: Monkania
+    id: 187502940
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Monkania
+    item_level_equipped: 259
+    mythic_plus_scores:
+      all:
+        score: 1719.2
+        color: '#63ff48'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 1719.2
+        color: '#63ff48'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 1719.2
+        color: '#63ff48'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 2
+  character:
+    name: Aimsniper
+    id: 187847156
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
+    item_level_equipped: 263
+    mythic_plus_scores:
+      all:
+        score: 2043
+        color: '#3ff13c'
+      dps:
+        score: 2043
+        color: '#3ff13c'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2025.5
+        color: '#3ff13c'
+      spec_1:
+        score: 447.1
+        color: '#edffe5'
+      spec_2:
+        score: 162.1
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Komatoznic
+    id: 187899020
+    level: 80
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/140/187899020-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Komatoznic
+    item_level_equipped: 102
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Vurush
+    id: 187944917
+    level: 90
+    realm:
+      id: 553
+      slug: turalyon
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/turalyon/Vurush
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2647.1
+        color: '#367dd0'
+      dps:
+        score: 2647.1
+        color: '#367dd0'
+      healer:
+        score: 438.8
+        color: '#edffe5'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2647.1
+        color: '#367dd0'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 438.8
+        color: '#edffe5'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Thérion
+    id: 187984922
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 28
+      name: Highmountain Tauren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Fury
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Thérion
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 1610.3
+        color: '#74ff57'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 1610.3
+        color: '#74ff57'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1610.3
+        color: '#74ff57'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Christmans
+    id: 187985056
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Christmans
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2626.5
+        color: '#3e81cb'
+      dps:
+        score: 2626.5
+        color: '#3e81cb'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 361
+        color: '#f3ffee'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 361
+        color: '#f3ffee'
+      spec_2:
+        score: 2626.5
+        color: '#3e81cb'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Mafik
-  class: Mage
-  race: Undead
-  spec: Frost
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Mafik
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1535
-      color: '#7fff62'
-    dps:
-      score: 1535
-      color: '#7fff62'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1535
-      color: '#7fff62'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 260
+  character:
+    name: Kashin
+    id: 188048569
+    level: 80
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/185/188048569-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Kashin
+    item_level_equipped: 98
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Ahilles
+    id: 188069002
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Vengeance
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Ahilles
+    item_level_equipped: 222
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Demhunt
+    id: 188087925
+    level: 81
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/117/188087925-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Demhunt
+    item_level_equipped: 729
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Kensshi
-  class: Druid
-  race: Night Elf
-  spec: Feral
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Kensshi
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/81/212966225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 235
+  character:
+    name: Duszi
+    id: 188213057
+    level: 80
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/65/188213057-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Duszi
+    item_level_equipped: 163
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Lightass
-  class: Paladin
-  race: Human
-  spec: Holy
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Lightass
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 3006.2
-      color: '#9445eb'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 3006.2
-      color: '#9445eb'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 3006.2
-      color: '#9445eb'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 274
+  character:
+    name: Lishiystabb
+    id: 188518732
+    level: 2
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 4
+      name: null
+    playable_race:
+      id: 1
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
 - rank: 3
-  name: Bierdestroer
-  class: Warlock
-  race: Worgen
-  spec: Affliction
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 246
+  character:
+    name: Sneydilio
+    id: 188593285
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 2204.1
+        color: '#5ad171'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2204.1
+        color: '#5ad171'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2204.1
+        color: '#5ad171'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Azuriel
+    id: 188602428
+    level: 80
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 30
+      name: Lightforged Draenei
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+    item_level_equipped: 102
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Christmans
-  class: Paladin
-  race: Human
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2626.5
-      color: '#3e81cb'
-    dps:
-      score: 2626.5
-      color: '#3e81cb'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 361
-      color: '#f3ffee'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 361
-      color: '#f3ffee'
-    spec_2:
-      score: 2626.5
-      color: '#3e81cb'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 269
+  character:
+    name: Ragnarøøk
+    id: 188733933
+    level: 90
+    realm:
+      id: 524
+      slug: burning-legion
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Enhancement
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/237/188733933-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/burning-legion/Ragnarøøk
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2567.7
+        color: '#4e8ebd'
+      dps:
+        score: 2567.7
+        color: '#4e8ebd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 242.5
+        color: '#fdfffc'
+      spec_1:
+        score: 2567.7
+        color: '#4e8ebd'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Mafik
+    id: 188808077
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 5
+      name: Undead
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Mafik
+    item_level_equipped: 260
+    mythic_plus_scores:
+      all:
+        score: 1535
+        color: '#7fff62'
+      dps:
+        score: 1535
+        color: '#7fff62'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1535
+        color: '#7fff62'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Lightass
+    id: 188815253
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Lightass
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 3006.2
+        color: '#9445eb'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 3006.2
+        color: '#9445eb'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 3006.2
+        color: '#9445eb'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Athang
+    id: 189022885
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Athang
+    item_level_equipped: 254
+    mythic_plus_scores:
+      all:
+        score: 1853.8
+        color: '#43ff2a'
+      dps:
+        score: 457.7
+        color: '#ebffe3'
+      healer:
+        score: 488.7
+        color: '#e9ffe0'
+      tank:
+        score: 1758.3
+        color: '#5aff3f'
+      spec_0:
+        score: 1758.3
+        color: '#5aff3f'
+      spec_1:
+        score: 488.7
+        color: '#e9ffe0'
+      spec_2:
+        score: 457.7
+        color: '#ebffe3'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 0
-  name: Khayen
-  class: Druid
-  race: Haranir
-  spec: Restoration
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Khayen
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2423.8
-      color: '#5da8a1'
-    dps:
-      score: 1926.7
-      color: '#2bff11'
-    healer:
-      score: 2228.8
-      color: '#5ccc77'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 1926.7
-      color: '#2bff11'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 2228.8
-      color: '#5ccc77'
-  item_level_equipped: 269
+  character:
+    name: Khayen
+    id: 189029529
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Khayen
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2423.8
+        color: '#5da8a1'
+      dps:
+        score: 1926.7
+        color: '#2bff11'
+      healer:
+        score: 2228.8
+        color: '#5ccc77'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1926.7
+        color: '#2bff11'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2228.8
+        color: '#5ccc77'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Hexxoffender
-  class: Shaman
-  race: Dark Iron Dwarf
-  spec: Restoration
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2316.2
-      color: '#5fba8d'
-    dps:
-      score: 2316.2
-      color: '#5fba8d'
-    healer:
-      score: 165.8
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2316.2
-      color: '#5fba8d'
-    spec_1:
-      score: 166.7
-      color: '#ffffff'
-    spec_2:
-      score: 165.8
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 244
+  character:
+    name: Travka
+    id: 189076961
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Feral
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Travka
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 696.6
+        color: '#d8ffc9'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 696.6
+        color: '#d8ffc9'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 696.6
+        color: '#d8ffc9'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 2
+  character:
+    name: Mólfár
+    id: 189147130
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Destruction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Mólfár
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2628.2
+        color: '#3e81cb'
+      dps:
+        score: 2628.2
+        color: '#3e81cb'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2274
+        color: '#5fc382'
+      spec_1:
+        score: 300.8
+        color: '#f7fff4'
+      spec_2:
+        score: 2387.3
+        color: '#5ead9c'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Нежнаяпулька
-  class: Hunter
-  race: Night Elf
-  spec: Marksmanship
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 1738.6
-      color: '#5fff44'
-    dps:
-      score: 1738.6
-      color: '#5fff44'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 1738.6
-      color: '#5fff44'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 262
-- rank: 99
-  name: Oxydenis
-  class: Paladin
-  race: Human
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2471.3
-      color: '#5aa0ab'
-    dps:
-      score: 2471.3
-      color: '#5aa0ab'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2471.3
-      color: '#5aa0ab'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 267
+  character:
+    name: Blackberry
+    id: 189163897
+    level: 84
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 3
+      name: null
+    playable_race:
+      id: 86
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 3
+  character:
+    name: Yokuha
+    id: 189224904
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Demonology
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Yokuha
+    item_level_equipped: 261
+    mythic_plus_scores:
+      all:
+        score: 1130.4
+        color: '#aeff95'
+      dps:
+        score: 1130.4
+        color: '#aeff95'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 691.8
+        color: '#d8ffc9'
+      spec_1:
+        score: 688.9
+        color: '#d8ffc9'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Straponeero
+    id: 189792012
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 84
+      name: Earthen
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 1650.8
+        color: '#6cff50'
+      dps:
+        score: 1650.8
+        color: '#6cff50'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1650.8
+        color: '#6cff50'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Клеосса
+    id: 190326716
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Destruction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/188/190326716-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Клеосса
+    item_level_equipped: 265
+    mythic_plus_scores:
+      all:
+        score: 2152.3
+        color: '#56da64'
+      dps:
+        score: 2152.3
+        color: '#56da64'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2152.3
+        color: '#56da64'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Дедика
+    id: 190326717
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/189/190326717-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Дедика
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2152.3
+        color: '#56da64'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2152.3
+        color: '#56da64'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2152.3
+        color: '#56da64'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Котто
+    id: 191330183
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 4
+      name: Rogue
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Котто
+    item_level_equipped: 239
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Пизнайка
-  class: Druid
-  race: Night Elf
-  spec: Balance
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2855
-      color: '#5c63e3'
-    dps:
-      score: 2855
-      color: '#5c63e3'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2855
-      color: '#5c63e3'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 277
-- rank: 3
-  name: Shennái
-  class: Priest
-  race: Void Elf
-  spec: Shadow
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Ravencrest
-  realm_slug: ravencrest
-  profile_url: https://raider.io/characters/eu/ravencrest/Shennái
-  avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 1811.5
-      color: '#50ff36'
-    dps:
-      score: 1811.5
-      color: '#50ff36'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1811.5
-      color: '#50ff36'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 264
+  character:
+    name: Lishiy
+    id: 194188282
+    level: 88
+    realm:
+      id: 626
+      slug: ragnaros
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
+    item_level_equipped: 157
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
-  name: Athang
-  class: Monk
-  race: Haranir
-  spec: Brewmaster
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Athang
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1853.8
-      color: '#43ff2a'
-    dps:
-      score: 457.7
-      color: '#ebffe3'
-    healer:
-      score: 488.7
-      color: '#e9ffe0'
-    tank:
-      score: 1758.3
-      color: '#5aff3f'
-    spec_0:
-      score: 1758.3
-      color: '#5aff3f'
-    spec_1:
-      score: 488.7
-      color: '#e9ffe0'
-    spec_2:
-      score: 457.7
-      color: '#ebffe3'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 254
+  character:
+    name: Lishiyburn
+    id: 194811483
+    level: 90
+    realm:
+      id: 626
+      slug: ragnaros
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2071.7
+        color: '#4ae84e'
+      dps:
+        score: 2071.7
+        color: '#4ae84e'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2031.3
+        color: '#3ff13c'
+      spec_1:
+        score: 541.7
+        color: '#e5ffda'
+      spec_2:
+        score: 352.4
+        color: '#f3ffee'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Тузольд
-  class: Death Knight
-  race: Void Elf
-  spec: Unholy
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2354.3
-      color: '#5fb692'
-    dps:
-      score: 2354.3
-      color: '#5fb692'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 221.5
-      color: '#ffffff'
-    spec_0:
-      score: 221.5
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2354.3
-      color: '#5fb692'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 270
+  character:
+    name: Зулпот
+    id: 195762608
+    level: 90
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 8
+      name: Troll
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2844.8
+        color: '#4f67e1'
+      dps:
+        score: 2844.8
+        color: '#4f67e1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2844.8
+        color: '#4f67e1'
+      spec_1:
+        score: 325.2
+        color: '#f5fff1'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Жмуякможу
+    id: 195985646
+    level: 90
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/238/195985646-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2644.7
+        color: '#3e81cb'
+      dps:
+        score: 2644.7
+        color: '#3e81cb'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2644.7
+        color: '#3e81cb'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Travka
-  class: Druid
-  race: Haranir
-  spec: Feral
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Travka
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 696.6
-      color: '#d8ffc9'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 696.6
-      color: '#d8ffc9'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 696.6
-      color: '#d8ffc9'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 256
-- rank: 99
-  name: Зулпот
-  class: Hunter
-  race: Troll
-  spec: Beast Mastery
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Howling Fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
-  avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2844.8
-      color: '#4f67e1'
-    dps:
-      score: 2844.8
-      color: '#4f67e1'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2844.8
-      color: '#4f67e1'
-    spec_1:
-      score: 325.2
-      color: '#f5fff1'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 274
+  character:
+    name: Пандашоманко
+    id: 209581664
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 26
+      name: Pandaren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
+    item_level_equipped: 245
+    mythic_plus_scores:
+      all:
+        score: 164.6
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 164.6
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 164.6
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Mólfár
-  class: Warlock
-  race: Human
-  spec: Destruction
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Mólfár
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2628.2
-      color: '#3e81cb'
-    dps:
-      score: 2628.2
-      color: '#3e81cb'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2274
-      color: '#5fc382'
-    spec_1:
-      score: 300.8
-      color: '#f7fff4'
-    spec_2:
-      score: 2387.3
-      color: '#5ead9c'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
+  character:
+    name: Kensshi
+    id: 212966225
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Feral
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/81/212966225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Kensshi
+    item_level_equipped: 235
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Mexamer
+    id: 214528578
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 37
+      name: Mechagnome
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/66/214528578-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
+    item_level_equipped: 260
+    mythic_plus_scores:
+      all:
+        score: 2406.5
+        color: '#5da8a1'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2406.5
+        color: '#5da8a1'
+      spec_0:
+        score: 2406.5
+        color: '#5da8a1'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 2
+  character:
+    name: Sonechco
+    id: 216426673
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2684.6
+        color: '#2d78d4'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2684.6
+        color: '#2d78d4'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2684.6
+        color: '#2d78d4'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
-  name: Technoihor
-  class: Priest
-  race: Mechagnome
-  spec: Holy
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/28/224554268-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 231
-- rank: 99
-  name: Галазард
-  class: Death Knight
-  race: Orc
-  spec: Blood
-  role: TANK
-  gender: male
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Галазард
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2488.3
-      color: '#589baf'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2488.3
-      color: '#589baf'
-    spec_0:
-      score: 2488.3
-      color: '#589baf'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 259
-- rank: 99
-  name: Медведдич
-  class: Druid
-  race: Night Elf
-  spec: Guardian
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2779.3
-      color: '#2c6dde'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2779.3
-      color: '#2c6dde'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2779.3
-      color: '#2c6dde'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 274
-- rank: 99
-  name: Севатар
-  class: Rogue
-  race: Kul Tiran
-  spec: Subtlety
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Lich King
-  realm_slug: lich-king
-  profile_url: https://raider.io/characters/eu/lich-king/Севатар
-  avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2674
-      color: '#2d78d4'
-    dps:
-      score: 2674
-      color: '#2d78d4'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 254.5
-      color: '#fbfff9'
-    spec_2:
-      score: 2674
-      color: '#2d78d4'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 276
-- rank: 99
-  name: Ragnarøøk
-  class: Shaman
-  race: Dark Iron Dwarf
-  spec: Enhancement
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Burning Legion
-  realm_slug: burning-legion
-  profile_url: https://raider.io/characters/eu/burning-legion/Ragnarøøk
-  avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/237/188733933-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2567.7
-      color: '#4e8ebd'
-    dps:
-      score: 2567.7
-      color: '#4e8ebd'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 242.5
-      color: '#fdfffc'
-    spec_1:
-      score: 2567.7
-      color: '#4e8ebd'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
-- rank: 99
-  name: Vurush
-  class: Druid
-  race: Night Elf
-  spec: Balance
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Turalyon
-  realm_slug: turalyon
-  profile_url: https://raider.io/characters/eu/turalyon/Vurush
-  avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2647.1
-      color: '#367dd0'
-    dps:
-      score: 2647.1
-      color: '#367dd0'
-    healer:
-      score: 438.8
-      color: '#edffe5'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2647.1
-      color: '#367dd0'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 438.8
-      color: '#edffe5'
-  item_level_equipped: 274
-- rank: 99
-  name: Корукк
-  class: Hunter
-  race: Haranir
-  spec: Marksmanship
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Корукк
-  avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2635.5
-      color: '#3e81cb'
-    dps:
-      score: 2635.5
-      color: '#3e81cb'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2635.5
-      color: '#3e81cb'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 269
-- rank: 99
-  name: Туманная-303967403
-  class: Druid
-  race: Night Elf
-  spec: Restoration
-  role: HEALING
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Ashenvale
-  realm_slug: ashenvale
-  profile_url: https://raider.io/characters/eu/ashenvale/Туманная-303967403
-  avatar: https://render.worldofwarcraft.com/eu/character/ashenvale/201/263521225-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2746.7
-      color: '#1e74d9'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 2746.7
-      color: '#1e74d9'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 2746.7
-      color: '#1e74d9'
-  item_level_equipped: 261
-- rank: 99
-  name: Thérion
-  class: Warrior
-  race: Highmountain Tauren
-  spec: Fury
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Thérion
-  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1610.3
-      color: '#74ff57'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 1610.3
-      color: '#74ff57'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1610.3
-      color: '#74ff57'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
-- rank: 99
-  name: Мелиодас
-  class: Paladin
-  race: Human
-  spec: Protection
-  role: TANK
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2114
-      color: '#4fe356'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 2114
-      color: '#4fe356'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 2114
-      color: '#4fe356'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 268
-- rank: 99
-  name: Альянсс
-  class: Warrior
-  race: Human
-  spec: Fury
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1194.5
-      color: '#a9ff8f'
-    dps:
-      score: 1194.5
-      color: '#a9ff8f'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 1194.5
-      color: '#a9ff8f'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 253
-- rank: 99
-  name: Щпикачечка
-  class: Demon Hunter
-  race: Night Elf
-  spec: Devourer
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Щпикачечка
-  avatar: https://render.worldofwarcraft.com/eu/character/gordunni/72/265489736-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1084.5
-      color: '#b3ff9b'
-    dps:
-      score: 1084.5
-      color: '#b3ff9b'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1084.5
-      color: '#b3ff9b'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 244
-- rank: 99
-  name: Bernstorff
-  class: Mage
-  race: Void Elf
-  spec: Frost
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Kazzak
-  realm_slug: kazzak
-  profile_url: https://raider.io/characters/eu/kazzak/Bernstorff
-  avatar: https://render.worldofwarcraft.com/eu/character/kazzak/190/224938174-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 246
-- rank: 99
-  name: Kokosik
-  class: Mage
-  race: Gnome
-  spec: Frost
-  role: DPS
-  gender: female
-  faction: alliance
-  region: eu
-  realm: Silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-  avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 2351.9
-      color: '#5fb692'
-    dps:
-      score: 2351.9
-      color: '#5fb692'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 2351.9
-      color: '#5fb692'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 262
-- rank: 99
-  name: Straponeero
-  class: Paladin
-  race: Earthen
-  spec: Retribution
-  role: DPS
-  gender: male
-  faction: horde
-  region: eu
-  realm: Tarren Mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-  avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 1650.8
-      color: '#6cff50'
-    dps:
-      score: 1650.8
-      color: '#6cff50'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 1650.8
-      color: '#6cff50'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 266
-- rank: 99
-  name: Mscapybara
-  class: Mage
-  race: Blood Elf
-  spec: Frost
-  role: DPS
-  gender: female
-  faction: horde
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Mscapybara
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/96/189218656-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
-  mythic_plus_scores:
-    all:
-      score: 990.7
-      color: '#bdffa6'
-    dps:
-      score: 990.7
-      color: '#bdffa6'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 990.7
-      color: '#bdffa6'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 248
-- rank: 99
-  name: Sneydilio
-  class: Paladin
-  race: Dwarf
-  spec: Holy
-  role: HEALING
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
-  avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 2204.1
-      color: '#5ad171'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 2204.1
-      color: '#5ad171'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 2204.1
-      color: '#5ad171'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 264
+  character:
+    name: Plaguenjoyer
+    id: 216474980
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
+    item_level_equipped: 257
+    mythic_plus_scores:
+      all:
+        score: 2320
+        color: '#5fba8d'
+      dps:
+        score: 396.8
+        color: '#f1ffeb'
+      healer:
+        score: 2320
+        color: '#5fba8d'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2320
+        color: '#5fba8d'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 396.8
+        color: '#f1ffeb'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Thortun
+    id: 216855428
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Thortun
+    item_level_equipped: 240
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Ohhchetos
+    id: 217005099
+    level: 90
+    realm:
+      id: 1305
+      slug: kazzak
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 6
+      name: Tauren
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/43/217005099-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Ohhchetos
+    item_level_equipped: 265
+    mythic_plus_scores:
+      all:
+        score: 2659.1
+        color: '#367dd0'
+      dps:
+        score: 2659.1
+        color: '#367dd0'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2659.1
+        color: '#367dd0'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Pwndyøurface
+    id: 217204951
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/215/217204951-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Pwndyøurface
+    item_level_equipped: 225
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: ßøßk
+    id: 217310317
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 22
+      name: Worgen
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/109/217310317-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/ßøßk
+    item_level_equipped: 268
+    mythic_plus_scores:
+      all:
+        score: 2548.5
+        color: '#5292b9'
+      dps:
+        score: 2548.5
+        color: '#5292b9'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2548.5
+        color: '#5292b9'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Threataan
+    id: 220921068
+    level: 80
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/236/220921068-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Threataan
+    item_level_equipped: 122
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Ironbelly
+    id: 220947088
+    level: 80
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 32
+      name: Kul Tiran
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Windwalker
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/144/220947088-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
+    item_level_equipped: 162
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Forchun
+    id: 222519325
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Forchun
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 3017.4
+        color: '#9c3eed'
+      dps:
+        score: 335.8
+        color: '#f5fff1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 3017.4
+        color: '#9c3eed'
+      spec_0:
+        score: 3017.4
+        color: '#9c3eed'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 335.8
+        color: '#f5fff1'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Vîøn
+    id: 223189573
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Arcane
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 3092.5
+        color: '#a937e8'
+      dps:
+        score: 3092.5
+        color: '#a937e8'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2477.3
+        color: '#589baf'
+      spec_1:
+        score: 333.9
+        color: '#f5fff1'
+      spec_2:
+        score: 3033
+        color: '#9c3eed'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Valemor
+    id: 223406910
+    level: 80
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/62/223406910-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Valemor
+    item_level_equipped: 660
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Vertyxa
+    id: 223896122
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
+    item_level_equipped: 263
+    mythic_plus_scores:
+      all:
+        score: 2299.5
+        color: '#5fbf88'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2299.5
+        color: '#5fbf88'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2299.5
+        color: '#5fbf88'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Oxydenis
+    id: 224350574
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
+    item_level_equipped: 267
+    mythic_plus_scores:
+      all:
+        score: 2471.3
+        color: '#5aa0ab'
+      dps:
+        score: 2471.3
+        color: '#5aa0ab'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2471.3
+        color: '#5aa0ab'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Bierdestroer
+    id: 224357833
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 22
+      name: Worgen
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
+    item_level_equipped: 246
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Hexxoffender
+    id: 224379506
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
+    item_level_equipped: 244
+    mythic_plus_scores:
+      all:
+        score: 2316.2
+        color: '#5fba8d'
+      dps:
+        score: 2316.2
+        color: '#5fba8d'
+      healer:
+        score: 165.8
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2316.2
+        color: '#5fba8d'
+      spec_1:
+        score: 166.7
+        color: '#ffffff'
+      spec_2:
+        score: 165.8
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Technoihor
+    id: 224554268
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 37
+      name: Mechagnome
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/28/224554268-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
+    item_level_equipped: 231
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Kokosik
+    id: 224923909
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 7
+      name: Gnome
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
+    item_level_equipped: 262
+    mythic_plus_scores:
+      all:
+        score: 2351.9
+        color: '#5fb692'
+      dps:
+        score: 2351.9
+        color: '#5fb692'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2351.9
+        color: '#5fb692'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Bernstorff
+    id: 224938174
+    level: 90
+    realm:
+      id: 1305
+      slug: kazzak
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/190/224938174-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Bernstorff
+    item_level_equipped: 246
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Нежнаяпулька
+    id: 241191707
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
+    item_level_equipped: 262
+    mythic_plus_scores:
+      all:
+        score: 1783
+        color: '#55ff3b'
+      dps:
+        score: 1783
+        color: '#55ff3b'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 1783
+        color: '#55ff3b'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Нежныйлок
+    id: 242983925
+    level: 87
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 7
+      name: Gnome
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Demonology
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/245/242983925-avatar.jpg?alt=/wow/static/images/2d/avatar/7-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Нежныйлок
+    item_level_equipped: 74
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Амарак
+    id: 253815447
+    level: 84
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Амарак
+    item_level_equipped: 281
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Алфлейм
+    id: 254901253
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Demonology
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/5/254901253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Алфлейм
+    item_level_equipped: 255
+    mythic_plus_scores:
+      all:
+        score: 979.5
+        color: '#bdffa6'
+      dps:
+        score: 979.5
+        color: '#bdffa6'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 979.5
+        color: '#bdffa6'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Зермонг
+    id: 256723546
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 32
+      name: Kul Tiran
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Feral
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/90/256723546-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Зермонг
+    item_level_equipped: 237
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Графдекот
+    id: 257485583
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Feral
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Графдекот
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 2711.6
+        color: '#1e74d9'
+      dps:
+        score: 2711.6
+        color: '#1e74d9'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2711.6
+        color: '#1e74d9'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Кеенди
+    id: 258695967
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Кеенди
+    item_level_equipped: 260
+    mythic_plus_scores:
+      all:
+        score: 2162
+        color: '#56da64'
+      dps:
+        score: 2162
+        color: '#56da64'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2162
+        color: '#56da64'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Кибароу
+    id: 259861164
+    level: 90
+    realm:
+      id: 1604
+      slug: soulflayer
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/172/259861164-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
+    item_level_equipped: 252
+    mythic_plus_scores:
+      all:
+        score: 892.6
+        color: '#c6ffb2'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 892.6
+        color: '#c6ffb2'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 892.6
+        color: '#c6ffb2'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Булкрит
+    id: 261438688
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Булкрит
+    item_level_equipped: 276
+    mythic_plus_scores:
+      all:
+        score: 3019.2
+        color: '#9c3eed'
+      dps:
+        score: 3019.2
+        color: '#9c3eed'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3019.2
+        color: '#9c3eed'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Мортург
+    id: 261921924
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мортург
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 2620.7
+        color: '#3e81cb'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2620.7
+        color: '#3e81cb'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2620.7
+        color: '#3e81cb'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Лилая
+    id: 263141293
+    level: 90
+    realm:
+      id: 1927
+      slug: grom
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/grom/Лилая
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2331.6
+        color: '#5fba8d'
+      dps:
+        score: 2331.6
+        color: '#5fba8d'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2331.6
+        color: '#5fba8d'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Севатар
+    id: 263422759
+    level: 90
+    realm:
+      id: 1603
+      slug: lich-king
+    playable_class:
+      id: 4
+      name: Rogue
+    playable_race:
+      id: 32
+      name: Kul Tiran
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+    profile_url: https://raider.io/characters/eu/lich-king/Севатар
+    item_level_equipped: 276
+    mythic_plus_scores:
+      all:
+        score: 2674
+        color: '#2d78d4'
+      dps:
+        score: 2674
+        color: '#2d78d4'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 254.5
+        color: '#fbfff9'
+      spec_2:
+        score: 2674
+        color: '#2d78d4'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Поливалочки
+    id: 263543893
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 11
+      name: Draenei
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/85/263543893-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
+    item_level_equipped: 260
+    mythic_plus_scores:
+      all:
+        score: 1705.7
+        color: '#63ff48'
+      dps:
+        score: 1705.7
+        color: '#63ff48'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1705.7
+        color: '#63ff48'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Бафометище
+    id: 264527551
+    level: 80
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 6
+      name: Tauren
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/191/264527551-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Бафометище
+    item_level_equipped: 612
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Кумбар
+    id: 264583845
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/165/264583845-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Кумбар
+    item_level_equipped: 263
+    mythic_plus_scores:
+      all:
+        score: 2322.5
+        color: '#5fba8d'
+      dps:
+        score: 2322.5
+        color: '#5fba8d'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2321.2
+        color: '#5fba8d'
+      spec_1:
+        score: 1090
+        color: '#b3ff9b'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Дупця
+    id: 264777282
+    level: 81
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/66/264777282-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Дупця
+    item_level_equipped: 119
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Пизнайка
+    id: 265353321
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Balance
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
+    item_level_equipped: 277
+    mythic_plus_scores:
+      all:
+        score: 2855
+        color: '#5c63e3'
+      dps:
+        score: 2855
+        color: '#5c63e3'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2855
+        color: '#5c63e3'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Тузольд
+    id: 265480191
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Тузольд
+    item_level_equipped: 270
+    mythic_plus_scores:
+      all:
+        score: 2354.3
+        color: '#5fb692'
+      dps:
+        score: 2354.3
+        color: '#5fb692'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 221.5
+        color: '#ffffff'
+      spec_0:
+        score: 221.5
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2354.3
+        color: '#5fb692'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Щпикачечка
+    id: 265489736
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/72/265489736-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Щпикачечка
+    item_level_equipped: 244
+    mythic_plus_scores:
+      all:
+        score: 1084.5
+        color: '#b3ff9b'
+      dps:
+        score: 1084.5
+        color: '#b3ff9b'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1084.5
+        color: '#b3ff9b'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Галазард
+    id: 265562740
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Галазард
+    item_level_equipped: 259
+    mythic_plus_scores:
+      all:
+        score: 2488.3
+        color: '#589baf'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2488.3
+        color: '#589baf'
+      spec_0:
+        score: 2488.3
+        color: '#589baf'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Корукк
+    id: 265652402
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 91
+      name: Haranir
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Корукк
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2635.5
+        color: '#3e81cb'
+      dps:
+        score: 2635.5
+        color: '#3e81cb'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2635.5
+        color: '#3e81cb'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Медведдич
+    id: 265656423
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Медведдич
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2779.3
+        color: '#2c6dde'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2779.3
+        color: '#2c6dde'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2779.3
+        color: '#2c6dde'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Альянсс
+    id: 265698302
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Fury
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+    item_level_equipped: 253
+    mythic_plus_scores:
+      all:
+        score: 1194.5
+        color: '#a9ff8f'
+      dps:
+        score: 1194.5
+        color: '#a9ff8f'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 1194.5
+        color: '#a9ff8f'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
+  character:
+    name: Дятелэлуны
+    id: 265701642
+    level: 10
+    realm:
+      id: 1604
+      slug: soulflayer
+    playable_class:
+      id: 11
+      name: null
+    playable_race:
+      id: 86
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 3
+  character:
+    name: Мелиодас
+    id: 265710889
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
+    item_level_equipped: 268
+    mythic_plus_scores:
+      all:
+        score: 2114
+        color: '#4fe356'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2114
+        color: '#4fe356'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2114
+        color: '#4fe356'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Древесная
+    id: 265764293
+    level: 90
+    realm:
+      id: 1929
+      slug: blackscar
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/blackscar/Древесная
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 2746.7
+        color: '#1e74d9'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2746.7
+        color: '#1e74d9'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2746.7
+        color: '#1e74d9'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard

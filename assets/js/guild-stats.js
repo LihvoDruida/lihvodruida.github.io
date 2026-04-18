@@ -8,7 +8,32 @@
 
   let members = [];
   try {
-    members = JSON.parse(membersDataNode.textContent || '[]');
+    const rawMembers = JSON.parse(membersDataNode.textContent || '[]');
+    const fallbackRegion = (membersDataNode.dataset.region || '').trim().toLowerCase();
+
+    members = rawMembers.map((entry) => {
+      const character = entry?.character || entry || {};
+      const factionType = character?.faction?.type || character?.faction || '';
+      const roleValue = character?.active_spec?.role || character?.role || '';
+      const normalizedRole = String(roleValue).trim().toUpperCase();
+
+      return {
+        rank: entry?.rank ?? character?.rank ?? null,
+        name: character?.name || '',
+        region: character?.region || fallbackRegion,
+        realm: character?.realm?.slug || character?.realm || '',
+        class: character?.playable_class?.name || character?.class || '',
+        race: character?.playable_race?.name || character?.race || '',
+        faction: String(factionType).trim().toLowerCase(),
+        gender: character?.gender || '',
+        spec: character?.active_spec?.name || character?.spec || '',
+        role: normalizedRole === 'HEALING' ? 'healing' : normalizedRole.toLowerCase(),
+        avatar: character?.avatar || '',
+        profile_url: character?.profile_url || '',
+        item_level_equipped: character?.item_level_equipped || 0,
+        mythic_plus_scores: character?.mythic_plus_scores || {},
+      };
+    });
   } catch (error) {
     console.error('Guild stats: failed to parse members JSON.', error);
     return;

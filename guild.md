@@ -20,21 +20,24 @@ permalink: /guild/
         fetchpriority="high"
         onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
       >
-      <span class="guild-logo-fallback faction-icon {{ site.data.guild.guild_info.faction | downcase }}">
-        {% if site.data.guild.guild_info.faction == 'horde' %}🛡️{% else %}🦁{% endif %}
+      <span class="guild-logo-fallback faction-icon {{ site.data.guild.guild.faction.type | downcase }}">
+        {% if site.data.guild.guild.faction.type == 'HORDE' %}🛡️{% else %}🦁{% endif %}
       </span>
     </div>
 
     <div class="guild-info">
       <div class="guild-eyebrow">World of Warcraft Guild</div>
-      <h1 class="guild-name">{{ site.data.guild.guild_info.name }}</h1>
+      <h1 class="guild-name">{{ site.data.guild.guild.name }}</h1>
 
       <div class="guild-meta">
-        <span class="meta-tag">{{ site.data.guild.guild_info.region | upcase }}</span>
-        <span class="meta-tag">{{ site.data.guild.guild_info.realm }}</span>
-        <span class="meta-tag faction-{{ site.data.guild.guild_info.faction | downcase }}">
-          {{ site.data.guild.guild_info.faction | capitalize }}
+        <span class="meta-tag">{{ site.data.guild.metadata.region | upcase }}</span>
+        <span class="meta-tag">{{ site.data.guild.guild.realm.name }}</span>
+        <span class="meta-tag faction-{{ site.data.guild.guild.faction.type | downcase }}">
+          {{ site.data.guild.guild.faction.name }}
         </span>
+        {% if site.data.guild.guild.member_count %}
+        <span class="meta-tag">{{ site.data.guild.guild.member_count }} members</span>
+        {% endif %}
       </div>
 
       <div class="guild-updated">
@@ -44,10 +47,12 @@ permalink: /guild/
   </div>
 
   <div class="guild-actions">
-    <a href="{{ site.data.guild.guild_info.profile_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary">
+    {% if site.data.guild.guild.profile_url %}
+    <a href="{{ site.data.guild.guild.profile_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary">
       <span>Raider.IO</span>
       <span aria-hidden="true">↗</span>
     </a>
+    {% endif %}
     {% if site.data.socials.discord %}
     <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="btn-discord">
       <svg class="discord-icon" viewBox="0 0 127.14 96.36" aria-hidden="true">
@@ -74,124 +79,128 @@ permalink: /guild/
       </div>
       <div class="header-line"></div>
     </div>
-    
-<div class="raid-grid">
-      {% assign has_active_raids = false %}
-      
-      {% for raid in site.data.guild.raid_progression %}
-        {% assign raid_slug = raid[0] %}
-        {% assign stats = raid[1] %}
-        {% assign rankings = site.data.guild.raid_rankings[raid_slug] %}
-        
-        {% assign total_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
-        
-        {% if stats.total_bosses > 0 and total_kills > 0 %}
-          {% assign has_active_raids = true %}
-          <div class="raid-card">
-            <div class="raid-card-header">
-              <div class="raid-heading">
-                <h3 class="raid-title">{{ raid_slug | replace: "-", " " | capitalize }}</h3>
-                <span class="raid-subtitle">Актуальний прогрес рейду</span>
+
+    <div class="raid-grid">
+      {% if site.data.guild.raid_progression and site.data.guild.raid_progression.size > 0 %}
+        {% assign has_active_raids = false %}
+        {% for raid in site.data.guild.raid_progression %}
+          {% assign raid_slug = raid[0] %}
+          {% assign stats = raid[1] %}
+          {% assign rankings = site.data.guild.raid_rankings[raid_slug] %}
+          {% assign total_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
+          {% if stats.total_bosses > 0 and total_kills > 0 %}
+            {% assign has_active_raids = true %}
+            <div class="raid-card">
+              <div class="raid-card-header">
+                <div class="raid-heading">
+                  <h3 class="raid-title">{{ raid_slug | replace: '-', ' ' | capitalize }}</h3>
+                  <span class="raid-subtitle">Актуальний прогрес рейду</span>
+                </div>
+                <div class="raid-score">{{ stats.summary }}</div>
               </div>
-              <div class="raid-score">{{ stats.summary }}</div>
-            </div>
 
-            {% assign world_rank = '-' %}
-            {% assign region_rank = '-' %}
-            {% assign realm_rank = '-' %}
+              {% assign world_rank = '-' %}
+              {% assign region_rank = '-' %}
+              {% assign realm_rank = '-' %}
 
-            {% if rankings.mythic.world and rankings.mythic.world > 0 %}
-              {% assign world_rank = rankings.mythic.world %}
-            {% elsif rankings.heroic.world and rankings.heroic.world > 0 %}
-              {% assign world_rank = rankings.heroic.world %}
-            {% elsif rankings.normal.world and rankings.normal.world > 0 %}
-              {% assign world_rank = rankings.normal.world %}
-            {% endif %}
+              {% if rankings.mythic.world and rankings.mythic.world > 0 %}
+                {% assign world_rank = rankings.mythic.world %}
+              {% elsif rankings.heroic.world and rankings.heroic.world > 0 %}
+                {% assign world_rank = rankings.heroic.world %}
+              {% elsif rankings.normal.world and rankings.normal.world > 0 %}
+                {% assign world_rank = rankings.normal.world %}
+              {% endif %}
 
-            {% if rankings.mythic.region and rankings.mythic.region > 0 %}
-              {% assign region_rank = rankings.mythic.region %}
-            {% elsif rankings.heroic.region and rankings.heroic.region > 0 %}
-              {% assign region_rank = rankings.heroic.region %}
-            {% elsif rankings.normal.region and rankings.normal.region > 0 %}
-              {% assign region_rank = rankings.normal.region %}
-            {% endif %}
+              {% if rankings.mythic.region and rankings.mythic.region > 0 %}
+                {% assign region_rank = rankings.mythic.region %}
+              {% elsif rankings.heroic.region and rankings.heroic.region > 0 %}
+                {% assign region_rank = rankings.heroic.region %}
+              {% elsif rankings.normal.region and rankings.normal.region > 0 %}
+                {% assign region_rank = rankings.normal.region %}
+              {% endif %}
 
-            {% if rankings.mythic.realm and rankings.mythic.realm > 0 %}
-              {% assign realm_rank = rankings.mythic.realm %}
-            {% elsif rankings.heroic.realm and rankings.heroic.realm > 0 %}
-              {% assign realm_rank = rankings.heroic.realm %}
-            {% elsif rankings.normal.realm and rankings.normal.realm > 0 %}
-              {% assign realm_rank = rankings.normal.realm %}
-            {% endif %}
+              {% if rankings.mythic.realm and rankings.mythic.realm > 0 %}
+                {% assign realm_rank = rankings.mythic.realm %}
+              {% elsif rankings.heroic.realm and rankings.heroic.realm > 0 %}
+                {% assign realm_rank = rankings.heroic.realm %}
+              {% elsif rankings.normal.realm and rankings.normal.realm > 0 %}
+                {% assign realm_rank = rankings.normal.realm %}
+              {% endif %}
 
-            <div class="rank-stats">
-              <div class="rank-item" title="Світовий ранг">
-                <span class="rank-icon">🌍</span>
-                <span class="rank-label">Світ</span>
-                <span class="rank-val">{% if world_rank == '-' %}-{% else %}#{{ world_rank }}{% endif %}</span>
+              <div class="rank-stats">
+                <div class="rank-item" title="Світовий ранг">
+                  <span class="rank-icon">🌍</span>
+                  <span class="rank-label">Світ</span>
+                  <span class="rank-val">{% if world_rank == '-' %}-{% else %}#{{ world_rank }}{% endif %}</span>
+                </div>
+                <div class="rank-item" title="Ранг у регіоні (EU)">
+                  <span class="rank-icon">🇪🇺</span>
+                  <span class="rank-label">Європа</span>
+                  <span class="rank-val">{% if region_rank == '-' %}-{% else %}#{{ region_rank }}{% endif %}</span>
+                </div>
+                <div class="rank-item" title="Ранг на сервері">
+                  <span class="rank-icon">🏰</span>
+                  <span class="rank-label">Сервер</span>
+                  <span class="rank-val">{% if realm_rank == '-' %}-{% else %}#{{ realm_rank }}{% endif %}</span>
+                </div>
               </div>
-              <div class="rank-item" title="Ранг у регіоні (EU)">
-                <span class="rank-icon">🇪🇺</span>
-                <span class="rank-label">Європа</span>
-                <span class="rank-val">{% if region_rank == '-' %}-{% else %}#{{ region_rank }}{% endif %}</span>
-              </div>
-              <div class="rank-item" title="Ранг на сервері">
-                <span class="rank-icon">🏰</span>
-                <span class="rank-label">Сервер</span>
-                <span class="rank-val">{% if realm_rank == '-' %}-{% else %}#{{ realm_rank }}{% endif %}</span>
-              </div>
-            </div>
 
-            <div class="raid-bars">
-              <div class="progress-row">
-                <span class="diff-badge mythic">M</span>
-                <div class="progress-meta">
-                  <div class="progress-top">
-                    <span class="progress-name">Mythic</span>
-                    <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
+              <div class="raid-bars">
+                <div class="progress-row">
+                  <span class="diff-badge mythic">M</span>
+                  <div class="progress-meta">
+                    <div class="progress-top">
+                      <span class="progress-name">Mythic</span>
+                      <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                    </div>
                   </div>
-                  <div class="progress-track">
-                    <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                </div>
+                <div class="progress-row">
+                  <span class="diff-badge heroic">H</span>
+                  <div class="progress-meta">
+                    <div class="progress-top">
+                      <span class="progress-name">Heroic</span>
+                      <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="progress-row">
+                  <span class="diff-badge normal">N</span>
+                  <div class="progress-meta">
+                    <div class="progress-top">
+                      <span class="progress-name">Normal</span>
+                      <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="progress-row">
-                <span class="diff-badge heroic">H</span>
-                <div class="progress-meta">
-                  <div class="progress-top">
-                    <span class="progress-name">Heroic</span>
-                    <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
-                  </div>
-                  <div class="progress-track">
-                    <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="progress-row">
-                <span class="diff-badge normal">N</span>
-                <div class="progress-meta">
-                  <div class="progress-top">
-                    <span class="progress-name">Normal</span>
-                    <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
-                  </div>
-                  <div class="progress-track">
-                    <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-      
-      {% unless has_active_raids %}
+          {% endif %}
+        {% endfor %}
+
+        {% unless has_active_raids %}
+        <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
+          <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">💤</div>
+          <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">Немає активних рейдів</h3>
+          <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Гільдія ще не має прогресу в поточному контенті.</p>
+        </div>
+        {% endunless %}
+      {% else %}
       <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
-        <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">💤</div>
-        <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">Немає активних рейдів</h3>
-        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Гільдія ще не має прогресу в поточному контенті.</p>
+        <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">📜</div>
+        <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">У поточному експорті немає рейдового прогресу</h3>
+        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Новий guild.yml містить шапку, склад і Mythic+ дані. Для цього блоку потрібні ще raid_progression та raid_rankings.</p>
       </div>
-      {% endunless %}
-      
+      {% endif %}
     </div>
   </section>
 
@@ -201,14 +210,9 @@ permalink: /guild/
         <div class="icon-box chart-glow">
   <svg viewBox="0 0 90 90" aria-hidden="true">
     <rect x="45.7" y="77.53" width="12.3" height="9.3" fill="currentColor" />
-    <rect x="61.7" y="52.52" width="12.3" height="34.3" fill="currentColor" />
-    <rect x="77.7" y="67.53" width="12.3" height="19.3" fill="currentColor" />
-    <path fill="currentColor" d="M56.808 26.962c-.279 0-.557-.116-.755-.344-.362-.417-.318-1.048.099-1.411l16.956-14.747c.182-.158.415-.246.656-.246H89c.553 0 1 .448 1 1s-.447 1-1 1H74.138L57.464 26.717c-.19.165-.423.245-.656.245z"/>
-    <path fill="currentColor" d="M89 5.665H74.101c-.553 0-1-.448-1-1s.447-1 1-1H89c.553 0 1 .448 1 1s-.447 1-1 1z"/>
-    <path fill="currentColor" d="M16.236 71.271H1c-.552 0-1-.447-1-1s.448-1 1-1h14.862l16.673-14.502c.417-.361 1.049-.318 1.411.099.363.417.318 1.049-.098 1.411L16.893 71.025c-.183.159-.415.246-.657.246z"/>
-    <path fill="currentColor" d="M15.899 77.821H1c-.552 0-1-.447-1-1s.448-1 1-1h14.899c.552 0 1 .447 1 1s-.448 1-1 1z"/>
-    <path fill="currentColor" d="M59.433 28.98c-.758.659-1.692.982-2.623.982-1.118 0-2.229-.465-3.021-1.375-1.449-1.667-1.273-4.193.394-5.643L65.766 12.87c-5.129-4.157-11.527-6.81-18.529-7.271v30.675h30.675c-.435-6.605-2.818-12.674-6.576-17.647L59.433 28.98z"/>
-    <path fill="currentColor" d="M42.844 40.668V5.599C25.669 6.731 12.087 21.011 12.087 38.471c0 8.668 3.352 16.549 8.823 22.432l9.656-8.399c1.667-1.447 4.193-1.273 5.643.394s1.274 4.193-.393 5.644l-8.706 7.572c5.161 3.355 11.315 5.31 17.929 5.31 4.488 0 8.763-.903 12.661-2.528V52.525v-4h4H74h2.42c.801-2.503 1.313-5.134 1.492-7.857H42.844z"/>
+    <rect x="24.02" y="47.29" width="12.3" height="39.54" fill="currentColor" />
+    <rect x="67.38" y="56.85" width="12.3" height="29.98" fill="currentColor" />
+    <path fill="currentColor" d="M82.49,17.13H57.15a1.54,1.54,0,0,0,0,3.07H78.79L53.06,45.93l-14.9-14.9A1.53,1.53,0,0,0,36,31L9.57,57.46A1.54,1.54,0,0,0,11.74,59.63L37.08,34.29,52,49.19a1.53,1.53,0,0,0,2.17,0L81,22.37V44a1.54,1.54,0,0,0,3.07,0V18.67A1.54,1.54,0,0,0,82.49,17.13Z"/>
   </svg>
         </div>
         <div class="title-wrapper">
@@ -216,6 +220,7 @@ permalink: /guild/
           <span class="subtitle">Фракції, броня, RIO та спеки</span>
         </div>
       </div>
+      <div class="header-line"></div>
     </div>
 
     <div class="guild-stats-layout">
@@ -297,7 +302,7 @@ permalink: /guild/
       </article>
     </div>
 
-    <script id="guild-members-json" type="application/json">{{ site.data.guild.members | jsonify }}</script>
+    <script id="guild-members-json" type="application/json" data-region="{{ site.data.guild.metadata.region | escape }}">{{ site.data.guild.members | jsonify }}</script>
     <script src="{{ '/assets/js/guild-stats.js' | relative_url }}" defer></script>
     <script src="{{ '/assets/js/guild-roster-search.js' | relative_url }}" defer></script>
   </section>
@@ -315,17 +320,17 @@ permalink: /guild/
           <span class="subtitle">Склад, професії та M+ рейтинг</span>
         </div>
       </div>
-      
+
       <div class="stat-badge">
         <span class="stat-val">{{ site.data.guild.members | size }}</span>
         <span class="stat-label">Учасники</span>
       </div>
     </div>
 
-    {% assign tanks = site.data.guild.members | where: "role", "TANK" %}
-    {% assign healers = site.data.guild.members | where: "role", "HEALING" %}
-    {% assign dps = site.data.guild.members | where: "role", "DPS" %}
-    {% assign others = site.data.guild.members | where: "role", nil %}
+    {% assign tanks = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'TANK'" %}
+    {% assign healers = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'HEALING'" %}
+    {% assign dps = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'DPS'" %}
+    {% assign others = site.data.guild.members | where_exp: "item", "item.character.active_spec.role != 'TANK' and item.character.active_spec.role != 'HEALING' and item.character.active_spec.role != 'DPS'" %}
 
     <div class="guild-tab-switcher" role="tablist" aria-label="Перемикач між складом, рейтингом і професіями">
       <button type="button" class="guild-tab-button is-active" id="guild-tab-button-roster" data-guild-tab-target="roster" role="tab" aria-selected="true" aria-controls="guild-tab-panel-roster">Склад</button>
@@ -348,7 +353,6 @@ permalink: /guild/
       <p class="roster-empty" id="roster-empty" hidden>Нічого не знайдено. Спробуй інший нік.</p>
 
       <div class="roster-layout" id="roster-layout">
-        
         {% if tanks.size > 0 %}
         <div class="role-column">
           <div class="role-header tank-header">
@@ -400,7 +404,6 @@ permalink: /guild/
           </div>
         </div>
         {% endif %}
-
       </div>
     </div>
 
@@ -452,7 +455,7 @@ permalink: /guild/
           {% assign primary_professions = prof_char.professions.primaries %}
           {% assign cooking_profession = nil %}
           {% for secondary in prof_char.professions.secondaries %}
-            {% if secondary.name == "Cooking" %}
+            {% if secondary.name == 'Cooking' %}
               {% assign cooking_profession = secondary %}
             {% endif %}
           {% endfor %}
@@ -465,7 +468,7 @@ permalink: /guild/
           {% endif %}
           {% if has_any_profession %}
             {% capture profession_search_terms %}{{ prof_char.name }} {{ prof_char.realm }}{% for profession in primary_professions %} {{ profession.name }}{% endfor %}{% if cooking_profession %} {{ cooking_profession.name }}{% endif %}{% endcapture %}
-            <a href="{{ prof_char.profile_url }}" target="_blank" rel="noopener noreferrer" class="profession-card" data-profession-search="{{ profession_search_terms | downcase | strip | escape }}">
+            <a href="{{ prof_char.profile_url | default: '#' }}" target="_blank" rel="noopener noreferrer" class="profession-card" data-profession-search="{{ profession_search_terms | downcase | strip | escape }}">
               <div class="profession-card-head">
                 <div>
                   <div class="profession-card-name">{{ prof_char.name }}</div>
