@@ -12,35 +12,35 @@ extra_js:
 ---
 
 <div class="guild-application-page" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="8">
-  <section class="application-hero">
+  <section class="application-hero application-hero--compact">
     <div class="application-hero__content">
       <span class="section-tag">Набір до гільдії</span>
       <h1>Вступ до Mistblossom Vanguard</h1>
-      <p class="section-subtitle">Заповни коротку заявку, а потім перевір статус просто на сайті. Усе зібрано на одній сторінці, без довгих анкет і зайвих кроків.</p>
+      <p class="section-subtitle">Коротка заявка, швидкий розгляд і актуальний статус прямо на сайті.</p>
 
       <div class="application-hero__chips">
         <span class="application-chip">Alliance</span>
         <span class="application-chip">Рейди та Mythic+</span>
-        <span class="application-chip">Коротка заявка</span>
+        <span class="application-chip">Discord</span>
       </div>
 
       <div class="application-hero__actions">
         <a href="#guild-application-form" class="application-primary-link">Заповнити заявку</a>
-        <a href="{{ '/guild/applications/' | relative_url }}" class="application-secondary-link">Переглянути всі заявки</a>
+        <a href="{{ '/guild/applications/' | relative_url }}" class="application-secondary-link">Усі заявки</a>
       </div>
     </div>
 
     <div class="application-hero__panel">
-      <div class="application-info-card">
-        <h2>Як усе відбувається</h2>
-        <ol class="application-steps">
-          <li><strong>Заповни форму.</strong> Достатньо персонажа, класу, контактів і часу, коли ти зазвичай онлайн.</li>
-          <li><strong>Дочекайся розгляду.</strong> Поки заявка відкрита, вона вважається активною і чекає на відповідь.</li>
-          <li><strong>Перевір статус.</strong> Коли розгляд завершиться, це одразу буде видно в списку заявок.</li>
+      <div class="application-info-card application-info-card--compact">
+        <h2>Як це працює</h2>
+        <ol class="application-steps application-steps--compact">
+          <li><strong>Надішли заявку.</strong> Заповни кілька полів про персонажа й контакти.</li>
+          <li><strong>Дочекайся відповіді.</strong> Відкриті заявки залишаються на розгляді.</li>
+          <li><strong>Слідкуй за статусом.</strong> Оновлення з’являються у списку заявок.</li>
         </ol>
 
         {% if site.data.socials.discord %}
-        <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="application-discord-link">Приєднатися до Discord</a>
+        <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="application-discord-link">Discord гільдії</a>
         {% endif %}
       </div>
     </div>
@@ -81,10 +81,10 @@ extra_js:
 
   <section class="application-layout">
     <div class="application-form-card">
-      <div class="application-section-head">
+      <div class="application-section-head application-section-head--tight">
         <span class="section-tag">Форма заявки</span>
-        <h2>Кілька коротких полів — і все готово</h2>
-        <p>Заявка лишається короткою, щоб її було зручно заповнити і з комп’ютера, і з телефона.</p>
+        <h2>Коротка заявка без зайвого</h2>
+        <p>Вибери клас, залиш контакти й напиши, коли ти зазвичай онлайн.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
@@ -101,9 +101,24 @@ extra_js:
             <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
           </label>
 
-          <label class="form-field">
+          <label class="form-field form-field--select">
             <span>Клас</span>
-            <input type="text" name="className" maxlength="60" placeholder="Druid" required>
+            <select name="className" required>
+              <option value="" selected disabled>Обери клас</option>
+              <option value="Warrior">Warrior</option>
+              <option value="Paladin">Paladin</option>
+              <option value="Hunter">Hunter</option>
+              <option value="Rogue">Rogue</option>
+              <option value="Priest">Priest</option>
+              <option value="Death Knight">Death Knight</option>
+              <option value="Shaman">Shaman</option>
+              <option value="Mage">Mage</option>
+              <option value="Warlock">Warlock</option>
+              <option value="Monk">Monk</option>
+              <option value="Druid">Druid</option>
+              <option value="Demon Hunter">Demon Hunter</option>
+              <option value="Evoker">Evoker</option>
+            </select>
           </label>
         </div>
 
@@ -121,12 +136,12 @@ extra_js:
 
         <label class="form-field">
           <span>Коли зазвичай граєш</span>
-          <textarea name="availability" rows="4" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні переважно ввечері" required></textarea>
+          <textarea name="availability" rows="3" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні ввечері" required></textarea>
         </label>
 
         <div class="form-actions">
           <button type="submit" class="btn-application-submit">Надіслати заявку</button>
-          <p class="form-hint">Після відправлення заявка одразу з’явиться у списку недавніх заявок.</p>
+          <p class="form-hint">Після відправлення її можна одразу відкрити та перевірити статус.</p>
         </div>
 
         <div id="guild-application-feedback" class="form-feedback" aria-live="polite"></div>
@@ -137,7 +152,7 @@ extra_js:
       <div class="application-section-head application-section-head--compact">
         <span class="section-tag">Недавні заявки</span>
         <h2 id="applications-status-heading">Останні звернення</h2>
-        <p>Тут показуються лише кілька найсвіжіших заявок. Повний список доступний на окремій сторінці.</p>
+        <p>Тут показуються лише кілька останніх заявок. Повний список відкривається на окремій сторінці.</p>
       </div>
 
       <div class="status-toolbar status-toolbar--stacked">
