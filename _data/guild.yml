@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-18 17:59:35'
+  updated_at: '2026-04-18 20:39:08'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 99
+  member_count: 101
   achievement_points: 395
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12903
-      region: 5722
+      world: 12923
+      region: 5739
       realm: 54
     heroic:
-      world: 14706
-      region: 6172
+      world: 14745
+      region: 6196
       realm: 48
     mythic:
       world: 0
@@ -161,58 +161,6 @@ members:
       spec_2:
         score: 409.9
         color: '#efffe9'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Seidhe
-    id: 175155212
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 2
-      name: Paladin
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/175155212-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Seidhe
-    item_level_equipped: 270
-    mythic_plus_scores:
-      all:
-        score: 2696.5
-        color: '#2d78d4'
-      dps:
-        score: 2696.5
-        color: '#2d78d4'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2696.5
-        color: '#2d78d4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -525,58 +473,6 @@ members:
       spec_2:
         score: 2054.2
         color: '#3ff13c'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 3
-  character:
-    name: Eidis
-    id: 177685839
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 31
-      name: Zandalari Troll
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Arms
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/79/177685839-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Eidis
-    item_level_equipped: 271
-    mythic_plus_scores:
-      all:
-        score: 2696.5
-        color: '#2d78d4'
-      dps:
-        score: 2696.5
-        color: '#2d78d4'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2696.5
-        color: '#2d78d4'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1056,7 +952,7 @@ members:
   character:
     name: Redray
     id: 186629903
-    level: 84
+    level: 85
     realm:
       id: 1415
       slug: terokkar
@@ -1441,11 +1337,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2647.1
-        color: '#3e81cb'
+        score: 2684.1
+        color: '#367dd0'
       dps:
-        score: 2647.1
-        color: '#3e81cb'
+        score: 2684.1
+        color: '#367dd0'
       healer:
         score: 438.8
         color: '#edffe6'
@@ -1453,8 +1349,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2647.1
-        color: '#3e81cb'
+        score: 2684.1
+        color: '#367dd0'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1830,23 +1726,23 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
-    item_level_equipped: 265
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2243.3
-        color: '#5ccc77'
+        score: 2280
+        color: '#5ec87d'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2243.3
-        color: '#5ccc77'
+        score: 2280
+        color: '#5ec87d'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2243.3
-        color: '#5ccc77'
+        score: 2280
+        color: '#5ec87d'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1986,13 +1882,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 264
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1802.6
+        score: 1819.6
         color: '#54ff3a'
       dps:
-        score: 1802.6
+        score: 1819.6
         color: '#54ff3a'
       healer:
         score: 0
@@ -2007,7 +1903,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1802.6
+        score: 1819.6
         color: '#54ff3a'
       spec_3:
         score: 0
@@ -2901,8 +2797,8 @@ members:
     item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 2451
-        color: '#5da8a1'
+        score: 2470.8
+        color: '#5ca4a6'
       dps:
         score: 0
         color: '#ffffff'
@@ -2910,11 +2806,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2451
-        color: '#5da8a1'
+        score: 2470.8
+        color: '#5ca4a6'
       spec_0:
-        score: 2451
-        color: '#5da8a1'
+        score: 2470.8
+        color: '#5ca4a6'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3577,10 +3473,10 @@ members:
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2477.5
+        score: 2478.9
         color: '#5ca4a6'
       dps:
-        score: 2477.5
+        score: 2478.9
         color: '#5ca4a6'
       healer:
         score: 0
@@ -3595,7 +3491,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2477.5
+        score: 2478.9
         color: '#5ca4a6'
       spec_3:
         score: 0
@@ -3972,7 +3868,7 @@ members:
   character:
     name: Амарак
     id: 253815447
-    level: 85
+    level: 90
     realm:
       id: 1602
       slug: gordunni
@@ -5191,4 +5087,188 @@ members:
     sources:
       roster: blizzard
       enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Bullimonk
+    id: 176655838
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 28
+      name: Highmountain Tauren
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/176655838-avatar.jpg?alt=/wow/static/images/2d/avatar/28-1.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Bullimonk
+    item_level_equipped: 276
+    mythic_plus_scores:
+      all:
+        score: 3026.8
+        color: '#9b3eec'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 3026.8
+        color: '#9b3eec'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 3026.8
+        color: '#9b3eec'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Rozbiynik
+    id: 176857060
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 4
+      name: Rogue
+    playable_race:
+      id: 5
+      name: Undead
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 3026.8
+        color: '#9b3eec'
+      dps:
+        score: 3026.8
+        color: '#9b3eec'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3026.8
+        color: '#9b3eec'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Bylik
+    id: 183464576
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 6
+      name: Tauren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/128/183464576-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Bylik
+    item_level_equipped: 270
+    mythic_plus_scores:
+      all:
+        score: 2653.8
+        color: '#3e81cb'
+      dps:
+        score: 2653.8
+        color: '#3e81cb'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1453.5
+        color: '#8bff6e'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2411.5
+        color: '#5ead9c'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Марлая
+    id: 265853063
+    level: 81
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 5
+      name: null
+    playable_race:
+      id: 11
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
       professions: blizzard
