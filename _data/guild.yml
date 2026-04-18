@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-18 02:33:29'
+  updated_at: '2026-04-18 05:43:10'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12862
-      region: 5716
+      world: 12874
+      region: 5718
       realm: 54
     heroic:
-      world: 14584
-      region: 6152
+      world: 14636
+      region: 6157
       realm: 48
     mythic:
       world: 0
@@ -2132,7 +2132,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 253
+  item_level_equipped: 246
 - rank: 99
   name: Кумбар
   class: Shaman
