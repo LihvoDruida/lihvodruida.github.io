@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Гайди та Інструкції
+title: Гайди та інструкції по WoW
 permalink: /guides/
-description: "Корисні гайди, налаштування та інструкції для World of Warcraft 3.3.5a"
+description: "Корисні гайди по World of Warcraft: рейди, Mythic+, професії, Android/Winlator, налаштування та практичні поради українською."
 image: /assets/img/og-image-default.webp
+tags: [World of Warcraft, WoW, гайди, Mythic+, рейди, професії]
 ---
 
 <div class="area-content">
@@ -24,15 +25,15 @@ image: /assets/img/og-image-default.webp
             </svg>
         </div>
         
-        <h2>Бібліотека порожня...</h2>
+        <h2>Гайди ще не опубліковані</h2>
         
         <p>
-            Схоже, архіваріуси Даларана ще не переписали стародавні сувої. 
-            Книжкові полиці поки що припадають пилом.
+            У цьому розділі ще немає матеріалів або вони тимчасово не потрапили в збірку.
+            Коли з’являться нові гайди, вони автоматично з’являться тут.
         </p>
         
         <div class="empty-action">
-            <span class="wow-tip">Поки чекаєте, перегляньте <a href="{{ '/news/' | relative_url }}">Стрічку новин</a>.</span>
+            <span class="wow-tip">Поки що можна перевірити <a href="{{ '/news/' | relative_url }}">новини</a> або <a href="{{ '/guild/' | relative_url }}">сторінку гільдії</a>.</span>
         </div>
     </div>
 

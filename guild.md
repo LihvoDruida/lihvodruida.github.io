@@ -1,8 +1,17 @@
 ---
 layout: default
-title: Статистика гільдії
+title: Гільдія Mistblossom Vanguard
 permalink: /guild/
+description: "Сторінка гільдії Mistblossom Vanguard: склад, ранги, Raider.IO профілі, рейдовий прогрес, статистика ролей та професії учасників."
+image: /assets/img/og-image-default.webp
+tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, рейди, професії]
 ---
+
+{% assign guild_root = site.data.guild %}
+{% assign guild_meta = guild_root.metadata | default: empty %}
+{% assign guild_info = guild_root.guild | default: empty %}
+{% assign guild_members = guild_root.members | default: empty %}
+{% assign guild_professions = site.data.professions.characters | default: empty %}
 
 <div class="guild-page-container">
 
@@ -20,38 +29,38 @@ permalink: /guild/
         fetchpriority="high"
         onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
       >
-      <span class="guild-logo-fallback faction-icon {{ site.data.guild.guild.faction.type | downcase }}">
-        {% if site.data.guild.guild.faction.type == 'HORDE' %}🛡️{% else %}🦁{% endif %}
+      <span class="guild-logo-fallback faction-icon {{ guild_info.faction.type | downcase }}">
+        {% if guild_info.faction.type == 'HORDE' %}🛡️{% else %}🦁{% endif %}
       </span>
     </div>
 
     <div class="guild-info">
-      <div class="guild-eyebrow">World of Warcraft Guild</div>
-      <h1 class="guild-name">{{ site.data.guild.guild.name }}</h1>
+      <div class="guild-eyebrow">Гільдія World of Warcraft</div>
+      <h1 class="guild-name">{{ guild_info.name }}</h1>
 
       <div class="guild-meta">
-        <span class="meta-tag">{{ site.data.guild.metadata.region | upcase }}</span>
-        <span class="meta-tag">{{ site.data.guild.guild.realm.name }}</span>
-        <span class="meta-tag faction-{{ site.data.guild.guild.faction.type | downcase }}">
-          {{ site.data.guild.guild.faction.name }}
+        <span class="meta-tag">{{ guild_meta.region | upcase }}</span>
+        <span class="meta-tag">{{ guild_info.realm.name }}</span>
+        <span class="meta-tag faction-{{ guild_info.faction.type | downcase }}">
+          {{ guild_info.faction.name }}
         </span>
-        {% if site.data.guild.guild.member_count %}
-        <span class="meta-tag">{{ site.data.guild.guild.member_count }} members</span>
+        {% if guild_info.member_count %}
+        <span class="meta-tag">{{ guild_info.member_count }} учасників</span>
         {% endif %}
       </div>
 
       <div class="guild-updated">
-        <span class="updated-pill">Оновлено: {{ site.data.guild.metadata.updated_at }}</span>
-        {% if site.data.guild.metadata.raider_io_last_crawled_at %}
-        <span class="updated-pill">Raider.IO crawl: {{ site.data.guild.metadata.raider_io_last_crawled_at }}</span>
+        <span class="updated-pill">Оновлено: {{ guild_meta.updated_at }}</span>
+        {% if guild_meta.raider_io_last_crawled_at %}
+        <span class="updated-pill">Скан Raider.IO: {{ guild_meta.raider_io_last_crawled_at }}</span>
         {% endif %}
       </div>
     </div>
   </div>
 
-  {% assign rio_url = site.data.guild.guild.profile_url %}
+  {% assign rio_url = guild_info.profile_url %}
   {% unless rio_url %}
-    {% capture rio_url %}https://raider.io/guilds/{{ site.data.guild.metadata.region }}/{{ site.data.guild.guild.realm.slug }}/{{ site.data.guild.guild.name | uri_escape }}{% endcapture %}
+    {% capture rio_url %}https://raider.io/guilds/{{ guild_meta.region }}/{{ guild_info.realm.slug }}/{{ guild_info.name | uri_escape }}{% endcapture %}
   {% endunless %}
 
   <div class="guild-actions">
@@ -87,12 +96,12 @@ permalink: /guild/
     </div>
 
     <div class="raid-grid">
-      {% if site.data.guild.raid_progression and site.data.guild.raid_progression.size > 0 %}
+      {% if guild_root.raid_progression and guild_root.raid_progression.size > 0 %}
         {% assign has_active_raids = false %}
-        {% for raid in site.data.guild.raid_progression %}
+        {% for raid in guild_root.raid_progression %}
           {% assign raid_slug = raid[0] %}
           {% assign stats = raid[1] %}
-          {% assign rankings = site.data.guild.raid_rankings[raid_slug] %}
+          {% assign rankings = guild_root.raid_rankings[raid_slug] %}
           {% assign total_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
           {% if stats.total_bosses > 0 and total_kills > 0 %}
             {% assign has_active_raids = true %}
@@ -308,7 +317,7 @@ permalink: /guild/
       </article>
     </div>
 
-    <script id="guild-members-json" type="application/json" data-region="{{ site.data.guild.metadata.region | escape }}">{{ site.data.guild.members | jsonify }}</script>
+    <script id="guild-members-json" type="application/json" data-region="{{ guild_meta.region | escape }}">{{ guild_members | jsonify }}</script>
     <script src="{{ '/assets/js/guild-stats.js' | relative_url }}" defer></script>
     <script src="{{ '/assets/js/guild-roster-search.js' | relative_url }}" defer></script>
   </section>
@@ -328,15 +337,15 @@ permalink: /guild/
       </div>
 
       <div class="stat-badge">
-        <span class="stat-val">{{ site.data.guild.members | size }}</span>
+        <span class="stat-val">{{ guild_members | size }}</span>
         <span class="stat-label">Учасники</span>
       </div>
     </div>
 
-    {% assign tanks = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'TANK'" %}
-    {% assign healers = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'HEALING'" %}
-    {% assign dps = site.data.guild.members | where_exp: "item", "item.character.active_spec.role == 'DPS'" %}
-    {% assign others = site.data.guild.members | where_exp: "item", "item.character.active_spec.role != 'TANK' and item.character.active_spec.role != 'HEALING' and item.character.active_spec.role != 'DPS'" %}
+    {% assign tanks = guild_members | where_exp: "item", "item.character.active_spec.role == 'TANK'" %}
+    {% assign healers = guild_members | where_exp: "item", "item.character.active_spec.role == 'HEALING'" %}
+    {% assign dps = guild_members | where_exp: "item", "item.character.active_spec.role == 'DPS'" %}
+    {% assign others = guild_members | where_exp: "item", "item.character.active_spec.role != 'TANK' and item.character.active_spec.role != 'HEALING' and item.character.active_spec.role != 'DPS'" %}
 
     <div class="guild-tab-switcher" role="tablist" aria-label="Перемикач між складом, рейтингом і професіями">
       <button type="button" class="guild-tab-button is-active" id="guild-tab-button-roster" data-guild-tab-target="roster" role="tab" aria-selected="true" aria-controls="guild-tab-panel-roster">Склад</button>
@@ -353,7 +362,7 @@ permalink: /guild/
           <input id="roster-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку" autocomplete="off" spellcheck="false" inputmode="search">
           <button type="button" class="roster-search-clear" id="roster-search-clear" aria-label="Очистити пошук" hidden>×</button>
         </label>
-        <div class="roster-search-meta" id="roster-search-meta">Показано всіх: {{ site.data.guild.members | size }}</div>
+        <div class="roster-search-meta" id="roster-search-meta">Показано всіх: {{ guild_members | size }}</div>
       </div>
 
       <p class="roster-empty" id="roster-empty" hidden>Нічого не знайдено. Спробуй інший нік.</p>
@@ -411,6 +420,13 @@ permalink: /guild/
         </div>
         {% endif %}
       </div>
+      {% else %}
+      <div class="empty-state-wow" style="margin-top: 8px;">
+        <div class="empty-icon-glow">👥</div>
+        <h2>Склад гільдії ще не завантажено</h2>
+        <p>У поточному <code>guild.yml</code> немає членів гільдії. Перевір збірку даних або запусти <code>scripts/update_guild.py</code> ще раз.</p>
+      </div>
+      {% endif %}
     </div>
 
     <div class="guild-tab-panel" id="guild-tab-panel-ranking" data-guild-tab-panel="ranking" role="tabpanel" aria-labelledby="guild-tab-button-ranking" hidden>
@@ -430,16 +446,24 @@ permalink: /guild/
           <input id="ranking-search-input" class="roster-search-input" type="search" placeholder="Пошук по ніку, класу або ролі" autocomplete="off" spellcheck="false" inputmode="search">
           <button type="button" class="roster-search-clear" id="ranking-search-clear" aria-label="Очистити пошук" hidden>×</button>
         </label>
-        <div class="roster-search-meta" id="ranking-search-meta">Позицій: {{ site.data.guild.members | size }}</div>
+        <div class="roster-search-meta" id="ranking-search-meta">Позицій: {{ guild_members | size }}</div>
       </div>
 
       <p class="roster-empty" id="ranking-empty" hidden>Нічого не знайдено. Спробуй інший нік, клас або роль.</p>
 
+      {% if guild_members and guild_members.size > 0 %}
       <div class="ranking-list" id="ranking-list">
-        {% for char in site.data.guild.members %}
+        {% for char in guild_members %}
           {% include member-rating-card.html char=char %}
         {% endfor %}
       </div>
+      {% else %}
+      <div class="empty-state-wow" style="margin-top: 8px;">
+        <div class="empty-icon-glow">📊</div>
+        <h2>Рейтинг поки що недоступний</h2>
+        <p>Для цього блоку потрібні дані про склад і Raider.IO enrichment. Після наступного успішного оновлення список заповниться автоматично.</p>
+      </div>
+      {% endif %}
     </div>
 
     <div class="guild-tab-panel" id="guild-tab-panel-professions" data-guild-tab-panel="professions" role="tabpanel" aria-labelledby="guild-tab-button-professions" hidden>
@@ -451,13 +475,14 @@ permalink: /guild/
           <input id="profession-search-input" class="roster-search-input" type="search" placeholder="Пошук по професії або ніку" autocomplete="off" spellcheck="false" inputmode="search">
           <button type="button" class="roster-search-clear" id="profession-search-clear" aria-label="Очистити пошук" hidden>×</button>
         </label>
-        <div class="roster-search-meta" id="profession-search-meta">Показано всіх: {{ site.data.professions.characters | size }}</div>
+        <div class="roster-search-meta" id="profession-search-meta">Показано всіх: {{ guild_professions | size }}</div>
       </div>
 
       <p class="roster-empty" id="profession-empty" hidden>Нічого не знайдено. Спробуй іншу професію або нік.</p>
 
+      {% if guild_professions and guild_professions.size > 0 %}
       <div class="profession-grid" id="profession-grid">
-        {% for prof_char in site.data.professions.characters %}
+        {% for prof_char in guild_professions %}
           {% assign primary_professions = prof_char.professions.primaries %}
           {% assign cooking_profession = nil %}
           {% for secondary in prof_char.professions.secondaries %}
@@ -543,6 +568,13 @@ permalink: /guild/
           {% endif %}
         {% endfor %}
       </div>
+      {% else %}
+      <div class="empty-state-wow" style="margin-top: 8px;">
+        <div class="empty-icon-glow">⚒️</div>
+        <h2>Професії ще не синхронізовані</h2>
+        <p>У файлі <code>professions.yml</code> поки що немає персонажів із професіями. Перевір Blizzard credentials і повторно запусти <code>scripts/update_guild.py</code>.</p>
+      </div>
+      {% endif %}
     </div>
   </section>
 </div>

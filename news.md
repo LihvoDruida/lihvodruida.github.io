@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Новини та Події
+title: Новини World of Warcraft і спільноти
 permalink: /news/
-description: "Останні новини сервера, оновлення World of Warcraft 3.3.5a та події спільноти."
+description: "Останні новини по World of Warcraft, гільдії Mistblossom Vanguard, оновлення сайту та важливі події спільноти."
 image: /assets/img/og-image-default.webp
+tags: [World of Warcraft, WoW, новини, гільдія, Mistblossom Vanguard, оновлення]
 ---
 
 <div class="area-content">
@@ -23,15 +24,15 @@ image: /assets/img/og-image-default.webp
             </svg>
         </div>
         
-        <h2>Свиток порожній...</h2>
+        <h2>Новин поки що немає</h2>
         
         <p>
-            Наші гінці ще не повернулися з Нордсколу, а гобліни-друкарі вимагають подвійну плату за чорнила. 
-            Зазирайте пізніше, герою!
+            Стрічка новин ще не наповнена або нові матеріали зараз готуються до публікації.
+            Це нормальний порожній стан, а не помилка збірки сайту.
         </p>
         
         <div class="empty-action">
-            <span class="wow-tip">Поки чекаєте, перегляньте <a href="{{ '/guides/' | relative_url }}">Гайди</a>.</span>
+            <span class="wow-tip">Поки що можна перейти до <a href="{{ '/guides/' | relative_url }}">гайдів</a> або на <a href="{{ '/guild/' | relative_url }}">сторінку гільдії</a>.</span>
         </div>
     </div>
 

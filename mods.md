@@ -1,7 +1,10 @@
 ---
 layout: default
-title: Мої Адони
+title: Адони та мої проєкти
 permalink: /mods/
+description: "Каталог моїх адонів і модифікацій для World of Warcraft та інших ігор з актуальними версіями, описами й посиланнями на CurseForge."
+image: /assets/img/og-image-default.webp
+tags: [CurseForge, адони, World of Warcraft, WoW, моди, Lihvo_Druida]
 ---
 
 <div class="guild-page-container">
@@ -16,13 +19,13 @@ permalink: /mods/
         <div class="guild-meta">
           <span class="meta-tag">World of Warcraft</span>
           <span class="meta-separator">/</span>
-          <span class="meta-tag">Addons</span>
+          <span class="meta-tag">Адони</span>
         </div>
       </div>
     </div>
     <div class="guild-actions">
-      <a href="https://www.curseforge.com/members/YOUR_NAME/projects" target="_blank" rel="noopener noreferrer" class="btn-discord">
-        CurseForge Profile <span>↗</span>
+      <a href="{{ site.curseforge_profile_url }}" target="_blank" rel="noopener noreferrer" class="btn-discord">
+        CurseForge автора <span>↗</span>
       </a>
     </div>
   </header>
@@ -41,11 +44,12 @@ permalink: /mods/
       
       <div class="stat-badge">
         <span class="stat-val">{{ site.data.my_mods | size }}</span>
-        <span class="stat-label">Projects</span>
+        <span class="stat-label">Проєктів</span>
       </div>
     </div>
 
     <div class="mods-grid">
+      {% if site.data.my_mods and site.data.my_mods.size > 0 %}
       {% for mod in site.data.my_mods %}
       <div class="mod-card">
         
@@ -114,12 +118,19 @@ permalink: /mods/
 
           </div>
           <a href="{{ mod.link }}" target="_blank" rel="noopener noreferrer" class="btn-mod-download">
-            Download
+            Відкрити
           </a>
         </div>
 
       </div>
       {% endfor %}
+    {% else %}
+      <div class="empty-state-wow" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="empty-icon-glow">🧰</div>
+        <h2>Каталог ще не заповнений</h2>
+        <p>Зараз у файлі <code>_data/my_mods.yml</code> немає жодного проєкту або дані ще не оновилися після синхронізації.</p>
+      </div>
+    {% endif %}
     </div>
 
   </section>

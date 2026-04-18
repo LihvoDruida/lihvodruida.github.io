@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: site.lang | default: 'uk' }}">
 <head>
+  {% assign raw_description = page.description | default: page.excerpt | default: site.description %}
+  {% assign meta_description = raw_description | strip_html | normalize_whitespace | strip %}
+  {% assign page_author = page.author.name | default: page.author | default: site.author.name | default: site.author %}
+  {% assign page_keywords = page.keywords | default: page.tags | default: page.categories | default: site.default_keywords %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2a2118">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="{{ page.description | default: site.description | strip_html | normalize_whitespace | escape }}">
+  <meta name="description" content="{{ meta_description | escape }}">
+  <meta name="author" content="{{ page_author | escape }}">
+  <meta name="robots" content="{{ page.robots | default: 'index, follow, max-image-preview:large' | escape }}">
+  {% if page_keywords %}
+    {% if page_keywords.first %}
+  <meta name="keywords" content="{{ page_keywords | join: ', ' | escape }}">
+    {% else %}
+  <meta name="keywords" content="{{ page_keywords | escape }}">
+    {% endif %}
+  {% endif %}
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
 
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="any">

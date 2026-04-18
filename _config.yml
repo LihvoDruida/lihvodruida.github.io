@@ -1,27 +1,43 @@
 # ==============================================================================
 # SITE SETTINGS
 # ==============================================================================
-title: Sebas — Gaming Profile
+title: Лігво Себаса
+tagline: WoW гайди, гільдія, адони та новини
 description: >-
-  Профіль гравця та центр новин про World of Warcraft, адони,
-  тактики та корисний контент для спільноти.
+  Україномовний хаб про World of Warcraft: гайди, адони, новини,
+  сторінка гільдії Mistblossom Vanguard, Raider.IO статистика та корисні матеріали для спільноти.
 lang: uk
-author: Sebas
+locale: uk_UA
+author:
+  name: Sebas
+  url: https://lihvodruida.pp.ua/
 email: lihvo.druida@gmail.com
 timezone: Europe/Kyiv
 logo: /assets/img/guild-logo.webp
 image: /assets/img/og-image-default.webp
-
 url: "https://lihvodruida.pp.ua"
 baseurl: ""
 
 social:
-  name: Sebas
+  name: Лігво Себаса
   links:
     - https://www.youtube.com/@lihvo_druida
     - https://www.tiktok.com/@lihvo_druida
     - https://www.twitch.tv/lihvo_druida/about
     - https://discord.gg/SR8JsQBCxn
+
+curseforge_profile_url: https://www.curseforge.com/members/lihvo_druida
+default_keywords:
+  - World of Warcraft
+  - WoW
+  - Warcraft
+  - Raider.IO
+  - гільдія
+  - гайди
+  - адони
+  - Mythic+
+  - рейди
+  - українською
 
 # ==============================================================================
 # BUILD SETTINGS
@@ -40,8 +56,8 @@ collections:
   news:
     output: true
     permalink: /news/:slug/
-    sort_by: date 
-    
+    sort_by: date
+
   guides:
     output: true
     permalink: /guides/:slug/
@@ -55,7 +71,8 @@ defaults:
     values:
       layout: default
       image: /assets/img/news-placeholder.webp
-  
+      robots: index, follow, max-image-preview:large
+
   - scope:
       path: ""
       type: news
@@ -63,7 +80,9 @@ defaults:
       layout: news
       categories: ["новини"]
       comments: true
-  
+      seo:
+        type: NewsArticle
+
   - scope:
       path: ""
       type: guides
@@ -71,15 +90,17 @@ defaults:
       layout: guides
       categories: ["гайди"]
       toc: true
+      seo:
+        type: Article
 
 # ==============================================================================
 # PLUGINS (Стандартний набір GitHub Pages)
 # ==============================================================================
 plugins:
-  - jekyll-seo-tag  # Автоматично генерує мета-теги для Google та Facebook
-  - jekyll-sitemap  # Створює sitemap.xml для Google Search Console
-  - jekyll-feed     # Створює RSS стрічку
-  - jekyll-include-cache # Пришвидшує збірку сайту
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-include-cache
 
 exclude:
   - Gemfile
