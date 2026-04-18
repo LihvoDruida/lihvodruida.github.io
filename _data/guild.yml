@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 20:48:05'
+  updated_at: '2026-04-18 02:33:29'
   source: Raider.IO API + Blizzard Professions API
 guild_info:
   name: Mistblossom Vanguard
@@ -41,12 +41,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 12827
-      region: 5701
+      world: 12862
+      region: 5716
       realm: 54
     heroic:
-      world: 14509
-      region: 6132
+      world: 14584
+      region: 6152
       realm: 48
     mythic:
       world: 0
@@ -273,9 +273,33 @@ members:
   realm: Howling Fjord
   realm_slug: howling-fjord
   profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
-  avatar: null
-  mythic_plus_scores: {}
-  item_level_equipped: 0
+  avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+  mythic_plus_scores:
+    all:
+      score: 0
+      color: '#ffffff'
+    dps:
+      score: 0
+      color: '#ffffff'
+    healer:
+      score: 0
+      color: '#ffffff'
+    tank:
+      score: 0
+      color: '#ffffff'
+    spec_0:
+      score: 0
+      color: '#ffffff'
+    spec_1:
+      score: 0
+      color: '#ffffff'
+    spec_2:
+      score: 0
+      color: '#ffffff'
+    spec_3:
+      score: 0
+      color: '#ffffff'
+  item_level_equipped: 246
 - rank: 3
   name: Котто
   class: Rogue
@@ -447,11 +471,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2689.2
-      color: '#2d78d4'
+      score: 2711.6
+      color: '#1e74d9'
     dps:
-      score: 2689.2
-      color: '#2d78d4'
+      score: 2711.6
+      color: '#1e74d9'
     healer:
       score: 0
       color: '#ffffff'
@@ -462,8 +486,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2689.2
-      color: '#2d78d4'
+      score: 2711.6
+      color: '#1e74d9'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -603,8 +627,8 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/66/214528578-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
   mythic_plus_scores:
     all:
-      score: 2173.9
-      color: '#58d56b'
+      score: 2406.5
+      color: '#5da8a1'
     dps:
       score: 0
       color: '#ffffff'
@@ -612,11 +636,11 @@ members:
       score: 0
       color: '#ffffff'
     tank:
-      score: 2173.9
-      color: '#58d56b'
+      score: 2406.5
+      color: '#5da8a1'
     spec_0:
-      score: 2173.9
-      color: '#58d56b'
+      score: 2406.5
+      color: '#5da8a1'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -642,11 +666,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/kazzak/43/217005099-avatar.jpg?alt=/wow/static/images/2d/avatar/6-1.jpg
   mythic_plus_scores:
     all:
-      score: 2216.1
-      color: '#5ccc77'
+      score: 2659.1
+      color: '#367dd0'
     dps:
-      score: 2216.1
-      color: '#5ccc77'
+      score: 2659.1
+      color: '#367dd0'
     healer:
       score: 0
       color: '#ffffff'
@@ -660,12 +684,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2216.1
-      color: '#5ccc77'
+      score: 2659.1
+      color: '#367dd0'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 263
+  item_level_equipped: 265
 - rank: 99
   name: Daddyborn-225651387
   class: Warrior
@@ -720,11 +744,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
   mythic_plus_scores:
     all:
-      score: 3003.4
-      color: '#9445eb'
+      score: 3019.2
+      color: '#9c3eed'
     dps:
-      score: 3003.4
-      color: '#9445eb'
+      score: 3019.2
+      color: '#9c3eed'
     healer:
       score: 0
       color: '#ffffff'
@@ -738,8 +762,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 3003.4
-      color: '#9445eb'
+      score: 3019.2
+      color: '#9c3eed'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -940,45 +964,6 @@ members:
       color: '#ffffff'
   item_level_equipped: 165
 - rank: 3
-  name: Drackavun
-  class: Evoker
-  race: Dracthyr
-  spec: Devastation
-  role: DPS
-  gender: male
-  faction: alliance
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Drackavun
-  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/170/185844906-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
-  mythic_plus_scores:
-    all:
-      score: 0
-      color: '#ffffff'
-    dps:
-      score: 0
-      color: '#ffffff'
-    healer:
-      score: 0
-      color: '#ffffff'
-    tank:
-      score: 0
-      color: '#ffffff'
-    spec_0:
-      score: 0
-      color: '#ffffff'
-    spec_1:
-      score: 0
-      color: '#ffffff'
-    spec_2:
-      score: 0
-      color: '#ffffff'
-    spec_3:
-      score: 0
-      color: '#ffffff'
-  item_level_equipped: 98
-- rank: 3
   name: Sonechco
   class: Druid
   race: Night Elf
@@ -1055,7 +1040,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 265
+  item_level_equipped: 264
 - rank: 4
   name: Katsyt
   class: Paladin
@@ -1461,14 +1446,14 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
   mythic_plus_scores:
     all:
-      score: 1664.6
-      color: '#6cff50'
+      score: 1719.2
+      color: '#63ff48'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 1664.6
-      color: '#6cff50'
+      score: 1719.2
+      color: '#63ff48'
     tank:
       score: 0
       color: '#ffffff'
@@ -1476,8 +1461,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 1664.6
-      color: '#6cff50'
+      score: 1719.2
+      color: '#63ff48'
     spec_2:
       score: 0
       color: '#ffffff'
@@ -1851,26 +1836,26 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
   mythic_plus_scores:
     all:
-      score: 3001.5
-      color: '#9445eb'
+      score: 3017.4
+      color: '#9c3eed'
     dps:
-      score: 0
-      color: '#ffffff'
+      score: 335.8
+      color: '#f5fff1'
     healer:
       score: 0
       color: '#ffffff'
     tank:
-      score: 3001.5
-      color: '#9445eb'
+      score: 3017.4
+      color: '#9c3eed'
     spec_0:
-      score: 3001.5
-      color: '#9445eb'
+      score: 3017.4
+      color: '#9c3eed'
     spec_1:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 0
-      color: '#ffffff'
+      score: 335.8
+      color: '#f5fff1'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -2241,13 +2226,13 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
   mythic_plus_scores:
     all:
-      score: 2290.8
+      score: 2299.5
       color: '#5fbf88'
     dps:
       score: 0
       color: '#ffffff'
     healer:
-      score: 2290.8
+      score: 2299.5
       color: '#5fbf88'
     tank:
       score: 0
@@ -2256,7 +2241,7 @@ members:
       score: 0
       color: '#ffffff'
     spec_1:
-      score: 2290.8
+      score: 2299.5
       color: '#5fbf88'
     spec_2:
       score: 0
@@ -2264,7 +2249,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 260
+  item_level_equipped: 263
 - rank: 1
   name: Azuriel
   class: Paladin
@@ -2459,7 +2444,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 274
 - rank: 3
   name: Bierdestroer
   class: Warlock
@@ -2670,11 +2655,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
   mythic_plus_scores:
     all:
-      score: 2316.2
-      color: '#5fba8d'
+      score: 2471.3
+      color: '#5aa0ab'
     dps:
-      score: 2316.2
-      color: '#5fba8d'
+      score: 2471.3
+      color: '#5aa0ab'
     healer:
       score: 0
       color: '#ffffff'
@@ -2688,12 +2673,12 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2316.2
-      color: '#5fba8d'
+      score: 2471.3
+      color: '#5aa0ab'
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 234
+  item_level_equipped: 267
 - rank: 1
   name: Пизнайка
   class: Druid
@@ -2732,7 +2717,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 276
+  item_level_equipped: 277
 - rank: 3
   name: Shennái
   class: Priest
@@ -2748,11 +2733,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
   mythic_plus_scores:
     all:
-      score: 1773
-      color: '#5aff3f'
+      score: 1811.5
+      color: '#50ff36'
     dps:
-      score: 1773
-      color: '#5aff3f'
+      score: 1811.5
+      color: '#50ff36'
     healer:
       score: 0
       color: '#ffffff'
@@ -2766,8 +2751,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 1773
-      color: '#5aff3f'
+      score: 1811.5
+      color: '#50ff36'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3083,7 +3068,7 @@ members:
     spec_3:
       score: 0
       color: '#ffffff'
-  item_level_equipped: 273
+  item_level_equipped: 274
 - rank: 99
   name: Севатар
   class: Rogue
@@ -3099,11 +3084,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
   mythic_plus_scores:
     all:
-      score: 2645.2
-      color: '#367dd0'
+      score: 2674
+      color: '#2d78d4'
     dps:
-      score: 2645.2
-      color: '#367dd0'
+      score: 2674
+      color: '#2d78d4'
     healer:
       score: 0
       color: '#ffffff'
@@ -3117,8 +3102,8 @@ members:
       score: 254.5
       color: '#fbfff9'
     spec_2:
-      score: 2645.2
-      color: '#367dd0'
+      score: 2674
+      color: '#2d78d4'
     spec_3:
       score: 0
       color: '#ffffff'
@@ -3177,11 +3162,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   mythic_plus_scores:
     all:
-      score: 2610.6
-      color: '#4485c6'
+      score: 2647.1
+      color: '#367dd0'
     dps:
-      score: 2610.6
-      color: '#4485c6'
+      score: 2647.1
+      color: '#367dd0'
     healer:
       score: 438.8
       color: '#edffe5'
@@ -3189,8 +3174,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_0:
-      score: 2610.6
-      color: '#4485c6'
+      score: 2647.1
+      color: '#367dd0'
     spec_1:
       score: 0
       color: '#ffffff'
@@ -3489,11 +3474,11 @@ members:
   avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
   mythic_plus_scores:
     all:
-      score: 2322.6
-      color: '#5fba8d'
+      score: 2351.9
+      color: '#5fb692'
     dps:
-      score: 2322.6
-      color: '#5fba8d'
+      score: 2351.9
+      color: '#5fb692'
     healer:
       score: 0
       color: '#ffffff'
@@ -3507,8 +3492,8 @@ members:
       score: 0
       color: '#ffffff'
     spec_2:
-      score: 2322.6
-      color: '#5fba8d'
+      score: 2351.9
+      color: '#5fb692'
     spec_3:
       score: 0
       color: '#ffffff'

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-17 20:48:05'
+  updated_at: '2026-04-18 02:33:29'
   source: Blizzard Character Professions Summary API
 guild:
   name: Mistblossom Vanguard
@@ -536,7 +536,7 @@ characters:
         learned_points: 82
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 83
+        learned_points: 88
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1718,44 +1718,6 @@ characters:
       - name: Khaz Algar Fishing
         learned_points: 1
         max_points: 300
-- name: Drackavun
-  region: eu
-  realm: Terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Drackavun
-  professions:
-    primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Herbalism
-        learned_points: 89
-        max_points: 100
-    - name: Alchemy
-      id: 171
-      tiers:
-      - name: Classic Alchemy
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Alchemy
-        learned_points: 87
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 16
-        max_points: 100
 - name: Sonechco
   region: eu
   realm: Silvermoon
@@ -2227,7 +2189,7 @@ characters:
         learned_points: 88
         max_points: 100
       - name: Midnight Mining
-        learned_points: 57
+        learned_points: 60
         max_points: 100
     secondaries:
     - name: Fishing
@@ -3878,7 +3840,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 74
+        learned_points: 78
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4090,7 +4052,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 288
+        learned_points: 298
         max_points: 300
 - name: Athang
   region: eu
@@ -4532,7 +4494,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 74
+        learned_points: 77
         max_points: 100
     - name: Tailoring
       id: 197
