@@ -16,7 +16,7 @@ extra_js:
     <div class="application-hero__content">
       <span class="section-tag">Набір до гільдії</span>
       <h1>Подати заявку до Mistblossom Vanguard</h1>
-      <p class="section-subtitle">Заповни заявку у зручній формі, а нижче відразу можна перевірити, на якому етапі розгляду перебувають останні звернення.</p>
+      <p class="section-subtitle">Заповни коротку форму, а нижче можна одразу побачити останні заявки та їхній поточний статус.</p>
 
       <div class="application-hero__chips">
         <span class="application-chip">Рейди та Mythic+</span>
@@ -29,8 +29,8 @@ extra_js:
       <div class="application-info-card">
         <h2>Як усе працює</h2>
         <ol class="application-steps">
-          <li><strong>Заповни заявку.</strong> Вкажи персонажа, клас, роль і кілька слів про себе.</li>
-          <li><strong>Залишайся на зв’язку.</strong> Якщо ми захочемо уточнити деталі, найзручніше це зробити через Discord.</li>
+          <li><strong>Заповни заявку.</strong> Вкажи лише основне: персонажа, клас і коли ти зазвичай у грі.</li>
+          <li><strong>Залишайся на зв’язку.</strong> Для швидкого контакту найзручніше залишити Discord.</li>
           <li><strong>Стеж за статусом.</strong> Поки заявка відкрита — вона на розгляді. Коли розгляд завершено, статус оновиться.</li>
         </ol>
 
@@ -46,53 +46,30 @@ extra_js:
       <div class="application-section-head">
         <span class="section-tag">Форма заявки</span>
         <h2>Розкажи про себе</h2>
-        <p>Форма коротка: тільки те, що реально допомагає зрозуміти, чи ми добре підійдемо одне одному.</p>
+        <p>Тут лише найважливіше — без зайвих полів і довгих анкет.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
         <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-        <div class="form-grid form-grid--two">
-          <label class="form-field">
-            <span>Ім’я або нік</span>
-            <input type="text" name="applicantName" maxlength="60" placeholder="Sebas" required>
-          </label>
-
+        <div class="form-grid form-grid--three">
           <label class="form-field">
             <span>Ім’я персонажа</span>
             <input type="text" name="characterName" maxlength="60" placeholder="Sebas" required>
           </label>
-        </div>
 
-        <div class="form-grid form-grid--three">
           <label class="form-field">
             <span>Реалм</span>
-            <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar">
+            <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
           </label>
 
           <label class="form-field">
             <span>Клас</span>
             <input type="text" name="className" maxlength="60" placeholder="Druid" required>
           </label>
-
-          <label class="form-field">
-            <span>Спек</span>
-            <input type="text" name="specName" maxlength="60" placeholder="Restoration" required>
-          </label>
         </div>
 
-        <div class="form-grid form-grid--three">
-          <label class="form-field">
-            <span>Роль</span>
-            <select name="role" required>
-              <option value="" selected disabled>Оберіть роль</option>
-              <option value="tank">Танк</option>
-              <option value="healer">Хіл</option>
-              <option value="dps">DPS</option>
-              <option value="flex">Гнучка роль</option>
-            </select>
-          </label>
-
+        <div class="form-grid form-grid--two">
           <label class="form-field">
             <span>Discord</span>
             <input type="text" name="discord" maxlength="80" placeholder="sebas123" required>
@@ -106,27 +83,12 @@ extra_js:
 
         <label class="form-field">
           <span>Коли зазвичай граєш</span>
-          <textarea name="availability" rows="3" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні майже весь день" required></textarea>
-        </label>
-
-        <label class="form-field">
-          <span>Досвід у рейдах / Mythic+</span>
-          <textarea name="experience" rows="4" maxlength="700" placeholder="Коротко про свій досвід, поточний прогрес або цілі" required></textarea>
-        </label>
-
-        <label class="form-field">
-          <span>Чому хочеш до Mistblossom Vanguard</span>
-          <textarea name="message" rows="5" maxlength="1200" placeholder="Напиши кілька слів про себе, очікування від гільдії та що для тебе важливо" required></textarea>
-        </label>
-
-        <label class="form-consent">
-          <input type="checkbox" name="consent" value="yes" required>
-          <span>Погоджуюся, що текст заявки та її статус будуть видимі на сайті.</span>
+          <textarea name="availability" rows="4" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні переважно ввечері" required></textarea>
         </label>
 
         <div class="form-actions">
           <button type="submit" class="btn-application-submit">Надіслати заявку</button>
-          <p class="form-hint">Після відправлення ти отримаєш посилання на свою заявку та зможеш одразу побачити її у списку нижче.</p>
+          <p class="form-hint">Після відправлення заявка одразу з’явиться у списку нижче.</p>
         </div>
 
         <div id="guild-application-feedback" class="form-feedback" aria-live="polite"></div>

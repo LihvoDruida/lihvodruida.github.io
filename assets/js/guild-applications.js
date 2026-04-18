@@ -111,18 +111,12 @@
 
       const formData = new FormData(form);
       const payload = {
-        applicantName: (formData.get('applicantName') || '').toString().trim(),
         characterName: (formData.get('characterName') || '').toString().trim(),
         realm: (formData.get('realm') || '').toString().trim(),
         className: (formData.get('className') || '').toString().trim(),
-        specName: (formData.get('specName') || '').toString().trim(),
-        role: (formData.get('role') || '').toString().trim(),
         discord: (formData.get('discord') || '').toString().trim(),
         battleTag: (formData.get('battleTag') || '').toString().trim(),
         availability: (formData.get('availability') || '').toString().trim(),
-        experience: (formData.get('experience') || '').toString().trim(),
-        message: (formData.get('message') || '').toString().trim(),
-        consent: formData.get('consent') === 'yes',
         website: (formData.get('website') || '').toString().trim()
       };
 
@@ -145,7 +139,7 @@
 
         form.reset();
         setFeedback('success', 'Заявку надіслано. ' +
-          (result.html_url ? 'Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її за посиланням</a>.' : ''));
+          (result.html_url ? 'Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її на GitHub</a>.' : ''));
         loadStatuses();
       } catch (error) {
         setFeedback('error', escapeHtml(error.message || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.'));

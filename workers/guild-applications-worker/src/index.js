@@ -28,16 +28,6 @@ function toSentence(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
-function roleLabel(role) {
-  const map = {
-    tank: 'Танк',
-    healer: 'Хіл',
-    dps: 'DPS',
-    flex: 'Гнучка роль',
-  };
-  return map[role] || role || 'Не вказано';
-}
-
 async function githubFetch(env, path, init = {}) {
   return fetch(`https://api.github.com${path}`, {
     ...init,
@@ -67,35 +57,25 @@ async function ensureLabel(env, label) {
 function extractSummary(body) {
   const text = String(body || '');
   const character = (text.match(/- Ім’я персонажа: (.+)/) || [])[1];
+  const realm = (text.match(/- Реалм: (.+)/) || [])[1];
   const className = (text.match(/- Клас: (.+)/) || [])[1];
-  const specName = (text.match(/- Спек: (.+)/) || [])[1];
-  const role = (text.match(/- Роль: (.+)/) || [])[1];
-  const parts = [character, className && specName ? `${className} / ${specName}` : (className || specName), role].filter(Boolean);
+  const parts = [character, className, realm].filter(Boolean);
   return parts.length ? parts.join(' • ') : '';
 }
 
 function buildIssueBody(payload) {
   return [
-    `### Контактні дані`,
-    `- Ім’я або нік: ${payload.applicantName}`,
-    `- Discord: ${payload.discord}`,
-    `- BattleTag: ${payload.battleTag || 'Не вказано'}`,
-    '',
-    `### Персонаж`,
+    '### Персонаж',
     `- Ім’я персонажа: ${payload.characterName}`,
     `- Реалм: ${payload.realm || 'Не вказано'}`,
     `- Клас: ${payload.className}`,
-    `- Спек: ${payload.specName}`,
-    `- Роль: ${roleLabel(payload.role)}`,
     '',
-    `### Доступність`,
+    '### Контакти',
+    `- Discord: ${payload.discord}`,
+    `- BattleTag: ${payload.battleTag || 'Не вказано'}`,
+    '',
+    '### Коли зазвичай грає',
     payload.availability,
-    '',
-    `### Досвід`,
-    payload.experience,
-    '',
-    `### Додаткова інформація`,
-    payload.message,
   ].join('\n');
 }
 
@@ -107,7 +87,6 @@ async function listApplications(request, env) {
 
   const response = await githubFetch(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=created&direction=desc&labels=${label}`);
   if (!response.ok) {
-    const errorText = await response.text();
     return json({ error: 'Список заявок тимчасово недоступний.' }, 502, origin);
   }
 
@@ -143,29 +122,20 @@ async function createApplication(request, env) {
     return json({ error: 'Не вдалося надіслати заявку. Спробуй ще раз.' }, 400, origin);
   }
 
-  const requiredFields = ['applicantName', 'characterName', 'className', 'specName', 'role', 'discord', 'availability', 'experience', 'message'];
+  const requiredFields = ['characterName', 'realm', 'className', 'discord', 'availability'];
   for (const field of requiredFields) {
     if (!toSentence(payload[field])) {
       return json({ error: 'Будь ласка, заповни всі обов’язкові поля.' }, 400, origin);
     }
   }
 
-  if (!payload.consent) {
-    return json({ error: 'Потрібно підтвердити публікацію заявки та її статусу.' }, 400, origin);
-  }
-
   const cleanPayload = {
-    applicantName: toSentence(payload.applicantName).slice(0, 60),
     characterName: toSentence(payload.characterName).slice(0, 60),
     realm: toSentence(payload.realm).slice(0, 60),
     className: toSentence(payload.className).slice(0, 60),
-    specName: toSentence(payload.specName).slice(0, 60),
-    role: toSentence(payload.role).slice(0, 24),
     discord: toSentence(payload.discord).slice(0, 80),
     battleTag: toSentence(payload.battleTag).slice(0, 80),
     availability: String(payload.availability || '').trim().slice(0, 400),
-    experience: String(payload.experience || '').trim().slice(0, 700),
-    message: String(payload.message || '').trim().slice(0, 1200),
   };
 
   try {
