@@ -52,7 +52,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <div class="guild-updated">
         <span class="updated-pill">Оновлено: {{ guild_meta.updated_at }}</span>
         {% if guild_meta.raider_io_last_crawled_at %}
-        <span class="updated-pill">Скан Raider.IO: {{ guild_meta.raider_io_last_crawled_at }}</span>
+        <span class="updated-pill">Оновлено за даними Raider.IO: {{ guild_meta.raider_io_last_crawled_at }}</span>
         {% endif %}
       </div>
     </div>
@@ -212,8 +212,8 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       {% else %}
       <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">📜</div>
-        <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">У поточному експорті немає рейдового прогресу</h3>
-        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">У поточному guild.yml ще немає raid_progression або raid_rankings. Після нового запуску update_guild.py цей блок знову наповниться з Raider.IO.</p>
+        <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">Рейдовий прогрес з’явиться трохи пізніше</h3>
+        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Щойно з’являться свіжі дані, тут буде видно актуальний прогрес по рейдах.</p>
       </div>
       {% endif %}
     </div>
@@ -342,6 +342,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       </div>
     </div>
 
+    {% if guild_members and guild_members.size > 0 %}
     {% assign tanks = guild_members | where_exp: "item", "item.character.active_spec.role == 'TANK'" %}
     {% assign healers = guild_members | where_exp: "item", "item.character.active_spec.role == 'HEALING'" %}
     {% assign dps = guild_members | where_exp: "item", "item.character.active_spec.role == 'DPS'" %}
@@ -423,8 +424,8 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       {% else %}
       <div class="empty-state-wow" style="margin-top: 8px;">
         <div class="empty-icon-glow">👥</div>
-        <h2>Склад гільдії ще не завантажено</h2>
-        <p>У поточному <code>guild.yml</code> немає членів гільдії. Перевір збірку даних або запусти <code>scripts/update_guild.py</code> ще раз.</p>
+        <h2>Склад гільдії скоро з’явиться</h2>
+        <p>Ми ще оновлюємо склад гільдії. Завітай трохи пізніше — тут з’явиться повний список учасників.</p>
       </div>
       {% endif %}
     </div>
@@ -433,7 +434,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <div class="ranking-panel-intro">
         <div>
           <div class="ranking-panel-title">Рейтинг Raider.IO</div>
-          <p class="ranking-panel-description">Сортування за найвищим Mythic+ рейтингом персонажа серед доступних ролей.</p>
+          <p class="ranking-panel-description">Тут зібрані персонажі за їхнім найкращим Mythic+ рейтингом.</p>
         </div>
         <div class="ranking-chip">M+ рейтинг</div>
       </div>
@@ -461,7 +462,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <div class="empty-state-wow" style="margin-top: 8px;">
         <div class="empty-icon-glow">📊</div>
         <h2>Рейтинг поки що недоступний</h2>
-        <p>Для цього блоку потрібні дані про склад і Raider.IO enrichment. Після наступного успішного оновлення список заповниться автоматично.</p>
+        <p>Рейтинг з’явиться, щойно ми підтягнемо свіжі дані про активність гравців.</p>
       </div>
       {% endif %}
     </div>
@@ -572,7 +573,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <div class="empty-state-wow" style="margin-top: 8px;">
         <div class="empty-icon-glow">⚒️</div>
         <h2>Професії ще не синхронізовані</h2>
-        <p>У файлі <code>professions.yml</code> поки що немає персонажів із професіями. Перевір Blizzard credentials і повторно запусти <code>scripts/update_guild.py</code>.</p>
+        <p>Ми ще збираємо дані про професії. Щойно вони будуть готові, цей розділ заповниться.</p>
       </div>
       {% endif %}
     </div>

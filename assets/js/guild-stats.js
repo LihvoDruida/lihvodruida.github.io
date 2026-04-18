@@ -298,7 +298,7 @@
 
     if (total <= 0) {
       chartNode.style.background = 'conic-gradient(rgba(255,255,255,0.08) 0deg 360deg)';
-      legendNode.innerHTML = '<div class="legend-empty">Недостатньо даних у guild.yml для цього графіка.</div>';
+      legendNode.innerHTML = '<div class="legend-empty">Для цього графіка поки що замало даних.</div>';
       return;
     }
 
@@ -404,7 +404,7 @@
     }, 0);
 
     if (!classEntries.length) {
-      specChartNode.innerHTML = '<div class="legend-empty">Недостатньо даних про спеки, щоб побудувати цей блок.</div>';
+      specChartNode.innerHTML = '<div class="legend-empty">Поки що замало даних про спеки, щоб показати цей розподіл.</div>';
     } else {
       specChartNode.innerHTML = classEntries
         .map((entry) => {

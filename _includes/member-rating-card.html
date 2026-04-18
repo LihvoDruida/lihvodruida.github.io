@@ -1,10 +1,10 @@
 {% assign member = include.char.character | default: include.char %}
 {% assign rank_value = include.char.rank | default: member.rank %}
 {% assign faction_type = member.faction.type | default: member.faction | default: "UNKNOWN" %}
-{% assign class_name = member.playable_class.name | default: member.class | default: "Unknown" %}
-{% assign race_name = member.playable_race.name | default: member.race | default: "Unknown" %}
-{% assign spec_name = member.active_spec.name | default: member.spec | default: "Unknown" %}
-{% assign realm_slug = member.realm.slug | default: member.realm | default: "unknown" %}
+{% assign class_name = member.playable_class.name | default: member.class | default: "Невідомий" %}
+{% assign race_name = member.playable_race.name | default: member.race | default: "Невідомий" %}
+{% assign spec_name = member.active_spec.name | default: member.spec | default: "Невідомий" %}
+{% assign realm_slug = member.realm.slug | default: member.realm | default: "невідомо" %}
 {% assign region_name = member.region | default: site.data.guild.metadata.region | default: "eu" %}
 {% assign tank_score = member.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
 {% assign healer_score = member.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
@@ -62,7 +62,7 @@
       <div class="ranking-summary-badges">
         <span class="ranking-role-chip ranking-role-{{ best_role }}"{% if best_role != 'none' %} style="color: {{ best_color }}; border-color: {{ best_color }}40;"{% endif %}>{{ best_role_label }}</span>
         {% if member.item_level_equipped and member.item_level_equipped > 0 %}
-          <span class="ilvl-badge member-chip" aria-label="Item level {{ member.item_level_equipped }}">
+          <span class="ilvl-badge member-chip" aria-label="Рівень спорядження {{ member.item_level_equipped }}">
             <span class="chip-value">{{ member.item_level_equipped }}</span>
           </span>
         {% endif %}

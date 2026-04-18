@@ -128,7 +128,7 @@ tags: [CurseForge, адони, World of Warcraft, WoW, моди, Lihvo_Druida]
       <div class="empty-state-wow" style="grid-column: 1 / -1; margin-top: 8px;">
         <div class="empty-icon-glow">🧰</div>
         <h2>Каталог ще не заповнений</h2>
-        <p>Зараз у файлі <code>_data/my_mods.yml</code> немає жодного проєкту або дані ще не оновилися після синхронізації.</p>
+        <p>Список модів скоро з’явиться. Ми вже готуємо актуальні проєкти для цього розділу.</p>
       </div>
     {% endif %}
     </div>

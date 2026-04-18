@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="description" content="Службова сторінка OAuth callback для мобільного застосунку LihvoDruida." />
-    <title>OAuth callback — Лігво Себаса</title>
+    <meta name="description" content="Сторінка допомагає безпечно повернутися до застосунку LihvoDruida після входу." />
+    <title>Повернення до застосунку — Лігво Себаса</title>
     <style>
         :root { color-scheme: dark; }
         body {
@@ -72,8 +72,8 @@
                 document.addEventListener("DOMContentLoaded", () => {
                     document.body.innerHTML = `
                         <main class="callback-shell">
-                            <h1>Дані авторизації не знайдені</h1>
-                            <p>У callback URL немає коду авторизації або повідомлення про помилку. Перевір параметри OAuth-переходу.</p>
+                            <h1>Не вдалося завершити вхід</h1>
+                            <p>Ми не отримали потрібні дані для входу. Спробуй ще раз із застосунку.</p>
                         </main>
                     `;
                 });
@@ -84,7 +84,7 @@
 <body>
     <main class="callback-shell">
         <h1>Переадресація до застосунку</h1>
-        <p>Зачекай кілька секунд. Якщо цього не станеться, відкрий застосунок вручну.</p>
+        <p>Зачекай кілька секунд. Якщо застосунок не відкрився сам, скористайся посиланням нижче.</p>
     </main>
 </body>
 </html>

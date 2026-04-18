@@ -5,22 +5,22 @@
 {% case rank_id %}
   {% when 0 %}
     {% assign short_name = "GM" %}
-    {% assign full_name = "Guild Master" %}
+    {% assign full_name = "Гільд-майстер" %}
   {% when 1 %}
     {% assign short_name = "OF" %}
-    {% assign full_name = "Officer" %}
+    {% assign full_name = "Офіцер" %}
   {% when 2 %}
     {% assign short_name = "VT" %}
-    {% assign full_name = "Veteran" %}
+    {% assign full_name = "Ветеран" %}
   {% when 3 %}
     {% assign short_name = "MB" %}
-    {% assign full_name = "Member" %}
+    {% assign full_name = "Учасник" %}
   {% when 4 %}
     {% assign short_name = "IN" %}
-    {% assign full_name = "Initiate" %}
+    {% assign full_name = "Новачок" %}
   {% else %}
     {% assign short_name = "R" | append: rank_id %}
-    {% assign full_name = "Rank " | append: rank_id %}
+    {% assign full_name = "Ранг " | append: rank_id %}
 {% endcase %}
 
 <div class="rank-badge member-chip rank-{{ rank_id }}" aria-label="{{ full_name }}">
