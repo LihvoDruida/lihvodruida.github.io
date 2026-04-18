@@ -1,8 +1,9 @@
 metadata:
-  updated_at: '2026-04-18 10:50:54'
-  source: Blizzard Guild Roster API + Raider.IO Character API + Blizzard Professions API
+  updated_at: '2026-04-18 11:34:16'
+  source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
+  raider_io_last_crawled_at: '2026-03-24T03:59:09.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -13,10 +14,107 @@ guild:
   faction:
     type: ALLIANCE
     name: Alliance
-  profile_url: null
+  profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 99
   achievement_points: 395
   created_timestamp: 1764795965000
+raid_progression:
+  tier-mn-1:
+    summary: 4/9 H
+    total_bosses: 9
+    normal_bosses_killed: 8
+    heroic_bosses_killed: 4
+    mythic_bosses_killed: 0
+  blackrock-depths:
+    summary: 0/8 N
+    total_bosses: 8
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
+  liberation-of-undermine:
+    summary: 0/8 N
+    total_bosses: 8
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
+  manaforge-omega:
+    summary: 0/8 N
+    total_bosses: 8
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
+  nerubar-palace:
+    summary: 0/8 N
+    total_bosses: 8
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
+raid_rankings:
+  tier-mn-1:
+    normal:
+      world: 12887
+      region: 5719
+      realm: 54
+    heroic:
+      world: 14657
+      region: 6159
+      realm: 48
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
+  blackrock-depths:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
+  liberation-of-undermine:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
+  manaforge-omega:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
+  nerubar-palace:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
 members:
 - rank: 3
   character:
@@ -1444,13 +1542,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-    item_level_equipped: 269
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2626.5
+        score: 2640.8
         color: '#3e81cb'
       dps:
-        score: 2626.5
+        score: 2640.8
         color: '#3e81cb'
       healer:
         score: 0
@@ -1465,7 +1563,7 @@ members:
         score: 361
         color: '#f3ffee'
       spec_2:
-        score: 2626.5
+        score: 2640.8
         color: '#3e81cb'
       spec_3:
         score: 0
@@ -3427,14 +3525,14 @@ members:
     item_level_equipped: 263
     mythic_plus_scores:
       all:
-        score: 2299.5
-        color: '#5fbf88'
+        score: 2365.4
+        color: '#5fb197'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2299.5
-        color: '#5fbf88'
+        score: 2365.4
+        color: '#5fb197'
       tank:
         score: 0
         color: '#ffffff'
@@ -3442,8 +3540,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2299.5
-        color: '#5fbf88'
+        score: 2365.4
+        color: '#5fb197'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3791,11 +3889,11 @@ members:
     item_level_equipped: 262
     mythic_plus_scores:
       all:
-        score: 1783
-        color: '#55ff3b'
+        score: 1883.5
+        color: '#3cff24'
       dps:
-        score: 1783
-        color: '#55ff3b'
+        score: 1883.5
+        color: '#3cff24'
       healer:
         score: 0
         color: '#ffffff'
@@ -3806,8 +3904,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1783
-        color: '#55ff3b'
+        score: 1883.5
+        color: '#3cff24'
       spec_2:
         score: 0
         color: '#ffffff'
