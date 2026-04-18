@@ -76,10 +76,6 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <span>Discord</span>
     </a>
     {% endif %}
-    <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply">
-      <span>Подати заявку</span>
-      <span aria-hidden="true">✦</span>
-    </a>
   </div>
 </header>
 
@@ -90,7 +86,7 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
     <p>Заповни коротку заявку, а статус розгляду зможеш відстежувати на окремій сторінці без зайвих переходів.</p>
   </div>
   <div class="guild-cta-strip__actions">
-    <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply btn-apply--large">Перейти до заявки</a>
+    <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply btn-apply--large">Заповнити заявку</a>
   </div>
 </section>
 
