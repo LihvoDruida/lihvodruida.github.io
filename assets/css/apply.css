@@ -295,14 +295,29 @@
 .status-dot--closed { background: #58c27d; }
 
 .status-refresh-button {
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.05);
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
+  appearance: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.status-refresh-button:hover,
+.status-refresh-button:focus-visible {
+  border-color: rgba(228, 177, 74, 0.42);
+  background: rgba(255,255,255,0.075);
+  outline: none;
 }
 
 .applications-status-list {
@@ -444,8 +459,6 @@
 
   .application-primary-link,
   .application-secondary-link,
-  .status-page-link,
-  .status-refresh-button,
   .btn-application-submit,
   .application-discord-link {
     width: 100%;
@@ -456,6 +469,21 @@
   .status-toolbar__group,
   .form-actions {
     align-items: stretch;
+  }
+
+  .application-status-card .status-toolbar__group--actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .application-status-card .status-page-link,
+  .application-status-card .status-refresh-button {
+    width: 100%;
+    min-height: 44px;
+    padding-inline: 14px;
+    justify-content: center;
   }
 
   .application-status-item__top {
@@ -593,6 +621,12 @@
 
 .status-toolbar__group--actions {
   justify-content: flex-start;
+}
+
+.application-status-card .status-page-link,
+.application-status-card .status-refresh-button {
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .applications-scroll--recent {
@@ -869,10 +903,13 @@
 
   .application-primary-link,
   .application-secondary-link,
-  .status-page-link,
-  .status-refresh-button,
   .status-refresh-button--ghost,
   .btn-application-submit {
+    width: 100%;
+  }
+
+  .application-status-card .status-page-link,
+  .application-status-card .status-refresh-button {
     width: 100%;
   }
 
@@ -901,7 +938,8 @@
   }
 
   .applications-directory-hero__actions,
-  .applications-filter-actions {
+  .applications-filter-actions,
+  .application-status-card .status-toolbar__group--actions {
     grid-template-columns: 1fr;
   }
 
