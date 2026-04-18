@@ -84,13 +84,13 @@ extra_js:
       <div class="application-section-head application-section-head--tight">
         <span class="section-tag">Форма заявки</span>
         <h2>Коротка заявка без зайвого</h2>
-        <p>Вибери клас, залиш контакти й напиши, коли ти зазвичай онлайн.</p>
+        <p>Обери фракцію, клас, залиш контакти й напиши, коли ти зазвичай онлайн.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
         <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-        <div class="form-grid form-grid--three">
+        <div class="form-grid form-grid--two">
           <label class="form-field">
             <span>Ім’я персонажа</span>
             <input type="text" name="characterName" maxlength="60" placeholder="Sebas" required>
@@ -100,30 +100,49 @@ extra_js:
             <span>Реалм</span>
             <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
           </label>
+        </div>
 
-          <label class="form-field form-field--custom-select" data-custom-select>
-            <span>Клас</span>
-            <input type="hidden" name="className" value="">
-            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-              <span class="custom-select-trigger__label">Обери клас</span>
-              <span class="custom-select-trigger__icon" aria-hidden="true"></span>
-            </button>
-            <div class="custom-select-panel" role="listbox" tabindex="-1" aria-label="Вибір класу">
-              <button type="button" class="custom-select-option" data-value="Warrior" role="option">Warrior</button>
-              <button type="button" class="custom-select-option" data-value="Paladin" role="option">Paladin</button>
-              <button type="button" class="custom-select-option" data-value="Hunter" role="option">Hunter</button>
-              <button type="button" class="custom-select-option" data-value="Rogue" role="option">Rogue</button>
-              <button type="button" class="custom-select-option" data-value="Priest" role="option">Priest</button>
-              <button type="button" class="custom-select-option" data-value="Death Knight" role="option">Death Knight</button>
-              <button type="button" class="custom-select-option" data-value="Shaman" role="option">Shaman</button>
-              <button type="button" class="custom-select-option" data-value="Mage" role="option">Mage</button>
-              <button type="button" class="custom-select-option" data-value="Warlock" role="option">Warlock</button>
-              <button type="button" class="custom-select-option" data-value="Monk" role="option">Monk</button>
-              <button type="button" class="custom-select-option" data-value="Druid" role="option">Druid</button>
-              <button type="button" class="custom-select-option" data-value="Demon Hunter" role="option">Demon Hunter</button>
-              <button type="button" class="custom-select-option" data-value="Evoker" role="option">Evoker</button>
+        <div class="form-grid form-grid--two form-grid--selectors">
+          <div class="form-field">
+            <span>Фракція</span>
+            <div class="custom-select" data-name="faction" data-placeholder="Обери фракцію">
+              <input type="hidden" name="faction" value="">
+              <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-select__value">Обери фракцію</span>
+                <span class="custom-select__icon" aria-hidden="true">⌄</span>
+              </button>
+              <div class="custom-select__menu" role="listbox" tabindex="-1">
+                <button type="button" class="custom-select__option" role="option" data-value="Alliance">Alliance</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Horde">Horde</button>
+              </div>
             </div>
-          </label>
+          </div>
+
+          <div class="form-field">
+            <span>Клас</span>
+            <div class="custom-select" data-name="className" data-placeholder="Обери клас">
+              <input type="hidden" name="className" value="">
+              <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-select__value">Обери клас</span>
+                <span class="custom-select__icon" aria-hidden="true">⌄</span>
+              </button>
+              <div class="custom-select__menu custom-select__menu--tall" role="listbox" tabindex="-1">
+                <button type="button" class="custom-select__option" role="option" data-value="Warrior">Warrior</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Paladin">Paladin</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Hunter">Hunter</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Rogue">Rogue</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Priest">Priest</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Death Knight">Death Knight</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Shaman">Shaman</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Mage">Mage</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Warlock">Warlock</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Monk">Monk</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Druid">Druid</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Demon Hunter">Demon Hunter</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Evoker">Evoker</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-grid form-grid--two">

@@ -11,6 +11,8 @@
       <a href="{{ '/' | relative_url }}"{% if current_url == '/' %} aria-current="page"{% endif %}>Головна</a>
       <a href="{{ '/news/' | relative_url }}"{% if current_url == '/news/' %} aria-current="page"{% endif %}>Новини</a>
       <a href="{{ '/guild/' | relative_url }}"{% if current_url == '/guild/' %} aria-current="page"{% endif %}>Гільдія</a>
+      <a href="{{ '/guild/apply/' | relative_url }}"{% if current_url == '/guild/apply/' %} aria-current="page"{% endif %}>Подати заявку</a>
+      <a href="{{ '/guild/applications/' | relative_url }}"{% if current_url == '/guild/applications/' %} aria-current="page"{% endif %}>Усі заявки</a>
 
       <div class="nav-dropdown">
         <button class="dropdown-toggle" type="button" aria-expanded="false" aria-haspopup="true">
@@ -21,6 +23,7 @@
           <a href="{{ '/mods/' | relative_url }}"><span class="icon">🛠️</span> Мої адони</a>
           <a href="{{ '/guides/' | relative_url }}"><span class="icon">📚</span> Гайди</a>
           <a href="{{ '/donate/' | relative_url }}"><span class="icon">💛</span> Підтримка</a>
+          <a href="{{ '/404.html' | relative_url }}"><span class="icon">🗺️</span> 404</a>
         </div>
       </div>
     </nav>
@@ -35,12 +38,15 @@
       <a href="{{ '/' | relative_url }}" class="mobile-link">Головна</a>
       <a href="{{ '/news/' | relative_url }}" class="mobile-link">Новини</a>
       <a href="{{ '/guild/' | relative_url }}" class="mobile-link">Гільдія</a>
+      <a href="{{ '/guild/apply/' | relative_url }}" class="mobile-link">Подати заявку</a>
+      <a href="{{ '/guild/applications/' | relative_url }}" class="mobile-link">Усі заявки</a>
 
       <div class="mobile-divider">Ресурси</div>
 
       <a href="{{ '/mods/' | relative_url }}" class="mobile-link"><span class="icon">🛠️</span> Адони</a>
       <a href="{{ '/guides/' | relative_url }}" class="mobile-link"><span class="icon">📚</span> Гайди</a>
       <a href="{{ '/donate/' | relative_url }}" class="mobile-link"><span class="icon">💛</span> Підтримка</a>
+      <a href="{{ '/404.html' | relative_url }}" class="mobile-link"><span class="icon">🗺️</span> 404</a>
     </div>
   </div>
 </header>
