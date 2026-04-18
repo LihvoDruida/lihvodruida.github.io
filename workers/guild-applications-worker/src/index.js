@@ -1,97 +1,107 @@
-const LABELS = [
-  { name: 'guild-application', color: '7057ff', description: 'Заявки, подані через сайт гільдії' },
-  { name: 'status:review', color: 'f5c451', description: 'Заявка очікує на розгляд' },
-];
-
-function json(data, status = 200, corsOrigin = '*') {
+function json(data, status = 200, corsOrigin = "*") {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': status === 200 ? 'public, max-age=60' : 'no-store',
-      'Access-Control-Allow-Origin': corsOrigin,
-      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": status === 200 ? "public, max-age=60" : "no-store",
+      "Access-Control-Allow-Origin": corsOrigin,
+      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }
 
 function allowedOrigin(request, env) {
-  const origin = request.headers.get('Origin') || '';
-  const configured = (env.ALLOWED_ORIGINS || '').split(',').map((value) => value.trim()).filter(Boolean);
-  if (!configured.length) return origin || '*';
+  const origin = request.headers.get("Origin") || "";
+  const configured = (env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (!configured.length) return origin || "*";
   if (!origin) return configured[0];
-  return configured.includes(origin) ? origin : '';
+  return configured.includes(origin) ? origin : "";
 }
 
-function toSentence(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim();
+function cleanText(value, maxLength = 200) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+function extractSummary(body) {
+  const text = String(body || "");
+  const faction = (text.match(/- Фракція: (.+)/) || [])[1];
+  const character = (text.match(/- Ім’я персонажа: (.+)/) || [])[1];
+  const realm = (text.match(/- Реалм: (.+)/) || [])[1];
+  const className = (text.match(/- Клас: (.+)/) || [])[1];
+
+  const parts = [character, faction, className, realm].filter(Boolean);
+  return parts.join(" • ");
+}
+
+function buildIssueBody(payload) {
+  return [
+    "### Персонаж",
+    `- Ім’я персонажа: ${payload.characterName}`,
+    `- Фракція: ${payload.faction}`,
+    `- Реалм: ${payload.realm}`,
+    `- Клас: ${payload.className}`,
+    "",
+    "### Контакти",
+    `- Discord: ${payload.discord}`,
+    `- BattleTag: ${payload.battleTag || "Не вказано"}`,
+    "",
+    "### Коли зазвичай грає",
+    payload.availability,
+  ].join("\n");
 }
 
 async function githubFetch(env, path, init = {}) {
   return fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
-      'Accept': 'application/vnd.github+json',
-      'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
-      'X-GitHub-Api-Version': '2022-11-28',
+      "Accept": "application/vnd.github+json",
+      "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+      "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": env.GITHUB_USER_AGENT || "guild-applications-worker",
+      "Content-Type": "application/json; charset=utf-8",
       ...(init.headers || {}),
     },
   });
 }
 
-async function ensureLabel(env, label) {
-  const response = await githubFetch(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/labels`, {
-    method: 'POST',
-    body: JSON.stringify(label),
-  });
-
-  if (response.ok || response.status === 422) {
-    return;
-  }
-
-  const errorText = await response.text();
-  throw new Error(`Не вдалося підготувати мітку: ${errorText}`);
-}
-
-function extractSummary(body) {
-  const text = String(body || '');
-  const character = (text.match(/- Ім’я персонажа: (.+)/) || [])[1];
-  const realm = (text.match(/- Реалм: (.+)/) || [])[1];
-  const className = (text.match(/- Клас: (.+)/) || [])[1];
-  const parts = [character, className, realm].filter(Boolean);
-  return parts.length ? parts.join(' • ') : '';
-}
-
-function buildIssueBody(payload) {
-  return [
-    '### Персонаж',
-    `- Ім’я персонажа: ${payload.characterName}`,
-    `- Реалм: ${payload.realm || 'Не вказано'}`,
-    `- Клас: ${payload.className}`,
-    '',
-    '### Контакти',
-    `- Discord: ${payload.discord}`,
-    `- BattleTag: ${payload.battleTag || 'Не вказано'}`,
-    '',
-    '### Коли зазвичай грає',
-    payload.availability,
-  ].join('\n');
-}
-
 async function listApplications(request, env) {
-  const origin = allowedOrigin(request, env) || '*';
+  const origin = allowedOrigin(request, env) || "*";
   const url = new URL(request.url);
-  const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '12', 10), 1), 30);
-  const label = encodeURIComponent(env.GUILD_APPLICATIONS_LABEL || 'guild-application');
+  const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "12", 10), 1), 50);
+  const label = encodeURIComponent(env.GUILD_APPLICATIONS_LABEL || "guild-application");
 
-  const response = await githubFetch(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=created&direction=desc&labels=${label}`);
-  if (!response.ok) {
-    return json({ error: 'Список заявок тимчасово недоступний.' }, 502, origin);
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=created&direction=desc&labels=${label}`
+  );
+
+  const raw = await response.text();
+  let data = [];
+
+  try {
+    data = raw ? JSON.parse(raw) : [];
+  } catch {
+    data = [];
   }
 
-  const issues = await response.json();
-  const items = (Array.isArray(issues) ? issues : [])
+  if (!response.ok) {
+    return json(
+      {
+        error: "Список заявок тимчасово недоступний.",
+        github_status: response.status,
+        github_response: raw || null,
+      },
+      502,
+      origin
+    );
+  }
+
+  const items = (Array.isArray(data) ? data : [])
     .filter((issue) => !issue.pull_request)
     .map((issue) => ({
       number: issue.number,
@@ -110,96 +120,137 @@ async function listApplications(request, env) {
 async function createApplication(request, env) {
   const origin = allowedOrigin(request, env);
   if (!origin) {
-    return json({ error: 'Надсилання заявок зараз недоступне.' }, 403, '*');
+    return json({ error: "Надсилання заявок зараз недоступне." }, 403, "*");
   }
 
   const payload = await request.json().catch(() => null);
-  if (!payload || typeof payload !== 'object') {
-    return json({ error: 'Не вдалося обробити заявку. Спробуй ще раз.' }, 400, origin);
+  if (!payload || typeof payload !== "object") {
+    return json({ error: "Не вдалося обробити заявку. Спробуй ще раз." }, 400, origin);
   }
 
-  if (toSentence(payload.website)) {
-    return json({ error: 'Не вдалося надіслати заявку. Спробуй ще раз.' }, 400, origin);
-  }
-
-  const requiredFields = ['characterName', 'realm', 'className', 'discord', 'availability'];
-  for (const field of requiredFields) {
-    if (!toSentence(payload[field])) {
-      return json({ error: 'Будь ласка, заповни всі обов’язкові поля.' }, 400, origin);
-    }
+  if (cleanText(payload.website, 200)) {
+    return json({ error: "Не вдалося надіслати заявку. Спробуй ще раз." }, 400, origin);
   }
 
   const cleanPayload = {
-    characterName: toSentence(payload.characterName).slice(0, 60),
-    realm: toSentence(payload.realm).slice(0, 60),
-    className: toSentence(payload.className).slice(0, 60),
-    discord: toSentence(payload.discord).slice(0, 80),
-    battleTag: toSentence(payload.battleTag).slice(0, 80),
-    availability: String(payload.availability || '').trim().slice(0, 400),
+    characterName: cleanText(payload.characterName, 60),
+    faction: cleanText(payload.faction, 24),
+    realm: cleanText(payload.realm, 60),
+    className: cleanText(payload.className, 60),
+    discord: cleanText(payload.discord, 80),
+    battleTag: cleanText(payload.battleTag, 80),
+    availability: String(payload.availability || "").trim().slice(0, 400),
   };
 
+  if (
+    !cleanPayload.characterName ||
+    !cleanPayload.faction ||
+    !cleanPayload.realm ||
+    !cleanPayload.className ||
+    !cleanPayload.discord ||
+    !cleanPayload.availability
+  ) {
+    return json({ error: "Будь ласка, заповни всі обов’язкові поля." }, 400, origin);
+  }
+
+  const issueTitle = `Заявка до гільдії: ${cleanPayload.characterName}`;
+  const issueBody = buildIssueBody(cleanPayload);
+
   try {
-    await Promise.all(LABELS.map((label) => ensureLabel(env, label)));
+    const response = await githubFetch(
+      env,
+      `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          title: issueTitle,
+          body: issueBody,
+          labels: [env.GUILD_APPLICATIONS_LABEL || "guild-application", "status:review"],
+        }),
+      }
+    );
 
-    const issueTitle = `Заявка до гільдії: ${cleanPayload.characterName}`;
-    const issueBody = buildIssueBody(cleanPayload);
+    const raw = await response.text();
+    let data = {};
 
-    const response = await githubFetch(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`, {
-      method: 'POST',
-      body: JSON.stringify({
-        title: issueTitle,
-        body: issueBody,
-        labels: [env.GUILD_APPLICATIONS_LABEL || 'guild-application', 'status:review'],
-      }),
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return json({ error: 'Не вдалося створити заявку. Спробуй ще раз трохи пізніше.' }, response.status, origin);
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { raw };
     }
 
-    return json({
-      ok: true,
-      number: data.number,
-      html_url: data.html_url,
-      state: data.state,
-      title: data.title,
-    }, 201, origin);
+    if (!response.ok) {
+      return json(
+        {
+          error: data?.message || data?.raw || "Не вдалося створити заявку. Спробуй ще раз трохи пізніше.",
+          github_status: response.status,
+          github_response: raw || null,
+        },
+        response.status,
+        origin
+      );
+    }
+
+    return json(
+      {
+        ok: true,
+        number: data.number,
+        html_url: data.html_url,
+        state: data.state,
+        title: data.title,
+      },
+      201,
+      origin
+    );
   } catch (error) {
-    return json({ error: error instanceof Error ? error.message : 'Невідома помилка.' }, 500, origin);
+    return json(
+      {
+        error: error instanceof Error ? error.message : "Невідома помилка.",
+      },
+      500,
+      origin
+    );
   }
 }
 
 export default {
   async fetch(request, env) {
     if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
-      return json({ error: 'Прийом заявок тимчасово недоступний.' }, 500, '*');
+      return json({ error: "Прийом заявок тимчасово недоступний." }, 500, "*");
     }
 
-    if (request.method === 'OPTIONS') {
+    if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': allowedOrigin(request, env) || '*',
-          'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          "Access-Control-Allow-Origin": allowedOrigin(request, env) || "*",
+          "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
         },
       });
     }
 
     const url = new URL(request.url);
-    if (url.pathname !== '/' && url.pathname !== '/api/guild-applications') {
-      return json({ error: 'Сторінку не знайдено.' }, 404, allowedOrigin(request, env) || '*');
+    if (url.pathname !== "/" && url.pathname !== "/api/guild-applications") {
+      return json(
+        { error: "Сторінку не знайдено." },
+        404,
+        allowedOrigin(request, env) || "*"
+      );
     }
 
-    if (request.method === 'GET') {
+    if (request.method === "GET") {
       return listApplications(request, env);
     }
 
-    if (request.method === 'POST') {
+    if (request.method === "POST") {
       return createApplication(request, env);
     }
 
-    return json({ error: 'Ця дія зараз недоступна.' }, 405, allowedOrigin(request, env) || '*');
+    return json(
+      { error: "Ця дія зараз недоступна." },
+      405,
+      allowedOrigin(request, env) || "*"
+    );
   },
 };
