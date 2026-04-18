@@ -30,17 +30,26 @@
     var meta = [];
     if (item.number) meta.push('№' + item.number);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
+
+    var rawTitle = String(item.title || 'Заявка до гільдії');
+    var cleanedTitle = rawTitle.replace(/^Заявка до гільдії:\s*/i, '').trim();
+    var title = cleanedTitle ? ('Заявка: ' + cleanedTitle) : rawTitle;
+
     var description = item.summary || 'Короткий опис заявки буде доступний після відкриття картки.';
+    var descParts = description.split('•').map(function (part) { return part.trim(); }).filter(Boolean);
+    var descriptionHtml = descParts.length
+      ? descParts.map(function (part) { return '<span>' + escapeHtml(part) + '</span>'; }).join('<span class="application-status-item__sep">•</span>')
+      : escapeHtml(description);
 
     return '<article class="application-status-item">' +
       '<div class="application-status-item__top">' +
         '<div class="application-status-item__title-group">' +
-          '<h3 class="application-status-item__title">' + escapeHtml(item.title) + '</h3>' +
+          '<h3 class="application-status-item__title">' + escapeHtml(title) + '</h3>' +
           '<div class="application-status-item__meta">' + meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>') + '</div>' +
         '</div>' +
         '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
       '</div>' +
-      '<div class="application-status-item__desc">' + escapeHtml(description) + '</div>' +
+      '<div class="application-status-item__desc">' + descriptionHtml + '</div>' +
       (item.html_url ? '<a class="application-status-item__link" href="' + escapeHtml(item.html_url) + '" target="_blank" rel="noopener noreferrer">Відкрити заявку <span aria-hidden="true">↗</span></a>' : '') +
     '</article>';
   }

@@ -1185,3 +1185,388 @@
     max-height: 480px;
   }
 }
+
+
+/* === 2026 modern refresh for guild application pages === */
+.guild-application-page,
+.guild-applications-directory {
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+.applications-page-hero,
+.application-form-card--refined,
+.application-status-card--refined,
+.applications-directory-panel--enhanced {
+  border-color: rgba(230, 176, 67, 0.16);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.applications-page-hero__grid {
+  gap: 2rem;
+  padding: 2.2rem;
+}
+
+.applications-page-hero__copy .section-subtitle,
+.applications-panel-head p,
+.application-section-head p,
+.application-status-card__intro,
+.guild-finder-caption {
+  color: rgba(255,255,255,0.74);
+  line-height: 1.72;
+}
+
+.applications-page-hero__actions,
+.application-status-actions,
+.applications-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.applications-hero-stat,
+.applications-hero-card,
+.application-mini-stat,
+.finder-step-card,
+.application-status-item {
+  backdrop-filter: blur(16px);
+}
+
+.applications-hero-stat {
+  min-height: 136px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem 1.3rem;
+}
+
+.applications-hero-stat__value {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  letter-spacing: -0.03em;
+}
+
+.application-form-card--refined,
+.application-status-card--refined,
+.applications-directory-panel--enhanced {
+  padding: 1.6rem;
+}
+
+.application-section-head--tight,
+.applications-panel-head {
+  margin-bottom: 1.15rem;
+}
+
+.guild-application-form {
+  gap: 16px;
+}
+
+.form-grid {
+  gap: 14px;
+}
+
+.form-field {
+  gap: 9px;
+}
+
+.form-field span,
+.applications-search-field span {
+  font-size: 0.96rem;
+  letter-spacing: -0.01em;
+}
+
+.form-field input,
+.form-field textarea,
+.applications-search-field input,
+.custom-select__trigger {
+  border-radius: 18px;
+  border-color: rgba(255,255,255,0.10);
+  background:
+    linear-gradient(180deg, rgba(34, 28, 24, 0.96), rgba(22, 18, 16, 0.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.form-field textarea {
+  min-height: 130px;
+}
+
+.custom-select__trigger {
+  min-height: 58px;
+}
+
+.custom-select__menu {
+  inset: calc(100% + 10px) 0 auto;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(230, 176, 67, 0.18);
+  background:
+    linear-gradient(180deg, rgba(31, 24, 20, 0.99), rgba(17, 13, 11, 0.99));
+  box-shadow: 0 26px 64px rgba(0,0,0,0.48);
+}
+
+.custom-select__option {
+  min-height: 48px;
+  border-radius: 14px;
+  color: rgba(255,255,255,0.9);
+}
+
+.custom-select__option:hover,
+.custom-select__option:focus-visible,
+.custom-select__option.is-active {
+  background: linear-gradient(180deg, rgba(235, 182, 73, 0.22), rgba(235, 182, 73, 0.11));
+  border-color: rgba(235, 182, 73, 0.22);
+}
+
+.form-actions--compact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.form-hint {
+  color: rgba(255,255,255,0.68);
+  line-height: 1.65;
+}
+
+.application-status-card__intro {
+  margin: 0 0 12px;
+}
+
+.application-status-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.application-status-actions .application-secondary-link,
+.application-status-actions .status-refresh-button,
+.applications-filter-actions .status-refresh-button,
+.applications-filter-actions .status-refresh-button--ghost {
+  width: 100%;
+  justify-content: center;
+}
+
+.applications-scroll,
+.application-status-list--compact {
+  max-height: 580px;
+  padding-right: 6px;
+}
+
+.applications-status-list,
+.applications-directory-list {
+  gap: 14px;
+}
+
+.application-status-item,
+.applications-directory-list .application-status-item {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 1.3rem 1.35rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at top right, rgba(236, 184, 73, 0.10), transparent 32%),
+    linear-gradient(180deg, rgba(34, 28, 24, 0.97), rgba(17, 13, 11, 0.98));
+}
+
+.application-status-item__top {
+  gap: 16px;
+}
+
+.application-status-item__title-group {
+  min-width: 0;
+}
+
+.application-status-item__title {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.5vw, 1.38rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  max-width: 90%;
+  text-wrap: balance;
+}
+
+.application-status-item__meta {
+  gap: 8px;
+  font-size: 0.94rem;
+}
+
+.application-status-item__desc {
+  margin-top: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.82);
+}
+
+.application-status-item__link {
+  margin-top: 2px;
+}
+
+.application-status-badge {
+  min-height: 42px;
+  padding: 0 16px;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.12);
+}
+
+.applications-panel-head h2 {
+  margin-top: 0.75rem;
+  font-size: clamp(1.5rem, 2vw, 1.95rem);
+  line-height: 1.12;
+}
+
+.applications-filter-bar--enhanced {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.applications-search-field {
+  min-width: 0;
+}
+
+.applications-search-field input {
+  min-height: 60px;
+  padding-inline: 18px;
+}
+
+.applications-filter-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.applications-directory-summary {
+  margin: 14px 0 18px;
+}
+
+.applications-directory-summary p {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.84);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.status-toolbar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.status-toolbar__legend .status-dot {
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
+}
+
+@media (max-width: 980px) {
+  .applications-page-hero__grid {
+    padding: 1.6rem;
+  }
+
+  .application-form-card--refined,
+  .application-status-card--refined,
+  .applications-directory-panel--enhanced {
+    padding: 1.25rem;
+  }
+
+  .applications-filter-bar--enhanced {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-filter-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 780px) {
+  .applications-page-hero {
+    border-radius: 24px;
+  }
+
+  .applications-page-hero__grid {
+    padding: 1.2rem;
+    gap: 1.2rem;
+  }
+
+  .applications-page-hero__copy h1 {
+    font-size: 1.8rem;
+  }
+
+  .application-mini-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .application-form-card--refined,
+  .application-status-card--refined,
+  .applications-directory-panel--enhanced {
+    padding: 1rem;
+    border-radius: 22px;
+  }
+
+  .form-grid--two,
+  .form-grid--selectors,
+  .application-status-actions,
+  .applications-filter-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions--compact {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-hint {
+    max-width: none;
+  }
+
+  .custom-select__trigger,
+  .applications-search-field input,
+  .form-field input,
+  .form-field textarea {
+    font-size: 16px;
+  }
+
+  .application-status-item,
+  .applications-directory-list .application-status-item {
+    padding: 1.1rem;
+    gap: 12px;
+  }
+
+  .application-status-item__top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .application-status-item__title {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .application-status-badge {
+    align-self: flex-start;
+  }
+
+  .applications-scroll,
+  .application-status-list--compact {
+    max-height: 520px;
+    padding-right: 2px;
+  }
+
+  .applications-directory-summary p {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 16px;
+  }
+}

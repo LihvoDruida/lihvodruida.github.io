@@ -96,8 +96,8 @@ extra_js:
     <div class="application-form-card application-form-card--refined">
       <div class="application-section-head application-section-head--tight">
         <span class="section-tag">Форма заявки</span>
-        <h2>Швидка анкета для вступу</h2>
-        <p>Заповни кілька полів, обери фракцію та клас і залиш контакти, щоб ми могли швидко з тобою зв’язатися.</p>
+        <h2>Коротка заявка для вступу</h2>
+        <p>Заповни кілька полів, обери фракцію та клас і залиш контакти, щоб ми могли швидко з тобою зв’язатися без зайвих кроків.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
