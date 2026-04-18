@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-18 11:34:16'
+  updated_at: '2026-04-18 16:42:53'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -559,7 +559,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 298
+        learned_points: 300
         max_points: 300
 - name: Eidis
   region: eu
@@ -1445,7 +1445,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 37
+        learned_points: 50
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1654,7 +1654,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 71
+        learned_points: 73
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1748,7 +1748,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 3
+        learned_points: 8
         max_points: 100
     - name: Mining
       id: 186
@@ -1760,7 +1760,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Mining
-        learned_points: 80
+        learned_points: 93
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2404,7 +2404,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Engineering
-        learned_points: 92
+        learned_points: 94
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3127,7 +3127,7 @@ characters:
         learned_points: 78
         max_points: 100
       - name: Midnight Mining
-        learned_points: 64
+        learned_points: 71
         max_points: 100
     secondaries:
     - name: Fishing
@@ -3969,7 +3969,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 73
+        learned_points: 76
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -4915,7 +4915,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 30
+        learned_points: 31
         max_points: 100
     - name: Fishing
       id: 356
