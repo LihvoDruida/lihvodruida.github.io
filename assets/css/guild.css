@@ -219,7 +219,8 @@
 
 /* Buttons */
 .btn-primary,
-.btn-discord {
+.btn-discord,
+.btn-apply {
   min-height: 46px;
   padding: 0 18px;
   border-radius: 14px;
@@ -258,6 +259,23 @@
   box-shadow: 0 14px 30px rgba(88, 101, 242, 0.34);
 }
 
+.btn-apply {
+  color: #fff6df;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  border: 1px solid rgba(228, 177, 74, 0.28);
+  box-shadow: 0 10px 24px rgba(212, 160, 61, 0.12);
+}
+
+.btn-apply:hover {
+  transform: translateY(-2px);
+  border-color: rgba(228, 177, 74, 0.42);
+  box-shadow: 0 14px 30px rgba(212, 160, 61, 0.2);
+}
+
+.btn-apply--large {
+  min-width: 210px;
+}
+
 .discord-icon {
   width: 18px;
   height: 18px;
@@ -269,6 +287,55 @@
   height: 1px;
   background: linear-gradient(to right, transparent, var(--border-subtle), transparent);
   margin: 40px 0;
+}
+
+
+.guild-cta-strip {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at left center, rgba(88, 101, 242, 0.12), transparent 32%),
+    radial-gradient(circle at right center, rgba(212, 160, 61, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(22, 25, 32, 0.95), rgba(15, 17, 21, 0.92));
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+.guild-cta-strip__copy {
+  max-width: 760px;
+}
+
+.guild-cta-strip__eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.58);
+}
+
+.guild-cta-strip__copy h2 {
+  margin-bottom: 10px;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.guild-cta-strip__copy p {
+  color: rgba(255,255,255,0.74);
+}
+
+.guild-cta-strip__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 @media (max-width: 920px) {
@@ -1432,7 +1499,9 @@
 }
 @media (max-width: 500px) {
   .guild-actions { flex-direction: column; width: 100%; margin-top: 12px; }
-  .btn-discord, .btn-primary { justify-content: center; width: 100%; }
+  .btn-discord, .btn-primary, .btn-apply { justify-content: center; width: 100%; }
+  .guild-cta-strip { padding: 20px; }
+  .guild-cta-strip__actions { width: 100%; }
   .rio-scores {
     gap: 4px;
   }

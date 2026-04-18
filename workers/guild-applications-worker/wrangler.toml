@@ -1,0 +1,12 @@
+name = "guild-applications-worker"
+main = "src/index.js"
+compatibility_date = "2026-04-18"
+
+[observability]
+enabled = true
+
+[vars]
+GITHUB_OWNER = "LihvoDruida"
+GITHUB_REPO = "lihvodruida.github.io"
+GUILD_APPLICATIONS_LABEL = "guild-application"
+ALLOWED_ORIGINS = "https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,http://127.0.0.1:4000,http://localhost:4000"

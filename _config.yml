@@ -27,6 +27,12 @@ social:
     - https://discord.gg/SR8JsQBCxn
 
 curseforge_profile_url: https://www.curseforge.com/members/lihvo_druida
+
+# Інтеграції
+github_repo_owner: "LihvoDruida"
+github_repo_name: "lihvodruida.github.io"
+guild_applications_api_url: "/api/guild-applications"
+guild_applications_label: "guild-application"
 default_keywords:
   - World of Warcraft
   - WoW

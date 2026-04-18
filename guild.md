@@ -76,8 +76,23 @@ tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, ре�
       <span>Discord</span>
     </a>
     {% endif %}
+    <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply">
+      <span>Подати заявку</span>
+      <span aria-hidden="true">✦</span>
+    </a>
   </div>
 </header>
+
+<section class="guild-cta-strip">
+  <div class="guild-cta-strip__copy">
+    <span class="guild-cta-strip__eyebrow">Набір до гільдії</span>
+    <h2>Хочеш приєднатися до Mistblossom Vanguard?</h2>
+    <p>Заповни коротку заявку, а статус розгляду зможеш відстежувати на окремій сторінці без зайвих переходів.</p>
+  </div>
+  <div class="guild-cta-strip__actions">
+    <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply btn-apply--large">Перейти до заявки</a>
+  </div>
+</section>
 
   <section class="guild-section">
     <div class="modern-header">

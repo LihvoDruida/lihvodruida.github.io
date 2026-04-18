@@ -62,8 +62,18 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% if page.extra_css %}
+    {% for stylesheet in page.extra_css %}
+  <link rel="stylesheet" href="{{ stylesheet | relative_url }}">
+    {% endfor %}
+  {% endif %}
 
   <script src="{{ '/assets/js/mobile-menu.js' | relative_url }}" defer></script>
+  {% if page.extra_js %}
+    {% for script in page.extra_js %}
+  <script src="{{ script | relative_url }}" defer></script>
+    {% endfor %}
+  {% endif %}
 </head>
 <body class="{% if page.layout %}layout-{{ page.layout }}{% endif %}">
   <a class="skip-link" href="#main-content">Перейти до вмісту</a>
