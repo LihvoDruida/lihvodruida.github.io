@@ -1,20 +1,29 @@
-{% assign tank_score = include.char.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
-{% assign healer_score = include.char.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
-{% assign dps_score = include.char.mythic_plus_scores.dps.score | default: 0 | plus: 0 %}
+{% assign member = include.char.character | default: include.char %}
+{% assign rank_value = include.char.rank | default: member.rank %}
+{% assign faction_type = member.faction.type | default: member.faction | default: "UNKNOWN" %}
+{% assign class_name = member.playable_class.name | default: member.class | default: "Unknown" %}
+{% assign race_name = member.playable_race.name | default: member.race | default: "Unknown" %}
+{% assign spec_name = member.active_spec.name | default: member.spec | default: "Unknown" %}
+{% assign role_name = member.active_spec.role | default: member.role %}
+{% assign realm_slug = member.realm.slug | default: member.realm | default: "unknown" %}
+{% assign region_name = member.region | default: site.data.guild.metadata.region | default: "eu" %}
+{% assign tank_score = member.mythic_plus_scores.tank.score | default: 0 | plus: 0 %}
+{% assign healer_score = member.mythic_plus_scores.healer.score | default: 0 | plus: 0 %}
+{% assign dps_score = member.mythic_plus_scores.dps.score | default: 0 | plus: 0 %}
 {% assign best_score = dps_score %}
 {% assign best_role = "dps" %}
-{% assign best_color = include.char.mythic_plus_scores.dps.color | default: "#ffffff" %}
+{% assign best_color = member.mythic_plus_scores.dps.color | default: "#ffffff" %}
 
 {% if healer_score > best_score %}
   {% assign best_score = healer_score %}
   {% assign best_role = "healer" %}
-  {% assign best_color = include.char.mythic_plus_scores.healer.color | default: "#ffffff" %}
+  {% assign best_color = member.mythic_plus_scores.healer.color | default: "#ffffff" %}
 {% endif %}
 
 {% if tank_score > best_score %}
   {% assign best_score = tank_score %}
   {% assign best_role = "tank" %}
-  {% assign best_color = include.char.mythic_plus_scores.tank.color | default: "#ffffff" %}
+  {% assign best_color = member.mythic_plus_scores.tank.color | default: "#ffffff" %}
 {% endif %}
 
 {% if best_score <= 0 %}
@@ -22,51 +31,51 @@
   {% assign best_color = "#d6d9de" %}
 {% endif %}
 
-<a href="{{ include.char.profile_url }}" target="_blank" rel="noopener noreferrer" class="member-card faction-{{ include.char.faction | downcase }}" data-member-name="{{ include.char.name | escape }}" data-member-class="{{ include.char.class | escape }}" data-member-spec="{{ include.char.spec | escape }}" data-rio-best-score="{{ best_score }}" data-rio-best-role="{{ best_role }}" data-rio-best-color="{{ best_color }}">
+<a href="{{ member.profile_url | default: '#' }}" target="_blank" rel="noopener noreferrer" class="member-card faction-{{ faction_type | downcase }}" data-member-name="{{ member.name | escape }}" data-member-class="{{ class_name | escape }}" data-member-spec="{{ spec_name | escape }}" data-rio-best-score="{{ best_score }}" data-rio-best-role="{{ best_role }}" data-rio-best-color="{{ best_color }}">
   <div class="avatar-wrapper">
-    {% if include.char.avatar %}
-      <img src="{{ include.char.avatar }}" alt="{{ include.char.name }}" loading="lazy">
+    {% if member.avatar %}
+      <img src="{{ member.avatar }}" alt="{{ member.name }}" loading="lazy">
     {% else %}
-      <div class="placeholder">{{ include.char.name | slice: 0 }}</div>
+      <div class="placeholder">{{ member.name | slice: 0 }}</div>
     {% endif %}
-    <div class="faction-indicator" title="{{ include.char.faction }}"></div>
+    <div class="faction-indicator" title="{{ faction_type }}"></div>
   </div>
 
   <div class="info-wrapper">
     <div class="member-main-row">
       <div class="char-details">
         <div class="char-name-row">
-          <span class="char-name class-{{ include.char.class | downcase | replace: ' ', '-' }}">{{ include.char.name }}</span>
-          <span class="char-realm">{{ include.char.region | upcase }}-{{ include.char.realm }}</span>
+          <span class="char-name class-{{ class_name | downcase | replace: ' ', '-' }}">{{ member.name }}</span>
+          <span class="char-realm">{{ region_name | upcase }}-{{ realm_slug }}</span>
         </div>
 
-        <span class="char-meta">{{ include.char.spec | capitalize }} {{ include.char.class | capitalize }} • {{ include.char.race | capitalize }}</span>
+        <span class="char-meta">{{ spec_name | capitalize }} {{ class_name | capitalize }} • {{ race_name | capitalize }}</span>
       </div>
 
       <div class="member-summary-badges">
-        {% if include.char.item_level_equipped and include.char.item_level_equipped > 0 %}
-          <div class="ilvl-badge member-chip" aria-label="Item level {{ include.char.item_level_equipped }}">
-            <span class="chip-value">{{ include.char.item_level_equipped }}</span>
+        {% if member.item_level_equipped and member.item_level_equipped > 0 %}
+          <div class="ilvl-badge member-chip" aria-label="Item level {{ member.item_level_equipped }}">
+            <span class="chip-value">{{ member.item_level_equipped }}</span>
           </div>
         {% endif %}
 
-        {% include rank-badge.html rank=include.char.rank %}
+        {% include rank-badge.html rank=rank_value %}
       </div>
     </div>
 
-    {% if include.char.mythic_plus_scores %}
+    {% if member.mythic_plus_scores %}
       <div class="member-bottom-row">
         <div class="rio-scores">
-          {% if include.char.mythic_plus_scores.tank.score > 0 %}
-            {% include rio-pill.html role="tank" score=include.char.mythic_plus_scores.tank.score color=include.char.mythic_plus_scores.tank.color %}
+          {% if member.mythic_plus_scores.tank.score > 0 %}
+            {% include rio-pill.html role="tank" score=member.mythic_plus_scores.tank.score color=member.mythic_plus_scores.tank.color %}
           {% endif %}
 
-          {% if include.char.mythic_plus_scores.healer.score > 0 %}
-            {% include rio-pill.html role="healer" score=include.char.mythic_plus_scores.healer.score color=include.char.mythic_plus_scores.healer.color %}
+          {% if member.mythic_plus_scores.healer.score > 0 %}
+            {% include rio-pill.html role="healer" score=member.mythic_plus_scores.healer.score color=member.mythic_plus_scores.healer.color %}
           {% endif %}
 
-          {% if include.char.mythic_plus_scores.dps.score > 0 %}
-            {% include rio-pill.html role="dps" score=include.char.mythic_plus_scores.dps.score color=include.char.mythic_plus_scores.dps.color %}
+          {% if member.mythic_plus_scores.dps.score > 0 %}
+            {% include rio-pill.html role="dps" score=member.mythic_plus_scores.dps.score color=member.mythic_plus_scores.dps.color %}
           {% endif %}
         </div>
       </div>
