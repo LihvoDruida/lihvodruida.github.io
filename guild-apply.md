@@ -11,7 +11,7 @@ extra_js:
   - /assets/js/guild-applications.js
 ---
 
-<div class="guild-application-page" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="8">
+<div class="guild-page-container guild-application-page" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="8">
   <section class="applications-page-hero applications-page-hero--apply">
     <div class="applications-page-hero__grid">
       <div class="applications-page-hero__copy">
