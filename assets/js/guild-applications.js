@@ -2,7 +2,7 @@
   const page = document.querySelector('.guild-application-page');
   if (!page) return;
 
-  const apiUrl = page.dataset.apiUrl || '/api/guild-applications';
+  const apiUrl = (page.dataset.apiUrl || 'https://guild-applications.melles-android.workers.dev/api/guild-applications').trim();
   const statusLimit = Number(page.dataset.statusLimit || '12');
   const form = document.getElementById('guild-application-form');
   const feedback = document.getElementById('guild-application-feedback');
@@ -92,7 +92,7 @@
       const payload = await response.json();
       renderStatuses(payload.items || []);
     } catch (error) {
-      statusRoot.innerHTML = '<div class="applications-empty">Зараз не вдалося оновити список заявок. Спробуй ще раз трохи пізніше.</div>';
+      statusRoot.innerHTML = '<div class="applications-empty">Зараз не вдалося оновити список заявок. Спробуй ще раз трохи пізніше або онови сторінку.</div>';
     }
   }
 
@@ -134,7 +134,7 @@
 
         const result = await response.json().catch(function () { return {}; });
         if (!response.ok) {
-          throw new Error(result.error || 'Не вдалося надіслати заявку.');
+          throw new Error(result.error || 'Не вдалося надіслати заявку. Спробуй ще раз за хвилину.');
         }
 
         form.reset();
