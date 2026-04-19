@@ -100,16 +100,36 @@ function escapeDiscordMarkdown(value) {
     .trim();
 }
 
+function getIssueStatus(issue) {
+  const labels = Array.isArray(issue?.labels)
+    ? issue.labels.map((label) => String(label?.name || "").toLowerCase())
+    : [];
+
+  if (labels.includes("status:accepted")) return "Прийнято";
+  if (labels.includes("status:rejected") || labels.includes("status:declined")) return "Відхилено";
+  if (labels.includes("status:review")) return "На розгляді";
+  if (issue?.state === "closed") return "Закрито";
+  return "На розгляді";
+}
+
 function buildDiscordMessage(payload, issue) {
+  const characterTag = buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName;
   const lines = [
     "## Нова заявка до гільдії",
-    `**Персонаж:** \`${escapeDiscordMarkdown(buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName)}\``,
-    `**Фракція:** ${escapeDiscordMarkdown(payload.faction)}`,
-    `**Реалм:** ${escapeDiscordMarkdown(payload.realm)}`,
-    `**Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
-    `**Discord:** ${escapeDiscordMarkdown(payload.discord || "Не вказано")}`,
-    `**BattleTag:** ${escapeDiscordMarkdown(payload.battleTag || "Не вказано")}`,
-    `**Звідки дізнався:** ${escapeDiscordMarkdown(payload.source || "Не вказано")}`,
+    `**Статус:** ${escapeDiscordMarkdown(getIssueStatus(issue))}`,
+    "",
+    "### Дані про персонажа",
+    `- **Персонаж:** \`${escapeDiscordMarkdown(characterTag)}\``,
+    `- **Фракція:** ${escapeDiscordMarkdown(payload.faction || "Не вказано")}`,
+    `- **Реалм:** ${escapeDiscordMarkdown(payload.realm || "Не вказано")}`,
+    `- **Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
+    "",
+    "### Контакти",
+    `- **Discord:** ${escapeDiscordMarkdown(payload.discord || "Не вказано")}`,
+    `- **BattleTag:** ${escapeDiscordMarkdown(payload.battleTag || "Не вказано")}`,
+    "",
+    "### Додатково",
+    `- **Звідки дізнався:** ${escapeDiscordMarkdown(payload.source || "Не вказано")}`,
     "",
     "### Коли зазвичай грає",
     escapeDiscordMarkdown(payload.availability || "Не вказано"),
@@ -136,7 +156,7 @@ async function sendDiscordNotification(env, payload, issue) {
     body: JSON.stringify({
       content: buildDiscordMessage(payload, issue),
       allowed_mentions: { parse: [] },
-      username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard",
+      username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard • Applications",
     }),
   });
 
@@ -186,6 +206,7 @@ async function listApplications(request, env) {
       number: issue.number,
       title: issue.title,
       state: issue.state,
+      status_text: getIssueStatus(issue),
       html_url: issue.html_url,
       created_at: issue.created_at,
       closed_at: issue.closed_at,
@@ -244,7 +265,6 @@ async function createApplication(request, env) {
       return json({ error: "Будь ласка, обери платформу." }, 400, origin);
     }
   }
-
 
   if (cleanPayload.faction.toLowerCase() === "horde" && !cleanPayload.battleTag) {
     return json({ error: "Для фракції Horde поле BattleTag є обов’язковим." }, 400, origin);
@@ -305,6 +325,7 @@ async function createApplication(request, env) {
         number: data.number,
         html_url: data.html_url,
         state: data.state,
+        status_text: getIssueStatus(data),
         title: data.title,
         discord,
       },
