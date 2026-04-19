@@ -60,6 +60,10 @@ extra_js:
         <div class="toolbar-links hero-actions">
           <a href="#guild-application-form" class="application-primary-link">Подати заявку</a>
           <a href="{{ '/guild/applications/' | relative_url }}" class="btn-secondary-hero">Переглянути статус</a>
+          <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="btn-secondary-hero btn-secondary-hero--discord">
+            <i class="fab fa-discord" aria-hidden="true"></i>
+            <span>Discord</span>
+          </a>
         </div>
       </div>
     </div>

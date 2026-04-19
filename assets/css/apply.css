@@ -257,6 +257,20 @@
   background: rgba(226, 133, 82, 0.12);
 }
 
+.btn-secondary-hero--discord {
+  gap: 0.5rem;
+  border-color: rgba(114, 137, 218, 0.3);
+  background: linear-gradient(180deg, rgba(88, 101, 242, 0.18), rgba(88, 101, 242, 0.1));
+  color: #eef1ff;
+  box-shadow: 0 10px 22px rgba(88, 101, 242, 0.16);
+}
+
+.btn-secondary-hero--discord:hover {
+  border-color: rgba(114, 137, 218, 0.46);
+  background: linear-gradient(180deg, rgba(88, 101, 242, 0.28), rgba(88, 101, 242, 0.16));
+}
+
+
 .featured-article--applications {
   display: grid;
   grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
