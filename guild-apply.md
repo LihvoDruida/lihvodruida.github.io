@@ -239,6 +239,14 @@ extra_js:
           <p class="form-hint">Після відправлення можна одразу перейти до списку заявок і перевірити статус.</p>
         </div>
 
+        <div class="privacy-note" role="note" aria-label="Інформація про безпеку персональних даних">
+          <div class="privacy-note__icon" aria-hidden="true">🔒</div>
+          <div class="privacy-note__content">
+            <strong class="privacy-note__title">Безпека персональних даних</strong>
+            <p>Починаючи з <strong>19.04.2026</strong>, приватні контактні дані із заявок <strong>не публікуються відкрито</strong>. Discord, BattleTag та інші персональні контакти використовуються лише для внутрішнього розгляду заявки й не відображаються публічно у списку заявок або в GitHub Issue.</p>
+          </div>
+        </div>
+
         <div id="guild-application-feedback" class="form-feedback" aria-live="polite"></div>
       </form>
     </div>
