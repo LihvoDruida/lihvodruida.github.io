@@ -84,7 +84,12 @@
       const placeholder = select.dataset.placeholder || 'Обери варіант';
 
       function applyValue(value, label) {
-        if (input) input.value = value || '';
+        var normalizedValue = value || '';
+        var previousValue = input ? input.value : '';
+        if (input) input.value = normalizedValue;
+        if (input && previousValue !== normalizedValue) {
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         if (valueNode) {
           valueNode.textContent = label || placeholder;
           valueNode.classList.toggle('is-placeholder', !value);
@@ -144,6 +149,97 @@
     const refreshButton = document.getElementById('guild-application-refresh');
     const submitButton = form ? form.querySelector('button[type="submit"]') : null;
     const customSelects = form ? Array.from(form.querySelectorAll('.custom-select')) : [];
+    const factionInput = form ? form.querySelector('input[name="faction"]') : null;
+    const battleTagInput = form ? form.querySelector('input[name="battleTag"]') : null;
+    const battleTagRequiredBadge = document.getElementById('battleTagRequiredBadge');
+    const sourceInput = form ? form.querySelector('input[name="source"]') : null;
+    const sourceCreatorInput = form ? form.querySelector('input[name="sourceCreator"]') : null;
+    const sourcePlatformInput = form ? form.querySelector('input[name="sourcePlatform"]') : null;
+    const sourceOtherInput = form ? form.querySelector('input[name="sourceOther"]') : null;
+    const sourcePlatformField = document.getElementById('sourcePlatformField');
+    const sourceOtherField = document.getElementById('sourceOtherField');
+    const sourcePlatformRequiredBadge = document.getElementById('sourcePlatformRequiredBadge');
+    const sourceOtherRequiredBadge = document.getElementById('sourceOtherRequiredBadge');
+    const sourcePlatformSelect = form ? form.querySelector('.custom-select[data-name="sourcePlatform"]') : null;
+
+    function setFieldVisibility(field, visible) {
+      if (!field) return;
+      field.hidden = !visible;
+      field.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      if (!visible) {
+        var openSelect = field.querySelector('.custom-select.is-open');
+        if (openSelect) {
+          openSelect.classList.remove('is-open');
+          var trigger = openSelect.querySelector('.custom-select__trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+      }
+    }
+
+    function syncBattleTagRequirement() {
+      if (!battleTagInput) return;
+      const factionValue = (factionInput ? factionInput.value : '').toString().trim().toLowerCase();
+      const isHorde = factionValue === 'horde';
+      battleTagInput.required = isHorde;
+      battleTagInput.setAttribute('aria-required', isHorde ? 'true' : 'false');
+      if (battleTagRequiredBadge) battleTagRequiredBadge.hidden = !isHorde;
+      if (!isHorde) {
+        battleTagInput.setCustomValidity('');
+        return;
+      }
+      battleTagInput.setCustomValidity(battleTagInput.value.trim() ? '' : 'Для фракції Horde поле BattleTag є обов’язковим.');
+    }
+
+    function buildSourceValue() {
+      const creator = (sourceCreatorInput ? sourceCreatorInput.value : '').toString().trim();
+      const platform = (sourcePlatformInput ? sourcePlatformInput.value : '').toString().trim();
+      const other = (sourceOtherInput ? sourceOtherInput.value : '').toString().trim();
+
+      if (!creator) return '';
+      if (creator === 'Інше') return other ? 'Інше — ' + other : '';
+      return platform ? creator + ' — ' + platform : '';
+    }
+
+    function syncSourceRequirement() {
+      const creator = (sourceCreatorInput ? sourceCreatorInput.value : '').toString().trim();
+      const isOther = creator === 'Інше';
+      const needsPlatform = !!creator && !isOther;
+
+      setFieldVisibility(sourcePlatformField, needsPlatform);
+      setFieldVisibility(sourceOtherField, isOther);
+      if (sourcePlatformRequiredBadge) sourcePlatformRequiredBadge.hidden = !needsPlatform;
+      if (sourceOtherRequiredBadge) sourceOtherRequiredBadge.hidden = !isOther;
+
+      if (sourcePlatformInput) {
+        sourcePlatformInput.required = needsPlatform;
+        sourcePlatformInput.setAttribute('aria-required', needsPlatform ? 'true' : 'false');
+        if (!needsPlatform) {
+          if (sourcePlatformInput.value && sourcePlatformSelect && typeof sourcePlatformSelect.resetValue === 'function') {
+            sourcePlatformSelect.resetValue();
+          } else {
+            sourcePlatformInput.value = '';
+          }
+          sourcePlatformInput.setCustomValidity('');
+        } else {
+          sourcePlatformInput.setCustomValidity(sourcePlatformInput.value.trim() ? '' : 'Оберіть платформу.');
+        }
+      }
+
+      if (sourceOtherInput) {
+        sourceOtherInput.required = isOther;
+        sourceOtherInput.setAttribute('aria-required', isOther ? 'true' : 'false');
+        if (!isOther) {
+          sourceOtherInput.value = '';
+          sourceOtherInput.setCustomValidity('');
+        } else {
+          sourceOtherInput.setCustomValidity(sourceOtherInput.value.trim() ? '' : 'Вкажіть, звідки саме ви дізналися про нас.');
+        }
+      }
+
+      if (sourceInput) {
+        sourceInput.value = buildSourceValue();
+      }
+    }
 
     function setFeedback(type, html) {
       if (!feedback) return;
@@ -156,6 +252,26 @@
       feedback.className = 'form-feedback';
       feedback.innerHTML = '';
     }
+
+    if (battleTagInput) {
+      battleTagInput.addEventListener('input', syncBattleTagRequirement);
+      battleTagInput.addEventListener('blur', syncBattleTagRequirement);
+    }
+    if (factionInput) {
+      factionInput.addEventListener('change', syncBattleTagRequirement);
+    }
+    if (sourceCreatorInput) {
+      sourceCreatorInput.addEventListener('change', syncSourceRequirement);
+    }
+    if (sourcePlatformInput) {
+      sourcePlatformInput.addEventListener('change', syncSourceRequirement);
+    }
+    if (sourceOtherInput) {
+      sourceOtherInput.addEventListener('input', syncSourceRequirement);
+      sourceOtherInput.addEventListener('blur', syncSourceRequirement);
+    }
+    syncBattleTagRequirement();
+    syncSourceRequirement();
 
     function renderRecent(items) {
       if (!statusRoot) return;
@@ -188,7 +304,9 @@
 
         if (!form.reportValidity()) return;
 
+        syncSourceRequirement();
         const formData = new FormData(form);
+
         const payload = {
           characterName: (formData.get('characterName') || '').toString().trim(),
           realm: (formData.get('realm') || '').toString().trim(),
@@ -196,12 +314,44 @@
           className: (formData.get('className') || '').toString().trim(),
           discord: (formData.get('discord') || '').toString().trim(),
           battleTag: (formData.get('battleTag') || '').toString().trim(),
+          sourceCreator: (formData.get('sourceCreator') || '').toString().trim(),
+          sourcePlatform: (formData.get('sourcePlatform') || '').toString().trim(),
+          sourceOther: (formData.get('sourceOther') || '').toString().trim(),
+          source: buildSourceValue(),
           availability: (formData.get('availability') || '').toString().trim(),
           website: (formData.get('website') || '').toString().trim()
         };
 
-        if (!payload.faction || !payload.className) {
-          setFeedback('error', 'Будь ласка, обери фракцію та клас.');
+        if (!payload.faction) {
+          setFeedback('error', 'Будь ласка, обери фракцію.');
+          return;
+        }
+
+
+        if (payload.sourceCreator && payload.sourceCreator === 'Інше' && !payload.sourceOther) {
+          if (sourceOtherInput) {
+            sourceOtherInput.focus();
+            sourceOtherInput.reportValidity();
+          }
+          setFeedback('error', 'Вкажи, звідки саме ти дізнався про нас.');
+          return;
+        }
+
+        if (payload.sourceCreator && payload.sourceCreator !== 'Інше' && !payload.sourcePlatform) {
+          if (sourcePlatformInput) {
+            sourcePlatformInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          setFeedback('error', 'Будь ласка, обери платформу.');
+          return;
+        }
+
+        if (payload.faction.toLowerCase() === 'horde' && !payload.battleTag) {
+          if (battleTagInput) {
+            battleTagInput.focus();
+            syncBattleTagRequirement();
+            battleTagInput.reportValidity();
+          }
+          setFeedback('error', 'Для фракції Horde поле BattleTag є обов’язковим.');
           return;
         }
 
@@ -228,6 +378,8 @@
           customSelects.forEach(function (select) {
             if (typeof select.resetValue === 'function') select.resetValue();
           });
+          syncBattleTagRequirement();
+          syncSourceRequirement();
           setFeedback('success', 'Заявку надіслано. ' +
             (result.html_url ? 'Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.' : ''));
           loadRecent();

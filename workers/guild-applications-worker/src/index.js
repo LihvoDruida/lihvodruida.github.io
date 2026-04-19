@@ -38,17 +38,35 @@ function extractSummary(body) {
   return parts.join(" • ");
 }
 
+function composeSourceValue(sourceCreator, sourcePlatform, sourceOther, sourceFallback) {
+  const creator = cleanText(sourceCreator, 80);
+  const platform = cleanText(sourcePlatform, 40);
+  const other = cleanText(sourceOther, 120);
+  const fallback = cleanText(sourceFallback, 120);
+
+  if (creator === "Інше") {
+    return other ? `Інше — ${other}` : "";
+  }
+
+  if (creator && platform) {
+    return `${creator} — ${platform}`;
+  }
+
+  return fallback;
+}
+
 function buildIssueBody(payload) {
   return [
     "### Персонаж",
     `- Ім’я персонажа: ${payload.characterName}`,
     `- Фракція: ${payload.faction}`,
     `- Реалм: ${payload.realm}`,
-    `- Клас: ${payload.className}`,
+    `- Клас: ${payload.className || "Не вказано"}`,
     "",
     "### Контакти",
-    `- Discord: ${payload.discord}`,
+    `- Discord: ${payload.discord || "Не вказано"}`,
     `- BattleTag: ${payload.battleTag || "Не вказано"}`,
+    `- Звідки дізнався: ${payload.source || "Не вказано"}`,
     "",
     "### Коли зазвичай грає",
     payload.availability,
@@ -139,6 +157,10 @@ async function createApplication(request, env) {
     className: cleanText(payload.className, 60),
     discord: cleanText(payload.discord, 80),
     battleTag: cleanText(payload.battleTag, 80),
+    sourceCreator: cleanText(payload.sourceCreator, 80),
+    sourcePlatform: cleanText(payload.sourcePlatform, 40),
+    sourceOther: cleanText(payload.sourceOther, 120),
+    source: composeSourceValue(payload.sourceCreator, payload.sourcePlatform, payload.sourceOther, payload.source),
     availability: String(payload.availability || "").trim().slice(0, 400),
   };
 
@@ -146,11 +168,25 @@ async function createApplication(request, env) {
     !cleanPayload.characterName ||
     !cleanPayload.faction ||
     !cleanPayload.realm ||
-    !cleanPayload.className ||
-    !cleanPayload.discord ||
     !cleanPayload.availability
   ) {
     return json({ error: "Будь ласка, заповни всі обов’язкові поля." }, 400, origin);
+  }
+
+  const hasStructuredSource = !!cleanPayload.sourceCreator;
+  if (hasStructuredSource) {
+    if (cleanPayload.sourceCreator === "Інше" && !cleanPayload.sourceOther) {
+      return json({ error: "Вкажи, звідки саме ти дізнався про нас." }, 400, origin);
+    }
+
+    if (cleanPayload.sourceCreator !== "Інше" && !cleanPayload.sourcePlatform) {
+      return json({ error: "Будь ласка, обери платформу." }, 400, origin);
+    }
+  }
+
+
+  if (cleanPayload.faction.toLowerCase() === "horde" && !cleanPayload.battleTag) {
+    return json({ error: "Для фракції Horde поле BattleTag є обов’язковим." }, 400, origin);
   }
 
   const issueTitle = `Заявка до гільдії: ${cleanPayload.characterName}`;

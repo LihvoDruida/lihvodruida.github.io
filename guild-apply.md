@@ -124,19 +124,19 @@ extra_js:
 
         <div class="form-grid form-grid--two">
           <label class="form-field">
-            <span>Ім’я персонажа</span>
+            <span class="field-label">Ім’я персонажа <span class="field-required-note">Обов’язково</span></span>
             <input type="text" name="characterName" maxlength="60" placeholder="Sebas" required>
           </label>
 
           <label class="form-field">
-            <span>Реалм</span>
+            <span class="field-label">Реалм <span class="field-required-note">Обов’язково</span></span>
             <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
           </label>
         </div>
 
         <div class="form-grid form-grid--two form-grid--selectors">
           <div class="form-field">
-            <span>Фракція</span>
+            <span class="field-label">Фракція <span class="field-required-note">Обов’язково</span></span>
             <div class="custom-select" data-name="faction" data-placeholder="Обери фракцію">
               <input type="hidden" name="faction" value="">
               <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
@@ -151,7 +151,7 @@ extra_js:
           </div>
 
           <div class="form-field">
-            <span>Клас</span>
+            <span class="field-label">Клас</span>
             <div class="custom-select" data-name="className" data-placeholder="Обери клас">
               <input type="hidden" name="className" value="">
               <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
@@ -179,18 +179,58 @@ extra_js:
 
         <div class="form-grid form-grid--two">
           <label class="form-field">
-            <span>Discord</span>
-            <input type="text" name="discord" maxlength="80" placeholder="sebas123" required>
+            <span class="field-label">Discord</span>
+            <input type="text" name="discord" maxlength="80" placeholder="sebas123">
           </label>
 
           <label class="form-field">
-            <span>BattleTag</span>
-            <input type="text" name="battleTag" maxlength="80" placeholder="Sebas#1234">
+            <span class="field-label">BattleTag <span id="battleTagRequiredBadge" class="field-required-note field-required-note--conditional" hidden>Обов’язково для Horde</span></span>
+            <input type="text" id="battleTagField" name="battleTag" maxlength="80" placeholder="Sebas#1234">
           </label>
         </div>
 
+        <div class="form-grid form-grid--two form-grid--selectors">
+          <div class="form-field form-field--full-mobile">
+            <span class="field-label">Звідки про нас дізнались</span>
+            <div class="custom-select" data-name="sourceCreator" data-placeholder="Обери джерело">
+              <input type="hidden" name="sourceCreator" value="">
+              <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-select__value">Обери джерело</span>
+                <span class="custom-select__icon" aria-hidden="true">⌄</span>
+              </button>
+              <div class="custom-select__menu" role="listbox" tabindex="-1">
+                <button type="button" class="custom-select__option" role="option" data-value="Лігво Друїда">Лігво Друїда</button>
+                <button type="button" class="custom-select__option" role="option" data-value="MrFortune">MrFortune</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Інше">Інше</button>
+              </div>
+            </div>
+            <input type="hidden" name="source" value="">
+          </div>
+
+          <div id="sourcePlatformField" class="form-field form-field--full-mobile" hidden aria-hidden="true">
+            <span class="field-label">Платформа <span id="sourcePlatformRequiredBadge" class="field-required-note field-required-note--conditional" hidden>Обов’язково</span></span>
+            <div class="custom-select" data-name="sourcePlatform" data-placeholder="Обери платформу">
+              <input type="hidden" name="sourcePlatform" value="">
+              <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-select__value">Обери платформу</span>
+                <span class="custom-select__icon" aria-hidden="true">⌄</span>
+              </button>
+              <div class="custom-select__menu" role="listbox" tabindex="-1">
+                <button type="button" class="custom-select__option" role="option" data-value="TikTok">TikTok</button>
+                <button type="button" class="custom-select__option" role="option" data-value="YouTube">YouTube</button>
+                <button type="button" class="custom-select__option" role="option" data-value="Twitch">Twitch</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <label id="sourceOtherField" class="form-field form-field--full" hidden aria-hidden="true">
+          <span class="field-label">Розкажи, звідки саме <span id="sourceOtherRequiredBadge" class="field-required-note field-required-note--conditional" hidden>Обов’язково для «Інше»</span></span>
+          <input type="text" name="sourceOther" maxlength="120" placeholder="Наприклад: Discord, друзі, пошук Google">
+        </label>
+
         <label class="form-field form-field--full">
-          <span>Коли зазвичай граєш</span>
+          <span class="field-label">Коли зазвичай граєш <span class="field-required-note">Обов’язково</span></span>
           <textarea name="availability" rows="4" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні ввечері" required></textarea>
         </label>
 

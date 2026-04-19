@@ -42,6 +42,11 @@
   box-sizing: border-box;
 }
 
+.listing-page--guild-apply [hidden],
+.listing-page--guild-applications [hidden] {
+  display: none !important;
+}
+
 .listing-page--guild-apply .section-tag,
 .listing-page--guild-applications .section-tag {
   display: inline-flex;
@@ -453,11 +458,47 @@
   overflow: visible;
 }
 
+.form-field--full-mobile {
+  grid-column: 1 / -1;
+}
+
 .form-field > span,
 .applications-search-field > span {
   color: var(--apply-text);
   font-size: 0.8rem;
   font-weight: 800;
+}
+
+
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.field-required-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 133, 82, 0.22);
+  background: rgba(226, 133, 82, 0.12);
+  color: var(--apply-accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.field-required-note--conditional {
+  border-color: rgba(245, 166, 91, 0.26);
+  background: rgba(245, 166, 91, 0.14);
+  color: #ffd090;
 }
 
 .form-field input,
@@ -502,8 +543,8 @@
 .applications-search-field input:focus,
 .custom-select.is-open .custom-select__trigger,
 .custom-select__trigger:focus-visible {
-  border-color: var(--apply-border-strong);
-  box-shadow: 0 0 0 4px rgba(226, 133, 82, 0.12);
+  border-color: rgba(212, 160, 61, 0.34);
+  box-shadow: 0 0 0 4px rgba(212, 160, 61, 0.12), 0 12px 26px rgba(0,0,0,0.2);
 }
 
 .custom-select {
@@ -511,6 +552,11 @@
   min-width: 0;
   z-index: 12;
   overflow: visible;
+  isolation: isolate;
+}
+
+.custom-select.is-open {
+  z-index: 120;
 }
 
 .custom-select__trigger {
@@ -520,6 +566,21 @@
   gap: 0.65rem;
   text-align: left;
   cursor: pointer;
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(212, 160, 61, 0.08), transparent 55%),
+    linear-gradient(180deg, rgba(42, 35, 30, 0.98), rgba(24, 20, 18, 0.99));
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 10px 22px rgba(0,0,0,0.18);
+}
+
+.custom-select__trigger:hover {
+  border-color: rgba(212, 160, 61, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(212, 160, 61, 0.12), transparent 54%),
+    linear-gradient(180deg, rgba(46, 38, 33, 0.99), rgba(26, 22, 19, 1));
 }
 
 .custom-select__value {
@@ -533,13 +594,14 @@
 
 .custom-select__icon {
   flex: 0 0 auto;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.64);
   font-size: 0.9rem;
-  transition: transform 0.18s ease;
+  transition: transform 0.18s ease, color 0.18s ease;
 }
 
 .custom-select.is-open .custom-select__icon {
   transform: rotate(180deg);
+  color: #f3cb84;
 }
 
 .custom-select__menu {
@@ -547,63 +609,100 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 60;
+  z-index: 220;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.45rem;
   max-height: 0;
+  min-width: 100%;
   padding: 0;
   overflow: hidden;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  background: linear-gradient(180deg, rgba(36, 31, 27, 0.995), rgba(22, 19, 17, 0.995));
-  box-shadow: 0 18px 36px rgba(0,0,0,0.34);
+  overflow-x: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at top left, rgba(212, 160, 61, 0.1), transparent 58%),
+    linear-gradient(180deg, rgba(36, 30, 26, 0.995), rgba(18, 15, 13, 1));
+  box-shadow:
+    0 24px 48px rgba(0,0,0,0.46),
+    0 8px 18px rgba(0,0,0,0.26);
   opacity: 0;
-  transform: translateY(-6px);
-  transition: opacity 0.16s ease, transform 0.16s ease, max-height 0.18s ease, padding 0.18s ease, border-color 0.18s ease;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.985);
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease,
+    max-height 0.18s ease,
+    padding 0.18s ease,
+    border-color 0.18s ease,
+    visibility 0s linear 0.18s;
 }
 
 .custom-select.is-open .custom-select__menu {
   max-height: 320px;
   padding: 0.65rem;
   opacity: 1;
-  transform: translateY(0);
-  border-color: rgba(255,255,255,0.1);
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  border-color: rgba(212, 160, 61, 0.26);
   overflow-y: auto;
+  transition-delay: 0s;
 }
 
 .custom-select__menu--tall {
   max-height: 400px;
 }
 
+.custom-select.is-open .custom-select__menu.custom-select__menu--tall {
+  max-height: 400px;
+}
+
 .custom-select__option {
   width: 100%;
-  min-height: 38px;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 0.8rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: var(--apply-text);
+  gap: 0.65rem;
+  padding: 0.72rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--apply-text-soft);
   font-size: 0.84rem;
   font-weight: 700;
+  line-height: 1.25;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+  position: relative;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .custom-select__option:hover,
 .custom-select__option:focus-visible {
-  border-color: var(--apply-border-strong);
-  background: rgba(226, 133, 82, 0.12);
+  border-color: rgba(212, 160, 61, 0.26);
+  background: rgba(212, 160, 61, 0.14);
+  color: var(--apply-text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  transform: none;
   outline: 0;
 }
 
 .custom-select__option.is-active {
-  color: var(--apply-dark-gold);
-  border-color: rgba(212, 160, 61, 0.4);
-  background: linear-gradient(180deg, rgba(228, 177, 74, 0.98), rgba(212, 160, 61, 0.98));
+  color: #23170a;
+  border-color: rgba(212, 160, 61, 0.38);
+  background: linear-gradient(180deg, rgba(236, 188, 87, 0.98), rgba(212, 160, 61, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 8px 18px rgba(212, 160, 61, 0.18);
 }
 
 .form-actions {
@@ -891,12 +990,9 @@
     flex: 1 1 100%;
   }
 
-  .custom-select {
-    z-index: auto;
-  }
-
+  .custom-select,
   .custom-select.is-open {
-    z-index: 80;
+    z-index: 140;
   }
 }
 
