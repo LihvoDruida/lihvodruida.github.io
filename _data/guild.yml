@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-19 13:05:16'
+  updated_at: '2026-04-19 16:43:08'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,8 +15,8 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 103
-  achievement_points: 395
+  member_count: 106
+  achievement_points: 415
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13002
-      region: 5759
+      world: 13007
+      region: 5761
       realm: 54
     heroic:
-      world: 14910
-      region: 6216
+      world: 14925
+      region: 6219
       realm: 48
     mythic:
       world: 0
@@ -428,7 +428,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Bullimonk
     id: 176655838
@@ -480,7 +480,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Rozbiynik
     id: 176857060
@@ -688,7 +688,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Bylik
     id: 183464576
@@ -740,7 +740,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Hopeblood
     id: 183698913
@@ -896,7 +896,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Illidonson
     id: 185333989
@@ -1364,7 +1364,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Monkania
     id: 187502940
@@ -2460,7 +2460,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Straponeero
     id: 189792012
@@ -2512,7 +2512,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Клеосса
     id: 190326716
@@ -2537,11 +2537,11 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       dps:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       healer:
         score: 0
         color: '#ffffff'
@@ -2555,8 +2555,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2589,8 +2589,8 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       dps:
         score: 0
         color: '#ffffff'
@@ -2598,14 +2598,14 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2173.5
-        color: '#53de5f'
+        score: 2194.3
+        color: '#56d966'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -2824,7 +2824,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Жмуякможу
     id: 195985646
@@ -2980,7 +2980,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Mexamer
     id: 214528578
@@ -3005,8 +3005,8 @@ members:
     item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 2622.7
-        color: '#4a8ac1'
+        score: 2727.8
+        color: '#1f74d8'
       dps:
         score: 0
         color: '#ffffff'
@@ -3014,11 +3014,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2622.7
-        color: '#4a8ac1'
+        score: 2727.8
+        color: '#1f74d8'
       spec_0:
-        score: 2622.7
-        color: '#4a8ac1'
+        score: 2727.8
+        color: '#1f74d8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3106,22 +3106,22 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 260
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2377.6
+        score: 2384.1
         color: '#5fb88f'
       dps:
         score: 668.4
         color: '#dbffcd'
       healer:
-        score: 2377.6
+        score: 2384.1
         color: '#5fb88f'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2377.6
+        score: 2384.1
         color: '#5fb88f'
       spec_1:
         score: 0
@@ -3188,7 +3188,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Ohhchetos
     id: 217005099
@@ -3604,7 +3604,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Vertyxa
     id: 223896122
@@ -3626,26 +3626,26 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 268
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2572.5
-        color: '#5393b7'
+        score: 2608.4
+        color: '#4a8ac1'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2572.5
-        color: '#5393b7'
+        score: 2608.4
+        color: '#4a8ac1'
       tank:
-        score: 0
-        color: '#ffffff'
+        score: 280.7
+        color: '#f9fff7'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 280.7
+        color: '#f9fff7'
       spec_1:
-        score: 2572.5
-        color: '#5393b7'
+        score: 2608.4
+        color: '#4a8ac1'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3778,11 +3778,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Enhancement
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 244
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 2316.2
@@ -4072,7 +4072,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Амарак
     id: 253815447
@@ -4094,11 +4094,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Амарак
-    item_level_equipped: 143
+    item_level_equipped: 241
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 499.1
+        color: '#eaffe1'
       dps:
         score: 0
         color: '#ffffff'
@@ -4106,8 +4106,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 0
-        color: '#ffffff'
+        score: 499.1
+        color: '#eaffe1'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4115,8 +4115,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 499.1
+        color: '#eaffe1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4617,11 +4617,11 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2069.1
-        color: '#38f531'
+        score: 2130.7
+        color: '#4be750'
       dps:
-        score: 2069.1
-        color: '#38f531'
+        score: 2130.7
+        color: '#4be750'
       healer:
         score: 0
         color: '#ffffff'
@@ -4635,8 +4635,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2069.1
-        color: '#38f531'
+        score: 2130.7
+        color: '#4be750'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4877,11 +4877,11 @@ members:
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2482.3
-        color: '#5ba1a9'
+        score: 2511.3
+        color: '#589dae'
       dps:
-        score: 2482.3
-        color: '#5ba1a9'
+        score: 2511.3
+        color: '#589dae'
       healer:
         score: 0
         color: '#ffffff'
@@ -4895,8 +4895,8 @@ members:
         score: 331.8
         color: '#f5fff1'
       spec_2:
-        score: 2453.5
-        color: '#5eaa9f'
+        score: 2482.4
+        color: '#5ba1a9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4956,7 +4956,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Галазард
     id: 265562740
@@ -5266,16 +5266,16 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 276
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2760
+        score: 2766.6
         color: '#1f74d8'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2760
+        score: 2766.6
         color: '#1f74d8'
       tank:
         score: 0
@@ -5290,17 +5290,17 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2760
+        score: 2766.6
         color: '#1f74d8'
     sources:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Марлая
     id: 265853063
-    level: 82
+    level: 83
     realm:
       id: 1602
       slug: gordunni
@@ -5324,11 +5324,11 @@ members:
       roster: blizzard
       enrichment: null
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Кхаарн
     id: 265879817
-    level: 64
+    level: 74
     realm:
       id: 1603
       slug: lich-king
@@ -5340,6 +5340,138 @@ members:
       name: null
     faction:
       type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 3
+  character:
+    name: Blackdaddy
+    id: 187026124
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 28
+      name: Highmountain Tauren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 1799.6
+        color: '#5eff43'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 1799.6
+        color: '#5eff43'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 1799.6
+        color: '#5eff43'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Сетария
+    id: 175160150
+    level: 90
+    realm:
+      id: 1614
+      slug: galakrond
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/galakrond/86/175160150-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/galakrond/Сетария
+    item_level_equipped: 164
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Артизан
+    id: 196190994
+    level: 83
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 9
+      name: null
+    playable_race:
+      id: 8
+      name: null
+    faction:
+      type: HORDE
     gender: null
     active_spec:
       name: null
