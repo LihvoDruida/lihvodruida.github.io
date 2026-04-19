@@ -135,6 +135,10 @@
     document.addEventListener('click', function (event) {
       if (!event.target.closest('.custom-select')) closeAll();
     });
+
+    window.addEventListener('resize', function () {
+      closeAll();
+    });
   }
 
   setupCustomSelects(document);
