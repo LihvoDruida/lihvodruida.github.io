@@ -24,11 +24,6 @@ extra_js:
           <span class="application-chip">Пошук за ніком</span>
           <span class="application-chip">Оригінальні заявки</span>
         </div>
-
-        <div class="toolbar-links hero-actions">
-          <a href="{{ '/guild/apply/' | relative_url }}" class="application-primary-link">Подати заявку</a>
-          <a href="{{ '/guild/' | relative_url }}" class="btn-secondary-hero">Гільдія</a>
-        </div>
       </div>
 
       <div class="hero-showcase hero-showcase--applications" aria-label="Зведення по заявках">
@@ -54,6 +49,10 @@ extra_js:
               <p class="hero-info-tile__meta">Ще відкриті</p>
             </article>
           </div>
+        </div>
+        <div class="toolbar-links hero-actions">
+          <a href="/guild/apply/" class="application-primary-link">Подати заявку</a>
+          <a href="/guild/" class="btn-secondary-hero">Гільдія</a>
         </div>
       </div>
     </div>
