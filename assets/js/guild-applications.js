@@ -32,18 +32,21 @@
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
     var description = item.summary || 'Короткий опис заявки буде доступний після відкриття картки.';
     var title = String(item.title || '').replace(/^Заявка до гільдії:\s*/i, '').trim() || 'Нова заявка';
+    var metaHtml = meta.length
+      ? meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>')
+      : '<span>Без додаткових даних</span>';
 
-    return '<article class="application-status-item">' +
-      '<div class="application-status-item__top">' +
-        '<div class="application-status-item__title-group">' +
+    return '<article class="application-status-item application-status-item--' + stateClass + '">' +
+      '<div class="application-status-item__head">' +
+        '<div class="application-status-item__eyebrow-row">' +
           '<span class="application-status-item__eyebrow">Заявка до гільдії</span>' +
-          '<h3 class="application-status-item__title">' + escapeHtml(title) + '</h3>' +
-          '<div class="application-status-item__meta">' + meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>') + '</div>' +
+          '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
         '</div>' +
-        '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
+        '<h3 class="application-status-item__title">' + escapeHtml(title) + '</h3>' +
+        '<div class="application-status-item__meta">' + metaHtml + '</div>' +
       '</div>' +
-      '<div class="application-status-item__desc">' + escapeHtml(description) + '</div>' +
-      (item.html_url ? '<a class="application-status-item__link" href="' + escapeHtml(item.html_url) + '" target="_blank" rel="noopener noreferrer">Відкрити заявку <span aria-hidden="true">↗</span></a>' : '') +
+      '<p class="application-status-item__desc">' + escapeHtml(description) + '</p>' +
+      (item.html_url ? '<div class="application-status-item__footer"><a class="application-status-item__link" href="' + escapeHtml(item.html_url) + '" target="_blank" rel="noopener noreferrer">Відкрити заявку <span aria-hidden="true">↗</span></a></div>' : '') +
     '</article>';
   }
 

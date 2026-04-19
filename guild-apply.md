@@ -11,93 +11,111 @@ extra_js:
   - /assets/js/guild-applications.js
 ---
 
-<div class="guild-page-container guild-application-page" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="8">
-  <section class="applications-page-hero applications-page-hero--apply">
-    <div class="applications-page-hero__grid">
-      <div class="applications-page-hero__copy">
-        <span class="section-tag">Набір до гільдії</span>
-        <h1>Подай заявку до Mistblossom Vanguard</h1>
-        <p class="section-subtitle">Заповни коротку форму, залиш контакти й відразу перевіряй статус звернення на сайті.</p>
-
-        <div class="application-hero__chips">
+<div class="area-content guild-page-container listing-page listing-page--guild-apply guild-application-page" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="8">
+  <section class="page-hero page-hero--applications page-hero--apply page-hero--showcase">
+    <div class="page-hero-grid page-hero-grid--showcase">
+      <div class="page-hero-copy">
+        <span class="section-tag">Шлях до вступу</span>
+        <div class="hero-showcase__brand">
+            <div class="hero-showcase__logo-wrap">
+              <img src="{{ '/assets/img/guild-logo.webp' | relative_url }}" alt="Логотип гільдії Mistblossom Vanguard" class="hero-showcase__logo" loading="eager" decoding="async">
+            </div>
+            <div class="hero-showcase__brand-copy">
+              <h2 class="hero-showcase__title">Mistblossom Vanguard</h2>
+              <p class="hero-showcase__text">Анкета для вступу до гільдії: заповни форму й далі стеж за статусом на сайті.</p>
+            </div>
+          </div>
+                    <div class="hero-showcase__tiles hero-showcase__tiles--path">
+            <article class="hero-info-tile">
+              <span class="hero-info-tile__label">Крок 1</span>
+              <strong class="hero-info-tile__value">Guild Finder</strong>
+              <p class="hero-info-tile__meta">Знайди гільдію в грі</p>
+            </article>
+            <article class="hero-info-tile">
+              <span class="hero-info-tile__label">Крок 2</span>
+              <strong class="hero-info-tile__value">Подай заявку</strong>
+              <p class="hero-info-tile__meta">Коротка форма без зайвого</p>
+            </article>
+            <article class="hero-info-tile">
+              <span class="hero-info-tile__label">Крок 3</span>
+              <strong class="hero-info-tile__value">Стеж за статусом</strong>
+              <p class="hero-info-tile__meta">Оновлення на окремій сторінці</p>
+            </article>
+          </div>
+        <div class="hero-chip-row">
           <span class="application-chip">Alliance / Horde</span>
-          <span class="application-chip">Рейди та Mythic+</span>
-          <span class="application-chip">Сайт + Discord</span>
+          <span class="application-chip">Рейди / Mythic+</span>
+          <span class="application-chip">Discord</span>
         </div>
-
-        <div class="application-mini-stats">
-          <div class="application-mini-stat">
-            <span class="application-mini-stat__label">Формат</span>
-            <strong class="application-mini-stat__value">Коротка заявка</strong>
-          </div>
-          <div class="application-mini-stat">
-            <span class="application-mini-stat__label">Відповідь</span>
-            <strong class="application-mini-stat__value">Після розгляду</strong>
-          </div>
-        </div>
-
-        <div class="applications-page-hero__actions">
+        <div class="toolbar-links hero-actions">
           <a href="#guild-application-form" class="application-primary-link">Заповнити заявку</a>
-          <a href="{{ '/guild/applications/' | relative_url }}" class="application-secondary-link">Усі заявки</a>
-        </div>
-      </div>
-
-      <div class="applications-page-hero__aside">
-        <div class="applications-hero-card">
-          <span class="section-tag">Як усе відбувається</span>
-          <h2>Швидкий і зрозумілий процес</h2>
-          <ol class="application-steps application-steps--compact">
-            <li><strong>Надішли заявку.</strong> Персонаж, фракція, клас і контакти.</li>
-            <li><strong>Слідкуй за статусом.</strong> Відкриті заявки залишаються на розгляді.</li>
-            <li><strong>Дочекайся відповіді.</strong> Коли рішення буде готове, статус оновиться.</li>
-          </ol>
-          {% if site.data.socials.discord %}
-          <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="application-discord-link">Discord гільдії</a>
-          {% endif %}
+          <a href="{{ '/guild/applications/' | relative_url }}" class="btn-secondary-hero">Перевірити статус</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="guild-finder-section guild-finder-section--compact">
-    <div class="guild-finder-card guild-finder-card--content">
-      <div class="application-section-head application-section-head--tight">
-        <span class="section-tag">Як знайти гільдію в грі</span>
-        <h2>Альянс може знайти Mistblossom Vanguard через Guild &amp; Communities</h2>
-        <p>Відкрий пошук гільдій, введи <strong>Mistblossom Vanguard</strong> і переконайся, що ти на персонажі Альянсу. Після цього можна відправити запит на вступ і дублювати заявку через сайт.</p>
+  <div class="content-toolbar application-toolbar">
+    <div>
+      <h2 class="toolbar-title">Як вступити до гільдії</h2>
+      <p class="toolbar-copy">Спочатку знайди гільдію в грі, нижче заповни коротку форму й перевіряй статус заявки на сайті.</p>
+    </div>
+    <div class="toolbar-links">
+      <a href="{{ '/guild/' | relative_url }}" class="btn-secondary-hero">Сторінка гільдії</a>
+      {% if site.data.socials.discord %}
+      <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="btn-secondary-hero">Discord</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="featured-article featured-article--applications guild-apply-guide">
+    <div class="featured-image guild-apply-guide__image">
+      <div class="guild-apply-guide__image-frame">
+        <img src="{{ '/assets/img/guild-finder-apply.png' | relative_url }}" alt="Пошук гільдії Mistblossom Vanguard у World of Warcraft" loading="eager" decoding="async">
+      </div>
+      <div class="guild-apply-guide__image-caption">
+        <span class="guild-apply-guide__image-kicker">Guild Finder</span>
+        <strong class="guild-apply-guide__image-title">Так виглядає пошук гільдії в грі</strong>
+      </div>
+    </div>
+
+    <div class="featured-content guild-apply-guide__content">
+      <div class="featured-meta">
+        <span class="category-badge category-badge--guild">У грі</span>
+        <span class="date">Перший крок</span>
       </div>
 
-      <div class="finder-steps-grid finder-steps-grid--compact">
+      <h2>Знайди Mistblossom Vanguard у Guild Finder</h2>
+      <p>Відкрий <strong>Guild &amp; Communities</strong>, введи <strong>Mistblossom Vanguard</strong> і після цього заповни заявку на сайті. Так ми швидше побачимо твій нік, клас і контакти.</p>
+
+      <div class="finder-steps-grid finder-steps-grid--newslike">
         <article class="finder-step-card">
           <span class="finder-step-card__num">1</span>
           <h3>Відкрий Guild Finder</h3>
-          <p>Перейди до вікна <strong>Guild &amp; Communities</strong> у грі.</p>
+          <p>Перейди до <strong>Guild &amp; Communities</strong> у World of Warcraft.</p>
         </article>
+
         <article class="finder-step-card">
           <span class="finder-step-card__num">2</span>
           <h3>Знайди гільдію</h3>
-          <p>Введи назву <strong>Mistblossom Vanguard</strong> у пошуку.</p>
+          <p>Введи <strong>Mistblossom Vanguard</strong> у пошуку.</p>
         </article>
+
         <article class="finder-step-card">
           <span class="finder-step-card__num">3</span>
-          <h3>Надішли заявку</h3>
-          <p>Подай запит у грі й тримай зв’язок через Discord або сайт.</p>
+          <h3>Заповни форму на сайті</h3>
+          <p>Так простіше перевірити статус і швидше зв’язатися з тобою.</p>
         </article>
       </div>
     </div>
-
-    <div class="guild-finder-card guild-finder-card--image guild-finder-card--image-compact">
-      <img src="{{ '/assets/img/guild-finder-apply.png' | relative_url }}" alt="Пошук гільдії Mistblossom Vanguard у World of Warcraft">
-      <p class="guild-finder-caption">Так Mistblossom Vanguard виглядає у вікні Guild &amp; Communities.</p>
-    </div>
   </section>
 
-  <section class="application-layout application-layout--refined">
-    <div class="application-form-card application-form-card--refined">
-      <div class="application-section-head application-section-head--tight">
+  <section class="application-main-grid">
+    <div class="application-panel application-panel--form">
+      <div class="application-panel__header">
         <span class="section-tag">Форма заявки</span>
         <h2>Швидка анкета для вступу</h2>
-        <p>Заповни кілька полів, обери фракцію та клас і залиш контакти, щоб ми могли швидко з тобою зв’язатися.</p>
+        <p>Лише основна інформація: персонаж, реалм, фракція, клас і контакти. Без перевантаження та зайвих кроків.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
@@ -175,33 +193,33 @@ extra_js:
           <textarea name="availability" rows="4" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні ввечері" required></textarea>
         </label>
 
-        <div class="form-actions form-actions--compact">
+        <div class="form-actions">
           <button type="submit" class="application-submit-button">Надіслати заявку</button>
-          <p class="form-hint">Після відправлення її можна одразу відкрити та перевірити статус.</p>
+          <p class="form-hint">Після відправлення можна одразу перейти до списку заявок і перевірити статус.</p>
         </div>
 
         <div id="guild-application-feedback" class="form-feedback" aria-live="polite"></div>
       </form>
     </div>
 
-    <aside class="application-status-card application-status-card--refined">
-      <div class="application-section-head application-section-head--tight">
-        <span class="section-tag">Недавні заявки</span>
-        <h2>Останні звернення</h2>
-        <p>Тут показуються лише кілька останніх заявок. Повний список відкривається на окремій сторінці.</p>
+    <aside class="application-panel application-panel--status">
+      <div class="application-panel__header application-panel__header--compact">
+        <span class="section-tag">Останні заявки</span>
+        <h2>Останні звернення та їх статус</h2>
+        <p>Відкриті заявки ще в роботі. Коли розгляд завершено, статус змінюється автоматично.</p>
       </div>
 
       <div class="applications-legend">
-        <span><i class="legend-dot legend-dot--open"></i> На розгляді</span>
+        <span><i class="legend-dot"></i> На розгляді</span>
         <span><i class="legend-dot legend-dot--closed"></i> Розгляд завершено</span>
       </div>
 
-      <div class="application-status-actions application-status-actions--compact">
-        <a href="{{ '/guild/applications/' | relative_url }}" class="application-secondary-link">Усі заявки</a>
+      <div class="application-status-actions">
+        <a href="{{ '/guild/applications/' | relative_url }}" class="btn-secondary-hero">Усі заявки</a>
         <button type="button" id="guild-application-refresh" class="status-refresh-button">Оновити</button>
       </div>
 
-      <div id="guild-applications-status" class="application-status-list application-status-list--compact">
+      <div id="guild-applications-status" class="application-status-list application-status-list--recent">
         <div class="applications-placeholder">Оновлюємо список заявок…</div>
       </div>
     </aside>
