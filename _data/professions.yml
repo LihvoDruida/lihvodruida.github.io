@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-19 08:57:57'
+  updated_at: '2026-04-19 13:05:16'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 102
+  member_count: 103
 characters:
 - name: Бреинор
   region: eu
@@ -2080,6 +2080,9 @@ characters:
     - name: Cooking
       id: 185
       tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
@@ -2456,7 +2459,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Engineering
-        learned_points: 94
+        learned_points: 95
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2750,7 +2753,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Котто
   professions:
     primaries:
     - name: Enchanting
@@ -3547,7 +3550,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Forchun
   professions:
     primaries:
     - name: Engineering
@@ -3665,7 +3668,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 41
+        learned_points: 43
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3674,7 +3677,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 62
+        learned_points: 64
         max_points: 100
     secondaries: []
 - name: Oxydenis
@@ -3924,7 +3927,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 83
+        learned_points: 85
         max_points: 100
     secondaries: []
 - name: Bernstorff
@@ -4680,7 +4683,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Мортург
   professions:
     primaries:
     - name: Herbalism
@@ -4736,7 +4739,7 @@ characters:
   region: eu
   realm: grom
   realm_slug: grom
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/grom/Лилая
   professions:
     primaries:
     - name: Inscription
@@ -4948,7 +4951,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 93
+        learned_points: 97
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -4967,7 +4970,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 33
+        learned_points: 40
         max_points: 100
     - name: Fishing
       id: 356
@@ -5189,16 +5192,16 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 51
+        learned_points: 60
         max_points: 100
-    - name: Inscription
-      id: 773
+    - name: Enchanting
+      id: 333
       tiers:
-      - name: Classic Inscription
+      - name: Classic Enchanting
         learned_points: 1
         max_points: 300
-      - name: Midnight Inscription
-        learned_points: 2
+      - name: Midnight Enchanting
+        learned_points: 38
         max_points: 100
     secondaries: []
 - name: Щпикачечка
@@ -5465,10 +5468,10 @@ characters:
         learned_points: 29
         max_points: 100
       - name: Khaz Algar Enchanting
-        learned_points: 6
+        learned_points: 7
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 64
+        learned_points: 65
         max_points: 100
     - name: Tailoring
       id: 197
@@ -5485,4 +5488,12 @@ characters:
       - name: Midnight Tailoring
         learned_points: 56
         max_points: 100
+    secondaries: []
+- name: Кхаарн
+  region: eu
+  realm: lich-king
+  realm_slug: lich-king
+  profile_url: null
+  professions:
+    primaries: []
     secondaries: []
