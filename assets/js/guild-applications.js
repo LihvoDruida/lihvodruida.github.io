@@ -108,6 +108,12 @@
           closeAll(select);
           select.classList.toggle('is-open', opening);
           trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+
+          if (opening && window.matchMedia('(max-width: 768px)').matches) {
+            window.requestAnimationFrame(function () {
+              select.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            });
+          }
         });
       }
 
@@ -137,6 +143,10 @@
     });
 
     window.addEventListener('resize', function () {
+      closeAll();
+    });
+
+    window.addEventListener('orientationchange', function () {
       closeAll();
     });
   }
