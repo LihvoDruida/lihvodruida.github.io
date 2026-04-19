@@ -64,8 +64,8 @@ function buildIssueBody(payload) {
     `- Клас: ${payload.className || "Не вказано"}`,
     "",
     "### Контакти",
-    `- Discord: ${payload.discord || "Не вказано"}`,
-    `- BattleTag: ${payload.battleTag || "Не вказано"}`,
+    `- Discord: Приховано`,
+    `- BattleTag: Приховано`,
     `- Звідки дізнався: ${payload.source || "Не вказано"}`,
     "",
     "### Коли зазвичай грає",
@@ -85,6 +85,67 @@ async function githubFetch(env, path, init = {}) {
       ...(init.headers || {}),
     },
   });
+}
+
+function buildCharacterRealmTag(characterName, realm) {
+  const character = cleanText(characterName, 60);
+  const compactRealm = cleanText(realm, 60).replace(/\s+/g, "");
+  return [character, compactRealm].filter(Boolean).join("-");
+}
+
+function escapeDiscordMarkdown(value) {
+  return String(value || "")
+    .replace(/@/g, "@​")
+    .replace(/([*_`~|>])/g, "\\$1")
+    .trim();
+}
+
+function buildDiscordMessage(payload, issue) {
+  const lines = [
+    "## Нова заявка до гільдії",
+    `**Персонаж:** \`${escapeDiscordMarkdown(buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName)}\``,
+    `**Фракція:** ${escapeDiscordMarkdown(payload.faction)}`,
+    `**Реалм:** ${escapeDiscordMarkdown(payload.realm)}`,
+    `**Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
+    `**Discord:** ${escapeDiscordMarkdown(payload.discord || "Не вказано")}`,
+    `**BattleTag:** ${escapeDiscordMarkdown(payload.battleTag || "Не вказано")}`,
+    `**Звідки дізнався:** ${escapeDiscordMarkdown(payload.source || "Не вказано")}`,
+    "",
+    "### Коли зазвичай грає",
+    escapeDiscordMarkdown(payload.availability || "Не вказано"),
+  ];
+
+  if (issue?.html_url) {
+    lines.push("", `**Issue:** ${issue.html_url}`);
+  }
+
+  return lines.join("\n").slice(0, 1900);
+}
+
+async function sendDiscordNotification(env, payload, issue) {
+  const webhookUrl = String(env.DISCORD_WEBHOOK_URL || "").trim();
+  if (!webhookUrl) {
+    return { skipped: true };
+  }
+
+  const response = await fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      content: buildDiscordMessage(payload, issue),
+      allowed_mentions: { parse: [] },
+      username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard",
+    }),
+  });
+
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    throw new Error(raw || `Discord webhook error ${response.status}`);
+  }
+
+  return { ok: true };
 }
 
 async function listApplications(request, env) {
@@ -227,6 +288,17 @@ async function createApplication(request, env) {
       );
     }
 
+    let discord = { skipped: true };
+
+    try {
+      discord = await sendDiscordNotification(env, cleanPayload, data);
+    } catch (error) {
+      discord = {
+        ok: false,
+        error: error instanceof Error ? error.message : "Discord notification failed.",
+      };
+    }
+
     return json(
       {
         ok: true,
@@ -234,6 +306,7 @@ async function createApplication(request, env) {
         html_url: data.html_url,
         state: data.state,
         title: data.title,
+        discord,
       },
       201,
       origin
