@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-19 02:48:00'
+  updated_at: '2026-04-19 05:59:54'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1395,7 +1395,7 @@ characters:
         learned_points: 3
         max_points: 75
       - name: Classic Mining
-        learned_points: 23
+        learned_points: 24
         max_points: 300
       - name: Dragon Isles Mining
         learned_points: 9
@@ -3719,7 +3719,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 76
+        learned_points: 77
         max_points: 100
     secondaries:
     - name: Archaeology
