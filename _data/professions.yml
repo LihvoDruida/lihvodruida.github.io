@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-19 20:40:16'
+  updated_at: '2026-04-20 02:50:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5512,7 +5512,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 20
+        learned_points: 25
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -5711,7 +5711,7 @@ characters:
         learned_points: 55
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 91
+        learned_points: 93
         max_points: 100
     secondaries:
     - name: Fishing

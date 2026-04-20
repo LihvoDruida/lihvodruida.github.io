@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-19 20:40:16'
+  updated_at: '2026-04-20 02:50:02'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -16,7 +16,7 @@ guild:
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 108
-  achievement_points: 415
+  achievement_points: 425
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13034
-      region: 5783
+      world: 13050
+      region: 5790
       realm: 54
     heroic:
-      world: 15033
-      region: 6308
+      world: 15130
+      region: 6334
       realm: 48
     mythic:
       world: 0
@@ -3886,7 +3886,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-    item_level_equipped: 265
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 2351.9
@@ -4926,7 +4926,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/72/265489736-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Щпикачечка
-    item_level_equipped: 244
+    item_level_equipped: 248
     mythic_plus_scores:
       all:
         score: 1084.5
@@ -5328,7 +5328,7 @@ members:
   character:
     name: Кхаарн
     id: 265879817
-    level: 81
+    level: 82
     realm:
       id: 1603
       slug: lich-king
@@ -5377,14 +5377,14 @@ members:
     item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
       tank:
         score: 0
         color: '#ffffff'
@@ -5398,8 +5398,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5426,7 +5426,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/galakrond/86/175160150-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/galakrond/Сетария
-    item_level_equipped: 164
+    item_level_equipped: 242
     mythic_plus_scores:
       all:
         score: 0
@@ -5488,7 +5488,7 @@ members:
   character:
     name: Мавпита
     id: 265908803
-    level: 67
+    level: 71
     realm:
       id: 1602
       slug: gordunni
@@ -5537,11 +5537,11 @@ members:
     item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
       dps:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
       healer:
         score: 0
         color: '#ffffff'
@@ -5555,8 +5555,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1799.6
-        color: '#5eff43'
+        score: 1893.9
+        color: '#49ff2f'
       spec_3:
         score: 0
         color: '#ffffff'
