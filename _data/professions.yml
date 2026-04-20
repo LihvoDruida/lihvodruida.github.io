@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 17:06:21'
+  updated_at: '2026-04-20 20:51:08'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -393,7 +393,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 54
+        learned_points: 55
         max_points: 100
     - name: Alchemy
       id: 171
@@ -965,9 +965,18 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 28
+        learned_points: 33
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Darthkenobi
   region: eu
   realm: tarren-mill
@@ -2309,7 +2318,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Shadowlands Fishing
-        learned_points: 1
+        learned_points: 66
         max_points: 200
       - name: Midnight Fishing
         learned_points: 4
@@ -2552,7 +2561,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 93
+        learned_points: 94
         max_points: 100
     secondaries: []
 - name: Yokuha
@@ -4307,7 +4316,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 27
+        learned_points: 29
         max_points: 100
     - name: Tailoring
       id: 197
@@ -4316,7 +4325,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 50
+        learned_points: 51
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4335,6 +4344,15 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Амарак
   professions:
     primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 10
+        max_points: 100
     - name: Mining
       id: 186
       tiers:
@@ -5151,7 +5169,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 97
+        learned_points: 98
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -5170,7 +5188,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 42
+        learned_points: 45
         max_points: 100
     - name: Fishing
       id: 356
@@ -5185,7 +5203,7 @@ characters:
         learned_points: 121
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 165
+        learned_points: 169
         max_points: 300
 - name: Бафометище
   region: eu
@@ -5686,7 +5704,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 60
+        learned_points: 62
         max_points: 100
     secondaries: []
 - name: Кхаарн
