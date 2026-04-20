@@ -108,6 +108,12 @@
           closeAll(select);
           select.classList.toggle('is-open', opening);
           trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+
+          if (opening && window.matchMedia('(max-width: 640px)').matches) {
+            window.requestAnimationFrame(function () {
+              select.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            });
+          }
         });
       }
 
@@ -134,6 +140,14 @@
 
     document.addEventListener('click', function (event) {
       if (!event.target.closest('.custom-select')) closeAll();
+    });
+
+    window.addEventListener('resize', function () {
+      closeAll();
+    });
+
+    window.addEventListener('orientationchange', function () {
+      closeAll();
     });
   }
 
