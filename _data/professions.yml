@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 13:46:20'
+  updated_at: '2026-04-20 17:06:21'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2214,7 +2214,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 66
+        learned_points: 68
         max_points: 100
     secondaries: []
 - name: Mafik
@@ -3894,7 +3894,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 86
+        learned_points: 88
         max_points: 100
     - name: Blacksmithing
       id: 164
@@ -5649,7 +5649,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 119
+        learned_points: 219
         max_points: 300
 - name: Марлая
   region: eu
@@ -5686,7 +5686,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 56
+        learned_points: 60
         max_points: 100
     secondaries: []
 - name: Кхаарн

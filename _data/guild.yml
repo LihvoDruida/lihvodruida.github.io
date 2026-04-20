@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 13:46:20'
+  updated_at: '2026-04-20 17:06:21'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13090
-      region: 5800
+      world: 13098
+      region: 5801
       realm: 54
     heroic:
-      world: 15181
-      region: 6350
+      world: 15196
+      region: 6357
       realm: 48
     mythic:
       world: 0
@@ -866,7 +866,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-    item_level_equipped: 264
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 2624.1
@@ -1230,7 +1230,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/15/186629903-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Redray
-    item_level_equipped: 145
+    item_level_equipped: 149
     mythic_plus_scores:
       all:
         score: 0
@@ -2197,11 +2197,11 @@ members:
     item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 2567.7
-        color: '#5597b4'
+        score: 2599.4
+        color: '#5292b9'
       dps:
-        score: 2567.7
-        color: '#5597b4'
+        score: 2599.4
+        color: '#5292b9'
       healer:
         score: 0
         color: '#ffffff'
@@ -2212,8 +2212,8 @@ members:
         score: 242.5
         color: '#fdfffc'
       spec_1:
-        score: 2567.7
-        color: '#5597b4'
+        score: 2599.4
+        color: '#5292b9'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -2350,11 +2350,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Athang
-    item_level_equipped: 257
+    item_level_equipped: 258
     mythic_plus_scores:
       all:
-        score: 1853.8
-        color: '#4fff35'
+        score: 1926.4
+        color: '#3cff23'
       dps:
         score: 457.7
         color: '#ecffe3'
@@ -2362,11 +2362,11 @@ members:
         score: 488.7
         color: '#eaffe1'
       tank:
-        score: 1758.3
-        color: '#62ff47'
+        score: 1830.9
+        color: '#54ff3a'
       spec_0:
-        score: 1758.3
-        color: '#62ff47'
+        score: 1830.9
+        color: '#54ff3a'
       spec_1:
         score: 488.7
         color: '#eaffe1'
@@ -4278,11 +4278,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Амарак
-    item_level_equipped: 242
+    item_level_equipped: 245
     mythic_plus_scores:
       all:
-        score: 692.4
-        color: '#d9ffca'
+        score: 1051
+        color: '#b8ffa0'
       dps:
         score: 0
         color: '#ffffff'
@@ -4290,8 +4290,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 692.4
-        color: '#d9ffca'
+        score: 1051
+        color: '#b8ffa0'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4299,8 +4299,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 692.4
-        color: '#d9ffca'
+        score: 1051
+        color: '#b8ffa0'
       spec_3:
         score: 0
         color: '#ffffff'
