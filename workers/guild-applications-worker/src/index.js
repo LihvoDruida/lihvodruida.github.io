@@ -77,8 +77,8 @@ async function githubFetch(env, path, init = {}) {
   return fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
       "X-GitHub-Api-Version": "2022-11-28",
       "User-Agent": env.GITHUB_USER_AGENT || "guild-applications-worker",
       "Content-Type": "application/json; charset=utf-8",
@@ -112,34 +112,81 @@ function getIssueStatus(issue) {
   return "На розгляді";
 }
 
-function buildDiscordMessage(payload, issue) {
-  const characterTag = buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName;
-  const lines = [
-    "## Нова заявка до гільдії",
-    `**Статус:** ${escapeDiscordMarkdown(getIssueStatus(issue))}`,
-    "",
-    "### Дані про персонажа",
-    `- **Персонаж:** \`${escapeDiscordMarkdown(characterTag)}\``,
-    `- **Фракція:** ${escapeDiscordMarkdown(payload.faction || "Не вказано")}`,
-    `- **Реалм:** ${escapeDiscordMarkdown(payload.realm || "Не вказано")}`,
-    `- **Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
-    "",
-    "### Контакти",
-    `- **Discord:** ${escapeDiscordMarkdown(payload.discord || "Не вказано")}`,
-    `- **BattleTag:** ${escapeDiscordMarkdown(payload.battleTag || "Не вказано")}`,
-    "",
-    "### Додатково",
-    `- **Звідки дізнався:** ${escapeDiscordMarkdown(payload.source || "Не вказано")}`,
-    "",
-    "### Коли зазвичай грає",
-    escapeDiscordMarkdown(payload.availability || "Не вказано"),
-  ];
-
-  if (issue?.html_url) {
-    lines.push("", `**Issue:** ${issue.html_url}`);
+function resolveDiscordColor(statusText) {
+  switch (statusText) {
+    case "Прийнято":
+      return 0x3ba55d;
+    case "Відхилено":
+      return 0xed4245;
+    case "Закрито":
+      return 0x747f8d;
+    default:
+      return 0xd4a63a;
   }
+}
 
-  return lines.join("\n").slice(0, 1900);
+function limitFieldValue(value, maxLength = 1024) {
+  return String(value || "Не вказано").slice(0, maxLength);
+}
+
+function buildDiscordEmbeds(payload, issue, env) {
+  const statusText = getIssueStatus(issue);
+  const characterTag =
+    buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName;
+  const issueUrl = issue?.html_url ? String(issue.html_url) : "";
+
+  const descriptionLines = [
+    `**Статус:** ${escapeDiscordMarkdown(statusText)}`,
+    issueUrl ? `**Issue:** ${issueUrl}` : "",
+  ].filter(Boolean);
+
+  return [
+    {
+      title: "Нова заявка до гільдії",
+      description: descriptionLines.join("\n"),
+      color: resolveDiscordColor(statusText),
+      fields: [
+        {
+          name: "Дані про персонажа",
+          value: limitFieldValue(
+            [
+              `**Персонаж:** \`${escapeDiscordMarkdown(characterTag)}\``,
+              `**Фракція:** ${escapeDiscordMarkdown(payload.faction || "Не вказано")}`,
+              `**Реалм:** ${escapeDiscordMarkdown(payload.realm || "Не вказано")}`,
+              `**Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
+            ].join("\n")
+          ),
+          inline: false,
+        },
+        {
+          name: "Контакти",
+          value: limitFieldValue(
+            [
+              `**Discord:** ${escapeDiscordMarkdown(payload.discord || "Не вказано")}`,
+              `**BattleTag:** ${escapeDiscordMarkdown(payload.battleTag || "Не вказано")}`,
+            ].join("\n")
+          ),
+          inline: false,
+        },
+        {
+          name: "Додатково",
+          value: limitFieldValue(
+            `**Звідки дізнався:** ${escapeDiscordMarkdown(payload.source || "Не вказано")}`
+          ),
+          inline: false,
+        },
+        {
+          name: "Коли зазвичай грає",
+          value: limitFieldValue(escapeDiscordMarkdown(payload.availability || "Не вказано")),
+          inline: false,
+        },
+      ],
+      footer: {
+        text: String(env.DISCORD_GUILD_NAME || "Mistblossom Vanguard").slice(0, 2048),
+      },
+      timestamp: new Date().toISOString(),
+    },
+  ];
 }
 
 async function sendDiscordNotification(env, payload, issue) {
@@ -154,9 +201,10 @@ async function sendDiscordNotification(env, payload, issue) {
       "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify({
-      content: buildDiscordMessage(payload, issue),
       allowed_mentions: { parse: [] },
       username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard • Applications",
+      avatar_url: env.DISCORD_WEBHOOK_AVATAR_URL || undefined,
+      embeds: buildDiscordEmbeds(payload, issue, env),
     }),
   });
 
@@ -242,7 +290,12 @@ async function createApplication(request, env) {
     sourceCreator: cleanText(payload.sourceCreator, 80),
     sourcePlatform: cleanText(payload.sourcePlatform, 40),
     sourceOther: cleanText(payload.sourceOther, 120),
-    source: composeSourceValue(payload.sourceCreator, payload.sourcePlatform, payload.sourceOther, payload.source),
+    source: composeSourceValue(
+      payload.sourceCreator,
+      payload.sourcePlatform,
+      payload.sourceOther,
+      payload.source
+    ),
     availability: String(payload.availability || "").trim().slice(0, 400),
   };
 
@@ -299,7 +352,10 @@ async function createApplication(request, env) {
     if (!response.ok) {
       return json(
         {
-          error: data?.message || data?.raw || "Не вдалося створити заявку. Спробуй ще раз трохи пізніше.",
+          error:
+            data?.message ||
+            data?.raw ||
+            "Не вдалося створити заявку. Спробуй ще раз трохи пізніше.",
           github_status: response.status,
           github_response: raw || null,
         },
