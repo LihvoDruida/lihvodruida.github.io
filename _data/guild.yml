@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 06:16:30'
+  updated_at: '2026-04-20 10:00:58'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13075
-      region: 5795
+      world: 13084
+      region: 5798
       realm: 54
     heroic:
-      world: 15156
-      region: 6340
+      world: 15169
+      region: 6345
       realm: 48
     mythic:
       world: 0
@@ -161,6 +161,58 @@ members:
       spec_2:
         score: 409.9
         color: '#f0ffe9'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Сетария
+    id: 175160150
+    level: 90
+    realm:
+      id: 1614
+      slug: galakrond
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/galakrond/86/175160150-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/galakrond/Сетария
+    item_level_equipped: 242
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -765,11 +817,11 @@ members:
     item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 1685.1
-        color: '#6eff52'
+        score: 1774.6
+        color: '#62ff47'
       dps:
-        score: 1685.1
-        color: '#6eff52'
+        score: 1774.6
+        color: '#62ff47'
       healer:
         score: 0
         color: '#ffffff'
@@ -777,8 +829,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1572.4
-        color: '#80ff64'
+        score: 1662
+        color: '#72ff56'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1260,6 +1312,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 3
+  character:
+    name: Blackdaddy
+    id: 187026124
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 28
+      name: Highmountain Tauren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 1893.9
+        color: '#49ff2f'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 1893.9
+        color: '#49ff2f'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 1893.9
+        color: '#49ff2f'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Krouli
@@ -1649,11 +1753,11 @@ members:
     item_level_equipped: 272
     mythic_plus_scores:
       all:
-        score: 2662.5
-        color: '#4485c6'
+        score: 2705.2
+        color: '#367dd0'
       dps:
-        score: 2662.5
-        color: '#4485c6'
+        score: 2705.2
+        color: '#367dd0'
       healer:
         score: 0
         color: '#ffffff'
@@ -1667,8 +1771,60 @@ members:
         score: 361
         color: '#f4ffee'
       spec_2:
-        score: 2662.5
-        color: '#4485c6'
+        score: 2705.2
+        color: '#367dd0'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Icebloomi
+    id: 188008401
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 27
+      name: Nightborne
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 1893.9
+        color: '#49ff2f'
+      dps:
+        score: 1893.9
+        color: '#49ff2f'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1893.9
+        color: '#49ff2f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1937,20 +2093,20 @@ members:
     item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 2304
-        color: '#5ec87d'
+        score: 2364.5
+        color: '#5fba8d'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2304
-        color: '#5ec87d'
+        score: 2364.5
+        color: '#5fba8d'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2304
-        color: '#5ec87d'
+        score: 2364.5
+        color: '#5fba8d'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2130,47 +2286,23 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Holy
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Lightass
-    item_level_equipped: 275
-    mythic_plus_scores:
-      all:
-        score: 3018.7
-        color: '#9246eb'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 3018.7
-        color: '#9246eb'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 3018.7
-        color: '#9246eb'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -2834,47 +2966,51 @@ members:
       slug: howling-fjord
     playable_class:
       id: 5
-      name: Priest
+      name: null
     playable_race:
       id: 10
-      name: Blood Elf
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Shadow
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/238/195985646-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
-    item_level_equipped: 275
-    mythic_plus_scores:
-      all:
-        score: 2665.4
-        color: '#4485c6'
-      dps:
-        score: 2665.4
-        color: '#4485c6'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2665.4
-        color: '#4485c6'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
+      professions: blizzard
+- rank: 4
+  character:
+    name: Артизан
+    id: 196190994
+    level: 83
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 9
+      name: null
+    playable_race:
+      id: 8
+      name: null
+    faction:
+      type: HORDE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -3102,27 +3238,27 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Discipline
-      role: HEALING
+      name: Shadow
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
     item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2400.8
-        color: '#5fb692'
+        score: 2408.9
+        color: '#5fb197'
       dps:
         score: 668.4
         color: '#dbffcd'
       healer:
-        score: 2400.8
-        color: '#5fb692'
+        score: 2408.9
+        color: '#5fb197'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2400.8
-        color: '#5fb692'
+        score: 2408.9
+        color: '#5fb197'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3638,11 +3774,11 @@ members:
         score: 2608.4
         color: '#4e8ebd'
       tank:
-        score: 570.7
-        color: '#e4ffd8'
+        score: 855.7
+        color: '#caffb7'
       spec_0:
-        score: 570.7
-        color: '#e4ffd8'
+        score: 855.7
+        color: '#caffb7'
       spec_1:
         score: 2608.4
         color: '#4e8ebd'
@@ -3681,11 +3817,11 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2488
-        color: '#5ca4a6'
+        score: 2528.5
+        color: '#589baf'
       dps:
-        score: 2488
-        color: '#5ca4a6'
+        score: 2528.5
+        color: '#589baf'
       healer:
         score: 0
         color: '#ffffff'
@@ -3699,8 +3835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2488
-        color: '#5ca4a6'
+        score: 2528.5
+        color: '#589baf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3785,11 +3921,11 @@ members:
     item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 2316.2
-        color: '#5fc382'
+        score: 2356.6
+        color: '#5fbf88'
       dps:
-        score: 2316.2
-        color: '#5fc382'
+        score: 2356.6
+        color: '#5fbf88'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -3797,8 +3933,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2316.2
-        color: '#5fc382'
+        score: 2356.6
+        color: '#5fbf88'
       spec_1:
         score: 166.7
         color: '#ffffff'
@@ -3874,47 +4010,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: Mage
+      name: null
     playable_race:
       id: 7
-      name: Gnome
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-    item_level_equipped: 266
-    mythic_plus_scores:
-      all:
-        score: 2351.9
-        color: '#5fbf88'
-      dps:
-        score: 2351.9
-        color: '#5fbf88'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2351.9
-        color: '#5fbf88'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4082,47 +4194,23 @@ members:
       slug: gordunni
     playable_class:
       id: 1
-      name: Warrior
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Protection
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Амарак
-    item_level_equipped: 241
-    mythic_plus_scores:
-      all:
-        score: 499.1
-        color: '#eaffe1'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 499.1
-        color: '#eaffe1'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 499.1
-        color: '#eaffe1'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4302,14 +4390,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/31/258695967-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Кеенди
-    item_level_equipped: 263
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2162
-        color: '#4fe356'
+        score: 2217.1
+        color: '#58d56b'
       dps:
-        score: 2162
-        color: '#4fe356'
+        score: 2217.1
+        color: '#58d56b'
       healer:
         score: 0
         color: '#ffffff'
@@ -4317,8 +4405,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2162
-        color: '#4fe356'
+        score: 2217.1
+        color: '#58d56b'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5328,7 +5416,7 @@ members:
   character:
     name: Кхаарн
     id: 265879817
-    level: 82
+    level: 84
     realm:
       id: 1603
       slug: lich-king
@@ -5352,143 +5440,11 @@ members:
       roster: blizzard
       enrichment: null
       professions: blizzard
-- rank: 3
-  character:
-    name: Blackdaddy
-    id: 187026124
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 28
-      name: Highmountain Tauren
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Restoration
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 256
-    mythic_plus_scores:
-      all:
-        score: 1893.9
-        color: '#49ff2f'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 1893.9
-        color: '#49ff2f'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 1893.9
-        color: '#49ff2f'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Сетария
-    id: 175160150
-    level: 90
-    realm:
-      id: 1614
-      slug: galakrond
-    playable_class:
-      id: 5
-      name: Priest
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Shadow
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/galakrond/86/175160150-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/galakrond/Сетария
-    item_level_equipped: 242
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Артизан
-    id: 196190994
-    level: 83
-    realm:
-      id: 1615
-      slug: howling-fjord
-    playable_class:
-      id: 9
-      name: null
-    playable_race:
-      id: 8
-      name: null
-    faction:
-      type: HORDE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
-      professions: blizzard
 - rank: 4
   character:
     name: Мавпита
     id: 265908803
-    level: 71
+    level: 73
     realm:
       id: 1602
       slug: gordunni
@@ -5511,56 +5467,4 @@ members:
     sources:
       roster: blizzard
       enrichment: null
-      professions: blizzard
-- rank: 3
-  character:
-    name: Icebloomi
-    id: 188008401
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 8
-      name: Mage
-    playable_race:
-      id: 27
-      name: Nightborne
-    faction:
-      type: HORDE
-    gender: female
-    active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 256
-    mythic_plus_scores:
-      all:
-        score: 1893.9
-        color: '#49ff2f'
-      dps:
-        score: 1893.9
-        color: '#49ff2f'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 1893.9
-        color: '#49ff2f'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
       professions: blizzard
