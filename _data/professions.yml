@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 10:00:58'
+  updated_at: '2026-04-20 13:46:20'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -147,7 +147,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1618,7 +1618,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 81
+        learned_points: 82
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -2247,7 +2247,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Lightass
   professions:
     primaries:
     - name: Herbalism
@@ -3172,7 +3172,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
   professions:
     primaries:
     - name: Herbalism
@@ -3894,7 +3894,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 35
+        learned_points: 86
         max_points: 100
     - name: Blacksmithing
       id: 164
@@ -3903,7 +3903,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 82
+        learned_points: 90
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4108,7 +4108,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
   professions:
     primaries:
     - name: Enchanting
@@ -4332,7 +4332,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Амарак
   professions:
     primaries:
     - name: Mining
@@ -5668,10 +5668,10 @@ characters:
         learned_points: 29
         max_points: 100
       - name: Khaz Algar Enchanting
-        learned_points: 8
+        learned_points: 9
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 69
+        learned_points: 75
         max_points: 100
     - name: Tailoring
       id: 197

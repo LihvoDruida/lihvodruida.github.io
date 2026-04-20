@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 10:00:58'
+  updated_at: '2026-04-20 13:46:20'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13084
-      region: 5798
+      world: 13090
+      region: 5800
       realm: 54
     heroic:
-      world: 15169
-      region: 6345
+      world: 15181
+      region: 6350
       realm: 48
     mythic:
       world: 0
@@ -1753,10 +1753,10 @@ members:
     item_level_equipped: 272
     mythic_plus_scores:
       all:
-        score: 2705.2
+        score: 2708.7
         color: '#367dd0'
       dps:
-        score: 2705.2
+        score: 2708.7
         color: '#367dd0'
       healer:
         score: 0
@@ -1771,7 +1771,7 @@ members:
         score: 361
         color: '#f4ffee'
       spec_2:
-        score: 2705.2
+        score: 2708.7
         color: '#367dd0'
       spec_3:
         score: 0
@@ -2286,23 +2286,47 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Lightass
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 3018.7
+        color: '#9246eb'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 3018.7
+        color: '#9246eb'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 3018.7
+        color: '#9246eb'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -2614,14 +2638,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 266
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1650.8
-        color: '#72ff56'
+        score: 2315.7
+        color: '#5fc382'
       dps:
-        score: 1650.8
-        color: '#72ff56'
+        score: 2315.7
+        color: '#5fc382'
       healer:
         score: 0
         color: '#ffffff'
@@ -2635,8 +2659,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1650.8
-        color: '#72ff56'
+        score: 2315.7
+        color: '#5fc382'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2966,23 +2990,47 @@ members:
       slug: howling-fjord
     playable_class:
       id: 5
-      name: null
+      name: Priest
     playable_race:
       id: 10
-      name: null
+      name: Blood Elf
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/238/195985646-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
+    item_level_equipped: 275
+    mythic_plus_scores:
+      all:
+        score: 2665.4
+        color: '#4485c6'
+      dps:
+        score: 2665.4
+        color: '#4485c6'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2665.4
+        color: '#4485c6'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -3238,27 +3286,27 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Shadow
-      role: DPS
+      name: Discipline
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
     item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2408.9
-        color: '#5fb197'
+        score: 2453.5
+        color: '#5ead9c'
       dps:
         score: 668.4
         color: '#dbffcd'
       healer:
-        score: 2408.9
-        color: '#5fb197'
+        score: 2453.5
+        color: '#5ead9c'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2408.9
-        color: '#5fb197'
+        score: 2453.5
+        color: '#5ead9c'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3814,7 +3862,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2528.5
@@ -3918,14 +3966,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 265
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2356.6
-        color: '#5fbf88'
+        score: 2446.5
+        color: '#5ead9c'
       dps:
-        score: 2356.6
-        color: '#5fbf88'
+        score: 2446.5
+        color: '#5ead9c'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -3933,11 +3981,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2356.6
-        color: '#5fbf88'
+        score: 2420
+        color: '#5fb197'
       spec_1:
-        score: 166.7
-        color: '#ffffff'
+        score: 496.4
+        color: '#eaffe1'
       spec_2:
         score: 165.8
         color: '#ffffff'
@@ -4010,23 +4058,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 7
-      name: null
+      name: Gnome
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
+    item_level_equipped: 267
+    mythic_plus_scores:
+      all:
+        score: 2396.5
+        color: '#5fb692'
+      dps:
+        score: 2396.5
+        color: '#5fb692'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2396.5
+        color: '#5fb692'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -4194,23 +4266,47 @@ members:
       slug: gordunni
     playable_class:
       id: 1
-      name: null
+      name: Warrior
     playable_race:
       id: 29
-      name: null
+      name: Void Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Амарак
+    item_level_equipped: 242
+    mythic_plus_scores:
+      all:
+        score: 692.4
+        color: '#d9ffca'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 692.4
+        color: '#d9ffca'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 692.4
+        color: '#d9ffca'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -5416,7 +5512,7 @@ members:
   character:
     name: Кхаарн
     id: 265879817
-    level: 84
+    level: 85
     realm:
       id: 1603
       slug: lich-king
@@ -5444,7 +5540,7 @@ members:
   character:
     name: Мавпита
     id: 265908803
-    level: 73
+    level: 80
     realm:
       id: 1602
       slug: gordunni
