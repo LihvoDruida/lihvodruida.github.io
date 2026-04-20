@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 02:50:02'
+  updated_at: '2026-04-20 06:16:30'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13050
-      region: 5790
+      world: 13075
+      region: 5795
       realm: 54
     heroic:
-      world: 15130
-      region: 6334
+      world: 15156
+      region: 6340
       realm: 48
     mythic:
       world: 0
@@ -2430,14 +2430,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokuha
-    item_level_equipped: 262
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1130.8
-        color: '#b0ff98'
+        score: 1455
+        color: '#8dff71'
       dps:
-        score: 1130.8
-        color: '#b0ff98'
+        score: 1455
+        color: '#8dff71'
       healer:
         score: 0
         color: '#ffffff'
@@ -2445,8 +2445,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 692.2
-        color: '#d9ffca'
+        score: 1257.1
+        color: '#a4ff89'
       spec_1:
         score: 688.9
         color: '#d9ffca'
@@ -4978,11 +4978,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Галазард
-    item_level_equipped: 264
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 2611.5
-        color: '#4e8ebd'
+        score: 2630.4
+        color: '#4a8ac2'
       dps:
         score: 339.6
         color: '#f5fff1'
@@ -4990,11 +4990,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2593.5
-        color: '#5292b9'
+        score: 2612.3
+        color: '#4e8ebd'
       spec_0:
-        score: 2593.5
-        color: '#5292b9'
+        score: 2612.3
+        color: '#4e8ebd'
       spec_1:
         score: 0
         color: '#ffffff'
