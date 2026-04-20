@@ -99,6 +99,7 @@ function composeSourceValue(sourceCreator, sourcePlatform, sourceOther, sourceFa
 
 function sanitizePayload(payload) {
   return {
+    region: cleanText(payload.region, 8).toLowerCase(),
     characterName: cleanText(payload.characterName, 60),
     faction: cleanText(payload.faction, 24),
     realm: cleanText(payload.realm, 60),
@@ -119,7 +120,13 @@ function sanitizePayload(payload) {
 }
 
 function validateApplication(payload) {
-  if (!payload.characterName || !payload.faction || !payload.realm || !payload.availability) {
+  if (
+    !payload.region ||
+    !payload.characterName ||
+    !payload.faction ||
+    !payload.realm ||
+    !payload.availability
+  ) {
     return "Будь ласка, заповни всі обов’язкові поля.";
   }
 
@@ -145,6 +152,7 @@ function validateApplication(payload) {
 function buildIssueBody(payload) {
   return [
     "### Персонаж",
+    `- Регіон: ${payload.region}`,
     `- Ім’я персонажа: ${payload.characterName}`,
     `- Фракція: ${payload.faction}`,
     `- Реалм: ${payload.realm}`,
@@ -162,12 +170,12 @@ function buildIssueBody(payload) {
 
 function extractSummary(body) {
   const text = String(body || "");
+  const region = (text.match(/- Регіон: (.+)/) || [])[1];
   const faction = (text.match(/- Фракція: (.+)/) || [])[1];
   const character = (text.match(/- Ім’я персонажа: (.+)/) || [])[1];
   const realm = (text.match(/- Реалм: (.+)/) || [])[1];
-  const className = (text.match(/- Клас: (.+)/) || [])[1];
 
-  return [character, faction, className, realm].filter(Boolean).join(" • ");
+  return [character, realm, region, faction].filter(Boolean).join(" • ");
 }
 
 function normalizeLabels(issue) {
@@ -200,7 +208,255 @@ function resolveDiscordColor(statusText) {
   }
 }
 
-function buildDiscordEmbeds(payload, issue, env) {
+function slugifyRaiderIoValue(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function formatScore(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  return Number.isInteger(num) ? String(num) : num.toFixed(1);
+}
+
+function hasPositiveScore(value) {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0;
+}
+
+function formatMPlusSection(seasonData) {
+  if (!seasonData || typeof seasonData !== "object" || !seasonData.scores) {
+    return "Дані відсутні";
+  }
+
+  const scores = seasonData.scores;
+  const lines = [];
+
+  if (hasPositiveScore(scores.all)) {
+    lines.push(`**Raider.IO M+:** ${formatScore(scores.all)}`);
+  }
+  if (hasPositiveScore(scores.tank)) {
+    lines.push(`**Танк:** ${formatScore(scores.tank)}`);
+  }
+  if (hasPositiveScore(scores.healer)) {
+    lines.push(`**Хіл:** ${formatScore(scores.healer)}`);
+  }
+  if (hasPositiveScore(scores.dps)) {
+    lines.push(`**DPS:** ${formatScore(scores.dps)}`);
+  }
+
+  return lines.length ? lines.join("\n") : "Дані відсутні";
+}
+
+function prettifyRaidKey(key) {
+  return String(key || "")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function hasRaidProgressData(raid) {
+  if (!raid || typeof raid !== "object") return false;
+  if (cleanText(raid.summary, 80)) return true;
+
+  return (
+    Number(raid.normal_bosses_killed || 0) > 0 ||
+    Number(raid.heroic_bosses_killed || 0) > 0 ||
+    Number(raid.mythic_bosses_killed || 0) > 0
+  );
+}
+
+function formatRaidSummary(raid) {
+  const summary = cleanText(raid?.summary, 80);
+  if (summary) return summary;
+
+  const total = Number(raid?.total_bosses || 0);
+  const normal = Number(raid?.normal_bosses_killed || 0);
+  const heroic = Number(raid?.heroic_bosses_killed || 0);
+  const mythic = Number(raid?.mythic_bosses_killed || 0);
+
+  const parts = [];
+  if (mythic > 0) parts.push(`${mythic}/${total || "?"} M`);
+  if (heroic > 0) parts.push(`${heroic}/${total || "?"} H`);
+  if (normal > 0) parts.push(`${normal}/${total || "?"} N`);
+
+  return parts.join(" • ");
+}
+
+function splitRaidProgressionByExpansion(raidProgression) {
+  const entries = Object.entries(raidProgression || {})
+    .map(([key, value]) => ({
+      key,
+      ...(value || {}),
+    }))
+    .filter((item) => Number.isFinite(Number(item.expansion_id)));
+
+  const grouped = new Map();
+
+  for (const raid of entries) {
+    const expansionId = Number(raid.expansion_id);
+    if (!grouped.has(expansionId)) {
+      grouped.set(expansionId, []);
+    }
+    grouped.get(expansionId).push(raid);
+  }
+
+  const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+
+  return {
+    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
+  };
+}
+
+function formatRaidSection(raids) {
+  const usefulRaids = (Array.isArray(raids) ? raids : []).filter(hasRaidProgressData);
+
+  if (!usefulRaids.length) {
+    return "Дані відсутні";
+  }
+
+  return usefulRaids
+    .slice(0, 8)
+    .map((raid) => {
+      const summary = formatRaidSummary(raid);
+      const name = prettifyRaidKey(raid.key);
+      return summary ? `• **${name}:** ${summary}` : `• **${name}:** Дані відсутні`;
+    })
+    .join("\n");
+}
+
+async function fetchRaiderIoProfile(payload) {
+  const region = cleanText(payload.region, 8).toLowerCase();
+  const realmSlug = slugifyRaiderIoValue(payload.realm);
+  const characterSlug = slugifyRaiderIoValue(payload.characterName);
+
+  if (!region || !realmSlug || !characterSlug) {
+    return {
+      ok: false,
+      error: "Не вдалося підготувати параметри Raider.IO.",
+    };
+  }
+
+  const url = new URL("https://raider.io/api/v1/characters/profile");
+  url.searchParams.set("region", region);
+  url.searchParams.set("realm", realmSlug);
+  url.searchParams.set("name", characterSlug);
+  url.searchParams.set(
+    "fields",
+    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
+  );
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        accept: "application/json",
+      },
+    });
+
+    const raw = await response.text();
+    let data = null;
+
+    try {
+      data = raw ? JSON.parse(raw) : null;
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+      const apiMessage =
+        cleanText(data?.message || data?.error || "", 160) ||
+        `HTTP ${response.status}`;
+      return {
+        ok: false,
+        error: `Не вдалося отримати дані Raider.IO: ${apiMessage}.`,
+      };
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? `Не вдалося отримати дані Raider.IO: ${error.message}`
+          : "Не вдалося отримати дані Raider.IO.",
+    };
+  }
+}
+
+function buildRaiderIoEmbedFields(raiderIoResult) {
+  if (!raiderIoResult?.ok) {
+    const errorText = limitText(
+      raiderIoResult?.error || "Не вдалося отримати дані Raider.IO.",
+      1024,
+      "Не вдалося отримати дані Raider.IO."
+    );
+
+    return [
+      {
+        name: "Raider.IO • Mythic+ (current)",
+        value: errorText,
+        inline: false,
+      },
+      {
+        name: "Raider.IO • Mythic+ (previous)",
+        value: errorText,
+        inline: false,
+      },
+      {
+        name: "Raider.IO • Рейди (current expansion)",
+        value: errorText,
+        inline: false,
+      },
+      {
+        name: "Raider.IO • Рейди (previous expansion)",
+        value: errorText,
+        inline: false,
+      },
+    ];
+  }
+
+  const data = raiderIoResult.data || {};
+  const seasons = Array.isArray(data.mythic_plus_scores_by_season)
+    ? data.mythic_plus_scores_by_season
+    : [];
+  const currentSeason = seasons[0] || null;
+  const previousSeason = seasons[1] || null;
+
+  const raidGroups = splitRaidProgressionByExpansion(data.raid_progression);
+
+  return [
+    {
+      name: "Raider.IO • Mythic+ (current)",
+      value: limitText(formatMPlusSection(currentSeason), 1024, "Дані відсутні"),
+      inline: false,
+    },
+    {
+      name: "Raider.IO • Mythic+ (previous)",
+      value: limitText(formatMPlusSection(previousSeason), 1024, "Дані відсутні"),
+      inline: false,
+    },
+    {
+      name: "Raider.IO • Рейди (current expansion)",
+      value: limitText(formatRaidSection(raidGroups.current), 1024, "Дані відсутні"),
+      inline: false,
+    },
+    {
+      name: "Raider.IO • Рейди (previous expansion)",
+      value: limitText(formatRaidSection(raidGroups.previous), 1024, "Дані відсутні"),
+      inline: false,
+    },
+  ];
+}
+
+function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
   const statusText = getIssueStatus(issue);
   const issueUrl = issue?.html_url ? String(issue.html_url) : "";
   const characterTag =
@@ -225,6 +481,7 @@ function buildDiscordEmbeds(payload, issue, env) {
           value: limitText(
             [
               `**Ім’я персонажа:** ${formatCopyableValue(characterTag)}`,
+              `**Регіон:** ${formatCopyableValue(payload.region)}`,
               `**Фракція:** ${escapeDiscordMarkdown(payload.faction || "Не вказано")}`,
               `**Реалм:** ${escapeDiscordMarkdown(payload.realm || "Не вказано")}`,
               `**Клас:** ${escapeDiscordMarkdown(payload.className || "Не вказано")}`,
@@ -260,6 +517,7 @@ function buildDiscordEmbeds(payload, issue, env) {
           ),
           inline: false,
         },
+        ...buildRaiderIoEmbedFields(raiderIoResult),
       ],
       footer: {
         text: limitText(env.DISCORD_GUILD_NAME || "Mistblossom Vanguard", 2048),
@@ -329,6 +587,8 @@ async function sendDiscordNotification(env, payload, issue) {
     return { skipped: true };
   }
 
+  const raiderIoResult = await fetchRaiderIoProfile(payload);
+
   const response = await fetch(webhookUrl, {
     method: "POST",
     headers: {
@@ -338,7 +598,7 @@ async function sendDiscordNotification(env, payload, issue) {
       allowed_mentions: { parse: [] },
       username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard • Applications",
       avatar_url: env.DISCORD_WEBHOOK_AVATAR_URL || undefined,
-      embeds: buildDiscordEmbeds(payload, issue, env),
+      embeds: buildDiscordEmbeds(payload, issue, env, raiderIoResult),
     }),
   });
 
@@ -347,7 +607,12 @@ async function sendDiscordNotification(env, payload, issue) {
     throw new Error(raw || `Discord webhook error ${response.status}`);
   }
 
-  return { ok: true };
+  return {
+    ok: true,
+    raider_io: raiderIoResult.ok
+      ? { ok: true }
+      : { ok: false, error: raiderIoResult.error || "Не вдалося отримати дані Raider.IO." },
+  };
 }
 
 function mapIssueListItem(issue) {
