@@ -108,12 +108,6 @@
           closeAll(select);
           select.classList.toggle('is-open', opening);
           trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
-
-          if (opening && window.matchMedia('(max-width: 768px)').matches) {
-            window.requestAnimationFrame(function () {
-              select.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-            });
-          }
         });
       }
 
@@ -141,14 +135,6 @@
     document.addEventListener('click', function (event) {
       if (!event.target.closest('.custom-select')) closeAll();
     });
-
-    window.addEventListener('resize', function () {
-      closeAll();
-    });
-
-    window.addEventListener('orientationchange', function () {
-      closeAll();
-    });
   }
 
   setupCustomSelects(document);
@@ -163,6 +149,7 @@
     const refreshButton = document.getElementById('guild-application-refresh');
     const submitButton = form ? form.querySelector('button[type="submit"]') : null;
     const customSelects = form ? Array.from(form.querySelectorAll('.custom-select')) : [];
+    const regionInput = form ? form.querySelector('input[name="region"]') : null;
     const factionInput = form ? form.querySelector('input[name="faction"]') : null;
     const battleTagInput = form ? form.querySelector('input[name="battleTag"]') : null;
     const battleTagRequiredBadge = document.getElementById('battleTagRequiredBadge');
@@ -324,6 +311,7 @@
         const payload = {
           characterName: (formData.get('characterName') || '').toString().trim(),
           realm: (formData.get('realm') || '').toString().trim(),
+          region: (formData.get('region') || '').toString().trim(),
           faction: (formData.get('faction') || '').toString().trim(),
           className: (formData.get('className') || '').toString().trim(),
           discord: (formData.get('discord') || '').toString().trim(),
@@ -336,11 +324,15 @@
           website: (formData.get('website') || '').toString().trim()
         };
 
+        if (!payload.region) {
+          setFeedback('error', 'Будь ласка, обери регіон.');
+          return;
+        }
+
         if (!payload.faction) {
           setFeedback('error', 'Будь ласка, обери фракцію.');
           return;
         }
-
 
         if (payload.sourceCreator && payload.sourceCreator === 'Інше' && !payload.sourceOther) {
           if (sourceOtherInput) {
