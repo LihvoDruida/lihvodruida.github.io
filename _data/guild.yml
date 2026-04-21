@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-21 09:29:00'
+  updated_at: '2026-04-21 13:44:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 110
+  member_count: 111
   achievement_points: 425
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13150
-      region: 5829
-      realm: 54
+      world: 13160
+      region: 5837
+      realm: 55
     heroic:
-      world: 15325
-      region: 6426
+      world: 15337
+      region: 6431
       realm: 52
     mythic:
       world: 0
@@ -2353,8 +2353,8 @@ members:
     item_level_equipped: 259
     mythic_plus_scores:
       all:
-        score: 1930.9
-        color: '#42ff29'
+        score: 2029.1
+        color: '#1eff00'
       dps:
         score: 457.7
         color: '#ecffe4'
@@ -2362,11 +2362,11 @@ members:
         score: 716.2
         color: '#d8ffc8'
       tank:
-        score: 1830.9
-        color: '#58ff3e'
+        score: 1986.6
+        color: '#34ff1b'
       spec_0:
-        score: 1830.9
-        color: '#58ff3e'
+        score: 1986.6
+        color: '#34ff1b'
       spec_1:
         score: 716.2
         color: '#d8ffc8'
@@ -3238,7 +3238,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2684.6
@@ -3290,23 +3290,23 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2453.5
-        color: '#5faf9a'
+        score: 2460.8
+        color: '#5eaa9f'
       dps:
         score: 668.4
         color: '#dcffce'
       healer:
-        score: 2453.5
-        color: '#5faf9a'
+        score: 2460.8
+        color: '#5eaa9f'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2453.5
-        color: '#5faf9a'
+        score: 2460.8
+        color: '#5eaa9f'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5165,8 +5165,8 @@ members:
     item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 2630.4
-        color: '#4a8ac1'
+        score: 2652.2
+        color: '#4586c6'
       dps:
         score: 339.6
         color: '#f6fff1'
@@ -5174,11 +5174,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2612.3
-        color: '#4f8fbc'
+        score: 2634.1
+        color: '#4a8ac1'
       spec_0:
-        score: 2612.3
-        color: '#4f8fbc'
+        score: 2634.1
+        color: '#4a8ac1'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5480,114 +5480,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 3
-  character:
-    name: Марлая
-    id: 265853063
-    level: 85
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 5
-      name: null
-    playable_race:
-      id: 11
-      name: null
-    faction:
-      type: ALLIANCE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
-      professions: blizzard
-- rank: 3
-  character:
-    name: Кхаарн
-    id: 265879817
-    level: 86
-    realm:
-      id: 1603
-      slug: lich-king
-    playable_class:
-      id: 1
-      name: null
-    playable_race:
-      id: 1
-      name: null
-    faction:
-      type: ALLIANCE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
-      professions: blizzard
-- rank: 4
-  character:
-    name: Мавпита
-    id: 265908803
-    level: 85
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 13
-      name: Evoker
-    playable_race:
-      id: 52
-      name: Dracthyr
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Augmentation
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Мавпита
-    item_level_equipped: 167
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 4
   character:
     name: Шпаргат
@@ -5688,6 +5580,166 @@ members:
       spec_3:
         score: 1083.6
         color: '#b6ff9f'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 3
+  character:
+    name: Марлая
+    id: 265853063
+    level: 85
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 5
+      name: null
+    playable_race:
+      id: 11
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 3
+  character:
+    name: Кхаарн
+    id: 265879817
+    level: 86
+    realm:
+      id: 1603
+      slug: lich-king
+    playable_class:
+      id: 1
+      name: null
+    playable_race:
+      id: 1
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 4
+  character:
+    name: Мавпита
+    id: 265908803
+    level: 89
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 13
+      name: Evoker
+    playable_race:
+      id: 52
+      name: Dracthyr
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Augmentation
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мавпита
+    item_level_equipped: 167
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Daslight
+    id: 187879543
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/187879543-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Daslight
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 338.8
+        color: '#f6fff1'
+      dps:
+        score: 338.8
+        color: '#f6fff1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 338.8
+        color: '#f6fff1'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
       enrichment: raider.io
