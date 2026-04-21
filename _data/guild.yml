@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-21 02:43:14'
+  updated_at: '2026-04-21 06:04:24'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13139
-      region: 5823
+      world: 13146
+      region: 5827
       realm: 54
     heroic:
-      world: 15301
-      region: 6423
+      world: 15320
+      region: 6426
       realm: 52
     mythic:
       world: 0
@@ -4437,10 +4437,10 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2711.6
+        score: 2716.1
         color: '#377dcf'
       dps:
-        score: 2711.6
+        score: 2716.1
         color: '#377dcf'
       healer:
         score: 0
@@ -4452,7 +4452,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2711.6
+        score: 2716.1
         color: '#377dcf'
       spec_2:
         score: 0
