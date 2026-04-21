@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-20 20:51:08'
+  updated_at: '2026-04-21 02:43:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 108
+  member_count: 110
 characters:
 - name: Бреинор
   region: eu
@@ -1845,7 +1845,7 @@ characters:
         learned_points: 3
         max_points: 100
       - name: Midnight Mining
-        learned_points: 73
+        learned_points: 78
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2358,6 +2358,15 @@ characters:
     - name: Archaeology
       id: 794
       tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -5737,7 +5746,56 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Мавпита
   professions:
     primaries: []
     secondaries: []
+- name: Шпаргат
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Enchanting
+        learned_points: 1
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 12
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
+- name: Дарадуда
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 35
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
