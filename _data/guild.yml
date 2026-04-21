@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-21 06:04:24'
+  updated_at: '2026-04-21 09:29:00'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,11 +52,11 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13146
-      region: 5827
+      world: 13150
+      region: 5829
       realm: 54
     heroic:
-      world: 15320
+      world: 15325
       region: 6426
       realm: 52
     mythic:
@@ -446,11 +446,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Enhancement
+      name: Elemental
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
-    item_level_equipped: 246
+    item_level_equipped: 245
     mythic_plus_scores:
       all:
         score: 170
@@ -1750,7 +1750,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2715
@@ -1902,8 +1902,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Vengeance
-      role: TANK
+      name: Havoc
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Ahilles
     item_level_equipped: 222
