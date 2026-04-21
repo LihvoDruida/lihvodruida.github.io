@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-21 13:44:25'
+  updated_at: '2026-04-21 17:05:41'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13160
-      region: 5837
+      world: 13163
+      region: 5839
       realm: 55
     heroic:
-      world: 15337
-      region: 6431
+      world: 15353
+      region: 6437
       realm: 52
     mythic:
       world: 0
@@ -1750,7 +1750,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-    item_level_equipped: 273
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2715
@@ -2582,7 +2582,7 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Affliction
+      name: Demonology
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokuha
@@ -2641,11 +2641,11 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2315.7
-        color: '#5ec67f'
+        score: 2646
+        color: '#4a8ac1'
       dps:
-        score: 2315.7
-        color: '#5ec67f'
+        score: 2646
+        color: '#4a8ac1'
       healer:
         score: 0
         color: '#ffffff'
@@ -2659,8 +2659,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2315.7
-        color: '#5ec67f'
+        score: 2646
+        color: '#4a8ac1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3238,11 +3238,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
-    item_level_equipped: 275
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2684.6
-        color: '#3f82ca'
+        score: 2699
+        color: '#377dcf'
       dps:
         score: 0
         color: '#ffffff'
@@ -3250,8 +3250,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2684.6
-        color: '#3f82ca'
+        score: 2699
+        color: '#377dcf'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -3259,8 +3259,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2684.6
-        color: '#3f82ca'
+        score: 2699
+        color: '#377dcf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3290,23 +3290,23 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 268
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2460.8
-        color: '#5eaa9f'
+        score: 2499.4
+        color: '#5ca6a4'
       dps:
         score: 668.4
         color: '#dcffce'
       healer:
-        score: 2460.8
-        color: '#5eaa9f'
+        score: 2499.4
+        color: '#5ca6a4'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2460.8
-        color: '#5eaa9f'
+        score: 2499.4
+        color: '#5ca6a4'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3702,7 +3702,7 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Frost
+      name: Arcane
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
@@ -3862,7 +3862,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2528.5
@@ -4073,11 +4073,11 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2409.6
-        color: '#5fb88f'
+        score: 2427.8
+        color: '#5fb395'
       dps:
-        score: 2409.6
-        color: '#5fb88f'
+        score: 2427.8
+        color: '#5fb395'
       healer:
         score: 0
         color: '#ffffff'
@@ -4091,8 +4091,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2409.6
-        color: '#5fb88f'
+        score: 2427.8
+        color: '#5fb395'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4437,11 +4437,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2716.1
-        color: '#377dcf'
+        score: 2770.9
+        color: '#1f74d8'
       dps:
-        score: 2716.1
-        color: '#377dcf'
+        score: 2770.9
+        color: '#1f74d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -4452,8 +4452,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2716.1
-        color: '#377dcf'
+        score: 2770.9
+        color: '#1f74d8'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5644,7 +5644,7 @@ members:
   character:
     name: Мавпита
     id: 265908803
-    level: 89
+    level: 90
     realm:
       id: 1602
       slug: gordunni
