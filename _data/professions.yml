@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 02:41:32'
+  updated_at: '2026-04-22 06:01:55'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5795,7 +5795,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Мавпита
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
