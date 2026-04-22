@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 09:23:25'
+  updated_at: '2026-04-22 13:44:03'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13208
+      world: 13210
       region: 5868
       realm: 55
     heroic:
-      world: 15449
-      region: 6473
+      world: 15458
+      region: 6475
       realm: 52
     mythic:
       world: 0
@@ -1572,6 +1572,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Daslight
+    id: 187879543
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/187879543-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Daslight
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 338.8
+        color: '#f6fff1'
+      dps:
+        score: 338.8
+        color: '#f6fff1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 338.8
+        color: '#f6fff1'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Komatoznic
@@ -1750,7 +1802,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2715
@@ -3806,20 +3858,20 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Mistweaver
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 263
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
-        score: 2608.4
+        score: 2610.7
         color: '#4f8fbc'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2608.4
+        score: 2610.7
         color: '#4f8fbc'
       tank:
         score: 855.7
@@ -3828,7 +3880,7 @@ members:
         score: 855.7
         color: '#cbffb8'
       spec_1:
-        score: 2608.4
+        score: 2610.7
         color: '#4f8fbc'
       spec_2:
         score: 0
@@ -3862,14 +3914,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 273
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2528.5
-        color: '#5ba1a9'
+        score: 2708.3
+        color: '#377dcf'
       dps:
-        score: 2528.5
-        color: '#5ba1a9'
+        score: 2708.3
+        color: '#377dcf'
       healer:
         score: 0
         color: '#ffffff'
@@ -3883,8 +3935,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2528.5
-        color: '#5ba1a9'
+        score: 2708.3
+        color: '#377dcf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3962,18 +4014,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Enhancement
+      name: Elemental
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 267
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2446.5
-        color: '#5faf9a'
+        score: 2567.5
+        color: '#5698b3'
       dps:
-        score: 2446.5
-        color: '#5faf9a'
+        score: 2567.5
+        color: '#5698b3'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -3981,8 +4033,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2420
-        color: '#5fb395'
+        score: 2541
+        color: '#589dae'
       spec_1:
         score: 496.4
         color: '#eaffe1'
@@ -4984,6 +5036,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Корбус
+    id: 265349988
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/100/265349988-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Корбус
+    item_level_equipped: 263
+    mythic_plus_scores:
+      all:
+        score: 2290.9
+        color: '#5dcb79'
+      dps:
+        score: 360.1
+        color: '#f4ffef'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2290.9
+        color: '#5dcb79'
+      spec_0:
+        score: 360.1
+        color: '#f4ffef'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2290.9
+        color: '#5dcb79'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Пизнайка
@@ -5685,110 +5789,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Daslight
-    id: 187879543
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 2
-      name: Paladin
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/187879543-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Daslight
-    item_level_equipped: 264
-    mythic_plus_scores:
-      all:
-        score: 338.8
-        color: '#f6fff1'
-      dps:
-        score: 338.8
-        color: '#f6fff1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 338.8
-        color: '#f6fff1'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Корбус
-    id: 265349988
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 3
-      name: Dwarf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Protection
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/100/265349988-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Корбус
-    item_level_equipped: 263
-    mythic_plus_scores:
-      all:
-        score: 2290.9
-        color: '#5dcb79'
-      dps:
-        score: 360.1
-        color: '#f4ffef'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2290.9
-        color: '#5dcb79'
-      spec_0:
-        score: 360.1
-        color: '#f4ffef'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2290.9
-        color: '#5dcb79'
       spec_3:
         score: 0
         color: '#ffffff'

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 09:23:25'
+  updated_at: '2026-04-22 13:44:03'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -393,7 +393,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 63
+        learned_points: 65
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1624,7 +1624,7 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 2
+        learned_points: 3
         max_points: 300
       - name: Midnight Enchanting
         learned_points: 82
@@ -1686,6 +1686,77 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 8
+        max_points: 300
+- name: Daslight
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Daslight
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 100
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Midnight Fishing
+        learned_points: 68
         max_points: 300
 - name: Komatoznic
   region: eu
@@ -3886,7 +3957,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 43
+        learned_points: 45
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3895,7 +3966,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 64
+        learned_points: 65
         max_points: 100
     secondaries: []
 - name: Oxydenis
@@ -4145,7 +4216,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 85
+        learned_points: 86
         max_points: 100
     secondaries: []
 - name: Bernstorff
@@ -4975,6 +5046,9 @@ characters:
       - name: Classic Inscription
         learned_points: 1
         max_points: 300
+      - name: Khaz Algar Inscription
+        learned_points: 1
+        max_points: 100
       - name: Midnight Inscription
         learned_points: 100
         max_points: 100
@@ -5357,6 +5431,62 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 17
+        max_points: 300
+- name: Корбус
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Корбус
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Kul Tiran Mining
+        learned_points: 153
+        max_points: 175
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 86
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 60
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Kul Tiran Jewelcrafting
+        learned_points: 129
+        max_points: 175
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Jewelcrafting
+        learned_points: 16
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Legion Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 15
         max_points: 300
 - name: Пизнайка
   region: eu
@@ -5762,7 +5892,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 63
+        learned_points: 65
         max_points: 100
     secondaries: []
 - name: Кхаарн
@@ -5805,133 +5935,6 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 24
+        learned_points: 25
         max_points: 100
     secondaries: []
-- name: Daslight
-  region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Daslight
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Blacksmithing
-        learned_points: 100
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 100
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Midnight Fishing
-        learned_points: 68
-        max_points: 300
-- name: Корбус
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Корбус
-  professions:
-    primaries:
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Kul Tiran Mining
-        learned_points: 153
-        max_points: 175
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Mining
-        learned_points: 86
-        max_points: 100
-      - name: Midnight Mining
-        learned_points: 60
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Kul Tiran Jewelcrafting
-        learned_points: 129
-        max_points: 175
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Jewelcrafting
-        learned_points: 16
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Legion Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 15
-        max_points: 300
