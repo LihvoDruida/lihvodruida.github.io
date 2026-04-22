@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 06:01:55'
+  updated_at: '2026-04-22 09:23:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13201
-      region: 5865
+      world: 13208
+      region: 5868
       realm: 55
     heroic:
-      world: 15438
-      region: 6468
+      world: 15449
+      region: 6473
       realm: 52
     mythic:
       world: 0
@@ -1750,7 +1750,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/160/187985056-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Christmans
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2715
@@ -2090,23 +2090,23 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
-    item_level_equipped: 266
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2437.7
-        color: '#5faf9a'
+        score: 2476.5
+        color: '#5eaa9f'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2437.7
-        color: '#5faf9a'
+        score: 2476.5
+        color: '#5eaa9f'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2437.7
-        color: '#5faf9a'
+        score: 2476.5
+        color: '#5eaa9f'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3290,7 +3290,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
         score: 2499.4
@@ -5650,23 +5650,47 @@ members:
       slug: gordunni
     playable_class:
       id: 13
-      name: null
+      name: Evoker
     playable_race:
       id: 52
-      name: null
+      name: Dracthyr
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Augmentation
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мавпита
+    item_level_equipped: 167
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
