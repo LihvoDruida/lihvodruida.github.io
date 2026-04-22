@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-21 20:55:52'
+  updated_at: '2026-04-22 02:41:32'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 111
+  member_count: 112
 characters:
 - name: Бреинор
   region: eu
@@ -1910,7 +1910,7 @@ characters:
         learned_points: 46
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 91
+        learned_points: 97
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1928,7 +1928,7 @@ characters:
         learned_points: 55
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 93
+        learned_points: 96
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5788,7 +5788,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 13
+        learned_points: 19
         max_points: 100
     secondaries: []
 - name: Мавпита
@@ -5878,4 +5878,60 @@ characters:
         max_points: 200
       - name: Midnight Fishing
         learned_points: 68
+        max_points: 300
+- name: Корбус
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Корбус
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Kul Tiran Mining
+        learned_points: 153
+        max_points: 175
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 86
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 60
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Kul Tiran Jewelcrafting
+        learned_points: 129
+        max_points: 175
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Jewelcrafting
+        learned_points: 16
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Legion Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 15
         max_points: 300
