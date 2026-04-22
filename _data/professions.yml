@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-22 17:04:14'
+  updated_at: '2026-04-22 20:57:43'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-03-24T03:59:09.000Z'
+  raider_io_last_crawled_at: '2026-04-22T19:52:48.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -393,7 +393,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 68
+        learned_points: 69
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1517,7 +1517,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -1962,7 +1962,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -2233,7 +2233,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 21
+        learned_points: 28
         max_points: 100
     - name: Alchemy
       id: 171
@@ -2622,7 +2622,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Blackberry
   professions:
     primaries:
     - name: Tailoring
@@ -3296,7 +3296,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/howling-fjord/Артизан
   professions:
     primaries: []
     secondaries: []
@@ -3471,7 +3471,7 @@ characters:
         learned_points: 78
         max_points: 100
       - name: Midnight Mining
-        learned_points: 80
+        learned_points: 86
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5674,7 +5674,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 31
+        learned_points: 32
         max_points: 100
     secondaries: []
 - name: Альянсс
@@ -5861,7 +5861,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Марлая
   professions:
     primaries:
     - name: Enchanting
@@ -5899,7 +5899,7 @@ characters:
   region: eu
   realm: lich-king
   realm_slug: lich-king
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
   professions:
     primaries:
     - name: Tailoring
