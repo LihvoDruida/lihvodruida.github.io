@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-23 09:46:47'
+  updated_at: '2026-04-23 13:47:15'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 5881
       realm: 55
     heroic:
-      world: 15624
-      region: 6558
+      world: 15629
+      region: 6559
       realm: 53
     mythic:
-      world: 6010
+      world: 6016
       region: 2612
       realm: 21
   blackrock-depths:
@@ -1805,11 +1805,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2779.5
-        color: '#1f74d8'
+        score: 2866.4
+        color: '#2e6ddf'
       dps:
-        score: 2779.5
-        color: '#1f74d8'
+        score: 2866.4
+        color: '#2e6ddf'
       healer:
         score: 0
         color: '#ffffff'
@@ -1823,8 +1823,8 @@ members:
         score: 361
         color: '#f4ffef'
       spec_2:
-        score: 2779.5
-        color: '#1f74d8'
+        score: 2866.4
+        color: '#2e6ddf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4534,7 +4534,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2770.9
@@ -5598,20 +5598,20 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Guardian
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2796.7
+        score: 2809.5
         color: '#1f74d8'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2796.7
+        score: 2809.5
         color: '#1f74d8'
       tank:
         score: 0
@@ -5626,7 +5626,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2796.7
+        score: 2809.5
         color: '#1f74d8'
     sources:
       roster: blizzard
@@ -5709,14 +5709,14 @@ members:
     item_level_equipped: 257
     mythic_plus_scores:
       all:
-        score: 1105.8
-        color: '#b5ff9d'
+        score: 1211.3
+        color: '#acff92'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1105.8
-        color: '#b5ff9d'
+        score: 1211.3
+        color: '#acff92'
       tank:
         score: 0
         color: '#ffffff'
@@ -5730,8 +5730,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1105.8
-        color: '#b5ff9d'
+        score: 1211.3
+        color: '#acff92'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5740,7 +5740,7 @@ members:
   character:
     name: Марлая
     id: 265853063
-    level: 88
+    level: 90
     realm:
       id: 1602
       slug: gordunni
