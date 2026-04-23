@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-23 13:47:15'
+  updated_at: '2026-04-23 17:22:57'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1876,7 +1876,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 30
+        learned_points: 53
         max_points: 300
 - name: Christmans
   region: eu
@@ -2233,7 +2233,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 28
+        learned_points: 34
         max_points: 100
     - name: Alchemy
       id: 171
@@ -2740,7 +2740,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Engineering
-        learned_points: 95
+        learned_points: 99
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3983,7 +3983,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 88
+        learned_points: 90
         max_points: 100
     - name: Blacksmithing
       id: 164
@@ -3992,7 +3992,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 91
+        learned_points: 98
         max_points: 100
     secondaries:
     - name: Fishing

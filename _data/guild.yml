@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-23 13:47:15'
+  updated_at: '2026-04-23 17:22:57'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 5881
       realm: 55
     heroic:
-      world: 15629
-      region: 6559
+      world: 15637
+      region: 6566
       realm: 53
     mythic:
-      world: 6016
-      region: 2612
+      world: 6021
+      region: 2615
       realm: 21
   blackrock-depths:
     normal:
@@ -1594,7 +1594,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/187879543-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Daslight
-    item_level_equipped: 264
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
         score: 338.8
@@ -5158,7 +5158,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3006.7
@@ -5761,10 +5761,10 @@ members:
     item_level_equipped: 155
     mythic_plus_scores:
       all:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       dps:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       healer:
         score: 0
@@ -5779,7 +5779,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       spec_3:
         score: 0
@@ -5813,7 +5813,7 @@ members:
     item_level_equipped: 238
     mythic_plus_scores:
       all:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       dps:
         score: 0
@@ -5822,7 +5822,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       spec_0:
         score: 0
@@ -5831,7 +5831,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
+        score: 169.8
         color: '#ffffff'
       spec_3:
         score: 0
