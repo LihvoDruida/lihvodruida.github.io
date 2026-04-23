@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-23 17:22:57'
+  updated_at: '2026-04-23 20:55:23'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,17 +52,17 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13237
-      region: 5881
+      world: 13249
+      region: 5893
       realm: 55
     heroic:
-      world: 15637
-      region: 6566
-      realm: 53
+      world: 15685
+      region: 6609
+      realm: 54
     mythic:
-      world: 6021
-      region: 2615
-      realm: 21
+      world: 6074
+      region: 2661
+      realm: 22
   blackrock-depths:
     normal:
       world: 0
@@ -1698,7 +1698,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Vurush
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2735.9
@@ -2454,17 +2454,17 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2455.4
-        color: '#5faf9a'
+        score: 2499.5
+        color: '#5eaa9f'
       dps:
         score: 1926.7
         color: '#48ff2f'
       healer:
-        score: 2260.4
-        color: '#56d966'
+        score: 2349.5
+        color: '#5ec67f'
       tank:
         score: 0
         color: '#ffffff'
@@ -2478,8 +2478,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2260.4
-        color: '#56d966'
+        score: 2349.5
+        color: '#5ec67f'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -3026,7 +3026,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2854.8
@@ -4270,18 +4270,18 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Marksmanship
+      name: Beast Mastery
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2048.9
-        color: '#2aff10'
+        score: 2097.5
+        color: '#38f531'
       dps:
-        score: 2048.9
-        color: '#2aff10'
+        score: 2097.5
+        color: '#38f531'
       healer:
         score: 0
         color: '#ffffff'
@@ -4289,8 +4289,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 283.9
+        color: '#f9fff7'
       spec_1:
         score: 2048.9
         color: '#2aff10'
@@ -4534,13 +4534,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 278
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2770.9
+        score: 2814.6
         color: '#1f74d8'
       dps:
-        score: 2770.9
+        score: 2814.6
         color: '#1f74d8'
       healer:
         score: 0
@@ -4552,7 +4552,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2770.9
+        score: 2814.6
         color: '#1f74d8'
       spec_2:
         score: 0
@@ -5602,7 +5602,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2809.5
@@ -5702,21 +5702,21 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 257
+    item_level_equipped: 258
     mythic_plus_scores:
       all:
-        score: 1211.3
-        color: '#acff92'
+        score: 1310.8
+        color: '#a1ff87'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1211.3
-        color: '#acff92'
+        score: 1310.8
+        color: '#a1ff87'
       tank:
         score: 0
         color: '#ffffff'
@@ -5730,8 +5730,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1211.3
-        color: '#acff92'
+        score: 1310.8
+        color: '#a1ff87'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5758,14 +5758,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 155
+    item_level_equipped: 170
     mythic_plus_scores:
       all:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       dps:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       healer:
         score: 0
         color: '#ffffff'
@@ -5779,8 +5779,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5810,11 +5810,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 238
+    item_level_equipped: 251
     mythic_plus_scores:
       all:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       dps:
         score: 0
         color: '#ffffff'
@@ -5822,8 +5822,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5831,8 +5831,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 169.8
-        color: '#ffffff'
+        score: 528.4
+        color: '#e6ffdc'
       spec_3:
         score: 0
         color: '#ffffff'

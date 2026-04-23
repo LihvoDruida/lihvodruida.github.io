@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-23 17:22:57'
+  updated_at: '2026-04-23 20:55:23'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1876,7 +1876,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 53
+        learned_points: 65
         max_points: 300
 - name: Christmans
   region: eu
@@ -3992,7 +3992,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 98
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5252,7 +5252,7 @@ characters:
         learned_points: 105
         max_points: 105
       - name: Midnight Jewelcrafting
-        learned_points: 98
+        learned_points: 105
         max_points: 105
     secondaries:
     - name: Archaeology
@@ -5271,7 +5271,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 45
+        learned_points: 75
         max_points: 100
     - name: Fishing
       id: 356
@@ -5868,7 +5868,7 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 12
+        learned_points: 13
         max_points: 300
       - name: Dragon Isles Enchanting
         learned_points: 29
@@ -5892,7 +5892,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 65
+        learned_points: 70
         max_points: 100
     secondaries: []
 - name: Кхаарн
