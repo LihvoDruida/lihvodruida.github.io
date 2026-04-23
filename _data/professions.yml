@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 20:57:43'
+  updated_at: '2026-04-23 02:44:25'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1517,7 +1517,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
   professions:
     primaries:
     - name: Blacksmithing
@@ -1962,7 +1962,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
   professions:
     primaries:
     - name: Enchanting

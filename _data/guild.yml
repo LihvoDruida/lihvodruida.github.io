@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-22 20:57:43'
+  updated_at: '2026-04-23 02:44:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13218
-      region: 5875
+      world: 13230
+      region: 5877
       realm: 55
     heroic:
-      world: 15525
-      region: 6533
+      world: 15577
+      region: 6548
       realm: 53
     mythic:
-      world: 5938
-      region: 2601
+      world: 5990
+      region: 2610
       realm: 21
   blackrock-depths:
     normal:
@@ -1426,23 +1426,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 31
-      name: null
+      name: Zandalari Troll
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/86/187471446-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
+    item_level_equipped: 251
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 170
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 170
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -1674,14 +1698,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Vurush
-    item_level_equipped: 278
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2698.7
-        color: '#3e81cb'
+        score: 2735.9
+        color: '#367dd0'
       dps:
-        score: 2698.7
-        color: '#3e81cb'
+        score: 2735.9
+        color: '#367dd0'
       healer:
         score: 438.8
         color: '#eeffe6'
@@ -1689,8 +1713,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2698.7
-        color: '#3e81cb'
+        score: 2735.9
+        color: '#367dd0'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1818,23 +1842,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 27
-      name: null
+      name: Nightborne
     faction:
       type: HORDE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
+    item_level_equipped: 257
+    mythic_plus_scores:
+      all:
+        score: 1893.9
+        color: '#4eff34'
+      dps:
+        score: 1893.9
+        color: '#4eff34'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1893.9
+        color: '#4eff34'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -3033,10 +3081,10 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2667.1
+        score: 2669.2
         color: '#4a8ac2'
       dps:
-        score: 2667.1
+        score: 2669.2
         color: '#4a8ac2'
       healer:
         score: 0
@@ -3051,7 +3099,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2667.1
+        score: 2669.2
         color: '#4a8ac2'
       spec_3:
         score: 0
@@ -3064,7 +3112,7 @@ members:
   character:
     name: Артизан
     id: 196190994
-    level: 85
+    level: 86
     realm:
       id: 1615
       slug: howling-fjord
@@ -3858,29 +3906,29 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Mistweaver
-      role: HEALING
+      name: Brewmaster
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 269
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 2610.7
+        score: 2617.8
         color: '#5292b9'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2610.7
+        score: 2617.8
         color: '#5292b9'
       tank:
-        score: 855.7
-        color: '#cbffb8'
+        score: 1100.7
+        color: '#b4ff9c'
       spec_0:
-        score: 855.7
-        color: '#cbffb8'
+        score: 1100.7
+        color: '#b4ff9c'
       spec_1:
-        score: 2610.7
+        score: 2617.8
         color: '#5292b9'
       spec_2:
         score: 0
@@ -3910,18 +3958,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Protection
-      role: TANK
+      name: Retribution
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 272
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2708.3
-        color: '#3e81cb'
+        score: 2752.6
+        color: '#2d78d4'
       dps:
-        score: 2708.3
-        color: '#3e81cb'
+        score: 2752.6
+        color: '#2d78d4'
       healer:
         score: 0
         color: '#ffffff'
@@ -3935,8 +3983,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2708.3
-        color: '#3e81cb'
+        score: 2752.6
+        color: '#2d78d4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4229,11 +4277,11 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1975.2
-        color: '#34ff1b'
+        score: 2048.9
+        color: '#1eff00'
       dps:
-        score: 1975.2
-        color: '#34ff1b'
+        score: 2048.9
+        color: '#1eff00'
       healer:
         score: 0
         color: '#ffffff'
@@ -4244,8 +4292,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1975.2
-        color: '#34ff1b'
+        score: 2048.9
+        color: '#1eff00'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5266,7 +5314,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Галазард
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2739.4
@@ -5505,7 +5553,7 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2121.7
+        score: 2121.8
         color: '#45ec46'
       dps:
         score: 0
@@ -5514,13 +5562,13 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2121.7
+        score: 2121.8
         color: '#45ec46'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2121.7
+        score: 2121.8
         color: '#45ec46'
       spec_2:
         score: 0
@@ -5606,14 +5654,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/121/265783673-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
-    item_level_equipped: 254
+    item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 1085.3
-        color: '#b6ff9f'
+        score: 1323.5
+        color: '#a0ff85'
       dps:
-        score: 1085.3
-        color: '#b6ff9f'
+        score: 1323.5
+        color: '#a0ff85'
       healer:
         score: 0
         color: '#ffffff'
@@ -5624,8 +5672,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1085.3
-        color: '#b6ff9f'
+        score: 1323.5
+        color: '#a0ff85'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5658,17 +5706,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 254
+    item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 1083.6
-        color: '#b6ff9f'
+        score: 1105.8
+        color: '#b4ff9c'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1083.6
-        color: '#b6ff9f'
+        score: 1105.8
+        color: '#b4ff9c'
       tank:
         score: 0
         color: '#ffffff'
@@ -5682,8 +5730,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1083.6
-        color: '#b6ff9f'
+        score: 1105.8
+        color: '#b4ff9c'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5692,7 +5740,7 @@ members:
   character:
     name: Марлая
     id: 265853063
-    level: 85
+    level: 88
     realm:
       id: 1602
       slug: gordunni
