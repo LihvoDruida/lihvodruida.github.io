@@ -19,12 +19,12 @@ extra_js:
       <div class="page-hero-copy">
         <span class="section-tag">Журнал заявок</span>
         <h1>Усі заявки до Mistblossom Vanguard</h1>
-        <p class="section-subtitle">Тут зібрані всі заявки до гільдії: шукай за ніком, перевіряй статус і відкривай оригінальну заявку.</p>
+        <p class="section-subtitle">Тут зібрані всі заявки до гільдії: шукай за ніком, класом або реалмом, перевіряй статус і відкривай оригінальну заявку.</p>
 
         <div class="hero-chip-row">
           <span class="application-chip">Живий список</span>
           <span class="application-chip">Пошук за ніком</span>
-          <span class="application-chip">Оригінальні заявки</span>
+          <span class="application-chip">GitHub заявки</span>
         </div>
       </div>
 
@@ -41,14 +41,19 @@ extra_js:
               <p class="hero-info-tile__meta">Усі отримані заявки</p>
             </article>
             <article class="hero-info-tile hero-info-tile--stat">
-              <span class="hero-info-tile__label">Схвалено</span>
+              <span class="hero-info-tile__label">Прийнято</span>
               <strong id="applications-stat-approved" class="hero-info-tile__value hero-info-tile__value--stat">—</strong>
-              <p class="hero-info-tile__meta">Завершені заявки</p>
+              <p class="hero-info-tile__meta">Прийняті заявки</p>
             </article>
             <article class="hero-info-tile hero-info-tile--stat">
               <span class="hero-info-tile__label">На розгляді</span>
               <strong id="applications-stat-open" class="hero-info-tile__value hero-info-tile__value--stat">—</strong>
-              <p class="hero-info-tile__meta">Ще відкриті</p>
+              <p class="hero-info-tile__meta">Очікують рішення</p>
+            </article>
+            <article class="hero-info-tile hero-info-tile--stat">
+              <span class="hero-info-tile__label">Відхилено</span>
+              <strong id="applications-stat-declined" class="hero-info-tile__value hero-info-tile__value--stat">—</strong>
+              <p class="hero-info-tile__meta">Не підходять зараз</p>
             </article>
           </div>
         </div>
@@ -68,7 +73,7 @@ extra_js:
       </div>
       <div class="applications-panel-badges">
         <span class="application-chip">Усі заявки</span>
-        <span class="application-chip">Швидкий пошук</span>
+        <span class="application-chip">Фільтри статусів</span>
       </div>
     </div>
 

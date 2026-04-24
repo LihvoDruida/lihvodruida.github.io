@@ -6,19 +6,18 @@ const PATHS = new Set(["/", "/api/guild-applications"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
+const STATUS_KEYS = new Set(["pending", "approved", "declined"]);
+
 const ISSUE_STATUS = {
   PENDING: "На розгляді",
-  REVIEW: "На розгляді",
   APPROVED: "Прийнято",
-  ACCEPTED: "Прийнято",
   DECLINED: "Відхилено",
-  REJECTED: "Відхилено",
 };
 
 const DISCORD_COLORS = {
-  REVIEW: 0xd4a63a,
-  ACCEPTED: 0x3ba55d,
-  REJECTED: 0xed4245,
+  PENDING: 0xd4a63a,
+  APPROVED: 0x3ba55d,
+  DECLINED: 0xed4245,
 };
 
 function buildCorsHeaders(corsOrigin, status = 200) {
@@ -205,21 +204,13 @@ function getIssueStatusKey(issue) {
 
 function getIssueStatus(issue) {
   const key = getIssueStatusKey(issue);
-
-  if (key === "approved") return ISSUE_STATUS.APPROVED;
-  if (key === "declined") return ISSUE_STATUS.DECLINED;
-  return ISSUE_STATUS.PENDING;
+  return ISSUE_STATUS[key.toUpperCase()] || ISSUE_STATUS.PENDING;
 }
 
 function resolveDiscordColor(statusText) {
-  switch (statusText) {
-    case ISSUE_STATUS.ACCEPTED:
-      return DISCORD_COLORS.ACCEPTED;
-    case ISSUE_STATUS.REJECTED:
-      return DISCORD_COLORS.REJECTED;
-    default:
-      return DISCORD_COLORS.REVIEW;
-  }
+  if (statusText === ISSUE_STATUS.APPROVED) return DISCORD_COLORS.APPROVED;
+  if (statusText === ISSUE_STATUS.DECLINED) return DISCORD_COLORS.DECLINED;
+  return DISCORD_COLORS.PENDING;
 }
 
 function slugifyRaiderIoValue(value) {
@@ -693,7 +684,7 @@ async function listApplications(request, env) {
   const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
   const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
 
-  if (status && status !== "all") {
+  if (status && status !== "all" && STATUS_KEYS.has(status)) {
     items = items.filter((item) => item.status_key === status);
   }
   if (className && className !== "all") {

@@ -1646,3 +1646,105 @@
     height: 2rem;
   }
 }
+
+
+/* Applications page polish: compact filters, stable cards, 3-status workflow */
+.guild-applications-directory .hero-showcase__tiles--stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.guild-applications-directory .hero-info-tile--stat {
+  min-height: 112px;
+}
+
+.application-status-badge--pending,
+.application-status-item--open .application-status-badge,
+.application-status-item--pending .application-status-badge {
+  color: #2d1d05;
+  background: linear-gradient(180deg, #ffd889, #d4a63a);
+}
+
+.application-status-badge--approved,
+.application-status-item--approved .application-status-badge {
+  color: #062012;
+  background: linear-gradient(180deg, #a8efc1, #5fca88);
+}
+
+.application-status-badge--declined,
+.application-status-item--declined .application-status-badge {
+  color: #3a0d0d;
+  background: linear-gradient(180deg, #ffb0a2, #ef7f70);
+}
+
+.applications-filter-shell--advanced {
+  grid-template-columns: minmax(220px, 1.4fr) minmax(150px, 0.75fr) minmax(170px, 0.85fr) minmax(170px, 0.85fr) auto;
+  padding: 1rem;
+  border: 1px solid rgba(255, 155, 85, 0.12);
+  border-radius: var(--apply-radius-lg);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.applications-native-select,
+.applications-search-field input {
+  min-height: 44px;
+}
+
+.guild-applications-directory .applications-directory-list--cards {
+  display: grid;
+  gap: 0.9rem;
+  align-items: stretch;
+}
+
+.guild-applications-directory .application-status-item {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 100%;
+}
+
+.application-status-item__title {
+  overflow-wrap: anywhere;
+}
+
+.application-status-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.application-status-item__sep {
+  opacity: 0.45;
+}
+
+@media (max-width: 900px) {
+  .guild-applications-directory .hero-showcase__tiles--stats,
+  .guild-applications-directory .applications-directory-list--cards {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-filter-shell--advanced {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .applications-filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .applications-filter-shell--advanced {
+    grid-template-columns: 1fr;
+    padding: 0.85rem;
+  }
+
+  .applications-filter-actions {
+    justify-content: stretch;
+  }
+
+  .applications-filter-actions > * {
+    width: 100%;
+  }
+
+  .guild-applications-directory .hero-info-tile--stat {
+    min-height: auto;
+  }
+}

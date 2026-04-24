@@ -37,6 +37,31 @@
       .replace(/'/g, '&#39;');
   }
 
+  function debounce(fn, delay) {
+    var timer = 0;
+    return function () {
+      var args = arguments;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () {
+        fn.apply(null, args);
+      }, delay || 120);
+    };
+  }
+
+  function getApplicationSearchText(item) {
+    return [
+      item && item.title,
+      item && item.summary,
+      item && item.character_name,
+      item && item.realm,
+      item && item.region,
+      item && item.faction,
+      item && item.class_name
+    ].map(function (value) {
+      return String(value || '').toLowerCase();
+    }).join(' ');
+  }
+
   function renderApplicationCard(item) {
     var statusKey = normalizeStatus(item);
     var stateClass = statusKey === 'pending' ? 'open' : statusKey;
@@ -445,6 +470,7 @@
     const statTotal = document.getElementById('applications-stat-total');
     const statApproved = document.getElementById('applications-stat-approved');
     const statOpen = document.getElementById('applications-stat-open');
+    const statDeclined = document.getElementById('applications-stat-declined');
     const searchInput = document.getElementById('applications-search-input');
     const statusFilter = document.getElementById('applications-status-filter');
     const classFilter = document.getElementById('applications-class-filter');
@@ -481,12 +507,7 @@
       const className = getFilterValue(classFilter).toLowerCase();
 
       return sortItems(allItems.filter(function (item) {
-        const matchesQuery = !query ||
-          String(item.title || '').toLowerCase().includes(query) ||
-          String(item.summary || '').toLowerCase().includes(query) ||
-          String(item.character_name || '').toLowerCase().includes(query) ||
-          String(item.realm || '').toLowerCase().includes(query);
-
+        const matchesQuery = !query || getApplicationSearchText(item).includes(query);
         const matchesStatus = !status || normalizeStatus(item) === status;
         const matchesClass = !className || String(item.class_name || '').toLowerCase() === className;
 
@@ -499,6 +520,7 @@
       const visible = items.length;
       const approved = allItems.filter(function (item) { return normalizeStatus(item) === 'approved'; }).length;
       const open = allItems.filter(function (item) { return normalizeStatus(item) === 'pending'; }).length;
+      const declined = allItems.filter(function (item) { return normalizeStatus(item) === 'declined'; }).length;
       const q = getSearchValue();
       const activeFilters = [q, getFilterValue(statusFilter), getFilterValue(classFilter)].filter(Boolean).length;
       if (counter) {
@@ -509,6 +531,7 @@
       if (statTotal) statTotal.textContent = String(total);
       if (statApproved) statApproved.textContent = String(approved);
       if (statOpen) statOpen.textContent = String(open);
+      if (statDeclined) statDeclined.textContent = String(declined);
     }
 
     function renderDirectory(items) {
@@ -536,11 +559,14 @@
       }
     }
 
+    const rerenderDirectory = function () {
+      renderDirectory(filterItems());
+    };
+    const debouncedSearch = debounce(rerenderDirectory, 120);
+
     [searchInput, statusFilter, classFilter, sortFilter].forEach(function (node) {
       if (!node) return;
-      node.addEventListener(node === searchInput ? 'input' : 'change', function () {
-        renderDirectory(filterItems());
-      });
+      node.addEventListener(node === searchInput ? 'input' : 'change', node === searchInput ? debouncedSearch : rerenderDirectory);
     });
 
     if (clearButton) {
