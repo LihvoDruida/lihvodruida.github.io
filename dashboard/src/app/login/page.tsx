@@ -36,7 +36,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </form>
       ) : null}
 
-      <p className="hint warning" style={{ marginTop: 16 }}>Якщо доступ не проходить — адмін має додати Discord role ID у налаштуваннях dashboard.</p>
+      <p className="hint warning" style={{ marginTop: 16 }}>Якщо доступ не проходить — перевір DISCORD_ADMIN_ROLE_IDS / DISCORD_MODERATOR_ROLE_IDS у Vercel ENV.</p>
     </main>
   );
 }

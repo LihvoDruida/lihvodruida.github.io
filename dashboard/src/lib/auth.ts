@@ -62,7 +62,7 @@ export function verifyToken(input: string): boolean {
 }
 
 export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
-  return user.role === "admin" || user.role === "moderator" || user.role === "unauthorized";
+  return user.role === "admin" || user.role === "moderator";
 }
 
 export async function createSessionCookie(user: AdminUser = { provider: "token", id: "local", login: "Emergency admin", role: "admin", role_source: "emergency-token" }): Promise<void> {
