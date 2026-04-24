@@ -184,9 +184,39 @@ export async function listIssues() {
   return Array.isArray(issues) ? issues.filter((issue: any) => !issue.pull_request) : [];
 }
 
-export async function listApplications() {
+export async function listApplications(params?: URLSearchParams) {
   const issues = await listIssues();
-  return issues.map(mapApplicationIssue);
+  let items = issues.map(mapApplicationIssue);
+
+  const status = params?.get("status") || "";
+  const query = (params?.get("q") || "").trim().toLowerCase();
+  const className = (params?.get("class") || "").trim().toLowerCase();
+
+  if (status && status !== "all") {
+    items = items.filter((item) => item.status_key === status);
+  }
+
+  if (className && className !== "all") {
+    items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
+  }
+
+  if (query) {
+    items = items.filter((item) =>
+      [
+        item.title,
+        item.character_name,
+        item.realm,
+        item.region,
+        item.faction,
+        item.class_name,
+        item.source,
+        item.availability,
+      ]
+        .some((value) => String(value || "").toLowerCase().includes(query))
+    );
+  }
+
+  return items;
 }
 
 export async function setIssueStatus(params: {
