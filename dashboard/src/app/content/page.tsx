@@ -128,8 +128,8 @@ function CreateContentForm({ author }: { author: string }) {
             </label>
           </div>
 
-          <div className="form-row two form-row--balanced">
-            <label className="content-field">
+          <div className="content-media-layout">
+            <label className="content-field content-author-field">
               <span>Автор</span>
               <input className="input" name="authorPreview" value={author} readOnly />
               <small>Береться з Discord-імені адміністратора.</small>
@@ -210,19 +210,20 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
             </label>
           </div>
 
-          <div className="form-row two form-row--balanced">
-            <label className="content-field">
+          <div className="content-media-layout">
+            <label className="content-field content-author-field">
               <span>Автор</span>
               <input className="input" name="author" defaultValue={item.author || author} />
               <small>Для нових матеріалів автор береться з Discord-імені.</small>
             </label>
-            <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} previewBaseUrl={sitePreviewBaseUrl()} />
+            <div className="content-cover-stack">
+              <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} previewBaseUrl={sitePreviewBaseUrl()} />
+              <label className="inline-check inline-check--card content-remove-cover">
+                <input type="checkbox" name="removeImage" value="1" />
+                <span>Прибрати обкладинку і поставити placeholder</span>
+              </label>
+            </div>
           </div>
-
-          <label className="inline-check inline-check--card">
-            <input type="checkbox" name="removeImage" value="1" />
-            <span>Прибрати обкладинку і поставити placeholder</span>
-          </label>
         </FormSection>
 
         <FormSection title="Markdown" hint="Повний текст матеріалу. Зміни збережуться у відповідному Markdown-файлі." body>
