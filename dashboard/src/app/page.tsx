@@ -127,7 +127,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <button className="btn primary" type="submit">Фільтрувати</button>
       </form>
 
-      {!mayModerate ? <div className="notice panel">Твій акаунт має роль viewer: перегляд доступний, рішення по заявках вимкнені. Додай акаунт у MODERATOR_ALLOWLIST або ADMIN_ALLOWLIST.</div> : null}
+      {!mayModerate ? <div className="notice panel">Твій акаунт має роль viewer: перегляд доступний, рішення по заявках вимкнені. Попроси адміна додати твою Discord роль у Moderator або Admin role IDs.</div> : null}
 
       <section className="grid">
         {items.length ? items.map((item) => (

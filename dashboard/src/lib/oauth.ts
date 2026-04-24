@@ -47,23 +47,12 @@ export async function exchangeGitHubCode(requestUrl: string, code: string): Prom
   const user = await parseJson(userResponse);
   if (!userResponse.ok) throw new Error(user?.message || "GitHub user request failed.");
 
-  let email = user.email || "";
-  if (!email) {
-    const emailsResponse = await fetch("https://api.github.com/user/emails", {
-      headers: { Authorization: `Bearer ${tokenData.access_token}`, Accept: "application/vnd.github+json", "User-Agent": "mistblossom-dashboard" }
-    });
-    const emails = await parseJson(emailsResponse);
-    if (Array.isArray(emails)) {
-      email = emails.find((item) => item.primary && item.verified)?.email || emails.find((item) => item.verified)?.email || "";
-    }
-  }
-
   return {
     provider: "github",
     id: String(user.id || ""),
     login: String(user.login || ""),
-    name: user.name || user.login || "GitHub admin",
-    email,
+    name: user.name || user.login || "GitHub user",
+    email: user.email || "",
     avatar_url: user.avatar_url || ""
   };
 }
@@ -73,12 +62,13 @@ export function discordAuthorizeUrl(requestUrl: string, state: string): string {
   url.searchParams.set("client_id", requiredEnv("DISCORD_OAUTH_CLIENT_ID"));
   url.searchParams.set("redirect_uri", `${baseUrl(requestUrl)}/api/auth/discord/callback`);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "identify email");
+  url.searchParams.set("scope", "identify email guilds.members.read");
   url.searchParams.set("state", state);
   return url.toString();
 }
 
 export async function exchangeDiscordCode(requestUrl: string, code: string): Promise<AdminUser> {
+  const { getAccessConfig, roleFromDiscordRoles } = await import("./access");
   const body = new URLSearchParams();
   body.set("client_id", requiredEnv("DISCORD_OAUTH_CLIENT_ID"));
   body.set("client_secret", requiredEnv("DISCORD_OAUTH_CLIENT_SECRET"));
@@ -100,12 +90,28 @@ export async function exchangeDiscordCode(requestUrl: string, code: string): Pro
   const user = await parseJson(userResponse);
   if (!userResponse.ok) throw new Error(user?.message || "Discord user request failed.");
 
+  const accessConfig = await getAccessConfig();
+  if (!accessConfig.guildId) throw new Error("DISCORD_GUILD_ID is not configured.");
+
+  const memberResponse = await fetch(`https://discord.com/api/users/@me/guilds/${accessConfig.guildId}/member`, {
+    headers: { Authorization: `Bearer ${tokenData.access_token}` }
+  });
+  const member = await parseJson(memberResponse);
+  if (!memberResponse.ok) throw new Error(member?.message || "Discord guild member request failed.");
+
+  const roleIds = Array.isArray(member?.roles) ? member.roles.map(String) : [];
+  const dashboardRole = roleFromDiscordRoles(roleIds, accessConfig);
+
   return {
     provider: "discord",
     id: String(user.id || ""),
     login: String(user.username || ""),
-    name: user.global_name || user.username || "Discord admin",
+    name: user.global_name || user.username || "Discord user",
     email: user.email || "",
-    avatar_url: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : ""
+    avatar_url: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : "",
+    role: dashboardRole || undefined,
+    role_source: dashboardRole ? "discord-role" : undefined,
+    guild_id: accessConfig.guildId,
+    discord_role_ids: roleIds
   };
 }

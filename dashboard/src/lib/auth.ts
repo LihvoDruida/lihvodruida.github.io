@@ -16,6 +16,9 @@ export type AdminUser = {
   email?: string;
   avatar_url?: string;
   role?: AdminRole;
+  role_source?: "discord-role" | "emergency-token";
+  guild_id?: string;
+  discord_role_ids?: string[];
 };
 
 function getSecret(): string {
@@ -41,54 +44,15 @@ function encodePayload(data: unknown): string {
 }
 
 function decodePayload<T>(value: string): T | null {
-  try {
-    return JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as T;
-  } catch {
-    return null;
-  }
-}
-
-function normalize(value: unknown): string {
-  return String(value || "").trim().toLowerCase();
-}
-
-function splitAllowlist(value: string | undefined): string[] {
-  return String(value || "")
-    .split(",")
-    .map((item) => normalize(item))
-    .filter(Boolean);
-}
-
-function userCandidates(user: Partial<AdminUser>): string[] {
-  return [
-    user.id,
-    user.login,
-    user.name,
-    user.email,
-    user.provider && user.id ? `${user.provider}:${user.id}` : "",
-    user.provider && user.login ? `${user.provider}:${user.login}` : "",
-    user.provider && user.email ? `${user.provider}:${user.email}` : ""
-  ].map(normalize).filter(Boolean);
-}
-
-function matchesAllowlist(user: Partial<AdminUser>, allowlist: string[]): boolean {
-  if (!allowlist.length) return false;
-  const candidates = userCandidates(user);
-  return candidates.some((candidate) => allowlist.includes(candidate));
-}
-
-export function getUserRole(user: Partial<AdminUser>): AdminRole | null {
-  if (user.provider === "token" && user.id === "local") return "admin";
-
-  if (matchesAllowlist(user, splitAllowlist(process.env.ADMIN_ALLOWLIST))) return "admin";
-  if (matchesAllowlist(user, splitAllowlist(process.env.MODERATOR_ALLOWLIST))) return "moderator";
-  if (matchesAllowlist(user, splitAllowlist(process.env.VIEWER_ALLOWLIST))) return "viewer";
-
-  return null;
+  try { return JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as T; } catch { return null; }
 }
 
 export function canModerate(user: Partial<AdminUser> | null | undefined): boolean {
   return user?.role === "admin" || user?.role === "moderator";
+}
+
+export function isAdmin(user: Partial<AdminUser> | null | undefined): boolean {
+  return user?.role === "admin";
 }
 
 export function verifyToken(input: string): boolean {
@@ -98,11 +62,12 @@ export function verifyToken(input: string): boolean {
 }
 
 export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
-  return !!getUserRole(user);
+  return user.role === "admin" || user.role === "moderator" || user.role === "viewer";
 }
 
-export async function createSessionCookie(user: AdminUser = { provider: "token", id: "local", login: "Local admin" }): Promise<void> {
-  const role = getUserRole(user) || user.role || "admin";
+export async function createSessionCookie(user: AdminUser = { provider: "token", id: "local", login: "Emergency admin", role: "admin", role_source: "emergency-token" }): Promise<void> {
+  const role = user.role || (user.provider === "token" ? "admin" : undefined);
+  if (!role) throw new Error("User has no dashboard role.");
   const payload = encodePayload({ user: { ...user, role }, createdAt: Date.now(), nonce: randomBytes(16).toString("base64url") });
   const value = `${payload}.${sign(payload)}`;
   const jar = await cookies();
