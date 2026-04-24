@@ -32,7 +32,7 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   return (
     <div className="rio-panel">
       <div className="section-title">Raider.IO</div>
-      {item.raider_io_error ? <p className="hint warning">{item.raider_io_error}</p> : null}
+      {(item.raider_io_error ?? null) ? <p className="hint warning">{item.raider_io_error ?? null}</p> : null}
       <div className="metric-grid">
         <MiniMetric label="M+ current" value={formatScore(current.all)} />
         <MiniMetric label="Хіл" value={formatScore(current.healer)} />

@@ -39,6 +39,7 @@ export type RaiderIoApplicationData = {
 };
 
 export type ApplicationItem = {
+  [key: string]: unknown;
   number: number;
   title: string;
   state: string;
@@ -56,6 +57,7 @@ export type ApplicationItem = {
   source?: string;
   availability?: string;
   raider_io?: RaiderIoApplicationData | null;
+  raider_io_error?: string | null;
   labels: string[];
 };
 
@@ -167,6 +169,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     source: extract(body, /- Звідки дізнався: (.+)/),
     availability: body.split("### Коли зазвичай грає")[1]?.trim() || "",
     raider_io: null,
+    raider_io_error: null,
     labels: Array.isArray(issue.labels) ? issue.labels.map((label: any) => label.name) : [],
   };
 }
