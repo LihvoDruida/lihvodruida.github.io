@@ -58,6 +58,7 @@ export type ApplicationItem = {
   availability?: string;
   raider_io?: RaiderIoApplicationData | null;
   raider_io_error?: string | null;
+  avatar_url?: string | null;
   labels: string[];
 };
 

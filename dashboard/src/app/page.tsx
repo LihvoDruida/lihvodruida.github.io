@@ -3,8 +3,11 @@ import { ApplicationItem, listApplications, updateApplicationStatus } from "@/li
 import { STATUS, StatusKey } from "@/lib/status";
 import { redirect } from "next/navigation";
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+function formatDate(value?: string | null) {
+  if (!value) return "Дата невідома";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Дата невідома";
+  return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
 function formatScore(value: unknown) {
@@ -20,6 +23,47 @@ function StatusBadge({ status }: { status: StatusKey }) {
 
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return <span className="mini-metric"><strong>{value}</strong><small>{label}</small></span>;
+}
+
+function formatRaidName(raid: unknown): string {
+  if (typeof raid === "string") return raid;
+
+  if (raid && typeof raid === "object") {
+    const item = raid as {
+      name?: string;
+      key?: string;
+      summary?: string;
+      mythic_bosses_killed?: number;
+      heroic_bosses_killed?: number;
+      normal_bosses_killed?: number;
+      total_bosses?: number;
+    };
+
+    const baseName = item.name || item.key || "Raid";
+    if (item.summary) return `${baseName}: ${item.summary}`;
+
+    const total = item.total_bosses || "?";
+    const progress = [
+      item.mythic_bosses_killed ? `${item.mythic_bosses_killed}/${total} M` : "",
+      item.heroic_bosses_killed ? `${item.heroic_bosses_killed}/${total} H` : "",
+      item.normal_bosses_killed ? `${item.normal_bosses_killed}/${total} N` : "",
+    ].filter(Boolean).join(" • ");
+
+    return progress ? `${baseName}: ${progress}` : baseName;
+  }
+
+  return "Raid";
+}
+
+function raidKey(raid: unknown, index: number): string {
+  if (typeof raid === "string") return `${raid}-${index}`;
+
+  if (raid && typeof raid === "object") {
+    const item = raid as { key?: string; name?: string; summary?: string };
+    return `${item.key || item.name || item.summary || "raid"}-${index}`;
+  }
+
+  return `raid-${index}`;
 }
 
 function RaiderIoPanel({ item }: { item: ApplicationItem }) {
@@ -43,11 +87,11 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
       <div className="raid-grid">
         <div>
           <strong>Рейди current</strong>
-          {currentRaids.length ? currentRaids.map((raid) => <span key={raid}>{raid}</span>) : <span>Дані відсутні</span>}
+          {currentRaids.length ? currentRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
         </div>
         <div>
           <strong>Рейди previous</strong>
-          {previousRaids.length ? previousRaids.map((raid) => <span key={raid}>{raid}</span>) : <span>Дані відсутні</span>}
+          {previousRaids.length ? previousRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
         </div>
       </div>
       {rio?.profile_url ? <a className="rio-link" href={rio.profile_url} target="_blank" rel="noreferrer">Відкрити Raider.IO</a> : null}
@@ -92,7 +136,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці. Секрети та GitHub token залишаються тільки на сервері.</p>
         </div>
         <div className="admin-card">
-          {user?.avatar_url ? <img src={user.avatar_url} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
+          {user?.avatar ? <img src={user.avatar} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
           <div>
             <strong>{user?.name || user?.login}</strong>
             <span>{user?.provider} • {user?.role || "unauthorized"}</span>
