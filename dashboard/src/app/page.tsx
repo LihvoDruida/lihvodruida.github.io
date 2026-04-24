@@ -144,19 +144,29 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <main className="container">
       <DashboardIdentity user={user} />
-      <header className="hero panel">
-        <div className="hero-copy">
+      <header className="hero panel dashboard-hero">
+        <div className="hero-copy dashboard-hero__copy">
           <div className="eyebrow">Mistblossom Vanguard • Secure dashboard</div>
           <h1>Заявки до гільдії</h1>
-          <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці. Секрети та GitHub token залишаються тільки на сервері.</p>
-        </div>
-        <div className="admin-card">
-          {user?.avatar ? <img src={user.avatar || undefined} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
-          <div>
-            <strong>{user?.name || user?.login}</strong>
-            <span>{user?.provider} • {user?.role || "unauthorized"}</span>
+          <span className="hero-accent" aria-hidden="true" />
+          <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці.</p>
+          <div className="hero-secure-note">
+            <span className="hero-lock" aria-hidden="true">▣</span>
+            <span>Секрети та GitHub token залишаються тільки на сервері.</span>
           </div>
-          <form method="post" action="/api/auth/logout"><button className="btn ghost" type="submit">Вийти</button></form>
+        </div>
+
+        <div className="hero-emblem" aria-hidden="true">
+          <div className="hero-emblem__rings" />
+          <div className="hero-flower">
+            <span className="hero-flower__petal hero-flower__petal--top" />
+            <span className="hero-flower__petal hero-flower__petal--left" />
+            <span className="hero-flower__petal hero-flower__petal--right" />
+            <span className="hero-flower__petal hero-flower__petal--low-left" />
+            <span className="hero-flower__petal hero-flower__petal--low-right" />
+            <span className="hero-flower__core" />
+          </div>
+          <div className="hero-platform" />
         </div>
       </header>
 

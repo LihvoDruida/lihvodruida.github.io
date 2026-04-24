@@ -17,11 +17,17 @@ export default async function DashboardIdentity({ user }: { user: DashboardSessi
 
       {user ? (
         <div className="dashboard-user">
-          {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : null}
+          <div className="dashboard-user__avatar-wrap">
+            {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
+            <span className="dashboard-user__status" aria-hidden="true" />
+          </div>
           <div>
             <strong>{user.name}</strong>
             <span>Discord • {user.role}</span>
           </div>
+          <form method="post" action="/api/auth/logout" className="dashboard-user__logout">
+            <button type="submit" aria-label="Вийти">⌄</button>
+          </form>
         </div>
       ) : null}
     </header>
