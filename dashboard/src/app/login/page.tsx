@@ -62,10 +62,16 @@ export default async function LoginPage({
           <div className="auth-ref-flower">
             <span className="auth-ref-flower__ring auth-ref-flower__ring--outer" />
             <span className="auth-ref-flower__ring auth-ref-flower__ring--inner" />
-            <span className="auth-ref-flower__petal auth-ref-flower__petal--one" />
-            <span className="auth-ref-flower__petal auth-ref-flower__petal--two" />
-            <span className="auth-ref-flower__petal auth-ref-flower__petal--three" />
-            <span className="auth-ref-flower__petal auth-ref-flower__petal--four" />
+            <span className="auth-ref-flower__stem" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--back auth-ref-flower__petal--one" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--back auth-ref-flower__petal--two" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--back auth-ref-flower__petal--three" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--mid auth-ref-flower__petal--four" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--mid auth-ref-flower__petal--five" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--mid auth-ref-flower__petal--six" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--front auth-ref-flower__petal--seven" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--front auth-ref-flower__petal--eight" />
+            <span className="auth-ref-flower__petal auth-ref-flower__petal--front auth-ref-flower__petal--nine" />
             <span className="auth-ref-flower__core" />
           </div>
         </div>
