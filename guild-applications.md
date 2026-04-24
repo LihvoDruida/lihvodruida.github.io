@@ -2,7 +2,9 @@
 layout: default
 title: Усі заявки до Mistblossom Vanguard
 permalink: /guild/applications/
-description: "Повний список заявок до Mistblossom Vanguard зі статусами та пошуком за ніком персонажа."
+description: "Закритий список заявок до Mistblossom Vanguard зі статусами, пошуком, фільтрами за класом і сортуванням."
+robots: noindex, nofollow, noarchive
+sitemap: false
 image: /assets/img/guild-finder-apply.png
 tags: [Mistblossom Vanguard, список заявок, статус заявок, World of Warcraft]
 extra_css:
@@ -11,7 +13,7 @@ extra_js:
   - /assets/js/guild-applications.js
 ---
 
-<div class="area-content guild-page-container listing-page listing-page--guild-applications guild-applications-directory" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="50">
+<div class="area-content guild-page-container listing-page listing-page--guild-applications guild-applications-directory" data-api-url="{{ site.guild_applications_api_url }}" data-status-limit="100">
   <section class="page-hero page-hero--applications page-hero--showcase page-hero--directory-showcase">
     <div class="page-hero-grid page-hero-grid--showcase">
       <div class="page-hero-copy">
@@ -70,10 +72,51 @@ extra_js:
       </div>
     </div>
 
-    <div class="applications-filter-shell">
+    <div class="applications-filter-shell applications-filter-shell--advanced">
       <label class="applications-search-field" for="applications-search-input">
-        <span>Пошук за ніком</span>
-        <input id="applications-search-input" type="search" placeholder="Наприклад: Sebas або Illidonson" autocomplete="off">
+        <span>Пошук</span>
+        <input id="applications-search-input" type="search" placeholder="Нік, реалм або короткий опис" autocomplete="off">
+      </label>
+
+      <label class="applications-search-field applications-select-field" for="applications-status-filter">
+        <span>Статус</span>
+        <select id="applications-status-filter" class="applications-native-select">
+          <option value="">Усі статуси</option>
+          <option value="pending">На розгляді</option>
+          <option value="approved">Прийнято</option>
+          <option value="declined">Відхилено</option>
+          <option value="closed">Закрито</option>
+        </select>
+      </label>
+
+      <label class="applications-search-field applications-select-field" for="applications-class-filter">
+        <span>Клас</span>
+        <select id="applications-class-filter" class="applications-native-select">
+          <option value="">Усі класи</option>
+          <option value="Warrior">Warrior</option>
+          <option value="Paladin">Paladin</option>
+          <option value="Hunter">Hunter</option>
+          <option value="Rogue">Rogue</option>
+          <option value="Priest">Priest</option>
+          <option value="Death Knight">Death Knight</option>
+          <option value="Shaman">Shaman</option>
+          <option value="Mage">Mage</option>
+          <option value="Warlock">Warlock</option>
+          <option value="Monk">Monk</option>
+          <option value="Druid">Druid</option>
+          <option value="Demon Hunter">Demon Hunter</option>
+          <option value="Evoker">Evoker</option>
+        </select>
+      </label>
+
+      <label class="applications-search-field applications-select-field" for="applications-sort-filter">
+        <span>Сортування</span>
+        <select id="applications-sort-filter" class="applications-native-select">
+          <option value="newest">Нові спочатку</option>
+          <option value="oldest">Старі спочатку</option>
+          <option value="status">За статусом</option>
+          <option value="class">За класом</option>
+        </select>
       </label>
 
       <div class="applications-filter-actions">

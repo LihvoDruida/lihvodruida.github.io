@@ -526,6 +526,7 @@
 
 .form-field input,
 .applications-search-field input,
+.applications-native-select,
 .custom-select__trigger {
   min-height: 44px;
   padding: 0 0.9rem;
@@ -549,11 +550,46 @@
 .form-field input:focus,
 .form-field textarea:focus,
 .applications-search-field input:focus,
+.applications-native-select:focus,
 .custom-select.is-open .custom-select__trigger,
 .custom-select__trigger:focus-visible {
   border-color: rgba(255, 155, 85, 0.34);
   background: var(--apply-input-bg-active);
   box-shadow: 0 0 0 4px var(--apply-focus-ring), 0 12px 26px rgba(0,0,0,0.2);
+}
+
+
+
+.applications-native-select {
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+  background:
+    linear-gradient(45deg, transparent 50%, rgba(255, 178, 106, 0.95) 50%) right 1rem center / 7px 7px no-repeat,
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02)),
+    var(--apply-input-bg);
+  border: 1px solid rgba(255, 155, 85, 0.16);
+  color: var(--apply-text);
+  font-weight: 800;
+}
+
+.applications-native-select:hover {
+  border-color: rgba(255, 155, 85, 0.26);
+  background-color: var(--apply-input-bg-hover);
+}
+
+.applications-native-select option {
+  color: #1b120c;
+  background: #fff6ea;
+}
+
+.applications-filter-shell--advanced {
+  grid-template-columns: minmax(220px, 1.2fr) minmax(150px, 0.75fr) minmax(170px, 0.85fr) minmax(170px, 0.85fr) auto;
+  align-items: end;
+}
+
+.applications-select-field {
+  min-width: 0;
 }
 
 .custom-select {
@@ -916,9 +952,15 @@
   background: linear-gradient(180deg, #e9ba4d, #d9a33a);
 }
 
+.application-status-badge--approved,
 .application-status-badge--closed {
   color: var(--apply-success-dark);
   background: linear-gradient(180deg, #84e2a6, #64ca87);
+}
+
+.application-status-badge--declined {
+  color: #3a0d0d;
+  background: linear-gradient(180deg, #ffb0a2, #ef7f70);
 }
 
 .application-status-item__desc {
@@ -1020,6 +1062,7 @@
   .form-grid--two,
   .finder-steps-grid,
   .applications-filter-shell,
+  .applications-filter-shell--advanced,
   .application-panel__header--split,
   .guild-applications-directory .applications-directory-list--cards {
     grid-template-columns: 1fr;

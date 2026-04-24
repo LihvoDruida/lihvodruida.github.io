@@ -21,6 +21,21 @@
   {% endif %}
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
 
+  {% assign page_image = page.image | default: site.image | absolute_url %}
+  {% assign page_url = page.url | absolute_url %}
+  <link rel="canonical" href="{{ page_url }}">
+  <meta property="og:locale" content="{{ site.locale | default: 'uk_UA' }}">
+  <meta property="og:site_name" content="{{ site.title | escape }}">
+  <meta property="og:title" content="{% if page.title %}{{ page.title | escape }} — {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+  <meta property="og:description" content="{{ meta_description | escape }}">
+  <meta property="og:url" content="{{ page_url }}">
+  <meta property="og:image" content="{{ page_image }}">
+  <meta property="og:type" content="{{ page.seo.type | default: 'website' }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if page.title %}{{ page.title | escape }} — {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+  <meta name="twitter:description" content="{{ meta_description | escape }}">
+  <meta name="twitter:image" content="{{ page_image }}">
+
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="any">
   <link rel="apple-touch-icon" sizes="57x57" href="{{ '/assets/favicon/apple-icon-57x57.png' | relative_url }}">
   <link rel="apple-touch-icon" sizes="60x60" href="{{ '/assets/favicon/apple-icon-60x60.png' | relative_url }}">
@@ -48,6 +63,23 @@
 
   {% seo title=false %}
   {% feed_meta %}
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "{{ page.seo.type | default: 'WebSite' }}",
+    "name": "{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}",
+    "url": "{{ page_url }}",
+    "description": "{{ meta_description | escape }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Mistblossom Vanguard",
+      "url": "{{ site.url }}",
+      "logo": "{{ site.logo | default: site.image | absolute_url }}"
+    }
+  }
+  </script>
 
   <script>
     const whTooltips = {

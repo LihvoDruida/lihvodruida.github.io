@@ -12,8 +12,22 @@
     }
   }
 
+  const STATUS_LABELS = {
+    pending: 'На розгляді',
+    approved: 'Прийнято',
+    declined: 'Відхилено',
+    closed: 'Закрито'
+  };
+
+  function normalizeStatus(item) {
+    if (item && item.status_key) return String(item.status_key).toLowerCase();
+    if (item && item.state === 'closed') return 'closed';
+    return 'pending';
+  }
+
   function humanStatus(item) {
-    return item.state === 'closed' ? 'Розгляд завершено' : 'На розгляді';
+    const key = normalizeStatus(item);
+    return item.status_text || STATUS_LABELS[key] || 'На розгляді';
   }
 
   function escapeHtml(value) {
@@ -26,12 +40,15 @@
   }
 
   function renderApplicationCard(item) {
-    var stateClass = item.state === 'closed' ? 'closed' : 'open';
+    var statusKey = normalizeStatus(item);
+    var stateClass = statusKey === 'pending' ? 'open' : statusKey;
     var meta = [];
     if (item.number) meta.push('№' + item.number);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
+    if (item.class_name) meta.push(item.class_name);
+    if (item.realm) meta.push(item.realm);
     var description = item.summary || 'Короткий опис заявки буде доступний після відкриття картки.';
-    var title = String(item.title || '').replace(/^Заявка до гільдії:\s*/i, '').trim() || 'Нова заявка';
+    var title = item.character_name || String(item.title || '').replace(/^Заявка до гільдії:\s*/i, '').trim() || 'Нова заявка';
     var metaHtml = meta.length
       ? meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>')
       : '<span>Без додаткових даних</span>';
@@ -50,8 +67,15 @@
     '</article>';
   }
 
-  async function fetchApplications(apiUrl, limit) {
-    const response = await fetch(apiUrl + '?limit=' + encodeURIComponent(String(limit)), {
+  async function fetchApplications(apiUrl, limit, params) {
+    var url = new URL(apiUrl, window.location.href);
+    url.searchParams.set('limit', String(limit));
+    Object.keys(params || {}).forEach(function (key) {
+      var value = params[key];
+      if (value) url.searchParams.set(key, value);
+    });
+
+    const response = await fetch(url.toString(), {
       headers: { 'Accept': 'application/json' }
     });
 
@@ -424,6 +448,9 @@
     const statApproved = document.getElementById('applications-stat-approved');
     const statOpen = document.getElementById('applications-stat-open');
     const searchInput = document.getElementById('applications-search-input');
+    const statusFilter = document.getElementById('applications-status-filter');
+    const classFilter = document.getElementById('applications-class-filter');
+    const sortFilter = document.getElementById('applications-sort-filter');
     const clearButton = document.getElementById('applications-clear-search');
     const refreshButton = document.getElementById('applications-refresh');
     let allItems = [];
@@ -432,24 +459,53 @@
       return (searchInput ? searchInput.value : '').toString().trim().toLowerCase();
     }
 
+    function getFilterValue(node) {
+      return (node ? node.value : '').toString().trim();
+    }
+
+    function sortItems(items) {
+      const mode = getFilterValue(sortFilter) || 'newest';
+      const copy = items.slice();
+      copy.sort(function (a, b) {
+        const dateA = new Date(a.created_at || 0).getTime();
+        const dateB = new Date(b.created_at || 0).getTime();
+        if (mode === 'oldest') return dateA - dateB;
+        if (mode === 'status') return normalizeStatus(a).localeCompare(normalizeStatus(b), 'uk');
+        if (mode === 'class') return String(a.class_name || '').localeCompare(String(b.class_name || ''), 'uk');
+        return dateB - dateA;
+      });
+      return copy;
+    }
+
     function filterItems() {
       const query = getSearchValue();
-      if (!query) return allItems.slice();
-      return allItems.filter(function (item) {
-        return String(item.title || '').toLowerCase().includes(query) ||
-               String(item.summary || '').toLowerCase().includes(query);
-      });
+      const status = getFilterValue(statusFilter);
+      const className = getFilterValue(classFilter).toLowerCase();
+
+      return sortItems(allItems.filter(function (item) {
+        const matchesQuery = !query ||
+          String(item.title || '').toLowerCase().includes(query) ||
+          String(item.summary || '').toLowerCase().includes(query) ||
+          String(item.character_name || '').toLowerCase().includes(query) ||
+          String(item.realm || '').toLowerCase().includes(query);
+
+        const matchesStatus = !status || normalizeStatus(item) === status;
+        const matchesClass = !className || String(item.class_name || '').toLowerCase() === className;
+
+        return matchesQuery && matchesStatus && matchesClass;
+      }));
     }
 
     function updateCounter(items) {
       const total = allItems.length;
       const visible = items.length;
-      const approved = allItems.filter(function (item) { return item.state === 'closed'; }).length;
-      const open = total - approved;
+      const approved = allItems.filter(function (item) { return normalizeStatus(item) === 'approved'; }).length;
+      const open = allItems.filter(function (item) { return normalizeStatus(item) === 'pending'; }).length;
       const q = getSearchValue();
+      const activeFilters = [q, getFilterValue(statusFilter), getFilterValue(classFilter)].filter(Boolean).length;
       if (counter) {
-        counter.textContent = q
-          ? 'Знайдено ' + visible + ' із ' + total + ' заявок за поточним пошуком.'
+        counter.textContent = activeFilters
+          ? 'Показано ' + visible + ' із ' + total + ' заявок за поточними фільтрами.'
           : 'Усього заявок у списку: ' + total + '.';
       }
       if (statTotal) statTotal.textContent = String(total);
@@ -461,7 +517,7 @@
       if (!listRoot) return;
       updateCounter(items);
       if (!Array.isArray(items) || items.length === 0) {
-        listRoot.innerHTML = '<div class="applications-empty">За цим запитом нічого не знайдено. Спробуй інший нік або очисти пошук.</div>';
+        listRoot.innerHTML = '<div class="applications-empty">За цими фільтрами нічого не знайдено. Спробуй інший нік, статус або клас.</div>';
         return;
       }
       listRoot.innerHTML = items.map(renderApplicationCard).join('');
@@ -471,7 +527,10 @@
       if (!listRoot) return;
       listRoot.innerHTML = '<div class="applications-placeholder">Оновлюємо повний список заявок…</div>';
       try {
-        allItems = await fetchApplications(apiUrl, limit);
+        allItems = await fetchApplications(apiUrl, limit, {
+          sort: 'created',
+          direction: 'desc'
+        });
         renderDirectory(filterItems());
       } catch (error) {
         listRoot.innerHTML = '<div class="applications-empty">Зараз не вдалося завантажити список заявок. Спробуй ще раз трохи пізніше.</div>';
@@ -479,15 +538,19 @@
       }
     }
 
-    if (searchInput) {
-      searchInput.addEventListener('input', function () {
+    [searchInput, statusFilter, classFilter, sortFilter].forEach(function (node) {
+      if (!node) return;
+      node.addEventListener(node === searchInput ? 'input' : 'change', function () {
         renderDirectory(filterItems());
       });
-    }
+    });
 
     if (clearButton) {
       clearButton.addEventListener('click', function () {
         if (searchInput) searchInput.value = '';
+        if (statusFilter) statusFilter.value = '';
+        if (classFilter) classFilter.value = '';
+        if (sortFilter) sortFilter.value = 'newest';
         renderDirectory(filterItems());
         if (searchInput) searchInput.focus();
       });

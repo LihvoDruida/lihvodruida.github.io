@@ -1,14 +1,17 @@
 const DEFAULT_CACHE_SECONDS = 60;
-const MAX_LIST_LIMIT = 50;
-const DEFAULT_LIST_LIMIT = 12;
+const MAX_LIST_LIMIT = 100;
+const DEFAULT_LIST_LIMIT = 24;
 
 const PATHS = new Set(["/", "/api/guild-applications"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
 const ISSUE_STATUS = {
+  PENDING: "На розгляді",
   REVIEW: "На розгляді",
+  APPROVED: "Прийнято",
   ACCEPTED: "Прийнято",
+  DECLINED: "Відхилено",
   REJECTED: "Відхилено",
   CLOSED: "Закрито",
 };
@@ -168,14 +171,24 @@ function buildIssueBody(payload) {
   ].join("\n");
 }
 
-function extractSummary(body) {
+function extractApplicationDetails(body) {
   const text = String(body || "");
-  const region = (text.match(/- Регіон: (.+)/) || [])[1];
-  const faction = (text.match(/- Фракція: (.+)/) || [])[1];
-  const character = (text.match(/- Ім’я персонажа: (.+)/) || [])[1];
-  const realm = (text.match(/- Реалм: (.+)/) || [])[1];
+  const read = (pattern) => cleanText((text.match(pattern) || [])[1] || "", 120);
 
-  return [character, realm, region, faction].filter(Boolean).join(" • ");
+  return {
+    region: read(/- Регіон: (.+)/),
+    faction: read(/- Фракція: (.+)/),
+    character: read(/- Ім’я персонажа: (.+)/),
+    realm: read(/- Реалм: (.+)/),
+    class_name: read(/- Клас: (.+)/),
+  };
+}
+
+function extractSummary(body) {
+  const details = extractApplicationDetails(body);
+  return [details.character, details.realm, details.region, details.faction, details.class_name]
+    .filter(Boolean)
+    .join(" • ");
 }
 
 function normalizeLabels(issue) {
@@ -184,15 +197,22 @@ function normalizeLabels(issue) {
     : [];
 }
 
-function getIssueStatus(issue) {
+function getIssueStatusKey(issue) {
   const labels = normalizeLabels(issue);
 
-  if (labels.includes("status:accepted")) return ISSUE_STATUS.ACCEPTED;
-  if (labels.includes("status:rejected") || labels.includes("status:declined")) {
-    return ISSUE_STATUS.REJECTED;
-  }
-  if (issue?.state === "closed") return ISSUE_STATUS.CLOSED;
-  return ISSUE_STATUS.REVIEW;
+  if (labels.includes("status:approved") || labels.includes("status:accepted")) return "approved";
+  if (labels.includes("status:declined") || labels.includes("status:rejected")) return "declined";
+  if (labels.includes("status:closed") || issue?.state === "closed") return "closed";
+  return "pending";
+}
+
+function getIssueStatus(issue) {
+  const key = getIssueStatusKey(issue);
+
+  if (key === "approved") return ISSUE_STATUS.APPROVED;
+  if (key === "declined") return ISSUE_STATUS.DECLINED;
+  if (key === "closed") return ISSUE_STATUS.CLOSED;
+  return ISSUE_STATUS.PENDING;
 }
 
 function resolveDiscordColor(statusText) {
@@ -616,15 +636,25 @@ async function sendDiscordNotification(env, payload, issue) {
 }
 
 function mapIssueListItem(issue) {
+  const details = extractApplicationDetails(issue.body);
+  const statusKey = getIssueStatusKey(issue);
+
   return {
     number: issue.number,
     title: issue.title,
     state: issue.state,
+    status_key: statusKey,
     status_text: getIssueStatus(issue),
     html_url: issue.html_url,
     created_at: issue.created_at,
+    updated_at: issue.updated_at,
     closed_at: issue.closed_at,
     summary: extractSummary(issue.body),
+    character_name: details.character,
+    realm: details.realm,
+    region: details.region,
+    faction: details.faction,
+    class_name: details.class_name,
     labels: Array.isArray(issue.labels) ? issue.labels.map((label) => label.name) : [],
   };
 }
@@ -636,11 +666,15 @@ async function listApplications(request, env) {
     Math.max(parseInt(url.searchParams.get("limit") || String(DEFAULT_LIST_LIMIT), 10), 1),
     MAX_LIST_LIMIT
   );
+  const sort = ["created", "updated"].includes(url.searchParams.get("sort"))
+    ? url.searchParams.get("sort")
+    : "created";
+  const direction = url.searchParams.get("direction") === "asc" ? "asc" : "desc";
   const label = encodeURIComponent(env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL);
 
   const response = await githubFetch(
     env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=created&direction=desc&labels=${label}`
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=${sort}&direction=${direction}&labels=${label}`
   );
 
   const { raw, data } = await parseJsonResponse(response);
@@ -657,11 +691,28 @@ async function listApplications(request, env) {
     );
   }
 
-  const items = (Array.isArray(data) ? data : [])
+  let items = (Array.isArray(data) ? data : [])
     .filter((issue) => !issue.pull_request)
     .map(mapIssueListItem);
 
-  return json({ items }, 200, origin);
+  const status = cleanText(url.searchParams.get("status"), 24).toLowerCase();
+  const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
+  const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
+
+  if (status && status !== "all") {
+    items = items.filter((item) => item.status_key === status);
+  }
+  if (className && className !== "all") {
+    items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
+  }
+  if (query) {
+    items = items.filter((item) =>
+      [item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
+        .some((value) => String(value || "").toLowerCase().includes(query))
+    );
+  }
+
+  return json({ items, total: items.length }, 200, origin);
 }
 
 async function createApplication(request, env) {

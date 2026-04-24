@@ -2,7 +2,9 @@
 layout: default
 title: Вступ до Mistblossom Vanguard
 permalink: /guild/apply/
-description: "Коротка заявка до Mistblossom Vanguard, поради як знайти гільдію в грі та актуальний статус недавніх заявок."
+description: "Коротка заявка до Mistblossom Vanguard з перевіркою обов’язкових полів, приватними контактами та статусами останніх заявок."
+robots: noindex, nofollow, noarchive
+sitemap: false
 image: /assets/img/guild-finder-apply.png
 tags: [Mistblossom Vanguard, вступ до гільдії, World of Warcraft, Alliance, рейди, Mythic+]
 extra_css:

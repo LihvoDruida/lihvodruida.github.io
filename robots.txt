@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /guild/apply/
+Disallow: /guild/applications/
+Disallow: /api/guild-applications
 
 Sitemap: https://lihvodruida.pp.ua/sitemap.xml
