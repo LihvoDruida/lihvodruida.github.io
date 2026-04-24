@@ -13,14 +13,12 @@ const ISSUE_STATUS = {
   ACCEPTED: "Прийнято",
   DECLINED: "Відхилено",
   REJECTED: "Відхилено",
-  CLOSED: "Закрито",
 };
 
 const DISCORD_COLORS = {
   REVIEW: 0xd4a63a,
   ACCEPTED: 0x3ba55d,
   REJECTED: 0xed4245,
-  CLOSED: 0x747f8d,
 };
 
 function buildCorsHeaders(corsOrigin, status = 200) {
@@ -202,7 +200,6 @@ function getIssueStatusKey(issue) {
 
   if (labels.includes("status:approved") || labels.includes("status:accepted")) return "approved";
   if (labels.includes("status:declined") || labels.includes("status:rejected")) return "declined";
-  if (labels.includes("status:closed") || issue?.state === "closed") return "closed";
   return "pending";
 }
 
@@ -211,7 +208,6 @@ function getIssueStatus(issue) {
 
   if (key === "approved") return ISSUE_STATUS.APPROVED;
   if (key === "declined") return ISSUE_STATUS.DECLINED;
-  if (key === "closed") return ISSUE_STATUS.CLOSED;
   return ISSUE_STATUS.PENDING;
 }
 
@@ -221,8 +217,6 @@ function resolveDiscordColor(statusText) {
       return DISCORD_COLORS.ACCEPTED;
     case ISSUE_STATUS.REJECTED:
       return DISCORD_COLORS.REJECTED;
-    case ISSUE_STATUS.CLOSED:
-      return DISCORD_COLORS.CLOSED;
     default:
       return DISCORD_COLORS.REVIEW;
   }

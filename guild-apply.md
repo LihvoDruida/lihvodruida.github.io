@@ -275,12 +275,13 @@ extra_js:
       <div class="application-panel__header application-panel__header--compact">
         <span class="section-tag">Останні заявки</span>
         <h2>Останні звернення та їх статус</h2>
-        <p>Відкриті заявки ще в роботі. Коли розгляд завершено, статус змінюється автоматично.</p>
+        <p>Відкриті заявки ще в роботі. Статус може бути тільки: на розгляді, прийнято або відхилено.</p>
       </div>
 
       <div class="applications-legend">
         <span><i class="legend-dot"></i> На розгляді</span>
-        <span><i class="legend-dot legend-dot--closed"></i> Розгляд завершено</span>
+        <span><i class="legend-dot legend-dot--approved"></i> Прийнято</span>
+        <span><i class="legend-dot legend-dot--declined"></i> Відхилено</span>
       </div>
 
       <div class="application-status-actions">

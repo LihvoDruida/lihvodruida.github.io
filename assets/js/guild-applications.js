@@ -15,19 +15,17 @@
   const STATUS_LABELS = {
     pending: 'На розгляді',
     approved: 'Прийнято',
-    declined: 'Відхилено',
-    closed: 'Закрито'
+    declined: 'Відхилено'
   };
 
   function normalizeStatus(item) {
     if (item && item.status_key) return String(item.status_key).toLowerCase();
-    if (item && item.state === 'closed') return 'closed';
     return 'pending';
   }
 
   function humanStatus(item) {
     const key = normalizeStatus(item);
-    return item.status_text || STATUS_LABELS[key] || 'На розгляді';
+    return STATUS_LABELS[key] || item.status_text || 'На розгляді';
   }
 
   function escapeHtml(value) {

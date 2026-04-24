@@ -85,7 +85,6 @@ extra_js:
           <option value="pending">На розгляді</option>
           <option value="approved">Прийнято</option>
           <option value="declined">Відхилено</option>
-          <option value="closed">Закрито</option>
         </select>
       </label>
 
