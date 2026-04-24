@@ -26,6 +26,65 @@ function normalizeStatusKey(value) {
   return STATUS_ALIASES[String(value || "").trim().toLowerCase()] || STATUS.REVIEW.key;
 }
 
+const INTERACTION_COOLDOWN_MS = 2500;
+const interactionCooldowns = new Map();
+
+function parseCsvSet(value) {
+  return new Set(
+    String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+  );
+}
+
+function getDiscordUserId(interaction) {
+  return interaction?.member?.user?.id || interaction?.user?.id || "unknown";
+}
+
+function hasAllowedDiscordRole(interaction, env) {
+  const allowedRoles = parseCsvSet(env.DISCORD_ALLOWED_ROLES);
+  if (!allowedRoles.size) return true;
+
+  const memberRoles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map(String)
+    : [];
+
+  return memberRoles.some((roleId) => allowedRoles.has(roleId));
+}
+
+function isInteractionRateLimited(interaction) {
+  const userId = getDiscordUserId(interaction);
+  const now = Date.now();
+  const last = interactionCooldowns.get(userId) || 0;
+
+  if (interactionCooldowns.size > 500) {
+    for (const [key, timestamp] of interactionCooldowns) {
+      if (now - timestamp > 60_000) interactionCooldowns.delete(key);
+    }
+  }
+
+  if (now - last < INTERACTION_COOLDOWN_MS) return true;
+  interactionCooldowns.set(userId, now);
+  return false;
+}
+
+async function retryAsync(task, retries = 2, delayMs = 250) {
+  let lastError;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await task();
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries) break;
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+    }
+  }
+
+  throw lastError;
+}
+
 function buildCorsHeaders(corsOrigin, status = 200) {
   return {
     "Content-Type": "application/json; charset=utf-8",
@@ -634,6 +693,7 @@ function buildStatusUpdateContent(issueNumber, statusKey, moderator) {
     `📋 **Заявка #${issueNumber} оновлена**`,
     `> Статус: ${icon} **${status.label}**`,
     `> Модератор: 👤 **${moderatorLabel}**`,
+    `> GitHub Issue: 🔒 **закрито**`,
   ].join("\n");
 }
 
@@ -732,6 +792,42 @@ async function removeIssueLabelIfExists(env, issueNumber, label) {
   throw new Error(data?.message || raw || `Не вдалося прибрати label ${label}.`);
 }
 
+
+async function fetchGithubIssue(env, issueNumber) {
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}`
+  );
+
+  const { raw, data } = await parseJsonResponse(response);
+
+  if (!response.ok) {
+    throw new Error(data?.message || raw || "Не вдалося отримати заявку з GitHub.");
+  }
+
+  return data;
+}
+
+async function closeGithubIssue(env, issueNumber, status) {
+  if (![STATUS.ACCEPTED.key, STATUS.DECLINED.key].includes(status)) return;
+
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        state: "closed",
+        state_reason: status === STATUS.ACCEPTED.key ? "completed" : "not_planned",
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const { raw, data } = await parseJsonResponse(response);
+    throw new Error(data?.message || raw || "Статус змінено, але issue не закрито.");
+  }
+}
 async function updateApplicationIssueStatus(env, issueNumber, status, moderator) {
   const cleanIssueNumber = Number(issueNumber);
   if (!Number.isInteger(cleanIssueNumber) || cleanIssueNumber <= 0) {
@@ -739,12 +835,23 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
   }
 
   const targetLabel = getTargetStatusLabel(status);
+  const issue = await retryAsync(() => fetchGithubIssue(env, cleanIssueNumber));
+  const currentStatus = getIssueStatusKey(issue);
 
-  for (const label of APPLICATION_STATUS_LABELS) {
-    if (label !== targetLabel) {
-      await removeIssueLabelIfExists(env, cleanIssueNumber, label);
-    }
+  if (currentStatus === status && issue?.state === "closed") {
+    return { ok: true, label: targetLabel, unchanged: true, alreadyClosed: true };
   }
+
+  if (currentStatus === status) {
+    await retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status));
+    return { ok: true, label: targetLabel, unchanged: true, closed: true };
+  }
+
+  await Promise.all(
+    APPLICATION_STATUS_LABELS
+      .filter((label) => label !== targetLabel)
+      .map((label) => retryAsync(() => removeIssueLabelIfExists(env, cleanIssueNumber, label)))
+  );
 
   const addResponse = await githubFetch(
     env,
@@ -760,6 +867,8 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
     throw new Error(data?.message || raw || `Не вдалося додати label ${targetLabel}.`);
   }
 
+  await retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status));
+
   const commentResponse = await githubFetch(
     env,
     `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${cleanIssueNumber}/comments`,
@@ -774,7 +883,7 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
     throw new Error(data?.message || raw || "Статус змінено, але коментар не створено.");
   }
 
-  return { ok: true, label: targetLabel };
+  return { ok: true, label: targetLabel, closed: true };
 }
 
 async function handleDiscordInteraction(request, env) {
@@ -809,6 +918,26 @@ async function handleDiscordInteraction(request, env) {
   const status = match[1];
   const issueNumber = match[2];
   const moderator = getDiscordUserLabel(interaction);
+
+  if (!hasAllowedDiscordRole(interaction, env)) {
+    return discordInteractionResponse({
+      type: 4,
+      data: {
+        content: "⛔ У вас немає прав для зміни статусу заявки.",
+        flags: 64,
+      },
+    });
+  }
+
+  if (isInteractionRateLimited(interaction)) {
+    return discordInteractionResponse({
+      type: 4,
+      data: {
+        content: "⏳ Зачекай кілька секунд перед наступною дією.",
+        flags: 64,
+      },
+    });
+  }
 
   try {
     await updateApplicationIssueStatus(env, issueNumber, status, moderator);
