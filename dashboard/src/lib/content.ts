@@ -16,6 +16,31 @@ export type CreateContentInput = {
   user: DashboardSession;
 };
 
+export type UpdateContentInput = CreateContentInput & {
+  path: string;
+  date?: string;
+  lastModifiedAt?: string;
+  existingImage?: string;
+  removeImage?: boolean;
+};
+
+export type SiteContentItem = {
+  kind: ContentKind;
+  path: string;
+  sha?: string;
+  name: string;
+  title: string;
+  slug: string;
+  description: string;
+  date: string;
+  last_modified_at: string;
+  author: string;
+  categories: string;
+  tags: string;
+  image: string;
+  body: string;
+};
+
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -52,13 +77,16 @@ function yamlScalar(value: string) {
 }
 
 function yamlList(value: string, fallback: string) {
-  const items = String(value || "")
+  const items = listFromCsv(value);
+  const normalized = items.length ? items : [fallback];
+  return `[${normalized.map(yamlScalar).join(", ")}]`;
+}
+
+function listFromCsv(value: string) {
+  return String(value || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-
-  const normalized = items.length ? items : [fallback];
-  return `[${normalized.map(yamlScalar).join(", ")}]`;
 }
 
 function normalizeMarkdown(value: string) {
@@ -69,12 +97,21 @@ function normalizeAuthor(value: string, user: DashboardSession) {
   return String(value || user.name || user.login || "Mistblossom Admin").trim();
 }
 
+function normalizeDate(value: string | undefined, fallback = new Date().toISOString().slice(0, 10)) {
+  const date = String(value || "").trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : fallback;
+}
+
 function githubBranch() {
   return process.env.GITHUB_CONTENT_BRANCH || process.env.GITHUB_BRANCH || "main";
 }
 
 function toBase64(content: string | Buffer) {
   return Buffer.isBuffer(content) ? content.toString("base64") : Buffer.from(content, "utf8").toString("base64");
+}
+
+function fromBase64(content: string) {
+  return Buffer.from(String(content || ""), "base64").toString("utf8");
 }
 
 async function getExistingSha(path: string): Promise<string | undefined> {
@@ -105,6 +142,20 @@ export async function putRepoFile(path: string, content: string | Buffer, messag
   });
 }
 
+export async function deleteRepoFile(path: string, message: string) {
+  const sha = await getExistingSha(path);
+  if (!sha) throw new Error("Файл не знайдено або вже видалено.");
+
+  return githubFetch(`/contents/${encodeURIComponentPath(path)}`, {
+    method: "DELETE",
+    body: JSON.stringify({
+      message,
+      sha,
+      branch: githubBranch(),
+    }),
+  });
+}
+
 async function saveImage(slug: string, file: File | null | undefined, message: string) {
   if (!file || file.size <= 0) return null;
 
@@ -118,11 +169,59 @@ async function saveImage(slug: string, file: File | null | undefined, message: s
   return `/${imagePath}`;
 }
 
-export async function createSiteContent(input: CreateContentInput) {
-  if (input.user.role !== "admin") {
-    throw new Error("Створювати новини та гайди може лише адміністратор.");
-  }
+function collectionForKind(kind: ContentKind) {
+  return kind === "news" ? "_news" : "_guides";
+}
 
+function layoutForKind(kind: ContentKind) {
+  return kind === "news" ? "news" : "guides";
+}
+
+function fallbackCategoryForKind(kind: ContentKind) {
+  return kind === "news" ? "новини" : "гайди";
+}
+
+function buildFrontmatter(input: {
+  kind: ContentKind;
+  title: string;
+  slug: string;
+  description: string;
+  date: string;
+  lastModifiedAt: string;
+  author: string;
+  categories: string;
+  tags: string;
+  imagePath: string;
+}) {
+  const fallbackCategory = fallbackCategoryForKind(input.kind);
+
+  return [
+    "---",
+    `layout: ${layoutForKind(input.kind)}`,
+    `title: ${yamlScalar(input.title)}`,
+    `slug: ${input.slug}`,
+    `description: ${yamlScalar(input.description)}`,
+    `date: ${input.date}`,
+    `last_modified_at: ${input.lastModifiedAt}`,
+    `author: ${yamlScalar(input.author)}`,
+    `categories: ${yamlList(input.categories, fallbackCategory)}`,
+    `tags: ${yamlList(input.tags, fallbackCategory)}`,
+    input.imagePath ? `image: ${input.imagePath}` : "image: /assets/img/news-placeholder.webp",
+    "---",
+    "",
+  ].join("\n");
+}
+
+function validateContentInput(input: CreateContentInput, slug: string, body: string) {
+  if (input.user.role !== "admin") throw new Error("Керувати новинами та гайдами може лише адміністратор.");
+  if (!isContentKind(input.kind)) throw new Error("Невідомий тип матеріалу.");
+  if (input.title.trim().length < 3) throw new Error("Заголовок занадто короткий.");
+  if (input.description.trim().length < 12) throw new Error("Опис занадто короткий.");
+  if (body.length < 20) throw new Error("Текст матеріалу занадто короткий.");
+  if (!slug) throw new Error("Не вдалося створити slug.");
+}
+
+export async function createSiteContent(input: CreateContentInput) {
   const title = input.title.trim();
   const description = input.description.trim();
   const body = normalizeMarkdown(input.body);
@@ -130,41 +229,161 @@ export async function createSiteContent(input: CreateContentInput) {
   const author = normalizeAuthor(input.author, input.user);
   const today = new Date().toISOString().slice(0, 10);
 
-  if (!isContentKind(input.kind)) throw new Error("Невідомий тип матеріалу.");
-  if (title.length < 3) throw new Error("Заголовок занадто короткий.");
-  if (description.length < 12) throw new Error("Опис занадто короткий.");
-  if (body.length < 20) throw new Error("Текст матеріалу занадто короткий.");
-  if (!slug) throw new Error("Не вдалося створити slug.");
+  validateContentInput(input, slug, body);
 
   const message = `content: publish ${input.kind === "news" ? "news" : "guide"} ${slug}`;
   const imagePath = await saveImage(slug, input.image, message);
-  const collection = input.kind === "news" ? "_news" : "_guides";
-  const layout = input.kind === "news" ? "news" : "guides";
-  const fallbackCategory = input.kind === "news" ? "новини" : "гайди";
-  const contentPath = `${collection}/${today}-${slug}.md`;
+  const contentPath = `${collectionForKind(input.kind)}/${today}-${slug}.md`;
 
-  const frontmatter = [
-    "---",
-    `layout: ${layout}`,
-    `title: ${yamlScalar(title)}`,
-    `slug: ${slug}`,
-    `description: ${yamlScalar(description)}`,
-    `date: ${today}`,
-    `last_modified_at: ${today}`,
-    `author: ${yamlScalar(author)}`,
-    `categories: ${yamlList(input.categories, fallbackCategory)}`,
-    `tags: ${yamlList(input.tags, fallbackCategory)}`,
-    imagePath ? `image: ${imagePath}` : "image: /assets/img/news-placeholder.webp",
-    "---",
-    "",
-  ].join("\n");
+  const frontmatter = buildFrontmatter({
+    kind: input.kind,
+    title,
+    slug,
+    description,
+    date: today,
+    lastModifiedAt: today,
+    author,
+    categories: input.categories,
+    tags: input.tags,
+    imagePath: imagePath || "/assets/img/news-placeholder.webp",
+  });
 
   await putRepoFile(contentPath, `${frontmatter}${body}\n`, message);
 
-  return {
-    ok: true,
+  return { ok: true, slug, path: contentPath, image: imagePath };
+}
+
+export async function updateSiteContent(input: UpdateContentInput) {
+  const title = input.title.trim();
+  const description = input.description.trim();
+  const body = normalizeMarkdown(input.body);
+  const slug = slugify(input.slug || title);
+  const author = normalizeAuthor(input.author, input.user);
+  const date = normalizeDate(input.date);
+  const lastModifiedAt = normalizeDate(input.lastModifiedAt, new Date().toISOString().slice(0, 10));
+
+  validateContentInput(input, slug, body);
+  if (!input.path || !input.path.endsWith(".md")) throw new Error("Невірний шлях матеріалу.");
+
+  const message = `content: update ${input.kind === "news" ? "news" : "guide"} ${slug}`;
+  const uploadedImagePath = await saveImage(slug, input.image, message);
+  const imagePath = input.removeImage
+    ? "/assets/img/news-placeholder.webp"
+    : uploadedImagePath || String(input.existingImage || "").trim() || "/assets/img/news-placeholder.webp";
+  const nextPath = `${collectionForKind(input.kind)}/${date}-${slug}.md`;
+
+  const frontmatter = buildFrontmatter({
+    kind: input.kind,
+    title,
     slug,
-    path: contentPath,
-    image: imagePath,
+    description,
+    date,
+    lastModifiedAt,
+    author,
+    categories: input.categories,
+    tags: input.tags,
+    imagePath,
+  });
+
+  await putRepoFile(nextPath, `${frontmatter}${body}\n`, message);
+
+  if (nextPath !== input.path) {
+    await deleteRepoFile(input.path, `content: remove old path for ${slug}`);
+  }
+
+  return { ok: true, slug, path: nextPath, image: imagePath };
+}
+
+function parseYamlValue(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const normalized = trimmed.replace(/'/g, '"');
+      const parsed = JSON.parse(normalized);
+      return Array.isArray(parsed) ? parsed.join(", ") : String(parsed || "");
+    } catch {
+      return trimmed.slice(1, -1).split(",").map((item) => item.trim().replace(/^['"]|['"]$/g, "")).filter(Boolean).join(", ");
+    }
+  }
+
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed.slice(1, -1);
+    }
+  }
+
+  return trimmed;
+}
+
+function parseMarkdownContent(kind: ContentKind, path: string, sha: string | undefined, raw: string): SiteContentItem {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  const frontmatter = match?.[1] || "";
+  const body = (match?.[2] || raw).trim();
+  const meta: Record<string, string> = {};
+
+  for (const line of frontmatter.split("\n")) {
+    const divider = line.indexOf(":");
+    if (divider <= 0) continue;
+    const key = line.slice(0, divider).trim();
+    const value = line.slice(divider + 1).trim();
+    meta[key] = parseYamlValue(value);
+  }
+
+  const name = path.split("/").pop() || path;
+  const inferredDate = name.match(/^(\d{4}-\d{2}-\d{2})-/)?.[1] || "";
+  const inferredSlug = name.replace(/^(\d{4}-\d{2}-\d{2})-/, "").replace(/\.md$/i, "");
+
+  return {
+    kind,
+    path,
+    sha,
+    name,
+    title: meta.title || inferredSlug,
+    slug: meta.slug || inferredSlug,
+    description: meta.description || "",
+    date: meta.date || inferredDate,
+    last_modified_at: meta.last_modified_at || meta.date || inferredDate,
+    author: meta.author || "",
+    categories: meta.categories || "",
+    tags: meta.tags || "",
+    image: meta.image || "",
+    body,
   };
+}
+
+async function readRepoFile(path: string) {
+  const data = await githubFetch(`/contents/${encodeURIComponentPath(path)}?ref=${encodeURIComponent(githubBranch())}`);
+  const rawContent = typeof data?.content === "string" ? data.content.replace(/\n/g, "") : "";
+  return {
+    sha: typeof data?.sha === "string" ? data.sha : undefined,
+    content: fromBase64(rawContent),
+  };
+}
+
+async function listCollection(kind: ContentKind) {
+  const collection = collectionForKind(kind);
+  const data = await githubFetch(`/contents/${encodeURIComponent(collection)}?ref=${encodeURIComponent(githubBranch())}`);
+  const files = Array.isArray(data) ? data : [];
+  const markdownFiles = files
+    .filter((item) => item?.type === "file" && typeof item?.path === "string" && item.path.endsWith(".md"))
+    .slice(0, 40);
+
+  const items = await Promise.all(markdownFiles.map(async (file) => {
+    const { sha, content } = await readRepoFile(file.path);
+    return parseMarkdownContent(kind, file.path, sha, content);
+  }));
+
+  return items;
+}
+
+export async function listSiteContent() {
+  const [news, guides] = await Promise.all([
+    listCollection("news").catch(() => []),
+    listCollection("guides").catch(() => []),
+  ]);
+
+  return [...news, ...guides].sort((a, b) => String(b.date || b.name).localeCompare(String(a.date || a.name)));
 }

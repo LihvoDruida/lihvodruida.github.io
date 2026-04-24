@@ -3487,3 +3487,219 @@ button,
 
   .markdown-area { min-height: 240px; }
 }
+
+/* === Content edit/delete panel === */
+.content-grid--editor {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.content-main-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.content-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 2px;
+}
+
+.content-section-head h2 {
+  margin: 2px 0 0;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.content-section-head small {
+  max-width: 280px;
+  text-align: right;
+}
+
+.content-list {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.content-empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.content-edit-list {
+  display: grid;
+  gap: 10px;
+}
+
+.content-edit-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(2, 8, 23, 0.24);
+  overflow: hidden;
+}
+
+.content-edit-card summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: center;
+  padding: 13px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.content-edit-card summary::-webkit-details-marker { display: none; }
+
+.content-edit-card summary::after {
+  content: "Редагувати";
+  grid-column: 2;
+  justify-self: end;
+  margin-top: -24px;
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.content-edit-card[open] summary::after { content: "Згорнути"; }
+
+.content-edit-card summary strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.content-edit-card summary small {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.content-kind {
+  grid-row: span 2;
+  align-self: center;
+  padding: 6px 9px;
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.content-edit-form {
+  display: grid;
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.content-delete-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(237, 66, 69, 0.04);
+}
+
+.content-delete-form small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.form-row.three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inline-check {
+  display: flex !important;
+  grid-template-columns: none !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px !important;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.inline-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #22d3ee;
+}
+
+.content-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn.danger {
+  border-color: rgba(237, 66, 69, 0.45);
+  background: rgba(237, 66, 69, 0.12);
+  color: #fecaca;
+}
+
+.btn.danger:hover {
+  border-color: rgba(237, 66, 69, 0.74);
+  background: rgba(237, 66, 69, 0.18);
+}
+
+@media (max-width: 900px) {
+  .content-grid--editor,
+  .form-row.three {
+    grid-template-columns: 1fr;
+  }
+
+  .content-section-head {
+    display: grid;
+  }
+
+  .content-section-head small {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-list {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .content-edit-card summary {
+    grid-template-columns: 1fr;
+  }
+
+  .content-kind,
+  .content-edit-card summary small,
+  .content-edit-card summary::after {
+    grid-column: 1;
+  }
+
+  .content-edit-card summary::after {
+    justify-self: start;
+    margin-top: 2px;
+  }
+
+  .content-delete-form {
+    display: grid;
+  }
+
+  .content-actions-row,
+  .content-actions-row .btn,
+  .content-delete-form .btn {
+    width: 100%;
+  }
+}
