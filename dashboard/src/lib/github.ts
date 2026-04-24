@@ -8,6 +8,36 @@ export const STATUS_LABELS = [
 
 export type ApplicationStatus = "accepted" | "declined" | "review";
 
+export type RaiderIoScoreBlock = {
+  all?: number | string | null;
+  dps?: number | string | null;
+  healer?: number | string | null;
+  tank?: number | string | null;
+};
+
+export type RaiderIoRaidBlock = {
+  key?: string;
+  name?: string;
+  summary?: string;
+  total_bosses?: number;
+  normal_bosses_killed?: number;
+  heroic_bosses_killed?: number;
+  mythic_bosses_killed?: number;
+};
+
+export type RaiderIoApplicationData = {
+  profile_url?: string;
+  thumbnail_url?: string;
+  mythic_plus?: {
+    current?: RaiderIoScoreBlock;
+    previous?: RaiderIoScoreBlock;
+  };
+  raids?: {
+    current?: RaiderIoRaidBlock[];
+    previous?: RaiderIoRaidBlock[];
+  };
+};
+
 export type ApplicationItem = {
   number: number;
   title: string;
@@ -25,6 +55,7 @@ export type ApplicationItem = {
   class_name?: string;
   source?: string;
   availability?: string;
+  raider_io?: RaiderIoApplicationData | null;
   labels: string[];
 };
 
@@ -135,6 +166,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     class_name: extract(body, /- Клас: (.+)/),
     source: extract(body, /- Звідки дізнався: (.+)/),
     availability: body.split("### Коли зазвичай грає")[1]?.trim() || "",
+    raider_io: null,
     labels: Array.isArray(issue.labels) ? issue.labels.map((label: any) => label.name) : [],
   };
 }

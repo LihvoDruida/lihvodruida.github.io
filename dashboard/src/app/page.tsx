@@ -23,7 +23,7 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
 }
 
 function RaiderIoPanel({ item }: { item: ApplicationItem }) {
-  const rio = item.raider_io;
+  const rio = item.raider_io ?? null;
   const current = rio?.mythic_plus?.current || {};
   const previous = rio?.mythic_plus?.previous || {};
   const currentRaids = rio?.raids?.current || [];
