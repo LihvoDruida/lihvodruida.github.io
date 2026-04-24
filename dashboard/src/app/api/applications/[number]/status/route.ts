@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { assertCanModerate } from "@/lib/access";
-import { moderateApplication } from "@/lib/moderation";
-import { ApplicationStatus } from "@/lib/github";
+import { getSession, assertCanModerate } from "@/lib/auth";
+import { ApplicationStatus, updateApplicationStatus } from "@/lib/github";
 
 export async function POST(
   request: NextRequest,
@@ -20,14 +18,11 @@ export async function POST(
     return NextResponse.json({ error: "Unsupported status" }, { status: 400 });
   }
 
-  const moderator = `${session.name} (${session.role})`;
-
-  const result = await moderateApplication({
+  const result = await updateApplicationStatus(
     issueNumber,
     status,
-    moderator,
-    source: "dashboard",
-  });
+    `${session.name} (${session.role})`
+  );
 
   return NextResponse.json(result);
 }

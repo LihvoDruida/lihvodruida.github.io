@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
 import { ApplicationItem, listApplications, updateApplicationStatus } from "@/lib/github";
 import { STATUS, StatusKey } from "@/lib/status";

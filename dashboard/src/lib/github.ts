@@ -2,8 +2,15 @@ export const STATUS_LABELS = [
   "status:review",
   "status:accepted",
   "status:declined",
+
+  // Legacy broken labels created by older dashboard/bot builds.
+  "statusreview",
+  "statusaccepted",
+  "statusdeclined",
   "status:approved",
   "status:rejected",
+  "statusapproved",
+  "statusrejected",
 ];
 
 const LABEL_COLORS: Record<string, string> = {
@@ -14,59 +21,6 @@ const LABEL_COLORS: Record<string, string> = {
   "status:approved": "3BA55D",
   "status:rejected": "ED4245",
 };
-
-function isMissingLabelError(error: unknown) {
-  return String((error as Error)?.message || error || "")
-    .toLowerCase()
-    .includes("label does not exist");
-}
-
-function isAlreadyExistsError(error: unknown) {
-  return String((error as Error)?.message || error || "")
-    .toLowerCase()
-    .includes("already_exists");
-}
-
-export async function ensureGitHubLabel(name: string) {
-  const color = LABEL_COLORS[name] || "5865F2";
-
-  try {
-    await githubFetch(`/labels/${encodeURIComponent(name)}`);
-    return { ok: true, existed: true };
-  } catch {
-    try {
-      await githubFetch(`/labels`, {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          color,
-          description: name.startsWith("status:")
-            ? "Guild application status"
-            : "Guild application",
-        }),
-      });
-
-      return { ok: true, created: true };
-    } catch (error) {
-      if (isAlreadyExistsError(error)) {
-        return { ok: true, existed: true };
-      }
-
-      throw error;
-    }
-  }
-}
-
-export async function ensureApplicationLabels() {
-  await Promise.all([
-    ensureGitHubLabel(process.env.GUILD_APPLICATIONS_LABEL || "guild-application"),
-    ensureGitHubLabel("status:review"),
-    ensureGitHubLabel("status:accepted"),
-    ensureGitHubLabel("status:declined"),
-  ]);
-}
-
-
 
 export type ApplicationStatus = "accepted" | "declined" | "review";
 
@@ -127,8 +81,21 @@ export type ApplicationItem = {
 };
 
 export function normalizeStatus(value: string): ApplicationStatus {
-  if (value === "accepted") return "accepted";
-  if (value === "declined") return "declined";
+  const normalized = String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/_/g, "")
+    .replace(/-/g, "")
+    .replace(/:/g, "");
+
+  if (normalized === "accepted" || normalized === "statusaccepted" || normalized === "approved" || normalized === "statusapproved") {
+    return "accepted";
+  }
+
+  if (normalized === "declined" || normalized === "statusdeclined" || normalized === "rejected" || normalized === "statusrejected") {
+    return "declined";
+  }
+
   return "review";
 }
 
@@ -154,6 +121,18 @@ export function statusColor(status: ApplicationStatus) {
   if (status === "accepted") return 0x3ba55d;
   if (status === "declined") return 0xed4245;
   return 0xd4a63a;
+}
+
+function isMissingLabelError(error: unknown) {
+  return String((error as Error)?.message || error || "")
+    .toLowerCase()
+    .includes("label does not exist");
+}
+
+function isAlreadyExistsError(error: unknown) {
+  return String((error as Error)?.message || error || "")
+    .toLowerCase()
+    .includes("already_exists");
 }
 
 export async function githubFetch(path: string, init: RequestInit = {}) {
@@ -193,6 +172,45 @@ export async function githubFetch(path: string, init: RequestInit = {}) {
   return raw ? JSON.parse(raw) : null;
 }
 
+export async function ensureGitHubLabel(name: string) {
+  const color = LABEL_COLORS[name] || "5865F2";
+
+  try {
+    await githubFetch(`/labels/${encodeURIComponent(name)}`);
+    return { ok: true, existed: true };
+  } catch {
+    try {
+      await githubFetch(`/labels`, {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          color,
+          description: name.startsWith("status:")
+            ? "Guild application status"
+            : "Guild application",
+        }),
+      });
+
+      return { ok: true, created: true };
+    } catch (error) {
+      if (isAlreadyExistsError(error)) {
+        return { ok: true, existed: true };
+      }
+
+      throw error;
+    }
+  }
+}
+
+export async function ensureApplicationLabels() {
+  await Promise.all([
+    ensureGitHubLabel(process.env.GUILD_APPLICATIONS_LABEL || "guild-application"),
+    ensureGitHubLabel("status:review"),
+    ensureGitHubLabel("status:accepted"),
+    ensureGitHubLabel("status:declined"),
+  ]);
+}
+
 export async function getIssue(issueNumber: number) {
   return githubFetch(`/issues/${issueNumber}`);
 }
@@ -202,8 +220,24 @@ export function getIssueStatusFromLabels(labels: Array<{ name?: string } | strin
     typeof label === "string" ? label.toLowerCase() : String(label.name || "").toLowerCase()
   );
 
-  if (names.includes("status:accepted") || names.includes("status:approved")) return "accepted";
-  if (names.includes("status:declined") || names.includes("status:rejected")) return "declined";
+  if (
+    names.includes("status:accepted") ||
+    names.includes("statusaccepted") ||
+    names.includes("status:approved") ||
+    names.includes("statusapproved")
+  ) {
+    return "accepted";
+  }
+
+  if (
+    names.includes("status:declined") ||
+    names.includes("statusdeclined") ||
+    names.includes("status:rejected") ||
+    names.includes("statusrejected")
+  ) {
+    return "declined";
+  }
+
   return "review";
 }
 
@@ -425,7 +459,7 @@ export async function listApplications(params?: URLSearchParams) {
   const className = (params?.get("class") || "").trim().toLowerCase();
 
   if (status && status !== "all") {
-    items = items.filter((item) => item.status_key === status);
+    items = items.filter((item) => item.status_key === normalizeStatus(status));
   }
 
   if (className && className !== "all") {
@@ -447,7 +481,7 @@ export async function listApplications(params?: URLSearchParams) {
     );
   }
 
-  const enriched = await Promise.all(
+  return Promise.all(
     items.map(async (item) => {
       const rio = await fetchRaiderIoForApplication(item);
       return {
@@ -459,8 +493,6 @@ export async function listApplications(params?: URLSearchParams) {
       };
     })
   );
-
-  return enriched;
 }
 
 export async function setIssueStatus(params: {
@@ -474,9 +506,10 @@ export async function setIssueStatus(params: {
     throw new Error("Invalid issue number");
   }
 
+  const status = normalizeStatus(params.status);
   await ensureApplicationLabels();
 
-  const nextLabel = statusLabel(params.status);
+  const nextLabel = statusLabel(status);
 
   await Promise.all(
     STATUS_LABELS
@@ -500,7 +533,7 @@ export async function setIssueStatus(params: {
     body: JSON.stringify({ labels: [nextLabel] }),
   });
 
-  if (params.status === "accepted" || params.status === "declined") {
+  if (status === "accepted" || status === "declined") {
     await githubFetch(`/issues/${issueNumber}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -514,7 +547,7 @@ export async function setIssueStatus(params: {
     method: "POST",
     body: JSON.stringify({
       body: [
-        `${statusEmoji(params.status)} Статус заявки змінено на **${statusText(params.status)}** через ${params.source}.`,
+        `${statusEmoji(status)} Статус заявки змінено на **${statusText(status)}** через ${params.source}.`,
         `Модератор: ${params.moderator}`,
       ].join("\n"),
     }),
@@ -522,7 +555,7 @@ export async function setIssueStatus(params: {
 
   return {
     ok: true,
-    status: params.status,
+    status,
     label: nextLabel,
   };
 }
@@ -532,10 +565,25 @@ export async function updateApplicationStatus(
   status: ApplicationStatus,
   moderator = "Dashboard"
 ) {
-  return setIssueStatus({
+  const { notifyDiscordStatusChange } = await import("./discord");
+
+  const issue = await getIssue(issueNumber);
+  const result = await setIssueStatus({
     issueNumber,
     status,
     moderator,
     source: "dashboard",
   });
+
+  const canonicalStatus = normalizeStatus(status);
+
+  await notifyDiscordStatusChange({
+    issueNumber,
+    status: canonicalStatus,
+    moderator,
+    issueUrl: issue.html_url,
+    source: "dashboard",
+  });
+
+  return result;
 }
