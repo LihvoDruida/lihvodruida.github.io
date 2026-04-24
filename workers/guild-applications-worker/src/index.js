@@ -114,6 +114,12 @@ function allowedOrigin(request, env) {
   return configured.includes(origin) ? origin : "";
 }
 
+function stripDiscordMarker(value) {
+  return String(value || "")
+    .replace(/<!--\s*mistblossom:discord[\s\S]*?-->/gi, "")
+    .trim();
+}
+
 function cleanText(value, maxLength = 200) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
@@ -180,7 +186,7 @@ function sanitizePayload(payload) {
       payload.sourceOther,
       payload.source
     ),
-    availability: cleanMultilineText(payload.availability, 400),
+    availability: stripDiscordMarker(cleanMultilineText(stripDiscordMarker(payload.availability)), 400),
   };
 }
 

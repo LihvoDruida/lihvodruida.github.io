@@ -246,6 +246,17 @@ function extract(body: string, pattern: RegExp) {
   return (String(body || "").match(pattern)?.[1] || "").trim();
 }
 
+function stripDiscordMarker(value: string) {
+  return String(value || "")
+    .replace(/<!--\s*mistblossom:discord[\s\S]*?-->/gi, "")
+    .trim();
+}
+
+function extractAvailability(body: string) {
+  const section = String(body || "").split("### Коли зазвичай грає")[1] || "";
+  return stripDiscordMarker(section);
+}
+
 function slugifyRaiderIoValue(value?: string) {
   return String(value || "")
     .normalize("NFKD")
@@ -438,7 +449,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     faction: extract(body, /- Фракція: (.+)/),
     class_name: extract(body, /- Клас: (.+)/),
     source: extract(body, /- Звідки дізнався: (.+)/),
-    availability: body.split("### Коли зазвичай грає")[1]?.trim() || "",
+    availability: extractAvailability(body),
     avatar_url: null,
     profile_url: null,
     raider_io: null,
