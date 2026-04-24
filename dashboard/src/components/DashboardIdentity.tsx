@@ -6,15 +6,24 @@ export default async function DashboardIdentity({ user }: { user: DashboardSessi
   const avatar = user?.avatar_url || user?.avatar || null;
 
   return (
-    <div className="dashboard-identity">
-      <img className="guild-mark" src={guild.iconUrl} alt="" />
-      <div className="dashboard-identity__text">
-        <strong>{guild.name}</strong>
-        <span>{user ? `${user.name} • ${user.role}` : "Discord moderation dashboard"}</span>
+    <header className="dashboard-topbar">
+      <div className="dashboard-brand">
+        <img className="guild-mark" src={guild.iconUrl} alt="" />
+        <div>
+          <strong>{guild.name}</strong>
+          <span>Secure applications dashboard</span>
+        </div>
       </div>
-      {avatar ? (
-        <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" />
+
+      {user ? (
+        <div className="dashboard-user">
+          {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : null}
+          <div>
+            <strong>{user.name}</strong>
+            <span>Discord • {user.role}</span>
+          </div>
+        </div>
       ) : null}
-    </div>
+    </header>
   );
 }

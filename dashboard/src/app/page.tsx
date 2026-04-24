@@ -218,7 +218,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
             <aside className="actions-panel">
               <StatusBadge status={item.status_key} />
-              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} />
+              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} />
               <small>{item.state === "closed" ? "Issue закрито" : "Issue відкрито"}</small>
             </aside>
           </article>

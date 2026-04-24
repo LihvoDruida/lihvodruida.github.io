@@ -1,44 +1,85 @@
 import { isAuthenticated } from "@/lib/auth";
+import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 
-import { getGuildBranding } from "@/lib/branding";
-function errorMessage(code?: string) {
-  switch (code) {
-    case "not_allowed": return "Твій Discord акаунт не має ролі доступу до dashboard.";
-    case "oauth_state": return "OAuth state не пройшов перевірку. Спробуй ще раз.";
-    case "discord": return "Discord авторизація не вдалася або не вдалося прочитати ролі сервера.";
-    case "token": return "Невірний emergency admin token.";
-    default: return "Не вдалося увійти.";
-  }
+function errorText(error?: string) {
+  if (!error) return null;
+
+  const map: Record<string, string> = {
+    access_denied: "У тебе немає Discord ролі для доступу до dashboard.",
+    discord_oauth: "Discord авторизація не завершилась. Спробуй ще раз.",
+    oauth_state: "Сесія авторизації застаріла. Повтори вхід.",
+    discord_required: "Вхід доступний тільки через Discord.",
+    token: "Emergency token неправильний.",
+  };
+
+  return map[error] || "Не вдалося увійти. Перевір Discord доступ.";
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const guild = await getGuildBranding();
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   if (await isAuthenticated()) redirect("/");
+
+  const guild = await getGuildBranding();
   const params = await searchParams;
+  const error = errorText(params.error);
   const hasDiscord = !!process.env.DISCORD_OAUTH_CLIENT_ID;
-  const hasTokenFallback = !!(process.env.ADMIN_DASHBOARD_TOKEN || process.env.ADMIN_PASSWORD);
+  const hasTokenFallback = !!process.env.ADMIN_DASHBOARD_TOKEN;
 
   return (
-    <main className="login panel">
-      <div className="eyebrow">Mistblossom Vanguard</div>
-      <div className="login-brand"><img src={guild.iconUrl} alt="" /><span>{guild.name}</span></div>
-      <h1>Вхід у dashboard</h1>
-      <p className="lead">Увійди через Discord. Роль у dashboard визначається автоматично за ролями твого Discord сервера.</p>
-      {params.error ? <p className="error">{errorMessage(params.error)}</p> : null}
+    <main className="login-page">
+      <section className="login-shell">
+        <div className="login-visual">
+          <div className="login-orb login-orb--one" />
+          <div className="login-orb login-orb--two" />
+          <img className="login-guild-icon" src={guild.iconUrl} alt="" />
+          <p className="login-kicker">Mistblossom Vanguard</p>
+          <h1>Вхід у dashboard</h1>
+          <p>
+            Авторизуйся через Discord. Роль у dashboard визначається автоматично
+            за ролями твого Discord сервера.
+          </p>
+        </div>
 
-      <div style={{ display: "grid", gap: 12, marginTop: 18 }}>
-        {hasDiscord ? <a className="btn" href="/api/auth/discord/start" style={{ background: "var(--brand)", textAlign: "center" }}>Увійти через Discord</a> : null}
-      </div>
+        <div className="login-card">
+          <div className="login-brand">
+            <img src={guild.iconUrl} alt="" />
+            <div>
+              <strong>{guild.name}</strong>
+              <span>Secure moderation panel</span>
+            </div>
+          </div>
 
-      {hasTokenFallback ? (
-        <form method="post" action="/api/auth/login" style={{ display: "grid", gap: 12, marginTop: 18 }}>
-          <input className="input" name="token" type="password" placeholder="Emergency admin token" autoComplete="current-password" required />
-          <button className="btn" type="submit">Emergency admin login</button>
-        </form>
-      ) : null}
+          {error ? <div className="login-alert">{error}</div> : null}
 
-      <p className="hint warning" style={{ marginTop: 16 }}>Якщо доступ не проходить — перевір DISCORD_ADMIN_ROLE_IDS / DISCORD_MODERATOR_ROLE_IDS у Vercel ENV.</p>
+          {hasDiscord ? (
+            <a className="login-discord-button" href="/api/auth/discord/start">
+              Увійти через Discord
+            </a>
+          ) : (
+            <div className="login-alert">
+              Discord OAuth не налаштовано. Додай DISCORD_OAUTH_CLIENT_ID та DISCORD_OAUTH_CLIENT_SECRET.
+            </div>
+          )}
+
+          {hasTokenFallback ? (
+            <form className="login-token-form" method="post" action="/api/auth/login">
+              <label htmlFor="token">Emergency token</label>
+              <div>
+                <input id="token" name="token" type="password" placeholder="ADMIN_DASHBOARD_TOKEN" />
+                <button type="submit">Увійти</button>
+              </div>
+            </form>
+          ) : null}
+
+          <p className="login-note">
+            Доступ мають тільки ролі з DISCORD_ADMIN_ROLE_IDS або DISCORD_MODERATOR_ROLE_IDS.
+          </p>
+        </div>
+      </section>
     </main>
   );
 }

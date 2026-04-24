@@ -7,6 +7,7 @@ type StatusKey = "review" | "accepted" | "declined";
 type Props = {
   issueNumber: number;
   initialStatus: StatusKey;
+  issueState?: string;
 };
 
 const LABELS: Record<StatusKey, string> = {
@@ -20,12 +21,17 @@ const BUSY_LABELS: Record<Exclude<StatusKey, "review">, string> = {
   declined: "Відхиляємо...",
 };
 
-export default function ApplicationStatusActions({ issueNumber, initialStatus }: Props) {
+export default function ApplicationStatusActions({
+  issueNumber,
+  initialStatus,
+  issueState = "open",
+}: Props) {
   const [status, setStatus] = useState<StatusKey>(initialStatus);
   const [pendingStatus, setPendingStatus] = useState<Exclude<StatusKey, "review"> | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
+  const isClosed = issueState === "closed";
   const busy = isPending || pendingStatus !== null;
 
   const statusText = useMemo(() => {
@@ -33,11 +39,11 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
     return LABELS[status] || LABELS.review;
   }, [busy, pendingStatus, status]);
 
-  const canAccept = !busy && status !== "accepted";
-  const canDecline = !busy && status !== "declined";
+  const canAccept = !isClosed && !busy && status !== "accepted";
+  const canDecline = !isClosed && !busy && status !== "declined";
 
   function moderate(nextStatus: Exclude<StatusKey, "review">) {
-    if (busy || status === nextStatus) return;
+    if (isClosed || busy || status === nextStatus) return;
 
     const previousStatus = status;
     setStatus(nextStatus);
@@ -81,7 +87,12 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
   }
 
   return (
-    <div className="action-panel" data-status={status} data-busy={busy ? "true" : "false"}>
+    <div
+      className="action-panel"
+      data-status={status}
+      data-busy={busy ? "true" : "false"}
+      data-closed={isClosed ? "true" : "false"}
+    >
       <div className={`status-pill status-pill--${status}`}>
         <span className="status-dot" />
         {statusText}
@@ -95,7 +106,7 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
         aria-busy={pendingStatus === "accepted"}
         onClick={() => moderate("accepted")}
       >
-        {pendingStatus === "accepted" ? BUSY_LABELS.accepted : status === "accepted" ? "Вже прийнято" : "Прийняти"}
+        {pendingStatus === "accepted" ? BUSY_LABELS.accepted : status === "accepted" ? "Прийнято" : "Прийняти"}
       </button>
 
       <button
@@ -106,11 +117,11 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
         aria-busy={pendingStatus === "declined"}
         onClick={() => moderate("declined")}
       >
-        {pendingStatus === "declined" ? BUSY_LABELS.declined : status === "declined" ? "Вже відхилено" : "Відхилити"}
+        {pendingStatus === "declined" ? BUSY_LABELS.declined : status === "declined" ? "Відхилено" : "Відхилити"}
       </button>
 
       <small className={`sync-message ${message.includes("Помилка") || message.includes("не підтвердив") ? "sync-message--warning" : ""}`}>
-        {message || "Очікує дії модератора"}
+        {isClosed ? "Issue закрито — модерація завершена" : message || "Очікує дії модератора"}
       </small>
     </div>
   );
