@@ -2348,3 +2348,38 @@ h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.02em; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .toolbar { grid-template-columns: 1fr; }
 }
+
+/* Applications dashboard cleanup: remove duplicated status badges and make topbar full-width. */
+.dashboard-shell .dashboard-topbar,
+.dashboard-topbar {
+  width: 100%;
+  max-width: none;
+}
+
+.dashboard-shell .dashboard-topbar {
+  align-self: stretch;
+}
+
+.card .meta {
+  gap: 7px;
+}
+
+.actions-panel {
+  justify-content: center;
+}
+
+.action-panel {
+  gap: 8px;
+}
+
+.action-panel[data-locked="true"] .action-button {
+  display: none;
+}
+
+.action-panel[data-locked="true"] .status-pill {
+  min-height: 36px;
+}
+
+.sync-message {
+  font-size: 11px;
+}

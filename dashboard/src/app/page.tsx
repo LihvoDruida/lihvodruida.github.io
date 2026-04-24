@@ -5,7 +5,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
 import { ApplicationItem, listApplications } from "@/lib/github";
-import { STATUS, StatusKey } from "@/lib/status";
 
 function formatDate(value?: string | null) {
   if (!value) return "Дата невідома";
@@ -20,10 +19,6 @@ function formatScore(value: unknown) {
   return Number.isInteger(num) ? String(num) : num.toFixed(1);
 }
 
-function StatusBadge({ status }: { status: StatusKey }) {
-  const icon = status === "accepted" ? "●" : status === "declined" ? "●" : "●";
-  return <span className={`badge ${status}`}><span>{icon}</span>{STATUS[status].label}</span>;
-}
 
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return <span className="mini-metric"><strong>{value}</strong><small>{label}</small></span>;
@@ -209,7 +204,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 <div>
                   <h2>#{item.number} • {item.character_name || item.title}</h2>
                   <div className="meta">
-                    <StatusBadge status={item.status_key} />
                     <span>{item.region || "Region?"}</span>
                     <span>{item.realm || "Realm не вказано"}</span>
                     <span>{item.class_name || "Клас не вказано"}</span>
@@ -229,7 +223,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
 
             <aside className="actions-panel">
-              <StatusBadge status={item.status_key} />
               <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} />
               <small>{item.state === "closed" ? "Issue закрито" : "Issue відкрито"}</small>
             </aside>
