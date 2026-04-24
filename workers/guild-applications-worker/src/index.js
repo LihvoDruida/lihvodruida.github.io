@@ -614,6 +614,72 @@ function getDiscordUserLabel(interaction) {
   return user.global_name || user.username || user.id || "Discord moderator";
 }
 
+
+function getStatusByKey(statusKey) {
+  return Object.values(STATUS).find((item) => item.key === statusKey) || STATUS.REVIEW;
+}
+
+function getStatusIcon(statusKey) {
+  if (statusKey === STATUS.ACCEPTED.key) return "🟢";
+  if (statusKey === STATUS.DECLINED.key) return "🔴";
+  return "🟡";
+}
+
+function buildStatusUpdateContent(issueNumber, statusKey, moderator) {
+  const status = getStatusByKey(statusKey);
+  const icon = getStatusIcon(statusKey);
+  const moderatorLabel = escapeDiscordMarkdown(limitText(moderator, 80, "Discord moderator"));
+
+  return [
+    `📋 **Заявка #${issueNumber} оновлена**`,
+    `> Статус: ${icon} **${status.label}**`,
+    `> Модератор: 👤 **${moderatorLabel}**`,
+  ].join("\n");
+}
+
+function updateEmbedDescriptionStatus(description, statusKey) {
+  const status = getStatusByKey(statusKey);
+  const icon = getStatusIcon(statusKey);
+  const statusLine = `**Статус:** ${icon} ${status.label}`;
+  const text = String(description || "").trim();
+
+  if (!text) return statusLine;
+
+  if (/\*\*Статус:\*\*[^\n]*/.test(text)) {
+    return text.replace(/\*\*Статус:\*\*[^\n]*/, statusLine);
+  }
+
+  return [statusLine, text].join("\n");
+}
+
+function buildUpdatedApplicationEmbeds(interaction, statusKey, issueNumber, moderator, env) {
+  const status = getStatusByKey(statusKey);
+  const embeds = Array.isArray(interaction?.message?.embeds)
+    ? interaction.message.embeds.map((embed) => ({ ...embed }))
+    : [];
+
+  const primaryEmbed = embeds[0] || {
+    title: `Заявка #${issueNumber}`,
+    description: "",
+    fields: [],
+  };
+
+  primaryEmbed.color = status.color;
+  primaryEmbed.description = updateEmbedDescriptionStatus(primaryEmbed.description, statusKey);
+  primaryEmbed.footer = {
+    text: limitText(
+      `${env.DISCORD_GUILD_NAME || "Mistblossom Vanguard"} • Оновив: ${moderator}`,
+      2048
+    ),
+  };
+  primaryEmbed.timestamp = new Date().toISOString();
+
+  embeds[0] = primaryEmbed;
+
+  return embeds.slice(0, 10);
+}
+
+
 async function discordApiFetch(env, path, init = {}) {
   return fetch(`https://discord.com/api/v10${path}`, {
     ...init,
@@ -756,11 +822,19 @@ async function handleDiscordInteraction(request, env) {
     });
   }
 
-  const label = status === STATUS.ACCEPTED.key ? STATUS.ACCEPTED.label : STATUS.DECLINED.label;
+  const updatedEmbeds = buildUpdatedApplicationEmbeds(
+    interaction,
+    status,
+    issueNumber,
+    moderator,
+    env
+  );
+
   return discordInteractionResponse({
     type: 7,
     data: {
-      content: `Заявка #${issueNumber}: статус змінено на **${label}**. Модератор: ${moderator}`,
+      content: buildStatusUpdateContent(issueNumber, status, moderator),
+      embeds: updatedEmbeds,
       components: [],
     },
   });
