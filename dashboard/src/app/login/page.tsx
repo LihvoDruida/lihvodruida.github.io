@@ -12,8 +12,8 @@ function errorMessage(code?: string) {
   }
 }
 
-export default async function LoginPage({
-  const guild = await getGuildBranding(); searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const guild = await getGuildBranding();
   if (await isAuthenticated()) redirect("/");
   const params = await searchParams;
   const hasDiscord = !!process.env.DISCORD_OAUTH_CLIENT_ID;
