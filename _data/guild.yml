@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-24 09:46:44'
+  updated_at: '2026-04-24 13:27:18'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -16,7 +16,7 @@ guild:
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 114
-  achievement_points: 425
+  achievement_points: 435
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13261
+      world: 13263
       region: 5896
       realm: 55
     heroic:
-      world: 15748
-      region: 6619
+      world: 15762
+      region: 6622
       realm: 54
     mythic:
-      world: 6150
+      world: 6159
       region: 2670
       realm: 22
   blackrock-depths:
@@ -1802,11 +1802,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Thérion
-    item_level_equipped: 268
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
-        score: 1648.9
-        color: '#7bff5f'
+        score: 1942.4
+        color: '#48ff2f'
       dps:
         score: 0
         color: '#ffffff'
@@ -1814,8 +1814,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1648.9
-        color: '#7bff5f'
+        score: 1942.4
+        color: '#48ff2f'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -1823,8 +1823,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1648.9
-        color: '#7bff5f'
+        score: 1942.4
+        color: '#48ff2f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1857,11 +1857,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2940.6
-        color: '#6062e3'
+        score: 2966.2
+        color: '#6c5de5'
       dps:
-        score: 2940.6
-        color: '#6062e3'
+        score: 2966.2
+        color: '#6c5de5'
       healer:
         score: 0
         color: '#ffffff'
@@ -1875,8 +1875,8 @@ members:
         score: 361
         color: '#f4ffef'
       spec_2:
-        score: 2940.6
-        color: '#6062e3'
+        score: 2966.2
+        color: '#6c5de5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2353,11 +2353,11 @@ members:
     item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1872.7
-        color: '#58ff3d'
+        score: 1955.6
+        color: '#42ff29'
       dps:
-        score: 1872.7
-        color: '#58ff3d'
+        score: 1955.6
+        color: '#42ff29'
       healer:
         score: 0
         color: '#ffffff'
@@ -2371,8 +2371,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1872.7
-        color: '#58ff3d'
+        score: 1955.6
+        color: '#42ff29'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2766,7 +2766,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 266
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
         score: 2706.9
@@ -3078,7 +3078,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2854.8
@@ -3164,7 +3164,7 @@ members:
   character:
     name: Артизан
     id: 196190994
-    level: 86
+    level: 87
     realm:
       id: 1615
       slug: howling-fjord
@@ -3442,7 +3442,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 268
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
         score: 2613.4
@@ -3974,11 +3974,11 @@ members:
         score: 2617.8
         color: '#5393b7'
       tank:
-        score: 1138.5
-        color: '#b3ff9b'
+        score: 1622.7
+        color: '#7fff62'
       spec_0:
-        score: 1138.5
-        color: '#b3ff9b'
+        score: 1622.7
+        color: '#7fff62'
       spec_1:
         score: 2617.8
         color: '#5393b7'
@@ -5966,14 +5966,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 248
+    item_level_equipped: 249
     mythic_plus_scores:
       all:
-        score: 718
-        color: '#d8ffc9'
+        score: 1220.4
+        color: '#acff92'
       dps:
-        score: 718
-        color: '#d8ffc9'
+        score: 1220.4
+        color: '#acff92'
       healer:
         score: 0
         color: '#ffffff'
@@ -5987,8 +5987,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 718
-        color: '#d8ffc9'
+        score: 1220.4
+        color: '#acff92'
       spec_3:
         score: 0
         color: '#ffffff'
