@@ -2004,3 +2004,347 @@ h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.02em; }
   .stat strong { font-size: 22px; }
   .toolbar { grid-template-columns: 1fr; }
 }
+
+/* Applications dashboard minimal sizing + account/logout polish
+   Final pass: keeps existing layout compact, standardizes text/spacing,
+   and turns the profile area into a real account block with a readable logout button. */
+.container {
+  width: min(1360px, calc(100% - 48px));
+  padding-top: 16px;
+  padding-bottom: 32px;
+}
+
+.dashboard-shell {
+  margin-bottom: 14px;
+  border-radius: 26px;
+  border-color: rgba(105, 151, 190, 0.22);
+  background:
+    radial-gradient(circle at 79% 50%, rgba(34, 211, 238, 0.075), transparent 30%),
+    linear-gradient(105deg, rgba(4, 12, 23, 0.98), rgba(5, 18, 32, 0.96) 56%, rgba(4, 30, 42, 0.80));
+}
+
+.dashboard-shell::before {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.025), transparent 30%);
+}
+
+.dashboard-shell .dashboard-topbar,
+.dashboard-topbar {
+  min-height: 78px;
+  padding: 12px 20px;
+  border-bottom-color: rgba(105, 151, 190, 0.14);
+  background: rgba(5, 16, 30, 0.64);
+}
+
+.dashboard-brand,
+.dashboard-user {
+  gap: 12px;
+}
+
+.dashboard-shell .guild-mark,
+.dashboard-shell .discord-avatar,
+.dashboard-shell .discord-avatar-fallback,
+.guild-mark,
+.discord-avatar,
+.discord-avatar-fallback {
+  width: 50px;
+  height: 50px;
+}
+
+.dashboard-shell .dashboard-brand strong,
+.dashboard-shell .dashboard-user strong,
+.dashboard-brand strong,
+.dashboard-user strong {
+  font-size: clamp(14px, 0.95vw, 17px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-shell .dashboard-brand span,
+.dashboard-shell .dashboard-user span,
+.dashboard-brand span,
+.dashboard-user span {
+  font-size: clamp(11px, 0.78vw, 13px);
+  line-height: 1.25;
+  color: #99a9bc;
+}
+
+.dashboard-user {
+  align-self: stretch;
+  min-width: 300px;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
+  background: rgba(2, 8, 23, 0.22);
+}
+
+.dashboard-user > div:not(.dashboard-user__avatar-wrap) {
+  min-width: 0;
+}
+
+.dashboard-user strong,
+.dashboard-user span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-user__status {
+  width: 11px;
+  height: 11px;
+  right: 1px;
+  bottom: 5px;
+  border-width: 2px;
+}
+
+.dashboard-user__logout {
+  margin-left: auto;
+}
+
+.dashboard-shell .dashboard-user__logout button,
+.dashboard-user__logout button {
+  width: auto;
+  min-width: 72px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.10);
+  color: #dbe7f5;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-shell .dashboard-user__logout button:hover,
+.dashboard-user__logout button:hover {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: rgba(34, 211, 238, 0.36);
+  color: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.dashboard-shell .dashboard-hero,
+.dashboard-hero {
+  min-height: 258px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.48fr);
+  gap: clamp(18px, 3vw, 40px);
+  padding: clamp(22px, 2.45vw, 32px) clamp(24px, 2.8vw, 38px);
+  margin-bottom: 14px;
+}
+
+.dashboard-shell .dashboard-hero__copy,
+.dashboard-hero__copy {
+  max-width: 590px;
+}
+
+.dashboard-shell .dashboard-hero .eyebrow,
+.dashboard-hero .eyebrow {
+  margin-bottom: 16px;
+  font-size: clamp(10px, 0.72vw, 12px);
+  line-height: 1.2;
+  letter-spacing: 0.17em;
+}
+
+.dashboard-shell .dashboard-hero h1,
+.dashboard-hero h1 {
+  max-width: 590px;
+  margin: 0;
+  font-size: clamp(36px, 3.45vw, 54px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.dashboard-shell .hero-accent,
+.hero-accent {
+  width: 50px;
+  height: 2px;
+  margin: 14px 0 18px;
+  opacity: 0.9;
+}
+
+.dashboard-shell .dashboard-hero .lead,
+.dashboard-hero .lead {
+  max-width: 560px;
+  font-size: clamp(13px, 0.9vw, 15px);
+  line-height: 1.55;
+  color: #b8c5d4;
+}
+
+.dashboard-shell .hero-secure-note,
+.hero-secure-note {
+  gap: 10px;
+  margin-top: 14px;
+  font-size: clamp(12px, 0.82vw, 14px);
+  line-height: 1.35;
+  color: #aab8c8;
+}
+
+.dashboard-shell .hero-lock,
+.hero-lock {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.dashboard-shell .hero-emblem,
+.hero-emblem {
+  min-height: 190px;
+  opacity: 0.84;
+}
+
+.dashboard-shell .hero-emblem__rings,
+.hero-emblem__rings {
+  width: min(250px, 70%);
+  border-color: rgba(34, 211, 238, 0.18);
+  box-shadow:
+    0 0 0 26px rgba(34, 211, 238, 0.010),
+    0 20px 52px rgba(34, 211, 238, 0.06);
+}
+
+.dashboard-shell .hero-flower,
+.hero-flower {
+  width: 118px;
+  height: 142px;
+  filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.16));
+}
+
+.dashboard-shell .hero-flower__petal--top,
+.hero-flower__petal--top { width: 40px; height: 100px; }
+.dashboard-shell .hero-flower__petal--left,
+.dashboard-shell .hero-flower__petal--right,
+.hero-flower__petal--left,
+.hero-flower__petal--right { width: 36px; height: 86px; }
+.dashboard-shell .hero-flower__petal--low-left,
+.dashboard-shell .hero-flower__petal--low-right,
+.hero-flower__petal--low-left,
+.hero-flower__petal--low-right { width: 30px; height: 62px; bottom: 26px; }
+.dashboard-shell .hero-flower__core,
+.hero-flower__core { width: 24px; height: 78px; box-shadow: 0 0 20px rgba(34, 211, 238, 0.26); }
+
+.dashboard-shell .hero-platform,
+.hero-platform {
+  width: 132px;
+  height: 22px;
+  bottom: 10px;
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.14);
+}
+
+.stats {
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.stat {
+  min-height: 58px;
+  padding: 11px 14px 10px;
+  border-radius: 16px;
+}
+
+.stat strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stat span {
+  font-size: 11px;
+}
+
+.toolbar {
+  grid-template-columns: minmax(240px, 1fr) 140px 140px 130px 112px;
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 18px;
+}
+
+.input,
+.select,
+.btn {
+  min-height: 38px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.input,
+.select { padding: 9px 12px; }
+.btn { padding: 8px 11px; }
+
+.card {
+  border-radius: 18px;
+  padding: 14px;
+}
+
+@media (max-width: 1120px) {
+  .container { width: min(100% - 28px, 1280px); }
+  .dashboard-shell .dashboard-hero,
+  .dashboard-hero { grid-template-columns: 1fr; }
+  .dashboard-shell .hero-emblem,
+  .hero-emblem { min-height: 160px; }
+  .toolbar { grid-template-columns: 1fr 1fr; }
+  .toolbar .input,
+  .toolbar .btn { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .container { width: min(100% - 18px, 1280px); padding-top: 10px; }
+  .dashboard-shell { border-radius: 20px; }
+  .dashboard-shell .dashboard-topbar,
+  .dashboard-topbar {
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px;
+    min-height: auto;
+  }
+  .dashboard-brand,
+  .dashboard-user { width: 100%; }
+  .dashboard-user {
+    min-width: 0;
+    padding: 8px;
+  }
+  .dashboard-shell .guild-mark,
+  .dashboard-shell .discord-avatar,
+  .dashboard-shell .discord-avatar-fallback,
+  .guild-mark,
+  .discord-avatar,
+  .discord-avatar-fallback {
+    width: 42px;
+    height: 42px;
+  }
+  .dashboard-shell .dashboard-user__logout button,
+  .dashboard-user__logout button {
+    min-width: 66px;
+    height: 34px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+  .dashboard-shell .dashboard-hero,
+  .dashboard-hero {
+    min-height: auto;
+    padding: 18px 14px;
+    border-radius: 0 0 20px 20px;
+  }
+  .dashboard-shell .dashboard-hero .eyebrow,
+  .dashboard-hero .eyebrow {
+    margin-bottom: 12px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+  .dashboard-shell .dashboard-hero h1,
+  .dashboard-hero h1 { font-size: clamp(32px, 10vw, 42px); }
+  .dashboard-shell .hero-accent,
+  .hero-accent { margin: 12px 0 14px; }
+  .dashboard-shell .dashboard-hero .lead,
+  .dashboard-hero .lead { font-size: 13px; line-height: 1.5; }
+  .dashboard-shell .hero-secure-note,
+  .hero-secure-note { font-size: 12px; }
+  .dashboard-shell .hero-emblem,
+  .hero-emblem { min-height: 128px; }
+  .dashboard-shell .hero-flower,
+  .hero-flower { width: 96px; height: 118px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toolbar { grid-template-columns: 1fr; }
+}

@@ -26,7 +26,7 @@ export default async function DashboardIdentity({ user }: { user: DashboardSessi
             <span>Discord • {user.role}</span>
           </div>
           <form method="post" action="/api/auth/logout" className="dashboard-user__logout">
-            <button type="submit" aria-label="Вийти">⌄</button>
+            <button type="submit" aria-label="Вийти">Вийти</button>
           </form>
         </div>
       ) : null}
