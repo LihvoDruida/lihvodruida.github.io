@@ -149,10 +149,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="eyebrow">Mistblossom Vanguard • Secure dashboard</div>
           <h1>Заявки до гільдії</h1>
           <span className="hero-accent" aria-hidden="true" />
-          <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці.</p>
+          <p className="lead">Модеруй заявки, перевіряй Raider.IO та ключові дані персонажа.</p>
           <div className="hero-secure-note">
             <span className="hero-lock" aria-hidden="true">▣</span>
-            <span>Секрети та GitHub token залишаються тільки на сервері.</span>
+            <span>Секрети й GitHub token зберігаються лише на сервері.</span>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </section>
 
       <form className="toolbar panel">
-        <input className="input" name="q" placeholder="Пошук: персонаж, realm, клас, джерело, доступність..." defaultValue={params.q || ""} />
+        <input className="input" name="q" placeholder="Пошук: персонаж, realm, клас..." defaultValue={params.q || ""} />
         <select className="select" name="status" defaultValue={params.status || "all"}>
           <option value="all">Усі статуси</option>
           <option value="review">На розгляді</option>

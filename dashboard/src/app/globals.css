@@ -1412,3 +1412,114 @@ h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.02em; }
     width: 250px;
   }
 }
+
+/* Applications dashboard compact layout polish
+   Keeps the reference style, but fixes oversized hero/header text,
+   tightens spacing, and makes the stats/filter area cleaner. */
+.container {
+  width: min(1420px, calc(100% - 56px));
+  padding-top: 18px;
+  padding-bottom: 36px;
+}
+
+.dashboard-topbar {
+  width: min(1040px, 100%);
+  min-height: 86px;
+  margin: 0 auto 28px;
+  padding: 14px 22px;
+  border-radius: 24px;
+}
+
+.dashboard-brand,
+.dashboard-user { gap: 14px; }
+.dashboard-brand strong,
+.dashboard-user strong { font-size: clamp(15px, 1.05vw, 20px); letter-spacing: -0.03em; }
+.dashboard-brand span,
+.dashboard-user span { font-size: clamp(12px, 0.9vw, 15px); }
+.guild-mark,
+.discord-avatar,
+.discord-avatar-fallback { width: 56px; height: 56px; }
+.guild-mark { border-radius: 18px; }
+.dashboard-user__status { width: 13px; height: 13px; right: 2px; bottom: 5px; border-width: 2px; }
+.dashboard-user__logout button { width: 34px; height: 34px; font-size: 22px; }
+
+.dashboard-hero {
+  min-height: 292px;
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 0.62fr);
+  gap: clamp(18px, 3vw, 48px);
+  margin-bottom: 16px;
+  padding: clamp(26px, 3vw, 38px) clamp(28px, 3.2vw, 46px);
+  border-radius: 26px;
+}
+.dashboard-hero__copy { max-width: 620px; }
+.dashboard-hero .eyebrow { margin-bottom: 22px; font-size: clamp(11px, 0.82vw, 13px); letter-spacing: 0.19em; }
+.dashboard-hero h1 { max-width: 650px; font-size: clamp(42px, 4.15vw, 66px); line-height: 0.98; letter-spacing: -0.06em; }
+.hero-accent { width: min(300px, 58%); height: 2px; margin: 18px 0 22px; }
+.hero-accent::before { left: 30px; width: 8px; height: 8px; }
+.dashboard-hero .lead { max-width: 570px; font-size: clamp(15px, 1.05vw, 18px); line-height: 1.58; }
+.hero-secure-note { gap: 10px; margin-top: 16px; font-size: clamp(13px, 0.92vw, 15px); }
+.hero-lock { width: 34px; height: 34px; border-radius: 10px; flex: 0 0 auto; }
+
+.hero-emblem { min-height: 220px; opacity: 0.9; }
+.hero-emblem__rings { width: min(330px, 78%); box-shadow: 0 0 0 20px rgba(34,211,238,.022), 0 0 0 46px rgba(34,211,238,.014), 0 0 48px rgba(34,211,238,.08); }
+.hero-flower { width: 142px; height: 170px; }
+.hero-flower__petal--top { width: 46px; height: 118px; }
+.hero-flower__petal--left,
+.hero-flower__petal--right { width: 42px; height: 102px; }
+.hero-flower__petal--low-left,
+.hero-flower__petal--low-right { width: 36px; height: 78px; }
+.hero-flower__core { width: 28px; height: 92px; }
+.hero-platform { width: 286px; height: 40px; bottom: 10px; }
+
+.stats { gap: 10px; margin-bottom: 14px; }
+.stat { min-height: 66px; padding: 14px 16px 12px; border-radius: 18px; }
+.stat::before { width: 3px; }
+.stat strong { font-size: 25px; letter-spacing: -0.04em; }
+.stat span { font-size: 12px; }
+
+.toolbar { grid-template-columns: minmax(260px, 1fr) 150px 150px 140px 126px; gap: 10px; padding: 12px; margin-bottom: 14px; border-radius: 20px; }
+.input,
+.select { min-height: 42px; border-radius: 13px; padding: 10px 13px; font-size: 13px; }
+.btn { min-height: 42px; border-radius: 13px; padding: 9px 12px; font-size: 13px; }
+.card { border-radius: 20px; padding: 16px; }
+
+@media (max-width: 1120px) {
+  .container { width: min(100% - 28px, 1280px); }
+  .dashboard-topbar { width: 100%; }
+  .dashboard-hero { grid-template-columns: 1fr; padding: 24px; }
+  .hero-emblem { min-height: 190px; mask-image: none; }
+}
+
+@media (max-width: 860px) {
+  .toolbar { grid-template-columns: 1fr 1fr; }
+  .toolbar .input,
+  .toolbar .btn { grid-column: 1 / -1; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .container { width: min(100% - 18px, 1280px); padding-top: 12px; }
+  .dashboard-topbar { margin-bottom: 16px; padding: 12px; border-radius: 20px; }
+  .dashboard-brand,
+  .dashboard-user { gap: 10px; }
+  .guild-mark,
+  .discord-avatar,
+  .discord-avatar-fallback { width: 46px; height: 46px; }
+  .dashboard-brand strong,
+  .dashboard-user strong { font-size: 14px; }
+  .dashboard-brand span,
+  .dashboard-user span { font-size: 12px; }
+  .dashboard-user { padding-top: 10px; }
+  .dashboard-hero { padding: 20px 16px; border-radius: 22px; }
+  .dashboard-hero .eyebrow { margin-bottom: 14px; font-size: 10px; letter-spacing: 0.16em; }
+  .dashboard-hero h1 { font-size: clamp(36px, 12vw, 48px); }
+  .hero-accent { margin: 14px 0 16px; }
+  .dashboard-hero .lead { font-size: 14px; line-height: 1.5; }
+  .hero-secure-note { font-size: 13px; }
+  .hero-emblem { min-height: 156px; }
+  .hero-flower { width: 112px; height: 138px; }
+  .hero-platform { width: 210px; }
+  .stat { min-height: 58px; padding: 12px 14px; }
+  .stat strong { font-size: 22px; }
+  .toolbar { grid-template-columns: 1fr; }
+}
