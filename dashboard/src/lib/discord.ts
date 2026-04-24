@@ -5,7 +5,6 @@ export async function notifyDiscordStatusChange(params: {
   status: ApplicationStatus;
   moderator: string;
   issueUrl?: string;
-  title?: string;
   source: "dashboard" | "discord";
 }) {
   const botToken = process.env.DISCORD_BOT_TOKEN;

@@ -7,7 +7,7 @@ export async function moderateApplication(params: {
   moderator: string;
   source: "dashboard" | "discord";
 }) {
-  if (params.status !== "accepted" && params.status !== "declined" && params.status !== "review") {
+  if (params.status !== "accepted" && params.status !== "declined") {
     throw new Error("Unsupported status");
   }
 
@@ -31,7 +31,6 @@ export async function moderateApplication(params: {
     status: params.status,
     moderator: params.moderator,
     issueUrl: issue.html_url,
-    title: issue.title,
     source: params.source,
   });
 

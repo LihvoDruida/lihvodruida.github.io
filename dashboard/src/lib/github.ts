@@ -89,6 +89,12 @@ export function getIssueStatusFromLabels(labels: Array<{ name?: string } | strin
   return "review";
 }
 
+export async function listIssues() {
+  const label = process.env.GUILD_APPLICATIONS_LABEL || "guild-application";
+  const issues = await githubFetch(`/issues?state=all&labels=${encodeURIComponent(label)}&per_page=100&sort=created&direction=desc`);
+  return Array.isArray(issues) ? issues : [];
+}
+
 export async function setIssueStatus(params: {
   issueNumber: number;
   status: ApplicationStatus;
@@ -127,13 +133,6 @@ export async function setIssueStatus(params: {
       body: JSON.stringify({
         state: "closed",
         state_reason: "completed",
-      }),
-    });
-  } else {
-    await githubFetch(`/issues/${issueNumber}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        state: "open",
       }),
     });
   }

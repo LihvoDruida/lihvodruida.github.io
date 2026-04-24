@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
-import { clearSessionCookie } from "@/lib/auth";
+import { clearSession } from "@/lib/session";
+import { getDashboardUrl } from "@/lib/oauth";
 
-export async function POST(request: Request) {
-  await clearSessionCookie();
-  return NextResponse.redirect(new URL("/login", request.url), 303);
+export async function POST() {
+  await clearSession();
+  return NextResponse.redirect(`${getDashboardUrl()}/login`);
+}
+
+export async function GET() {
+  await clearSession();
+  return NextResponse.redirect(`${getDashboardUrl()}/login`);
 }

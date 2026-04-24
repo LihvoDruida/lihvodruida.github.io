@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "../../../../../lib/session";
-import { assertCanModerate } from "../../../../../lib/access";
-import { moderateApplication } from "../../../../../lib/moderation";
-import { ApplicationStatus } from "../../../../../lib/github";
+import { getSession } from "@/lib/session";
+import { assertCanModerate } from "@/lib/access";
+import { moderateApplication } from "@/lib/moderation";
+import { ApplicationStatus } from "@/lib/github";
 
 export async function POST(
   request: NextRequest,
