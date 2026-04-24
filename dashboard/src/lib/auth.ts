@@ -6,6 +6,7 @@ export type DashboardSession = {
   provider: "discord" | "github" | "token";
   id: string;
   name: string;
+  login?: string;
   role: DashboardRole;
   avatar?: string | null;
 };
@@ -159,26 +160,31 @@ export function canModerate(user: DashboardSession | null | undefined) {
   return !!user && (user.role === "admin" || user.role === "moderator");
 }
 
-export async function createSessionCookie(session: DashboardSession | string) {
+export async function createSessionCookie(session: (Partial<DashboardSession> & { login?: string }) | string) {
   if (typeof session === "string") {
-    const fallbackRole =
-      String(process.env.ADMIN_DASHBOARD_TOKEN || "") === session ? "admin" : null;
+    const expected = String(process.env.ADMIN_DASHBOARD_TOKEN || "").trim();
 
-    if (!fallbackRole) {
+    if (!expected || session !== expected) {
       throw new Error("Invalid dashboard token.");
     }
 
-    const tokenSession: DashboardSession = {
+    return createSessionToken({
       provider: "token",
       id: "emergency-token",
       name: "Emergency Admin",
-      role: fallbackRole,
-    };
-
-    return createSessionToken(tokenSession);
+      login: "Emergency Admin",
+      role: "admin",
+    });
   }
 
-  return createSessionToken(session);
+  return createSessionToken({
+    provider: session.provider || "token",
+    id: String(session.id || "local"),
+    name: String(session.name || session.login || "Local admin"),
+    login: session.login || session.name || "Local admin",
+    role: session.role === "moderator" ? "moderator" : "admin",
+    avatar: session.avatar || null,
+  });
 }
 
 export async function verifyToken(token: string) {

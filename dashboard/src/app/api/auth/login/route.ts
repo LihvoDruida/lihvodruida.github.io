@@ -7,6 +7,6 @@ export async function POST(request: Request) {
   if (!verifyToken(token)) {
     return NextResponse.redirect(new URL("/login?error=token", request.url), 303);
   }
-  await createSessionCookie({ provider: "token", id: "local", login: "Local admin", name: "Local admin" });
+  await createSessionCookie({ provider: "token", id: "local", name: "Local admin", role: "admin" });
   return NextResponse.redirect(new URL("/", request.url), 303);
 }
