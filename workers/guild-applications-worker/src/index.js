@@ -625,32 +625,90 @@ async function discordApiFetch(env, path, init = {}) {
   });
 }
 
-async function triggerApplicationStatusWorkflow(env, issueNumber, status, moderator) {
-  const workflow = env.APPLICATION_STATUS_WORKFLOW || "application-status.yml";
-  const ref = env.APPLICATION_STATUS_REF || "live";
+const APPLICATION_STATUS_LABELS = [
+  "status:review",
+  "status:accepted",
+  "status:declined",
+  "status:approved",
+  "status:rejected",
+];
 
+function getTargetStatusLabel(status) {
+  if (status === STATUS.ACCEPTED.key) return "status:accepted";
+  if (status === STATUS.DECLINED.key) return "status:declined";
+  return "status:review";
+}
+
+function getStatusComment(status, moderator) {
+  const moderatorLabel = limitText(moderator, 80, "Discord moderator");
+
+  if (status === STATUS.ACCEPTED.key) {
+    return `✅ Заявку прийнято через Discord. Модератор: ${moderatorLabel}`;
+  }
+
+  if (status === STATUS.DECLINED.key) {
+    return `❌ Заявку відхилено через Discord. Модератор: ${moderatorLabel}`;
+  }
+
+  return `🔎 Заявку повернуто на розгляд через Discord. Модератор: ${moderatorLabel}`;
+}
+
+async function removeIssueLabelIfExists(env, issueNumber, label) {
   const response = await githubFetch(
     env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/actions/workflows/${workflow}/dispatches`,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
+    { method: "DELETE" }
+  );
+
+  if (response.ok || response.status === 404) return;
+
+  const { raw, data } = await parseJsonResponse(response);
+  throw new Error(data?.message || raw || `Не вдалося прибрати label ${label}.`);
+}
+
+async function updateApplicationIssueStatus(env, issueNumber, status, moderator) {
+  const cleanIssueNumber = Number(issueNumber);
+  if (!Number.isInteger(cleanIssueNumber) || cleanIssueNumber <= 0) {
+    throw new Error("Некоректний номер заявки.");
+  }
+
+  const targetLabel = getTargetStatusLabel(status);
+
+  for (const label of APPLICATION_STATUS_LABELS) {
+    if (label !== targetLabel) {
+      await removeIssueLabelIfExists(env, cleanIssueNumber, label);
+    }
+  }
+
+  const addResponse = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${cleanIssueNumber}/labels`,
     {
       method: "POST",
-      body: JSON.stringify({
-        ref,
-        inputs: {
-          issue_number: String(issueNumber),
-          status,
-          moderator: limitText(moderator, 80, "Discord moderator"),
-        },
-      }),
+      body: JSON.stringify({ labels: [targetLabel] }),
     }
   );
 
-  if (!response.ok) {
-    const { raw, data } = await parseJsonResponse(response);
-    throw new Error(data?.message || raw || `GitHub workflow dispatch failed: ${response.status}`);
+  if (!addResponse.ok) {
+    const { raw, data } = await parseJsonResponse(addResponse);
+    throw new Error(data?.message || raw || `Не вдалося додати label ${targetLabel}.`);
   }
 
-  return { ok: true };
+  const commentResponse = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${cleanIssueNumber}/comments`,
+    {
+      method: "POST",
+      body: JSON.stringify({ body: getStatusComment(status, moderator) }),
+    }
+  );
+
+  if (!commentResponse.ok) {
+    const { raw, data } = await parseJsonResponse(commentResponse);
+    throw new Error(data?.message || raw || "Статус змінено, але коментар не створено.");
+  }
+
+  return { ok: true, label: targetLabel };
 }
 
 async function handleDiscordInteraction(request, env) {
@@ -687,12 +745,12 @@ async function handleDiscordInteraction(request, env) {
   const moderator = getDiscordUserLabel(interaction);
 
   try {
-    await triggerApplicationStatusWorkflow(env, issueNumber, status, moderator);
+    await updateApplicationIssueStatus(env, issueNumber, status, moderator);
   } catch (error) {
     return discordInteractionResponse({
       type: 4,
       data: {
-        content: `Не вдалося запустити GitHub Action: ${limitText(error?.message, 120, "невідома помилка")}`,
+        content: `Не вдалося змінити статус заявки: ${limitText(error?.message, 160, "невідома помилка")}`,
         flags: 64,
       },
     });
@@ -702,7 +760,7 @@ async function handleDiscordInteraction(request, env) {
   return discordInteractionResponse({
     type: 7,
     data: {
-      content: `Заявка #${issueNumber}: запущено зміну статусу на **${label}**. Модератор: ${moderator}`,
+      content: `Заявка #${issueNumber}: статус змінено на **${label}**. Модератор: ${moderator}`,
       components: [],
     },
   });
