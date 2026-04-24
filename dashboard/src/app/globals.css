@@ -3125,3 +3125,196 @@ button,
     min-height: 48px;
   }
 }
+
+/* Android Chrome login fix: final mobile-safe layer.
+   Keeps the desktop/auth visual style, but removes the mobile layout traps that can
+   hide or block the Discord login action on Chrome Android. */
+@media (max-width: 760px) {
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  .auth-ref {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    height: auto;
+    display: block;
+    overflow: visible;
+    padding: calc(12px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .auth-ref__grid,
+  .auth-ref__ring,
+  .auth-ref__petal {
+    pointer-events: none;
+  }
+
+  .auth-ref-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    min-height: 0;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow: hidden;
+    border-radius: 18px;
+    transform: none !important;
+  }
+
+  .auth-ref-card::after {
+    display: none;
+  }
+
+  .auth-ref-card__content {
+    position: relative;
+    z-index: 3;
+    padding: 20px 18px 12px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .auth-ref-logo,
+  .auth-ref-logo img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .auth-ref-logo {
+    margin-bottom: 12px;
+  }
+
+  .auth-ref-kicker {
+    margin-bottom: 7px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .auth-ref-card h1 {
+    max-width: 295px;
+    margin: 0;
+    font-size: clamp(27px, 8.2vw, 34px);
+    line-height: 0.98;
+  }
+
+  .auth-ref-copy {
+    max-width: 330px;
+    margin: 11px auto 0;
+    font-size: 12.8px;
+    line-height: 1.4;
+  }
+
+  .auth-ref-card__visual {
+    display: none !important;
+  }
+
+  .auth-ref-actions {
+    position: relative;
+    z-index: 5;
+    width: auto;
+    margin: 0 12px 14px;
+    display: grid;
+    gap: 9px;
+  }
+
+  .auth-ref-alert,
+  .auth-ref-token,
+  .auth-ref-note {
+    position: relative;
+    z-index: 6;
+  }
+
+  .auth-ref-discord {
+    position: relative;
+    z-index: 7;
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: clamp(15px, 4.6vw, 18px);
+    line-height: 1.05;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .auth-ref-discord strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .auth-ref-discord__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .auth-ref-discord__icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .auth-ref-discord__arrow {
+    font-size: 22px;
+  }
+
+  .auth-ref-token form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .auth-ref-token input,
+  .auth-ref-token button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .auth-ref-note {
+    justify-content: center;
+    align-items: flex-start;
+    text-align: center;
+    font-size: 11.5px;
+    line-height: 1.36;
+  }
+}
+
+@media (max-width: 360px), (max-height: 620px) {
+  .auth-ref-card__content {
+    padding-top: 16px;
+  }
+
+  .auth-ref-logo,
+  .auth-ref-logo img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .auth-ref-card h1 {
+    font-size: clamp(24px, 7.6vw, 30px);
+  }
+
+  .auth-ref-copy {
+    font-size: 12px;
+  }
+
+  .auth-ref-discord {
+    min-height: 48px;
+  }
+}
