@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSessionCookie, verifyToken } from "@/src/lib/auth";
+import { createSessionCookie, verifyToken } from "@/lib/auth";
 
 export async function POST(request: Request) {
   const form = await request.formData();

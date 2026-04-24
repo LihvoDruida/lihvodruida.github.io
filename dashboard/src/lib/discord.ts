@@ -6,6 +6,7 @@ export async function notifyDiscordStatusChange(params: {
   moderator: string;
   issueUrl?: string;
   title?: string;
+  source: "dashboard" | "discord";
 }) {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const channelId = process.env.DISCORD_CHANNEL_ID;
@@ -27,11 +28,12 @@ export async function notifyDiscordStatusChange(params: {
           title: `📋 Заявка #${params.issueNumber} оновлена`,
           description: [
             `**Статус:** ${statusEmoji(params.status)} **${statusText(params.status)}**`,
+            `**Джерело:** ${params.source === "dashboard" ? "Dashboard" : "Discord"}`,
             `**Модератор:** ${params.moderator}`,
             params.issueUrl ? `**Issue:** ${params.issueUrl}` : "",
           ].filter(Boolean).join("\n"),
           color: statusColor(params.status),
-          footer: { text: "Mistblossom Vanguard • Dashboard" },
+          footer: { text: "Mistblossom Vanguard • Applications" },
           timestamp: new Date().toISOString(),
         },
       ],

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSessionCookie, isAllowedAdmin, verifyOAuthState } from "@/src/lib/auth";
-import { exchangeDiscordCode } from "@/src/lib/oauth";
+import { createSessionCookie, isAllowedAdmin, verifyOAuthState } from "@/lib/auth";
+import { exchangeDiscordCode } from "@/lib/oauth";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

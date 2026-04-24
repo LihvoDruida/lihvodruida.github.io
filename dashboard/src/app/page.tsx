@@ -1,6 +1,6 @@
-import { canModerate, getSessionUser, isAuthenticated } from "@/src/lib/auth";
-import { ApplicationItem, listApplications, updateApplicationStatus } from "@/src/lib/github";
-import { STATUS, StatusKey } from "@/src/lib/status";
+import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
+import { ApplicationItem, listApplications, updateApplicationStatus } from "@/lib/github";
+import { STATUS, StatusKey } from "@/lib/status";
 import { redirect } from "next/navigation";
 
 function formatDate(value: string) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { isAuthenticated } from "@/src/lib/auth";
-import { listApplications } from "@/src/lib/github";
+import { isAuthenticated } from "@/lib/auth";
+import { listApplications } from "@/lib/github";
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

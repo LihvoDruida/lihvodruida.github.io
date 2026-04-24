@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSessionCookie, isAllowedAdmin, verifyOAuthState } from "@/src/lib/auth";
-import { exchangeGitHubCode } from "@/src/lib/oauth";
+import { createSessionCookie, isAllowedAdmin, verifyOAuthState } from "@/lib/auth";
+import { exchangeGitHubCode } from "@/lib/oauth";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

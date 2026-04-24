@@ -1,4 +1,4 @@
-import { isAuthenticated } from "@/src/lib/auth";
+import { isAuthenticated } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 function errorMessage(code?: string) {

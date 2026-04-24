@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/src/lib/session";
-import { assertCanModerate } from "@/src/lib/access";
-import { updateIssueStatusDirect, ApplicationStatus } from "@/src/lib/github";
-import { notifyDiscordStatusChange } from "@/src/lib/discord";
+import { getSession } from "../../../../../lib/session";
+import { assertCanModerate } from "../../../../../lib/access";
+import { moderateApplication } from "../../../../../lib/moderation";
+import { ApplicationStatus } from "../../../../../lib/github";
 
 export async function POST(
   request: NextRequest,
@@ -22,17 +22,12 @@ export async function POST(
 
   const moderator = `${session.name} (${session.role})`;
 
-  const result = await updateIssueStatusDirect({
+  const result = await moderateApplication({
     issueNumber,
     status,
     moderator,
+    source: "dashboard",
   });
 
-  const discord = await notifyDiscordStatusChange({
-    issueNumber,
-    status,
-    moderator,
-  });
-
-  return NextResponse.json({ ...result, discord });
+  return NextResponse.json(result);
 }
