@@ -5,7 +5,6 @@ function errorMessage(code?: string) {
   switch (code) {
     case "not_allowed": return "Твій Discord акаунт не має ролі доступу до dashboard.";
     case "oauth_state": return "OAuth state не пройшов перевірку. Спробуй ще раз.";
-    case "github": return "GitHub авторизація зараз не використовується для ролей dashboard.";
     case "discord": return "Discord авторизація не вдалася або не вдалося прочитати ролі сервера.";
     case "token": return "Невірний emergency admin token.";
     default: return "Не вдалося увійти.";

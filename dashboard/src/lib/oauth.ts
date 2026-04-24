@@ -35,8 +35,6 @@ export function buildDiscordOAuthUrl(state: string) {
 }
 
 export function buildGitHubOAuthUrl(state: string) {
-  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
-  if (!clientId) throw new Error("GITHUB_OAUTH_CLIENT_ID is not configured.");
 
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", clientId);
@@ -94,8 +92,6 @@ export async function fetchDiscordGuildMember(accessToken: string) {
 }
 
 export async function exchangeGitHubCode(code: string) {
-  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
   if (!clientId || !clientSecret) throw new Error("GitHub OAuth env is not configured.");
 
   const response = await fetch("https://github.com/login/oauth/access_token", {

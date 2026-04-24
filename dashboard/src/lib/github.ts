@@ -8,6 +8,27 @@ export const STATUS_LABELS = [
 
 export type ApplicationStatus = "accepted" | "declined" | "review";
 
+export type ApplicationItem = {
+  number: number;
+  title: string;
+  state: string;
+  html_url: string;
+  created_at?: string;
+  updated_at?: string;
+  closed_at?: string | null;
+  status_key: ApplicationStatus;
+  status_text: string;
+  character_name?: string;
+  realm?: string;
+  region?: string;
+  faction?: string;
+  class_name?: string;
+  source?: string;
+  availability?: string;
+  labels: string[];
+};
+
+
 export function normalizeStatus(value: string): ApplicationStatus {
   if (value === "accepted") return "accepted";
   if (value === "declined") return "declined";
@@ -93,7 +114,7 @@ function extract(body: string, pattern: RegExp) {
   return (String(body || "").match(pattern)?.[1] || "").trim();
 }
 
-export function mapApplicationIssue(issue: any) {
+export function mapApplicationIssue(issue: any): ApplicationItem {
   const body = String(issue.body || "");
   const status = getIssueStatusFromLabels(issue.labels || []);
 
