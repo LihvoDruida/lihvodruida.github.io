@@ -1,134 +1,149 @@
-import { ApplicationStatus, statusColor, statusEmoji, statusText } from "./github";
+import {
+  ApplicationStatus,
+  extractDiscordMessageRef,
+  getIssueStatusFromLabels,
+  statusColor,
+  statusEmoji,
+  statusText,
+} from "./github";
 
-export type DiscordMessageRef = {
-  channel_id?: string | null;
-  message_id?: string | null;
-};
-
-function getBotToken() {
-  return process.env.DISCORD_BOT_TOKEN || "";
+function cleanText(value: unknown, max = 200) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
-function getDefaultChannelId() {
-  return process.env.DISCORD_CHANNEL_ID || "";
-}
-
-function discordHeaders() {
-  const token = getBotToken();
-
-  if (!token) {
-    throw new Error("DISCORD_BOT_TOKEN is missing.");
-  }
+function getDiscordBotConfig() {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  const channelId = process.env.DISCORD_CHANNEL_ID;
 
   return {
-    Authorization: `Bot ${token}`,
-    "Content-Type": "application/json; charset=utf-8",
+    botToken,
+    channelId,
+    ok: !!botToken,
   };
 }
 
-function buildStatusContent(params: {
-  issueNumber: number;
-  status: ApplicationStatus;
-  moderator: string;
-  issueUrl?: string;
-  source: "dashboard" | "discord";
-}) {
-  return [
-    `📋 **Заявка #${params.issueNumber} оновлена**`,
-    `> Статус: ${statusEmoji(params.status)} **${statusText(params.status)}**`,
-    `> Джерело: **${params.source === "dashboard" ? "Dashboard" : "Discord"}**`,
-    `> Модератор: 👤 **${params.moderator}**`,
-    params.issueUrl ? `> Issue: ${params.issueUrl}` : "",
-  ].filter(Boolean).join("\n");
-}
-
-function updateEmbedDescription(description: unknown, status: ApplicationStatus) {
-  const line = `**Статус:** ${statusEmoji(status)} ${statusText(status)}`;
+function updateEmbedDescription(description: string | undefined, status: ApplicationStatus) {
+  const statusLine = `**Статус:** ${statusEmoji(status)} ${statusText(status)}`;
   const text = String(description || "").trim();
 
-  if (!text) return line;
+  if (!text) return statusLine;
 
   if (/\*\*Статус:\*\*[^\n]*/.test(text)) {
-    return text.replace(/\*\*Статус:\*\*[^\n]*/, line);
+    return text.replace(/\*\*Статус:\*\*[^\n]*/, statusLine);
   }
 
-  return [line, text].join("\n");
+  return [statusLine, text].join("\n");
 }
 
-async function getDiscordMessage(channelId: string, messageId: string) {
-  const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
-    headers: discordHeaders(),
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-
-  return response.json();
-}
-
-export async function updateDiscordApplicationMessage(params: {
-  ref?: DiscordMessageRef | null;
+function buildFallbackEmbed(params: {
   issueNumber: number;
   status: ApplicationStatus;
   moderator: string;
   issueUrl?: string;
   source: "dashboard" | "discord";
 }) {
-  const channelId = params.ref?.channel_id || getDefaultChannelId();
-  const messageId = params.ref?.message_id;
+  return {
+    title: `📋 Заявка #${params.issueNumber} оновлена`,
+    description: [
+      `**Статус:** ${statusEmoji(params.status)} **${statusText(params.status)}**`,
+      `**Джерело:** ${params.source === "dashboard" ? "Dashboard" : "Discord"}`,
+      `**Модератор:** ${cleanText(params.moderator, 80)}`,
+      params.issueUrl ? `**Issue:** ${params.issueUrl}` : "",
+    ].filter(Boolean).join("\n"),
+    color: statusColor(params.status),
+    footer: { text: "Mistblossom Vanguard • Applications" },
+    timestamp: new Date().toISOString(),
+  };
+}
 
-  if (!getBotToken() || !channelId || !messageId) {
-    return notifyDiscordStatusChange(params);
+export async function editDiscordApplicationMessage(params: {
+  issue: any;
+  issueNumber: number;
+  status: ApplicationStatus;
+  moderator: string;
+  source: "dashboard" | "discord";
+}) {
+  const { botToken, ok } = getDiscordBotConfig();
+
+  if (!ok || !botToken) {
+    return { ok: false, skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
   }
 
-  try {
-    const message = await getDiscordMessage(channelId, messageId);
-    const embeds = Array.isArray(message?.embeds)
-      ? message.embeds.map((embed: any) => ({ ...embed }))
-      : [];
+  const ref = extractDiscordMessageRef(String(params.issue?.body || ""));
 
-    const primary = embeds[0] || {
-      title: `Заявка #${params.issueNumber}`,
-      description: "",
-      fields: [],
+  if (!ref) {
+    return { ok: false, skipped: true, reason: "Discord message marker is missing" };
+  }
+
+  const getResponse = await fetch(
+    `https://discord.com/api/v10/channels/${ref.channel_id}/messages/${ref.message_id}`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!getResponse.ok) {
+    const raw = await getResponse.text().catch(() => "");
+    return {
+      ok: false,
+      status: getResponse.status,
+      reason: raw || "Could not fetch original Discord message",
     };
+  }
 
-    primary.color = statusColor(params.status);
-    primary.description = updateEmbedDescription(primary.description, params.status);
-    primary.footer = {
-      text: `Mistblossom Vanguard • Оновив: ${params.moderator}`,
-    };
-    primary.timestamp = new Date().toISOString();
+  const message = await getResponse.json();
+  const embeds = Array.isArray(message.embeds) ? message.embeds.map((embed: any) => ({ ...embed })) : [];
+  const primaryEmbed = embeds[0] || buildFallbackEmbed({
+    issueNumber: params.issueNumber,
+    status: params.status,
+    moderator: params.moderator,
+    issueUrl: params.issue?.html_url,
+    source: params.source,
+  });
 
-    embeds[0] = primary;
+  primaryEmbed.color = statusColor(params.status);
+  primaryEmbed.description = updateEmbedDescription(primaryEmbed.description, params.status);
+  primaryEmbed.footer = {
+    text: `Mistblossom Vanguard • Оновив: ${cleanText(params.moderator, 80)}`,
+  };
+  primaryEmbed.timestamp = new Date().toISOString();
 
-    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
+  embeds[0] = primaryEmbed;
+
+  const patchResponse = await fetch(
+    `https://discord.com/api/v10/channels/${ref.channel_id}/messages/${ref.message_id}`,
+    {
       method: "PATCH",
-      headers: discordHeaders(),
+      headers: {
+        Authorization: `Bot ${botToken}`,
+        "Content-Type": "application/json; charset=utf-8",
+      },
       body: JSON.stringify({
-        content: buildStatusContent(params),
+        content: `📋 **Заявка #${params.issueNumber} оновлена**\n> Статус: ${statusEmoji(params.status)} **${statusText(params.status)}**\n> Модератор: 👤 **${cleanText(params.moderator, 80)}**`,
         embeds: embeds.slice(0, 10),
         components: [],
         allowed_mentions: { parse: [] },
       }),
-    });
-
-    if (!response.ok) {
-      throw new Error(await response.text());
     }
+  );
 
-    return { ok: true, edited: true, channel_id: channelId, message_id: messageId };
-  } catch (error) {
-    const fallback = await notifyDiscordStatusChange(params);
+  if (!patchResponse.ok) {
+    const raw = await patchResponse.text().catch(() => "");
     return {
       ok: false,
-      edited: false,
-      error: error instanceof Error ? error.message : "Discord edit failed.",
-      fallback,
+      status: patchResponse.status,
+      reason: raw || "Could not edit original Discord message",
     };
   }
+
+  return {
+    ok: true,
+    channel_id: ref.channel_id,
+    message_id: ref.message_id,
+  };
 }
 
 export async function notifyDiscordStatusChange(params: {
@@ -138,8 +153,7 @@ export async function notifyDiscordStatusChange(params: {
   issueUrl?: string;
   source: "dashboard" | "discord";
 }) {
-  const botToken = getBotToken();
-  const channelId = getDefaultChannelId();
+  const { botToken, channelId } = getDiscordBotConfig();
 
   if (!botToken || !channelId) {
     return { skipped: true, reason: "DISCORD_BOT_TOKEN or DISCORD_CHANNEL_ID is missing" };
@@ -147,24 +161,13 @@ export async function notifyDiscordStatusChange(params: {
 
   const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: "POST",
-    headers: discordHeaders(),
+    headers: {
+      Authorization: `Bot ${botToken}`,
+      "Content-Type": "application/json; charset=utf-8",
+    },
     body: JSON.stringify({
-      content: buildStatusContent(params),
       allowed_mentions: { parse: [] },
-      embeds: [
-        {
-          title: `📋 Заявка #${params.issueNumber} оновлена`,
-          description: [
-            `**Статус:** ${statusEmoji(params.status)} **${statusText(params.status)}**`,
-            `**Джерело:** ${params.source === "dashboard" ? "Dashboard" : "Discord"}`,
-            `**Модератор:** ${params.moderator}`,
-            params.issueUrl ? `**Issue:** ${params.issueUrl}` : "",
-          ].filter(Boolean).join("\n"),
-          color: statusColor(params.status),
-          footer: { text: "Mistblossom Vanguard • Applications" },
-          timestamp: new Date().toISOString(),
-        },
-      ],
+      embeds: [buildFallbackEmbed(params)],
     }),
   });
 
@@ -173,12 +176,5 @@ export async function notifyDiscordStatusChange(params: {
     return { ok: false, error: raw || `Discord API error ${response.status}` };
   }
 
-  const data = await response.json().catch(() => null);
-
-  return {
-    ok: true,
-    posted: true,
-    channel_id: data?.channel_id || channelId,
-    message_id: data?.id || null,
-  };
+  return { ok: true };
 }

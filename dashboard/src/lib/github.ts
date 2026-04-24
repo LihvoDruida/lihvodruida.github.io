@@ -77,9 +77,35 @@ export type ApplicationItem = {
   profile_url?: string | null;
   raider_io?: RaiderIoApplicationData | null;
   raider_io_error?: string | null;
+  discord_ref?: DiscordMessageRef | null;
   discord_message_ref?: { channel_id?: string | null; message_id?: string | null } | null;
   labels: string[];
 };
+
+export type DiscordMessageRef = {
+  channel_id: string;
+  message_id: string;
+};
+
+export function extractDiscordMessageRef(body: string): DiscordMessageRef | null {
+  const match = String(body || "").match(/<!--\s*mistblossom:discord\s+({[\s\S]*?})\s*-->/i);
+  if (!match?.[1]) return null;
+
+  try {
+    const parsed = JSON.parse(match[1]);
+    const channelId = String(parsed.channel_id || "").trim();
+    const messageId = String(parsed.message_id || "").trim();
+
+    if (!channelId || !messageId) return null;
+
+    return {
+      channel_id: channelId,
+      message_id: messageId,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export function normalizeStatus(value: string): ApplicationStatus {
   const normalized = String(value || "")
@@ -454,6 +480,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     profile_url: null,
     raider_io: null,
     raider_io_error: null,
+    discord_ref: extractDiscordMessageRef(body),
     discord_message_ref: parseDiscordMessageRef(body),
     labels: Array.isArray(issue.labels) ? issue.labels.map((label: any) => label.name) : [],
   };
@@ -594,27 +621,13 @@ export async function updateApplicationStatus(
   status: ApplicationStatus,
   moderator = "Dashboard"
 ) {
-  const { updateDiscordApplicationMessage } = await import("./discord");
+  const { moderateApplication } = await import("./moderation");
 
-  const issue = await getIssue(issueNumber);
-  const mappedIssue = mapApplicationIssue(issue);
-  const canonicalStatus = normalizeStatus(status);
-
-  const result = await setIssueStatus({
+  return moderateApplication({
     issueNumber,
-    status: canonicalStatus,
+    status,
     moderator,
     source: "dashboard",
   });
-
-  await updateDiscordApplicationMessage({
-    ref: mappedIssue.discord_message_ref,
-    issueNumber,
-    status: canonicalStatus,
-    moderator,
-    issueUrl: issue.html_url,
-    source: "dashboard",
-  });
-
-  return result;
 }
+

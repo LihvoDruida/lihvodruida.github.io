@@ -1,5 +1,14 @@
-import { getIssue, getIssueStatusFromLabels, setIssueStatus, ApplicationStatus } from "./github";
-import { notifyDiscordStatusChange } from "./discord";
+import {
+  ApplicationStatus,
+  getIssue,
+  getIssueStatusFromLabels,
+  normalizeStatus,
+  setIssueStatus,
+} from "./github";
+import {
+  editDiscordApplicationMessage,
+  notifyDiscordStatusChange,
+} from "./discord";
 
 export async function moderateApplication(params: {
   issueNumber: number;
@@ -7,37 +16,48 @@ export async function moderateApplication(params: {
   moderator: string;
   source: "dashboard" | "discord";
 }) {
-  if (params.status !== "accepted" && params.status !== "declined") {
-    throw new Error("Unsupported status");
-  }
+  const issueNumber = Number(params.issueNumber);
+  const status = normalizeStatus(params.status);
+  const issue = await getIssue(issueNumber);
+  const previousStatus = getIssueStatusFromLabels(issue.labels || []);
 
-  const issue = await getIssue(params.issueNumber);
-  const currentStatus = getIssueStatusFromLabels(issue.labels || []);
-
-  if (currentStatus === params.status) {
-    return {
-      ok: true,
-      unchanged: true,
-      status: params.status,
-      issue,
-      discord: { skipped: true, reason: "Status is already set" },
-    };
-  }
-
-  const result = await setIssueStatus(params);
-
-  const discord = await notifyDiscordStatusChange({
-    issueNumber: params.issueNumber,
-    status: params.status,
+  const github = await setIssueStatus({
+    issueNumber,
+    status,
     moderator: params.moderator,
-    issueUrl: issue.html_url,
     source: params.source,
   });
 
-  return {
-    ...result,
-    unchanged: false,
+  const discordEdit = await editDiscordApplicationMessage({
     issue,
-    discord,
+    issueNumber,
+    status,
+    moderator: params.moderator,
+    source: params.source,
+  });
+
+  let discordNotify: unknown = null;
+
+  if (!discordEdit?.ok) {
+    discordNotify = await notifyDiscordStatusChange({
+      issueNumber,
+      status,
+      moderator: params.moderator,
+      issueUrl: issue.html_url,
+      source: params.source,
+    });
+  }
+
+  return {
+    ok: true,
+    issueNumber,
+    status,
+    previousStatus,
+    changed: previousStatus !== status,
+    github,
+    discord: {
+      edited: discordEdit,
+      notified: discordNotify,
+    },
   };
 }

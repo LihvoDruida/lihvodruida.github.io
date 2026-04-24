@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { revalidatePath } from "next/cache";
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
 import { ApplicationItem, listApplications, updateApplicationStatus } from "@/lib/github";
