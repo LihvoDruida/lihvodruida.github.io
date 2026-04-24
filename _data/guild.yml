@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-24 02:45:22'
+  updated_at: '2026-04-24 06:09:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13256
-      region: 5895
+      world: 13260
+      region: 5896
       realm: 55
     heroic:
-      world: 15733
+      world: 15745
       region: 6618
       realm: 54
     mythic:
-      world: 6135
+      world: 6147
       region: 2670
       realm: 22
   blackrock-depths:
@@ -5914,7 +5914,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Ionax
-    item_level_equipped: 107
+    item_level_equipped: 135
     mythic_plus_scores:
       all:
         score: 0
