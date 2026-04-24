@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-24 06:09:59'
+  updated_at: '2026-04-24 09:46:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 113
+  member_count: 114
   achievement_points: 425
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13260
+      world: 13261
       region: 5896
       realm: 55
     heroic:
-      world: 15745
-      region: 6618
+      world: 15748
+      region: 6619
       realm: 54
     mythic:
-      world: 6147
+      world: 6150
       region: 2670
       realm: 22
   blackrock-depths:
@@ -1364,6 +1364,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Ionax
+    id: 187313489
+    level: 86
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Ionax
+    item_level_equipped: 135
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Krouli
@@ -1805,11 +1857,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2866.4
-        color: '#2e6ddf'
+        score: 2940.6
+        color: '#6062e3'
       dps:
-        score: 2866.4
-        color: '#2e6ddf'
+        score: 2940.6
+        color: '#6062e3'
       healer:
         score: 0
         color: '#ffffff'
@@ -1823,8 +1875,8 @@ members:
         score: 361
         color: '#f4ffef'
       spec_2:
-        score: 2866.4
-        color: '#2e6ddf'
+        score: 2940.6
+        color: '#6062e3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5894,34 +5946,34 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Ionax
-    id: 187313489
-    level: 86
+    name: Krekor
+    id: 183530392
+    level: 90
     realm:
-      id: 506
-      slug: draenor
+      id: 1306
+      slug: tarren-mill
     playable_class:
-      id: 8
-      name: Mage
+      id: 10
+      name: Monk
     playable_race:
-      id: 4
-      name: Night Elf
+      id: 35
+      name: Vulpera
     faction:
-      type: ALLIANCE
-    gender: female
+      type: HORDE
+    gender: male
     active_spec:
-      name: Frost
+      name: Windwalker
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Ionax
-    item_level_equipped: 135
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
+    item_level_equipped: 248
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 718
+        color: '#d8ffc9'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 718
+        color: '#d8ffc9'
       healer:
         score: 0
         color: '#ffffff'
@@ -5935,8 +5987,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 718
+        color: '#d8ffc9'
       spec_3:
         score: 0
         color: '#ffffff'

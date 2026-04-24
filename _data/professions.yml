@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-24 06:09:59'
+  updated_at: '2026-04-24 09:46:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 113
+  member_count: 114
 characters:
 - name: Бреинор
   region: eu
@@ -1442,6 +1442,14 @@ characters:
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
+- name: Ionax
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Ionax
+  professions:
+    primaries: []
+    secondaries: []
 - name: Krouli
   region: eu
   realm: terokkar
@@ -5938,11 +5946,59 @@ characters:
         learned_points: 25
         max_points: 100
     secondaries: []
-- name: Ionax
+- name: Krekor
   region: eu
-  realm: draenor
-  realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Ionax
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
   professions:
-    primaries: []
-    secondaries: []
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Herbalism
+        learned_points: 86
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 32
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Legion Alchemy
+        learned_points: 1
+        max_points: 100
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Alchemy
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Alchemy
+        learned_points: 1
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 2
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Fishing
+        learned_points: 34
+        max_points: 300
