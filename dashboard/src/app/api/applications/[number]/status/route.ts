@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAuthenticated } from "@/src/lib/auth";
+import { getSessionUser, isAuthenticated } from "@/src/lib/auth";
 import { updateApplicationStatus } from "@/src/lib/github";
 import { normalizeStatus } from "@/src/lib/status";
 
@@ -34,7 +34,8 @@ export async function POST(request: Request, context: { params: Promise<{ number
   }
 
   try {
-    await updateApplicationStatus(issueNumber, status, "Dashboard");
+    const user = await getSessionUser();
+    await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
     return NextResponse.json({ ok: true, issue_number: issueNumber, status });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });

@@ -50,3 +50,5 @@ h1 { margin: 8px 0 8px; font-size: clamp(30px, 4vw, 52px); line-height: 1.02; le
 .error { color: #fecaca; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); padding: 12px; border-radius: 14px; }
 .empty { padding: 28px; text-align: center; color: var(--muted); }
 @media (max-width: 840px) { .toolbar { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } .card { grid-template-columns: 1fr; } .actions { flex-wrap: wrap; } }
+.admin-box { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.admin-box span { border: 1px solid var(--line); border-radius: 999px; padding: 9px 12px; background: rgba(148, 163, 184, 0.08); }

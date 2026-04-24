@@ -1,4 +1,4 @@
-import { isAuthenticated } from "@/src/lib/auth";
+import { getSessionUser, isAuthenticated } from "@/src/lib/auth";
 import { listApplications, updateApplicationStatus } from "@/src/lib/github";
 import { STATUS, StatusKey } from "@/src/lib/status";
 import { redirect } from "next/navigation";
@@ -18,11 +18,13 @@ async function setStatus(formData: FormData) {
   if (!Number.isInteger(issueNumber) || issueNumber <= 0) return;
   if (status !== "accepted" && status !== "declined") return;
   if (!(await isAuthenticated())) return;
-  await updateApplicationStatus(issueNumber, status, "Dashboard");
+  const user = await getSessionUser();
+  await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!(await isAuthenticated())) redirect("/login");
+  const user = await getSessionUser();
   const params = await searchParams;
   const urlParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) urlParams.set(key, value);
@@ -43,7 +45,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <h1>Заявки до гільдії</h1>
           <p className="lead">Безпечна панель для перегляду, фільтрації та швидкого рішення по заявках. GitHub token працює тільки на сервері.</p>
         </div>
-        <form method="post" action="/api/auth/logout"><button className="btn" type="submit">Вийти</button></form>
+        <div className="admin-box"><span>Адмін: {user?.name || user?.login}</span><form method="post" action="/api/auth/logout"><button className="btn" type="submit">Вийти</button></form></div>
       </header>
 
       <section className="stats">
