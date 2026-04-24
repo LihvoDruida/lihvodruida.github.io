@@ -105,3 +105,56 @@ h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.02em; }
 .settings-note code { color: var(--cyan); background: rgba(34, 211, 238, 0.10); padding: 2px 6px; border-radius: 8px; }
 .admin-card { grid-template-columns: 44px 1fr auto auto; }
 @media (max-width: 760px) { .compact-hero { grid-template-columns: 1fr; } .admin-card { grid-template-columns: 40px 1fr; } .admin-card > a, .admin-card form { grid-column: 1 / -1; } }
+
+
+.action-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.action-panel button:disabled,
+.action-button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+  filter: saturate(0.7);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  background: rgba(212, 166, 58, 0.18);
+  color: #f6d77a;
+}
+
+.status-pill--accepted {
+  background: rgba(59, 165, 93, 0.18);
+  color: #8df0ad;
+}
+
+.status-pill--declined {
+  background: rgba(237, 66, 69, 0.18);
+  color: #ff9a9c;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.sync-message {
+  min-height: 18px;
+  text-align: center;
+  color: var(--muted, #93a4b8);
+}
+
+.sync-message--error {
+  color: #ff9a9c;
+}

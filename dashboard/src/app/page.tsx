@@ -1,10 +1,9 @@
+import ApplicationStatusActions from "@/components/ApplicationStatusActions";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-import { revalidatePath } from "next/cache";
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
-import { ApplicationItem, listApplications, updateApplicationStatus } from "@/lib/github";
+import { ApplicationItem, listApplications } from "@/lib/github";
 import { STATUS, StatusKey } from "@/lib/status";
-import { redirect } from "next/navigation";
 
 function formatDate(value?: string | null) {
   if (!value) return "Дата невідома";
@@ -124,20 +123,6 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   );
 }
 
-async function setStatus(formData: FormData) {
-  "use server";
-  const issueNumber = Number(formData.get("issueNumber") || 0);
-  const status = String(formData.get("status") || "") as StatusKey;
-  if (!Number.isInteger(issueNumber) || issueNumber <= 0) return;
-  if (status !== "accepted" && status !== "declined") return;
-  if (!(await isAuthenticated())) return;
-  const user = await getSessionUser();
-  if (!canModerate(user)) return;
-  await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
-  revalidatePath("/");
-  redirect("/");
-}
-
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!(await isAuthenticated())) redirect("/login");
   const user = await getSessionUser();
@@ -230,18 +215,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
             <aside className="actions-panel">
               <StatusBadge status={item.status_key} />
-              <div className="action-stack">
-                <form action={setStatus}>
-                  <input type="hidden" name="issueNumber" value={item.number} />
-                  <input type="hidden" name="status" value="accepted" />
-                  <button className="btn accept" type="submit" disabled={!mayModerate || item.status_key !== "review"}>Прийняти</button>
-                </form>
-                <form action={setStatus}>
-                  <input type="hidden" name="issueNumber" value={item.number} />
-                  <input type="hidden" name="status" value="declined" />
-                  <button className="btn decline" type="submit" disabled={!mayModerate || item.status_key !== "review"}>Відхилити</button>
-                </form>
-              </div>
+              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} />
               <small>{item.state === "closed" ? "Issue закрито" : "Issue відкрито"}</small>
             </aside>
           </article>
