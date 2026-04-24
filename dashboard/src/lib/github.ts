@@ -26,8 +26,9 @@ export type RaiderIoRaidBlock = {
 };
 
 export type RaiderIoApplicationData = {
-  profile_url?: string;
-  thumbnail_url?: string;
+  profile_url?: string | null;
+  thumbnail_url?: string | null;
+  profile_banner?: string | null;
   mythic_plus?: {
     current?: RaiderIoScoreBlock;
     previous?: RaiderIoScoreBlock;
@@ -56,12 +57,12 @@ export type ApplicationItem = {
   class_name?: string;
   source?: string;
   availability?: string;
+  avatar_url?: string | null;
+  profile_url?: string | null;
   raider_io?: RaiderIoApplicationData | null;
   raider_io_error?: string | null;
-  avatar_url?: string | null;
   labels: string[];
 };
-
 
 export function normalizeStatus(value: string): ApplicationStatus {
   if (value === "accepted") return "accepted";
@@ -148,6 +149,162 @@ function extract(body: string, pattern: RegExp) {
   return (String(body || "").match(pattern)?.[1] || "").trim();
 }
 
+function slugifyRaiderIoValue(value?: string) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function normalizeScoreBlock(season: any): RaiderIoScoreBlock {
+  const scores = season?.scores || {};
+  return {
+    all: scores.all ?? null,
+    dps: scores.dps ?? null,
+    healer: scores.healer ?? null,
+    tank: scores.tank ?? null,
+  };
+}
+
+function prettifyRaidKey(key?: string) {
+  return String(key || "")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function hasRaidProgressData(raid: any) {
+  if (!raid || typeof raid !== "object") return false;
+  if (String(raid.summary || "").trim()) return true;
+
+  return (
+    Number(raid.normal_bosses_killed || 0) > 0 ||
+    Number(raid.heroic_bosses_killed || 0) > 0 ||
+    Number(raid.mythic_bosses_killed || 0) > 0
+  );
+}
+
+function normalizeRaidBlock(key: string, raid: any): RaiderIoRaidBlock {
+  return {
+    key,
+    name: prettifyRaidKey(key),
+    summary: String(raid?.summary || "").trim() || undefined,
+    total_bosses: Number(raid?.total_bosses || 0) || undefined,
+    normal_bosses_killed: Number(raid?.normal_bosses_killed || 0) || undefined,
+    heroic_bosses_killed: Number(raid?.heroic_bosses_killed || 0) || undefined,
+    mythic_bosses_killed: Number(raid?.mythic_bosses_killed || 0) || undefined,
+  };
+}
+
+function splitRaidProgressionByExpansion(raidProgression: any) {
+  const entries = Object.entries(raidProgression || {})
+    .map(([key, value]: [string, any]) => ({
+      key,
+      ...(value || {}),
+    }))
+    .filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+
+  const grouped = new Map<number, any[]>();
+
+  for (const raid of entries) {
+    const expansionId = Number(raid.expansion_id);
+    if (!grouped.has(expansionId)) grouped.set(expansionId, []);
+    grouped.get(expansionId)!.push(raid);
+  }
+
+  const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+
+  return {
+    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
+  };
+}
+
+export async function fetchRaiderIoForApplication(item: ApplicationItem): Promise<{
+  data: RaiderIoApplicationData | null;
+  error: string | null;
+}> {
+  const region = String(item.region || "").toLowerCase();
+  const realm = slugifyRaiderIoValue(item.realm);
+  const name = slugifyRaiderIoValue(item.character_name);
+
+  if (!region || !realm || !name) {
+    return {
+      data: null,
+      error: "Не вистачає region/realm/name для Raider.IO.",
+    };
+  }
+
+  const url = new URL("https://raider.io/api/v1/characters/profile");
+  url.searchParams.set("region", region);
+  url.searchParams.set("realm", realm);
+  url.searchParams.set("name", name);
+  url.searchParams.set(
+    "fields",
+    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
+  );
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
+
+    const raw = await response.text();
+    let payload: any = null;
+    try {
+      payload = raw ? JSON.parse(raw) : null;
+    } catch {
+      payload = null;
+    }
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: payload?.message || payload?.error || `Raider.IO HTTP ${response.status}`,
+      };
+    }
+
+    const seasons = Array.isArray(payload?.mythic_plus_scores_by_season)
+      ? payload.mythic_plus_scores_by_season
+      : [];
+
+    const raidGroups = splitRaidProgressionByExpansion(payload?.raid_progression);
+
+    return {
+      data: {
+        profile_url: payload?.profile_url || null,
+        thumbnail_url: payload?.thumbnail_url || null,
+        profile_banner: payload?.profile_banner || null,
+        mythic_plus: {
+          current: normalizeScoreBlock(seasons[0]),
+          previous: normalizeScoreBlock(seasons[1]),
+        },
+        raids: {
+          current: raidGroups.current
+            .filter(hasRaidProgressData)
+            .slice(0, 8)
+            .map((raid: any) => normalizeRaidBlock(raid.key, raid)),
+          previous: raidGroups.previous
+            .filter(hasRaidProgressData)
+            .slice(0, 8)
+            .map((raid: any) => normalizeRaidBlock(raid.key, raid)),
+        },
+      },
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Не вдалося отримати Raider.IO.",
+    };
+  }
+}
+
 export function mapApplicationIssue(issue: any): ApplicationItem {
   const body = String(issue.body || "");
   const status = getIssueStatusFromLabels(issue.labels || []);
@@ -169,6 +326,8 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     class_name: extract(body, /- Клас: (.+)/),
     source: extract(body, /- Звідки дізнався: (.+)/),
     availability: body.split("### Коли зазвичай грає")[1]?.trim() || "",
+    avatar_url: null,
+    profile_url: null,
     raider_io: null,
     raider_io_error: null,
     labels: Array.isArray(issue.labels) ? issue.labels.map((label: any) => label.name) : [],
@@ -211,12 +370,24 @@ export async function listApplications(params?: URLSearchParams) {
         item.class_name,
         item.source,
         item.availability,
-      ]
-        .some((value) => String(value || "").toLowerCase().includes(query))
+      ].some((value) => String(value || "").toLowerCase().includes(query))
     );
   }
 
-  return items;
+  const enriched = await Promise.all(
+    items.map(async (item) => {
+      const rio = await fetchRaiderIoForApplication(item);
+      return {
+        ...item,
+        avatar_url: rio.data?.thumbnail_url || null,
+        profile_url: rio.data?.profile_url || null,
+        raider_io: rio.data,
+        raider_io_error: rio.error,
+      };
+    })
+  );
+
+  return enriched;
 }
 
 export async function setIssueStatus(params: {

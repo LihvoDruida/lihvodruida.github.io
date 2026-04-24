@@ -178,7 +178,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <article className={`card panel ${item.status_key}`} key={item.number}>
             <div className="card-main">
               <div className="character-head">
-                {item.raider_io?.thumbnail_url ? <img className="character-avatar" src={item.raider_io.thumbnail_url} alt="" /> : <div className="character-avatar placeholder">{(item.character_name || "?").charAt(0)}</div>}
+                {item.avatar_url || item.raider_io?.thumbnail_url ? <img className="character-avatar" src={item.raider_io.thumbnail_url} alt="" /> : <div className="character-avatar placeholder">{(item.character_name || "?").charAt(0)}</div>}
                 <div>
                   <h2>#{item.number} • {item.character_name || item.title}</h2>
                   <div className="meta">
