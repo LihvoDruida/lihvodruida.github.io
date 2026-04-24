@@ -1,5 +1,6 @@
 import ApplicationStatusActions from "@/components/ApplicationStatusActions";
 import { redirect } from "next/navigation";
+import DashboardIdentity from "@/components/DashboardIdentity";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
@@ -142,6 +143,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="container">
+      <DashboardIdentity user={user} />
       <header className="hero panel">
         <div className="hero-copy">
           <div className="eyebrow">Mistblossom Vanguard • Secure dashboard</div>

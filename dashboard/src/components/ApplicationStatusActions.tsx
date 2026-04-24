@@ -15,15 +15,26 @@ const LABELS: Record<StatusKey, string> = {
   declined: "Відхилено",
 };
 
+const BUSY_LABELS: Record<Exclude<StatusKey, "review">, string> = {
+  accepted: "Приймаємо...",
+  declined: "Відхиляємо...",
+};
+
 export default function ApplicationStatusActions({ issueNumber, initialStatus }: Props) {
   const [status, setStatus] = useState<StatusKey>(initialStatus);
-  const [pendingStatus, setPendingStatus] = useState<StatusKey | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<Exclude<StatusKey, "review"> | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
   const busy = isPending || pendingStatus !== null;
 
-  const statusText = useMemo(() => LABELS[status] || LABELS.review, [status]);
+  const statusText = useMemo(() => {
+    if (busy && pendingStatus) return "Виконується...";
+    return LABELS[status] || LABELS.review;
+  }, [busy, pendingStatus, status]);
+
+  const canAccept = !busy && status !== "accepted";
+  const canDecline = !busy && status !== "declined";
 
   function moderate(nextStatus: Exclude<StatusKey, "review">) {
     if (busy || status === nextStatus) return;
@@ -31,7 +42,7 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
     const previousStatus = status;
     setStatus(nextStatus);
     setPendingStatus(nextStatus);
-    setMessage("Виконується синхронізація...");
+    setMessage("Синхронізуємо GitHub і Discord...");
 
     startTransition(async () => {
       try {
@@ -52,11 +63,14 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
 
         const confirmedStatus = (data?.status || nextStatus) as StatusKey;
         setStatus(confirmedStatus);
-        setMessage(
-          data?.discord?.edited?.ok
-            ? "Готово. GitHub і Discord синхронізовано."
-            : "Готово. GitHub оновлено, Discord отримав fallback-повідомлення або був пропущений."
-        );
+
+        if (data?.discord?.edited?.ok) {
+          setMessage("Готово. GitHub Issue і Discord embed оновлено.");
+        } else if (data?.discord?.notified?.ok) {
+          setMessage("Готово. GitHub оновлено, у Discord надіслано повідомлення.");
+        } else {
+          setMessage("Готово. GitHub оновлено. Discord не підтвердив редагування.");
+        }
       } catch (error) {
         setStatus(previousStatus);
         setMessage(error instanceof Error ? error.message : "Помилка синхронізації.");
@@ -67,34 +81,36 @@ export default function ApplicationStatusActions({ issueNumber, initialStatus }:
   }
 
   return (
-    <div className="action-panel" data-status={status}>
+    <div className="action-panel" data-status={status} data-busy={busy ? "true" : "false"}>
       <div className={`status-pill status-pill--${status}`}>
         <span className="status-dot" />
-        {busy ? "Виконується..." : statusText}
+        {statusText}
       </div>
 
       <button
         type="button"
         className="action-button action-button--accept"
-        disabled={busy || status === "accepted"}
+        disabled={!canAccept}
+        aria-disabled={!canAccept}
         aria-busy={pendingStatus === "accepted"}
         onClick={() => moderate("accepted")}
       >
-        {pendingStatus === "accepted" ? "Приймаємо..." : "Прийняти"}
+        {pendingStatus === "accepted" ? BUSY_LABELS.accepted : status === "accepted" ? "Вже прийнято" : "Прийняти"}
       </button>
 
       <button
         type="button"
         className="action-button action-button--decline"
-        disabled={busy || status === "declined"}
+        disabled={!canDecline}
+        aria-disabled={!canDecline}
         aria-busy={pendingStatus === "declined"}
         onClick={() => moderate("declined")}
       >
-        {pendingStatus === "declined" ? "Відхиляємо..." : "Відхилити"}
+        {pendingStatus === "declined" ? BUSY_LABELS.declined : status === "declined" ? "Вже відхилено" : "Відхилити"}
       </button>
 
-      <small className={`sync-message ${message.includes("Помилка") ? "sync-message--error" : ""}`}>
-        {message || "Issue відкрито"}
+      <small className={`sync-message ${message.includes("Помилка") || message.includes("не підтвердив") ? "sync-message--warning" : ""}`}>
+        {message || "Очікує дії модератора"}
       </small>
     </div>
   );

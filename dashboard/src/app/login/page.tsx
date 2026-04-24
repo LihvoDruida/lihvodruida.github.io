@@ -1,6 +1,7 @@
 import { isAuthenticated } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+import { getGuildBranding } from "@/lib/branding";
 function errorMessage(code?: string) {
   switch (code) {
     case "not_allowed": return "Твій Discord акаунт не має ролі доступу до dashboard.";
@@ -11,7 +12,8 @@ function errorMessage(code?: string) {
   }
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage({
+  const guild = await getGuildBranding(); searchParams }: { searchParams: Promise<{ error?: string }> }) {
   if (await isAuthenticated()) redirect("/");
   const params = await searchParams;
   const hasDiscord = !!process.env.DISCORD_OAUTH_CLIENT_ID;
@@ -20,6 +22,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="login panel">
       <div className="eyebrow">Mistblossom Vanguard</div>
+      <div className="login-brand"><img src={guild.iconUrl} alt="" /><span>{guild.name}</span></div>
       <h1>Вхід у dashboard</h1>
       <p className="lead">Увійди через Discord. Роль у dashboard визначається автоматично за ролями твого Discord сервера.</p>
       {params.error ? <p className="error">{errorMessage(params.error)}</p> : null}

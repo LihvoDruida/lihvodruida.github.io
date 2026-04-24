@@ -24,6 +24,10 @@ export async function GET(request: NextRequest) {
       fetchDiscordGuildMember(token.access_token),
     ]);
 
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${String(user.avatar).startsWith("a_") ? "gif" : "png"}?size=128`
+      : null;
+
     const role = resolveDashboardRole(member.roles || []);
     if (!role) {
       return NextResponse.redirect(`${getDashboardUrl()}/login?error=access_denied`);
@@ -34,7 +38,8 @@ export async function GET(request: NextRequest) {
       id: String(user.id),
       name: user.global_name || user.username || String(user.id),
       role,
-      avatar: user.avatar || null,
+      avatar: avatarUrl,
+      avatar_url: avatarUrl,
     });
 
     return NextResponse.redirect(`${getDashboardUrl()}/`);

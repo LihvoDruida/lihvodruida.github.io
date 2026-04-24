@@ -158,3 +158,145 @@ h2 { margin: 0 0 8px; font-size: 21px; letter-spacing: -0.02em; }
 .sync-message--error {
   color: #ff9a9c;
 }
+
+
+.dashboard-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto 18px;
+  max-width: 1280px;
+  padding: 14px 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(8, 47, 73, 0.55));
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.guild-mark,
+.discord-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.discord-avatar {
+  margin-left: auto;
+  border-radius: 999px;
+}
+
+.dashboard-identity__text {
+  display: grid;
+  gap: 2px;
+}
+
+.dashboard-identity__text strong {
+  color: #f8fafc;
+  font-size: 15px;
+}
+
+.dashboard-identity__text span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.action-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.action-button {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 900;
+  color: white;
+  transition: transform 160ms ease, opacity 160ms ease, filter 160ms ease;
+}
+
+.action-button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.action-button--accept {
+  background: linear-gradient(135deg, #35a866, #2f9659);
+}
+
+.action-button--decline {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: grayscale(0.45) saturate(0.75);
+  transform: none;
+}
+
+.action-panel[data-busy="true"] .action-button {
+  cursor: wait;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 900;
+  background: rgba(212, 166, 58, 0.18);
+  color: #f6d77a;
+}
+
+.status-pill--accepted {
+  background: rgba(59, 165, 93, 0.2);
+  color: #8df0ad;
+}
+
+.status-pill--declined {
+  background: rgba(237, 66, 69, 0.2);
+  color: #ff9a9c;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.sync-message {
+  min-height: 18px;
+  text-align: center;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.sync-message--warning {
+  color: #fbbf24;
+}
+
+.login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #e2e8f0;
+  font-weight: 900;
+}
+
+.login-brand img {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+}

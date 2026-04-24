@@ -9,6 +9,7 @@ export type DashboardSession = {
   login?: string;
   role: DashboardRole;
   avatar?: string | null;
+  avatar_url?: string | null;
 };
 
 export type SessionUser = DashboardSession;
@@ -81,6 +82,7 @@ export async function verifySessionToken(token?: string | null): Promise<Dashboa
       name: String(parsed.name || "Moderator"),
       role: parsed.role,
       avatar: parsed.avatar || null,
+      avatar_url: parsed.avatar_url || parsed.avatar || null,
     };
   } catch {
     return null;
@@ -184,6 +186,7 @@ export async function createSessionCookie(session: (Partial<DashboardSession> & 
     login: session.login || session.name || "Local admin",
     role: session.role === "moderator" ? "moderator" : "admin",
     avatar: session.avatar || null,
+    avatar_url: session.avatar_url || session.avatar || null,
   });
 }
 
