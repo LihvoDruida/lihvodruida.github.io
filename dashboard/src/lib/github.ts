@@ -162,40 +162,13 @@ function isAlreadyExistsError(error: unknown) {
     .includes("already_exists");
 }
 
-function githubToken() {
-  return process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || "";
-}
-
-function githubPermissionHint(message: string, status: number) {
-  const normalized = String(message || "").toLowerCase();
-
-  if (normalized.includes("resource not accessible by personal access token")) {
-    return [
-      "GitHub токен не має доступу до цього репозиторію або потрібних прав.",
-      "Для панелі потрібен PAT з доступом до репозиторію з правами: Contents: Read and write, Issues: Read and write, Metadata: Read-only.",
-      "Якщо використовується fine-grained PAT — перевір, що вибрано саме цей репозиторій, а не тільки профіль/організацію.",
-      "Після зміни токена онови GITHUB_TOKEN або GITHUB_PAT у Vercel/ENV і redeploy.",
-    ].join(" ");
-  }
-
-  if (status === 401 || normalized.includes("bad credentials")) {
-    return "GitHub токен неправильний або прострочений. Онови GITHUB_TOKEN/GITHUB_PAT у ENV і зроби redeploy.";
-  }
-
-  if (status === 403) {
-    return `GitHub відхилив запит через недостатні права токена: ${message}`;
-  }
-
-  return message || `GitHub API error ${status}`;
-}
-
 export async function githubFetch(path: string, init: RequestInit = {}) {
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
-  const token = githubToken();
+  const token = process.env.GITHUB_TOKEN;
 
   if (!owner || !repo || !token) {
-    throw new Error("GitHub ENV не налаштовано. Потрібні GITHUB_OWNER, GITHUB_REPO і GITHUB_TOKEN або GITHUB_PAT.");
+    throw new Error("GitHub env is not configured");
   }
 
   const response = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
@@ -218,8 +191,7 @@ export async function githubFetch(path: string, init: RequestInit = {}) {
       const data = raw ? JSON.parse(raw) : null;
       message = data?.message || message;
     } catch {}
-
-    throw new Error(githubPermissionHint(message, response.status));
+    throw new Error(message);
   }
 
   if (response.status === 204) return null;

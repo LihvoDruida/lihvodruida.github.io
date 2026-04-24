@@ -4135,3 +4135,112 @@ button,
     border-radius: 13px;
   }
 }
+
+/* Content preview base polish: published images are shown from the public site domain. */
+.image-field-shell {
+  grid-template-columns: minmax(0, 0.72fr) minmax(280px, 0.92fr);
+}
+
+.image-preview-card.has-image {
+  grid-template-columns: 156px minmax(0, 1fr);
+  min-height: 118px;
+  padding: 12px;
+}
+
+.image-preview-card.has-image img {
+  width: 156px;
+  height: 94px;
+  border-radius: 14px;
+}
+
+.image-preview-card.has-image .image-preview-meta strong {
+  font-size: 13px;
+}
+
+.content-row-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.content-row-actions .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .image-preview-card.has-image {
+    grid-template-columns: 132px minmax(0, 1fr);
+  }
+
+  .image-preview-card.has-image img {
+    width: 132px;
+    height: 82px;
+  }
+}
+
+@media (max-width: 640px) {
+  .image-preview-card.has-image {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .image-preview-card.has-image img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* Content editor cleanup: while editor is open, the library stays on /content only; media preview is large and uses the public site base URL from the component. */
+.content-editor-panel .image-field-shell {
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.content-editor-panel .image-preview-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  min-height: 220px;
+  padding: 12px;
+}
+
+.content-editor-panel .image-preview-card img,
+.content-editor-panel .image-preview-placeholder {
+  width: 100%;
+  height: auto;
+  min-height: 168px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.content-editor-panel .image-preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-editor-panel .image-preview-meta {
+  padding: 2px 2px 0;
+}
+
+.content-editor-panel .image-preview-meta small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .content-editor-panel .image-field-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .content-editor-panel .image-preview-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-editor-panel .image-preview-card img,
+  .content-editor-panel .image-preview-placeholder {
+    min-height: 150px;
+  }
+}

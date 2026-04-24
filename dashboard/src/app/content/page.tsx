@@ -7,6 +7,27 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+function sitePreviewBaseUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SITE_BASE_URL ||
+    process.env.SITE_BASE_URL ||
+    "https://lihvodruida.pp.ua"
+  ).replace(/\/+$/, "");
+}
+
+function publicAssetUrl(path?: string) {
+  const value = String(path || "").trim();
+  if (!value) return "";
+  if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("blob:")) return value;
+  return `${sitePreviewBaseUrl()}/${value.replace(/^\/+/, "")}`;
+}
+
+function contentPublicHref(item: SiteContentItem) {
+  const collection = item.kind === "news" ? "news" : "guides";
+  const slug = item.slug || item.name.replace(/^(\d{4}-\d{2}-\d{2})-/, "").replace(/\.md$/i, "");
+  return `${sitePreviewBaseUrl()}/${collection}/${slug}/`;
+}
+
 
 function contentTypeLabel(kind: SiteContentItem["kind"]) {
   return kind === "news" ? "Новина" : "Гайд";
@@ -113,7 +134,7 @@ function CreateContentForm({ author }: { author: string }) {
               <input className="input" name="authorPreview" value={author} readOnly />
               <small>Береться з Discord-імені адміністратора.</small>
             </label>
-            <ContentImageField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" />
+            <ContentImageField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" previewBaseUrl={sitePreviewBaseUrl()} />
           </div>
         </FormSection>
 
@@ -195,7 +216,7 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
               <input className="input" name="author" defaultValue={item.author || author} />
               <small>Для нових матеріалів автор береться з Discord-імені.</small>
             </label>
-            <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} />
+            <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} previewBaseUrl={sitePreviewBaseUrl()} />
           </div>
 
           <label className="inline-check inline-check--card">
@@ -260,7 +281,7 @@ function ContentLibraryGroup({
               <article className={`content-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
                 <a className="content-row-main" href={editHref(item.path)} aria-current={active ? "page" : undefined}>
                   <span className="content-row-thumb" aria-hidden="true">
-                    {item.image ? <img src={item.image} alt="" /> : <span>{contentTypeLabel(item.kind).slice(0, 1)}</span>}
+                    {item.image ? <img src={publicAssetUrl(item.image)} alt="" /> : <span>{contentTypeLabel(item.kind).slice(0, 1)}</span>}
                   </span>
                   <span className="content-row-title">
                     <strong>{item.title}</strong>
@@ -275,6 +296,7 @@ function ContentLibraryGroup({
 
                 <div className="content-row-actions">
                   <a className="btn subtle" href={editHref(item.path)}>Редагувати</a>
+                  <a className="btn subtle" href={contentPublicHref(item)} target="_blank" rel="noreferrer">Превʼю</a>
                   <form method="post" action="/api/content/delete">
                     <input type="hidden" name="path" value={item.path} />
                     <button className="btn danger" type="submit">Видалити</button>
@@ -330,37 +352,39 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             isCreateMode ? <CreateContentForm author={user.name} /> : selectedItem ? <EditContentForm item={selectedItem} author={user.name} /> : null
           ) : null}
 
-          <section className="content-list panel content-list--page" aria-label="Список матеріалів сайту">
-            <div className="content-section-head content-section-head--toolbar">
-              <div>
-                <span className="eyebrow">Content library</span>
-                <h2>Список матеріалів</h2>
+          {!showEditor ? (
+            <section className="content-list panel content-list--page" aria-label="Список матеріалів сайту">
+              <div className="content-section-head content-section-head--toolbar">
+                <div>
+                  <span className="eyebrow">Content library</span>
+                  <h2>Список матеріалів</h2>
+                </div>
+                <div className="content-toolbar-actions">
+                  <small>{items.length} матеріалів</small>
+                  <a className="btn primary" href="/content?new=1">Додати матеріал</a>
+                </div>
               </div>
-              <div className="content-toolbar-actions">
-                <small>{items.length} матеріалів</small>
-                <a className="btn primary" href="/content?new=1">Додати матеріал</a>
-              </div>
-            </div>
-
-            {items.length === 0 ? (
-              <p className="content-empty">Матеріали не знайдено або GitHub API не повернув колекції.</p>
-            ) : (
-              <div className="content-library-split">
-                <ContentLibraryGroup
-                  title="Новини"
-                  description="Матеріали з колекції _news для головної стрічки сайту."
-                  items={newsItems}
-                  selectedPath={selectedItem?.path}
-                />
-                <ContentLibraryGroup
-                  title="Гайди"
-                  description="Матеріали з колекції _guides: рейди, класи, довідники та сезонні гайди."
-                  items={guideItems}
-                  selectedPath={selectedItem?.path}
-                />
-              </div>
-            )}
-          </section>
+  
+              {items.length === 0 ? (
+                <p className="content-empty">Матеріали не знайдено або GitHub API не повернув колекції.</p>
+              ) : (
+                <div className="content-library-split">
+                  <ContentLibraryGroup
+                    title="Новини"
+                    description="Матеріали з колекції _news для головної стрічки сайту."
+                    items={newsItems}
+                    selectedPath={selectedItem?.path}
+                  />
+                  <ContentLibraryGroup
+                    title="Гайди"
+                    description="Матеріали з колекції _guides: рейди, класи, довідники та сезонні гайди."
+                    items={guideItems}
+                    selectedPath={selectedItem?.path}
+                  />
+                </div>
+              )}
+            </section>
+          ) : null}
         </section>
       )}
     </main>

@@ -6,6 +6,7 @@ type ContentImageFieldProps = {
   label: string;
   hint: string;
   currentImage?: string;
+  previewBaseUrl?: string;
 };
 
 function readableFileSize(size: number) {
@@ -20,7 +21,18 @@ function readableFileSize(size: number) {
   return `${value.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
 }
 
-export default function ContentImageField({ label, hint, currentImage }: ContentImageFieldProps) {
+function withPreviewBase(path: string, baseUrl?: string) {
+  const value = String(path || "").trim();
+  if (!value) return "";
+  if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("blob:")) return value;
+
+  const base = String(baseUrl || "").trim().replace(/\/+$/, "");
+  if (!base) return value;
+
+  return `${base}/${value.replace(/^\/+/, "")}`;
+}
+
+export default function ContentImageField({ label, hint, currentImage, previewBaseUrl }: ContentImageFieldProps) {
   const inputId = useId();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -37,7 +49,8 @@ export default function ContentImageField({ label, hint, currentImage }: Content
   }, [file]);
 
   const hasCurrentImage = Boolean(currentImage);
-  const previewSrc = previewUrl || currentImage || "";
+  const currentPreviewSrc = withPreviewBase(currentImage || "", previewBaseUrl);
+  const previewSrc = previewUrl || currentPreviewSrc || "";
   const previewLabel = useMemo(() => {
     if (file) return `${file.name} • ${readableFileSize(file.size)}`;
     if (currentImage) return currentImage;
