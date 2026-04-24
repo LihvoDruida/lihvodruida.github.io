@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import ContentImageField from "@/components/ContentImageField";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import { listSiteContent, type SiteContentItem } from "@/lib/content";
@@ -39,25 +41,24 @@ function EditorHeader({
   );
 }
 
-function ImageUploadField({ label, hint, currentImage }: { label: string; hint: string; currentImage?: string }) {
+function FormSection({
+  title,
+  hint,
+  children,
+  body,
+}: {
+  title: string;
+  hint: string;
+  children: ReactNode;
+  body?: boolean;
+}) {
   return (
-    <div className="content-field content-field--upload">
-      <span>{label}</span>
-      {currentImage ? <input type="hidden" name="existingImage" value={currentImage} /> : null}
-      <label className="image-upload-control">
-        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
-        <span className="image-upload-icon" aria-hidden="true">+</span>
-        <span className="image-upload-text">
-          <strong>Додати картинку</strong>
-          <small>{hint}</small>
-        </span>
-      </label>
-      {currentImage ? (
-        <div className="current-image-path">
-          <span>Поточна:</span>
-          <code>{currentImage}</code>
-        </div>
-      ) : null}
+    <div className={`content-form-section${body ? " content-form-section--body" : ""}`}>
+      <div className="content-form-section-head">
+        <strong>{title}</strong>
+        <small>{hint}</small>
+      </div>
+      {children}
     </div>
   );
 }
@@ -68,59 +69,65 @@ function CreateContentForm({ author }: { author: string }) {
       <EditorHeader mode="create" eyebrow="Створення" title="Новий матеріал" />
 
       <form className="content-form content-form--modern" method="post" action="/api/content/create" encType="multipart/form-data">
-        <div className="form-row two">
-          <label className="content-field">
-            <span>Тип матеріалу</span>
-            <select className="select modern-select" name="kind" defaultValue="news" required>
-              <option value="news">Новина</option>
-              <option value="guides">Гайд</option>
-            </select>
+        <FormSection title="Основне" hint="Тип матеріалу, заголовок, slug і короткий SEO-опис.">
+          <div className="form-row two">
+            <label className="content-field">
+              <span>Тип матеріалу</span>
+              <select className="select modern-select" name="kind" defaultValue="news" required>
+                <option value="news">Новина</option>
+                <option value="guides">Гайд</option>
+              </select>
+            </label>
+            <label className="content-field">
+              <span>Slug</span>
+              <input className="input" name="slug" placeholder="згенерується автоматично" />
+            </label>
+          </div>
+
+          <label className="content-field content-field--wide">
+            <span>Заголовок</span>
+            <input className="input" name="title" placeholder="Наприклад: Новий рейдовий розклад" minLength={3} required />
           </label>
-          <label className="content-field">
-            <span>Slug</span>
-            <input className="input" name="slug" placeholder="згенерується автоматично" />
+
+          <label className="content-field content-field--wide">
+            <span>Короткий опис</span>
+            <textarea className="input textarea compact" name="description" placeholder="Короткий SEO-опис для картки та сторінки матеріалу" minLength={12} required />
           </label>
-        </div>
+        </FormSection>
 
-        <label className="content-field content-field--wide">
-          <span>Заголовок</span>
-          <input className="input" name="title" placeholder="Наприклад: Новий рейдовий розклад" minLength={3} required />
-        </label>
+        <FormSection title="Таксономія і медіа" hint="Категорії, теги, автор і обкладинка матеріалу.">
+          <div className="form-row two">
+            <label className="content-field">
+              <span>Категорії</span>
+              <input className="input" name="categories" placeholder="WoW Midnight, Рейд" />
+            </label>
+            <label className="content-field">
+              <span>Теги</span>
+              <input className="input" name="tags" placeholder="Mistblossom, Raid, Guide" />
+            </label>
+          </div>
 
-        <label className="content-field content-field--wide">
-          <span>Короткий опис</span>
-          <textarea className="input textarea compact" name="description" placeholder="Короткий SEO-опис для картки та сторінки матеріалу" minLength={12} required />
-        </label>
+          <div className="form-row two form-row--balanced">
+            <label className="content-field">
+              <span>Автор</span>
+              <input className="input" name="authorPreview" value={author} readOnly />
+              <small>Береться з Discord-імені адміністратора.</small>
+            </label>
+            <ContentImageField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" />
+          </div>
+        </FormSection>
 
-        <div className="form-row two">
-          <label className="content-field">
-            <span>Категорії</span>
-            <input className="input" name="categories" placeholder="WoW Midnight, Рейд" />
+        <FormSection title="Markdown" hint="Основний текст матеріалу. Підтримуються заголовки, таблиці, посилання і HTML-вставки." body>
+          <label className="content-field content-field--wide">
+            <span>Текст Markdown</span>
+            <textarea className="input textarea markdown-area" name="body" placeholder="## Вступ&#10;&#10;Основний текст матеріалу..." minLength={20} required />
           </label>
-          <label className="content-field">
-            <span>Теги</span>
-            <input className="input" name="tags" placeholder="Mistblossom, Raid, Guide" />
-          </label>
-        </div>
 
-        <div className="form-row two form-row--balanced">
-          <label className="content-field">
-            <span>Автор</span>
-            <input className="input" name="authorPreview" value={author} readOnly />
-            <small>Береться з Discord-імені адміністратора.</small>
-          </label>
-          <ImageUploadField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" />
-        </div>
-
-        <label className="content-field content-field--wide">
-          <span>Текст Markdown</span>
-          <textarea className="input textarea markdown-area" name="body" placeholder="## Вступ&#10;&#10;Основний текст матеріалу..." minLength={20} required />
-        </label>
-
-        <div className="content-actions-row content-actions-row--sticky">
-          <a className="btn subtle" href="/content">Скасувати</a>
-          <button className="btn primary" type="submit">Опублікувати</button>
-        </div>
+          <div className="content-actions-row content-actions-row--sticky">
+            <a className="btn subtle" href="/content">Скасувати</a>
+            <button className="btn primary" type="submit">Опублікувати</button>
+          </div>
+        </FormSection>
       </form>
     </section>
   );
@@ -134,74 +141,80 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
       <form className="content-form content-form--modern" method="post" action="/api/content/update" encType="multipart/form-data">
         <input type="hidden" name="path" value={item.path} />
 
-        <div className="form-row three">
-          <label className="content-field">
-            <span>Тип</span>
-            <select className="select modern-select" name="kind" defaultValue={item.kind} required>
-              <option value="news">Новина</option>
-              <option value="guides">Гайд</option>
-            </select>
-          </label>
-          <label className="content-field">
-            <span>Дата</span>
-            <input className="input" type="date" name="date" defaultValue={item.date} required />
-          </label>
-          <label className="content-field">
-            <span>Оновлено</span>
-            <input className="input" type="date" name="lastModifiedAt" defaultValue={new Date().toISOString().slice(0, 10)} required />
-          </label>
-        </div>
+        <FormSection title="Основне" hint="Тип, дати, заголовок, slug і опис сторінки.">
+          <div className="form-row three">
+            <label className="content-field">
+              <span>Тип</span>
+              <select className="select modern-select" name="kind" defaultValue={item.kind} required>
+                <option value="news">Новина</option>
+                <option value="guides">Гайд</option>
+              </select>
+            </label>
+            <label className="content-field">
+              <span>Дата</span>
+              <input className="input" type="date" name="date" defaultValue={item.date} required />
+            </label>
+            <label className="content-field">
+              <span>Оновлено</span>
+              <input className="input" type="date" name="lastModifiedAt" defaultValue={new Date().toISOString().slice(0, 10)} required />
+            </label>
+          </div>
 
-        <div className="form-row two">
-          <label className="content-field">
-            <span>Заголовок</span>
-            <input className="input" name="title" defaultValue={item.title} minLength={3} required />
+          <div className="form-row two">
+            <label className="content-field">
+              <span>Заголовок</span>
+              <input className="input" name="title" defaultValue={item.title} minLength={3} required />
+            </label>
+            <label className="content-field">
+              <span>Slug</span>
+              <input className="input" name="slug" defaultValue={item.slug} required />
+            </label>
+          </div>
+
+          <label className="content-field content-field--wide">
+            <span>Опис</span>
+            <textarea className="input textarea compact" name="description" defaultValue={item.description} minLength={12} required />
           </label>
-          <label className="content-field">
-            <span>Slug</span>
-            <input className="input" name="slug" defaultValue={item.slug} required />
+        </FormSection>
+
+        <FormSection title="Таксономія і медіа" hint="Категорії, теги, автор і обкладинка з живим preview.">
+          <div className="form-row two">
+            <label className="content-field">
+              <span>Категорії</span>
+              <input className="input" name="categories" defaultValue={item.categories} />
+            </label>
+            <label className="content-field">
+              <span>Теги</span>
+              <input className="input" name="tags" defaultValue={item.tags} />
+            </label>
+          </div>
+
+          <div className="form-row two form-row--balanced">
+            <label className="content-field">
+              <span>Автор</span>
+              <input className="input" name="author" defaultValue={item.author || author} />
+              <small>Для нових матеріалів автор береться з Discord-імені.</small>
+            </label>
+            <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} />
+          </div>
+
+          <label className="inline-check inline-check--card">
+            <input type="checkbox" name="removeImage" value="1" />
+            <span>Прибрати обкладинку і поставити placeholder</span>
           </label>
-        </div>
+        </FormSection>
 
-        <label className="content-field content-field--wide">
-          <span>Опис</span>
-          <textarea className="input textarea compact" name="description" defaultValue={item.description} minLength={12} required />
-        </label>
-
-        <div className="form-row two">
-          <label className="content-field">
-            <span>Категорії</span>
-            <input className="input" name="categories" defaultValue={item.categories} />
+        <FormSection title="Markdown" hint="Повний текст матеріалу. Зміни збережуться у відповідному Markdown-файлі." body>
+          <label className="content-field content-field--wide">
+            <span>Markdown</span>
+            <textarea className="input textarea markdown-area" name="body" defaultValue={item.body} minLength={20} required />
           </label>
-          <label className="content-field">
-            <span>Теги</span>
-            <input className="input" name="tags" defaultValue={item.tags} />
-          </label>
-        </div>
 
-        <div className="form-row two form-row--balanced">
-          <label className="content-field">
-            <span>Автор</span>
-            <input className="input" name="author" defaultValue={item.author || author} />
-            <small>Для нових матеріалів автор береться з Discord-імені.</small>
-          </label>
-          <ImageUploadField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} />
-        </div>
-
-        <label className="inline-check inline-check--card">
-          <input type="checkbox" name="removeImage" value="1" />
-          <span>Прибрати обкладинку і поставити placeholder</span>
-        </label>
-
-        <label className="content-field content-field--wide">
-          <span>Markdown</span>
-          <textarea className="input textarea markdown-area" name="body" defaultValue={item.body} minLength={20} required />
-        </label>
-
-        <div className="content-actions-row content-actions-row--sticky">
-          <a className="btn subtle" href="/content">Скасувати</a>
-          <button className="btn primary" type="submit">Зберегти зміни</button>
-        </div>
+          <div className="content-actions-row content-actions-row--sticky">
+            <a className="btn subtle" href="/content">Скасувати</a>
+            <button className="btn primary" type="submit">Зберегти зміни</button>
+          </div>
+        </FormSection>
       </form>
 
       <form className="content-delete-form content-delete-form--standalone" method="post" action="/api/content/delete">
@@ -246,11 +259,14 @@ function ContentLibraryGroup({
             return (
               <article className={`content-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
                 <a className="content-row-main" href={editHref(item.path)} aria-current={active ? "page" : undefined}>
-                  <span className="content-kind">{contentTypeLabel(item.kind)}</span>
+                  <span className="content-row-thumb" aria-hidden="true">
+                    {item.image ? <img src={item.image} alt="" /> : <span>{contentTypeLabel(item.kind).slice(0, 1)}</span>}
+                  </span>
                   <span className="content-row-title">
                     <strong>{item.title}</strong>
                     <small>{item.path}</small>
                   </span>
+                  <span className="content-kind">{contentTypeLabel(item.kind)}</span>
                   <span className="content-row-meta">
                     <time dateTime={item.date}>{item.date || "Без дати"}</time>
                     <small>{item.author || "Без автора"}</small>
