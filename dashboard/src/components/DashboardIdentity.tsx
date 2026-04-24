@@ -1,7 +1,13 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 
-export default async function DashboardIdentity({ user }: { user: DashboardSession | null }) {
+export default async function DashboardIdentity({
+  user,
+  activeSection,
+}: {
+  user: DashboardSession | null;
+  activeSection?: "applications" | "content";
+}) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
 
@@ -18,8 +24,16 @@ export default async function DashboardIdentity({ user }: { user: DashboardSessi
       {user ? (
         <>
           <nav className="dashboard-nav" aria-label="Панель керування">
-            <a href="/">Заявки</a>
-            {user.role === "admin" ? <a href="/content">Новини / гайди</a> : null}
+            <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
+            {user.role === "admin" ? (
+              <a
+                href="/content"
+                className={activeSection === "content" ? "is-active" : undefined}
+                aria-current={activeSection === "content" ? "page" : undefined}
+              >
+                Новини / гайди
+              </a>
+            ) : null}
           </nav>
 
           <div className="dashboard-user">

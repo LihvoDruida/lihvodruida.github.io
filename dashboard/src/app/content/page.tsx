@@ -322,21 +322,49 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   const selectedItem = params.edit ? items.find((item) => item.path === params.edit) : undefined;
   const isCreateMode = params.new === "1" || params.action === "new";
   const showEditor = isCreateMode || selectedItem;
+  const heroMode = isCreateMode ? "create" : selectedItem ? "edit" : "library";
+  const heroTitle = isCreateMode ? "Новий матеріал" : selectedItem ? "Редагування матеріалу" : "Матеріали сайту";
+  const heroEyebrow = isCreateMode
+    ? "Mistblossom Vanguard • Content editor"
+    : selectedItem
+      ? `Mistblossom Vanguard • ${contentTypeLabel(selectedItem.kind)} editor`
+      : "Mistblossom Vanguard • Content panel";
+  const heroLead = isCreateMode
+    ? "Заповни основні дані, додай обкладинку й підготуй Markdown для публікації на основному сайті."
+    : selectedItem
+      ? "Оновлюй заголовок, SEO-опис, категорії, теги, обкладинку та Markdown без зайвих переходів."
+      : "Керуй новинами й гайдами для основного сайту: створюй, редагуй, переглядай і прибирай матеріали з однієї панелі.";
+  const heroNote = isCreateMode
+    ? "Автор автоматично береться з Discord-імені адміністратора."
+    : selectedItem
+      ? `${contentTypeLabel(selectedItem.kind)} • ${selectedItem.date || "без дати"} • ${selectedItem.author || "без автора"}`
+      : "Новини та гайди розділені для зручності.";
+  const heroPath = selectedItem?.path || (isCreateMode ? "Новий Markdown-файл" : `${items.length} матеріалів у бібліотеці`);
 
   return (
     <main className="container">
       <section className="dashboard-shell content-shell" aria-label="Публікація матеріалів Mistblossom Vanguard">
-        <DashboardIdentity user={user} />
-        <header className="hero panel dashboard-hero content-dashboard-hero">
-          <div className="hero-copy dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Content panel</div>
-            <h1>Матеріали сайту</h1>
+        <DashboardIdentity user={user} activeSection="content" />
+        <header className={`hero panel dashboard-hero content-dashboard-hero content-dashboard-hero--${heroMode}`}>
+          <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
+            <div className="eyebrow">{heroEyebrow}</div>
+            <div className="content-hero-status-row" aria-label="Стан редактора">
+              <span className={`content-mode-pill content-mode-pill--${heroMode}`}>
+                {isCreateMode ? "Створення" : selectedItem ? contentTypeLabel(selectedItem.kind) : "Бібліотека"}
+              </span>
+              <span className="content-hero-path">{heroPath}</span>
+            </div>
+            <h1>{heroTitle}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Керуй новинами й гайдами для основного сайту: створюй, редагуй, переглядай і прибирай матеріали з однієї панелі.</p>
+            <p className="lead">{heroLead}</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Новини та гайди розділені для зручності.</span>
-              {isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
+              <span>{heroNote}</span>
+              <div className="content-hero-buttons">
+                {!showEditor && isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
+                {showEditor ? <a className="btn subtle content-add-btn" href="/content">До списку</a> : null}
+                {selectedItem ? <a className="btn ghost content-add-btn" href={contentPublicHref(selectedItem)} target="_blank" rel="noreferrer">Превʼю</a> : null}
+              </div>
             </div>
           </div>
 
