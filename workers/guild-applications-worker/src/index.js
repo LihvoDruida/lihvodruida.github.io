@@ -2,7 +2,7 @@ const DEFAULT_CACHE_SECONDS = 60;
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
 
-const PATHS = new Set(["/", "/api/guild-applications"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -542,6 +542,172 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
   ];
 }
 
+function hexToBytes(hex) {
+  const clean = String(hex || "").trim();
+  if (!clean || clean.length % 2 !== 0) return new Uint8Array();
+  const bytes = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    bytes[i / 2] = parseInt(clean.slice(i, i + 2), 16);
+  }
+  return bytes;
+}
+
+async function verifyDiscordRequest(request, env, rawBody) {
+  const publicKey = String(env.DISCORD_PUBLIC_KEY || "").trim();
+  if (!publicKey) return false;
+
+  const signature = request.headers.get("X-Signature-Ed25519") || "";
+  const timestamp = request.headers.get("X-Signature-Timestamp") || "";
+  if (!signature || !timestamp) return false;
+
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      hexToBytes(publicKey),
+      { name: "Ed25519", namedCurve: "Ed25519" },
+      false,
+      ["verify"]
+    );
+
+    return crypto.subtle.verify(
+      { name: "Ed25519" },
+      key,
+      hexToBytes(signature),
+      new TextEncoder().encode(timestamp + rawBody)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function discordInteractionResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+  });
+}
+
+function buildApplicationButtons(issueNumber) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 3,
+          label: "Прийняти",
+          custom_id: `guild_application:accepted:${issueNumber}`,
+        },
+        {
+          type: 2,
+          style: 4,
+          label: "Відхилити",
+          custom_id: `guild_application:declined:${issueNumber}`,
+        },
+      ],
+    },
+  ];
+}
+
+function getDiscordUserLabel(interaction) {
+  const user = interaction?.member?.user || interaction?.user || {};
+  return user.global_name || user.username || user.id || "Discord moderator";
+}
+
+async function discordApiFetch(env, path, init = {}) {
+  return fetch(`https://discord.com/api/v10${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json; charset=utf-8",
+      ...(init.headers || {}),
+    },
+  });
+}
+
+async function triggerApplicationStatusWorkflow(env, issueNumber, status, moderator) {
+  const workflow = env.APPLICATION_STATUS_WORKFLOW || "application-status.yml";
+  const ref = env.APPLICATION_STATUS_REF || "live";
+
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/actions/workflows/${workflow}/dispatches`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ref,
+        inputs: {
+          issue_number: String(issueNumber),
+          status,
+          moderator: limitText(moderator, 80, "Discord moderator"),
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const { raw, data } = await parseJsonResponse(response);
+    throw new Error(data?.message || raw || `GitHub workflow dispatch failed: ${response.status}`);
+  }
+
+  return { ok: true };
+}
+
+async function handleDiscordInteraction(request, env) {
+  const rawBody = await request.text();
+  const verified = await verifyDiscordRequest(request, env, rawBody);
+  if (!verified) {
+    return new Response("invalid request signature", { status: 401 });
+  }
+
+  const interaction = JSON.parse(rawBody || "{}");
+
+  if (interaction.type === 1) {
+    return discordInteractionResponse({ type: 1 });
+  }
+
+  if (interaction.type !== 3) {
+    return discordInteractionResponse({
+      type: 4,
+      data: { content: "Цей тип взаємодії не підтримується.", flags: 64 },
+    });
+  }
+
+  const customId = String(interaction?.data?.custom_id || "");
+  const match = customId.match(/^guild_application:(accepted|declined):(\d+)$/);
+  if (!match) {
+    return discordInteractionResponse({
+      type: 4,
+      data: { content: "Невідома кнопка заявки.", flags: 64 },
+    });
+  }
+
+  const status = match[1];
+  const issueNumber = match[2];
+  const moderator = getDiscordUserLabel(interaction);
+
+  try {
+    await triggerApplicationStatusWorkflow(env, issueNumber, status, moderator);
+  } catch (error) {
+    return discordInteractionResponse({
+      type: 4,
+      data: {
+        content: `Не вдалося запустити GitHub Action: ${limitText(error?.message, 120, "невідома помилка")}`,
+        flags: 64,
+      },
+    });
+  }
+
+  const label = status === STATUS.ACCEPTED.key ? STATUS.ACCEPTED.label : STATUS.DECLINED.label;
+  return discordInteractionResponse({
+    type: 7,
+    data: {
+      content: `Заявка #${issueNumber}: запущено зміну статусу на **${label}**. Модератор: ${moderator}`,
+      components: [],
+    },
+  });
+}
+
 async function githubFetch(env, path, init = {}) {
   return fetch(`https://api.github.com${path}`, {
     ...init,
@@ -597,33 +763,39 @@ async function createGithubIssue(env, payload) {
 }
 
 async function sendDiscordNotification(env, payload, issue) {
-  const webhookUrl = String(env.DISCORD_WEBHOOK_URL || "").trim();
-  if (!webhookUrl) {
-    return { skipped: true };
+  const botToken = String(env.DISCORD_BOT_TOKEN || "").trim();
+  const channelId = String(env.DISCORD_CHANNEL_ID || "").trim();
+
+  if (!botToken || !channelId) {
+    return { skipped: true, reason: "DISCORD_BOT_TOKEN or DISCORD_CHANNEL_ID is missing" };
   }
 
   const raiderIoResult = await fetchRaiderIoProfile(payload);
-
-  const response = await fetch(webhookUrl, {
+  const response = await discordApiFetch(env, `/channels/${channelId}/messages`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
     body: JSON.stringify({
       allowed_mentions: { parse: [] },
-      username: env.DISCORD_WEBHOOK_USERNAME || "Mistblossom Vanguard • Applications",
-      avatar_url: env.DISCORD_WEBHOOK_AVATAR_URL || undefined,
       embeds: buildDiscordEmbeds(payload, issue, env, raiderIoResult),
+      components: buildApplicationButtons(issue.number),
     }),
   });
 
+  const raw = await response.text().catch(() => "");
+  let data = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = null;
+  }
+
   if (!response.ok) {
-    const raw = await response.text().catch(() => "");
-    throw new Error(raw || `Discord webhook error ${response.status}`);
+    throw new Error(data?.message || raw || `Discord Application message error ${response.status}`);
   }
 
   return {
     ok: true,
+    message_id: data?.id || null,
+    channel_id: data?.channel_id || channelId,
     raider_io: raiderIoResult.ok
       ? { ok: true }
       : { ok: false, error: raiderIoResult.error || "Не вдалося отримати дані Raider.IO." },
@@ -789,6 +961,11 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/discord-interactions" && request.method === "POST") {
+      return handleDiscordInteraction(request, env);
+    }
+
     if (!PATHS.has(url.pathname)) {
       return json(
         { error: "Сторінку не знайдено." },
