@@ -373,13 +373,13 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                     title="Новини"
                     description="Матеріали з колекції _news для головної стрічки сайту."
                     items={newsItems}
-                    selectedPath={selectedItem?.path}
+                    selectedPath={params.edit}
                   />
                   <ContentLibraryGroup
                     title="Гайди"
                     description="Матеріали з колекції _guides: рейди, класи, довідники та сезонні гайди."
                     items={guideItems}
-                    selectedPath={selectedItem?.path}
+                    selectedPath={params.edit}
                   />
                 </div>
               )}
