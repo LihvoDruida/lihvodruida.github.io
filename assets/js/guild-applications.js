@@ -12,20 +12,29 @@
     }
   }
 
-  const STATUS_LABELS = {
-    pending: 'На розгляді',
-    approved: 'Прийнято',
-    declined: 'Відхилено'
+  const STATUS = {
+    review: { label: 'На розгляді', className: 'review', order: 1 },
+    accepted: { label: 'Прийнято', className: 'accepted', order: 2 },
+    declined: { label: 'Відхилено', className: 'declined', order: 3 }
+  };
+
+  const STATUS_ALIASES = {
+    pending: 'review',
+    review: 'review',
+    approved: 'accepted',
+    accepted: 'accepted',
+    rejected: 'declined',
+    declined: 'declined'
   };
 
   function normalizeStatus(item) {
-    if (item && item.status_key) return String(item.status_key).toLowerCase();
-    return 'pending';
+    const key = item && item.status_key ? String(item.status_key).toLowerCase() : 'review';
+    return STATUS_ALIASES[key] || 'review';
   }
 
   function humanStatus(item) {
     const key = normalizeStatus(item);
-    return STATUS_LABELS[key] || item.status_text || 'На розгляді';
+    return (STATUS[key] && STATUS[key].label) || item.status_text || 'На розгляді';
   }
 
   function escapeHtml(value) {
@@ -64,7 +73,7 @@
 
   function renderApplicationCard(item) {
     var statusKey = normalizeStatus(item);
-    var stateClass = statusKey === 'pending' ? 'open' : statusKey;
+    var stateClass = (STATUS[statusKey] && STATUS[statusKey].className) || 'review';
     var meta = [];
     if (item.number) meta.push('№' + item.number);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
@@ -494,7 +503,7 @@
         const dateA = new Date(a.created_at || 0).getTime();
         const dateB = new Date(b.created_at || 0).getTime();
         if (mode === 'oldest') return dateA - dateB;
-        if (mode === 'status') return normalizeStatus(a).localeCompare(normalizeStatus(b), 'uk');
+        if (mode === 'status') return (STATUS[normalizeStatus(a)].order || 0) - (STATUS[normalizeStatus(b)].order || 0);
         if (mode === 'class') return String(a.class_name || '').localeCompare(String(b.class_name || ''), 'uk');
         return dateB - dateA;
       });
@@ -518,8 +527,8 @@
     function updateCounter(items) {
       const total = allItems.length;
       const visible = items.length;
-      const approved = allItems.filter(function (item) { return normalizeStatus(item) === 'approved'; }).length;
-      const open = allItems.filter(function (item) { return normalizeStatus(item) === 'pending'; }).length;
+      const approved = allItems.filter(function (item) { return normalizeStatus(item) === 'accepted'; }).length;
+      const open = allItems.filter(function (item) { return normalizeStatus(item) === 'review'; }).length;
       const declined = allItems.filter(function (item) { return normalizeStatus(item) === 'declined'; }).length;
       const q = getSearchValue();
       const activeFilters = [q, getFilterValue(statusFilter), getFilterValue(classFilter)].filter(Boolean).length;

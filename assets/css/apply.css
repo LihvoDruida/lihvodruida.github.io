@@ -34,6 +34,14 @@
   --apply-radius-lg: 20px;
   --apply-radius-md: 16px;
   --apply-radius-sm: 13px;
+  --status-review: #D4A63A;
+  --status-accepted: #3BA55D;
+  --status-declined: #ED4245;
+  --status-main: #5865F2;
+  --status-review-rgb: 212, 166, 58;
+  --status-accepted-rgb: 59, 165, 93;
+  --status-declined-rgb: 237, 66, 69;
+  --status-main-rgb: 88, 101, 242;
 }
 
 .listing-page--guild-apply,
@@ -64,9 +72,9 @@
   padding: 0 0.75rem;
   margin: 0 0 0.8rem;
   border-radius: 999px;
-  border: 1px solid rgba(212, 160, 61, 0.22);
-  background: rgba(212, 160, 61, 0.12);
-  color: #f3cb84;
+  border: 1px solid rgba(var(--status-review-rgb), 0.28);
+  background: rgba(var(--status-review-rgb), 0.12);
+  color: var(--status-review);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -948,19 +956,22 @@
 }
 
 .application-status-badge--open {
-  color: var(--apply-dark-gold);
-  background: linear-gradient(180deg, #e9ba4d, #d9a33a);
+  color: #241600;
+  background: var(--status-review);
+  box-shadow: 0 0 0 1px rgba(var(--status-review-rgb), 0.2), 0 8px 18px rgba(var(--status-review-rgb), 0.22);
 }
 
-.application-status-badge--approved,
-.application-status-badge--closed {
-  color: var(--apply-success-dark);
-  background: linear-gradient(180deg, #84e2a6, #64ca87);
+.application-status-badge--accepted,
+.application-status-badge--approved {
+  color: #041b0d;
+  background: var(--status-accepted);
+  box-shadow: 0 0 0 1px rgba(var(--status-accepted-rgb), 0.2), 0 8px 18px rgba(var(--status-accepted-rgb), 0.18);
 }
 
 .application-status-badge--declined {
-  color: #3a0d0d;
-  background: linear-gradient(180deg, #ffb0a2, #ef7f70);
+  color: #2c0506;
+  background: var(--status-declined);
+  box-shadow: 0 0 0 1px rgba(var(--status-declined-rgb), 0.22), 0 8px 18px rgba(var(--status-declined-rgb), 0.18);
 }
 
 .application-status-item__desc {
@@ -1657,23 +1668,30 @@
   min-height: 112px;
 }
 
+.application-status-badge--review,
 .application-status-badge--pending,
+.application-status-item--review .application-status-badge,
 .application-status-item--open .application-status-badge,
 .application-status-item--pending .application-status-badge {
-  color: #2d1d05;
-  background: linear-gradient(180deg, #ffd889, #d4a63a);
+  color: #241600;
+  background: var(--status-review);
+  box-shadow: 0 0 0 1px rgba(var(--status-review-rgb), 0.2), 0 8px 18px rgba(var(--status-review-rgb), 0.22);
 }
 
+.application-status-badge--accepted,
 .application-status-badge--approved,
+.application-status-item--accepted .application-status-badge,
 .application-status-item--approved .application-status-badge {
-  color: #062012;
-  background: linear-gradient(180deg, #a8efc1, #5fca88);
+  color: #041b0d;
+  background: var(--status-accepted);
+  box-shadow: 0 0 0 1px rgba(var(--status-accepted-rgb), 0.2), 0 8px 18px rgba(var(--status-accepted-rgb), 0.18);
 }
 
 .application-status-badge--declined,
 .application-status-item--declined .application-status-badge {
-  color: #3a0d0d;
-  background: linear-gradient(180deg, #ffb0a2, #ef7f70);
+  color: #2c0506;
+  background: var(--status-declined);
+  box-shadow: 0 0 0 1px rgba(var(--status-declined-rgb), 0.22), 0 8px 18px rgba(var(--status-declined-rgb), 0.18);
 }
 
 .applications-filter-shell--advanced {
@@ -1748,3 +1766,22 @@
     min-height: auto;
   }
 }
+
+
+.application-status-item--review {
+  border-color: rgba(var(--status-review-rgb), 0.24);
+}
+
+.application-status-item--accepted {
+  border-color: rgba(var(--status-accepted-rgb), 0.24);
+}
+
+.application-status-item--declined {
+  border-color: rgba(var(--status-declined-rgb), 0.24);
+}
+
+.legend-dot--open,
+.legend-dot--review { background: var(--status-review); }
+.legend-dot--approved,
+.legend-dot--accepted { background: var(--status-accepted); }
+.legend-dot--declined { background: var(--status-declined); }

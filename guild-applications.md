@@ -87,8 +87,8 @@ extra_js:
         <span>Статус</span>
         <select id="applications-status-filter" class="applications-native-select">
           <option value="">Усі статуси</option>
-          <option value="pending">На розгляді</option>
-          <option value="approved">Прийнято</option>
+          <option value="review">На розгляді</option>
+          <option value="accepted">Прийнято</option>
           <option value="declined">Відхилено</option>
         </select>
       </label>

@@ -280,7 +280,7 @@ extra_js:
 
       <div class="applications-legend">
         <span><i class="legend-dot"></i> На розгляді</span>
-        <span><i class="legend-dot legend-dot--approved"></i> Прийнято</span>
+        <span><i class="legend-dot legend-dot--accepted"></i> Прийнято</span>
         <span><i class="legend-dot legend-dot--declined"></i> Відхилено</span>
       </div>
 

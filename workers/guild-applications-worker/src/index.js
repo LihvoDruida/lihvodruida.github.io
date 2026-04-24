@@ -6,19 +6,25 @@ const PATHS = new Set(["/", "/api/guild-applications"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
-const STATUS_KEYS = new Set(["pending", "approved", "declined"]);
-
-const ISSUE_STATUS = {
-  PENDING: "На розгляді",
-  APPROVED: "Прийнято",
-  DECLINED: "Відхилено",
+const STATUS = {
+  REVIEW: { key: "review", label: "На розгляді", color: 0xd4a63a },
+  ACCEPTED: { key: "accepted", label: "Прийнято", color: 0x3ba55d },
+  DECLINED: { key: "declined", label: "Відхилено", color: 0xed4245 },
 };
 
-const DISCORD_COLORS = {
-  PENDING: 0xd4a63a,
-  APPROVED: 0x3ba55d,
-  DECLINED: 0xed4245,
+const STATUS_KEYS = new Set(Object.values(STATUS).map((status) => status.key));
+const STATUS_ALIASES = {
+  pending: STATUS.REVIEW.key,
+  review: STATUS.REVIEW.key,
+  approved: STATUS.ACCEPTED.key,
+  accepted: STATUS.ACCEPTED.key,
+  rejected: STATUS.DECLINED.key,
+  declined: STATUS.DECLINED.key,
 };
+
+function normalizeStatusKey(value) {
+  return STATUS_ALIASES[String(value || "").trim().toLowerCase()] || STATUS.REVIEW.key;
+}
 
 function buildCorsHeaders(corsOrigin, status = 200) {
   return {
@@ -197,20 +203,24 @@ function normalizeLabels(issue) {
 function getIssueStatusKey(issue) {
   const labels = normalizeLabels(issue);
 
-  if (labels.includes("status:approved") || labels.includes("status:accepted")) return "approved";
-  if (labels.includes("status:declined") || labels.includes("status:rejected")) return "declined";
-  return "pending";
+  if (labels.includes("status:accepted") || labels.includes("status:approved")) {
+    return STATUS.ACCEPTED.key;
+  }
+  if (labels.includes("status:declined") || labels.includes("status:rejected")) {
+    return STATUS.DECLINED.key;
+  }
+
+  return STATUS.REVIEW.key;
 }
 
 function getIssueStatus(issue) {
   const key = getIssueStatusKey(issue);
-  return ISSUE_STATUS[key.toUpperCase()] || ISSUE_STATUS.PENDING;
+  return Object.values(STATUS).find((status) => status.key === key)?.label || STATUS.REVIEW.label;
 }
 
 function resolveDiscordColor(statusText) {
-  if (statusText === ISSUE_STATUS.APPROVED) return DISCORD_COLORS.APPROVED;
-  if (statusText === ISSUE_STATUS.DECLINED) return DISCORD_COLORS.DECLINED;
-  return DISCORD_COLORS.PENDING;
+  const status = Object.values(STATUS).find((item) => item.label === statusText);
+  return status?.color || STATUS.REVIEW.color;
 }
 
 function slugifyRaiderIoValue(value) {
@@ -680,11 +690,12 @@ async function listApplications(request, env) {
     .filter((issue) => !issue.pull_request)
     .map(mapIssueListItem);
 
-  const status = cleanText(url.searchParams.get("status"), 24).toLowerCase();
+  const rawStatus = cleanText(url.searchParams.get("status"), 24).toLowerCase();
+  const status = normalizeStatusKey(rawStatus);
   const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
   const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
 
-  if (status && status !== "all" && STATUS_KEYS.has(status)) {
+  if (rawStatus && rawStatus !== "all" && STATUS_KEYS.has(status)) {
     items = items.filter((item) => item.status_key === status);
   }
   if (className && className !== "all") {
