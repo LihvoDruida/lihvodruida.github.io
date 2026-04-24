@@ -5216,3 +5216,264 @@ textarea.input {
     min-width: 0;
   }
 }
+
+/* Login auth mobile safe mode: Android Chrome stable rendering.
+   This layer intentionally avoids dynamic viewport units, blur, animated opacity and
+   floating decoration on phones because Chrome address-bar resize can repaint them
+   as flicker or briefly hide the auth content. */
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  html {
+    min-height: 100%;
+    background: #020817;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    background: #020817;
+    overscroll-behavior-y: contain;
+  }
+
+  .auth-ref,
+  .auth-ref *,
+  .auth-ref *::before,
+  .auth-ref *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .auth-ref,
+  .auth-ref-card,
+  .auth-ref-card__content,
+  .auth-ref-actions,
+  .auth-ref-logo,
+  .auth-ref-kicker,
+  .auth-ref-card h1,
+  .auth-ref-copy,
+  .auth-ref-discord,
+  .auth-ref-note,
+  .auth-ref-token,
+  .auth-ref-alert {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+  }
+
+  .auth-ref {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    height: auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: max(14px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
+    color: #eff7ff;
+    background:
+      radial-gradient(circle at 50% -18%, rgba(34, 211, 238, 0.14), transparent 42%),
+      linear-gradient(135deg, #101941 0%, #030b17 54%, #04191d 100%);
+    contain: layout paint;
+  }
+
+  .auth-ref__grid,
+  .auth-ref__ring,
+  .auth-ref__petal,
+  .auth-ref-card__visual,
+  .auth-ref-card::after,
+  .auth-ref-discord::before,
+  .auth-ref-logo span {
+    display: none !important;
+  }
+
+  .auth-ref-card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 420px);
+    max-width: 420px;
+    min-height: 0 !important;
+    margin: 0 auto;
+    display: flex !important;
+    flex-direction: column;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(80, 169, 255, 0.24);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.11), transparent 38%),
+      linear-gradient(180deg, rgba(9, 24, 49, 0.96), rgba(4, 12, 27, 0.98));
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.34),
+      0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    will-change: auto !important;
+  }
+
+  .auth-ref-card::before {
+    display: block !important;
+    opacity: 0.45;
+    background: radial-gradient(circle at 50% 0%, rgba(37, 216, 255, 0.14), transparent 36%);
+  }
+
+  .auth-ref-card__content {
+    position: relative;
+    z-index: 3;
+    padding: 20px 18px 12px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+  }
+
+  .auth-ref-logo {
+    width: 46px !important;
+    height: 46px !important;
+    margin: 0 0 12px !important;
+    flex: 0 0 auto;
+  }
+
+  .auth-ref-logo img {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24), 0 0 18px rgba(37, 216, 255, 0.16);
+  }
+
+  .auth-ref-kicker {
+    margin: 0 0 7px !important;
+    font-size: 9.5px !important;
+    line-height: 1.2;
+    letter-spacing: 0.14em !important;
+  }
+
+  .auth-ref-card h1 {
+    max-width: 300px;
+    margin: 0 !important;
+    font-size: clamp(26px, 8vw, 34px) !important;
+    line-height: 1 !important;
+    letter-spacing: -0.045em;
+  }
+
+  .auth-ref-copy {
+    max-width: 330px;
+    margin: 10px auto 0 !important;
+    font-size: 12.8px !important;
+    line-height: 1.42 !important;
+  }
+
+  .auth-ref-actions {
+    position: relative;
+    z-index: 4;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 12px 14px;
+    display: grid !important;
+    gap: 9px;
+  }
+
+  .auth-ref-discord {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    min-width: 0;
+    min-height: 50px !important;
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+    align-items: center;
+    gap: 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 14px !important;
+    font-size: clamp(15px, 4.6vw, 18px) !important;
+    line-height: 1.05 !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+  }
+
+  .auth-ref-discord strong {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .auth-ref-discord__icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  .auth-ref-discord__icon svg {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  .auth-ref-discord__arrow {
+    font-size: 22px !important;
+  }
+
+  .auth-ref-alert,
+  .auth-ref-token {
+    border-radius: 12px;
+    font-size: 12.5px;
+  }
+
+  .auth-ref-token form {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .auth-ref-token input,
+  .auth-ref-token button {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  .auth-ref-note {
+    justify-content: center;
+    align-items: flex-start;
+    text-align: center;
+    font-size: 11.4px !important;
+    line-height: 1.35 !important;
+  }
+}
+
+@media (max-width: 360px), (max-height: 620px) {
+  .auth-ref {
+    align-items: flex-start;
+  }
+
+  .auth-ref-card__content {
+    padding-top: 16px !important;
+  }
+
+  .auth-ref-logo,
+  .auth-ref-logo img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .auth-ref-card h1 {
+    font-size: clamp(24px, 7.4vw, 30px) !important;
+  }
+
+  .auth-ref-copy {
+    font-size: 12px !important;
+  }
+
+  .auth-ref-discord {
+    min-height: 48px !important;
+  }
+}
