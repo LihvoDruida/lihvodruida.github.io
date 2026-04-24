@@ -143,16 +143,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="container">
-      <DashboardIdentity user={user} />
-      <header className="hero panel dashboard-hero">
+      <section className="dashboard-shell" aria-label="Панель заявок Mistblossom Vanguard">
+        <DashboardIdentity user={user} />
+        <header className="hero panel dashboard-hero">
         <div className="hero-copy dashboard-hero__copy">
           <div className="eyebrow">Mistblossom Vanguard • Secure dashboard</div>
           <h1>Заявки до гільдії</h1>
           <span className="hero-accent" aria-hidden="true" />
-          <p className="lead">Модеруй заявки, перевіряй Raider.IO та ключові дані персонажа.</p>
+          <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці.</p>
           <div className="hero-secure-note">
-            <span className="hero-lock" aria-hidden="true">▣</span>
-            <span>Секрети й GitHub token зберігаються лише на сервері.</span>
+            <span className="hero-lock" aria-hidden="true">🔒</span>
+            <span>Секрети та GitHub token залишаються тільки на сервері.</span>
           </div>
         </div>
 
@@ -168,7 +169,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <div className="hero-platform" />
         </div>
-      </header>
+        </header>
+      </section>
 
       <section className="stats">
         <div className="stat panel"><strong>{counts.all}</strong><span>Всього</span></div>
