@@ -14,172 +14,261 @@ function editHref(path: string) {
   return `/content?edit=${encodeURIComponent(path)}`;
 }
 
+function EditorHeader({
+  mode,
+  title,
+  eyebrow,
+  meta,
+}: {
+  mode: "create" | "edit";
+  title: string;
+  eyebrow: string;
+  meta?: string;
+}) {
+  return (
+    <div className="content-editor-head">
+      <div className="content-editor-title">
+        <span className="eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
+        {meta ? <small>{meta}</small> : null}
+      </div>
+      <a className="btn subtle content-back-btn" href="/content">
+        {mode === "create" ? "Скасувати" : "До списку"}
+      </a>
+    </div>
+  );
+}
+
+function ImageUploadField({ label, hint, currentImage }: { label: string; hint: string; currentImage?: string }) {
+  return (
+    <div className="content-field content-field--upload">
+      <span>{label}</span>
+      {currentImage ? <input type="hidden" name="existingImage" value={currentImage} /> : null}
+      <label className="image-upload-control">
+        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
+        <span className="image-upload-icon" aria-hidden="true">+</span>
+        <span className="image-upload-text">
+          <strong>Додати картинку</strong>
+          <small>{hint}</small>
+        </span>
+      </label>
+      {currentImage ? (
+        <div className="current-image-path">
+          <span>Поточна:</span>
+          <code>{currentImage}</code>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function CreateContentForm({ author }: { author: string }) {
   return (
-    <form className="content-form panel content-editor-panel" method="post" action="/api/content/create" encType="multipart/form-data">
-      <div className="content-section-head">
-        <div>
-          <span className="eyebrow">Create</span>
-          <h2>Новий матеріал</h2>
+    <section className="panel content-editor-panel content-editor-panel--modern" aria-label="Створення матеріалу">
+      <EditorHeader mode="create" eyebrow="Створення" title="Новий матеріал" />
+
+      <form className="content-form content-form--modern" method="post" action="/api/content/create" encType="multipart/form-data">
+        <div className="form-row two">
+          <label className="content-field">
+            <span>Тип матеріалу</span>
+            <select className="select modern-select" name="kind" defaultValue="news" required>
+              <option value="news">Новина</option>
+              <option value="guides">Гайд</option>
+            </select>
+          </label>
+          <label className="content-field">
+            <span>Slug</span>
+            <input className="input" name="slug" placeholder="згенерується автоматично" />
+          </label>
         </div>
-        <a className="btn subtle" href="/content">До списку</a>
-      </div>
 
-      <div className="form-row two">
-        <label>
-          <span>Тип матеріалу</span>
-          <select className="select" name="kind" defaultValue="news" required>
-            <option value="news">Новина</option>
-            <option value="guides">Гайд</option>
-          </select>
+        <label className="content-field content-field--wide">
+          <span>Заголовок</span>
+          <input className="input" name="title" placeholder="Наприклад: Новий рейдовий розклад" minLength={3} required />
         </label>
-        <label>
-          <span>Slug</span>
-          <input className="input" name="slug" placeholder="можна залишити порожнім" />
+
+        <label className="content-field content-field--wide">
+          <span>Короткий опис</span>
+          <textarea className="input textarea compact" name="description" placeholder="Короткий SEO-опис для картки та сторінки матеріалу" minLength={12} required />
         </label>
-      </div>
 
-      <label>
-        <span>Заголовок</span>
-        <input className="input" name="title" placeholder="Наприклад: Новий рейдовий розклад" minLength={3} required />
-      </label>
+        <div className="form-row two">
+          <label className="content-field">
+            <span>Категорії</span>
+            <input className="input" name="categories" placeholder="WoW Midnight, Рейд" />
+          </label>
+          <label className="content-field">
+            <span>Теги</span>
+            <input className="input" name="tags" placeholder="Mistblossom, Raid, Guide" />
+          </label>
+        </div>
 
-      <label>
-        <span>Автор</span>
-        <input className="input" name="authorPreview" value={author} readOnly />
-        <small>Авторство береться з Discord-імені адміністратора.</small>
-      </label>
+        <div className="form-row two form-row--balanced">
+          <label className="content-field">
+            <span>Автор</span>
+            <input className="input" name="authorPreview" value={author} readOnly />
+            <small>Береться з Discord-імені адміністратора.</small>
+          </label>
+          <ImageUploadField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" />
+        </div>
 
-      <label>
-        <span>Короткий опис</span>
-        <textarea className="input textarea compact" name="description" placeholder="Короткий SEO-опис для картки та сторінки матеріалу" minLength={12} required />
-      </label>
-
-      <div className="form-row two">
-        <label>
-          <span>Категорії</span>
-          <input className="input" name="categories" placeholder="WoW Midnight, Рейд" />
+        <label className="content-field content-field--wide">
+          <span>Текст Markdown</span>
+          <textarea className="input textarea markdown-area" name="body" placeholder="## Вступ&#10;&#10;Основний текст матеріалу..." minLength={20} required />
         </label>
-        <label>
-          <span>Теги</span>
-          <input className="input" name="tags" placeholder="Mistblossom, Raid, Guide" />
-        </label>
-      </div>
 
-      <label>
-        <span>Обкладинка</span>
-        <input className="input file-input" type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
-        <small>Файл піде в <code>assets/img-content</code>, а шлях автоматично запишеться у frontmatter.</small>
-      </label>
-
-      <label>
-        <span>Текст Markdown</span>
-        <textarea className="input textarea markdown-area" name="body" placeholder="## Вступ&#10;&#10;Основний текст матеріалу..." minLength={20} required />
-      </label>
-
-      <button className="btn primary content-submit" type="submit">Опублікувати на сайт</button>
-    </form>
+        <div className="content-actions-row content-actions-row--sticky">
+          <a className="btn subtle" href="/content">Скасувати</a>
+          <button className="btn primary" type="submit">Опублікувати</button>
+        </div>
+      </form>
+    </section>
   );
 }
 
 function EditContentForm({ item, author }: { item: SiteContentItem; author: string }) {
   return (
-    <section className="panel content-editor-panel" aria-label={`Редагування: ${item.title}`}>
-      <form className="content-edit-form content-edit-form--standalone" method="post" action="/api/content/update" encType="multipart/form-data">
-        <input type="hidden" name="path" value={item.path} />
-        <input type="hidden" name="existingImage" value={item.image} />
+    <section className="panel content-editor-panel content-editor-panel--modern" aria-label={`Редагування: ${item.title}`}>
+      <EditorHeader mode="edit" eyebrow={`Редагування • ${contentTypeLabel(item.kind)}`} title={item.title} meta={item.path} />
 
-        <div className="content-section-head">
-          <div>
-            <span className="eyebrow">Edit • {contentTypeLabel(item.kind)}</span>
-            <h2>{item.title}</h2>
-            <small>{item.path}</small>
-          </div>
-          <a className="btn subtle" href="/content">До списку</a>
-        </div>
+      <form className="content-form content-form--modern" method="post" action="/api/content/update" encType="multipart/form-data">
+        <input type="hidden" name="path" value={item.path} />
 
         <div className="form-row three">
-          <label>
+          <label className="content-field">
             <span>Тип</span>
-            <select className="select" name="kind" defaultValue={item.kind} required>
+            <select className="select modern-select" name="kind" defaultValue={item.kind} required>
               <option value="news">Новина</option>
               <option value="guides">Гайд</option>
             </select>
           </label>
-          <label>
+          <label className="content-field">
             <span>Дата</span>
             <input className="input" type="date" name="date" defaultValue={item.date} required />
           </label>
-          <label>
+          <label className="content-field">
             <span>Оновлено</span>
             <input className="input" type="date" name="lastModifiedAt" defaultValue={new Date().toISOString().slice(0, 10)} required />
           </label>
         </div>
 
         <div className="form-row two">
-          <label>
+          <label className="content-field">
             <span>Заголовок</span>
             <input className="input" name="title" defaultValue={item.title} minLength={3} required />
           </label>
-          <label>
+          <label className="content-field">
             <span>Slug</span>
             <input className="input" name="slug" defaultValue={item.slug} required />
           </label>
         </div>
 
-        <label>
+        <label className="content-field content-field--wide">
           <span>Опис</span>
           <textarea className="input textarea compact" name="description" defaultValue={item.description} minLength={12} required />
         </label>
 
         <div className="form-row two">
-          <label>
+          <label className="content-field">
             <span>Категорії</span>
             <input className="input" name="categories" defaultValue={item.categories} />
           </label>
-          <label>
+          <label className="content-field">
             <span>Теги</span>
             <input className="input" name="tags" defaultValue={item.tags} />
           </label>
         </div>
 
-        <div className="form-row two">
-          <label>
+        <div className="form-row two form-row--balanced">
+          <label className="content-field">
             <span>Автор</span>
             <input className="input" name="author" defaultValue={item.author || author} />
-            <small>Для нових матеріалів автор береться з Discord-імені. Тут можна виправити старі записи.</small>
+            <small>Для нових матеріалів автор береться з Discord-імені.</small>
           </label>
-          <label>
-            <span>Поточна обкладинка</span>
-            <input className="input" name="imagePathPreview" defaultValue={item.image} readOnly />
-          </label>
+          <ImageUploadField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} />
         </div>
 
-        <label>
-          <span>Замінити обкладинку</span>
-          <input className="input file-input" type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
-        </label>
-
-        <label className="inline-check">
+        <label className="inline-check inline-check--card">
           <input type="checkbox" name="removeImage" value="1" />
           <span>Прибрати обкладинку і поставити placeholder</span>
         </label>
 
-        <label>
+        <label className="content-field content-field--wide">
           <span>Markdown</span>
           <textarea className="input textarea markdown-area" name="body" defaultValue={item.body} minLength={20} required />
         </label>
 
-        <div className="content-actions-row">
+        <div className="content-actions-row content-actions-row--sticky">
+          <a className="btn subtle" href="/content">Скасувати</a>
           <button className="btn primary" type="submit">Зберегти зміни</button>
         </div>
       </form>
 
       <form className="content-delete-form content-delete-form--standalone" method="post" action="/api/content/delete">
         <input type="hidden" name="path" value={item.path} />
+        <div>
+          <strong>Небезпечна дія</strong>
+          <small>Видаляє Markdown-файл. Картинка не видаляється, щоб не зламати інші матеріали.</small>
+        </div>
         <button className="btn danger" type="submit">Видалити матеріал</button>
-        <small>Видаляє Markdown-файл з репозиторію. Картинка не видаляється, щоб не зламати інші матеріали.</small>
       </form>
+    </section>
+  );
+}
+
+function ContentLibraryGroup({
+  title,
+  description,
+  items,
+  selectedPath,
+}: {
+  title: string;
+  description: string;
+  items: SiteContentItem[];
+  selectedPath?: string;
+}) {
+  return (
+    <section className="content-library-group" aria-label={title}>
+      <div className="content-library-group-head">
+        <div>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+        <span className="content-count-pill">{items.length}</span>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="content-empty content-empty--compact">Поки що немає матеріалів у цьому розділі.</p>
+      ) : (
+        <div className="content-table" role="list">
+          {items.map((item) => {
+            const active = selectedPath === item.path;
+            return (
+              <article className={`content-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
+                <a className="content-row-main" href={editHref(item.path)} aria-current={active ? "page" : undefined}>
+                  <span className="content-kind">{contentTypeLabel(item.kind)}</span>
+                  <span className="content-row-title">
+                    <strong>{item.title}</strong>
+                    <small>{item.path}</small>
+                  </span>
+                  <span className="content-row-meta">
+                    <time dateTime={item.date}>{item.date || "Без дати"}</time>
+                    <small>{item.author || "Без автора"}</small>
+                  </span>
+                </a>
+
+                <div className="content-row-actions">
+                  <a className="btn subtle" href={editHref(item.path)}>Редагувати</a>
+                  <form method="post" action="/api/content/delete">
+                    <input type="hidden" name="path" value={item.path} />
+                    <button className="btn danger" type="submit">Видалити</button>
+                  </form>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
@@ -191,6 +280,8 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   const params = await searchParams;
   const isAdmin = user.role === "admin";
   const items = isAdmin ? await listSiteContent() : [];
+  const newsItems = items.filter((item) => item.kind === "news");
+  const guideItems = items.filter((item) => item.kind === "guides");
   const selectedItem = params.edit ? items.find((item) => item.path === params.edit) : undefined;
   const isCreateMode = params.new === "1" || params.action === "new";
   const showEditor = isCreateMode || selectedItem;
@@ -203,7 +294,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
           <div>
             <div className="eyebrow">Mistblossom Vanguard • Content panel</div>
             <h1>Матеріали сайту</h1>
-            <p className="lead">Список новин і гайдів основного сайту. Вибери матеріал для редагування або створи новий.</p>
+            <p className="lead">Новини й гайди розділені для зручності. Вибери матеріал для редагування або створи новий.</p>
           </div>
           {isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
         </header>
@@ -238,33 +329,19 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             {items.length === 0 ? (
               <p className="content-empty">Матеріали не знайдено або GitHub API не повернув колекції.</p>
             ) : (
-              <div className="content-table" role="list">
-                {items.map((item) => {
-                  const active = selectedItem?.path === item.path;
-                  return (
-                    <article className={`content-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
-                      <a className="content-row-main" href={editHref(item.path)} aria-current={active ? "page" : undefined}>
-                        <span className="content-kind">{contentTypeLabel(item.kind)}</span>
-                        <span className="content-row-title">
-                          <strong>{item.title}</strong>
-                          <small>{item.path}</small>
-                        </span>
-                        <span className="content-row-meta">
-                          <time dateTime={item.date}>{item.date || "Без дати"}</time>
-                          <small>{item.author || "Без автора"}</small>
-                        </span>
-                      </a>
-
-                      <div className="content-row-actions">
-                        <a className="btn subtle" href={editHref(item.path)}>Редагувати</a>
-                        <form method="post" action="/api/content/delete">
-                          <input type="hidden" name="path" value={item.path} />
-                          <button className="btn danger" type="submit">Видалити</button>
-                        </form>
-                      </div>
-                    </article>
-                  );
-                })}
+              <div className="content-library-split">
+                <ContentLibraryGroup
+                  title="Новини"
+                  description="Матеріали з колекції _news для головної стрічки сайту."
+                  items={newsItems}
+                  selectedPath={selectedItem?.path}
+                />
+                <ContentLibraryGroup
+                  title="Гайди"
+                  description="Матеріали з колекції _guides: рейди, класи, довідники та сезонні гайди."
+                  items={guideItems}
+                  selectedPath={selectedItem?.path}
+                />
               </div>
             )}
           </section>
