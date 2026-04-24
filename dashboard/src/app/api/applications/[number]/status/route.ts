@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser, isAuthenticated } from "@/src/lib/auth";
+import { canModerate, getSessionUser, isAuthenticated } from "@/src/lib/auth";
 import { updateApplicationStatus } from "@/src/lib/github";
 import { normalizeStatus } from "@/src/lib/status";
 
@@ -35,6 +35,9 @@ export async function POST(request: Request, context: { params: Promise<{ number
 
   try {
     const user = await getSessionUser();
+    if (!canModerate(user)) {
+      return NextResponse.json({ error: "Forbidden. Moderator or admin role required." }, { status: 403 });
+    }
     await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
     return NextResponse.json({ ok: true, issue_number: issueNumber, status });
   } catch (error) {

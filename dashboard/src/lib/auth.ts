@@ -6,6 +6,8 @@ const OAUTH_STATE_COOKIE = "mbv_dashboard_oauth_state";
 const MAX_AGE_SECONDS = 60 * 60 * 8;
 const STATE_MAX_AGE_SECONDS = 60 * 10;
 
+export type AdminRole = "admin" | "moderator" | "viewer";
+
 export type AdminUser = {
   provider: "github" | "discord" | "token";
   id: string;
@@ -13,6 +15,7 @@ export type AdminUser = {
   name?: string;
   email?: string;
   avatar_url?: string;
+  role?: AdminRole;
 };
 
 function getSecret(): string {
@@ -49,21 +52,15 @@ function normalize(value: unknown): string {
   return String(value || "").trim().toLowerCase();
 }
 
-export function verifyToken(input: string): boolean {
-  const expected = process.env.ADMIN_DASHBOARD_TOKEN || process.env.ADMIN_PASSWORD || "";
-  if (expected.length < 12) return false;
-  return safeEqual(input, expected);
-}
-
-export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
-  const allowlist = String(process.env.ADMIN_ALLOWLIST || "")
+function splitAllowlist(value: string | undefined): string[] {
+  return String(value || "")
     .split(",")
     .map((item) => normalize(item))
     .filter(Boolean);
+}
 
-  if (!allowlist.length) return false;
-
-  const candidates = [
+function userCandidates(user: Partial<AdminUser>): string[] {
+  return [
     user.id,
     user.login,
     user.name,
@@ -71,13 +68,42 @@ export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
     user.provider && user.id ? `${user.provider}:${user.id}` : "",
     user.provider && user.login ? `${user.provider}:${user.login}` : "",
     user.provider && user.email ? `${user.provider}:${user.email}` : ""
-  ].map(normalize);
+  ].map(normalize).filter(Boolean);
+}
 
-  return candidates.some((candidate) => candidate && allowlist.includes(candidate));
+function matchesAllowlist(user: Partial<AdminUser>, allowlist: string[]): boolean {
+  if (!allowlist.length) return false;
+  const candidates = userCandidates(user);
+  return candidates.some((candidate) => allowlist.includes(candidate));
+}
+
+export function getUserRole(user: Partial<AdminUser>): AdminRole | null {
+  if (user.provider === "token" && user.id === "local") return "admin";
+
+  if (matchesAllowlist(user, splitAllowlist(process.env.ADMIN_ALLOWLIST))) return "admin";
+  if (matchesAllowlist(user, splitAllowlist(process.env.MODERATOR_ALLOWLIST))) return "moderator";
+  if (matchesAllowlist(user, splitAllowlist(process.env.VIEWER_ALLOWLIST))) return "viewer";
+
+  return null;
+}
+
+export function canModerate(user: Partial<AdminUser> | null | undefined): boolean {
+  return user?.role === "admin" || user?.role === "moderator";
+}
+
+export function verifyToken(input: string): boolean {
+  const expected = process.env.ADMIN_DASHBOARD_TOKEN || process.env.ADMIN_PASSWORD || "";
+  if (expected.length < 12) return false;
+  return safeEqual(input, expected);
+}
+
+export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
+  return !!getUserRole(user);
 }
 
 export async function createSessionCookie(user: AdminUser = { provider: "token", id: "local", login: "Local admin" }): Promise<void> {
-  const payload = encodePayload({ user, createdAt: Date.now(), nonce: randomBytes(16).toString("base64url") });
+  const role = getUserRole(user) || user.role || "admin";
+  const payload = encodePayload({ user: { ...user, role }, createdAt: Date.now(), nonce: randomBytes(16).toString("base64url") });
   const value = `${payload}.${sign(payload)}`;
   const jar = await cookies();
   jar.set(COOKIE_NAME, value, {
