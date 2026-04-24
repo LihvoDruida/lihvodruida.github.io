@@ -95,7 +95,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           {user?.avatar_url ? <img src={user.avatar_url} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
           <div>
             <strong>{user?.name || user?.login}</strong>
-            <span>{user?.provider} • {user?.role || "viewer"}</span>
+            <span>{user?.provider} • {user?.role || "unauthorized"}</span>
           </div>
           <form method="post" action="/api/auth/logout"><button className="btn ghost" type="submit">Вийти</button></form>
         </div>
@@ -127,7 +127,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <button className="btn primary" type="submit">Фільтрувати</button>
       </form>
 
-      {!mayModerate ? <div className="notice panel">Твій акаунт має роль viewer: перегляд доступний, рішення по заявках вимкнені. Попроси адміна додати твою Discord роль у Moderator або Admin role IDs.</div> : null}
+      {!mayModerate ? <div className="notice panel">Твій акаунт має роль unauthorized: перегляд доступний, рішення по заявках вимкнені. Попроси адміна додати твою Discord роль у Moderator або Admin role IDs.</div> : null}
 
       <section className="grid">
         {items.length ? items.map((item) => (

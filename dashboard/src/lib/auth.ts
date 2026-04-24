@@ -6,7 +6,7 @@ const OAUTH_STATE_COOKIE = "mbv_dashboard_oauth_state";
 const MAX_AGE_SECONDS = 60 * 60 * 8;
 const STATE_MAX_AGE_SECONDS = 60 * 10;
 
-export type AdminRole = "admin" | "moderator" | "viewer";
+export type AdminRole = "admin" | "moderator" | "unauthorized";
 
 export type AdminUser = {
   provider: "github" | "discord" | "token";
@@ -62,7 +62,7 @@ export function verifyToken(input: string): boolean {
 }
 
 export function isAllowedAdmin(user: Partial<AdminUser>): boolean {
-  return user.role === "admin" || user.role === "moderator" || user.role === "viewer";
+  return user.role === "admin" || user.role === "moderator" || user.role === "unauthorized";
 }
 
 export async function createSessionCookie(user: AdminUser = { provider: "token", id: "local", login: "Emergency admin", role: "admin", role_source: "emergency-token" }): Promise<void> {

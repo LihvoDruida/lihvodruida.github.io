@@ -1,46 +1,38 @@
-import { NextResponse } from "next/server";
-import { canModerate, getSessionUser, isAuthenticated } from "@/src/lib/auth";
-import { updateApplicationStatus } from "@/src/lib/github";
-import { normalizeStatus } from "@/src/lib/status";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/session";
+import { assertCanModerate } from "@/lib/access";
+import { updateIssueStatusDirect, ApplicationStatus } from "@/lib/github";
+import { notifyDiscordStatusChange } from "@/lib/discord";
 
-const rateMap = new Map<string, number>();
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ number: string }> | { number: string } }
+) {
+  const session = await getSession();
+  assertCanModerate(session);
 
-function rateLimited(key: string) {
-  const now = Date.now();
-  const last = rateMap.get(key) || 0;
-  if (now - last < 1200) return true;
-  rateMap.set(key, now);
-  if (rateMap.size > 1000) {
-    for (const [k, value] of rateMap) if (now - value > 60_000) rateMap.delete(k);
-  }
-  return false;
-}
-
-export async function POST(request: Request, context: { params: Promise<{ number: string }> }) {
-  if (!(await isAuthenticated())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const params = await context.params;
   const issueNumber = Number(params.number);
-  if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
-    return NextResponse.json({ error: "Invalid issue number" }, { status: 400 });
-  }
-  if (rateLimited(String(issueNumber))) {
-    return NextResponse.json({ error: "Too many actions. Try again." }, { status: 429 });
-  }
-
   const body = await request.json().catch(() => ({}));
-  const status = normalizeStatus(body.status);
-  if (status === "review") {
-    return NextResponse.json({ error: "Only accepted/declined can close applications from dashboard." }, { status: 400 });
+  const status = String(body.status || "") as ApplicationStatus;
+
+  if (status !== "accepted" && status !== "declined") {
+    return NextResponse.json({ error: "Unsupported status" }, { status: 400 });
   }
 
-  try {
-    const user = await getSessionUser();
-    if (!canModerate(user)) {
-      return NextResponse.json({ error: "Forbidden. Moderator or admin role required." }, { status: 403 });
-    }
-    await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
-    return NextResponse.json({ ok: true, issue_number: issueNumber, status });
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
-  }
+  const moderator = `${session.name} (${session.role})`;
+
+  const result = await updateIssueStatusDirect({
+    issueNumber,
+    status,
+    moderator,
+  });
+
+  const discord = await notifyDiscordStatusChange({
+    issueNumber,
+    status,
+    moderator,
+  });
+
+  return NextResponse.json({ ...result, discord });
 }
