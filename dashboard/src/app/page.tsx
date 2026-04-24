@@ -66,6 +66,28 @@ function raidKey(raid: unknown, index: number): string {
   return `raid-${index}`;
 }
 
+function getCharacterAvatarUrl(item: ApplicationItem): string | undefined {
+  return item.avatar_url || item.raider_io?.thumbnail_url || undefined;
+}
+
+function getInitial(value?: string | null): string {
+  return (value || "?").trim().charAt(0).toUpperCase() || "?";
+}
+
+function CharacterAvatar({ item }: { item: ApplicationItem }) {
+  const avatarUrl = getCharacterAvatarUrl(item);
+
+  if (avatarUrl) {
+    return <img className="character-avatar" src={avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />;
+  }
+
+  return (
+    <div className="character-avatar placeholder">
+      {getInitial(item.character_name || item.title)}
+    </div>
+  );
+}
+
 function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   const rio = item.raider_io ?? null;
   const current = rio?.mythic_plus?.current || {};
@@ -136,7 +158,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці. Секрети та GitHub token залишаються тільки на сервері.</p>
         </div>
         <div className="admin-card">
-          {user?.avatar ? <img src={user.avatar} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
+          {user?.avatar ? <img src={user.avatar || undefined} alt="" /> : <div className="avatar-fallback">{(user?.name || user?.login || "A").charAt(0)}</div>}
           <div>
             <strong>{user?.name || user?.login}</strong>
             <span>{user?.provider} • {user?.role || "unauthorized"}</span>
@@ -178,7 +200,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <article className={`card panel ${item.status_key}`} key={item.number}>
             <div className="card-main">
               <div className="character-head">
-                {item.avatar_url || item.raider_io?.thumbnail_url ? <img className="character-avatar" src={item.raider_io.thumbnail_url} alt="" /> : <div className="character-avatar placeholder">{(item.character_name || "?").charAt(0)}</div>}
+                <CharacterAvatar item={item} />
                 <div>
                   <h2>#{item.number} • {item.character_name || item.title}</h2>
                   <div className="meta">
