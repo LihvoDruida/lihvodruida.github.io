@@ -32,6 +32,8 @@ export default function ApplicationStatusActions({
   const [isPending, startTransition] = useTransition();
 
   const isClosed = issueState === "closed";
+  const isFinalStatus = status === "accepted" || status === "declined";
+  const locked = isClosed || isFinalStatus;
   const busy = isPending || pendingStatus !== null;
 
   const statusText = useMemo(() => {
@@ -39,11 +41,11 @@ export default function ApplicationStatusActions({
     return LABELS[status] || LABELS.review;
   }, [busy, pendingStatus, status]);
 
-  const canAccept = !isClosed && !busy && status !== "accepted";
-  const canDecline = !isClosed && !busy && status !== "declined";
+  const canAccept = !locked && !busy && status === "review";
+  const canDecline = !locked && !busy && status === "review";
 
   function moderate(nextStatus: Exclude<StatusKey, "review">) {
-    if (isClosed || busy || status === nextStatus) return;
+    if (locked || busy || status !== "review") return;
 
     const previousStatus = status;
     setStatus(nextStatus);
@@ -92,6 +94,7 @@ export default function ApplicationStatusActions({
       data-status={status}
       data-busy={busy ? "true" : "false"}
       data-closed={isClosed ? "true" : "false"}
+      data-locked={locked ? "true" : "false"}
     >
       <div className={`status-pill status-pill--${status}`}>
         <span className="status-dot" />
@@ -121,7 +124,7 @@ export default function ApplicationStatusActions({
       </button>
 
       <small className={`sync-message ${message.includes("Помилка") || message.includes("не підтвердив") ? "sync-message--warning" : ""}`}>
-        {isClosed ? "Issue закрито — модерація завершена" : message || "Очікує дії модератора"}
+        {locked ? "Модерація завершена" : message || "Очікує дії модератора"}
       </small>
     </div>
   );
