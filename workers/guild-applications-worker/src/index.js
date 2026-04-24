@@ -1,4 +1,4 @@
-const DEFAULT_CACHE_SECONDS = 60;
+const DEFAULT_CACHE_SECONDS = 0;
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
 
@@ -88,7 +88,7 @@ async function retryAsync(task, retries = 2, delayMs = 250) {
 function buildCorsHeaders(corsOrigin, status = 200) {
   return {
     "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": status === 200 ? `public, max-age=${DEFAULT_CACHE_SECONDS}` : "no-store",
+    "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -262,10 +262,10 @@ function normalizeLabels(issue) {
 function getIssueStatusKey(issue) {
   const labels = normalizeLabels(issue);
 
-  if (labels.includes("status:accepted") || labels.includes("status:approved")) {
+  if (labels.includes("status:accepted") || labels.includes("statusaccepted") || labels.includes("status:approved") || labels.includes("statusapproved")) {
     return STATUS.ACCEPTED.key;
   }
-  if (labels.includes("status:declined") || labels.includes("status:rejected")) {
+  if (labels.includes("status:declined") || labels.includes("statusdeclined") || labels.includes("status:rejected") || labels.includes("statusrejected")) {
     return STATUS.DECLINED.key;
   }
 
@@ -757,6 +757,13 @@ const APPLICATION_STATUS_LABELS = [
   "status:declined",
   "status:approved",
   "status:rejected",
+
+  // Legacy broken labels from older builds.
+  "statusreview",
+  "statusaccepted",
+  "statusdeclined",
+  "statusapproved",
+  "statusrejected",
 ];
 
 function getTargetStatusLabel(status) {
@@ -996,6 +1003,42 @@ async function parseJsonResponse(response) {
   return { raw, data };
 }
 
+function buildDiscordMessageRefComment(discord) {
+  const channelId = cleanText(discord?.channel_id, 80);
+  const messageId = cleanText(discord?.message_id, 80);
+
+  if (!channelId || !messageId) return "";
+
+  return `\n\n<!-- mistblossom:discord ${JSON.stringify({
+    channel_id: channelId,
+    message_id: messageId,
+  })} -->`;
+}
+
+async function storeDiscordMessageRef(env, issue, discord) {
+  const marker = buildDiscordMessageRefComment(discord);
+  if (!marker || !issue?.number) return { skipped: true };
+
+  const body = String(issue.body || "");
+  if (body.includes("mistblossom:discord")) return { skipped: true, reason: "already stored" };
+
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issue.number}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ body: body + marker }),
+    }
+  );
+
+  if (!response.ok) {
+    const { raw, data } = await parseJsonResponse(response);
+    return { ok: false, error: data?.message || raw || "Не вдалося зберегти Discord message ref." };
+  }
+
+  return { ok: true };
+}
+
 async function createGithubIssue(env, payload) {
   const response = await githubFetch(
     env,
@@ -1173,6 +1216,9 @@ async function createApplication(request, env) {
     let discord = { skipped: true };
     try {
       discord = await sendDiscordNotification(env, cleanPayload, issue);
+      if (discord?.ok) {
+        discord.issue_ref = await storeDiscordMessageRef(env, issue, discord);
+      }
     } catch (error) {
       discord = {
         ok: false,

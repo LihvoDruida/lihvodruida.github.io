@@ -77,6 +77,7 @@ export type ApplicationItem = {
   profile_url?: string | null;
   raider_io?: RaiderIoApplicationData | null;
   raider_io_error?: string | null;
+  discord_message_ref?: { channel_id?: string | null; message_id?: string | null } | null;
   labels: string[];
 };
 
@@ -401,6 +402,22 @@ export async function fetchRaiderIoForApplication(item: ApplicationItem): Promis
   }
 }
 
+function parseDiscordMessageRef(body: string): { channel_id?: string | null; message_id?: string | null } | null {
+  const match = String(body || "").match(/<!--\s*mistblossom:discord\s+({[\s\S]*?})\s*-->/);
+
+  if (!match) return null;
+
+  try {
+    const parsed = JSON.parse(match[1]);
+    return {
+      channel_id: parsed.channel_id || null,
+      message_id: parsed.message_id || null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function mapApplicationIssue(issue: any): ApplicationItem {
   const body = String(issue.body || "");
   const status = getIssueStatusFromLabels(issue.labels || []);
@@ -426,6 +443,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     profile_url: null,
     raider_io: null,
     raider_io_error: null,
+    discord_message_ref: parseDiscordMessageRef(body),
     labels: Array.isArray(issue.labels) ? issue.labels.map((label: any) => label.name) : [],
   };
 }
@@ -565,19 +583,21 @@ export async function updateApplicationStatus(
   status: ApplicationStatus,
   moderator = "Dashboard"
 ) {
-  const { notifyDiscordStatusChange } = await import("./discord");
+  const { updateDiscordApplicationMessage } = await import("./discord");
 
   const issue = await getIssue(issueNumber);
+  const mappedIssue = mapApplicationIssue(issue);
+  const canonicalStatus = normalizeStatus(status);
+
   const result = await setIssueStatus({
     issueNumber,
-    status,
+    status: canonicalStatus,
     moderator,
     source: "dashboard",
   });
 
-  const canonicalStatus = normalizeStatus(status);
-
-  await notifyDiscordStatusChange({
+  await updateDiscordApplicationMessage({
+    ref: mappedIssue.discord_message_ref,
     issueNumber,
     status: canonicalStatus,
     moderator,

@@ -132,6 +132,8 @@ async function setStatus(formData: FormData) {
   const user = await getSessionUser();
   if (!canModerate(user)) return;
   await updateApplicationStatus(issueNumber, status, user?.name || user?.login || "Dashboard");
+  revalidatePath("/");
+  redirect("/");
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
