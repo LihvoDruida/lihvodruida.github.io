@@ -16,19 +16,26 @@ export default async function DashboardIdentity({ user }: { user: DashboardSessi
       </div>
 
       {user ? (
-        <div className="dashboard-user">
-          <div className="dashboard-user__avatar-wrap">
-            {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
-            <span className="dashboard-user__status" aria-hidden="true" />
+        <>
+          <nav className="dashboard-nav" aria-label="Панель керування">
+            <a href="/">Заявки</a>
+            {user.role === "admin" ? <a href="/content">Новини / гайди</a> : null}
+          </nav>
+
+          <div className="dashboard-user">
+            <div className="dashboard-user__avatar-wrap">
+              {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
+              <span className="dashboard-user__status" aria-hidden="true" />
+            </div>
+            <div>
+              <strong>{user.name}</strong>
+              <span>Discord • {user.role}</span>
+            </div>
+            <form method="post" action="/api/auth/logout" className="dashboard-user__logout">
+              <button type="submit" aria-label="Вийти">Вийти</button>
+            </form>
           </div>
-          <div>
-            <strong>{user.name}</strong>
-            <span>Discord • {user.role}</span>
-          </div>
-          <form method="post" action="/api/auth/logout" className="dashboard-user__logout">
-            <button type="submit" aria-label="Вийти">Вийти</button>
-          </form>
-        </div>
+        </>
       ) : null}
     </header>
   );
