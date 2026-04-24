@@ -6,6 +6,68 @@ export const STATUS_LABELS = [
   "status:rejected",
 ];
 
+const LABEL_COLORS: Record<string, string> = {
+  "guild-application": "5865F2",
+  "status:review": "D4A63A",
+  "status:accepted": "3BA55D",
+  "status:declined": "ED4245",
+  "status:approved": "3BA55D",
+  "status:rejected": "ED4245",
+};
+
+function isMissingLabelError(error: unknown) {
+  return String((error as Error)?.message || error || "")
+    .toLowerCase()
+    .includes("label does not exist");
+}
+
+function isAlreadyExistsError(error: unknown) {
+  return String((error as Error)?.message || error || "")
+    .toLowerCase()
+    .includes("already_exists");
+}
+
+export async function ensureGitHubLabel(name: string) {
+  const color = LABEL_COLORS[name] || "5865F2";
+
+  try {
+    await githubFetch(`/labels/${encodeURIComponent(name)}`);
+    return { ok: true, existed: true };
+  } catch {
+    try {
+      await githubFetch(`/labels`, {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          color,
+          description: name.startsWith("status:")
+            ? "Guild application status"
+            : "Guild application",
+        }),
+      });
+
+      return { ok: true, created: true };
+    } catch (error) {
+      if (isAlreadyExistsError(error)) {
+        return { ok: true, existed: true };
+      }
+
+      throw error;
+    }
+  }
+}
+
+export async function ensureApplicationLabels() {
+  await Promise.all([
+    ensureGitHubLabel(process.env.GUILD_APPLICATIONS_LABEL || "guild-application"),
+    ensureGitHubLabel("status:review"),
+    ensureGitHubLabel("status:accepted"),
+    ensureGitHubLabel("status:declined"),
+  ]);
+}
+
+
+
 export type ApplicationStatus = "accepted" | "declined" | "review";
 
 export type RaiderIoScoreBlock = {
@@ -336,11 +398,22 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
 
 export async function listIssues() {
   const label = process.env.GUILD_APPLICATIONS_LABEL || "guild-application";
-  const issues = await githubFetch(
-    `/issues?state=all&labels=${encodeURIComponent(label)}&per_page=100&sort=created&direction=desc`
-  );
 
-  return Array.isArray(issues) ? issues.filter((issue: any) => !issue.pull_request) : [];
+  try {
+    await ensureGitHubLabel(label);
+
+    const issues = await githubFetch(
+      `/issues?state=all&labels=${encodeURIComponent(label)}&per_page=100&sort=created&direction=desc`
+    );
+
+    return Array.isArray(issues) ? issues.filter((issue: any) => !issue.pull_request) : [];
+  } catch (error) {
+    if (isMissingLabelError(error)) {
+      return [];
+    }
+
+    throw error;
+  }
 }
 
 export async function listApplications(params?: URLSearchParams) {
@@ -401,6 +474,8 @@ export async function setIssueStatus(params: {
     throw new Error("Invalid issue number");
   }
 
+  await ensureApplicationLabels();
+
   const nextLabel = statusLabel(params.status);
 
   await Promise.all(
@@ -410,7 +485,10 @@ export async function setIssueStatus(params: {
         githubFetch(`/issues/${issueNumber}/labels/${encodeURIComponent(label)}`, {
           method: "DELETE",
         }).catch((error) => {
-          if (!String(error?.message || "").toLowerCase().includes("not found")) {
+          if (
+            !String(error?.message || "").toLowerCase().includes("not found") &&
+            !isMissingLabelError(error)
+          ) {
             throw error;
           }
         })
