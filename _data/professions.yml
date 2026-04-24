@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-24 09:46:44'
+  updated_at: '2026-04-24 13:27:18'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -156,7 +156,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 50
+        learned_points: 52
         max_points: 100
     secondaries:
     - name: Cooking
@@ -4404,7 +4404,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 29
+        learned_points: 30
         max_points: 100
     - name: Tailoring
       id: 197
