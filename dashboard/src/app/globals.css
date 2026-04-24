@@ -2982,3 +2982,146 @@ button,
     grid-template-columns: 1fr;
   }
 }
+
+/* Login mobile hotfix: keep the existing desktop design, but make the auth screen usable
+   on phones with short viewports and browser address bars. */
+@supports (min-height: 100svh) {
+  .auth-ref {
+    min-height: 100svh;
+  }
+}
+
+@media (max-width: 760px) {
+  .auth-ref {
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    place-items: start center;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
+  }
+
+  .auth-ref-card {
+    width: min(420px, 100%);
+    min-height: auto;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+  }
+
+  .auth-ref-card__content {
+    padding: 22px 20px 12px;
+  }
+
+  .auth-ref-logo,
+  .auth-ref-logo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .auth-ref-logo {
+    margin-bottom: 14px;
+  }
+
+  .auth-ref-logo img {
+    border-radius: 16px;
+  }
+
+  .auth-ref-kicker {
+    margin-bottom: 8px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .auth-ref-card h1 {
+    max-width: 300px;
+    font-size: clamp(28px, 8.8vw, 36px);
+    line-height: 1;
+  }
+
+  .auth-ref-copy {
+    max-width: 330px;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.42;
+  }
+
+  .auth-ref-card__visual {
+    position: absolute;
+    z-index: 1;
+    right: -22px;
+    top: 80px;
+    width: 138px;
+    min-height: 138px;
+    margin: 0;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .auth-ref-flower {
+    width: 124px;
+  }
+
+  .auth-ref-actions {
+    width: auto;
+    margin: 0 14px 14px;
+    gap: 9px;
+  }
+
+  .auth-ref-discord {
+    min-height: 50px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: clamp(15px, 4.8vw, 18px);
+  }
+
+  .auth-ref-discord__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+  }
+
+  .auth-ref-discord__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .auth-ref-discord__arrow {
+    font-size: 23px;
+  }
+
+  .auth-ref-token form {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-ref-token input,
+  .auth-ref-token button {
+    min-height: 42px;
+  }
+
+  .auth-ref-note {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.38;
+  }
+}
+
+@media (max-width: 380px), (max-height: 680px) {
+  .auth-ref-card__visual {
+    display: none;
+  }
+
+  .auth-ref-card__content {
+    padding-top: 18px;
+  }
+
+  .auth-ref-copy {
+    font-size: 12.5px;
+  }
+
+  .auth-ref-discord {
+    min-height: 48px;
+  }
+}
