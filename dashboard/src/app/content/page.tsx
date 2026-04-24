@@ -288,7 +288,6 @@ function ContentLibraryGroup({
                     <strong>{item.title}</strong>
                     <small>{item.path}</small>
                   </span>
-                  <span className="content-kind">{contentTypeLabel(item.kind)}</span>
                   <span className="content-row-meta">
                     <time dateTime={item.date}>{item.date || "Без дати"}</time>
                     <small>{item.author || "Без автора"}</small>
@@ -296,7 +295,6 @@ function ContentLibraryGroup({
                 </a>
 
                 <div className="content-row-actions">
-                  <a className="btn subtle" href={editHref(item.path)}>Редагувати</a>
                   <a className="btn subtle" href={contentPublicHref(item)} target="_blank" rel="noreferrer">Превʼю</a>
                   <form method="post" action="/api/content/delete">
                     <input type="hidden" name="path" value={item.path} />
@@ -329,13 +327,31 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
     <main className="container">
       <section className="dashboard-shell content-shell" aria-label="Публікація матеріалів Mistblossom Vanguard">
         <DashboardIdentity user={user} />
-        <header className="content-hero panel content-hero--list">
-          <div>
+        <header className="hero panel dashboard-hero content-dashboard-hero">
+          <div className="hero-copy dashboard-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Content panel</div>
             <h1>Матеріали сайту</h1>
-            <p className="lead">Новини й гайди розділені для зручності. Вибери матеріал для редагування або створи новий.</p>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">Керуй новинами й гайдами для основного сайту: створюй, редагуй, переглядай і прибирай матеріали з однієї панелі.</p>
+            <div className="hero-secure-note content-hero-actions">
+              <span className="hero-lock" aria-hidden="true">✦</span>
+              <span>Новини та гайди розділені для зручності.</span>
+              {isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
+            </div>
           </div>
-          {isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
+
+          <div className="hero-emblem content-hero-emblem" aria-hidden="true">
+            <div className="hero-emblem__rings" />
+            <div className="hero-flower">
+              <span className="hero-flower__petal hero-flower__petal--top" />
+              <span className="hero-flower__petal hero-flower__petal--left" />
+              <span className="hero-flower__petal hero-flower__petal--right" />
+              <span className="hero-flower__petal hero-flower__petal--low-left" />
+              <span className="hero-flower__petal hero-flower__petal--low-right" />
+              <span className="hero-flower__core" />
+            </div>
+            <div className="hero-platform" />
+          </div>
         </header>
       </section>
 
@@ -357,12 +373,11 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             <section className="content-list panel content-list--page" aria-label="Список матеріалів сайту">
               <div className="content-section-head content-section-head--toolbar">
                 <div>
-                  <span className="eyebrow">Content library</span>
+                  <span className="eyebrow">Бібліотека контенту</span>
                   <h2>Список матеріалів</h2>
                 </div>
                 <div className="content-toolbar-actions">
                   <small>{items.length} матеріалів</small>
-                  <a className="btn primary" href="/content?new=1">Додати матеріал</a>
                 </div>
               </div>
   
