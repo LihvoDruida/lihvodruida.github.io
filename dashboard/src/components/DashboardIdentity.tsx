@@ -3,7 +3,7 @@ import { getGuildBranding } from "@/lib/branding";
 
 export default async function DashboardIdentity({
   user,
-  activeSection,
+  activeSection = "applications",
 }: {
   user: DashboardSession | null;
   activeSection?: "applications" | "content";
