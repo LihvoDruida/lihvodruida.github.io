@@ -1460,6 +1460,22 @@ textarea:disabled {
 }
 
 /* Content editor */
+.content-page-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.content-hero-status-row,
+.content-hero-buttons,
+.content-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.content-mode-pill,
+.content-count-pill {
   display: inline-flex;
   min-height: 30px;
   align-items: center;
