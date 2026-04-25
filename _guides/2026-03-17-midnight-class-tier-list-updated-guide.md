@@ -4,12 +4,12 @@ title: "Midnight Class Tier List — оновлений гайд Season 1"
 slug: midnight-class-tier-list-updated-guide
 description: "Оновлений і зрозумілий гайд по спеціалізаціях у World of Warcraft: Midnight Season 1: актуальна мета для рейдів і Mythic+, зведений tier list і практичні рекомендації."
 date: 2026-03-17
-author: Sebas
-categories: [Гайди, Класи]
-tags: [Midnight, Class Tier List, Season 1, DPS, Healer, Tank, Mythic+, Raid]
+last_modified_at: 2026-04-25
+author: "Sebas"
+categories: ["Гайди", "Класи"]
+tags: ["Midnight", "Class Tier List", "Season 1", "DPS", "Healer", "Tank", "Mythic+", "Raid"]
 image: /assets/img-content/best-classes-in-wow-midnight.webp
 ---
-
 На старті **Midnight Season 1** немає одного-єдиного “правильного” tier list для всього одразу.  
 У **рейді** й **Mythic+** цінуються різні речі: десь важливіші raid utility і стабільний single target, десь — контроль паків, живучість і burst у потрібний момент.
 
