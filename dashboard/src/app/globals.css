@@ -4359,3 +4359,35 @@ form.is-submitting button[type="submit"],
     width: 100%;
   }
 }
+
+.discord-edit-mode-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 9px;
+  border: 1px solid rgba(114, 223, 160, 0.34);
+  border-radius: 999px;
+  background: rgba(114, 223, 160, 0.1);
+  color: #c9f6d6;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.discord-edit-mode-note::before {
+  content: "";
+  width: 0.52rem;
+  height: 0.52rem;
+  border-radius: 999px;
+  background: #72dfa0;
+  box-shadow: 0 0 0 3px rgba(114, 223, 160, 0.12);
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .discord-edit-mode-note {
+    width: 100%;
+    border-radius: 12px;
+  }
+}

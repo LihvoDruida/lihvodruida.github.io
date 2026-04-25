@@ -400,6 +400,7 @@ export default function DiscordEmbedEditor({
   const [fields, setFields] = useState<EmbedFieldState[]>(initialFields(initialEmbed.fields));
   const [messageLoadState, setMessageLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const [messageLoadText, setMessageLoadText] = useState("");
+  const [loadedMessageLink, setLoadedMessageLink] = useState(normalizeMessageLink(defaultMessageLink));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const lastLoadedMessageLinkRef = useRef(normalizeMessageLink(defaultMessageLink));
   const channelsKey = channels.map((channel) => channel.id).join("|");
@@ -428,7 +429,9 @@ export default function DiscordEmbedEditor({
     setFooterIconUrl(text(nextFooter.icon_url));
     setTimestampEnabled(Boolean(nextEmbed.timestamp));
     setFields(initialFields(nextEmbed.fields));
-    lastLoadedMessageLinkRef.current = normalizeMessageLink(defaultMessageLink);
+    const normalizedDefaultMessageLink = normalizeMessageLink(defaultMessageLink);
+    lastLoadedMessageLinkRef.current = normalizedDefaultMessageLink;
+    setLoadedMessageLink(normalizedDefaultMessageLink);
     setMessageLoadState("idle");
     setMessageLoadText("");
   }, [defaultEmbedJson, defaultContent, defaultMessageLink, suggestedChannelId, channelsKey, selectedRoleIdsKey]);
@@ -502,6 +505,7 @@ export default function DiscordEmbedEditor({
 
       const nextLink = normalizeMessageLink(text(loaded.url) || rawLink);
       lastLoadedMessageLinkRef.current = nextLink;
+      setLoadedMessageLink(nextLink);
       setMessageLoadState("loaded");
       setMessageLoadText(text(data.warning) || "Контент, embed і ролі підтягнуто з Discord-повідомлення.");
     } catch (error) {
@@ -532,9 +536,24 @@ export default function DiscordEmbedEditor({
     };
   }, [messageLink, mode, isRules]);
 
+  const normalizedCurrentMessageLink = normalizeMessageLink(messageLink);
+  const normalizedLoadedMessageLink = normalizeMessageLink(loadedMessageLink);
+  const hasMessageLinkEditTarget = looksLikeDiscordMessageRef(normalizedCurrentMessageLink);
+  const hasInvalidMessageLink = Boolean(normalizedCurrentMessageLink) && !hasMessageLinkEditTarget;
+  const hasLoadedEditableMessage = Boolean(
+    normalizedLoadedMessageLink &&
+    normalizedCurrentMessageLink === normalizedLoadedMessageLink &&
+    looksLikeDiscordMessageRef(normalizedLoadedMessageLink)
+  );
+  const effectiveSubmitAction = editorMode === "edit" || hasMessageLinkEditTarget ? "edit" : "publish";
+
   function handleSubmit(_: FormEvent<HTMLFormElement>) {
     setIsSubmitting(true);
-    setMessageLoadText(isRules ? "Оновлюємо Discord rules embed..." : "Оновлюємо Discord embed...");
+    setMessageLoadText(
+      effectiveSubmitAction === "edit"
+        ? isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
+        : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed..."
+    );
   }
 
   const embed = useMemo(() => buildEmbed({
@@ -558,7 +577,9 @@ export default function DiscordEmbedEditor({
   const selectedRolesCount = uniqueIds(roleIds).length;
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
   const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
-  const actionLabel = editorMode === "edit" ? "Зберегти зміни" : isRules ? "Опублікувати правила" : "Опублікувати embed";
+  const actionLabel = effectiveSubmitAction === "edit"
+    ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за link" : "Зберегти зміни"
+    : isRules ? "Опублікувати правила" : "Опублікувати embed";
 
   function updateColorFromText(value: string) {
     setColorHex(value.startsWith("#") ? value : `#${value}`);
@@ -578,13 +599,13 @@ export default function DiscordEmbedEditor({
               <h2>{title}</h2>
               <p>{isRules ? "Створи або онови embed правил, а внизу вибери ролі для кнопки прийняття." : "Заповни поля embed окремо, обери канал і за потреби встав посилання на повідомлення для редагування."}</p>
             </div>
-            <span className="discord-mode-pill">{editorMode === "edit" ? "Редагування" : "Створення"}</span>
+            <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагування підтягнутого" : editorMode !== "edit" ? "Редагування за link" : "Редагування" : "Створення"}</span>
           </div>
 
           <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="returnTo" value={returnTo} />
-            <input type="hidden" name="action" value={editorMode === "edit" ? "edit" : "publish"} />
+            <input type="hidden" name="action" value={effectiveSubmitAction} />
             <input type="hidden" name="embedJson" value={generatedEmbedJson} />
 
             <div className="content-form-section discord-visual-section">
@@ -623,11 +644,18 @@ export default function DiscordEmbedEditor({
                       {messageLoadState === "loading" ? "Підтягуємо..." : "Підтягнути"}
                     </button>
                   </div>
-                  {messageLoadText ? (
+                  {hasInvalidMessageLink ? (
+                    <small className="discord-message-load-note discord-message-load-note--error" role="alert">Посилання не схоже на Discord message link. Виправ його або очисти поле.</small>
+                  ) : messageLoadText ? (
                     <small className={`discord-message-load-note discord-message-load-note--${messageLoadState}`} role={messageLoadState === "error" ? "alert" : "status"}>{messageLoadText}</small>
                   ) : (
                     <small>Після вставки link редактор автоматично підтягне content, embed, канал і ролі.</small>
                   )}
+                  {hasLoadedEditableMessage ? (
+                    <small className="discord-edit-mode-note" role="status">Підтягнуто: кнопка збереження оновить саме це Discord-повідомлення. Нове повідомлення не створиться.</small>
+                  ) : hasMessageLinkEditTarget ? (
+                    <small className="discord-edit-mode-note" role="status">Link розпізнано: збереження буде редагувати це Discord-повідомлення, а не створювати нове.</small>
+                  ) : null}
                 </div>
               </div>
 
@@ -765,7 +793,7 @@ export default function DiscordEmbedEditor({
 
             <div className="discord-builder-actions">
               <a className="btn subtle" href={returnTo || (isRules ? "/discord/rules" : "/discord")}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={!isValid || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
+              <button className="btn primary" type="submit" disabled={!isValid || hasInvalidMessageLink || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : hasInvalidMessageLink ? "Виправ Discord message link або очисти поле." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
             </div>
           </form>
         </div>

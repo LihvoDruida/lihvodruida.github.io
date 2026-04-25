@@ -69,12 +69,16 @@ export async function POST(request: NextRequest) {
     const embed = parseEmbedJson(form.get("embedJson"));
     const isRules = mode === "rules";
     const roleIds = isRules ? selectedRoleIds(form) : [];
+    const editRef = parseDiscordMessageRef(messageLink);
+    const shouldEdit = action === "edit" || Boolean(editRef);
+    const effectiveAction = shouldEdit ? "edit" : "publish";
     const moderator = session.name || session.login || session.id;
-    const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${action} by ${moderator}`;
+    const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${effectiveAction} by ${moderator}`;
 
     logDashboardEvent("info", "discord.embed.submit", request, {
       mode,
       action,
+      effectiveAction,
       channelId,
       hasMessageLink: Boolean(messageLink),
       contentLength: content.length,
@@ -87,8 +91,10 @@ export async function POST(request: NextRequest) {
       return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
     }
 
-    const editRef = parseDiscordMessageRef(messageLink);
-    const shouldEdit = action === "edit" || Boolean(editRef);
+    if (messageLink && !editRef) {
+      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "invalid_edit_link", adminId: session.id });
+      return redirectTo(request, { error: "Discord message link невалідний. Прибери його або встав повне посилання на повідомлення." }, returnTo);
+    }
 
     if (shouldEdit) {
       if (!editRef) {
