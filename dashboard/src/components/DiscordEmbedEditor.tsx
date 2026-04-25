@@ -18,6 +18,13 @@ export type DiscordRoleOption = {
 
 type EmbedObject = Record<string, any>;
 
+type EmbedFieldState = {
+  id: string;
+  name: string;
+  value: string;
+  inline: boolean;
+};
+
 type DiscordEmbedEditorProps = {
   mode: "rules" | "general";
   editorMode: "create" | "edit";
@@ -31,15 +38,14 @@ type DiscordEmbedEditorProps = {
   returnTo: string;
 };
 
-function safeParseEmbed(value: string) {
+const COLOR_FALLBACK = "#B8E986";
+
+function parseInitialEmbed(value: string): EmbedObject {
   try {
     const parsed = JSON.parse(value);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return { embed: null, error: "Embed має бути JSON-обʼєктом, не масивом." };
-    }
-    return { embed: parsed as EmbedObject, error: "" };
-  } catch (error) {
-    return { embed: null, error: error instanceof Error ? error.message : "JSON parse error" };
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
   }
 }
 
@@ -52,12 +58,109 @@ function urlFrom(value: unknown) {
   return text((value as Record<string, unknown>).url);
 }
 
+function objectFrom(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function normalizeHexColor(value: string) {
+  const raw = String(value || "").trim();
+  const withHash = raw.startsWith("#") ? raw : `#${raw}`;
+  return /^#[0-9a-fA-F]{6}$/.test(withHash) ? withHash.toUpperCase() : "";
+}
+
+function colorNumberToHex(value: unknown) {
+  const color = Number(value);
+  if (!Number.isFinite(color)) return COLOR_FALLBACK;
+  return `#${Math.max(0, Math.min(0xffffff, Math.floor(color))).toString(16).padStart(6, "0")}`.toUpperCase();
+}
+
+function hexToNumber(value: string) {
+  const hex = normalizeHexColor(value);
+  if (!hex) return undefined;
+  return Number.parseInt(hex.slice(1), 16);
+}
+
+function initialFields(value: unknown): EmbedFieldState[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 25).map((field, index) => {
+    const item = objectFrom(field);
+    return {
+      id: `field-${index}`,
+      name: text(item.name),
+      value: text(item.value),
+      inline: Boolean(item.inline),
+    };
+  });
+}
+
+function cleanEmbedValue(value: string) {
+  return value.trim();
+}
+
+function buildEmbed(params: {
+  title: string;
+  url: string;
+  description: string;
+  colorHex: string;
+  authorName: string;
+  authorUrl: string;
+  authorIconUrl: string;
+  thumbnailUrl: string;
+  imageUrl: string;
+  footerText: string;
+  footerIconUrl: string;
+  timestampEnabled: boolean;
+  fields: EmbedFieldState[];
+}) {
+  const color = hexToNumber(params.colorHex);
+  const authorName = cleanEmbedValue(params.authorName);
+  const footerText = cleanEmbedValue(params.footerText);
+  const fields = params.fields
+    .slice(0, 25)
+    .map((field) => ({
+      name: cleanEmbedValue(field.name),
+      value: cleanEmbedValue(field.value),
+      inline: Boolean(field.inline),
+    }))
+    .filter((field) => field.name && field.value);
+
+  const embed: EmbedObject = {
+    title: cleanEmbedValue(params.title) || undefined,
+    url: cleanEmbedValue(params.url) || undefined,
+    description: cleanEmbedValue(params.description) || undefined,
+    color,
+    thumbnail: cleanEmbedValue(params.thumbnailUrl) ? { url: cleanEmbedValue(params.thumbnailUrl) } : undefined,
+    image: cleanEmbedValue(params.imageUrl) ? { url: cleanEmbedValue(params.imageUrl) } : undefined,
+    author: authorName
+      ? {
+          name: authorName,
+          url: cleanEmbedValue(params.authorUrl) || undefined,
+          icon_url: cleanEmbedValue(params.authorIconUrl) || undefined,
+        }
+      : undefined,
+    footer: footerText
+      ? {
+          text: footerText,
+          icon_url: cleanEmbedValue(params.footerIconUrl) || undefined,
+        }
+      : undefined,
+    fields: fields.length ? fields : undefined,
+    timestamp: params.timestampEnabled ? true : undefined,
+  };
+
+  return Object.fromEntries(Object.entries(embed).filter(([, value]) => value !== undefined && value !== null));
+}
+
+function hasVisibleEmbedContent(embed: EmbedObject) {
+  return Boolean(embed.title || embed.description || embed.image || embed.thumbnail || (Array.isArray(embed.fields) && embed.fields.length));
+}
+
 function normalizeMarkdownLine(line: string) {
   return line.replace(/\*\*(.*?)\*\*/g, "$1").replace(/__(.*?)__/g, "$1").trim();
 }
 
 function MarkdownPreview({ value }: { value: string }) {
-  const lines = value.split("\n").slice(0, 80);
+  const lines = value.split("\n").slice(0, 90);
 
   return (
     <div className="discord-preview-markdown">
@@ -76,17 +179,20 @@ function MarkdownPreview({ value }: { value: string }) {
   );
 }
 
-function DiscordPreview({ embed, content }: { embed: EmbedObject | null; content: string }) {
-  const color = typeof embed?.color === "number" ? `#${Math.max(0, Math.min(0xffffff, embed.color)).toString(16).padStart(6, "0")}` : "#95f28c";
+function DiscordPreview({ embed, content, isValid }: { embed: EmbedObject; content: string; isValid: boolean }) {
+  const color = typeof embed?.color === "number" ? `#${Math.max(0, Math.min(0xffffff, embed.color)).toString(16).padStart(6, "0")}` : COLOR_FALLBACK;
   const author = embed?.author && typeof embed.author === "object" ? embed.author as Record<string, unknown> : null;
   const footer = embed?.footer && typeof embed.footer === "object" ? embed.footer as Record<string, unknown> : null;
-  const fields = Array.isArray(embed?.fields) ? embed?.fields.slice(0, 25) : [];
+  const fields = Array.isArray(embed?.fields) ? embed.fields.slice(0, 25) : [];
   const thumbnail = urlFrom(embed?.thumbnail);
   const image = urlFrom(embed?.image);
 
   return (
-    <aside className="discord-preview-panel" aria-label="Preview Discord embed">
-      <div className="discord-preview-titlebar">Preview</div>
+    <aside className="discord-preview-panel panel" aria-label="Preview Discord embed">
+      <div className="discord-preview-titlebar">
+        <span>Preview</span>
+        <small>Discord вигляд</small>
+      </div>
       <div className="discord-preview-canvas">
         {content ? <div className="discord-preview-content">{content}</div> : null}
         <article className="discord-message-preview" style={{ borderLeftColor: color }}>
@@ -108,10 +214,14 @@ function DiscordPreview({ embed, content }: { embed: EmbedObject | null; content
           {image ? <img className="discord-preview-image" src={image} alt="" /> : null}
           {footer?.text ? <footer>{footer?.icon_url ? <img src={text(footer.icon_url)} alt="" /> : null}<span>{text(footer.text)}</span></footer> : null}
         </article>
-        {embed ? null : <div className="discord-preview-error">JSON preview недоступний: виправ помилку в embed.</div>}
+        {!isValid ? <div className="discord-preview-error">Embed порожній або код кольору невалідний. Додай title, description, image, thumbnail або field.</div> : null}
       </div>
     </aside>
   );
+}
+
+function roleColor(value: number) {
+  return value > 0 ? colorNumberToHex(value) : "#B8E986";
 }
 
 function RolePicker({ roles, selectedRoleIds, onChange }: {
@@ -119,30 +229,109 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
   selectedRoleIds: string[];
   onChange: (ids: string[]) => void;
 }) {
+  const [query, setQuery] = useState("");
   const selected = new Set(selectedRoleIds);
+  const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(query.trim().toLowerCase()));
+
+  function toggleRole(roleId: string) {
+    if (selected.has(roleId)) {
+      onChange(selectedRoleIds.filter((id) => id !== roleId));
+      return;
+    }
+    onChange([...selectedRoleIds, roleId]);
+  }
 
   return (
     <div className="discord-role-picker">
       <div className="discord-role-selected" aria-label="Вибрані ролі">
-        {selectedRoleIds.length === 0 ? <span className="discord-role-placeholder">Select option</span> : null}
+        {selectedRoleIds.length === 0 ? <span className="discord-role-placeholder">Ролі ще не вибрані</span> : null}
         {roles.filter((role) => selected.has(role.id)).map((role) => (
-          <span className="discord-role-chip" key={role.id}>● {role.name}</span>
+          <span className="discord-role-chip" key={role.id}>
+            <span className="discord-role-dot" style={{ backgroundColor: roleColor(role.color) }} />
+            {role.name}
+          </span>
         ))}
       </div>
-      <select
-        className="select modern-select discord-role-native"
-        name="roleIds"
-        multiple
-        size={Math.min(Math.max(roles.length, 6), 12)}
-        value={selectedRoleIds}
-        onChange={(event) => onChange(Array.from(event.currentTarget.selectedOptions, (option) => option.value))}
-        required
-      >
-        {roles.map((role) => (
-          <option key={role.id} value={role.id}>🌿 {role.name}</option>
+
+      <input
+        className="input discord-role-search"
+        type="search"
+        value={query}
+        placeholder="Пошук ролі..."
+        onChange={(event) => setQuery(event.currentTarget.value)}
+      />
+
+      <div className="discord-role-list" role="listbox" aria-label="Ролі для кнопки прийняття правил">
+        {filteredRoles.map((role) => (
+          <label className="discord-role-option" key={role.id} data-selected={selected.has(role.id) ? "true" : "false"}>
+            <input
+              type="checkbox"
+              name="roleIds"
+              value={role.id}
+              checked={selected.has(role.id)}
+              onChange={() => toggleRole(role.id)}
+            />
+            <span className="discord-role-dot" style={{ backgroundColor: roleColor(role.color) }} />
+            <span>{role.name}</span>
+            {selected.has(role.id) ? <strong>Вибрано</strong> : null}
+          </label>
         ))}
-      </select>
-      <small>Ctrl/⌘ + клік дозволяє вибрати кілька ролей. Discord видасть лише ролі нижче ролі бота.</small>
+      </div>
+      <small>Бот зможе видати тільки ролі, які нижчі за його найвищу роль у Discord.</small>
+    </div>
+  );
+}
+
+function EmbedFieldEditor({ fields, onChange }: {
+  fields: EmbedFieldState[];
+  onChange: (fields: EmbedFieldState[]) => void;
+}) {
+  const [fieldSeq, setFieldSeq] = useState(fields.length);
+
+  function patchField(id: string, patch: Partial<EmbedFieldState>) {
+    onChange(fields.map((field) => field.id === id ? { ...field, ...patch } : field));
+  }
+
+  function addField() {
+    if (fields.length >= 25) return;
+    const nextSeq = fieldSeq + 1;
+    setFieldSeq(nextSeq);
+    onChange([...fields, { id: `field-${nextSeq}`, name: "", value: "", inline: false }]);
+  }
+
+  function removeField(id: string) {
+    onChange(fields.filter((field) => field.id !== id));
+  }
+
+  return (
+    <div className="discord-field-editor">
+      {fields.length === 0 ? (
+        <div className="discord-field-empty">Fields не додані. Їх можна використовувати для коротких блоків: розклад, ролі, посилання, вимоги.</div>
+      ) : null}
+
+      {fields.map((field, index) => (
+        <div className="discord-field-row" key={field.id}>
+          <div className="discord-field-row-head">
+            <strong>Field {index + 1}</strong>
+            <button className="btn danger discord-field-remove" type="button" onClick={() => removeField(field.id)}>Видалити</button>
+          </div>
+          <label className="content-field">
+            <span>Назва field</span>
+            <input className="input" value={field.name} maxLength={256} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
+          </label>
+          <label className="content-field content-field--wide">
+            <span>Значення field</span>
+            <textarea className="input textarea compact" value={field.value} maxLength={1024} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
+          </label>
+          <label className="inline-check discord-inline-check">
+            <input type="checkbox" checked={field.inline} onChange={(event) => patchField(field.id, { inline: event.currentTarget.checked })} />
+            <span>Показувати inline</span>
+          </label>
+        </div>
+      ))}
+
+      <button className="btn subtle discord-add-field" type="button" onClick={addField} disabled={fields.length >= 25}>+ Додати field</button>
+      <small>{fields.length}/25 fields</small>
     </div>
   );
 }
@@ -159,92 +348,232 @@ export default function DiscordEmbedEditor({
   selectedRoleIds = [],
   returnTo,
 }: DiscordEmbedEditorProps) {
-  const [embedJson, setEmbedJson] = useState(defaultEmbedJson);
+  const initialEmbed = useMemo(() => parseInitialEmbed(defaultEmbedJson), [defaultEmbedJson]);
+  const author = objectFrom(initialEmbed.author);
+  const footer = objectFrom(initialEmbed.footer);
+
   const [content, setContent] = useState(defaultContent);
   const [channelId, setChannelId] = useState(suggestedChannelId || channels[0]?.id || "");
   const [messageLink, setMessageLink] = useState(defaultMessageLink);
   const [roleIds, setRoleIds] = useState(selectedRoleIds);
-  const parsed = useMemo(() => safeParseEmbed(embedJson), [embedJson]);
+  const [titleValue, setTitleValue] = useState(text(initialEmbed.title));
+  const [urlValue, setUrlValue] = useState(text(initialEmbed.url));
+  const [descriptionValue, setDescriptionValue] = useState(text(initialEmbed.description));
+  const [colorHex, setColorHex] = useState(colorNumberToHex(initialEmbed.color));
+  const [authorName, setAuthorName] = useState(text(author.name));
+  const [authorUrl, setAuthorUrl] = useState(text(author.url));
+  const [authorIconUrl, setAuthorIconUrl] = useState(text(author.icon_url));
+  const [thumbnailUrl, setThumbnailUrl] = useState(urlFrom(initialEmbed.thumbnail));
+  const [imageUrl, setImageUrl] = useState(urlFrom(initialEmbed.image));
+  const [footerText, setFooterText] = useState(text(footer.text));
+  const [footerIconUrl, setFooterIconUrl] = useState(text(footer.icon_url));
+  const [timestampEnabled, setTimestampEnabled] = useState(Boolean(initialEmbed.timestamp));
+  const [fields, setFields] = useState<EmbedFieldState[]>(initialFields(initialEmbed.fields));
+
+  const embed = useMemo(() => buildEmbed({
+    title: titleValue,
+    url: urlValue,
+    description: descriptionValue,
+    colorHex,
+    authorName,
+    authorUrl,
+    authorIconUrl,
+    thumbnailUrl,
+    imageUrl,
+    footerText,
+    footerIconUrl,
+    timestampEnabled,
+    fields,
+  }), [titleValue, urlValue, descriptionValue, colorHex, authorName, authorUrl, authorIconUrl, thumbnailUrl, imageUrl, footerText, footerIconUrl, timestampEnabled, fields]);
+
+  const normalizedColor = normalizeHexColor(colorHex);
+  const generatedEmbedJson = useMemo(() => JSON.stringify(embed), [embed]);
   const isRules = mode === "rules";
-  const title = isRules ? "Rules embed builder" : "Embed builder";
+  const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
+  const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
   const actionLabel = editorMode === "edit" ? "Зберегти зміни" : isRules ? "Опублікувати правила" : "Опублікувати embed";
 
+  function updateColorFromText(value: string) {
+    setColorHex(value.startsWith("#") ? value : `#${value}`);
+  }
+
   return (
-    <div className="discord-builder-shell">
-      <section className="discord-builder-panel" aria-label={title}>
-        <div className="discord-builder-titlebar">▧ Embed</div>
+    <div className="discord-builder-shell discord-builder-shell--site">
+      <section className="discord-builder-panel panel" aria-label={title}>
+        <div className="discord-builder-titlebar">
+          <span>{isRules ? "Rules" : "General"} embed</span>
+          <small>Без ручного JSON</small>
+        </div>
         <div className="discord-builder-body">
           <div className="discord-builder-head">
             <div>
-              <span className="eyebrow">{isRules ? "Rules" : "General"} • {editorMode === "edit" ? "Edit" : "Create"}</span>
+              <span className="eyebrow">{isRules ? "Rules" : "General post"} • {editorMode === "edit" ? "Edit" : "Create"}</span>
               <h2>{title}</h2>
+              <p>{isRules ? "Створи або онови embed правил, а внизу вибери ролі для кнопки прийняття." : "Заповни поля embed окремо, обери канал і за потреби встав посилання на повідомлення для редагування."}</p>
             </div>
-            <div className="discord-builder-tabs" aria-hidden="true">
-              <span className="is-active">{editorMode === "edit" ? "Edit Embed" : "Create Embed"}</span>
-            </div>
+            <span className="discord-mode-pill">{editorMode === "edit" ? "Редагування" : "Створення"}</span>
           </div>
 
           <form className="discord-builder-form" method="post" action="/api/discord/embeds/publish">
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={editorMode === "edit" ? "edit" : "publish"} />
+            <input type="hidden" name="embedJson" value={generatedEmbedJson} />
 
-            <label className="content-field content-field--wide">
-              <span>Normal text sent with the embed</span>
-              <textarea
-                className="input textarea compact discord-builder-textarea"
-                name="content"
-                value={content}
-                maxLength={2000}
-                placeholder="Опціональний plain text над embed"
-                onChange={(event) => setContent(event.currentTarget.value)}
-              />
-              <small>{content.length}/2000</small>
-            </label>
+            <div className="content-form-section discord-visual-section">
+              <div className="content-form-section-head">
+                <strong>Публікація</strong>
+                <small>Канал, текст над embed і посилання для майбутнього редагування.</small>
+              </div>
+              <div className="discord-builder-grid">
+                <label className="content-field">
+                  <span>Канал</span>
+                  <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
+                    {channels.map((channel) => (
+                      <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • announcement" : ""}</option>
+                    ))}
+                  </select>
+                </label>
 
-            <div className="discord-builder-card discord-builder-card--accent">
+                <label className="content-field">
+                  <span>Discord message link для редагування</span>
+                  <input
+                    className="input"
+                    name="messageLink"
+                    value={messageLink}
+                    placeholder="https://discord.com/channels/.../.../..."
+                    onChange={(event) => setMessageLink(event.currentTarget.value)}
+                  />
+                </label>
+              </div>
+
               <label className="content-field content-field--wide">
-                <span>Embed JSON</span>
+                <span>Текст над embed</span>
                 <textarea
-                  className="input textarea markdown-area discord-json-code"
-                  name="embedJson"
-                  value={embedJson}
-                  minLength={20}
-                  required
-                  spellCheck={false}
-                  onChange={(event) => setEmbedJson(event.currentTarget.value)}
+                  className="input textarea compact discord-builder-textarea"
+                  name="content"
+                  value={content}
+                  maxLength={2000}
+                  placeholder="Опціональний plain text над embed"
+                  onChange={(event) => setContent(event.currentTarget.value)}
                 />
-                <small className={parsed.error ? "discord-json-error" : undefined}>{parsed.error || `${embedJson.length}/6000+ символів JSON`}</small>
+                <small>{content.length}/2000</small>
               </label>
             </div>
 
-            <div className="discord-builder-grid">
-              <label className="content-field">
-                <span>Destination</span>
-                <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
-                  {channels.map((channel) => (
-                    <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • announcement" : ""}</option>
-                  ))}
-                </select>
+            <div className="content-form-section discord-visual-section discord-visual-section--accent">
+              <div className="content-form-section-head">
+                <strong>Основний embed</strong>
+                <small>Title, URL, description і колір. Колір можна вибрати або вставити кодом, наприклад #B8E986.</small>
+              </div>
+
+              <div className="discord-builder-grid">
+                <label className="content-field">
+                  <span>Title</span>
+                  <input className="input" value={titleValue} maxLength={256} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
+                </label>
+                <label className="content-field">
+                  <span>URL заголовка</span>
+                  <input className="input" value={urlValue} placeholder="https://..." onChange={(event) => setUrlValue(event.currentTarget.value)} />
+                </label>
+              </div>
+
+              <label className="content-field content-field--wide">
+                <span>Description</span>
+                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: # Заголовок, ## Розділ, - список..." onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
+                <small>{descriptionValue.length}/4096</small>
               </label>
 
-              <label className="content-field">
-                <span>Message link for edit</span>
-                <input
-                  className="input"
-                  name="messageLink"
-                  value={messageLink}
-                  placeholder="https://discord.com/channels/.../.../..."
-                  onChange={(event) => setMessageLink(event.currentTarget.value)}
-                />
-              </label>
+              <div className="discord-color-row">
+                <label className="content-field discord-color-picker-field">
+                  <span>Вибір кольору</span>
+                  <input
+                    className="discord-color-picker"
+                    type="color"
+                    value={normalizedColor || COLOR_FALLBACK}
+                    onChange={(event) => setColorHex(event.currentTarget.value.toUpperCase())}
+                    aria-label="Вибрати колір embed"
+                  />
+                </label>
+                <label className="content-field">
+                  <span>Код кольору</span>
+                  <input
+                    className="input discord-color-code"
+                    value={colorHex}
+                    placeholder="#B8E986"
+                    maxLength={7}
+                    onChange={(event) => updateColorFromText(event.currentTarget.value)}
+                  />
+                  <small className={normalizedColor ? undefined : "discord-json-error"}>{normalizedColor ? "Формат HEX, наприклад #B8E986" : "Невалідний HEX. Потрібно #RRGGBB."}</small>
+                </label>
+                <label className="inline-check discord-inline-check discord-timestamp-check">
+                  <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
+                  <span>Додати поточний timestamp</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="content-form-section discord-visual-section">
+              <div className="content-form-section-head">
+                <strong>Медіа</strong>
+                <small>Thumbnail показується справа вгорі, image — великим блоком під текстом.</small>
+              </div>
+              <div className="discord-builder-grid">
+                <label className="content-field">
+                  <span>Thumbnail URL</span>
+                  <input className="input" value={thumbnailUrl} placeholder="https://..." onChange={(event) => setThumbnailUrl(event.currentTarget.value)} />
+                </label>
+                <label className="content-field">
+                  <span>Image URL</span>
+                  <input className="input" value={imageUrl} placeholder="https://..." onChange={(event) => setImageUrl(event.currentTarget.value)} />
+                </label>
+              </div>
+            </div>
+
+            <div className="content-form-section discord-visual-section">
+              <div className="content-form-section-head">
+                <strong>Author і footer</strong>
+                <small>Опціональні дані автора та нижній підпис embed.</small>
+              </div>
+              <div className="discord-builder-grid discord-builder-grid--three">
+                <label className="content-field">
+                  <span>Author name</span>
+                  <input className="input" value={authorName} maxLength={256} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                </label>
+                <label className="content-field">
+                  <span>Author URL</span>
+                  <input className="input" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
+                </label>
+                <label className="content-field">
+                  <span>Author icon URL</span>
+                  <input className="input" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
+                </label>
+              </div>
+              <div className="discord-builder-grid">
+                <label className="content-field">
+                  <span>Footer text</span>
+                  <input className="input" value={footerText} maxLength={2048} onChange={(event) => setFooterText(event.currentTarget.value)} />
+                </label>
+                <label className="content-field">
+                  <span>Footer icon URL</span>
+                  <input className="input" value={footerIconUrl} placeholder="https://..." onChange={(event) => setFooterIconUrl(event.currentTarget.value)} />
+                </label>
+              </div>
+            </div>
+
+            <div className="content-form-section discord-visual-section">
+              <div className="content-form-section-head">
+                <strong>Fields</strong>
+                <small>До 25 окремих embed fields. Порожні rows автоматично не потраплять у Discord.</small>
+              </div>
+              <EmbedFieldEditor fields={fields} onChange={setFields} />
             </div>
 
             {isRules ? (
-              <div className="discord-builder-card discord-builder-card--roles">
+              <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
-                  <strong>Ролі для кнопки “Прийняти”</strong>
-                  <small>Можна вибрати одну або кілька ролей. Внизу залишено саме те, чого бракувало у попередній версії редактора.</small>
+                  <strong>Ролі для кнопки “Прийняти правила”</strong>
+                  <small>Можна вибрати одну або кілька ролей. Кнопка “Відмовитися” залишиться дією кіку через Worker.</small>
                 </div>
                 <RolePicker roles={roles} selectedRoleIds={roleIds} onChange={setRoleIds} />
               </div>
@@ -252,13 +581,13 @@ export default function DiscordEmbedEditor({
 
             <div className="discord-builder-actions">
               <a className="btn subtle" href={isRules ? "/discord/rules" : "/discord"}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={Boolean(parsed.error)}>{actionLabel}</button>
+              <button className="btn primary" type="submit" disabled={!isValid}>{actionLabel}</button>
             </div>
           </form>
         </div>
       </section>
 
-      <DiscordPreview embed={parsed.embed} content={content} />
+      <DiscordPreview embed={embed} content={content} isValid={isValid} />
     </div>
   );
 }

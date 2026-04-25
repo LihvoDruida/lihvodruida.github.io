@@ -64,7 +64,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
           <div>
             <span className="eyebrow">General embed • {editMode ? "Edit" : "Create"}</span>
             <h1>{editMode ? "Редагування embed" : "Звичайна відправка embed"}</h1>
-            <p>Окрема сторінка для будь-яких embed-публікацій. Для редагування достатньо додати параметр message або вставити посилання у поле редактора.</p>
+            <p>Окрема сторінка для будь-яких embed-публікацій у стилі сайту: title, description, media, author, footer, fields і колір редагуються окремими полями без ручного JSON.</p>
           </div>
           <a className="btn subtle" href="/discord">Назад</a>
         </header>

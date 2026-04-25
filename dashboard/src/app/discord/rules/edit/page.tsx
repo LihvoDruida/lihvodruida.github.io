@@ -64,7 +64,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
           <div>
             <span className="eyebrow">Rules embed • Edit</span>
             <h1>Редагування правил</h1>
-            <p>Встав посилання на існуючий Discord message або відкрий редагування зі списку правил. Ролі для кнопки “Прийняти” змінюються внизу форми.</p>
+            <p>Відкрий rules embed зі списку або встав message link. Усі параметри редагуються окремими полями без JSON, а ролі для кнопки “Прийняти” змінюються внизу форми.</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>

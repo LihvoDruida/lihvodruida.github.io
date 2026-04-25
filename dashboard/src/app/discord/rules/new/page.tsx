@@ -38,7 +38,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
           <div>
             <span className="eyebrow">Rules embed • Create</span>
             <h1>Нові правила Discord</h1>
-            <p>Сторінка створення окремо від списку. Стиль редактора наближений до embed builder: форма ліворуч, preview праворуч, ролі внизу.</p>
+            <p>Сторінка створення правил у стилі сайту: усі параметри embed редагуються окремими полями, колір можна вибрати або вставити кодом #B8E986, ролі — внизу.</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
