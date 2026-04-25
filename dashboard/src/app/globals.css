@@ -2106,35 +2106,74 @@ textarea:disabled {
 @media (max-width: 680px) {
   .login-screen {
     min-height: 100svh;
-    place-items: start center;
-    padding: calc(10px + var(--safe-top)) 10px calc(14px + var(--safe-bottom));
+    place-items: center;
+    padding: calc(14px + var(--safe-top)) 12px calc(14px + var(--safe-bottom));
     overflow-y: auto;
   }
 
-  .login-grid,
-  .login-glow,
-  .login-ornament,
-  .login-hero::after {
-    display: none;
+  .login-shell {
+    width: min(100%, 430px);
+  }
+
+  .login-glow {
+    width: 260px;
+    height: 260px;
+    opacity: 0.3;
+    filter: blur(22px);
+  }
+
+  .login-glow--gold {
+    right: -120px;
+    top: -90px;
+  }
+
+  .login-glow--violet {
+    left: -120px;
+    bottom: -90px;
+  }
+
+  .login-grid {
+    opacity: 0.12;
+    background-size: 44px 44px;
+  }
+
+  .login-ornament {
+    width: min(82vw, 360px);
+  }
+
+  .login-ornament--top {
+    top: 34px;
+  }
+
+  .login-ornament--bottom {
+    bottom: 34px;
   }
 
   .login-hero {
-    min-height: auto;
-    padding: 20px 16px;
-    border-radius: 20px;
-    box-shadow: 0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.06);
-    backdrop-filter: none;
+    min-height: 0;
+    width: 100%;
+    padding: 22px 16px;
+    border-radius: 24px;
+    backdrop-filter: blur(18px);
   }
 
   .login-hero::before {
-    inset: 6px;
-    border-radius: 15px;
+    inset: 7px;
+    border-radius: 18px;
+  }
+
+  .login-hero::after {
+    inset: auto 50% 40px;
+    width: min(78vw, 320px);
+    height: 132px;
+    opacity: 0.56;
   }
 
   .login-pill {
-    min-height: 32px;
+    min-height: 30px;
     padding: 0 11px;
     font-size: 10px;
+    letter-spacing: 0.05em;
   }
 
   .login-brandmark {
@@ -2162,44 +2201,68 @@ textarea:disabled {
   }
 
   .login-hero h1 {
-    font-size: clamp(32px, 11vw, 44px);
+    max-width: 340px;
+    font-size: clamp(31px, 10vw, 42px);
     line-height: 1.02;
   }
 
   .login-lead {
+    max-width: 340px;
     margin-top: 10px;
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.52;
   }
 
   .login-feature-list {
-    margin-top: 13px;
+    margin-top: 12px;
     gap: 7px;
   }
 
   .login-feature-list span {
-    min-height: 27px;
+    min-height: 26px;
     padding: 0 9px;
     font-size: 10px;
   }
 
+  .login-alert {
+    width: min(100%, 340px);
+    margin-top: 12px;
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
   .login-action-row {
-    margin-top: 17px;
+    margin-top: 16px;
   }
 
   .login-discord-button {
-    width: 100%;
-    min-height: 56px;
-    grid-template-columns: auto minmax(0, 1fr);
-    padding: 10px 12px;
+    min-width: 0;
+    width: min(100%, 292px);
+    min-height: 52px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 9px 12px;
+  }
+
+  .login-discord-button__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .login-discord-button__icon svg {
+    width: 21px;
+    height: 21px;
   }
 
   .login-discord-button__arrow {
-    display: none;
+    display: block;
+    font-size: 20px;
   }
 
   .login-token {
-    width: 100%;
+    width: min(100%, 340px);
+    margin-top: 12px;
   }
 
   .login-token__row {
@@ -2207,7 +2270,9 @@ textarea:disabled {
   }
 
   .login-note {
+    max-width: 340px;
     margin-top: 12px;
+    font-size: 11px;
   }
 
   .login-screen *,
