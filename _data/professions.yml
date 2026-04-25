@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-25 02:34:21'
+  updated_at: '2026-04-25 05:49:33'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -357,7 +357,7 @@ characters:
   region: eu
   realm: ravencrest
   realm_slug: ravencrest
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
   professions:
     primaries:
     - name: Engineering

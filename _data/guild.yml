@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-25 02:34:21'
+  updated_at: '2026-04-25 05:49:33'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13289
-      region: 5914
+      world: 13296
+      region: 5917
       realm: 55
     heroic:
-      world: 15861
-      region: 6671
+      world: 15894
+      region: 6672
       realm: 55
     mythic:
-      world: 6217
+      world: 6228
       region: 2694
       realm: 23
   blackrock-depths:
@@ -438,23 +438,47 @@ members:
       slug: ravencrest
     playable_class:
       id: 7
-      name: null
+      name: Shaman
     playable_race:
       id: 3
-      name: null
+      name: Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
+    item_level_equipped: 245
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 170
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 170
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
