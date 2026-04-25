@@ -565,7 +565,9 @@ export function extractRulesRoleIdsFromMessage(message: Record<string, unknown>)
 
   for (const customId of readComponentCustomIds(message.components)) {
     const decoded = decodeRulesCustomId(customId);
-    if (decoded?.action === "accept") roleIds.push(...decoded.roleIds);
+    if (decoded?.action === "accept" || decoded?.action === "confirm_accept") {
+      roleIds.push(...decoded.roleIds);
+    }
   }
 
   return Array.from(new Set(roleIds));

@@ -2331,7 +2331,7 @@ textarea:disabled {
 .discord-panel-head p {
   margin: 0;
   max-width: 760px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -3863,5 +3863,400 @@ textarea:disabled {
     display: grid;
     grid-template-columns: 1fr 1fr;
     width: 100%;
+  }
+}
+
+/* Compact pass: smaller typography, tighter controls, and visible active rules roles. */
+:root {
+  --radius-lg: 22px;
+  --radius: 16px;
+  --radius-sm: 11px;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.container {
+  width: min(100% - 28px, 1280px);
+  padding: calc(16px + var(--safe-top)) 0 calc(28px + var(--safe-bottom));
+}
+
+.dashboard-shell,
+.content-shell,
+.discord-shell,
+.discord-page-stack,
+.content-page-stack {
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dashboard-topbar {
+  gap: 10px;
+  padding: 9px;
+  border-radius: 20px;
+}
+
+.guild-mark,
+.discord-avatar,
+.discord-avatar-fallback {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.dashboard-brand span,
+.dashboard-user span,
+.meta,
+.detail-box span,
+.section-title,
+.content-field > span,
+.content-form-section-head small,
+.image-upload-text small,
+.image-preview-meta small,
+.content-row-title small,
+.content-row-meta small,
+.content-editor-title small,
+.content-delete-form small,
+.notice,
+.empty,
+.content-empty,
+.lead,
+.login-lead,
+.discord-panel-head p,
+.discord-builder-shell--site .discord-builder-head p {
+  font-size: 12px;
+}
+
+.dashboard-brand strong,
+.dashboard-user strong,
+.content-row-title strong,
+.discord-rules-row-title strong {
+  font-size: 14px;
+}
+
+.eyebrow {
+  margin-bottom: 9px;
+  font-size: 10.5px;
+  letter-spacing: 0.11em;
+}
+
+.hero {
+  min-height: 238px;
+  gap: 20px;
+  padding: clamp(18px, 2.4vw, 30px);
+}
+
+.hero h1 {
+  max-width: 720px;
+  font-size: clamp(34px, 5.8vw, 60px);
+  line-height: 0.98;
+}
+
+.content-editor-title h2,
+.content-section-head h2 {
+  font-size: clamp(22px, 3vw, 34px);
+}
+
+.hero-accent {
+  width: 96px;
+  height: 3px;
+  margin-top: 14px;
+}
+
+.lead {
+  margin-top: 13px;
+  line-height: 1.6;
+}
+
+.hero-secure-note {
+  margin-top: 16px;
+  padding: 9px 11px;
+  border-radius: 14px;
+}
+
+.btn,
+.action-button,
+.input,
+.select,
+.textarea,
+.status-select {
+  min-height: 40px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.btn,
+.action-button {
+  padding: 0 13px;
+  gap: 7px;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 9px 12px;
+}
+
+.textarea.compact {
+  min-height: 76px;
+}
+
+.markdown-area,
+.discord-description-area {
+  font-size: 13px;
+}
+
+.content-mode-pill,
+.content-count-pill,
+.status-pill {
+  min-height: 28px;
+  padding-inline: 9px;
+  font-size: 11px;
+}
+
+.content-editor-panel,
+.content-list,
+.discord-rules-list-panel {
+  padding: clamp(12px, 2vw, 18px);
+}
+
+.content-form-section,
+.content-library-group,
+.content-delete-form,
+.discord-builder-shell--site .discord-builder-head {
+  padding: 12px;
+  border-radius: 18px;
+}
+
+.content-editor-head,
+.content-section-head,
+.content-library-group-head,
+.content-delete-form {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.content-form-section-head strong,
+.content-library-group-head h3,
+.content-delete-form strong {
+  font-size: 14px;
+}
+
+.content-row,
+.discord-rules-row {
+  padding: 9px;
+  gap: 9px;
+  border-radius: 16px;
+}
+
+.content-row-main {
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.content-row-thumb,
+.discord-rules-row-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  font-size: 20px;
+}
+
+.discord-rules-stats-grid {
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.discord-rules-stat-card {
+  min-height: 118px;
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.discord-rules-stat-card::after {
+  right: 14px;
+  bottom: 12px;
+  width: 38px;
+  height: 38px;
+}
+
+.discord-rules-stat-card strong {
+  font-size: clamp(26px, 3vw, 38px);
+}
+
+.discord-rules-stat-card--wide strong {
+  font-size: clamp(20px, 2.2vw, 28px);
+}
+
+.discord-rules-stat-card small {
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.discord-rules-table {
+  gap: 8px;
+}
+
+.discord-rules-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.discord-rules-row-main {
+  grid-template-columns: 46px minmax(0, 1fr) minmax(230px, 0.45fr);
+  gap: 10px;
+}
+
+.discord-rules-row-title small {
+  margin-top: 4px;
+  max-width: 100%;
+  font-size: 11.5px;
+  color: rgba(246, 239, 226, 0.58);
+}
+
+.discord-rules-row-meta {
+  display: grid;
+  gap: 5px;
+  padding: 8px 9px;
+  min-width: 0;
+  text-align: left;
+  border-radius: 13px;
+}
+
+.discord-rules-row-state {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.discord-rules-row-roles-label {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.discord-rules-role-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.discord-rules-role-chip,
+.discord-rules-role-empty {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 0 8px;
+  border: 1px solid rgba(89, 214, 141, 0.22);
+  background: rgba(89, 214, 141, 0.09);
+  color: #d9ffe7;
+  font-size: 11px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-rules-role-empty {
+  border-color: rgba(255, 217, 139, 0.18);
+  background: rgba(255, 217, 139, 0.06);
+  color: var(--muted);
+}
+
+.discord-role-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.discord-rules-row-actions {
+  gap: 7px;
+}
+
+.discord-rules-row-actions .btn,
+.content-row-actions .btn {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  border-radius: 11px;
+}
+
+.discord-builder-shell--site {
+  gap: 14px;
+}
+
+.discord-builder-shell--site .discord-builder-body {
+  padding: clamp(12px, 1.8vw, 18px);
+}
+
+.discord-builder-shell--site .discord-builder-form {
+  gap: 12px;
+}
+
+.discord-builder-shell--site .content-form-section-head {
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.discord-builder-shell--site .discord-preview-canvas {
+  min-height: min(660px, calc(100vh - 160px));
+}
+
+@media (max-width: 900px) {
+  .hero {
+    min-height: 0;
+  }
+
+  .discord-rules-row,
+  .discord-rules-row-main {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-rules-row-main {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .discord-rules-row-meta {
+    grid-column: 1 / -1;
+  }
+
+  .discord-rules-row-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    width: min(100% - 20px, 1280px);
+  }
+
+  .hero h1 {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .discord-rules-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-rules-stat-card {
+    min-height: 104px;
   }
 }

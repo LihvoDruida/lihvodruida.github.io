@@ -27,7 +27,17 @@ function StatusNotice({ params }: { params: Record<string, string | undefined> }
 }
 
 function roleName(roleId: string, roles: DiscordRoleOption[]) {
-  return roles.find((role) => role.id === roleId)?.name || roleId;
+  return roles.find((role) => role.id === roleId)?.name || `Невідома роль · ${roleId.slice(-6)}`;
+}
+
+function roleColor(roleId: string, roles: DiscordRoleOption[]) {
+  const color = Number(roles.find((role) => role.id === roleId)?.color || 0);
+  if (!Number.isFinite(color) || color <= 0) return "#B8E986";
+  return `#${Math.max(0, Math.min(0xffffff, Math.floor(color))).toString(16).padStart(6, "0")}`;
+}
+
+function shortDiscordUrl(url: string) {
+  return url.replace(/^https?:\/\/discord(?:app)?\.com\/channels\//i, "discord / ");
 }
 
 function formatUpdatedAt(value: string | null) {
@@ -68,18 +78,42 @@ function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: Discord
   );
 }
 
+function RulesRoleBadges({ roleIds, roles }: { roleIds: string[]; roles: DiscordRoleOption[] }) {
+  const uniqueRoleIds = Array.from(new Set(roleIds.filter(Boolean)));
+
+  if (uniqueRoleIds.length === 0) {
+    return <span className="discord-rules-role-empty">Ролі не задані</span>;
+  }
+
+  return (
+    <span className="discord-rules-role-badges" aria-label="Активні ролі, які видають правила">
+      {uniqueRoleIds.map((roleId) => (
+        <span className="discord-rules-role-chip" key={roleId} title={roleName(roleId, roles)}>
+          <span className="discord-role-dot" style={{ backgroundColor: roleColor(roleId, roles) }} />
+          {roleName(roleId, roles)}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: DiscordRoleOption[] }) {
+  const stateLabel = message.editedAt ? "Оновлено" : "Створено";
+
   return (
     <article className="discord-rules-row" role="listitem">
       <a className="discord-rules-row-main" href={`/discord/rules/edit?message=${encodeURIComponent(message.url)}`}>
         <span className="discord-rules-row-icon" aria-hidden="true">🌸</span>
         <span className="discord-rules-row-title">
           <strong>{message.title}</strong>
-          <small>{message.url}</small>
+          <small>{shortDiscordUrl(message.url)}</small>
         </span>
         <span className="discord-rules-row-meta">
-          <time dateTime={message.editedAt || message.createdAt || undefined}>{message.editedAt ? "Оновлено" : "Створено"}</time>
-          <small>{message.roleIds.length ? message.roleIds.map((id) => roleName(id, roles)).join(", ") : "Без ролей"}</small>
+          <span className="discord-rules-row-state">
+            <time dateTime={message.editedAt || message.createdAt || undefined}>{stateLabel}</time>
+          </span>
+          <span className="discord-rules-row-roles-label">Видає ролі</span>
+          <RulesRoleBadges roleIds={message.roleIds} roles={roles} />
         </span>
       </a>
       <div className="discord-rules-row-actions">
@@ -128,7 +162,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             </div>
             <h1>Правила Discord</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Тут показуються тільки rule embed-повідомлення, статистика прийняття/відмови та швидкі дії для створення або редагування правил.</p>
+            <p className="lead">Тут показуються rule embed-повідомлення, статистика прийняття/відмови та швидкі дії для створення або редагування правил.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>Канал визначається автоматично, але при створенні або редагуванні його можна змінити вручну.</span>
