@@ -40,7 +40,7 @@ export default async function DashboardIdentity({
                   className={activeSection === "discord" ? "is-active" : undefined}
                   aria-current={activeSection === "discord" ? "page" : undefined}
                 >
-                  Discord embeds
+                  Discord actions
                 </a>
               </>
             ) : null}
