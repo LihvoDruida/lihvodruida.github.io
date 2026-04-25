@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-25 13:08:17'
+  updated_at: '2026-04-25 16:43:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -443,7 +443,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 79
+        learned_points: 84
         max_points: 100
     - name: Mining
       id: 186
@@ -4026,7 +4026,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 91
+        learned_points: 99
         max_points: 100
     - name: Blacksmithing
       id: 164
@@ -4451,7 +4451,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 51
+        learned_points: 52
         max_points: 100
     secondaries:
     - name: Fishing

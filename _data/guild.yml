@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-25 13:08:17'
+  updated_at: '2026-04-25 16:43:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13302
-      region: 5918
+      world: 13305
+      region: 5920
       realm: 55
     heroic:
-      world: 15920
-      region: 6675
+      world: 15930
+      region: 6680
       realm: 55
     mythic:
-      world: 6244
-      region: 2695
+      world: 6254
+      region: 2699
       realm: 23
   blackrock-depths:
     normal:
@@ -2249,20 +2249,20 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2525
-        color: '#5eaa9f'
+        score: 2591
+        color: '#589dae'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2525
-        color: '#5eaa9f'
+        score: 2591
+        color: '#589dae'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2525
-        color: '#5eaa9f'
+        score: 2591
+        color: '#589dae'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2561,13 +2561,13 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2578.4
+        score: 2578.8
         color: '#5ba1a9'
       dps:
         score: 1926.7
         color: '#4dff33'
       healer:
-        score: 2517.3
+        score: 2517.8
         color: '#5eaa9f'
       tank:
         score: 0
@@ -2582,7 +2582,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2517.3
+        score: 2517.8
         color: '#5eaa9f'
     sources:
       roster: blizzard
@@ -4014,17 +4014,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2668.3
-        color: '#4f8fbc'
+        score: 2749.5
+        color: '#377dcf'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2668.3
-        color: '#4f8fbc'
+        score: 2749.5
+        color: '#377dcf'
       tank:
         score: 1906.4
         color: '#53ff38'
@@ -4032,8 +4032,8 @@ members:
         score: 1906.4
         color: '#53ff38'
       spec_1:
-        score: 2668.3
-        color: '#4f8fbc'
+        score: 2749.5
+        color: '#377dcf'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4393,8 +4393,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 622.8
-        color: '#e1ffd4'
+        score: 905
+        color: '#c8ffb4'
       spec_1:
         score: 2048.9
         color: '#33ff1a'
@@ -5314,7 +5314,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2511.3
@@ -5418,7 +5418,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Галазард
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2770.3
@@ -5806,21 +5806,21 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 268
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1859.2
-        color: '#5cff41'
+        score: 1904.7
+        color: '#53ff38'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1859.2
-        color: '#5cff41'
+        score: 1904.7
+        color: '#53ff38'
       tank:
         score: 0
         color: '#ffffff'
@@ -5834,8 +5834,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1859.2
-        color: '#5cff41'
+        score: 1904.7
+        color: '#53ff38'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5862,14 +5862,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 252
+    item_level_equipped: 255
     mythic_plus_scores:
       all:
-        score: 1798.8
-        color: '#69ff4d'
+        score: 1905.7
+        color: '#53ff38'
       dps:
-        score: 1798.8
-        color: '#69ff4d'
+        score: 1905.7
+        color: '#53ff38'
       healer:
         score: 0
         color: '#ffffff'
@@ -5883,8 +5883,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1798.8
-        color: '#69ff4d'
+        score: 1905.7
+        color: '#53ff38'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5917,8 +5917,8 @@ members:
     item_level_equipped: 255
     mythic_plus_scores:
       all:
-        score: 1300
-        color: '#a5ff8b'
+        score: 1902.6
+        color: '#53ff38'
       dps:
         score: 0
         color: '#ffffff'
@@ -5926,8 +5926,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1300
-        color: '#a5ff8b'
+        score: 1902.6
+        color: '#53ff38'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5935,8 +5935,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1300
-        color: '#a5ff8b'
+        score: 1902.6
+        color: '#53ff38'
       spec_3:
         score: 0
         color: '#ffffff'
