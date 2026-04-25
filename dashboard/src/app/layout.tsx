@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="uk">
-      <body>{children}</body>
+      <body><DashboardFormEnhancer />{children}</body>
     </html>
   );
 }

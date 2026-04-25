@@ -4260,3 +4260,102 @@ body {
     min-height: 104px;
   }
 }
+
+/* API/workflow feedback */
+form.is-submitting .btn,
+form.is-submitting button[type="submit"],
+.btn[aria-busy="true"],
+.action-button[aria-busy="true"],
+.btn-working {
+  cursor: progress;
+}
+
+.btn[aria-busy="true"]::before,
+.action-button[aria-busy="true"]::before,
+.btn-working::before {
+  content: "";
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: dashboard-spin 720ms linear infinite;
+}
+
+@keyframes dashboard-spin {
+  to { transform: rotate(360deg); }
+}
+
+.discord-message-link-field {
+  gap: 8px;
+}
+
+.discord-message-link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.discord-load-message-btn {
+  min-height: 40px;
+  padding-inline: 13px;
+  font-size: 0.78rem;
+}
+
+.discord-message-load-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 18px;
+}
+
+.discord-message-load-note--loading::before,
+.discord-message-load-note--loaded::before,
+.discord-message-load-note--error::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.discord-message-load-note--loading::before {
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: dashboard-spin 720ms linear infinite;
+}
+
+.discord-message-load-note--loaded {
+  color: #bff3ce;
+}
+
+.discord-message-load-note--loaded::before {
+  background: #72dfa0;
+}
+
+.discord-message-load-note--error {
+  color: #ffb4b4;
+}
+
+.discord-message-load-note--error::before {
+  background: #ff6b6b;
+}
+
+.discord-builder-form.is-submitting {
+  pointer-events: none;
+}
+
+.discord-builder-form.is-submitting .discord-builder-actions {
+  pointer-events: auto;
+}
+
+@media (max-width: 720px) {
+  .discord-message-link-row {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-load-message-btn {
+    width: 100%;
+  }
+}

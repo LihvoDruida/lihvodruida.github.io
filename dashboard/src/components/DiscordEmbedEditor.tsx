@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 export type DiscordChannelOption = {
   id: string;
@@ -76,6 +76,22 @@ function colorNumberToHex(value: unknown) {
 
 function uniqueIds(values: string[]) {
   return Array.from(new Set(values.map((value) => String(value || "").trim()).filter(Boolean)));
+}
+
+function normalizeMessageLink(value: string) {
+  return String(value || "").trim();
+}
+
+function looksLikeDiscordMessageRef(value: string) {
+  const text = normalizeMessageLink(value);
+  if (!text) return false;
+  return /discord(?:app)?\.com\/channels\/(?:\d{16,25}|@me)\/\d{16,25}\/\d{16,25}/i.test(text) || /^(\d{16,25})[\s,/|:]+(\d{16,25})$/.test(text);
+}
+
+function extractErrorMessage(value: unknown, fallback = "Не вдалося підтягнути Discord-повідомлення.") {
+  if (!value || typeof value !== "object") return fallback;
+  const message = (value as Record<string, unknown>).error || (value as Record<string, unknown>).message;
+  return typeof message === "string" && message.trim() ? message.trim() : fallback;
 }
 
 function hexToNumber(value: string) {
@@ -382,6 +398,10 @@ export default function DiscordEmbedEditor({
   const [footerIconUrl, setFooterIconUrl] = useState(text(footer.icon_url));
   const [timestampEnabled, setTimestampEnabled] = useState(Boolean(initialEmbed.timestamp));
   const [fields, setFields] = useState<EmbedFieldState[]>(initialFields(initialEmbed.fields));
+  const [messageLoadState, setMessageLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
+  const [messageLoadText, setMessageLoadText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const lastLoadedMessageLinkRef = useRef(normalizeMessageLink(defaultMessageLink));
   const channelsKey = channels.map((channel) => channel.id).join("|");
   const selectedRoleIdsKey = uniqueIds(selectedRoleIds).join("|");
 
@@ -407,7 +427,114 @@ export default function DiscordEmbedEditor({
     setFooterIconUrl(text(nextFooter.icon_url));
     setTimestampEnabled(Boolean(nextEmbed.timestamp));
     setFields(initialFields(nextEmbed.fields));
+    lastLoadedMessageLinkRef.current = normalizeMessageLink(defaultMessageLink);
+    setMessageLoadState("idle");
+    setMessageLoadText("");
   }, [defaultEmbedJson, defaultContent, defaultMessageLink, suggestedChannelId, channelsKey, selectedRoleIdsKey]);
+
+  function applyEmbedToEditor(nextEmbed: EmbedObject) {
+    const nextAuthor = objectFrom(nextEmbed.author);
+    const nextFooter = objectFrom(nextEmbed.footer);
+    setTitleValue(text(nextEmbed.title));
+    setUrlValue(text(nextEmbed.url));
+    setDescriptionValue(text(nextEmbed.description));
+    setColorHex(colorNumberToHex(nextEmbed.color));
+    setAuthorName(text(nextAuthor.name));
+    setAuthorUrl(text(nextAuthor.url));
+    setAuthorIconUrl(text(nextAuthor.icon_url));
+    setThumbnailUrl(urlFrom(nextEmbed.thumbnail));
+    setImageUrl(urlFrom(nextEmbed.image));
+    setFooterText(text(nextFooter.text));
+    setFooterIconUrl(text(nextFooter.icon_url));
+    setTimestampEnabled(Boolean(nextEmbed.timestamp));
+    setFields(initialFields(nextEmbed.fields));
+  }
+
+  async function loadMessageFromLink(force = false, signal?: AbortSignal) {
+    const rawLink = normalizeMessageLink(messageLink);
+    if (!rawLink || !looksLikeDiscordMessageRef(rawLink)) {
+      if (force) {
+        setMessageLoadState("error");
+        setMessageLoadText("Встав повне посилання Discord message або пару channelId/messageId.");
+      }
+      return;
+    }
+
+    if (!force && rawLink === lastLoadedMessageLinkRef.current) return;
+
+    setMessageLoadState("loading");
+    setMessageLoadText("Підтягуємо контент з Discord...");
+
+    try {
+      const params = new URLSearchParams({ message: rawLink, mode });
+      const response = await fetch(`/api/discord/embeds/message?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "X-Dashboard-Action": "load-discord-message",
+        },
+        credentials: "same-origin",
+        cache: "no-store",
+        signal,
+      });
+      const data = await response.json().catch(() => ({ error: "Сервер повернув не JSON-відповідь." }));
+
+      if (!response.ok || data?.error) {
+        throw new Error(extractErrorMessage(data));
+      }
+
+      const loaded = data?.message && typeof data.message === "object" ? data.message as Record<string, unknown> : null;
+      if (!loaded) throw new Error("Discord-повідомлення не містить даних для редактора.");
+
+      const rawEmbed = loaded.embed && typeof loaded.embed === "object" && !Array.isArray(loaded.embed)
+        ? loaded.embed as EmbedObject
+        : parseInitialEmbed(typeof loaded.embedJson === "string" ? loaded.embedJson : "{}");
+
+      applyEmbedToEditor(rawEmbed);
+      setContent(text(loaded.content));
+      setChannelId(text(loaded.channelId) || channelId);
+      setMessageLink(text(loaded.url) || rawLink);
+
+      if (isRules) {
+        setRoleIds(Array.isArray(loaded.roleIds) ? uniqueIds(loaded.roleIds.map((roleId) => String(roleId))) : []);
+      }
+
+      const nextLink = normalizeMessageLink(text(loaded.url) || rawLink);
+      lastLoadedMessageLinkRef.current = nextLink;
+      setMessageLoadState("loaded");
+      setMessageLoadText(text(data.warning) || "Контент, embed і ролі підтягнуто з Discord-повідомлення.");
+    } catch (error) {
+      if ((error as DOMException)?.name === "AbortError") return;
+      setMessageLoadState("error");
+      setMessageLoadText(error instanceof Error ? error.message : "Не вдалося підтягнути Discord-повідомлення.");
+    }
+  }
+
+  useEffect(() => {
+    const rawLink = normalizeMessageLink(messageLink);
+    if (!rawLink || rawLink === lastLoadedMessageLinkRef.current) return;
+
+    if (!looksLikeDiscordMessageRef(rawLink)) {
+      setMessageLoadState("idle");
+      setMessageLoadText("");
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      loadMessageFromLink(false, controller.signal);
+    }, 650);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [messageLink, mode, isRules]);
+
+  function handleSubmit(_: FormEvent<HTMLFormElement>) {
+    setIsSubmitting(true);
+    setMessageLoadText(isRules ? "Оновлюємо Discord rules embed..." : "Оновлюємо Discord embed...");
+  }
 
   const embed = useMemo(() => buildEmbed({
     title: titleValue,
@@ -454,7 +581,7 @@ export default function DiscordEmbedEditor({
             <span className="discord-mode-pill">{editorMode === "edit" ? "Редагування" : "Створення"}</span>
           </div>
 
-          <form className="discord-builder-form" method="post" action="/api/discord/embeds/publish">
+          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={editorMode === "edit" ? "edit" : "publish"} />
@@ -475,16 +602,33 @@ export default function DiscordEmbedEditor({
                   </select>
                 </label>
 
-                <label className="content-field">
+                <div className="content-field discord-message-link-field">
                   <span>Discord message link для редагування</span>
-                  <input
-                    className="input"
-                    name="messageLink"
-                    value={messageLink}
-                    placeholder="https://discord.com/channels/.../.../..."
-                    onChange={(event) => setMessageLink(event.currentTarget.value)}
-                  />
-                </label>
+                  <div className="discord-message-link-row">
+                    <input
+                      className="input"
+                      name="messageLink"
+                      value={messageLink}
+                      placeholder="https://discord.com/channels/.../.../..."
+                      disabled={isSubmitting}
+                      onChange={(event) => setMessageLink(event.currentTarget.value)}
+                    />
+                    <button
+                      className="btn subtle discord-load-message-btn"
+                      type="button"
+                      disabled={isSubmitting || messageLoadState === "loading" || !looksLikeDiscordMessageRef(messageLink)}
+                      aria-busy={messageLoadState === "loading"}
+                      onClick={() => loadMessageFromLink(true)}
+                    >
+                      {messageLoadState === "loading" ? "Підтягуємо..." : "Підтягнути"}
+                    </button>
+                  </div>
+                  {messageLoadText ? (
+                    <small className={`discord-message-load-note discord-message-load-note--${messageLoadState}`} role={messageLoadState === "error" ? "alert" : "status"}>{messageLoadText}</small>
+                  ) : (
+                    <small>Після вставки link редактор автоматично підтягне content, embed, канал і ролі.</small>
+                  )}
+                </div>
               </div>
 
               <label className="content-field content-field--wide">
@@ -621,7 +765,7 @@ export default function DiscordEmbedEditor({
 
             <div className="discord-builder-actions">
               <a className="btn subtle" href={returnTo || (isRules ? "/discord/rules" : "/discord")}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={!isValid} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : undefined}>{actionLabel}</button>
+              <button className="btn primary" type="submit" disabled={!isValid || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
             </div>
           </form>
         </div>
