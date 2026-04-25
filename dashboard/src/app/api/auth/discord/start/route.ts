@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { OAUTH_STATE_COOKIE } from "@/lib/auth";
 import { buildDiscordOAuthUrl, randomState } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   const state = randomState();
   const store = await cookies();
-  store.set("__Host-mistblossom_oauth_state", state, {
+  store.set(OAUTH_STATE_COOKIE, state, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",

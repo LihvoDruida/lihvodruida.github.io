@@ -1,5 +1,9 @@
 export {
   clearSession,
+  LEGACY_OAUTH_STATE_COOKIE,
+  LEGACY_SESSION_COOKIE,
+  OAUTH_STATE_COOKIE,
+  SESSION_COOKIE,
   createSessionCookie,
   createSessionToken,
   getSession,

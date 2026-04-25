@@ -14,8 +14,10 @@ export type DashboardSession = {
 
 export type SessionUser = DashboardSession;
 
-const SESSION_COOKIE = "__Host-mistblossom_dashboard_session";
-const LEGACY_SESSION_COOKIE = "mistblossom_dashboard_session";
+export const SESSION_COOKIE = "__Host-mistblossom_dashboard_session";
+export const LEGACY_SESSION_COOKIE = "mistblossom_dashboard_session";
+export const OAUTH_STATE_COOKIE = "__Host-mistblossom_oauth_state";
+export const LEGACY_OAUTH_STATE_COOKIE = "mistblossom_oauth_state";
 const SESSION_AUDIENCE = "mistblossom-dashboard";
 function getSessionMaxAgeSeconds() {
   const parsed = Number(process.env.SESSION_MAX_AGE_SECONDS || 60 * 60 * 24 * 7);
@@ -157,8 +159,24 @@ export async function setSession(session: DashboardSession) {
 
 export async function clearSession() {
   const store = await cookies();
-  store.delete(SESSION_COOKIE);
-  store.delete(LEGACY_SESSION_COOKIE);
+  const secureCookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 0,
+  };
+  const legacyCookieOptions = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 0,
+  };
+
+  store.set(SESSION_COOKIE, "", secureCookieOptions);
+  store.set(LEGACY_SESSION_COOKIE, "", legacyCookieOptions);
+  store.set(OAUTH_STATE_COOKIE, "", secureCookieOptions);
+  store.set(LEGACY_OAUTH_STATE_COOKIE, "", legacyCookieOptions);
 }
 
 function splitIds(value?: string): Set<string> {

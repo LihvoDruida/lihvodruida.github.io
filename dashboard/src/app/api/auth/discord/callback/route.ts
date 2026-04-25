@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { resolveDashboardRole } from "@/lib/access";
+import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE } from "@/lib/auth";
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
@@ -26,9 +27,9 @@ export async function GET(request: NextRequest) {
   const state = url.searchParams.get("state") || "";
 
   const store = await cookies();
-  const expectedState = store.get("__Host-mistblossom_oauth_state")?.value || store.get("mistblossom_oauth_state")?.value || "";
-  store.delete("__Host-mistblossom_oauth_state");
-  store.delete("mistblossom_oauth_state");
+  const expectedState = store.get(OAUTH_STATE_COOKIE)?.value || store.get(LEGACY_OAUTH_STATE_COOKIE)?.value || "";
+  store.delete(OAUTH_STATE_COOKIE);
+  store.delete(LEGACY_OAUTH_STATE_COOKIE);
 
   if (!code || !state || state !== expectedState) {
     logDashboardEvent("warn", "auth.discord.callback.state_mismatch", request, { hasCode: Boolean(code), hasState: Boolean(state), hasExpectedState: Boolean(expectedState) });

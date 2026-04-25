@@ -39,11 +39,26 @@ export function getCanonicalDashboardOrigin() {
   return new URL(getDashboardUrl()).origin;
 }
 
-export function getRequestHost(request: Request | NextRequest) {
-  return String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+export function normalizeHost(value?: string | null) {
+  const host = String(value || "")
     .split(",")[0]
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/\.$/, "");
+
+  if (host.endsWith(":443")) return host.slice(0, -4);
+  if (host.endsWith(":80")) return host.slice(0, -3);
+  return host;
+}
+
+export function getRequestHost(request: Request | NextRequest) {
+  // Prefer the public Host header. On Vercel behind Cloudflare, x-forwarded-host can
+  // sometimes contain an internal deployment host, which breaks same-origin checks.
+  return normalizeHost(request.headers.get("host") || request.headers.get("x-forwarded-host") || "");
+}
+
+export function getForwardedHost(request: Request | NextRequest) {
+  return normalizeHost(request.headers.get("x-forwarded-host"));
 }
 
 export function isLocalHost(host: string) {
@@ -52,11 +67,20 @@ export function isLocalHost(host: string) {
 
 export function isAllowedHost(host: string) {
   if (!host) return false;
-  const normalized = host.toLowerCase();
+  const normalized = normalizeHost(host);
   if (isLocalHost(normalized)) return process.env.NODE_ENV !== "production";
 
-  const allowed = getAllowedDashboardHosts().map((item) => item.toLowerCase());
-  return allowed.length === 0 ? true : allowed.includes(normalized);
+  const allowed = getAllowedDashboardHosts().map((item) => normalizeHost(item));
+  if (allowed.length === 0) return true;
+
+  return allowed.some((allowedHost) => {
+    if (!allowedHost) return false;
+    if (allowedHost.startsWith("*.")) {
+      const suffix = allowedHost.slice(1);
+      return normalized.endsWith(suffix) && normalized !== suffix.slice(1);
+    }
+    return normalized === allowedHost;
+  });
 }
 
 export function getClientIp(request: Request | NextRequest) {
@@ -87,7 +111,7 @@ export function requestContext(request: Request | NextRequest) {
       const referer = request.headers.get("referer");
       if (!referer) return null;
       try {
-        return new URL(referer).host.toLowerCase();
+        return normalizeHost(new URL(referer).host);
       } catch {
         return "invalid";
       }
@@ -173,20 +197,32 @@ export function assertRequestBodySize(request: Request | NextRequest, maxBytes =
   return null;
 }
 
-function sameHostUrl(value: string | null, host: string) {
-  if (!value) return false;
+function trustedHeaderUrl(value: string | null) {
+  if (!value) return { trusted: false, host: null as string | null, reason: "missing" };
 
   let url: URL;
   try {
     url = new URL(value);
   } catch {
-    return false;
+    return { trusted: false, host: null as string | null, reason: "invalid_url" };
   }
 
-  const urlHost = url.host.toLowerCase();
-  if (!isAllowedHost(urlHost) || urlHost !== host) return false;
+  const urlHost = normalizeHost(url.host);
+  const safeProtocol = url.protocol === "https:" || (process.env.NODE_ENV !== "production" && isLocalHost(urlHost));
 
-  return url.protocol === "https:" || isLocalHost(urlHost);
+  if (!safeProtocol) {
+    return { trusted: false, host: urlHost, reason: "bad_protocol" };
+  }
+
+  if (!isAllowedHost(urlHost)) {
+    return { trusted: false, host: urlHost, reason: "host_not_allowed" };
+  }
+
+  return { trusted: true, host: urlHost, reason: "trusted" };
+}
+
+function strictOriginChecksEnabled() {
+  return envFlag("SECURITY_STRICT_ORIGIN_CHECKS", false);
 }
 
 export function verifyTrustedOrigin(request: Request | NextRequest) {
@@ -194,32 +230,56 @@ export function verifyTrustedOrigin(request: Request | NextRequest) {
   if (!["POST", "PUT", "PATCH", "DELETE"].includes(method)) return true;
 
   const host = getRequestHost(request);
-  const reject = (reason: string) => {
-    logDashboardEvent("warn", "trusted_origin_rejected", request, { reason });
+  const reject = (reason: string, details: Record<string, unknown> = {}) => {
+    logDashboardEvent("warn", "trusted_origin_rejected", request, { reason, ...details });
     return false;
   };
 
-  if (!isAllowedHost(host)) return reject("host_not_allowed");
+  if (!isAllowedHost(host)) return reject("host_not_allowed", { host });
 
   const originHeader = request.headers.get("origin");
-  if (originHeader) {
-    if (sameHostUrl(originHeader, host)) return true;
-    return reject("origin_mismatch");
+  const refererHeader = request.headers.get("referer");
+  const fetchSite = String(request.headers.get("sec-fetch-site") || "").toLowerCase();
+  const dashboardAction = request.headers.get("x-dashboard-action");
+
+  const origin = trustedHeaderUrl(originHeader);
+  const referer = trustedHeaderUrl(refererHeader);
+
+  // Explicitly bad Origin/Referer headers are blocked. Missing browser metadata is
+  // handled below, because Cloudflare/Vercel/privacy tools may strip some headers.
+  if (originHeader && !origin.trusted) {
+    return reject(`origin_${origin.reason}`, { originHost: origin.host, host, fetchSite });
   }
 
-  // Native form submits behind Cloudflare/Vercel can arrive without Origin.
-  // Sec-Fetch-Site is set by modern browsers and still blocks cross-site form attacks.
-  const fetchSite = String(request.headers.get("sec-fetch-site") || "").toLowerCase();
-  if (fetchSite === "same-origin") return true;
+  if (refererHeader && !referer.trusted) {
+    return reject(`referer_${referer.reason}`, { refererHost: referer.host, host, fetchSite });
+  }
 
-  // Last safe fallback for older browsers or stripped headers.
-  // This works only when Referrer-Policy allows a Referer header.
-  if (sameHostUrl(request.headers.get("referer"), host)) return true;
+  // Browser Fetch Metadata is the strongest CSRF signal when available.
+  if (fetchSite === "cross-site") {
+    return reject("cross_site_fetch", { host, originHost: origin.host, refererHost: referer.host });
+  }
 
-  // Local dev tools and local form posts are allowed only outside production.
-  if (process.env.NODE_ENV !== "production" && isLocalHost(host)) return true;
+  if (fetchSite === "same-origin" || fetchSite === "same-site" || fetchSite === "none") {
+    return true;
+  }
 
-  return reject(fetchSite ? `missing_origin_${fetchSite}` : "missing_origin");
+  if (origin.trusted || referer.trusted) return true;
+
+  // A custom dashboard header cannot be sent by a normal cross-site form, and a
+  // browser cross-site fetch with this header would require a CORS preflight.
+  if (dashboardAction) return true;
+
+  // Do not break real same-origin form submits if a proxy/browser strips metadata.
+  // Session cookies are SameSite=Lax, so cross-site POSTs do not carry the admin
+  // session in modern browsers. Enable SECURITY_STRICT_ORIGIN_CHECKS=true only if
+  // your edge stack reliably preserves Origin/Referer/Sec-Fetch-*.
+  if (!strictOriginChecksEnabled()) {
+    logDashboardEvent("warn", "trusted_origin_metadata_missing_allowed", request, { host });
+    return true;
+  }
+
+  return reject(fetchSite ? `missing_trusted_metadata_${fetchSite}` : "missing_trusted_metadata", { host });
 }
 
 export function forbiddenResponse(message = "Запит заблоковано політикою безпеки.") {
