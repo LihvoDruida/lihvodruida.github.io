@@ -9,16 +9,16 @@ function errorText(error?: string) {
   if (!error) return null;
 
   const map: Record<string, string> = {
-    access_denied: "У тебе немає Discord ролі для доступу до панелі.",
-    discord_oauth: "Discord авторизація не завершилась. Спробуй ще раз.",
-    oauth_state: "Сесія авторизації застаріла. Повтори вхід.",
-    discord_required: "Вхід доступний тільки через Discord.",
-    discord_only: "Вхід через GitHub вимкнено. Використай Discord.",
-    token: "Emergency token неправильний.",
-    rate_limit: "Забагато спроб входу. Зачекай кілька хвилин.",
+    access_denied: "Доступ закрито: потрібна дозволена Discord роль.",
+    discord_oauth: "Discord не завершив авторизацію. Спробуй ще раз.",
+    oauth_state: "Сесія входу застаріла. Повтори авторизацію.",
+    discord_required: "Для входу потрібен Discord.",
+    discord_only: "GitHub вхід вимкнено. Використай Discord.",
+    token: "Резервний токен неправильний.",
+    rate_limit: "Забагато спроб. Зачекай кілька хвилин.",
   };
 
-  return map[error] || "Не вдалося увійти. Перевір Discord доступ.";
+  return map[error] || "Не вдалося увійти. Перевір доступ у Discord.";
 }
 
 export default async function LoginPage({
@@ -46,14 +46,14 @@ export default async function LoginPage({
 
       <section className="login-shell" aria-labelledby="login-title">
         <div className="login-hero">
-          <div className="login-pill">Guild Control Panel</div>
+          <div className="login-pill">Guild Admin</div>
 
           <div className="login-brandmark">
             <img
               src={guild.iconUrl}
               alt=""
-              width={72}
-              height={72}
+              width={64}
+              height={64}
               loading="eager"
               referrerPolicy="no-referrer"
             />
@@ -62,20 +62,24 @@ export default async function LoginPage({
 
           <p className="login-eyebrow">{guild.name}</p>
           <h1 id="login-title">
-            WoW Guild
-            <span>Admin Dashboard</span>
+            Вхід до панелі
+            <span>гільдії</span>
           </h1>
           <p className="login-lead">
-            Стилізована панель керування для гільдії: модерація заявок, робота з
-            контентом, Discord доступ і захищений вхід без перевантаженого інтерфейсу.
+            Увійди через Discord, щоб керувати заявками, статусами та контентом гільдії.
           </p>
 
           <div className="login-feature-list" aria-label="Можливості панелі">
-            <span>Discord доступ</span>
-            <span>Модерація заявок</span>
-            <span>Контент і гайди</span>
-            <span>Журнал дій</span>
+            <span>Discord ролі</span>
+            <span>Заявки</span>
+            <span>Контент</span>
           </div>
+
+          {error ? (
+            <div className="login-alert" role="alert">
+              {error}
+            </div>
+          ) : null}
 
           <div className="login-action-row">
             {hasDiscord ? (
@@ -90,7 +94,7 @@ export default async function LoginPage({
                 </span>
                 <span>
                   <strong>Увійти через Discord</strong>
-                  <small>Безпечний доступ для дозволених ролей</small>
+                  <small>Перевірка ролей автоматична</small>
                 </span>
                 <span className="login-discord-button__arrow" aria-hidden="true">
                   →
@@ -102,65 +106,13 @@ export default async function LoginPage({
                 DISCORD_OAUTH_CLIENT_SECRET.
               </div>
             )}
-
-            <a className="login-secondary-button" href="#access-details">
-              Огляд доступу
-            </a>
-          </div>
-        </div>
-
-        <div className="login-card" id="access-details">
-          <div className="login-card__head">
-            <span className="login-card__rune" aria-hidden="true">
-              ✦
-            </span>
-            <div>
-              <strong>Доступ до гільдійної панелі</strong>
-              <small>World of Warcraft-стилістика без зайвих дій і дублювання</small>
-            </div>
-          </div>
-
-          {error ? (
-            <div className="login-alert" role="alert">
-              {error}
-            </div>
-          ) : null}
-
-          <div className="login-access-grid" aria-label="Що доступно після входу">
-            <article className="login-access-item">
-              <strong>Модерація заявок</strong>
-              <p>Перевірка кандидатів, зміна статусів, нотатки й синхронізація.</p>
-            </article>
-            <article className="login-access-item">
-              <strong>Редактор контенту</strong>
-              <p>Новини, гайди та медіа з чистою, швидкою і безпечною формою.</p>
-            </article>
-            <article className="login-access-item">
-              <strong>Discord безпека</strong>
-              <p>Доступ тільки для дозволених ролей сервера та довірених сесій.</p>
-            </article>
-          </div>
-
-          <div className="login-rule-list">
-            <div className="login-rule-item">
-              <span>01</span>
-              <p>Авторизація проходить через Discord і не відкриває службові ключі у браузері.</p>
-            </div>
-            <div className="login-rule-item">
-              <span>02</span>
-              <p>Інтерфейс адаптований під телефони: без конфліктних анімацій та миготіння.</p>
-            </div>
-            <div className="login-rule-item">
-              <span>03</span>
-              <p>Після входу відкривається одна панель без дублювання головних дій.</p>
-            </div>
           </div>
 
           {hasTokenFallback ? (
             <details className="login-token">
-              <summary>Emergency token</summary>
+              <summary>Резервний вхід</summary>
               <form method="post" action="/api/auth/login">
-                <label htmlFor="token">Резервний пароль адміністратора</label>
+                <label htmlFor="token">Адмін-токен</label>
                 <div className="login-token__row">
                   <input
                     id="token"
@@ -176,7 +128,7 @@ export default async function LoginPage({
           ) : null}
 
           <p className="login-note">
-            Якщо роль не видана або OAuth не завершився, панель не відкриється навіть при прямому переході.
+            Доступ відкривається лише для дозволених ролей Discord. Службові ключі не передаються у браузер.
           </p>
         </div>
       </section>
