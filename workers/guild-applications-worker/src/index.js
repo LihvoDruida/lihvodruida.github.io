@@ -28,6 +28,7 @@ function normalizeStatusKey(value) {
 
 const INTERACTION_COOLDOWN_MS = 2500;
 const interactionCooldowns = new Map();
+const RULES_CUSTOM_ID_PREFIX = "mbv1";
 
 function parseCsvSet(value) {
   return new Set(
@@ -36,6 +37,54 @@ function parseCsvSet(value) {
       .map((item) => item.trim())
       .filter(Boolean)
   );
+}
+
+function snowflake(value) {
+  const text = String(value || "").trim();
+  return /^\d{16,25}$/.test(text) ? text : "";
+}
+
+function getInteractionGuildId(interaction, env) {
+  return snowflake(interaction?.guild_id) || snowflake(env.DISCORD_GUILD_ID);
+}
+
+function base36ToSnowflake(value) {
+  const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+  let result = 0n;
+
+  for (const raw of String(value || "").toLowerCase()) {
+    const digit = alphabet.indexOf(raw);
+    if (digit < 0) throw new Error("Некоректний custom_id правил.");
+    result = result * 36n + BigInt(digit);
+  }
+
+  return result.toString(10);
+}
+
+function decodeRulesCustomId(customId) {
+  const value = String(customId || "").trim();
+
+  if (value === `${RULES_CUSTOM_ID_PREFIX}:d`) {
+    return { action: "decline", roleIds: [] };
+  }
+
+  const prefix = `${RULES_CUSTOM_ID_PREFIX}:a:`;
+  if (!value.startsWith(prefix)) return null;
+
+  try {
+    const roleIds = value
+      .slice(prefix.length)
+      .split(".")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map(base36ToSnowflake)
+      .filter(snowflake);
+
+    if (!roleIds.length) return null;
+    return { action: "accept", roleIds: Array.from(new Set(roleIds)) };
+  } catch {
+    return null;
+  }
 }
 
 function getDiscordUserId(interaction) {
@@ -53,10 +102,11 @@ function hasAllowedDiscordRole(interaction, env) {
   return memberRoles.some((roleId) => allowedRoles.has(roleId));
 }
 
-function isInteractionRateLimited(interaction) {
+function isInteractionRateLimited(interaction, scope = "global") {
   const userId = getDiscordUserId(interaction);
+  const cacheKey = `${scope}:${userId}`;
   const now = Date.now();
-  const last = interactionCooldowns.get(userId) || 0;
+  const last = interactionCooldowns.get(cacheKey) || 0;
 
   if (interactionCooldowns.size > 500) {
     for (const [key, timestamp] of interactionCooldowns) {
@@ -65,7 +115,7 @@ function isInteractionRateLimited(interaction) {
   }
 
   if (now - last < INTERACTION_COOLDOWN_MS) return true;
-  interactionCooldowns.set(userId, now);
+  interactionCooldowns.set(cacheKey, now);
   return false;
 }
 
@@ -899,69 +949,115 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
   return { ok: true, label: targetLabel, closed: true };
 }
 
-async function handleDiscordInteraction(request, env) {
-  const rawBody = await request.text();
-  const verified = await verifyDiscordRequest(request, env, rawBody);
-  if (!verified) {
-    return new Response("invalid request signature", { status: 401 });
+function ephemeral(content) {
+  return discordInteractionResponse({
+    type: 4,
+    data: {
+      content: limitText(content, 1900, "Дію виконано."),
+      flags: 64,
+      allowed_mentions: { parse: [] },
+    },
+  });
+}
+
+async function addGuildMemberRoles(env, guildId, userId, roleIds, reason) {
+  const cleanGuildId = snowflake(guildId);
+  const cleanUserId = snowflake(userId);
+  const cleanRoleIds = Array.from(new Set((roleIds || []).map(snowflake).filter(Boolean)));
+
+  if (!cleanGuildId || !cleanUserId || !cleanRoleIds.length) {
+    throw new Error("Не вистачає guild/user/role ID для видачі ролі.");
   }
 
-  const interaction = JSON.parse(rawBody || "{}");
+  for (const roleId of cleanRoleIds) {
+    const response = await discordApiFetch(
+      env,
+      `/guilds/${cleanGuildId}/members/${cleanUserId}/roles/${roleId}`,
+      {
+        method: "PUT",
+        headers: reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason.slice(0, 512)) } : {},
+      }
+    );
 
-  if (interaction.type === 1) {
-    return discordInteractionResponse({ type: 1 });
+    if (!response.ok && response.status !== 204) {
+      const raw = await response.text().catch(() => "");
+      throw new Error(raw || `Discord role error ${response.status}`);
+    }
+  }
+}
+
+async function kickGuildMember(env, guildId, userId, reason) {
+  const cleanGuildId = snowflake(guildId);
+  const cleanUserId = snowflake(userId);
+
+  if (!cleanGuildId || !cleanUserId) {
+    throw new Error("Не вистачає guild/user ID для кіку.");
   }
 
-  if (interaction.type !== 3) {
-    return discordInteractionResponse({
-      type: 4,
-      data: { content: "Цей тип взаємодії не підтримується.", flags: 64 },
-    });
+  const response = await discordApiFetch(env, `/guilds/${cleanGuildId}/members/${cleanUserId}`, {
+    method: "DELETE",
+    headers: reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason.slice(0, 512)) } : {},
+  });
+
+  if (!response.ok && response.status !== 204) {
+    const raw = await response.text().catch(() => "");
+    throw new Error(raw || `Discord kick error ${response.status}`);
+  }
+}
+
+async function handleRulesInteraction(interaction, env, rulesAction) {
+  if (isInteractionRateLimited(interaction, "rules")) {
+    return ephemeral("⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
-  const customId = String(interaction?.data?.custom_id || "");
+  const guildId = getInteractionGuildId(interaction, env);
+  const userId = getDiscordUserId(interaction);
+  const userLabel = getDiscordUserLabel(interaction);
+
+  try {
+    if (rulesAction.action === "accept") {
+      await addGuildMemberRoles(
+        env,
+        guildId,
+        userId,
+        rulesAction.roleIds,
+        `Rules accepted by ${userLabel}`
+      );
+
+      return ephemeral("✅ Правила прийнято. Роль видано.");
+    }
+
+    await kickGuildMember(env, guildId, userId, `Rules declined by ${userLabel}`);
+    return ephemeral("🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
+  } catch (error) {
+    return ephemeral(
+      `❌ Не вдалося виконати дію правил: ${limitText(error?.message, 180, "невідома помилка")}`
+    );
+  }
+}
+
+async function handleApplicationInteraction(interaction, env, customId) {
   const match = customId.match(/^guild_application:(accepted|declined):(\d+)$/);
-  if (!match) {
-    return discordInteractionResponse({
-      type: 4,
-      data: { content: "Невідома кнопка заявки.", flags: 64 },
-    });
-  }
+  if (!match) return null;
 
   const status = match[1];
   const issueNumber = match[2];
   const moderator = getDiscordUserLabel(interaction);
 
   if (!hasAllowedDiscordRole(interaction, env)) {
-    return discordInteractionResponse({
-      type: 4,
-      data: {
-        content: "⛔ У вас немає прав для зміни статусу заявки.",
-        flags: 64,
-      },
-    });
+    return ephemeral("⛔ У вас немає прав для зміни статусу заявки.");
   }
 
-  if (isInteractionRateLimited(interaction)) {
-    return discordInteractionResponse({
-      type: 4,
-      data: {
-        content: "⏳ Зачекай кілька секунд перед наступною дією.",
-        flags: 64,
-      },
-    });
+  if (isInteractionRateLimited(interaction, "application")) {
+    return ephemeral("⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
   try {
     await updateApplicationIssueStatus(env, issueNumber, status, moderator);
   } catch (error) {
-    return discordInteractionResponse({
-      type: 4,
-      data: {
-        content: `Не вдалося змінити статус заявки: ${limitText(error?.message, 160, "невідома помилка")}`,
-        flags: 64,
-      },
-    });
+    return ephemeral(
+      `Не вдалося змінити статус заявки: ${limitText(error?.message, 160, "невідома помилка")}`
+    );
   }
 
   const updatedEmbeds = buildUpdatedApplicationEmbeds(
@@ -978,8 +1074,38 @@ async function handleDiscordInteraction(request, env) {
       content: buildStatusUpdateContent(issueNumber, status, moderator),
       embeds: updatedEmbeds,
       components: [],
+      allowed_mentions: { parse: [] },
     },
   });
+}
+
+async function handleDiscordInteraction(request, env) {
+  const rawBody = await request.text();
+  const verified = await verifyDiscordRequest(request, env, rawBody);
+
+  if (!verified) {
+    return new Response("invalid request signature", { status: 401 });
+  }
+
+  const interaction = JSON.parse(rawBody || "{}");
+
+  if (interaction.type === 1) {
+    return discordInteractionResponse({ type: 1 });
+  }
+
+  if (interaction.type !== 3) {
+    return ephemeral("Цей тип взаємодії не підтримується.");
+  }
+
+  const customId = String(interaction?.data?.custom_id || "");
+
+  const applicationResult = await handleApplicationInteraction(interaction, env, customId);
+  if (applicationResult) return applicationResult;
+
+  const rulesAction = decodeRulesCustomId(customId);
+  if (rulesAction) return handleRulesInteraction(interaction, env, rulesAction);
+
+  return ephemeral("Невідома або застаріла кнопка Mistblossom Vanguard.");
 }
 
 async function githubFetch(env, path, init = {}) {

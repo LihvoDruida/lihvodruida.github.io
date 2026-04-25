@@ -12,3 +12,9 @@ GUILD_APPLICATIONS_LABEL = "guild-application"
 ALLOWED_ORIGINS = "https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,http://127.0.0.1:4000,http://localhost:4000"
 DISCORD_ALLOWED_ROLES = ""
 
+
+# Set these via `wrangler secret put ...` in production:
+# DISCORD_BOT_TOKEN
+# DISCORD_PUBLIC_KEY
+# DISCORD_GUILD_ID
+# GITHUB_TOKEN
