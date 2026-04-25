@@ -18,8 +18,14 @@ import {
   parseEmbedJson,
 } from "@/lib/discordAdmin";
 
-function redirectTo(request: NextRequest, params: Record<string, string>) {
-  const url = new URL("/discord", request.url);
+function safeReturnTo(value: FormDataEntryValue | string | null | undefined) {
+  const path = String(value || "").trim();
+  if (!path || path.startsWith("//") || path.includes("://")) return "/discord";
+  return path.startsWith("/discord") ? path.slice(0, 240) : "/discord";
+}
+
+function redirectTo(request: NextRequest, params: Record<string, string>, returnTo = "/discord") {
+  const url = new URL(returnTo, request.url);
   for (const [key, value] of Object.entries(params)) {
     if (value) url.searchParams.set(key, value);
   }
@@ -48,8 +54,11 @@ export async function POST(request: NextRequest) {
   const limit = checkRateLimit(`discord-embed:${session.id}:${ip}`, 20, 10 * 60 * 1000);
   if (!limit.ok) return redirectTo(request, { error: "Забагато Discord-операцій. Спробуй пізніше." });
 
+  let returnTo = "/discord";
+
   try {
     const form = await request.formData();
+    returnTo = safeReturnTo(form.get("returnTo"));
     const mode = String(form.get("mode") || "general");
     const action = String(form.get("action") || "publish");
     const channelId = String(form.get("channelId") || "").trim();
@@ -62,14 +71,14 @@ export async function POST(request: NextRequest) {
     const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${action} by ${moderator}`;
 
     if (isRules && roleIds.length === 0) {
-      return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." });
+      return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
     }
 
     const editRef = parseDiscordMessageRef(messageLink);
     const shouldEdit = action === "edit" || Boolean(editRef);
 
     if (shouldEdit) {
-      if (!editRef) return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." });
+      if (!editRef) return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo);
       const updated = await editDiscordEmbedMessage({
         ref: editRef,
         content,
@@ -89,7 +98,7 @@ export async function POST(request: NextRequest) {
       return redirectTo(request, {
         updated: discordMessageUrl(editRef.channelId, editRef.messageId),
         tab: mode,
-      });
+      }, returnTo);
     }
 
     const created = await createDiscordEmbedMessage({
@@ -111,9 +120,9 @@ export async function POST(request: NextRequest) {
     return redirectTo(request, {
       published: created?.id ? discordMessageUrl(channelId, String(created.id)) : "Discord message",
       tab: mode,
-    });
+    }, returnTo);
   } catch (error) {
     logDashboardEvent("error", "discord.embed.failed", request, { message: safeErrorMessage(error) });
-    return redirectTo(request, { error: safeErrorMessage(error), tab: "discord" });
+    return redirectTo(request, { error: safeErrorMessage(error), tab: "discord" }, returnTo);
   }
 }

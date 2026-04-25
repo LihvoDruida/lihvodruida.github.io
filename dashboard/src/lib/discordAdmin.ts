@@ -430,6 +430,98 @@ export async function editDiscordEmbedMessage(params: {
   });
 }
 
+function readComponentCustomIds(components: unknown): string[] {
+  if (!Array.isArray(components)) return [];
+  const ids: string[] = [];
+
+  const walk = (items: unknown[]) => {
+    for (const item of items) {
+      if (!item || typeof item !== "object") continue;
+      const component = item as Record<string, unknown>;
+      if (typeof component.custom_id === "string") ids.push(component.custom_id);
+      if (Array.isArray(component.components)) walk(component.components);
+    }
+  };
+
+  walk(components);
+  return ids;
+}
+
+export function extractRulesRoleIdsFromMessage(message: Record<string, unknown>) {
+  const roleIds: string[] = [];
+
+  for (const customId of readComponentCustomIds(message.components)) {
+    const decoded = decodeRulesCustomId(customId);
+    if (decoded?.action === "accept") roleIds.push(...decoded.roleIds);
+  }
+
+  return Array.from(new Set(roleIds));
+}
+
+export function isRulesEmbedMessage(message: Record<string, unknown>) {
+  return readComponentCustomIds(message.components).some((customId) => Boolean(decodeRulesCustomId(customId)));
+}
+
+function firstEmbed(message: Record<string, unknown>) {
+  const embeds = Array.isArray(message.embeds) ? message.embeds : [];
+  const embed = embeds[0];
+  return embed && typeof embed === "object" ? (embed as Record<string, unknown>) : null;
+}
+
+export type DiscordEditableMessage = {
+  id: string;
+  channelId: string;
+  url: string;
+  content: string;
+  createdAt: string;
+  editedAt?: string | null;
+  embed: Record<string, unknown> | null;
+  embedJson: string;
+  title: string;
+  roleIds: string[];
+  isRules: boolean;
+};
+
+export function normalizeDiscordMessageForEditor(message: Record<string, unknown>, channelIdFallback?: string): DiscordEditableMessage {
+  const id = snowflake(message.id) || "";
+  const channelId = snowflake(message.channel_id) || snowflake(channelIdFallback) || "";
+  const embed = firstEmbed(message);
+  const title = cleanText(embed?.title, 256) || cleanText(embed?.description, 64) || "Discord embed";
+  const roleIds = extractRulesRoleIdsFromMessage(message);
+
+  return {
+    id,
+    channelId,
+    url: channelId && id ? discordMessageUrl(channelId, id) : "",
+    content: cleanText(message.content, 2000) || "",
+    createdAt: cleanText(message.timestamp, 80) || "",
+    editedAt: cleanText(message.edited_timestamp, 80) || null,
+    embed,
+    embedJson: JSON.stringify(embed || {}, null, 2),
+    title,
+    roleIds,
+    isRules: isRulesEmbedMessage(message),
+  };
+}
+
+export async function fetchDiscordEditableMessage(ref: DiscordMessageRef) {
+  if (!ref.channelId || !ref.messageId) throw new Error("Посилання на Discord-повідомлення невалідне.");
+  const message = await discordApi<Record<string, unknown>>(`/channels/${ref.channelId}/messages/${ref.messageId}`);
+  return normalizeDiscordMessageForEditor(message, ref.channelId);
+}
+
+export async function listRulesEmbedMessages(channelId: string, limit = 50) {
+  const cleanChannelId = snowflake(channelId);
+  if (!cleanChannelId) return [] as DiscordEditableMessage[];
+
+  const safeLimit = Math.max(1, Math.min(100, Math.floor(limit)));
+  const messages = await discordApi<Array<Record<string, unknown>>>(`/channels/${cleanChannelId}/messages?limit=${safeLimit}`);
+
+  return messages
+    .filter((message) => isRulesEmbedMessage(message))
+    .map((message) => normalizeDiscordMessageForEditor(message, cleanChannelId));
+}
+
 export async function addGuildMemberRoles(params: {
   guildId: string;
   userId: string;
