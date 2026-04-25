@@ -3680,3 +3680,188 @@ textarea:disabled {
     text-align: left;
   }
 }
+
+/* Final Discord dashboard polish: compact, site-aligned, safer mobile layout */
+.discord-editor-header,
+.discord-rules-list-panel,
+.discord-builder-shell--site .discord-builder-panel,
+.discord-builder-shell--site .discord-preview-panel,
+.discord-hub-card,
+.discord-rules-stat-card,
+.discord-rules-row {
+  border-radius: var(--radius-lg);
+}
+
+.discord-editor-header {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.discord-editor-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 14px auto;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(214, 168, 79, 0.22), transparent 68%);
+}
+
+.discord-editor-header .btn {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+.discord-builder-shell--site {
+  align-items: start;
+}
+
+.discord-builder-shell--site .discord-builder-panel,
+.discord-builder-shell--site .discord-preview-panel {
+  border-color: rgba(214, 168, 79, 0.18);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(214, 168, 79, 0.11), transparent 28rem),
+    radial-gradient(circle at 100% 10%, rgba(89, 214, 141, 0.07), transparent 26rem),
+    linear-gradient(180deg, rgba(15, 24, 40, 0.97), rgba(8, 13, 24, 0.9));
+}
+
+.discord-builder-shell--site .discord-builder-titlebar,
+.discord-builder-shell--site .discord-preview-titlebar {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.discord-builder-shell--site .discord-builder-head,
+.discord-visual-section,
+.discord-field-row,
+.discord-role-selected,
+.discord-role-list {
+  border-color: var(--line-soft);
+  background: rgba(4, 9, 18, 0.34);
+}
+
+.discord-builder-shell--site .discord-builder-panel .input,
+.discord-builder-shell--site .discord-builder-panel .select,
+.discord-builder-shell--site .discord-builder-panel textarea,
+.discord-color-picker {
+  min-width: 0;
+  border-radius: 14px;
+  background-color: rgba(4, 9, 18, 0.68);
+}
+
+.discord-builder-shell--site .discord-builder-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.discord-builder-shell--site .discord-builder-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.discord-builder-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  margin-inline: -2px;
+  padding: 14px 0 0;
+  backdrop-filter: blur(10px);
+}
+
+.discord-preview-content {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.discord-message-preview {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.discord-role-empty {
+  padding: 12px;
+  border: 1px dashed rgba(214, 168, 79, 0.24);
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(214, 168, 79, 0.055);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.discord-role-option span:nth-child(3) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-rules-row-main {
+  color: inherit;
+  text-decoration: none;
+}
+
+.discord-rules-row-actions {
+  align-items: center;
+}
+
+.discord-rules-stat-card--wide small {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .discord-builder-shell--site .discord-builder-grid,
+  .discord-builder-shell--site .discord-builder-grid--three,
+  .discord-color-row,
+  .discord-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-builder-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .discord-builder-actions .btn,
+  .discord-builder-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .discord-editor-header {
+    display: grid;
+    gap: 14px;
+    padding: 15px;
+  }
+
+  .discord-editor-header h1 {
+    font-size: clamp(26px, 10vw, 36px);
+  }
+
+  .discord-editor-header p,
+  .discord-builder-shell--site .discord-builder-head p,
+  .discord-builder-shell--site .content-form-section-head small {
+    font-size: 12px;
+  }
+
+  .discord-builder-shell--site .discord-builder-body,
+  .discord-visual-section {
+    padding: 12px;
+  }
+
+  .discord-builder-shell--site .content-form-section-head,
+  .discord-field-row-head {
+    gap: 8px;
+  }
+
+  .discord-role-list {
+    max-height: 260px;
+  }
+
+  .discord-rules-row-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+}

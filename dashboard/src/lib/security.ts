@@ -6,6 +6,39 @@ const inMemoryBuckets = new Map<string, { count: number; resetAt: number }>();
 
 type LogLevel = "debug" | "info" | "warn" | "error";
 
+function redactLogValue(value: unknown, depth = 0): unknown {
+  if (value === null || value === undefined) return value;
+  if (depth > 4) return "[max-depth]";
+
+  if (typeof value === "string") {
+    return value
+      .replace(/ghp_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/github_pat_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/Bot\s+[A-Za-z0-9._-]+/g, "Bot [redacted]")
+      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]")
+      .slice(0, 500);
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") return value;
+
+  if (Array.isArray(value)) {
+    return value.slice(0, 20).map((item) => redactLogValue(item, depth + 1));
+  }
+
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).slice(0, 40).map(([key, item]) => {
+        if (/token|secret|password|authorization|cookie|signature/i.test(key)) {
+          return [key, "[redacted]"];
+        }
+        return [key, redactLogValue(item, depth + 1)];
+      })
+    );
+  }
+
+  return String(value).slice(0, 240);
+}
+
 export function splitCsv(value?: string | null) {
   return String(value || "")
     .split(",")
@@ -132,12 +165,13 @@ export function logDashboardEvent(
     return;
   }
 
-  const payload = {
+  const payload = redactLogValue({
     event,
+    requestId: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined,
     time: new Date().toISOString(),
     ...(request ? requestContext(request) : {}),
     ...details,
-  };
+  }) as Record<string, unknown>;
 
   const line = `[dashboard:${level}] ${JSON.stringify(payload)}`;
   if (level === "error") {

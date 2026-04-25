@@ -35,10 +35,12 @@ function redirectTo(request: NextRequest, params: Record<string, string>, return
 }
 
 function selectedRoleIds(form: FormData) {
-  return form
-    .getAll("roleIds")
-    .map((value) => String(value || "").trim())
-    .filter(Boolean);
+  return Array.from(new Set(
+    form
+      .getAll("roleIds")
+      .map((value) => String(value || "").trim())
+      .filter(Boolean)
+  ));
 }
 
 export async function POST(request: NextRequest) {
@@ -70,7 +72,18 @@ export async function POST(request: NextRequest) {
     const moderator = session.name || session.login || session.id;
     const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${action} by ${moderator}`;
 
+    logDashboardEvent("info", "discord.embed.submit", request, {
+      mode,
+      action,
+      channelId,
+      hasMessageLink: Boolean(messageLink),
+      contentLength: content.length,
+      roleCount: roleIds.length,
+      adminId: session.id,
+    });
+
     if (isRules && roleIds.length === 0) {
+      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", adminId: session.id });
       return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
     }
 
@@ -78,7 +91,10 @@ export async function POST(request: NextRequest) {
     const shouldEdit = action === "edit" || Boolean(editRef);
 
     if (shouldEdit) {
-      if (!editRef) return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo);
+      if (!editRef) {
+        logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_edit_link", adminId: session.id });
+        return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo);
+      }
       const updated = await editDiscordEmbedMessage({
         ref: editRef,
         content,
@@ -123,6 +139,6 @@ export async function POST(request: NextRequest) {
     }, returnTo);
   } catch (error) {
     logDashboardEvent("error", "discord.embed.failed", request, { message: safeErrorMessage(error) });
-    return redirectTo(request, { error: safeErrorMessage(error), tab: "discord" }, returnTo);
+    return redirectTo(request, { error: safeErrorMessage(error) }, returnTo);
   }
 }

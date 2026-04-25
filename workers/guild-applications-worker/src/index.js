@@ -30,6 +30,38 @@ const INTERACTION_COOLDOWN_MS = 2500;
 const interactionCooldowns = new Map();
 const RULES_CUSTOM_ID_PREFIX = "mbv1";
 
+function safeLogValue(value, depth = 0) {
+  if (value === null || value === undefined) return value;
+  if (depth > 4) return "[max-depth]";
+  if (typeof value === "string") {
+    return value
+      .replace(/ghp_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/github_pat_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/Bot\s+[A-Za-z0-9._-]+/g, "Bot [redacted]")
+      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]")
+      .slice(0, 500);
+  }
+  if (typeof value === "number" || typeof value === "boolean") return value;
+  if (Array.isArray(value)) return value.slice(0, 20).map((item) => safeLogValue(item, depth + 1));
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).slice(0, 40).map(([key, item]) => [
+        key,
+        /token|secret|password|authorization|cookie|signature/i.test(key) ? "[redacted]" : safeLogValue(item, depth + 1),
+      ])
+    );
+  }
+  return String(value).slice(0, 240);
+}
+
+function logWorkerEvent(level, event, details = {}) {
+  const payload = safeLogValue({ event, time: new Date().toISOString(), ...details });
+  const line = "[guild-worker:" + level + "] " + JSON.stringify(payload);
+  if (level === "error") console.error(line);
+  else if (level === "warn") console.warn(line);
+  else console.log(line);
+}
+
 function parseCsvSet(value) {
   return new Set(
     String(value || "")
@@ -230,9 +262,9 @@ function maxIsoDate(values) {
 
 async function getAggregatedRulesStats(kv) {
   const keys = await listAllKvKeys(kv, "rules:");
-  const acceptedKeys = keys.filter((key) => /^rules:\d+:accepted$/.test(key));
-  const declinedKeys = keys.filter((key) => /^rules:\d+:declined$/.test(key));
-  const updatedKeys = keys.filter((key) => /^rules:\d+:updated_at$/.test(key));
+  const acceptedKeys = keys.filter((key) => /^rules:(?:\d+|global):accepted$/.test(key));
+  const declinedKeys = keys.filter((key) => /^rules:(?:\d+|global):declined$/.test(key));
+  const updatedKeys = keys.filter((key) => /^rules:(?:\d+|global):updated_at$/.test(key));
 
   const [acceptedValues, declinedValues, updatedValues] = await Promise.all([
     Promise.all(acceptedKeys.map((key) => readKvNumber(kv, key))),
@@ -345,6 +377,7 @@ async function handleRulesStats(request, env) {
   try {
     return json(await getRulesStats(env, guildId), 200, origin);
   } catch (error) {
+    logWorkerEvent("error", "rules.stats.failed", { message: error?.message, guildId });
     return json(
       {
         configured: hasValidRulesStatsBinding(env),
@@ -1313,6 +1346,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
   const userLabel = getDiscordUserLabel(interaction);
 
   if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline") {
+    logWorkerEvent("info", "rules.confirmation.requested", { action: rulesAction.action, guildId, userId, roles: rulesAction.roleIds?.length || 0 });
     const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
 
     if (recordedDecision === "accepted" || (rulesAction.action === "confirm_accept" && memberHasAllRoles(interaction, rulesAction.roleIds))) {
@@ -1345,15 +1379,18 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
         rulesAction.roleIds,
         `Rules accepted by ${userLabel}`
       );
-      await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
+      await recordRulesDecision(env, guildId, userId, "accepted").catch((error) => logWorkerEvent("warn", "rules.stats.record_failed", { action: "accepted", guildId, userId, message: error?.message }));
+      logWorkerEvent("info", "rules.accepted", { guildId, userId, roles: rulesAction.roleIds.length });
 
       return finishRulesDecision(interaction, "✅ Правила прийнято. Роль видано. Для тебе ця дія вже завершена.");
     }
 
     await kickGuildMember(env, guildId, userId, `Rules declined by ${userLabel}`);
-    await recordRulesDecision(env, guildId, userId, "declined").catch(() => null);
+    await recordRulesDecision(env, guildId, userId, "declined").catch((error) => logWorkerEvent("warn", "rules.stats.record_failed", { action: "declined", guildId, userId, message: error?.message }));
+    logWorkerEvent("info", "rules.declined", { guildId, userId });
     return finishRulesDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
+    logWorkerEvent("error", "rules.action.failed", { action: rulesAction.action, guildId, userId, message: error?.message });
     return finishRulesDecision(
       interaction,
       `❌ Не вдалося виконати дію правил: ${limitText(error?.message, 180, "невідома помилка")}`

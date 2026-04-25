@@ -30,19 +30,17 @@ function roleName(roleId: string, roles: DiscordRoleOption[]) {
   return roles.find((role) => role.id === roleId)?.name || roleId;
 }
 
+function formatUpdatedAt(value: string | null) {
+  if (!value) return "ще немає";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "невідома дата" : date.toLocaleString("uk-UA");
+}
 
 function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: DiscordRulesStats; messagesCount: number; channelName: string }) {
-  const updatedLabel = stats.updatedAt ? new Date(stats.updatedAt).toLocaleString("uk-UA") : "ще немає";
-  const sourceLabel =
-    stats.source === "kv"
-      ? "KV"
-      : stats.source === "invalid-binding"
-        ? "Неправильний binding"
-        : stats.source === "missing-kv-binding"
-          ? "KV не підключено"
-          : stats.source === "error"
-            ? "Помилка"
-            : "Worker";
+  const updatedLabel = formatUpdatedAt(stats.updatedAt);
+  const statsHint = stats.configured
+    ? `Облік активний • останнє оновлення: ${updatedLabel}`
+    : (stats.error || "Онови Worker і додай KV binding RULES_STATS.");
 
   return (
     <section className="discord-rules-stats-grid" aria-label="Статистика правил">
@@ -64,7 +62,7 @@ function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: Discord
       <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
         <span className="eyebrow">Статистика</span>
         <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
-        <small>{stats.configured ? `Джерело: ${sourceLabel} • останнє оновлення: ${updatedLabel}` : (stats.error || "Онови Worker і додай KV binding RULES_STATS.")}</small>
+        <small>{statsHint}</small>
       </article>
     </section>
   );

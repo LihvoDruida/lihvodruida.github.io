@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export type DiscordChannelOption = {
   id: string;
@@ -72,6 +72,10 @@ function colorNumberToHex(value: unknown) {
   const color = Number(value);
   if (!Number.isFinite(color)) return COLOR_FALLBACK;
   return `#${Math.max(0, Math.min(0xffffff, Math.floor(color))).toString(16).padStart(6, "0")}`.toUpperCase();
+}
+
+function uniqueIds(values: string[]) {
+  return Array.from(new Set(values.map((value) => String(value || "").trim()).filter(Boolean)));
 }
 
 function hexToNumber(value: string) {
@@ -230,21 +234,27 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
   onChange: (ids: string[]) => void;
 }) {
   const [query, setQuery] = useState("");
-  const selected = new Set(selectedRoleIds);
+  const normalizedSelectedRoleIds = uniqueIds(selectedRoleIds);
+  const selected = new Set(normalizedSelectedRoleIds);
   const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const visibleRoleIds = new Set(filteredRoles.map((role) => role.id));
+  const hiddenSelectedRoleIds = normalizedSelectedRoleIds.filter((roleId) => !visibleRoleIds.has(roleId));
 
   function toggleRole(roleId: string) {
     if (selected.has(roleId)) {
-      onChange(selectedRoleIds.filter((id) => id !== roleId));
+      onChange(normalizedSelectedRoleIds.filter((id) => id !== roleId));
       return;
     }
-    onChange([...selectedRoleIds, roleId]);
+    onChange(uniqueIds([...normalizedSelectedRoleIds, roleId]));
   }
 
   return (
     <div className="discord-role-picker">
+      {hiddenSelectedRoleIds.map((roleId) => (
+        <input key={`hidden-${roleId}`} type="hidden" name="roleIds" value={roleId} />
+      ))}
       <div className="discord-role-selected" aria-label="Вибрані ролі">
-        {selectedRoleIds.length === 0 ? <span className="discord-role-placeholder">Ролі ще не вибрані</span> : null}
+        {normalizedSelectedRoleIds.length === 0 ? <span className="discord-role-placeholder">Ролі ще не вибрані</span> : null}
         {roles.filter((role) => selected.has(role.id)).map((role) => (
           <span className="discord-role-chip" key={role.id}>
             <span className="discord-role-dot" style={{ backgroundColor: roleColor(role.color) }} />
@@ -262,6 +272,9 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
       />
 
       <div className="discord-role-list" role="listbox" aria-label="Ролі для кнопки прийняття правил">
+        {filteredRoles.length === 0 ? (
+          <div className="discord-role-empty">Нічого не знайдено. Очисти пошук або перевір список ролей бота.</div>
+        ) : null}
         {filteredRoles.map((role) => (
           <label className="discord-role-option" key={role.id} data-selected={selected.has(role.id) ? "true" : "false"}>
             <input
@@ -369,6 +382,32 @@ export default function DiscordEmbedEditor({
   const [footerIconUrl, setFooterIconUrl] = useState(text(footer.icon_url));
   const [timestampEnabled, setTimestampEnabled] = useState(Boolean(initialEmbed.timestamp));
   const [fields, setFields] = useState<EmbedFieldState[]>(initialFields(initialEmbed.fields));
+  const channelsKey = channels.map((channel) => channel.id).join("|");
+  const selectedRoleIdsKey = uniqueIds(selectedRoleIds).join("|");
+
+  useEffect(() => {
+    const nextEmbed = parseInitialEmbed(defaultEmbedJson);
+    const nextAuthor = objectFrom(nextEmbed.author);
+    const nextFooter = objectFrom(nextEmbed.footer);
+
+    setContent(defaultContent);
+    setChannelId(suggestedChannelId || channels[0]?.id || "");
+    setMessageLink(defaultMessageLink);
+    setRoleIds(uniqueIds(selectedRoleIds));
+    setTitleValue(text(nextEmbed.title));
+    setUrlValue(text(nextEmbed.url));
+    setDescriptionValue(text(nextEmbed.description));
+    setColorHex(colorNumberToHex(nextEmbed.color));
+    setAuthorName(text(nextAuthor.name));
+    setAuthorUrl(text(nextAuthor.url));
+    setAuthorIconUrl(text(nextAuthor.icon_url));
+    setThumbnailUrl(urlFrom(nextEmbed.thumbnail));
+    setImageUrl(urlFrom(nextEmbed.image));
+    setFooterText(text(nextFooter.text));
+    setFooterIconUrl(text(nextFooter.icon_url));
+    setTimestampEnabled(Boolean(nextEmbed.timestamp));
+    setFields(initialFields(nextEmbed.fields));
+  }, [defaultEmbedJson, defaultContent, defaultMessageLink, suggestedChannelId, channelsKey, selectedRoleIdsKey]);
 
   const embed = useMemo(() => buildEmbed({
     title: titleValue,
@@ -388,6 +427,7 @@ export default function DiscordEmbedEditor({
 
   const normalizedColor = normalizeHexColor(colorHex);
   const generatedEmbedJson = useMemo(() => JSON.stringify(embed), [embed]);
+  const selectedRolesCount = uniqueIds(roleIds).length;
   const isRules = mode === "rules";
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
   const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
@@ -402,7 +442,7 @@ export default function DiscordEmbedEditor({
       <section className="discord-builder-panel panel" aria-label={title}>
         <div className="discord-builder-titlebar">
           <span>{isRules ? "Rules" : "General"} embed</span>
-          <small>Без ручного JSON</small>
+          <small>{isValid ? "Готово до публікації" : "Потрібен видимий контент"}</small>
         </div>
         <div className="discord-builder-body">
           <div className="discord-builder-head">
@@ -573,15 +613,15 @@ export default function DiscordEmbedEditor({
               <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
                   <strong>Ролі для кнопки “Прийняти правила”</strong>
-                  <small>Можна вибрати одну або кілька ролей. Кнопка “Відмовитися” залишиться дією кіку через Worker.</small>
+                  <small>Вибрано: {selectedRolesCount}. Кнопка “Відмовитися” запускає підтвердження, а потім кік через Worker.</small>
                 </div>
                 <RolePicker roles={roles} selectedRoleIds={roleIds} onChange={setRoleIds} />
               </div>
             ) : null}
 
             <div className="discord-builder-actions">
-              <a className="btn subtle" href={isRules ? "/discord/rules" : "/discord"}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={!isValid}>{actionLabel}</button>
+              <a className="btn subtle" href={returnTo || (isRules ? "/discord/rules" : "/discord")}>Скасувати</a>
+              <button className="btn primary" type="submit" disabled={!isValid} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : undefined}>{actionLabel}</button>
             </div>
           </form>
         </div>
