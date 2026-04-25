@@ -404,6 +404,7 @@ export default function DiscordEmbedEditor({
   const lastLoadedMessageLinkRef = useRef(normalizeMessageLink(defaultMessageLink));
   const channelsKey = channels.map((channel) => channel.id).join("|");
   const selectedRoleIdsKey = uniqueIds(selectedRoleIds).join("|");
+  const isRules = mode === "rules";
 
   useEffect(() => {
     const nextEmbed = parseInitialEmbed(defaultEmbedJson);
@@ -555,7 +556,6 @@ export default function DiscordEmbedEditor({
   const normalizedColor = normalizeHexColor(colorHex);
   const generatedEmbedJson = useMemo(() => JSON.stringify(embed), [embed]);
   const selectedRolesCount = uniqueIds(roleIds).length;
-  const isRules = mode === "rules";
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
   const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
   const actionLabel = editorMode === "edit" ? "Зберегти зміни" : isRules ? "Опублікувати правила" : "Опублікувати embed";

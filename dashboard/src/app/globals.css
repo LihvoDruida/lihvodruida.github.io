@@ -2575,7 +2575,7 @@ textarea:disabled {
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  align-items: end;
+  align-items: flex-end;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.18);
 }
@@ -3223,7 +3223,7 @@ textarea:disabled {
   display: grid;
   grid-template-columns: 150px minmax(180px, 1fr) minmax(220px, auto);
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .discord-color-picker-field {
@@ -3269,7 +3269,7 @@ textarea:disabled {
   display: grid;
   grid-template-columns: minmax(180px, 0.85fr) minmax(220px, 1.15fr) auto;
   gap: 10px;
-  align-items: end;
+  align-items: flex-end;
   padding: 12px;
   border: 1px solid var(--line-soft);
   border-radius: 18px;
