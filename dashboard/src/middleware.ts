@@ -79,7 +79,9 @@ export function middleware(request: NextRequest) {
     return forbiddenResponse("Запит має проходити через Cloudflare.");
   }
 
-  if (!verifyTrustedOrigin(request)) {
+  const isDiscordInteractionEndpoint = request.nextUrl.pathname === "/api/discord/interactions";
+
+  if (!isDiscordInteractionEndpoint && !verifyTrustedOrigin(request)) {
     return forbiddenResponse("Недовірене джерело запиту.");
   }
 

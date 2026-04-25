@@ -7,7 +7,7 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content";
+  activeSection?: "applications" | "content" | "discord";
 }) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
@@ -27,13 +27,22 @@ export default async function DashboardIdentity({
           <nav className="dashboard-nav" aria-label="Панель керування">
             <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
             {user.role === "admin" ? (
-              <a
-                href="/content"
-                className={activeSection === "content" ? "is-active" : undefined}
-                aria-current={activeSection === "content" ? "page" : undefined}
-              >
-                Новини / гайди
-              </a>
+              <>
+                <a
+                  href="/content"
+                  className={activeSection === "content" ? "is-active" : undefined}
+                  aria-current={activeSection === "content" ? "page" : undefined}
+                >
+                  Новини / гайди
+                </a>
+                <a
+                  href="/discord"
+                  className={activeSection === "discord" ? "is-active" : undefined}
+                  aria-current={activeSection === "discord" ? "page" : undefined}
+                >
+                  Discord embeds
+                </a>
+              </>
             ) : null}
           </nav>
 
