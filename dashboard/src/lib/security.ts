@@ -4,11 +4,19 @@ import { getDashboardUrl } from "@/lib/oauth";
 const DEFAULT_MAX_BODY_BYTES = 8 * 1024 * 1024;
 const inMemoryBuckets = new Map<string, { count: number; resetAt: number }>();
 
+type LogLevel = "debug" | "info" | "warn" | "error";
+
 export function splitCsv(value?: string | null) {
   return String(value || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function envFlag(name: string, fallback = false) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === null || raw === "") return fallback;
+  return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
 }
 
 export function getAllowedDashboardHosts() {
@@ -61,6 +69,62 @@ export function getClientIp(request: Request | NextRequest) {
   return request.headers.get("x-real-ip") || "unknown";
 }
 
+export function requestContext(request: Request | NextRequest) {
+  let path = "unknown";
+  try {
+    path = new URL(request.url).pathname;
+  } catch {
+    path = "unknown";
+  }
+
+  return {
+    method: String(request.method || "GET").toUpperCase(),
+    path,
+    host: getRequestHost(request),
+    ip: getClientIp(request),
+    origin: request.headers.get("origin") || null,
+    refererHost: (() => {
+      const referer = request.headers.get("referer");
+      if (!referer) return null;
+      try {
+        return new URL(referer).host.toLowerCase();
+      } catch {
+        return "invalid";
+      }
+    })(),
+    secFetchSite: request.headers.get("sec-fetch-site") || null,
+    cfRay: request.headers.get("cf-ray") || null,
+    userAgent: (request.headers.get("user-agent") || "unknown").slice(0, 180),
+  };
+}
+
+export function logDashboardEvent(
+  level: LogLevel,
+  event: string,
+  request?: Request | NextRequest,
+  details: Record<string, unknown> = {}
+) {
+  if (level === "debug" && !envFlag("DASHBOARD_DEBUG_LOGS") && !envFlag("SECURITY_DEBUG_LOGS")) {
+    return;
+  }
+
+  const payload = {
+    event,
+    time: new Date().toISOString(),
+    ...(request ? requestContext(request) : {}),
+    ...details,
+  };
+
+  const line = `[dashboard:${level}] ${JSON.stringify(payload)}`;
+  if (level === "error") {
+    console.error(line);
+  } else if (level === "warn") {
+    console.warn(line);
+  } else {
+    console.log(line);
+  }
+}
+
 export function checkRateLimit(key: string, limit: number, windowMs: number) {
   const now = Date.now();
   const bucket = inMemoryBuckets.get(key);
@@ -98,6 +162,8 @@ export function assertRequestBodySize(request: Request | NextRequest, maxBytes =
 
   const size = Number(raw);
   if (Number.isFinite(size) && size > maxBytes) {
+    logDashboardEvent("warn", "request_body_too_large", request, { size, maxBytes });
+
     return NextResponse.json(
       { error: "Запит завеликий." },
       { status: 413, headers: { "Cache-Control": "no-store" } }
@@ -107,25 +173,53 @@ export function assertRequestBodySize(request: Request | NextRequest, maxBytes =
   return null;
 }
 
+function sameHostUrl(value: string | null, host: string) {
+  if (!value) return false;
+
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+
+  const urlHost = url.host.toLowerCase();
+  if (!isAllowedHost(urlHost) || urlHost !== host) return false;
+
+  return url.protocol === "https:" || isLocalHost(urlHost);
+}
+
 export function verifyTrustedOrigin(request: Request | NextRequest) {
   const method = String(request.method || "GET").toUpperCase();
   if (!["POST", "PUT", "PATCH", "DELETE"].includes(method)) return true;
 
   const host = getRequestHost(request);
-  if (!isAllowedHost(host)) return false;
+  const reject = (reason: string) => {
+    logDashboardEvent("warn", "trusted_origin_rejected", request, { reason });
+    return false;
+  };
+
+  if (!isAllowedHost(host)) return reject("host_not_allowed");
 
   const originHeader = request.headers.get("origin");
-  if (!originHeader) return false;
-
-  let origin: URL;
-  try {
-    origin = new URL(originHeader);
-  } catch {
-    return false;
+  if (originHeader) {
+    if (sameHostUrl(originHeader, host)) return true;
+    return reject("origin_mismatch");
   }
 
-  if (origin.protocol !== "https:" && !isLocalHost(origin.host)) return false;
-  return isAllowedHost(origin.host) && origin.host.toLowerCase() === host;
+  // Native form submits behind Cloudflare/Vercel can arrive without Origin.
+  // Sec-Fetch-Site is set by modern browsers and still blocks cross-site form attacks.
+  const fetchSite = String(request.headers.get("sec-fetch-site") || "").toLowerCase();
+  if (fetchSite === "same-origin") return true;
+
+  // Last safe fallback for older browsers or stripped headers.
+  // This works only when Referrer-Policy allows a Referer header.
+  if (sameHostUrl(request.headers.get("referer"), host)) return true;
+
+  // Local dev tools and local form posts are allowed only outside production.
+  if (process.env.NODE_ENV !== "production" && isLocalHost(host)) return true;
+
+  return reject(fetchSite ? `missing_origin_${fetchSite}` : "missing_origin");
 }
 
 export function forbiddenResponse(message = "Запит заблоковано політикою безпеки.") {

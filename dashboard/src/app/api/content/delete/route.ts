@@ -6,6 +6,7 @@ import {
   checkRateLimit,
   forbiddenResponse,
   getClientIp,
+  logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
   unauthorizedResponse,
@@ -26,17 +27,21 @@ export async function POST(request: NextRequest) {
     return forbiddenResponse("Недовірене джерело видалення контенту.");
   }
 
+  logDashboardEvent("info", "content.delete.attempt", request);
+
   const tooLarge = assertRequestBodySize(request, 4096);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
   if (!session || session.role !== "admin") {
+    logDashboardEvent("warn", "content.delete.unauthorized", request);
     return unauthorizedResponse("Доступ лише для адміністратора.");
   }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`content-delete:${session.id}:${ip}`, 8, 10 * 60 * 1000);
   if (!limit.ok) {
+    logDashboardEvent("warn", "content.delete.rate_limited", request, { userId: session.id, resetAt: limit.resetAt });
     return redirectTo(request, `/content?error=${encodeURIComponent("Забагато видалень. Зачекай кілька хвилин.")}`);
   }
 
@@ -49,9 +54,11 @@ export async function POST(request: NextRequest) {
     }
 
     await deleteRepoFile(path, `content: delete ${path} by ${session.name}`);
+    logDashboardEvent("info", "content.delete.success", request, { path, userId: session.id });
     return redirectTo(request, `/content?deleted=${encodeURIComponent(path)}`);
   } catch (error) {
     const message = safeErrorMessage(error, "Не вдалося видалити матеріал.");
+    logDashboardEvent("error", "content.delete.failed", request, { message });
     return redirectTo(request, `/content?error=${encodeURIComponent(message)}`);
   }
 }

@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { buildDiscordOAuthUrl, randomState } from "@/lib/oauth";
-import { checkRateLimit, getClientIp, noStoreHeaders } from "@/lib/security";
+import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
 export async function GET(request: NextRequest) {
+  logDashboardEvent("info", "auth.discord.start", request);
+
   const ip = getClientIp(request);
   const limit = checkRateLimit(`discord-oauth-start:${ip}`, 20, 10 * 60 * 1000);
 
   if (!limit.ok) {
+    logDashboardEvent("warn", "auth.discord.start.rate_limited", request, { resetAt: limit.resetAt });
     const response = NextResponse.redirect(new URL("/login?error=rate_limit", request.url), 303);
     for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
     return response;

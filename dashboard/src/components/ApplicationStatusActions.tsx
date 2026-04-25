@@ -63,12 +63,17 @@ export default function ApplicationStatusActions({
     try {
       const response = await fetch(`/api/applications/${issueNumber}/status`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Dashboard-Action": "moderate-application",
+        },
+        credentials: "same-origin",
         cache: "no-store",
         body: JSON.stringify({ status: nextStatus }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch(() => ({ error: "Сервер повернув не JSON-відповідь. Перевір Vercel/Cloudflare logs." }));
 
       if (!response.ok || data?.error) {
         throw new Error(data?.error || "Не вдалося змінити статус заявки.");
@@ -85,6 +90,7 @@ export default function ApplicationStatusActions({
         setMessage("GitHub оновлено. Discord не підтвердив редагування.");
       }
     } catch (error) {
+      console.error("[dashboard:applications.status]", error);
       setStatus(previousStatus);
       setMessage(error instanceof Error ? error.message : "Помилка синхронізації.");
     } finally {

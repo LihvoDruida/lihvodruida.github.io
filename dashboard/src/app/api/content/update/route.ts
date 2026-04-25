@@ -6,6 +6,7 @@ import {
   checkRateLimit,
   forbiddenResponse,
   getClientIp,
+  logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
   unauthorizedResponse,
@@ -26,17 +27,21 @@ export async function POST(request: NextRequest) {
     return forbiddenResponse("Недовірене джерело оновлення контенту.");
   }
 
+  logDashboardEvent("info", "content.update.attempt", request);
+
   const tooLarge = assertRequestBodySize(request, 10 * 1024 * 1024);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
   if (!session || session.role !== "admin") {
+    logDashboardEvent("warn", "content.update.unauthorized", request);
     return unauthorizedResponse("Доступ лише для адміністратора.");
   }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`content-update:${session.id}:${ip}`, 20, 10 * 60 * 1000);
   if (!limit.ok) {
+    logDashboardEvent("warn", "content.update.rate_limited", request, { userId: session.id, resetAt: limit.resetAt });
     return redirectTo(request, `/content?error=${encodeURIComponent("Забагато оновлень матеріалів. Зачекай кілька хвилин.")}`);
   }
 
@@ -67,9 +72,11 @@ export async function POST(request: NextRequest) {
       user: session,
     });
 
+    logDashboardEvent("info", "content.update.success", request, { path: result.path, userId: session.id });
     return redirectTo(request, `/content?updated=${encodeURIComponent(result.path)}`);
   } catch (error) {
     const message = safeErrorMessage(error, "Не вдалося оновити матеріал.");
+    logDashboardEvent("error", "content.update.failed", request, { message });
     return redirectTo(request, `/content?error=${encodeURIComponent(message)}`);
   }
 }

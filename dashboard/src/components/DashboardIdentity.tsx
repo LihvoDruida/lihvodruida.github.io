@@ -1,5 +1,6 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardIdentity({
   user,
@@ -45,9 +46,7 @@ export default async function DashboardIdentity({
               <strong>{user.name}</strong>
               <span>Discord • {user.role}</span>
             </div>
-            <form method="post" action="/api/auth/logout" className="dashboard-user__logout">
-              <button type="submit" aria-label="Вийти">Вийти</button>
-            </form>
+            <LogoutButton />
           </div>
         </>
       ) : null}

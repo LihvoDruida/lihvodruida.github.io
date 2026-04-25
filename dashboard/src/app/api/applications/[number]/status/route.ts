@@ -7,6 +7,7 @@ import {
   checkRateLimit,
   forbiddenResponse,
   getClientIp,
+  logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
   unauthorizedResponse,
@@ -24,17 +25,21 @@ export async function POST(
     return forbiddenResponse("Недовірене джерело зміни статусу.");
   }
 
+  logDashboardEvent("info", "applications.status.attempt", request);
+
   const tooLarge = assertRequestBodySize(request, 4096);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
   if (!session || (session.role !== "admin" && session.role !== "moderator")) {
+    logDashboardEvent("warn", "applications.status.unauthorized", request);
     return unauthorizedResponse();
   }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`moderation:${session.id}:${ip}`, 30, 60 * 1000);
   if (!limit.ok) {
+    logDashboardEvent("warn", "applications.status.rate_limited", request, { userId: session.id, resetAt: limit.resetAt });
     return NextResponse.json(
       { error: "Забагато змін статусу. Зачекай хвилину." },
       { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.ceil((limit.resetAt - Date.now()) / 1000)) }) }
@@ -44,6 +49,7 @@ export async function POST(
   const { number } = await context.params;
   const issueNumber = Number(number);
   if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
+    logDashboardEvent("warn", "applications.status.invalid_issue", request, { issueNumber: number });
     return NextResponse.json({ error: "Невірний номер заявки." }, { status: 400, headers: noStoreHeaders() });
   }
 
@@ -51,6 +57,7 @@ export async function POST(
   const status = String(body.status || "") as ApplicationStatus;
 
   if (status !== "accepted" && status !== "declined") {
+    logDashboardEvent("warn", "applications.status.unsupported_status", request, { issueNumber, status });
     return NextResponse.json({ error: "Unsupported status" }, { status: 400, headers: noStoreHeaders() });
   }
 
@@ -62,8 +69,10 @@ export async function POST(
       source: "dashboard",
     });
 
+    logDashboardEvent("info", "applications.status.success", request, { issueNumber, status, userId: session.id });
     return NextResponse.json(result, { headers: noStoreHeaders() });
   } catch (error) {
+    logDashboardEvent("error", "applications.status.failed", request, { issueNumber, status, message: safeErrorMessage(error) });
     return NextResponse.json(
       { error: safeErrorMessage(error, "Не вдалося змінити статус заявки.") },
       { status: 500, headers: noStoreHeaders() }

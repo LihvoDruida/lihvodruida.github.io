@@ -6,6 +6,7 @@ import {
   checkRateLimit,
   forbiddenResponse,
   getClientIp,
+  logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
   unauthorizedResponse,
@@ -26,17 +27,21 @@ export async function POST(request: NextRequest) {
     return forbiddenResponse("Недовірене джерело створення контенту.");
   }
 
+  logDashboardEvent("info", "content.create.attempt", request);
+
   const tooLarge = assertRequestBodySize(request, 10 * 1024 * 1024);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
   if (!session || session.role !== "admin") {
+    logDashboardEvent("warn", "content.create.unauthorized", request);
     return unauthorizedResponse("Доступ лише для адміністратора.");
   }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`content-create:${session.id}:${ip}`, 12, 10 * 60 * 1000);
   if (!limit.ok) {
+    logDashboardEvent("warn", "content.create.rate_limited", request, { userId: session.id, resetAt: limit.resetAt });
     return redirectTo(request, `/content?error=${encodeURIComponent("Забагато спроб створення матеріалів. Зачекай кілька хвилин.")}`);
   }
 
@@ -62,9 +67,11 @@ export async function POST(request: NextRequest) {
       user: session,
     });
 
+    logDashboardEvent("info", "content.create.success", request, { path: result.path, userId: session.id });
     return redirectTo(request, `/content?published=${encodeURIComponent(result.path)}`);
   } catch (error) {
     const message = safeErrorMessage(error, "Не вдалося створити матеріал.");
+    logDashboardEvent("error", "content.create.failed", request, { message });
     return redirectTo(request, `/content?error=${encodeURIComponent(message)}`);
   }
 }

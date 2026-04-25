@@ -5,6 +5,7 @@ import {
   getRequestHost,
   isAllowedHost,
   isLocalHost,
+  logDashboardEvent,
   noStoreHeaders,
   verifyTrustedOrigin,
 } from "@/lib/security";
@@ -63,6 +64,8 @@ export function middleware(request: NextRequest) {
   const host = getRequestHost(request);
 
   if (!isAllowedHost(host)) {
+    logDashboardEvent("warn", "middleware.host_rejected", request, { blockedHost: host });
+
     if (request.method === "GET" || request.method === "HEAD") {
       const target = new URL(request.nextUrl.pathname + request.nextUrl.search, getCanonicalDashboardOrigin());
       return NextResponse.redirect(target, 308);
@@ -72,6 +75,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (shouldRequireCloudflareProxy(host) && !hasCloudflareSignal(request)) {
+    logDashboardEvent("warn", "middleware.cloudflare_required", request);
     return forbiddenResponse("Запит має проходити через Cloudflare.");
   }
 
