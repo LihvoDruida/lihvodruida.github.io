@@ -3,11 +3,13 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import {
   fetchDiscordRoles,
+  fetchDiscordRulesStats,
   fetchDiscordTextChannels,
   hasDiscordEmbedConfig,
   listRulesEmbedMessages,
   type DiscordEditableMessage,
   type DiscordRoleOption,
+  type DiscordRulesStats,
 } from "@/lib/discordAdmin";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +28,36 @@ function StatusNotice({ params }: { params: Record<string, string | undefined> }
 
 function roleName(roleId: string, roles: DiscordRoleOption[]) {
   return roles.find((role) => role.id === roleId)?.name || roleId;
+}
+
+
+function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: DiscordRulesStats; messagesCount: number; channelName: string }) {
+  const updatedLabel = stats.updatedAt ? new Date(stats.updatedAt).toLocaleString("uk-UA") : "ще немає";
+
+  return (
+    <section className="discord-rules-stats-grid" aria-label="Статистика правил">
+      <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
+        <span className="eyebrow">Accepted</span>
+        <strong>{stats.configured ? stats.accepted : "—"}</strong>
+        <small>прийняли правила</small>
+      </article>
+      <article className="panel discord-rules-stat-card discord-rules-stat-card--declined">
+        <span className="eyebrow">Declined</span>
+        <strong>{stats.configured ? stats.declined : "—"}</strong>
+        <small>відмовились від правил</small>
+      </article>
+      <article className="panel discord-rules-stat-card">
+        <span className="eyebrow">Rules messages</span>
+        <strong>{messagesCount}</strong>
+        <small>embed-повідомлень у #{channelName}</small>
+      </article>
+      <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
+        <span className="eyebrow">Stats source</span>
+        <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
+        <small>{stats.configured ? `Останнє оновлення: ${updatedLabel}` : (stats.error || "Онови Worker і додай KV binding RULES_STATS.")}</small>
+      </article>
+    </section>
+  );
 }
 
 function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: DiscordRoleOption[] }) {
@@ -60,12 +92,14 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
   let rulesChannelName = "rules";
   let messages: DiscordEditableMessage[] = [];
   let roles: DiscordRoleOption[] = [];
+  let stats: DiscordRulesStats = { accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
 
   if (isAdmin && hasDiscordEmbedConfig()) {
     try {
-      const [channelData, roleData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles()]);
+      const [channelData, roleData, statsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats()]);
       const rulesChannel = channelData.channels.find((channel) => channel.id === channelData.suggestedRulesChannelId) || channelData.channels[0];
       roles = roleData;
+      stats = statsData;
       rulesChannelName = rulesChannel?.name || "rules";
       messages = rulesChannel?.id ? await listRulesEmbedMessages(rulesChannel.id, 100) : [];
     } catch (error) {
@@ -86,10 +120,10 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             </div>
             <h1>Правила Discord</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Тут показуються лише повідомлення правил з кнопками “Прийняти правила” та “Відмовитися”. Для додавання або редагування відкривається окрема сторінка у стилі embed builder.</p>
+            <p className="lead">Тут показуються тільки rule embed-повідомлення, статистика прийняття/відмови та швидкі дії для створення або редагування правил.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Пошук бере рекомендований rules-канал або перший канал з назвою rules/правила.</span>
+              <span>Канал визначається автоматично, але при створенні або редагуванні його можна змінити вручну.</span>
               <div className="content-hero-buttons">
                 <a className="btn primary content-add-btn" href="/discord/rules/new">Додати правила</a>
                 <a className="btn subtle content-add-btn" href="/discord">Назад</a>
@@ -108,7 +142,10 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       ) : configError ? (
         <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
       ) : (
-        <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
+        <>
+          <RulesStatsPanel stats={stats} messagesCount={messages.length} channelName={rulesChannelName} />
+
+          <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
           <div className="content-section-head content-section-head--toolbar">
             <div>
               <span className="eyebrow">Rules library</span>
@@ -131,7 +168,8 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
               {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
             </div>
           )}
-        </section>
+          </section>
+        </>
       )}
     </main>
   );

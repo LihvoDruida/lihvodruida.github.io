@@ -6,8 +6,6 @@ import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const DEFAULT_WORKER_ENDPOINT = "https://guild-applications.melles-android.workers.dev/api/discord-interactions";
-
 function StatusNotice({ params }: { params: Record<string, string | undefined> }) {
   if (params.published) {
     return (
@@ -35,25 +33,23 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
 
   const params = await searchParams;
   const isAdmin = user.role === "admin";
-  const interactionEndpoint = process.env.DISCORD_INTERACTIONS_ENDPOINT || DEFAULT_WORKER_ENDPOINT;
-
   return (
     <main className="container">
       <section className="dashboard-shell content-shell discord-shell" aria-label="Discord action панель Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="hero panel dashboard-hero content-dashboard-hero discord-dashboard-hero">
           <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Discord bot actions</div>
+            <div className="eyebrow">Mistblossom Vanguard • Discord publishing</div>
             <div className="content-hero-status-row" aria-label="Стан Discord редактора">
               <span className="content-mode-pill content-mode-pill--library">Actions hub</span>
-              <span className="content-hero-path">Applications • Rules • General posts</span>
+              <span className="content-hero-path">Rules • General posts</span>
             </div>
-            <h1>Discord actions</h1>
+            <h1>Discord embeds</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Одна логіка для заявок, правил і звичайних embed-постів: заявки модеруються кнопками, правила видають ролі, а пости публікуються або редагуються за посиланням.</p>
+            <p className="lead">Окрема адмін-панель для правил сервера і звичайних embed-постів. Правила мають кнопки прийняття, ролі та статистику, а пости можна публікувати або редагувати за Discord message link.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Interaction endpoint вже винесений у Cloudflare Worker, тому кнопки не залежать від Next.js route.</span>
+              <span>Редактор працює без ручного JSON: усі частини embed заповнюються окремими полями, з живим preview і вибором кольору.</span>
             </div>
           </div>
 
@@ -80,27 +76,11 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : (
         <>
-          <section className="discord-action-overview panel" aria-label="Discord action routing">
-            <div>
-              <span className="eyebrow">Interaction routing</span>
-              <h2>Поточний endpoint кнопок</h2>
-              <p>У Discord Developer Portal має стояти саме цей Worker endpoint. Dashboard лише створює повідомлення й custom_id, а Worker виконує дії кнопок.</p>
-            </div>
-            <code>{interactionEndpoint}</code>
-          </section>
-
-          <section className="discord-hub-grid discord-hub-grid--actions" aria-label="Discord action розділи">
-            <a className="panel discord-hub-card" href="/">
-              <span className="eyebrow">Applications</span>
-              <strong>Заявки до гільдії</strong>
-              <p>Discord-кнопки “Прийняти” і “Відхилити” оновлюють GitHub Issue, закривають заявку і прибирають кнопки з повідомлення.</p>
-              <span className="btn subtle">Відкрити заявки</span>
-            </a>
-
+          <section className="discord-hub-grid discord-hub-grid--compact" aria-label="Discord embed розділи">
             <a className="panel discord-hub-card discord-hub-card--rules" href="/discord/rules">
               <span className="eyebrow">Rules embeds</span>
               <strong>Правила сервера</strong>
-              <p>Список тільки rule embed-повідомлень, кнопка додавання, редагування і ролі для “Прийняти правила”.</p>
+              <p>Список rule-повідомлень, статистика прийняття/відмов, додавання, редагування і ролі для кнопки “Прийняти правила”.</p>
               <span className="btn primary">Відкрити правила</span>
             </a>
 

@@ -18,3 +18,10 @@ DISCORD_ALLOWED_ROLES = ""
 # DISCORD_PUBLIC_KEY
 # DISCORD_GUILD_ID
 # GITHUB_TOKEN
+
+# Rules accept/decline counters. Create once:
+# wrangler kv namespace create RULES_STATS
+# Then paste the returned id below.
+# [[kv_namespaces]]
+# binding = "RULES_STATS"
+# id = "paste_kv_namespace_id_here"

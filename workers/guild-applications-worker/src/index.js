@@ -2,7 +2,7 @@ const DEFAULT_CACHE_SECONDS = 0;
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -150,6 +150,110 @@ function json(data, status = 200, corsOrigin = "*") {
     status,
     headers: buildCorsHeaders(corsOrigin, status),
   });
+}
+
+
+function getRulesStatsKv(env) {
+  return env.RULES_STATS || null;
+}
+
+function rulesStatsKey(guildId, suffix) {
+  return `rules:${snowflake(guildId) || "global"}:${suffix}`;
+}
+
+async function readKvNumber(kv, key) {
+  const value = await kv.get(key);
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+}
+
+async function writeKvNumber(kv, key, value) {
+  await kv.put(key, String(Math.max(0, Math.floor(Number(value) || 0))));
+}
+
+async function getRulesStats(env, guildId) {
+  const kv = getRulesStatsKv(env);
+  if (!kv) {
+    return {
+      configured: false,
+      accepted: 0,
+      declined: 0,
+      total: 0,
+      updated_at: null,
+      message: "RULES_STATS KV binding is not configured.",
+    };
+  }
+
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID) || "global";
+  const [accepted, declined, updatedAt] = await Promise.all([
+    readKvNumber(kv, rulesStatsKey(cleanGuildId, "accepted")),
+    readKvNumber(kv, rulesStatsKey(cleanGuildId, "declined")),
+    kv.get(rulesStatsKey(cleanGuildId, "updated_at")),
+  ]);
+
+  return {
+    configured: true,
+    guild_id: cleanGuildId,
+    accepted,
+    declined,
+    total: accepted + declined,
+    updated_at: updatedAt || null,
+  };
+}
+
+async function recordRulesDecision(env, guildId, userId, action) {
+  const kv = getRulesStatsKv(env);
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID) || "global";
+  const cleanUserId = snowflake(userId);
+  const normalizedAction = action === "declined" ? "declined" : "accepted";
+
+  if (!kv || !cleanUserId) return { skipped: true };
+
+  const userKey = rulesStatsKey(cleanGuildId, `user:${cleanUserId}`);
+  const previous = await kv.get(userKey);
+
+  if (previous === normalizedAction) {
+    await kv.put(rulesStatsKey(cleanGuildId, "updated_at"), new Date().toISOString());
+    return { ok: true, unchanged: true };
+  }
+
+  const targetKey = rulesStatsKey(cleanGuildId, normalizedAction);
+  const targetCount = await readKvNumber(kv, targetKey);
+  await writeKvNumber(kv, targetKey, targetCount + 1);
+
+  if (previous === "accepted" || previous === "declined") {
+    const previousKey = rulesStatsKey(cleanGuildId, previous);
+    const previousCount = await readKvNumber(kv, previousKey);
+    await writeKvNumber(kv, previousKey, previousCount - 1);
+  }
+
+  await kv.put(userKey, normalizedAction);
+  await kv.put(rulesStatsKey(cleanGuildId, "updated_at"), new Date().toISOString());
+
+  return { ok: true };
+}
+
+async function handleRulesStats(request, env) {
+  const origin = allowedOrigin(request, env) || "*";
+  const url = new URL(request.url);
+  const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
+
+  try {
+    return json(await getRulesStats(env, guildId), 200, origin);
+  } catch (error) {
+    return json(
+      {
+        configured: Boolean(getRulesStatsKv(env)),
+        accepted: 0,
+        declined: 0,
+        total: 0,
+        updated_at: null,
+        error: error instanceof Error ? error.message : "Rules stats are unavailable.",
+      },
+      500,
+      origin
+    );
+  }
 }
 
 function allowedOrigin(request, env) {
@@ -1023,11 +1127,13 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
         rulesAction.roleIds,
         `Rules accepted by ${userLabel}`
       );
+      await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
 
       return ephemeral("✅ Правила прийнято. Роль видано.");
     }
 
     await kickGuildMember(env, guildId, userId, `Rules declined by ${userLabel}`);
+    await recordRulesDecision(env, guildId, userId, "declined").catch(() => null);
     return ephemeral("🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
     return ephemeral(
@@ -1400,6 +1506,10 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
+      return handleRulesStats(request, env);
+    }
 
     if (url.pathname === "/api/discord-interactions" && request.method === "POST") {
       return handleDiscordInteraction(request, env);

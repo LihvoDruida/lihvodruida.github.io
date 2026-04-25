@@ -1,6 +1,85 @@
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const DASHBOARD_CUSTOM_ID_PREFIX = "mbv1";
 
+
+export type DiscordRulesStats = {
+  accepted: number;
+  declined: number;
+  total: number;
+  updatedAt: string | null;
+  configured: boolean;
+  source: "worker" | "unconfigured" | "error";
+  error?: string;
+};
+
+const DEFAULT_WORKER_ENDPOINT = "https://guild-applications.melles-android.workers.dev/api/discord-interactions";
+
+function rulesStatsEndpoint() {
+  const explicit = String(process.env.DISCORD_RULES_STATS_ENDPOINT || "").trim();
+  if (explicit) return explicit;
+
+  const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || DEFAULT_WORKER_ENDPOINT).trim();
+  if (!interactions) return "";
+
+  return interactions.replace(/\/api\/discord-interactions\/?$/, "/api/discord-rules-stats");
+}
+
+function safeNumber(value: unknown) {
+  const num = Number(value);
+  return Number.isFinite(num) && num >= 0 ? Math.floor(num) : 0;
+}
+
+export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
+  const endpoint = rulesStatsEndpoint();
+  if (!endpoint) {
+    return { accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
+
+    const raw = await response.text().catch(() => "");
+    const data = raw ? tryParseJson(raw) : null;
+
+    if (!response.ok || !data || typeof data !== "object") {
+      return {
+        accepted: 0,
+        declined: 0,
+        total: 0,
+        updatedAt: null,
+        configured: false,
+        source: "error",
+        error: typeof data?.error === "string" ? data.error : `Worker stats HTTP ${response.status}`,
+      };
+    }
+
+    const accepted = safeNumber(data.accepted);
+    const declined = safeNumber(data.declined);
+
+    return {
+      accepted,
+      declined,
+      total: safeNumber(data.total) || accepted + declined,
+      updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
+      configured: Boolean(data.configured ?? true),
+      source: "worker",
+    };
+  } catch (error) {
+    return {
+      accepted: 0,
+      declined: 0,
+      total: 0,
+      updatedAt: null,
+      configured: false,
+      source: "error",
+      error: error instanceof Error ? error.message : "Stats endpoint недоступний",
+    };
+  }
+}
+
 export type DiscordTextChannel = {
   id: string;
   name: string;
