@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const avatarUrl = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${String(user.avatar).startsWith("a_") ? "gif" : "png"}?size=128`
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
       : null;
 
     const role = resolveDashboardRole(member.roles || []);

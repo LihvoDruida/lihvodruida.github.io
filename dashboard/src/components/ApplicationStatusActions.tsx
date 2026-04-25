@@ -8,6 +8,7 @@ type Props = {
   issueNumber: number;
   initialStatus: StatusKey;
   issueState?: string;
+  canModerate?: boolean;
 };
 
 const LABELS: Record<StatusKey, string> = {
@@ -22,6 +23,7 @@ export default function ApplicationStatusActions({
   issueNumber,
   initialStatus,
   issueState = "open",
+  canModerate = true,
 }: Props) {
   const [status, setStatus] = useState<StatusKey>(initialStatus);
   const [selectedStatus, setSelectedStatus] = useState<Exclude<StatusKey, "review">>(
@@ -32,7 +34,7 @@ export default function ApplicationStatusActions({
 
   const isClosed = issueState === "closed";
   const isFinalStatus = status === "accepted" || status === "declined";
-  const locked = isClosed || isFinalStatus;
+  const locked = !canModerate || isClosed || isFinalStatus;
   const busy = pendingStatus !== null;
 
   const statusText = useMemo(() => {
@@ -40,7 +42,15 @@ export default function ApplicationStatusActions({
     return LABELS[status] || LABELS.review;
   }, [busy, status]);
 
-  const canApply = !locked && !busy && status === "review";
+  const canApply = canModerate && !locked && !busy && status === "review";
+
+  const lockedMessage = !canModerate
+    ? "Недостатньо ролі для модерації. Перегляд доступний, рішення вимкнені."
+    : isClosed
+      ? "GitHub Issue вже закрито. Повторна модерація вимкнена."
+      : isFinalStatus
+        ? `Модерація завершена: ${LABELS[status]}.`
+        : "";
 
   async function moderate(nextStatus: Exclude<StatusKey, "review">) {
     if (!canApply) return;
@@ -95,32 +105,34 @@ export default function ApplicationStatusActions({
         {statusText}
       </div>
 
-      <div className="action-row" aria-label="Зміна статусу заявки">
-        <select
-          className="select status-select"
-          value={selectedStatus}
-          disabled={!canApply}
-          aria-label="Новий статус заявки"
-          onChange={(event) => setSelectedStatus(event.target.value as Exclude<StatusKey, "review">)}
-        >
-          <option value="accepted">Прийняти заявку</option>
-          <option value="declined">Відхилити заявку</option>
-        </select>
+      {!locked ? (
+        <div className="action-row" aria-label="Зміна статусу заявки">
+          <select
+            className="select status-select"
+            value={selectedStatus}
+            disabled={!canApply}
+            aria-label="Новий статус заявки"
+            onChange={(event) => setSelectedStatus(event.target.value as Exclude<StatusKey, "review">)}
+          >
+            <option value="accepted">Прийняти заявку</option>
+            <option value="declined">Відхилити заявку</option>
+          </select>
 
-        <button
-          type="button"
-          className="action-button action-button--primary"
-          disabled={!canApply}
-          aria-disabled={!canApply}
-          aria-busy={busy}
-          onClick={() => moderate(selectedStatus)}
-        >
-          {pendingStatus ? "Застосовуємо..." : "Застосувати"}
-        </button>
-      </div>
+          <button
+            type="button"
+            className="action-button action-button--primary"
+            disabled={!canApply}
+            aria-disabled={!canApply}
+            aria-busy={busy}
+            onClick={() => moderate(selectedStatus)}
+          >
+            {pendingStatus ? "Застосовуємо..." : "Застосувати"}
+          </button>
+        </div>
+      ) : null}
 
       <small className={`sync-message ${message.includes("Помилка") || message.includes("не підтвердив") ? "sync-message--warning" : ""}`}>
-        {locked ? `Модерація завершена: ${LABELS[status]}` : message || "Обери рішення і натисни “Застосувати”."}
+        {locked ? lockedMessage : message || "Обери рішення і натисни “Застосувати”."}
       </small>
     </div>
   );

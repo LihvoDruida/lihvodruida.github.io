@@ -14,7 +14,7 @@ export default async function DashboardIdentity({
   return (
     <header className="dashboard-topbar">
       <div className="dashboard-brand">
-        <img className="guild-mark" src={guild.iconUrl} alt="" />
+        <img className="guild-mark" src={guild.iconUrl} alt="" width={44} height={44} loading="eager" referrerPolicy="no-referrer" />
         <div>
           <strong>{guild.name}</strong>
           <span>Secure applications dashboard</span>
@@ -38,7 +38,7 @@ export default async function DashboardIdentity({
 
           <div className="dashboard-user">
             <div className="dashboard-user__avatar-wrap">
-              {avatar ? <img className="discord-avatar" src={avatar} alt="" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
+              {avatar ? <img className="discord-avatar" src={avatar} alt="" width={44} height={44} loading="lazy" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
               <span className="dashboard-user__status" aria-hidden="true" />
             </div>
             <div>

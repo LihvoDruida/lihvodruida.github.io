@@ -223,7 +223,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
 
             <aside className="actions-panel">
-              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} />
+              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} canModerate={mayModerate} />
               <small>{item.state === "closed" ? "Issue закрито" : "Issue відкрито"}</small>
             </aside>
           </article>

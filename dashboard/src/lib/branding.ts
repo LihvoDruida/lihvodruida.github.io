@@ -12,8 +12,8 @@ let cachedBranding: {
 } | null = null;
 
 function buildDiscordGuildIconUrl(guildId: string, iconHash: string) {
-  const ext = iconHash.startsWith("a_") ? "gif" : "png";
-  return `https://cdn.discordapp.com/icons/${guildId}/${iconHash}.${ext}?size=128`;
+  // Static PNG avoids Chrome CORB warnings from animated Discord GIF CDN responses.
+  return `https://cdn.discordapp.com/icons/${guildId}/${iconHash}.png?size=128`;
 }
 
 export async function getGuildBranding(): Promise<GuildBranding> {
