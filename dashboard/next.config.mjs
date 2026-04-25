@@ -1,10 +1,9 @@
-import type { NextConfig } from "next";
-
 const hstsValue =
   process.env.SECURITY_HSTS_HEADER ||
   "max-age=15552000; includeSubDomains";
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
@@ -31,14 +30,18 @@ const nextConfig: NextConfig = {
           { key: "Origin-Agent-Cluster", value: "?1" },
           {
             key: "Permissions-Policy",
-            value: "accelerometer=(), ambient-light-sensor=(), autoplay=(), bluetooth=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(self), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), xr-spatial-tracking=()",
+            value:
+              "accelerometer=(), ambient-light-sensor=(), autoplay=(), bluetooth=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(self), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), xr-spatial-tracking=()",
           },
         ],
       },
       {
         source: "/api/(.*)",
         headers: [
-          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate",
+          },
           { key: "Pragma", value: "no-cache" },
           { key: "Expires", value: "0" },
         ],
