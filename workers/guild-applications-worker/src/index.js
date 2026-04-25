@@ -61,18 +61,9 @@ function base36ToSnowflake(value) {
   return result.toString(10);
 }
 
-function decodeRulesCustomId(customId) {
-  const value = String(customId || "").trim();
-
-  if (value === `${RULES_CUSTOM_ID_PREFIX}:d`) {
-    return { action: "decline", roleIds: [] };
-  }
-
-  const prefix = `${RULES_CUSTOM_ID_PREFIX}:a:`;
-  if (!value.startsWith(prefix)) return null;
-
+function decodeRoleIdsFromCustomId(value, prefix) {
   try {
-    const roleIds = value
+    const roleIds = String(value || "")
       .slice(prefix.length)
       .split(".")
       .map((part) => part.trim())
@@ -80,11 +71,36 @@ function decodeRulesCustomId(customId) {
       .map(base36ToSnowflake)
       .filter(snowflake);
 
-    if (!roleIds.length) return null;
-    return { action: "accept", roleIds: Array.from(new Set(roleIds)) };
+    return roleIds.length ? Array.from(new Set(roleIds)) : [];
   } catch {
-    return null;
+    return [];
   }
+}
+
+function decodeRulesCustomId(customId) {
+  const value = String(customId || "").trim();
+
+  if (value === `${RULES_CUSTOM_ID_PREFIX}:d`) {
+    return { action: "decline", roleIds: [] };
+  }
+
+  if (value === `${RULES_CUSTOM_ID_PREFIX}:c:d`) {
+    return { action: "confirm_decline", roleIds: [] };
+  }
+
+  const acceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:a:`;
+  if (value.startsWith(acceptPrefix)) {
+    const roleIds = decodeRoleIdsFromCustomId(value, acceptPrefix);
+    return roleIds.length ? { action: "accept", roleIds } : null;
+  }
+
+  const confirmAcceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:c:a:`;
+  if (value.startsWith(confirmAcceptPrefix)) {
+    const roleIds = decodeRoleIdsFromCustomId(value, confirmAcceptPrefix);
+    return roleIds.length ? { action: "confirm_accept", roleIds } : null;
+  }
+
+  return null;
 }
 
 function getDiscordUserId(interaction) {
@@ -154,7 +170,17 @@ function json(data, status = 200, corsOrigin = "*") {
 
 
 function getRulesStatsKv(env) {
-  return env.RULES_STATS || null;
+  const kv = env.RULES_STATS || null;
+  if (!kv || typeof kv.get !== "function" || typeof kv.put !== "function") return null;
+  return kv;
+}
+
+function hasRulesStatsBinding(env) {
+  return Boolean(env.RULES_STATS);
+}
+
+function hasValidRulesStatsBinding(env) {
+  return Boolean(getRulesStatsKv(env));
 }
 
 function rulesStatsKey(guildId, suffix) {
@@ -174,13 +200,17 @@ async function writeKvNumber(kv, key, value) {
 async function getRulesStats(env, guildId) {
   const kv = getRulesStatsKv(env);
   if (!kv) {
+    const hasBinding = hasRulesStatsBinding(env);
     return {
       configured: false,
       accepted: 0,
       declined: 0,
       total: 0,
       updated_at: null,
-      message: "RULES_STATS KV binding is not configured.",
+      source: hasBinding ? "invalid-binding" : "missing-kv-binding",
+      message: hasBinding
+        ? "RULES_STATS exists, but it is not a KV namespace binding."
+        : "RULES_STATS KV binding is not configured.",
     };
   }
 
@@ -198,6 +228,7 @@ async function getRulesStats(env, guildId) {
     declined,
     total: accepted + declined,
     updated_at: updatedAt || null,
+    source: "kv",
   };
 }
 
@@ -243,11 +274,12 @@ async function handleRulesStats(request, env) {
   } catch (error) {
     return json(
       {
-        configured: Boolean(getRulesStatsKv(env)),
+        configured: hasValidRulesStatsBinding(env),
         accepted: 0,
         declined: 0,
         total: 0,
         updated_at: null,
+        source: hasRulesStatsBinding(env) ? "error" : "missing-kv-binding",
         error: error instanceof Error ? error.message : "Rules stats are unavailable.",
       },
       500,
@@ -1064,6 +1096,88 @@ function ephemeral(content) {
   });
 }
 
+function isEphemeralMessageInteraction(interaction) {
+  return Boolean(Number(interaction?.message?.flags || 0) & 64);
+}
+
+function updateInteractionMessage(content) {
+  return discordInteractionResponse({
+    type: 7,
+    data: {
+      content: limitText(content, 1900, "Дію виконано."),
+      components: [],
+      allowed_mentions: { parse: [] },
+    },
+  });
+}
+
+function finishRulesDecision(interaction, content) {
+  return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content) : ephemeral(content);
+}
+
+function snowflakeToBase36(id) {
+  return BigInt(id).toString(36);
+}
+
+function buildRulesDirectAcceptCustomId(roleIds) {
+  const cleaned = Array.from(new Set((roleIds || []).map(snowflake).filter(Boolean)));
+  if (!cleaned.length) return "";
+  return `${RULES_CUSTOM_ID_PREFIX}:a:${cleaned.map(snowflakeToBase36).join(".")}`;
+}
+
+function buildRulesDirectDecisionComponents(roleIds) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 3,
+          label: "Прийняти правила",
+          custom_id: buildRulesDirectAcceptCustomId(roleIds),
+        },
+        {
+          type: 2,
+          style: 4,
+          label: "Відмовитися",
+          custom_id: `${RULES_CUSTOM_ID_PREFIX}:d`,
+        },
+      ],
+    },
+  ];
+}
+
+function rulesConfirmationResponse(rulesAction) {
+  const isDecline = rulesAction.action === "confirm_decline";
+  const components = isDecline
+    ? [
+        {
+          type: 1,
+          components: [
+            {
+              type: 2,
+              style: 4,
+              label: "Підтвердити відмову",
+              custom_id: `${RULES_CUSTOM_ID_PREFIX}:d`,
+            },
+          ],
+        },
+      ]
+    : buildRulesDirectDecisionComponents(rulesAction.roleIds);
+
+  return discordInteractionResponse({
+    type: 4,
+    data: {
+      flags: 64,
+      allowed_mentions: { parse: [] },
+      content: isDecline
+        ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
+        : "🌸 Підтверди прийняття правил. Після підтвердження бот видасть потрібну роль.",
+      components,
+    },
+  });
+}
+
 async function addGuildMemberRoles(env, guildId, userId, roleIds, reason) {
   const cleanGuildId = snowflake(guildId);
   const cleanUserId = snowflake(userId);
@@ -1109,9 +1223,24 @@ async function kickGuildMember(env, guildId, userId, reason) {
   }
 }
 
+function memberHasAllRoles(interaction, roleIds) {
+  const wanted = Array.from(new Set((roleIds || []).map(snowflake).filter(Boolean)));
+  if (!wanted.length) return false;
+
+  const memberRoles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map(String)
+    : [];
+
+  return wanted.every((roleId) => memberRoles.includes(roleId));
+}
+
 async function handleRulesInteraction(interaction, env, rulesAction) {
+  if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline") {
+    return rulesConfirmationResponse(rulesAction);
+  }
+
   if (isInteractionRateLimited(interaction, "rules")) {
-    return ephemeral("⏳ Зачекай кілька секунд перед наступною дією.");
+    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
   const guildId = getInteractionGuildId(interaction, env);
@@ -1120,6 +1249,11 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
 
   try {
     if (rulesAction.action === "accept") {
+      if (memberHasAllRoles(interaction, rulesAction.roleIds)) {
+        await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
+        return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Роль уже є, повторно нічого робити не потрібно.");
+      }
+
       await addGuildMemberRoles(
         env,
         guildId,
@@ -1129,14 +1263,15 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
       );
       await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
 
-      return ephemeral("✅ Правила прийнято. Роль видано.");
+      return finishRulesDecision(interaction, "✅ Правила прийнято. Роль видано. Для тебе ця дія вже завершена.");
     }
 
     await kickGuildMember(env, guildId, userId, `Rules declined by ${userLabel}`);
     await recordRulesDecision(env, guildId, userId, "declined").catch(() => null);
-    return ephemeral("🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
+    return finishRulesDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
-    return ephemeral(
+    return finishRulesDecision(
+      interaction,
       `❌ Не вдалося виконати дію правил: ${limitText(error?.message, 180, "невідома помилка")}`
     );
   }

@@ -13,10 +13,19 @@ Cloudflare Worker for Mistblossom Vanguard applications and Discord interaction 
 
 - `guild_application:accepted:<issueNumber>` — accept application, close GitHub Issue, update Discord message.
 - `guild_application:declined:<issueNumber>` — decline application, close GitHub Issue, update Discord message.
-- `mbv1:a:<roleIdBase36>[.<roleIdBase36>]` — accept rules and give one or more roles.
-- `mbv1:d` — decline rules and kick the member.
+- `mbv1:c:a:<roleIdBase36>[.<roleIdBase36>]` — public rules button that opens a private confirmation panel.
+- `mbv1:c:d` — public decline button that opens a private confirmation panel.
+- `mbv1:a:<roleIdBase36>[.<roleIdBase36>]` — private confirmation button that accepts rules and gives one or more roles.
+- `mbv1:d` — private confirmation button that declines rules and kicks the member.
 
 Normal Discord embed posts stay passive: they use the same dashboard/bot setup, but no Worker action is needed unless they include buttons.
+
+
+
+## Per-user button behavior
+
+Discord does not support hiding components on a public channel message for only one member. To get per-user behavior, the dashboard now publishes public rule buttons that open an ephemeral confirmation panel. The final accept/decline buttons live in that private panel, and after the user confirms, the Worker updates only that ephemeral panel and removes its buttons for that user.
+
 
 ## Required secrets / vars
 

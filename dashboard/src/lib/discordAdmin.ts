@@ -8,7 +8,7 @@ export type DiscordRulesStats = {
   total: number;
   updatedAt: string | null;
   configured: boolean;
-  source: "worker" | "unconfigured" | "error";
+  source: "kv" | "worker" | "missing-kv-binding" | "invalid-binding" | "unconfigured" | "error";
   error?: string;
 };
 
@@ -59,13 +59,16 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
     const accepted = safeNumber(data.accepted);
     const declined = safeNumber(data.declined);
 
+    const source = typeof data.source === "string" ? data.source : "worker";
+
     return {
       accepted,
       declined,
       total: safeNumber(data.total) || accepted + declined,
       updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
       configured: Boolean(data.configured ?? true),
-      source: "worker",
+      source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRulesStats["source"] : "worker",
+      error: typeof data.error === "string" ? data.error : typeof data.message === "string" ? data.message : undefined,
     };
   } catch (error) {
     return {
@@ -377,12 +380,22 @@ function base36ToSnowflake(value: string) {
   return result.toString(10);
 }
 
-export function buildRulesAcceptCustomId(roleIds: string[]) {
+function encodedRoleIds(roleIds: string[]) {
   const cleaned = Array.from(new Set(roleIds.map(snowflake).filter(Boolean)));
   if (cleaned.length === 0) throw new Error("Для кнопки “Прийняти” потрібно вибрати хоча б одну роль.");
+  return cleaned.map(snowflakeToBase36).join(".");
+}
 
-  const encoded = cleaned.map(snowflakeToBase36).join(".");
-  const customId = `${DASHBOARD_CUSTOM_ID_PREFIX}:a:${encoded}`;
+export function buildRulesAcceptCustomId(roleIds: string[]) {
+  const customId = `${DASHBOARD_CUSTOM_ID_PREFIX}:a:${encodedRoleIds(roleIds)}`;
+  if (customId.length > 100) {
+    throw new Error("Вибрано забагато ролей для однієї Discord-кнопки. Зменш кількість ролей або створи одну збірну роль.");
+  }
+  return customId;
+}
+
+export function buildRulesConfirmAcceptCustomId(roleIds: string[]) {
+  const customId = `${DASHBOARD_CUSTOM_ID_PREFIX}:c:a:${encodedRoleIds(roleIds)}`;
   if (customId.length > 100) {
     throw new Error("Вибрано забагато ролей для однієї Discord-кнопки. Зменш кількість ролей або створи одну збірну роль.");
   }
@@ -393,27 +406,42 @@ export function buildRulesDeclineCustomId() {
   return `${DASHBOARD_CUSTOM_ID_PREFIX}:d`;
 }
 
-export function decodeRulesCustomId(customId: string) {
-  const value = String(customId || "").trim();
-  if (value === buildRulesDeclineCustomId()) return { action: "decline" as const, roleIds: [] as string[] };
+export function buildRulesConfirmDeclineCustomId() {
+  return `${DASHBOARD_CUSTOM_ID_PREFIX}:c:d`;
+}
 
-  const prefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:a:`;
-  if (!value.startsWith(prefix)) return null;
-
+function decodeRoleIds(value: string, prefix: string) {
   try {
-    const roleIds = value
+    return value
       .slice(prefix.length)
       .split(".")
       .map((part) => part.trim())
       .filter(Boolean)
       .map(base36ToSnowflake)
       .filter((id) => /^\d{16,25}$/.test(id));
-
-    if (roleIds.length === 0) return null;
-    return { action: "accept" as const, roleIds };
   } catch {
-    return null;
+    return [] as string[];
   }
+}
+
+export function decodeRulesCustomId(customId: string) {
+  const value = String(customId || "").trim();
+  if (value === buildRulesDeclineCustomId()) return { action: "decline" as const, roleIds: [] as string[] };
+  if (value === buildRulesConfirmDeclineCustomId()) return { action: "confirm_decline" as const, roleIds: [] as string[] };
+
+  const directPrefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:a:`;
+  if (value.startsWith(directPrefix)) {
+    const roleIds = decodeRoleIds(value, directPrefix);
+    return roleIds.length ? { action: "accept" as const, roleIds } : null;
+  }
+
+  const confirmPrefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:c:a:`;
+  if (value.startsWith(confirmPrefix)) {
+    const roleIds = decodeRoleIds(value, confirmPrefix);
+    return roleIds.length ? { action: "confirm_accept" as const, roleIds } : null;
+  }
+
+  return null;
 }
 
 export function buildRulesComponents(roleIds: string[]) {
@@ -425,13 +453,13 @@ export function buildRulesComponents(roleIds: string[]) {
           type: 2,
           style: 3,
           label: "Прийняти правила",
-          custom_id: buildRulesAcceptCustomId(roleIds),
+          custom_id: buildRulesConfirmAcceptCustomId(roleIds),
         },
         {
           type: 2,
           style: 4,
           label: "Відмовитися",
-          custom_id: buildRulesDeclineCustomId(),
+          custom_id: buildRulesConfirmDeclineCustomId(),
         },
       ],
     },

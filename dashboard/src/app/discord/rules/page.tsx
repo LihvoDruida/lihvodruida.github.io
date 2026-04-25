@@ -33,28 +33,38 @@ function roleName(roleId: string, roles: DiscordRoleOption[]) {
 
 function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: DiscordRulesStats; messagesCount: number; channelName: string }) {
   const updatedLabel = stats.updatedAt ? new Date(stats.updatedAt).toLocaleString("uk-UA") : "ще немає";
+  const sourceLabel =
+    stats.source === "kv"
+      ? "KV"
+      : stats.source === "invalid-binding"
+        ? "Неправильний binding"
+        : stats.source === "missing-kv-binding"
+          ? "KV не підключено"
+          : stats.source === "error"
+            ? "Помилка"
+            : "Worker";
 
   return (
     <section className="discord-rules-stats-grid" aria-label="Статистика правил">
       <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
-        <span className="eyebrow">Accepted</span>
+        <span className="eyebrow">Прийняли</span>
         <strong>{stats.configured ? stats.accepted : "—"}</strong>
-        <small>прийняли правила</small>
+        <small>користувачів прийняли правила</small>
       </article>
       <article className="panel discord-rules-stat-card discord-rules-stat-card--declined">
-        <span className="eyebrow">Declined</span>
+        <span className="eyebrow">Відмовились</span>
         <strong>{stats.configured ? stats.declined : "—"}</strong>
-        <small>відмовились від правил</small>
+        <small>користувачів відмовились</small>
       </article>
       <article className="panel discord-rules-stat-card">
-        <span className="eyebrow">Rules messages</span>
+        <span className="eyebrow">Повідомлення</span>
         <strong>{messagesCount}</strong>
         <small>embed-повідомлень у #{channelName}</small>
       </article>
       <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
-        <span className="eyebrow">Stats source</span>
+        <span className="eyebrow">Статистика</span>
         <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
-        <small>{stats.configured ? `Останнє оновлення: ${updatedLabel}` : (stats.error || "Онови Worker і додай KV binding RULES_STATS.")}</small>
+        <small>{stats.configured ? `Джерело: ${sourceLabel} • останнє оновлення: ${updatedLabel}` : (stats.error || "Онови Worker і додай KV binding RULES_STATS.")}</small>
       </article>
     </section>
   );
@@ -146,28 +156,28 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
           <RulesStatsPanel stats={stats} messagesCount={messages.length} channelName={rulesChannelName} />
 
           <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
-          <div className="content-section-head content-section-head--toolbar">
-            <div>
-              <span className="eyebrow">Rules library</span>
-              <h2>Список embed-правил</h2>
+            <div className="content-section-head content-section-head--toolbar">
+              <div>
+                <span className="eyebrow">Rules library</span>
+                <h2>Список embed-правил</h2>
+              </div>
+              <div className="content-toolbar-actions">
+                <small>{messages.length} знайдено</small>
+                <a className="btn primary" href="/discord/rules/new">Додати</a>
+              </div>
             </div>
-            <div className="content-toolbar-actions">
-              <small>{messages.length} знайдено</small>
-              <a className="btn primary" href="/discord/rules/new">Додати</a>
-            </div>
-          </div>
 
-          {messages.length === 0 ? (
-            <div className="content-empty discord-empty-state">
-              <strong>Правила з кнопками не знайдено.</strong>
-              <span>Це нормально, якщо ще нічого не публікували через панель або бот не має Read Message History у каналі правил.</span>
-              <a className="btn primary" href="/discord/rules/new">Створити перший embed</a>
-            </div>
-          ) : (
-            <div className="discord-rules-table" role="list">
-              {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
-            </div>
-          )}
+            {messages.length === 0 ? (
+              <div className="content-empty discord-empty-state">
+                <strong>Правила з кнопками не знайдено.</strong>
+                <span>Це нормально, якщо ще нічого не публікували через панель або бот не має Read Message History у каналі правил.</span>
+                <a className="btn primary" href="/discord/rules/new">Створити перший embed</a>
+              </div>
+            ) : (
+              <div className="discord-rules-table" role="list">
+                {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
+              </div>
+            )}
           </section>
         </>
       )}
