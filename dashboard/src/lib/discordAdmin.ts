@@ -36,7 +36,13 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
   }
 
   try {
-    const response = await fetch(endpoint, {
+    const statsUrl = new URL(endpoint);
+    const guildId = getDiscordGuildId();
+    if (guildId && !statsUrl.searchParams.has("guild_id")) {
+      statsUrl.searchParams.set("guild_id", guildId);
+    }
+
+    const response = await fetch(statsUrl.toString(), {
       headers: { accept: "application/json" },
       cache: "no-store",
     });

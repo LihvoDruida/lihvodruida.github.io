@@ -59,3 +59,5 @@ id = "paste_kv_namespace_id_here"
 ```
 
 Stats are stored per guild and per user. If the same user clicks again, the counter is not duplicated; if their decision changes, the previous counter is adjusted. Discord cannot hide buttons only for one user on a public message, so the Worker returns an ephemeral confirmation to the clicker and keeps the public buttons available for other members.
+
+`GET /api/discord-rules-stats?guild_id=<serverId>` reads the exact server stats. If `guild_id` and `DISCORD_GUILD_ID` are both missing, the Worker aggregates all `rules:<guildId>:*` counters from KV. This prevents the dashboard from showing zero when the Worker records stats under the Discord guild ID but the stats request does not pass that ID.

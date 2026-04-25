@@ -197,6 +197,64 @@ async function writeKvNumber(kv, key, value) {
   await kv.put(key, String(Math.max(0, Math.floor(Number(value) || 0))));
 }
 
+async function listAllKvKeys(kv, prefix) {
+  const keys = [];
+  let cursor;
+
+  do {
+    const page = await kv.list({ prefix, cursor });
+    for (const item of Array.isArray(page?.keys) ? page.keys : []) {
+      if (item?.name) keys.push(String(item.name));
+    }
+    cursor = page?.list_complete ? undefined : page?.cursor;
+  } while (cursor);
+
+  return keys;
+}
+
+function maxIsoDate(values) {
+  let latest = null;
+  let latestTime = 0;
+
+  for (const value of values) {
+    const text = String(value || "").trim();
+    const time = Date.parse(text);
+    if (Number.isFinite(time) && time > latestTime) {
+      latestTime = time;
+      latest = text;
+    }
+  }
+
+  return latest;
+}
+
+async function getAggregatedRulesStats(kv) {
+  const keys = await listAllKvKeys(kv, "rules:");
+  const acceptedKeys = keys.filter((key) => /^rules:\d+:accepted$/.test(key));
+  const declinedKeys = keys.filter((key) => /^rules:\d+:declined$/.test(key));
+  const updatedKeys = keys.filter((key) => /^rules:\d+:updated_at$/.test(key));
+
+  const [acceptedValues, declinedValues, updatedValues] = await Promise.all([
+    Promise.all(acceptedKeys.map((key) => readKvNumber(kv, key))),
+    Promise.all(declinedKeys.map((key) => readKvNumber(kv, key))),
+    Promise.all(updatedKeys.map((key) => kv.get(key))),
+  ]);
+
+  const accepted = acceptedValues.reduce((sum, value) => sum + value, 0);
+  const declined = declinedValues.reduce((sum, value) => sum + value, 0);
+
+  return {
+    configured: true,
+    guild_id: "all",
+    scope: "aggregate",
+    accepted,
+    declined,
+    total: accepted + declined,
+    updated_at: maxIsoDate(updatedValues),
+    source: "kv",
+  };
+}
+
 async function getRulesStats(env, guildId) {
   const kv = getRulesStatsKv(env);
   if (!kv) {
@@ -214,7 +272,11 @@ async function getRulesStats(env, guildId) {
     };
   }
 
-  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID) || "global";
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID);
+  if (!cleanGuildId) {
+    return getAggregatedRulesStats(kv);
+  }
+
   const [accepted, declined, updatedAt] = await Promise.all([
     readKvNumber(kv, rulesStatsKey(cleanGuildId, "accepted")),
     readKvNumber(kv, rulesStatsKey(cleanGuildId, "declined")),
@@ -224,12 +286,23 @@ async function getRulesStats(env, guildId) {
   return {
     configured: true,
     guild_id: cleanGuildId,
+    scope: "guild",
     accepted,
     declined,
     total: accepted + declined,
     updated_at: updatedAt || null,
     source: "kv",
   };
+}
+
+async function getRecordedRulesDecision(env, guildId, userId) {
+  const kv = getRulesStatsKv(env);
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID);
+  const cleanUserId = snowflake(userId);
+  if (!kv || !cleanGuildId || !cleanUserId) return null;
+
+  const value = await kv.get(rulesStatsKey(cleanGuildId, `user:${cleanUserId}`));
+  return value === "accepted" || value === "declined" ? value : null;
 }
 
 async function recordRulesDecision(env, guildId, userId, action) {
@@ -1235,17 +1308,28 @@ function memberHasAllRoles(interaction, roleIds) {
 }
 
 async function handleRulesInteraction(interaction, env, rulesAction) {
+  const guildId = getInteractionGuildId(interaction, env);
+  const userId = getDiscordUserId(interaction);
+  const userLabel = getDiscordUserLabel(interaction);
+
   if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline") {
+    const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
+
+    if (recordedDecision === "accepted" || (rulesAction.action === "confirm_accept" && memberHasAllRoles(interaction, rulesAction.roleIds))) {
+      await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
+      return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Кнопки для тебе більше не потрібні.");
+    }
+
+    if (recordedDecision === "declined") {
+      return finishRulesDecision(interaction, "🚪 Ти вже відмовився від правил. Дія для тебе завершена.");
+    }
+
     return rulesConfirmationResponse(rulesAction);
   }
 
   if (isInteractionRateLimited(interaction, "rules")) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
-
-  const guildId = getInteractionGuildId(interaction, env);
-  const userId = getDiscordUserId(interaction);
-  const userLabel = getDiscordUserLabel(interaction);
 
   try {
     if (rulesAction.action === "accept") {
