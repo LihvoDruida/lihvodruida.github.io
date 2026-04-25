@@ -14,12 +14,21 @@ export type DashboardSession = {
 
 export type SessionUser = DashboardSession;
 
-const SESSION_COOKIE = "mistblossom_dashboard_session";
+const SESSION_COOKIE = "__Host-mistblossom_dashboard_session";
+const LEGACY_SESSION_COOKIE = "mistblossom_dashboard_session";
+const SESSION_AUDIENCE = "mistblossom-dashboard";
+function getSessionMaxAgeSeconds() {
+  const parsed = Number(process.env.SESSION_MAX_AGE_SECONDS || 60 * 60 * 24 * 7);
+  if (!Number.isFinite(parsed) || parsed < 60 * 30) return 60 * 60 * 24 * 7;
+  return Math.min(Math.floor(parsed), 60 * 60 * 24 * 30);
+}
+
+const SESSION_MAX_AGE_SECONDS = getSessionMaxAgeSeconds();
 
 function getSecret() {
   const secret = process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || "";
-  if (secret.length < 16) {
-    throw new Error("SESSION_SECRET must be set and at least 16 characters long.");
+  if (secret.length < 32) {
+    throw new Error("SESSION_SECRET must be set and at least 32 characters long.");
   }
   return secret;
 }
@@ -52,11 +61,60 @@ async function sign(data: string) {
   return base64UrlEncode(new Uint8Array(signature));
 }
 
+function constantTimeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) {
+    diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
+  }
+  return diff === 0;
+}
+
+async function sha256Base64Url(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return base64UrlEncode(new Uint8Array(digest));
+}
+
+function normalizeSessionPayload(parsed: any): DashboardSession | null {
+  if (!parsed || parsed.aud !== SESSION_AUDIENCE) return null;
+  if (parsed.role !== "admin" && parsed.role !== "moderator") return null;
+
+  const id = String(parsed.id || "").trim();
+  if (!id) return null;
+
+  const issuedAt = Number(parsed.iat || 0);
+  const expiresAt = Number(parsed.exp || 0);
+  const now = Math.floor(Date.now() / 1000);
+
+  if (!Number.isFinite(issuedAt) || !Number.isFinite(expiresAt)) return null;
+  if (issuedAt > now + 60) return null;
+  if (expiresAt <= now) return null;
+
+  return {
+    provider: parsed.provider === "github" || parsed.provider === "token" ? parsed.provider : "discord",
+    id,
+    name: String(parsed.name || "Moderator").slice(0, 120),
+    login: parsed.login ? String(parsed.login).slice(0, 120) : undefined,
+    role: parsed.role,
+    avatar: parsed.avatar || null,
+    avatar_url: parsed.avatar_url || parsed.avatar || null,
+  };
+}
+
 export async function createSessionToken(session: DashboardSession) {
+  const now = Math.floor(Date.now() / 1000);
   const payload = base64UrlEncode(
     JSON.stringify({
-      ...session,
-      iat: Date.now(),
+      aud: SESSION_AUDIENCE,
+      provider: session.provider,
+      id: session.id,
+      name: session.name,
+      login: session.login,
+      role: session.role,
+      avatar: session.avatar || null,
+      avatar_url: session.avatar_url || session.avatar || null,
+      iat: now,
+      exp: now + SESSION_MAX_AGE_SECONDS,
     })
   );
 
@@ -66,24 +124,14 @@ export async function createSessionToken(session: DashboardSession) {
 export async function verifySessionToken(token?: string | null): Promise<DashboardSession | null> {
   if (!token || !token.includes(".")) return null;
 
-  const [payload, signature] = token.split(".");
-  if (!payload || !signature) return null;
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra) return null;
 
   const expected = await sign(payload);
-  if (expected !== signature) return null;
+  if (!constantTimeEqual(expected, signature)) return null;
 
   try {
-    const parsed = JSON.parse(base64UrlDecode(payload));
-    if (parsed.role !== "admin" && parsed.role !== "moderator") return null;
-
-    return {
-      provider: parsed.provider || "discord",
-      id: String(parsed.id || ""),
-      name: String(parsed.name || "Moderator"),
-      role: parsed.role,
-      avatar: parsed.avatar || null,
-      avatar_url: parsed.avatar_url || parsed.avatar || null,
-    };
+    return normalizeSessionPayload(JSON.parse(base64UrlDecode(payload)));
   } catch {
     return null;
   }
@@ -91,7 +139,8 @@ export async function verifySessionToken(token?: string | null): Promise<Dashboa
 
 export async function getSession(): Promise<DashboardSession | null> {
   const store = await cookies();
-  return verifySessionToken(store.get(SESSION_COOKIE)?.value);
+  const token = store.get(SESSION_COOKIE)?.value || store.get(LEGACY_SESSION_COOKIE)?.value;
+  return verifySessionToken(token);
 }
 
 export async function setSession(session: DashboardSession) {
@@ -101,13 +150,15 @@ export async function setSession(session: DashboardSession) {
     sameSite: "lax",
     secure: true,
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: SESSION_MAX_AGE_SECONDS,
   });
+  store.delete(LEGACY_SESSION_COOKIE);
 }
 
 export async function clearSession() {
   const store = await cookies();
   store.delete(SESSION_COOKIE);
+  store.delete(LEGACY_SESSION_COOKIE);
 }
 
 function splitIds(value?: string): Set<string> {
@@ -164,19 +215,11 @@ export function canModerate(user: DashboardSession | null | undefined) {
 
 export async function createSessionCookie(session: (Partial<DashboardSession> & { login?: string }) | string) {
   if (typeof session === "string") {
-    const expected = String(process.env.ADMIN_DASHBOARD_TOKEN || "").trim();
-
-    if (!expected || session !== expected) {
+    const verified = await verifyToken(session);
+    if (!verified) {
       throw new Error("Invalid dashboard token.");
     }
-
-    return createSessionToken({
-      provider: "token",
-      id: "emergency-token",
-      name: "Emergency Admin",
-      login: "Emergency Admin",
-      role: "admin",
-    });
+    return createSessionToken(verified);
   }
 
   return createSessionToken({
@@ -192,12 +235,21 @@ export async function createSessionCookie(session: (Partial<DashboardSession> & 
 
 export async function verifyToken(token: string) {
   const expected = String(process.env.ADMIN_DASHBOARD_TOKEN || "").trim();
-  if (!expected || token !== expected) return null;
+  const provided = String(token || "").trim();
+  if (!expected || !provided) return null;
+
+  const [expectedHash, providedHash] = await Promise.all([
+    sha256Base64Url(expected),
+    sha256Base64Url(provided),
+  ]);
+
+  if (!constantTimeEqual(expectedHash, providedHash)) return null;
 
   return {
     provider: "token",
     id: "emergency-token",
     name: "Emergency Admin",
+    login: "Emergency Admin",
     role: "admin",
   } satisfies DashboardSession;
 }

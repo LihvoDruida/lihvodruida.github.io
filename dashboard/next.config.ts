@@ -1,30 +1,12 @@
 import type { NextConfig } from "next";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
-
-function contentSecurityPolicy() {
-  const scriptSrc = ["'self'", "'unsafe-inline'", isDevelopment ? "'unsafe-eval'" : ""]
-    .filter(Boolean)
-    .join(" ");
-
-  return [
-    "default-src 'self'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    `script-src ${scriptSrc}`,
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://discord.com https://discordapp.com https://cdn.discordapp.com https://media.discordapp.net https://api.github.com https://raider.io https://*.raider.io https://render.worldofwarcraft.com",
-    "worker-src 'self' blob:",
-    "object-src 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
-}
+const hstsValue =
+  process.env.SECURITY_HSTS_HEADER ||
+  "max-age=15552000; includeSubDomains";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.discordapp.com" },
@@ -39,11 +21,26 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
+          { key: "Strict-Transport-Security", value: hstsValue },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "Content-Security-Policy", value: contentSecurityPolicy() },
+          { key: "X-DNS-Prefetch-Control", value: "off" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+          { key: "Origin-Agent-Cluster", value: "?1" },
+          {
+            key: "Permissions-Policy",
+            value: "accelerometer=(), ambient-light-sensor=(), autoplay=(), bluetooth=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(self), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), xr-spatial-tracking=()",
+          },
+        ],
+      },
+      {
+        source: "/api/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
         ],
       },
     ];

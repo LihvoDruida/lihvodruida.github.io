@@ -2,6 +2,9 @@ import { isAuthenticated } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function errorText(error?: string) {
   if (!error) return null;
 
@@ -12,6 +15,7 @@ function errorText(error?: string) {
     discord_required: "Вхід доступний тільки через Discord.",
     discord_only: "Вхід через GitHub вимкнено. Використай Discord.",
     token: "Emergency token неправильний.",
+    rate_limit: "Забагато спроб входу. Зачекай кілька хвилин.",
   };
 
   return map[error] || "Не вдалося увійти. Перевір Discord доступ.";

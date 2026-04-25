@@ -53,6 +53,26 @@ export function isContentKind(value: string): value is ContentKind {
   return value === "news" || value === "guides";
 }
 
+export function isManagedContentPath(path: string) {
+  const value = String(path || "").trim();
+  if (!value.endsWith(".md")) return false;
+  if (value.includes("..") || value.includes("\\")) return false;
+  return value.startsWith("_news/") || value.startsWith("_guides/");
+}
+
+function assertSafeMarkdown(value: string) {
+  const text = String(value || "").toLowerCase();
+  if (/<\s*script\b/.test(text)) {
+    throw new Error("Markdown не може містити <script>.");
+  }
+  if (/javascript\s*:/i.test(value)) {
+    throw new Error("Markdown не може містити javascript: посилання.");
+  }
+  if (/<\s*iframe\b/i.test(value)) {
+    throw new Error("Markdown не може містити iframe.");
+  }
+}
+
 export function slugify(value: string) {
   const translit: Record<string, string> = {
     а: "a", б: "b", в: "v", г: "h", ґ: "g", д: "d", е: "e", є: "ie", ж: "zh", з: "z", и: "y", і: "i", ї: "i", й: "i", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ь: "", ю: "iu", я: "ia",
@@ -218,6 +238,7 @@ function validateContentInput(input: CreateContentInput, slug: string, body: str
   if (input.title.trim().length < 3) throw new Error("Заголовок занадто короткий.");
   if (input.description.trim().length < 12) throw new Error("Опис занадто короткий.");
   if (body.length < 20) throw new Error("Текст матеріалу занадто короткий.");
+  assertSafeMarkdown(body);
   if (!slug) throw new Error("Не вдалося створити slug.");
 }
 
@@ -263,7 +284,7 @@ export async function updateSiteContent(input: UpdateContentInput) {
   const lastModifiedAt = normalizeDate(input.lastModifiedAt, new Date().toISOString().slice(0, 10));
 
   validateContentInput(input, slug, body);
-  if (!input.path || !input.path.endsWith(".md")) throw new Error("Невірний шлях матеріалу.");
+  if (!isManagedContentPath(input.path)) throw new Error("Невірний шлях матеріалу.");
 
   const message = `content: update ${input.kind === "news" ? "news" : "guide"} ${slug}`;
   const uploadedImagePath = await saveImage(slug, input.image, message);

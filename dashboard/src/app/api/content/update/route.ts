@@ -1,22 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { isContentKind, updateSiteContent } from "@/lib/content";
+import {
+  assertRequestBodySize,
+  checkRateLimit,
+  forbiddenResponse,
+  getClientIp,
+  noStoreHeaders,
+  safeErrorMessage,
+  unauthorizedResponse,
+  verifyTrustedOrigin,
+} from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function POST(request: NextRequest) {
-  const session = await getSession();
+function redirectTo(request: NextRequest, path: string) {
+  const response = NextResponse.redirect(new URL(path, request.url), 303);
+  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
+  return response;
+}
 
+export async function POST(request: NextRequest) {
+  if (!verifyTrustedOrigin(request)) {
+    return forbiddenResponse("Недовірене джерело оновлення контенту.");
+  }
+
+  const tooLarge = assertRequestBodySize(request, 10 * 1024 * 1024);
+  if (tooLarge) return tooLarge;
+
+  const session = await getSession();
   if (!session || session.role !== "admin") {
-    return NextResponse.json({ error: "Доступ лише для адміністратора." }, { status: 403 });
+    return unauthorizedResponse("Доступ лише для адміністратора.");
+  }
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`content-update:${session.id}:${ip}`, 20, 10 * 60 * 1000);
+  if (!limit.ok) {
+    return redirectTo(request, `/content?error=${encodeURIComponent("Забагато оновлень матеріалів. Зачекай кілька хвилин.")}`);
   }
 
   const form = await request.formData();
   const kind = String(form.get("kind") || "");
 
   if (!isContentKind(kind)) {
-    return NextResponse.redirect(new URL(`/content?error=${encodeURIComponent("Оберіть новину або гайд.")}`, request.url), 303);
+    return redirectTo(request, `/content?error=${encodeURIComponent("Оберіть новину або гайд.")}`);
   }
 
   try {
@@ -39,9 +67,9 @@ export async function POST(request: NextRequest) {
       user: session,
     });
 
-    return NextResponse.redirect(new URL(`/content?updated=${encodeURIComponent(result.path)}`, request.url), 303);
+    return redirectTo(request, `/content?updated=${encodeURIComponent(result.path)}`);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Не вдалося оновити матеріал.";
-    return NextResponse.redirect(new URL(`/content?error=${encodeURIComponent(message)}`, request.url), 303);
+    const message = safeErrorMessage(error, "Не вдалося оновити матеріал.");
+    return redirectTo(request, `/content?error=${encodeURIComponent(message)}`);
   }
 }
