@@ -32,7 +32,7 @@ export async function POST(
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
-  if (!canManageApplications(session)) {
+  if (!session || !canManageApplications(session)) {
     logDashboardEvent("warn", "applications.status.unauthorized", request);
     return unauthorizedResponse();
   }
