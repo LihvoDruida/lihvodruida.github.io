@@ -36,9 +36,9 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="discord-editor-header panel">
           <div>
-            <span className="eyebrow">Rules embed • Create</span>
+            <span className="eyebrow">Rules embed • Створення</span>
             <h1>Нові правила Discord</h1>
-            <p>Сторінка створення правил у стилі сайту: усі параметри embed редагуються окремими полями, колір можна вибрати або вставити кодом #B8E986, ролі — внизу.</p>
+            <p>Створи rules embed, вибери канал і ролі для кнопки прийняття.</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>

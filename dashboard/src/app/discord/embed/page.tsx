@@ -68,9 +68,9 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="discord-editor-header panel">
           <div>
-            <span className="eyebrow">General embed • {editMode ? "Edit" : "Create"}</span>
+            <span className="eyebrow">Звичайний embed • {editMode ? "Редагування" : "Створення"}</span>
             <h1>{editMode ? "Редагування embed" : "Звичайна відправка embed"}</h1>
-            <p>Окрема сторінка для будь-яких embed-публікацій у стилі сайту: title, description, media, author, footer, fields і колір редагуються окремими полями без ручного JSON.</p>
+            <p>Створи або онови Discord embed без ручного JSON. Канал, текст, теги ролей і message link розділені окремо.</p>
           </div>
           <a className="btn subtle" href="/discord">Назад</a>
         </header>

@@ -45,14 +45,14 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             <div className="eyebrow">Mistblossom Vanguard • Discord publishing</div>
             <div className="content-hero-status-row" aria-label="Стан Discord редактора">
               <span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span>
-              <span className="content-hero-path">{canUseRules ? "Rules • General posts" : "General posts"}</span>
+              <span className="content-hero-path">{canUseRules ? "Rules • Звичайні embed" : "Звичайні embed"}</span>
             </div>
             <h1>Discord embeds</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Окрема панель для Discord embed-постів. Офіцери можуть створювати й редагувати звичайні embed, а гільдмайстер додатково керує правилами сервера.</p>
+            <p className="lead">Панель Discord embed-постів із доступом за ролями. Офіцери працюють зі звичайними embed, гільдмайстер — ще й з правилами.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Доступ привʼязаний до ієрархії: адмін — гільдмайстер, модератор — офіцер.</span>
+              <span>Доступ привʼязаний до ролі на сайті.</span>
             </div>
           </div>
 
@@ -81,18 +81,18 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
         <section className={`discord-hub-grid discord-hub-grid--compact ${canUseRules ? "" : "discord-hub-grid--single"}`} aria-label="Discord embed розділи">
           {canUseRules ? (
             <a className="panel discord-hub-card discord-hub-card--rules" href="/discord/rules">
-              <span className="eyebrow">Rules embeds • Гільдмайстер</span>
+              <span className="eyebrow">Rules embed • Гільдмайстер</span>
               <strong>Правила сервера</strong>
-              <p>Список rule-повідомлень, статистика прийняття/відмов, додавання, редагування і ролі для кнопки “Прийняти правила”.</p>
+              <p>Rules embed, статистика і ролі кнопки прийняття.</p>
               <span className="btn primary">Відкрити правила</span>
             </a>
           ) : null}
 
           <a className="panel discord-hub-card" href="/discord/embed">
-            <span className="eyebrow">General posts • {hierarchyTitle(user.role)}</span>
+            <span className="eyebrow">Звичайні embed • {hierarchyTitle(user.role)}</span>
             <strong>Звичайні embed-пости</strong>
-            <p>Публікація в будь-який канал, редагування за Discord message link і тегання вибраних ролей. Доступно гільдмайстеру й офіцерам.</p>
-            <span className="btn subtle">Відкрити post sender</span>
+            <p>Звичайні embed, редагування за link і теги ролей.</p>
+            <span className="btn subtle">Відкрити embed-редактор</span>
           </a>
         </section>
       )}

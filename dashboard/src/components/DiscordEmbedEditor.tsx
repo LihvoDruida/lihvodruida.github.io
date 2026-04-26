@@ -208,9 +208,9 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
   const image = urlFrom(embed?.image);
 
   return (
-    <aside className="discord-preview-panel panel" aria-label="Preview Discord embed">
+    <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord embed">
       <div className="discord-preview-titlebar">
-        <span>Preview</span>
+        <span>Перегляд</span>
         <small>Discord вигляд</small>
       </div>
       <div className="discord-preview-canvas">
@@ -343,21 +343,21 @@ function EmbedFieldEditor({ fields, onChange }: {
   return (
     <div className="discord-field-editor">
       {fields.length === 0 ? (
-        <div className="discord-field-empty">Fields не додані. Їх можна використовувати для коротких блоків: розклад, ролі, посилання, вимоги.</div>
+        <div className="discord-field-empty">Поля не додані.</div>
       ) : null}
 
       {fields.map((field, index) => (
         <div className="discord-field-row" key={field.id}>
           <div className="discord-field-row-head">
-            <strong>Field {index + 1}</strong>
+            <strong>Поле {index + 1}</strong>
             <button className="btn danger discord-field-remove" type="button" onClick={() => removeField(field.id)}>Видалити</button>
           </div>
           <label className="content-field">
-            <span>Назва field</span>
+            <span>Назва поля</span>
             <input className="input" value={field.name} maxLength={256} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
           </label>
           <label className="content-field content-field--wide">
-            <span>Значення field</span>
+            <span>Значення поля</span>
             <textarea className="input textarea compact" value={field.value} maxLength={1024} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
           </label>
           <label className="inline-check discord-inline-check">
@@ -367,7 +367,7 @@ function EmbedFieldEditor({ fields, onChange }: {
         </div>
       ))}
 
-      <button className="btn subtle discord-add-field" type="button" onClick={addField} disabled={fields.length >= 25}>+ Додати field</button>
+      <button className="btn subtle discord-add-field" type="button" onClick={addField} disabled={fields.length >= 25}>+ Додати поле</button>
       <small>{fields.length}/25 fields</small>
     </div>
   );
@@ -592,7 +592,7 @@ export default function DiscordEmbedEditor({
   const selectedMentionRoles = !isRules ? roles.filter((role) => selectedRoleIdSet.has(role.id)) : [];
   const selectedRolesCount = selectedRoleIdSet.size;
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
-  const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
+  const title = isRules ? "Редактор правил" : "Редактор embed";
   const actionLabel = effectiveSubmitAction === "edit"
     ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за link" : "Зберегти зміни"
     : isRules ? "Опублікувати правила" : "Опублікувати embed";
@@ -611,11 +611,11 @@ export default function DiscordEmbedEditor({
         <div className="discord-builder-body">
           <div className="discord-builder-head">
             <div>
-              <span className="eyebrow">{isRules ? "Rules" : "General post"} • {editorMode === "edit" ? "Edit" : "Create"}</span>
+              <span className="eyebrow">{isRules ? "Правила" : "Звичайний embed"} • {editorMode === "edit" ? "Редагування" : "Створення"}</span>
               <h2>{title}</h2>
-              <p>{isRules ? "Налаштуй embed правил, канал і ролі для прийняття." : "Налаштуй embed, канал, теги ролей і link для редагування."}</p>
+              <p>{isRules ? "Канал, embed і ролі для кнопки прийняття правил." : "Канал, embed, теги ролей і редагування за message link."}</p>
             </div>
-            <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагування підтягнутого" : editorMode !== "edit" ? "Редагування за link" : "Редагування" : "Створення"}</span>
+            <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за link" : "Редагування" : "Створення"}</span>
           </div>
 
           <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
@@ -625,12 +625,12 @@ export default function DiscordEmbedEditor({
             <input type="hidden" name="messageLink" value={messageLink} />
             <input type="hidden" name="embedJson" value={generatedEmbedJson} />
 
-            <div className="content-form-section discord-visual-section">
+            <div className="content-form-section discord-visual-section discord-visual-section--send">
               <div className="content-form-section-head">
-                <strong>Публікація</strong>
-                <small>Канал, текст і link для редагування.</small>
+                <strong>Відправка</strong>
+                <small>Канал і текст над embed.</small>
               </div>
-              <div className="discord-builder-grid discord-publication-grid">
+              <div className="discord-builder-grid discord-send-grid">
                 <label className="content-field discord-channel-field">
                   <span>Канал</span>
                   <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
@@ -640,8 +640,29 @@ export default function DiscordEmbedEditor({
                   </select>
                 </label>
 
+                <label className="content-field discord-content-field">
+                  <span>Текст над embed</span>
+                  <textarea
+                    className="input textarea compact discord-builder-textarea"
+                    name="content"
+                    value={content}
+                    maxLength={2000}
+                    placeholder="Необовʼязковий текст над embed"
+                    onChange={(event) => setContent(event.currentTarget.value)}
+                  />
+                  <small>{content.length}/2000</small>
+                </label>
+              </div>
+            </div>
+
+            <div className="content-form-section discord-visual-section discord-visual-section--edit">
+              <div className="content-form-section-head">
+                <strong>Редагування</strong>
+                <small>Message link потрібен тільки для оновлення існуючого повідомлення.</small>
+              </div>
+              <div className="discord-edit-grid">
                 <div className="content-field discord-message-link-field">
-                  <span>Discord message link для редагування</span>
+                  <span>Discord message link</span>
                   <div className="discord-message-link-row">
                     <input
                       className="input"
@@ -661,35 +682,22 @@ export default function DiscordEmbedEditor({
                     </button>
                   </div>
                   {hasInvalidMessageLink ? (
-                    <small className="discord-message-load-note discord-message-load-note--error" role="alert">Посилання не схоже на Discord message link. Виправ його або очисти поле.</small>
+                    <small className="discord-message-load-note discord-message-load-note--error" role="alert">Невалідний Discord message link.</small>
                   ) : messageLoadText ? (
                     <small className={`discord-message-load-note discord-message-load-note--${messageLoadState}`} role={messageLoadState === "error" ? "alert" : "status"}>{messageLoadText}</small>
                   ) : hasMessageLinkEditTarget ? (
-                    <small className="discord-message-load-note discord-message-load-note--loaded" role="status">Збереження оновить повідомлення за цим link.</small>
+                    <small className="discord-message-load-note discord-message-load-note--loaded" role="status">Буде оновлено повідомлення за цим link.</small>
                   ) : (
-                    <small>Встав message link, щоб підтягнути дані для редагування.</small>
+                    <small>Залиш порожнім, щоб створити нове повідомлення.</small>
                   )}
                 </div>
               </div>
-
-              <label className="content-field content-field--wide">
-                <span>Текст над embed</span>
-                <textarea
-                  className="input textarea compact discord-builder-textarea"
-                  name="content"
-                  value={content}
-                  maxLength={2000}
-                  placeholder="Опціональний plain text над embed"
-                  onChange={(event) => setContent(event.currentTarget.value)}
-                />
-                <small>{content.length}/2000</small>
-              </label>
             </div>
 
             <div className="content-form-section discord-visual-section discord-visual-section--accent">
               <div className="content-form-section-head">
                 <strong>Основний embed</strong>
-                <small>Title, description, URL і колір.</small>
+                <small>Заголовок, опис, URL і колір.</small>
               </div>
 
               <div className="discord-builder-grid">
@@ -704,8 +712,8 @@ export default function DiscordEmbedEditor({
               </div>
 
               <label className="content-field content-field--wide">
-                <span>Description</span>
-                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: # Заголовок, ## Розділ, - список..." onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
+                <span>Опис</span>
+                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: заголовки, списки, посилання..." onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
                 <small>{descriptionValue.length}/4096</small>
               </label>
 
@@ -741,7 +749,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
                 <strong>Медіа</strong>
-                <small>Thumbnail або велике зображення під текстом.</small>
+                <small>Thumbnail або велике image.</small>
               </div>
               <div className="discord-builder-grid">
                 <label className="content-field">
@@ -757,8 +765,8 @@ export default function DiscordEmbedEditor({
 
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
-                <strong>Author і footer</strong>
-                <small>Опціональний автор і підпис.</small>
+                <strong>Author / footer</strong>
+                <small>Автор і підпис.</small>
               </div>
               <div className="discord-builder-grid discord-builder-grid--three">
                 <label className="content-field">
@@ -788,8 +796,8 @@ export default function DiscordEmbedEditor({
 
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
-                <strong>Fields</strong>
-                <small>До 25 fields. Порожні не відправляються.</small>
+                <strong>Поля</strong>
+                <small>До 25. Порожні не відправляються.</small>
               </div>
               <EmbedFieldEditor fields={fields} onChange={setFields} />
             </div>
@@ -806,7 +814,7 @@ export default function DiscordEmbedEditor({
                   onChange={setRoleIds}
                   ariaLabel="Ролі для згадки в Discord-повідомленні"
                   emptyLabel="Без тегів ролей"
-                  helperText="Додаються над embed як mentions; ping дозволений тільки для вибраних ролей."
+                  helperText="Ролі додаються над embed; ping дозволений тільки для них."
                 />
               </div>
             ) : null}
@@ -822,7 +830,7 @@ export default function DiscordEmbedEditor({
                   selectedRoleIds={roleIds}
                   onChange={setRoleIds}
                   ariaLabel="Ролі для кнопки прийняття правил"
-                  helperText="Бот зможе видати тільки ролі, які нижчі за його найвищу роль у Discord."
+                  helperText="Видаються після натискання кнопки прийняття правил."
                 />
               </div>
             ) : null}

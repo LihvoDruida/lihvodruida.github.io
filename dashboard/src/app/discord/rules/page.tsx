@@ -155,17 +155,17 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="hero panel dashboard-hero content-dashboard-hero discord-dashboard-hero discord-dashboard-hero--rules-list">
           <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Rules embeds</div>
+            <div className="eyebrow">Mistblossom Vanguard • Rules embed</div>
             <div className="content-hero-status-row">
               <span className="content-mode-pill content-mode-pill--library">Правила</span>
               <span className="content-hero-path">#{rulesChannelName} • тільки embed з rule buttons</span>
             </div>
             <h1>Правила Discord</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Тут показуються rule embed-повідомлення, статистика прийняття/відмови та швидкі дії для створення або редагування правил.</p>
+            <p className="lead">Список rule embed-повідомлень, статистика і швидке редагування правил.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Канал визначається автоматично, але при створенні або редагуванні його можна змінити вручну.</span>
+              <span>Канал можна змінити під час створення або редагування.</span>
               <div className="content-hero-buttons">
                 <a className="btn primary content-add-btn" href="/discord/rules/new">Додати правила</a>
                 <a className="btn subtle content-add-btn" href="/discord">Назад</a>
