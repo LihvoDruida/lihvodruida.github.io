@@ -625,36 +625,6 @@ export default function DiscordEmbedEditor({
             <input type="hidden" name="messageLink" value={messageLink} />
             <input type="hidden" name="embedJson" value={generatedEmbedJson} />
 
-            <div className="content-form-section discord-visual-section discord-visual-section--send">
-              <div className="content-form-section-head">
-                <strong>Відправка</strong>
-                <small>Канал і текст над embed.</small>
-              </div>
-              <div className="discord-builder-grid discord-send-grid">
-                <label className="content-field discord-channel-field">
-                  <span>Канал</span>
-                  <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
-                    {channels.map((channel) => (
-                      <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • announcement" : ""}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="content-field discord-content-field">
-                  <span>Текст над embed</span>
-                  <textarea
-                    className="input textarea compact discord-builder-textarea"
-                    name="content"
-                    value={content}
-                    maxLength={2000}
-                    placeholder="Необовʼязковий текст над embed"
-                    onChange={(event) => setContent(event.currentTarget.value)}
-                  />
-                  <small>{content.length}/2000</small>
-                </label>
-              </div>
-            </div>
-
             <div className="content-form-section discord-visual-section discord-visual-section--edit">
               <div className="content-form-section-head">
                 <strong>Редагування</strong>
@@ -694,10 +664,70 @@ export default function DiscordEmbedEditor({
               </div>
             </div>
 
+            <div className="content-form-section discord-visual-section discord-visual-section--send">
+              <div className="content-form-section-head">
+                <strong>Відправка</strong>
+                <small>Канал, текст над embed, колір і timestamp.</small>
+              </div>
+              <div className="discord-send-layout">
+                <div className="discord-builder-grid discord-send-grid">
+                  <label className="content-field discord-channel-field">
+                    <span>Канал</span>
+                    <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
+                      {channels.map((channel) => (
+                        <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • announcement" : ""}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="content-field discord-content-field">
+                    <span>Текст над embed</span>
+                    <textarea
+                      className="input textarea compact discord-builder-textarea"
+                      name="content"
+                      value={content}
+                      maxLength={2000}
+                      placeholder="Необовʼязковий текст над embed"
+                      onChange={(event) => setContent(event.currentTarget.value)}
+                    />
+                    <small>{content.length}/2000</small>
+                  </label>
+                </div>
+
+                <div className="discord-send-options">
+                  <label className="content-field discord-color-picker-field">
+                    <span>Вибір кольору</span>
+                    <input
+                      className="discord-color-picker"
+                      type="color"
+                      value={normalizedColor || COLOR_FALLBACK}
+                      onChange={(event) => setColorHex(event.currentTarget.value.toUpperCase())}
+                      aria-label="Вибрати колір embed"
+                    />
+                  </label>
+                  <label className="content-field discord-color-code-field">
+                    <span>Код кольору</span>
+                    <input
+                      className="input discord-color-code"
+                      value={colorHex}
+                      placeholder="#B8E986"
+                      maxLength={7}
+                      onChange={(event) => updateColorFromText(event.currentTarget.value)}
+                    />
+                    <small className={normalizedColor ? undefined : "discord-json-error"}>{normalizedColor ? "HEX #RRGGBB" : "Невалідний HEX. Потрібно #RRGGBB."}</small>
+                  </label>
+                  <label className="inline-check discord-inline-check discord-timestamp-check">
+                    <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
+                    <span>Додати поточний timestamp</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div className="content-form-section discord-visual-section discord-visual-section--accent">
               <div className="content-form-section-head">
                 <strong>Основний embed</strong>
-                <small>Заголовок, опис, URL і колір.</small>
+                <small>Заголовок, опис і URL.</small>
               </div>
 
               <div className="discord-builder-grid">
@@ -716,34 +746,6 @@ export default function DiscordEmbedEditor({
                 <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: заголовки, списки, посилання..." onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
                 <small>{descriptionValue.length}/4096</small>
               </label>
-
-              <div className="discord-color-row">
-                <label className="content-field discord-color-picker-field">
-                  <span>Вибір кольору</span>
-                  <input
-                    className="discord-color-picker"
-                    type="color"
-                    value={normalizedColor || COLOR_FALLBACK}
-                    onChange={(event) => setColorHex(event.currentTarget.value.toUpperCase())}
-                    aria-label="Вибрати колір embed"
-                  />
-                </label>
-                <label className="content-field">
-                  <span>Код кольору</span>
-                  <input
-                    className="input discord-color-code"
-                    value={colorHex}
-                    placeholder="#B8E986"
-                    maxLength={7}
-                    onChange={(event) => updateColorFromText(event.currentTarget.value)}
-                  />
-                  <small className={normalizedColor ? undefined : "discord-json-error"}>{normalizedColor ? "Формат HEX, наприклад #B8E986" : "Невалідний HEX. Потрібно #RRGGBB."}</small>
-                </label>
-                <label className="inline-check discord-inline-check discord-timestamp-check">
-                  <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
-                  <span>Додати поточний timestamp</span>
-                </label>
-              </div>
             </div>
 
             <div className="content-form-section discord-visual-section">

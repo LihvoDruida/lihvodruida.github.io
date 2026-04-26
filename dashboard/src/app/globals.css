@@ -4843,6 +4843,23 @@ form.is-submitting button[type="submit"],
     rgba(255, 255, 255, 0.032);
 }
 
+.discord-send-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.discord-send-options {
+  display: grid;
+  grid-template-columns: minmax(130px, 180px) minmax(180px, 240px) minmax(220px, max-content);
+  align-items: end;
+  gap: 12px;
+  max-width: 820px;
+}
+
+.discord-color-code-field {
+  min-width: 0;
+}
+
 .discord-send-grid {
   grid-template-columns: minmax(220px, 320px) minmax(300px, 1fr) !important;
   align-items: start;
@@ -4945,6 +4962,7 @@ form.is-submitting button[type="submit"],
   }
 
   .discord-send-grid,
+  .discord-send-options,
   .discord-edit-grid,
   .discord-publication-grid,
   .discord-builder-shell--site .discord-builder-grid,
@@ -4958,6 +4976,7 @@ form.is-submitting button[type="submit"],
   .discord-message-link-field,
   .discord-content-field,
   .discord-edit-grid,
+  .discord-color-code-field,
   .discord-color-code {
     width: 100%;
     max-width: none;
@@ -5059,8 +5078,13 @@ form.is-submitting button[type="submit"],
     min-height: 190px;
   }
 
-  .discord-color-row {
+  .discord-color-row,
+  .discord-send-options {
     gap: 8px;
+  }
+
+  .discord-send-options {
+    max-width: none;
   }
 
   .discord-color-picker {
