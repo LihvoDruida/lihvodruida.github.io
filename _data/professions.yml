@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-26 16:45:31'
+  updated_at: '2026-04-26 20:40:50'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3307,7 +3307,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -4454,7 +4454,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 63
+        learned_points: 65
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4560,7 +4560,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5904,7 +5904,7 @@ characters:
         learned_points: 35
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 4
         max_points: 300
 - name: Марлая
   region: eu
