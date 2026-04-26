@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-26 09:03:30'
+  updated_at: '2026-04-26 13:10:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1002,7 +1002,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
   professions:
     primaries:
     - name: Enchanting
@@ -1740,7 +1740,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
   professions:
     primaries:
     - name: Enchanting
@@ -1774,6 +1774,9 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+      - name: Midnight Cooking
+        learned_points: 30
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -2310,7 +2313,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
   professions:
     primaries: []
     secondaries: []
@@ -2783,7 +2786,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Engineering
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     - name: Tailoring
       id: 197
@@ -3077,7 +3080,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Котто
   professions:
     primaries:
     - name: Enchanting
@@ -3121,7 +3124,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
   professions:
     primaries:
     - name: Herbalism
@@ -5317,7 +5320,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 82
+        learned_points: 84
         max_points: 100
     - name: Fishing
       id: 356
@@ -5498,7 +5501,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Mining
-        learned_points: 60
+        learned_points: 61
         max_points: 100
     - name: Jewelcrafting
       id: 755
