@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-26 13:10:14'
+  updated_at: '2026-04-26 16:45:31'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1031,7 +1031,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 20
         max_points: 300
 - name: Darthkenobi
   region: eu
@@ -4362,7 +4362,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 80
+        learned_points: 83
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -4429,7 +4429,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 287
+        learned_points: 291
         max_points: 300
 - name: Нежныйлок
   region: eu
@@ -4445,7 +4445,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 30
+        learned_points: 31
         max_points: 100
     - name: Tailoring
       id: 197
@@ -4454,7 +4454,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 62
+        learned_points: 63
         max_points: 100
     secondaries:
     - name: Fishing
