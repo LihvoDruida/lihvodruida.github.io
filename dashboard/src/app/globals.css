@@ -4593,6 +4593,89 @@ form.is-submitting button[type="submit"],
   letter-spacing: -0.04em;
 }
 
+.profile-person-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022)),
+    rgba(255, 255, 255, 0.025);
+}
+
+.profile-person-card__avatar {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 1px solid rgba(247, 200, 115, 0.28);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+}
+
+.profile-person-card__avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #1c1305;
+  background: linear-gradient(135deg, #ffe399, #c28a2e);
+  font-weight: 1000;
+}
+
+.profile-person-card__body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.profile-person-card__body > strong {
+  color: var(--text);
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.15;
+}
+
+.profile-secret {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-secret summary {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  cursor: pointer;
+  list-style: none;
+  color: #8fc7ff;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.profile-secret summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-secret[open] summary {
+  margin-bottom: 5px;
+}
+
+.profile-secret code {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.18);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace);
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 .profile-facts {
   display: grid;
   gap: 8px;

@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   dashboardCapabilities,
+  dashboardRoleLabel,
   hierarchyTitle,
   matchingDiscordRoleLabels,
   siteStatusDescription,
@@ -75,11 +76,32 @@ export default async function ProfilePage() {
             <h2>Дані доступу</h2>
           </div>
 
-          <dl className="profile-facts">
-            <div>
-              <dt>Discord ID</dt>
-              <dd>{user.login || user.id}</dd>
+          <div className="profile-person-card">
+            {user.avatar_url || user.avatar ? (
+              <img
+                className="profile-person-card__avatar"
+                src={user.avatar_url || user.avatar || ""}
+                alt=""
+                width={64}
+                height={64}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="profile-person-card__avatar profile-person-card__avatar--fallback" aria-hidden="true">
+                {(user.name || user.login || "A").charAt(0)}
+              </span>
+            )}
+            <div className="profile-person-card__body">
+              <strong>{user.name}</strong>
+              <details className="profile-secret">
+                <summary>Показати ID</summary>
+                <code>{user.login || user.id}</code>
+              </details>
             </div>
+          </div>
+
+          <dl className="profile-facts">
             <div>
               <dt>Ієрархія</dt>
               <dd>{hierarchyTitle(user.role)}</dd>
@@ -87,6 +109,10 @@ export default async function ProfilePage() {
             <div>
               <dt>Статус на сайті</dt>
               <dd>{siteStatusLabel(user.role)}</dd>
+            </div>
+            <div>
+              <dt>Dashboard роль</dt>
+              <dd>{dashboardRoleLabel(user.role)}</dd>
             </div>
             <div>
               <dt>Вхід</dt>
