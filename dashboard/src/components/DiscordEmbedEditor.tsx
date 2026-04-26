@@ -175,63 +175,125 @@ function hasVisibleEmbedContent(embed: EmbedObject) {
   return Boolean(embed.title || embed.description || embed.image || embed.thumbnail || (Array.isArray(embed.fields) && embed.fields.length));
 }
 
-const DISCORD_MARKDOWN_BLOCK_LIMIT = 110;
+const DISCORD_MARKDOWN_BLOCK_LIMIT = 160;
 
 type InlineMarkdownToken = {
   index: number;
   length: number;
+  priority: number;
   render: (key: string) => ReactNode;
 };
 
-function firstInlineToken(value: string, keyPrefix: string): InlineMarkdownToken | null {
-  const patterns: Array<{
-    regex: RegExp;
-    render: (match: RegExpExecArray, key: string) => ReactNode;
-  }> = [
-    {
-      regex: /`([^`\n]+?)`/,
-      render: (match, key) => <code key={key}>{match[1]}</code>,
-    },
-    {
-      regex: /\[([^\]\n]+?)\]\((https?:\/\/[^\s)]+)\)/i,
-      render: (match, key) => <a key={key} href={match[2]} target="_blank" rel="noreferrer">{renderDiscordInlineMarkdown(match[1], `${key}-link`)}</a>,
-    },
-    {
-      regex: /\*\*([\s\S]+?)\*\*/,
-      render: (match, key) => <strong key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-bold`)}</strong>,
-    },
-    {
-      regex: /__([\s\S]+?)__/,
-      render: (match, key) => <u key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-underline`)}</u>,
-    },
-    {
-      regex: /~~([\s\S]+?)~~/,
-      render: (match, key) => <s key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-strike`)}</s>,
-    },
-    {
-      regex: /\|\|([\s\S]+?)\|\|/,
-      render: (match, key) => <span className="discord-preview-spoiler" key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-spoiler`)}</span>,
-    },
-    {
-      regex: /(^|[^*])\*([^*\n]+?)\*/,
-      render: (match, key) => <span key={key}>{match[1]}<em>{renderDiscordInlineMarkdown(match[2], `${key}-italic`)}</em></span>,
-    },
-  ];
+function isEscaped(value: string, index: number) {
+  let slashCount = 0;
+  for (let cursor = index - 1; cursor >= 0 && value[cursor] === "\\"; cursor -= 1) {
+    slashCount += 1;
+  }
+  return slashCount % 2 === 1;
+}
 
-  let best: InlineMarkdownToken | null = null;
+function unescapeDiscordText(value: string) {
+  return value.replace(/\\([\\`*_~|>\[\]()#-])/g, "$1");
+}
 
-  for (const pattern of patterns) {
-    const match = pattern.regex.exec(value);
-    if (!match) continue;
-    const token = {
+function pushPlain(nodes: ReactNode[], value: string) {
+  if (value) nodes.push(unescapeDiscordText(value));
+}
+
+function findMarkdownToken(
+  value: string,
+  regex: RegExp,
+  priority: number,
+  render: (match: RegExpExecArray, key: string) => ReactNode,
+): InlineMarkdownToken | null {
+  regex.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(value))) {
+    if (!match[0]) {
+      regex.lastIndex += 1;
+      continue;
+    }
+
+    if (isEscaped(value, match.index)) continue;
+
+    return {
       index: match.index,
       length: match[0].length,
-      render: (key: string) => pattern.render(match, key),
+      priority,
+      render: (key: string) => render(match as RegExpExecArray, key),
     };
-    if (!best || token.index < best.index) best = token;
   }
 
-  return best;
+  return null;
+}
+
+function formatDiscordTimestamp(unixSeconds: string, style = "f") {
+  const timestamp = Number(unixSeconds);
+  if (!Number.isFinite(timestamp)) return `<t:${unixSeconds}${style ? `:${style}` : ""}>`;
+
+  const date = new Date(timestamp * 1000);
+  if (Number.isNaN(date.getTime())) return `<t:${unixSeconds}${style ? `:${style}` : ""}>`;
+
+  if (style === "t") return new Intl.DateTimeFormat("uk-UA", { hour: "2-digit", minute: "2-digit" }).format(date);
+  if (style === "T") return new Intl.DateTimeFormat("uk-UA", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
+  if (style === "d") return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  if (style === "D") return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+  if (style === "R") return "відносний час";
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function firstInlineToken(value: string): InlineMarkdownToken | null {
+  const patterns: InlineMarkdownToken[] = [
+    findMarkdownToken(value, /`([^`\n]+?)`/g, 0, (match, key) => <code key={key}>{match[1]}</code>),
+    findMarkdownToken(value, /\[([^\]\n]+?)\]\((https?:\/\/[^\s<>)]+)\)/gi, 1, (match, key) => (
+      <a className="discord-preview-link" key={key} href={match[2]} target="_blank" rel="noreferrer">
+        {renderDiscordInlineMarkdown(match[1], `${key}-link`)}
+      </a>
+    )),
+    findMarkdownToken(value, /<@&(\d{16,25})>/g, 2, (_match, key) => <span className="discord-preview-mention" key={key}>@role</span>),
+    findMarkdownToken(value, /<@!?(\d{16,25})>/g, 2, (_match, key) => <span className="discord-preview-mention" key={key}>@user</span>),
+    findMarkdownToken(value, /<#(\d{16,25})>/g, 2, (_match, key) => <span className="discord-preview-mention" key={key}>#channel</span>),
+    findMarkdownToken(value, /<t:(\d{1,12})(?::([tTdDfFR]))?>/g, 2, (match, key) => <span className="discord-preview-timestamp" key={key}>{formatDiscordTimestamp(match[1], match[2] || "f")}</span>),
+    findMarkdownToken(value, /<a?:([a-zA-Z0-9_]{2,32}):\d{16,25}>/g, 2, (match, key) => <span className="discord-preview-emoji" key={key}>:{match[1]}:</span>),
+    findMarkdownToken(value, /\|\|([\s\S]+?)\|\|/g, 3, (match, key) => (
+      <span className="discord-preview-spoiler" key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-spoiler`)}</span>
+    )),
+    findMarkdownToken(value, /__\*\*\*([\s\S]+?)\*\*\*__/g, 4, (match, key) => (
+      <u key={key}><strong><em>{renderDiscordInlineMarkdown(match[1], `${key}-ubi`)}</em></strong></u>
+    )),
+    findMarkdownToken(value, /__\*\*([\s\S]+?)\*\*__/g, 4, (match, key) => (
+      <u key={key}><strong>{renderDiscordInlineMarkdown(match[1], `${key}-ub`)}</strong></u>
+    )),
+    findMarkdownToken(value, /__\*([\s\S]+?)\*__/g, 4, (match, key) => (
+      <u key={key}><em>{renderDiscordInlineMarkdown(match[1], `${key}-ui`)}</em></u>
+    )),
+    findMarkdownToken(value, /\*\*\*([\s\S]+?)\*\*\*/g, 5, (match, key) => (
+      <strong key={key}><em>{renderDiscordInlineMarkdown(match[1], `${key}-bi`)}</em></strong>
+    )),
+    findMarkdownToken(value, /\*\*([\s\S]+?)\*\*/g, 6, (match, key) => (
+      <strong key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-bold`)}</strong>
+    )),
+    findMarkdownToken(value, /__([\s\S]+?)__/g, 7, (match, key) => (
+      <u key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-underline`)}</u>
+    )),
+    findMarkdownToken(value, /~~([\s\S]+?)~~/g, 8, (match, key) => (
+      <s key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-strike`)}</s>
+    )),
+    findMarkdownToken(value, /(^|[^*\\])\*([^*\n]+?)\*(?!\*)/g, 9, (match, key) => (
+      <span key={key}>{match[1]}<em>{renderDiscordInlineMarkdown(match[2], `${key}-italic`)}</em></span>
+    )),
+    findMarkdownToken(value, /(^|[^\w_\\])_([^_\n]+?)_(?![\w_])/g, 10, (match, key) => (
+      <span key={key}>{match[1]}<em>{renderDiscordInlineMarkdown(match[2], `${key}-italic-u`)}</em></span>
+    )),
+    findMarkdownToken(value, /https?:\/\/[^\s<]+[^<.,:;"')\]\s]/gi, 11, (match, key) => (
+      <a className="discord-preview-link" key={key} href={match[0]} target="_blank" rel="noreferrer">{match[0]}</a>
+    )),
+  ].filter(Boolean) as InlineMarkdownToken[];
+
+  if (!patterns.length) return null;
+
+  return patterns.sort((a, b) => (a.index - b.index) || (a.priority - b.priority))[0];
 }
 
 function renderDiscordInlineMarkdown(value: string, keyPrefix: string): ReactNode[] {
@@ -240,13 +302,13 @@ function renderDiscordInlineMarkdown(value: string, keyPrefix: string): ReactNod
   let cursor = 0;
 
   while (rest) {
-    const token = firstInlineToken(rest, `${keyPrefix}-${cursor}`);
+    const token = firstInlineToken(rest);
     if (!token) {
-      nodes.push(rest);
+      pushPlain(nodes, rest);
       break;
     }
 
-    if (token.index > 0) nodes.push(rest.slice(0, token.index));
+    if (token.index > 0) pushPlain(nodes, rest.slice(0, token.index));
     nodes.push(token.render(`${keyPrefix}-${cursor}-${token.index}`));
     rest = rest.slice(token.index + token.length);
     cursor += token.index + token.length;
@@ -255,8 +317,97 @@ function renderDiscordInlineMarkdown(value: string, keyPrefix: string): ReactNod
   return nodes;
 }
 
-function stripCodeFence(value: string) {
-  return value.replace(/^```[a-z0-9_-]*\n?/i, "").replace(/```$/, "");
+function parseDiscordCodeFence(value: string) {
+  const match = value.match(/^```([a-z0-9_+.-]*)[ \t]*\n?([\s\S]*?)```$/i);
+  return {
+    language: match?.[1] ? match[1].toLowerCase() : "",
+    code: match?.[2] ?? value.replace(/^```[a-z0-9_+.-]*[ \t]*\n?/i, "").replace(/```$/, ""),
+  };
+}
+
+function renderDiscordLineContent(value: string, keyPrefix: string) {
+  return renderDiscordInlineMarkdown(value, keyPrefix);
+}
+
+function renderDiscordTextLines(value: string, keyPrefix: string) {
+  const nodes: ReactNode[] = [];
+  const lines = value.split("\n").slice(0, DISCORD_MARKDOWN_BLOCK_LIMIT);
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const rawLine = lines[lineIndex].replace(/\r$/, "");
+    const line = rawLine.trimEnd();
+    const key = `${keyPrefix}-line-${lineIndex}-${line.slice(0, 12)}`;
+    const inlineKey = `${keyPrefix}-inline-${lineIndex}`;
+
+    if (!line.trim()) {
+      nodes.push(<span className="discord-preview-gap" key={key} />);
+      continue;
+    }
+
+    const multiQuoteMatch = line.match(/^>>>\s?(.*)$/);
+    if (multiQuoteMatch) {
+      const quoteLines = [multiQuoteMatch[1], ...lines.slice(lineIndex + 1).map((nextLine) => nextLine.replace(/\r$/, "").trimEnd())];
+      nodes.push(
+        <div className="discord-preview-quote discord-preview-quote--multi" key={key}>
+          {quoteLines.map((quoteLine, quoteIndex) => (
+            quoteLine.trim()
+              ? <p key={`${key}-quote-${quoteIndex}`}>{renderDiscordLineContent(quoteLine, `${inlineKey}-quote-${quoteIndex}`)}</p>
+              : <span className="discord-preview-gap" key={`${key}-quote-${quoteIndex}`} />
+          ))}
+        </div>
+      );
+      break;
+    }
+
+    const quoteMatch = line.match(/^>\s?(.*)$/);
+    if (quoteMatch) {
+      nodes.push(<p className="discord-preview-quote" key={key}>{renderDiscordLineContent(quoteMatch[1], inlineKey)}</p>);
+      continue;
+    }
+
+    const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      nodes.push(
+        <div className={`discord-preview-heading discord-preview-heading--${level}`} role="heading" aria-level={level} key={key}>
+          {renderDiscordLineContent(headingMatch[2], inlineKey)}
+        </div>
+      );
+      continue;
+    }
+
+    const subtextMatch = line.match(/^-#\s+(.+)$/);
+    if (subtextMatch) {
+      nodes.push(<p className="discord-preview-subtext" key={key}>{renderDiscordLineContent(subtextMatch[1], inlineKey)}</p>);
+      continue;
+    }
+
+    const unorderedMatch = line.match(/^\s{0,3}[-*+]\s+(.+)$/);
+    if (unorderedMatch) {
+      nodes.push(
+        <p className="discord-preview-list discord-preview-list--unordered" key={key}>
+          <span className="discord-preview-list-bullet">•</span>
+          <span>{renderDiscordLineContent(unorderedMatch[1], inlineKey)}</span>
+        </p>
+      );
+      continue;
+    }
+
+    const orderedMatch = line.match(/^\s{0,3}(\d+)\.\s+(.+)$/);
+    if (orderedMatch) {
+      nodes.push(
+        <p className="discord-preview-list discord-preview-list--ordered" key={key}>
+          <span className="discord-preview-list-bullet">{orderedMatch[1]}.</span>
+          <span>{renderDiscordLineContent(orderedMatch[2], inlineKey)}</span>
+        </p>
+      );
+      continue;
+    }
+
+    nodes.push(<p key={key}>{renderDiscordLineContent(line, inlineKey)}</p>);
+  }
+
+  return nodes;
 }
 
 function DiscordMarkdown({ value, compact = false }: { value: string; compact?: boolean }) {
@@ -268,23 +419,15 @@ function DiscordMarkdown({ value, compact = false }: { value: string; compact?: 
         const blockKey = `block-${blockIndex}`;
         if (!block) return null;
         if (block.startsWith("```")) {
-          return <pre className="discord-preview-codeblock" key={blockKey}><code>{stripCodeFence(block)}</code></pre>;
+          const parsed = parseDiscordCodeFence(block);
+          return (
+            <pre className="discord-preview-codeblock" data-language={parsed.language || undefined} key={blockKey}>
+              <code>{parsed.code}</code>
+            </pre>
+          );
         }
 
-        return block.split("\n").slice(0, DISCORD_MARKDOWN_BLOCK_LIMIT).map((rawLine, lineIndex) => {
-          const line = rawLine.trimEnd();
-          const key = `${blockKey}-${lineIndex}-${line.slice(0, 20)}`;
-          const inlineKey = `${blockKey}-${lineIndex}`;
-          if (!line.trim()) return <span className="discord-preview-gap" key={key} />;
-          if (/^>>>\s?/.test(line)) return <p className="discord-preview-quote" key={key}>{renderDiscordInlineMarkdown(line.replace(/^>>>\s?/, ""), inlineKey)}</p>;
-          if (/^>\s?/.test(line)) return <p className="discord-preview-quote" key={key}>{renderDiscordInlineMarkdown(line.replace(/^>\s?/, ""), inlineKey)}</p>;
-          if (/^[-*]\s+/.test(line)) return <p className="discord-preview-list" key={key}><span className="discord-preview-list-bullet">•</span>{renderDiscordInlineMarkdown(line.replace(/^[-*]\s+/, ""), inlineKey)}</p>;
-          if (/^\d+[.)]\s+/.test(line)) {
-            const marker = line.match(/^(\d+[.)])\s+/)?.[1] || "1.";
-            return <p className="discord-preview-list discord-preview-list--ordered" key={key}><span className="discord-preview-list-bullet">{marker}</span>{renderDiscordInlineMarkdown(line.replace(/^\d+[.)]\s+/, ""), inlineKey)}</p>;
-          }
-          return <p key={key}>{renderDiscordInlineMarkdown(line, inlineKey)}</p>;
-        });
+        return renderDiscordTextLines(block, blockKey);
       })}
     </div>
   );
@@ -318,13 +461,16 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
               <span>{formatPreviewTimestamp()}</span>
             </div>
 
-            {mentionRoles.length > 0 ? (
-              <div className="discord-preview-mentions" aria-label="Ролі, які будуть згадані">
-                {mentionRoles.map((role) => <span key={role.id}>@{role.name}</span>)}
+            {(mentionRoles.length > 0 || content) ? (
+              <div className="discord-preview-content">
+                {mentionRoles.length > 0 ? (
+                  <div className="discord-preview-mentions" aria-label="Ролі, які будуть згадані">
+                    {mentionRoles.map((role) => <span key={role.id}>@{role.name}</span>)}
+                  </div>
+                ) : null}
+                {content ? <DiscordMarkdown value={content} compact /> : null}
               </div>
             ) : null}
-
-            {content ? <DiscordMarkdown value={content} compact /> : null}
 
             <article className="discord-message-preview" style={{ borderLeftColor: color }}>
               <div className="discord-message-preview__body">
@@ -340,11 +486,11 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
                   ) : null}
                   {embed?.description ? <DiscordMarkdown value={text(embed.description)} /> : null}
                   {fields.length > 0 ? (
-                    <div className="discord-preview-fields">
+                    <div className={thumbnail ? "discord-preview-fields discord-preview-fields--with-thumb" : "discord-preview-fields"}>
                       {fields.map((field: any, index: number) => (
-                        <div className={field?.inline ? "is-inline" : undefined} key={`${index}-${field?.name || "field"}`}>
-                          <strong>{text(field?.name)}</strong>
-                          <span><DiscordMarkdown value={text(field?.value)} compact /></span>
+                        <div className={field?.inline ? "discord-preview-field discord-preview-field--inline" : "discord-preview-field discord-preview-field--full"} key={`${index}-${field?.name || "field"}`}>
+                          <strong className="discord-preview-field-name">{text(field?.name)}</strong>
+                          <div className="discord-preview-field-value"><DiscordMarkdown value={text(field?.value)} compact /></div>
                         </div>
                       ))}
                     </div>
