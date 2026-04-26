@@ -1,5 +1,6 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
+import { canManageGeneralEmbeds, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardIdentity({
@@ -7,10 +8,11 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content" | "discord";
+  activeSection?: "applications" | "content" | "discord" | "profile";
 }) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
+  const canUseDiscord = canManageGeneralEmbeds(user);
 
   return (
     <header className="dashboard-topbar">
@@ -26,24 +28,31 @@ export default async function DashboardIdentity({
         <>
           <nav className="dashboard-nav" aria-label="Панель керування">
             <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
-            {user.role === "admin" ? (
-              <>
-                <a
-                  href="/content"
-                  className={activeSection === "content" ? "is-active" : undefined}
-                  aria-current={activeSection === "content" ? "page" : undefined}
-                >
-                  Новини / гайди
-                </a>
-                <a
-                  href="/discord"
-                  className={activeSection === "discord" ? "is-active" : undefined}
-                  aria-current={activeSection === "discord" ? "page" : undefined}
-                >
-                  Discord actions
-                </a>
-              </>
+            {canUseDiscord ? (
+              <a
+                href="/discord"
+                className={activeSection === "discord" ? "is-active" : undefined}
+                aria-current={activeSection === "discord" ? "page" : undefined}
+              >
+                Discord
+              </a>
             ) : null}
+            {user.role === "admin" ? (
+              <a
+                href="/content"
+                className={activeSection === "content" ? "is-active" : undefined}
+                aria-current={activeSection === "content" ? "page" : undefined}
+              >
+                Новини / гайди
+              </a>
+            ) : null}
+            <a
+              href="/profile"
+              className={activeSection === "profile" ? "is-active" : undefined}
+              aria-current={activeSection === "profile" ? "page" : undefined}
+            >
+              Профіль
+            </a>
           </nav>
 
           <div className="dashboard-user">
@@ -53,7 +62,7 @@ export default async function DashboardIdentity({
             </div>
             <div>
               <strong>{user.name}</strong>
-              <span>Discord • {user.role}</span>
+              <span>{hierarchyTitle(user.role)} • {siteStatusLabel(user.role)}</span>
             </div>
             <LogoutButton />
           </div>

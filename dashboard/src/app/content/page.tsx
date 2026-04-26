@@ -390,7 +390,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       {params.edit && !selectedItem ? <div className="notice panel error-note">Матеріал не знайдено: <strong>{params.edit}</strong></div> : null}
 
       {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки адміністраторам. Модератори можуть працювати із заявками, але не публікувати новини або гайди.</div>
+        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру. Офіцери можуть працювати із заявками та звичайними Discord embed, але не публікувати новини або гайди.</div>
       ) : (
         <section className="content-page-stack">
           {showEditor ? (

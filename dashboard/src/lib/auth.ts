@@ -10,6 +10,7 @@ export type DashboardSession = {
   role: DashboardRole;
   avatar?: string | null;
   avatar_url?: string | null;
+  discordRoleIds?: string[];
 };
 
 export type SessionUser = DashboardSession;
@@ -100,6 +101,9 @@ function normalizeSessionPayload(parsed: any): DashboardSession | null {
     role: parsed.role,
     avatar: parsed.avatar || null,
     avatar_url: parsed.avatar_url || parsed.avatar || null,
+    discordRoleIds: Array.isArray(parsed.discordRoleIds)
+      ? parsed.discordRoleIds.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean).slice(0, 100)
+      : [],
   };
 }
 
@@ -115,6 +119,7 @@ export async function createSessionToken(session: DashboardSession) {
       role: session.role,
       avatar: session.avatar || null,
       avatar_url: session.avatar_url || session.avatar || null,
+      discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
       iat: now,
       exp: now + SESSION_MAX_AGE_SECONDS,
     })
@@ -248,6 +253,7 @@ export async function createSessionCookie(session: (Partial<DashboardSession> & 
     role: session.role === "moderator" ? "moderator" : "admin",
     avatar: session.avatar || null,
     avatar_url: session.avatar_url || session.avatar || null,
+    discordRoleIds: session.discordRoleIds || [],
   });
 }
 
@@ -269,5 +275,6 @@ export async function verifyToken(token: string) {
     name: "Emergency Admin",
     login: "Emergency Admin",
     role: "admin",
+    discordRoleIds: [],
   } satisfies DashboardSession;
 }

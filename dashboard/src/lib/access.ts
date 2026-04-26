@@ -10,3 +10,19 @@ export type {
   DashboardSession,
   SessionUser,
 } from "./auth";
+
+export {
+  canManageApplications,
+  canManageGeneralEmbeds,
+  canManageRulesEmbeds,
+  canManageSiteContent,
+  dashboardCapabilities,
+  dashboardRoleLabel,
+  hierarchyTitle,
+  matchingDiscordRoleIds,
+  matchingDiscordRoleLabels,
+  siteStatusDescription,
+  siteStatusLabel,
+} from "./permissions";
+
+export type { DashboardCapability } from "./permissions";

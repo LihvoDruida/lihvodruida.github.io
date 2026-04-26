@@ -47,7 +47,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
       {params.error ? <div className="notice panel error-note discord-notice">{params.error}</div> : null}
 
       {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки адміністраторам.</div>
+        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : configError ? (

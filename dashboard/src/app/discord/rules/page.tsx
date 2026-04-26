@@ -178,7 +178,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       <StatusNotice params={params} />
 
       {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки адміністраторам.</div>
+        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : configError ? (

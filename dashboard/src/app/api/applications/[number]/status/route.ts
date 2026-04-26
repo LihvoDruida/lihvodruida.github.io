@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { ApplicationStatus } from "@/lib/github";
 import { moderateApplication } from "@/lib/moderation";
+import { canManageApplications, hierarchyTitle } from "@/lib/permissions";
 import {
   assertRequestBodySize,
   checkRateLimit,
@@ -31,7 +32,7 @@ export async function POST(
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
-  if (!session || (session.role !== "admin" && session.role !== "moderator")) {
+  if (!canManageApplications(session)) {
     logDashboardEvent("warn", "applications.status.unauthorized", request);
     return unauthorizedResponse();
   }
@@ -65,7 +66,7 @@ export async function POST(
     const result = await moderateApplication({
       issueNumber,
       status,
-      moderator: `${session.name} (${session.role})`,
+      moderator: `${session.name} (${hierarchyTitle(session.role)})`,
       source: "dashboard",
     });
 

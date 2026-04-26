@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
+import { canManageGeneralEmbeds } from "@/lib/permissions";
 import { defaultGeneralEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import {
   fetchDiscordEditableMessage,
@@ -26,7 +27,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   if (!user) redirect("/login");
 
   const params = await searchParams;
-  const isAdmin = user.role === "admin";
+  const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
   const messageParam = String(params.message || params.url || "").trim();
   const editMode = Boolean(messageParam);
   let configError = "";
@@ -38,7 +39,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   let messageLink = messageParam;
   let selectedRoleIds: string[] = [];
 
-  if (isAdmin && hasDiscordEmbedConfig()) {
+  if (canUseGeneralEmbeds && hasDiscordEmbedConfig()) {
     try {
       const [channelData, roleData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles().catch(() => [])]);
       channels = channelData.channels;
@@ -77,8 +78,8 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
 
       <StatusNotice params={params} />
 
-      {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки адміністраторам.</div>
+      {!canUseGeneralEmbeds ? (
+        <div className="notice panel">Ця сторінка доступна гільдмайстеру та офіцерам.</div>
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : configError && !messageParam ? (

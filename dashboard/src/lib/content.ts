@@ -233,7 +233,7 @@ function buildFrontmatter(input: {
 }
 
 function validateContentInput(input: CreateContentInput, slug: string, body: string) {
-  if (input.user.role !== "admin") throw new Error("Керувати новинами та гайдами може лише адміністратор.");
+  if (input.user.role !== "admin") throw new Error("Керувати новинами та гайдами може лише гільдмайстер.");
   if (!isContentKind(input.kind)) throw new Error("Невідомий тип матеріалу.");
   if (input.title.trim().length < 3) throw new Error("Заголовок занадто короткий.");
   if (input.description.trim().length < 12) throw new Error("Опис занадто короткий.");

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { canManageGeneralEmbeds, canManageRulesEmbeds, hierarchyTitle } from "@/lib/permissions";
 import {
   assertRequestBodySize,
   checkRateLimit,
@@ -14,6 +15,7 @@ import {
   createDiscordEmbedMessage,
   discordMessageUrl,
   editDiscordEmbedMessage,
+  fetchDiscordEditableMessage,
   parseDiscordMessageRef,
   parseEmbedJson,
 } from "@/lib/discordAdmin";
@@ -75,7 +77,9 @@ export async function POST(request: NextRequest) {
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
-  if (!session || session.role !== "admin") return redirectTo(request, { error: "Ця дія доступна тільки адміну." });
+  if (!session || !canManageGeneralEmbeds(session)) {
+    return redirectTo(request, { error: "Ця дія доступна тільки гільдмайстеру або офіцеру." });
+  }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`discord-embed:${session.id}:${ip}`, 20, 10 * 60 * 1000);
@@ -86,7 +90,7 @@ export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
     returnTo = safeReturnTo(form.get("returnTo"));
-    const mode = String(form.get("mode") || "general");
+    const mode = String(form.get("mode") || "general") === "rules" ? "rules" : "general";
     const action = String(form.get("action") || "publish");
     const channelId = String(form.get("channelId") || "").trim();
     const messageLink = messageLinkFromForm(form, request, action);
@@ -99,8 +103,8 @@ export async function POST(request: NextRequest) {
     const editRef = parseDiscordMessageRef(messageLink);
     const shouldEdit = action === "edit" || Boolean(editRef);
     const effectiveAction = shouldEdit ? "edit" : "publish";
-    const moderator = session.name || session.login || session.id;
-    const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${effectiveAction} by ${moderator}`;
+    const actor = session.name || session.login || session.id;
+    const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
 
     logDashboardEvent("info", "discord.embed.submit", request, {
       mode,
@@ -112,24 +116,45 @@ export async function POST(request: NextRequest) {
       contentLength: content.length,
       roleCount: roleIds.length,
       mentionRoleCount: mentionRoleIds.length,
-      adminId: session.id,
+      actorId: session.id,
+      actorRole: session.role,
     });
 
+    if (isRules && !canManageRulesEmbeds(session)) {
+      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "rules_forbidden", actorId: session.id, actorRole: session.role });
+      return redirectTo(request, { error: "Створення й редагування правил доступне тільки гільдмайстеру." }, returnTo);
+    }
+
     if (isRules && roleIds.length === 0) {
-      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", adminId: session.id });
+      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", actorId: session.id });
       return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
     }
 
     if (messageLink && !editRef) {
-      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "invalid_edit_link", adminId: session.id });
+      logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "invalid_edit_link", actorId: session.id });
       return redirectTo(request, { error: "Discord message link невалідний. Прибери його або встав повне посилання на повідомлення." }, returnTo);
     }
 
     if (shouldEdit) {
       if (!editRef) {
-        logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_edit_link", adminId: session.id });
+        logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_edit_link", actorId: session.id });
         return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo);
       }
+
+      if (!canManageRulesEmbeds(session)) {
+        const currentMessage = await fetchDiscordEditableMessage(editRef);
+        if (currentMessage.isRules) {
+          logDashboardEvent("warn", "discord.embed.validation_failed", request, {
+            reason: "officer_tried_to_edit_rules_embed",
+            actorId: session.id,
+            actorRole: session.role,
+            channelId: editRef.channelId,
+            messageId: editRef.messageId,
+          });
+          return redirectTo(request, { error: "Це rules embed. Офіцер може редагувати тільки звичайні embed-пости." }, returnTo);
+        }
+      }
+
       const updated = await editDiscordEmbedMessage({
         ref: editRef,
         content,
@@ -144,7 +169,8 @@ export async function POST(request: NextRequest) {
         mode,
         channelId: editRef.channelId,
         messageId: editRef.messageId,
-        adminId: session.id,
+        actorId: session.id,
+        actorRole: session.role,
       });
 
       return redirectTo(request, {
@@ -167,7 +193,8 @@ export async function POST(request: NextRequest) {
       mode,
       channelId,
       messageId: created?.id,
-      adminId: session.id,
+      actorId: session.id,
+      actorRole: session.role,
     });
 
     return redirectTo(request, {
@@ -175,7 +202,7 @@ export async function POST(request: NextRequest) {
       tab: mode,
     }, returnTo);
   } catch (error) {
-    logDashboardEvent("error", "discord.embed.failed", request, { message: safeErrorMessage(error) });
+    logDashboardEvent("error", "discord.embed.failed", request, { actorId: session.id, message: safeErrorMessage(error) });
     return redirectTo(request, { error: safeErrorMessage(error) }, returnTo);
   }
 }

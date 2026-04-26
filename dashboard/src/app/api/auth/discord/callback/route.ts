@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
       role,
       avatar: avatarUrl,
       avatar_url: avatarUrl,
+      discordRoleIds: Array.isArray(member.roles) ? member.roles.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean) : [],
     });
 
     const response = NextResponse.redirect(`${getDashboardUrl()}/`, 303);
