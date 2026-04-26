@@ -199,7 +199,7 @@ function MarkdownPreview({ value }: { value: string }) {
   );
 }
 
-function DiscordPreview({ embed, content, isValid }: { embed: EmbedObject; content: string; isValid: boolean }) {
+function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed: EmbedObject; content: string; isValid: boolean; mentionRoles?: DiscordRoleOption[] }) {
   const color = typeof embed?.color === "number" ? `#${Math.max(0, Math.min(0xffffff, embed.color)).toString(16).padStart(6, "0")}` : COLOR_FALLBACK;
   const author = embed?.author && typeof embed.author === "object" ? embed.author as Record<string, unknown> : null;
   const footer = embed?.footer && typeof embed.footer === "object" ? embed.footer as Record<string, unknown> : null;
@@ -214,6 +214,11 @@ function DiscordPreview({ embed, content, isValid }: { embed: EmbedObject; conte
         <small>Discord вигляд</small>
       </div>
       <div className="discord-preview-canvas">
+        {mentionRoles.length > 0 ? (
+          <div className="discord-preview-mentions" aria-label="Ролі, які будуть згадані">
+            {mentionRoles.map((role) => <span key={role.id}>@{role.name}</span>)}
+          </div>
+        ) : null}
         {content ? <div className="discord-preview-content">{content}</div> : null}
         <article className="discord-message-preview" style={{ borderLeftColor: color }}>
           {thumbnail ? <img className="discord-preview-thumb" src={thumbnail} alt="" /> : null}
@@ -244,10 +249,13 @@ function roleColor(value: number) {
   return value > 0 ? colorNumberToHex(value) : "#B8E986";
 }
 
-function RolePicker({ roles, selectedRoleIds, onChange }: {
+function RolePicker({ roles, selectedRoleIds, onChange, ariaLabel = "Вибір ролей", emptyLabel = "Ролі ще не вибрані", helperText = "Бот зможе працювати тільки з ролями, які доступні йому в Discord." }: {
   roles: DiscordRoleOption[];
   selectedRoleIds: string[];
   onChange: (ids: string[]) => void;
+  ariaLabel?: string;
+  emptyLabel?: string;
+  helperText?: string;
 }) {
   const [query, setQuery] = useState("");
   const normalizedSelectedRoleIds = uniqueIds(selectedRoleIds);
@@ -269,8 +277,8 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
       {hiddenSelectedRoleIds.map((roleId) => (
         <input key={`hidden-${roleId}`} type="hidden" name="roleIds" value={roleId} />
       ))}
-      <div className="discord-role-selected" aria-label="Вибрані ролі">
-        {normalizedSelectedRoleIds.length === 0 ? <span className="discord-role-placeholder">Ролі ще не вибрані</span> : null}
+      <div className="discord-role-selected" aria-label={ariaLabel}>
+        {normalizedSelectedRoleIds.length === 0 ? <span className="discord-role-placeholder">{emptyLabel}</span> : null}
         {roles.filter((role) => selected.has(role.id)).map((role) => (
           <span className="discord-role-chip" key={role.id}>
             <span className="discord-role-dot" style={{ backgroundColor: roleColor(role.color) }} />
@@ -287,7 +295,7 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
         onChange={(event) => setQuery(event.currentTarget.value)}
       />
 
-      <div className="discord-role-list" role="listbox" aria-label="Ролі для кнопки прийняття правил">
+      <div className="discord-role-list" role="listbox" aria-label={ariaLabel}>
         {filteredRoles.length === 0 ? (
           <div className="discord-role-empty">Нічого не знайдено. Очисти пошук або перевір список ролей бота.</div>
         ) : null}
@@ -306,7 +314,7 @@ function RolePicker({ roles, selectedRoleIds, onChange }: {
           </label>
         ))}
       </div>
-      <small>Бот зможе видати тільки ролі, які нижчі за його найвищу роль у Discord.</small>
+      <small>{helperText}</small>
     </div>
   );
 }
@@ -580,7 +588,9 @@ export default function DiscordEmbedEditor({
 
   const normalizedColor = normalizeHexColor(colorHex);
   const generatedEmbedJson = useMemo(() => JSON.stringify(embed), [embed]);
-  const selectedRolesCount = uniqueIds(roleIds).length;
+  const selectedRoleIdSet = new Set(uniqueIds(roleIds));
+  const selectedMentionRoles = !isRules ? roles.filter((role) => selectedRoleIdSet.has(role.id)) : [];
+  const selectedRolesCount = selectedRoleIdSet.size;
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
   const title = isRules ? "Редактор правил Discord" : "Редактор embed-поста";
   const actionLabel = effectiveSubmitAction === "edit"
@@ -603,7 +613,7 @@ export default function DiscordEmbedEditor({
             <div>
               <span className="eyebrow">{isRules ? "Rules" : "General post"} • {editorMode === "edit" ? "Edit" : "Create"}</span>
               <h2>{title}</h2>
-              <p>{isRules ? "Налаштуй embed правил, канал і ролі для прийняття." : "Налаштуй embed, канал і за потреби link для редагування."}</p>
+              <p>{isRules ? "Налаштуй embed правил, канал і ролі для прийняття." : "Налаштуй embed, канал, теги ролей і link для редагування."}</p>
             </div>
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагування підтягнутого" : editorMode !== "edit" ? "Редагування за link" : "Редагування" : "Створення"}</span>
           </div>
@@ -784,13 +794,36 @@ export default function DiscordEmbedEditor({
               <EmbedFieldEditor fields={fields} onChange={setFields} />
             </div>
 
+            {!isRules && roles.length > 0 ? (
+              <div className="content-form-section discord-visual-section discord-visual-section--roles">
+                <div className="content-form-section-head">
+                  <strong>Теги ролей</strong>
+                  <small>Вибрано: {selectedRolesCount}</small>
+                </div>
+                <RolePicker
+                  roles={roles}
+                  selectedRoleIds={roleIds}
+                  onChange={setRoleIds}
+                  ariaLabel="Ролі для згадки в Discord-повідомленні"
+                  emptyLabel="Без тегів ролей"
+                  helperText="Додаються над embed як mentions; ping дозволений тільки для вибраних ролей."
+                />
+              </div>
+            ) : null}
+
             {isRules ? (
               <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
                   <strong>Ролі для кнопки “Прийняти правила”</strong>
                   <small>Вибрано: {selectedRolesCount}</small>
                 </div>
-                <RolePicker roles={roles} selectedRoleIds={roleIds} onChange={setRoleIds} />
+                <RolePicker
+                  roles={roles}
+                  selectedRoleIds={roleIds}
+                  onChange={setRoleIds}
+                  ariaLabel="Ролі для кнопки прийняття правил"
+                  helperText="Бот зможе видати тільки ролі, які нижчі за його найвищу роль у Discord."
+                />
               </div>
             ) : null}
 
@@ -802,7 +835,7 @@ export default function DiscordEmbedEditor({
         </div>
       </section>
 
-      <DiscordPreview embed={embed} content={content} isValid={isValid} />
+      <DiscordPreview embed={embed} content={content} isValid={isValid} mentionRoles={selectedMentionRoles} />
     </div>
   );
 }

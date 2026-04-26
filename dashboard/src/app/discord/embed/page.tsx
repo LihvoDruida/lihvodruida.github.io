@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { defaultGeneralEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import {
   fetchDiscordEditableMessage,
+  fetchDiscordRoles,
   fetchDiscordTextChannels,
   hasDiscordEmbedConfig,
   parseDiscordMessageRef,
@@ -30,15 +31,18 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   const editMode = Boolean(messageParam);
   let configError = "";
   let channels: Array<{ id: string; name: string; type: number }> = [];
+  let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let suggestedChannelId = "";
   let embedJson = prettyDiscordJson(defaultGeneralEmbed);
   let content = "";
   let messageLink = messageParam;
+  let selectedRoleIds: string[] = [];
 
   if (isAdmin && hasDiscordEmbedConfig()) {
     try {
-      const channelData = await fetchDiscordTextChannels();
+      const [channelData, roleData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles().catch(() => [])]);
       channels = channelData.channels;
+      roles = roleData;
       suggestedChannelId = channels[0]?.id || channelData.suggestedRulesChannelId || "";
 
       const ref = parseDiscordMessageRef(messageParam);
@@ -48,6 +52,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
         content = message.content;
         messageLink = message.url || messageParam;
         suggestedChannelId = message.channelId || suggestedChannelId;
+        selectedRoleIds = message.roleIds;
       } else if (messageParam) {
         configError = "Посилання на Discord-повідомлення невалідне.";
       }
@@ -87,10 +92,12 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
             mode="general"
             editorMode={editMode ? "edit" : "create"}
             channels={channels}
+            roles={roles}
             suggestedChannelId={suggestedChannelId}
             defaultEmbedJson={embedJson}
             defaultContent={content}
             defaultMessageLink={messageLink}
+            selectedRoleIds={selectedRoleIds}
             returnTo="/discord/embed"
           />
         </>

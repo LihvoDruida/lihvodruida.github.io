@@ -4491,3 +4491,26 @@ form.is-submitting button[type="submit"],
     white-space: normal;
   }
 }
+
+/* Discord embed role mentions */
+.discord-preview-mentions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.discord-preview-mentions span {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 8px;
+  color: #dbeafe;
+  background: rgba(88, 101, 242, 0.22);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

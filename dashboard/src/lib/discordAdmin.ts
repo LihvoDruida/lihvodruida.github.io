@@ -196,6 +196,45 @@ function cleanText(value: unknown, max: number) {
   return String(value || "").replace(/\r\n/g, "\n").trim().slice(0, max);
 }
 
+function cleanRoleIds(values: unknown) {
+  if (!Array.isArray(values)) return [] as string[];
+  return Array.from(new Set(values.map(snowflake).filter(Boolean))).slice(0, 100);
+}
+
+function roleMentionLine(roleIds: string[]) {
+  return cleanRoleIds(roleIds).map((roleId) => `<@&${roleId}>`).join(" ");
+}
+
+function stripLeadingRoleMentionLine(value: unknown) {
+  return cleanText(value, 2000).replace(/^(?:<@&\d{16,25}>\s*)+\n?/u, "").trimStart();
+}
+
+function messageContentWithRoleMentions(content: unknown, roleIds: string[]) {
+  const cleanContent = stripLeadingRoleMentionLine(content);
+  const mentions = roleMentionLine(roleIds);
+  return [mentions, cleanContent].filter(Boolean).join(mentions && cleanContent ? "\n" : "").slice(0, 2000) || undefined;
+}
+
+function allowedMentionsForRoles(roleIds: string[]) {
+  const roles = cleanRoleIds(roleIds);
+  return roles.length ? { parse: [] as string[], roles } : { parse: [] as string[] };
+}
+
+function extractRoleMentionsFromContent(value: unknown) {
+  const content = String(value || "");
+  const roleIds: string[] = [];
+  for (const match of content.matchAll(/<@&(\d{16,25})>/g)) {
+    if (match[1]) roleIds.push(match[1]);
+  }
+  return Array.from(new Set(roleIds));
+}
+
+function extractMentionRoleIdsFromMessage(message: Record<string, unknown>) {
+  const explicit = cleanRoleIds(message.mention_roles);
+  const fromContent = extractRoleMentionsFromContent(message.content);
+  return Array.from(new Set([...explicit, ...fromContent]));
+}
+
 function cleanUrl(value: unknown) {
   const text = String(value || "").trim();
   if (!text) return undefined;
@@ -496,6 +535,7 @@ export async function createDiscordEmbedMessage(params: {
   content?: string;
   embed: Record<string, unknown>;
   roleIds?: string[];
+  mentionRoleIds?: string[];
   withRulesButtons?: boolean;
   auditReason?: string;
 }) {
@@ -503,9 +543,9 @@ export async function createDiscordEmbedMessage(params: {
   if (!channelId) throw new Error("Канал Discord не вибрано або ID невалідний.");
 
   const body: Record<string, unknown> = {
-    content: cleanText(params.content, 2000) || undefined,
+    content: messageContentWithRoleMentions(params.content, params.mentionRoleIds || []),
     embeds: [params.embed],
-    allowed_mentions: { parse: [] },
+    allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
   };
 
   if (params.withRulesButtons) {
@@ -524,16 +564,17 @@ export async function editDiscordEmbedMessage(params: {
   content?: string;
   embed: Record<string, unknown>;
   roleIds?: string[];
+  mentionRoleIds?: string[];
   withRulesButtons?: boolean;
   auditReason?: string;
 }) {
   if (!params.ref.channelId || !params.ref.messageId) throw new Error("Посилання на Discord-повідомлення невалідне.");
 
   const body: Record<string, unknown> = {
-    content: cleanText(params.content, 2000) || undefined,
+    content: messageContentWithRoleMentions(params.content, params.mentionRoleIds || []),
     embeds: [params.embed],
     components: params.withRulesButtons ? buildRulesComponents(params.roleIds || []) : [],
-    allowed_mentions: { parse: [] },
+    allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
   };
 
   return discordApi<any>(`/channels/${params.ref.channelId}/messages/${params.ref.messageId}`, {
@@ -602,20 +643,23 @@ export function normalizeDiscordMessageForEditor(message: Record<string, unknown
   const channelId = snowflake(message.channel_id) || snowflake(channelIdFallback) || "";
   const embed = firstEmbed(message);
   const title = cleanText(embed?.title, 256) || cleanText(embed?.description, 64) || "Discord embed";
-  const roleIds = extractRulesRoleIdsFromMessage(message);
+  const rulesRoleIds = extractRulesRoleIdsFromMessage(message);
+  const mentionRoleIds = extractMentionRoleIdsFromMessage(message);
+  const isRules = isRulesEmbedMessage(message);
+  const roleIds = isRules ? rulesRoleIds : mentionRoleIds;
 
   return {
     id,
     channelId,
     url: channelId && id ? discordMessageUrl(channelId, id) : "",
-    content: cleanText(message.content, 2000) || "",
+    content: stripLeadingRoleMentionLine(message.content) || "",
     createdAt: cleanText(message.timestamp, 80) || "",
     editedAt: cleanText(message.edited_timestamp, 80) || null,
     embed,
     embedJson: JSON.stringify(embed || {}, null, 2),
     title,
     roleIds,
-    isRules: isRulesEmbedMessage(message),
+    isRules,
   };
 }
 

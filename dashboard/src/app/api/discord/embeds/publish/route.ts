@@ -68,7 +68,9 @@ export async function POST(request: NextRequest) {
     const content = String(form.get("content") || "").trim();
     const embed = parseEmbedJson(form.get("embedJson"));
     const isRules = mode === "rules";
-    const roleIds = isRules ? selectedRoleIds(form) : [];
+    const selectedRoles = selectedRoleIds(form);
+    const roleIds = isRules ? selectedRoles : [];
+    const mentionRoleIds = isRules ? [] : selectedRoles;
     const editRef = parseDiscordMessageRef(messageLink);
     const shouldEdit = action === "edit" || Boolean(editRef);
     const effectiveAction = shouldEdit ? "edit" : "publish";
@@ -83,6 +85,7 @@ export async function POST(request: NextRequest) {
       hasMessageLink: Boolean(messageLink),
       contentLength: content.length,
       roleCount: roleIds.length,
+      mentionRoleCount: mentionRoleIds.length,
       adminId: session.id,
     });
 
@@ -106,6 +109,7 @@ export async function POST(request: NextRequest) {
         content,
         embed,
         roleIds,
+        mentionRoleIds,
         withRulesButtons: isRules,
         auditReason,
       });
@@ -128,6 +132,7 @@ export async function POST(request: NextRequest) {
       content,
       embed,
       roleIds,
+      mentionRoleIds,
       withRulesButtons: isRules,
       auditReason,
     });
