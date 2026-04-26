@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-26 06:08:18'
+  updated_at: '2026-04-26 09:03:30'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1002,7 +1002,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -1740,7 +1740,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -2310,7 +2310,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+  profile_url: null
   professions:
     primaries: []
     secondaries: []
@@ -3077,7 +3077,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Котто
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -3121,7 +3121,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism

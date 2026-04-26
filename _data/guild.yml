@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-26 06:08:18'
+  updated_at: '2026-04-26 09:03:30'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13342
+      world: 13345
       region: 5940
       realm: 55
     heroic:
-      world: 16042
-      region: 6714
+      world: 16047
+      region: 6715
       realm: 56
     mythic:
-      world: 6319
+      world: 6321
       region: 2717
       realm: 23
   blackrock-depths:
@@ -814,14 +814,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 251
+    item_level_equipped: 252
     mythic_plus_scores:
       all:
-        score: 1939.2
-        color: '#4dff33'
+        score: 2027.3
+        color: '#33ff1a'
       dps:
-        score: 1939.2
-        color: '#4dff33'
+        score: 2027.3
+        color: '#33ff1a'
       healer:
         score: 0
         color: '#ffffff'
@@ -835,8 +835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1939.2
-        color: '#4dff33'
+        score: 2027.3
+        color: '#33ff1a'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -906,47 +906,23 @@ members:
       slug: terokkar
     playable_class:
       id: 8
-      name: Mage
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-    item_level_equipped: 269
-    mythic_plus_scores:
-      all:
-        score: 2835.3
-        color: '#1f74d8'
-      dps:
-        score: 2835.3
-        color: '#1f74d8'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2835.3
-        color: '#1f74d8'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -1686,47 +1662,23 @@ members:
       slug: tarren-mill
     playable_class:
       id: 3
-      name: Hunter
+      name: null
     playable_race:
       id: 2
-      name: Orc
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-    item_level_equipped: 268
-    mythic_plus_scores:
-      all:
-        score: 2228.7
-        color: '#50e258'
-      dps:
-        score: 2228.7
-        color: '#50e258'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2211.1
-        color: '#4be750'
-      spec_1:
-        score: 447.1
-        color: '#eeffe7'
-      spec_2:
-        score: 162.1
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -2286,47 +2238,23 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 30
-      name: Lightforged Draenei
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Azuriel
-    item_level_equipped: 102
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -2962,47 +2890,23 @@ members:
       slug: gordunni
     playable_class:
       id: 4
-      name: Rogue
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Subtlety
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Котто
-    item_level_equipped: 239
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -3014,47 +2918,23 @@ members:
       slug: ragnaros
     playable_class:
       id: 1
-      name: Warrior
+      name: null
     playable_race:
       id: 34
-      name: Dark Iron Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Protection
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/250/194188282-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
-    item_level_equipped: 157
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
