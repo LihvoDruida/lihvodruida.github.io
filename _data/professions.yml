@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-25 16:43:52'
+  updated_at: '2026-04-26 02:52:13'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1671,7 +1671,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 62
+        learned_points: 67
         max_points: 100
     secondaries:
     - name: Fishing
@@ -1750,7 +1750,7 @@ characters:
         learned_points: 3
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 82
+        learned_points: 84
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -1759,7 +1759,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 65
+        learned_points: 71
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2337,7 +2337,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 68
+        learned_points: 70
         max_points: 100
     secondaries: []
 - name: Mafik
@@ -3649,7 +3649,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 49
+        learned_points: 52
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4000,7 +4000,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 45
+        learned_points: 49
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -4009,7 +4009,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 65
+        learned_points: 67
         max_points: 100
     secondaries: []
 - name: Oxydenis
@@ -4359,7 +4359,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 77
+        learned_points: 80
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -4426,7 +4426,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 286
+        learned_points: 287
         max_points: 300
 - name: Нежныйлок
   region: eu
@@ -4451,7 +4451,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 52
+        learned_points: 62
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5317,7 +5317,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 76
+        learned_points: 82
         max_points: 100
     - name: Fishing
       id: 356
@@ -5955,7 +5955,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 7
+        learned_points: 31
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -5964,7 +5964,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 51
+        learned_points: 55
         max_points: 100
     secondaries: []
 - name: Мавпита
