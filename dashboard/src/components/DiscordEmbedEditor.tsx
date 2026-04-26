@@ -622,6 +622,7 @@ export default function DiscordEmbedEditor({
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={effectiveSubmitAction} />
+            <input type="hidden" name="messageLink" value={messageLink} />
             <input type="hidden" name="embedJson" value={generatedEmbedJson} />
 
             <div className="content-form-section discord-visual-section">
@@ -644,10 +645,9 @@ export default function DiscordEmbedEditor({
                   <div className="discord-message-link-row">
                     <input
                       className="input"
-                      name="messageLink"
                       value={messageLink}
                       placeholder="https://discord.com/channels/.../.../..."
-                      disabled={isSubmitting}
+                      readOnly={isSubmitting}
                       onChange={(event) => setMessageLink(event.currentTarget.value)}
                     />
                     <button

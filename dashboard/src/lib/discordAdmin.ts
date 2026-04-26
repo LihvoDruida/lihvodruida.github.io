@@ -570,8 +570,9 @@ export async function editDiscordEmbedMessage(params: {
 }) {
   if (!params.ref.channelId || !params.ref.messageId) throw new Error("Посилання на Discord-повідомлення невалідне.");
 
+  const nextContent = messageContentWithRoleMentions(params.content, params.mentionRoleIds || []);
   const body: Record<string, unknown> = {
-    content: messageContentWithRoleMentions(params.content, params.mentionRoleIds || []),
+    content: nextContent ?? "",
     embeds: [params.embed],
     components: params.withRulesButtons ? buildRulesComponents(params.roleIds || []) : [],
     allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),

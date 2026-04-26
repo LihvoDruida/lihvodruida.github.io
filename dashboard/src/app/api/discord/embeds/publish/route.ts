@@ -43,6 +43,31 @@ function selectedRoleIds(form: FormData) {
   ));
 }
 
+function sameOriginRefererMessageLink(request: NextRequest) {
+  const referer = request.headers.get("referer") || "";
+  if (!referer) return "";
+
+  try {
+    const refererUrl = new URL(referer);
+    const requestUrl = new URL(request.url);
+    if (refererUrl.origin !== requestUrl.origin) return "";
+    return String(refererUrl.searchParams.get("message") || refererUrl.searchParams.get("url") || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function messageLinkFromForm(form: FormData, request: NextRequest, action: string) {
+  const explicit = String(form.get("messageLink") || "").trim();
+  if (explicit) return explicit;
+
+  const channelId = String(form.get("editChannelId") || "").trim();
+  const messageId = String(form.get("editMessageId") || "").trim();
+  if (channelId && messageId) return `${channelId}/${messageId}`;
+
+  return action === "edit" ? sameOriginRefererMessageLink(request) : "";
+}
+
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse("Недовірене джерело публікації Discord embed.");
 
@@ -64,7 +89,7 @@ export async function POST(request: NextRequest) {
     const mode = String(form.get("mode") || "general");
     const action = String(form.get("action") || "publish");
     const channelId = String(form.get("channelId") || "").trim();
-    const messageLink = String(form.get("messageLink") || "").trim();
+    const messageLink = messageLinkFromForm(form, request, action);
     const content = String(form.get("content") || "").trim();
     const embed = parseEmbedJson(form.get("embedJson"));
     const isRules = mode === "rules";
@@ -83,6 +108,7 @@ export async function POST(request: NextRequest) {
       effectiveAction,
       channelId,
       hasMessageLink: Boolean(messageLink),
+      editTarget: editRef ? `${editRef.channelId}/${editRef.messageId}` : "",
       contentLength: content.length,
       roleCount: roleIds.length,
       mentionRoleCount: mentionRoleIds.length,
