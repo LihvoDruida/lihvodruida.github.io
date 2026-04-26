@@ -1,10 +1,8 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
-import { getGuildBranding } from "@/lib/branding";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   dashboardCapabilities,
-  dashboardRoleLabel,
   hierarchyTitle,
   matchingDiscordRoleLabels,
   siteStatusDescription,
@@ -37,8 +35,6 @@ export default async function ProfilePage() {
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const guild = await getGuildBranding();
-  const avatar = user.avatar_url || user.avatar || guild.iconUrl;
   let roles: DiscordRoleOption[] = [];
   let roleLoadError = "";
 
@@ -61,24 +57,12 @@ export default async function ProfilePage() {
         <header className="hero panel dashboard-hero profile-hero">
           <div className="hero-copy dashboard-hero__copy profile-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Personal access</div>
-            <div className="content-hero-status-row" aria-label="Ієрархія доступу">
-              <span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span>
-              <span className="content-hero-path">{dashboardRoleLabel(user.role)} на сайті</span>
-            </div>
             <h1>Персональна сторінка</h1>
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">Тут зібрано твій статус у панелі, Discord роль доступу та чіткий список дозволених дій.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>{siteStatusDescription(user.role)}</span>
-            </div>
-          </div>
-
-          <div className="profile-hero-card" aria-label="Активний профіль">
-            <img src={avatar} alt="" width={72} height={72} loading="eager" referrerPolicy="no-referrer" />
-            <div>
-              <strong>{user.name}</strong>
-              <span>{providerLabel(user.provider)} • активна сесія</span>
             </div>
           </div>
         </header>
@@ -88,18 +72,14 @@ export default async function ProfilePage() {
         <article className="panel profile-card profile-card--identity">
           <div className="profile-card-head">
             <span className="eyebrow">Профіль</span>
-            <h2>Особисті дані доступу</h2>
-          </div>
-
-          <div className="profile-identity-row">
-            <img src={avatar} alt="" width={64} height={64} loading="lazy" referrerPolicy="no-referrer" />
-            <div>
-              <strong>{user.name}</strong>
-              <span>{user.login || user.id}</span>
-            </div>
+            <h2>Дані доступу</h2>
           </div>
 
           <dl className="profile-facts">
+            <div>
+              <dt>Discord ID</dt>
+              <dd>{user.login || user.id}</dd>
+            </div>
             <div>
               <dt>Ієрархія</dt>
               <dd>{hierarchyTitle(user.role)}</dd>
@@ -107,10 +87,6 @@ export default async function ProfilePage() {
             <div>
               <dt>Статус на сайті</dt>
               <dd>{siteStatusLabel(user.role)}</dd>
-            </div>
-            <div>
-              <dt>Dashboard роль</dt>
-              <dd>{dashboardRoleLabel(user.role)}</dd>
             </div>
             <div>
               <dt>Вхід</dt>

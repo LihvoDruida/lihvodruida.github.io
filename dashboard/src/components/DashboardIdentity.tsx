@@ -46,24 +46,24 @@ export default async function DashboardIdentity({
                 Новини / гайди
               </a>
             ) : null}
-            <a
-              href="/profile"
-              className={activeSection === "profile" ? "is-active" : undefined}
-              aria-current={activeSection === "profile" ? "page" : undefined}
-            >
-              Профіль
-            </a>
           </nav>
 
           <div className="dashboard-user">
-            <div className="dashboard-user__avatar-wrap">
-              {avatar ? <img className="discord-avatar" src={avatar} alt="" width={44} height={44} loading="lazy" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
-              <span className="dashboard-user__status" aria-hidden="true" />
-            </div>
-            <div>
-              <strong>{user.name}</strong>
-              <span>{hierarchyTitle(user.role)} • {siteStatusLabel(user.role)}</span>
-            </div>
+            <a
+              className={`dashboard-user__profile-link${activeSection === "profile" ? " is-active" : ""}`}
+              href="/profile"
+              aria-label={`Відкрити профіль ${user.name || user.login || "користувача"}`}
+              aria-current={activeSection === "profile" ? "page" : undefined}
+            >
+              <div className="dashboard-user__avatar-wrap">
+                {avatar ? <img className="discord-avatar" src={avatar} alt="" width={44} height={44} loading="lazy" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
+                <span className="dashboard-user__status" aria-hidden="true" />
+              </div>
+              <div>
+                <strong>{user.name}</strong>
+                <span>{hierarchyTitle(user.role)} • {siteStatusLabel(user.role)}</span>
+              </div>
+            </a>
             <LogoutButton />
           </div>
         </>
