@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 export type DiscordChannelOption = {
   id: string;
@@ -175,28 +175,123 @@ function hasVisibleEmbedContent(embed: EmbedObject) {
   return Boolean(embed.title || embed.description || embed.image || embed.thumbnail || (Array.isArray(embed.fields) && embed.fields.length));
 }
 
-function normalizeMarkdownLine(line: string) {
-  return line.replace(/\*\*(.*?)\*\*/g, "$1").replace(/__(.*?)__/g, "$1").trim();
+const DISCORD_MARKDOWN_BLOCK_LIMIT = 110;
+
+type InlineMarkdownToken = {
+  index: number;
+  length: number;
+  render: (key: string) => ReactNode;
+};
+
+function firstInlineToken(value: string, keyPrefix: string): InlineMarkdownToken | null {
+  const patterns: Array<{
+    regex: RegExp;
+    render: (match: RegExpExecArray, key: string) => ReactNode;
+  }> = [
+    {
+      regex: /`([^`\n]+?)`/,
+      render: (match, key) => <code key={key}>{match[1]}</code>,
+    },
+    {
+      regex: /\[([^\]\n]+?)\]\((https?:\/\/[^\s)]+)\)/i,
+      render: (match, key) => <a key={key} href={match[2]} target="_blank" rel="noreferrer">{renderDiscordInlineMarkdown(match[1], `${key}-link`)}</a>,
+    },
+    {
+      regex: /\*\*([\s\S]+?)\*\*/,
+      render: (match, key) => <strong key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-bold`)}</strong>,
+    },
+    {
+      regex: /__([\s\S]+?)__/,
+      render: (match, key) => <u key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-underline`)}</u>,
+    },
+    {
+      regex: /~~([\s\S]+?)~~/,
+      render: (match, key) => <s key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-strike`)}</s>,
+    },
+    {
+      regex: /\|\|([\s\S]+?)\|\|/,
+      render: (match, key) => <span className="discord-preview-spoiler" key={key}>{renderDiscordInlineMarkdown(match[1], `${key}-spoiler`)}</span>,
+    },
+    {
+      regex: /(^|[^*])\*([^*\n]+?)\*/,
+      render: (match, key) => <span key={key}>{match[1]}<em>{renderDiscordInlineMarkdown(match[2], `${key}-italic`)}</em></span>,
+    },
+  ];
+
+  let best: InlineMarkdownToken | null = null;
+
+  for (const pattern of patterns) {
+    const match = pattern.regex.exec(value);
+    if (!match) continue;
+    const token = {
+      index: match.index,
+      length: match[0].length,
+      render: (key: string) => pattern.render(match, key),
+    };
+    if (!best || token.index < best.index) best = token;
+  }
+
+  return best;
 }
 
-function MarkdownPreview({ value }: { value: string }) {
-  const lines = value.split("\n").slice(0, 90);
+function renderDiscordInlineMarkdown(value: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let rest = value;
+  let cursor = 0;
+
+  while (rest) {
+    const token = firstInlineToken(rest, `${keyPrefix}-${cursor}`);
+    if (!token) {
+      nodes.push(rest);
+      break;
+    }
+
+    if (token.index > 0) nodes.push(rest.slice(0, token.index));
+    nodes.push(token.render(`${keyPrefix}-${cursor}-${token.index}`));
+    rest = rest.slice(token.index + token.length);
+    cursor += token.index + token.length;
+  }
+
+  return nodes;
+}
+
+function stripCodeFence(value: string) {
+  return value.replace(/^```[a-z0-9_-]*\n?/i, "").replace(/```$/, "");
+}
+
+function DiscordMarkdown({ value, compact = false }: { value: string; compact?: boolean }) {
+  const blocks = value.split(/(```[\s\S]*?```)/g).slice(0, DISCORD_MARKDOWN_BLOCK_LIMIT);
 
   return (
-    <div className="discord-preview-markdown">
-      {lines.map((rawLine, index) => {
-        const line = rawLine.trimEnd();
-        const key = `${index}-${line.slice(0, 20)}`;
-        if (!line.trim()) return <span className="discord-preview-gap" key={key} />;
-        if (line.startsWith("### ")) return <h4 key={key}>{normalizeMarkdownLine(line.slice(4))}</h4>;
-        if (line.startsWith("## ")) return <h3 key={key}>{normalizeMarkdownLine(line.slice(3))}</h3>;
-        if (line.startsWith("# ")) return <h2 key={key}>{normalizeMarkdownLine(line.slice(2))}</h2>;
-        if (line.startsWith(">")) return <p className="discord-preview-quote" key={key}>{normalizeMarkdownLine(line.replace(/^>\s?/, ""))}</p>;
-        if (/^[-*]\s+/.test(line)) return <p className="discord-preview-list" key={key}>{normalizeMarkdownLine(line.replace(/^[-*]\s+/, ""))}</p>;
-        return <p key={key}>{normalizeMarkdownLine(line)}</p>;
+    <div className={compact ? "discord-preview-markdown discord-preview-markdown--compact" : "discord-preview-markdown"}>
+      {blocks.map((block, blockIndex) => {
+        const blockKey = `block-${blockIndex}`;
+        if (!block) return null;
+        if (block.startsWith("```")) {
+          return <pre className="discord-preview-codeblock" key={blockKey}><code>{stripCodeFence(block)}</code></pre>;
+        }
+
+        return block.split("\n").slice(0, DISCORD_MARKDOWN_BLOCK_LIMIT).map((rawLine, lineIndex) => {
+          const line = rawLine.trimEnd();
+          const key = `${blockKey}-${lineIndex}-${line.slice(0, 20)}`;
+          const inlineKey = `${blockKey}-${lineIndex}`;
+          if (!line.trim()) return <span className="discord-preview-gap" key={key} />;
+          if (/^>>>\s?/.test(line)) return <p className="discord-preview-quote" key={key}>{renderDiscordInlineMarkdown(line.replace(/^>>>\s?/, ""), inlineKey)}</p>;
+          if (/^>\s?/.test(line)) return <p className="discord-preview-quote" key={key}>{renderDiscordInlineMarkdown(line.replace(/^>\s?/, ""), inlineKey)}</p>;
+          if (/^[-*]\s+/.test(line)) return <p className="discord-preview-list" key={key}><span className="discord-preview-list-bullet">•</span>{renderDiscordInlineMarkdown(line.replace(/^[-*]\s+/, ""), inlineKey)}</p>;
+          if (/^\d+[.)]\s+/.test(line)) {
+            const marker = line.match(/^(\d+[.)])\s+/)?.[1] || "1.";
+            return <p className="discord-preview-list discord-preview-list--ordered" key={key}><span className="discord-preview-list-bullet">{marker}</span>{renderDiscordInlineMarkdown(line.replace(/^\d+[.)]\s+/, ""), inlineKey)}</p>;
+          }
+          return <p key={key}>{renderDiscordInlineMarkdown(line, inlineKey)}</p>;
+        });
       })}
     </div>
   );
+}
+
+function formatPreviewTimestamp() {
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
 
 function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed: EmbedObject; content: string; isValid: boolean; mentionRoles?: DiscordRoleOption[] }) {
@@ -206,40 +301,71 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
   const fields = Array.isArray(embed?.fields) ? embed.fields.slice(0, 25) : [];
   const thumbnail = urlFrom(embed?.thumbnail);
   const image = urlFrom(embed?.image);
+  const previewTimestamp = embed?.timestamp ? formatPreviewTimestamp() : "";
 
   return (
     <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord embed">
       <div className="discord-preview-titlebar">
         <span>Перегляд</span>
-        <small>Discord вигляд</small>
+        <small>Стиль Discord</small>
       </div>
       <div className="discord-preview-canvas">
-        {mentionRoles.length > 0 ? (
-          <div className="discord-preview-mentions" aria-label="Ролі, які будуть згадані">
-            {mentionRoles.map((role) => <span key={role.id}>@{role.name}</span>)}
-          </div>
-        ) : null}
-        {content ? <div className="discord-preview-content">{content}</div> : null}
-        <article className="discord-message-preview" style={{ borderLeftColor: color }}>
-          {thumbnail ? <img className="discord-preview-thumb" src={thumbnail} alt="" /> : null}
-          {author?.icon_url ? <img className="discord-preview-author-icon" src={text(author.icon_url)} alt="" /> : null}
-          {author?.name ? <div className="discord-preview-author">{text(author.name)}</div> : null}
-          {embed?.title ? <h2>{text(embed.title)}</h2> : null}
-          {embed?.description ? <MarkdownPreview value={text(embed.description)} /> : null}
-          {fields.length > 0 ? (
-            <div className="discord-preview-fields">
-              {fields.map((field: any, index: number) => (
-                <div className={field?.inline ? "is-inline" : undefined} key={`${index}-${field?.name || "field"}`}>
-                  <strong>{text(field?.name)}</strong>
-                  <span>{text(field?.value)}</span>
-                </div>
-              ))}
+        <div className="discord-chat-preview">
+          <div className="discord-chat-preview__avatar" aria-hidden="true">MV</div>
+          <div className="discord-chat-preview__body">
+            <div className="discord-chat-preview__meta">
+              <strong>Mistblossom Bot</strong>
+              <span>{formatPreviewTimestamp()}</span>
             </div>
-          ) : null}
-          {image ? <img className="discord-preview-image" src={image} alt="" /> : null}
-          {footer?.text ? <footer>{footer?.icon_url ? <img src={text(footer.icon_url)} alt="" /> : null}<span>{text(footer.text)}</span></footer> : null}
-        </article>
-        {!isValid ? <div className="discord-preview-error">Embed порожній або код кольору невалідний. Додай title, description, image, thumbnail або field.</div> : null}
+
+            {mentionRoles.length > 0 ? (
+              <div className="discord-preview-mentions" aria-label="Ролі, які будуть згадані">
+                {mentionRoles.map((role) => <span key={role.id}>@{role.name}</span>)}
+              </div>
+            ) : null}
+
+            {content ? <DiscordMarkdown value={content} compact /> : null}
+
+            <article className="discord-message-preview" style={{ borderLeftColor: color }}>
+              <div className="discord-message-preview__body">
+                <div className="discord-message-preview__main">
+                  {author?.icon_url ? <img className="discord-preview-author-icon" src={text(author.icon_url)} alt="" /> : null}
+                  {author?.name ? (
+                    text(author.url) ? <a className="discord-preview-author discord-preview-link" href={text(author.url)} target="_blank" rel="noreferrer">{text(author.name)}</a> : <div className="discord-preview-author">{text(author.name)}</div>
+                  ) : null}
+                  {embed?.title ? (
+                    text(embed.url)
+                      ? <a className="discord-preview-title discord-preview-link" href={text(embed.url)} target="_blank" rel="noreferrer">{text(embed.title)}</a>
+                      : <h2 className="discord-preview-title">{text(embed.title)}</h2>
+                  ) : null}
+                  {embed?.description ? <DiscordMarkdown value={text(embed.description)} /> : null}
+                  {fields.length > 0 ? (
+                    <div className="discord-preview-fields">
+                      {fields.map((field: any, index: number) => (
+                        <div className={field?.inline ? "is-inline" : undefined} key={`${index}-${field?.name || "field"}`}>
+                          <strong>{text(field?.name)}</strong>
+                          <span><DiscordMarkdown value={text(field?.value)} compact /></span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {(footer?.text || previewTimestamp) ? (
+                    <footer>
+                      {footer?.icon_url ? <img src={text(footer.icon_url)} alt="" /> : null}
+                      {footer?.text ? <span>{text(footer.text)}</span> : null}
+                      {footer?.text && previewTimestamp ? <span className="discord-preview-footer-separator">•</span> : null}
+                      {previewTimestamp ? <time dateTime={new Date().toISOString()}>{previewTimestamp}</time> : null}
+                    </footer>
+                  ) : null}
+                </div>
+                {thumbnail ? <img className="discord-preview-thumb" src={thumbnail} alt="" /> : null}
+              </div>
+              {image ? <img className="discord-preview-image" src={image} alt="" /> : null}
+            </article>
+
+            {!isValid ? <div className="discord-preview-error">Embed порожній або код кольору невалідний. Додай title, description, image, thumbnail або field.</div> : null}
+          </div>
+        </div>
       </div>
     </aside>
   );
@@ -670,7 +796,7 @@ export default function DiscordEmbedEditor({
                 <small>Канал, текст над embed, колір і timestamp.</small>
               </div>
               <div className="discord-send-layout">
-                <div className="discord-builder-grid discord-send-grid">
+                <div className="discord-send-controls">
                   <label className="content-field discord-channel-field">
                     <span>Канал</span>
                     <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
@@ -680,21 +806,6 @@ export default function DiscordEmbedEditor({
                     </select>
                   </label>
 
-                  <label className="content-field discord-content-field">
-                    <span>Текст над embed</span>
-                    <textarea
-                      className="input textarea compact discord-builder-textarea"
-                      name="content"
-                      value={content}
-                      maxLength={2000}
-                      placeholder="Необовʼязковий текст над embed"
-                      onChange={(event) => setContent(event.currentTarget.value)}
-                    />
-                    <small>{content.length}/2000</small>
-                  </label>
-                </div>
-
-                <div className="discord-send-options">
                   <label className="content-field discord-color-picker-field">
                     <span>Вибір кольору</span>
                     <input
@@ -705,6 +816,7 @@ export default function DiscordEmbedEditor({
                       aria-label="Вибрати колір embed"
                     />
                   </label>
+
                   <label className="content-field discord-color-code-field">
                     <span>Код кольору</span>
                     <input
@@ -716,11 +828,25 @@ export default function DiscordEmbedEditor({
                     />
                     <small className={normalizedColor ? undefined : "discord-json-error"}>{normalizedColor ? "HEX #RRGGBB" : "Невалідний HEX. Потрібно #RRGGBB."}</small>
                   </label>
+
                   <label className="inline-check discord-inline-check discord-timestamp-check">
                     <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
                     <span>Додати поточний timestamp</span>
                   </label>
                 </div>
+
+                <label className="content-field discord-content-field discord-content-field--full">
+                  <span>Текст над embed</span>
+                  <textarea
+                    className="input textarea compact discord-builder-textarea"
+                    name="content"
+                    value={content}
+                    maxLength={2000}
+                    placeholder="Необовʼязковий текст над embed"
+                    onChange={(event) => setContent(event.currentTarget.value)}
+                  />
+                  <small>{content.length}/2000</small>
+                </label>
               </div>
             </div>
 
@@ -743,7 +869,7 @@ export default function DiscordEmbedEditor({
 
               <label className="content-field content-field--wide">
                 <span>Опис</span>
-                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: заголовки, списки, посилання..." onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
+                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
                 <small>{descriptionValue.length}/4096</small>
               </label>
             </div>
