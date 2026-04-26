@@ -6288,3 +6288,68 @@ form.is-submitting button[type="submit"],
     max-width: none;
   }
 }
+
+/* Send controls regrouping: keep both color controls together and avoid split rows on desktop */
+.discord-builder-shell--site .discord-send-controls {
+  grid-template-columns: minmax(180px, 0.95fr) minmax(180px, 0.95fr) minmax(130px, 0.6fr) !important;
+  grid-template-areas:
+    "channel channel channel"
+    "picker code timestamp" !important;
+  align-items: end;
+  column-gap: 12px;
+  row-gap: 10px;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-channel-field {
+  grid-area: channel;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-color-picker-field {
+  grid-area: picker;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-color-code-field {
+  grid-area: code;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-timestamp-check {
+  grid-area: timestamp;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 0 8px;
+  align-items: center;
+  justify-self: start;
+  align-self: end;
+  gap: 10px;
+  white-space: normal;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-timestamp-check span {
+  max-width: 112px;
+  line-height: 1.15;
+}
+
+@media (max-width: 680px) {
+  .discord-builder-shell--site .discord-send-controls {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "channel"
+      "picker"
+      "code"
+      "timestamp" !important;
+  }
+
+  .discord-builder-shell--site .discord-send-controls .discord-timestamp-check {
+    width: 100%;
+    padding-bottom: 0;
+  }
+
+  .discord-builder-shell--site .discord-send-controls .discord-timestamp-check span {
+    max-width: none;
+  }
+}
