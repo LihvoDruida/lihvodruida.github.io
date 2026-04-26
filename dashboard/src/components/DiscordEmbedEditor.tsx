@@ -507,7 +507,7 @@ export default function DiscordEmbedEditor({
       lastLoadedMessageLinkRef.current = nextLink;
       setLoadedMessageLink(nextLink);
       setMessageLoadState("loaded");
-      setMessageLoadText(text(data.warning) || "Контент, embed і ролі підтягнуто з Discord-повідомлення.");
+      setMessageLoadText(text(data.warning) || "Підтягнуто. Збереження оновить це Discord-повідомлення.");
     } catch (error) {
       if ((error as DOMException)?.name === "AbortError") return;
       setMessageLoadState("error");
@@ -517,7 +517,13 @@ export default function DiscordEmbedEditor({
 
   useEffect(() => {
     const rawLink = normalizeMessageLink(messageLink);
-    if (!rawLink || rawLink === lastLoadedMessageLinkRef.current) return;
+    if (!rawLink) {
+      setMessageLoadState("idle");
+      setMessageLoadText("");
+      return;
+    }
+
+    if (rawLink === lastLoadedMessageLinkRef.current) return;
 
     if (!looksLikeDiscordMessageRef(rawLink)) {
       setMessageLoadState("idle");
@@ -590,14 +596,14 @@ export default function DiscordEmbedEditor({
       <section className="discord-builder-panel panel" aria-label={title}>
         <div className="discord-builder-titlebar">
           <span>{isRules ? "Rules" : "General"} embed</span>
-          <small>{isValid ? "Готово до публікації" : "Потрібен видимий контент"}</small>
+          <small>{isValid ? "Валідно" : "Потрібен контент"}</small>
         </div>
         <div className="discord-builder-body">
           <div className="discord-builder-head">
             <div>
               <span className="eyebrow">{isRules ? "Rules" : "General post"} • {editorMode === "edit" ? "Edit" : "Create"}</span>
               <h2>{title}</h2>
-              <p>{isRules ? "Створи або онови embed правил, а внизу вибери ролі для кнопки прийняття." : "Заповни поля embed окремо, обери канал і за потреби встав посилання на повідомлення для редагування."}</p>
+              <p>{isRules ? "Налаштуй embed правил, канал і ролі для прийняття." : "Налаштуй embed, канал і за потреби link для редагування."}</p>
             </div>
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагування підтягнутого" : editorMode !== "edit" ? "Редагування за link" : "Редагування" : "Створення"}</span>
           </div>
@@ -611,10 +617,10 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
                 <strong>Публікація</strong>
-                <small>Канал, текст над embed і посилання для майбутнього редагування.</small>
+                <small>Канал, текст і link для редагування.</small>
               </div>
-              <div className="discord-builder-grid">
-                <label className="content-field">
+              <div className="discord-builder-grid discord-publication-grid">
+                <label className="content-field discord-channel-field">
                   <span>Канал</span>
                   <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
                     {channels.map((channel) => (
@@ -648,14 +654,11 @@ export default function DiscordEmbedEditor({
                     <small className="discord-message-load-note discord-message-load-note--error" role="alert">Посилання не схоже на Discord message link. Виправ його або очисти поле.</small>
                   ) : messageLoadText ? (
                     <small className={`discord-message-load-note discord-message-load-note--${messageLoadState}`} role={messageLoadState === "error" ? "alert" : "status"}>{messageLoadText}</small>
-                  ) : (
-                    <small>Після вставки link редактор автоматично підтягне content, embed, канал і ролі.</small>
-                  )}
-                  {hasLoadedEditableMessage ? (
-                    <small className="discord-edit-mode-note" role="status">Підтягнуто: кнопка збереження оновить саме це Discord-повідомлення. Нове повідомлення не створиться.</small>
                   ) : hasMessageLinkEditTarget ? (
-                    <small className="discord-edit-mode-note" role="status">Link розпізнано: збереження буде редагувати це Discord-повідомлення, а не створювати нове.</small>
-                  ) : null}
+                    <small className="discord-message-load-note discord-message-load-note--loaded" role="status">Збереження оновить повідомлення за цим link.</small>
+                  ) : (
+                    <small>Встав message link, щоб підтягнути дані для редагування.</small>
+                  )}
                 </div>
               </div>
 
@@ -676,7 +679,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section discord-visual-section--accent">
               <div className="content-form-section-head">
                 <strong>Основний embed</strong>
-                <small>Title, URL, description і колір. Колір можна вибрати або вставити кодом, наприклад #B8E986.</small>
+                <small>Title, description, URL і колір.</small>
               </div>
 
               <div className="discord-builder-grid">
@@ -728,7 +731,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
                 <strong>Медіа</strong>
-                <small>Thumbnail показується справа вгорі, image — великим блоком під текстом.</small>
+                <small>Thumbnail або велике зображення під текстом.</small>
               </div>
               <div className="discord-builder-grid">
                 <label className="content-field">
@@ -745,7 +748,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
                 <strong>Author і footer</strong>
-                <small>Опціональні дані автора та нижній підпис embed.</small>
+                <small>Опціональний автор і підпис.</small>
               </div>
               <div className="discord-builder-grid discord-builder-grid--three">
                 <label className="content-field">
@@ -776,7 +779,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section">
               <div className="content-form-section-head">
                 <strong>Fields</strong>
-                <small>До 25 окремих embed fields. Порожні rows автоматично не потраплять у Discord.</small>
+                <small>До 25 fields. Порожні не відправляються.</small>
               </div>
               <EmbedFieldEditor fields={fields} onChange={setFields} />
             </div>
@@ -785,7 +788,7 @@ export default function DiscordEmbedEditor({
               <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
                   <strong>Ролі для кнопки “Прийняти правила”</strong>
-                  <small>Вибрано: {selectedRolesCount}. Кнопка “Відмовитися” запускає підтвердження, а потім кік через Worker.</small>
+                  <small>Вибрано: {selectedRolesCount}</small>
                 </div>
                 <RolePicker roles={roles} selectedRoleIds={roleIds} onChange={setRoleIds} />
               </div>
