@@ -6106,3 +6106,82 @@ form.is-submitting button[type="submit"],
     grid-column: 1 / -1;
   }
 }
+
+/* Send form overflow fix — keep desktop layout readable inside the editor panel */
+.discord-builder-shell--site,
+.discord-builder-shell--site .discord-builder-panel,
+.discord-builder-shell--site .discord-builder-body,
+.discord-visual-section,
+.discord-send-layout,
+.discord-send-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.discord-send-controls {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  align-items: end;
+  gap: 12px;
+}
+
+.discord-send-controls .discord-channel-field {
+  min-width: min(100%, 220px);
+}
+
+.discord-send-controls .discord-color-picker-field {
+  min-width: min(100%, 130px);
+}
+
+.discord-send-controls .discord-color-code-field {
+  min-width: min(100%, 170px);
+}
+
+.discord-send-controls .discord-timestamp-check {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 0 0;
+  align-self: end;
+  justify-self: stretch;
+  white-space: normal;
+}
+
+.discord-send-controls .discord-timestamp-check input {
+  flex: 0 0 auto;
+}
+
+.discord-send-controls .discord-timestamp-check span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+}
+
+.discord-send-controls .select,
+.discord-send-controls .input,
+.discord-send-controls .discord-color-picker,
+.discord-content-field--full .discord-builder-textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+.discord-description-area {
+  min-height: clamp(170px, 30vh, 320px);
+}
+
+@media (min-width: 1181px) {
+  .discord-send-controls {
+    grid-template-columns: minmax(210px, 1.35fr) minmax(120px, 0.7fr) minmax(170px, 1fr) minmax(180px, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .discord-send-controls {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .discord-send-controls {
+    grid-template-columns: 1fr !important;
+  }
+}

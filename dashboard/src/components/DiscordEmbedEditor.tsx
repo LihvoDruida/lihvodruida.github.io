@@ -977,7 +977,7 @@ export default function DiscordEmbedEditor({
 
                   <label className="inline-check discord-inline-check discord-timestamp-check">
                     <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
-                    <span>Додати поточний timestamp</span>
+                    <span>Додати timestamp</span>
                   </label>
                 </div>
 
