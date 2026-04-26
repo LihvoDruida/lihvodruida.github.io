@@ -5215,7 +5215,10 @@ form.is-submitting button[type="submit"],
 
 .discord-send-controls {
   display: grid;
-  grid-template-columns: minmax(220px, 320px) minmax(130px, 176px) minmax(180px, 240px) max-content;
+  grid-template-columns: minmax(220px, 320px) minmax(130px, 176px) minmax(180px, 240px);
+  grid-template-areas:
+    "channel picker code"
+    "timestamp timestamp timestamp";
   align-items: end;
   gap: 12px;
 }
@@ -5241,12 +5244,25 @@ form.is-submitting button[type="submit"],
   max-width: none;
 }
 
+.discord-send-controls .discord-channel-field {
+  grid-area: channel;
+}
+
+.discord-send-controls .discord-color-picker-field {
+  grid-area: picker;
+}
+
+.discord-send-controls .discord-color-code-field {
+  grid-area: code;
+}
+
 .discord-send-controls .discord-timestamp-check {
-  align-self: end;
+  grid-area: timestamp;
+  align-self: start;
   justify-self: start;
   min-height: 38px;
-  padding-bottom: 8px;
-  white-space: nowrap;
+  padding: 2px 0 0;
+  white-space: normal;
 }
 
 .discord-send-controls .discord-color-picker {
@@ -5497,18 +5513,26 @@ form.is-submitting button[type="submit"],
 
 @media (max-width: 1180px) {
   .discord-send-controls {
-    grid-template-columns: minmax(220px, 1fr) minmax(130px, 176px) minmax(180px, 240px);
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+    grid-template-areas:
+      "channel picker"
+      "code code"
+      "timestamp timestamp";
   }
 
   .discord-send-controls .discord-timestamp-check {
-    grid-column: 1 / -1;
-    padding-bottom: 0;
+    padding-top: 0;
   }
 }
 
 @media (max-width: 760px) {
   .discord-send-controls {
     grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "channel"
+      "picker"
+      "code"
+      "timestamp";
   }
 
   .discord-send-controls .discord-timestamp-check {
@@ -6183,5 +6207,84 @@ form.is-submitting button[type="submit"],
 @media (max-width: 560px) {
   .discord-send-controls {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* Final send controls alignment fix: split controls into two desktop rows and keep timestamp readable */
+.discord-builder-shell--site .discord-send-controls {
+  grid-template-columns: minmax(220px, 1.3fr) minmax(210px, 1fr);
+  grid-template-areas:
+    "channel picker"
+    "code timestamp";
+  align-items: end;
+  column-gap: 12px;
+  row-gap: 10px;
+}
+
+.discord-builder-shell--site .discord-send-controls .content-field {
+  align-self: end;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-channel-field {
+  grid-area: channel;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-color-picker-field {
+  grid-area: picker;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-color-code-field {
+  grid-area: code;
+  min-width: 0;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-timestamp-check {
+  grid-area: timestamp;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 0 8px;
+  align-items: center;
+  justify-self: start;
+  align-self: end;
+  white-space: normal;
+  gap: 10px;
+}
+
+.discord-builder-shell--site .discord-send-controls .discord-timestamp-check span {
+  display: inline-block;
+  max-width: 110px;
+  line-height: 1.15;
+}
+
+@media (min-width: 1181px) {
+  .discord-builder-shell--site .discord-send-controls {
+    grid-template-columns: minmax(240px, 1.35fr) minmax(230px, 1fr);
+    grid-template-areas:
+      "channel picker"
+      "code timestamp";
+  }
+}
+
+@media (max-width: 760px) {
+  .discord-builder-shell--site .discord-send-controls {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "channel"
+      "picker"
+      "code"
+      "timestamp";
+  }
+
+  .discord-builder-shell--site .discord-send-controls .discord-timestamp-check {
+    width: 100%;
+    padding-bottom: 0;
+  }
+
+  .discord-builder-shell--site .discord-send-controls .discord-timestamp-check span {
+    max-width: none;
   }
 }
