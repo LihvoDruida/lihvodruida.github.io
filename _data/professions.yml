@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 10:18:50'
+  updated_at: '2026-04-27 13:57:50'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1063,7 +1063,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/draenor/Illidonson
   professions:
     primaries:
     - name: Skinning

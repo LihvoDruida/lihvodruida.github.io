@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 10:18:50'
+  updated_at: '2026-04-27 13:57:50'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13404
+      world: 13411
       region: 5969
       realm: 55
     heroic:
-      world: 16210
-      region: 6782
+      world: 16218
+      region: 6786
       realm: 56
     mythic:
-      world: 6468
+      world: 6475
       region: 2801
       realm: 23
   blackrock-depths:
@@ -1010,23 +1010,47 @@ members:
       slug: draenor
     playable_class:
       id: 12
-      name: null
+      name: Demon Hunter
     playable_race:
       id: 10
-      name: null
+      name: Blood Elf
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Havoc
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/229/185333989-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Illidonson
+    item_level_equipped: 278
+    mythic_plus_scores:
+      all:
+        score: 3014.4
+        color: '#6c5de5'
+      dps:
+        score: 3014.4
+        color: '#6c5de5'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 3014.4
+        color: '#6c5de5'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -1674,7 +1698,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-    item_level_equipped: 267
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 2352.6
@@ -4250,14 +4274,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-    item_level_equipped: 268
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2511.6
-        color: '#5ead9c'
+        score: 2555
+        color: '#5da8a1'
       dps:
-        score: 2511.6
-        color: '#5ead9c'
+        score: 2555
+        color: '#5da8a1'
       healer:
         score: 0
         color: '#ffffff'
@@ -4271,8 +4295,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2511.6
-        color: '#5ead9c'
+        score: 2555
+        color: '#5da8a1'
       spec_3:
         score: 0
         color: '#ffffff'
