@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 02:54:17'
+  updated_at: '2026-04-27 06:29:56'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3959,7 +3959,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
   professions:
     primaries:
     - name: Tailoring

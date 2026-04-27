@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 02:54:17'
+  updated_at: '2026-04-27 06:29:56'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13391
-      region: 5963
+      world: 13397
+      region: 5964
       realm: 55
     heroic:
-      world: 16182
-      region: 6773
+      world: 16198
+      region: 6775
       realm: 56
     mythic:
-      world: 6457
+      world: 6466
       region: 2801
       realm: 23
   blackrock-depths:
@@ -3898,23 +3898,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+    item_level_equipped: 277
+    mythic_plus_scores:
+      all:
+        score: 3198.6
+        color: '#ae39e2'
+      dps:
+        score: 3198.6
+        color: '#ae39e2'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2477.3
+        color: '#5fb692'
+      spec_1:
+        score: 333.9
+        color: '#f6fff2'
+      spec_2:
+        score: 3198.6
+        color: '#ae39e2'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
