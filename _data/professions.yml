@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 17:25:28'
+  updated_at: '2026-04-27 21:04:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -315,7 +315,7 @@ characters:
   region: eu
   realm: ravencrest
   realm_slug: ravencrest
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/ravencrest/Senigør
   professions:
     primaries:
     - name: Blacksmithing
@@ -1002,7 +1002,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
   professions:
     primaries:
     - name: Enchanting
@@ -1405,7 +1405,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Es
   professions:
     primaries:
     - name: Herbalism
@@ -1949,7 +1949,7 @@ characters:
   region: eu
   realm: doomhammer
   realm_slug: doomhammer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/doomhammer/Thérion
   professions:
     primaries:
     - name: Blacksmithing
@@ -3583,7 +3583,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
   professions:
     primaries:
     - name: Herbalism
@@ -4380,8 +4380,14 @@ characters:
       - name: Cataclysm Cooking
         learned_points: 1
         max_points: 75
+      - name: Northrend Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Outland Cooking
+        learned_points: 1
+        max_points: 75
       - name: Classic Cooking
-        learned_points: 2
+        learned_points: 3
         max_points: 300
       - name: Shadowlands Cooking
         learned_points: 34
@@ -4414,13 +4420,13 @@ characters:
         learned_points: 1
         max_points: 75
       - name: Northrend Fishing
-        learned_points: 8
+        learned_points: 12
         max_points: 75
       - name: Outland Fishing
         learned_points: 1
         max_points: 75
       - name: Classic Fishing
-        learned_points: 121
+        learned_points: 123
         max_points: 300
       - name: Shadowlands Fishing
         learned_points: 31
@@ -4445,7 +4451,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 31
+        learned_points: 33
         max_points: 100
     - name: Tailoring
       id: 197
