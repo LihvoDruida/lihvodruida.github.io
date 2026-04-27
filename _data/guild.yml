@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 06:29:56'
+  updated_at: '2026-04-27 10:18:50'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13397
-      region: 5964
+      world: 13404
+      region: 5969
       realm: 55
     heroic:
-      world: 16198
-      region: 6775
+      world: 16210
+      region: 6782
       realm: 56
     mythic:
-      world: 6466
+      world: 6468
       region: 2801
       realm: 23
   blackrock-depths:
@@ -1010,47 +1010,23 @@ members:
       slug: draenor
     playable_class:
       id: 12
-      name: Demon Hunter
+      name: null
     playable_race:
       id: 10
-      name: Blood Elf
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Havoc
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/229/185333989-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Illidonson
-    item_level_equipped: 278
-    mythic_plus_scores:
-      all:
-        score: 3014.4
-        color: '#6c5de5'
-      dps:
-        score: 3014.4
-        color: '#6c5de5'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 3014.4
-        color: '#6c5de5'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -3494,7 +3470,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2613.4
@@ -4641,10 +4617,10 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2828
+        score: 2871.5
         color: '#1e74d9'
       dps:
-        score: 2828
+        score: 2871.5
         color: '#1e74d9'
       healer:
         score: 0
@@ -4656,7 +4632,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2828
+        score: 2871.5
         color: '#1e74d9'
       spec_2:
         score: 0

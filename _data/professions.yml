@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-27 06:29:56'
+  updated_at: '2026-04-27 10:18:50'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1063,7 +1063,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Illidonson
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -3326,7 +3326,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 96
+        learned_points: 97
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5967,7 +5967,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 55
+        learned_points: 57
         max_points: 100
     secondaries: []
 - name: Мавпита
