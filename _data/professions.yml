@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-26 20:40:50'
+  updated_at: '2026-04-27 02:54:17'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-26T03:00:39.000Z'
+  raider_io_last_crawled_at: '2026-04-26T23:25:56.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -1480,7 +1480,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 43
+        learned_points: 50
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1747,7 +1747,7 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 3
+        learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
         learned_points: 84
@@ -2027,7 +2027,7 @@ characters:
         learned_points: 46
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 97
+        learned_points: 99
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2109,7 +2109,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 8
+        learned_points: 10
         max_points: 100
     - name: Mining
       id: 186
@@ -3307,7 +3307,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
   professions:
     primaries:
     - name: Herbalism
@@ -3959,7 +3959,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+  profile_url: null
   professions:
     primaries:
     - name: Tailoring
