@@ -7,7 +7,8 @@ Cloudflare Worker for Mistblossom Vanguard applications and Discord interaction 
 - `GET /` and `GET /api/guild-applications` — list GitHub-backed applications.
 - `POST /api/guild-applications` — create a new application, GitHub Issue and Discord notification.
 - `POST /api/discord-interactions` — single Discord interaction endpoint for all button actions.
-- `GET /api/discord-rules-stats` — dashboard stats for rule accepts/declines.
+- `GET /api/discord-rules-stats` — dashboard stats for normal rule accepts/declines only.
+- `GET /api/discord-raid-rules-stats` — dashboard stats for raid-rules signups only.
 - `GET /api/discord-raid-rules-signups` — dashboard list of raid-rules signups with Discord user and main character.
 
 ## Supported Discord actions
@@ -66,6 +67,8 @@ id = "paste_kv_namespace_id_here"
 
 Stats are stored per guild and per user. If the same user clicks again, the counter is not duplicated; if their decision changes, the previous counter is adjusted. Discord cannot hide buttons only for one user on a public message, so the Worker returns an ephemeral confirmation to the clicker and keeps the public buttons available for other members.
 
+`GET /api/discord-rules-stats?guild_id=<serverId>` reads only normal Discord rules stats from the `rules:<guildId>:*` namespace. `GET /api/discord-rules-stats?type=raid&guild_id=<serverId>` and `GET /api/discord-raid-rules-stats?guild_id=<serverId>` read only raid-rules stats from the `raid-rules:<guildId>:*` namespace.
+
 `GET /api/discord-rules-stats?guild_id=<serverId>` reads the exact server stats. If `guild_id` and `DISCORD_GUILD_ID` are both missing, the Worker aggregates all `rules:<guildId>:*` counters from KV. This prevents the dashboard from showing zero when the Worker records stats under the Discord guild ID but the stats request does not pass that ID.
 
 
@@ -73,9 +76,10 @@ Stats are stored per guild and per user. If the same user clicks again, the coun
 
 Raid rules use the same `RULES_STATS` KV namespace, but store data under `raid-rules:<guildId>:user:<discordId>`. The saved record contains the Discord user label, dashboard profile id, selected main character, and signup timestamp. Repeated clicks update the same user record instead of duplicating it.
 
-The dashboard reads the list through:
+The dashboard reads raid stats and the signup list through:
 
 ```text
+GET /api/discord-raid-rules-stats?guild_id=<serverId>
 GET /api/discord-raid-rules-signups?guild_id=<serverId>
 ```
 

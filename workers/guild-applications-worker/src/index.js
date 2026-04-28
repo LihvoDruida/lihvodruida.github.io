@@ -5,7 +5,7 @@ const DEFAULT_FILTERED_LIST_PAGES = 3;
 const MAX_GITHUB_LIST_PAGES = 5;
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-signups"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -441,6 +441,8 @@ async function getRaidRulesSignups(env, guildId) {
     const hasBinding = hasRulesStatsBinding(env);
     return {
       configured: false,
+      rules_type: "raid",
+      namespace: "raid-rules",
       total: 0,
       updated_at: null,
       signups: [],
@@ -476,11 +478,56 @@ async function getRaidRulesSignups(env, guildId) {
   return {
     configured: true,
     guild_id: cleanGuildId || "global",
+    rules_type: "raid",
+    namespace: "raid-rules",
     total: signups.length,
     updated_at: await kv.get(raidRulesKey(guildKey, "updated_at")),
+    stats: {
+      signed: signups.length,
+      total: signups.length,
+    },
     signups,
     source: "kv",
   };
+}
+
+async function getRaidRulesStats(env, guildId) {
+  const signups = await getRaidRulesSignups(env, guildId);
+  return {
+    configured: signups.configured,
+    guild_id: signups.guild_id || snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID) || "global",
+    scope: "guild",
+    rules_type: "raid",
+    namespace: "raid-rules",
+    signed: signups.total || 0,
+    total: signups.total || 0,
+    updated_at: signups.updated_at || null,
+    source: signups.source,
+    error: signups.error,
+    message: signups.message,
+  };
+}
+
+async function handleRaidRulesStats(request, env) {
+  const origin = allowedOrigin(request, env) || "*";
+  const url = new URL(request.url);
+  const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
+  try {
+    return json(await getRaidRulesStats(env, guildId), 200, origin);
+  } catch (error) {
+    logWorkerEvent("error", "raid_rules.stats.failed", { message: error?.message, guildId });
+    return json({
+      configured: hasValidRulesStatsBinding(env),
+      guild_id: guildId || "global",
+      rules_type: "raid",
+      namespace: "raid-rules",
+      signed: 0,
+      total: 0,
+      updated_at: null,
+      source: hasRulesStatsBinding(env) ? "error" : "missing-kv-binding",
+      error: error instanceof Error ? error.message : "Raid rules stats are unavailable.",
+    }, 500, origin);
+  }
 }
 
 async function handleRaidRulesSignups(request, env) {
@@ -493,6 +540,8 @@ async function handleRaidRulesSignups(request, env) {
     logWorkerEvent("error", "raid_rules.signups.failed", { message: error?.message, guildId });
     return json({
       configured: hasValidRulesStatsBinding(env),
+      rules_type: "raid",
+      namespace: "raid-rules",
       total: 0,
       updated_at: null,
       signups: [],
@@ -562,6 +611,8 @@ async function getAggregatedRulesStats(kv) {
     configured: true,
     guild_id: "all",
     scope: "aggregate",
+    rules_type: "guild",
+    namespace: "rules",
     accepted,
     declined,
     total: accepted + declined,
@@ -576,6 +627,8 @@ async function getRulesStats(env, guildId) {
     const hasBinding = hasRulesStatsBinding(env);
     return {
       configured: false,
+      rules_type: "guild",
+      namespace: "rules",
       accepted: 0,
       declined: 0,
       total: 0,
@@ -602,6 +655,8 @@ async function getRulesStats(env, guildId) {
     configured: true,
     guild_id: cleanGuildId,
     scope: "guild",
+    rules_type: "guild",
+    namespace: "rules",
     accepted,
     declined,
     total: accepted + declined,
@@ -656,6 +711,11 @@ async function handleRulesStats(request, env) {
   const origin = allowedOrigin(request, env) || "*";
   const url = new URL(request.url);
   const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
+  const requestedType = String(url.searchParams.get("type") || url.searchParams.get("rules_type") || "guild").trim().toLowerCase();
+
+  if (requestedType === "raid" || requestedType === "raid-rules") {
+    return handleRaidRulesStats(request, env);
+  }
 
   try {
     return json(await getRulesStats(env, guildId), 200, origin);
@@ -664,6 +724,8 @@ async function handleRulesStats(request, env) {
     return json(
       {
         configured: hasValidRulesStatsBinding(env),
+        rules_type: "guild",
+        namespace: "rules",
         accepted: 0,
         declined: 0,
         total: 0,
@@ -2400,6 +2462,11 @@ export default {
 
       if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
         response = await handleRulesStats(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/discord-raid-rules-stats" && request.method === "GET") {
+        response = await handleRaidRulesStats(request, env);
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 

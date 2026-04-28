@@ -5,8 +5,19 @@ const DASHBOARD_CUSTOM_ID_PREFIX = "mbv1";
 
 
 export type DiscordRulesStats = {
+  rulesType: "guild";
   accepted: number;
   declined: number;
+  total: number;
+  updatedAt: string | null;
+  configured: boolean;
+  source: "kv" | "worker" | "missing-kv-binding" | "invalid-binding" | "unconfigured" | "error";
+  error?: string;
+};
+
+export type DiscordRaidRulesStats = {
+  rulesType: "raid";
+  signed: number;
   total: number;
   updatedAt: string | null;
   configured: boolean;
@@ -33,6 +44,7 @@ export type DiscordRaidRulesSignup = {
 };
 
 export type DiscordRaidRulesSignupsResponse = {
+  rulesType: "raid";
   configured: boolean;
   total: number;
   updatedAt: string | null;
@@ -69,6 +81,10 @@ function rulesStatsEndpoint() {
   return workerApiEndpoint("/api/discord-rules-stats", "DISCORD_RULES_STATS_ENDPOINT");
 }
 
+function raidRulesStatsEndpoint() {
+  return workerApiEndpoint("/api/discord-raid-rules-stats", "DISCORD_RAID_RULES_STATS_ENDPOINT");
+}
+
 function raidRulesSignupsEndpoint() {
   return workerApiEndpoint("/api/discord-raid-rules-signups", "DISCORD_RAID_RULES_SIGNUPS_ENDPOINT");
 }
@@ -81,7 +97,73 @@ function safeNumber(value: unknown) {
 export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
   const endpoint = rulesStatsEndpoint();
   if (!endpoint) {
-    return { accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+    return { rulesType: "guild", accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+  }
+
+  try {
+    const statsUrl = new URL(endpoint);
+    const guildId = getDiscordGuildId();
+    if (guildId && !statsUrl.searchParams.has("guild_id")) {
+      statsUrl.searchParams.set("guild_id", guildId);
+    }
+    if (!statsUrl.searchParams.has("type") && !statsUrl.searchParams.has("rules_type")) {
+      statsUrl.searchParams.set("type", "guild");
+    }
+
+    const response = await fetch(statsUrl.toString(), {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
+
+    const raw = await response.text().catch(() => "");
+    const data = raw ? tryParseJson(raw) : null;
+
+    if (!response.ok || !data || typeof data !== "object") {
+      return {
+        rulesType: "guild",
+        accepted: 0,
+        declined: 0,
+        total: 0,
+        updatedAt: null,
+        configured: false,
+        source: "error",
+        error: typeof data?.error === "string" ? data.error : `Worker stats HTTP ${response.status}`,
+      };
+    }
+
+    const accepted = safeNumber(data.accepted);
+    const declined = safeNumber(data.declined);
+
+    const source = typeof data.source === "string" ? data.source : "worker";
+
+    return {
+      rulesType: "guild",
+      accepted,
+      declined,
+      total: safeNumber(data.total) || accepted + declined,
+      updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
+      configured: Boolean(data.configured ?? true),
+      source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRulesStats["source"] : "worker",
+      error: typeof data.error === "string" ? data.error : typeof data.message === "string" ? data.message : undefined,
+    };
+  } catch (error) {
+    return {
+      rulesType: "guild",
+      accepted: 0,
+      declined: 0,
+      total: 0,
+      updatedAt: null,
+      configured: false,
+      source: "error",
+      error: error instanceof Error ? error.message : "Stats endpoint недоступний",
+    };
+  }
+}
+
+export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStats> {
+  const endpoint = raidRulesStatsEndpoint();
+  if (!endpoint) {
+    return { rulesType: "raid", signed: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
   }
 
   try {
@@ -101,39 +183,37 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
 
     if (!response.ok || !data || typeof data !== "object") {
       return {
-        accepted: 0,
-        declined: 0,
+        rulesType: "raid",
+        signed: 0,
         total: 0,
         updatedAt: null,
         configured: false,
         source: "error",
-        error: typeof data?.error === "string" ? data.error : `Worker stats HTTP ${response.status}`,
+        error: typeof data?.error === "string" ? data.error : "Worker raid stats HTTP " + response.status,
       };
     }
 
-    const accepted = safeNumber(data.accepted);
-    const declined = safeNumber(data.declined);
-
+    const signed = safeNumber(data.signed ?? data.stats?.signed ?? data.total);
     const source = typeof data.source === "string" ? data.source : "worker";
 
     return {
-      accepted,
-      declined,
-      total: safeNumber(data.total) || accepted + declined,
+      rulesType: "raid",
+      signed,
+      total: safeNumber(data.total) || signed,
       updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
       configured: Boolean(data.configured ?? true),
-      source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRulesStats["source"] : "worker",
+      source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRaidRulesStats["source"] : "worker",
       error: typeof data.error === "string" ? data.error : typeof data.message === "string" ? data.message : undefined,
     };
   } catch (error) {
     return {
-      accepted: 0,
-      declined: 0,
+      rulesType: "raid",
+      signed: 0,
       total: 0,
       updatedAt: null,
       configured: false,
       source: "error",
-      error: error instanceof Error ? error.message : "Stats endpoint недоступний",
+      error: error instanceof Error ? error.message : "Raid rules stats endpoint недоступний",
     };
   }
 }
@@ -141,7 +221,7 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
 export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSignupsResponse> {
   const endpoint = raidRulesSignupsEndpoint();
   if (!endpoint) {
-    return { configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
+    return { rulesType: "raid", configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
   }
 
   try {
@@ -161,6 +241,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
 
     if (!response.ok || !data || typeof data !== "object") {
       return {
+        rulesType: "raid",
         configured: false,
         total: 0,
         updatedAt: null,
@@ -182,8 +263,9 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
       : [];
 
     return {
+      rulesType: "raid",
       configured: Boolean(data.configured ?? true),
-      total: safeNumber(data.total) || signups.length,
+      total: safeNumber(data.total) || safeNumber(data.stats?.signed) || signups.length,
       updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
       source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRaidRulesSignupsResponse["source"] : "worker",
       signups,
@@ -191,6 +273,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
     };
   } catch (error) {
     return {
+      rulesType: "raid",
       configured: false,
       total: 0,
       updatedAt: null,

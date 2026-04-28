@@ -3,6 +3,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import {
   fetchDiscordRaidRulesSignups,
+  fetchDiscordRaidRulesStats,
   fetchDiscordRoles,
   fetchDiscordRulesStats,
   fetchDiscordTextChannels,
@@ -10,6 +11,7 @@ import {
   listRulesEmbedMessages,
   type DiscordEditableMessage,
   type DiscordRaidRulesSignupsResponse,
+  type DiscordRaidRulesStats,
   type DiscordRoleOption,
   type DiscordRulesStats,
 } from "@/lib/discordAdmin";
@@ -53,28 +55,56 @@ function formatUpdatedAt(value: string | null) {
 function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: DiscordRulesStats; messagesCount: number; channelName: string }) {
   const updatedLabel = formatUpdatedAt(stats.updatedAt);
   const statsHint = stats.configured
-    ? `Облік активний • останнє оновлення: ${updatedLabel}`
+    ? `Облік звичайних правил активний • останнє оновлення: ${updatedLabel}`
     : (stats.error || "Онови Worker і додай KV binding RULES_STATS.");
 
   return (
-    <section className="discord-rules-stats-grid" aria-label="Статистика правил">
+    <section className="discord-rules-stats-grid" aria-label="Статистика звичайних правил">
       <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
-        <span className="eyebrow">Прийняли</span>
+        <span className="eyebrow">Звичайні правила</span>
         <strong>{stats.configured ? stats.accepted : "—"}</strong>
-        <small>користувачів прийняли правила</small>
+        <small>користувачів прийняли правила Discord</small>
       </article>
       <article className="panel discord-rules-stat-card discord-rules-stat-card--declined">
         <span className="eyebrow">Відмовились</span>
         <strong>{stats.configured ? stats.declined : "—"}</strong>
-        <small>користувачів відмовились</small>
+        <small>відмови саме від звичайних правил</small>
       </article>
       <article className="panel discord-rules-stat-card">
-        <span className="eyebrow">Повідомлення</span>
+        <span className="eyebrow">Embed правил</span>
         <strong>{messagesCount}</strong>
-        <small>embed-повідомлень у #{channelName}</small>
+        <small>звичайних rules embed у #{channelName}</small>
       </article>
       <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
-        <span className="eyebrow">Статистика</span>
+        <span className="eyebrow">Статистика Discord правил</span>
+        <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
+        <small>{statsHint}</small>
+      </article>
+    </section>
+  );
+}
+
+function RaidRulesStatsPanel({ stats, messagesCount, signupsCount, channelName }: { stats: DiscordRaidRulesStats; messagesCount: number; signupsCount: number; channelName: string }) {
+  const updatedLabel = formatUpdatedAt(stats.updatedAt);
+  const statsHint = stats.configured
+    ? `Облік рейдових правил активний • останнє оновлення: ${updatedLabel}`
+    : (stats.error || "Онови Worker і додай endpoint /api/discord-raid-rules-stats з KV RULES_STATS.");
+  const signedCount = stats.configured ? Math.max(stats.signed, signupsCount) : "—";
+
+  return (
+    <section className="discord-rules-stats-grid" aria-label="Статистика правил рейду">
+      <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
+        <span className="eyebrow">Правила рейду</span>
+        <strong>{signedCount}</strong>
+        <small>користувачів підписались на рейдові правила</small>
+      </article>
+      <article className="panel discord-rules-stat-card">
+        <span className="eyebrow">Embed рейду</span>
+        <strong>{messagesCount}</strong>
+        <small>рейдових rules embed у #{channelName}</small>
+      </article>
+      <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
+        <span className="eyebrow">Статистика рейду</span>
         <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
         <small>{statsHint}</small>
       </article>
@@ -212,19 +242,25 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
   let configError = "";
   let rulesChannelName = "rules";
   let messages: DiscordEditableMessage[] = [];
+  let guildRulesMessages: DiscordEditableMessage[] = [];
+  let raidRulesMessages: DiscordEditableMessage[] = [];
   let roles: DiscordRoleOption[] = [];
-  let stats: DiscordRulesStats = { accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
-  let raidSignups: DiscordRaidRulesSignupsResponse = { configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
+  let stats: DiscordRulesStats = { rulesType: "guild", accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+  let raidStats: DiscordRaidRulesStats = { rulesType: "raid", signed: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+  let raidSignups: DiscordRaidRulesSignupsResponse = { rulesType: "raid", configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
 
   if (isAdmin && hasDiscordEmbedConfig()) {
     try {
-      const [channelData, roleData, statsData, raidSignupsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats(), fetchDiscordRaidRulesSignups()]);
+      const [channelData, roleData, statsData, raidStatsData, raidSignupsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats(), fetchDiscordRaidRulesStats(), fetchDiscordRaidRulesSignups()]);
       const rulesChannel = channelData.channels.find((channel) => channel.id === channelData.suggestedRulesChannelId) || channelData.channels[0];
       roles = roleData;
       stats = statsData;
+      raidStats = raidStatsData;
       raidSignups = raidSignupsData;
       rulesChannelName = rulesChannel?.name || "rules";
       messages = rulesChannel?.id ? await listRulesEmbedMessages(rulesChannel.id, 100) : [];
+      guildRulesMessages = messages.filter((message) => message.rulesType === "guild");
+      raidRulesMessages = messages.filter((message) => message.rulesType === "raid");
     } catch (error) {
       configError = error instanceof Error ? error.message : String(error || "Discord API error");
     }
@@ -267,7 +303,8 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
         <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
       ) : (
         <>
-          <RulesStatsPanel stats={stats} messagesCount={messages.length} channelName={rulesChannelName} />
+          <RulesStatsPanel stats={stats} messagesCount={guildRulesMessages.length} channelName={rulesChannelName} />
+          <RaidRulesStatsPanel stats={raidStats} messagesCount={raidRulesMessages.length} signupsCount={raidSignups.total} channelName={rulesChannelName} />
           <RaidRulesSignupsPanel signups={raidSignups} />
 
           <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
