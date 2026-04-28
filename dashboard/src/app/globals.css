@@ -8213,3 +8213,80 @@ form.is-submitting button[type="submit"],
     font-size: 26px;
   }
 }
+
+/* Final mobile fix: Battle.net profile header should stack cleanly instead of squeezing the title. */
+@media (max-width: 760px) {
+  .profile-card--characters .profile-card-head--inline {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    margin-bottom: 12px;
+  }
+
+  .profile-card--characters .profile-card-head--inline > div:first-child {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .profile-card--characters .profile-card-head--inline .eyebrow,
+  .profile-card--characters .profile-card-head--inline h2 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .profile-card--characters .profile-card-head--inline h2 {
+    font-size: clamp(21px, 7vw, 28px);
+    line-height: 1.08;
+  }
+
+  .profile-bnet-region-actions {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: stretch !important;
+  }
+
+  .profile-bnet-cta {
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 13px 14px !important;
+    border-radius: 17px !important;
+  }
+
+  .profile-bnet-cta__eyebrow {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .profile-bnet-cta strong {
+    font-size: 15px !important;
+    line-height: 1.16;
+  }
+
+  .profile-bnet-cta small {
+    font-size: 11px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .profile-card--characters .profile-card-lead {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-card--characters {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .profile-bnet-cta {
+    padding: 12px 13px !important;
+  }
+
+  .profile-bnet-summary span,
+  .profile-bnet-note,
+  .profile-bnet-footnote {
+    border-radius: 14px;
+  }
+}
