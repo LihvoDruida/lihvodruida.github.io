@@ -1,4 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
+import { BATTLE_NET_REGIONS } from "@/lib/battlenet";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -11,11 +12,13 @@ import {
 } from "@/lib/permissions";
 import {
   canViewProfile,
+  getMainCharacter,
   getOwnProfilePath,
   getProfileById,
   profileFromSession,
   upsertProfileFromSession,
   type DashboardProfile,
+  type ProfileCharacter,
 } from "@/lib/profiles";
 import { notFound, redirect } from "next/navigation";
 
@@ -33,6 +36,24 @@ function formatDate(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+function characterStatusMessage(status?: string) {
+  if (!status) return null;
+  const map: Record<string, { tone: "ok" | "warn"; text: string }> = {
+    bnet_connected: { tone: "ok", text: "Battle.net підключено. Нижче показано персонажів Mistblossom Vanguard, яких можна додати до профілю." },
+    bnet_no_guild_characters: { tone: "warn", text: "Battle.net підключено, але персонажів у Mistblossom Vanguard не знайдено." },
+    bnet_failed: { tone: "warn", text: "Не вдалося отримати персонажів з Battle.net. Перевір OAuth env, scope wow.profile і регіон." },
+    bnet_state: { tone: "warn", text: "OAuth-перевірка Battle.net не пройшла. Спробуй підключити акаунт ще раз." },
+    character_added: { tone: "ok", text: "Персонажа додано до профілю." },
+    character_add_failed: { tone: "warn", text: "Персонажа не додано. Він має бути підтверджений через Battle.net і належати до Mistblossom Vanguard." },
+    character_removed: { tone: "ok", text: "Персонажа видалено з профілю." },
+    character_remove_failed: { tone: "warn", text: "Не вдалося видалити персонажа." },
+    main_character_set: { tone: "ok", text: "Основного персонажа оновлено." },
+    main_character_failed: { tone: "warn", text: "Не вдалося встановити основного персонажа." },
+    rate_limit: { tone: "warn", text: "Забагато дій підряд. Зачекай кілька хвилин." },
+  };
+  return map[status] || null;
 }
 
 function CapabilityRow({ title, description, enabled }: { title: string; description: string; enabled: boolean }) {
@@ -61,11 +82,93 @@ function profileAsSession(profile: DashboardProfile) {
   };
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ profileId: string }> }) {
+function CharacterArtwork({ character }: { character: ProfileCharacter }) {
+  const image = character.renderUrl || character.avatarUrl;
+  if (image) {
+    return <img src={image} alt="" loading="lazy" referrerPolicy="no-referrer" />;
+  }
+
+  return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
+}
+
+function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
+  return (
+    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`}>
+      <div className="profile-character-artwork">
+        <CharacterArtwork character={character} />
+        <span className="profile-character-region">{character.region.toUpperCase()}</span>
+      </div>
+      <div className="profile-character-body">
+        <div className="profile-character-title-row">
+          <div>
+            <h3>{character.name}</h3>
+            <p>{character.guildName || "Mistblossom Vanguard"}</p>
+          </div>
+          {character.isMain ? <span className="profile-main-badge">Мейн</span> : null}
+        </div>
+
+        <div className="profile-character-meta">
+          <span>Level {character.level || "—"}</span>
+          {character.className ? <span>{character.className}</span> : null}
+          {character.realmName ? <span>{character.realmName}</span> : null}
+        </div>
+
+        <div className="profile-character-stats">
+          <span><strong>{character.faction || "—"}</strong><small>Фракція</small></span>
+          <span><strong>{character.raceName || "—"}</strong><small>Раса</small></span>
+          <span><strong>{formatDate(character.lastSeenAt)}</strong><small>Оновлено</small></span>
+        </div>
+
+        <div className="profile-character-actions">
+          {character.profileUrl && character.profileUrl !== "#" ? <a className="btn btn-ghost btn-sm" href={character.profileUrl} target="_blank" rel="noreferrer">Armory</a> : null}
+          {canManage && !character.isMain ? (
+            <form action="/api/profile/characters/main" method="post">
+              <input type="hidden" name="characterKey" value={character.key} />
+              <button className="btn btn-ghost btn-sm" type="submit">Зробити мейном</button>
+            </form>
+          ) : null}
+          {canManage ? (
+            <form action="/api/profile/characters/remove" method="post">
+              <input type="hidden" name="characterKey" value={character.key} />
+              <button className="btn btn-danger btn-sm" type="submit">Видалити</button>
+            </form>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CandidateRow({ character }: { character: ProfileCharacter }) {
+  return (
+    <li className="profile-character-candidate">
+      <span className="profile-character-candidate__avatar">
+        {character.avatarUrl ? <img src={character.avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" /> : character.name.charAt(0)}
+      </span>
+      <span className="profile-character-candidate__body">
+        <strong>{character.name}</strong>
+        <small>{character.realmName} • {character.className || "Клас невідомий"} • Level {character.level || "—"}</small>
+      </span>
+      <form action="/api/profile/characters/add" method="post">
+        <input type="hidden" name="characterKey" value={character.key} />
+        <button className="btn btn-primary btn-sm" type="submit">Додати</button>
+      </form>
+    </li>
+  );
+}
+
+export default async function ProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ profileId: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const viewer = await getSession();
   if (!viewer) redirect("/login");
 
   const { profileId } = await params;
+  const query = await searchParams;
   const ownPath = await getOwnProfilePath(viewer);
 
   const isOwnProfile = ownPath.endsWith(`/${profileId}`);
@@ -102,6 +205,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ profil
   const discordRoleLabels = matchingDiscordRoleLabels(profileSession, roles);
   const capabilities = dashboardCapabilities(profile.role);
   const enabledCount = capabilities.filter((item) => item.enabled).length;
+  const mainCharacter = getMainCharacter(profile);
+  const canManageCharacters = isOwnProfile;
+  const addedKeys = new Set(profile.characters.map((item) => item.key));
+  const availableCandidates = (profile.battlenet?.candidateCharacters || []).filter((item) => !addedKeys.has(item.key));
+  const status = characterStatusMessage(query.characterStatus);
 
   return (
     <main className="container">
@@ -112,12 +220,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ profil
             <div className="eyebrow">Mistblossom Vanguard • Personal access</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Унікальна сторінка профілю з Firebase-сховища, роллю доступу та чітким списком дозволених дій.</p>
+            <p className="lead">Унікальна сторінка профілю з Firebase-сховища, роллю доступу, Battle.net персонажами та основним персонажем для екосистеми сайту.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>{siteStatusDescription(profile.role)}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+            {status ? <div className={`profile-status-message profile-status-message--${status.tone}`} role="status">{status.text}</div> : null}
           </div>
         </header>
       </section>
@@ -197,6 +306,63 @@ export default async function ProfilePage({ params }: { params: Promise<{ profil
           </div>
 
           {roleLoadError ? <small className="profile-warning">Назви ролей не підтягнулись із Discord API: {roleLoadError}</small> : null}
+        </article>
+
+        <article className="panel profile-card profile-card--characters">
+          <div className="profile-card-head profile-card-head--inline">
+            <div>
+              <span className="eyebrow">Battle.net</span>
+              <h2>Персонажі гільдії</h2>
+            </div>
+            {canManageCharacters ? (
+              <div className="profile-bnet-region-actions" aria-label="Підключити Battle.net за регіоном">
+                {BATTLE_NET_REGIONS.map((region) => (
+                  <a
+                    key={region}
+                    className={`btn btn-sm ${profile.battlenet?.region === region ? "btn-primary" : "btn-ghost"}`}
+                    href={`/api/auth/battlenet/start?region=${region}`}
+                  >
+                    {profile.battlenet?.linked ? "Оновити" : "Підключити"} {region.toUpperCase()}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <p className="profile-card-lead">Додаються тільки персонажі, які Battle.net підтвердив у гільдії Mistblossom Vanguard. Мейн використовується як основний персонаж для сайту й Discord-бота, інші лише показуються в профілі.</p>
+
+          <div className="profile-bnet-summary">
+            <span><strong>{profile.characters.length}</strong><small>Додано</small></span>
+            <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
+            <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+            <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
+          </div>
+
+          {profile.characters.length ? (
+            <div className="profile-character-list">
+              {profile.characters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} />)}
+            </div>
+          ) : (
+            <div className="profile-empty-characters">
+              <strong>Персонажі ще не додані</strong>
+              <span>{canManageCharacters ? "Підключи Battle.net, обери персонажів гільдії та задай мейна." : "Учасник ще не додав персонажів до профілю."}</span>
+            </div>
+          )}
+
+          {canManageCharacters && availableCandidates.length ? (
+            <div className="profile-candidates-box">
+              <div className="profile-card-head profile-card-head--inline">
+                <div>
+                  <span className="eyebrow">Доступні після перевірки</span>
+                  <h3>Додати персонажа</h3>
+                </div>
+                <span className="profile-count-pill">{availableCandidates.length}</span>
+              </div>
+              <ul className="profile-character-candidates">
+                {availableCandidates.map((character) => <CandidateRow key={character.key} character={character} />)}
+              </ul>
+            </div>
+          ) : null}
         </article>
 
         <article className="panel profile-card profile-card--capabilities">

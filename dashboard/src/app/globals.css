@@ -6353,3 +6353,400 @@ form.is-submitting button[type="submit"],
     max-width: none;
   }
 }
+
+/* Profile Battle.net characters */
+.profile-status-message {
+  width: min(100%, 820px);
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.profile-status-message--ok {
+  border: 1px solid rgba(89, 214, 141, 0.28);
+  color: #dcffd3;
+  background: rgba(89, 214, 141, 0.12);
+}
+
+.profile-status-message--warn {
+  border: 1px solid rgba(247, 200, 115, 0.30);
+  color: #ffe5aa;
+  background: rgba(247, 200, 115, 0.11);
+}
+
+.profile-card--characters {
+  grid-column: 1 / -1;
+  position: relative;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(247, 200, 115, 0.10), transparent 22rem),
+    radial-gradient(circle at 92% 8%, rgba(89, 214, 141, 0.07), transparent 20rem),
+    var(--panel);
+}
+
+.btn-sm {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.btn-danger {
+  border-color: rgba(237, 66, 69, 0.34);
+  color: #ffd9dc;
+  background: rgba(237, 66, 69, 0.12);
+}
+
+.btn-danger:hover {
+  border-color: rgba(237, 66, 69, 0.52);
+  background: rgba(237, 66, 69, 0.18);
+}
+
+.profile-bnet-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.profile-bnet-summary span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.profile-bnet-summary strong {
+  color: var(--text);
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-bnet-summary small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-character-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.profile-character-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: 290px auto;
+  min-height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(214, 168, 79, 0.28);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.68)),
+    rgba(7, 6, 5, 0.78);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+}
+
+.profile-character-card.is-main {
+  border-color: rgba(247, 200, 115, 0.78);
+  box-shadow: 0 0 0 1px rgba(247, 200, 115, 0.18), 0 24px 55px rgba(0, 0, 0, 0.35);
+}
+
+.profile-character-artwork {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(89, 214, 141, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.5));
+}
+
+.profile-character-artwork::after {
+  content: "";
+  position: absolute;
+  inset: auto 20px 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(247, 200, 115, 0.72), transparent);
+}
+
+.profile-character-artwork img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.58));
+}
+
+.profile-character-artwork__fallback {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  color: #1c1305;
+  background: linear-gradient(135deg, #ffe399, #c28a2e);
+  font-size: 46px;
+  font-weight: 1000;
+}
+
+.profile-character-region {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 5px 8px;
+  border: 1px solid rgba(184, 233, 134, 0.22);
+  border-radius: 999px;
+  color: #dcffd3;
+  background: rgba(89, 214, 141, 0.14);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.profile-character-body {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.profile-character-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-character-title-row h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(23px, 2.4vw, 32px);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+
+.profile-character-title-row p {
+  margin: 5px 0 0;
+  color: #c28a2e;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.profile-main-badge {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid rgba(247, 200, 115, 0.44);
+  border-radius: 999px;
+  color: #ffe5aa;
+  background: rgba(247, 200, 115, 0.14);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.profile-character-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-character-meta span {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.profile-character-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.profile-character-stats span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px;
+  border-left: 1px solid rgba(214, 168, 79, 0.22);
+  background: linear-gradient(90deg, rgba(214, 168, 79, 0.055), transparent);
+}
+
+.profile-character-stats strong {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-character-stats small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-character-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-character-actions form {
+  display: contents;
+}
+
+.profile-empty-characters {
+  display: grid;
+  gap: 5px;
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px dashed rgba(247, 200, 115, 0.28);
+  border-radius: 18px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.03);
+}
+
+.profile-empty-characters strong {
+  color: var(--text);
+}
+
+.profile-candidates-box {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.profile-card-head h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.profile-character-candidates {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-character-candidate {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.profile-character-candidate__avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 1px solid rgba(247, 200, 115, 0.24);
+  border-radius: 14px;
+  color: #1c1305;
+  background: linear-gradient(135deg, #ffe399, #c28a2e);
+  font-weight: 1000;
+}
+
+.profile-character-candidate__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-character-candidate__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profile-character-candidate__body strong,
+.profile-character-candidate__body small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-character-candidate__body small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .profile-bnet-summary,
+  .profile-character-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-character-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-bnet-summary,
+  .profile-character-stats,
+  .profile-character-candidate {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-character-card {
+    grid-template-rows: 230px auto;
+    border-radius: 18px;
+  }
+
+  .profile-character-candidate form,
+  .profile-character-candidate .btn {
+    width: 100%;
+  }
+}
+
+.profile-bnet-region-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: min(100%, 560px);
+}
+
+.profile-bnet-region-actions .btn {
+  min-width: 96px;
+}
+
+@media (max-width: 720px) {
+  .profile-bnet-region-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .profile-bnet-region-actions .btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+  }
+}
