@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-28 10:16:06'
+  updated_at: '2026-04-28 14:10:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-28T09:41:48.000Z'
+  raider_io_last_crawled_at: '2026-04-28T13:05:57.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -1671,9 +1671,18 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 67
+        learned_points: 73
         max_points: 100
     secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -1775,7 +1784,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 30
+        learned_points: 36
         max_points: 100
     - name: Fishing
       id: 356
@@ -3272,7 +3281,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
   professions:
     primaries:
     - name: Skinning
@@ -4865,7 +4874,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 142
+        learned_points: 160
         max_points: 300
 - name: Кеенди
   region: eu
@@ -4906,7 +4915,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
   professions:
     primaries:
     - name: Herbalism
