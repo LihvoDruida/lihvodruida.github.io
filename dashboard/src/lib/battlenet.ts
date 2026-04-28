@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { getDashboardUrl } from "@/lib/oauth";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
 
@@ -259,16 +260,8 @@ function pickLocalizedName(value: any): string | null {
   return null;
 }
 
-function slugifyCharacterName(value: unknown) {
-  return cleanText(value, 80).toLowerCase().replace(/\s+/g, "-");
-}
-
-function normalizeName(value: unknown) {
-  return cleanText(value, 120).toLocaleLowerCase("en-US");
-}
-
 function normalizeGuildName(value: unknown) {
-  return cleanText(value, 120).toLocaleLowerCase("en-US");
+  return cleanText(value, 120).normalize("NFC").toLocaleLowerCase();
 }
 
 function isMistblossomGuild(characterProfile: any) {
@@ -280,8 +273,9 @@ function isMistblossomGuild(characterProfile: any) {
   if (!guildName || guildName !== targetName) return false;
 
   if (!configuredRealm) return true;
-  const guildRealmSlug = cleanText(guild?.realm?.slug || guild?.realm?.name || "", 120).toLowerCase();
-  return guildRealmSlug === configuredRealm || guildRealmSlug.replace(/\s+/g, "-") === configuredRealm.replace(/\s+/g, "-");
+  const guildRealmSlug = normalizeBattleNetRealmSlug(guild?.realm?.slug || guild?.realm?.name || "");
+  const targetRealm = normalizeBattleNetRealmSlug(configuredRealm);
+  return guildRealmSlug === targetRealm;
 }
 
 function mediaAssetUrl(media: any, preferredKeys: string[]) {
@@ -295,7 +289,7 @@ function mediaAssetUrl(media: any, preferredKeys: string[]) {
 }
 
 function characterProfileUrl(region: string, realmSlug: string, name: string) {
-  return `https://worldofwarcraft.blizzard.com/${region}/character/${region}/${encodeURIComponent(realmSlug)}/${encodeURIComponent(name.toLowerCase())}`;
+  return `https://worldofwarcraft.blizzard.com/${region}/character/${region}/${encodeURIComponent(realmSlug)}/${encodeURIComponent(normalizeBattleNetNameSlug(name))}`;
 }
 
 function flattenUserCharacters(profile: any) {
@@ -315,7 +309,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   const allCharacters = flattenUserCharacters(profile)
     .map((character) => {
       const name = cleanText(character?.name, 80);
-      const realmSlug = cleanText(character?.realm?.slug || character?.realm?.id || "", 120).toLowerCase();
+      const realmSlug = normalizeBattleNetRealmSlug(character?.realm?.slug || character?.realm?.id || "");
       if (!name || !realmSlug) return null;
       return { ...character, name, realmSlug };
     })
@@ -326,7 +320,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
 
   const { results: candidates, meta } = await mapConcurrent(limitedCharacters, async (character) => {
-    const nameSlug = slugifyCharacterName(character.name);
+    const nameSlug = normalizeBattleNetNameSlug(character.name);
     const realmSlug = character.realmSlug;
 
     try {
@@ -341,11 +335,13 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
       const renderUrl = mediaAssetUrl(media, ["main-raw", "main"]);
       const guildName = cleanText(details?.guild?.name || "", 120) || null;
       const guildRealmSlug = cleanText(details?.guild?.realm?.slug || details?.guild?.realm?.name || "", 120).toLowerCase() || null;
-      const normalizedName = slugifyCharacterName(details?.name || character.name);
-      const cleanRealmSlug = cleanText(details?.realm?.slug || realmSlug, 120).toLowerCase();
+      const normalizedName = normalizeBattleNetNameSlug(details?.name || character.name);
+      const cleanRealmSlug = normalizeBattleNetRealmSlug(details?.realm?.slug || realmSlug);
+      const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
+      if (!characterKey) return null;
 
       return {
-        key: `${region}:${cleanRealmSlug}:${normalizedName}`,
+        key: characterKey,
         source: "battlenet" as const,
         region,
         name: cleanText(details?.name || character.name, 80),

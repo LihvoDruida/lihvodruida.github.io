@@ -3,6 +3,7 @@ import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { BattleNetAccountInfo, BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
+import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -60,8 +61,7 @@ function cleanString(value: unknown, maxLength = 240) {
 }
 
 function cleanCharacterKey(value: unknown) {
-  const key = cleanString(value, 220).toLowerCase();
-  return /^[a-z]{2}:[-a-z0-9]+:[-a-z0-9]+$/.test(key) ? key : "";
+  return normalizeCharacterKey(value);
 }
 
 function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
@@ -69,8 +69,8 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   const item = value as Record<string, unknown>;
   const key = cleanCharacterKey(item.key);
   const name = cleanString(item.name, 80);
-  const realmSlug = cleanString(item.realmSlug, 120).toLowerCase();
-  const normalizedName = cleanString(item.normalizedName, 120).toLowerCase() || name.toLowerCase();
+  const realmSlug = normalizeBattleNetRealmSlug(item.realmSlug);
+  const normalizedName = normalizeBattleNetNameSlug(item.normalizedName || name);
   if (!key || !name || !realmSlug) return null;
 
   return {

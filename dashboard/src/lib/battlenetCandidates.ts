@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import type { NextResponse } from "next/server";
 import type { BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
+import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 
 export const BNET_CANDIDATES_COOKIE = "__Host-mistblossom_bnet_candidates";
 const MAX_COOKIE_AGE_SECONDS = 10 * 60;
@@ -73,13 +74,15 @@ function verifySignature(payload: string, signature: string) {
   }
 }
 
-function compactCandidate(character: BattleNetCharacterCandidate): BattleNetCharacterCandidate {
+function compactCandidate(character: BattleNetCharacterCandidate): BattleNetCharacterCandidate | null {
+  const key = normalizeCharacterKey(character.key) || buildBattleNetCharacterKey(character.region, character.realmSlug, character.normalizedName || character.name);
+  if (!key) return null;
   return {
-    key: character.key,
+    key,
     source: "battlenet" as const,
     region: character.region,
     name: character.name,
-    normalizedName: character.normalizedName,
+    normalizedName: normalizeBattleNetNameSlug(character.normalizedName || character.name),
     realmSlug: character.realmSlug,
     realmName: character.realmName,
     level: character.level,
@@ -146,14 +149,15 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     lastSeenAt,
   ] = tuple;
 
-  if (!key || !name || !realmSlug) return null;
+  const safeKey = normalizeCharacterKey(key) || buildBattleNetCharacterKey(region, realmSlug, normalizedName || name);
+  if (!safeKey || !name || !realmSlug) return null;
 
   return {
-    key,
+    key: safeKey,
     source: "battlenet",
     region: String(region || "eu").toLowerCase() as BattleNetRegion,
     name,
-    normalizedName: normalizedName || name.toLowerCase(),
+    normalizedName: normalizeBattleNetNameSlug(normalizedName || name),
     realmSlug,
     realmName: realmName || realmSlug,
     level: Number.isFinite(Number(level)) ? Number(level) : null,
@@ -205,7 +209,8 @@ export function createBattleNetCandidatesCookieValue(input: {
   const expiresAt = Date.now() + MAX_COOKIE_AGE_SECONDS * 1000;
   const unique = new Map<string, BattleNetCharacterCandidate>();
   for (const character of input.characters || []) {
-    if (character?.key && character.verifiedGuild) unique.set(character.key, compactCandidate(character));
+    const compact = character?.verifiedGuild ? compactCandidate(character) : null;
+    if (compact?.key) unique.set(compact.key, compact);
   }
 
   let characters = Array.from(unique.values());
@@ -248,7 +253,9 @@ export function parseBattleNetCandidatesCookieValue(value: string | undefined | 
     }
 
     if (parsed.v !== 1 || parsed.profileId !== profileId || Date.now() > Number(parsed.expiresAt || 0)) return null;
-    const characters = Array.isArray(parsed.characters) ? parsed.characters.filter((item) => item?.key && item.verifiedGuild).slice(0, 50) : [];
+    const characters = Array.isArray(parsed.characters)
+      ? parsed.characters.map((item) => compactCandidate(item)).filter(Boolean).slice(0, 50) as BattleNetCharacterCandidate[]
+      : [];
     return { ...parsed, characters };
   } catch {
     return null;
@@ -280,7 +287,8 @@ export function clearBattleNetCandidatesCookie(response: NextResponse) {
 
 export function findCandidateByKey(cookieValue: string | undefined | null, profileId: string, characterKey: string) {
   const session = parseBattleNetCandidatesCookieValue(cookieValue, profileId);
-  return session?.characters.find((item) => item.key === characterKey) || null;
+  const cleanKey = normalizeCharacterKey(characterKey);
+  return session?.characters.find((item) => normalizeCharacterKey(item.key) === cleanKey) || null;
 }
 
 export function removeCandidatesFromCookie(response: NextResponse, cookieValue: string | undefined | null, profileId: string, characterKeys: string[]) {
@@ -290,10 +298,10 @@ export function removeCandidatesFromCookie(response: NextResponse, cookieValue: 
     return;
   }
 
-  const removeKeys = new Set((characterKeys || []).map((key) => String(key || "").trim()).filter(Boolean));
+  const removeKeys = new Set((characterKeys || []).map((key) => normalizeCharacterKey(key)).filter(Boolean));
   if (!removeKeys.size) return;
 
-  const remaining = session.characters.filter((item) => !removeKeys.has(item.key));
+  const remaining = session.characters.filter((item) => !removeKeys.has(normalizeCharacterKey(item.key)));
   if (!remaining.length) {
     clearBattleNetCandidatesCookie(response);
     return;
@@ -309,7 +317,8 @@ export function removeCandidateFromCookie(response: NextResponse, cookieValue: s
     return;
   }
 
-  const remaining = session.characters.filter((item) => item.key !== characterKey);
+  const cleanKey = normalizeCharacterKey(characterKey);
+  const remaining = session.characters.filter((item) => normalizeCharacterKey(item.key) !== cleanKey);
   if (!remaining.length) {
     clearBattleNetCandidatesCookie(response);
     return;

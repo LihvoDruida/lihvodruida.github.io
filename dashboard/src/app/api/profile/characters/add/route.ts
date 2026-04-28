@@ -5,6 +5,7 @@ import { BNET_CANDIDATES_COOKIE, findCandidateByKey, removeCandidateFromCookie }
 import { addProfileCharacter } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { normalizeCharacterKey } from "@/lib/wowCharacters";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
   const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
-  const characterKey = String(form.get("characterKey") || "").trim().toLowerCase();
+  const characterKey = normalizeCharacterKey(form.get("characterKey"));
   if (!characterKey) {
     logDashboardEvent("warn", "profile.character.add_invalid_request", request, { profileId: session.profileId });
     return redirectToProfile(request, session.profileId, "character_add_invalid");

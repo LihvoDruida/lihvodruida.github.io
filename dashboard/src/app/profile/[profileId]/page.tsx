@@ -2,6 +2,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
+import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -275,10 +276,10 @@ export default async function ProfilePage({
   const mainCharacter = getMainCharacter(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
-  const addedKeys = new Set(profile.characters.map((item) => item.key));
+  const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
-  const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(item.key));
+  const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(normalizeCharacterKey(item.key)));
   const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);

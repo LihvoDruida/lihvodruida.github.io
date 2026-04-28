@@ -5,6 +5,7 @@ import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCand
 import { addProfileCharacters } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { normalizeCharacterKey } from "@/lib/wowCharacters";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
   const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
@@ -13,7 +14,7 @@ function redirectToProfile(request: NextRequest, profileId: string, status: stri
 }
 
 function cleanKeys(values: FormDataEntryValue[]) {
-  return Array.from(new Set(values.map((value) => String(value || "").trim().toLowerCase()).filter(Boolean))).slice(0, 50);
+  return Array.from(new Set(values.map((value) => normalizeCharacterKey(value)).filter(Boolean))).slice(0, 50);
 }
 
 function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>) {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
   const selectedSet = new Set(selectedKeys);
   const candidates = mode === "all"
     ? candidateSession.characters
-    : candidateSession.characters.filter((candidate) => selectedSet.has(candidate.key));
+    : candidateSession.characters.filter((candidate) => selectedSet.has(normalizeCharacterKey(candidate.key)));
 
   if (!candidates.length) {
     logDashboardEvent("warn", "profile.character.bulk_empty", request, { profileId: session.profileId, mode, selected: selectedKeys.length });
