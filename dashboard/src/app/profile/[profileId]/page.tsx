@@ -1,5 +1,6 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
+import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -21,6 +22,7 @@ import {
   type ProfileCharacter,
 } from "@/lib/profiles";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -48,12 +50,13 @@ function formatCompactDate(value?: string | null) {
 function characterStatusMessage(status?: string) {
   if (!status) return null;
   const map: Record<string, { tone: "ok" | "warn"; text: string }> = {
-    bnet_connected: { tone: "ok", text: "Battle.net оновлено. Доступні персонажі Mistblossom Vanguard підтягнуті нижче, вже додані персонажі залишаються в профілі." },
+    bnet_connected: { tone: "ok", text: "Battle.net оновлено. Нижче показані лише тимчасово підтверджені персонажі для додавання; вони не зберігаються у Firebase, доки ти не натиснеш «Додати»." },
     bnet_no_guild_characters: { tone: "warn", text: "Battle.net підключено, але персонажів у Mistblossom Vanguard не знайдено." },
     bnet_failed: { tone: "warn", text: "Не вдалося отримати персонажів з Battle.net. Перевір OAuth env, scope wow.profile і регіон." },
     bnet_state: { tone: "warn", text: "OAuth-перевірка Battle.net не пройшла. Спробуй підключити акаунт ще раз." },
     character_added: { tone: "ok", text: "Персонажа додано до профілю." },
     character_add_failed: { tone: "warn", text: "Персонажа не додано. Він має бути підтверджений через Battle.net і належати до Mistblossom Vanguard." },
+    character_reauth_required: { tone: "warn", text: "Потрібна повторна авторизація Battle.net. Тимчасова перевірка персонажів уже недійсна або була очищена." },
     character_removed: { tone: "ok", text: "Персонажа видалено з профілю." },
     character_remove_failed: { tone: "warn", text: "Не вдалося видалити персонажа." },
     main_character_set: { tone: "ok", text: "Основного персонажа оновлено." },
@@ -215,7 +218,10 @@ export default async function ProfilePage({
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
   const addedKeys = new Set(profile.characters.map((item) => item.key));
-  const availableCandidates = (profile.battlenet?.candidateCharacters || []).filter((item) => !addedKeys.has(item.key));
+  const candidateCookie = isOwnProfile ? (await cookies()).get(BNET_CANDIDATES_COOKIE)?.value : undefined;
+  const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
+  const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(item.key));
+  const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
   const status = characterStatusMessage(query.characterStatus);
 
   return (
@@ -336,11 +342,11 @@ export default async function ProfilePage({
             ) : null}
           </div>
 
-          <p className="profile-card-lead">Додаються тільки персонажі, які Battle.net підтвердив у гільдії Mistblossom Vanguard. Додані персонажі зберігаються у Firebase; щоб пізніше підтягнути нових персонажів, натисни «Оновити EU» і пройди коротку повторну авторизацію Battle.net.</p>
+          <p className="profile-card-lead">У Firebase зберігаються тільки додані персонажі та позначка мейна. Список для додавання зʼявляється лише після свіжої Battle.net авторизації й автоматично очищається; щоб додати ще персонажів, натисни «Оновити EU» і підтвердь акаунт знову.</p>
 
           <div className="profile-bnet-summary">
             <span><strong>{profile.characters.length}</strong><small>Додано</small></span>
-            <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
+            <span><strong>{hasFreshBattleNetSession ? availableCandidates.length : "—"}</strong><small>Після re-auth</small></span>
             <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
             <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
           </div>
@@ -352,16 +358,17 @@ export default async function ProfilePage({
           ) : (
             <div className="profile-empty-characters">
               <strong>Персонажі ще не додані</strong>
-              <span>{canManageCharacters ? "Підключи Battle.net, обери персонажів гільдії та задай мейна." : "Учасник ще не додав персонажів до профілю."}</span>
+              <span>{canManageCharacters ? "Натисни «Оновити EU», пройди Battle.net авторизацію і додай потрібних персонажів." : "Учасник ще не додав персонажів до профілю."}</span>
             </div>
           )}
 
-          {canManageCharacters && availableCandidates.length ? (
+          {canManageCharacters && hasFreshBattleNetSession ? (
             <div className="profile-candidates-box">
               <div className="profile-card-head profile-card-head--inline">
                 <div>
-                  <span className="eyebrow">Доступні після перевірки</span>
+                  <span className="eyebrow">Свіжа Battle.net перевірка</span>
                   <h3>Додати персонажа</h3>
+                  <small className="profile-card-note">Цей список тимчасовий. Після додавання або завершення сесії він не зберігається у Firebase.</small>
                 </div>
                 <span className="profile-count-pill">{availableCandidates.length}</span>
               </div>

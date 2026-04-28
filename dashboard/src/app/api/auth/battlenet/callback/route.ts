@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { getDashboardUrl } from "@/lib/oauth";
 import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, normalizeBattleNetRegion } from "@/lib/battlenet";
-import { saveBattleNetCandidates, upsertProfileFromSession } from "@/lib/profiles";
+import { clearBattleNetCandidatesCookie, setBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
+import { saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const region = getRegionFromOAuthState(state);
     const token = await exchangeBattleNetCode(code, region);
     const scan = await fetchBattleNetGuildCharacters(token.access_token, region);
-    await saveBattleNetCandidates(session.profileId, scan);
+    await saveBattleNetSyncState(session.profileId, scan);
 
     logDashboardEvent("info", "auth.battlenet.callback.success", request, {
       profileId: session.profileId,
@@ -59,7 +60,13 @@ export async function GET(request: NextRequest) {
       durationMs: scan.durationMs,
     });
 
-    return redirectToProfile(session.profileId, scan.eligibleCharacters ? "bnet_connected" : "bnet_no_guild_characters");
+    const response = redirectToProfile(session.profileId, scan.eligibleCharacters ? "bnet_connected" : "bnet_no_guild_characters");
+    if (scan.characters.length) {
+      setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
+    } else {
+      clearBattleNetCandidatesCookie(response);
+    }
+    return response;
   } catch (error) {
     logDashboardEvent("error", "auth.battlenet.callback.failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });
     return redirectToProfile(session.profileId, "bnet_failed");

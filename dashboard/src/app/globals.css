@@ -6899,3 +6899,31 @@ form.is-submitting button[type="submit"],
     grid-template-columns: 1fr;
   }
 }
+
+/* Profile Battle.net re-auth candidates: ephemeral, compact and not persistent UI */
+.profile-card-note {
+  display: block;
+  margin-top: 4px;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.profile-candidates-box {
+  animation: profileCandidatesIn 180ms ease-out both;
+}
+
+@keyframes profileCandidatesIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

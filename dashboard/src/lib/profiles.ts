@@ -113,7 +113,6 @@ function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
 function normalizeProfile(profileId: string, data: Record<string, unknown>): DashboardProfile {
   const mainCharacterKey = cleanCharacterKey(data.mainCharacterKey) || null;
   const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
-  const candidateCharacters = normalizeCharacters(battlenetRaw?.candidateCharacters, mainCharacterKey);
 
   return {
     profileId,
@@ -136,7 +135,7 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters)) ? Number(battlenetRaw.totalCharacters) : undefined,
       scannedCharacters: Number.isFinite(Number(battlenetRaw.scannedCharacters)) ? Number(battlenetRaw.scannedCharacters) : undefined,
       eligibleCharacters: Number.isFinite(Number(battlenetRaw.eligibleCharacters)) ? Number(battlenetRaw.eligibleCharacters) : undefined,
-      candidateCharacters,
+      candidateCharacters: [],
     } : null,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
@@ -234,18 +233,14 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
   };
 }
 
-export async function saveBattleNetCandidates(profileId: string, scan: {
+export async function saveBattleNetSyncState(profileId: string, scan: {
   region: BattleNetRegion | string;
   totalCharacters: number;
   scannedCharacters: number;
   eligibleCharacters: number;
-  characters: BattleNetCharacterCandidate[];
 }) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
-
-  const now = new Date().toISOString();
-  const safeCandidates = normalizeCharacters(scan.characters.map((character) => ({ ...character, lastSeenAt: now }))).slice(0, 50);
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   await ref.set({
@@ -257,30 +252,28 @@ export async function saveBattleNetCandidates(profileId: string, scan: {
       totalCharacters: scan.totalCharacters,
       scannedCharacters: scan.scannedCharacters,
       eligibleCharacters: scan.eligibleCharacters,
-      candidateCharacters: safeCandidates,
     },
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
 
-  return safeCandidates;
+  await ref.update({ "battlenet.candidateCharacters": FieldValue.delete() }).catch(() => null);
 }
 
-export async function addProfileCharacter(profileId: string, characterKey: string) {
-  const cleanKey = cleanCharacterKey(characterKey);
-  if (!cleanKey) throw new Error("Некоректний персонаж.");
+export async function addProfileCharacter(profileId: string, candidateInput: BattleNetCharacterCandidate) {
+  const candidate = normalizeCharacter(candidateInput, null);
+  const cleanKey = cleanCharacterKey(candidate?.key);
+  if (!candidate || !cleanKey || !candidate.verifiedGuild) {
+    throw new Error("Цей персонаж не підтверджений через Battle.net або не належить до Mistblossom Vanguard.");
+  }
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
-    const data = snapshot.data() || {};
-    const profile = normalizeProfile(profileId, data);
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
     const current = profile.characters;
     if (current.some((item) => item.key === cleanKey)) return;
-
-    const candidate = (profile.battlenet?.candidateCharacters || []).find((item) => item.key === cleanKey);
-    if (!candidate) throw new Error("Цей персонаж не підтверджений через Battle.net або не належить до Mistblossom Vanguard.");
 
     const now = new Date().toISOString();
     const nextCharacter: ProfileCharacter = { ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now };
