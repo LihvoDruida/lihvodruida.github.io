@@ -216,9 +216,46 @@ export async function getProfileById(profileId: string) {
 }
 
 export async function getProfileByDiscordUserId(discordUserId: string) {
-  if (!/^\d{16,25}$/.test(String(discordUserId || ""))) return null;
-  const profileId = await createStableProfileId("discord", String(discordUserId));
-  return getProfileById(profileId);
+  const cleanDiscordId = String(discordUserId || "").trim();
+  if (!/^\d{16,25}$/.test(cleanDiscordId)) return null;
+  if (!hasFirebaseProfileConfig()) return null;
+
+  // Fast path: current stable document id. This is what new Discord logins use.
+  const stableProfileId = await createStableProfileId("discord", cleanDiscordId);
+  const stableProfile = await getProfileById(stableProfileId);
+  if (stableProfile) return stableProfile;
+
+  // Compatibility path for existing Firebase profiles. If PROFILE_ID_SECRET or
+  // SESSION_SECRET was rotated after a profile was created, the deterministic
+  // document id changes. Querying Firestore by providerUserId keeps already
+  // stored dashboardProfiles documents usable for Worker lookups.
+  const db = getFirebaseAdminDb();
+  const byProviderUserId = await db.collection("dashboardProfiles")
+    .where("providerUserId", "==", cleanDiscordId)
+    .limit(5)
+    .get();
+
+  for (const doc of byProviderUserId.docs) {
+    const profile = normalizeProfile(doc.id, doc.data() || {});
+    if (profile.provider === "discord" || profile.providerUserId === cleanDiscordId) {
+      return profile;
+    }
+  }
+
+  // Older experiments may have stored the Discord id under a direct field.
+  // Keep these fallbacks cheap and limited.
+  for (const field of ["discordId", "discordUserId"]) {
+    const snapshot = await db.collection("dashboardProfiles")
+      .where(field, "==", cleanDiscordId)
+      .limit(1)
+      .get()
+      .catch(() => null);
+
+    const doc = snapshot?.docs?.[0];
+    if (doc) return normalizeProfile(doc.id, doc.data() || {});
+  }
+
+  return null;
 }
 
 export function profileFromSession(session: DashboardSession): DashboardProfile {

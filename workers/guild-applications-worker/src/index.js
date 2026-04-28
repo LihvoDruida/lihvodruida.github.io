@@ -404,14 +404,41 @@ async function lookupDashboardProfileByDiscord(env, discordId) {
     let data = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
-    if (response.status === 404) return { ok: false, reason: "profile-not-found", status: response.status };
+    if (response.status === 404) return { ok: false, reason: data?.reason || "profile-not-found", status: response.status, message: data?.error || raw };
     if (!response.ok || !data?.found) {
-      return { ok: false, reason: response.status === 403 ? "profile-lookup-forbidden" : "profile-lookup-failed", status: response.status, message: data?.error || raw };
+      let reason = data?.reason || "profile-lookup-failed";
+      if (response.status === 401 || response.status === 403) reason = "profile-lookup-forbidden";
+      if (!data && /cloudflare|access|forbidden/i.test(raw || "")) reason = "profile-lookup-blocked";
+      return { ok: false, reason, status: response.status, message: data?.error || raw };
     }
 
     return { ok: true, profile: data, mainCharacter: pickMainCharacter(data.mainCharacter) };
   } catch (error) {
     return { ok: false, reason: "profile-lookup-exception", message: error?.message };
+  }
+}
+
+function raidRulesSignupProfileErrorMessage(env, profileResult) {
+  const dashboardUrl = dashboardAuthUrl(env);
+  if (profileResult?.ok && !hasUsableMainCharacter(profileResult.mainCharacter)) {
+    return "❌ Підпис не зараховано: профіль знайдено, але main-персонаж не вибраний. Відкрий профіль у панелі, натисни ‘Зробити мейном’ біля персонажа і повтори підпис: " + dashboardUrl;
+  }
+
+  switch (profileResult?.reason) {
+    case "missing-profile-lookup-token":
+      return "❌ Підпис не зараховано: Worker не має INTERNAL_PROFILE_LOOKUP_TOKEN. Додай той самий токен у Worker і dashboard.";
+    case "profile-lookup-forbidden":
+      return "❌ Підпис не зараховано: Worker не має доступу до profile lookup endpoint. Перевір INTERNAL_PROFILE_LOOKUP_TOKEN у Worker/dashboard або bypass для /api/profile/discord-lookup у Cloudflare Access. Панель: " + dashboardUrl;
+    case "profile-lookup-blocked":
+      return "❌ Підпис не зараховано: Cloudflare Access або інший захист блокує внутрішній endpoint /api/profile/discord-lookup. Додай bypass/service access для цього endpoint. Панель: " + dashboardUrl;
+    case "firebase-not-configured":
+      return "❌ Підпис не зараховано: у dashboard не налаштований Firebase Admin SDK для профілів.";
+    case "invalid-discord-id":
+      return "❌ Підпис не зараховано: Discord не передав коректний user id.";
+    case "profile-not-found":
+      return "❌ Підпис не зараховано: у Firebase не знайдено профіль для твого Discord. Авторизуйся через Discord у панелі й вибери main: " + dashboardUrl;
+    default:
+      return "❌ Підпис не зараховано: не вдалося перевірити Firebase-профіль або main-персонажа. Авторизуйся в панелі та вибери main: " + dashboardUrl;
   }
 }
 
@@ -1794,10 +1821,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     const profileResult = await lookupDashboardProfileByDiscord(env, userId);
     if (!profileResult.ok || !hasUsableMainCharacter(profileResult.mainCharacter)) {
       logWorkerEvent("warn", "raid_rules.signup.profile_missing", { guildId, userId, reason: profileResult.reason, status: profileResult.status });
-      return finishRulesDecision(
-        interaction,
-        `❌ Підпис не зараховано: не знайдено авторизований профіль або main-персонажа. Авторизуйся в панелі та вибери main: ${dashboardAuthUrl(env)}`
-      );
+      return finishRulesDecision(interaction, raidRulesSignupProfileErrorMessage(env, profileResult));
     }
 
     const stored = await recordRaidRulesSignup(env, guildId, userId, userLabel, {
