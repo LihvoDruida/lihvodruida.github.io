@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-28 14:10:48'
+  updated_at: '2026-04-28 17:48:32'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13458
+      world: 13460
       region: 5997
       realm: 55
     heroic:
-      world: 16351
-      region: 6847
+      world: 16363
+      region: 6857
       realm: 59
     mythic:
-      world: 6589
-      region: 2859
+      world: 6595
+      region: 2863
       realm: 23
   blackrock-depths:
     normal:
@@ -3130,7 +3130,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2854.8
@@ -3148,8 +3148,8 @@ members:
         score: 2854.8
         color: '#1f74d8'
       spec_1:
-        score: 325.2
-        color: '#f6fff2'
+        score: 647.7
+        color: '#dfffd2'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3445,8 +3445,8 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2779.6
-        color: '#377dcf'
+        score: 2810.7
+        color: '#2d79d4'
       dps:
         score: 0
         color: '#ffffff'
@@ -3454,8 +3454,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2779.6
-        color: '#377dcf'
+        score: 2810.7
+        color: '#2d79d4'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -3463,8 +3463,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2779.6
-        color: '#377dcf'
+        score: 2810.7
+        color: '#2d79d4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3910,7 +3910,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3198.6
@@ -4002,47 +4002,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: Monk
+      name: null
     playable_race:
       id: 3
-      name: Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Mistweaver
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 276
-    mythic_plus_scores:
-      all:
-        score: 3020.1
-        color: '#7658e6'
-      dps:
-        score: 295.9
-        color: '#fafff7'
-      healer:
-        score: 3020.1
-        color: '#7658e6'
-      tank:
-        score: 2204.4
-        color: '#46ec47'
-      spec_0:
-        score: 2204.4
-        color: '#46ec47'
-      spec_1:
-        score: 3020.1
-        color: '#7658e6'
-      spec_2:
-        score: 295.9
-        color: '#fafff7'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -5418,11 +5394,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Галазард
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2879.2
-        color: '#0070dd'
+        score: 2922.4
+        color: '#4369e0'
       dps:
         score: 339.6
         color: '#f6fff2'
@@ -5430,11 +5406,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2861.1
-        color: '#1f74d8'
+        score: 2904.3
+        color: '#2e6ddf'
       spec_0:
-        score: 2861.1
-        color: '#1f74d8'
+        score: 2904.3
+        color: '#2e6ddf'
       spec_1:
         score: 0
         color: '#ffffff'
