@@ -39,6 +39,21 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     title: "Персонажа додано",
     message: "Він збережений у Firebase і прив’язаний до твого профілю.",
   },
+  characters_added: {
+    tone: "success",
+    title: "Персонажів додано",
+    message: "Вибрані персонажі збережені одним batch-запитом. Тимчасовий список очищено від доданих записів.",
+  },
+  characters_bulk_empty: {
+    tone: "warning",
+    title: "Немає вибраних персонажів",
+    message: "Познач персонажів у списку або натисни “Додати всі”.",
+  },
+  characters_bulk_noop: {
+    tone: "warning",
+    title: "Нічого не додано",
+    message: "Вибрані персонажі вже є в профілі або досягнуто ліміт збережених персонажів.",
+  },
   character_add_failed: {
     tone: "error",
     title: "Персонажа не додано",
@@ -86,7 +101,7 @@ const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   access_denied: { tone: "error", title: "Доступ заборонено", message: "У цього акаунта немає потрібної ролі." },
 };
 
-const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error"];
+const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error", "published", "updated", "deleted", "created", "saved", "warning"];
 
 function toneIcon(tone: ToastTone) {
   if (tone === "success") return "✓";
@@ -121,6 +136,45 @@ function toastFromSearchParams(params: URLSearchParams): Toast[] {
   const rawSuccess = cleanMessage(params.get("success"));
   if (rawSuccess) {
     result.push({ id: createId("success"), tone: "success", title: "Готово", message: rawSuccess });
+  }
+
+  const rawPublished = cleanMessage(params.get("published"));
+  if (rawPublished) {
+    const isDiscord = /^https?:\/\/discord(?:app)?\.com\//i.test(rawPublished) || rawPublished.includes("discord.com/channels/");
+    result.push({
+      id: createId("published"),
+      tone: "success",
+      title: isDiscord ? "Discord повідомлення опубліковано" : "Матеріал опубліковано",
+      message: rawPublished,
+      ttl: 6800,
+    });
+  }
+
+  const rawUpdated = cleanMessage(params.get("updated") || params.get("saved"));
+  if (rawUpdated) {
+    const isDiscord = /^https?:\/\/discord(?:app)?\.com\//i.test(rawUpdated) || rawUpdated.includes("discord.com/channels/");
+    result.push({
+      id: createId("updated"),
+      tone: "success",
+      title: isDiscord ? "Discord повідомлення оновлено" : "Зміни збережено",
+      message: rawUpdated,
+      ttl: 6800,
+    });
+  }
+
+  const rawDeleted = cleanMessage(params.get("deleted"));
+  if (rawDeleted) {
+    result.push({ id: createId("deleted"), tone: "success", title: "Видалено", message: rawDeleted, ttl: 6200 });
+  }
+
+  const rawCreated = cleanMessage(params.get("created"));
+  if (rawCreated) {
+    result.push({ id: createId("created"), tone: "success", title: "Створено", message: rawCreated, ttl: 6200 });
+  }
+
+  const rawWarning = cleanMessage(params.get("warning"));
+  if (rawWarning) {
+    result.push({ id: createId("warning"), tone: "warning", title: "Потрібна увага", message: rawWarning, ttl: 7200 });
   }
 
   const rawNotice = cleanMessage(params.get("notice") || params.get("toast"));

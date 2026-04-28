@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 
 type StatusKey = "review" | "accepted" | "declined";
 
@@ -59,6 +60,12 @@ export default function ApplicationStatusActions({
     setStatus(nextStatus);
     setPendingStatus(nextStatus);
     setMessage("Оновлюємо GitHub Issue і Discord embed...");
+    dispatchDashboardToast({
+      tone: "info",
+      title: nextStatus === "accepted" ? "Приймаємо заявку" : "Відхиляємо заявку",
+      message: "Синхронізуємо GitHub Issue, статус і Discord embed.",
+      ttl: 3800,
+    });
 
     try {
       const response = await fetch(`/api/applications/${issueNumber}/status`, {
@@ -84,15 +91,20 @@ export default function ApplicationStatusActions({
 
       if (data?.discord?.edited?.ok) {
         setMessage("Готово: GitHub Issue і Discord embed оновлено.");
+        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "GitHub Issue і Discord embed синхронізовані." });
       } else if (data?.discord?.notified?.ok) {
         setMessage("Готово: GitHub оновлено, Discord отримав повідомлення.");
+        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "GitHub синхронізовано, Discord отримав службове повідомлення." });
       } else {
         setMessage("GitHub оновлено. Discord не підтвердив редагування.");
+        dispatchDashboardToast({ tone: "warning", title: "Заявку оновлено частково", message: "GitHub змінено, але Discord не підтвердив редагування embed." });
       }
     } catch (error) {
       console.error("[dashboard:applications.status]", error);
+      const errorMessage = dashboardErrorMessage(error, "Помилка синхронізації.");
       setStatus(previousStatus);
-      setMessage(error instanceof Error ? error.message : "Помилка синхронізації.");
+      setMessage(errorMessage);
+      dispatchDashboardToast({ tone: "error", title: "Статус не змінено", message: errorMessage });
     } finally {
       setPendingStatus(null);
     }

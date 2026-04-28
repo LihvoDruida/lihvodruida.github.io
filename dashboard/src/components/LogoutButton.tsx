@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false);
@@ -8,6 +9,12 @@ export default function LogoutButton() {
 
   function fallbackLogout(message?: string) {
     if (message) console.warn("[dashboard:logout:fallback]", message);
+    dispatchDashboardToast({
+      tone: "warning",
+      title: "Резервний вихід",
+      message: "Основний запит не підтвердився, тому запускаємо безпечний fallback.",
+      ttl: 4200,
+    });
     window.location.assign("/api/auth/logout?fallback=1");
   }
 
@@ -17,6 +24,7 @@ export default function LogoutButton() {
 
     setPending(true);
     setError("");
+    dispatchDashboardToast({ tone: "info", title: "Вихід з акаунта", message: "Завершуємо поточну сесію.", ttl: 3200 });
 
     try {
       const response = await fetch("/api/auth/logout", {
@@ -36,16 +44,19 @@ export default function LogoutButton() {
         return;
       }
 
+      dispatchDashboardToast({ tone: "success", title: "Сесію завершено", message: "Повертаємо на сторінку входу." });
       window.location.assign("/login");
     } catch (caught) {
       console.error("[dashboard:logout]", caught);
+      const errorMessage = dashboardErrorMessage(caught, "Logout fetch failed");
       setError("Виконуємо резервний вихід...");
-      fallbackLogout(caught instanceof Error ? caught.message : "Logout fetch failed");
+      dispatchDashboardToast({ tone: "error", title: "Основний вихід не спрацював", message: errorMessage });
+      fallbackLogout(errorMessage);
     }
   }
 
   return (
-    <form method="post" action="/api/auth/logout" className="dashboard-user__logout" onSubmit={submitLogout}>
+    <form method="post" action="/api/auth/logout" className="dashboard-user__logout" data-toast-managed="true" onSubmit={submitLogout}>
       <button type="submit" aria-label="Вийти" disabled={pending} aria-busy={pending}>
         {pending ? "Виходимо..." : "Вийти"}
       </button>

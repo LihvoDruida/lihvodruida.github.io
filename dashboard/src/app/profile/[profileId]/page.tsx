@@ -1,4 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
+import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { getSession } from "@/lib/auth";
@@ -115,8 +116,10 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
 }
 
 function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
+  const characterTone = character.isMain ? "Основний персонаж" : "Доданий персонаж";
+
   return (
-    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`}>
+    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`} aria-label={`${characterTone}: ${character.name}`}>
       <div className="profile-character-artwork">
         <CharacterArtwork character={character} />
         <span className="profile-character-region">{character.region.toUpperCase()}</span>
@@ -161,9 +164,20 @@ function CharacterCard({ character, canManage }: { character: ProfileCharacter; 
   );
 }
 
-function CandidateRow({ character }: { character: ProfileCharacter }) {
+function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
   return (
     <li className="profile-character-candidate">
+      <label className="profile-candidate-select" title={`Позначити ${character.name}`}>
+        <input
+          data-profile-candidate-checkbox="true"
+          form={bulkFormId}
+          type="checkbox"
+          name="characterKeys"
+          value={character.key}
+          aria-label={`Вибрати ${character.name}`}
+        />
+        <span aria-hidden="true" />
+      </label>
       <span className="profile-character-candidate__avatar">
         {character.avatarUrl ? <img src={character.avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" /> : character.name.charAt(0)}
       </span>
@@ -188,13 +202,18 @@ export default async function ProfilePage({
   if (!viewer) redirect("/login");
 
   const { profileId } = await params;
-  const ownPath = await getOwnProfilePath(viewer);
+  const [ownPath, initialProfile, cookieStore] = await Promise.all([
+    getOwnProfilePath(viewer),
+    getProfileById(profileId),
+    cookies(),
+  ]);
 
   const isOwnProfile = ownPath.endsWith(`/${profileId}`);
   if (!canViewProfile(viewer, profileId) && !(viewer.role === "member" && isOwnProfile)) {
     notFound();
   }
-  let profile = await getProfileById(profileId);
+
+  let profile = initialProfile;
   let storageWarning = "";
 
   if (!profile && isOwnProfile) {
@@ -211,8 +230,9 @@ export default async function ProfilePage({
 
   let roles: DiscordRoleOption[] = [];
   let roleLoadError = "";
+  const shouldLoadRoles = hasDiscordEmbedConfig() && (viewer.role === "admin" || viewer.role === "moderator" || isOwnProfile);
 
-  if (hasDiscordEmbedConfig() && (viewer.role === "admin" || viewer.role === "moderator" || isOwnProfile)) {
+  if (shouldLoadRoles) {
     try {
       roles = await fetchDiscordRoles();
     } catch (error) {
@@ -228,12 +248,20 @@ export default async function ProfilePage({
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
   const addedKeys = new Set(profile.characters.map((item) => item.key));
-  const candidateCookie = isOwnProfile ? (await cookies()).get(BNET_CANDIDATES_COOKIE)?.value : undefined;
+  const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
   const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(item.key));
   const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
+  const bulkFormId = "profile-candidate-bulk-add";
+  const battleNetScanStats = profile.battlenet
+    ? [
+        { label: "Усього", value: profile.battlenet.totalCharacters ?? "—" },
+        { label: "Скановано", value: profile.battlenet.scannedCharacters ?? "—" },
+        { label: "У гільдії", value: profile.battlenet.eligibleCharacters ?? "—" },
+      ]
+    : [];
 
   return (
     <main className="container">
@@ -244,7 +272,13 @@ export default async function ProfilePage({
             <div className="eyebrow">Mistblossom Vanguard • Personal access</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Унікальна сторінка профілю з Firebase-сховища, роллю доступу, Battle.net персонажами та основним персонажем для екосистеми сайту.</p>
+            <p className="lead">Центр профілю: роль доступу, Discord-ідентичність, Battle.net персонажі, main-персонаж і швидкі дії без зайвих постійних блоків.</p>
+            <div className="profile-hero-strip" aria-label="Короткий стан профілю">
+              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
+              <span><strong>{profile.characters.length}</strong><small>Персонажі</small></span>
+              <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+              <span><strong>{profile.battlenet?.linked ? "Підключено" : "Не підключено"}</strong><small>Battle.net</small></span>
+            </div>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>{siteStatusDescription(profile.role)}</span>
@@ -286,6 +320,12 @@ export default async function ProfilePage({
             </div>
           </div>
 
+          <div className="profile-mini-overview" aria-label="Швидка статистика профілю">
+            <span><strong>{profile.characters.length}</strong><small>Персонажів додано</small></span>
+            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступних дій</small></span>
+            <span><strong>{mainCharacter?.realmName || "—"}</strong><small>Реалм мейна</small></span>
+          </div>
+
           <dl className="profile-facts">
             <div>
               <dt>Ієрархія</dt>
@@ -320,7 +360,7 @@ export default async function ProfilePage({
             <h2>Роль доступу</h2>
           </div>
 
-          <p className="profile-card-lead">Панель звʼязує Discord роль із роллю на сайті за чіткою ієрархією: адмін — гільдмайстер, модератор — офіцер, учасник — лише власний профіль.</p>
+          <p className="profile-card-lead">Роль береться з Discord-сесії та визначає доступ до адмін-розділів, модерації й власного профілю.</p>
 
           <div className="profile-role-stack" aria-label="Discord ролі користувача">
             {discordRoleLabels.length ? discordRoleLabels.map((role) => (
@@ -348,7 +388,7 @@ export default async function ProfilePage({
             ) : null}
           </div>
 
-          <p className="profile-card-lead">У Firebase зберігаються тільки додані персонажі, main-персонаж і мінімальні метадані Battle.net акаунта. Тимчасовий список для додавання зʼявляється лише після справжньої реавторизації, не висить постійно і очищається після використання.</p>
+          <p className="profile-card-lead">Персонажі додаються тільки після реальної Battle.net реавторизації. Тимчасовий список не зберігається у Firebase і зникає після додавання або завершення сесії.</p>
 
           <div className="profile-bnet-summary">
             <span><strong>{profile.characters.length}</strong><small>Додано</small></span>
@@ -356,6 +396,14 @@ export default async function ProfilePage({
             <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
             <span><strong>{formatBattleNetAccount(profile)}</strong><small>Battle.net акаунт</small></span>
           </div>
+
+          {battleNetScanStats.length ? (
+            <div className="profile-scan-strip" aria-label="Остання Battle.net обробка">
+              {battleNetScanStats.map((item) => (
+                <span key={item.label}><strong>{item.value}</strong><small>{item.label}</small></span>
+              ))}
+            </div>
+          ) : null}
 
           {profile.characters.length ? (
             <div className="profile-character-list">
@@ -378,8 +426,10 @@ export default async function ProfilePage({
                 </div>
                 <span className="profile-count-pill">{availableCandidates.length}</span>
               </div>
+              <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post" />
+              <ProfileCandidateBulkActions formId={bulkFormId} count={availableCandidates.length} />
               <ul className="profile-character-candidates">
-                {availableCandidates.map((character) => <CandidateRow key={character.key} character={character} />)}
+                {availableCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
               </ul>
             </div>
           ) : null}

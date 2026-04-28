@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import { dispatchDashboardToast } from "@/lib/clientToasts";
 
 type ContentImageFieldProps = {
   label: string;
@@ -69,7 +70,18 @@ export default function ContentImageField({ label, hint, currentImage, previewBa
             type="file"
             name="image"
             accept="image/png,image/jpeg,image/webp,image/gif"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            onChange={(event) => {
+              const nextFile = event.target.files?.[0] ?? null;
+              setFile(nextFile);
+              if (nextFile) {
+                dispatchDashboardToast({
+                  tone: "info",
+                  title: "Картинку вибрано",
+                  message: nextFile.name + " • " + readableFileSize(nextFile.size),
+                  ttl: 3600,
+                });
+              }
+            }}
           />
           <span className="image-upload-icon" aria-hidden="true">+</span>
           <span className="image-upload-text">

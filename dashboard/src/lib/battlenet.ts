@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { availableParallelism } from "node:os";
 import { getDashboardUrl } from "@/lib/oauth";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
@@ -66,6 +67,28 @@ function envFlag(name: string, fallback = false) {
   const raw = process.env[name];
   if (raw === undefined || raw === null || raw === "") return fallback;
   return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
+}
+
+function readIntEnv(name: string, fallback: number, min: number, max: number) {
+  const value = Number(process.env[name]);
+  if (!Number.isFinite(value)) return fallback;
+  return Math.max(min, Math.min(Math.floor(value), max));
+}
+
+function getBattleNetRequestTimeoutMs() {
+  return readIntEnv("BATTLENET_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
+}
+
+function getAdaptiveBattleNetConcurrency(total: number) {
+  const configured = Number(process.env.BATTLENET_SCAN_CONCURRENCY || 0);
+  const hardMax = readIntEnv("BATTLENET_SCAN_MAX_CONCURRENCY", 12, 1, 24);
+  if (Number.isFinite(configured) && configured > 0) {
+    return Math.max(1, Math.min(Math.floor(configured), hardMax, Math.max(total, 1)));
+  }
+
+  const cpuHint = Math.max(2, availableParallelism());
+  const adaptive = Math.ceil(cpuHint * 1.5);
+  return Math.max(2, Math.min(adaptive, hardMax, Math.max(total, 1)));
 }
 
 export function normalizeBattleNetRegion(value?: string | null): BattleNetRegion {
@@ -202,10 +225,24 @@ async function bnetFetch(accessToken: string, path: string, params?: Record<stri
     url.searchParams.set(key, value);
   }
 
-  const response = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-    cache: "no-store",
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), getBattleNetRequestTimeoutMs());
+
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if ((error as Error)?.name === "AbortError") {
+      throw new Error(`Battle.net API timeout after ${getBattleNetRequestTimeoutMs()}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const raw = await response.text();
   let data: any = null;
@@ -308,7 +345,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
 
   const maxCharacters = Math.max(1, Math.min(Number(process.env.BATTLENET_SCAN_MAX_CHARACTERS || 80) || 80, 120));
   const limitedCharacters = allCharacters.slice(0, maxCharacters);
-  const concurrency = Math.max(1, Math.min(Number(process.env.BATTLENET_SCAN_CONCURRENCY || 6) || 6, 10));
+  const concurrency = getAdaptiveBattleNetConcurrency(limitedCharacters.length);
 
   const candidates = await mapLimited(limitedCharacters, concurrency, async (character) => {
     const nameSlug = slugifyCharacterName(character.name);

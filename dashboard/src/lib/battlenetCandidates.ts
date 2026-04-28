@@ -147,6 +147,26 @@ export function findCandidateByKey(cookieValue: string | undefined | null, profi
   return session?.characters.find((item) => item.key === characterKey) || null;
 }
 
+
+export function removeCandidatesFromCookie(response: NextResponse, cookieValue: string | undefined | null, profileId: string, characterKeys: string[]) {
+  const session = parseBattleNetCandidatesCookieValue(cookieValue, profileId);
+  if (!session) {
+    clearBattleNetCandidatesCookie(response);
+    return;
+  }
+
+  const removeKeys = new Set((characterKeys || []).map((key) => String(key || "").trim()).filter(Boolean));
+  if (!removeKeys.size) return;
+
+  const remaining = session.characters.filter((item) => !removeKeys.has(item.key));
+  if (!remaining.length) {
+    clearBattleNetCandidatesCookie(response);
+    return;
+  }
+
+  setBattleNetCandidatesCookie(response, profileId, session.region, remaining);
+}
+
 export function removeCandidateFromCookie(response: NextResponse, cookieValue: string | undefined | null, profileId: string, characterKey: string) {
   const session = parseBattleNetCandidatesCookieValue(cookieValue, profileId);
   if (!session) {

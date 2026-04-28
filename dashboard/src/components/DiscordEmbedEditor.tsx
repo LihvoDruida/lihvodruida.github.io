@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 
 export type DiscordChannelOption = {
   id: string;
@@ -738,8 +739,10 @@ export default function DiscordEmbedEditor({
     const rawLink = normalizeMessageLink(messageLink);
     if (!rawLink || !looksLikeDiscordMessageRef(rawLink)) {
       if (force) {
+        const errorMessage = "Встав повне посилання Discord message або пару channelId/messageId.";
         setMessageLoadState("error");
-        setMessageLoadText("Встав повне посилання Discord message або пару channelId/messageId.");
+        setMessageLoadText(errorMessage);
+        dispatchDashboardToast({ tone: "warning", title: "Невалідний Discord link", message: errorMessage });
       }
       return;
     }
@@ -748,6 +751,9 @@ export default function DiscordEmbedEditor({
 
     setMessageLoadState("loading");
     setMessageLoadText("Підтягуємо контент з Discord...");
+    if (force) {
+      dispatchDashboardToast({ tone: "info", title: "Підтягуємо Discord повідомлення", message: "Завантажуємо content, embed, канал і ролі для редагування.", ttl: 3600 });
+    }
 
     try {
       const params = new URLSearchParams({ message: rawLink, mode });
@@ -788,10 +794,17 @@ export default function DiscordEmbedEditor({
       setLoadedMessageLink(nextLink);
       setMessageLoadState("loaded");
       setMessageLoadText(text(data.warning) || "Підтягнуто. Збереження оновить це Discord-повідомлення.");
+      dispatchDashboardToast({
+        tone: data.warning ? "warning" : "success",
+        title: data.warning ? "Повідомлення підтягнуто з попередженням" : "Discord повідомлення підтягнуто",
+        message: text(data.warning) || "Редактор заповнено даними з повідомлення.",
+      });
     } catch (error) {
       if ((error as DOMException)?.name === "AbortError") return;
+      const errorMessage = dashboardErrorMessage(error, "Не вдалося підтягнути Discord-повідомлення.");
       setMessageLoadState("error");
-      setMessageLoadText(error instanceof Error ? error.message : "Не вдалося підтягнути Discord-повідомлення.");
+      setMessageLoadText(errorMessage);
+      dispatchDashboardToast({ tone: "error", title: "Discord повідомлення не підтягнуто", message: errorMessage });
     }
   }
 
@@ -835,11 +848,16 @@ export default function DiscordEmbedEditor({
 
   function handleSubmit(_: FormEvent<HTMLFormElement>) {
     setIsSubmitting(true);
-    setMessageLoadText(
-      effectiveSubmitAction === "edit"
-        ? isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
-        : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed..."
-    );
+    const submitMessage = effectiveSubmitAction === "edit"
+      ? isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
+      : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed...";
+    setMessageLoadText(submitMessage);
+    dispatchDashboardToast({
+      tone: "info",
+      title: effectiveSubmitAction === "edit" ? "Оновлюємо Discord повідомлення" : "Публікуємо Discord повідомлення",
+      message: submitMessage,
+      ttl: 4200,
+    });
   }
 
   const embed = useMemo(() => buildEmbed({
@@ -890,7 +908,7 @@ export default function DiscordEmbedEditor({
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за link" : "Редагування" : "Створення"}</span>
           </div>
 
-          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
+          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-toast-managed="true" onSubmit={handleSubmit}>
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={effectiveSubmitAction} />

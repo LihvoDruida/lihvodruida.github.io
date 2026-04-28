@@ -294,6 +294,62 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
   });
 }
 
+
+export async function addProfileCharacters(profileId: string, candidateInputs: BattleNetCharacterCandidate[]) {
+  const normalized = new Map<string, ProfileCharacter>();
+  for (const input of candidateInputs || []) {
+    const candidate = normalizeCharacter(input, null);
+    const cleanKey = cleanCharacterKey(candidate?.key);
+    if (!candidate || !cleanKey || !candidate.verifiedGuild) continue;
+    normalized.set(cleanKey, candidate);
+  }
+
+  if (!normalized.size) {
+    throw new Error("Немає підтверджених персонажів для додавання.");
+  }
+  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+
+  const addedKeys: string[] = [];
+  const skippedKeys: string[] = [];
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+
+  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    const current = profile.characters;
+    const currentKeys = new Set(current.map((item) => item.key));
+    const now = new Date().toISOString();
+    const nextCharacters = [...current];
+
+    for (const [key, candidate] of normalized) {
+      if (currentKeys.has(key)) {
+        skippedKeys.push(key);
+        continue;
+      }
+      if (nextCharacters.length >= 50) {
+        skippedKeys.push(key);
+        continue;
+      }
+
+      nextCharacters.push({ ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now });
+      currentKeys.add(key);
+      addedKeys.push(key);
+    }
+
+    if (!addedKeys.length) return;
+
+    transaction.set(ref, {
+      characters: nextCharacters,
+      mainCharacterKey: profile.mainCharacterKey || nextCharacters[0]?.key || null,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+  });
+
+  return { added: addedKeys.length, skipped: skippedKeys.length, addedKeys, skippedKeys };
+}
+
 export async function removeProfileCharacter(profileId: string, characterKey: string) {
   const cleanKey = cleanCharacterKey(characterKey);
   if (!cleanKey) throw new Error("Некоректний персонаж.");
