@@ -4294,6 +4294,7 @@ form.is-submitting .btn,
 form.is-submitting button[type="submit"],
 .btn[aria-busy="true"],
 .action-button[aria-busy="true"],
+.profile-bnet-cta[aria-busy="true"],
 .btn-working {
   cursor: progress;
 }
@@ -4307,6 +4308,21 @@ form.is-submitting button[type="submit"],
   border-radius: 50%;
   border: 2px solid currentColor;
   border-right-color: transparent;
+  animation: dashboard-spin 720ms linear infinite;
+}
+
+.profile-bnet-cta[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  color: var(--gold);
   animation: dashboard-spin 720ms linear infinite;
 }
 
@@ -6355,28 +6371,6 @@ form.is-submitting button[type="submit"],
 }
 
 /* Profile Battle.net characters */
-.profile-status-message {
-  width: min(100%, 820px);
-  margin-top: 14px;
-  padding: 11px 13px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.45;
-}
-
-.profile-status-message--ok {
-  border: 1px solid rgba(89, 214, 141, 0.28);
-  color: #dcffd3;
-  background: rgba(89, 214, 141, 0.12);
-}
-
-.profile-status-message--warn {
-  border: 1px solid rgba(247, 200, 115, 0.30);
-  color: #ffe5aa;
-  background: rgba(247, 200, 115, 0.11);
-}
-
 .profile-card--characters {
   grid-column: 1 / -1;
   position: relative;
@@ -7006,5 +7000,157 @@ form.is-submitting button[type="submit"],
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Global action toasts */
+.global-toast-stack {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 2147483000;
+  display: grid;
+  gap: 10px;
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.global-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 28px;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 12px 12px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(217, 166, 87, 0.13), transparent 50%),
+    rgba(13, 18, 28, 0.94);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: globalToastIn 190ms ease-out both;
+}
+
+.global-toast::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--gold);
+  opacity: 0.9;
+}
+
+.global-toast--success::before {
+  background: #59d68d;
+}
+
+.global-toast--warning::before {
+  background: #f7c873;
+}
+
+.global-toast--error::before {
+  background: #ed4245;
+}
+
+.global-toast__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(217, 166, 87, 0.28);
+  background: rgba(217, 166, 87, 0.12);
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.global-toast--success .global-toast__icon {
+  border-color: rgba(89, 214, 141, 0.30);
+  background: rgba(89, 214, 141, 0.13);
+  color: #9ff0bd;
+}
+
+.global-toast--warning .global-toast__icon {
+  border-color: rgba(247, 200, 115, 0.32);
+  background: rgba(247, 200, 115, 0.13);
+  color: #ffe0a1;
+}
+
+.global-toast--error .global-toast__icon {
+  border-color: rgba(237, 66, 69, 0.34);
+  background: rgba(237, 66, 69, 0.14);
+  color: #ffb8be;
+}
+
+.global-toast__body {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.global-toast__body strong {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.global-toast__body small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.global-toast__close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.global-toast__close:hover,
+.global-toast__close:focus-visible {
+  background: rgba(255, 255, 255, 0.11);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+@keyframes globalToastIn {
+  from {
+    opacity: 0;
+    transform: translate3d(14px, 8px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (max-width: 560px) {
+  .global-toast-stack {
+    right: 10px;
+    left: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: auto;
+  }
+
+  .global-toast {
+    grid-template-columns: 32px minmax(0, 1fr) 28px;
+    border-radius: 16px;
   }
 }

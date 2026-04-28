@@ -79,25 +79,6 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
   };
 }
 
-function characterStatusMessage(status?: string) {
-  if (!status) return null;
-  const map: Record<string, { tone: "ok" | "warn"; text: string }> = {
-    bnet_connected: { tone: "ok", text: "Battle.net оновлено. Нижче показані лише тимчасово підтверджені персонажі для додавання; вони не зберігаються у Firebase, доки ти не натиснеш «Додати»." },
-    bnet_no_guild_characters: { tone: "warn", text: "Battle.net підключено, але персонажів у Mistblossom Vanguard не знайдено." },
-    bnet_failed: { tone: "warn", text: "Не вдалося отримати персонажів з Battle.net. Перевір OAuth env, scope wow.profile і регіон." },
-    bnet_state: { tone: "warn", text: "OAuth-перевірка Battle.net не пройшла. Спробуй підключити акаунт ще раз." },
-    character_added: { tone: "ok", text: "Персонажа додано до профілю." },
-    character_add_failed: { tone: "warn", text: "Персонажа не додано. Він має бути підтверджений через Battle.net і належати до Mistblossom Vanguard." },
-    character_reauth_required: { tone: "warn", text: "Потрібна повторна авторизація Battle.net. Тимчасова перевірка персонажів уже недійсна або була очищена." },
-    character_removed: { tone: "ok", text: "Персонажа видалено з профілю." },
-    character_remove_failed: { tone: "warn", text: "Не вдалося видалити персонажа." },
-    main_character_set: { tone: "ok", text: "Основного персонажа оновлено." },
-    main_character_failed: { tone: "warn", text: "Не вдалося встановити основного персонажа." },
-    rate_limit: { tone: "warn", text: "Забагато дій підряд. Зачекай кілька хвилин." },
-  };
-  return map[status] || null;
-}
-
 function CapabilityRow({ title, description, enabled }: { title: string; description: string; enabled: boolean }) {
   return (
     <li className={`profile-capability ${enabled ? "is-enabled" : "is-disabled"}`}>
@@ -200,16 +181,13 @@ function CandidateRow({ character }: { character: ProfileCharacter }) {
 
 export default async function ProfilePage({
   params,
-  searchParams,
 }: {
   params: Promise<{ profileId: string }>;
-  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const viewer = await getSession();
   if (!viewer) redirect("/login");
 
   const { profileId } = await params;
-  const query = await searchParams;
   const ownPath = await getOwnProfilePath(viewer);
 
   const isOwnProfile = ownPath.endsWith(`/${profileId}`);
@@ -254,7 +232,6 @@ export default async function ProfilePage({
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
   const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(item.key));
   const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
-  const status = characterStatusMessage(query.characterStatus);
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
 
@@ -273,7 +250,6 @@ export default async function ProfilePage({
               <span>{siteStatusDescription(profile.role)}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
-            {status ? <div className={`profile-status-message profile-status-message--${status.tone}`} role="status">{status.text}</div> : null}
           </div>
         </header>
       </section>

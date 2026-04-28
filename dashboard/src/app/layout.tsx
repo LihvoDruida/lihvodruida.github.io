@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
+import GlobalToasts from "@/components/GlobalToasts";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="uk">
-      <body><DashboardFormEnhancer />{children}</body>
+      <body><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense>{children}</body>
     </html>
   );
 }
