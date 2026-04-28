@@ -16,6 +16,7 @@ export {
   canManageGeneralEmbeds,
   canManageRulesEmbeds,
   canManageSiteContent,
+  canViewRulesStats,
   dashboardCapabilities,
   dashboardRoleLabel,
   hierarchyTitle,

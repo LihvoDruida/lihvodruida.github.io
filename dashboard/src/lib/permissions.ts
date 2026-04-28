@@ -31,7 +31,7 @@ export function siteStatusDescription(role: DashboardRole) {
     return "Може керувати всіма розділами панелі, включно з правилами Discord і матеріалами сайту.";
   }
   if (role === "moderator") {
-    return "Може працювати із заявками та звичайними Discord embed без доступу до правил і матеріалів сайту.";
+    return "Може працювати із заявками, звичайними Discord embed і переглядати статистику правил без права редагування правил та матеріалів сайту.";
   }
   return "Може переглядати лише власну сторінку профілю. Адмінські дані, заявки й Discord-інструменти приховані.";
 }
@@ -46,6 +46,10 @@ export function canManageGeneralEmbeds(session: DashboardSession | null | undefi
 
 export function canManageRulesEmbeds(session: DashboardSession | null | undefined) {
   return Boolean(session && session.role === "admin");
+}
+
+export function canViewRulesStats(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
 }
 
 export function canManageSiteContent(session: DashboardSession | null | undefined) {
@@ -78,8 +82,10 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
     {
       key: "rules-embeds",
       title: "Discord правила",
-      description: "Створення та редагування rules embed, кнопки прийняття, ролі й статистика правил.",
-      enabled: isAdmin,
+      description: isAdmin
+        ? "Створення та редагування rules embed, кнопки прийняття, ролі й статистика правил."
+        : "Перегляд статистики звичайних правил і підписантів правил рейду без редагування embed.",
+      enabled: canModerate,
     },
     {
       key: "site-content",

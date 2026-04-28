@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
-import { canManageGeneralEmbeds, canManageRulesEmbeds, hierarchyTitle } from "@/lib/permissions";
+import { canManageGeneralEmbeds, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 
@@ -35,8 +35,9 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
 
   const params = await searchParams;
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
-  const canUseRules = canManageRulesEmbeds(user);
-  if (!canUseGeneralEmbeds && !canUseRules) redirect(await getOwnProfilePath(user));
+  const canEditRules = canManageRulesEmbeds(user);
+  const canViewRules = canViewRulesStats(user);
+  if (!canUseGeneralEmbeds && !canViewRules) redirect(await getOwnProfilePath(user));
 
   return (
     <main className="container">
@@ -47,11 +48,11 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             <div className="eyebrow">Mistblossom Vanguard • Discord publishing</div>
             <div className="content-hero-status-row" aria-label="Стан Discord редактора">
               <span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span>
-              <span className="content-hero-path">{canUseRules ? "Rules • Звичайні embed" : "Звичайні embed"}</span>
+              <span className="content-hero-path">{canViewRules ? "Статистика правил • Звичайні embed" : "Звичайні embed"}</span>
             </div>
             <h1>Discord embeds</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Панель Discord embed-постів із доступом за ролями. Офіцери працюють зі звичайними embed, гільдмайстер — ще й з правилами.</p>
+            <p className="lead">Панель Discord embed-постів із доступом за ролями. Офіцери працюють зі звичайними embed, модератори бачать статистику правил, гільдмайстер може редагувати rules embed.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>Доступ привʼязаний до ролі на сайті.</span>
@@ -80,13 +81,13 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : (
-        <section className={`discord-hub-grid discord-hub-grid--compact ${canUseRules ? "" : "discord-hub-grid--single"}`} aria-label="Discord embed розділи">
-          {canUseRules ? (
+        <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules ? "" : "discord-hub-grid--single"}`} aria-label="Discord embed розділи">
+          {canViewRules ? (
             <a className="panel discord-hub-card discord-hub-card--rules" href="/discord/rules">
-              <span className="eyebrow">Rules embed • Гільдмайстер</span>
-              <strong>Правила сервера</strong>
-              <p>Rules embed, статистика і ролі кнопки прийняття.</p>
-              <span className="btn primary">Відкрити правила</span>
+              <span className="eyebrow">Rules stats • {hierarchyTitle(user.role)}</span>
+              <strong>{canEditRules ? "Правила сервера" : "Статистика правил"}</strong>
+              <p>{canEditRules ? "Rules embed, статистика і ролі кнопки прийняття." : "Статистика звичайних правил і список підписантів правил рейду."}</p>
+              <span className="btn primary">{canEditRules ? "Відкрити правила" : "Відкрити статистику"}</span>
             </a>
           ) : null}
 

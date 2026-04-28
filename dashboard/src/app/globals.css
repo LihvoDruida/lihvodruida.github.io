@@ -7930,3 +7930,286 @@ form.is-submitting button[type="submit"],
     overflow-wrap: anywhere;
   }
 }
+
+/* Final responsive polish: rules dashboard alignment + shared mobile controls. */
+.discord-rules-data-overview,
+.discord-rules-library-split {
+  align-items: stretch;
+}
+
+.discord-rules-data-panel,
+.discord-raid-signups-panel,
+.discord-rules-list-panel {
+  align-content: start;
+}
+
+.discord-rules-metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  align-items: stretch;
+}
+
+.discord-rules-metric {
+  min-height: 104px;
+  align-content: space-between;
+}
+
+.discord-rules-metric strong {
+  word-break: break-word;
+  line-height: 0.98;
+}
+
+.discord-rules-data-note,
+.discord-raid-signups-hint,
+.discord-rules-section-head p {
+  max-width: 100%;
+}
+
+.discord-raid-signups-panel .discord-rules-section-head,
+.discord-rules-list-panel .discord-rules-section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.discord-raid-signups-panel .content-toolbar-actions,
+.discord-rules-section-head .content-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.discord-raid-signups-panel .content-toolbar-actions small,
+.discord-rules-section-head .content-toolbar-actions small {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(246, 239, 226, 0.74);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.discord-rules-row-main {
+  color: inherit;
+  cursor: default;
+}
+
+.discord-rules-row-actions {
+  justify-content: end;
+}
+
+.discord-raid-signups-table {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.discord-raid-signups-row {
+  min-width: min(100%, 680px);
+}
+
+.discord-raid-signups-row--head span {
+  color: rgba(255, 238, 194, 0.92);
+}
+
+@media (max-width: 980px) {
+  .discord-rules-data-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-rules-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .container {
+    width: min(100% - 20px, 1280px);
+    padding-top: calc(14px + var(--safe-top));
+    padding-bottom: calc(22px + var(--safe-bottom));
+  }
+
+  .dashboard-shell,
+  .content-shell,
+  .discord-shell,
+  .discord-rules-data-overview,
+  .discord-rules-library-split {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .panel,
+  .hero,
+  .dashboard-topbar,
+  .content-editor-panel,
+  .content-list,
+  .discord-rules-data-panel,
+  .discord-raid-signups-panel,
+  .discord-rules-list-panel {
+    border-radius: 18px;
+  }
+
+  .hero,
+  .content-dashboard-hero,
+  .discord-dashboard-hero,
+  .discord-rules-data-panel,
+  .discord-raid-signups-panel,
+  .discord-rules-list-panel {
+    padding: 12px;
+  }
+
+  .hero h1,
+  .content-section-head h2,
+  .discord-rules-data-head h2,
+  .discord-rules-section-head h2 {
+    font-size: clamp(24px, 8.2vw, 32px);
+    line-height: 1.04;
+    letter-spacing: -0.05em;
+  }
+
+  .lead,
+  .discord-rules-data-note,
+  .discord-raid-signups-hint,
+  .discord-rules-section-head p,
+  .notice,
+  .empty,
+  .content-empty {
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .content-section-head--toolbar,
+  .content-toolbar-actions,
+  .content-hero-actions,
+  .content-hero-buttons,
+  .discord-builder-actions,
+  .content-actions-row,
+  .content-row-actions,
+  .discord-rules-row-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .content-toolbar-actions small,
+  .discord-rules-section-head .content-toolbar-actions small {
+    justify-content: center;
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .btn,
+  .action-button,
+  .content-toolbar-actions .btn,
+  .content-hero-buttons .btn,
+  .discord-builder-actions .btn,
+  .content-actions-row .btn,
+  .content-row-actions .btn,
+  .discord-rules-row-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    padding-inline: 12px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .input,
+  .select,
+  .textarea,
+  .status-select,
+  .login-token input,
+  .discord-builder-shell--site .discord-builder-panel .input,
+  .discord-builder-shell--site .discord-builder-panel .select,
+  .discord-builder-shell--site .discord-builder-panel textarea {
+    min-height: 44px;
+    border-radius: 13px;
+    font-size: 16px;
+  }
+
+  .textarea,
+  .discord-builder-textarea,
+  .markdown-area {
+    min-height: 160px;
+  }
+
+  .discord-rules-data-head,
+  .discord-raid-signups-panel .discord-rules-section-head,
+  .discord-rules-list-panel .discord-rules-section-head {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .discord-rules-status-pill {
+    justify-self: start;
+  }
+
+  .discord-rules-metric-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .discord-rules-metric {
+    min-height: 78px;
+    padding: 11px;
+  }
+
+  .discord-rules-row,
+  .discord-rules-row-main {
+    grid-template-columns: 1fr !important;
+  }
+
+  .discord-rules-row-main {
+    gap: 8px;
+  }
+
+  .discord-rules-row-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .discord-rules-row-meta {
+    width: 100%;
+    text-align: left;
+  }
+
+  .discord-raid-signups-table {
+    overflow: visible;
+  }
+
+  .discord-raid-signups-row {
+    min-width: 0;
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .discord-raid-signups-row--head {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    width: min(100% - 16px, 1280px);
+  }
+
+  .eyebrow,
+  .content-mode-pill,
+  .content-count-pill,
+  .status-pill,
+  .discord-rules-status-pill,
+  .discord-rules-type-chip {
+    font-size: 10px;
+  }
+
+  .discord-rules-metric strong {
+    font-size: 26px;
+  }
+}
