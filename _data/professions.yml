@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-28 06:31:10'
+  updated_at: '2026-04-28 10:16:06'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-28T01:19:32.000Z'
+  raider_io_last_crawled_at: '2026-04-28T09:41:48.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -3272,7 +3272,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -4362,7 +4362,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 83
+        learned_points: 85
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -4906,7 +4906,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
