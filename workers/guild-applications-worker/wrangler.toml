@@ -21,12 +21,16 @@ DASHBOARD_PROFILE_LOOKUP_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/profile
 # DISCORD_GUILD_ID
 # GITHUB_TOKEN
 # INTERNAL_PROFILE_LOOKUP_TOKEN
+# CF_ACCESS_CLIENT_ID        # Cloudflare Access Service Auth, if admin dashboard is protected
+# CF_ACCESS_CLIENT_SECRET    # Cloudflare Access Service Auth, if admin dashboard is protected
 
 # Rules accept/decline counters and raid-rules signup list. Create once:
 # wrangler kv namespace create RULES_STATS
 # Then paste the returned id below.
 # Raid rules additionally use ADMIN_DASHBOARD_URL and INTERNAL_PROFILE_LOOKUP_TOKEN
-# to verify dashboard authorization and main character.
+# to verify dashboard authorization and main character. If the admin dashboard
+# is protected by Cloudflare Access, set CF_ACCESS_CLIENT_ID and
+# CF_ACCESS_CLIENT_SECRET as Worker secrets too.
 # [[kv_namespaces]]
 # binding = "RULES_STATS"
 # id = "paste_kv_namespace_id_here"

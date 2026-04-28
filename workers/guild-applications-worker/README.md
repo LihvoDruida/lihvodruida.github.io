@@ -45,7 +45,7 @@ wrangler secret put INTERNAL_PROFILE_LOOKUP_TOKEN
 
 `DISCORD_ALLOWED_ROLES` is optional and controls who can accept/decline applications. Rules buttons are intended for regular members and do not require moderator roles.
 
-Raid rules use `ADMIN_DASHBOARD_URL` / `DASHBOARD_PROFILE_LOOKUP_ENDPOINT` and `INTERNAL_PROFILE_LOOKUP_TOKEN` to verify that the Discord user authorized in the dashboard and selected a main character. If verification fails, the Worker returns an ephemeral message with `https://admin.lihvodruida.pp.ua/`.
+Raid rules use `ADMIN_DASHBOARD_URL` / `DASHBOARD_PROFILE_LOOKUP_ENDPOINT` and `INTERNAL_PROFILE_LOOKUP_TOKEN` to verify that the Discord user authorized in the dashboard and selected a main character. If the admin dashboard is protected by Cloudflare Access, the Worker also sends `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` as Service Auth headers. If verification fails, the Worker returns an ephemeral message with `https://admin.lihvodruida.pp.ua/`.
 
 The bot needs `Send Messages`, `Embed Links`, `Read Message History`, `Manage Roles`, and `Kick Members`. The bot role must be higher than roles it assigns.
 
@@ -89,4 +89,16 @@ For production, keep these values aligned between the dashboard and Worker:
 ADMIN_DASHBOARD_URL=https://admin.lihvodruida.pp.ua
 DASHBOARD_PROFILE_LOOKUP_ENDPOINT=https://admin.lihvodruida.pp.ua/api/profile/discord-lookup
 INTERNAL_PROFILE_LOOKUP_TOKEN=<same-secret-as-dashboard>
+CF_ACCESS_CLIENT_ID=<cloudflare-access-service-token-client-id>
+CF_ACCESS_CLIENT_SECRET=<cloudflare-access-service-token-client-secret>
 ```
+
+
+Cloudflare Access protected dashboard:
+
+```bash
+wrangler secret put CF_ACCESS_CLIENT_ID
+wrangler secret put CF_ACCESS_CLIENT_SECRET
+```
+
+Create a Cloudflare Access application/policy for `admin.lihvodruida.pp.ua/api/profile/discord-lookup` and allow the Service Token used by these two secrets. Keep `INTERNAL_PROFILE_LOOKUP_TOKEN` enabled too; it protects the Next.js endpoint after Access lets the request through.

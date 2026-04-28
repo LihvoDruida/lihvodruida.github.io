@@ -125,6 +125,8 @@ function envDiagnostics(env) {
     rules_stats_binding: hasValidRulesStatsBinding(env),
     dashboard_profile_lookup_endpoint: Boolean(String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_DASHBOARD_URL || "").trim()),
     internal_profile_lookup_token: Boolean(String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || "").trim()),
+    cf_access_client_id: Boolean(String(env.CF_ACCESS_CLIENT_ID || env.CLOUDFLARE_ACCESS_CLIENT_ID || "").trim()),
+    cf_access_client_secret: Boolean(String(env.CF_ACCESS_CLIENT_SECRET || env.CLOUDFLARE_ACCESS_CLIENT_SECRET || "").trim()),
     allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
   };
 }
@@ -359,6 +361,33 @@ function dashboardProfileLookupEndpoint(env) {
   }
 }
 
+function dashboardProfileLookupHeaders(env, token) {
+  const headers = {
+    accept: "application/json",
+    authorization: `Bearer ${token}`,
+    "user-agent": "Mistblossom-Guild-Worker/ProfileLookup",
+  };
+
+  const accessClientId = String(env.CF_ACCESS_CLIENT_ID || env.CLOUDFLARE_ACCESS_CLIENT_ID || "").trim();
+  const accessClientSecret = String(env.CF_ACCESS_CLIENT_SECRET || env.CLOUDFLARE_ACCESS_CLIENT_SECRET || "").trim();
+
+  // Cloudflare Access Service Auth for server-to-server calls.
+  // Without these headers Access returns the login/block page instead of JSON.
+  if (accessClientId && accessClientSecret) {
+    headers["CF-Access-Client-Id"] = accessClientId;
+    headers["CF-Access-Client-Secret"] = accessClientSecret;
+  }
+
+  return headers;
+}
+
+function hasCloudflareAccessServiceAuth(env) {
+  return Boolean(
+    String(env.CF_ACCESS_CLIENT_ID || env.CLOUDFLARE_ACCESS_CLIENT_ID || "").trim() &&
+    String(env.CF_ACCESS_CLIENT_SECRET || env.CLOUDFLARE_ACCESS_CLIENT_SECRET || "").trim()
+  );
+}
+
 function pickMainCharacter(value) {
   if (!value || typeof value !== "object") return null;
   return {
@@ -395,10 +424,7 @@ async function lookupDashboardProfileByDiscord(env, discordId) {
 
   try {
     const response = await fetch(url.toString(), {
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${token}`,
-      },
+      headers: dashboardProfileLookupHeaders(env, token),
     });
     const raw = await response.text().catch(() => "");
     let data = null;
@@ -408,7 +434,9 @@ async function lookupDashboardProfileByDiscord(env, discordId) {
     if (!response.ok || !data?.found) {
       let reason = data?.reason || "profile-lookup-failed";
       if (response.status === 401 || response.status === 403) reason = "profile-lookup-forbidden";
-      if (!data && /cloudflare|access|forbidden/i.test(raw || "")) reason = "profile-lookup-blocked";
+      if (!data && /cloudflare|access|forbidden|cdn-cgi/i.test(raw || "")) {
+        reason = hasCloudflareAccessServiceAuth(env) ? "profile-lookup-blocked" : "profile-lookup-access-service-auth-missing";
+      }
       return { ok: false, reason, status: response.status, message: data?.error || raw };
     }
 
@@ -429,8 +457,10 @@ function raidRulesSignupProfileErrorMessage(env, profileResult) {
       return "❌ Підпис не зараховано: Worker не має INTERNAL_PROFILE_LOOKUP_TOKEN. Додай той самий токен у Worker і dashboard.";
     case "profile-lookup-forbidden":
       return "❌ Підпис не зараховано: Worker не має доступу до profile lookup endpoint. Перевір INTERNAL_PROFILE_LOOKUP_TOKEN у Worker/dashboard або bypass для /api/profile/discord-lookup у Cloudflare Access. Панель: " + dashboardUrl;
+    case "profile-lookup-access-service-auth-missing":
+      return "❌ Підпис не зараховано: Cloudflare Access блокує /api/profile/discord-lookup, а Worker не передає Service Auth headers. Додай у Worker secrets CF_ACCESS_CLIENT_ID і CF_ACCESS_CLIENT_SECRET або зроби окремий bypass тільки для цього endpoint. Панель: " + dashboardUrl;
     case "profile-lookup-blocked":
-      return "❌ Підпис не зараховано: Cloudflare Access або інший захист блокує внутрішній endpoint /api/profile/discord-lookup. Додай bypass/service access для цього endpoint. Панель: " + dashboardUrl;
+      return "❌ Підпис не зараховано: Cloudflare Access досі блокує /api/profile/discord-lookup. Перевір Service Auth policy для path /api/profile/discord-lookup і secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET у Worker. Панель: " + dashboardUrl;
     case "firebase-not-configured":
       return "❌ Підпис не зараховано: у dashboard не налаштований Firebase Admin SDK для профілів.";
     case "invalid-discord-id":
