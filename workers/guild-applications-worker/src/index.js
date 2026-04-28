@@ -1,6 +1,9 @@
 const DEFAULT_CACHE_SECONDS = 0;
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
+const DEFAULT_FILTERED_LIST_PAGES = 3;
+const MAX_GITHUB_LIST_PAGES = 5;
+
 
 const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats"]);
 const DEFAULT_LABEL = "guild-application";
@@ -60,6 +63,114 @@ function logWorkerEvent(level, event, details = {}) {
   if (level === "error") console.error(line);
   else if (level === "warn") console.warn(line);
   else console.log(line);
+}
+
+function nowMs() {
+  return Date.now();
+}
+
+function elapsedMs(startedAt) {
+  return Math.max(0, nowMs() - startedAt);
+}
+
+function requestIdFromRequest(request) {
+  return (
+    request.headers.get("CF-Ray") ||
+    request.headers.get("X-Request-ID") ||
+    (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`)
+  );
+}
+
+function isDebugEnabled(request, env) {
+  const url = new URL(request.url);
+  return (
+    url.searchParams.get("debug") === "1" ||
+    url.searchParams.get("diag") === "1" ||
+    String(env.DEBUG_LOGS || "").trim() === "1" ||
+    String(env.DEBUG_RESPONSES || "").trim() === "1"
+  );
+}
+
+function isDebugResponseEnabled(request, env) {
+  const url = new URL(request.url);
+  return (
+    url.searchParams.get("debug") === "1" ||
+    url.searchParams.get("diag") === "1" ||
+    String(env.DEBUG_RESPONSES || "").trim() === "1"
+  );
+}
+
+function withTelemetryHeaders(response, requestId, startedAt) {
+  try {
+    response.headers.set("X-Guild-Worker-Request-Id", requestId);
+    response.headers.set("X-Guild-Worker-Duration-Ms", String(elapsedMs(startedAt)));
+  } catch {
+    // Some platform responses may have immutable headers. Ignore telemetry header injection then.
+  }
+  return response;
+}
+
+function envDiagnostics(env) {
+  return {
+    github_token: Boolean(env.GITHUB_TOKEN),
+    github_owner: Boolean(env.GITHUB_OWNER),
+    github_repo: Boolean(env.GITHUB_REPO),
+    guild_applications_label: env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL,
+    discord_bot_token: Boolean(env.DISCORD_BOT_TOKEN),
+    discord_channel_id: Boolean(env.DISCORD_CHANNEL_ID),
+    discord_public_key: Boolean(env.DISCORD_PUBLIC_KEY),
+    discord_guild_id: Boolean(env.DISCORD_GUILD_ID),
+    rules_stats_binding: hasValidRulesStatsBinding(env),
+    allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
+  };
+}
+
+function sanitizeApiPathForLog(path) {
+  return String(path || "")
+    .replace(/([?&]access_token=)[^&]+/gi, "$1[redacted]")
+    .slice(0, 700);
+}
+
+function parsePositiveInt(value, fallback, min, max) {
+  const number = parseInt(String(value || ""), 10);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(Math.max(number, min), max);
+}
+
+async function runMeasured(event, details, task, level = "info") {
+  const startedAt = nowMs();
+  try {
+    const result = await task();
+    logWorkerEvent(level, `${event}.ok`, { ...details, ms: elapsedMs(startedAt) });
+    return result;
+  } catch (error) {
+    logWorkerEvent("error", `${event}.failed`, { ...details, ms: elapsedMs(startedAt), message: error?.message });
+    throw error;
+  }
+}
+
+function summarizeApplicationItems(items) {
+  const summary = {
+    total: items.length,
+    states: {},
+    statuses: {},
+    labels: {},
+  };
+
+  for (const item of items) {
+    const state = item.state || "unknown";
+    const status = item.status_key || "unknown";
+    summary.states[state] = (summary.states[state] || 0) + 1;
+    summary.statuses[status] = (summary.statuses[status] || 0) + 1;
+
+    for (const label of Array.isArray(item.labels) ? item.labels : []) {
+      summary.labels[label] = (summary.labels[label] || 0) + 1;
+    }
+  }
+
+  return summary;
 }
 
 function parseCsvSet(value) {
@@ -705,11 +816,13 @@ function formatRaidSection(raids) {
 }
 
 async function fetchRaiderIoProfile(payload) {
+  const startedAt = nowMs();
   const region = cleanText(payload.region, 8).toLowerCase();
   const realmSlug = slugifyRaiderIoValue(payload.realm);
   const characterSlug = slugifyRaiderIoValue(payload.characterName);
 
   if (!region || !realmSlug || !characterSlug) {
+    logWorkerEvent("warn", "raiderio.profile.invalid_params", { region, realmSlug, characterSlug, ms: elapsedMs(startedAt) });
     return {
       ok: false,
       error: "Не вдалося підготувати параметри Raider.IO.",
@@ -745,14 +858,30 @@ async function fetchRaiderIoProfile(payload) {
       const apiMessage =
         cleanText(data?.message || data?.error || "", 160) ||
         `HTTP ${response.status}`;
+      logWorkerEvent("warn", "raiderio.profile.failed", {
+        status: response.status,
+        message: apiMessage,
+        region,
+        realmSlug,
+        characterSlug,
+        ms: elapsedMs(startedAt),
+      });
       return {
         ok: false,
         error: `Не вдалося отримати дані Raider.IO: ${apiMessage}.`,
       };
     }
 
+    logWorkerEvent("info", "raiderio.profile.ok", { region, realmSlug, characterSlug, ms: elapsedMs(startedAt) });
     return { ok: true, data };
   } catch (error) {
+    logWorkerEvent("warn", "raiderio.profile.exception", {
+      message: error?.message,
+      region,
+      realmSlug,
+      characterSlug,
+      ms: elapsedMs(startedAt),
+    });
     return {
       ok: false,
       error:
@@ -1039,7 +1168,10 @@ function buildUpdatedApplicationEmbeds(interaction, statusKey, issueNumber, mode
 
 
 async function discordApiFetch(env, path, init = {}) {
-  return fetch(`https://discord.com/api/v10${path}`, {
+  const startedAt = nowMs();
+  const method = init.method || "GET";
+
+  const response = await fetch(`https://discord.com/api/v10${path}`, {
     ...init,
     headers: {
       Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
@@ -1047,6 +1179,18 @@ async function discordApiFetch(env, path, init = {}) {
       ...(init.headers || {}),
     },
   });
+
+  if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
+    logWorkerEvent(response.ok ? "info" : "warn", "discord.fetch", {
+      method,
+      path: sanitizeApiPathForLog(path),
+      status: response.status,
+      ok: response.ok,
+      ms: elapsedMs(startedAt),
+    });
+  }
+
+  return response;
 }
 
 const APPLICATION_STATUS_LABELS = [
@@ -1133,7 +1277,24 @@ async function closeGithubIssue(env, issueNumber, status) {
     throw new Error(data?.message || raw || "Статус змінено, але issue не закрито.");
   }
 }
+async function createStatusComment(env, issueNumber, status, moderator) {
+  const response = await githubFetch(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}/comments`,
+    {
+      method: "POST",
+      body: JSON.stringify({ body: getStatusComment(status, moderator) }),
+    }
+  );
+
+  if (!response.ok) {
+    const { raw, data } = await parseJsonResponse(response);
+    throw new Error(data?.message || raw || "Статус змінено, але коментар не створено.");
+  }
+}
+
 async function updateApplicationIssueStatus(env, issueNumber, status, moderator) {
+  const startedAt = nowMs();
   const cleanIssueNumber = Number(issueNumber);
   if (!Number.isInteger(cleanIssueNumber) || cleanIssueNumber <= 0) {
     throw new Error("Некоректний номер заявки.");
@@ -1143,12 +1304,22 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
   const issue = await retryAsync(() => fetchGithubIssue(env, cleanIssueNumber));
   const currentStatus = getIssueStatusKey(issue);
 
+  logWorkerEvent("info", "application.status.current", {
+    issueNumber: cleanIssueNumber,
+    currentStatus,
+    targetStatus: status,
+    state: issue?.state,
+    labels: Array.isArray(issue?.labels) ? issue.labels.map((label) => label?.name).filter(Boolean) : [],
+  });
+
   if (currentStatus === status && issue?.state === "closed") {
+    logWorkerEvent("info", "application.status.unchanged", { issueNumber: cleanIssueNumber, status, ms: elapsedMs(startedAt) });
     return { ok: true, label: targetLabel, unchanged: true, alreadyClosed: true };
   }
 
   if (currentStatus === status) {
     await retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status));
+    logWorkerEvent("info", "application.status.closed_existing", { issueNumber: cleanIssueNumber, status, ms: elapsedMs(startedAt) });
     return { ok: true, label: targetLabel, unchanged: true, closed: true };
   }
 
@@ -1172,21 +1343,17 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
     throw new Error(data?.message || raw || `Не вдалося додати label ${targetLabel}.`);
   }
 
-  await retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status));
+  await Promise.all([
+    retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status)),
+    retryAsync(() => createStatusComment(env, cleanIssueNumber, status, moderator)),
+  ]);
 
-  const commentResponse = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${cleanIssueNumber}/comments`,
-    {
-      method: "POST",
-      body: JSON.stringify({ body: getStatusComment(status, moderator) }),
-    }
-  );
-
-  if (!commentResponse.ok) {
-    const { raw, data } = await parseJsonResponse(commentResponse);
-    throw new Error(data?.message || raw || "Статус змінено, але коментар не створено.");
-  }
+  logWorkerEvent("info", "application.status.updated", {
+    issueNumber: cleanIssueNumber,
+    status,
+    label: targetLabel,
+    ms: elapsedMs(startedAt),
+  });
 
   return { ok: true, label: targetLabel, closed: true };
 }
@@ -1293,21 +1460,25 @@ async function addGuildMemberRoles(env, guildId, userId, roleIds, reason) {
     throw new Error("Не вистачає guild/user/role ID для видачі ролі.");
   }
 
-  for (const roleId of cleanRoleIds) {
-    const response = await discordApiFetch(
-      env,
-      `/guilds/${cleanGuildId}/members/${cleanUserId}/roles/${roleId}`,
-      {
-        method: "PUT",
-        headers: reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason.slice(0, 512)) } : {},
-      }
-    );
+  await Promise.all(
+    cleanRoleIds.map(async (roleId) => {
+      const response = await discordApiFetch(
+        env,
+        `/guilds/${cleanGuildId}/members/${cleanUserId}/roles/${roleId}`,
+        {
+          method: "PUT",
+          headers: reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason.slice(0, 512)) } : {},
+        }
+      );
 
-    if (!response.ok && response.status !== 204) {
-      const raw = await response.text().catch(() => "");
-      throw new Error(raw || `Discord role error ${response.status}`);
-    }
-  }
+      if (!response.ok && response.status !== 204) {
+        const raw = await response.text().catch(() => "");
+        throw new Error(raw || `Discord role error ${response.status}`);
+      }
+
+      return roleId;
+    })
+  );
 }
 
 async function kickGuildMember(env, guildId, userId, reason) {
@@ -1471,7 +1642,10 @@ async function handleDiscordInteraction(request, env) {
 }
 
 async function githubFetch(env, path, init = {}) {
-  return fetch(`https://api.github.com${path}`, {
+  const startedAt = nowMs();
+  const method = init.method || "GET";
+
+  const response = await fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
       Accept: "application/vnd.github+json",
@@ -1482,6 +1656,20 @@ async function githubFetch(env, path, init = {}) {
       ...(init.headers || {}),
     },
   });
+
+  if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
+    logWorkerEvent(response.ok ? "info" : "warn", "github.fetch", {
+      method,
+      path: sanitizeApiPathForLog(path),
+      status: response.status,
+      ok: response.ok,
+      rate_limit_remaining: response.headers.get("X-RateLimit-Remaining"),
+      rate_limit_reset: response.headers.get("X-RateLimit-Reset"),
+      ms: elapsedMs(startedAt),
+    });
+  }
+
+  return response;
 }
 
 async function parseJsonResponse(response) {
@@ -1624,7 +1812,49 @@ function mapIssueListItem(issue) {
   };
 }
 
+function resolveStatusFilter(rawStatus) {
+  const text = String(rawStatus || "").trim().toLowerCase();
+  if (!text || text === "all") return "all";
+  return STATUS_ALIASES[text] || (STATUS_KEYS.has(text) ? text : null);
+}
+
+function buildGithubIssuesListPath(env, { limit, sort, direction, label, page }) {
+  return `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=${sort}&direction=${direction}&labels=${label}&page=${page}`;
+}
+
+async function fetchApplicationIssuePage(env, options) {
+  const startedAt = nowMs();
+  const response = await githubFetch(env, buildGithubIssuesListPath(env, options));
+  const { raw, data } = await parseJsonResponse(response);
+
+  return {
+    page: options.page,
+    ok: response.ok,
+    status: response.status,
+    ms: elapsedMs(startedAt),
+    raw: raw || "",
+    data: Array.isArray(data) ? data : [],
+    rate_limit_remaining: response.headers.get("X-RateLimit-Remaining"),
+    rate_limit_reset: response.headers.get("X-RateLimit-Reset"),
+  };
+}
+
+function dedupeIssuesByNumber(issues) {
+  const seen = new Set();
+  const result = [];
+
+  for (const issue of issues) {
+    const number = Number(issue?.number);
+    if (!Number.isInteger(number) || seen.has(number)) continue;
+    seen.add(number);
+    result.push(issue);
+  }
+
+  return result;
+}
+
 async function listApplications(request, env) {
+  const startedAt = nowMs();
   const origin = allowedOrigin(request, env) || "*";
   const url = new URL(request.url);
   const limit = Math.min(
@@ -1635,37 +1865,84 @@ async function listApplications(request, env) {
     ? url.searchParams.get("sort")
     : "created";
   const direction = url.searchParams.get("direction") === "asc" ? "asc" : "desc";
-  const label = encodeURIComponent(env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL);
+  const labelName = env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL;
+  const label = encodeURIComponent(labelName);
+  const rawStatus = cleanText(url.searchParams.get("status"), 24).toLowerCase();
+  const status = resolveStatusFilter(rawStatus);
+  const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
+  const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
+  const defaultPages = rawStatus && rawStatus !== "all" ? DEFAULT_FILTERED_LIST_PAGES : 1;
+  const pages = parsePositiveInt(url.searchParams.get("pages"), defaultPages, 1, MAX_GITHUB_LIST_PAGES);
+  const debug = isDebugResponseEnabled(request, env);
 
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=${sort}&direction=${direction}&labels=${label}`
+  if (rawStatus && rawStatus !== "all" && !status) {
+    logWorkerEvent("warn", "applications.list.invalid_status", { rawStatus, label: labelName });
+    return json(
+      {
+        error: "Некоректний фільтр статусу.",
+        allowed_statuses: ["all", ...Array.from(STATUS_KEYS)],
+        diagnostics: debug ? { rawStatus, label: labelName, env: envDiagnostics(env) } : undefined,
+      },
+      400,
+      origin
+    );
+  }
+
+  logWorkerEvent("info", "applications.list.start", {
+    label: labelName,
+    limit,
+    pages,
+    sort,
+    direction,
+    status: status || "invalid",
+    className: className || "all",
+    hasQuery: Boolean(query),
+  });
+
+  const pageNumbers = Array.from({ length: pages }, (_, index) => index + 1);
+  const pageResults = await Promise.all(
+    pageNumbers.map((page) => fetchApplicationIssuePage(env, { limit, sort, direction, label, page }))
   );
 
-  const { raw, data } = await parseJsonResponse(response);
+  const failedPage = pageResults.find((page) => !page.ok);
+  if (failedPage) {
+    logWorkerEvent("error", "applications.list.github_failed", {
+      label: labelName,
+      page: failedPage.page,
+      status: failedPage.status,
+      github_response: failedPage.raw.slice(0, 700),
+      ms: elapsedMs(startedAt),
+    });
 
-  if (!response.ok) {
     return json(
       {
         error: "Список заявок тимчасово недоступний.",
-        github_status: response.status,
-        github_response: raw || null,
+        github_status: failedPage.status,
+        github_response: failedPage.raw || null,
+        diagnostics: debug
+          ? {
+              label: labelName,
+              pages_requested: pages,
+              failed_page: failedPage.page,
+              page_statuses: pageResults.map((page) => ({ page: page.page, ok: page.ok, status: page.status, ms: page.ms })),
+              env: envDiagnostics(env),
+            }
+          : undefined,
       },
       502,
       origin
     );
   }
 
-  let items = (Array.isArray(data) ? data : [])
+  const rawIssues = dedupeIssuesByNumber(pageResults.flatMap((page) => page.data));
+  const mappedItems = rawIssues
     .filter((issue) => !issue.pull_request)
     .map(mapIssueListItem);
+  const beforeFilterSummary = summarizeApplicationItems(mappedItems);
 
-  const rawStatus = cleanText(url.searchParams.get("status"), 24).toLowerCase();
-  const status = normalizeStatusKey(rawStatus);
-  const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
-  const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
+  let items = mappedItems;
 
-  if (rawStatus && rawStatus !== "all" && STATUS_KEYS.has(status)) {
+  if (status && status !== "all") {
     items = items.filter((item) => item.status_key === status);
   }
   if (className && className !== "all") {
@@ -1678,22 +1955,112 @@ async function listApplications(request, env) {
     );
   }
 
-  return json({ items, total: items.length }, 200, origin);
+  const afterFilterSummary = summarizeApplicationItems(items);
+  const diagnostics = {
+    label: labelName,
+    repo: `${env.GITHUB_OWNER}/${env.GITHUB_REPO}`,
+    limit,
+    pages_requested: pages,
+    pages: pageResults.map((page) => ({
+      page: page.page,
+      status: page.status,
+      ok: page.ok,
+      ms: page.ms,
+      count: page.data.length,
+      rate_limit_remaining: page.rate_limit_remaining,
+      rate_limit_reset: page.rate_limit_reset,
+    })),
+    filters: {
+      status: status || null,
+      raw_status: rawStatus || "all",
+      class: className || "all",
+      query: query || null,
+    },
+    before_filters: beforeFilterSummary,
+    after_filters: afterFilterSummary,
+    env: envDiagnostics(env),
+    ms: elapsedMs(startedAt),
+  };
+
+  logWorkerEvent("info", "applications.list.done", diagnostics);
+
+  return json(
+    {
+      items,
+      total: items.length,
+      meta: {
+        total_before_filters: mappedItems.length,
+        total_after_filters: items.length,
+        status_counts: afterFilterSummary.statuses,
+        state_counts: afterFilterSummary.states,
+      },
+      diagnostics: debug ? diagnostics : undefined,
+    },
+    200,
+    origin
+  );
 }
 
-async function createApplication(request, env) {
+async function completeDiscordNotification(env, cleanPayload, issue) {
+  const startedAt = nowMs();
+
+  try {
+    const discord = await sendDiscordNotification(env, cleanPayload, issue);
+
+    if (discord?.ok) {
+      discord.issue_ref = await storeDiscordMessageRef(env, issue, discord);
+    }
+
+    logWorkerEvent("info", "application.discord.done", {
+      issueNumber: issue?.number,
+      queued: false,
+      ok: Boolean(discord?.ok),
+      skipped: Boolean(discord?.skipped),
+      reason: discord?.reason,
+      message_id: discord?.message_id,
+      channel_id: discord?.channel_id,
+      raider_io: discord?.raider_io,
+      issue_ref: discord?.issue_ref,
+      ms: elapsedMs(startedAt),
+    });
+
+    return discord;
+  } catch (error) {
+    const discord = {
+      ok: false,
+      error: error instanceof Error ? error.message : "Discord notification failed.",
+    };
+
+    logWorkerEvent("error", "application.discord.failed", {
+      issueNumber: issue?.number,
+      message: discord.error,
+      ms: elapsedMs(startedAt),
+    });
+
+    return discord;
+  }
+}
+
+async function createApplication(request, env, ctx) {
+  const startedAt = nowMs();
   const origin = allowedOrigin(request, env);
 
   if (!origin) {
+    logWorkerEvent("warn", "application.create.origin_denied", {
+      origin: request.headers.get("Origin") || "",
+      allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
+    });
     return json({ error: "Надсилання заявок зараз недоступне." }, 403, "*");
   }
 
   const payload = await request.json().catch(() => null);
   if (!payload || typeof payload !== "object") {
+    logWorkerEvent("warn", "application.create.invalid_json", { ms: elapsedMs(startedAt) });
     return json({ error: "Не вдалося обробити заявку. Спробуй ще раз." }, 400, origin);
   }
 
   if (cleanText(payload.website, 200)) {
+    logWorkerEvent("warn", "application.create.honeypot", { ms: elapsedMs(startedAt) });
     return json({ error: "Не вдалося надіслати заявку. Спробуй ще раз." }, 400, origin);
   }
 
@@ -1701,24 +2068,45 @@ async function createApplication(request, env) {
   const validationError = validateApplication(cleanPayload);
 
   if (validationError) {
+    logWorkerEvent("warn", "application.create.validation_failed", {
+      message: validationError,
+      region: cleanPayload.region,
+      faction: cleanPayload.faction,
+      realm: cleanPayload.realm,
+      characterName: cleanPayload.characterName,
+      hasAvailability: Boolean(cleanPayload.availability),
+      hasBattleTag: Boolean(cleanPayload.battleTag),
+      ms: elapsedMs(startedAt),
+    });
     return json({ error: validationError }, 400, origin);
   }
 
   try {
-    const issue = await createGithubIssue(env, cleanPayload);
+    const issue = await runMeasured(
+      "application.github.create",
+      { characterName: cleanPayload.characterName, realm: cleanPayload.realm, region: cleanPayload.region },
+      () => createGithubIssue(env, cleanPayload)
+    );
 
-    let discord = { skipped: true };
-    try {
-      discord = await sendDiscordNotification(env, cleanPayload, issue);
-      if (discord?.ok) {
-        discord.issue_ref = await storeDiscordMessageRef(env, issue, discord);
-      }
-    } catch (error) {
-      discord = {
-        ok: false,
-        error: error instanceof Error ? error.message : "Discord notification failed.",
-      };
+    const useAsyncDiscord =
+      ctx &&
+      typeof ctx.waitUntil === "function" &&
+      String(env.APPLICATION_DISCORD_ASYNC || "1").trim() !== "0";
+
+    let discord = { queued: true, async: true };
+
+    if (useAsyncDiscord) {
+      ctx.waitUntil(completeDiscordNotification(env, cleanPayload, issue));
+      logWorkerEvent("info", "application.discord.queued", { issueNumber: issue.number });
+    } else {
+      discord = await completeDiscordNotification(env, cleanPayload, issue);
     }
+
+    logWorkerEvent("info", "application.create.done", {
+      issueNumber: issue.number,
+      discord_async: useAsyncDiscord,
+      ms: elapsedMs(startedAt),
+    });
 
     return json(
       {
@@ -1734,6 +2122,14 @@ async function createApplication(request, env) {
       origin
     );
   } catch (error) {
+    logWorkerEvent("error", "application.create.failed", {
+      message: error?.message,
+      characterName: cleanPayload.characterName,
+      realm: cleanPayload.realm,
+      region: cleanPayload.region,
+      ms: elapsedMs(startedAt),
+    });
+
     return json(
       {
         error: error instanceof Error ? error.message : "Невідома помилка.",
@@ -1745,52 +2141,110 @@ async function createApplication(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
-    if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
-      return json({ error: "Прийом заявок тимчасово недоступний." }, 500, "*");
-    }
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": allowedOrigin(request, env) || "*",
-          "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      });
-    }
-
+  async fetch(request, env, ctx) {
+    const startedAt = nowMs();
+    const requestId = requestIdFromRequest(request);
     const url = new URL(request.url);
 
-    if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
-      return handleRulesStats(request, env);
-    }
+    logWorkerEvent("info", "request.start", {
+      requestId,
+      method: request.method,
+      path: url.pathname,
+      query: url.search ? url.search.slice(0, 500) : "",
+      origin: request.headers.get("Origin") || "",
+    });
 
-    if (url.pathname === "/api/discord-interactions" && request.method === "POST") {
-      return handleDiscordInteraction(request, env);
-    }
+    let response;
 
-    if (!PATHS.has(url.pathname)) {
-      return json(
-        { error: "Сторінку не знайдено." },
-        404,
+    try {
+      if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
+        logWorkerEvent("error", "request.env_missing", {
+          requestId,
+          path: url.pathname,
+          env: envDiagnostics(env),
+        });
+        response = json({ error: "Прийом заявок тимчасово недоступний.", diagnostics: isDebugResponseEnabled(request, env) ? envDiagnostics(env) : undefined }, 500, "*");
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (request.method === "OPTIONS") {
+        response = new Response(null, {
+          status: 204,
+          headers: {
+            "Access-Control-Allow-Origin": allowedOrigin(request, env) || "*",
+            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Cache-Control": "no-store",
+          },
+        });
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
+        response = await handleRulesStats(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/discord-interactions" && request.method === "POST") {
+        response = await handleDiscordInteraction(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (!PATHS.has(url.pathname)) {
+        response = json(
+          { error: "Сторінку не знайдено." },
+          404,
+          allowedOrigin(request, env) || "*"
+        );
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (request.method === "GET") {
+        response = await listApplications(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (request.method === "POST") {
+        response = await createApplication(request, env, ctx);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      response = json(
+        { error: "Ця дія зараз недоступна." },
+        405,
         allowedOrigin(request, env) || "*"
       );
-    }
+      return withTelemetryHeaders(response, requestId, startedAt);
+    } catch (error) {
+      logWorkerEvent("error", "request.unhandled", {
+        requestId,
+        method: request.method,
+        path: url.pathname,
+        message: error?.message,
+        stack: String(error?.stack || "").slice(0, 1200),
+        ms: elapsedMs(startedAt),
+      });
 
-    if (request.method === "GET") {
-      return listApplications(request, env);
+      response = json(
+        {
+          error: "Внутрішня помилка Worker.",
+          request_id: requestId,
+          diagnostics: isDebugResponseEnabled(request, env)
+            ? { message: error?.message, env: envDiagnostics(env) }
+            : undefined,
+        },
+        500,
+        allowedOrigin(request, env) || "*"
+      );
+      return withTelemetryHeaders(response, requestId, startedAt);
+    } finally {
+      logWorkerEvent("info", "request.end", {
+        requestId,
+        method: request.method,
+        path: url.pathname,
+        status: response?.status,
+        ms: elapsedMs(startedAt),
+      });
     }
-
-    if (request.method === "POST") {
-      return createApplication(request, env);
-    }
-
-    return json(
-      { error: "Ця дія зараз недоступна." },
-      405,
-      allowedOrigin(request, env) || "*"
-    );
   },
 };
