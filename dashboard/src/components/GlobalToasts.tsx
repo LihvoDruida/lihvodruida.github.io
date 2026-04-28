@@ -17,80 +17,198 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   bnet_connected: {
     tone: "success",
     title: "Battle.net перевірено",
-    message: "Свіжий список персонажів тимчасово доступний для додавання. У Firebase збережуться лише ті, які ти додаси.",
+    message: "Свіжий список персонажів відкритий тимчасово. Додавай потрібних одразу: у Firebase збережуться тільки вибрані персонажі.",
+    ttl: 7200,
   },
   bnet_no_guild_characters: {
     tone: "warning",
-    title: "Персонажів гільдії не знайдено",
-    message: "Battle.net підключено, але серед підтверджених персонажів немає Mistblossom Vanguard.",
+    title: "У гільдії нікого не знайдено",
+    message: "Battle.net підключено, але scan не підтвердив персонажів Mistblossom Vanguard. Перевір гільдію персонажа, регіон EU і повтори реавторизацію.",
+    ttl: 8200,
   },
   bnet_failed: {
     tone: "error",
     title: "Battle.net не оновлено",
-    message: "Перевір OAuth env, scope wow.profile, redirect URI та регіон.",
+    message: "OAuth або Battle.net API не повернули список. Перевір env, redirect URI, scope wow.profile, регіон і логи Vercel callback endpoint.",
+    ttl: 9000,
   },
   bnet_state: {
     tone: "warning",
     title: "Battle.net авторизацію відхилено",
-    message: "OAuth-перевірка не пройшла. Запусти підключення ще раз.",
+    message: "OAuth state не збігся або сесія застаріла. Запусти підключення Battle.net ще раз із цієї ж вкладки.",
+    ttl: 7600,
   },
   character_added: {
     tone: "success",
     title: "Персонажа додано",
-    message: "Він збережений у Firebase і прив’язаний до твого профілю.",
+    message: "Персонаж записаний у Firebase. Якщо це перший персонаж у профілі, він автоматично стає main.",
   },
   characters_added: {
     tone: "success",
     title: "Персонажів додано",
-    message: "Вибрані персонажі збережені одним batch-запитом. Тимчасовий список очищено від доданих записів.",
+    message: "Batch-запит успішно зберіг вибраних персонажів у Firebase і прибрав додані записи з тимчасового Battle.net списку.",
+    ttl: 7200,
+  },
+  characters_added_partial: {
+    tone: "warning",
+    title: "Додано не всіх персонажів",
+    message: "Частина персонажів збережена, а частина пропущена: зазвичай це дублікати або ліміт профілю. Перевір список збережених персонажів нижче.",
+    ttl: 8200,
   },
   characters_bulk_empty: {
     tone: "warning",
     title: "Немає вибраних персонажів",
-    message: "Познач персонажів у списку або натисни “Додати всі”.",
+    message: "Познач хоча б одного персонажа у тимчасовому Battle.net списку або натисни “Додати всі”.",
   },
   characters_bulk_noop: {
     tone: "warning",
     title: "Нічого не додано",
-    message: "Вибрані персонажі вже є в профілі або досягнуто ліміт збережених персонажів.",
+    message: "Запит оброблено, але Firebase не отримав нових персонажів. Найчастіше всі вибрані вже були збережені або список змінився після scan.",
+    ttl: 7600,
+  },
+  characters_bulk_no_verified: {
+    tone: "error",
+    title: "Немає підтверджених персонажів гільдії",
+    message: "У вибраному Battle.net списку немає персонажів, які scan підтвердив як Mistblossom Vanguard. Онови персонажів через Battle.net і перевір гільдію/регіон.",
+    ttl: 9000,
+  },
+  characters_bulk_all_duplicates: {
+    tone: "warning",
+    title: "Усі вибрані вже додані",
+    message: "Firebase уже має ці записи в профілі. Повторно вони не дублюються — це нормальний захист від однакових персонажів.",
+    ttl: 7600,
+  },
+  characters_bulk_limit_reached: {
+    tone: "warning",
+    title: "Досягнуто ліміт персонажів",
+    message: "Профіль уже має максимальну кількість збережених персонажів. Видали зайві записи або не додавай весь Battle.net список одразу.",
+    ttl: 8200,
   },
   character_add_failed: {
     tone: "error",
     title: "Персонажа не додано",
-    message: "Потрібна свіжа Battle.net перевірка, а персонаж має бути в Mistblossom Vanguard.",
+    message: "Сервер не завершив запис персонажа. Перевір Vercel logs для /api/profile/characters/add — там буде точна причина від Firebase або транзакції.",
+    ttl: 9000,
+  },
+  character_add_duplicate: {
+    tone: "warning",
+    title: "Персонаж уже є в профілі",
+    message: "Повторний запис не створюється. Якщо хочеш оновити список, спочатку пройди Battle.net реавторизацію або видали старий запис.",
+    ttl: 7000,
+  },
+  character_add_limit: {
+    tone: "warning",
+    title: "Ліміт персонажів у профілі",
+    message: "Новий запис не додано, бо профіль уже заповнений. Видали непотрібних персонажів і повтори додавання.",
+    ttl: 7800,
+  },
+  character_add_invalid: {
+    tone: "error",
+    title: "Некоректний персонаж",
+    message: "Запит не містить валідного characterKey. Онови сторінку профілю і натисни кнопку додавання ще раз.",
+    ttl: 7600,
+  },
+  character_add_not_guild: {
+    tone: "error",
+    title: "Персонаж не підтверджений у гільдії",
+    message: "Додаються тільки персонажі, яких свіжа Battle.net перевірка позначила як Mistblossom Vanguard. Перевір гільдію персонажа, EU-регіон і зроби новий scan.",
+    ttl: 9000,
+  },
+  character_add_profile_missing: {
+    tone: "error",
+    title: "Firebase-профіль не знайдено",
+    message: "Сесія є, але документа dashboardProfiles для цього profileId немає. Вийди/увійди через Discord, щоб профіль створився, потім повтори Battle.net перевірку.",
+    ttl: 9200,
+  },
+  character_add_firebase_unconfigured: {
+    tone: "error",
+    title: "Firebase профілі не налаштовані",
+    message: "На сервері немає коректних FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL або FIREBASE_PRIVATE_KEY. Без них профіль не може зберігати персонажів.",
+    ttl: 9200,
+  },
+  character_add_firebase_failed: {
+    tone: "error",
+    title: "Firebase не записав персонажа",
+    message: "Транзакція Firestore не пройшла. Перевір service account, права запису до dashboardProfiles і Vercel logs.",
+    ttl: 9200,
   },
   character_reauth_required: {
     tone: "warning",
-    title: "Потрібна реавторизація Battle.net",
-    message: "Тимчасова перевірка персонажів уже недійсна або була очищена.",
+    title: "Потрібна свіжа Battle.net перевірка",
+    message: "Тимчасовий список персонажів відсутній або застарів. Натисни “Оновити персонажів”, пройди Battle.net і додавай персонажа одразу після повернення.",
+    ttl: 8600,
   },
   character_removed: {
     tone: "success",
     title: "Персонажа видалено",
-    message: "Запис прибрано з Firebase. Для повторного додавання потрібна нова Battle.net перевірка.",
+    message: "Запис прибрано з Firebase. Якщо це був main, система автоматично вибере наступного доступного персонажа.",
+    ttl: 6800,
   },
   character_remove_failed: {
     tone: "error",
     title: "Не вдалося видалити персонажа",
-    message: "Спробуй ще раз або перевір доступ до Firebase.",
+    message: "Запис не видалено. Перевір Firebase transaction у Vercel logs або повтори дію після оновлення сторінки.",
+    ttl: 8600,
+  },
+  character_remove_invalid: {
+    tone: "error",
+    title: "Некоректний запит видалення",
+    message: "Кнопка не передала валідний characterKey. Онови сторінку профілю і повтори дію.",
+    ttl: 7600,
+  },
+  character_remove_profile_missing: {
+    tone: "error",
+    title: "Профіль для видалення не знайдено",
+    message: "Firebase не знайшов dashboardProfiles документ поточної сесії. Увійди через Discord ще раз.",
+    ttl: 8600,
+  },
+  character_remove_firebase_unconfigured: {
+    tone: "error",
+    title: "Firebase недоступний для видалення",
+    message: "Сервер не має налаштованого Firebase Admin SDK, тому не може змінити список персонажів.",
+    ttl: 8600,
   },
   main_character_set: {
     tone: "success",
     title: "Мейн оновлено",
-    message: "Цей персонаж тепер використовується як основний для сайту й інтеграцій.",
+    message: "Цей персонаж тепер використовується як основний для сайту, рейдових правил та інтеграцій Discord.",
   },
   main_character_failed: {
     tone: "error",
     title: "Мейна не змінено",
-    message: "Персонаж має бути доданий до профілю перед призначенням main.",
+    message: "Сервер не зміг оновити mainCharacterKey. Перевір Vercel logs для /api/profile/characters/main.",
+    ttl: 8600,
+  },
+  main_character_invalid: {
+    tone: "error",
+    title: "Некоректний main-персонаж",
+    message: "Запит не містить валідного characterKey. Онови сторінку і натисни “Зробити мейном” ще раз.",
+    ttl: 7600,
+  },
+  main_character_missing: {
+    tone: "warning",
+    title: "Спочатку додай персонажа",
+    message: "Main можна вибрати тільки серед персонажів, уже збережених у Firebase-профілі.",
+    ttl: 7600,
+  },
+  main_character_profile_missing: {
+    tone: "error",
+    title: "Профіль для main не знайдено",
+    message: "Firebase не знайшов твій dashboardProfiles документ. Вийди/увійди через Discord і повтори дію.",
+    ttl: 8600,
+  },
+  main_character_firebase_unconfigured: {
+    tone: "error",
+    title: "Firebase недоступний для main",
+    message: "Сервер не має налаштованого Firebase Admin SDK, тому main-персонаж не може бути збережений.",
+    ttl: 8600,
   },
   rate_limit: {
     tone: "warning",
     title: "Забагато дій",
-    message: "Зачекай кілька хвилин і повтори спробу.",
+    message: "Зачекай кілька хвилин і повтори спробу. Це захист від дублювання запитів і rate-limit API.",
   },
 };
-
 const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   rate_limit: { tone: "warning", title: "Забагато спроб входу", message: "Зачекай кілька хвилин і повтори авторизацію." },
   token: { tone: "error", title: "Вхід не виконано", message: "Токен недійсний або застарів." },
@@ -115,7 +233,7 @@ function createId(prefix = "toast") {
 }
 
 function cleanMessage(value: string | null | undefined) {
-  return String(value || "").replace(/\s+/g, " ").trim().slice(0, 220);
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, 360);
 }
 
 function toastFromSearchParams(params: URLSearchParams): Toast[] {

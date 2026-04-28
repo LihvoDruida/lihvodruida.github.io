@@ -311,16 +311,21 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+  return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
     const profile = normalizeProfile(profileId, snapshot.data() || {});
     const current = profile.characters;
-    if (current.some((item) => item.key === cleanKey)) return;
+    if (current.some((item) => item.key === cleanKey)) {
+      return { added: false, reason: "duplicate" as const, key: cleanKey };
+    }
+    if (current.length >= 50) {
+      return { added: false, reason: "limit" as const, key: cleanKey };
+    }
 
     const now = new Date().toISOString();
     const nextCharacter: ProfileCharacter = { ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now };
-    const nextCharacters = [...current, nextCharacter].slice(0, 50);
+    const nextCharacters = [...current, nextCharacter];
     const mainCharacterKey = profile.mainCharacterKey || nextCharacter.key;
 
     transaction.set(ref, {
@@ -328,11 +333,14 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
       mainCharacterKey,
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
+
+    return { added: true, key: cleanKey };
   });
 }
 
 
 export async function addProfileCharacters(profileId: string, candidateInputs: BattleNetCharacterCandidate[]) {
+  const requested = Array.isArray(candidateInputs) ? candidateInputs.length : 0;
   const normalized = new Map<string, ProfileCharacter>();
   for (const input of candidateInputs || []) {
     const candidate = normalizeCharacter(input, null);
@@ -348,6 +356,7 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
 
   const addedKeys: string[] = [];
   const skippedKeys: string[] = [];
+  const skippedReasons: Record<string, "duplicate" | "limit"> = {};
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
 
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -363,10 +372,12 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
     for (const [key, candidate] of normalized) {
       if (currentKeys.has(key)) {
         skippedKeys.push(key);
+        skippedReasons[key] = "duplicate";
         continue;
       }
       if (nextCharacters.length >= 50) {
         skippedKeys.push(key);
+        skippedReasons[key] = "limit";
         continue;
       }
 
@@ -384,7 +395,15 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
     }, { merge: true });
   });
 
-  return { added: addedKeys.length, skipped: skippedKeys.length, addedKeys, skippedKeys };
+  return {
+    requested,
+    validRequested: normalized.size,
+    added: addedKeys.length,
+    skipped: skippedKeys.length,
+    addedKeys,
+    skippedKeys,
+    skippedReasons,
+  };
 }
 
 export async function removeProfileCharacter(profileId: string, characterKey: string) {

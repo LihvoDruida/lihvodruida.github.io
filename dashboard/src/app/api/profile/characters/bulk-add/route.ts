@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCandidatesFromCookie } from "@/lib/battlenetCandidates";
 import { addProfileCharacters } from "@/lib/profiles";
+import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { forbiddenResponse, logDashboardEvent, noStoreHeaders, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
@@ -13,6 +14,14 @@ function redirectToProfile(request: NextRequest, profileId: string, status: stri
 
 function cleanKeys(values: FormDataEntryValue[]) {
   return Array.from(new Set(values.map((value) => String(value || "").trim().toLowerCase()).filter(Boolean))).slice(0, 50);
+}
+
+function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>) {
+  const reasons = Object.values(result.skippedReasons || {});
+  if (!result.validRequested) return "characters_bulk_no_verified";
+  if (reasons.length && reasons.every((reason) => reason === "duplicate")) return "characters_bulk_all_duplicates";
+  if (reasons.some((reason) => reason === "limit")) return "characters_bulk_limit_reached";
+  return "characters_bulk_noop";
 }
 
 export async function POST(request: NextRequest) {
@@ -48,19 +57,22 @@ export async function POST(request: NextRequest) {
       profileId: session.profileId,
       mode,
       requested: candidates.length,
+      validRequested: result.validRequested,
       added: result.added,
       skipped: result.skipped,
+      skippedReasons: result.skippedReasons,
     });
 
     if (result.added <= 0) {
-      return redirectToProfile(request, session.profileId, "characters_bulk_noop");
+      return redirectToProfile(request, session.profileId, statusForNoop(result));
     }
 
-    const response = redirectToProfile(request, session.profileId, result.added > 1 ? "characters_added" : "character_added");
+    const response = redirectToProfile(request, session.profileId, result.skipped > 0 ? "characters_added_partial" : result.added > 1 ? "characters_added" : "character_added");
     removeCandidatesFromCookie(response, candidateCookie, session.profileId, result.addedKeys);
     return response;
   } catch (error) {
-    logDashboardEvent("warn", "profile.character.bulk_failed", request, { profileId: session.profileId, mode, message: safeErrorMessage(error) });
-    return redirectToProfile(request, session.profileId, "character_add_failed");
+    const status = characterAddStatusFromError(error);
+    logDashboardEvent("warn", "profile.character.bulk_failed", request, { profileId: session.profileId, mode, status, message: safeErrorMessage(error) });
+    return redirectToProfile(request, session.profileId, status === "character_add_not_guild" ? "characters_bulk_no_verified" : status);
   }
 }
