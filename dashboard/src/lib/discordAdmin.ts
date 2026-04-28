@@ -131,6 +131,20 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
       };
     }
 
+    const returnedType = String(data.rules_type || data.rulesType || "guild").toLowerCase();
+    if (returnedType && !["guild", "rules"].includes(returnedType)) {
+      return {
+        rulesType: "guild",
+        accepted: 0,
+        declined: 0,
+        total: 0,
+        updatedAt: null,
+        configured: false,
+        source: "error",
+        error: `Endpoint звичайних правил повернув дані типу ${returnedType}. Перевір DISCORD_RULES_STATS_ENDPOINT.`,
+      };
+    }
+
     const accepted = safeNumber(data.accepted);
     const declined = safeNumber(data.declined);
 
@@ -193,6 +207,19 @@ export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStat
       };
     }
 
+    const returnedType = String(data.rules_type || data.rulesType || "raid").toLowerCase();
+    if (returnedType && !["raid", "raid-rules"].includes(returnedType)) {
+      return {
+        rulesType: "raid",
+        signed: 0,
+        total: 0,
+        updatedAt: null,
+        configured: false,
+        source: "error",
+        error: `Endpoint рейдових правил повернув дані типу ${returnedType}. Перевір DISCORD_RAID_RULES_STATS_ENDPOINT.`,
+      };
+    }
+
     const signed = safeNumber(data.signed ?? data.stats?.signed ?? data.total);
     const source = typeof data.source === "string" ? data.source : "worker";
 
@@ -248,6 +275,19 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
         source: "error",
         signups: [],
         error: typeof data?.error === "string" ? data.error : `Worker raid signups HTTP ${response.status}`,
+      };
+    }
+
+    const returnedType = String(data.rules_type || data.rulesType || "raid").toLowerCase();
+    if (returnedType && !["raid", "raid-rules"].includes(returnedType)) {
+      return {
+        rulesType: "raid",
+        configured: false,
+        total: 0,
+        updatedAt: null,
+        source: "error",
+        signups: [],
+        error: `Endpoint підписантів повернув дані типу ${returnedType}. Перевір DISCORD_RAID_RULES_SIGNUPS_ENDPOINT.`,
       };
     }
 

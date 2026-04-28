@@ -14,6 +14,7 @@ import {
   type DiscordRaidRulesStats,
   type DiscordRoleOption,
   type DiscordRulesStats,
+  type DiscordTextChannel,
 } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds } from "@/lib/permissions";
@@ -43,7 +44,10 @@ function roleColor(roleId: string, roles: DiscordRoleOption[]) {
 }
 
 function shortDiscordUrl(url: string) {
-  return url.replace(/^https?:\/\/discord(?:app)?\.com\/channels\//i, "discord / ");
+  const text = String(url || "").trim();
+  const match = text.match(/discord(?:app)?\.com\/channels\/(\d{16,25}|@me)\/(\d{16,25})\/(\d{16,25})/i);
+  if (!match) return text.replace(/^https?:\/\/discord(?:app)?\.com\/channels\//i, "discord / ");
+  return `discord / канал ${match[2].slice(-6)} / ${match[3].slice(-6)}`;
 }
 
 function formatUpdatedAt(value: string | null) {
@@ -52,66 +56,102 @@ function formatUpdatedAt(value: string | null) {
   return Number.isNaN(date.getTime()) ? "невідома дата" : date.toLocaleString("uk-UA");
 }
 
-function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: DiscordRulesStats; messagesCount: number; channelName: string }) {
-  const updatedLabel = formatUpdatedAt(stats.updatedAt);
-  const statsHint = stats.configured
-    ? `Облік звичайних правил активний • останнє оновлення: ${updatedLabel}`
-    : (stats.error || "Онови Worker і додай KV binding RULES_STATS.");
+function sourceLabel(source: string) {
+  switch (source) {
+    case "kv":
+      return "KV";
+    case "worker":
+      return "Worker";
+    case "missing-kv-binding":
+      return "KV не підключено";
+    case "invalid-binding":
+      return "KV binding некоректний";
+    case "unconfigured":
+      return "endpoint не задано";
+    case "error":
+      return "помилка";
+    default:
+      return source || "невідомо";
+  }
+}
+
+function metricValue(value: number | string, configured = true) {
+  if (!configured) return "—";
+  return typeof value === "number" ? value.toLocaleString("uk-UA") : value;
+}
+
+function RulesMetric({ label, value, hint, tone = "neutral" }: { label: string; value: number | string; hint: string; tone?: "neutral" | "good" | "bad" | "warn" }) {
+  return (
+    <div className={`discord-rules-metric discord-rules-metric--${tone}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{hint}</small>
+    </div>
+  );
+}
+
+function RulesDataOverview({
+  stats,
+  raidStats,
+  raidSignups,
+  guildMessagesCount,
+  raidMessagesCount,
+  channelLabel,
+}: {
+  stats: DiscordRulesStats;
+  raidStats: DiscordRaidRulesStats;
+  raidSignups: DiscordRaidRulesSignupsResponse;
+  guildMessagesCount: number;
+  raidMessagesCount: number;
+  channelLabel: string;
+}) {
+  const raidSigned = raidStats.configured ? Math.max(raidStats.signed, raidSignups.total, raidSignups.signups.length) : 0;
+  const raidUpdatedAt = raidStats.updatedAt || raidSignups.updatedAt;
+  const guildStatus = stats.configured
+    ? `Дані звичайних правил читаються окремо з namespace rules. Оновлено: ${formatUpdatedAt(stats.updatedAt)}.`
+    : (stats.error || "Статистика звичайних правил недоступна. Перевір RULES_STATS KV та endpoint.");
+  const raidStatus = raidStats.configured || raidSignups.configured
+    ? `Дані правил рейду читаються окремо з namespace raid-rules. Оновлено: ${formatUpdatedAt(raidUpdatedAt)}.`
+    : (raidStats.error || raidSignups.error || "Статистика правил рейду недоступна. Перевір RULES_STATS KV та raid endpoint-и.");
 
   return (
-    <section className="discord-rules-stats-grid" aria-label="Статистика звичайних правил">
-      <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
-        <span className="eyebrow">Звичайні правила</span>
-        <strong>{stats.configured ? stats.accepted : "—"}</strong>
-        <small>користувачів прийняли правила Discord</small>
+    <section className="discord-rules-data-overview" aria-label="Розділені дані правил">
+      <article className="panel discord-rules-data-panel discord-rules-data-panel--guild">
+        <div className="discord-rules-data-head">
+          <div>
+            <span className="eyebrow">Звичайні правила</span>
+            <h2>Discord правила</h2>
+          </div>
+          <span className={`discord-rules-status-pill${stats.configured ? "" : " discord-rules-status-pill--error"}`}>{sourceLabel(stats.source)}</span>
+        </div>
+        <div className="discord-rules-metric-grid">
+          <RulesMetric label="Прийняли" value={metricValue(stats.accepted, stats.configured)} hint="користувачів натиснули “Прийняти”" tone="good" />
+          <RulesMetric label="Відмовились" value={metricValue(stats.declined, stats.configured)} hint="відмови тільки звичайних правил" tone="bad" />
+          <RulesMetric label="Всього дій" value={metricValue(stats.total, stats.configured)} hint="accepted + declined" />
+          <RulesMetric label="Embed" value={guildMessagesCount} hint={`знайдено у ${channelLabel}`} tone="warn" />
+        </div>
+        <p className="discord-rules-data-note">{guildStatus}</p>
       </article>
-      <article className="panel discord-rules-stat-card discord-rules-stat-card--declined">
-        <span className="eyebrow">Відмовились</span>
-        <strong>{stats.configured ? stats.declined : "—"}</strong>
-        <small>відмови саме від звичайних правил</small>
-      </article>
-      <article className="panel discord-rules-stat-card">
-        <span className="eyebrow">Embed правил</span>
-        <strong>{messagesCount}</strong>
-        <small>звичайних rules embed у #{channelName}</small>
-      </article>
-      <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
-        <span className="eyebrow">Статистика Discord правил</span>
-        <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
-        <small>{statsHint}</small>
+
+      <article className="panel discord-rules-data-panel discord-rules-data-panel--raid">
+        <div className="discord-rules-data-head">
+          <div>
+            <span className="eyebrow">Правила рейду</span>
+            <h2>Рейдові правила</h2>
+          </div>
+          <span className={`discord-rules-status-pill${raidStats.configured || raidSignups.configured ? "" : " discord-rules-status-pill--error"}`}>{sourceLabel(raidStats.source || raidSignups.source)}</span>
+        </div>
+        <div className="discord-rules-metric-grid">
+          <RulesMetric label="Підписались" value={metricValue(raidSigned, raidStats.configured || raidSignups.configured)} hint="унікальних Discord-користувачів" tone="good" />
+          <RulesMetric label="У списку" value={metricValue(raidSignups.signups.length, raidSignups.configured)} hint="з Discord + main-персонажем" />
+          <RulesMetric label="Embed" value={raidMessagesCount} hint={`рейдових embed у ${channelLabel}`} tone="warn" />
+          <RulesMetric label="Статус" value={raidStats.configured || raidSignups.configured ? "активно" : "—"} hint="окремий raid-rules namespace" />
+        </div>
+        <p className="discord-rules-data-note">{raidStatus}</p>
       </article>
     </section>
   );
 }
-
-function RaidRulesStatsPanel({ stats, messagesCount, signupsCount, channelName }: { stats: DiscordRaidRulesStats; messagesCount: number; signupsCount: number; channelName: string }) {
-  const updatedLabel = formatUpdatedAt(stats.updatedAt);
-  const statsHint = stats.configured
-    ? `Облік рейдових правил активний • останнє оновлення: ${updatedLabel}`
-    : (stats.error || "Онови Worker і додай endpoint /api/discord-raid-rules-stats з KV RULES_STATS.");
-  const signedCount = stats.configured ? Math.max(stats.signed, signupsCount) : "—";
-
-  return (
-    <section className="discord-rules-stats-grid" aria-label="Статистика правил рейду">
-      <article className="panel discord-rules-stat-card discord-rules-stat-card--accepted">
-        <span className="eyebrow">Правила рейду</span>
-        <strong>{signedCount}</strong>
-        <small>користувачів підписались на рейдові правила</small>
-      </article>
-      <article className="panel discord-rules-stat-card">
-        <span className="eyebrow">Embed рейду</span>
-        <strong>{messagesCount}</strong>
-        <small>рейдових rules embed у #{channelName}</small>
-      </article>
-      <article className="panel discord-rules-stat-card discord-rules-stat-card--wide">
-        <span className="eyebrow">Статистика рейду</span>
-        <strong>{stats.configured ? stats.total : "KV не підключено"}</strong>
-        <small>{statsHint}</small>
-      </article>
-    </section>
-  );
-}
-
 
 function characterLabel(signup: DiscordRaidRulesSignupsResponse["signups"][number]) {
   const character = signup.mainCharacter || null;
@@ -128,20 +168,23 @@ function signedAtLabel(value: string) {
 
 function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsResponse }) {
   const updatedLabel = formatUpdatedAt(signups.updatedAt);
+  const visibleCount = signups.signups.length;
+  const totalLabel = signups.configured ? `${visibleCount}${signups.total > visibleCount ? ` з ${signups.total}` : ""} підписантів` : "KV не підключено";
   const hint = signups.configured
-    ? `Останнє оновлення: ${updatedLabel}`
+    ? `Останнє оновлення: ${updatedLabel}. Тут показуються тільки підписанти рейдових правил, звичайні правила сюди не потрапляють.`
     : (signups.error || "Онови Worker і додай endpoint /api/discord-raid-rules-signups з KV RULES_STATS.");
 
   return (
     <section className="panel discord-raid-signups-panel" aria-label="Підписанти правил рейду">
-      <div className="content-section-head content-section-head--toolbar">
+      <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
         <div>
           <span className="eyebrow">Raid rules</span>
           <h2>Хто підписався на правила рейду</h2>
         </div>
         <div className="content-toolbar-actions">
-          <small>{signups.configured ? `${signups.total} підписантів` : "KV не підключено"}</small>
-          <a className="btn subtle" href="/discord/rules/new?type=raid">Додати правила рейду</a>
+          <small>{totalLabel}</small>
+          <a className="btn subtle" href="/discord/rules">Оновити</a>
+          <a className="btn primary" href="/discord/rules/new?type=raid">Додати правила рейду</a>
         </div>
       </div>
 
@@ -164,10 +207,12 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
           {signups.signups.map((signup) => (
             <div className="discord-raid-signups-row" role="row" key={signup.discordId}>
               <span role="cell">
+                <small className="discord-raid-mobile-label">Discord</small>
                 <strong>{signup.discordName || "Discord user"}</strong>
                 <small>{signup.discordId}</small>
               </span>
               <span role="cell">
+                <small className="discord-raid-mobile-label">Main персонаж</small>
                 {signup.mainCharacter?.profileUrl ? (
                   <a href={signup.mainCharacter.profileUrl} target="_blank" rel="noreferrer">{characterLabel(signup)}</a>
                 ) : (
@@ -175,7 +220,10 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
                 )}
                 {signup.mainCharacter?.className ? <small>{signup.mainCharacter.className}</small> : null}
               </span>
-              <span role="cell"><time dateTime={signup.signedAt || undefined}>{signedAtLabel(signup.signedAt)}</time></span>
+              <span role="cell">
+                <small className="discord-raid-mobile-label">Підпис</small>
+                <time dateTime={signup.signedAt || undefined}>{signedAtLabel(signup.signedAt)}</time>
+              </span>
             </div>
           ))}
         </div>
@@ -208,7 +256,7 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
   const isRaidRules = message.rulesType === "raid";
 
   return (
-    <article className="discord-rules-row" role="listitem">
+    <article className={`discord-rules-row${isRaidRules ? " discord-rules-row--raid" : ""}`} role="listitem">
       <a className="discord-rules-row-main" href={`/discord/rules/edit?message=${encodeURIComponent(message.url)}`}>
         <span className="discord-rules-row-icon" aria-hidden="true">{isRaidRules ? "🐉" : "🌸"}</span>
         <span className="discord-rules-row-title">
@@ -218,9 +266,10 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
         <span className="discord-rules-row-meta">
           <span className="discord-rules-row-state">
             <time dateTime={message.editedAt || message.createdAt || undefined}>{stateLabel}</time>
+            <span className={`discord-rules-type-chip${isRaidRules ? " discord-rules-type-chip--raid" : ""}`}>{isRaidRules ? "Рейд" : "Звичайні"}</span>
           </span>
-          <span className="discord-rules-row-roles-label">{isRaidRules ? "Тип" : "Видає ролі"}</span>
-          {isRaidRules ? <span className="discord-rules-role-empty">Підпис на рейд</span> : <RulesRoleBadges roleIds={message.roleIds} roles={roles} />}
+          <span className="discord-rules-row-roles-label">{isRaidRules ? "Дія кнопки" : "Видає ролі"}</span>
+          {isRaidRules ? <span className="discord-rules-role-empty">Підпис на правила рейду</span> : <RulesRoleBadges roleIds={message.roleIds} roles={roles} />}
         </span>
       </a>
       <div className="discord-rules-row-actions">
@@ -229,6 +278,54 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
       </div>
     </article>
   );
+}
+
+function RulesMessagesPanel({ title, eyebrow, description, messages, roles, createHref, emptyText }: { title: string; eyebrow: string; description: string; messages: DiscordEditableMessage[]; roles: DiscordRoleOption[]; createHref: string; emptyText: string }) {
+  return (
+    <section className="panel discord-rules-list-panel" aria-label={title}>
+      <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
+        <div>
+          <span className="eyebrow">{eyebrow}</span>
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </div>
+        <div className="content-toolbar-actions">
+          <small>{messages.length} знайдено</small>
+          <a className="btn primary" href={createHref}>Додати</a>
+        </div>
+      </div>
+
+      {messages.length === 0 ? (
+        <div className="content-empty discord-empty-state">
+          <strong>{emptyText}</strong>
+          <span>Якщо embed уже є у Discord, перевір канал, права бота Read Message History і тип кнопок.</span>
+          <a className="btn primary" href={createHref}>Створити embed</a>
+        </div>
+      ) : (
+        <div className="discord-rules-table" role="list">
+          {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function isLikelyRulesChannel(channel: DiscordTextChannel, suggestedRulesChannelId: string) {
+  if (channel.id === suggestedRulesChannelId) return true;
+  const name = channel.name.toLowerCase();
+  return name.includes("rules") || name.includes("rule") || name.includes("правил") || name.includes("правила") || name.includes("raid") || name.includes("рейд");
+}
+
+function uniqueMessages(messages: DiscordEditableMessage[]) {
+  const seen = new Set<string>();
+  const result: DiscordEditableMessage[] = [];
+  for (const message of messages) {
+    const key = message.id || message.url;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(message);
+  }
+  return result.sort((a, b) => Date.parse(b.editedAt || b.createdAt || "") - Date.parse(a.editedAt || a.createdAt || ""));
 }
 
 export default async function DiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -240,7 +337,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
   const params = await searchParams;
   const isAdmin = user.role === "admin";
   let configError = "";
-  let rulesChannelName = "rules";
+  let rulesChannelName = "#rules";
   let messages: DiscordEditableMessage[] = [];
   let guildRulesMessages: DiscordEditableMessage[] = [];
   let raidRulesMessages: DiscordEditableMessage[] = [];
@@ -251,14 +348,30 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
 
   if (isAdmin && hasDiscordEmbedConfig()) {
     try {
-      const [channelData, roleData, statsData, raidStatsData, raidSignupsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats(), fetchDiscordRaidRulesStats(), fetchDiscordRaidRulesSignups()]);
-      const rulesChannel = channelData.channels.find((channel) => channel.id === channelData.suggestedRulesChannelId) || channelData.channels[0];
+      const [channelData, roleData, statsData, raidStatsData, raidSignupsData] = await Promise.all([
+        fetchDiscordTextChannels(),
+        fetchDiscordRoles(),
+        fetchDiscordRulesStats(),
+        fetchDiscordRaidRulesStats(),
+        fetchDiscordRaidRulesSignups(),
+      ]);
+      const suggestedRulesChannelId = channelData.suggestedRulesChannelId || channelData.channels[0]?.id || "";
+      const rulesChannels = channelData.channels.filter((channel) => isLikelyRulesChannel(channel, suggestedRulesChannelId)).slice(0, 4);
+      const fallbackChannel = channelData.channels.find((channel) => channel.id === suggestedRulesChannelId) || channelData.channels[0];
+      const channelsToRead = rulesChannels.length ? rulesChannels : fallbackChannel ? [fallbackChannel] : [];
+
       roles = roleData;
       stats = statsData;
       raidStats = raidStatsData;
       raidSignups = raidSignupsData;
-      rulesChannelName = rulesChannel?.name || "rules";
-      messages = rulesChannel?.id ? await listRulesEmbedMessages(rulesChannel.id, 100) : [];
+      rulesChannelName = channelsToRead.length > 1
+        ? `#${channelsToRead[0].name} +${channelsToRead.length - 1}`
+        : channelsToRead[0]?.name ? `#${channelsToRead[0].name}` : "#rules";
+
+      const messageGroups = await Promise.all(
+        channelsToRead.map((channel) => listRulesEmbedMessages(channel.id, 100).catch(() => [] as DiscordEditableMessage[]))
+      );
+      messages = uniqueMessages(messageGroups.flat());
       guildRulesMessages = messages.filter((message) => message.rulesType === "guild");
       raidRulesMessages = messages.filter((message) => message.rulesType === "raid");
     } catch (error) {
@@ -275,17 +388,17 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             <div className="eyebrow">Mistblossom Vanguard • Rules embed</div>
             <div className="content-hero-status-row">
               <span className="content-mode-pill content-mode-pill--library">Правила</span>
-              <span className="content-hero-path">#{rulesChannelName} • тільки embed з rule buttons</span>
+              <span className="content-hero-path">{rulesChannelName} • звичайні й рейдові правила розділені</span>
             </div>
             <h1>Правила Discord</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Список rule embed-повідомлень, статистика і швидке редагування правил.</p>
+            <p className="lead">Окреме керування звичайними правилами, рейдовими правилами, статистикою та списком підписантів.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Канал можна змінити під час створення або редагування.</span>
+              <span>Звичайні правила видають ролі. Рейдові правила записують Discord і main-персонажа.</span>
               <div className="content-hero-buttons">
-                <a className="btn primary content-add-btn" href="/discord/rules/new">Додати правила</a>
-                <a className="btn subtle content-add-btn" href="/discord/rules/new?type=raid">Правила рейду</a>
+                <a className="btn primary content-add-btn" href="/discord/rules/new">Додати звичайні</a>
+                <a className="btn subtle content-add-btn" href="/discord/rules/new?type=raid">Додати рейдові</a>
                 <a className="btn subtle content-add-btn" href="/discord">Назад</a>
               </div>
             </div>
@@ -303,35 +416,36 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
         <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
       ) : (
         <>
-          <RulesStatsPanel stats={stats} messagesCount={guildRulesMessages.length} channelName={rulesChannelName} />
-          <RaidRulesStatsPanel stats={raidStats} messagesCount={raidRulesMessages.length} signupsCount={raidSignups.total} channelName={rulesChannelName} />
+          <RulesDataOverview
+            stats={stats}
+            raidStats={raidStats}
+            raidSignups={raidSignups}
+            guildMessagesCount={guildRulesMessages.length}
+            raidMessagesCount={raidRulesMessages.length}
+            channelLabel={rulesChannelName}
+          />
           <RaidRulesSignupsPanel signups={raidSignups} />
 
-          <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
-            <div className="content-section-head content-section-head--toolbar">
-              <div>
-                <span className="eyebrow">Rules library</span>
-                <h2>Список embed-правил</h2>
-              </div>
-              <div className="content-toolbar-actions">
-                <small>{messages.length} знайдено</small>
-                <a className="btn subtle" href="/discord/rules/new?type=raid">Рейд</a>
-                <a className="btn primary" href="/discord/rules/new">Додати</a>
-              </div>
-            </div>
-
-            {messages.length === 0 ? (
-              <div className="content-empty discord-empty-state">
-                <strong>Правила з кнопками не знайдено.</strong>
-                <span>Це нормально, якщо ще нічого не публікували через панель або бот не має Read Message History у каналі правил.</span>
-                <a className="btn primary" href="/discord/rules/new">Створити перший embed</a>
-              </div>
-            ) : (
-              <div className="discord-rules-table" role="list">
-                {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
-              </div>
-            )}
-          </section>
+          <div className="discord-rules-library-split" aria-label="Бібліотека правил">
+            <RulesMessagesPanel
+              title="Звичайні embed-правила"
+              eyebrow="Rules library"
+              description="Тільки повідомлення з кнопками прийняття/відмови. Рейдові підписи сюди не змішуються."
+              messages={guildRulesMessages}
+              roles={roles}
+              createHref="/discord/rules/new"
+              emptyText="Звичайні правила з кнопками не знайдено."
+            />
+            <RulesMessagesPanel
+              title="Embed-правила рейду"
+              eyebrow="Raid rules library"
+              description="Тільки повідомлення з кнопкою підпису на правила рейду."
+              messages={raidRulesMessages}
+              roles={roles}
+              createHref="/discord/rules/new?type=raid"
+              emptyText="Рейдові правила з кнопкою підпису не знайдено."
+            />
+          </div>
         </>
       )}
     </main>
