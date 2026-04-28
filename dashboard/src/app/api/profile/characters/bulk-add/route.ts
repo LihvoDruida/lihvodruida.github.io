@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCandidatesFromCookie } from "@/lib/battlenetCandidates";
 import { addProfileCharacters } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
-import { forbiddenResponse, logDashboardEvent, noStoreHeaders, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
   const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
@@ -27,8 +27,15 @@ function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>)
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
+  const tooLarge = assertRequestBodySize(request, 16 * 1024);
+  if (tooLarge) return tooLarge;
+
   const session = await getSession();
   if (!session?.profileId) return NextResponse.redirect(new URL("/login", request.url), 303);
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`profile-character-bulk-add:${session.profileId}:${ip}`, 20, 10 * 60 * 1000);
+  if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const [form, store] = await Promise.all([request.formData(), cookies()]);
   const mode = String(form.get("mode") || "selected");

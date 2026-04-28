@@ -123,6 +123,27 @@ function normalizeDate(value: string | undefined, fallback = new Date().toISOStr
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : fallback;
 }
 
+function normalizeSafeImagePath(value: string) {
+  const image = String(value || "").trim().replace(/\s+/g, "").slice(0, 260);
+  if (!image) return "";
+  if (image === "/assets/img/news-placeholder.webp") return image;
+
+  const cleanPath = (() => {
+    if (image.startsWith("/assets/img-content/")) return image;
+    if (/^https:\/\/lihvodruida\.pp\.ua\/assets\/img-content\//i.test(image)) {
+      try {
+        return new URL(image).pathname;
+      } catch {
+        return "";
+      }
+    }
+    return "";
+  })();
+
+  if (!cleanPath || cleanPath.includes("..") || cleanPath.includes("\\")) return "";
+  return /^\/assets\/img-content\/[A-Za-z0-9._/-]+$/i.test(cleanPath) ? cleanPath : "";
+}
+
 function githubBranch() {
   return process.env.GITHUB_CONTENT_BRANCH || process.env.GITHUB_BRANCH || "main";
 }
@@ -291,7 +312,7 @@ export async function updateSiteContent(input: UpdateContentInput) {
   const uploadedImagePath = await saveImage(slug, input.image, message);
   const imagePath = input.removeImage
     ? "/assets/img/news-placeholder.webp"
-    : uploadedImagePath || String(input.existingImage || "").trim() || "/assets/img/news-placeholder.webp";
+    : uploadedImagePath || normalizeSafeImagePath(input.existingImage || "") || "/assets/img/news-placeholder.webp";
   const nextPath = `${collectionForKind(input.kind)}/${date}-${slug}.md`;
 
   const frontmatter = buildFrontmatter({

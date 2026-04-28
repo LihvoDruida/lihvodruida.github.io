@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  // UX fallback: if an old build, bookmark, or browser extension opens the endpoint
-  // directly, still finish logout and return the user to the login screen.
-  logDashboardEvent("warn", "auth.logout.get_fallback", request);
-  await clearSession();
-  return logoutRedirect(new URL("/login", request.url).toString());
+  logDashboardEvent("warn", "auth.logout.get_blocked", request);
+  return NextResponse.json(
+    { error: "Logout requires POST." },
+    { status: 405, headers: noStoreHeaders({ Allow: "POST" }) }
+  );
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { setMainProfileCharacter } from "@/lib/profiles";
 import { mainCharacterStatusFromError } from "@/lib/profileCharacterStatus";
-import { forbiddenResponse, logDashboardEvent, noStoreHeaders, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
   const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
@@ -13,8 +13,15 @@ function redirectToProfile(request: NextRequest, profileId: string, status: stri
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
+  const tooLarge = assertRequestBodySize(request, 4096);
+  if (tooLarge) return tooLarge;
+
   const session = await getSession();
   if (!session?.profileId) return NextResponse.redirect(new URL("/login", request.url), 303);
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`profile-character-main:${session.profileId}:${ip}`, 20, 10 * 60 * 1000);
+  if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
   const characterKey = String(form.get("characterKey") || "").trim().toLowerCase();

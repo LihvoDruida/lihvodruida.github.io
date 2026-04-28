@@ -83,11 +83,15 @@ function requestIdFromRequest(request) {
   );
 }
 
+function allowDebugQuery(env) {
+  return ["1", "true", "yes", "on"].includes(String(env.ALLOW_DEBUG_QUERY || "").trim().toLowerCase());
+}
+
 function isDebugEnabled(request, env) {
   const url = new URL(request.url);
+  const queryDebug = allowDebugQuery(env) && (url.searchParams.get("debug") === "1" || url.searchParams.get("diag") === "1");
   return (
-    url.searchParams.get("debug") === "1" ||
-    url.searchParams.get("diag") === "1" ||
+    queryDebug ||
     String(env.DEBUG_LOGS || "").trim() === "1" ||
     String(env.DEBUG_RESPONSES || "").trim() === "1"
   );
@@ -95,11 +99,8 @@ function isDebugEnabled(request, env) {
 
 function isDebugResponseEnabled(request, env) {
   const url = new URL(request.url);
-  return (
-    url.searchParams.get("debug") === "1" ||
-    url.searchParams.get("diag") === "1" ||
-    String(env.DEBUG_RESPONSES || "").trim() === "1"
-  );
+  const queryDebug = allowDebugQuery(env) && (url.searchParams.get("debug") === "1" || url.searchParams.get("diag") === "1");
+  return queryDebug || String(env.DEBUG_RESPONSES || "").trim() === "1";
 }
 
 function withTelemetryHeaders(response, requestId, startedAt) {
@@ -128,6 +129,7 @@ function envDiagnostics(env) {
     cf_access_client_id: Boolean(String(env.CF_ACCESS_CLIENT_ID || env.CLOUDFLARE_ACCESS_CLIENT_ID || "").trim()),
     cf_access_client_secret: Boolean(String(env.CF_ACCESS_CLIENT_SECRET || env.CLOUDFLARE_ACCESS_CLIENT_SECRET || "").trim()),
     allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
+    rules_stats_token: Boolean(String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim()),
   };
 }
 
@@ -310,9 +312,10 @@ function buildCorsHeaders(corsOrigin, status = 200) {
   return {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Origin": corsOrigin || "null",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
+    "Vary": "Origin",
   };
 }
 
@@ -344,6 +347,75 @@ function rulesStatsKey(guildId, suffix) {
 
 function raidRulesKey(guildId, suffix) {
   return `raid-rules:${snowflake(guildId) || "global"}:${suffix}`;
+}
+
+function defaultAllowedOrigins(env) {
+  const values = [
+    env.ALLOWED_ORIGINS,
+    env.SITE_BASE_URL,
+    env.PUBLIC_SITE_URL,
+    env.ADMIN_DASHBOARD_URL,
+    env.DASHBOARD_URL,
+    "https://lihvodruida.pp.ua",
+    "https://admin.lihvodruida.pp.ua",
+  ];
+
+  const origins = new Set();
+  for (const value of values) {
+    for (const item of String(value || "").split(",")) {
+      const raw = item.trim();
+      if (!raw) continue;
+      try {
+        const url = new URL(raw);
+        if (url.protocol === "https:" || url.hostname === "localhost") origins.add(url.origin);
+      } catch {
+        // ignore invalid origin values
+      }
+    }
+  }
+  return Array.from(origins);
+}
+
+function statsAuthToken(env) {
+  return String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
+}
+
+async function sha256Hex(value) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function constantTimeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
+  return diff === 0;
+}
+
+async function verifyBearerOrStatsToken(request, expected) {
+  if (!expected) return true;
+  const auth = request.headers.get("Authorization") || request.headers.get("authorization") || "";
+  const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+  const provided = bearer || String(request.headers.get("X-Worker-Stats-Token") || request.headers.get("x-worker-stats-token") || "").trim();
+  if (!provided) return false;
+  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected)]);
+  return constantTimeEqual(left, right);
+}
+
+async function assertWorkerReadAccess(request, env, scope) {
+  const origin = allowedOrigin(request, env);
+  if (request.headers.get("Origin") && !origin) {
+    logWorkerEvent("warn", `${scope}.origin_denied`, { origin: request.headers.get("Origin") || "" });
+    return { ok: false, response: json({ error: "Origin is not allowed." }, 403, "null") };
+  }
+
+  const token = statsAuthToken(env);
+  if (token && !(await verifyBearerOrStatsToken(request, token))) {
+    logWorkerEvent("warn", `${scope}.token_denied`, { hasToken: true });
+    return { ok: false, response: json({ error: "Stats token is required." }, 401, origin || "null") };
+  }
+
+  return { ok: true, origin: origin || "null", authConfigured: Boolean(token) };
 }
 
 function dashboardAuthUrl(env) {
@@ -566,7 +638,9 @@ async function getRaidRulesStats(env, guildId) {
 }
 
 async function handleRaidRulesStats(request, env) {
-  const origin = allowedOrigin(request, env) || "*";
+  const access = await assertWorkerReadAccess(request, env, "raid_rules.stats");
+  if (!access.ok) return access.response;
+  const origin = access.origin;
   const url = new URL(request.url);
   const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
   try {
@@ -588,7 +662,9 @@ async function handleRaidRulesStats(request, env) {
 }
 
 async function handleRaidRulesSignups(request, env) {
-  const origin = allowedOrigin(request, env) || "*";
+  const access = await assertWorkerReadAccess(request, env, "raid_rules.signups");
+  if (!access.ok) return access.response;
+  const origin = access.origin;
   const url = new URL(request.url);
   const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
   try {
@@ -618,7 +694,7 @@ async function writeKvNumber(kv, key, value) {
   await kv.put(key, String(Math.max(0, Math.floor(Number(value) || 0))));
 }
 
-async function listAllKvKeys(kv, prefix) {
+async function listAllKvKeys(kv, prefix, maxKeys = 5000) {
   const keys = [];
   let cursor;
 
@@ -626,6 +702,7 @@ async function listAllKvKeys(kv, prefix) {
     const page = await kv.list({ prefix, cursor });
     for (const item of Array.isArray(page?.keys) ? page.keys : []) {
       if (item?.name) keys.push(String(item.name));
+      if (keys.length >= maxKeys) return keys;
     }
     cursor = page?.list_complete ? undefined : page?.cursor;
   } while (cursor);
@@ -647,6 +724,15 @@ function maxIsoDate(values) {
   }
 
   return latest;
+}
+
+async function countRulesDecisionRecords(kv, guildId) {
+  const cleanGuildId = snowflake(guildId) || "global";
+  const keys = await listAllKvKeys(kv, rulesStatsKey(cleanGuildId, "user:"), 10000);
+  const values = await Promise.all(keys.map((key) => kv.get(key).catch(() => null)));
+  const accepted = values.filter((value) => value === "accepted").length;
+  const declined = values.filter((value) => value === "declined").length;
+  return { accepted, declined, total: accepted + declined, countedFromUsers: keys.length > 0 };
 }
 
 async function getAggregatedRulesStats(kv) {
@@ -702,11 +788,15 @@ async function getRulesStats(env, guildId) {
     return getAggregatedRulesStats(kv);
   }
 
-  const [accepted, declined, updatedAt] = await Promise.all([
+  const [recordCounts, counterAccepted, counterDeclined, updatedAt] = await Promise.all([
+    countRulesDecisionRecords(kv, cleanGuildId),
     readKvNumber(kv, rulesStatsKey(cleanGuildId, "accepted")),
     readKvNumber(kv, rulesStatsKey(cleanGuildId, "declined")),
     kv.get(rulesStatsKey(cleanGuildId, "updated_at")),
   ]);
+
+  const accepted = recordCounts.countedFromUsers ? recordCounts.accepted : counterAccepted;
+  const declined = recordCounts.countedFromUsers ? recordCounts.declined : counterDeclined;
 
   return {
     configured: true,
@@ -719,6 +809,7 @@ async function getRulesStats(env, guildId) {
     total: accepted + declined,
     updated_at: updatedAt || null,
     source: "kv",
+    counted_from: recordCounts.countedFromUsers ? "user-records" : "counters",
   };
 }
 
@@ -765,7 +856,9 @@ async function recordRulesDecision(env, guildId, userId, action) {
 }
 
 async function handleRulesStats(request, env) {
-  const origin = allowedOrigin(request, env) || "*";
+  const access = await assertWorkerReadAccess(request, env, "rules.stats");
+  if (!access.ok) return access.response;
+  const origin = access.origin;
   const url = new URL(request.url);
   const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
   const requestedType = String(url.searchParams.get("type") || url.searchParams.get("rules_type") || "guild").trim().toLowerCase();
@@ -798,13 +891,9 @@ async function handleRulesStats(request, env) {
 
 function allowedOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
-  const configured = String(env.ALLOWED_ORIGINS || "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const configured = defaultAllowedOrigins(env);
 
-  if (!configured.length) return origin || "*";
-  if (!origin) return configured[0];
+  if (!origin) return configured[0] || "https://lihvodruida.pp.ua";
   return configured.includes(origin) ? origin : "";
 }
 
@@ -1321,7 +1410,7 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
 
 function hexToBytes(hex) {
   const clean = String(hex || "").trim();
-  if (!clean || clean.length % 2 !== 0) return new Uint8Array();
+  if (!clean || clean.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(clean)) return new Uint8Array();
   const bytes = new Uint8Array(clean.length / 2);
   for (let i = 0; i < clean.length; i += 2) {
     bytes[i / 2] = parseInt(clean.slice(i, i + 2), 16);
@@ -1336,6 +1425,13 @@ async function verifyDiscordRequest(request, env, rawBody) {
   const signature = request.headers.get("X-Signature-Ed25519") || "";
   const timestamp = request.headers.get("X-Signature-Timestamp") || "";
   if (!signature || !timestamp) return false;
+
+  const timestampMs = Number(timestamp) * 1000;
+  const skewMs = Math.abs(Date.now() - timestampMs);
+  if (!Number.isFinite(timestampMs) || skewMs > 5 * 60 * 1000) {
+    logWorkerEvent("warn", "discord.signature.timestamp_rejected", { skewMs });
+    return false;
+  }
 
   try {
     const key = await crypto.subtle.importKey(
@@ -2189,7 +2285,7 @@ function dedupeIssuesByNumber(issues) {
 
 async function listApplications(request, env) {
   const startedAt = nowMs();
-  const origin = allowedOrigin(request, env) || "*";
+  const origin = allowedOrigin(request, env) || "null";
   const url = new URL(request.url);
   const limit = Math.min(
     Math.max(parseInt(url.searchParams.get("limit") || String(DEFAULT_LIST_LIMIT), 10), 1),
@@ -2375,6 +2471,22 @@ async function completeDiscordNotification(env, cleanPayload, issue) {
   }
 }
 
+async function readJsonBody(request, maxBytes = 96 * 1024) {
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    return { ok: false, status: 413, error: "Заявка завелика." };
+  }
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).length > maxBytes) {
+    return { ok: false, status: 413, error: "Заявка завелика." };
+  }
+  try {
+    return { ok: true, data: raw ? JSON.parse(raw) : null };
+  } catch {
+    return { ok: false, status: 400, error: "Не вдалося обробити заявку. Спробуй ще раз." };
+  }
+}
+
 async function createApplication(request, env, ctx) {
   const startedAt = nowMs();
   const origin = allowedOrigin(request, env);
@@ -2384,12 +2496,18 @@ async function createApplication(request, env, ctx) {
       origin: request.headers.get("Origin") || "",
       allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
     });
-    return json({ error: "Надсилання заявок зараз недоступне." }, 403, "*");
+    return json({ error: "Надсилання заявок зараз недоступне." }, 403, "null");
   }
 
-  const payload = await request.json().catch(() => null);
+  const body = await readJsonBody(request);
+  if (!body.ok) {
+    logWorkerEvent("warn", body.status === 413 ? "application.create.body_too_large" : "application.create.invalid_json", { ms: elapsedMs(startedAt) });
+    return json({ error: body.error }, body.status, origin);
+  }
+
+  const payload = body.data;
   if (!payload || typeof payload !== "object") {
-    logWorkerEvent("warn", "application.create.invalid_json", { ms: elapsedMs(startedAt) });
+    logWorkerEvent("warn", "application.create.invalid_payload", { ms: elapsedMs(startedAt) });
     return json({ error: "Не вдалося обробити заявку. Спробуй ще раз." }, 400, origin);
   }
 
@@ -2491,24 +2609,15 @@ export default {
     let response;
 
     try {
-      if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
-        logWorkerEvent("error", "request.env_missing", {
-          requestId,
-          path: url.pathname,
-          env: envDiagnostics(env),
-        });
-        response = json({ error: "Прийом заявок тимчасово недоступний.", diagnostics: isDebugResponseEnabled(request, env) ? envDiagnostics(env) : undefined }, 500, "*");
-        return withTelemetryHeaders(response, requestId, startedAt);
-      }
-
       if (request.method === "OPTIONS") {
         response = new Response(null, {
           status: 204,
           headers: {
-            "Access-Control-Allow-Origin": allowedOrigin(request, env) || "*",
+            "Access-Control-Allow-Origin": allowedOrigin(request, env) || "null",
             "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
             "Cache-Control": "no-store",
+            "Vary": "Origin",
           },
         });
         return withTelemetryHeaders(response, requestId, startedAt);
@@ -2538,8 +2647,18 @@ export default {
         response = json(
           { error: "Сторінку не знайдено." },
           404,
-          allowedOrigin(request, env) || "*"
+          allowedOrigin(request, env) || "null"
         );
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
+        logWorkerEvent("error", "request.env_missing", {
+          requestId,
+          path: url.pathname,
+          env: envDiagnostics(env),
+        });
+        response = json({ error: "Прийом заявок тимчасово недоступний.", diagnostics: isDebugResponseEnabled(request, env) ? envDiagnostics(env) : undefined }, 500, allowedOrigin(request, env) || "null");
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
@@ -2556,7 +2675,7 @@ export default {
       response = json(
         { error: "Ця дія зараз недоступна." },
         405,
-        allowedOrigin(request, env) || "*"
+        allowedOrigin(request, env) || "null"
       );
       return withTelemetryHeaders(response, requestId, startedAt);
     } catch (error) {
@@ -2578,7 +2697,7 @@ export default {
             : undefined,
         },
         500,
-        allowedOrigin(request, env) || "*"
+        allowedOrigin(request, env) || "null"
       );
       return withTelemetryHeaders(response, requestId, startedAt);
     } finally {

@@ -81,6 +81,23 @@ function rulesStatsEndpoint() {
   return workerApiEndpoint("/api/discord-rules-stats", "DISCORD_RULES_STATS_ENDPOINT");
 }
 
+function workerStatsToken() {
+  return String(process.env.DISCORD_RULES_STATS_TOKEN || process.env.WORKER_STATS_TOKEN || "").trim();
+}
+
+function workerStatsHeaders(): HeadersInit {
+  const token = workerStatsToken();
+  return {
+    accept: "application/json",
+    ...(token
+      ? {
+          authorization: `Bearer ${token}`,
+          "x-worker-stats-token": token,
+        }
+      : {}),
+  };
+}
+
 function raidRulesStatsEndpoint() {
   return workerApiEndpoint("/api/discord-raid-rules-stats", "DISCORD_RAID_RULES_STATS_ENDPOINT");
 }
@@ -111,7 +128,7 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
     }
 
     const response = await fetch(statsUrl.toString(), {
-      headers: { accept: "application/json" },
+      headers: workerStatsHeaders(),
       cache: "no-store",
     });
 
@@ -188,7 +205,7 @@ export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStat
     }
 
     const response = await fetch(statsUrl.toString(), {
-      headers: { accept: "application/json" },
+      headers: workerStatsHeaders(),
       cache: "no-store",
     });
 
@@ -259,7 +276,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
     }
 
     const response = await fetch(signupsUrl.toString(), {
-      headers: { accept: "application/json" },
+      headers: workerStatsHeaders(),
       cache: "no-store",
     });
 

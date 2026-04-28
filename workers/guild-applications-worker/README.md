@@ -102,3 +102,26 @@ wrangler secret put CF_ACCESS_CLIENT_SECRET
 ```
 
 Create a Cloudflare Access application/policy for `admin.lihvodruida.pp.ua/api/profile/discord-lookup` and allow the Service Token used by these two secrets. Keep `INTERNAL_PROFILE_LOOKUP_TOKEN` enabled too; it protects the Next.js endpoint after Access lets the request through.
+
+## Security notes added in this build
+
+- Debug output from `?debug=1` / `?diag=1` is ignored unless `ALLOW_DEBUG_QUERY=1` is explicitly set.
+- Stats/signups endpoints support a shared bearer token. Recommended production setup:
+
+```bash
+wrangler secret put DISCORD_RULES_STATS_TOKEN
+```
+
+Set the same value in the admin dashboard as `DISCORD_RULES_STATS_TOKEN`. When this secret exists, the Worker requires `Authorization: Bearer <token>` or `X-Worker-Stats-Token` for:
+
+```text
+GET /api/discord-rules-stats
+GET /api/discord-raid-rules-stats
+GET /api/discord-raid-rules-signups
+```
+
+- `ALLOWED_ORIGINS` should include both the public site and admin dashboard:
+
+```env
+ALLOWED_ORIGINS=https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https://admin.lihvodruida.pp.ua
+```
