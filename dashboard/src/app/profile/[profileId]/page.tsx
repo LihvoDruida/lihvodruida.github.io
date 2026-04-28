@@ -1,5 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
-import { BATTLE_NET_REGIONS } from "@/lib/battlenet";
+import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -38,10 +38,17 @@ function formatDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
+function formatCompactDate(value?: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
+}
+
 function characterStatusMessage(status?: string) {
   if (!status) return null;
   const map: Record<string, { tone: "ok" | "warn"; text: string }> = {
-    bnet_connected: { tone: "ok", text: "Battle.net підключено. Нижче показано персонажів Mistblossom Vanguard, яких можна додати до профілю." },
+    bnet_connected: { tone: "ok", text: "Battle.net оновлено. Доступні персонажі Mistblossom Vanguard підтягнуті нижче, вже додані персонажі залишаються в профілі." },
     bnet_no_guild_characters: { tone: "warn", text: "Battle.net підключено, але персонажів у Mistblossom Vanguard не знайдено." },
     bnet_failed: { tone: "warn", text: "Не вдалося отримати персонажів з Battle.net. Перевір OAuth env, scope wow.profile і регіон." },
     bnet_state: { tone: "warn", text: "OAuth-перевірка Battle.net не пройшла. Спробуй підключити акаунт ще раз." },
@@ -116,11 +123,10 @@ function CharacterCard({ character, canManage }: { character: ProfileCharacter; 
         <div className="profile-character-stats">
           <span><strong>{character.faction || "—"}</strong><small>Фракція</small></span>
           <span><strong>{character.raceName || "—"}</strong><small>Раса</small></span>
-          <span><strong>{formatDate(character.lastSeenAt)}</strong><small>Оновлено</small></span>
+          <span><strong>{formatCompactDate(character.lastSeenAt)}</strong><small>Оновлено</small></span>
         </div>
 
         <div className="profile-character-actions">
-          {character.profileUrl && character.profileUrl !== "#" ? <a className="btn btn-ghost btn-sm" href={character.profileUrl} target="_blank" rel="noreferrer">Armory</a> : null}
           {canManage && !character.isMain ? (
             <form action="/api/profile/characters/main" method="post">
               <input type="hidden" name="characterKey" value={character.key} />
@@ -206,6 +212,7 @@ export default async function ProfilePage({
   const capabilities = dashboardCapabilities(profile.role);
   const enabledCount = capabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
+  const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
   const addedKeys = new Set(profile.characters.map((item) => item.key));
   const availableCandidates = (profile.battlenet?.candidateCharacters || []).filter((item) => !addedKeys.has(item.key));
@@ -316,20 +323,20 @@ export default async function ProfilePage({
             </div>
             {canManageCharacters ? (
               <div className="profile-bnet-region-actions" aria-label="Підключити Battle.net за регіоном">
-                {BATTLE_NET_REGIONS.map((region) => (
+                {enabledBattleNetRegions.map((region) => (
                   <a
                     key={region}
                     className={`btn btn-sm ${profile.battlenet?.region === region ? "btn-primary" : "btn-ghost"}`}
                     href={`/api/auth/battlenet/start?region=${region}`}
                   >
-                    {profile.battlenet?.linked ? "Оновити" : "Підключити"} {region.toUpperCase()}
+                    {profile.battlenet?.linked && profile.battlenet?.region === region ? "Оновити" : "Підключити"} {region.toUpperCase()}
                   </a>
                 ))}
               </div>
             ) : null}
           </div>
 
-          <p className="profile-card-lead">Додаються тільки персонажі, які Battle.net підтвердив у гільдії Mistblossom Vanguard. Мейн використовується як основний персонаж для сайту й Discord-бота, інші лише показуються в профілі.</p>
+          <p className="profile-card-lead">Додаються тільки персонажі, які Battle.net підтвердив у гільдії Mistblossom Vanguard. Додані персонажі зберігаються у Firebase; щоб пізніше підтягнути нових персонажів, натисни «Оновити EU» і пройди коротку повторну авторизацію Battle.net.</p>
 
           <div className="profile-bnet-summary">
             <span><strong>{profile.characters.length}</strong><small>Додано</small></span>

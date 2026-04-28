@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { randomState } from "@/lib/oauth";
-import { BNET_OAUTH_STATE_COOKIE, buildBattleNetOAuthUrl, normalizeBattleNetRegion } from "@/lib/battlenet";
+import { BNET_OAUTH_STATE_COOKIE, buildBattleNetOAuthUrl, getEnabledBattleNetRegions, normalizeBattleNetRegion } from "@/lib/battlenet";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
 
@@ -25,7 +25,9 @@ export async function GET(request: NextRequest) {
   }
 
   const url = new URL(request.url);
-  const region = normalizeBattleNetRegion(url.searchParams.get("region"));
+  const requestedRegion = normalizeBattleNetRegion(url.searchParams.get("region"));
+  const enabledRegions = getEnabledBattleNetRegions();
+  const region = enabledRegions.includes(requestedRegion) ? requestedRegion : enabledRegions[0];
   const state = `${randomState()}.${region}.${session.profileId || session.id}`;
   const store = await cookies();
   store.set(BNET_OAUTH_STATE_COOKIE, state, {

@@ -2,7 +2,23 @@ import { getDashboardUrl } from "@/lib/oauth";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
 
-export const BATTLE_NET_REGIONS: BattleNetRegion[] = ["eu", "us", "kr", "tw"];
+const ALL_BATTLE_NET_REGIONS: BattleNetRegion[] = ["eu", "us", "kr", "tw"];
+export const BATTLE_NET_REGIONS: BattleNetRegion[] = ALL_BATTLE_NET_REGIONS;
+
+export function getEnabledBattleNetRegions(): BattleNetRegion[] {
+  const raw = process.env.BATTLENET_ENABLED_REGIONS || process.env.BATTLENET_REGIONS || "eu";
+  const values = String(raw)
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  const enabled = values.filter((item): item is BattleNetRegion => (ALL_BATTLE_NET_REGIONS as string[]).includes(item));
+  return Array.from(new Set(enabled.length ? enabled : ["eu"]));
+}
+
+export function getPrimaryBattleNetRegion(): BattleNetRegion {
+  return getEnabledBattleNetRegions()[0] || "eu";
+}
 
 export type BattleNetCharacterCandidate = {
   key: string;
@@ -48,11 +64,11 @@ function envFlag(name: string, fallback = false) {
 
 export function normalizeBattleNetRegion(value?: string | null): BattleNetRegion {
   const clean = String(value || "").trim().toLowerCase();
-  return (BATTLE_NET_REGIONS as string[]).includes(clean) ? clean as BattleNetRegion : "eu";
+  return (ALL_BATTLE_NET_REGIONS as string[]).includes(clean) ? clean as BattleNetRegion : "eu";
 }
 
 export function getDefaultBattleNetRegion(): BattleNetRegion {
-  return normalizeBattleNetRegion(process.env.BATTLENET_DEFAULT_REGION || process.env.BATTLE_NET_DEFAULT_REGION || process.env.WOW_REGION || "eu");
+  return normalizeBattleNetRegion(process.env.BATTLENET_DEFAULT_REGION || process.env.BATTLE_NET_DEFAULT_REGION || process.env.WOW_REGION || getPrimaryBattleNetRegion());
 }
 
 export function getBattleNetLocale(region: BattleNetRegion = getDefaultBattleNetRegion()) {
