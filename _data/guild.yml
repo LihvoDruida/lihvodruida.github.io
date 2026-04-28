@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-28 10:16:06'
+  updated_at: '2026-04-28 14:10:48'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-28T09:41:48.000Z'
+  raider_io_last_crawled_at: '2026-04-28T13:05:57.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13455
-      region: 5996
+      world: 13458
+      region: 5997
       realm: 55
     heroic:
-      world: 16339
-      region: 6840
+      world: 16351
+      region: 6847
       realm: 59
     mythic:
-      world: 6583
-      region: 2858
+      world: 6589
+      region: 2859
       realm: 23
   blackrock-depths:
     normal:
@@ -814,14 +814,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 251
+    item_level_equipped: 252
     mythic_plus_scores:
       all:
-        score: 2027.3
-        color: '#3bff22'
+        score: 2060.5
+        color: '#33ff1a'
       dps:
-        score: 2027.3
-        color: '#3bff22'
+        score: 2060.5
+        color: '#33ff1a'
       healer:
         score: 0
         color: '#ffffff'
@@ -835,8 +835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2027.3
-        color: '#3bff22'
+        score: 2060.5
+        color: '#33ff1a'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3118,23 +3118,47 @@ members:
       slug: howling-fjord
     playable_class:
       id: 3
-      name: null
+      name: Hunter
     playable_race:
       id: 8
-      name: null
+      name: Troll
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/176/195762608-avatar.jpg?alt=/wow/static/images/2d/avatar/8-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Зулпот
+    item_level_equipped: 278
+    mythic_plus_scores:
+      all:
+        score: 2854.8
+        color: '#1f74d8'
+      dps:
+        score: 2854.8
+        color: '#1f74d8'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2854.8
+        color: '#1f74d8'
+      spec_1:
+        score: 325.2
+        color: '#f6fff2'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -3421,7 +3445,7 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2770.3
+        score: 2779.6
         color: '#377dcf'
       dps:
         score: 0
@@ -3430,7 +3454,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2770.3
+        score: 2779.6
         color: '#377dcf'
       spec_0:
         score: 0
@@ -3439,7 +3463,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2770.3
+        score: 2779.6
         color: '#377dcf'
       spec_3:
         score: 0
@@ -4706,23 +4730,47 @@ members:
       slug: soulflayer
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/172/259861164-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/soulflayer/Кибароу
+    item_level_equipped: 252
+    mythic_plus_scores:
+      all:
+        score: 892.6
+        color: '#cbffb8'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 892.6
+        color: '#cbffb8'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 892.6
+        color: '#cbffb8'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -4746,7 +4794,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 278
+    item_level_equipped: 259
     mythic_plus_scores:
       all:
         score: 3089.6
@@ -4798,22 +4846,22 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мортург
-    item_level_equipped: 275
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2698.6
+        score: 2700
         color: '#4f8fbc'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2698.6
+        score: 2700
         color: '#4f8fbc'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2698.6
+        score: 2700
         color: '#4f8fbc'
       spec_1:
         score: 0
