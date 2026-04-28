@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
 import { ApplicationItem, listApplications } from "@/lib/github";
+import { getOwnProfilePath } from "@/lib/profiles";
 
 function formatDate(value?: string | null) {
   if (!value) return "Дата невідома";
@@ -123,7 +124,9 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!(await isAuthenticated())) redirect("/login");
   const user = await getSessionUser();
+  if (!user) redirect("/login");
   const mayModerate = canModerate(user);
+  if (!mayModerate) redirect(await getOwnProfilePath(user));
   const params = await searchParams;
   const urlParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) urlParams.set(key, value);

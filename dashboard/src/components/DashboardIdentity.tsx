@@ -1,6 +1,6 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
-import { canManageGeneralEmbeds, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
+import { canManageApplications, canManageGeneralEmbeds, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardIdentity({
@@ -12,7 +12,9 @@ export default async function DashboardIdentity({
 }) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
+  const canUseApplications = canManageApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
+  const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
 
   return (
     <header className="dashboard-topbar">
@@ -27,7 +29,9 @@ export default async function DashboardIdentity({
       {user ? (
         <>
           <nav className="dashboard-nav" aria-label="Панель керування">
-            <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
+            {canUseApplications ? (
+              <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
+            ) : null}
             {canUseDiscord ? (
               <a
                 href="/discord"
@@ -51,7 +55,7 @@ export default async function DashboardIdentity({
           <div className="dashboard-user">
             <a
               className={`dashboard-user__profile-link${activeSection === "profile" ? " is-active" : ""}`}
-              href="/profile"
+              href={profileHref}
               aria-label={`Відкрити профіль ${user.name || user.login || "користувача"}`}
               aria-current={activeSection === "profile" ? "page" : undefined}
             >

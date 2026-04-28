@@ -9,21 +9,31 @@ export type DashboardCapability = {
 };
 
 export function hierarchyTitle(role: DashboardRole) {
-  return role === "admin" ? "Гільдмайстер" : "Офіцер";
+  if (role === "admin") return "Гільдмайстер";
+  if (role === "moderator") return "Офіцер";
+  return "Учасник гільдії";
 }
 
 export function dashboardRoleLabel(role: DashboardRole) {
-  return role === "admin" ? "Адмін" : "Модератор";
+  if (role === "admin") return "Адмін";
+  if (role === "moderator") return "Модератор";
+  return "Учасник";
 }
 
 export function siteStatusLabel(role: DashboardRole) {
-  return role === "admin" ? "Повний доступ" : "Офіцерський доступ";
+  if (role === "admin") return "Повний доступ";
+  if (role === "moderator") return "Офіцерський доступ";
+  return "Особистий профіль";
 }
 
 export function siteStatusDescription(role: DashboardRole) {
-  return role === "admin"
-    ? "Може керувати всіма розділами панелі, включно з правилами Discord і матеріалами сайту."
-    : "Може працювати із заявками та звичайними Discord embed без доступу до правил і матеріалів сайту.";
+  if (role === "admin") {
+    return "Може керувати всіма розділами панелі, включно з правилами Discord і матеріалами сайту.";
+  }
+  if (role === "moderator") {
+    return "Може працювати із заявками та звичайними Discord embed без доступу до правил і матеріалів сайту.";
+  }
+  return "Може переглядати лише власну сторінку профілю. Адмінські дані, заявки й Discord-інструменти приховані.";
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
@@ -44,19 +54,26 @@ export function canManageSiteContent(session: DashboardSession | null | undefine
 
 export function dashboardCapabilities(role: DashboardRole): DashboardCapability[] {
   const isAdmin = role === "admin";
+  const canModerate = role === "admin" || role === "moderator";
 
   return [
+    {
+      key: "profile",
+      title: "Особистий профіль",
+      description: "Перегляд власної унікальної сторінки профілю та статусу доступу.",
+      enabled: true,
+    },
     {
       key: "applications",
       title: "Заявки до гільдії",
       description: "Перегляд заявок, Raider.IO даних, прийняття та відхилення кандидатів.",
-      enabled: true,
+      enabled: canModerate,
     },
     {
       key: "general-embeds",
       title: "Звичайні Discord embed",
       description: "Створення, редагування за Discord message link і тегання вибраних ролей.",
-      enabled: true,
+      enabled: canModerate,
     },
     {
       key: "rules-embeds",
@@ -81,9 +98,9 @@ export function splitConfiguredRoleIds(value?: string) {
 }
 
 export function configuredRoleIdsForDashboardRole(role: DashboardRole) {
-  return role === "admin"
-    ? splitConfiguredRoleIds(process.env.DISCORD_ADMIN_ROLE_IDS)
-    : splitConfiguredRoleIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  if (role === "admin") return splitConfiguredRoleIds(process.env.DISCORD_ADMIN_ROLE_IDS);
+  if (role === "moderator") return splitConfiguredRoleIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  return splitConfiguredRoleIds(process.env.DISCORD_MEMBER_ROLE_IDS);
 }
 
 export function matchingDiscordRoleIds(session: DashboardSession | null | undefined) {

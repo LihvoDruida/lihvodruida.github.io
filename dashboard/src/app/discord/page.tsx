@@ -3,6 +3,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds, canManageRulesEmbeds, hierarchyTitle } from "@/lib/permissions";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { getOwnProfilePath } from "@/lib/profiles";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -35,6 +36,7 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
   const params = await searchParams;
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
   const canUseRules = canManageRulesEmbeds(user);
+  if (!canUseGeneralEmbeds && !canUseRules) redirect(await getOwnProfilePath(user));
 
   return (
     <main className="container">

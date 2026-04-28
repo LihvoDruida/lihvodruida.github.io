@@ -11,6 +11,8 @@ import {
   type DiscordRoleOption,
   type DiscordRulesStats,
 } from "@/lib/discordAdmin";
+import { getOwnProfilePath } from "@/lib/profiles";
+import { canManageRulesEmbeds } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -127,6 +129,8 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
 export default async function DiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) redirect("/login");
+
+  if (!canManageRulesEmbeds(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
   const isAdmin = user.role === "admin";

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export type DashboardRole = "admin" | "moderator";
+export type DashboardRole = "admin" | "moderator" | "member";
 
 export type DashboardSession = {
   provider: "discord" | "github" | "token";
@@ -8,6 +8,7 @@ export type DashboardSession = {
   name: string;
   login?: string;
   role: DashboardRole;
+  profileId?: string;
   avatar?: string | null;
   avatar_url?: string | null;
   discordRoleIds?: string[];
@@ -78,9 +79,30 @@ async function sha256Base64Url(value: string) {
   return base64UrlEncode(new Uint8Array(digest));
 }
 
+function bytesToHex(bytes: Uint8Array) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function createStableProfileId(provider: string, providerUserId: string) {
+  const cleanProvider = String(provider || "discord").toLowerCase().replace(/[^a-z0-9_-]/g, "") || "discord";
+  const cleanUserId = String(providerUserId || "").trim();
+  if (!cleanUserId) throw new Error("Cannot create profile id without user id.");
+
+  const secret = process.env.PROFILE_ID_SECRET || getSecret();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${cleanProvider}:${cleanUserId}`));
+  return `id${bytesToHex(new Uint8Array(signature)).slice(0, 24)}`;
+}
+
 function normalizeSessionPayload(parsed: any): DashboardSession | null {
   if (!parsed || parsed.aud !== SESSION_AUDIENCE) return null;
-  if (parsed.role !== "admin" && parsed.role !== "moderator") return null;
+  if (parsed.role !== "admin" && parsed.role !== "moderator" && parsed.role !== "member") return null;
 
   const id = String(parsed.id || "").trim();
   if (!id) return null;
@@ -99,6 +121,7 @@ function normalizeSessionPayload(parsed: any): DashboardSession | null {
     name: String(parsed.name || "Moderator").slice(0, 120),
     login: parsed.login ? String(parsed.login).slice(0, 120) : undefined,
     role: parsed.role,
+    profileId: typeof parsed.profileId === "string" && /^id[a-f0-9]{16,40}$/.test(parsed.profileId) ? parsed.profileId : undefined,
     avatar: parsed.avatar || null,
     avatar_url: parsed.avatar_url || parsed.avatar || null,
     discordRoleIds: Array.isArray(parsed.discordRoleIds)
@@ -117,6 +140,7 @@ export async function createSessionToken(session: DashboardSession) {
       name: session.name,
       login: session.login,
       role: session.role,
+      profileId: session.profileId || (await createStableProfileId(session.provider, session.id)),
       avatar: session.avatar || null,
       avatar_url: session.avatar_url || session.avatar || null,
       discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
@@ -197,6 +221,7 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
   const roles = new Set(roleIds.map(String));
   const adminRoles = splitIds(process.env.DISCORD_ADMIN_ROLE_IDS);
   const moderatorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  const memberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
 
   for (const role of adminRoles) {
     if (roles.has(role)) return "admin";
@@ -204,6 +229,14 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
 
   for (const role of moderatorRoles) {
     if (roles.has(role)) return "moderator";
+  }
+
+  for (const role of memberRoles) {
+    if (roles.has(role)) return "member";
+  }
+
+  if (!memberRoles.size && ["1", "true", "yes", "on"].includes(String(process.env.DISCORD_ALLOW_GUILD_MEMBERS || "").toLowerCase())) {
+    return "member";
   }
 
   return null;
@@ -250,7 +283,7 @@ export async function createSessionCookie(session: (Partial<DashboardSession> & 
     id: String(session.id || "local"),
     name: String(session.name || session.login || "Local admin"),
     login: session.login || session.name || "Local admin",
-    role: session.role === "moderator" ? "moderator" : "admin",
+    role: session.role === "moderator" ? "moderator" : session.role === "member" ? "member" : "admin",
     avatar: session.avatar || null,
     avatar_url: session.avatar_url || session.avatar || null,
     discordRoleIds: session.discordRoleIds || [],

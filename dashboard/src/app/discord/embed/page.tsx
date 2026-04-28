@@ -3,6 +3,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds } from "@/lib/permissions";
+import { getOwnProfilePath } from "@/lib/profiles";
 import { defaultGeneralEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import {
   fetchDiscordEditableMessage,
@@ -26,8 +27,10 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const params = await searchParams;
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
+  if (!canUseGeneralEmbeds) redirect(await getOwnProfilePath(user));
+
+  const params = await searchParams;
   const messageParam = String(params.message || params.url || "").trim();
   const editMode = Boolean(messageParam);
   let configError = "";

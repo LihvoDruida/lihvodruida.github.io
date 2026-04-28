@@ -4,6 +4,8 @@ import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
 import { defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { getOwnProfilePath } from "@/lib/profiles";
+import { canManageRulesEmbeds } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,6 +13,8 @@ export const revalidate = 0;
 export default async function NewDiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) redirect("/login");
+
+  if (!canManageRulesEmbeds(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
   const isAdmin = user.role === "admin";

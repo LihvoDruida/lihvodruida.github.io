@@ -9,7 +9,7 @@ function errorText(error?: string) {
   if (!error) return null;
 
   const map: Record<string, string> = {
-    access_denied: "Доступ закрито: потрібна дозволена Discord роль.",
+    access_denied: "Доступ закрито: потрібна роль адміна, модератора або дозволений доступ учасника гільдії.",
     discord_oauth: "Discord не завершив авторизацію. Спробуй ще раз.",
     oauth_state: "Сесія входу застаріла. Повтори авторизацію.",
     discord_required: "Для входу потрібен Discord.",
@@ -66,13 +66,13 @@ export default async function LoginPage({
             <span>гільдії</span>
           </h1>
           <p className="login-lead">
-            Увійди через Discord, щоб керувати заявками, статусами та контентом гільдії.
+            Увійди через Discord. Адміни й офіцери отримують панель керування, учасники — лише власний профіль.
           </p>
 
           <div className="login-feature-list" aria-label="Можливості панелі">
             <span>Discord ролі</span>
+            <span>Профілі</span>
             <span>Заявки</span>
-            <span>Контент</span>
           </div>
 
           {error ? (
@@ -128,7 +128,7 @@ export default async function LoginPage({
           ) : null}
 
           <p className="login-note">
-            Доступ відкривається лише для дозволених ролей Discord. Службові ключі не передаються у браузер.
+            Доступ визначається Discord ролями. Учасники бачать тільки власний профіль; службові ключі й чужі дані не передаються у браузер.
           </p>
         </div>
       </section>

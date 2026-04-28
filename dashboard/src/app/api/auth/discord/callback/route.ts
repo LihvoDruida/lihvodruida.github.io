@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { resolveDashboardRole } from "@/lib/access";
-import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE } from "@/lib/auth";
+import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE, createStableProfileId } from "@/lib/auth";
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
+import { upsertProfileFromSession } from "@/lib/profiles";
 
 function loginRedirect(error: string) {
   const response = NextResponse.redirect(`${getDashboardUrl()}/login?error=${encodeURIComponent(error)}`, 303);
@@ -53,19 +54,28 @@ export async function GET(request: NextRequest) {
       return loginRedirect("access_denied");
     }
 
-    logDashboardEvent("info", "auth.discord.callback.success", request, { userId: user.id, role });
-
-    await setSession({
-      provider: "discord",
+    const session = {
+      provider: "discord" as const,
       id: String(user.id),
+      profileId: await createStableProfileId("discord", String(user.id)),
       name: user.global_name || user.username || String(user.id),
       role,
       avatar: avatarUrl,
       avatar_url: avatarUrl,
       discordRoleIds: Array.isArray(member.roles) ? member.roles.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean) : [],
+    };
+
+    const profileWrite = await upsertProfileFromSession(session).catch((error) => {
+      logDashboardEvent("error", "auth.discord.profile_upsert_failed", request, { userId: user.id, role, message: error instanceof Error ? error.message : String(error) });
+      return { stored: false, reason: "write-failed" };
     });
 
-    const response = NextResponse.redirect(`${getDashboardUrl()}/`, 303);
+    logDashboardEvent("info", "auth.discord.callback.success", request, { userId: user.id, profileId: session.profileId, role, profileStored: profileWrite.stored });
+
+    await setSession(session);
+
+    const redirectPath = role === "member" ? `/profile/${session.profileId}` : "/";
+    const response = NextResponse.redirect(`${getDashboardUrl()}${redirectPath}`, 303);
     for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
     return response;
   } catch (error) {

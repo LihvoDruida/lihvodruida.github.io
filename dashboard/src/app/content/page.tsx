@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import ContentImageField from "@/components/ContentImageField";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
+import { getOwnProfilePath } from "@/lib/profiles";
+import { canManageSiteContent } from "@/lib/permissions";
 import { listSiteContent, type SiteContentItem } from "@/lib/content";
 import { redirect } from "next/navigation";
 
@@ -313,6 +315,7 @@ function ContentLibraryGroup({
 export default async function ContentPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) redirect("/login");
+  if (!canManageSiteContent(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
   const isAdmin = user.role === "admin";
