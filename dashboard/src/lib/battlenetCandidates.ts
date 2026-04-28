@@ -4,15 +4,43 @@ import type { BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlen
 
 export const BNET_CANDIDATES_COOKIE = "__Host-mistblossom_bnet_candidates";
 const MAX_COOKIE_AGE_SECONDS = 10 * 60;
-const MAX_COOKIE_BYTES = 3600;
+const MAX_COOKIE_BYTES = 3900;
 
-type CandidateCookiePayload = {
+type CandidateCookiePayloadV1 = {
   v: 1;
   profileId: string;
   region: BattleNetRegion | string;
   expiresAt: number;
   characters: BattleNetCharacterCandidate[];
 };
+
+type CandidateCookieTuple = [
+  key: string,
+  name: string,
+  normalizedName: string,
+  realmSlug: string,
+  realmName: string,
+  level: number | null,
+  faction: string | null,
+  className: string | null,
+  raceName: string | null,
+  genderName: string | null,
+  guildName: string | null,
+  guildRealmSlug: string | null,
+  avatarUrl: string | null,
+  renderUrl: string | null,
+  lastSeenAt: string | null
+];
+
+type CandidateCookiePayloadV2 = {
+  v: 2;
+  p: string;
+  r: BattleNetRegion | string;
+  e: number;
+  c: CandidateCookieTuple[];
+};
+
+type CandidateCookiePayload = CandidateCookiePayloadV1 | CandidateCookiePayloadV2;
 
 function base64UrlEncode(value: string) {
   return Buffer.from(value, "utf8").toString("base64url");
@@ -48,7 +76,7 @@ function verifySignature(payload: string, signature: string) {
 function compactCandidate(character: BattleNetCharacterCandidate): BattleNetCharacterCandidate {
   return {
     key: character.key,
-    source: "battlenet",
+    source: "battlenet" as const,
     region: character.region,
     name: character.name,
     normalizedName: character.normalizedName,
@@ -64,15 +92,109 @@ function compactCandidate(character: BattleNetCharacterCandidate): BattleNetChar
     profileUrl: character.profileUrl,
     avatarUrl: character.avatarUrl,
     renderUrl: character.renderUrl,
-    mediaUrl: character.mediaUrl,
+    mediaUrl: null,
     verifiedGuild: character.verifiedGuild,
     lastSeenAt: character.lastSeenAt,
+  };
+}
+
+function emptyToNull(value: unknown) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text || null;
+}
+
+function optionalText(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function toCandidateTuple(character: BattleNetCharacterCandidate): CandidateCookieTuple {
+  return [
+    character.key,
+    character.name,
+    character.normalizedName,
+    character.realmSlug,
+    character.realmName,
+    Number.isFinite(Number(character.level)) ? Number(character.level) : null,
+    optionalText(character.faction),
+    optionalText(character.className),
+    optionalText(character.raceName),
+    optionalText(character.genderName),
+    optionalText(character.guildName),
+    optionalText(character.guildRealmSlug),
+    optionalText(character.avatarUrl),
+    optionalText(character.renderUrl),
+    optionalText(character.lastSeenAt),
+  ];
+}
+
+function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion | string): BattleNetCharacterCandidate | null {
+  const [
+    key,
+    name,
+    normalizedName,
+    realmSlug,
+    realmName,
+    level,
+    faction,
+    className,
+    raceName,
+    genderName,
+    guildName,
+    guildRealmSlug,
+    avatarUrl,
+    renderUrl,
+    lastSeenAt,
+  ] = tuple;
+
+  if (!key || !name || !realmSlug) return null;
+
+  return {
+    key,
+    source: "battlenet",
+    region: String(region || "eu").toLowerCase() as BattleNetRegion,
+    name,
+    normalizedName: normalizedName || name.toLowerCase(),
+    realmSlug,
+    realmName: realmName || realmSlug,
+    level: Number.isFinite(Number(level)) ? Number(level) : null,
+    faction: emptyToNull(faction),
+    className: emptyToNull(className),
+    raceName: emptyToNull(raceName),
+    genderName: emptyToNull(genderName),
+    guildName: emptyToNull(guildName),
+    guildRealmSlug: emptyToNull(guildRealmSlug),
+    profileUrl: "#",
+    avatarUrl: emptyToNull(avatarUrl),
+    renderUrl: emptyToNull(renderUrl),
+    mediaUrl: null,
+    verifiedGuild: true,
+    lastSeenAt: optionalText(lastSeenAt) || new Date(0).toISOString(),
   };
 }
 
 function buildCookieValue(payload: CandidateCookiePayload) {
   const encoded = base64UrlEncode(JSON.stringify(payload));
   return `${encoded}.${signPayload(encoded)}`;
+}
+
+function makePayload(profileId: string, region: BattleNetRegion | string, expiresAt: number, characters: BattleNetCharacterCandidate[]): CandidateCookiePayloadV2 {
+  return {
+    v: 2,
+    p: profileId,
+    r: region,
+    e: expiresAt,
+    c: characters.map(toCandidateTuple),
+  };
+}
+
+function stripHeavyMedia(characters: BattleNetCharacterCandidate[], mode: "render" | "all") {
+  return characters.map((character) => ({
+    ...character,
+    renderUrl: mode === "render" || mode === "all" ? null : character.renderUrl,
+    avatarUrl: mode === "all" ? null : character.avatarUrl,
+    mediaUrl: null,
+    profileUrl: "#",
+  }));
 }
 
 export function createBattleNetCandidatesCookieValue(input: {
@@ -86,20 +208,25 @@ export function createBattleNetCandidatesCookieValue(input: {
     if (character?.key && character.verifiedGuild) unique.set(character.key, compactCandidate(character));
   }
 
-  const characters = Array.from(unique.values());
-  let payload: CandidateCookiePayload = {
-    v: 1,
-    profileId: input.profileId,
-    region: input.region,
-    expiresAt,
-    characters,
-  };
+  let characters = Array.from(unique.values());
+  if (!characters.length) return "";
 
-  while (payload.characters.length > 0 && Buffer.byteLength(buildCookieValue(payload), "utf8") > MAX_COOKIE_BYTES) {
-    payload = { ...payload, characters: payload.characters.slice(0, -1) };
+  let payload = makePayload(input.profileId, input.region, expiresAt, characters);
+  if (Buffer.byteLength(buildCookieValue(payload), "utf8") > MAX_COOKIE_BYTES) {
+    characters = stripHeavyMedia(characters, "render");
+    payload = makePayload(input.profileId, input.region, expiresAt, characters);
   }
 
-  return payload.characters.length ? buildCookieValue(payload) : "";
+  if (Buffer.byteLength(buildCookieValue(payload), "utf8") > MAX_COOKIE_BYTES) {
+    characters = stripHeavyMedia(characters, "all");
+    payload = makePayload(input.profileId, input.region, expiresAt, characters);
+  }
+
+  while (payload.c.length > 0 && Buffer.byteLength(buildCookieValue(payload), "utf8") > MAX_COOKIE_BYTES) {
+    payload = { ...payload, c: payload.c.slice(0, -1) };
+  }
+
+  return payload.c.length ? buildCookieValue(payload) : "";
 }
 
 export function parseBattleNetCandidatesCookieValue(value: string | undefined | null, profileId: string) {
@@ -111,6 +238,15 @@ export function parseBattleNetCandidatesCookieValue(value: string | undefined | 
 
   try {
     const parsed = JSON.parse(base64UrlDecode(payload)) as CandidateCookiePayload;
+
+    if (parsed.v === 2) {
+      if (parsed.p !== profileId || Date.now() > Number(parsed.e || 0)) return null;
+      const characters = Array.isArray(parsed.c)
+        ? parsed.c.map((item) => tupleToCandidate(item, parsed.r)).filter(Boolean).slice(0, 50) as BattleNetCharacterCandidate[]
+        : [];
+      return { profileId: parsed.p, region: parsed.r, expiresAt: parsed.e, characters };
+    }
+
     if (parsed.v !== 1 || parsed.profileId !== profileId || Date.now() > Number(parsed.expiresAt || 0)) return null;
     const characters = Array.isArray(parsed.characters) ? parsed.characters.filter((item) => item?.key && item.verifiedGuild).slice(0, 50) : [];
     return { ...parsed, characters };
@@ -146,7 +282,6 @@ export function findCandidateByKey(cookieValue: string | undefined | null, profi
   const session = parseBattleNetCandidatesCookieValue(cookieValue, profileId);
   return session?.characters.find((item) => item.key === characterKey) || null;
 }
-
 
 export function removeCandidatesFromCookie(response: NextResponse, cookieValue: string | undefined | null, profileId: string, characterKeys: string[]) {
   const session = parseBattleNetCandidatesCookieValue(cookieValue, profileId);

@@ -7359,3 +7359,168 @@ form.is-submitting button[type="submit"],
     grid-column: 1 / -1;
   }
 }
+
+/* Profile cleanup: single source of truth for access, Battle.net counts and Discord roles */
+.profile-hero-strip {
+  grid-template-columns: repeat(6, minmax(116px, 1fr));
+  max-width: 1180px;
+}
+
+.profile-facts--compact {
+  margin-top: 14px;
+}
+
+.profile-access-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 16px;
+}
+
+.profile-access-summary span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(184, 233, 134, 0.10), transparent 60%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.profile-access-summary strong {
+  min-width: 0;
+  color: var(--text);
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-access-summary small,
+.profile-role-group__head small,
+.profile-subsection-head small,
+.profile-bnet-footnote {
+  color: var(--muted);
+}
+
+.profile-access-summary small {
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-role-group {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.profile-role-group__head,
+.profile-subsection-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.profile-role-group__head strong,
+.profile-subsection-head strong {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-role-group__head small,
+.profile-subsection-head small {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.profile-role-stack {
+  margin-top: 0;
+}
+
+.profile-role-chip--secondary {
+  color: #d7e4ff;
+  border-color: rgba(143, 199, 255, 0.24);
+  background: rgba(143, 199, 255, 0.08);
+}
+
+.profile-role-stack--secondary {
+  max-height: 136px;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.profile-bnet-summary {
+  grid-template-columns: repeat(6, minmax(112px, 1fr));
+}
+
+.profile-bnet-note,
+.profile-bnet-footnote {
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(247, 200, 115, 0.28);
+  border-radius: 16px;
+  background: rgba(247, 200, 115, 0.08);
+  color: #ffe6a8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.profile-bnet-footnote {
+  border-color: var(--line-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+}
+
+.profile-bnet-footnote strong {
+  color: var(--text);
+}
+
+.profile-subsection-head {
+  margin-top: 16px;
+}
+
+@media (max-width: 1180px) {
+  .profile-hero-strip,
+  .profile-bnet-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .profile-hero-strip,
+  .profile-bnet-summary,
+  .profile-access-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-hero-strip,
+  .profile-bnet-summary,
+  .profile-access-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-role-stack--secondary {
+    max-height: none;
+  }
+}

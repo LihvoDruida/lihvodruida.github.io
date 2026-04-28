@@ -5,12 +5,10 @@ import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/l
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
+  configuredRoleIdsForDashboardRole,
   dashboardCapabilities,
   dashboardRoleLabel,
-  hierarchyTitle,
-  matchingDiscordRoleLabels,
   siteStatusDescription,
-  siteStatusLabel,
 } from "@/lib/permissions";
 import {
   canViewProfile,
@@ -104,6 +102,37 @@ function profileAsSession(profile: DashboardProfile) {
     avatar_url: profile.avatarUrl || null,
     discordRoleIds: profile.discordRoleIds,
   };
+}
+
+type ProfileRoleChip = {
+  id: string;
+  label: string;
+  position: number;
+  muted?: boolean;
+};
+
+function buildRoleChips(roleIds: string[], roles: DiscordRoleOption[]) {
+  const roleMap = new Map(roles.map((role) => [role.id, role]));
+  return Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean)))
+    .map((roleId) => {
+      const role = roleMap.get(roleId);
+      return {
+        id: roleId,
+        label: role?.name || `Discord role · ${roleId.slice(-6)}`,
+        position: role?.position ?? 0,
+      } satisfies ProfileRoleChip;
+    })
+    .sort((a, b) => b.position - a.position || a.label.localeCompare(b.label, "uk"));
+}
+
+function numberOrNull(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : null;
+}
+
+function statValue(value: number | null | undefined) {
+  return typeof value === "number" ? value : "—";
 }
 
 function CharacterArtwork({ character }: { character: ProfileCharacter }) {
@@ -241,7 +270,6 @@ export default async function ProfilePage({
   }
 
   const profileSession = profileAsSession(profile);
-  const discordRoleLabels = matchingDiscordRoleLabels(profileSession, roles);
   const capabilities = dashboardCapabilities(profile.role);
   const enabledCount = capabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
@@ -255,13 +283,30 @@ export default async function ProfilePage({
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
-  const battleNetScanStats = profile.battlenet
-    ? [
-        { label: "Усього", value: profile.battlenet.totalCharacters ?? "—" },
-        { label: "Скановано", value: profile.battlenet.scannedCharacters ?? "—" },
-        { label: "У гільдії", value: profile.battlenet.eligibleCharacters ?? "—" },
-      ]
-    : [];
+  const savedCharacterCount = profile.characters.length;
+  const totalBattleNetCharacters = numberOrNull(profile.battlenet?.totalCharacters);
+  const scannedBattleNetCharacters = numberOrNull(profile.battlenet?.scannedCharacters);
+  const eligibleGuildCharacters = numberOrNull(profile.battlenet?.eligibleCharacters);
+  const visibleGuildCharacters = savedCharacterCount + availableCandidates.length;
+  const hiddenGuildCandidates = eligibleGuildCharacters !== null ? Math.max(eligibleGuildCharacters - visibleGuildCharacters, 0) : 0;
+  const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
+  const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
+  const accessRoleIds = roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId));
+  const accessRoleChips = profileSession.provider === "token"
+    ? [{ id: "token", label: "Резервний адмін-токен", position: 9999 } satisfies ProfileRoleChip]
+    : buildRoleChips(accessRoleIds, roles);
+  const fallbackAccessChip = !accessRoleChips.length
+    ? ({
+        id: "access-fallback",
+        label: profile.role === "member" ? "Доступ через членство на Discord-сервері" : `Сесія визначила: ${dashboardRoleLabel(profile.role)}`,
+        position: -1,
+        muted: true,
+      } satisfies ProfileRoleChip)
+    : null;
+  const accessRoleIdSet = new Set(accessRoleIds);
+  const otherRoleChips = profileSession.provider === "token"
+    ? []
+    : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
 
   return (
     <main className="container">
@@ -274,10 +319,12 @@ export default async function ProfilePage({
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">Центр профілю: роль доступу, Discord-ідентичність, Battle.net персонажі, main-персонаж і швидкі дії без зайвих постійних блоків.</p>
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
-              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
-              <span><strong>{profile.characters.length}</strong><small>Персонажі</small></span>
+              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль доступу</small></span>
+              <span><strong>{enabledCount}/{capabilities.length}</strong><small>Дій відкрито</small></span>
+              <span><strong>{savedCharacterCount}</strong><small>Додано в профіль</small></span>
+              <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>Знайдено в гільдії</small></span>
+              <span><strong>{availableCandidates.length}</strong><small>Ще доступно додати</small></span>
               <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
-              <span><strong>{profile.battlenet?.linked ? "Підключено" : "Не підключено"}</strong><small>Battle.net</small></span>
             </div>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
@@ -320,25 +367,7 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          <div className="profile-mini-overview" aria-label="Швидка статистика профілю">
-            <span><strong>{profile.characters.length}</strong><small>Персонажів додано</small></span>
-            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступних дій</small></span>
-            <span><strong>{mainCharacter?.realmName || "—"}</strong><small>Реалм мейна</small></span>
-          </div>
-
-          <dl className="profile-facts">
-            <div>
-              <dt>Ієрархія</dt>
-              <dd>{hierarchyTitle(profile.role)}</dd>
-            </div>
-            <div>
-              <dt>Статус на сайті</dt>
-              <dd>{siteStatusLabel(profile.role)}</dd>
-            </div>
-            <div>
-              <dt>Dashboard роль</dt>
-              <dd>{dashboardRoleLabel(profile.role)}</dd>
-            </div>
+          <dl className="profile-facts profile-facts--compact">
             <div>
               <dt>Вхід</dt>
               <dd>{providerLabel(profile.provider)}</dd>
@@ -360,14 +389,38 @@ export default async function ProfilePage({
             <h2>Роль доступу</h2>
           </div>
 
-          <p className="profile-card-lead">Роль береться з Discord-сесії та визначає доступ до адмін-розділів, модерації й власного профілю.</p>
+          <p className="profile-card-lead">Роль береться з Discord-сесії. Зверху показані ролі, які дали найвищий доступ у dashboard; нижче — всі інші ролі користувача.</p>
 
-          <div className="profile-role-stack" aria-label="Discord ролі користувача">
-            {discordRoleLabels.length ? discordRoleLabels.map((role) => (
-              <span className="profile-role-chip" key={role}>{role}</span>
-            )) : <span className="profile-role-chip profile-role-chip--muted">Роль не вдалось визначити з поточної сесії</span>}
+          <div className="profile-access-summary" aria-label="Поточний доступ">
+            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Найвищий dashboard-доступ</small></span>
+            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступних дій</small></span>
           </div>
 
+          <div className="profile-role-group">
+            <div className="profile-role-group__head">
+              <strong>Надали доступ</strong>
+              <small>{accessRoleChips.length || fallbackAccessChip ? (accessRoleChips.length || 1) : 0}</small>
+            </div>
+            <div className="profile-role-stack" aria-label="Ролі, які надали найвищий доступ">
+              {[...accessRoleChips, ...(fallbackAccessChip ? [fallbackAccessChip] : [])].map((role) => (
+                <span className={`profile-role-chip${role.muted ? " profile-role-chip--muted" : ""}`} key={role.id}>{role.label}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="profile-role-group">
+            <div className="profile-role-group__head">
+              <strong>Інші Discord ролі</strong>
+              <small>{otherRoleChips.length}</small>
+            </div>
+            <div className="profile-role-stack profile-role-stack--secondary" aria-label="Інші Discord ролі користувача">
+              {otherRoleChips.length ? otherRoleChips.map((role) => (
+                <span className="profile-role-chip profile-role-chip--secondary" key={role.id}>{role.label}</span>
+              )) : <span className="profile-role-chip profile-role-chip--muted">Інших ролей у сесії немає</span>}
+            </div>
+          </div>
+
+          {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Discord role ID є в сесії, але назви ролей недоступні без налаштованого Discord Bot API.</small> : null}
           {roleLoadError ? <small className="profile-warning">Назви ролей не підтягнулись із Discord API: {roleLoadError}</small> : null}
         </article>
 
@@ -388,27 +441,39 @@ export default async function ProfilePage({
             ) : null}
           </div>
 
-          <p className="profile-card-lead">Персонажі додаються тільки після реальної Battle.net реавторизації. Тимчасовий список не зберігається у Firebase і зникає після додавання або завершення сесії.</p>
+          <p className="profile-card-lead">Тут окремо показано: скільки персонажів уже збережено в профілі, скільки останній Battle.net scan знайшов у гільдії, і скільки ще можна додати після реавторизації.</p>
 
-          <div className="profile-bnet-summary">
-            <span><strong>{profile.characters.length}</strong><small>Додано</small></span>
-            <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+          <div className="profile-bnet-summary" aria-label="Battle.net підсумок профілю">
+            <span><strong>{savedCharacterCount}</strong><small>Збережено в профілі</small></span>
+            <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>Знайдено в гільдії</small></span>
+            <span><strong>{availableCandidates.length}</strong><small>Ще доступно додати</small></span>
+            <span><strong>{statValue(scannedBattleNetCharacters)}</strong><small>Скановано</small></span>
             <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
             <span><strong>{formatBattleNetAccount(profile)}</strong><small>Battle.net акаунт</small></span>
           </div>
 
-          {battleNetScanStats.length ? (
-            <div className="profile-scan-strip" aria-label="Остання Battle.net обробка">
-              {battleNetScanStats.map((item) => (
-                <span key={item.label}><strong>{item.value}</strong><small>{item.label}</small></span>
-              ))}
+          {hiddenGuildCandidates > 0 ? (
+            <div className="profile-bnet-note" role="status">
+              Останній scan знайшов більше персонажів у гільдії, ніж зараз видно на сторінці. Пройди Battle.net реавторизацію ще раз, щоб відкрити тимчасовий список для додавання.
+            </div>
+          ) : null}
+
+          {totalBattleNetCharacters !== null ? (
+            <div className="profile-bnet-footnote">
+              Усього на Battle.net акаунті: <strong>{totalBattleNetCharacters}</strong>. У картках нижче показані тільки збережені персонажі профілю.
             </div>
           ) : null}
 
           {profile.characters.length ? (
-            <div className="profile-character-list">
-              {profile.characters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} />)}
-            </div>
+            <>
+              <div className="profile-subsection-head">
+                <strong>Збережені персонажі</strong>
+                <small>{savedCharacterCount}</small>
+              </div>
+              <div className="profile-character-list">
+                {profile.characters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} />)}
+              </div>
+            </>
           ) : (
             <div className="profile-empty-characters">
               <strong>Персонажі ще не додані</strong>
