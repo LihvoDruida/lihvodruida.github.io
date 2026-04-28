@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-27 21:04:48'
+  updated_at: '2026-04-28 03:22:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-26T23:25:56.000Z'
+  raider_io_last_crawled_at: '2026-04-28T01:19:32.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -1750,7 +1750,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 85
+        learned_points: 86
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -4435,7 +4435,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 291
+        learned_points: 300
         max_points: 300
 - name: Нежныйлок
   region: eu
@@ -5870,13 +5870,22 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
   professions:
     primaries:
-    - name: Enchanting
-      id: 333
+    - name: Herbalism
+      id: 182
       tiers:
-      - name: Classic Enchanting
+      - name: Classic Herbalism
         learned_points: 1
         max_points: 300
-      - name: Dragon Isles Enchanting
+      - name: Midnight Herbalism
+        learned_points: 1
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
         learned_points: 1
         max_points: 100
     secondaries:
@@ -5898,7 +5907,25 @@ characters:
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
   professions:
-    primaries: []
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 30
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 34
+        max_points: 100
     secondaries:
     - name: Fishing
       id: 356
