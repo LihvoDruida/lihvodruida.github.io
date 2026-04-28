@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-28 17:48:32'
+  updated_at: '2026-04-28 21:08:33'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13460
-      region: 5997
+      world: 13467
+      region: 6003
       realm: 55
     heroic:
-      world: 16363
-      region: 6857
+      world: 16384
+      region: 6875
       realm: 59
     mythic:
-      world: 6595
-      region: 2863
+      world: 6609
+      region: 2875
       realm: 23
   blackrock-depths:
     normal:
@@ -710,11 +710,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Characternuk
-    item_level_equipped: 256
+    item_level_equipped: 258
     mythic_plus_scores:
       all:
-        score: 1098.4
-        color: '#baffa3'
+        score: 1203.4
+        color: '#aeff95'
       dps:
         score: 0
         color: '#ffffff'
@@ -722,11 +722,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1098.4
-        color: '#baffa3'
+        score: 1203.4
+        color: '#aeff95'
       spec_0:
-        score: 1098.4
-        color: '#baffa3'
+        score: 1203.4
+        color: '#aeff95'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1386,17 +1386,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 262
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
       tank:
         score: 0
         color: '#ffffff'
@@ -1410,8 +1410,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -1646,17 +1646,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Monkania
-    item_level_equipped: 263
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1783.8
-        color: '#6cff50'
+        score: 1800.2
+        color: '#68ff4c'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1783.8
-        color: '#6cff50'
+        score: 1800.2
+        color: '#68ff4c'
       tank:
         score: 0
         color: '#ffffff'
@@ -1664,8 +1664,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1783.8
-        color: '#6cff50'
+        score: 1800.2
+        color: '#68ff4c'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -1958,14 +1958,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 260
+    item_level_equipped: 262
     mythic_plus_scores:
       all:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
       dps:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
       healer:
         score: 0
         color: '#ffffff'
@@ -1979,8 +1979,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2155.2
-        color: '#38f531'
+        score: 2253
+        color: '#50e258'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2696,7 +2696,7 @@ members:
   character:
     name: Blackberry
     id: 189163897
-    level: 86
+    level: 87
     realm:
       id: 1415
       slug: terokkar
@@ -3133,11 +3133,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2854.8
-        color: '#1f74d8'
+        score: 2884.6
+        color: '#0070dd'
       dps:
-        score: 2854.8
-        color: '#1f74d8'
+        score: 2884.6
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -3145,11 +3145,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2854.8
-        color: '#1f74d8'
+        score: 2884.6
+        color: '#0070dd'
       spec_1:
-        score: 647.7
-        color: '#dfffd2'
+        score: 658.1
+        color: '#ddffd0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3445,8 +3445,8 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2810.7
-        color: '#2d79d4'
+        score: 2853.4
+        color: '#1f74d8'
       dps:
         score: 0
         color: '#ffffff'
@@ -3454,8 +3454,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2810.7
-        color: '#2d79d4'
+        score: 2853.4
+        color: '#1f74d8'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -3463,8 +3463,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2810.7
-        color: '#2d79d4'
+        score: 2853.4
+        color: '#1f74d8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3497,20 +3497,20 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2613.4
-        color: '#589dae'
+        score: 2693.5
+        color: '#4f8fbc'
       dps:
         score: 668.4
         color: '#ddffd0'
       healer:
-        score: 2613.4
-        color: '#589dae'
+        score: 2693.5
+        color: '#4f8fbc'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2613.4
-        color: '#589dae'
+        score: 2693.5
+        color: '#4f8fbc'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3913,10 +3913,10 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 3198.6
+        score: 3215.2
         color: '#ae39e2'
       dps:
-        score: 3198.6
+        score: 3215.2
         color: '#ae39e2'
       healer:
         score: 0
@@ -3931,7 +3931,7 @@ members:
         score: 333.9
         color: '#f6fff2'
       spec_2:
-        score: 3198.6
+        score: 3215.2
         color: '#ae39e2'
       spec_3:
         score: 0
@@ -4002,23 +4002,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: null
+      name: Monk
     playable_race:
       id: 3
-      name: null
+      name: Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
+    item_level_equipped: 276
+    mythic_plus_scores:
+      all:
+        score: 3020.1
+        color: '#7658e6'
+      dps:
+        score: 295.9
+        color: '#fafff7'
+      healer:
+        score: 3020.1
+        color: '#7658e6'
+      tank:
+        score: 2204.4
+        color: '#46ec47'
+      spec_0:
+        score: 2204.4
+        color: '#46ec47'
+      spec_1:
+        score: 3020.1
+        color: '#7658e6'
+      spec_2:
+        score: 295.9
+        color: '#fafff7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -4770,7 +4794,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 259
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 3089.6

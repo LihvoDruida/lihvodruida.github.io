@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-28 17:48:32'
+  updated_at: '2026-04-28 21:08:33'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -156,7 +156,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 52
+        learned_points: 75
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1487,13 +1487,13 @@ characters:
       id: 185
       tiers:
       - name: Classic Cooking
-        learned_points: 1
+        learned_points: 2
         max_points: 300
     - name: Fishing
       id: 356
       tiers:
       - name: Classic Fishing
-        learned_points: 1
+        learned_points: 2
         max_points: 300
       - name: Midnight Fishing
         learned_points: 1
@@ -1759,7 +1759,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 86
+        learned_points: 89
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -4002,7 +4002,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
   professions:
     primaries:
     - name: Alchemy
@@ -5924,7 +5924,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 30
+        learned_points: 49
         max_points: 100
     - name: Mining
       id: 186
@@ -5933,7 +5933,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 34
+        learned_points: 61
         max_points: 100
     secondaries:
     - name: Fishing
