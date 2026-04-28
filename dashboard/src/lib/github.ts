@@ -1,3 +1,5 @@
+import { mapConcurrent } from "@/lib/concurrency";
+
 export const STATUS_LABELS = [
   "status:review",
   "status:accepted",
@@ -537,8 +539,9 @@ export async function listApplications(params?: URLSearchParams) {
     );
   }
 
-  return Promise.all(
-    items.map(async (item) => {
+  const { results } = await mapConcurrent(
+    items,
+    async (item) => {
       const rio = await fetchRaiderIoForApplication(item);
       return {
         ...item,
@@ -547,8 +550,18 @@ export async function listApplications(params?: URLSearchParams) {
         raider_io: rio.data,
         raider_io_error: rio.error,
       };
-    })
+    },
+    {
+      profile: "external-api",
+      envKey: "RAIDERIO_LOOKUP_CONCURRENCY",
+      maxEnvKey: "RAIDERIO_LOOKUP_MAX_CONCURRENCY",
+      min: 2,
+      max: 10,
+      failFast: false,
+    },
   );
+
+  return results;
 }
 
 export async function setIssueStatus(params: {
@@ -567,21 +580,21 @@ export async function setIssueStatus(params: {
 
   const nextLabel = statusLabel(status);
 
-  await Promise.all(
-    STATUS_LABELS
-      .filter((label) => label !== nextLabel)
-      .map((label) =>
-        githubFetch(`/issues/${issueNumber}/labels/${encodeURIComponent(label)}`, {
-          method: "DELETE",
-        }).catch((error) => {
-          if (
-            !String(error?.message || "").toLowerCase().includes("not found") &&
-            !isMissingLabelError(error)
-          ) {
-            throw error;
-          }
-        })
-      )
+  await mapConcurrent(
+    STATUS_LABELS.filter((label) => label !== nextLabel),
+    async (label) => {
+      await githubFetch(`/issues/${issueNumber}/labels/${encodeURIComponent(label)}`, {
+        method: "DELETE",
+      }).catch((error) => {
+        if (
+          !String(error?.message || "").toLowerCase().includes("not found") &&
+          !isMissingLabelError(error)
+        ) {
+          throw error;
+        }
+      });
+    },
+    { profile: "write", envKey: "GITHUB_STATUS_CLEANUP_CONCURRENCY", max: 6 },
   );
 
   await githubFetch(`/issues/${issueNumber}/labels`, {

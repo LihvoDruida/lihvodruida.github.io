@@ -60,6 +60,8 @@ export async function GET(request: NextRequest) {
       totalCharacters: scan.totalCharacters,
       scannedCharacters: scan.scannedCharacters,
       eligibleCharacters: scan.eligibleCharacters,
+      concurrency: scan.concurrency,
+      failedCharacters: scan.failedCharacters,
       durationMs: scan.durationMs,
     });
 

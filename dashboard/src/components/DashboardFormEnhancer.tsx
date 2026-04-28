@@ -10,6 +10,7 @@ function formUsesApi(form: HTMLFormElement) {
 }
 
 function actionText(action: string) {
+  if (action.includes("/applications/bulk-status")) return { label: "Синхронізуємо...", title: "Batch-модерація", message: "Паралельно оновлюємо вибрані заявки, GitHub Issue і Discord embed." };
   if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Обробляємо вибраних персонажів одним batch-запитом." };
   if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net сесію і записуємо персонажа у Firebase." };
   if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо профіль і main-персонажа у Firebase." };

@@ -1,3 +1,5 @@
+import { mapConcurrent } from "@/lib/concurrency";
+
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const DASHBOARD_CUSTOM_ID_PREFIX = "mbv1";
 
@@ -694,12 +696,22 @@ export async function addGuildMemberRoles(params: {
 
   if (!guildId || !userId || roleIds.length === 0) throw new Error("Не вистачає guild/user/role ID для видачі ролі.");
 
-  for (const roleId of roleIds) {
-    await discordApi<void>(`/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
-      method: "PUT",
-      auditReason: params.reason,
-    });
-  }
+  await mapConcurrent(
+    roleIds,
+    async (roleId) => {
+      await discordApi<void>(`/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+        method: "PUT",
+        auditReason: params.reason,
+      });
+    },
+    {
+      profile: "external-api",
+      envKey: "DISCORD_ROLE_ASSIGN_CONCURRENCY",
+      maxEnvKey: "DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY",
+      min: 1,
+      max: 5,
+    },
+  );
 }
 
 export async function kickGuildMember(params: {

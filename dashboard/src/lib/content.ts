@@ -1,5 +1,6 @@
 import { githubFetch } from "@/lib/github";
 import type { DashboardSession } from "@/lib/auth";
+import { mapConcurrent } from "@/lib/concurrency";
 
 export type ContentKind = "news" | "guides";
 
@@ -392,12 +393,23 @@ async function listCollection(kind: ContentKind) {
     .filter((item) => item?.type === "file" && typeof item?.path === "string" && item.path.endsWith(".md"))
     .slice(0, 40);
 
-  const items = await Promise.all(markdownFiles.map(async (file) => {
-    const { sha, content } = await readRepoFile(file.path);
-    return parseMarkdownContent(kind, file.path, sha, content);
-  }));
+  const { results } = await mapConcurrent(
+    markdownFiles,
+    async (file) => {
+      const { sha, content } = await readRepoFile(file.path);
+      return parseMarkdownContent(kind, file.path, sha, content);
+    },
+    {
+      profile: "external-api",
+      envKey: "CONTENT_READ_CONCURRENCY",
+      maxEnvKey: "CONTENT_READ_MAX_CONCURRENCY",
+      min: 2,
+      max: 12,
+      failFast: false,
+    },
+  );
 
-  return items;
+  return results.filter(Boolean);
 }
 
 export async function listSiteContent() {

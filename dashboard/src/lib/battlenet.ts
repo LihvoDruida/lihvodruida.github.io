@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
-import { availableParallelism } from "node:os";
 import { getDashboardUrl } from "@/lib/oauth";
+import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
 
@@ -69,26 +69,18 @@ function envFlag(name: string, fallback = false) {
   return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
 }
 
-function readIntEnv(name: string, fallback: number, min: number, max: number) {
-  const value = Number(process.env[name]);
-  if (!Number.isFinite(value)) return fallback;
-  return Math.max(min, Math.min(Math.floor(value), max));
-}
-
 function getBattleNetRequestTimeoutMs() {
-  return readIntEnv("BATTLENET_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
+  return readIntegerEnv("BATTLENET_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
 }
 
-function getAdaptiveBattleNetConcurrency(total: number) {
-  const configured = Number(process.env.BATTLENET_SCAN_CONCURRENCY || 0);
-  const hardMax = readIntEnv("BATTLENET_SCAN_MAX_CONCURRENCY", 12, 1, 24);
-  if (Number.isFinite(configured) && configured > 0) {
-    return Math.max(1, Math.min(Math.floor(configured), hardMax, Math.max(total, 1)));
-  }
-
-  const cpuHint = Math.max(2, availableParallelism());
-  const adaptive = Math.ceil(cpuHint * 1.5);
-  return Math.max(2, Math.min(adaptive, hardMax, Math.max(total, 1)));
+function getBattleNetScanConcurrency(total: number) {
+  return getAdaptiveConcurrency(total, {
+    profile: "external-api",
+    envKey: "BATTLENET_SCAN_CONCURRENCY",
+    maxEnvKey: "BATTLENET_SCAN_MAX_CONCURRENCY",
+    min: 2,
+    max: 24,
+  });
 }
 
 export function normalizeBattleNetRegion(value?: string | null): BattleNetRegion {
@@ -259,20 +251,6 @@ async function bnetFetch(accessToken: string, path: string, params?: Record<stri
   return data;
 }
 
-async function mapLimited<T, R>(items: T[], limit: number, mapper: (item: T, index: number) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let cursor = 0;
-  const workers = Array.from({ length: Math.max(1, Math.min(limit, items.length || 1)) }, async () => {
-    while (cursor < items.length) {
-      const index = cursor;
-      cursor += 1;
-      results[index] = await mapper(items[index], index);
-    }
-  });
-  await Promise.all(workers);
-  return results;
-}
-
 function pickLocalizedName(value: any): string | null {
   if (!value) return null;
   if (typeof value === "string") return cleanText(value, 120) || null;
@@ -345,9 +323,9 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
 
   const maxCharacters = Math.max(1, Math.min(Number(process.env.BATTLENET_SCAN_MAX_CHARACTERS || 80) || 80, 120));
   const limitedCharacters = allCharacters.slice(0, maxCharacters);
-  const concurrency = getAdaptiveBattleNetConcurrency(limitedCharacters.length);
+  const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
 
-  const candidates = await mapLimited(limitedCharacters, concurrency, async (character) => {
+  const { results: candidates, meta } = await mapConcurrent(limitedCharacters, async (character) => {
     const nameSlug = slugifyCharacterName(character.name);
     const realmSlug = character.realmSlug;
 
@@ -391,6 +369,10 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
     } catch {
       return null;
     }
+  }, {
+    profile: "external-api",
+    concurrency,
+    failFast: false,
   });
 
   const filtered = candidates.filter(Boolean) as BattleNetCharacterCandidate[];
@@ -399,6 +381,8 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
     totalCharacters: allCharacters.length,
     scannedCharacters: limitedCharacters.length,
     eligibleCharacters: filtered.length,
+    concurrency: meta.concurrency,
+    failedCharacters: meta.failed,
     durationMs: Date.now() - startedAt,
     characters: filtered.sort((a, b) => a.name.localeCompare(b.name, "uk")),
   };
