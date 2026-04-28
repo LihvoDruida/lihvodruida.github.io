@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { getDashboardUrl } from "@/lib/oauth";
-import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, normalizeBattleNetRegion } from "@/lib/battlenet";
+import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, fetchBattleNetUserInfo, normalizeBattleNetRegion } from "@/lib/battlenet";
 import { clearBattleNetCandidatesCookie, setBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
 import { saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
@@ -48,8 +48,11 @@ export async function GET(request: NextRequest) {
     await upsertProfileFromSession(session);
     const region = getRegionFromOAuthState(state);
     const token = await exchangeBattleNetCode(code, region);
-    const scan = await fetchBattleNetGuildCharacters(token.access_token, region);
-    await saveBattleNetSyncState(session.profileId, scan);
+    const [scan, account] = await Promise.all([
+      fetchBattleNetGuildCharacters(token.access_token, region),
+      fetchBattleNetUserInfo(token.access_token, region).catch(() => null),
+    ]);
+    await saveBattleNetSyncState(session.profileId, scan, account);
 
     logDashboardEvent("info", "auth.battlenet.callback.success", request, {
       profileId: session.profileId,

@@ -47,6 +47,38 @@ function formatCompactDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
 }
 
+
+function formatBattleNetAccount(profile: DashboardProfile) {
+  const label = profile.battlenet?.accountLabel?.trim();
+  if (label) return label;
+  const hash = profile.battlenet?.accountIdHash?.trim();
+  if (hash) return `Battle.net • ${hash}`;
+  return profile.battlenet?.linked ? "Battle.net підключено" : "Battle.net не підключено";
+}
+
+function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession: boolean) {
+  const region = (profile.battlenet?.region?.toString().toUpperCase() || "EU");
+  if (hasFreshBattleNetSession) {
+    return {
+      eyebrow: "Свіжа перевірка активна",
+      title: "Додати ще персонажів",
+      hint: `${formatBattleNetAccount(profile)} • ${region} • список тимчасово відкритий після реавторизації`,
+    };
+  }
+  if (profile.battlenet?.linked) {
+    return {
+      eyebrow: "Battle.net підключено",
+      title: "Оновити персонажів",
+      hint: `${formatBattleNetAccount(profile)} • ${region} • потрібна реавторизація для нового списку`,
+    };
+  }
+  return {
+    eyebrow: "Battle.net не підключено",
+    title: "Підключити Battle.net",
+    hint: `Дозволить знайти персонажів Mistblossom Vanguard і прив’язати їх до профілю`,
+  };
+}
+
 function characterStatusMessage(status?: string) {
   if (!status) return null;
   const map: Record<string, { tone: "ok" | "warn"; text: string }> = {
@@ -223,6 +255,8 @@ export default async function ProfilePage({
   const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(item.key));
   const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
   const status = characterStatusMessage(query.characterStatus);
+  const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
+  const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
 
   return (
     <main className="container">
@@ -328,27 +362,23 @@ export default async function ProfilePage({
               <h2>Персонажі гільдії</h2>
             </div>
             {canManageCharacters ? (
-              <div className="profile-bnet-region-actions" aria-label="Підключити Battle.net за регіоном">
-                {enabledBattleNetRegions.map((region) => (
-                  <a
-                    key={region}
-                    className={`btn btn-sm ${profile.battlenet?.region === region ? "btn-primary" : "btn-ghost"}`}
-                    href={`/api/auth/battlenet/start?region=${region}`}
-                  >
-                    {profile.battlenet?.linked && profile.battlenet?.region === region ? "Оновити" : "Підключити"} {region.toUpperCase()}
-                  </a>
-                ))}
+              <div className="profile-bnet-region-actions" aria-label="Підключити або оновити Battle.net">
+                <a className="profile-bnet-cta" href={`/api/auth/battlenet/start?region=${primaryBattleNetRegion}`}>
+                  <span className="profile-bnet-cta__eyebrow">{battleNetAction.eyebrow}</span>
+                  <strong>{battleNetAction.title}</strong>
+                  <small>{battleNetAction.hint}</small>
+                </a>
               </div>
             ) : null}
           </div>
 
-          <p className="profile-card-lead">У Firebase зберігаються тільки додані персонажі та позначка мейна. Список для додавання зʼявляється лише після свіжої Battle.net авторизації й автоматично очищається; щоб додати ще персонажів, натисни «Оновити EU» і підтвердь акаунт знову.</p>
+          <p className="profile-card-lead">У Firebase зберігаються тільки додані персонажі, main-персонаж і мінімальні метадані Battle.net акаунта. Тимчасовий список для додавання зʼявляється лише після справжньої реавторизації, не висить постійно і очищається після використання.</p>
 
           <div className="profile-bnet-summary">
             <span><strong>{profile.characters.length}</strong><small>Додано</small></span>
-            <span><strong>{hasFreshBattleNetSession ? availableCandidates.length : "—"}</strong><small>Після re-auth</small></span>
             <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
             <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
+            <span><strong>{formatBattleNetAccount(profile)}</strong><small>Battle.net акаунт</small></span>
           </div>
 
           {profile.characters.length ? (
@@ -358,7 +388,7 @@ export default async function ProfilePage({
           ) : (
             <div className="profile-empty-characters">
               <strong>Персонажі ще не додані</strong>
-              <span>{canManageCharacters ? "Натисни «Оновити EU», пройди Battle.net авторизацію і додай потрібних персонажів." : "Учасник ще не додав персонажів до профілю."}</span>
+              <span>{canManageCharacters ? "Натисни кнопку Battle.net вище, пройди реавторизацію і додай потрібних персонажів." : "Учасник ще не додав персонажів до профілю."}</span>
             </div>
           )}
 
@@ -367,8 +397,8 @@ export default async function ProfilePage({
               <div className="profile-card-head profile-card-head--inline">
                 <div>
                   <span className="eyebrow">Свіжа Battle.net перевірка</span>
-                  <h3>Додати персонажа</h3>
-                  <small className="profile-card-note">Цей список тимчасовий. Після додавання або завершення сесії він не зберігається у Firebase.</small>
+                  <h3>Доступні для додавання</h3>
+                  <small className="profile-card-note">Цей список тимчасовий і з’являється лише після справжньої реавторизації. У Firebase він не зберігається.</small>
                 </div>
                 <span className="profile-count-pill">{availableCandidates.length}</span>
               </div>

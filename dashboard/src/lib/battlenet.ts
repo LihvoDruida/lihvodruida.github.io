@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { getDashboardUrl } from "@/lib/oauth";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
@@ -19,6 +20,11 @@ export function getEnabledBattleNetRegions(): BattleNetRegion[] {
 export function getPrimaryBattleNetRegion(): BattleNetRegion {
   return getEnabledBattleNetRegions()[0] || "eu";
 }
+
+export type BattleNetAccountInfo = {
+  accountLabel: string | null;
+  accountIdHash: string | null;
+};
 
 export type BattleNetCharacterCandidate = {
   key: string;
@@ -116,6 +122,36 @@ export function buildBattleNetOAuthUrl(state: string, regionInput?: string | nul
   url.searchParams.set("scope", "openid wow.profile");
   url.searchParams.set("state", state);
   return url.toString();
+}
+
+function hashBattleNetAccountId(value: string) {
+  return createHash("sha256").update(value).digest("hex").slice(0, 16);
+}
+
+export async function fetchBattleNetUserInfo(accessToken: string, regionInput?: string | null): Promise<BattleNetAccountInfo | null> {
+  const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
+  const response = await fetch(`${battleNetOAuthBase(region)}/userinfo`, {
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    cache: "no-store",
+  });
+
+  const raw = await response.text();
+  let data: any = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok || !data) return null;
+
+  const label = cleanText(data?.battletag || data?.battle_tag || data?.preferred_username || "", 120) || null;
+  const rawId = cleanText(data?.id || data?.sub || "", 200) || null;
+
+  return {
+    accountLabel: label,
+    accountIdHash: rawId ? hashBattleNetAccountId(rawId) : null,
+  };
 }
 
 export async function exchangeBattleNetCode(code: string, regionInput?: string | null) {

@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import type { BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
+import type { BattleNetAccountInfo, BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -23,6 +23,8 @@ export type DashboardProfile = {
   battlenet?: {
     linked: boolean;
     region?: BattleNetRegion | string | null;
+    accountLabel?: string | null;
+    accountIdHash?: string | null;
     lastConnectedAt?: string | null;
     lastSyncAt?: string | null;
     totalCharacters?: number;
@@ -130,6 +132,8 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
     battlenet: battlenetRaw ? {
       linked: Boolean(battlenetRaw.linked),
       region: optionalString(battlenetRaw.region),
+      accountLabel: optionalString(battlenetRaw.accountLabel),
+      accountIdHash: optionalString(battlenetRaw.accountIdHash),
       lastConnectedAt: timestampToIso(battlenetRaw.lastConnectedAt),
       lastSyncAt: timestampToIso(battlenetRaw.lastSyncAt),
       totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters)) ? Number(battlenetRaw.totalCharacters) : undefined,
@@ -238,7 +242,7 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   totalCharacters: number;
   scannedCharacters: number;
   eligibleCharacters: number;
-}) {
+}, account?: BattleNetAccountInfo | null) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
 
@@ -247,6 +251,8 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
     battlenet: {
       linked: true,
       region: scan.region,
+      accountLabel: account?.accountLabel || null,
+      accountIdHash: account?.accountIdHash || null,
       lastConnectedAt: FieldValue.serverTimestamp(),
       lastSyncAt: FieldValue.serverTimestamp(),
       totalCharacters: scan.totalCharacters,
