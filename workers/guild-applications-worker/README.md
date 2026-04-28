@@ -8,6 +8,7 @@ Cloudflare Worker for Mistblossom Vanguard applications and Discord interaction 
 - `POST /api/guild-applications` — create a new application, GitHub Issue and Discord notification.
 - `POST /api/discord-interactions` — single Discord interaction endpoint for all button actions.
 - `GET /api/discord-rules-stats` — dashboard stats for rule accepts/declines.
+- `GET /api/discord-raid-rules-signups` — dashboard list of raid-rules signups with Discord user and main character.
 
 ## Supported Discord actions
 
@@ -17,6 +18,8 @@ Cloudflare Worker for Mistblossom Vanguard applications and Discord interaction 
 - `mbv1:c:d` — public decline button that opens a private confirmation panel.
 - `mbv1:a:<roleIdBase36>[.<roleIdBase36>]` — private confirmation button that accepts rules and gives one or more roles.
 - `mbv1:d` — private confirmation button that declines rules and kicks the member.
+- `mbv1:r:c:s` — public raid-rules button that opens a private confirmation panel.
+- `mbv1:r:s` — private confirmation button that signs the user to raid rules after dashboard profile/main-character verification.
 
 Normal Discord embed posts stay passive: they use the same dashboard/bot setup, but no Worker action is needed unless they include buttons.
 
@@ -36,9 +39,12 @@ wrangler secret put GITHUB_TOKEN
 wrangler secret put DISCORD_BOT_TOKEN
 wrangler secret put DISCORD_PUBLIC_KEY
 wrangler secret put DISCORD_GUILD_ID
+wrangler secret put INTERNAL_PROFILE_LOOKUP_TOKEN
 ```
 
 `DISCORD_ALLOWED_ROLES` is optional and controls who can accept/decline applications. Rules buttons are intended for regular members and do not require moderator roles.
+
+Raid rules use `ADMIN_DASHBOARD_URL` / `DASHBOARD_PROFILE_LOOKUP_ENDPOINT` and `INTERNAL_PROFILE_LOOKUP_TOKEN` to verify that the Discord user authorized in the dashboard and selected a main character. If verification fails, the Worker returns an ephemeral message with `https://admin.lihvodruida.pp.ua/`.
 
 The bot needs `Send Messages`, `Embed Links`, `Read Message History`, `Manage Roles`, and `Kick Members`. The bot role must be higher than roles it assigns.
 
@@ -61,3 +67,22 @@ id = "paste_kv_namespace_id_here"
 Stats are stored per guild and per user. If the same user clicks again, the counter is not duplicated; if their decision changes, the previous counter is adjusted. Discord cannot hide buttons only for one user on a public message, so the Worker returns an ephemeral confirmation to the clicker and keeps the public buttons available for other members.
 
 `GET /api/discord-rules-stats?guild_id=<serverId>` reads the exact server stats. If `guild_id` and `DISCORD_GUILD_ID` are both missing, the Worker aggregates all `rules:<guildId>:*` counters from KV. This prevents the dashboard from showing zero when the Worker records stats under the Discord guild ID but the stats request does not pass that ID.
+
+
+## Raid rules signups
+
+Raid rules use the same `RULES_STATS` KV namespace, but store data under `raid-rules:<guildId>:user:<discordId>`. The saved record contains the Discord user label, dashboard profile id, selected main character, and signup timestamp. Repeated clicks update the same user record instead of duplicating it.
+
+The dashboard reads the list through:
+
+```text
+GET /api/discord-raid-rules-signups?guild_id=<serverId>
+```
+
+For production, keep these values aligned between the dashboard and Worker:
+
+```env
+ADMIN_DASHBOARD_URL=https://admin.lihvodruida.pp.ua
+DASHBOARD_PROFILE_LOOKUP_ENDPOINT=https://admin.lihvodruida.pp.ua/api/profile/discord-lookup
+INTERNAL_PROFILE_LOOKUP_TOKEN=<same-secret-as-dashboard>
+```

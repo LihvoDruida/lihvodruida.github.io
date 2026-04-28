@@ -111,7 +111,7 @@ type ProfileRoleChip = {
   muted?: boolean;
 };
 
-function buildRoleChips(roleIds: string[], roles: DiscordRoleOption[]) {
+function buildRoleChips(roleIds: string[], roles: DiscordRoleOption[]): ProfileRoleChip[] {
   const roleMap = new Map(roles.map((role) => [role.id, role]));
   return Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean)))
     .map((roleId) => {
@@ -292,8 +292,8 @@ export default async function ProfilePage({
   const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
   const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
   const accessRoleIds = roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId));
-  const accessRoleChips = profileSession.provider === "token"
-    ? [{ id: "token", label: "Резервний адмін-токен", position: 9999 } satisfies ProfileRoleChip]
+  const accessRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
+    ? [{ id: "token", label: "Резервний адмін-токен", position: 9999 }]
     : buildRoleChips(accessRoleIds, roles);
   const fallbackAccessChip = !accessRoleChips.length
     ? ({
@@ -304,7 +304,7 @@ export default async function ProfilePage({
       } satisfies ProfileRoleChip)
     : null;
   const accessRoleIdSet = new Set(accessRoleIds);
-  const otherRoleChips = profileSession.provider === "token"
+  const otherRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? []
     : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
 
@@ -399,7 +399,7 @@ export default async function ProfilePage({
           <div className="profile-role-group">
             <div className="profile-role-group__head">
               <strong>Надали доступ</strong>
-              <small>{accessRoleChips.length || fallbackAccessChip ? (accessRoleChips.length || 1) : 0}</small>
+              <small>{accessRoleChips.length + (fallbackAccessChip ? 1 : 0)}</small>
             </div>
             <div className="profile-role-stack" aria-label="Ролі, які надали найвищий доступ">
               {[...accessRoleChips, ...(fallbackAccessChip ? [fallbackAccessChip] : [])].map((role) => (

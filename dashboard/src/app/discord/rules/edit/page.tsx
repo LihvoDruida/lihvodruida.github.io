@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
-import { defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
+import { defaultRaidRulesEmbed, defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import {
   fetchDiscordEditableMessage,
   fetchDiscordRoles,
@@ -29,7 +29,8 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
   let channels: Array<{ id: string; name: string; type: number }> = [];
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let suggestedRulesChannelId = "";
-  let embedJson = prettyDiscordJson(defaultRulesEmbed);
+  let ruleType: "guild" | "raid" = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
+  let embedJson = prettyDiscordJson(ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed);
   let content = "";
   let messageLink = messageParam;
   let selectedRoleIds: string[] = [];
@@ -48,7 +49,8 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
         content = message.content;
         messageLink = message.url || messageParam;
         suggestedRulesChannelId = message.channelId || suggestedRulesChannelId;
-        selectedRoleIds = message.roleIds;
+        ruleType = message.rulesType === "raid" ? "raid" : "guild";
+        selectedRoleIds = message.rulesType === "raid" ? [] : message.roleIds;
         if (!message.isRules) {
           configError = "Це повідомлення не схоже на rules embed із кнопками цієї панелі.";
         }
@@ -67,8 +69,8 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
         <header className="discord-editor-header panel">
           <div>
             <span className="eyebrow">Rules embed • Редагування</span>
-            <h1>Редагування правил</h1>
-            <p>Онови rules embed зі списку або через message link. Канал, embed і ролі розділені окремо.</p>
+            <h1>{ruleType === "raid" ? "Редагування правил рейду" : "Редагування правил"}</h1>
+            <p>{ruleType === "raid" ? "Онови рейдові правила з кнопкою підпису та списком підписантів." : "Онови rules embed зі списку або через message link. Канал, embed і ролі розділені окремо."}</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
@@ -82,13 +84,14 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : configError && !messageParam ? (
         <div className="notice panel error-note">{configError}</div>
-      ) : channels.length === 0 || roles.length === 0 ? (
+      ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (
         <div className="notice panel error-note">Не знайдено текстових каналів або ролей для вибору.</div>
       ) : (
         <>
           {configError ? <div className="notice panel error-note">{configError}</div> : null}
           <DiscordEmbedEditor
             mode="rules"
+            ruleType={ruleType}
             editorMode="edit"
             channels={channels}
             roles={roles}

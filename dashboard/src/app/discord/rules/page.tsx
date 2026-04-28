@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import {
+  fetchDiscordRaidRulesSignups,
   fetchDiscordRoles,
   fetchDiscordRulesStats,
   fetchDiscordTextChannels,
   hasDiscordEmbedConfig,
   listRulesEmbedMessages,
   type DiscordEditableMessage,
+  type DiscordRaidRulesSignupsResponse,
   type DiscordRoleOption,
   type DiscordRulesStats,
 } from "@/lib/discordAdmin";
@@ -80,6 +82,78 @@ function RulesStatsPanel({ stats, messagesCount, channelName }: { stats: Discord
   );
 }
 
+
+function characterLabel(signup: DiscordRaidRulesSignupsResponse["signups"][number]) {
+  const character = signup.mainCharacter || null;
+  const name = String(character?.name || "").trim();
+  const realm = String(character?.realmName || character?.realmSlug || "").trim();
+  if (!name) return "Main не знайдено";
+  return realm ? `${name} • ${realm}` : name;
+}
+
+function signedAtLabel(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "невідомо" : date.toLocaleString("uk-UA");
+}
+
+function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsResponse }) {
+  const updatedLabel = formatUpdatedAt(signups.updatedAt);
+  const hint = signups.configured
+    ? `Останнє оновлення: ${updatedLabel}`
+    : (signups.error || "Онови Worker і додай endpoint /api/discord-raid-rules-signups з KV RULES_STATS.");
+
+  return (
+    <section className="panel discord-raid-signups-panel" aria-label="Підписанти правил рейду">
+      <div className="content-section-head content-section-head--toolbar">
+        <div>
+          <span className="eyebrow">Raid rules</span>
+          <h2>Хто підписався на правила рейду</h2>
+        </div>
+        <div className="content-toolbar-actions">
+          <small>{signups.configured ? `${signups.total} підписантів` : "KV не підключено"}</small>
+          <a className="btn subtle" href="/discord/rules/new?type=raid">Додати правила рейду</a>
+        </div>
+      </div>
+
+      <p className="discord-raid-signups-hint">{hint}</p>
+
+      {!signups.configured ? (
+        <div className="notice error-note">Список підписантів недоступний: {signups.error || "немає налаштування Worker/KV."}</div>
+      ) : signups.signups.length === 0 ? (
+        <div className="content-empty discord-empty-state">
+          <strong>Підписантів ще немає.</strong>
+          <span>Коли користувач натисне кнопку під рейдовими правилами, бот запише Discord і main-персонажа сюди.</span>
+        </div>
+      ) : (
+        <div className="discord-raid-signups-table" role="table" aria-label="Список підписантів рейдових правил">
+          <div className="discord-raid-signups-row discord-raid-signups-row--head" role="row">
+            <span role="columnheader">Discord</span>
+            <span role="columnheader">Main персонаж</span>
+            <span role="columnheader">Підпис</span>
+          </div>
+          {signups.signups.map((signup) => (
+            <div className="discord-raid-signups-row" role="row" key={signup.discordId}>
+              <span role="cell">
+                <strong>{signup.discordName || "Discord user"}</strong>
+                <small>{signup.discordId}</small>
+              </span>
+              <span role="cell">
+                {signup.mainCharacter?.profileUrl ? (
+                  <a href={signup.mainCharacter.profileUrl} target="_blank" rel="noreferrer">{characterLabel(signup)}</a>
+                ) : (
+                  <strong>{characterLabel(signup)}</strong>
+                )}
+                {signup.mainCharacter?.className ? <small>{signup.mainCharacter.className}</small> : null}
+              </span>
+              <span role="cell"><time dateTime={signup.signedAt || undefined}>{signedAtLabel(signup.signedAt)}</time></span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function RulesRoleBadges({ roleIds, roles }: { roleIds: string[]; roles: DiscordRoleOption[] }) {
   const uniqueRoleIds = Array.from(new Set(roleIds.filter(Boolean)));
 
@@ -101,11 +175,12 @@ function RulesRoleBadges({ roleIds, roles }: { roleIds: string[]; roles: Discord
 
 function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: DiscordRoleOption[] }) {
   const stateLabel = message.editedAt ? "Оновлено" : "Створено";
+  const isRaidRules = message.rulesType === "raid";
 
   return (
     <article className="discord-rules-row" role="listitem">
       <a className="discord-rules-row-main" href={`/discord/rules/edit?message=${encodeURIComponent(message.url)}`}>
-        <span className="discord-rules-row-icon" aria-hidden="true">🌸</span>
+        <span className="discord-rules-row-icon" aria-hidden="true">{isRaidRules ? "🐉" : "🌸"}</span>
         <span className="discord-rules-row-title">
           <strong>{message.title}</strong>
           <small>{shortDiscordUrl(message.url)}</small>
@@ -114,8 +189,8 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
           <span className="discord-rules-row-state">
             <time dateTime={message.editedAt || message.createdAt || undefined}>{stateLabel}</time>
           </span>
-          <span className="discord-rules-row-roles-label">Видає ролі</span>
-          <RulesRoleBadges roleIds={message.roleIds} roles={roles} />
+          <span className="discord-rules-row-roles-label">{isRaidRules ? "Тип" : "Видає ролі"}</span>
+          {isRaidRules ? <span className="discord-rules-role-empty">Підпис на рейд</span> : <RulesRoleBadges roleIds={message.roleIds} roles={roles} />}
         </span>
       </a>
       <div className="discord-rules-row-actions">
@@ -139,13 +214,15 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
   let messages: DiscordEditableMessage[] = [];
   let roles: DiscordRoleOption[] = [];
   let stats: DiscordRulesStats = { accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
+  let raidSignups: DiscordRaidRulesSignupsResponse = { configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
 
   if (isAdmin && hasDiscordEmbedConfig()) {
     try {
-      const [channelData, roleData, statsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats()]);
+      const [channelData, roleData, statsData, raidSignupsData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles(), fetchDiscordRulesStats(), fetchDiscordRaidRulesSignups()]);
       const rulesChannel = channelData.channels.find((channel) => channel.id === channelData.suggestedRulesChannelId) || channelData.channels[0];
       roles = roleData;
       stats = statsData;
+      raidSignups = raidSignupsData;
       rulesChannelName = rulesChannel?.name || "rules";
       messages = rulesChannel?.id ? await listRulesEmbedMessages(rulesChannel.id, 100) : [];
     } catch (error) {
@@ -172,6 +249,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
               <span>Канал можна змінити під час створення або редагування.</span>
               <div className="content-hero-buttons">
                 <a className="btn primary content-add-btn" href="/discord/rules/new">Додати правила</a>
+                <a className="btn subtle content-add-btn" href="/discord/rules/new?type=raid">Правила рейду</a>
                 <a className="btn subtle content-add-btn" href="/discord">Назад</a>
               </div>
             </div>
@@ -190,6 +268,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       ) : (
         <>
           <RulesStatsPanel stats={stats} messagesCount={messages.length} channelName={rulesChannelName} />
+          <RaidRulesSignupsPanel signups={raidSignups} />
 
           <section className="panel discord-rules-list-panel" aria-label="Rules embeds">
             <div className="content-section-head content-section-head--toolbar">
@@ -199,6 +278,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
               </div>
               <div className="content-toolbar-actions">
                 <small>{messages.length} знайдено</small>
+                <a className="btn subtle" href="/discord/rules/new?type=raid">Рейд</a>
                 <a className="btn primary" href="/discord/rules/new">Додати</a>
               </div>
             </div>

@@ -4289,6 +4289,115 @@ body {
   }
 }
 
+
+
+/* Raid rules signups */
+.discord-raid-signups-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: clamp(14px, 2vw, 20px);
+  border: 1px solid rgba(255, 217, 139, 0.16);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 217, 139, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(41, 31, 25, 0.86), rgba(18, 18, 22, 0.92));
+}
+
+.discord-raid-signups-hint,
+.discord-raid-rules-hint {
+  margin: 0;
+  color: rgba(246, 239, 226, 0.72);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.discord-raid-rules-hint {
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 217, 139, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 217, 139, 0.06);
+}
+
+.discord-visual-section--raid-rules {
+  border-color: rgba(255, 217, 139, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(255, 217, 139, 0.08), transparent 34%),
+    rgba(255, 217, 139, 0.035);
+}
+
+.discord-raid-signups-table {
+  display: grid;
+  gap: 8px;
+}
+
+.discord-raid-signups-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.7fr) minmax(190px, 1fr) minmax(150px, 0.55fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.discord-raid-signups-row--head {
+  border-color: rgba(255, 217, 139, 0.16);
+  background: rgba(255, 217, 139, 0.06);
+  color: rgba(255, 238, 194, 0.9);
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.discord-raid-signups-row span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.discord-raid-signups-row strong,
+.discord-raid-signups-row a,
+.discord-raid-signups-row time {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-raid-signups-row a {
+  color: #f7d77f;
+  text-decoration: none;
+}
+
+.discord-raid-signups-row a:hover {
+  text-decoration: underline;
+}
+
+.discord-raid-signups-row small {
+  min-width: 0;
+  color: rgba(246, 239, 226, 0.52);
+  font-size: 10.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .discord-raid-signups-row,
+  .discord-raid-signups-row--head {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-raid-signups-row--head {
+    display: none;
+  }
+}
+
 /* API/workflow feedback */
 form.is-submitting .btn,
 form.is-submitting button[type="submit"],

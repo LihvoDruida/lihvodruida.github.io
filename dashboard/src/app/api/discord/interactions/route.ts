@@ -8,6 +8,7 @@ import {
   kickGuildMember,
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
+import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -56,6 +57,22 @@ function finishDecision(interaction: any, content: string) {
 }
 
 function rulesConfirmationResponse(action: { action: string; roleIds: string[] }) {
+  if (action.action === "confirm_raid_signup") {
+    return ephemeral("🐉 Підтверди підпис на правила рейду. Бот перевірить авторизацію в панелі та main-персонажа.", [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            style: 3,
+            label: "Підтвердити підпис",
+            custom_id: "mbv1:r:s",
+          },
+        ],
+      },
+    ]);
+  }
+
   if (action.action === "confirm_decline") {
     return ephemeral("⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера.", [
       {
@@ -100,6 +117,17 @@ function getInteractionUserName(interaction: any) {
     getInteractionUserId(interaction) ||
     "unknown"
   ).slice(0, 80);
+}
+
+function dashboardAuthUrl() {
+  const raw = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || "https://admin.lihvodruida.pp.ua/").trim() || "https://admin.lihvodruida.pp.ua/";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+function mainCharacterLabel(character: any) {
+  const name = String(character?.name || "").trim();
+  const realm = String(character?.realmName || character?.realmSlug || "").trim();
+  return name ? `${name}${realm ? ` • ${realm}` : ""}` : "main-персонаж не знайдений";
 }
 
 export async function POST(request: NextRequest) {
@@ -150,6 +178,23 @@ export async function POST(request: NextRequest) {
       roles: parsed.roleIds.length,
     });
     return rulesConfirmationResponse(parsed);
+  }
+
+  if (parsed.action === "raid_signup") {
+    try {
+      const profile = await getProfileByDiscordUserId(userId);
+      const mainCharacter = profile ? getMainCharacter(profile) : null;
+      if (!profile || !mainCharacter) {
+        logDashboardEvent("warn", "discord.raid_rules.profile_missing", request, { guildId, userId });
+        return finishDecision(interaction, `❌ Підпис не зараховано: не знайдено авторизований профіль або main-персонажа. Авторизуйся в панелі та вибери main: ${dashboardAuthUrl()}`);
+      }
+
+      logDashboardEvent("info", "discord.raid_rules.signed", request, { guildId, userId, profileId: profile.profileId, character: mainCharacter.name });
+      return finishDecision(interaction, `✅ Підпис на правила рейду підтверджено. Main: ${mainCharacterLabel(mainCharacter)}.`);
+    } catch (error) {
+      logDashboardEvent("error", "discord.raid_rules.failed", request, { message: safeErrorMessage(error), guildId, userId });
+      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис: ${safeErrorMessage(error)}`);
+    }
   }
 
   try {

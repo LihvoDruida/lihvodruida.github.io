@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
-import { defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
+import { defaultRaidRulesEmbed, defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds } from "@/lib/permissions";
@@ -18,6 +18,8 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
 
   const params = await searchParams;
   const isAdmin = user.role === "admin";
+  const ruleType = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
+  const defaultEmbed = ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed;
   let configError = "";
   let channels: Array<{ id: string; name: string; type: number }> = [];
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
@@ -41,8 +43,8 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
         <header className="discord-editor-header panel">
           <div>
             <span className="eyebrow">Rules embed • Створення</span>
-            <h1>Нові правила Discord</h1>
-            <p>Створи rules embed, вибери канал і ролі для кнопки прийняття.</p>
+            <h1>{ruleType === "raid" ? "Нові правила рейду" : "Нові правила Discord"}</h1>
+            <p>{ruleType === "raid" ? "Створи рейдові правила з кнопкою підпису та перевіркою main-персонажа." : "Створи rules embed, вибери канал і ролі для кнопки прийняття."}</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
@@ -56,16 +58,17 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
         <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
       ) : configError ? (
         <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
-      ) : channels.length === 0 || roles.length === 0 ? (
+      ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (
         <div className="notice panel error-note">Не знайдено текстових каналів або ролей для вибору.</div>
       ) : (
         <DiscordEmbedEditor
           mode="rules"
+          ruleType={ruleType}
           editorMode="create"
           channels={channels}
           roles={roles}
           suggestedChannelId={suggestedRulesChannelId}
-          defaultEmbedJson={prettyDiscordJson(defaultRulesEmbed)}
+          defaultEmbedJson={prettyDiscordJson(defaultEmbed)}
           returnTo="/discord/rules"
         />
       )}

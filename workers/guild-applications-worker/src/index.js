@@ -5,7 +5,7 @@ const DEFAULT_FILTERED_LIST_PAGES = 3;
 const MAX_GITHUB_LIST_PAGES = 5;
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-signups"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -123,6 +123,8 @@ function envDiagnostics(env) {
     discord_public_key: Boolean(env.DISCORD_PUBLIC_KEY),
     discord_guild_id: Boolean(env.DISCORD_GUILD_ID),
     rules_stats_binding: hasValidRulesStatsBinding(env),
+    dashboard_profile_lookup_endpoint: Boolean(String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_DASHBOARD_URL || "").trim()),
+    internal_profile_lookup_token: Boolean(String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || "").trim()),
     allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
   };
 }
@@ -223,24 +225,32 @@ function decodeRoleIdsFromCustomId(value, prefix) {
 function decodeRulesCustomId(customId) {
   const value = String(customId || "").trim();
 
+  if (value === `${RULES_CUSTOM_ID_PREFIX}:r:s`) {
+    return { type: "raid", action: "raid_signup", roleIds: [] };
+  }
+
+  if (value === `${RULES_CUSTOM_ID_PREFIX}:r:c:s`) {
+    return { type: "raid", action: "confirm_raid_signup", roleIds: [] };
+  }
+
   if (value === `${RULES_CUSTOM_ID_PREFIX}:d`) {
-    return { action: "decline", roleIds: [] };
+    return { type: "guild", action: "decline", roleIds: [] };
   }
 
   if (value === `${RULES_CUSTOM_ID_PREFIX}:c:d`) {
-    return { action: "confirm_decline", roleIds: [] };
+    return { type: "guild", action: "confirm_decline", roleIds: [] };
   }
 
   const acceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:a:`;
   if (value.startsWith(acceptPrefix)) {
     const roleIds = decodeRoleIdsFromCustomId(value, acceptPrefix);
-    return roleIds.length ? { action: "accept", roleIds } : null;
+    return roleIds.length ? { type: "guild", action: "accept", roleIds } : null;
   }
 
   const confirmAcceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:c:a:`;
   if (value.startsWith(confirmAcceptPrefix)) {
     const roleIds = decodeRoleIdsFromCustomId(value, confirmAcceptPrefix);
-    return roleIds.length ? { action: "confirm_accept", roleIds } : null;
+    return roleIds.length ? { type: "guild", action: "confirm_accept", roleIds } : null;
   }
 
   return null;
@@ -328,6 +338,168 @@ function hasValidRulesStatsBinding(env) {
 
 function rulesStatsKey(guildId, suffix) {
   return `rules:${snowflake(guildId) || "global"}:${suffix}`;
+}
+
+function raidRulesKey(guildId, suffix) {
+  return `raid-rules:${snowflake(guildId) || "global"}:${suffix}`;
+}
+
+function dashboardAuthUrl(env) {
+  const raw = String(env.ADMIN_DASHBOARD_URL || env.DASHBOARD_URL || "https://admin.lihvodruida.pp.ua/").trim() || "https://admin.lihvodruida.pp.ua/";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+function dashboardProfileLookupEndpoint(env) {
+  const explicit = String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || "").trim();
+  if (explicit) return explicit;
+  try {
+    return new URL("/api/profile/discord-lookup", dashboardAuthUrl(env)).toString();
+  } catch {
+    return "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup";
+  }
+}
+
+function pickMainCharacter(value) {
+  if (!value || typeof value !== "object") return null;
+  return {
+    key: String(value.key || ""),
+    name: String(value.name || ""),
+    realmName: String(value.realmName || value.realm_name || ""),
+    realmSlug: String(value.realmSlug || value.realm_slug || ""),
+    region: String(value.region || ""),
+    className: String(value.className || value.class_name || ""),
+    profileUrl: String(value.profileUrl || value.profile_url || ""),
+  };
+}
+
+function hasUsableMainCharacter(value) {
+  const main = pickMainCharacter(value);
+  return Boolean(main?.name && (main.realmName || main.realmSlug));
+}
+
+function formatMainCharacterForMessage(mainCharacter) {
+  const main = pickMainCharacter(mainCharacter);
+  if (!main?.name) return "main-персонаж не знайдений";
+  const realm = main.realmName || main.realmSlug || "realm не вказано";
+  return `${main.name} • ${realm}`;
+}
+
+async function lookupDashboardProfileByDiscord(env, discordId) {
+  const cleanDiscordId = snowflake(discordId);
+  const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || "").trim();
+  if (!cleanDiscordId) return { ok: false, reason: "invalid-discord-id" };
+  if (!token) return { ok: false, reason: "missing-profile-lookup-token" };
+
+  const url = new URL(dashboardProfileLookupEndpoint(env));
+  url.searchParams.set("discord_id", cleanDiscordId);
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    const raw = await response.text().catch(() => "");
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+
+    if (response.status === 404) return { ok: false, reason: "profile-not-found", status: response.status };
+    if (!response.ok || !data?.found) {
+      return { ok: false, reason: response.status === 403 ? "profile-lookup-forbidden" : "profile-lookup-failed", status: response.status, message: data?.error || raw };
+    }
+
+    return { ok: true, profile: data, mainCharacter: pickMainCharacter(data.mainCharacter) };
+  } catch (error) {
+    return { ok: false, reason: "profile-lookup-exception", message: error?.message };
+  }
+}
+
+async function recordRaidRulesSignup(env, guildId, userId, userLabel, profile) {
+  const kv = getRulesStatsKv(env);
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID) || "global";
+  const cleanUserId = snowflake(userId);
+  if (!kv || !cleanUserId) return { skipped: true };
+
+  const signedAt = new Date().toISOString();
+  const signup = {
+    discordId: cleanUserId,
+    discordName: limitText(userLabel || profile?.displayName || "Discord user", 120, "Discord user"),
+    profileId: profile?.profileId || null,
+    mainCharacter: pickMainCharacter(profile?.mainCharacter),
+    signedAt,
+  };
+
+  await kv.put(raidRulesKey(cleanGuildId, `user:${cleanUserId}`), JSON.stringify(signup));
+  await kv.put(raidRulesKey(cleanGuildId, "updated_at"), signedAt);
+  return { ok: true, signup };
+}
+
+async function getRaidRulesSignups(env, guildId) {
+  const kv = getRulesStatsKv(env);
+  if (!kv) {
+    const hasBinding = hasRulesStatsBinding(env);
+    return {
+      configured: false,
+      total: 0,
+      updated_at: null,
+      signups: [],
+      source: hasBinding ? "invalid-binding" : "missing-kv-binding",
+      message: hasBinding ? "RULES_STATS exists, but it is not a KV namespace binding." : "RULES_STATS KV binding is not configured.",
+    };
+  }
+
+  const cleanGuildId = snowflake(guildId) || snowflake(env.DISCORD_GUILD_ID);
+  const guildKey = cleanGuildId || "global";
+  const prefix = raidRulesKey(guildKey, "user:");
+  const keys = await listAllKvKeys(kv, prefix);
+  const values = await Promise.all(keys.map(async (key) => {
+    try {
+      const raw = await kv.get(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }));
+
+  const signups = values
+    .filter((item) => item && snowflake(item.discordId || item.discord_id))
+    .map((item) => ({
+      discordId: snowflake(item.discordId || item.discord_id),
+      discordName: limitText(item.discordName || item.discord_name || "Discord user", 120, "Discord user"),
+      profileId: item.profileId || item.profile_id || null,
+      mainCharacter: pickMainCharacter(item.mainCharacter || item.main_character),
+      signedAt: String(item.signedAt || item.signed_at || ""),
+    }))
+    .sort((a, b) => Date.parse(b.signedAt || "") - Date.parse(a.signedAt || ""));
+
+  return {
+    configured: true,
+    guild_id: cleanGuildId || "global",
+    total: signups.length,
+    updated_at: await kv.get(raidRulesKey(guildKey, "updated_at")),
+    signups,
+    source: "kv",
+  };
+}
+
+async function handleRaidRulesSignups(request, env) {
+  const origin = allowedOrigin(request, env) || "*";
+  const url = new URL(request.url);
+  const guildId = snowflake(url.searchParams.get("guild_id")) || snowflake(env.DISCORD_GUILD_ID);
+  try {
+    return json(await getRaidRulesSignups(env, guildId), 200, origin);
+  } catch (error) {
+    logWorkerEvent("error", "raid_rules.signups.failed", { message: error?.message, guildId });
+    return json({
+      configured: hasValidRulesStatsBinding(env),
+      total: 0,
+      updated_at: null,
+      signups: [],
+      source: hasRulesStatsBinding(env) ? "error" : "missing-kv-binding",
+      error: error instanceof Error ? error.message : "Raid rules signups are unavailable.",
+    }, 500, origin);
+  }
 }
 
 async function readKvNumber(kv, key) {
@@ -1422,30 +1594,47 @@ function buildRulesDirectDecisionComponents(roleIds) {
 
 function rulesConfirmationResponse(rulesAction) {
   const isDecline = rulesAction.action === "confirm_decline";
-  const components = isDecline
+  const isRaidSignup = rulesAction.action === "confirm_raid_signup";
+  const components = isRaidSignup
     ? [
         {
           type: 1,
           components: [
             {
               type: 2,
-              style: 4,
-              label: "Підтвердити відмову",
-              custom_id: `${RULES_CUSTOM_ID_PREFIX}:d`,
+              style: 3,
+              label: "Підтвердити підпис",
+              custom_id: `${RULES_CUSTOM_ID_PREFIX}:r:s`,
             },
           ],
         },
       ]
-    : buildRulesDirectDecisionComponents(rulesAction.roleIds);
+    : isDecline
+      ? [
+          {
+            type: 1,
+            components: [
+              {
+                type: 2,
+                style: 4,
+                label: "Підтвердити відмову",
+                custom_id: `${RULES_CUSTOM_ID_PREFIX}:d`,
+              },
+            ],
+          },
+        ]
+      : buildRulesDirectDecisionComponents(rulesAction.roleIds);
 
   return discordInteractionResponse({
     type: 4,
     data: {
       flags: 64,
       allowed_mentions: { parse: [] },
-      content: isDecline
-        ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
-        : "🌸 Підтверди прийняття правил. Після підтвердження бот видасть потрібну роль.",
+      content: isRaidSignup
+        ? "🐉 Підтверди підпис на правила рейду. Бот перевірить твою авторизацію в панелі та main-персонажа."
+        : isDecline
+          ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
+          : "🌸 Підтверди прийняття правил. Після підтвердження бот видасть потрібну роль.",
       components,
     },
   });
@@ -1516,17 +1705,20 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
   const userId = getDiscordUserId(interaction);
   const userLabel = getDiscordUserLabel(interaction);
 
-  if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline") {
+  if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline" || rulesAction.action === "confirm_raid_signup") {
     logWorkerEvent("info", "rules.confirmation.requested", { action: rulesAction.action, guildId, userId, roles: rulesAction.roleIds?.length || 0 });
-    const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
 
-    if (recordedDecision === "accepted" || (rulesAction.action === "confirm_accept" && memberHasAllRoles(interaction, rulesAction.roleIds))) {
-      await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
-      return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Кнопки для тебе більше не потрібні.");
-    }
+    if (rulesAction.action !== "confirm_raid_signup") {
+      const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
 
-    if (recordedDecision === "declined") {
-      return finishRulesDecision(interaction, "🚪 Ти вже відмовився від правил. Дія для тебе завершена.");
+      if (recordedDecision === "accepted" || (rulesAction.action === "confirm_accept" && memberHasAllRoles(interaction, rulesAction.roleIds))) {
+        await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
+        return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Кнопки для тебе більше не потрібні.");
+      }
+
+      if (recordedDecision === "declined") {
+        return finishRulesDecision(interaction, "🚪 Ти вже відмовився від правил. Дія для тебе завершена.");
+      }
     }
 
     return rulesConfirmationResponse(rulesAction);
@@ -1534,6 +1726,32 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
 
   if (isInteractionRateLimited(interaction, "rules")) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
+  }
+
+  if (rulesAction.action === "raid_signup") {
+    const profileResult = await lookupDashboardProfileByDiscord(env, userId);
+    if (!profileResult.ok || !hasUsableMainCharacter(profileResult.mainCharacter)) {
+      logWorkerEvent("warn", "raid_rules.signup.profile_missing", { guildId, userId, reason: profileResult.reason, status: profileResult.status });
+      return finishRulesDecision(
+        interaction,
+        `❌ Підпис не зараховано: не знайдено авторизований профіль або main-персонажа. Авторизуйся в панелі та вибери main: ${dashboardAuthUrl(env)}`
+      );
+    }
+
+    const stored = await recordRaidRulesSignup(env, guildId, userId, userLabel, {
+      ...profileResult.profile,
+      mainCharacter: profileResult.mainCharacter,
+    }).catch((error) => {
+      logWorkerEvent("warn", "raid_rules.signup.record_failed", { guildId, userId, message: error?.message });
+      return { ok: false, error };
+    });
+
+    if (!stored?.ok) {
+      return finishRulesDecision(interaction, "❌ Підпис не збережено: KV RULES_STATS недоступний або неправильно налаштований.");
+    }
+
+    logWorkerEvent("info", "raid_rules.signup.accepted", { guildId, userId, character: stored.signup?.mainCharacter?.name });
+    return finishRulesDecision(interaction, `✅ Підпис на правила рейду зараховано. Main: ${formatMainCharacterForMessage(stored.signup?.mainCharacter)}.`);
   }
 
   try {
@@ -2182,6 +2400,11 @@ export default {
 
       if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
         response = await handleRulesStats(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/discord-raid-rules-signups" && request.method === "GET") {
+        response = await handleRaidRulesSignups(request, env);
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 

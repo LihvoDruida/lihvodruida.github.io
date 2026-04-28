@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
     const form = await request.formData();
     returnTo = safeReturnTo(form.get("returnTo"));
     const mode = String(form.get("mode") || "general") === "rules" ? "rules" : "general";
+    const ruleType = mode === "rules" && String(form.get("ruleType") || "guild") === "raid" ? "raid" : "guild";
     const action = String(form.get("action") || "publish");
     const channelId = String(form.get("channelId") || "").trim();
     const messageLink = messageLinkFromForm(form, request, action);
@@ -98,16 +99,17 @@ export async function POST(request: NextRequest) {
     const embed = parseEmbedJson(form.get("embedJson"));
     const isRules = mode === "rules";
     const selectedRoles = selectedRoleIds(form);
-    const roleIds = isRules ? selectedRoles : [];
+    const roleIds = isRules && ruleType === "guild" ? selectedRoles : [];
     const mentionRoleIds = isRules ? [] : selectedRoles;
     const editRef = parseDiscordMessageRef(messageLink);
     const shouldEdit = action === "edit" || Boolean(editRef);
     const effectiveAction = shouldEdit ? "edit" : "publish";
     const actor = session.name || session.login || session.id;
-    const auditReason = `Mistblossom dashboard: ${isRules ? "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
+    const auditReason = `Mistblossom dashboard: ${isRules ? ruleType === "raid" ? "raid rules" : "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
 
     logDashboardEvent("info", "discord.embed.submit", request, {
       mode,
+      ruleType: isRules ? ruleType : "general",
       action,
       effectiveAction,
       channelId,
@@ -125,7 +127,7 @@ export async function POST(request: NextRequest) {
       return redirectTo(request, { error: "Створення й редагування правил доступне тільки гільдмайстеру." }, returnTo);
     }
 
-    if (isRules && roleIds.length === 0) {
+    if (isRules && ruleType === "guild" && roleIds.length === 0) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", actorId: session.id });
       return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
     }
@@ -162,6 +164,7 @@ export async function POST(request: NextRequest) {
         roleIds,
         mentionRoleIds,
         withRulesButtons: isRules,
+        rulesType: ruleType,
         auditReason,
       });
 
@@ -186,6 +189,7 @@ export async function POST(request: NextRequest) {
       roleIds,
       mentionRoleIds,
       withRulesButtons: isRules,
+      rulesType: ruleType,
       auditReason,
     });
 

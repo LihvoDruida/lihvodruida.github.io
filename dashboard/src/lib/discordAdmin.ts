@@ -14,16 +14,63 @@ export type DiscordRulesStats = {
   error?: string;
 };
 
+export type DiscordRulesType = "guild" | "raid";
+
+export type DiscordRaidRulesSignup = {
+  discordId: string;
+  discordName: string;
+  signedAt: string;
+  profileId?: string | null;
+  mainCharacter?: {
+    key?: string | null;
+    name?: string | null;
+    realmName?: string | null;
+    realmSlug?: string | null;
+    region?: string | null;
+    className?: string | null;
+    profileUrl?: string | null;
+  } | null;
+};
+
+export type DiscordRaidRulesSignupsResponse = {
+  configured: boolean;
+  total: number;
+  updatedAt: string | null;
+  source: "kv" | "worker" | "missing-kv-binding" | "invalid-binding" | "unconfigured" | "error";
+  signups: DiscordRaidRulesSignup[];
+  error?: string;
+};
+
 const DEFAULT_WORKER_ENDPOINT = "https://guild-applications.melles-android.workers.dev/api/discord-interactions";
 
-function rulesStatsEndpoint() {
-  const explicit = String(process.env.DISCORD_RULES_STATS_ENDPOINT || "").trim();
+function workerApiEndpoint(path: string, explicitEnvKey: string) {
+  const explicit = String(process.env[explicitEnvKey] || "").trim();
   if (explicit) return explicit;
 
   const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || DEFAULT_WORKER_ENDPOINT).trim();
   if (!interactions) return "";
 
-  return interactions.replace(/\/api\/discord-interactions\/?$/, "/api/discord-rules-stats");
+  if (/\/api\/discord-interactions\/?$/i.test(interactions)) {
+    return interactions.replace(/\/api\/discord-interactions\/?$/i, path);
+  }
+
+  try {
+    const url = new URL(interactions);
+    url.pathname = path;
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+function rulesStatsEndpoint() {
+  return workerApiEndpoint("/api/discord-rules-stats", "DISCORD_RULES_STATS_ENDPOINT");
+}
+
+function raidRulesSignupsEndpoint() {
+  return workerApiEndpoint("/api/discord-raid-rules-signups", "DISCORD_RAID_RULES_SIGNUPS_ENDPOINT");
 }
 
 function safeNumber(value: unknown) {
@@ -87,6 +134,69 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
       configured: false,
       source: "error",
       error: error instanceof Error ? error.message : "Stats endpoint недоступний",
+    };
+  }
+}
+
+export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSignupsResponse> {
+  const endpoint = raidRulesSignupsEndpoint();
+  if (!endpoint) {
+    return { configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
+  }
+
+  try {
+    const signupsUrl = new URL(endpoint);
+    const guildId = getDiscordGuildId();
+    if (guildId && !signupsUrl.searchParams.has("guild_id")) {
+      signupsUrl.searchParams.set("guild_id", guildId);
+    }
+
+    const response = await fetch(signupsUrl.toString(), {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
+
+    const raw = await response.text().catch(() => "");
+    const data = raw ? tryParseJson(raw) : null;
+
+    if (!response.ok || !data || typeof data !== "object") {
+      return {
+        configured: false,
+        total: 0,
+        updatedAt: null,
+        source: "error",
+        signups: [],
+        error: typeof data?.error === "string" ? data.error : `Worker raid signups HTTP ${response.status}`,
+      };
+    }
+
+    const source = typeof data.source === "string" ? data.source : "worker";
+    const signups = Array.isArray(data.signups)
+      ? data.signups.map((item: any) => ({
+          discordId: String(item?.discordId || item?.discord_id || ""),
+          discordName: String(item?.discordName || item?.discord_name || "Discord user"),
+          signedAt: String(item?.signedAt || item?.signed_at || ""),
+          profileId: item?.profileId || item?.profile_id || null,
+          mainCharacter: item?.mainCharacter || item?.main_character || null,
+        })).filter((item: DiscordRaidRulesSignup) => item.discordId)
+      : [];
+
+    return {
+      configured: Boolean(data.configured ?? true),
+      total: safeNumber(data.total) || signups.length,
+      updatedAt: typeof data.updated_at === "string" ? data.updated_at : typeof data.updatedAt === "string" ? data.updatedAt : null,
+      source: ["kv", "missing-kv-binding", "invalid-binding", "worker", "error"].includes(source) ? source as DiscordRaidRulesSignupsResponse["source"] : "worker",
+      signups,
+      error: typeof data.error === "string" ? data.error : typeof data.message === "string" ? data.message : undefined,
+    };
+  } catch (error) {
+    return {
+      configured: false,
+      total: 0,
+      updatedAt: null,
+      source: "error",
+      signups: [],
+      error: error instanceof Error ? error.message : "Raid rules signups endpoint недоступний",
     };
   }
 }
@@ -471,27 +581,60 @@ function decodeRoleIds(value: string, prefix: string) {
   }
 }
 
+export function buildRaidRulesSignupCustomId() {
+  return `${DASHBOARD_CUSTOM_ID_PREFIX}:r:s`;
+}
+
+export function buildRaidRulesConfirmSignupCustomId() {
+  return `${DASHBOARD_CUSTOM_ID_PREFIX}:r:c:s`;
+}
+
 export function decodeRulesCustomId(customId: string) {
   const value = String(customId || "").trim();
-  if (value === buildRulesDeclineCustomId()) return { action: "decline" as const, roleIds: [] as string[] };
-  if (value === buildRulesConfirmDeclineCustomId()) return { action: "confirm_decline" as const, roleIds: [] as string[] };
+
+  if (value === buildRaidRulesSignupCustomId()) {
+    return { type: "raid" as const, action: "raid_signup" as const, roleIds: [] as string[] };
+  }
+
+  if (value === buildRaidRulesConfirmSignupCustomId()) {
+    return { type: "raid" as const, action: "confirm_raid_signup" as const, roleIds: [] as string[] };
+  }
+
+  if (value === buildRulesDeclineCustomId()) return { type: "guild" as const, action: "decline" as const, roleIds: [] as string[] };
+  if (value === buildRulesConfirmDeclineCustomId()) return { type: "guild" as const, action: "confirm_decline" as const, roleIds: [] as string[] };
 
   const directPrefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:a:`;
   if (value.startsWith(directPrefix)) {
     const roleIds = decodeRoleIds(value, directPrefix);
-    return roleIds.length ? { action: "accept" as const, roleIds } : null;
+    return roleIds.length ? { type: "guild" as const, action: "accept" as const, roleIds } : null;
   }
 
   const confirmPrefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:c:a:`;
   if (value.startsWith(confirmPrefix)) {
     const roleIds = decodeRoleIds(value, confirmPrefix);
-    return roleIds.length ? { action: "confirm_accept" as const, roleIds } : null;
+    return roleIds.length ? { type: "guild" as const, action: "confirm_accept" as const, roleIds } : null;
   }
 
   return null;
 }
 
-export function buildRulesComponents(roleIds: string[]) {
+export function buildRulesComponents(roleIds: string[], rulesType: DiscordRulesType = "guild") {
+  if (rulesType === "raid") {
+    return [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            style: 3,
+            label: "Підписатися на правила рейду",
+            custom_id: buildRaidRulesConfirmSignupCustomId(),
+          },
+        ],
+      },
+    ];
+  }
+
   return [
     {
       type: 1,
@@ -539,6 +682,7 @@ export async function createDiscordEmbedMessage(params: {
   roleIds?: string[];
   mentionRoleIds?: string[];
   withRulesButtons?: boolean;
+  rulesType?: DiscordRulesType;
   auditReason?: string;
 }) {
   const channelId = snowflake(params.channelId);
@@ -551,7 +695,7 @@ export async function createDiscordEmbedMessage(params: {
   };
 
   if (params.withRulesButtons) {
-    body.components = buildRulesComponents(params.roleIds || []);
+    body.components = buildRulesComponents(params.roleIds || [], params.rulesType || "guild");
   }
 
   return discordApi<any>(`/channels/${channelId}/messages`, {
@@ -568,6 +712,7 @@ export async function editDiscordEmbedMessage(params: {
   roleIds?: string[];
   mentionRoleIds?: string[];
   withRulesButtons?: boolean;
+  rulesType?: DiscordRulesType;
   auditReason?: string;
 }) {
   if (!params.ref.channelId || !params.ref.messageId) throw new Error("Посилання на Discord-повідомлення невалідне.");
@@ -576,7 +721,7 @@ export async function editDiscordEmbedMessage(params: {
   const body: Record<string, unknown> = {
     content: nextContent ?? "",
     embeds: [params.embed],
-    components: params.withRulesButtons ? buildRulesComponents(params.roleIds || []) : [],
+    components: params.withRulesButtons ? buildRulesComponents(params.roleIds || [], params.rulesType || "guild") : [],
     allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
   };
 
@@ -609,7 +754,7 @@ export function extractRulesRoleIdsFromMessage(message: Record<string, unknown>)
 
   for (const customId of readComponentCustomIds(message.components)) {
     const decoded = decodeRulesCustomId(customId);
-    if (decoded?.action === "accept" || decoded?.action === "confirm_accept") {
+    if (decoded?.type === "guild" && (decoded.action === "accept" || decoded.action === "confirm_accept")) {
       roleIds.push(...decoded.roleIds);
     }
   }
@@ -639,6 +784,7 @@ export type DiscordEditableMessage = {
   title: string;
   roleIds: string[];
   isRules: boolean;
+  rulesType: DiscordRulesType | "general";
 };
 
 export function normalizeDiscordMessageForEditor(message: Record<string, unknown>, channelIdFallback?: string): DiscordEditableMessage {
@@ -648,7 +794,11 @@ export function normalizeDiscordMessageForEditor(message: Record<string, unknown
   const title = cleanText(embed?.title, 256) || cleanText(embed?.description, 64) || "Discord embed";
   const rulesRoleIds = extractRulesRoleIdsFromMessage(message);
   const mentionRoleIds = extractMentionRoleIdsFromMessage(message);
-  const isRules = isRulesEmbedMessage(message);
+  const decodedRules = readComponentCustomIds(message.components)
+    .map((customId) => decodeRulesCustomId(customId))
+    .filter(Boolean);
+  const isRules = decodedRules.length > 0;
+  const rulesType: DiscordRulesType | "general" = decodedRules.some((item) => item?.type === "raid") ? "raid" : isRules ? "guild" : "general";
   const roleIds = isRules ? rulesRoleIds : mentionRoleIds;
 
   return {
@@ -663,6 +813,7 @@ export function normalizeDiscordMessageForEditor(message: Record<string, unknown
     title,
     roleIds,
     isRules,
+    rulesType,
   };
 }
 

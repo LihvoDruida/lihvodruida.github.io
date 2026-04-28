@@ -94,6 +94,7 @@ export async function GET(request: NextRequest) {
         title: message.title,
         roleIds: message.roleIds,
         isRules: message.isRules,
+        rulesType: message.rulesType,
         createdAt: message.createdAt,
         editedAt: message.editedAt,
       },

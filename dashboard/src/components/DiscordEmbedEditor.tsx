@@ -28,6 +28,7 @@ type EmbedFieldState = {
 
 type DiscordEmbedEditorProps = {
   mode: "rules" | "general";
+  ruleType?: "guild" | "raid";
   editorMode: "create" | "edit";
   channels: DiscordChannelOption[];
   roles?: DiscordRoleOption[];
@@ -648,6 +649,7 @@ function EmbedFieldEditor({ fields, onChange }: {
 
 export default function DiscordEmbedEditor({
   mode,
+  ruleType = "guild",
   editorMode,
   channels,
   roles = [],
@@ -687,6 +689,7 @@ export default function DiscordEmbedEditor({
   const channelsKey = channels.map((channel) => channel.id).join("|");
   const selectedRoleIdsKey = uniqueIds(selectedRoleIds).join("|");
   const isRules = mode === "rules";
+  const isRaidRules = isRules && ruleType === "raid";
 
   useEffect(() => {
     const nextEmbed = parseInitialEmbed(defaultEmbedJson);
@@ -756,7 +759,7 @@ export default function DiscordEmbedEditor({
     }
 
     try {
-      const params = new URLSearchParams({ message: rawLink, mode });
+      const params = new URLSearchParams({ message: rawLink, mode, ruleType });
       const response = await fetch(`/api/discord/embeds/message?${params.toString()}`, {
         method: "GET",
         headers: {
@@ -785,8 +788,11 @@ export default function DiscordEmbedEditor({
       setChannelId(text(loaded.channelId) || channelId);
       setMessageLink(text(loaded.url) || rawLink);
 
-      if (isRules) {
+      if (isRules && loaded.rulesType !== "raid") {
         setRoleIds(Array.isArray(loaded.roleIds) ? uniqueIds(loaded.roleIds.map((roleId) => String(roleId))) : []);
+      }
+      if (isRaidRules) {
+        setRoleIds([]);
       }
 
       const nextLink = normalizeMessageLink(text(loaded.url) || rawLink);
@@ -833,7 +839,7 @@ export default function DiscordEmbedEditor({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [messageLink, mode, isRules]);
+  }, [messageLink, mode, ruleType, isRules, isRaidRules]);
 
   const normalizedCurrentMessageLink = normalizeMessageLink(messageLink);
   const normalizedLoadedMessageLink = normalizeMessageLink(loadedMessageLink);
@@ -849,8 +855,8 @@ export default function DiscordEmbedEditor({
   function handleSubmit(_: FormEvent<HTMLFormElement>) {
     setIsSubmitting(true);
     const submitMessage = effectiveSubmitAction === "edit"
-      ? isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
-      : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed...";
+      ? isRaidRules ? "Оновлюємо повідомлення з правилами рейду..." : isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
+      : isRaidRules ? "Публікуємо нові правила рейду..." : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed...";
     setMessageLoadText(submitMessage);
     dispatchDashboardToast({
       tone: "info",
@@ -882,10 +888,10 @@ export default function DiscordEmbedEditor({
   const selectedMentionRoles = !isRules ? roles.filter((role) => selectedRoleIdSet.has(role.id)) : [];
   const selectedRolesCount = selectedRoleIdSet.size;
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
-  const title = isRules ? "Редактор правил" : "Редактор embed";
+  const title = isRaidRules ? "Редактор правил рейду" : isRules ? "Редактор правил" : "Редактор embed";
   const actionLabel = effectiveSubmitAction === "edit"
     ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за link" : "Зберегти зміни"
-    : isRules ? "Опублікувати правила" : "Опублікувати embed";
+    : isRaidRules ? "Опублікувати правила рейду" : isRules ? "Опублікувати правила" : "Опублікувати embed";
 
   function updateColorFromText(value: string) {
     setColorHex(value.startsWith("#") ? value : `#${value}`);
@@ -895,7 +901,7 @@ export default function DiscordEmbedEditor({
     <div className="discord-builder-shell discord-builder-shell--site">
       <section className="discord-builder-panel panel" aria-label={title}>
         <div className="discord-builder-titlebar">
-          <span>{isRules ? "Rules" : "General"} embed</span>
+          <span>{isRaidRules ? "Raid rules" : isRules ? "Rules" : "General"} embed</span>
           <small>{isValid ? "Валідно" : "Потрібен контент"}</small>
         </div>
         <div className="discord-builder-body">
@@ -903,13 +909,14 @@ export default function DiscordEmbedEditor({
             <div>
               <span className="eyebrow">{isRules ? "Правила" : "Звичайний embed"} • {editorMode === "edit" ? "Редагування" : "Створення"}</span>
               <h2>{title}</h2>
-              <p>{isRules ? "Канал, embed і ролі для кнопки прийняття правил." : "Канал, embed, теги ролей і редагування за message link."}</p>
+              <p>{isRaidRules ? "Канал, embed і кнопка підпису з перевіркою авторизації та main-персонажа." : isRules ? "Канал, embed і ролі для кнопки прийняття правил." : "Канал, embed, теги ролей і редагування за message link."}</p>
             </div>
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за link" : "Редагування" : "Створення"}</span>
           </div>
 
           <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-toast-managed="true" onSubmit={handleSubmit}>
             <input type="hidden" name="mode" value={mode} />
+            <input type="hidden" name="ruleType" value={ruleType} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={effectiveSubmitAction} />
             <input type="hidden" name="messageLink" value={messageLink} />
@@ -1111,7 +1118,7 @@ export default function DiscordEmbedEditor({
               </div>
             ) : null}
 
-            {isRules ? (
+            {isRules && !isRaidRules ? (
               <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
                   <strong>Ролі для кнопки “Прийняти правила”</strong>
@@ -1124,6 +1131,18 @@ export default function DiscordEmbedEditor({
                   ariaLabel="Ролі для кнопки прийняття правил"
                   helperText="Видаються після натискання кнопки прийняття правил."
                 />
+              </div>
+            ) : null}
+
+            {isRaidRules ? (
+              <div className="content-form-section discord-visual-section discord-visual-section--raid-rules">
+                <div className="content-form-section-head">
+                  <strong>Кнопка підпису на рейд</strong>
+                  <small>Без видачі ролей</small>
+                </div>
+                <div className="discord-raid-rules-hint">
+                  <strong>Що буде після натискання:</strong> бот перевірить Discord-профіль у панелі, знайде main-персонажа і запише користувача у список підписантів. Якщо профілю або main немає — покаже посилання на авторизацію.
+                </div>
               </div>
             ) : null}
 
