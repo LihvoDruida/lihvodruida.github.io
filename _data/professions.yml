@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-29 14:01:28'
+  updated_at: '2026-04-29 17:41:29'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 117
+  member_count: 118
 characters:
 - name: Бреинор
   region: eu
@@ -867,7 +867,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 36
+        learned_points: 42
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6322,4 +6322,42 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 28
+        max_points: 300
+- name: Ponziani
+  region: eu
+  realm: kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Ponziani
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 27
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 1
         max_points: 300
