@@ -57,6 +57,7 @@ export type RaidItem = {
   maxPlayers?: number | null;
   imageUrl?: string | null;
   thumbnailUrl?: string | null;
+  mentionRoleIds?: string[];
   createdByDiscordId: string;
   createdByName: string;
   createdByMain?: string | null;
@@ -87,9 +88,9 @@ const DEFAULT_RAID_IMAGE = "https://lihvodruida.pp.ua/assets/img-content/raid.we
 const RAID_ACTION_PREFIX = "mbv1:raid";
 const MAX_RAID_PLAYERS = 80;
 const RAID_THUMBNAIL_ASSET_PATHS: Record<RaidDifficulty, string> = {
-  normal: "/assets/raid-thumbnails/raid-normal.png",
-  heroic: "/assets/raid-thumbnails/raid-heroic.png",
-  mythic: "/assets/raid-thumbnails/raid-mythic.png",
+  normal: "/assets/raid-thumbnails/normal.png",
+  heroic: "/assets/raid-thumbnails/heroic.png",
+  mythic: "/assets/raid-thumbnails/mythic.png",
 };
 
 const DIFFICULTY_LABELS: Record<RaidDifficulty, string> = {
@@ -164,7 +165,7 @@ export function resolveRaidThumbnailUrl(input: { difficulty?: RaidDifficulty | s
   if (explicitImage) return explicitImage;
   const difficulty = cleanDifficulty(input.difficulty);
   const assetPath = defaultRaidThumbnailPath(difficulty);
-  return options?.absolute ? absoluteDashboardAssetUrl(assetPath) : assetPath;
+  return options?.absolute === false ? assetPath : absoluteDashboardAssetUrl(assetPath);
 }
 
 function cleanDifficulty(value: unknown): RaidDifficulty {
@@ -299,6 +300,14 @@ function cleanOptionalMaxPlayers(value: unknown) {
   return Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(num)));
 }
 
+function cleanSnowflakeIds(values: unknown, max = 20) {
+  const rawValues = Array.isArray(values) ? values : values ? [values] : [];
+  return Array.from(new Set(rawValues
+    .map((value) => cleanString(value, 32))
+    .filter((value) => /^\d{16,25}$/.test(value))))
+    .slice(0, max);
+}
+
 function cleanBoolean(value: unknown) {
   if (value === true) return true;
   const key = cleanString(value, 20).toLowerCase();
@@ -364,6 +373,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     maxPlayers: cleanOptionalMaxPlayers(data.maxPlayers ?? data.max_players ?? data.registrationLimit),
     imageUrl,
     thumbnailUrl: resolveRaidThumbnailUrl({ difficulty, thumbnailUrl: data.thumbnailUrl as string | null, imageUrl }),
+    mentionRoleIds: cleanSnowflakeIds(data.mentionRoleIds ?? data.mention_role_ids),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
     createdByName: cleanString(data.createdByName, 120) || "@Raid Lead",
     createdByMain: cleanString(data.createdByMain, 160) || null,
@@ -413,7 +423,7 @@ export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
 
 const BASE_RAID_COMPOSITION_TIERS: RaidComposition[] = [
   { tanks: 2, healers: 2, dps: 6 },
-  { tanks: 2, healers: 4, dps: 16 },
+  { tanks: 2, healers: 4, dps: 14 },
   { tanks: 2, healers: 6, dps: 22 },
 ];
 
@@ -557,6 +567,16 @@ export function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
   };
 }
 
+export function raidAverageItemLevel(raid: Pick<RaidItem, "signups">) {
+  const values = raid.signups
+    .filter((item) => item.status === "going" || item.status === "late")
+    .map((item) => Number(item.itemLevel || 0))
+    .filter((value) => Number.isFinite(value) && value > 0);
+
+  if (!values.length) return null;
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
 export function hasRaidStorage() {
   return hasFirebaseProfileConfig();
 }
@@ -694,6 +714,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     maxPlayers: cleanOptionalMaxPlayers(form.get("maxPlayers")),
     imageUrl,
     thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
+    mentionRoleIds: cleanSnowflakeIds(form.getAll("mentionRoleIds")),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
     createdByName: user.name || user.login || "Raid Lead",
     createdByMain: profileMainLabel(profile),
@@ -884,12 +905,13 @@ function partyDiscordText(party: RaidParty) {
   const tanks = [party.tank, ...party.dps.filter((item) => item.role === "tank")].filter(Boolean) as RaidSignup[];
   const healers = [party.healer, ...party.dps.filter((item) => item.role === "healer")].filter(Boolean) as RaidSignup[];
   const dps = party.dps.filter((item) => item.role === "dps");
+  const sections = [
+    tanks.length ? `**Танк**\n${compactSignupDiscordLines(tanks, 42)}` : null,
+    healers.length ? `**Хіл**\n${compactSignupDiscordLines(healers, 42)}` : null,
+    dps.length ? `**ДД**\n${compactSignupDiscordLines(dps, 40)}` : null,
+  ].filter(Boolean) as string[];
 
-  return truncateDiscordField([
-    `**Танк**\n${compactSignupDiscordLines(tanks, 42)}`,
-    `**Хіл**\n${compactSignupDiscordLines(healers, 42)}`,
-    `**ДД**\n${compactSignupDiscordLines(dps, 40)}`,
-  ].join("\n\n"), 700);
+  return truncateDiscordField(sections.length ? sections.join("\n\n") : "—", 700);
 }
 
 function compactDiscordFields(fields: Array<{ name: string; value: string; inline?: boolean }>, maxTotal = 5600) {
@@ -908,6 +930,7 @@ function compactDiscordFields(fields: Array<{ name: string; value: string; inlin
 
 export function buildRaidDiscordPayload(raid: RaidItem) {
   const counts = raidRosterCounts(raid);
+  const averageItemLevel = raidAverageItemLevel(raid);
   const composition = raidAutoComposition(raid);
   const allParties = buildRaidParties(raid);
   const parties = allParties.slice(0, 8);
@@ -964,6 +987,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       inline: true,
     },
     ...(minItemLevelValue ? [{ name: "⭐ Item level", value: minItemLevelValue, inline: true }] : []),
+    ...(averageItemLevel ? [{ name: "📊 Середній ilvl", value: `${averageItemLevel}`, inline: true }] : []),
     {
       name: "⚔️ Ролі",
       value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
@@ -996,6 +1020,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   return {
     content: "",
     embed,
+    mentionRoleIds: raid.mentionRoleIds || [],
   };
 }
 
@@ -1054,6 +1079,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
         content: payload.content,
         embed: payload.embed,
         components,
+        mentionRoleIds: payload.mentionRoleIds,
         auditReason: `Raid updated: ${raid.id}`,
       });
     } catch (error) {
@@ -1063,6 +1089,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
         content: payload.content,
         embed: payload.embed,
         components,
+        mentionRoleIds: payload.mentionRoleIds,
         auditReason: `Raid republished after missing message: ${raid.id}`,
       });
     }
@@ -1072,6 +1099,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
       content: payload.content,
       embed: payload.embed,
       components,
+      mentionRoleIds: payload.mentionRoleIds,
       auditReason: `Raid published: ${raid.id}`,
     });
 

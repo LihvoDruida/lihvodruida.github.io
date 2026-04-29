@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { canManageRaids } from "@/lib/permissions";
 import { hasRaidStorage } from "@/lib/raids";
 import { makePreviewRaid, RaidAnnouncementPreview, RaidForm, RaidPageShell, RosterSideList, StatusNotice } from "@/components/RaidViews";
@@ -15,8 +15,16 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
   if (!canManageRaids(user)) redirect("/profile");
 
   const params = await searchParams;
-  const channelsResult = hasDiscordEmbedConfig() ? await fetchDiscordTextChannels().catch(() => null) : null;
-  const channels = channelsResult?.channels || [];
+  let channels: Array<{ id: string; name: string }> = [];
+  let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
+  if (hasDiscordEmbedConfig()) {
+    const [channelsResult, roleData] = await Promise.all([
+      fetchDiscordTextChannels().catch(() => null),
+      fetchDiscordRoles().catch(() => []),
+    ]);
+    channels = channelsResult?.channels || [];
+    roles = roleData;
+  }
   const previewRaid = makePreviewRaid(user);
 
   return (
@@ -30,7 +38,7 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
       {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Discord-бот не підключений: публікація оголошення недоступна.</div> : null}
 
       <section className="raid-editor-layout">
-        <RaidForm channels={channels} />
+        <RaidForm channels={channels} roles={roles} />
         <div className="raid-preview-column">
           <RaidAnnouncementPreview raid={previewRaid} />
           <RosterSideList raid={previewRaid} />

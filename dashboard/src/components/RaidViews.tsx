@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import RaidRoleMentionPicker from "@/components/RaidRoleMentionPicker";
+import type { DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import type { DashboardSession } from "@/lib/auth";
 import { hierarchyTitle } from "@/lib/permissions";
@@ -9,6 +11,7 @@ import {
   isRaidClosed,
   raidAutoComposition,
   raidAutoCompositionLabel,
+  raidAverageItemLevel,
   raidDisplayCapacity,
   isRaidRegistrationFull,
   raidRegistrationLimit,
@@ -26,6 +29,7 @@ import {
 } from "@/lib/raids";
 
 export type RaidChannelOption = { id: string; name: string };
+export type RaidRoleOption = DiscordRoleOption;
 
 export function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -94,14 +98,15 @@ function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { la
 }
 
 function PartyCard({ party, minItemLevel, minItemLevelRequired }: { party: RaidParty; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
+  const hasMembers = party.members.length > 0;
   return (
     <article className="raid-party-card">
       <h3>Паті {party.index}</h3>
-      <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
-      <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
+      {party.tank ? <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
+      {party.healer ? <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
       {party.dps.length ? party.dps.map((member, index) => (
         <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label={raidPartyRoleLabel(member.role)} role={member.role} item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
-      )) : <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />}
+      )) : !hasMembers ? <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
     </article>
   );
 }
@@ -183,6 +188,7 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
 
 export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid: RaidItem; actions?: ReactNode; manageActions?: ReactNode }) {
   const counts = raidRosterCounts(raid);
+  const averageItemLevel = raidAverageItemLevel(raid);
   const parties = buildRaidParties(raid);
   const closed = isRaidClosed(raid);
   return (
@@ -206,6 +212,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
         {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
+        {averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
         <span><strong>👥 Склад</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
       </div>
       {raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
@@ -229,6 +236,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
 
 export function RaidListCard({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
+  const averageItemLevel = raidAverageItemLevel(raid);
   const statusClass = raidStatusClass(raid);
   const capacity = raidDisplayCapacity(raid);
   return (
@@ -244,6 +252,7 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
             <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
             <small>👤 {raid.createdByName}{raid.createdByMain ? ` • ${raid.createdByMain}` : ""}</small>
             <small>👥 {counts.roster} / {capacity} • {raidAutoCompositionLabel(raid)}</small>
+            {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
           </span>
           <span className="raid-list-progress" aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}>
             <span style={{ width: `${Math.min(100, Math.round((counts.roster / Math.max(1, capacity)) * 100))}%` }} />
@@ -261,11 +270,12 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
   );
 }
 
-export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels: RaidChannelOption[] }) {
+export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | null; channels: RaidChannelOption[]; roles?: RaidRoleOption[] }) {
   const defaultComposition = raid ? raidAutoCompositionLabel(raid).replace(/\s/g, "") : "2/2/6";
   const channelOptions = raid?.channelId && !channels.some((channel) => channel.id === raid.channelId)
     ? [{ id: raid.channelId, name: "поточний канал" }, ...channels]
     : channels;
+  const selectedMentionRoleIds = Array.from(new Set((raid?.mentionRoleIds || []).filter(Boolean)));
   const isExistingRaid = Boolean(raid?.id);
   const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
   const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
@@ -334,9 +344,14 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
           </label>
         </div>
 
+        <div className="raid-form-section discord-visual-section discord-visual-section--roles">
+          <strong>Тег ролей у Discord</strong>
+          <RaidRoleMentionPicker roles={roles} selectedRoleIds={selectedMentionRoleIds} />
+        </div>
+
         <div className="raid-auto-composition-note">
           <strong>Склад генерується автоматично</strong>
-          <span>Поточна схема: {defaultComposition}. Система розширює рейд не лише за кількістю гравців, а й за ролями: 2/2/7 або 2/3/6 одразу переходить на наступну схему.</span>
+          <span>Поточна схема: {defaultComposition}. Система розширює рейд не лише за кількістю гравців, а й за ролями: 2/2/7 або 2/3/6 одразу переходить на наступну схему. Наступний гнучкий шаблон — 2/4/14.</span>
         </div>
 
         <div className="raid-form-section">
@@ -414,6 +429,7 @@ export function makePreviewRaid(user: DashboardSession): RaidItem {
     lootMode: "ms-os",
     composition: { tanks: 2, healers: 2, dps: 6 },
     maxPlayers: null,
+    mentionRoleIds: [],
     status: "draft",
     signups: [],
   };

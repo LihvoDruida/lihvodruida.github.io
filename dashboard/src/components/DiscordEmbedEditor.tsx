@@ -523,10 +523,11 @@ function roleColor(value: number) {
   return value > 0 ? colorNumberToHex(value) : "#B8E986";
 }
 
-function RolePicker({ roles, selectedRoleIds, onChange, ariaLabel = "Вибір ролей", emptyLabel = "Ролі ще не вибрані", helperText = "Бот зможе працювати тільки з ролями, які доступні йому в Discord." }: {
+export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "roleIds", ariaLabel = "Вибір ролей", emptyLabel = "Ролі ще не вибрані", helperText = "Бот зможе працювати тільки з ролями, які доступні йому в Discord." }: {
   roles: DiscordRoleOption[];
   selectedRoleIds: string[];
   onChange: (ids: string[]) => void;
+  fieldName?: string;
   ariaLabel?: string;
   emptyLabel?: string;
   helperText?: string;
@@ -549,7 +550,7 @@ function RolePicker({ roles, selectedRoleIds, onChange, ariaLabel = "Вибір 
   return (
     <div className="discord-role-picker">
       {hiddenSelectedRoleIds.map((roleId) => (
-        <input key={`hidden-${roleId}`} type="hidden" name="roleIds" value={roleId} />
+        <input key={`hidden-${roleId}`} type="hidden" name={fieldName} value={roleId} />
       ))}
       <div className="discord-role-selected" aria-label={ariaLabel}>
         {normalizedSelectedRoleIds.length === 0 ? <span className="discord-role-placeholder">{emptyLabel}</span> : null}
@@ -577,7 +578,7 @@ function RolePicker({ roles, selectedRoleIds, onChange, ariaLabel = "Вибір 
           <label className="discord-role-option" key={role.id} data-selected={selected.has(role.id) ? "true" : "false"}>
             <input
               type="checkbox"
-              name="roleIds"
+              name={fieldName}
               value={role.id}
               checked={selected.has(role.id)}
               onChange={() => toggleRole(role.id)}

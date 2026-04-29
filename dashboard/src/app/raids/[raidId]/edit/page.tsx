@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { canManageRaids } from "@/lib/permissions";
 import { getRaid, hasRaidStorage } from "@/lib/raids";
 import { RaidAnnouncementPreview, RaidForm, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
@@ -17,8 +17,16 @@ export default async function EditRaidPage({ params, searchParams }: { params: P
   const { raidId } = await params;
   const query = await searchParams;
   const raid = await getRaid(raidId);
-  const channelsResult = hasDiscordEmbedConfig() ? await fetchDiscordTextChannels().catch(() => null) : null;
-  const channels = channelsResult?.channels || [];
+  let channels: Array<{ id: string; name: string }> = [];
+  let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
+  if (hasDiscordEmbedConfig()) {
+    const [channelsResult, roleData] = await Promise.all([
+      fetchDiscordTextChannels().catch(() => null),
+      fetchDiscordRoles().catch(() => []),
+    ]);
+    channels = channelsResult?.channels || [];
+    roles = roleData;
+  }
 
   return (
     <RaidPageShell
@@ -32,7 +40,7 @@ export default async function EditRaidPage({ params, searchParams }: { params: P
 
       {raid ? (
         <section className="raid-editor-layout">
-          <RaidForm raid={raid} channels={channels} />
+          <RaidForm raid={raid} channels={channels} roles={roles} />
           <div className="raid-preview-column">
             <RaidAnnouncementPreview raid={raid} />
             <RosterSideList raid={raid} />

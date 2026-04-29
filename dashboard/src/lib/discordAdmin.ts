@@ -1037,6 +1037,7 @@ export async function createDiscordRaidMessage(params: {
   content?: string;
   embed: Record<string, unknown>;
   components?: unknown[];
+  mentionRoleIds?: string[];
   auditReason?: string;
 }) {
   if (hasDirectDiscordBotConfig()) {
@@ -1046,9 +1047,11 @@ export async function createDiscordRaidMessage(params: {
   return discordRaidMessageRelay({
     action: "create",
     channelId: params.channelId,
-    content: params.content || "",
+    content: messageContentWithRoleMentions(params.content || "", params.mentionRoleIds || []) || "",
     embed: params.embed,
     components: params.components || [],
+    mentionRoleIds: cleanRoleIds(params.mentionRoleIds || []),
+    allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
     auditReason: params.auditReason || "Raid published from dashboard",
   });
 }
@@ -1058,6 +1061,7 @@ export async function editDiscordRaidMessage(params: {
   content?: string;
   embed: Record<string, unknown>;
   components?: unknown[];
+  mentionRoleIds?: string[];
   auditReason?: string;
 }) {
   if (hasDirectDiscordBotConfig()) {
@@ -1068,9 +1072,11 @@ export async function editDiscordRaidMessage(params: {
     action: "edit",
     channelId: params.ref.channelId,
     messageId: params.ref.messageId,
-    content: params.content || "",
+    content: messageContentWithRoleMentions(params.content || "", params.mentionRoleIds || []) || "",
     embed: params.embed,
     components: params.components || [],
+    mentionRoleIds: cleanRoleIds(params.mentionRoleIds || []),
+    allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
     auditReason: params.auditReason || "Raid updated from dashboard",
   });
 }
