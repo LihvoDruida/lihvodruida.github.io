@@ -10289,6 +10289,12 @@ button.btn.danger:hover {
   font-size: .88rem;
 }
 
+.raid-ilvl-notice.is-blocked {
+  border-color: rgba(237, 66, 69, .42);
+  background: rgba(237, 66, 69, .1);
+  color: rgba(255, 220, 220, .94);
+}
+
 .raid-party-row.is-undergeared {
   border-color: rgba(255, 190, 88, .45);
   background: rgba(122, 77, 18, .16);

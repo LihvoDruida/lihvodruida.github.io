@@ -314,7 +314,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
 
         <div className="raid-form-section raid-form-section--two">
           <label className="field-label">Канал Discord
-            <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""} required>
+            <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""}>
               {channelOptions.length ? channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>) : <option value="">Discord-канали недоступні</option>}
             </select>
           </label>
@@ -343,7 +343,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
           <strong>Текст і зображення</strong>
           <label className="field-label">Опис<textarea className="input textarea markdown-area raid-description-textarea" name="description" rows={8} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
           <p className="raid-form-hint">Підтримується Discord Markdown: **жирний**, *курсив*, списки, заголовки, цитати, посилання, inline-code і блоки коду.</p>
-          <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || resolveRaidThumbnailUrl({ title: raid?.title, difficulty: raid?.difficulty || "heroic" })} /><small>Якщо поле не змінювати, система автоматично використає мініатюру за типом рейду.</small></label>
+          <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || resolveRaidThumbnailUrl({ difficulty: raid?.difficulty || "heroic" })} /><small>Якщо поле не змінювати, система автоматично використає мініатюру за типом рейду.</small></label>
           <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
         </div>
 
