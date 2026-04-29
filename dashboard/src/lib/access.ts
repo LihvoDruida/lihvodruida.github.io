@@ -15,6 +15,7 @@ export {
   canManageApplications,
   canManageGeneralEmbeds,
   canManageRulesEmbeds,
+  canManageRaids,
   canManageSiteContent,
   canViewRulesStats,
   dashboardRoleRank,

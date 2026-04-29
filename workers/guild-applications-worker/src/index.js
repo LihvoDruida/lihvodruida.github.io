@@ -2042,6 +2042,68 @@ async function handleApplicationInteraction(interaction, env, customId) {
   });
 }
 
+
+function decodeRaidAttendanceCustomId(customId) {
+  const value = String(customId || "").trim();
+  const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  if (!match) return null;
+  return { raidId: match[1], action: match[2] };
+}
+
+function dashboardRaidActionEndpoint(env, raidId) {
+  const explicit = String(env.DASHBOARD_RAID_ACTION_ENDPOINT || "").trim();
+  if (explicit) return explicit.replace("{raidId}", encodeURIComponent(raidId));
+  try {
+    return new URL("/api/raids/" + encodeURIComponent(raidId) + "/discord-action", dashboardAuthUrl(env)).toString();
+  } catch {
+    return "https://admin.lihvodruida.pp.ua/api/raids/" + encodeURIComponent(raidId) + "/discord-action";
+  }
+}
+
+async function handleRaidAnnouncementInteraction(interaction, env, raidAction) {
+  if (isInteractionRateLimited(interaction, "raid-announcement")) {
+    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
+  }
+
+  const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || "").trim();
+  if (!token) {
+    logWorkerEvent("warn", "raid_announcement.proxy.missing_token", { raidId: raidAction.raidId });
+    return finishRulesDecision(interaction, "❌ Запис на рейд тимчасово недоступний: серверний токен не налаштований.");
+  }
+
+  try {
+    const response = await fetch(dashboardRaidActionEndpoint(env, raidAction.raidId), {
+      method: "POST",
+      headers: {
+        ...dashboardProfileLookupHeaders(env, token),
+        "content-type": "application/json; charset=utf-8",
+        "x-worker-stats-token": token,
+      },
+      body: JSON.stringify({
+        action: raidAction.action,
+        userId: getDiscordUserId(interaction),
+        userName: getDiscordUserLabel(interaction),
+        guildId: getInteractionGuildId(interaction, env),
+      }),
+    });
+
+    const raw = await response.text().catch(() => "");
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+
+    if (!response.ok || !data) {
+      logWorkerEvent("warn", "raid_announcement.proxy.bad_response", { raidId: raidAction.raidId, status: response.status, raw: raw.slice(0, 180) });
+      return finishRulesDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.");
+    }
+
+    logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", { raidId: raidAction.raidId, action: raidAction.action, ok: Boolean(data.ok) });
+    return finishRulesDecision(interaction, limitText(data.content || "Дію оброблено.", 1800, "Дію оброблено."));
+  } catch (error) {
+    logWorkerEvent("error", "raid_announcement.proxy.failed", { raidId: raidAction.raidId, action: raidAction.action, message: error?.message });
+    return finishRulesDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.");
+  }
+}
+
 async function handleDiscordInteraction(request, env) {
   const rawBody = await request.text();
   const verified = await verifyDiscordRequest(request, env, rawBody);
@@ -2064,6 +2126,9 @@ async function handleDiscordInteraction(request, env) {
 
   const applicationResult = await handleApplicationInteraction(interaction, env, customId);
   if (applicationResult) return applicationResult;
+
+  const raidAnnouncementAction = decodeRaidAttendanceCustomId(customId);
+  if (raidAnnouncementAction) return handleRaidAnnouncementInteraction(interaction, env, raidAnnouncementAction);
 
   const rulesAction = decodeRulesCustomId(customId);
   if (rulesAction) return handleRulesInteraction(interaction, env, rulesAction);

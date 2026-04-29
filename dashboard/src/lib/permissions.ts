@@ -67,6 +67,10 @@ export function canManageRulesEmbeds(session: DashboardSession | null | undefine
   return Boolean(session && session.role === "admin");
 }
 
+export function canManageRaids(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+}
+
 export function canViewRulesStats(session: DashboardSession | null | undefined) {
   return Boolean(session && (session.role === "admin" || session.role === "moderator"));
 }
@@ -96,6 +100,12 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
       key: "general-embeds",
       title: "Звичайні Discord-повідомлення",
       description: "Створення і редагування звичайних Discord-повідомлень, а також згадування вибраних ролей.",
+      enabled: canModerate,
+    },
+    {
+      key: "raids",
+      title: "Рейди",
+      description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.",
       enabled: canModerate,
     },
     {

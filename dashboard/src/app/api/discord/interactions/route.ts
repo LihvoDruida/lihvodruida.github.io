@@ -9,6 +9,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
+import { decodeRaidAttendanceCustomId, handleRaidDiscordAction } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -160,8 +161,9 @@ export async function POST(request: NextRequest) {
   }
 
   const customId = String(interaction?.data?.custom_id || "");
-  const parsed = decodeRulesCustomId(customId);
-  if (!parsed) {
+  const raidAction = decodeRaidAttendanceCustomId(customId);
+  const parsed = raidAction ? null : decodeRulesCustomId(customId);
+  if (!raidAction && !parsed) {
     logDashboardEvent("warn", "discord.rules.unknown_custom_id", request, { customId: customId.slice(0, 24) });
     return ephemeral("Ця кнопка не належить Mistblossom dashboard або вже застаріла.");
   }
@@ -169,6 +171,26 @@ export async function POST(request: NextRequest) {
   const guildId = String(interaction?.guild_id || getDiscordGuildId() || "");
   const userId = getInteractionUserId(interaction);
   const userName = getInteractionUserName(interaction);
+
+  if (raidAction) {
+    try {
+      const result = await handleRaidDiscordAction({
+        raidId: raidAction.raidId,
+        action: raidAction.action,
+        userId,
+        userName,
+      });
+      logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });
+      return finishDecision(interaction, result.content);
+    } catch (error) {
+      logDashboardEvent("error", "discord.raid.action_failed", request, { message: safeErrorMessage(error), raidId: raidAction.raidId, action: raidAction.action, userId });
+      return finishDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй ще раз пізніше або звернись до офіцера.");
+    }
+  }
+
+  if (!parsed) {
+    return ephemeral("Ця кнопка вже застаріла.");
+  }
 
   if (parsed.action === "confirm_accept" || parsed.action === "confirm_decline") {
     logDashboardEvent("info", "discord.rules.confirmation_requested", request, {

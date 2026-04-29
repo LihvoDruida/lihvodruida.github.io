@@ -1,6 +1,6 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
-import { canManageApplications, canManageGeneralEmbeds, canViewProfiles, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
+import { canManageApplications, canManageGeneralEmbeds, canManageRaids, canViewProfiles, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardIdentity({
@@ -8,12 +8,13 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content" | "discord" | "profile" | "profiles";
+  activeSection?: "applications" | "content" | "discord" | "profile" | "profiles" | "raids";
 }) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
   const canUseApplications = canManageApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
+  const canUseRaids = canManageRaids(user);
   const canUseProfiles = canViewProfiles(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
 
@@ -40,6 +41,15 @@ export default async function DashboardIdentity({
                 aria-current={activeSection === "discord" ? "page" : undefined}
               >
                 Discord
+              </a>
+            ) : null}
+            {canUseRaids ? (
+              <a
+                href="/raids"
+                className={activeSection === "raids" ? "is-active" : undefined}
+                aria-current={activeSection === "raids" ? "page" : undefined}
+              >
+                Рейди
               </a>
             ) : null}
             {canUseProfiles ? (

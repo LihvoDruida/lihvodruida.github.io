@@ -91,6 +91,13 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             </a>
           ) : null}
 
+          <a className="panel discord-hub-card discord-hub-card--raid" href="/raids">
+            <span className="eyebrow">Рейди • {hierarchyTitle(user.role)}</span>
+            <strong>Рейдові оголошення</strong>
+            <p>Створення рейду, кнопки запису і автоматична побудова складу паті.</p>
+            <span className="btn primary">Відкрити рейди</span>
+          </a>
+
           <a className="panel discord-hub-card" href="/discord/embed">
             <span className="eyebrow">Звичайні повідомлення • {hierarchyTitle(user.role)}</span>
             <strong>Звичайні повідомлення</strong>

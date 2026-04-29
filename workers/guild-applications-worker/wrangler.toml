@@ -36,3 +36,5 @@ ALLOW_DEBUG_QUERY = "0"
 # [[kv_namespaces]]
 # binding = "RULES_STATS"
 # id = "paste_kv_namespace_id_here"
+# Optional for raid announcement buttons when the Discord Interaction Endpoint points to this Worker:
+# DASHBOARD_RAID_ACTION_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/{raidId}/discord-action"
