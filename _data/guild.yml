@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-29 19:42:17'
+  updated_at: '2026-04-29 21:08:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13489
-      region: 6014
+      world: 13492
+      region: 6016
       realm: 55
     heroic:
-      world: 15508
-      region: 6510
+      world: 15533
+      region: 6531
       realm: 52
     mythic:
-      world: 6713
-      region: 2905
+      world: 6724
+      region: 2915
       realm: 23
   blackrock-depths:
     normal:
@@ -554,7 +554,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3039.8
@@ -5253,16 +5253,16 @@ members:
       name: Warrior
     playable_race:
       id: 3
-      name: Dark Iron Dwarf
+      name: Dwarf
     faction:
       type: ALLIANCE
     gender: male
     active_spec:
       name: Protection
       role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/100/265349988-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/100/265349988-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Корбус
-    item_level_equipped: 269
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2556
