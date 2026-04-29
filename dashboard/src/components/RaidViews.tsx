@@ -144,9 +144,8 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
     <div className="raid-manage-actions">
       <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
       {!closed && raid.status !== "draft" ? (
-        <form action="/api/raids" method="post">
-          <input type="hidden" name="raidId" value={raid.id} />
-          <button className="btn danger btn-sm" type="submit" name="action" value="close">Закрити рейд</button>
+        <form action={`/api/raids/${encodeURIComponent(raid.id)}/close`} method="post">
+          <button className="btn danger btn-sm" type="submit">Закрити рейд</button>
         </form>
       ) : null}
     </div>
@@ -199,30 +198,32 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
 export function RaidListCard({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
   const statusClass = raidStatusClass(raid);
+  const isDraft = raid.status === "draft";
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
         {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={72} height={72} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
         <span className="raid-list-copy">
-          <strong>{raidTitle(raid)}</strong>
-          <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
-          <small>💬 @{raid.createdByName}</small>
-          <small>👥 {counts.roster} / {raidAutoCapacity(raid)} • {raidAutoCompositionLabel(raid)}</small>
+          <span className="raid-list-title-row">
+            <strong>{raidTitle(raid)}</strong>
+            <em className={`raid-state raid-state--${statusClass}`}>{raidStatusLabel(raid)}</em>
+          </span>
+          <span className="raid-list-facts">
+            <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
+            <small>👤 {raid.createdByName}</small>
+            <small>👥 {counts.roster} / {raidAutoCapacity(raid)} • {raidAutoCompositionLabel(raid)}</small>
+          </span>
         </span>
       </a>
-      <span className="raid-list-side">
-        <em className={`raid-state raid-state--${statusClass}`}>{raidStatusLabel(raid)}</em>
-        <span className="raid-list-actions">
-          <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
-          <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
-          {raid.status === "draft" ? (
-            <form action="/api/raids" method="post">
-              <input type="hidden" name="raidId" value={raid.id} />
-              <button className="btn danger btn-sm" type="submit" name="action" value="delete">Видалити</button>
-            </form>
-          ) : null}
-        </span>
-      </span>
+      <div className="raid-list-actions" aria-label="Керування рейдом">
+        <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
+        <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
+        {isDraft ? (
+          <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
+            <button className="btn danger btn-sm" type="submit">Видалити</button>
+          </form>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -234,81 +235,85 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
     : channels;
   const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
   return (
-    <form className="panel raid-form-panel raid-form-panel--modern" action="/api/raids" method="post">
-      <input type="hidden" name="raidId" value={raid?.id || ""} />
-      <input type="hidden" name="composition" value={defaultComposition} />
-      <div className="raid-form-heading">
-        <div>
-          <div className="section-title">{raid?.id ? "Редагування рейду" : "Створення рейду"}</div>
-          <p>Дані нижче формують Discord embed, пряме посилання на рейд і автоматичний склад паті.</p>
+    <div className="raid-form-stack">
+      <form className="panel raid-form-panel raid-form-panel--modern" action="/api/raids" method="post">
+        <input type="hidden" name="raidId" value={raid?.id || ""} />
+        <input type="hidden" name="composition" value={defaultComposition} />
+        <div className="raid-form-heading">
+          <div>
+            <div className="section-title">{raid?.id ? "Редагування рейду" : "Створення рейду"}</div>
+            <p>Ця форма відповідає тільки за дані рейду та Discord-оголошення. Видалення і закриття винесені в окремі дії.</p>
+          </div>
+          {raid ? <em className={`raid-state raid-state--${raidStatusClass(raid)}`}>{raidStatusLabel(raid)}</em> : null}
         </div>
-        {raid ? <em className={`raid-state raid-state--${raidStatusClass(raid)}`}>{raidStatusLabel(raid)}</em> : null}
-      </div>
 
-      <div className="raid-form-section">
-        <strong>Основне</strong>
-        <label className="field-label">Назва рейду<input className="input" name="title" defaultValue={raid?.title || "Войдспайр"} required /></label>
-        <label className="field-label">Тип рейду
-          <select className="select" name="difficulty" defaultValue={raid?.difficulty || "heroic"}>
-            <option value="normal">Нормал</option>
-            <option value="heroic">Героїк</option>
-            <option value="mythic">Міфік</option>
-          </select>
-        </label>
-        <div className="raid-form-row">
-          <label className="field-label">Дата<input className="input" type="date" name="date" defaultValue={raid?.date || todayIso()} required /></label>
-          <label className="field-label">Час<input className="input" type="time" name="time" defaultValue={raid?.time || "20:00"} required /></label>
+        <div className="raid-form-section">
+          <strong>Основне</strong>
+          <label className="field-label">Назва рейду<input className="input" name="title" defaultValue={raid?.title || "Войдспайр"} required /></label>
+          <label className="field-label">Тип рейду
+            <select className="select" name="difficulty" defaultValue={raid?.difficulty || "heroic"}>
+              <option value="normal">Нормал</option>
+              <option value="heroic">Героїк</option>
+              <option value="mythic">Міфік</option>
+            </select>
+          </label>
+          <div className="raid-form-row">
+            <label className="field-label">Дата<input className="input" type="date" name="date" defaultValue={raid?.date || todayIso()} required /></label>
+            <label className="field-label">Час<input className="input" type="time" name="time" defaultValue={raid?.time || "20:00"} required /></label>
+          </div>
         </div>
-      </div>
 
-      <div className="raid-form-section raid-form-section--two">
-        <label className="field-label">Канал Discord
-          <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""} required>
-            {channelOptions.length ? channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>) : <option value="">Discord-канали недоступні</option>}
-          </select>
-        </label>
-        <label className="field-label">Розхідники
-          <select className="select" name="consumables" defaultValue={raid?.consumables || "own"}>
-            <option value="own">Власні</option>
-            <option value="guild">Гільдійні</option>
-          </select>
-        </label>
-        <label className="field-label">Лут
-          <select className="select" name="lootMode" defaultValue={raid?.lootMode || "ms-os"}>
-            <option value="ms-os">MS &gt; OS</option>
-            <option value="free-roll">Вільний рол</option>
-            <option value="soft-reserve">Soft Reserve</option>
-            <option value="loot-council">Loot Council</option>
-          </select>
-        </label>
-      </div>
+        <div className="raid-form-section raid-form-section--two">
+          <label className="field-label">Канал Discord
+            <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""} required>
+              {channelOptions.length ? channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>) : <option value="">Discord-канали недоступні</option>}
+            </select>
+          </label>
+          <label className="field-label">Розхідники
+            <select className="select" name="consumables" defaultValue={raid?.consumables || "own"}>
+              <option value="own">Власні</option>
+              <option value="guild">Гільдійні</option>
+            </select>
+          </label>
+          <label className="field-label">Лут
+            <select className="select" name="lootMode" defaultValue={raid?.lootMode || "ms-os"}>
+              <option value="ms-os">MS &gt; OS</option>
+              <option value="free-roll">Вільний рол</option>
+              <option value="soft-reserve">Soft Reserve</option>
+              <option value="loot-council">Loot Council</option>
+            </select>
+          </label>
+        </div>
 
-      <div className="raid-auto-composition-note">
-        <strong>Склад генерується автоматично</strong>
-        <span>Поточна схема: {defaultComposition}. Система сама розширює рейд за кількістю заявок: 2/2/6 → 2/4/16 → 2/6/22 → далі за потреби.</span>
-      </div>
+        <div className="raid-auto-composition-note">
+          <strong>Склад генерується автоматично</strong>
+          <span>Поточна схема: {defaultComposition}. Система сама розширює рейд за кількістю заявок: 2/2/6 → 2/4/16 → 2/6/22 → далі за потреби.</span>
+        </div>
 
-      <div className="raid-form-section">
-        <strong>Текст і зображення</strong>
-        <label className="field-label">Опис<textarea className="input textarea" name="description" rows={5} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
-        <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || ""} /></label>
-        <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
-      </div>
+        <div className="raid-form-section">
+          <strong>Текст і зображення</strong>
+          <label className="field-label">Опис<textarea className="input textarea" name="description" rows={5} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
+          <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || ""} /></label>
+          <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
+        </div>
 
-      <div className="raid-form-actions">
-        <button className="btn subtle" name="action" value="save" type="submit">Зберегти чернетку</button>
-        <button className="btn primary" name="action" value="publish" type="submit" disabled={!canPublish}>Опублікувати / оновити Discord</button>
-      </div>
+        <div className="raid-form-actions">
+          <button className="btn subtle" name="action" value="save" type="submit">Зберегти чернетку</button>
+          <button className="btn primary" name="action" value="publish" type="submit" disabled={!canPublish}>Опублікувати / оновити Discord</button>
+        </div>
+        <div className="raid-form-links">
+          {raid?.id ? <a className="raid-message-link" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити сторінку рейду</a> : null}
+          {raid?.messageUrl ? <a className="raid-message-link" href={raid.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord-повідомлення</a> : null}
+        </div>
+      </form>
       {raid?.status === "draft" ? (
-        <div className="raid-form-danger-zone">
-          <button className="btn danger" name="action" value="delete" type="submit">Видалити чернетку</button>
-        </div>
+        <form className="panel raid-form-danger-zone raid-form-danger-zone--separate" action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
+          <strong>Небезпечна дія</strong>
+          <p>Видалення прибирає чернетку зі списку рейдів. Опублікований рейд спочатку потрібно закрити.</p>
+          <button className="btn danger" type="submit">Видалити чернетку</button>
+        </form>
       ) : null}
-      <div className="raid-form-links">
-        {raid?.id ? <a className="raid-message-link" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити сторінку рейду</a> : null}
-        {raid?.messageUrl ? <a className="raid-message-link" href={raid.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord-повідомлення</a> : null}
-      </div>
-    </form>
+    </div>
   );
 }
 

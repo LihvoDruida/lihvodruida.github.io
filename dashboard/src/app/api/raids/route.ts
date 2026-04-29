@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
-import { closeRaid, deleteDraftRaid, saveAndMaybePublishRaid } from "@/lib/raids";
+import { saveAndMaybePublishRaid } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -38,24 +38,11 @@ export async function POST(request: NextRequest) {
     const action = String(form.get("action") || "").trim();
     const raidId = String(form.get("raidId") || "").trim();
 
-    if (action === "delete") {
-      logDashboardEvent("info", "raids.delete.start", request, { raidId, actorId: user.id, actorRole: user.role });
-      const deleted = await deleteDraftRaid(raidId);
+    if (action === "delete" || action === "close") {
       return redirectWithToast("/raids", {
-        tone: "success",
-        title: "Чернетку видалено",
-        message: deleted.title,
-        ttl: 5200,
-      });
-    }
-
-    if (action === "close") {
-      logDashboardEvent("info", "raids.close.start", request, { raidId, actorId: user.id, actorRole: user.role });
-      const closed = await closeRaid(raidId);
-      return redirectWithToast(`/raids/${encodeURIComponent(closed.id)}`, {
-        tone: "success",
-        title: "Рейд закрито",
-        message: "Запис вимкнено, кнопки Discord стали неактивними.",
+        tone: "warning",
+        title: "Дія перенесена",
+        message: "Видалення і закриття рейду виконуються окремими кнопками на сторінці рейду або в списку.",
         ttl: 6400,
       });
     }
