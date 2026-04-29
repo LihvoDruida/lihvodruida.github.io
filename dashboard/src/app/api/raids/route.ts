@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
 import { closeRaid, deleteDraftRaid, saveAndMaybePublishRaid } from "@/lib/raids";
-import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export const runtime = "nodejs";
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     const raidId = String(form.get("raidId") || "").trim();
 
     if (action === "delete") {
+      logDashboardEvent("info", "raids.delete.start", request, { raidId, actorId: user.id, actorRole: user.role });
       const deleted = await deleteDraftRaid(raidId);
       return redirectWithToast("/raids", {
         tone: "success",
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "close") {
+      logDashboardEvent("info", "raids.close.start", request, { raidId, actorId: user.id, actorRole: user.role });
       const closed = await closeRaid(raidId);
       return redirectWithToast(`/raids/${encodeURIComponent(closed.id)}`, {
         tone: "success",
@@ -59,7 +61,23 @@ export async function POST(request: NextRequest) {
     }
 
     const profile = user.profileId ? await getProfileById(user.profileId) : null;
+    logDashboardEvent("info", "raids.save.start", request, {
+      action,
+      raidId,
+      actorId: user.id,
+      actorRole: user.role,
+      hasChannel: Boolean(form.get("channelId")),
+    });
     const result = await saveAndMaybePublishRaid(form, user, profile);
+    logDashboardEvent("info", result.published ? "raids.discord.published" : "raids.saved", request, {
+      action,
+      raidId: result.raid.id,
+      actorId: user.id,
+      actorRole: user.role,
+      messageUrl: result.published || "",
+      channelId: result.raid.channelId || "",
+      messageId: result.raid.messageId || "",
+    });
     return redirectWithToast(`/raids/${encodeURIComponent(result.raid.id)}/edit`, {
       tone: "success",
       title: result.published ? "Discord-оголошення оновлено" : "Рейд збережено",
@@ -67,6 +85,7 @@ export async function POST(request: NextRequest) {
       ttl: result.published ? 7600 : 5600,
     });
   } catch (error) {
+    logDashboardEvent("error", "raids.action.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
     return redirectWithToast("/raids", {
       tone: "error",
       title: "Дію з рейдом не виконано",

@@ -392,11 +392,99 @@ export function getDiscordPublicKey() {
 }
 
 export function getDiscordDefaultChannelId() {
-  return snowflake(process.env.DISCORD_RAID_CHANNEL_ID || process.env.DISCORD_CHANNEL_ID || "");
+  return snowflake(process.env.DISCORD_CHANNEL_ID || "");
+}
+
+function workerRelayToken() {
+  return String(
+    process.env.DISCORD_RULES_STATS_TOKEN ||
+    process.env.WORKER_STATS_TOKEN ||
+    process.env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
+    ""
+  ).trim();
+}
+
+function workerRelayHeaders(): HeadersInit {
+  const token = workerRelayToken();
+  return {
+    accept: "application/json",
+    ...(token
+      ? {
+          authorization: `Bearer ${token}`,
+          "x-worker-stats-token": token,
+        }
+      : {}),
+  };
 }
 
 export function hasDiscordEmbedConfig() {
-  return Boolean(getBotToken() && (getDiscordGuildId() || getDiscordDefaultChannelId()));
+  return Boolean(getBotToken() || (raidDiscordMessageEndpoint() && workerRelayToken()));
+}
+
+function hasDirectDiscordBotConfig() {
+  return Boolean(getBotToken());
+}
+
+function discordWorkerEndpoint(path: string, explicitEnvKey: string) {
+  const explicit = String(process.env[explicitEnvKey] || "").trim();
+  if (explicit) return explicit;
+
+  const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || "").trim();
+  if (!interactions) return "";
+
+  if (/\/api\/discord-interactions\/?$/i.test(interactions)) {
+    return interactions.replace(/\/api\/discord-interactions\/?$/i, path);
+  }
+
+  try {
+    const url = new URL(interactions);
+    url.pathname = path;
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+function raidDiscordMessageEndpoint() {
+  return workerApiEndpoint("/api/discord-raid-message", "DISCORD_RAID_MESSAGE_ENDPOINT");
+}
+
+function discordGuildChannelsEndpoint() {
+  return workerApiEndpoint("/api/discord-guild-channels", "DISCORD_GUILD_CHANNELS_ENDPOINT");
+}
+
+function raidDiscordRelayToken() {
+  return workerRelayToken();
+}
+
+async function discordRaidMessageRelay<T = any>(payload: Record<string, unknown>): Promise<T> {
+  const endpoint = raidDiscordMessageEndpoint();
+  const token = raidDiscordRelayToken();
+  if (!endpoint || !token) {
+    throw new Error("Discord-публікація рейдів не налаштована: додай DISCORD_BOT_TOKEN у dashboard або використовуй Worker relay через DISCORD_INTERACTIONS_ENDPOINT разом з уже наявним DISCORD_RULES_STATS_TOKEN / INTERNAL_PROFILE_LOOKUP_TOKEN.");
+  }
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json; charset=utf-8",
+      "x-worker-stats-token": token,
+    },
+    body: JSON.stringify(payload),
+    cache: "no-store",
+  });
+
+  const raw = await response.text().catch(() => "");
+  const data = raw ? tryParseJson(raw) : null;
+  if (!response.ok || !data || typeof data !== "object") {
+    const message = typeof data?.error === "string" ? data.error : raw || `Worker relay ${response.status}`;
+    throw new Error(`Discord relay ${response.status}: ${String(message).slice(0, 220)}`);
+  }
+  return data as T;
 }
 
 function encodeAuditReason(reason?: string) {
@@ -619,11 +707,29 @@ export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot>
 export async function fetchDiscordTextChannels() {
   const guildId = getDiscordGuildId();
   const fallbackChannelId = getDiscordDefaultChannelId();
-  if (!guildId) {
+
+  if (!getBotToken()) {
+    if (discordGuildChannelsEndpoint() && workerRelayToken()) {
+      return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
+    }
     if (fallbackChannelId) {
       return {
         guild: null,
-        channels: [{ id: fallbackChannelId, name: "канал рейдів", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
+        channels: [{ id: fallbackChannelId, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
+        suggestedRulesChannelId: fallbackChannelId,
+      };
+    }
+    throw new Error("Discord-бот не підключений: додай DISCORD_BOT_TOKEN у dashboard або використовуй Worker через DISCORD_INTERACTIONS_ENDPOINT та наявний DISCORD_RULES_STATS_TOKEN / INTERNAL_PROFILE_LOOKUP_TOKEN.");
+  }
+
+  if (!guildId) {
+    if (discordGuildChannelsEndpoint() && workerRelayToken()) {
+      return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
+    }
+    if (fallbackChannelId) {
+      return {
+        guild: null,
+        channels: [{ id: fallbackChannelId, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
         suggestedRulesChannelId: fallbackChannelId,
       };
     }
@@ -635,6 +741,36 @@ export async function fetchDiscordTextChannels() {
     discordApi<any[]>(`/guilds/${guildId}/channels`),
   ]);
 
+  return normalizeDiscordTextChannels(channels, guild, fallbackChannelId);
+}
+
+async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
+  const endpoint = discordGuildChannelsEndpoint();
+  if (!endpoint) throw new Error("Worker endpoint для Discord-каналів не налаштований.");
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: workerRelayHeaders(),
+    cache: "no-store",
+  });
+  const raw = await response.text().catch(() => "");
+  const data = raw ? tryParseJson(raw) : null;
+  if (!response.ok || !data || typeof data !== "object") {
+    const message = typeof data?.error === "string" ? data.error : raw || `Worker channels ${response.status}`;
+    throw new Error(`Discord channels relay ${response.status}: ${String(message).slice(0, 220)}`);
+  }
+
+  const guildRaw = data.guild && typeof data.guild === "object" ? data.guild as Record<string, unknown> : null;
+  const guild: DiscordGuildSnapshot | null = guildRaw ? {
+    id: String(guildRaw.id || ""),
+    name: String(guildRaw.name || "Discord guild"),
+    rules_channel_id: guildRaw.rules_channel_id ? String(guildRaw.rules_channel_id) : null,
+  } : null;
+
+  return normalizeDiscordTextChannels(Array.isArray(data.channels) ? data.channels : [], guild, String(data.suggestedRulesChannelId || data.suggestedChannelId || fallbackChannelId || ""));
+}
+
+function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapshot | null, fallbackChannelId = "") {
   const textChannels: DiscordTextChannel[] = channels
     .filter((channel) => channel && (channel.type === 0 || channel.type === 5))
     .map((channel) => ({
@@ -644,6 +780,7 @@ export async function fetchDiscordTextChannels() {
       position: Number(channel.position || 0),
       parent_id: channel.parent_id ? String(channel.parent_id) : null,
     }))
+    .filter((channel) => snowflake(channel.id))
     .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name, "uk"));
 
   const rulesByGuild = guild?.rules_channel_id
@@ -655,10 +792,12 @@ export async function fetchDiscordTextChannels() {
     return name.includes("rules") || name.includes("rule") || name.includes("правил") || name.includes("pravyl") || name.includes("правила");
   });
 
+  const fallback = snowflake(fallbackChannelId);
+
   return {
     guild,
-    channels: textChannels,
-    suggestedRulesChannelId: rulesByGuild?.id || rulesByName?.id || textChannels[0]?.id || "",
+    channels: textChannels.length > 0 ? textChannels : fallback ? [{ id: fallback, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[] : [],
+    suggestedRulesChannelId: rulesByGuild?.id || rulesByName?.id || fallback || textChannels[0]?.id || "",
   };
 }
 
@@ -890,6 +1029,49 @@ export async function editDiscordEmbedMessage(params: {
     method: "PATCH",
     body: JSON.stringify(body),
     auditReason: params.auditReason,
+  });
+}
+
+export async function createDiscordRaidMessage(params: {
+  channelId: string;
+  content?: string;
+  embed: Record<string, unknown>;
+  components?: unknown[];
+  auditReason?: string;
+}) {
+  if (hasDirectDiscordBotConfig()) {
+    return createDiscordEmbedMessage(params);
+  }
+
+  return discordRaidMessageRelay({
+    action: "create",
+    channelId: params.channelId,
+    content: params.content || "",
+    embed: params.embed,
+    components: params.components || [],
+    auditReason: params.auditReason || "Raid published from dashboard",
+  });
+}
+
+export async function editDiscordRaidMessage(params: {
+  ref: DiscordMessageRef;
+  content?: string;
+  embed: Record<string, unknown>;
+  components?: unknown[];
+  auditReason?: string;
+}) {
+  if (hasDirectDiscordBotConfig()) {
+    return editDiscordEmbedMessage(params);
+  }
+
+  return discordRaidMessageRelay({
+    action: "edit",
+    channelId: params.ref.channelId,
+    messageId: params.ref.messageId,
+    content: params.content || "",
+    embed: params.embed,
+    components: params.components || [],
+    auditReason: params.auditReason || "Raid updated from dashboard",
   });
 }
 

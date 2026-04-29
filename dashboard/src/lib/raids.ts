@@ -4,9 +4,10 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
-  createDiscordEmbedMessage,
+  createDiscordRaidMessage,
   discordMessageUrl,
-  editDiscordEmbedMessage,
+  editDiscordRaidMessage,
+  getDiscordDefaultChannelId,
   normalizeDiscordEmbed,
   type DiscordMessageRef,
 } from "@/lib/discordAdmin";
@@ -623,32 +624,59 @@ export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "compositio
   return parties.sort((a, b) => a.index - b.index);
 }
 
+function compactSignupName(item?: RaidSignup | null, max = 42) {
+  if (!item) return "—";
+  const base = item.characterName || item.discordName || "Гравець";
+  const spec = item.activeSpecName ? ` ${item.activeSpecName}` : "";
+  const late = item.status === "late" ? " ⏱" : "";
+  const text = `${base}${spec}${late}`.trim();
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+}
+
 function partyDiscordText(party: RaidParty) {
-  const rows = [
-    `T  ${signupName(party.tank)}`,
-    `H  ${signupName(party.healer)}`,
-    ...party.dps.map((item) => `DD ${signupName(item)}`),
-  ];
-  return truncateDiscordField("```text\n" + rows.join("\n") + "\n```", 1024);
+  const dps = party.dps.length ? party.dps.map((item) => compactSignupName(item, 28)).join(", ") : "—";
+  return truncateDiscordField([
+    `🛡 ${compactSignupName(party.tank, 34)}`,
+    `✚ ${compactSignupName(party.healer, 34)}`,
+    `⚔ ${dps}`,
+  ].join("\n"), 420);
+}
+
+function compactDiscordFields(fields: Array<{ name: string; value: string; inline?: boolean }>, maxTotal = 5600) {
+  const result: Array<{ name: string; value: string; inline?: boolean }> = [];
+  let total = 0;
+  for (const field of fields.slice(0, 25)) {
+    const name = truncateDiscordField(field.name, 256);
+    const value = truncateDiscordField(field.value, 1024);
+    const nextTotal = total + name.length + value.length;
+    if (nextTotal > maxTotal) break;
+    result.push({ name, value, inline: field.inline });
+    total = nextTotal;
+  }
+  return result;
 }
 
 export function buildRaidDiscordPayload(raid: RaidItem) {
   const counts = raidRosterCounts(raid);
   const composition = raidAutoComposition(raid);
-  const parties = buildRaidParties(raid);
+  const allParties = buildRaidParties(raid);
+  const parties = allParties.slice(0, 8);
   const imageUrl = raid.imageUrl || undefined;
   const thumbUrl = raid.thumbnailUrl || raid.imageUrl || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
-  const fields: Array<{ name: string; value: string; inline?: boolean }> = [
+  const omittedParties = allParties.length - parties.length;
+  const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     { name: "📌 Статус", value: closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито", inline: true },
     { name: "📅 Дата", value: dateTimeLabel(raid), inline: true },
     { name: "👤 Створив", value: `${raid.createdByName}${raid.createdByMain ? `\nmain: ${raid.createdByMain}` : ""}`, inline: true },
     { name: "🧪 Розхідники", value: raidConsumablesLabel(raid.consumables), inline: true },
     { name: "🎁 Лут", value: raidLootLabel(raid.lootMode), inline: true },
     { name: "👥 Склад рейду", value: `${counts.roster} / ${raidAutoCapacity(raid)}\n${compositionLongLabel(raid)}`, inline: true },
-    { name: "⚔️ Ролі", value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`, inline: true },
+    { name: "⚔️ Ролі", value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`, inline: false },
     ...parties.map((party) => ({ name: `Паті ${party.index}`, value: partyDiscordText(party), inline: true })),
+    ...(omittedParties > 0 ? [{ name: "Повний склад", value: `Ще ${omittedParties} паті показано на сторінці рейду: ${dashboardRaidUrl(raid.id)}`, inline: false }] : []),
   ];
+  const fields = compactDiscordFields(rawFields);
 
   const embed = normalizeDiscordEmbed({
     title: closed ? `${raidTitle(raid)} — Закрито` : raidTitle(raid),
@@ -700,13 +728,13 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
   const components = buildRaidAttendanceComponents(raid.id, closed);
-  const targetChannelId = cleanString(channelId || raid.channelId, 32);
-  if (!targetChannelId && !raid.channelId) throw new Error("Канал Discord для рейду не вибрано.");
+  const targetChannelId = cleanString(channelId || raid.channelId || getDiscordDefaultChannelId(), 32);
+  if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
 
   let message: any;
   if (raid.channelId && raid.messageId && (!targetChannelId || targetChannelId === raid.channelId)) {
     const existingRef: DiscordMessageRef = { channelId: raid.channelId, messageId: raid.messageId };
-    message = await editDiscordEmbedMessage({
+    message = await editDiscordRaidMessage({
       ref: existingRef,
       content: payload.content,
       embed: payload.embed,
@@ -714,7 +742,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
       auditReason: `Raid updated: ${raid.id}`,
     });
   } else {
-    message = await createDiscordEmbedMessage({
+    message = await createDiscordRaidMessage({
       channelId: targetChannelId,
       content: payload.content,
       embed: payload.embed,

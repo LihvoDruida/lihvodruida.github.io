@@ -5,7 +5,7 @@ const DEFAULT_FILTERED_LIST_PAGES = 3;
 const MAX_GITHUB_LIST_PAGES = 5;
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -130,6 +130,7 @@ function envDiagnostics(env) {
     cf_access_client_secret: Boolean(String(env.CF_ACCESS_CLIENT_SECRET || env.CLOUDFLARE_ACCESS_CLIENT_SECRET || "").trim()),
     allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
     rules_stats_token: Boolean(String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim()),
+    discord_worker_token: Boolean(String(env.DISCORD_RULES_STATS_TOKEN || env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.WORKER_STATS_TOKEN || "").trim()),
   };
 }
 
@@ -1580,6 +1581,149 @@ async function discordApiFetch(env, path, init = {}) {
   return response;
 }
 
+function discordRaidMessageToken(env) {
+  return String(env.DISCORD_RULES_STATS_TOKEN || env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
+}
+
+function safeDiscordComponents(value) {
+  return Array.isArray(value) ? value.slice(0, 5) : [];
+}
+
+function safeDiscordEmbed(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const embed = { ...value };
+  if (Array.isArray(embed.fields)) embed.fields = embed.fields.slice(0, 25);
+  return embed;
+}
+
+async function handleRaidDiscordMessageRelay(request, env) {
+  const origin = allowedOrigin(request, env) || "null";
+  const expected = discordRaidMessageToken(env);
+  if (!expected || !(await verifyBearerOrStatsToken(request, expected))) {
+    logWorkerEvent("warn", "raid_message.relay.denied", { hasToken: Boolean(expected) });
+    return json({ ok: false, error: "Forbidden" }, 403, origin);
+  }
+
+  if (!env.DISCORD_BOT_TOKEN) {
+    logWorkerEvent("error", "raid_message.relay.bot_missing");
+    return json({ ok: false, error: "DISCORD_BOT_TOKEN is missing in Worker." }, 500, origin);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ ok: false, error: "Invalid JSON body." }, 400, origin);
+  }
+
+  const action = String(body?.action || "create").trim().toLowerCase();
+  const channelId = snowflake(body?.channelId || body?.channel_id);
+  const messageId = snowflake(body?.messageId || body?.message_id);
+  const embed = safeDiscordEmbed(body?.embed);
+  if (!channelId) return json({ ok: false, error: "Discord channelId is invalid." }, 400, origin);
+  if (action === "edit" && !messageId) return json({ ok: false, error: "Discord messageId is invalid." }, 400, origin);
+  if (!embed) return json({ ok: false, error: "Discord embed is invalid." }, 400, origin);
+
+  const payload = {
+    content: limitText(body?.content || "", 2000, ""),
+    embeds: [embed],
+    components: safeDiscordComponents(body?.components),
+    allowed_mentions: { parse: [] },
+  };
+
+  const path = action === "edit"
+    ? `/channels/${channelId}/messages/${messageId}`
+    : `/channels/${channelId}/messages`;
+
+  const response = await discordApiFetch(env, path, {
+    method: action === "edit" ? "PATCH" : "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await response.text().catch(() => "");
+  let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+
+  if (!response.ok || !data) {
+    logWorkerEvent("warn", "raid_message.relay.discord_failed", { action, channelId, messageId, status: response.status, raw: raw.slice(0, 220) });
+    return json({ ok: false, error: data?.message || raw || `Discord API ${response.status}` }, response.ok ? 500 : response.status, origin);
+  }
+
+  logWorkerEvent("info", "raid_message.relay.done", { action, channelId, messageId: data.id || messageId });
+  return json(data, 200, origin);
+}
+
+async function handleDiscordGuildChannels(request, env) {
+  const origin = allowedOrigin(request, env) || "null";
+  const expected = discordRaidMessageToken(env);
+  if (expected && !(await verifyBearerOrStatsToken(request, expected))) {
+    logWorkerEvent("warn", "discord_channels.denied", { hasToken: true });
+    return json({ ok: false, error: "Forbidden" }, 403, origin);
+  }
+
+  if (!env.DISCORD_BOT_TOKEN) {
+    logWorkerEvent("error", "discord_channels.bot_missing");
+    return json({ ok: false, error: "DISCORD_BOT_TOKEN is missing in Worker." }, 500, origin);
+  }
+
+  const guildId = snowflake(env.DISCORD_GUILD_ID || "");
+  if (!guildId) {
+    logWorkerEvent("error", "discord_channels.guild_missing");
+    return json({ ok: false, error: "DISCORD_GUILD_ID is missing in Worker." }, 500, origin);
+  }
+
+  const [guildResponse, channelsResponse] = await Promise.all([
+    discordApiFetch(env, `/guilds/${guildId}`, { method: "GET" }),
+    discordApiFetch(env, `/guilds/${guildId}/channels`, { method: "GET" }),
+  ]);
+
+  const guildRaw = await guildResponse.text().catch(() => "");
+  const channelsRaw = await channelsResponse.text().catch(() => "");
+  let guild = null;
+  let channels = null;
+  try { guild = guildRaw ? JSON.parse(guildRaw) : null; } catch { guild = null; }
+  try { channels = channelsRaw ? JSON.parse(channelsRaw) : null; } catch { channels = null; }
+
+  if (!guildResponse.ok || !channelsResponse.ok || !Array.isArray(channels)) {
+    logWorkerEvent("warn", "discord_channels.fetch_failed", {
+      guildStatus: guildResponse.status,
+      channelsStatus: channelsResponse.status,
+      guildRaw: guildRaw.slice(0, 160),
+      channelsRaw: channelsRaw.slice(0, 160),
+    });
+    return json({ ok: false, error: "Не вдалося отримати список Discord-каналів." }, 500, origin);
+  }
+
+  const textChannels = channels
+    .filter((channel) => channel && (channel.type === 0 || channel.type === 5))
+    .map((channel) => ({
+      id: String(channel.id || ""),
+      name: String(channel.name || "channel"),
+      type: Number(channel.type || 0),
+      position: Number(channel.position || 0),
+      parent_id: channel.parent_id ? String(channel.parent_id) : null,
+    }))
+    .filter((channel) => snowflake(channel.id))
+    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name, "uk"));
+
+  const raidByName = textChannels.find((channel) => {
+    const name = channel.name.toLowerCase();
+    return name.includes("raid") || name.includes("рейд") || name.includes("анонс") || name.includes("announce") || name.includes("оголош");
+  });
+
+  return json({
+    ok: true,
+    guild: guild ? {
+      id: String(guild.id || guildId),
+      name: String(guild.name || "Discord guild"),
+      rules_channel_id: guild.rules_channel_id ? String(guild.rules_channel_id) : null,
+    } : null,
+    channels: textChannels,
+    suggestedChannelId: raidByName?.id || textChannels[0]?.id || "",
+    suggestedRulesChannelId: raidByName?.id || textChannels[0]?.id || "",
+  }, 200, origin);
+}
+
 const APPLICATION_STATUS_LABELS = [
   "status:review",
   "status:accepted",
@@ -1773,6 +1917,37 @@ function updateInteractionMessage(content) {
 
 function finishRulesDecision(interaction, content) {
   return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content) : ephemeral(content);
+}
+
+function deferredEphemeral() {
+  return discordInteractionResponse({
+    type: 5,
+    data: {
+      flags: 64,
+      allowed_mentions: { parse: [] },
+    },
+  });
+}
+
+async function editOriginalInteractionResponse(interaction, content) {
+  const applicationId = snowflake(interaction?.application_id);
+  const token = String(interaction?.token || "").trim();
+  if (!applicationId || !token) return false;
+
+  const response = await fetch(`https://discord.com/api/v10/webhooks/${applicationId}/${token}/messages/@original`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify({
+      content: limitText(content, 1900, "Дію виконано."),
+      allowed_mentions: { parse: [] },
+    }),
+  });
+
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    logWorkerEvent("warn", "discord.interaction.followup_failed", { status: response.status, raw: raw.slice(0, 160) });
+  }
+  return response.ok;
 }
 
 function snowflakeToBase36(id) {
@@ -2060,15 +2235,11 @@ function dashboardRaidActionEndpoint(env, raidId) {
   }
 }
 
-async function handleRaidAnnouncementInteraction(interaction, env, raidAction) {
-  if (isInteractionRateLimited(interaction, "raid-announcement")) {
-    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
-  }
-
+async function raidAnnouncementProxyContent(interaction, env, raidAction) {
   const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || "").trim();
   if (!token) {
     logWorkerEvent("warn", "raid_announcement.proxy.missing_token", { raidId: raidAction.raidId });
-    return finishRulesDecision(interaction, "❌ Запис на рейд тимчасово недоступний: серверний токен не налаштований.");
+    return "❌ Запис на рейд тимчасово недоступний: серверний токен не налаштований.";
   }
 
   try {
@@ -2093,18 +2264,34 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction) {
 
     if (!response.ok || !data) {
       logWorkerEvent("warn", "raid_announcement.proxy.bad_response", { raidId: raidAction.raidId, status: response.status, raw: raw.slice(0, 180) });
-      return finishRulesDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.");
+      return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";
     }
 
     logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", { raidId: raidAction.raidId, action: raidAction.action, ok: Boolean(data.ok) });
-    return finishRulesDecision(interaction, limitText(data.content || "Дію оброблено.", 1800, "Дію оброблено."));
+    return limitText(data.content || "Дію оброблено.", 1800, "Дію оброблено.");
   } catch (error) {
     logWorkerEvent("error", "raid_announcement.proxy.failed", { raidId: raidAction.raidId, action: raidAction.action, message: error?.message });
-    return finishRulesDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.");
+    return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";
   }
 }
 
-async function handleDiscordInteraction(request, env) {
+async function handleRaidAnnouncementInteraction(interaction, env, raidAction, ctx) {
+  if (isInteractionRateLimited(interaction, "raid-announcement")) {
+    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
+  }
+
+  if (ctx && typeof ctx.waitUntil === "function") {
+    ctx.waitUntil((async () => {
+      const content = await raidAnnouncementProxyContent(interaction, env, raidAction);
+      await editOriginalInteractionResponse(interaction, content);
+    })());
+    return deferredEphemeral();
+  }
+
+  return finishRulesDecision(interaction, await raidAnnouncementProxyContent(interaction, env, raidAction));
+}
+
+async function handleDiscordInteraction(request, env, ctx) {
   const rawBody = await request.text();
   const verified = await verifyDiscordRequest(request, env, rawBody);
 
@@ -2128,7 +2315,7 @@ async function handleDiscordInteraction(request, env) {
   if (applicationResult) return applicationResult;
 
   const raidAnnouncementAction = decodeRaidAttendanceCustomId(customId);
-  if (raidAnnouncementAction) return handleRaidAnnouncementInteraction(interaction, env, raidAnnouncementAction);
+  if (raidAnnouncementAction) return handleRaidAnnouncementInteraction(interaction, env, raidAnnouncementAction, ctx);
 
   const rulesAction = decodeRulesCustomId(customId);
   if (rulesAction) return handleRulesInteraction(interaction, env, rulesAction);
@@ -2703,8 +2890,18 @@ export default {
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
+      if (url.pathname === "/api/discord-raid-message" && request.method === "POST") {
+        response = await handleRaidDiscordMessageRelay(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/discord-guild-channels" && request.method === "GET") {
+        response = await handleDiscordGuildChannels(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
       if (url.pathname === "/api/discord-interactions" && request.method === "POST") {
-        response = await handleDiscordInteraction(request, env);
+        response = await handleDiscordInteraction(request, env, ctx);
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 

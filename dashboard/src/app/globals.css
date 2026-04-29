@@ -9710,3 +9710,192 @@ button.btn.danger:hover {
     width: 100%;
   }
 }
+
+/* Raid module v9: fuller list page, cleaner editor, closer to WoW raid-card reference. */
+.raid-page {
+  max-width: 1480px;
+}
+
+.raid-list-page-panel {
+  width: 100%;
+  max-width: none;
+  min-height: clamp(520px, 68vh, 920px);
+  padding: 0;
+  border-color: rgba(188, 141, 72, .28);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(64, 137, 255, .12), transparent 34%),
+    linear-gradient(180deg, rgba(13, 15, 18, .94), rgba(5, 8, 12, .96));
+}
+
+.raid-list-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+}
+
+.raid-manager-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  align-content: start;
+  gap: 12px;
+  padding: 14px;
+}
+
+.raid-manager-list .raid-list-item {
+  min-height: 118px;
+  margin: 0 !important;
+  align-items: stretch;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 12px 30px rgba(0, 0, 0, .22);
+}
+
+.raid-manager-list .raid-list-main-link {
+  min-width: 0;
+  align-items: center;
+}
+
+.raid-manager-list .raid-list-main-link img,
+.raid-manager-list .raid-list-fallback {
+  border-radius: 10px;
+  border: 1px solid rgba(188, 141, 72, .38);
+  background: rgba(9, 12, 16, .9);
+}
+
+.raid-list-copy strong {
+  line-height: 1.14;
+  color: #f3ead8;
+}
+
+.raid-list-side {
+  min-width: 118px;
+}
+
+.raid-list-actions {
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.raid-list-actions .btn-sm {
+  min-height: 30px;
+  padding: 6px 9px;
+  font-size: .78rem;
+}
+
+.raid-list-item--published {
+  border-left: 3px solid rgba(71, 174, 92, .82);
+}
+
+.raid-list-item--draft {
+  border-left: 3px solid rgba(223, 170, 63, .82);
+}
+
+.raid-list-item--closed {
+  border-left: 3px solid rgba(237, 66, 69, .76);
+}
+
+.raid-editor-layout {
+  width: 100%;
+  max-width: none;
+  grid-template-columns: minmax(380px, 520px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.raid-form-panel--modern {
+  position: sticky;
+  top: 14px;
+  align-self: start;
+  border-color: rgba(188, 141, 72, .30);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 206, 106, .10), transparent 35%),
+    linear-gradient(180deg, rgba(16, 16, 14, .96), rgba(6, 8, 11, .96));
+}
+
+.raid-form-heading {
+  padding: 18px 18px 14px;
+}
+
+.raid-form-section {
+  padding: 16px 18px;
+}
+
+.raid-form-section--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.raid-form-section--two .field-label:first-child {
+  grid-column: 1 / -1;
+}
+
+.raid-form-row {
+  gap: 12px;
+}
+
+.raid-form-panel--modern .input,
+.raid-form-panel--modern .select,
+.raid-form-panel--modern .textarea {
+  min-height: 44px;
+  border-color: rgba(188, 141, 72, .32);
+  background: rgba(4, 7, 10, .92);
+}
+
+.raid-form-panel--modern .textarea {
+  min-height: 132px;
+}
+
+.raid-form-panel--modern .raid-form-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+}
+
+.raid-form-panel--modern .raid-form-actions .btn,
+.raid-form-danger-zone .btn {
+  min-height: 44px;
+}
+
+.raid-preview-column {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .raid-editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-form-panel--modern {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .raid-list-page-head,
+  .raid-form-panel--modern .raid-form-actions {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .raid-manager-list {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .raid-list-side {
+    min-width: 0;
+  }
+
+  .raid-list-actions,
+  .raid-list-actions .btn-sm,
+  .raid-list-actions form,
+  .raid-list-actions button {
+    width: 100%;
+  }
+
+  .raid-form-section--two,
+  .raid-form-row {
+    grid-template-columns: 1fr;
+  }
+}
