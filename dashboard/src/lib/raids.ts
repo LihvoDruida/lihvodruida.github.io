@@ -710,22 +710,39 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const omittedParties = allParties.length - parties.length;
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
-      name: "Огляд рейду",
-      value: [
-        `**Статус:** ${closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито"}`,
-        `**Коли:** ${discordDateTimeLabel(raid)}`,
-        `**Організатор:** ${raid.createdByName}`,
-      ].join("\n"),
-      inline: false,
+      name: "📌 Статус",
+      value: closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито",
+      inline: true,
     },
     {
-      name: "Склад і правила",
-      value: [
-        `**Заповнення:** ${counts.roster} / ${raidAutoCapacity(raid)}`,
-        `**Цільовий склад:** ${composition.tanks} / ${composition.healers} / ${composition.dps}`,
-        `**Розхідники:** ${raidConsumablesLabel(raid.consumables)}`,
-        `**Лут:** ${raidLootLabel(raid.lootMode)}`,
-      ].join("\n"),
+      name: "📅 Дата",
+      value: discordDateTimeLabel(raid),
+      inline: true,
+    },
+    {
+      name: "👤 Створив",
+      value: raid.createdByName,
+      inline: true,
+    },
+    {
+      name: "🧪 Розхідники",
+      value: raidConsumablesLabel(raid.consumables),
+      inline: true,
+    },
+    {
+      name: "🎁 Лут",
+      value: raidLootLabel(raid.lootMode),
+      inline: true,
+    },
+    {
+      name: "👥 Склад рейду",
+      value: `${counts.roster} / ${raidAutoCapacity(raid)}
+${compositionLongLabel(raid)}`,
+      inline: true,
+    },
+    {
+      name: "⚔️ Ролі",
+      value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
       inline: false,
     },
     ...parties.map((party) => ({
@@ -734,7 +751,8 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       inline: true,
     })),
     ...(omittedParties > 0
-      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`, inline: false }]
+      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:
+${dashboardRaidUrl(raid.id)}`, inline: false }]
       : []),
   ];
   const fields = compactDiscordFields(rawFields);
