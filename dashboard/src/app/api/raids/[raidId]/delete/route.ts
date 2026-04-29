@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return redirectWithToast("/raids", {
       tone: "success",
       title: "Рейд видалено",
-      message: result.messageId ? "Рейд прибрано зі списку, Discord-повідомлення також видалено." : "Рейд прибрано зі списку.",
+      message: result.messageId ? (result.discordDeleted ? "Рейд прибрано зі списку, Discord-повідомлення також видалено." : "Рейд прибрано зі списку. Discord-повідомлення не вдалося видалити автоматично.") : "Рейд прибрано зі списку.",
       ttl: 6200,
     });
   } catch (error) {

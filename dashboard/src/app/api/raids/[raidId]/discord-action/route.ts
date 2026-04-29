@@ -12,7 +12,7 @@ function bearerToken(request: NextRequest) {
 }
 
 function isAllowed(request: NextRequest) {
-  const expected = String(process.env.INTERNAL_PROFILE_LOOKUP_TOKEN || process.env.DISCORD_RULES_STATS_TOKEN || "").trim();
+  const expected = String(process.env.INTERNAL_PROFILE_LOOKUP_TOKEN || process.env.DISCORD_RULES_STATS_TOKEN || process.env.WORKER_STATS_TOKEN || "").trim();
   const provided = bearerToken(request);
   return Boolean(expected && provided && expected === provided);
 }

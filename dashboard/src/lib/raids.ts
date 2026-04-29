@@ -451,23 +451,39 @@ export async function closeRaid(raidId: string) {
   if (raid.status === "draft") throw new Error("Чернетку не можна закрити. Її можна видалити або опублікувати.");
   const closed: RaidItem = { ...raid, status: "closed" };
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-  if (closed.channelId && closed.messageId) await publishOrUpdateRaid(closed, closed.channelId);
-  return closed;
+
+  let discordSynced = true;
+  if (closed.channelId && closed.messageId) {
+    try {
+      await publishOrUpdateRaid(closed, closed.channelId);
+    } catch (error) {
+      discordSynced = false;
+      console.warn("[raids] Failed to disable Discord buttons while closing raid", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+    }
+  }
+
+  return { ...closed, discordSynced };
 }
 
 export async function deleteRaid(raidId: string) {
   const raid = await getRaid(raidId);
   if (!raid) throw new Error("Рейд не знайдено.");
 
+  let discordDeleted = false;
   if (raid.channelId && raid.messageId) {
-    await deleteDiscordRaidMessage({
-      ref: { channelId: raid.channelId, messageId: raid.messageId },
-      auditReason: `Raid deleted: ${raid.id}`,
-    }).catch(() => null);
+    try {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: raid.channelId, messageId: raid.messageId },
+        auditReason: `Raid deleted: ${raid.id}`,
+      });
+      discordDeleted = true;
+    } catch (error) {
+      console.warn("[raids] Failed to delete Discord raid message", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+    }
   }
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
-  return raid;
+  return { ...raid, discordDeleted };
 }
 
 export const deleteDraftRaid = deleteRaid;
@@ -818,6 +834,11 @@ export function buildRaidAttendanceComponents(raidId: string, disabled = false) 
   ];
 }
 
+function isMissingDiscordMessageError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /404|unknown message|10008/i.test(message);
+}
+
 export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | null) {
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
@@ -826,15 +847,29 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
 
   let message: any;
-  if (raid.channelId && raid.messageId && (!targetChannelId || targetChannelId === raid.channelId)) {
+  const hasExistingMessage = Boolean(raid.channelId && raid.messageId);
+  const canEditExisting = Boolean(hasExistingMessage && targetChannelId === raid.channelId);
+
+  if (canEditExisting && raid.channelId && raid.messageId) {
     const existingRef: DiscordMessageRef = { channelId: raid.channelId, messageId: raid.messageId };
-    message = await editDiscordRaidMessage({
-      ref: existingRef,
-      content: payload.content,
-      embed: payload.embed,
-      components,
-      auditReason: `Raid updated: ${raid.id}`,
-    });
+    try {
+      message = await editDiscordRaidMessage({
+        ref: existingRef,
+        content: payload.content,
+        embed: payload.embed,
+        components,
+        auditReason: `Raid updated: ${raid.id}`,
+      });
+    } catch (error) {
+      if (!isMissingDiscordMessageError(error)) throw error;
+      message = await createDiscordRaidMessage({
+        channelId: targetChannelId,
+        content: payload.content,
+        embed: payload.embed,
+        components,
+        auditReason: `Raid republished after missing message: ${raid.id}`,
+      });
+    }
   } else {
     message = await createDiscordRaidMessage({
       channelId: targetChannelId,
@@ -843,11 +878,19 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
       components,
       auditReason: `Raid published: ${raid.id}`,
     });
+
+    if (hasExistingMessage && raid.channelId && raid.messageId && raid.channelId !== targetChannelId) {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: raid.channelId, messageId: raid.messageId },
+        auditReason: `Raid moved to another channel: ${raid.id}`,
+      }).catch((error) => console.warn("[raids] Failed to delete old Discord raid message", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) }));
+    }
   }
 
-  const nextChannelId = String(message?.channel_id || raid.channelId || targetChannelId);
-  const nextMessageId = String(message?.id || raid.messageId || "");
-  const messageUrl = nextChannelId && nextMessageId ? discordMessageUrl(nextChannelId, nextMessageId) : null;
+  const nextChannelId = String(message?.channel_id || targetChannelId);
+  const nextMessageId = String(message?.id || "");
+  if (!nextChannelId || !nextMessageId) throw new Error("Discord повернув некоректну відповідь без channel_id/message id.");
+  const messageUrl = discordMessageUrl(nextChannelId, nextMessageId);
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
     status: closed ? "closed" : "published",
@@ -908,6 +951,8 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Рейд не знайдено.");
     const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+    if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
+    if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
     const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
     nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
     transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
@@ -915,10 +960,18 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
 
   const updated = await getRaid(id);
   if (!updated) throw new Error("Рейд не знайдено після оновлення.");
-  if (updated.status === "published" && updated.channelId && updated.messageId) {
-    await publishOrUpdateRaid(updated, updated.channelId);
-  }
   return updated;
+}
+
+async function syncRaidDiscordAfterSignup(raid: RaidItem) {
+  if (raid.status !== "published" || !raid.channelId || !raid.messageId) return false;
+  try {
+    await publishOrUpdateRaid(raid, raid.channelId);
+    return true;
+  } catch (error) {
+    console.warn("[raids] Discord message sync after signup failed", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+    return false;
+  }
 }
 
 export function raidMinItemLevelWarning(raid: Pick<RaidItem, "minItemLevel">, signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName"> | null) {
@@ -929,15 +982,16 @@ export function raidMinItemLevelWarning(raid: Pick<RaidItem, "minItemLevel">, si
   return `⚠️ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Ти записаний, але краще підняти спорядження перед рейдом.`;
 }
 
-function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null) {
-  if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}.`;
+function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null, discordSynced = true) {
+  const syncText = discordSynced
+    ? "Склад Discord оновлено."
+    : "Запис збережено, але Discord-повідомлення не оновилося автоматично. Офіцер може натиснути “Оновити Discord”.";
+  if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
   const base = action === "late"
-    ? `⏱ Записано: ти затримаєшся на ${raidTitle(raid)}. Склад Discord оновлено.`
-    : `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. Склад Discord оновлено.`;
-  return warning ? `${base}
-
-${warning}` : base;
+    ? `⏱ Записано: ти затримаєшся на ${raidTitle(raid)}. ${syncText}`
+    : `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. ${syncText}`;
+  return warning ? `${base}\n\n${warning}` : base;
 }
 
 export async function handleRaidDiscordAction(params: {
@@ -967,8 +1021,9 @@ export async function handleRaidDiscordAction(params: {
 
   const signup = signupFromProfile(params.action, params.userId, params.userName, profile);
   const updated = await recordRaidSignup(raid.id, signup);
+  const discordSynced = await syncRaidDiscordAfterSignup(updated);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), warning, raid: updated };
+  return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
 }
 
 export async function handleRaidSessionAction(params: {
@@ -1006,8 +1061,9 @@ export async function handleRaidSessionAction(params: {
 
   const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile);
   const updated = await recordRaidSignup(raid.id, signup);
+  const discordSynced = await syncRaidDiscordAfterSignup(updated);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), warning, raid: updated };
+  return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
 }
 
 export function dashboardRaidUrl(raidId: string) {

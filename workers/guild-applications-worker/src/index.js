@@ -1681,8 +1681,8 @@ async function handleRaidDiscordMessageRelay(request, env) {
 async function handleDiscordGuildChannels(request, env) {
   const origin = allowedOrigin(request, env) || "null";
   const expectedTokens = discordRaidMessageTokens(env);
-  if (expectedTokens.length && !(await verifyAnyBearerOrStatsToken(request, expectedTokens))) {
-    logWorkerEvent("warn", "discord_channels.denied", { hasToken: true });
+  if (!expectedTokens.length || !(await verifyAnyBearerOrStatsToken(request, expectedTokens))) {
+    logWorkerEvent("warn", "discord_channels.denied", { hasToken: expectedTokens.length > 0 });
     return json({ ok: false, error: "Forbidden" }, 403, origin);
   }
 
@@ -2261,7 +2261,7 @@ function dashboardRaidActionEndpoint(env, raidId) {
 }
 
 async function raidAnnouncementProxyContent(interaction, env, raidAction) {
-  const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || "").trim();
+  const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
   if (!token) {
     logWorkerEvent("warn", "raid_announcement.proxy.missing_token", { raidId: raidAction.raidId });
     return "❌ Запис на рейд тимчасово недоступний: серверний токен не налаштований.";
