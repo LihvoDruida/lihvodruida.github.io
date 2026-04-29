@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { getDashboardUrl } from "@/lib/oauth";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
+import { resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
 
@@ -39,6 +40,9 @@ export type BattleNetCharacterCandidate = {
   level: number | null;
   faction: string | null;
   className: string | null;
+  activeSpecName: string | null;
+  activeSpecId: number | null;
+  activeSpecRole: WowCharacterRole;
   raceName: string | null;
   genderName: string | null;
   guildName: string | null;
@@ -258,7 +262,13 @@ function pickLocalizedName(value: any): string | null {
   if (typeof value === "string") return cleanText(value, 120) || null;
   if (typeof value.name === "string") return cleanText(value.name, 120) || null;
   if (typeof value.name?.en_GB === "string") return cleanText(value.name.en_GB, 120) || null;
-  return null;
+  const localized = Object.values(value.name || {}).find((item) => typeof item === "string" && item.trim());
+  return localized ? cleanText(localized, 120) || null : null;
+}
+
+function pickActiveSpecId(value: any): number | null {
+  const id = Number(value?.id || value?.key?.href?.match?.(/specialization\/(\d+)/)?.[1]);
+  return Number.isFinite(id) && id > 0 ? Math.floor(id) : null;
 }
 
 function normalizeGuildName(value: unknown) {
@@ -338,6 +348,9 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
       const guildRealmSlug = cleanText(details?.guild?.realm?.slug || details?.guild?.realm?.name || "", 120).toLowerCase() || null;
       const normalizedName = normalizeBattleNetNameSlug(details?.name || character.name);
       const cleanRealmSlug = normalizeBattleNetRealmSlug(details?.realm?.slug || realmSlug);
+      const activeSpecName = pickLocalizedName(details?.active_spec || details?.active_specialization || character?.active_spec);
+      const activeSpecId = pickActiveSpecId(details?.active_spec || details?.active_specialization || character?.active_spec);
+      const className = pickLocalizedName(details?.character_class || details?.playable_class || character?.playable_class);
       const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
       if (!characterKey) return null;
 
@@ -351,7 +364,10 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         realmName: cleanText(details?.realm?.name || character?.realm?.name || realmSlug, 120),
         level: Number.isFinite(Number(details?.level || character?.level)) ? Number(details?.level || character?.level) : null,
         faction: pickLocalizedName(details?.faction || character?.faction),
-        className: pickLocalizedName(details?.character_class || details?.playable_class || character?.playable_class),
+        className,
+        activeSpecName,
+        activeSpecId,
+        activeSpecRole: resolveWowCharacterRole({ activeSpecName, activeSpecId, className }),
         raceName: pickLocalizedName(details?.race || details?.playable_race || character?.playable_race),
         genderName: pickLocalizedName(details?.gender || character?.gender),
         guildName,

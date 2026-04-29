@@ -39,6 +39,9 @@ export type DiscordRaidRulesSignup = {
     realmSlug?: string | null;
     region?: string | null;
     className?: string | null;
+    activeSpecName?: string | null;
+    activeSpecId?: number | null;
+    activeSpecRole?: string | null;
     profileUrl?: string | null;
   } | null;
 };

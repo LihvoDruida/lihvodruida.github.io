@@ -4,6 +4,7 @@ import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { BattleNetAccountInfo, BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
+import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import { canAccessDashboardRole } from "@/lib/permissions";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
@@ -74,6 +75,18 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   const normalizedName = normalizeBattleNetNameSlug(item.normalizedName || name);
   if (!key || !name || !realmSlug) return null;
 
+  const className = optionalString(item.className);
+  const activeSpecName = optionalString(item.activeSpecName || item.active_spec_name || item.specName || item.spec_name);
+  const activeSpecId = Number.isFinite(Number(item.activeSpecId || item.active_spec_id || item.specId || item.spec_id))
+    ? Math.floor(Number(item.activeSpecId || item.active_spec_id || item.specId || item.spec_id))
+    : null;
+  const activeSpecRole = resolveWowCharacterRole({
+    className,
+    activeSpecName,
+    activeSpecId,
+    activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
+  });
+
   return {
     key,
     source: "battlenet",
@@ -84,7 +97,10 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     realmName: cleanString(item.realmName, 120) || realmSlug,
     level: Number.isFinite(Number(item.level)) ? Number(item.level) : null,
     faction: optionalString(item.faction),
-    className: optionalString(item.className),
+    className,
+    activeSpecName,
+    activeSpecId,
+    activeSpecRole,
     raceName: optionalString(item.raceName),
     genderName: optionalString(item.genderName),
     guildName: optionalString(item.guildName),
@@ -323,12 +339,14 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   totalCharacters: number;
   scannedCharacters: number;
   eligibleCharacters: number;
+  characters?: BattleNetCharacterCandidate[];
 }, account?: BattleNetAccountInfo | null) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
-  await ref.set({
+  const snapshot = await ref.get();
+  const payload: Record<string, unknown> = {
     battlenet: {
       linked: true,
       region: scan.region,
@@ -341,8 +359,31 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
       eligibleCharacters: scan.eligibleCharacters,
     },
     updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  };
 
+  if (snapshot.exists && Array.isArray(scan.characters) && scan.characters.length) {
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    const freshByKey = new Map<string, ProfileCharacter>();
+    for (const candidateInput of scan.characters) {
+      const candidate = normalizeCharacter(candidateInput, null);
+      if (candidate?.key) freshByKey.set(candidate.key, candidate);
+    }
+
+    if (freshByKey.size && profile.characters.length) {
+      payload.characters = profile.characters.map((current) => {
+        const fresh = freshByKey.get(current.key);
+        if (!fresh) return current;
+        return {
+          ...current,
+          ...fresh,
+          addedAt: current.addedAt || fresh.addedAt || null,
+          isMain: current.isMain,
+        };
+      });
+    }
+  }
+
+  await ref.set(payload, { merge: true });
   await ref.update({ "battlenet.candidateCharacters": FieldValue.delete() }).catch(() => null);
 }
 

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import type { DashboardSession } from "@/lib/auth";
 import { hierarchyTitle } from "@/lib/permissions";
+import { wowRoleLabel } from "@/lib/wowRoles";
 import {
   buildRaidParties,
   raidAutoComposition,
@@ -44,12 +45,22 @@ export function signupDisplayName(item?: RaidSignup | null) {
   return item.itemLevel ? `${name} • ${item.itemLevel}` : name;
 }
 
+function signupSpecLabel(item?: RaidSignup | null) {
+  if (!item) return "";
+  const spec = item.activeSpecName ? `${item.activeSpecName}${item.className ? ` • ${item.className}` : ""}` : item.className || "";
+  const role = wowRoleLabel(item.role);
+  return [spec, role].filter(Boolean).join(" • ");
+}
+
 function RoleRow({ label, item, role }: { label: string; item?: RaidSignup | null; role: "tank" | "healer" | "dps" }) {
   return (
     <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
       <span className="raid-role-label">{label}</span>
-      <strong>{signupDisplayName(item)}</strong>
+      <span className="raid-party-member-copy">
+        <strong>{signupDisplayName(item)}</strong>
+        {item ? <small>{signupSpecLabel(item)}</small> : null}
+      </span>
     </div>
   );
 }
@@ -75,7 +86,7 @@ function RosterBlock({ title, items, empty = "Поки порожньо" }: { ti
         <div className="raid-roster-member" key={`${title}-${item.discordId}`}>
           <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
           <strong>{signupDisplayName(item)}</strong>
-          <small>{item.className || item.discordName}</small>
+          <small>{signupSpecLabel(item) || item.discordName}</small>
         </div>
       )) : <p>{empty}</p>}
     </div>

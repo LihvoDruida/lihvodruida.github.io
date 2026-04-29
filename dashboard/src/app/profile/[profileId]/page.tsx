@@ -3,6 +3,7 @@ import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkAction
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { wowRoleLabel } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -150,6 +151,8 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
 function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
   const guildLabel = character.guildName || "Mistblossom Vanguard";
   const classLabel = character.className || "Клас невідомий";
+  const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
+  const roleLabel = wowRoleLabel(character.activeSpecRole);
   const levelLabel = character.level ? `Рівень ${character.level}` : "Рівень —";
   const itemLevel = typeof character.itemLevel === "number" ? character.itemLevel : null;
 
@@ -170,7 +173,8 @@ function CharacterCard({ character, canManage }: { character: ProfileCharacter; 
 
         <div className="profile-character-meta">
           <span>{levelLabel}</span>
-          <span>{classLabel}</span>
+          <span>{specLabel}</span>
+          <span>{roleLabel}</span>
           {character.realmName ? <span>{character.realmName}</span> : null}
         </div>
 
@@ -223,7 +227,7 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
       </span>
       <span className="profile-character-candidate__body">
         <strong>{character.name}</strong>
-        <small>{character.realmName} • {character.className || "Клас невідомий"} • Level {character.level || "—"}</small>
+        <small>{character.realmName} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)} • Level {character.level || "—"}</small>
       </span>
       <form action="/api/profile/characters/add" method="post">
         <input type="hidden" name="characterKey" value={character.key} />

@@ -9349,3 +9349,19 @@ form.is-submitting button[type="submit"],
     flex: 1 1 120px;
   }
 }
+
+.raid-party-member-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.raid-party-member-copy small {
+  min-width: 0;
+  color: rgba(230, 219, 201, .58);
+  font-size: .68rem;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -30,7 +30,11 @@ type CandidateCookieTuple = [
   guildRealmSlug: string | null,
   avatarUrl: string | null,
   renderUrl: string | null,
-  lastSeenAt: string | null
+  lastSeenAt: string | null,
+  itemLevel?: number | null,
+  activeSpecName?: string | null,
+  activeSpecId?: number | null,
+  activeSpecRole?: string | null
 ];
 
 type CandidateCookiePayloadV2 = {
@@ -88,6 +92,9 @@ function compactCandidate(character: BattleNetCharacterCandidate): BattleNetChar
     level: character.level,
     faction: character.faction,
     className: character.className,
+    activeSpecName: character.activeSpecName || null,
+    activeSpecId: Number.isFinite(Number(character.activeSpecId)) ? Number(character.activeSpecId) : null,
+    activeSpecRole: character.activeSpecRole || "dps",
     raceName: character.raceName,
     genderName: character.genderName,
     guildName: character.guildName,
@@ -97,6 +104,7 @@ function compactCandidate(character: BattleNetCharacterCandidate): BattleNetChar
     renderUrl: character.renderUrl,
     mediaUrl: null,
     verifiedGuild: character.verifiedGuild,
+    itemLevel: Number.isFinite(Number(character.itemLevel)) ? Number(character.itemLevel) : null,
     lastSeenAt: character.lastSeenAt,
   };
 }
@@ -127,6 +135,10 @@ function toCandidateTuple(character: BattleNetCharacterCandidate): CandidateCook
     optionalText(character.avatarUrl),
     optionalText(character.renderUrl),
     optionalText(character.lastSeenAt),
+    Number.isFinite(Number(character.itemLevel)) ? Number(character.itemLevel) : null,
+    optionalText(character.activeSpecName),
+    Number.isFinite(Number(character.activeSpecId)) ? Number(character.activeSpecId) : null,
+    optionalText(character.activeSpecRole),
   ];
 }
 
@@ -147,6 +159,10 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     avatarUrl,
     renderUrl,
     lastSeenAt,
+    itemLevel,
+    activeSpecName,
+    activeSpecId,
+    activeSpecRole,
   ] = tuple;
 
   const safeKey = normalizeCharacterKey(key) || buildBattleNetCharacterKey(region, realmSlug, normalizedName || name);
@@ -163,6 +179,9 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     level: Number.isFinite(Number(level)) ? Number(level) : null,
     faction: emptyToNull(faction),
     className: emptyToNull(className),
+    activeSpecName: emptyToNull(activeSpecName),
+    activeSpecId: Number.isFinite(Number(activeSpecId)) ? Number(activeSpecId) : null,
+    activeSpecRole: (emptyToNull(activeSpecRole) || "dps") as any,
     raceName: emptyToNull(raceName),
     genderName: emptyToNull(genderName),
     guildName: emptyToNull(guildName),
@@ -172,6 +191,7 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     renderUrl: emptyToNull(renderUrl),
     mediaUrl: null,
     verifiedGuild: true,
+    itemLevel: Number.isFinite(Number(itemLevel)) ? Number(itemLevel) : null,
     lastSeenAt: optionalText(lastSeenAt) || new Date(0).toISOString(),
   };
 }

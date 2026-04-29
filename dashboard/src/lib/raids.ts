@@ -2,6 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordEmbedMessage,
   discordMessageUrl,
@@ -32,6 +33,8 @@ export type RaidSignup = {
   realmSlug?: string | null;
   region?: string | null;
   className?: string | null;
+  activeSpecName?: string | null;
+  activeSpecId?: number | null;
   avatarUrl?: string | null;
   itemLevel?: number | null;
   profileUrl?: string | null;
@@ -151,14 +154,19 @@ function cleanSignupStatus(value: unknown): RaidSignupStatus {
 
 function cleanRole(value: unknown): RaidCharacterRole {
   const key = cleanString(value, 30).toLowerCase();
-  if (["tank", "танк", "protection", "blood", "guardian", "brewmaster", "vengeance"].some((item) => key.includes(item))) return "tank";
-  if (["heal", "healer", "хіл", "лікар", "restoration", "holy", "discipline", "mistweaver", "preservation"].some((item) => key.includes(item))) return "healer";
+  if (["tank", "танк"].some((item) => key.includes(item))) return "tank";
+  if (["heal", "healer", "healing", "хіл", "лікар"].some((item) => key.includes(item))) return "healer";
   return "dps";
 }
 
 function characterRole(character?: ProfileCharacter | null): RaidCharacterRole {
-  const classText = `${character?.className || ""} ${character?.name || ""}`;
-  return cleanRole(classText);
+  if (!character) return "dps";
+  return resolveWowCharacterRole({
+    className: character.className,
+    activeSpecName: character.activeSpecName,
+    activeSpecId: character.activeSpecId,
+    activeSpecRole: character.activeSpecRole,
+  });
 }
 
 function profileMainLabel(profile?: DashboardProfile | null) {
@@ -191,17 +199,28 @@ function normalizeSignup(value: unknown): RaidSignup | null {
   if (!/^\d{16,25}$/.test(discordId)) return null;
 
   const ilvl = Number(item.itemLevel);
+  const activeSpecId = Number(item.activeSpecId || item.active_spec_id);
+  const activeSpecName = cleanString(item.activeSpecName || item.active_spec_name || item.specName || item.spec_name, 80) || null;
+  const className = cleanString(item.className, 80) || null;
+  const resolvedRole = resolveWowCharacterRole({
+    className,
+    activeSpecName,
+    activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
+    activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
+  });
   return {
     discordId,
     discordName: cleanString(item.discordName, 100) || "Discord user",
     profileId: cleanString(item.profileId, 80) || null,
     status: cleanSignupStatus(item.status),
-    role: cleanRole(item.role),
+    role: resolvedRole,
     characterName: cleanString(item.characterName, 80) || null,
     realmName: cleanString(item.realmName, 120) || null,
     realmSlug: cleanString(item.realmSlug, 120) || null,
     region: cleanString(item.region, 12) || null,
-    className: cleanString(item.className, 80) || null,
+    className,
+    activeSpecName,
+    activeSpecId: Number.isFinite(activeSpecId) ? Math.floor(activeSpecId) : null,
     avatarUrl: cleanUrl(item.avatarUrl),
     itemLevel: Number.isFinite(ilvl) && ilvl > 0 ? Math.floor(ilvl) : null,
     profileUrl: cleanUrl(item.profileUrl),
@@ -410,9 +429,10 @@ function compositionLongLabel(raid: RaidAutoInput) {
 function signupName(item?: RaidSignup | null) {
   if (!item) return "—";
   const name = item.characterName || item.discordName || "Гравець";
-  const ilvl = item.itemLevel ? ` ${item.itemLevel} ilvl` : "";
+  const spec = item.activeSpecName ? ` • ${item.activeSpecName}` : "";
+  const ilvl = item.itemLevel ? ` • ${item.itemLevel} ilvl` : "";
   const late = item.status === "late" ? " ⏱" : "";
-  return `${name}${ilvl}${late}`;
+  return `${name}${spec}${ilvl}${late}`;
 }
 
 function truncateDiscordField(value: string, max = 1024) {
@@ -627,6 +647,8 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     realmSlug: main?.realmSlug || null,
     region: main?.region || "eu",
     className: main?.className || null,
+    activeSpecName: main?.activeSpecName || null,
+    activeSpecId: Number.isFinite(Number(main?.activeSpecId)) ? Number(main?.activeSpecId) : null,
     avatarUrl: main?.avatarUrl || main?.renderUrl || main?.mediaUrl || null,
     itemLevel: Number.isFinite(Number(main?.itemLevel)) ? Number(main?.itemLevel) : null,
     profileUrl: main?.profileUrl || null,
