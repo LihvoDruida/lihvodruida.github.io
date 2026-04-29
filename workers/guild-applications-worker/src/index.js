@@ -2292,8 +2292,26 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
       return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";
     }
 
-    logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", { raidId: raidAction.raidId, action: raidAction.action, ok: Boolean(data.ok) });
-    return limitText(data.content || "Дію оброблено.", 1800, "Дію оброблено.");
+    const warning = typeof data.warning === "string" ? data.warning.trim() : "";
+    let content = String(data.content || "Дію оброблено.");
+    if (warning && !content.includes(warning)) content = `${content}
+
+${warning}`;
+
+    logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", {
+      raidId: raidAction.raidId,
+      action: raidAction.action,
+      ok: Boolean(data.ok),
+      has_item_level_warning: Boolean(warning),
+    });
+    if (warning) {
+      logWorkerEvent("warn", "raid_announcement.proxy.item_level_warning", {
+        raidId: raidAction.raidId,
+        action: raidAction.action,
+        userId: getDiscordUserId(interaction),
+      });
+    }
+    return limitText(content, 1800, "Дію оброблено.");
   } catch (error) {
     logWorkerEvent("error", "raid_announcement.proxy.failed", { raidId: raidAction.raidId, action: raidAction.action, message: error?.message });
     return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";

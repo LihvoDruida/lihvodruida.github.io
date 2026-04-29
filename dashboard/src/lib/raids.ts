@@ -967,7 +967,8 @@ export async function handleRaidDiscordAction(params: {
 
   const signup = signupFromProfile(params.action, params.userId, params.userName, profile);
   const updated = await recordRaidSignup(raid.id, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), raid: updated };
+  const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
+  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), warning, raid: updated };
 }
 
 export async function handleRaidSessionAction(params: {
@@ -1005,7 +1006,8 @@ export async function handleRaidSessionAction(params: {
 
   const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile);
   const updated = await recordRaidSignup(raid.id, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), raid: updated };
+  const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
+  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), warning, raid: updated };
 }
 
 export function dashboardRaidUrl(raidId: string) {
