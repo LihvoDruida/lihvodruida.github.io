@@ -7,6 +7,16 @@ import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDash
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 import { upsertProfileFromSession } from "@/lib/profiles";
 
+const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
+
+function safeNextPath(value: string | null | undefined) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 220) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (/^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  return "";
+}
+
 function loginRedirect(error: string) {
   const response = NextResponse.redirect(`${getDashboardUrl()}/login?error=${encodeURIComponent(error)}`, 303);
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
@@ -29,8 +39,10 @@ export async function GET(request: NextRequest) {
 
   const store = await cookies();
   const expectedState = store.get(OAUTH_STATE_COOKIE)?.value || store.get(LEGACY_OAUTH_STATE_COOKIE)?.value || "";
+  const nextPath = safeNextPath(store.get(LOGIN_NEXT_COOKIE)?.value);
   store.delete(OAUTH_STATE_COOKIE);
   store.delete(LEGACY_OAUTH_STATE_COOKIE);
+  store.delete(LOGIN_NEXT_COOKIE);
 
   if (!code || !state || state !== expectedState) {
     logDashboardEvent("warn", "auth.discord.callback.state_mismatch", request, { hasCode: Boolean(code), hasState: Boolean(state), hasExpectedState: Boolean(expectedState) });
@@ -74,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     await setSession(session);
 
-    const redirectPath = role === "member" ? `/profile/${session.profileId}` : "/";
+    const redirectPath = nextPath || (role === "member" ? `/profile/${session.profileId}` : "/");
     const response = NextResponse.redirect(`${getDashboardUrl()}${redirectPath}`, 303);
     for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
     return response;

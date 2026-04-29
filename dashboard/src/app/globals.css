@@ -7454,6 +7454,7 @@ form.is-submitting button[type="submit"],
 .profile-card--identity,
 .profile-card--roles,
 .profile-card--characters,
+.profile-card--raids,
 .profile-card--capabilities {
   contain: layout paint;
 }
@@ -9364,4 +9365,111 @@ form.is-submitting button[type="submit"],
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Profile raid participation */
+.profile-card--raids {
+  grid-column: 1 / -1;
+}
+
+.profile-raid-list {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-raid-list--nested {
+  margin-top: 10px;
+}
+
+.profile-raid-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.25fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(188, 141, 72, .22);
+  border-radius: 16px;
+  background: rgba(7, 11, 16, .62);
+}
+
+.profile-raid-card--going { border-color: rgba(73, 205, 93, .28); }
+.profile-raid-card--late { border-color: rgba(255, 175, 57, .36); }
+.profile-raid-card--skipped { opacity: .72; }
+
+.profile-raid-card__main {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.profile-raid-card__main strong {
+  display: block;
+  color: #f2e5ce;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-raid-card__main small,
+.profile-raid-card__meta small {
+  display: block;
+  color: rgba(236, 226, 207, .58);
+  font-size: .76rem;
+}
+
+.profile-raid-card__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 166, 58, .32);
+  background: rgba(0,0,0,.28);
+}
+
+.profile-raid-card__meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.profile-raid-card__meta span {
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.profile-raid-card__meta strong {
+  display: block;
+  color: #e8decf;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-raid-skipped {
+  margin-top: 4px;
+  color: rgba(236, 226, 207, .72);
+}
+
+.profile-raid-skipped summary {
+  cursor: pointer;
+  color: #d9c08e;
+  font-weight: 800;
+}
+
+.profile-empty-characters--compact {
+  margin-top: 10px;
+}
+
+@media (max-width: 860px) {
+  .profile-raid-card,
+  .profile-raid-card__meta {
+    grid-template-columns: 1fr;
+  }
 }

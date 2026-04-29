@@ -5,6 +5,14 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function safeNextPath(value?: string) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 220) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (/^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  return "";
+}
+
 function errorText(error?: string) {
   if (!error) return null;
 
@@ -24,12 +32,13 @@ function errorText(error?: string) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  if (await isAuthenticated()) redirect("/");
+  const params = await searchParams;
+  const nextPath = safeNextPath(params.next);
+  if (await isAuthenticated()) redirect(nextPath || "/");
 
   const guild = await getGuildBranding();
-  const params = await searchParams;
   const error = errorText(params.error);
   const hasDiscord = Boolean(process.env.DISCORD_OAUTH_CLIENT_ID);
   const hasTokenFallback = Boolean(process.env.ADMIN_DASHBOARD_TOKEN);
@@ -83,7 +92,7 @@ export default async function LoginPage({
 
           <div className="login-action-row">
             {hasDiscord ? (
-              <a className="login-discord-button" href="/api/auth/discord/start">
+              <a className="login-discord-button" href={nextPath ? `/api/auth/discord/start?next=${encodeURIComponent(nextPath)}` : "/api/auth/discord/start"}>
                 <span className="login-discord-button__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false">
                     <path

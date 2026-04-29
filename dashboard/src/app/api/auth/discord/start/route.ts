@@ -4,6 +4,16 @@ import { OAUTH_STATE_COOKIE } from "@/lib/auth";
 import { buildDiscordOAuthUrl, randomState } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
+const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
+
+function safeNextPath(value: string | null) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 220) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (/^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  return "";
+}
+
 export async function GET(request: NextRequest) {
   logDashboardEvent("info", "auth.discord.start", request);
 
@@ -18,6 +28,7 @@ export async function GET(request: NextRequest) {
   }
 
   const state = randomState();
+  const nextPath = safeNextPath(new URL(request.url).searchParams.get("next"));
   const store = await cookies();
   store.set(OAUTH_STATE_COOKIE, state, {
     httpOnly: true,
@@ -26,6 +37,17 @@ export async function GET(request: NextRequest) {
     path: "/",
     maxAge: 60 * 10,
   });
+  if (nextPath) {
+    store.set(LOGIN_NEXT_COOKIE, nextPath, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 10,
+    });
+  } else {
+    store.delete(LOGIN_NEXT_COOKIE);
+  }
 
   const response = NextResponse.redirect(buildDiscordOAuthUrl(state));
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);

@@ -246,6 +246,10 @@ function toastFromAttendance(value: string | null): Toast | null {
   return null;
 }
 
+function normalizeToastTone(value: unknown): ToastTone {
+  return value === "success" || value === "warning" || value === "error" || value === "info" ? value : "info";
+}
+
 function toastFromCookie(): Toast[] {
   if (typeof document === "undefined") return [];
 
@@ -261,14 +265,14 @@ function toastFromCookie(): Toast[] {
     const parsed = JSON.parse(value) as Partial<Toast> | Partial<Toast>[];
     const items = Array.isArray(parsed) ? parsed : [parsed];
     return items
-      .map((item) => ({
+      .map((item): Toast => ({
         id: createId("flash"),
-        tone: item.tone === "success" || item.tone === "warning" || item.tone === "error" ? item.tone : "info",
+        tone: normalizeToastTone(item.tone),
         title: cleanMessage(item.title, 96),
         message: cleanMessage(item.message, 520),
         ttl: typeof item.ttl === "number" ? item.ttl : undefined,
       }))
-      .filter((item) => item.title);
+      .filter((item) => Boolean(item.title));
   } catch {
     return [];
   }
@@ -413,10 +417,10 @@ export default function GlobalToasts() {
     function onToast(event: Event) {
       const detail = (event as CustomEvent<Partial<Toast>>).detail || {};
       pushToast({
-        tone: detail.tone || "info",
+        tone: normalizeToastTone(detail.tone),
         title: cleanMessage(detail.title) || "Обробка дії",
         message: cleanMessage(detail.message),
-        ttl: detail.ttl,
+        ttl: typeof detail.ttl === "number" ? detail.ttl : undefined,
       });
     }
 

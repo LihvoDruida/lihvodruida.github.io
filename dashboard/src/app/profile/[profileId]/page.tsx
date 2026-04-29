@@ -3,6 +3,13 @@ import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkAction
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import {
+  listProfileRaidSignups,
+  raidAutoCapacity,
+  raidAutoCompositionLabel,
+  raidTitle,
+  type ProfileRaidSignup,
+} from "@/lib/raids";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
@@ -208,6 +215,77 @@ function CharacterCard({ character, canManage }: { character: ProfileCharacter; 
   );
 }
 
+function raidSignupStatusLabel(status: string) {
+  if (status === "going") return "Підписаний";
+  if (status === "late") return "Затримаюсь";
+  if (status === "skipped") return "Пропускає";
+  return "Невідомо";
+}
+
+function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
+  const characterLabel = item.signup.characterName
+    ? `${item.signup.characterName}${item.signup.realmName ? ` • ${item.signup.realmName}` : ""}`
+    : item.signup.discordName || "Без персонажа";
+  const specLabel = [item.signup.activeSpecName, item.signup.className].filter(Boolean).join(" • ");
+  const activeRoster = item.raid.signups.filter((signup) => signup.status === "going" || signup.status === "late").length;
+  const composition = `${activeRoster} / ${raidAutoCapacity(item.raid)} • ${raidAutoCompositionLabel(item.raid)}`;
+
+  return (
+    <article className={`profile-raid-card profile-raid-card--${item.signup.status}`}>
+      <a className="profile-raid-card__main" href={`/raids/${encodeURIComponent(item.raid.id)}`}>
+        <span className="profile-raid-card__icon" aria-hidden="true">⚔</span>
+        <span>
+          <strong>{raidTitle(item.raid)}</strong>
+          <small>{[item.raid.date, item.raid.time].filter(Boolean).join(", ") || "Дата уточнюється"}</small>
+        </span>
+      </a>
+      <div className="profile-raid-card__meta">
+        <span><strong>{raidSignupStatusLabel(item.signup.status)}</strong><small>Статус</small></span>
+        <span><strong>{characterLabel}</strong><small>Персонаж</small></span>
+        <span><strong>{wowRoleLabel(item.signup.role)}</strong><small>{specLabel || "Роль"}</small></span>
+        <span><strong>{composition}</strong><small>Склад</small></span>
+      </div>
+    </article>
+  );
+}
+
+function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
+  const active = items.filter((item) => item.signup.status === "going" || item.signup.status === "late");
+  const skipped = items.filter((item) => item.signup.status === "skipped");
+
+  return (
+    <article className="panel profile-card profile-card--raids">
+      <div className="profile-card-head profile-card-head--inline">
+        <div>
+          <span className="eyebrow">Рейди</span>
+          <h2>Мої записи</h2>
+        </div>
+        <span className="profile-count-pill">{active.length}</span>
+      </div>
+      <p className="profile-card-lead">Тут видно, на який рейд підписався учасник і яким персонажем він іде. Дані беруться з main-персонажа на момент запису.</p>
+
+      {items.length ? (
+        <div className="profile-raid-list">
+          {active.map((item) => <ProfileRaidSignupCard key={`${item.raid.id}-${item.signup.discordId}`} item={item} />)}
+          {skipped.length ? (
+            <details className="profile-raid-skipped">
+              <summary>Пропущені рейди: {skipped.length}</summary>
+              <div className="profile-raid-list profile-raid-list--nested">
+                {skipped.map((item) => <ProfileRaidSignupCard key={`${item.raid.id}-${item.signup.discordId}-skipped`} item={item} />)}
+              </div>
+            </details>
+          ) : null}
+        </div>
+      ) : (
+        <div className="profile-empty-characters profile-empty-characters--compact">
+          <strong>Записів на рейди ще немає</strong>
+          <span>Коли учасник натисне “Підписатися” або “Затримаюсь”, запис зʼявиться тут.</span>
+        </div>
+      )}
+    </article>
+  );
+}
+
 function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
   return (
     <li className="profile-character-candidate">
@@ -325,6 +403,7 @@ export default async function ProfilePage({
   const otherRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? []
     : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
+  const raidSignups = await listProfileRaidSignups(profile).catch(() => []);
 
   return (
     <main className="container">
@@ -520,6 +599,8 @@ export default async function ProfilePage({
             </div>
           ) : null}
         </article>
+
+        <ProfileRaidSignups items={raidSignups} />
 
         <article className="panel profile-card profile-card--capabilities">
           <div className="profile-card-head profile-card-head--inline">

@@ -362,6 +362,32 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
   return normalizeRaid(snapshot.id, snapshot.data() || {});
 }
 
+export type ProfileRaidSignup = {
+  raid: RaidItem;
+  signup: RaidSignup;
+};
+
+function signupMatchesProfile(signup: RaidSignup, profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId">) {
+  if (signup.profileId && signup.profileId === profile.profileId) return true;
+  if (profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId || "")) {
+    return signup.discordId === profile.providerUserId;
+  }
+  return false;
+}
+
+export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId">, limit = 80): Promise<ProfileRaidSignup[]> {
+  if (!profile?.profileId || !hasRaidStorage()) return [];
+
+  const raids = await listRaids(Math.max(20, Math.min(120, limit)));
+  return raids
+    .map((raid) => {
+      const signup = raid.signups.find((item) => signupMatchesProfile(item, profile));
+      return signup ? { raid, signup } : null;
+    })
+    .filter((item): item is ProfileRaidSignup => Boolean(item))
+    .sort((a, b) => `${b.raid.date} ${b.raid.time}`.localeCompare(`${a.raid.date} ${a.raid.time}`));
+}
+
 function cleanRaidId(value: unknown) {
   const text = cleanString(value, 80);
   return /^[A-Za-z0-9_-]{8,80}$/.test(text) ? text : "";

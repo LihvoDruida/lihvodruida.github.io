@@ -1,6 +1,9 @@
 export type WowCharacterRole = "tank" | "healer" | "dps";
 
 const ROLE_BY_SPEC_ID: Record<number, WowCharacterRole> = {
+  62: "dps", // Mage — Arcane
+  63: "dps", // Mage — Fire
+  64: "dps", // Mage — Frost
   65: "healer", // Paladin — Holy
   66: "tank", // Paladin — Protection
   70: "dps", // Paladin — Retribution
@@ -49,6 +52,14 @@ const ROLE_BY_SPEC_KEY: Record<string, WowCharacterRole> = {
   restoration: "healer",
   holy: "healer",
   discipline: "healer",
+  світло: "healer",
+  свет: "healer",
+  святость: "healer",
+  послушание: "healer",
+  відновлення: "healer",
+  восстановление: "healer",
+  restorationdruid: "healer",
+  restorationshaman: "healer",
   mistweaver: "healer",
   preservation: "healer",
 
@@ -61,6 +72,7 @@ const ROLE_BY_SPEC_KEY: Record<string, WowCharacterRole> = {
   survival: "dps",
   arcane: "dps",
   fire: "dps",
+  frostmage: "dps",
   shadow: "dps",
   assassination: "dps",
   outlaw: "dps",
@@ -114,10 +126,36 @@ export function resolveWowCharacterRole(input: {
   activeSpecName?: unknown;
   className?: unknown;
 }): WowCharacterRole {
-  return normalizeWowRole(input.activeSpecRole)
-    || wowSpecRoleById(input.activeSpecId)
-    || wowSpecRoleByName(input.activeSpecName)
-    || "dps";
+  const explicitRole = normalizeWowRole(input.activeSpecRole);
+  if (explicitRole) return explicitRole;
+
+  const roleById = wowSpecRoleById(input.activeSpecId);
+  if (roleById) return roleById;
+
+  const specKey = normalizeKey(input.activeSpecName);
+  const classKey = normalizeKey(input.className);
+
+  // Blizzard can return localized names. Keep a defensive keyword pass for
+  // Ukrainian/Russian clients and for names that arrive with class suffixes.
+  if (["blood", "кров", "кровь", "guardian", "страж", "brewmaster", "хмелевар", "vengeance", "месть"].some((key) => specKey.includes(key))) {
+    return "tank";
+  }
+  if (specKey.includes("protection") || specKey.includes("защита") || specKey.includes("захист")) {
+    return "tank";
+  }
+  if (["restoration", "відновлення", "восстановление", "holy", "світло", "свет", "discipline", "послушание", "mistweaver", "ткачтуманов", "preservation", "сохранение"].some((key) => specKey.includes(key))) {
+    return "healer";
+  }
+
+  const roleByName = wowSpecRoleByName(input.activeSpecName);
+  if (roleByName) return roleByName;
+
+  if ((classKey.includes("paladin") || classKey.includes("warrior") || classKey.includes("палад") || classKey.includes("воин") || classKey.includes("воїн"))
+    && (specKey.includes("protection") || specKey.includes("защита") || specKey.includes("захист"))) {
+    return "tank";
+  }
+
+  return "dps";
 }
 
 export function wowRoleLabel(role: WowCharacterRole | null | undefined) {
