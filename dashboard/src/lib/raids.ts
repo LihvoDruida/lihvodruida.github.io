@@ -157,7 +157,7 @@ export function defaultRaidThumbnailPath(difficulty: RaidDifficulty) {
   return RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic;
 }
 
-export function resolveRaidThumbnailUrl(input: { title?: string | null; difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
+export function resolveRaidThumbnailUrl(input: { difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
   const explicitThumb = cleanUrl(input.thumbnailUrl);
   if (explicitThumb) return explicitThumb;
   const explicitImage = cleanUrl(input.imageUrl);
@@ -358,7 +358,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     difficulty,
     date: cleanString(data.date, 20),
     time: cleanString(data.time, 20),
-    description: cleanString(data.description, 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    description: cleanString(data.description, 4096) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
     minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
     maxPlayers: cleanOptionalMaxPlayers(data.maxPlayers ?? data.max_players ?? data.registrationLimit),
@@ -417,6 +417,11 @@ const BASE_RAID_COMPOSITION_TIERS: RaidComposition[] = [
   { tanks: 2, healers: 6, dps: 22 },
 ];
 
+const MYTHIC_RAID_COMPOSITION_TIERS: RaidComposition[] = [
+  { tanks: 2, healers: 2, dps: 6 },
+  { tanks: 2, healers: 4, dps: 14 },
+];
+
 function compositionCapacity(composition: RaidComposition) {
   return composition.tanks + composition.healers + composition.dps;
 }
@@ -430,11 +435,17 @@ function normalizeRoleDemand(value?: Partial<RaidComposition> | null): RaidCompo
   };
 }
 
+function compositionWithTankOverflow(composition: RaidComposition, roleDemand?: RaidComposition | null): RaidComposition {
+  if (!roleDemand || roleDemand.tanks <= composition.tanks) return composition;
+  return { ...composition, tanks: roleDemand.tanks };
+}
+
 function compositionFitsRoster(composition: RaidComposition, activeSize: number, roleDemand?: RaidComposition | null) {
-  if (activeSize > compositionCapacity(composition)) return false;
+  const target = compositionWithTankOverflow(composition, roleDemand);
+  if (activeSize > compositionCapacity(target)) return false;
   if (!roleDemand) return true;
-  return roleDemand.healers <= composition.healers
-    && roleDemand.dps <= composition.dps;
+  return roleDemand.healers <= target.healers
+    && roleDemand.dps <= target.dps;
 }
 
 function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
@@ -450,25 +461,36 @@ export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficu
   const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
   const demand = normalizeRoleDemand(roleDemand);
   const baseTiers = difficulty === "mythic"
-    ? BASE_RAID_COMPOSITION_TIERS.slice(0, 2)
+    ? MYTHIC_RAID_COMPOSITION_TIERS
     : BASE_RAID_COMPOSITION_TIERS;
 
   for (const tier of baseTiers) {
-    if (compositionFitsRoster(tier, activeSize, demand)) return tier;
+    if (compositionFitsRoster(tier, activeSize, demand)) return compositionWithTankOverflow(tier, demand);
   }
 
   if (difficulty === "mythic") {
-    return baseTiers[baseTiers.length - 1];
+    let mythicOverflow = compositionWithTankOverflow({ ...baseTiers[baseTiers.length - 1] }, demand);
+    if (demand) {
+      mythicOverflow = {
+        tanks: Math.max(mythicOverflow.tanks, demand.tanks),
+        healers: Math.max(mythicOverflow.healers, demand.healers),
+        dps: Math.max(mythicOverflow.dps, demand.dps),
+      };
+    }
+    const missingCapacity = activeSize - compositionCapacity(mythicOverflow);
+    return missingCapacity > 0
+      ? { ...mythicOverflow, dps: mythicOverflow.dps + missingCapacity }
+      : mythicOverflow;
   }
 
-  let dynamicTier = { ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] };
+  let dynamicTier = compositionWithTankOverflow({ ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] }, demand);
   let guard = 0;
   while (!compositionFitsRoster(dynamicTier, activeSize, demand) && guard < 20) {
-    dynamicTier = {
-      tanks: 2,
+    dynamicTier = compositionWithTankOverflow({
+      tanks: dynamicTier.tanks,
       healers: dynamicTier.healers + 2,
       dps: dynamicTier.dps + 8,
-    };
+    }, demand);
     guard += 1;
   }
   return dynamicTier;
@@ -666,7 +688,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     difficulty,
     date: cleanString(form.get("date"), 20),
     time: cleanString(form.get("time"), 20),
-    description: cleanString(form.get("description"), 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    description: cleanString(form.get("description"), 4096) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
     maxPlayers: cleanOptionalMaxPlayers(form.get("maxPlayers")),
@@ -909,6 +931,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
           : "⚠️ Лише попередження, запис не блокується",
       ].join("\n")
     : null;
+  const description = truncateDiscordField(raid.description, 4096);
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: "📌 Статус",
@@ -955,12 +978,13 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`, inline: false }]
       : []),
   ];
-  const fields = compactDiscordFields(rawFields);
+  const fieldsBudget = Math.max(1200, 5800 - description.length - raidTitle(raid).length);
+  const fields = compactDiscordFields(rawFields, fieldsBudget);
 
   const embed = normalizeDiscordEmbed({
     title: closed ? `${raidTitle(raid)} • Закрито` : raidTitle(raid),
     url: dashboardRaidUrl(raid.id),
-    description: raid.description,
+    description,
     color: DIFFICULTY_COLORS[raid.difficulty],
     thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
     image: imageUrl ? { url: imageUrl } : undefined,
