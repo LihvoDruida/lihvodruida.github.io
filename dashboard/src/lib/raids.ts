@@ -53,6 +53,7 @@ export type RaidItem = {
   time: string;
   description: string;
   minItemLevel?: number | null;
+  minItemLevelRequired?: boolean | null;
   imageUrl?: string | null;
   thumbnailUrl?: string | null;
   createdByDiscordId: string;
@@ -256,6 +257,12 @@ function cleanOptionalItemLevel(value: unknown) {
   return Math.max(1, Math.min(9999, Math.floor(num)));
 }
 
+function cleanBoolean(value: unknown) {
+  if (value === true) return true;
+  const key = cleanString(value, 20).toLowerCase();
+  return key === "1" || key === "true" || key === "on" || key === "yes" || key === "required" || key === "block";
+}
+
 function normalizeSignup(value: unknown): RaidSignup | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
@@ -308,6 +315,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     time: cleanString(data.time, 20),
     description: cleanString(data.description, 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
+    minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
     imageUrl: cleanUrl(data.imageUrl),
     thumbnailUrl: cleanUrl(data.thumbnailUrl),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
@@ -537,6 +545,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     time: cleanString(form.get("time"), 20),
     description: cleanString(form.get("description"), 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
+    minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
     imageUrl: cleanUrl(form.get("imageUrl")),
     thumbnailUrl: cleanUrl(form.get("thumbnailUrl")),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
@@ -739,8 +748,15 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const rosterValue = [
     `${counts.roster} / ${raidAutoCapacity(raid)}`,
     compositionLongLabel(raid),
-    raid.minItemLevel ? `Мін. ilvl: ${raid.minItemLevel}` : null,
   ].filter(Boolean).join("\n");
+  const minItemLevelValue = raid.minItemLevel
+    ? [
+        `**Мінімум:** ${raid.minItemLevel}`,
+        raid.minItemLevelRequired
+          ? "⛔ Запис блокується, якщо персонаж нижче порогу"
+          : "⚠️ Лише попередження, запис не блокується",
+      ].join("\n")
+    : null;
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: "📌 Статус",
@@ -772,6 +788,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: rosterValue,
       inline: true,
     },
+    ...(minItemLevelValue ? [{ name: "⭐ Item level", value: minItemLevelValue, inline: true }] : []),
     {
       name: "⚔️ Ролі",
       value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
@@ -953,6 +970,8 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
     const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
     if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
     if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
+    const block = raidMinItemLevelBlockMessage(raid, signup);
+    if (block) throw new Error(block);
     const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
     nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
     transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
@@ -974,10 +993,31 @@ async function syncRaidDiscordAfterSignup(raid: RaidItem) {
   }
 }
 
-export function raidMinItemLevelWarning(raid: Pick<RaidItem, "minItemLevel">, signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName"> | null) {
+export function raidMinItemLevelBlockMessage(
+  raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
+  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
+) {
+  const required = Number(raid.minItemLevel || 0);
+  if (!raid.minItemLevelRequired || !required || !Number.isFinite(required) || signup?.status === "skipped") return null;
+
+  const current = Number(signup?.itemLevel || 0);
+  const name = signup?.characterName || signup?.discordName || "Персонаж";
+  if (!current || !Number.isFinite(current)) {
+    return `⛔ ${name}: item level не визначено. Для цього рейду потрібен мінімум ${Math.floor(required)}. Запис заблоковано.`;
+  }
+  if (current < required) {
+    return `⛔ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Запис заблоковано для цього рейду.`;
+  }
+  return null;
+}
+
+export function raidMinItemLevelWarning(
+  raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
+  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
+) {
   const required = Number(raid.minItemLevel || 0);
   const current = Number(signup?.itemLevel || 0);
-  if (!required || !Number.isFinite(required) || !current || !Number.isFinite(current) || current >= required) return null;
+  if (raid.minItemLevelRequired || signup?.status === "skipped" || !required || !Number.isFinite(required) || !current || !Number.isFinite(current) || current >= required) return null;
   const name = signup?.characterName || signup?.discordName || "Персонаж";
   return `⚠️ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Ти записаний, але краще підняти спорядження перед рейдом.`;
 }
@@ -1020,6 +1060,8 @@ export async function handleRaidDiscordAction(params: {
   }
 
   const signup = signupFromProfile(params.action, params.userId, params.userName, profile);
+  const block = raidMinItemLevelBlockMessage(raid, signup);
+  if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
   const discordSynced = await syncRaidDiscordAfterSignup(updated);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
@@ -1060,6 +1102,8 @@ export async function handleRaidSessionAction(params: {
   }
 
   const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile);
+  const block = raidMinItemLevelBlockMessage(raid, signup);
+  if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
   const discordSynced = await syncRaidDiscordAfterSignup(updated);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);

@@ -2298,13 +2298,21 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 
 ${warning}`;
 
+    const blockedByMinItemLevel = Boolean(data.blockedByMinItemLevel || String(content).includes("Запис заблоковано"));
     logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", {
       raidId: raidAction.raidId,
       action: raidAction.action,
       ok: Boolean(data.ok),
       has_item_level_warning: Boolean(warning),
+      blocked_by_min_item_level: blockedByMinItemLevel,
     });
-    if (warning) {
+    if (blockedByMinItemLevel) {
+      logWorkerEvent("warn", "raid_announcement.proxy.item_level_blocked", {
+        raidId: raidAction.raidId,
+        action: raidAction.action,
+        userId: getDiscordUserId(interaction),
+      });
+    } else if (warning) {
       logWorkerEvent("warn", "raid_announcement.proxy.item_level_warning", {
         raidId: raidAction.raidId,
         action: raidAction.action,

@@ -10301,3 +10301,27 @@ button.btn.danger:hover {
   text-overflow: clip;
   line-height: 1.25;
 }
+
+.raid-checkbox-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(214, 169, 83, 0.28);
+  border-radius: 12px;
+  background: rgba(214, 169, 83, 0.06);
+  color: var(--text-primary, #f3ead7);
+  font-weight: 700;
+}
+
+.raid-checkbox-line input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: #d6a953;
+}
+
+.raid-party-row.is-blocked {
+  border-color: rgba(237, 66, 69, 0.45);
+  background: rgba(237, 66, 69, 0.08);
+}

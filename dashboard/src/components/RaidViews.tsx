@@ -14,6 +14,7 @@ import {
   raidRosterCounts,
   raidTitle,
   raidMinItemLevelWarning,
+  raidMinItemLevelBlockMessage,
   type RaidItem,
   type RaidParty,
   type RaidSignup,
@@ -64,30 +65,32 @@ function raidStatusClass(raid: RaidItem) {
   return raid.status;
 }
 
-function RoleRow({ label, item, role, minItemLevel }: { label: string; item?: RaidSignup | null; role: "tank" | "healer" | "dps"; minItemLevel?: number | null }) {
-  const warning = item ? raidMinItemLevelWarning({ minItemLevel }, item) : null;
+function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { label: string; item?: RaidSignup | null; role: "tank" | "healer" | "dps"; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
+  const block = item ? raidMinItemLevelBlockMessage({ minItemLevel, minItemLevelRequired }, item) : null;
+  const warning = item ? raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item) : null;
+  const issue = block || warning;
   return (
-    <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${warning ? " is-undergeared" : ""}`}>
+    <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
       <span className="raid-role-label">{label}</span>
       <span className="raid-party-member-copy">
         <strong>{signupDisplayName(item)}</strong>
         {item ? <small>{signupSpecLabel(item)}</small> : null}
-        {warning ? <small className="raid-ilvl-warning">{warning}</small> : null}
+        {issue ? <small className="raid-ilvl-warning">{issue}</small> : null}
       </span>
     </div>
   );
 }
 
-function PartyCard({ party, minItemLevel }: { party: RaidParty; minItemLevel?: number | null }) {
+function PartyCard({ party, minItemLevel, minItemLevelRequired }: { party: RaidParty; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
   return (
     <article className="raid-party-card">
       <h3>Паті {party.index}</h3>
-      <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} />
-      <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} />
+      <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
+      <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
       {party.dps.length ? party.dps.map((member, index) => (
-        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label="ДД" role="dps" item={member} minItemLevel={minItemLevel} />
-      )) : <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} />}
+        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label="ДД" role="dps" item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
+      )) : <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />}
     </article>
   );
 }
@@ -182,10 +185,10 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>main: {raid.createdByMain}</small> : null}</span>
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
-        {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}</span> : null}
+        {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
         <span><strong>👥 Склад</strong>{counts.roster} / {raidAutoCapacity(raid)}<small>{raidAutoCompositionLabel(raid)}</small></span>
       </div>
-      {raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис.</div> : null}
+      {raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
           <span className="raid-action raid-action--go">✓ Підписатися</span>
@@ -197,7 +200,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         <div><strong>Склад рейду</strong><p>Паті будуються автоматично за кількістю гравців: 2/2/6 → 2/4/16 → 2/6/22. Танки ставляться окремо в паті 1 і 2 без дублювання; додаткові паті можуть бути без танка. Для міфіку розширення зупиняється на 4 паті.</p></div>
       </div>
       <div className="raid-party-grid">
-        {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} />)}
+        {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />)}
       </div>
     </section>
   );
@@ -276,7 +279,11 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
           </div>
           <label className="field-label">Мінімальний item level
             <input className="input" type="number" name="minItemLevel" min="1" max="9999" step="1" placeholder="Напр. 675" defaultValue={raid?.minItemLevel || ""} />
-            <small>Необов’язково. Якщо персонаж нижче порогу, він побачить попередження на сайті та в Discord.</small>
+            <small>Необов’язково. Без галочки нижче це лише попередження; з галочкою запис нижче порогу буде заблоковано.</small>
+          </label>
+          <label className="raid-checkbox-line">
+            <input type="checkbox" name="minItemLevelRequired" value="1" defaultChecked={Boolean(raid?.minItemLevelRequired)} />
+            <span>Блокувати запис, якщо item level нижче мінімального порогу</span>
           </label>
         </div>
 
