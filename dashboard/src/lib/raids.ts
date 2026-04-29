@@ -547,6 +547,20 @@ function dateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
   return [raid.date || "Дата уточнюється", raid.time || ""].filter(Boolean).join(" ");
 }
 
+function discordTimestamp(raid: Pick<RaidItem, "date" | "time">, style: "t" | "T" | "d" | "D" | "f" | "F" | "R" = "F") {
+  const startsAt = raidDateTimeToUtcMs(raid);
+  if (startsAt === null) return null;
+  return `<t:${Math.floor(startsAt / 1000)}:${style}>`;
+}
+
+function discordDateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
+  const full = discordTimestamp(raid, "F");
+  const relative = discordTimestamp(raid, "R");
+  if (!full || !relative) return dateTimeLabel(raid);
+  return `${full}
+${relative}`;
+}
+
 function compositionLongLabel(raid: RaidAutoInput) {
   const composition = raidAutoComposition(raid);
   return `${composition.tanks} танки / ${composition.healers} хіли / ${composition.dps} дд`;
@@ -701,7 +715,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       name: "Огляд",
       value: [
         `**Статус:** ${closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито"}`,
-        `**Дата:** ${dateTimeLabel(raid)}`,
+        `**Дата:** ${discordDateTimeLabel(raid)}`,
         `**Створив:** ${raid.createdByName}`,
         ...(raid.createdByMain ? [`**Основний персонаж:** ${raid.createdByMain}`] : []),
       ].join("\n"),
