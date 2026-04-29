@@ -18,6 +18,9 @@ export default async function RaidsListPage({ searchParams }: { searchParams: Pr
   if (params.raid) redirect(`/raids/${encodeURIComponent(params.raid)}`);
 
   const raids = await listRaids();
+  const publishedCount = raids.filter((raid) => raid.status === "published").length;
+  const draftCount = raids.filter((raid) => raid.status === "draft").length;
+  const closedCount = raids.length - publishedCount - draftCount;
 
   return (
     <RaidPageShell
@@ -33,7 +36,13 @@ export default async function RaidsListPage({ searchParams }: { searchParams: Pr
         <div className="raid-list-page-head">
           <div>
             <h2>Усі рейди</h2>
-            <p>Відкрий рейд для перегляду складу або створи новий запис.</p>
+            <p>Відкрий рейд для перегляду складу, редагування або видалення запису.</p>
+            <div className="raid-list-summary" aria-label="Коротка статистика рейдів">
+              <span>Усього: {raids.length}</span>
+              <span>Опубліковано: {publishedCount}</span>
+              <span>Чернетки: {draftCount}</span>
+              <span>Закрито: {closedCount}</span>
+            </div>
           </div>
           <a className="btn primary" href="/raids/new">＋ Створити рейд</a>
         </div>

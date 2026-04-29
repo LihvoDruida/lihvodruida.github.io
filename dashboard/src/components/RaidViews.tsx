@@ -145,9 +145,12 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
       <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
       {!closed && raid.status !== "draft" ? (
         <form action={`/api/raids/${encodeURIComponent(raid.id)}/close`} method="post">
-          <button className="btn danger btn-sm" type="submit">Закрити рейд</button>
+          <button className="btn warning btn-sm" type="submit">Закрити</button>
         </form>
       ) : null}
+      <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
+        <button className="btn danger btn-sm" type="submit">Видалити</button>
+      </form>
     </div>
   );
 }
@@ -198,11 +201,11 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
 export function RaidListCard({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
   const statusClass = raidStatusClass(raid);
-  const isDraft = raid.status === "draft";
+  const capacity = raidAutoCapacity(raid);
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
-        {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={72} height={72} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
+        {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={86} height={86} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
         <span className="raid-list-copy">
           <span className="raid-list-title-row">
             <strong>{raidTitle(raid)}</strong>
@@ -210,19 +213,20 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
           </span>
           <span className="raid-list-facts">
             <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
-            <small>👤 {raid.createdByName}</small>
-            <small>👥 {counts.roster} / {raidAutoCapacity(raid)} • {raidAutoCompositionLabel(raid)}</small>
+            <small>👤 {raid.createdByName}{raid.createdByMain ? ` • ${raid.createdByMain}` : ""}</small>
+            <small>👥 {counts.roster} / {capacity} • {raidAutoCompositionLabel(raid)}</small>
+          </span>
+          <span className="raid-list-progress" aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}>
+            <span style={{ width: `${Math.min(100, Math.round((counts.roster / Math.max(1, capacity)) * 100))}%` }} />
           </span>
         </span>
       </a>
       <div className="raid-list-actions" aria-label="Керування рейдом">
         <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
         <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
-        {isDraft ? (
-          <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
-            <button className="btn danger btn-sm" type="submit">Видалити</button>
-          </form>
-        ) : null}
+        <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
+          <button className="btn danger btn-sm" type="submit">Видалити</button>
+        </form>
       </div>
     </article>
   );
@@ -236,7 +240,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
   const isExistingRaid = Boolean(raid?.id);
   const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
   const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
-  const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти зміни" : "Зберегти чернетку";
+  const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти локально" : "Зберегти чернетку";
   const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
     <div className="raid-form-stack">
@@ -303,18 +307,18 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
 
         <div className="raid-form-actions">
           <button className="btn subtle" name="action" value="save" type="submit">{saveLabel}</button>
-          <button className="btn primary" name="action" value="publish" type="submit" disabled={!canPublish}>{publishLabel}</button>
+          <button className="btn primary" formAction="/api/raids/publish" name="action" value="publish" type="submit" disabled={!canPublish}>{publishLabel}</button>
         </div>
         <div className="raid-form-links">
           {raid?.id ? <a className="raid-message-link" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити сторінку рейду</a> : null}
           {raid?.messageUrl ? <a className="raid-message-link" href={raid.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord-повідомлення</a> : null}
         </div>
       </form>
-      {raid?.status === "draft" ? (
+      {raid?.id ? (
         <form className="panel raid-form-danger-zone raid-form-danger-zone--separate" action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
-          <strong>Небезпечна дія</strong>
-          <p>Видалення прибирає чернетку зі списку рейдів. Опублікований рейд спочатку потрібно закрити.</p>
-          <button className="btn danger" type="submit">Видалити чернетку</button>
+          <strong>Видалення рейду</strong>
+          <p>Видаляє рейд зі списку. Якщо рейд уже був опублікований, система також спробує прибрати Discord-повідомлення.</p>
+          <button className="btn danger" type="submit">Видалити рейд</button>
         </form>
       ) : null}
     </div>

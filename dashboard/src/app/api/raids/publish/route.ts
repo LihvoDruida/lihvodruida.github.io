@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
-import { saveRaidFromForm } from "@/lib/raids";
+import { saveAndMaybePublishRaid } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -37,49 +37,44 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
-    const action = String(form.get("action") || "").trim();
+    form.set("action", "publish");
     const raidId = String(form.get("raidId") || "").trim();
     failurePath = raidId ? `/raids/${encodeURIComponent(raidId)}/edit` : "/raids/new";
 
-    if (action && action !== "save") {
-      return redirectWithToast(failurePath, {
-        tone: "warning",
-        title: "Дія не для цієї кнопки",
-        message: "Цей endpoint тільки зберігає чернетку або локальні зміни. Для Discord використовуй окрему кнопку публікації/оновлення.",
-        ttl: 7200,
-      });
-    }
-
     const profile = user.profileId ? await getProfileById(user.profileId) : null;
-    logDashboardEvent("info", "raids.save.start", request, {
-      action: "save",
+    logDashboardEvent("info", "raids.discord.publish.start", request, {
       raidId,
       actorId: user.id,
       actorRole: user.role,
-      hasChannel: Boolean(form.get("channelId")),
+      channelId: String(form.get("channelId") || ""),
     });
-    const raid = await saveRaidFromForm(form, user, profile);
-    logDashboardEvent("info", "raids.saved", request, {
-      action: "save",
-      raidId: raid.id,
+
+    const result = await saveAndMaybePublishRaid(form, user, profile);
+    const discordEvent = result.discordAction === "updated" ? "raids.discord.updated" : "raids.discord.created";
+    const toastTitle = result.discordAction === "updated" ? "Discord-оголошення оновлено" : "Discord-оголошення опубліковано";
+
+    logDashboardEvent("info", discordEvent, request, {
+      raidId: result.raid.id,
       actorId: user.id,
       actorRole: user.role,
-      channelId: raid.channelId || "",
-      messageId: raid.messageId || "",
+      messageUrl: result.published || "",
+      channelId: result.raid.channelId || "",
+      messageId: result.raid.messageId || "",
     });
-    return redirectWithToast(`/raids/${encodeURIComponent(raid.id)}/edit`, {
+
+    return redirectWithToast(`/raids/${encodeURIComponent(result.raid.id)}/edit`, {
       tone: "success",
-      title: raid.status === "draft" ? "Чернетку збережено" : "Зміни збережено",
-      message: raid.status === "published" ? "Зміни збережено в панелі. Щоб оновити Discord, натисни окрему кнопку “Оновити Discord”." : "Чернетку збережено без публікації в Discord.",
-      ttl: 6200,
+      title: toastTitle,
+      message: result.published || "Discord-повідомлення оброблено.",
+      ttl: 7600,
     });
   } catch (error) {
-    logDashboardEvent("error", "raids.action.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
+    logDashboardEvent("error", "raids.discord.publish.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
     return redirectWithToast(failurePath, {
       tone: "error",
-      title: "Дію з рейдом не виконано",
+      title: "Discord-публікацію не виконано",
       message: safeErrorMessage(error),
-      ttl: 8600,
+      ttl: 9200,
     });
   }
 }

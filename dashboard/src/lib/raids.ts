@@ -5,6 +5,7 @@ import { getMainCharacter, getProfileByDiscordUserId, getProfileById, type Dashb
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
+  deleteDiscordRaidMessage,
   discordMessageUrl,
   editDiscordRaidMessage,
   getDiscordDefaultChannelId,
@@ -444,13 +445,22 @@ export async function closeRaid(raidId: string) {
   return closed;
 }
 
-export async function deleteDraftRaid(raidId: string) {
+export async function deleteRaid(raidId: string) {
   const raid = await getRaid(raidId);
   if (!raid) throw new Error("Рейд не знайдено.");
-  if (raid.status !== "draft") throw new Error("Видаляти можна тільки чернетки. Опублікований рейд спочатку закрий.");
+
+  if (raid.channelId && raid.messageId) {
+    await deleteDiscordRaidMessage({
+      ref: { channelId: raid.channelId, messageId: raid.messageId },
+      auditReason: `Raid deleted: ${raid.id}`,
+    }).catch(() => null);
+  }
+
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
   return raid;
 }
+
+export const deleteDraftRaid = deleteRaid;
 
 export type ProfileRaidSignup = {
   raid: RaidItem;

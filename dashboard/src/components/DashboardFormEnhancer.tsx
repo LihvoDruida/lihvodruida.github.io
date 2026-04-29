@@ -19,7 +19,8 @@ function actionText(action: string) {
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
-  if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Обробляємо рейд", message: "Зберігаємо рейд. Якщо вибрана публікація — оновлюємо Discord." };
+  if (action.includes("/api/raids/publish")) return { label: "Публікуємо...", title: "Публікуємо рейд", message: "Окремо оновлюємо Discord-повідомлення та кнопки запису." };
+  if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Зберігаємо рейд", message: "Зберігаємо дані в панелі без публікації в Discord." };
   if (action.includes("/content/create")) return { label: "Публікуємо...", title: "Публікуємо матеріал", message: "Зберігаємо матеріал і готуємо оновлення сторінки." };
   if (action.includes("/content/update")) return { label: "Зберігаємо...", title: "Зберігаємо зміни", message: "Оновлюємо матеріал." };
   return { label: "Виконуємо...", title: "Обробка дії", message: "Запит виконується. Зачекай кілька секунд." };
@@ -55,7 +56,7 @@ export default function DashboardFormEnhancer() {
       preserveSubmitterValue(form, submitter);
 
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
-      const action = form.getAttribute("action") || "";
+      const action = submitter?.formAction || form.getAttribute("action") || "";
       const copy = actionText(action);
 
       pushToast(copy.title, copy.message);

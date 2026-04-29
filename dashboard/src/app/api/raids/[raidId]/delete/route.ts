@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
-import { deleteDraftRaid } from "@/lib/raids";
+import { deleteRaid } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -35,12 +35,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { raidId } = await params;
   try {
     logDashboardEvent("info", "raids.delete.start", request, { raidId, actorId: user.id, actorRole: user.role });
-    const result = await deleteDraftRaid(raidId);
+    const result = await deleteRaid(raidId);
     logDashboardEvent("info", "raids.delete.done", request, { raidId: result.id, actorId: user.id, actorRole: user.role });
     return redirectWithToast("/raids", {
       tone: "success",
-      title: "Чернетку видалено",
-      message: "Чернетку прибрано зі списку рейдів.",
+      title: "Рейд видалено",
+      message: result.messageId ? "Рейд прибрано зі списку, Discord-повідомлення також видалено." : "Рейд прибрано зі списку.",
       ttl: 6200,
     });
   } catch (error) {

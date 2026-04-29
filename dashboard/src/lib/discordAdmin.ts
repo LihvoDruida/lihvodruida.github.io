@@ -1075,6 +1075,28 @@ export async function editDiscordRaidMessage(params: {
   });
 }
 
+export async function deleteDiscordRaidMessage(params: {
+  ref: DiscordMessageRef;
+  auditReason?: string;
+}) {
+  if (!params.ref.channelId || !params.ref.messageId) return { ok: true, skipped: true };
+
+  if (hasDirectDiscordBotConfig()) {
+    await discordApi<void>(`/channels/${params.ref.channelId}/messages/${params.ref.messageId}`, {
+      method: "DELETE",
+      auditReason: params.auditReason || "Raid deleted from dashboard",
+    });
+    return { ok: true };
+  }
+
+  return discordRaidMessageRelay({
+    action: "delete",
+    channelId: params.ref.channelId,
+    messageId: params.ref.messageId,
+    auditReason: params.auditReason || "Raid deleted from dashboard",
+  });
+}
+
 function readComponentCustomIds(components: unknown): string[] {
   if (!Array.isArray(components)) return [];
   const ids: string[] = [];

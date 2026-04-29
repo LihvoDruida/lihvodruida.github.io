@@ -1634,7 +1634,19 @@ async function handleRaidDiscordMessageRelay(request, env) {
   const messageId = snowflake(body?.messageId || body?.message_id);
   const embed = safeDiscordEmbed(body?.embed);
   if (!channelId) return json({ ok: false, error: "Discord channelId is invalid." }, 400, origin);
-  if (action === "edit" && !messageId) return json({ ok: false, error: "Discord messageId is invalid." }, 400, origin);
+  if ((action === "edit" || action === "delete") && !messageId) return json({ ok: false, error: "Discord messageId is invalid." }, 400, origin);
+
+  if (action === "delete") {
+    const response = await discordApiFetch(env, `/channels/${channelId}/messages/${messageId}`, { method: "DELETE" });
+    const raw = await response.text().catch(() => "");
+    if (!response.ok && response.status !== 404) {
+      logWorkerEvent("warn", "raid_message.relay.discord_failed", { action, channelId, messageId, status: response.status, raw: raw.slice(0, 220) });
+      return json({ ok: false, error: raw || `Discord API ${response.status}` }, response.status, origin);
+    }
+    logWorkerEvent("info", "raid_message.relay.done", { action, channelId, messageId });
+    return json({ ok: true, deleted: true, channel_id: channelId, id: messageId }, 200, origin);
+  }
+
   if (!embed) return json({ ok: false, error: "Discord embed is invalid." }, 400, origin);
 
   const payload = {
