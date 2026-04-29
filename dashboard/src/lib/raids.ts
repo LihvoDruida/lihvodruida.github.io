@@ -588,42 +588,50 @@ function rosterForGroups(raid: Pick<RaidItem, "signups">) {
   };
 }
 
+const RAID_PARTY_SIZE = 5;
+const RAID_PARTY_ORDER = [1, 3, 2, 4, 5, 7, 6, 8, 9, 11, 10, 12, 13, 15, 14, 16];
+
+function partyCapacity(party: RaidParty) {
+  return RAID_PARTY_SIZE - (party.tank ? 1 : 0) - (party.healer ? 1 : 0) - party.dps.length;
+}
+
+function placeInFirstAvailableParty(parties: RaidParty[], member: RaidSignup, startIndex: number) {
+  for (let attempt = 0; attempt < parties.length; attempt += 1) {
+    const partyIndex = (startIndex + attempt) % parties.length;
+    const party = parties[partyIndex];
+    if (partyCapacity(party) > 0) {
+      party.dps.push(member);
+      return (partyIndex + 1) % parties.length;
+    }
+  }
+  return startIndex;
+}
+
 export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "composition" | "signups">): RaidParty[] {
   const roster = rosterForGroups(raid);
   const composition = raidAutoComposition(raid);
   const hardCap = raid.difficulty === "mythic" ? 4 : 16;
-  const groupCount = Math.max(2, Math.min(hardCap, composition.healers));
-  const groupOrder = [1, 3, 2, 4, 5, 7, 6, 8, 9, 11, 10, 12, 13, 15, 14, 16];
-  const orderedIndexes = groupOrder.filter((index) => index <= groupCount);
+  const targetCapacity = composition.tanks + composition.healers + composition.dps;
+  const visibleRosterSize = Math.min(Math.max(roster.active.length, composition.tanks + composition.healers), targetCapacity);
+  const groupCount = Math.max(2, Math.min(hardCap, Math.ceil(visibleRosterSize / RAID_PARTY_SIZE)));
+  const orderedIndexes = RAID_PARTY_ORDER.filter((index) => index <= groupCount);
   const parties: RaidParty[] = orderedIndexes.map((index) => ({ index, dps: [], late: [], members: [] }));
 
-  const primaryTank = roster.tanks[0] || null;
-  const secondaryTank = roster.tanks[1] || primaryTank || null;
-  for (const party of parties) {
-    party.tank = party.index % 2 === 1 ? primaryTank : secondaryTank;
-  }
+  const tanks = [...roster.tanks];
+  const partyOne = parties.find((party) => party.index === 1);
+  const partyTwo = parties.find((party) => party.index === 2);
+  if (partyOne) partyOne.tank = tanks.shift() || null;
+  if (partyTwo) partyTwo.tank = tanks.shift() || null;
 
   const healers = [...roster.healers];
   for (const party of parties) {
     party.healer = healers.shift() || null;
   }
 
-  const dpsPool = [...roster.dps, ...healers];
-  const dpsSlotsByParty = Math.max(1, Math.ceil(composition.dps / Math.max(1, parties.length)));
+  const dpsPool = [...roster.dps, ...healers, ...tanks].slice(0, Math.max(0, composition.dps));
   let cursor = 0;
-
-  for (const member of dpsPool.slice(0, composition.dps)) {
-    let placed = false;
-    for (let attempt = 0; attempt < parties.length; attempt += 1) {
-      const party = parties[(cursor + attempt) % parties.length];
-      if (party.dps.length < dpsSlotsByParty) {
-        party.dps.push(member);
-        cursor = (cursor + attempt + 1) % parties.length;
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) break;
+  for (const member of dpsPool) {
+    cursor = placeInFirstAvailableParty(parties, member, cursor);
   }
 
   for (const party of parties) {

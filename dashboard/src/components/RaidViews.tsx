@@ -189,7 +189,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         </div>
       )}
       <div className="raid-preview-roster-head">
-        <div><strong>Склад рейду</strong><p>Паті будуються автоматично за кількістю гравців: 2/2/6 → 2/4/16 → 2/6/22. Для міфіку розширення зупиняється на 4 паті.</p></div>
+        <div><strong>Склад рейду</strong><p>Паті будуються автоматично за кількістю гравців: 2/2/6 → 2/4/16 → 2/6/22. Танки ставляться окремо в паті 1 і 2 без дублювання; додаткові паті можуть бути без танка. Для міфіку розширення зупиняється на 4 паті.</p></div>
       </div>
       <div className="raid-party-grid">
         {parties.map((party) => <PartyCard key={party.index} party={party} />)}
