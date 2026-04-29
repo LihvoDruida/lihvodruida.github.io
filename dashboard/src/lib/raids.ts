@@ -84,6 +84,11 @@ export type RaidParty = {
 const RAID_COLLECTION = "dashboardRaids";
 const DEFAULT_RAID_IMAGE = "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
 const RAID_ACTION_PREFIX = "mbv1:raid";
+const RAID_THUMBNAIL_ASSET_PATHS: Record<RaidDifficulty, string> = {
+  normal: "/assets/raid-thumbnails/raid-normal.png",
+  heroic: "/assets/raid-thumbnails/raid-heroic.png",
+  mythic: "/assets/raid-thumbnails/raid-mythic.png",
+};
 
 const DIFFICULTY_LABELS: Record<RaidDifficulty, string> = {
   normal: "Нормал",
@@ -131,6 +136,33 @@ function cleanUrl(value: unknown) {
   } catch {
     return null;
   }
+}
+
+function dashboardBaseUrl() {
+  return String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
+}
+
+function absoluteDashboardAssetUrl(path: string) {
+  const safePath = path.startsWith("/") ? path : `/${path}`;
+  try {
+    return new URL(safePath, `${dashboardBaseUrl()}/`).toString();
+  } catch {
+    return `${dashboardBaseUrl()}${safePath}`;
+  }
+}
+
+export function defaultRaidThumbnailPath(difficulty: RaidDifficulty) {
+  return RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic;
+}
+
+export function resolveRaidThumbnailUrl(input: { difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
+  const explicitThumb = cleanUrl(input.thumbnailUrl);
+  if (explicitThumb) return explicitThumb;
+  const explicitImage = cleanUrl(input.imageUrl);
+  if (explicitImage) return explicitImage;
+  const difficulty = cleanDifficulty(input.difficulty);
+  const assetPath = defaultRaidThumbnailPath(difficulty);
+  return options?.absolute ? absoluteDashboardAssetUrl(assetPath) : assetPath;
 }
 
 function cleanDifficulty(value: unknown): RaidDifficulty {
@@ -307,17 +339,20 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     ? data.signups.map(normalizeSignup).filter(Boolean) as RaidSignup[]
     : [];
 
+  const difficulty = cleanDifficulty(data.difficulty);
+  const imageUrl = cleanUrl(data.imageUrl);
+
   return {
     id,
     title: cleanString(data.title, 120) || "Рейд",
-    difficulty: cleanDifficulty(data.difficulty),
+    difficulty,
     date: cleanString(data.date, 20),
     time: cleanString(data.time, 20),
     description: cleanString(data.description, 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
     minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
-    imageUrl: cleanUrl(data.imageUrl),
-    thumbnailUrl: cleanUrl(data.thumbnailUrl),
+    imageUrl,
+    thumbnailUrl: resolveRaidThumbnailUrl({ difficulty, thumbnailUrl: data.thumbnailUrl as string | null, imageUrl }),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
     createdByName: cleanString(data.createdByName, 120) || "@Raid Lead",
     createdByMain: cleanString(data.createdByMain, 160) || null,
@@ -538,16 +573,20 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
         dps: Number(form.get("dps") || 6),
       };
 
+  const difficulty = cleanDifficulty(form.get("difficulty"));
+  const imageUrl = cleanUrl(form.get("imageUrl"));
+  const thumbnailUrl = cleanUrl(form.get("thumbnailUrl"));
+
   return {
     title: cleanString(form.get("title"), 120) || "Рейд",
-    difficulty: cleanDifficulty(form.get("difficulty")),
+    difficulty,
     date: cleanString(form.get("date"), 20),
     time: cleanString(form.get("time"), 20),
     description: cleanString(form.get("description"), 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
-    imageUrl: cleanUrl(form.get("imageUrl")),
-    thumbnailUrl: cleanUrl(form.get("thumbnailUrl")),
+    imageUrl,
+    thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
     createdByName: user.name || user.login || "Raid Lead",
     createdByMain: profileMainLabel(profile),
@@ -742,7 +781,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const allParties = buildRaidParties(raid);
   const parties = allParties.slice(0, 8);
   const imageUrl = raid.imageUrl || undefined;
-  const thumbUrl = raid.thumbnailUrl || raid.imageUrl || DEFAULT_RAID_IMAGE;
+  const thumbUrl = resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
   const rosterValue = [
@@ -1111,6 +1150,6 @@ export async function handleRaidSessionAction(params: {
 }
 
 export function dashboardRaidUrl(raidId: string) {
-  const base = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
+  const base = dashboardBaseUrl();
   return `${base}/raids/${encodeURIComponent(raidId)}`;
 }

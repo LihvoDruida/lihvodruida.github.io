@@ -14,6 +14,7 @@ import {
   raidLootLabel,
   raidRosterCounts,
   raidTitle,
+  resolveRaidThumbnailUrl,
   raidMinItemLevelWarning,
   raidMinItemLevelBlockMessage,
   type RaidItem,
@@ -170,7 +171,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
     <section className={`panel raid-preview-card${closed ? " is-closed" : ""}`} aria-label="Оголошення рейду">
       <div className="raid-preview-accent" aria-hidden="true" />
       <div className="raid-preview-head">
-        {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={74} height={74} referrerPolicy="no-referrer" /> : <span className="raid-preview-thumb">⚔</span>}
+        {<img src={resolveRaidThumbnailUrl(raid)} alt="" width={74} height={74} referrerPolicy="no-referrer" /> }
         <div>
           <div className="raid-preview-title-row">
             <h2>{raidTitle(raid)}</h2>
@@ -214,7 +215,7 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
-        {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={86} height={86} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
+        {<img src={resolveRaidThumbnailUrl(raid)} alt="" width={86} height={86} loading="lazy" referrerPolicy="no-referrer" /> }
         <span className="raid-list-copy">
           <span className="raid-list-title-row">
             <strong>{raidTitle(raid)}</strong>
@@ -319,7 +320,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
           <strong>Текст і зображення</strong>
           <label className="field-label">Опис<textarea className="input textarea markdown-area raid-description-textarea" name="description" rows={8} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
           <p className="raid-form-hint">Підтримується Discord Markdown: **жирний**, *курсив*, списки, заголовки, цитати, посилання, inline-code і блоки коду.</p>
-          <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || ""} /></label>
+          <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || resolveRaidThumbnailUrl({ title: raid?.title, difficulty: raid?.difficulty || "heroic" })} /><small>Якщо поле не змінювати, система автоматично використає мініатюру за типом рейду.</small></label>
           <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
         </div>
 
