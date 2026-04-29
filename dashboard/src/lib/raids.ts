@@ -400,30 +400,72 @@ export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   return raid.signups.filter((item) => item.status === "going" || item.status === "late").length;
 }
 
-export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficulty): RaidComposition {
-  const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
+const BASE_RAID_COMPOSITION_TIERS: RaidComposition[] = [
+  { tanks: 2, healers: 2, dps: 6 },
+  { tanks: 2, healers: 4, dps: 16 },
+  { tanks: 2, healers: 6, dps: 22 },
+];
 
-  if (difficulty === "mythic") {
-    return activeSize <= 10
-      ? { tanks: 2, healers: 2, dps: 6 }
-      : { tanks: 2, healers: 4, dps: 16 };
+function compositionCapacity(composition: RaidComposition) {
+  return composition.tanks + composition.healers + composition.dps;
+}
+
+function normalizeRoleDemand(value?: Partial<RaidComposition> | null): RaidComposition | null {
+  if (!value) return null;
+  return {
+    tanks: Math.max(0, Math.floor(Number(value.tanks) || 0)),
+    healers: Math.max(0, Math.floor(Number(value.healers) || 0)),
+    dps: Math.max(0, Math.floor(Number(value.dps) || 0)),
+  };
+}
+
+function compositionFitsRoster(composition: RaidComposition, activeSize: number, roleDemand?: RaidComposition | null) {
+  if (activeSize > compositionCapacity(composition)) return false;
+  if (!roleDemand) return true;
+  return roleDemand.healers <= composition.healers
+    && roleDemand.dps <= composition.dps;
+}
+
+function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
+  const active = signups.filter((item) => item.status === "going" || item.status === "late");
+  return {
+    tanks: active.filter((item) => item.role === "tank").length,
+    healers: active.filter((item) => item.role === "healer").length,
+    dps: active.filter((item) => item.role === "dps").length,
+  };
+}
+
+export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficulty, roleDemand?: Partial<RaidComposition> | null): RaidComposition {
+  const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
+  const demand = normalizeRoleDemand(roleDemand);
+  const baseTiers = difficulty === "mythic"
+    ? BASE_RAID_COMPOSITION_TIERS.slice(0, 2)
+    : BASE_RAID_COMPOSITION_TIERS;
+
+  for (const tier of baseTiers) {
+    if (compositionFitsRoster(tier, activeSize, demand)) return tier;
   }
 
-  if (activeSize <= 10) return { tanks: 2, healers: 2, dps: 6 };
-  if (activeSize <= 22) return { tanks: 2, healers: 4, dps: 16 };
-  if (activeSize <= 30) return { tanks: 2, healers: 6, dps: 22 };
+  if (difficulty === "mythic") {
+    return baseTiers[baseTiers.length - 1];
+  }
 
-  const extraBlocks = Math.ceil((activeSize - 30) / 10);
-  return {
-    tanks: 2,
-    healers: 6 + extraBlocks * 2,
-    dps: 22 + extraBlocks * 8,
-  };
+  let dynamicTier = { ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] };
+  let guard = 0;
+  while (!compositionFitsRoster(dynamicTier, activeSize, demand) && guard < 20) {
+    dynamicTier = {
+      tanks: 2,
+      healers: dynamicTier.healers + 2,
+      dps: dynamicTier.dps + 8,
+    };
+    guard += 1;
+  }
+  return dynamicTier;
 }
 
 export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
   const activeSize = raidActiveRosterSize(raid);
-  return autoRaidCompositionForSize(activeSize, raid.difficulty);
+  return autoRaidCompositionForSize(activeSize, raid.difficulty, activeRoleDemand(raid.signups));
 }
 
 export function raidAutoCapacity(raid: RaidAutoInput) {
@@ -678,49 +720,67 @@ function rosterForGroups(raid: Pick<RaidItem, "signups">) {
 }
 
 const RAID_PARTY_SIZE = 5;
-const RAID_PARTY_ORDER = [1, 3, 2, 4, 5, 7, 6, 8, 9, 11, 10, 12, 13, 15, 14, 16];
+const MAX_RAID_PARTIES = 16;
 
-function partyCapacity(party: RaidParty) {
-  return RAID_PARTY_SIZE - (party.tank ? 1 : 0) - (party.healer ? 1 : 0) - party.dps.length;
+function partyMembersCount(party: RaidParty) {
+  return (party.tank ? 1 : 0) + (party.healer ? 1 : 0) + party.dps.length;
 }
 
-function placeInFirstAvailableParty(parties: RaidParty[], member: RaidSignup, startIndex: number) {
-  for (let attempt = 0; attempt < parties.length; attempt += 1) {
-    const partyIndex = (startIndex + attempt) % parties.length;
-    const party = parties[partyIndex];
-    if (partyCapacity(party) > 0) {
+function partyCapacity(party: RaidParty) {
+  return RAID_PARTY_SIZE - partyMembersCount(party);
+}
+
+function partyFlexRoleCount(party: RaidParty, role: RaidCharacterRole) {
+  return party.dps.filter((item) => item.role === role).length;
+}
+
+function pickParty(parties: RaidParty[], predicate: (party: RaidParty) => boolean) {
+  const candidates = parties.filter((party) => partyCapacity(party) > 0 && predicate(party));
+  return candidates.sort((a, b) => partyMembersCount(a) - partyMembersCount(b) || a.index - b.index)[0] || null;
+}
+
+function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
+  const preferences: Array<(party: RaidParty) => boolean> = member.role === "dps"
+    ? [
+        (party) => Boolean(party.tank && party.healer) && partyFlexRoleCount(party, "dps") < 3,
+        (party) => Boolean(party.tank || party.healer) && partyFlexRoleCount(party, "dps") < 4,
+        () => true,
+      ]
+    : [
+        (party) => Boolean(party.tank && party.healer) && partyMembersCount(party) < RAID_PARTY_SIZE,
+        (party) => Boolean(party.tank || party.healer) && partyMembersCount(party) < RAID_PARTY_SIZE,
+        () => true,
+      ];
+
+  for (const predicate of preferences) {
+    const party = pickParty(parties, predicate);
+    if (party) {
       party.dps.push(member);
-      return (partyIndex + 1) % parties.length;
+      return true;
     }
   }
-  return startIndex;
+  return false;
 }
 
 export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "composition" | "signups">): RaidParty[] {
   const roster = rosterForGroups(raid);
-  const composition = raidAutoComposition(raid);
-  const hardCap = raid.difficulty === "mythic" ? 4 : 16;
-  const targetCapacity = composition.tanks + composition.healers + composition.dps;
-  const visibleRosterSize = Math.min(Math.max(roster.active.length, composition.tanks + composition.healers), targetCapacity);
-  const groupCount = Math.max(2, Math.min(hardCap, Math.ceil(visibleRosterSize / RAID_PARTY_SIZE)));
-  const orderedIndexes = RAID_PARTY_ORDER.filter((index) => index <= groupCount);
-  const parties: RaidParty[] = orderedIndexes.map((index) => ({ index, dps: [], late: [], members: [] }));
+  const visibleRosterSize = roster.active.length;
+  const groupCount = Math.max(2, Math.min(MAX_RAID_PARTIES, Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE)));
+  const parties: RaidParty[] = Array.from({ length: groupCount }, (_, index) => ({ index: index + 1, dps: [], late: [], members: [] }));
 
   const tanks = [...roster.tanks];
-  const partyOne = parties.find((party) => party.index === 1);
-  const partyTwo = parties.find((party) => party.index === 2);
-  if (partyOne) partyOne.tank = tanks.shift() || null;
-  if (partyTwo) partyTwo.tank = tanks.shift() || null;
+  for (const party of parties) {
+    party.tank = tanks.shift() || null;
+  }
 
   const healers = [...roster.healers];
   for (const party of parties) {
     party.healer = healers.shift() || null;
   }
 
-  const dpsPool = [...roster.dps, ...healers, ...tanks].slice(0, Math.max(0, composition.dps));
-  let cursor = 0;
-  for (const member of dpsPool) {
-    cursor = placeInFirstAvailableParty(parties, member, cursor);
+  const flexPool = [...roster.dps, ...healers, ...tanks];
+  for (const member of flexPool) {
+    placeFlexMember(parties, member);
   }
 
   for (const party of parties) {
@@ -749,15 +809,21 @@ function compactSignupDiscordLine(item?: RaidSignup | null, max = 48) {
   return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
-function partyDiscordText(party: RaidParty) {
-  const dpsLines = party.dps.length
-    ? party.dps.map((item) => `• ${compactSignupDiscordLine(item, 40)}`).join("\n")
+function compactSignupDiscordLines(items: RaidSignup[], max = 44) {
+  return items.length
+    ? items.map((item) => `• ${compactSignupDiscordLine(item, max)}`).join("\n")
     : "—";
+}
+
+function partyDiscordText(party: RaidParty) {
+  const tanks = [party.tank, ...party.dps.filter((item) => item.role === "tank")].filter(Boolean) as RaidSignup[];
+  const healers = [party.healer, ...party.dps.filter((item) => item.role === "healer")].filter(Boolean) as RaidSignup[];
+  const dps = party.dps.filter((item) => item.role === "dps");
 
   return truncateDiscordField([
-    `**Танк**\n${compactSignupDiscordLine(party.tank, 44)}`,
-    `**Хіл**\n${compactSignupDiscordLine(party.healer, 44)}`,
-    `**ДД**\n${dpsLines}`,
+    `**Танк**\n${compactSignupDiscordLines(tanks, 42)}`,
+    `**Хіл**\n${compactSignupDiscordLines(healers, 42)}`,
+    `**ДД**\n${compactSignupDiscordLines(dps, 40)}`,
   ].join("\n\n"), 700);
 }
 

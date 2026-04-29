@@ -17,6 +17,7 @@ import {
   resolveRaidThumbnailUrl,
   raidMinItemLevelWarning,
   raidMinItemLevelBlockMessage,
+  type RaidCharacterRole,
   type RaidItem,
   type RaidParty,
   type RaidSignup,
@@ -67,7 +68,13 @@ function raidStatusClass(raid: RaidItem) {
   return raid.status;
 }
 
-function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { label: string; item?: RaidSignup | null; role: "tank" | "healer" | "dps"; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
+function raidPartyRoleLabel(role: RaidCharacterRole) {
+  if (role === "tank") return "Танк";
+  if (role === "healer") return "Хіл";
+  return "ДД";
+}
+
+function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { label: string; item?: RaidSignup | null; role: RaidCharacterRole; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
   const block = item ? raidMinItemLevelBlockMessage({ minItemLevel, minItemLevelRequired }, item) : null;
   const warning = item ? raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item) : null;
   const issue = block || warning;
@@ -91,7 +98,7 @@ function PartyCard({ party, minItemLevel, minItemLevelRequired }: { party: RaidP
       <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
       <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
       {party.dps.length ? party.dps.map((member, index) => (
-        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label="ДД" role="dps" item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
+        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label={raidPartyRoleLabel(member.role)} role={member.role} item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
       )) : <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />}
     </article>
   );
@@ -199,7 +206,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         </div>
       )}
       <div className="raid-preview-roster-head">
-        <div><strong>Склад рейду</strong><p>Паті будуються автоматично за кількістю гравців: 2/2/6 → 2/4/16 → 2/6/22. Танки ставляться окремо в паті 1 і 2 без дублювання; додаткові паті можуть бути без танка. Для міфіку розширення зупиняється на 4 паті.</p></div>
+        <div><strong>Склад рейду</strong><p>Паті будуються динамічно: пріоритет — танк, хіл і 3 ДД, але склад не блокується, якщо танка або хіла немає. Якщо будь-яка роль перевищує поточну схему, рейд одразу переходить на наступну, а всі активні гравці залишаються видимими.</p></div>
       </div>
       <div className="raid-party-grid">
         {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />)}
@@ -313,7 +320,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
 
         <div className="raid-auto-composition-note">
           <strong>Склад генерується автоматично</strong>
-          <span>Поточна схема: {defaultComposition}. Система сама розширює рейд за кількістю заявок: 2/2/6 → 2/4/16 → 2/6/22 → далі за потреби.</span>
+          <span>Поточна схема: {defaultComposition}. Система розширює рейд не лише за кількістю гравців, а й за ролями: 2/2/7 або 2/3/6 одразу переходить на наступну схему.</span>
         </div>
 
         <div className="raid-form-section">
