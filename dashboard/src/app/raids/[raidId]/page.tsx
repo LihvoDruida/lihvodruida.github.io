@@ -29,7 +29,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
           <div className="raid-preview-column">
             <RaidAnnouncementPreview
               raid={visibleRaid}
-              actions={<RaidAttendanceActions raid={visibleRaid} />}
+              actions={<RaidAttendanceActions raid={visibleRaid} user={user} />}
               manageActions={canManage ? <RaidManageActions raid={visibleRaid} /> : null}
             />
             <div className="raid-detail-links">

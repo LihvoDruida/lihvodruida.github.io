@@ -54,6 +54,7 @@ export type RaidItem = {
   description: string;
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
+  maxPlayers?: number | null;
   imageUrl?: string | null;
   thumbnailUrl?: string | null;
   createdByDiscordId: string;
@@ -84,6 +85,7 @@ export type RaidParty = {
 const RAID_COLLECTION = "dashboardRaids";
 const DEFAULT_RAID_IMAGE = "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
 const RAID_ACTION_PREFIX = "mbv1:raid";
+const MAX_RAID_PLAYERS = 80;
 const RAID_THUMBNAIL_ASSET_PATHS: Record<RaidDifficulty, string> = {
   normal: "/assets/raid-thumbnails/raid-normal.png",
   heroic: "/assets/raid-thumbnails/raid-heroic.png",
@@ -155,7 +157,7 @@ export function defaultRaidThumbnailPath(difficulty: RaidDifficulty) {
   return RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic;
 }
 
-export function resolveRaidThumbnailUrl(input: { difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
+export function resolveRaidThumbnailUrl(input: { title?: string | null; difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
   const explicitThumb = cleanUrl(input.thumbnailUrl);
   if (explicitThumb) return explicitThumb;
   const explicitImage = cleanUrl(input.imageUrl);
@@ -289,6 +291,14 @@ function cleanOptionalItemLevel(value: unknown) {
   return Math.max(1, Math.min(9999, Math.floor(num)));
 }
 
+function cleanOptionalMaxPlayers(value: unknown) {
+  const raw = cleanString(value, 12).replace(",", ".");
+  if (!raw) return null;
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return null;
+  return Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(num)));
+}
+
 function cleanBoolean(value: unknown) {
   if (value === true) return true;
   const key = cleanString(value, 20).toLowerCase();
@@ -351,6 +361,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     description: cleanString(data.description, 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
     minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
+    maxPlayers: cleanOptionalMaxPlayers(data.maxPlayers ?? data.max_players ?? data.registrationLimit),
     imageUrl,
     thumbnailUrl: resolveRaidThumbnailUrl({ difficulty, thumbnailUrl: data.thumbnailUrl as string | null, imageUrl }),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
@@ -471,6 +482,37 @@ export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
 export function raidAutoCapacity(raid: RaidAutoInput) {
   const composition = raidAutoComposition(raid);
   return composition.tanks + composition.healers + composition.dps;
+}
+
+export function raidRegistrationLimit(raid: Pick<RaidItem, "maxPlayers">) {
+  const limit = Number(raid.maxPlayers || 0);
+  return Number.isFinite(limit) && limit > 0 ? Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(limit))) : null;
+}
+
+export function raidDisplayCapacity(raid: RaidAutoInput & Pick<RaidItem, "maxPlayers">) {
+  return raidRegistrationLimit(raid) ?? raidAutoCapacity(raid);
+}
+
+export function isRaidRegistrationFull(raid: Pick<RaidItem, "maxPlayers" | "signups">) {
+  const limit = raidRegistrationLimit(raid);
+  return limit !== null && raidActiveRosterSize(raid) >= limit;
+}
+
+function isActiveSignupStatus(status?: RaidSignupStatus | string | null) {
+  return status === "going" || status === "late";
+}
+
+function hasActiveSignupForDiscord(raid: Pick<RaidItem, "signups">, discordId: string) {
+  return raid.signups.some((item) => item.discordId === discordId && isActiveSignupStatus(item.status));
+}
+
+function raidRegistrationFullMessage(raid: Pick<RaidItem, "maxPlayers" | "signups" | "title" | "difficulty">, discordId: string, action: RaidSignupStatus) {
+  if (action === "skipped") return null;
+  const limit = raidRegistrationLimit(raid);
+  if (limit === null) return null;
+  if (raidActiveRosterSize(raid) < limit) return null;
+  if (discordId && hasActiveSignupForDiscord(raid, discordId)) return null;
+  return `🔒 Ліміт запису на ${raidTitle(raid)} досягнуто (${limit}/${limit}). Нові записи вже недоступні.`;
 }
 
 export function raidAutoCompositionLabel(raid: RaidAutoInput) {
@@ -627,6 +669,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     description: cleanString(form.get("description"), 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
+    maxPlayers: cleanOptionalMaxPlayers(form.get("maxPlayers")),
     imageUrl,
     thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
@@ -850,9 +893,13 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const thumbUrl = resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
+  const registrationLimit = raidRegistrationLimit(raid);
+  const displayCapacity = registrationLimit ?? raidAutoCapacity(raid);
+  const registrationFull = isRaidRegistrationFull(raid);
   const rosterValue = [
-    `${counts.roster} / ${raidAutoCapacity(raid)}`,
+    `${counts.roster} / ${displayCapacity}`,
     compositionLongLabel(raid),
+    registrationLimit ? (registrationFull ? "🔒 Ліміт запису досягнуто" : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`) : null,
   ].filter(Boolean).join("\n");
   const minItemLevelValue = raid.minItemLevel
     ? [
@@ -943,14 +990,17 @@ export function decodeRaidAttendanceCustomId(customId: string) {
   return { raidId: match[1], action: cleanSignupStatus(match[2]) };
 }
 
-export function buildRaidAttendanceComponents(raidId: string, disabled = false) {
+export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean } = false) {
+  const disabled = typeof options === "boolean" ? options : Boolean(options.disabled);
+  const full = typeof options === "object" && Boolean(options.full);
+  const activeJoinDisabled = disabled || full;
   return [
     {
       type: 1,
       components: [
-        { type: 2, style: 3, label: "Підписатися", custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled },
+        { type: 2, style: 3, label: full && !disabled ? "Заповнено" : "Підписатися", custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
         { type: 2, style: 2, label: "Пропустити", custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
-        { type: 2, style: 4, label: "Затримаюсь", custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled },
+        { type: 2, style: 4, label: full && !disabled ? "Ліміт досягнуто" : "Затримаюсь", custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
       ],
     },
   ];
@@ -964,7 +1014,7 @@ function isMissingDiscordMessageError(error: unknown) {
 export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | null) {
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
-  const components = buildRaidAttendanceComponents(raid.id, closed);
+  const components = buildRaidAttendanceComponents(raid.id, { disabled: closed, full: !closed && isRaidRegistrationFull(raid) });
   const targetChannelId = cleanString(channelId || raid.channelId || getDiscordDefaultChannelId(), 32);
   if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
 
@@ -1077,6 +1127,8 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
     if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
     const block = raidMinItemLevelBlockMessage(raid, signup);
     if (block) throw new Error(block);
+    const fullBlock = raidRegistrationFullMessage(raid, signup.discordId, signup.status);
+    if (fullBlock) throw new Error(fullBlock);
     const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
     nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
     transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
@@ -1149,6 +1201,8 @@ export async function handleRaidDiscordAction(params: {
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
   if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+  const fullBlock = raidRegistrationFullMessage(raid, params.userId, params.action);
+  if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
 
   let profile: DashboardProfile | null = null;
   if (params.action !== "skipped") {
@@ -1187,6 +1241,8 @@ export async function handleRaidSessionAction(params: {
   if (!discordId) {
     return { ok: false, content: "❌ Для запису на рейд потрібно увійти через Discord." };
   }
+  const fullBlock = raidRegistrationFullMessage(raid, discordId, params.action);
+  if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
 
   let profile: DashboardProfile | null = null;
   if (params.user.profileId) {

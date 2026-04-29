@@ -5,7 +5,7 @@ import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/l
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import {
   listProfileRaidSignups,
-  raidAutoCapacity,
+  raidDisplayCapacity,
   raidAutoCompositionLabel,
   raidTitle,
   type ProfileRaidSignup,
@@ -228,7 +228,7 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
     : item.signup.discordName || "Без персонажа";
   const specLabel = [item.signup.activeSpecName, item.signup.className].filter(Boolean).join(" • ");
   const activeRoster = item.raid.signups.filter((signup) => signup.status === "going" || signup.status === "late").length;
-  const composition = `${activeRoster} / ${raidAutoCapacity(item.raid)} • ${raidAutoCompositionLabel(item.raid)}`;
+  const composition = `${activeRoster} / ${raidDisplayCapacity(item.raid)} • ${raidAutoCompositionLabel(item.raid)}`;
 
   return (
     <article className={`profile-raid-card profile-raid-card--${item.signup.status}`}>

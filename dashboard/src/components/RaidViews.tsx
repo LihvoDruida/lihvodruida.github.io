@@ -9,7 +9,9 @@ import {
   isRaidClosed,
   raidAutoComposition,
   raidAutoCompositionLabel,
-  raidAutoCapacity,
+  raidDisplayCapacity,
+  isRaidRegistrationFull,
+  raidRegistrationLimit,
   raidConsumablesLabel,
   raidLootLabel,
   raidRosterCounts,
@@ -131,7 +133,7 @@ export function RosterSideList({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
   return (
     <aside className="raid-roster-panel panel">
-      <div className="raid-roster-heading"><strong>Хто йде</strong><span>{counts.roster} / {raidAutoCapacity(raid)}</span></div>
+      <div className="raid-roster-heading"><strong>Хто йде</strong><span>{counts.roster} / {raidDisplayCapacity(raid)}</span></div>
       <RosterBlock title={`Танки (${grouped.tanks.length}/${composition.tanks})`} items={grouped.tanks} />
       <RosterBlock title={`Хіли (${grouped.healers.length}/${composition.healers})`} items={grouped.healers} />
       <RosterBlock title={`ДД (${grouped.dps.length}/${composition.dps})`} items={grouped.dps} />
@@ -141,14 +143,23 @@ export function RosterSideList({ raid }: { raid: RaidItem }) {
   );
 }
 
-export function RaidAttendanceActions({ raid }: { raid: RaidItem }) {
+export function RaidAttendanceActions({ raid, user }: { raid: RaidItem; user?: DashboardSession | null }) {
   const closed = isRaidClosed(raid) || raid.status !== "published";
-  const title = closed ? "Запис на цей рейд уже вимкнено." : undefined;
+  const full = isRaidRegistrationFull(raid);
+  const viewerDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
+  const viewerSignup = viewerDiscordId ? raid.signups.find((item) => item.discordId === viewerDiscordId) : null;
+  const viewerAlreadyActive = viewerSignup?.status === "going" || viewerSignup?.status === "late";
+  const activeJoinDisabled = closed || (full && !viewerAlreadyActive);
+  const title = closed
+    ? "Запис на цей рейд уже вимкнено."
+    : activeJoinDisabled
+      ? "Ліміт гравців досягнуто. Нові записи недоступні."
+      : undefined;
   return (
-    <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed}>
-      <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={closed} title={title}>✓ Підписатися</button>
-      <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={closed} title={title}>◷ Пропустити</button>
-      <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={closed} title={title}>✕ Затримаюсь</button>
+    <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled}>
+      <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
+      <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={closed} title={closed ? title : undefined}>◷ Пропустити</button>
+      <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "✕ Затримаюсь"}</button>
     </form>
   );
 }
@@ -195,9 +206,10 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
         {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
-        <span><strong>👥 Склад</strong>{counts.roster} / {raidAutoCapacity(raid)}<small>{raidAutoCompositionLabel(raid)}</small></span>
+        <span><strong>👥 Склад</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
       </div>
       {raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
+      {raidRegistrationLimit(raid) ? <div className={`raid-ilvl-notice${isRaidRegistrationFull(raid) ? " is-blocked" : ""}`}>👥 Максимум гравців для цього рейду: <strong>{raidRegistrationLimit(raid)}</strong>. {isRaidRegistrationFull(raid) ? "Ліміт досягнуто — нові записи недоступні." : "Після досягнення ліміту нові записи будуть заблоковані."}</div> : null}
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
           <span className="raid-action raid-action--go">✓ Підписатися</span>
@@ -218,7 +230,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
 export function RaidListCard({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
   const statusClass = raidStatusClass(raid);
-  const capacity = raidAutoCapacity(raid);
+  const capacity = raidDisplayCapacity(raid);
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
@@ -293,6 +305,10 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
           <label className="raid-checkbox-line">
             <input type="checkbox" name="minItemLevelRequired" value="1" defaultChecked={Boolean(raid?.minItemLevelRequired)} />
             <span>Блокувати запис, якщо item level нижче мінімального порогу</span>
+          </label>
+          <label className="field-label">Максимум гравців
+            <input className="input" type="number" name="maxPlayers" min="1" max="80" step="1" placeholder="Напр. 20" defaultValue={raid?.maxPlayers || ""} />
+            <small>Порожньо — без жорсткого ліміту. Коли активних записів стане стільки ж, нові “Підписатися” і “Затримаюсь” будуть заблоковані.</small>
           </label>
         </div>
 
@@ -397,6 +413,7 @@ export function makePreviewRaid(user: DashboardSession): RaidItem {
     consumables: "own",
     lootMode: "ms-os",
     composition: { tanks: 2, healers: 2, dps: 6 },
+    maxPlayers: null,
     status: "draft",
     signups: [],
   };
