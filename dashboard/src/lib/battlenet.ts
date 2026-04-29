@@ -48,6 +48,7 @@ export type BattleNetCharacterCandidate = {
   renderUrl: string | null;
   mediaUrl: string | null;
   verifiedGuild: boolean;
+  itemLevel?: number | null;
   lastSeenAt: string;
 };
 
@@ -360,6 +361,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         renderUrl,
         mediaUrl: media?._links?.self?.href || null,
         verifiedGuild: Boolean(guildName),
+        itemLevel: Number.isFinite(Number(details?.equipped_item_level || details?.average_item_level)) ? Number(details?.equipped_item_level || details?.average_item_level) : null,
         lastSeenAt: new Date().toISOString(),
       } satisfies BattleNetCharacterCandidate;
     } catch {

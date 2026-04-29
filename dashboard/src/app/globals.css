@@ -8460,3 +8460,153 @@ form.is-submitting button[type="submit"],
     width: 100%;
   }
 }
+
+/* Profile cleanup: quieter copy and character cards closer to WoW card style */
+.profile-card--characters .profile-card-lead,
+.profile-card--roles .profile-card-lead {
+  max-width: 760px;
+  color: rgba(232, 223, 205, 0.78);
+  font-size: 13px;
+}
+
+.profile-bnet-summary {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.profile-bnet-summary span {
+  padding: 9px 11px;
+}
+
+.profile-character-list {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 330px));
+  gap: 16px;
+}
+
+.profile-character-card {
+  grid-template-rows: clamp(280px, 31vw, 360px) auto;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(28, 146, 83, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(15, 10, 4, 0.34), rgba(3, 3, 3, 0.96));
+}
+
+.profile-character-artwork {
+  padding: 14px 18px 0;
+  align-items: end;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(58, 192, 111, 0.18), transparent 30%),
+    radial-gradient(circle at 50% 88%, rgba(223, 167, 84, 0.08), transparent 32%),
+    linear-gradient(180deg, rgba(8, 12, 20, 0.10), rgba(0, 0, 0, 0.58));
+}
+
+.profile-character-artwork img {
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  object-position: center 18%;
+  transform: scale(1.18);
+  filter: drop-shadow(0 28px 32px rgba(0, 0, 0, 0.62));
+}
+
+.profile-main-badge--art {
+  position: absolute;
+  right: 12px;
+  bottom: 14px;
+  z-index: 2;
+}
+
+.profile-character-body {
+  gap: 12px;
+  padding: 18px 16px 16px;
+}
+
+.profile-character-title-row--stacked {
+  display: block;
+}
+
+.profile-character-title-row--stacked h3 {
+  font-size: clamp(24px, 2.7vw, 34px);
+}
+
+.profile-character-title-row--stacked p {
+  margin-top: 6px;
+  color: #c89039;
+}
+
+.profile-character-meta {
+  gap: 8px;
+}
+
+.profile-character-meta span {
+  padding: 5px 9px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.profile-character-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 0;
+  border-top: 1px solid rgba(214, 168, 79, 0.14);
+  border-bottom: 1px solid rgba(214, 168, 79, 0.1);
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0));
+}
+
+.profile-character-showcase__stat {
+  display: grid;
+  align-content: center;
+  min-height: 88px;
+  padding: 12px 10px;
+}
+
+.profile-character-showcase__stat + .profile-character-showcase__stat {
+  border-left: 1px solid rgba(214, 168, 79, 0.18);
+}
+
+.profile-character-showcase__stat small {
+  color: #c9b997;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.profile-character-showcase__stat strong {
+  margin-top: 4px;
+  color: #f8efe2;
+  font-size: clamp(20px, 3.4vw, 28px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.profile-character-showcase__stat--secondary strong {
+  font-size: 20px;
+}
+
+.profile-character-actions {
+  margin-top: 2px;
+}
+
+.profile-character-actions .btn {
+  min-height: 36px;
+}
+
+@media (max-width: 640px) {
+  .profile-character-card {
+    grid-template-rows: clamp(250px, 72vw, 320px) auto;
+  }
+
+  .profile-character-artwork {
+    padding: 10px 12px 0;
+  }
+
+  .profile-character-artwork img {
+    width: 120%;
+    height: 120%;
+    object-position: center 16%;
+  }
+
+  .profile-character-showcase {
+    grid-template-columns: 1fr 1fr;
+  }
+}

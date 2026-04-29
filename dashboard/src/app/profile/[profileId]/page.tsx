@@ -46,13 +46,16 @@ function formatCompactDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
 }
 
+function compactAccountLabel(value: string) {
+  return value.length > 22 ? `${value.slice(0, 22)}…` : value;
+}
 
 function formatBattleNetAccount(profile: DashboardProfile) {
   const label = profile.battlenet?.accountLabel?.trim();
-  if (label) return label;
+  if (label) return compactAccountLabel(label);
   const hash = profile.battlenet?.accountIdHash?.trim();
-  if (hash) return `Battle.net • ${hash}`;
-  return profile.battlenet?.linked ? "Battle.net підключено" : "Battle.net не підключено";
+  if (hash) return `Battle.net • ${hash.slice(0, 10)}`;
+  return profile.battlenet?.linked ? "Підключено" : "Не підключено";
 }
 
 function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession: boolean) {
@@ -61,20 +64,20 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
     return {
       eyebrow: "Список оновлено",
       title: "Додати ще персонажів",
-      hint: `${formatBattleNetAccount(profile)} • ${region} • можна додати знайдених персонажів`,
+      hint: `${formatBattleNetAccount(profile)} • ${region} • можна додати персонажів`,
     };
   }
   if (profile.battlenet?.linked) {
     return {
       eyebrow: "Battle.net підключено",
       title: "Оновити персонажів",
-      hint: `${formatBattleNetAccount(profile)} • ${region} • онови список, щоб додати нових персонажів`,
+      hint: `${formatBattleNetAccount(profile)} • ${region} • онови список для нових персонажів`,
     };
   }
   return {
     eyebrow: "Battle.net не підключено",
     title: "Підключити Battle.net",
-    hint: `Дозволить знайти персонажів Mistblossom Vanguard і прив’язати їх до профілю`,
+    hint: `Знайде персонажів Mistblossom Vanguard і прив’яже їх до профілю`,
   };
 }
 
@@ -145,33 +148,41 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
 }
 
 function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
-  const characterTone = character.isMain ? "Основний персонаж" : "Доданий персонаж";
+  const guildLabel = character.guildName || "Mistblossom Vanguard";
+  const classLabel = character.className || "Клас невідомий";
+  const levelLabel = character.level ? `Рівень ${character.level}` : "Рівень —";
+  const itemLevel = typeof character.itemLevel === "number" ? character.itemLevel : null;
 
   return (
-    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`} aria-label={`${characterTone}: ${character.name}`}>
+    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`} aria-label={`${character.isMain ? "Основний персонаж" : "Персонаж"}: ${character.name}`}>
       <div className="profile-character-artwork">
         <CharacterArtwork character={character} />
         <span className="profile-character-region">{character.region.toUpperCase()}</span>
+        {character.isMain ? <span className="profile-main-badge profile-main-badge--art">Мейн</span> : null}
       </div>
       <div className="profile-character-body">
-        <div className="profile-character-title-row">
+        <div className="profile-character-title-row profile-character-title-row--stacked">
           <div>
             <h3>{character.name}</h3>
-            <p>{character.guildName || "Mistblossom Vanguard"}</p>
+            <p>{guildLabel}</p>
           </div>
-          {character.isMain ? <span className="profile-main-badge">Мейн</span> : null}
         </div>
 
         <div className="profile-character-meta">
-          <span>Level {character.level || "—"}</span>
-          {character.className ? <span>{character.className}</span> : null}
+          <span>{levelLabel}</span>
+          <span>{classLabel}</span>
           {character.realmName ? <span>{character.realmName}</span> : null}
         </div>
 
-        <div className="profile-character-stats">
-          <span><strong>{character.faction || "—"}</strong><small>Фракція</small></span>
-          <span><strong>{character.raceName || "—"}</strong><small>Раса</small></span>
-          <span><strong>{formatCompactDate(character.lastSeenAt)}</strong><small>Оновлено</small></span>
+        <div className="profile-character-showcase">
+          <div className="profile-character-showcase__stat">
+            <small>Item level</small>
+            <strong>{itemLevel ?? "—"}</strong>
+          </div>
+          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
+            <small>Оновлено</small>
+            <strong>{formatCompactDate(character.lastSeenAt)}</strong>
+          </div>
         </div>
 
         <div className="profile-character-actions">
@@ -301,7 +312,7 @@ export default async function ProfilePage({
   const fallbackAccessChip = !accessRoleChips.length
     ? ({
         id: "access-fallback",
-        label: profile.role === "member" ? "Доступ через членство на Discord-сервері" : `Сесія визначила: ${dashboardRoleLabel(profile.role)}`,
+        label: profile.role === "member" ? "Доступ через участь на Discord-сервері" : `${dashboardRoleLabel(profile.role)}`,
         position: -1,
         muted: true,
       } satisfies ProfileRoleChip)
@@ -317,16 +328,16 @@ export default async function ProfilePage({
         <DashboardIdentity user={viewer} activeSection="profile" />
         <header className="hero panel dashboard-hero profile-hero">
           <div className="hero-copy dashboard-hero__copy profile-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Personal access</div>
+            <div className="eyebrow">Mistblossom Vanguard • Профіль</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Профіль учасника: доступ, Discord-роль, Battle.net персонажі та main-персонаж в одному місці.</p>
+            <p className="lead">Усе головне в одному місці: доступ, ролі Discord і персонажі Battle.net.</p>
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
-              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль доступу</small></span>
-              <span><strong>{enabledCount}/{capabilities.length}</strong><small>Дій відкрито</small></span>
-              <span><strong>{savedCharacterCount}</strong><small>Додано в профіль</small></span>
-              <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>Знайдено в гільдії</small></span>
-              <span><strong>{availableCandidates.length}</strong><small>Ще доступно додати</small></span>
+              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
+              <span><strong>{enabledCount}/{capabilities.length}</strong><small>Можливості</small></span>
+              <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
+              <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>У гільдії</small></span>
+              <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
               <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
             </div>
             <div className="hero-secure-note content-hero-actions">
@@ -334,7 +345,7 @@ export default async function ProfilePage({
               <span>{siteStatusDescription(profile.role)}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
-            {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Перегляд відкрито за твоєю роллю. Змінювати персонажів може тільки власник профілю.</div> : null}
+            {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
           </div>
         </header>
       </section>
@@ -395,11 +406,11 @@ export default async function ProfilePage({
             <h2>Роль доступу</h2>
           </div>
 
-          <p className="profile-card-lead">Роль береться з Discord-сесії. Зверху показані ролі, які дали найвищий доступ у панелі; нижче — всі інші ролі користувача.</p>
+          <p className="profile-card-lead">Зверху показані ролі, що дали доступ до панелі. Нижче — решта ролей Discord.</p>
 
           <div className="profile-access-summary" aria-label="Поточний доступ">
             <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Найвищий доступ у панелі</small></span>
-            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступних дій</small></span>
+            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступно</small></span>
           </div>
 
           <div className="profile-role-group">
@@ -447,26 +458,26 @@ export default async function ProfilePage({
             ) : null}
           </div>
 
-          <p className="profile-card-lead">Тут окремо показано: скільки персонажів уже збережено в профілі, скільки останній Battle.net scan знайшов у гільдії, і скільки ще можна додати після реавторизації.</p>
+          <p className="profile-card-lead">Тут показані збережені персонажі й те, скільки ще можна додати після оновлення Battle.net.</p>
 
           <div className="profile-bnet-summary" aria-label="Battle.net підсумок профілю">
-            <span><strong>{savedCharacterCount}</strong><small>Збережено в профілі</small></span>
-            <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>Знайдено в гільдії</small></span>
-            <span><strong>{availableCandidates.length}</strong><small>Ще доступно додати</small></span>
-            <span><strong>{statValue(scannedBattleNetCharacters)}</strong><small>Скановано</small></span>
+            <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
+            <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>У гільдії</small></span>
+            <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
+            <span><strong>{statValue(scannedBattleNetCharacters)}</strong><small>Перевірено</small></span>
             <span><strong>{profile.battlenet?.region?.toString().toUpperCase() || "EU"}</strong><small>Регіон</small></span>
-            <span><strong>{formatBattleNetAccount(profile)}</strong><small>Battle.net акаунт</small></span>
+            <span><strong>{formatBattleNetAccount(profile)}</strong><small>Battle.net</small></span>
           </div>
 
           {hiddenGuildCandidates > 0 ? (
             <div className="profile-bnet-note" role="status">
-              Останній scan знайшов більше персонажів у гільдії, ніж зараз видно на сторінці. Пройди Battle.net реавторизацію ще раз, щоб відкрити тимчасовий список для додавання.
+              Остання перевірка знайшла більше персонажів. Онови Battle.net ще раз, щоб побачити повний список для додавання.
             </div>
           ) : null}
 
           {totalBattleNetCharacters !== null ? (
             <div className="profile-bnet-footnote">
-              Усього на Battle.net акаунті: <strong>{totalBattleNetCharacters}</strong>. У картках нижче показані тільки збережені персонажі профілю.
+              На Battle.net акаунті: <strong>{totalBattleNetCharacters}</strong> персонажів. Нижче показані лише ті, що додані в профіль.
             </div>
           ) : null}
 
@@ -482,8 +493,8 @@ export default async function ProfilePage({
             </>
           ) : (
             <div className="profile-empty-characters">
-              <strong>Персонажі ще не додані</strong>
-              <span>{canManageCharacters ? "Натисни кнопку Battle.net вище, пройди реавторизацію і додай потрібних персонажів." : "Учасник ще не додав персонажів до профілю."}</span>
+              <strong>Поки що без персонажів</strong>
+              <span>{canManageCharacters ? "Онови Battle.net і додай потрібних персонажів." : "Учасник ще не додав персонажів."}</span>
             </div>
           )}
 
@@ -493,7 +504,7 @@ export default async function ProfilePage({
                 <div>
                   <span className="eyebrow">Свіжа Battle.net перевірка</span>
                   <h3>Доступні для додавання</h3>
-                  <small className="profile-card-note">Список доступний після Battle.net перевірки. Додай потрібних персонажів одразу.</small>
+                  <small className="profile-card-note">Список тимчасовий — додай потрібних персонажів одразу.</small>
                 </div>
                 <span className="profile-count-pill">{availableCandidates.length}</span>
               </div>

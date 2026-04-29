@@ -94,6 +94,7 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     renderUrl: optionalString(item.renderUrl),
     mediaUrl: optionalString(item.mediaUrl),
     verifiedGuild: Boolean(item.verifiedGuild),
+    itemLevel: Number.isFinite(Number(item.itemLevel)) ? Number(item.itemLevel) : null,
     lastSeenAt: timestampToIso(item.lastSeenAt) || optionalString(item.lastSeenAt) || null || new Date(0).toISOString(),
     addedAt: timestampToIso(item.addedAt) || optionalString(item.addedAt),
     isMain: Boolean(mainCharacterKey && key === mainCharacterKey),
