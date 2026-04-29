@@ -1581,8 +1581,21 @@ async function discordApiFetch(env, path, init = {}) {
   return response;
 }
 
-function discordRaidMessageToken(env) {
-  return String(env.DISCORD_RULES_STATS_TOKEN || env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
+function discordRaidMessageTokens(env) {
+  return Array.from(new Set([
+    env.DISCORD_RULES_STATS_TOKEN,
+    env.INTERNAL_PROFILE_LOOKUP_TOKEN,
+    env.WORKER_STATS_TOKEN,
+  ].map((value) => String(value || "").trim()).filter(Boolean)));
+}
+
+async function verifyAnyBearerOrStatsToken(request, expectedTokens) {
+  const tokens = Array.isArray(expectedTokens) ? expectedTokens.filter(Boolean) : [];
+  if (!tokens.length) return true;
+  for (const token of tokens) {
+    if (await verifyBearerOrStatsToken(request, token)) return true;
+  }
+  return false;
 }
 
 function safeDiscordComponents(value) {
@@ -1598,9 +1611,9 @@ function safeDiscordEmbed(value) {
 
 async function handleRaidDiscordMessageRelay(request, env) {
   const origin = allowedOrigin(request, env) || "null";
-  const expected = discordRaidMessageToken(env);
-  if (!expected || !(await verifyBearerOrStatsToken(request, expected))) {
-    logWorkerEvent("warn", "raid_message.relay.denied", { hasToken: Boolean(expected) });
+  const expectedTokens = discordRaidMessageTokens(env);
+  if (!expectedTokens.length || !(await verifyAnyBearerOrStatsToken(request, expectedTokens))) {
+    logWorkerEvent("warn", "raid_message.relay.denied", { hasToken: expectedTokens.length > 0 });
     return json({ ok: false, error: "Forbidden" }, 403, origin);
   }
 
@@ -1655,8 +1668,8 @@ async function handleRaidDiscordMessageRelay(request, env) {
 
 async function handleDiscordGuildChannels(request, env) {
   const origin = allowedOrigin(request, env) || "null";
-  const expected = discordRaidMessageToken(env);
-  if (expected && !(await verifyBearerOrStatsToken(request, expected))) {
+  const expectedTokens = discordRaidMessageTokens(env);
+  if (expectedTokens.length && !(await verifyAnyBearerOrStatsToken(request, expectedTokens))) {
     logWorkerEvent("warn", "discord_channels.denied", { hasToken: true });
     return json({ ok: false, error: "Forbidden" }, 403, origin);
   }

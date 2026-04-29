@@ -771,11 +771,12 @@ export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSes
   const raid = await saveRaidFromForm(form, user, profile);
   const action = cleanString(form.get("action"), 40);
   if (action === "publish") {
+    const wasDiscordPublished = Boolean(raid.channelId && raid.messageId && raid.status !== "draft");
     const result = await publishOrUpdateRaid(raid, form.get("channelId") ? cleanString(form.get("channelId"), 32) : raid.channelId);
     const nextStatus = isRaidClosed({ ...raid, ...result, status: "published" }) ? "closed" as const : "published" as const;
-    return { raid: { ...raid, status: nextStatus, ...result }, published: result.messageUrl };
+    return { raid: { ...raid, status: nextStatus, ...result }, published: result.messageUrl, discordAction: wasDiscordPublished ? "updated" as const : "created" as const };
   }
-  return { raid, published: null };
+  return { raid, published: null, discordAction: null };
 }
 
 function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null): RaidSignup {

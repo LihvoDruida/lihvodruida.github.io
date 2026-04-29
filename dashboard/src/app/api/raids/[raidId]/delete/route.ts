@@ -16,7 +16,7 @@ function appBaseUrl() {
 
 function redirectWithToast(path: string, toast?: ToastInput) {
   const url = new URL(path, appBaseUrl());
-  const response = NextResponse.redirect(url, { headers: noStoreHeaders() });
+  const response = NextResponse.redirect(url, { status: 303, headers: noStoreHeaders() });
   if (toast) response.headers.append("Set-Cookie", dashboardToastCookie(toast));
   return response;
 }

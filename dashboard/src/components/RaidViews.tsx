@@ -233,7 +233,11 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
   const channelOptions = raid?.channelId && !channels.some((channel) => channel.id === raid.channelId)
     ? [{ id: raid.channelId, name: "поточний канал" }, ...channels]
     : channels;
+  const isExistingRaid = Boolean(raid?.id);
+  const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
   const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
+  const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти зміни" : "Зберегти чернетку";
+  const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
     <div className="raid-form-stack">
       <form className="panel raid-form-panel raid-form-panel--modern" action="/api/raids" method="post">
@@ -242,7 +246,7 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
         <div className="raid-form-heading">
           <div>
             <div className="section-title">{raid?.id ? "Редагування рейду" : "Створення рейду"}</div>
-            <p>Ця форма відповідає тільки за дані рейду та Discord-оголошення. Видалення і закриття винесені в окремі дії.</p>
+            <p>Чернетка лише зберігає дані. Публікація створює Discord-повідомлення, а редагування оновлює вже опублікований embed.</p>
           </div>
           {raid ? <em className={`raid-state raid-state--${raidStatusClass(raid)}`}>{raidStatusLabel(raid)}</em> : null}
         </div>
@@ -298,8 +302,8 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
         </div>
 
         <div className="raid-form-actions">
-          <button className="btn subtle" name="action" value="save" type="submit">Зберегти чернетку</button>
-          <button className="btn primary" name="action" value="publish" type="submit" disabled={!canPublish}>Опублікувати / оновити Discord</button>
+          <button className="btn subtle" name="action" value="save" type="submit">{saveLabel}</button>
+          <button className="btn primary" name="action" value="publish" type="submit" disabled={!canPublish}>{publishLabel}</button>
         </div>
         <div className="raid-form-links">
           {raid?.id ? <a className="raid-message-link" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити сторінку рейду</a> : null}

@@ -19,6 +19,7 @@ function actionText(action: string) {
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
+  if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Обробляємо рейд", message: "Зберігаємо рейд. Якщо вибрана публікація — оновлюємо Discord." };
   if (action.includes("/content/create")) return { label: "Публікуємо...", title: "Публікуємо матеріал", message: "Зберігаємо матеріал і готуємо оновлення сторінки." };
   if (action.includes("/content/update")) return { label: "Зберігаємо...", title: "Зберігаємо зміни", message: "Оновлюємо матеріал." };
   return { label: "Виконуємо...", title: "Обробка дії", message: "Запит виконується. Зачекай кілька секунд." };
@@ -26,6 +27,18 @@ function actionText(action: string) {
 
 function pushToast(title: string, message?: string) {
   dispatchDashboardToast({ tone: "info", title, message, ttl: 3600 });
+}
+
+function preserveSubmitterValue(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
+  form.querySelectorAll<HTMLInputElement>('input[data-submitter-proxy="true"]').forEach((input) => input.remove());
+  if (!submitter?.name) return;
+
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = submitter.name;
+  input.value = submitter.value;
+  input.dataset.submitterProxy = "true";
+  form.appendChild(input);
 }
 
 export default function DashboardFormEnhancer() {
@@ -39,6 +52,8 @@ export default function DashboardFormEnhancer() {
       form.setAttribute("aria-busy", "true");
 
       const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
+      preserveSubmitterValue(form, submitter);
+
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
       const action = form.getAttribute("action") || "";
       const copy = actionText(action);

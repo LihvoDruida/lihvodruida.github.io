@@ -17,7 +17,7 @@ function appBaseUrl() {
 
 function redirectWithToast(path: string, toast?: ToastInput) {
   const url = new URL(path, appBaseUrl());
-  const response = NextResponse.redirect(url, { headers: noStoreHeaders() });
+  const response = NextResponse.redirect(url, { status: 303, headers: noStoreHeaders() });
   if (toast) response.headers.append("Set-Cookie", dashboardToastCookie(toast));
   return response;
 }
@@ -33,10 +33,13 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  let failurePath = "/raids";
+
   try {
     const form = await request.formData();
     const action = String(form.get("action") || "").trim();
     const raidId = String(form.get("raidId") || "").trim();
+    failurePath = raidId ? `/raids/${encodeURIComponent(raidId)}/edit` : "/raids/new";
 
     if (action === "delete" || action === "close") {
       return redirectWithToast("/raids", {
@@ -56,7 +59,13 @@ export async function POST(request: NextRequest) {
       hasChannel: Boolean(form.get("channelId")),
     });
     const result = await saveAndMaybePublishRaid(form, user, profile);
-    logDashboardEvent("info", result.published ? "raids.discord.published" : "raids.saved", request, {
+    const discordEvent = result.discordAction === "updated" ? "raids.discord.updated" : result.discordAction === "created" ? "raids.discord.created" : "raids.saved";
+    const toastTitle = result.discordAction === "updated"
+      ? "Discord-оголошення оновлено"
+      : result.discordAction === "created"
+        ? "Discord-оголошення опубліковано"
+        : "Рейд збережено";
+    logDashboardEvent("info", discordEvent, request, {
       action,
       raidId: result.raid.id,
       actorId: user.id,
@@ -67,13 +76,13 @@ export async function POST(request: NextRequest) {
     });
     return redirectWithToast(`/raids/${encodeURIComponent(result.raid.id)}/edit`, {
       tone: "success",
-      title: result.published ? "Discord-оголошення оновлено" : "Рейд збережено",
+      title: toastTitle,
       message: result.published || "Зміни збережено без публікації.",
       ttl: result.published ? 7600 : 5600,
     });
   } catch (error) {
     logDashboardEvent("error", "raids.action.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
-    return redirectWithToast("/raids", {
+    return redirectWithToast(failurePath, {
       tone: "error",
       title: "Дію з рейдом не виконано",
       message: safeErrorMessage(error),

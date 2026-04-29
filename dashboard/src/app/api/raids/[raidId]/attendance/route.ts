@@ -17,7 +17,7 @@ function raidPath(raidId: string) {
 
 function redirectToRaid(raidId: string, toast?: { tone?: "info" | "success" | "warning" | "error"; title: string; message?: string; ttl?: number }) {
   const url = new URL(raidPath(raidId), appBaseUrl());
-  const response = NextResponse.redirect(url, { headers: noStoreHeaders() });
+  const response = NextResponse.redirect(url, { status: 303, headers: noStoreHeaders() });
   if (toast) response.headers.append("Set-Cookie", dashboardToastCookie(toast));
   return response;
 }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   if (!user) {
     const loginUrl = new URL("/login", appBaseUrl());
     loginUrl.searchParams.set("next", raidPath(raidId));
-    return NextResponse.redirect(loginUrl, { headers: noStoreHeaders() });
+    return NextResponse.redirect(loginUrl, { status: 303, headers: noStoreHeaders() });
   }
 
   try {

@@ -10050,3 +10050,39 @@ button.btn.danger:hover {
     min-width: 0;
   }
 }
+
+/* Raid list final layout polish: wide fixed manager block with compact cards. */
+.raid-list-page-panel {
+  width: min(100%, 1040px);
+  max-width: 1040px;
+  max-height: calc(100vh - 220px);
+  overflow: hidden;
+}
+
+.raid-manager-list {
+  max-height: 100%;
+  overflow: auto;
+  padding: 12px;
+}
+
+.raid-manager-list .raid-list-item {
+  min-height: 104px;
+  max-height: 124px;
+  border-radius: 18px;
+}
+
+.raid-manager-list .raid-list-main-link {
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .raid-list-page-panel {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .raid-manager-list .raid-list-item {
+    max-height: none;
+  }
+}
