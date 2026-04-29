@@ -651,13 +651,26 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
   return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
+function compactSignupDiscordLine(item?: RaidSignup | null, max = 48) {
+  if (!item) return "—";
+  const parts = [item.characterName || item.discordName || "Гравець"];
+  if (item.activeSpecName) parts.push(item.activeSpecName);
+  if (item.itemLevel) parts.push(String(item.itemLevel));
+  let text = parts.join(" — ");
+  if (item.status === "late") text += " (затримається)";
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+}
+
 function partyDiscordText(party: RaidParty) {
-  const dps = party.dps.length ? party.dps.map((item) => compactSignupName(item, 28)).join(", ") : "—";
+  const dpsLines = party.dps.length
+    ? party.dps.map((item) => `• ${compactSignupDiscordLine(item, 40)}`).join("\n")
+    : "—";
+
   return truncateDiscordField([
-    `🛡 ${compactSignupName(party.tank, 34)}`,
-    `✚ ${compactSignupName(party.healer, 34)}`,
-    `⚔ ${dps}`,
-  ].join("\n"), 420);
+    `**Танк**\n${compactSignupDiscordLine(party.tank, 44)}`,
+    `**Хіл**\n${compactSignupDiscordLine(party.healer, 44)}`,
+    `**ДД**\n${dpsLines}`,
+  ].join("\n\n"), 700);
 }
 
 function compactDiscordFields(fields: Array<{ name: string; value: string; inline?: boolean }>, maxTotal = 5600) {
@@ -684,32 +697,52 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
-    { name: "📌 Статус", value: closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито", inline: true },
-    { name: "📅 Дата", value: dateTimeLabel(raid), inline: true },
-    { name: "👤 Створив", value: `${raid.createdByName}${raid.createdByMain ? `\nmain: ${raid.createdByMain}` : ""}`, inline: true },
-    { name: "🧪 Розхідники", value: raidConsumablesLabel(raid.consumables), inline: true },
-    { name: "🎁 Лут", value: raidLootLabel(raid.lootMode), inline: true },
-    { name: "👥 Склад рейду", value: `${counts.roster} / ${raidAutoCapacity(raid)}\n${compositionLongLabel(raid)}`, inline: true },
-    { name: "⚔️ Ролі", value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`, inline: false },
-    ...parties.map((party) => ({ name: `Паті ${party.index}`, value: partyDiscordText(party), inline: true })),
-    ...(omittedParties > 0 ? [{ name: "Повний склад", value: `Ще ${omittedParties} паті показано на сторінці рейду: ${dashboardRaidUrl(raid.id)}`, inline: false }] : []),
+    {
+      name: "Огляд",
+      value: [
+        `**Статус:** ${closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито"}`,
+        `**Дата:** ${dateTimeLabel(raid)}`,
+        `**Створив:** ${raid.createdByName}`,
+        ...(raid.createdByMain ? [`**Основний персонаж:** ${raid.createdByMain}`] : []),
+      ].join("\n"),
+      inline: false,
+    },
+    {
+      name: "Параметри рейду",
+      value: [
+        `**Розхідники:** ${raidConsumablesLabel(raid.consumables)}`,
+        `**Лут:** ${raidLootLabel(raid.lootMode)}`,
+        `**Заповнення:** ${counts.roster} / ${raidAutoCapacity(raid)}`,
+        `**Цільовий склад:** ${compositionLongLabel(raid)}`,
+        `**Ролі:** ${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
+      ].join("\n"),
+      inline: false,
+    },
+    ...parties.map((party) => ({
+      name: `Паті ${party.index}`,
+      value: partyDiscordText(party),
+      inline: true,
+    })),
+    ...(omittedParties > 0
+      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`, inline: false }]
+      : []),
   ];
   const fields = compactDiscordFields(rawFields);
 
   const embed = normalizeDiscordEmbed({
-    title: closed ? `${raidTitle(raid)} — Закрито` : raidTitle(raid),
+    title: closed ? `${raidTitle(raid)} • Закрито` : raidTitle(raid),
     url: dashboardRaidUrl(raid.id),
     description: raid.description,
     color: DIFFICULTY_COLORS[raid.difficulty],
     thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
     image: imageUrl ? { url: imageUrl } : undefined,
     fields,
-    footer: { text: "Кнопки автоматично оновлюють склад рейду після кожної заявки." },
+    footer: { text: "Склад і кнопки оновлюються автоматично після кожної заявки." },
     timestamp: new Date().toISOString(),
   });
 
   return {
-    content: closed ? `🔒 **${raidTitle(raid)}** • рейд закрито` : `📣 **${raidTitle(raid)}** • ${dateTimeLabel(raid)}`,
+    content: "",
     embed,
   };
 }
