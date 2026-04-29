@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-29 17:41:29'
+  updated_at: '2026-04-29 19:42:17'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -16,14 +16,14 @@ guild:
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 118
-  achievement_points: 445
+  achievement_points: 465
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
-    summary: 4/9 H
+    summary: 5/9 H
     total_bosses: 9
     normal_bosses_killed: 8
-    heroic_bosses_killed: 4
+    heroic_bosses_killed: 5
     mythic_bosses_killed: 0
   blackrock-depths:
     summary: 0/8 N
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13480
-      region: 6009
+      world: 13489
+      region: 6014
       realm: 55
     heroic:
-      world: 16444
-      region: 6891
-      realm: 59
+      world: 15508
+      region: 6510
+      realm: 52
     mythic:
-      world: 6692
-      region: 2887
+      world: 6713
+      region: 2905
       realm: 23
   blackrock-depths:
     normal:
@@ -814,14 +814,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 259
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
-        score: 2420.1
-        color: '#5fc382'
+        score: 2472.6
+        color: '#5fba8d'
       dps:
-        score: 2420.1
-        color: '#5fc382'
+        score: 2472.6
+        color: '#5fba8d'
       healer:
         score: 0
         color: '#ffffff'
@@ -835,8 +835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2420.1
-        color: '#5fc382'
+        score: 2472.6
+        color: '#5fba8d'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -918,7 +918,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-    item_level_equipped: 269
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2936.2
@@ -1906,7 +1906,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/213/187944917-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Vurush
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2735.9
@@ -2506,7 +2506,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Lightass
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3070.7
@@ -2610,7 +2610,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2593.2
@@ -4066,7 +4066,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 3020.1
@@ -5252,7 +5252,7 @@ members:
       id: 1
       name: Warrior
     playable_race:
-      id: 34
+      id: 3
       name: Dark Iron Dwarf
     faction:
       type: ALLIANCE
@@ -5810,7 +5810,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/121/265783673-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2123
@@ -5914,14 +5914,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 269
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2213.1
-        color: '#45ec46'
+        score: 2511.6
+        color: '#5fb197'
       dps:
-        score: 2213.1
-        color: '#45ec46'
+        score: 2511.6
+        color: '#5fb197'
       healer:
         score: 0
         color: '#ffffff'
@@ -5935,8 +5935,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2213.1
-        color: '#45ec46'
+        score: 2511.6
+        color: '#5fb197'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5966,7 +5966,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
         score: 2419.2
@@ -5996,7 +5996,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 1
   character:
     name: Мавпита
     id: 265908803
@@ -6018,7 +6018,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мавпита
-    item_level_equipped: 262
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 2615.2
@@ -6098,7 +6098,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
-    item_level_equipped: 268
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 170
@@ -6132,7 +6132,7 @@ members:
   character:
     name: Ponziani
     id: 220012325
-    level: 80
+    level: 82
     realm:
       id: 1305
       slug: kazzak
@@ -6150,7 +6150,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/220012325-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Ponziani
-    item_level_equipped: 135
+    item_level_equipped: 137
     mythic_plus_scores:
       all:
         score: 0
