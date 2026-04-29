@@ -16,11 +16,11 @@ function redirectToRaids(params: Record<string, string | undefined>) {
 
 export async function POST(request: NextRequest) {
   const user = await getSession();
-  if (!canManageRaids(user)) return redirectToRaids({ error: "Твоя роль не має доступу до керування рейдами." });
+  if (!user || !canManageRaids(user)) return redirectToRaids({ error: "Твоя роль не має доступу до керування рейдами." });
 
   try {
     const form = await request.formData();
-    const profile = user?.profileId ? await getProfileById(user.profileId) : null;
+    const profile = user.profileId ? await getProfileById(user.profileId) : null;
     const result = await saveAndMaybePublishRaid(form, user, profile);
     return redirectToRaids({ raid: result.raid.id, saved: "1", published: result.published || undefined });
   } catch (error) {
