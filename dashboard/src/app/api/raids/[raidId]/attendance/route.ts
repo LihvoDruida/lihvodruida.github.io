@@ -6,10 +6,16 @@ import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function appBaseUrl() {
+  return process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || "http://localhost:3000";
+}
+
+function raidPath(raidId: string) {
+  return `/raids/${encodeURIComponent(raidId)}`;
+}
+
 function redirectToRaid(raidId: string, params: Record<string, string | undefined>) {
-  const base = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || "http://localhost:3000";
-  const url = new URL("/raids", base);
-  url.searchParams.set("raid", raidId);
+  const url = new URL(raidPath(raidId), appBaseUrl());
   for (const [key, value] of Object.entries(params)) {
     if (value) url.searchParams.set(key, value);
   }
@@ -25,9 +31,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   const user = await getSession();
 
   if (!user) {
-    const base = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || "http://localhost:3000";
-    const loginUrl = new URL("/login", base);
-    loginUrl.searchParams.set("next", `/raids?raid=${encodeURIComponent(raidId)}`);
+    const loginUrl = new URL("/login", appBaseUrl());
+    loginUrl.searchParams.set("next", raidPath(raidId));
     return NextResponse.redirect(loginUrl, { headers: noStoreHeaders() });
   }
 

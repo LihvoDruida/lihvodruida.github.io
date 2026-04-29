@@ -9141,3 +9141,115 @@ form.is-submitting button[type="submit"],
     grid-template-columns: 1fr;
   }
 }
+
+/* Raid pages split: list / editor / public raid */
+.raid-list-page-panel,
+.raid-editor-layout > .raid-form-panel {
+  background: linear-gradient(180deg, rgba(14, 18, 23, .98), rgba(6, 9, 12, .96));
+  border-color: rgba(199, 146, 64, .34);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.raid-list-page-panel {
+  margin: 18px 0 36px;
+}
+
+.raid-list-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.raid-list-page-head h2 {
+  margin: 0 0 6px;
+  color: #f2e5ce;
+}
+
+.raid-list-page-head p {
+  margin: 0;
+  color: rgba(236, 226, 207, .68);
+}
+
+.raid-manager-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+.raid-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) minmax(520px, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin: 18px 0 36px;
+}
+
+.raid-auto-composition-note {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid rgba(64, 137, 255, .28);
+  border-radius: 12px;
+  background: rgba(47, 129, 247, .08);
+  color: rgba(236, 226, 207, .74);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.raid-auto-composition-note strong {
+  color: #d9c08e;
+}
+
+.raid-form-links,
+.raid-detail-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.raid-preview-title-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.raid-preview-title-row h2 {
+  min-width: 0;
+}
+
+.raid-preview-manage-actions {
+  flex: 0 0 auto;
+}
+
+.raid-detail-links {
+  margin-top: 2px;
+}
+
+@media (max-width: 1180px) {
+  .raid-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .raid-list-page-head {
+    display: grid;
+  }
+
+  .raid-list-page-head .btn,
+  .raid-manager-list .raid-list-item {
+    width: 100%;
+  }
+
+  .raid-manager-list {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-preview-title-row {
+    display: grid;
+  }
+}

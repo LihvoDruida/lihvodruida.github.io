@@ -266,6 +266,48 @@ export function raidCompositionLabel(raid: Pick<RaidItem, "composition">) {
   return `${raid.composition.tanks} / ${raid.composition.healers} / ${raid.composition.dps}`;
 }
 
+type RaidAutoInput = Pick<RaidItem, "difficulty" | "composition" | "signups">;
+
+export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
+  return raid.signups.filter((item) => item.status === "going" || item.status === "late").length;
+}
+
+export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficulty): RaidComposition {
+  const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
+
+  if (difficulty === "mythic") {
+    return activeSize <= 10
+      ? { tanks: 2, healers: 2, dps: 6 }
+      : { tanks: 2, healers: 4, dps: 16 };
+  }
+
+  if (activeSize <= 10) return { tanks: 2, healers: 2, dps: 6 };
+  if (activeSize <= 22) return { tanks: 2, healers: 4, dps: 16 };
+  if (activeSize <= 30) return { tanks: 2, healers: 6, dps: 22 };
+
+  const extraBlocks = Math.ceil((activeSize - 30) / 10);
+  return {
+    tanks: 2,
+    healers: 6 + extraBlocks * 2,
+    dps: 22 + extraBlocks * 8,
+  };
+}
+
+export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
+  const activeSize = raidActiveRosterSize(raid);
+  return autoRaidCompositionForSize(activeSize, raid.difficulty);
+}
+
+export function raidAutoCapacity(raid: RaidAutoInput) {
+  const composition = raidAutoComposition(raid);
+  return composition.tanks + composition.healers + composition.dps;
+}
+
+export function raidAutoCompositionLabel(raid: RaidAutoInput) {
+  const composition = raidAutoComposition(raid);
+  return `${composition.tanks} / ${composition.healers} / ${composition.dps}`;
+}
+
 export function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
   const going = raid.signups.filter((item) => item.status === "going");
   const late = raid.signups.filter((item) => item.status === "late");
@@ -360,8 +402,9 @@ function dateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
   return [raid.date || "Дата уточнюється", raid.time || ""].filter(Boolean).join(" ");
 }
 
-function compositionLongLabel(raid: Pick<RaidItem, "composition">) {
-  return `${raid.composition.tanks} танки / ${raid.composition.healers} хіли / ${raid.composition.dps} дд`;
+function compositionLongLabel(raid: RaidAutoInput) {
+  const composition = raidAutoComposition(raid);
+  return `${composition.tanks} танки / ${composition.healers} хіли / ${composition.dps} дд`;
 }
 
 function signupName(item?: RaidSignup | null) {
@@ -401,10 +444,10 @@ function rosterForGroups(raid: Pick<RaidItem, "signups">) {
 
 export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "composition" | "signups">): RaidParty[] {
   const roster = rosterForGroups(raid);
-  const activeCount = roster.active.length || raidCapacity(raid);
-  const hardCap = raid.difficulty === "mythic" ? 4 : 8;
-  const groupOrder = [1, 3, 2, 4, 5, 7, 6, 8];
-  const groupCount = Math.max(2, Math.min(hardCap, Math.ceil(activeCount / 5)));
+  const composition = raidAutoComposition(raid);
+  const hardCap = raid.difficulty === "mythic" ? 4 : 16;
+  const groupCount = Math.max(2, Math.min(hardCap, composition.healers));
+  const groupOrder = [1, 3, 2, 4, 5, 7, 6, 8, 9, 11, 10, 12, 13, 15, 14, 16];
   const orderedIndexes = groupOrder.filter((index) => index <= groupCount);
   const parties: RaidParty[] = orderedIndexes.map((index) => ({ index, dps: [], late: [], members: [] }));
 
@@ -419,18 +462,15 @@ export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "compositio
     party.healer = healers.shift() || null;
   }
 
-  const extraHealersAsDps = healers;
-  const dpsPool = [...roster.dps, ...extraHealersAsDps];
-  const partyCapacity = new Map<number, number>();
-  for (const party of parties) partyCapacity.set(party.index, 5);
-
+  const dpsPool = [...roster.dps, ...healers];
+  const dpsSlotsByParty = Math.max(1, Math.ceil(composition.dps / Math.max(1, parties.length)));
   let cursor = 0;
-  for (const member of dpsPool) {
+
+  for (const member of dpsPool.slice(0, composition.dps)) {
     let placed = false;
     for (let attempt = 0; attempt < parties.length; attempt += 1) {
       const party = parties[(cursor + attempt) % parties.length];
-      const used = (party.tank ? 1 : 0) + (party.healer ? 1 : 0) + party.dps.length;
-      if (used < (partyCapacity.get(party.index) || 5)) {
+      if (party.dps.length < dpsSlotsByParty) {
         party.dps.push(member);
         cursor = (cursor + attempt + 1) % parties.length;
         placed = true;
@@ -459,6 +499,7 @@ function partyDiscordText(party: RaidParty) {
 
 export function buildRaidDiscordPayload(raid: RaidItem) {
   const counts = raidRosterCounts(raid);
+  const composition = raidAutoComposition(raid);
   const parties = buildRaidParties(raid);
   const imageUrl = raid.imageUrl || undefined;
   const thumbUrl = raid.thumbnailUrl || raid.imageUrl || DEFAULT_RAID_IMAGE;
@@ -467,8 +508,8 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     { name: "👤 Створив", value: `${raid.createdByName}${raid.createdByMain ? `\nmain: ${raid.createdByMain}` : ""}`, inline: true },
     { name: "🧪 Розхідники", value: raidConsumablesLabel(raid.consumables), inline: true },
     { name: "🎁 Лут", value: raidLootLabel(raid.lootMode), inline: true },
-    { name: "👥 Склад рейду", value: `${counts.roster} / ${raidCapacity(raid)}\n${compositionLongLabel(raid)}`, inline: true },
-    { name: "⚔️ Ролі", value: `${counts.tanks}/${raid.composition.tanks} танки • ${counts.healers}/${raid.composition.healers} хіли • ${counts.dps}/${raid.composition.dps} дд`, inline: true },
+    { name: "👥 Склад рейду", value: `${counts.roster} / ${raidAutoCapacity(raid)}\n${compositionLongLabel(raid)}`, inline: true },
+    { name: "⚔️ Ролі", value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`, inline: true },
     ...parties.map((party) => ({ name: `Паті ${party.index}`, value: partyDiscordText(party), inline: true })),
   ];
 
@@ -704,5 +745,5 @@ export async function handleRaidSessionAction(params: {
 
 export function dashboardRaidUrl(raidId: string) {
   const base = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
-  return `${base}/raids?raid=${encodeURIComponent(raidId)}`;
+  return `${base}/raids/${encodeURIComponent(raidId)}`;
 }
