@@ -667,12 +667,10 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
 
 function compactSignupDiscordLine(item?: RaidSignup | null, max = 48) {
   if (!item) return "—";
-  const parts = [item.characterName || item.discordName || "Гравець"];
-  if (item.activeSpecName) parts.push(item.activeSpecName);
-  if (item.itemLevel) parts.push(String(item.itemLevel));
-  let text = parts.join(" — ");
-  if (item.status === "late") text += " (затримається)";
-  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+  const base = item.characterName || item.discordName || "Гравець";
+  const late = item.status === "late" ? " ⏱" : "";
+  const value = `${base}${late}`.trim();
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
 function partyDiscordText(party: RaidParty) {
@@ -712,23 +710,21 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const omittedParties = allParties.length - parties.length;
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
-      name: "Огляд",
+      name: "Огляд рейду",
       value: [
         `**Статус:** ${closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито"}`,
-        `**Дата:** ${discordDateTimeLabel(raid)}`,
-        `**Створив:** ${raid.createdByName}`,
-        ...(raid.createdByMain ? [`**Основний персонаж:** ${raid.createdByMain}`] : []),
+        `**Коли:** ${discordDateTimeLabel(raid)}`,
+        `**Організатор:** ${raid.createdByName}`,
       ].join("\n"),
       inline: false,
     },
     {
-      name: "Параметри рейду",
+      name: "Склад і правила",
       value: [
+        `**Заповнення:** ${counts.roster} / ${raidAutoCapacity(raid)}`,
+        `**Цільовий склад:** ${composition.tanks} / ${composition.healers} / ${composition.dps}`,
         `**Розхідники:** ${raidConsumablesLabel(raid.consumables)}`,
         `**Лут:** ${raidLootLabel(raid.lootMode)}`,
-        `**Заповнення:** ${counts.roster} / ${raidAutoCapacity(raid)}`,
-        `**Цільовий склад:** ${compositionLongLabel(raid)}`,
-        `**Ролі:** ${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
       ].join("\n"),
       inline: false,
     },
@@ -751,7 +747,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
     image: imageUrl ? { url: imageUrl } : undefined,
     fields,
-    footer: { text: "Склад і кнопки оновлюються автоматично після кожної заявки." },
+    footer: { text: "Склад рейду оновлюється автоматично після кожної заявки." },
     timestamp: new Date().toISOString(),
   });
 
