@@ -1,9 +1,9 @@
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { canManageRaids, hierarchyTitle } from "@/lib/permissions";
-import { getOwnProfilePath } from "@/lib/profiles";
 import {
   buildRaidParties,
   getRaid,
@@ -34,11 +34,19 @@ function formatDateTime(date?: string | null, time?: string | null) {
   return [date || "Дата уточнюється", time || ""].filter(Boolean).join(", ");
 }
 
+function attendanceStatusLabel(action?: string) {
+  if (action === "skipped") return "Позначено, що ти пропускаєш рейд.";
+  if (action === "late") return "Записано: ти затримаєшся. Склад рейду оновлено.";
+  if (action === "going") return "Тебе записано на рейд. Склад рейду оновлено.";
+  return "Дію виконано.";
+}
+
 function StatusNotice({ params }: { params: Record<string, string | undefined> }) {
   if (params.published) {
     return <div className="notice panel success raid-notice">Рейд опубліковано в Discord: <a href={params.published} target="_blank" rel="noreferrer">відкрити</a></div>;
   }
   if (params.saved) return <div className="notice panel success raid-notice">Рейд збережено.</div>;
+  if (params.attendance) return <div className="notice panel success raid-notice">{attendanceStatusLabel(params.attendance)}</div>;
   if (params.error) return <div className="notice panel error-note raid-notice">{params.error}</div>;
   return null;
 }
@@ -106,7 +114,17 @@ function RosterBlock({ title, items, empty = "Поки порожньо" }: { ti
   );
 }
 
-function RaidAnnouncementPreview({ raid }: { raid: RaidItem }) {
+function RaidAttendanceActions({ raid }: { raid: RaidItem }) {
+  return (
+    <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post">
+      <button className="raid-action raid-action--go" type="submit" name="action" value="going">✓ Підписатися</button>
+      <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped">◷ Пропустити</button>
+      <button className="raid-action raid-action--late" type="submit" name="action" value="late">✕ Затримаюсь</button>
+    </form>
+  );
+}
+
+function RaidAnnouncementPreview({ raid, actions }: { raid: RaidItem; actions?: ReactNode }) {
   const counts = raidRosterCounts(raid);
   const parties = buildRaidParties(raid);
   return (
@@ -126,11 +144,13 @@ function RaidAnnouncementPreview({ raid }: { raid: RaidItem }) {
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
         <span><strong>👥 Склад</strong>{counts.roster} / {raidCapacity(raid)}<small>{raidCompositionLabel(raid)}</small></span>
       </div>
-      <div className="raid-preview-buttons" aria-hidden="true">
-        <span className="raid-action raid-action--go">✓ Підписатися</span>
-        <span className="raid-action raid-action--skip">◷ Пропустити</span>
-        <span className="raid-action raid-action--late">✕ Затримаюсь</span>
-      </div>
+      {actions || (
+        <div className="raid-preview-buttons" aria-hidden="true">
+          <span className="raid-action raid-action--go">✓ Підписатися</span>
+          <span className="raid-action raid-action--skip">◷ Пропустити</span>
+          <span className="raid-action raid-action--late">✕ Затримаюсь</span>
+        </div>
+      )}
       <div className="raid-preview-roster-head">
         <div><strong>Склад рейду</strong><p>Паті побудовані в порядку 1–3 / 2–4, додаткові групи зʼявляються за потреби.</p></div>
       </div>
@@ -213,16 +233,83 @@ function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels: Array<
         <button className="btn primary" name="action" value="publish" type="submit" disabled={!channels.length}>Опублікувати / оновити</button>
       </div>
       {raid?.messageUrl ? <a className="raid-message-link" href={raid.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord-повідомлення</a> : null}
+      {raid?.id && raid.status === "published" ? <a className="raid-message-link" href={`/raids?raid=${raid.id}`}>Відкрити сторінку рейду</a> : null}
     </form>
+  );
+}
+
+function RaidPageShell({ user, title, description, children }: { user: NonNullable<Awaited<ReturnType<typeof getSession>>>; title: string; description: string; children: ReactNode }) {
+  return (
+    <main className="container raid-page">
+      <section className="dashboard-shell raid-shell" aria-label="Панель рейдів Mistblossom Vanguard">
+        <DashboardIdentity user={user} activeSection="raids" />
+        <header className="hero panel dashboard-hero raid-dashboard-hero">
+          <div className="hero-copy dashboard-hero__copy">
+            <div className="eyebrow">Mistblossom Vanguard • Рейди</div>
+            <div className="content-hero-status-row"><span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span><span className="content-hero-path">Discord-запис • склад паті • автоматичне оновлення</span></div>
+            <h1>{title}</h1>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">{description}</p>
+          </div>
+        </header>
+      </section>
+      {children}
+    </main>
+  );
+}
+
+function RaidMemberEmptyState() {
+  return (
+    <section className="panel raid-member-panel">
+      <h2>Відкрий пряме посилання на конкретний рейд</h2>
+      <p>Для учасників доступна тільки сторінка конкретного опублікованого рейду. Створення, список усіх рейдів і редагування залишаються для модераторів та адмінів.</p>
+    </section>
+  );
+}
+
+function RaidUnavailableState() {
+  return (
+    <section className="panel raid-member-panel">
+      <h2>Рейд недоступний</h2>
+      <p>Цей рейд не знайдено, він ще не опублікований або був видалений. Перевір посилання з Discord-повідомлення.</p>
+    </section>
+  );
+}
+
+function RaidMemberView({ raid }: { raid: RaidItem }) {
+  return (
+    <section className="raid-member-layout">
+      <div className="raid-preview-column">
+        <RaidAnnouncementPreview raid={raid} actions={<RaidAttendanceActions raid={raid} />} />
+        {raid.messageUrl ? <a className="btn subtle raid-member-discord-link" href={raid.messageUrl} target="_blank" rel="noreferrer">Відкрити повідомлення рейду в Discord</a> : null}
+      </div>
+      <RosterSideList raid={raid} />
+    </section>
   );
 }
 
 export default async function RaidsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) redirect("/login");
-  if (!canManageRaids(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
+  const canManage = canManageRaids(user);
+
+  if (!canManage) {
+    const selectedRaid = params.raid ? await getRaid(params.raid) : null;
+    return (
+      <RaidPageShell
+        user={user}
+        title="Рейдовий запис"
+        description="За прямим посиланням учасник може тільки підписатися, пропустити рейд або позначити запізнення."
+      >
+        <StatusNotice params={params} />
+        {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейдовий запис недоступний.</div> : null}
+        {selectedRaid && selectedRaid.status === "published" ? <RaidMemberView raid={selectedRaid} /> : params.raid ? <RaidUnavailableState /> : <RaidMemberEmptyState />}
+      </RaidPageShell>
+    );
+  }
+
   const raids = await listRaids();
   const selectedRaid = params.raid ? await getRaid(params.raid) : raids[0] || null;
   const channelsResult = hasDiscordEmbedConfig() ? await fetchDiscordTextChannels().catch(() => null) : null;
@@ -245,20 +332,11 @@ export default async function RaidsPage({ searchParams }: { searchParams: Promis
   } satisfies RaidItem);
 
   return (
-    <main className="container raid-page">
-      <section className="dashboard-shell raid-shell" aria-label="Панель рейдів Mistblossom Vanguard">
-        <DashboardIdentity user={user} activeSection="raids" />
-        <header className="hero panel dashboard-hero raid-dashboard-hero">
-          <div className="hero-copy dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Рейди</div>
-            <div className="content-hero-status-row"><span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span><span className="content-hero-path">Discord-запис • склад паті • автоматичне оновлення</span></div>
-            <h1>Рейдові оголошення</h1>
-            <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Створи рейд, опублікуй embed з кнопками і отримуй готову структуру паті після кожної заявки.</p>
-          </div>
-        </header>
-      </section>
-
+    <RaidPageShell
+      user={user}
+      title="Рейдові оголошення"
+      description="Створи рейд, опублікуй embed з кнопками і отримуй готову структуру паті після кожної заявки."
+    >
       <StatusNotice params={params} />
       {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейди не зможуть зберігатися.</div> : null}
       {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Discord-бот не підключений: публікація оголошення недоступна.</div> : null}
@@ -271,6 +349,6 @@ export default async function RaidsPage({ searchParams }: { searchParams: Promis
           <RosterSideList raid={previewRaid} />
         </div>
       </section>
-    </main>
+    </RaidPageShell>
   );
 }

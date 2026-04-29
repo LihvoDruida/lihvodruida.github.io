@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import {
   createDiscordEmbedMessage,
   discordMessageUrl,
@@ -474,6 +474,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
 
   const embed = {
     title: raidTitle(raid),
+    url: dashboardRaidUrl(raid.id),
     description: raid.description,
     color: DIFFICULTY_COLORS[raid.difficulty],
     thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
@@ -660,6 +661,43 @@ export async function handleRaidDiscordAction(params: {
   }
 
   const signup = signupFromProfile(params.action, params.userId, params.userName, profile);
+  const updated = await recordRaidSignup(raid.id, signup);
+  return { ok: true, content: attendanceSuccessText(params.action, updated, signup), raid: updated };
+}
+
+export async function handleRaidSessionAction(params: {
+  raidId: string;
+  action: RaidSignupStatus;
+  user: DashboardSession;
+}) {
+  const raid = await getRaid(params.raidId);
+  if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+
+  const discordId = params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id) ? params.user.id : "";
+  if (!discordId) {
+    return { ok: false, content: "❌ Для запису на рейд потрібно увійти через Discord." };
+  }
+
+  let profile: DashboardProfile | null = null;
+  if (params.user.profileId) {
+    profile = await getProfileById(params.user.profileId).catch(() => null);
+  }
+  if (!profile) {
+    profile = await getProfileByDiscordUserId(discordId).catch(() => null);
+  }
+
+  if (params.action !== "skipped") {
+    const main = profile ? getMainCharacter(profile) : null;
+    if (!profile || !main) {
+      return {
+        ok: false,
+        content: "❌ Запис не зараховано: додай персонажа Battle.net у профілі та вибери main.",
+      };
+    }
+  }
+
+  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile);
   const updated = await recordRaidSignup(raid.id, signup);
   return { ok: true, content: attendanceSuccessText(params.action, updated, signup), raid: updated };
 }

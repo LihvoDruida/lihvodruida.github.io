@@ -9090,3 +9090,54 @@ form.is-submitting button[type="submit"],
     justify-self: start;
   }
 }
+
+/* Member-safe raid view */
+.raid-member-layout {
+  display: grid;
+  grid-template-columns: minmax(520px, 1fr) minmax(260px, 360px);
+  gap: 16px;
+  align-items: start;
+  margin: 18px 0 36px;
+}
+
+.raid-member-panel {
+  margin: 18px 0 36px;
+  background: linear-gradient(180deg, rgba(14, 18, 23, .98), rgba(6, 9, 12, .96));
+  border-color: rgba(199, 146, 64, .34);
+}
+
+.raid-member-panel h2 {
+  margin: 0 0 8px;
+  color: #f2e5ce;
+}
+
+.raid-member-panel p {
+  margin: 0;
+  color: rgba(236, 226, 207, .72);
+  line-height: 1.55;
+}
+
+.raid-preview-buttons--interactive .raid-action {
+  border: 1px solid rgba(255,255,255,.18);
+  cursor: pointer;
+  font: inherit;
+  transition: transform .16s ease, filter .16s ease, border-color .16s ease;
+}
+
+.raid-preview-buttons--interactive .raid-action:hover,
+.raid-preview-buttons--interactive .raid-action:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  border-color: rgba(255,255,255,.32);
+  outline: none;
+}
+
+.raid-member-discord-link {
+  justify-self: start;
+}
+
+@media (max-width: 980px) {
+  .raid-member-layout {
+    grid-template-columns: 1fr;
+  }
+}
