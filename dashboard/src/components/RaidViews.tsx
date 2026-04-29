@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import type { DashboardSession } from "@/lib/auth";
 import { hierarchyTitle } from "@/lib/permissions";
 import { wowRoleLabel } from "@/lib/wowRoles";
@@ -175,7 +176,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
             <h2>{raidTitle(raid)}</h2>
             {manageActions ? <div className="raid-preview-manage-actions">{manageActions}</div> : null}
           </div>
-          <p>{raid.description}</p>
+          <div className="raid-description-markdown"><DiscordMarkdown value={raid.description} /></div>
           {closed ? <div className="raid-closed-banner">🔒 Рейд закрито. Запис і Discord-кнопки неактивні.</div> : null}
         </div>
       </div>
@@ -316,7 +317,8 @@ export function RaidForm({ raid, channels }: { raid?: RaidItem | null; channels:
 
         <div className="raid-form-section">
           <strong>Текст і зображення</strong>
-          <label className="field-label">Опис<textarea className="input textarea" name="description" rows={5} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
+          <label className="field-label">Опис<textarea className="input textarea markdown-area raid-description-textarea" name="description" rows={8} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
+          <p className="raid-form-hint">Підтримується Discord Markdown: **жирний**, *курсив*, списки, заголовки, цитати, посилання, inline-code і блоки коду.</p>
           <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || ""} /></label>
           <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
         </div>
