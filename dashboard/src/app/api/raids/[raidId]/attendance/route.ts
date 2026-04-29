@@ -2,24 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { handleRaidSessionAction, type RaidSignupStatus } from "@/lib/raids";
 import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function appBaseUrl() {
-  return process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
 }
 
 function raidPath(raidId: string) {
   return `/raids/${encodeURIComponent(raidId)}`;
 }
 
-function redirectToRaid(raidId: string, params: Record<string, string | undefined>) {
+function redirectToRaid(raidId: string, toast?: { tone?: "info" | "success" | "warning" | "error"; title: string; message?: string; ttl?: number }) {
   const url = new URL(raidPath(raidId), appBaseUrl());
-  for (const [key, value] of Object.entries(params)) {
-    if (value) url.searchParams.set(key, value);
-  }
-  return NextResponse.redirect(url, { headers: noStoreHeaders() });
+  const response = NextResponse.redirect(url, { headers: noStoreHeaders() });
+  if (toast) response.headers.append("Set-Cookie", dashboardToastCookie(toast));
+  return response;
 }
 
 function cleanAction(value: unknown): RaidSignupStatus {
@@ -42,11 +42,17 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
     const result = await handleRaidSessionAction({ raidId, action, user });
 
     if (!result.ok) {
-      return redirectToRaid(raidId, { error: result.content || "Дію не виконано." });
+      return redirectToRaid(raidId, { tone: "error", title: "Запис не оновлено", message: result.content || "Дію не виконано.", ttl: 8200 });
     }
 
-    return redirectToRaid(raidId, { attendance: action });
+    const successMessage = action === "going"
+      ? "Тебе записано на рейд. Склад оновлено."
+      : action === "late"
+        ? "Позначено, що ти затримаєшся. Склад оновлено."
+        : "Позначено, що ти пропускаєш рейд.";
+
+    return redirectToRaid(raidId, { tone: "success", title: "Запис оновлено", message: successMessage, ttl: 6200 });
   } catch (error) {
-    return redirectToRaid(raidId, { error: safeErrorMessage(error) });
+    return redirectToRaid(raidId, { tone: "error", title: "Запис не оновлено", message: safeErrorMessage(error), ttl: 8200 });
   }
 }

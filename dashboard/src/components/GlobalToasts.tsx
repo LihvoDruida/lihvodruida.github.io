@@ -219,7 +219,8 @@ const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   access_denied: { tone: "error", title: "Доступ заборонено", message: "У цього акаунта немає потрібної ролі." },
 };
 
-const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error", "published", "updated", "deleted", "created", "saved", "warning"];
+const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error", "published", "updated", "deleted", "created", "saved", "warning", "attendance"];
+const FLASH_TOAST_COOKIE = "dashboard_toast";
 
 function toneIcon(tone: ToastTone) {
   if (tone === "success") return "✓";
@@ -232,8 +233,50 @@ function createId(prefix = "toast") {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function cleanMessage(value: string | null | undefined) {
-  return String(value || "").replace(/\s+/g, " ").trim().slice(0, 360);
+function cleanMessage(value: string | null | undefined, limit = 360) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, limit);
+}
+
+function toastFromAttendance(value: string | null): Toast | null {
+  const action = cleanMessage(value, 32);
+  if (!action) return null;
+  if (action === "going") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Тебе записано на рейд. Склад оновлено.", ttl: 6200 };
+  if (action === "late") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Позначено, що ти затримаєшся. Склад оновлено.", ttl: 6200 };
+  if (action === "skipped") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Позначено, що ти пропускаєш рейд.", ttl: 6200 };
+  return null;
+}
+
+function toastFromCookie(): Toast[] {
+  if (typeof document === "undefined") return [];
+
+  const raw = document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(FLASH_TOAST_COOKIE + "="));
+
+  if (!raw) return [];
+
+  try {
+    const value = decodeURIComponent(raw.slice(FLASH_TOAST_COOKIE.length + 1));
+    const parsed = JSON.parse(value) as Partial<Toast> | Partial<Toast>[];
+    const items = Array.isArray(parsed) ? parsed : [parsed];
+    return items
+      .map((item) => ({
+        id: createId("flash"),
+        tone: item.tone === "success" || item.tone === "warning" || item.tone === "error" ? item.tone : "info",
+        title: cleanMessage(item.title, 96),
+        message: cleanMessage(item.message, 520),
+        ttl: typeof item.ttl === "number" ? item.ttl : undefined,
+      }))
+      .filter((item) => item.title);
+  } catch {
+    return [];
+  }
+}
+
+function clearToastCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = FLASH_TOAST_COOKIE + "=; Path=/; Max-Age=0; SameSite=Lax";
 }
 
 function toastFromSearchParams(params: URLSearchParams): Toast[] {
@@ -255,6 +298,9 @@ function toastFromSearchParams(params: URLSearchParams): Toast[] {
   if (rawSuccess) {
     result.push({ id: createId("success"), tone: "success", title: "Готово", message: rawSuccess });
   }
+
+  const attendanceToast = toastFromAttendance(params.get("attendance"));
+  if (attendanceToast) result.push(attendanceToast);
 
   const rawPublished = cleanMessage(params.get("published"));
   if (rawPublished) {
@@ -339,10 +385,14 @@ export default function GlobalToasts() {
   };
 
   useEffect(() => {
-    const next = toastFromSearchParams(new URLSearchParams(searchKey));
+    const next = [
+      ...toastFromCookie(),
+      ...toastFromSearchParams(new URLSearchParams(searchKey)),
+    ];
     if (!next.length) return;
 
     next.forEach(pushToast);
+    clearToastCookie();
 
     const cleaned = new URLSearchParams(searchKey);
     let changed = false;

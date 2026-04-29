@@ -34,13 +34,7 @@ export function attendanceStatusLabel(action?: string) {
   return "Дію виконано.";
 }
 
-export function StatusNotice({ params }: { params: Record<string, string | undefined> }) {
-  if (params.published) {
-    return <div className="notice panel success raid-notice">Рейд опубліковано в Discord: <a href={params.published} target="_blank" rel="noreferrer">відкрити</a></div>;
-  }
-  if (params.saved) return <div className="notice panel success raid-notice">Рейд збережено.</div>;
-  if (params.attendance) return <div className="notice panel success raid-notice">{attendanceStatusLabel(params.attendance)}</div>;
-  if (params.error) return <div className="notice panel error-note raid-notice">{params.error}</div>;
+export function StatusNotice({ params: _params }: { params: Record<string, string | undefined> }) {
   return null;
 }
 
@@ -163,15 +157,23 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
 export function RaidListCard({ raid }: { raid: RaidItem }) {
   const counts = raidRosterCounts(raid);
   return (
-    <a className="raid-list-item" href={`/raids/${encodeURIComponent(raid.id)}`}>
-      {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={72} height={72} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
-      <span>
-        <strong>{raidTitle(raid)}</strong>
-        <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
-        <small>👥 {counts.roster} / {raidAutoCapacity(raid)} • {raidAutoCompositionLabel(raid)}</small>
+    <article className="raid-list-item">
+      <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
+        {raid.thumbnailUrl || raid.imageUrl ? <img src={raid.thumbnailUrl || raid.imageUrl || ""} alt="" width={72} height={72} loading="lazy" referrerPolicy="no-referrer" /> : <span className="raid-list-fallback">⚔</span>}
+        <span className="raid-list-copy">
+          <strong>{raidTitle(raid)}</strong>
+          <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
+          <small>👥 {counts.roster} / {raidAutoCapacity(raid)} • {raidAutoCompositionLabel(raid)}</small>
+        </span>
+      </a>
+      <span className="raid-list-side">
+        <em className={`raid-state raid-state--${raid.status}`}>{raid.status === "published" ? "Опубліковано" : "Чернетка"}</em>
+        <span className="raid-list-actions">
+          <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
+          <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
+        </span>
       </span>
-      <em className={`raid-state raid-state--${raid.status}`}>{raid.status === "published" ? "Опубліковано" : "Чернетка"}</em>
-    </a>
+    </article>
   );
 }
 

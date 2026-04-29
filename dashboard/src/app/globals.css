@@ -9253,3 +9253,99 @@ form.is-submitting button[type="submit"],
     display: grid;
   }
 }
+
+/* Raid fixes v5: cleaner list cards and member-safe toast flow */
+.raid-list-page-panel {
+  padding: clamp(16px, 2vw, 24px);
+}
+
+.raid-manager-list {
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+}
+
+.raid-list-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 104px;
+  padding: 12px;
+}
+
+.raid-list-main-link {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.raid-list-copy {
+  min-width: 0;
+}
+
+.raid-list-side {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  align-content: center;
+}
+
+.raid-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.raid-list-actions .btn-sm,
+.raid-preview-manage-actions .btn-sm {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: .82rem;
+}
+
+.raid-editor-layout {
+  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
+}
+
+.raid-member-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+}
+
+.raid-preview-card {
+  min-width: 0;
+}
+
+.raid-party-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.raid-preview-buttons--interactive .raid-action {
+  appearance: none;
+}
+
+@media (max-width: 760px) {
+  .raid-list-item,
+  .raid-list-main-link,
+  .raid-list-side {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .raid-list-main-link {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+
+  .raid-list-side {
+    align-content: start;
+  }
+
+  .raid-list-actions {
+    justify-content: stretch;
+  }
+
+  .raid-list-actions .btn-sm {
+    flex: 1 1 120px;
+  }
+}

@@ -572,17 +572,17 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
       ref: existingRef,
       content: payload.content,
       embed: payload.embed,
+      components,
       auditReason: `Raid updated: ${raid.id}`,
     });
-    await patchDiscordComponents(existingRef.channelId, existingRef.messageId, components, payload.content, payload.embed);
   } else {
     message = await createDiscordEmbedMessage({
       channelId: targetChannelId,
       content: payload.content,
       embed: payload.embed,
+      components,
       auditReason: `Raid published: ${raid.id}`,
     });
-    await patchDiscordComponents(targetChannelId, String(message?.id || ""), components, payload.content, payload.embed);
   }
 
   const nextChannelId = String(message?.channel_id || raid.channelId || targetChannelId);
@@ -599,21 +599,6 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   }, { merge: true });
 
   return { channelId: nextChannelId, messageId: nextMessageId, messageUrl };
-}
-
-async function patchDiscordComponents(channelId: string, messageId: string, components: unknown[], content: string, embed: Record<string, unknown>) {
-  if (!channelId || !messageId) return;
-  const { discordApi } = await import("@/lib/discordAdmin");
-  await discordApi(`/channels/${channelId}/messages/${messageId}`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      content,
-      embeds: [embed],
-      components,
-      allowed_mentions: { parse: [] },
-    }),
-    auditReason: "Raid buttons refreshed",
-  });
 }
 
 export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
@@ -686,6 +671,7 @@ export async function handleRaidDiscordAction(params: {
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
 
   let profile: DashboardProfile | null = null;
   if (params.action !== "skipped") {
@@ -744,6 +730,6 @@ export async function handleRaidSessionAction(params: {
 }
 
 export function dashboardRaidUrl(raidId: string) {
-  const base = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
+  const base = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
   return `${base}/raids/${encodeURIComponent(raidId)}`;
 }

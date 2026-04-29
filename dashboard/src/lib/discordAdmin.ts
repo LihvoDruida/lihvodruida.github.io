@@ -823,6 +823,7 @@ export async function createDiscordEmbedMessage(params: {
   mentionRoleIds?: string[];
   withRulesButtons?: boolean;
   rulesType?: DiscordRulesType;
+  components?: unknown[];
   auditReason?: string;
 }) {
   const channelId = snowflake(params.channelId);
@@ -834,7 +835,9 @@ export async function createDiscordEmbedMessage(params: {
     allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
   };
 
-  if (params.withRulesButtons) {
+  if (params.components) {
+    body.components = params.components;
+  } else if (params.withRulesButtons) {
     body.components = buildRulesComponents(params.roleIds || [], params.rulesType || "guild");
   }
 
@@ -853,6 +856,7 @@ export async function editDiscordEmbedMessage(params: {
   mentionRoleIds?: string[];
   withRulesButtons?: boolean;
   rulesType?: DiscordRulesType;
+  components?: unknown[];
   auditReason?: string;
 }) {
   if (!params.ref.channelId || !params.ref.messageId) throw new Error("Посилання на Discord-повідомлення невалідне.");
@@ -861,7 +865,7 @@ export async function editDiscordEmbedMessage(params: {
   const body: Record<string, unknown> = {
     content: nextContent ?? "",
     embeds: [params.embed],
-    components: params.withRulesButtons ? buildRulesComponents(params.roleIds || [], params.rulesType || "guild") : [],
+    components: params.components ?? (params.withRulesButtons ? buildRulesComponents(params.roleIds || [], params.rulesType || "guild") : []),
     allowed_mentions: allowedMentionsForRoles(params.mentionRoleIds || []),
   };
 
