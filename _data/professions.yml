@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-28 21:08:33'
+  updated_at: '2026-04-29 02:59:30'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1671,7 +1671,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 73
+        learned_points: 76
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2057,11 +2057,20 @@ characters:
         learned_points: 100
         max_points: 100
     secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
       - name: Classic Fishing
-        learned_points: 1
+        learned_points: 2
         max_points: 300
       - name: Midnight Fishing
         learned_points: 1
@@ -2750,7 +2759,16 @@ characters:
       - name: Midnight Enchanting
         learned_points: 26
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Клеосса
   region: eu
   realm: eversong
@@ -4012,7 +4030,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 49
+        learned_points: 51
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -6009,7 +6027,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 57
+        learned_points: 64
         max_points: 100
     secondaries: []
 - name: Мавпита
