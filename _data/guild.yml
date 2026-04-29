@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-29 10:07:51'
+  updated_at: '2026-04-29 14:01:28'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 115
+  member_count: 117
   achievement_points: 445
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13479
-      region: 6008
+      world: 13480
+      region: 6009
       realm: 55
     heroic:
-      world: 16434
-      region: 6886
+      world: 16439
+      region: 6888
       realm: 59
     mythic:
-      world: 6677
-      region: 2880
+      world: 6685
+      region: 2881
       realm: 23
   blackrock-depths:
     normal:
@@ -814,14 +814,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 252
+    item_level_equipped: 259
     mythic_plus_scores:
       all:
-        score: 2060.5
-        color: '#33ff1a'
+        score: 2152.1
+        color: '#37f630'
       dps:
-        score: 2060.5
-        color: '#33ff1a'
+        score: 2152.1
+        color: '#37f630'
       healer:
         score: 0
         color: '#ffffff'
@@ -835,8 +835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2060.5
-        color: '#33ff1a'
+        score: 2152.1
+        color: '#37f630'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1646,14 +1646,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2783.3
-        color: '#3e81cb'
+        score: 2833.5
+        color: '#2d78d4'
       dps:
-        score: 2423.9
-        color: '#5fc382'
+        score: 2474.1
+        color: '#5fba8d'
       healer:
         score: 2578
         color: '#5da8a1'
@@ -1667,8 +1667,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2423.9
-        color: '#5fc382'
+        score: 2474.1
+        color: '#5fba8d'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2870,13 +2870,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 271
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2752.5
+        score: 2760.2
         color: '#4485c6'
       dps:
-        score: 2752.5
+        score: 2760.2
         color: '#4485c6'
       healer:
         score: 0
@@ -2891,7 +2891,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2752.5
+        score: 2760.2
         color: '#4485c6'
       spec_3:
         score: 0
@@ -5314,7 +5314,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 277
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 3006.7
@@ -5758,7 +5758,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2857.2
@@ -6041,6 +6041,86 @@ members:
       spec_2:
         score: 2615.2
         color: '#5aa0ab'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Yokum
+    id: 189317829
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 10
+      name: null
+    playable_race:
+      id: 22
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 4
+  character:
+    name: Kavunchyk
+    id: 183981777
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
+    item_level_equipped: 268
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 170
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 170
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
