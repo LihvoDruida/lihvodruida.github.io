@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-29 02:59:30'
+  updated_at: '2026-04-29 06:25:00'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1323,7 +1323,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Prayddh
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
