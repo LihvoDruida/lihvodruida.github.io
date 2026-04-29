@@ -391,8 +391,12 @@ export function getDiscordPublicKey() {
   return String(process.env.DISCORD_PUBLIC_KEY || "").trim();
 }
 
+export function getDiscordDefaultChannelId() {
+  return snowflake(process.env.DISCORD_RAID_CHANNEL_ID || process.env.DISCORD_CHANNEL_ID || "");
+}
+
 export function hasDiscordEmbedConfig() {
-  return Boolean(getBotToken() && getDiscordGuildId());
+  return Boolean(getBotToken() && (getDiscordGuildId() || getDiscordDefaultChannelId()));
 }
 
 function encodeAuditReason(reason?: string) {
@@ -614,7 +618,17 @@ export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot>
 
 export async function fetchDiscordTextChannels() {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("Discord-сервер не підключений.");
+  const fallbackChannelId = getDiscordDefaultChannelId();
+  if (!guildId) {
+    if (fallbackChannelId) {
+      return {
+        guild: null,
+        channels: [{ id: fallbackChannelId, name: "канал рейдів", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
+        suggestedRulesChannelId: fallbackChannelId,
+      };
+    }
+    throw new Error("Discord-сервер не підключений.");
+  }
 
   const [guild, channels] = await Promise.all([
     fetchDiscordGuildSnapshot().catch(() => null),

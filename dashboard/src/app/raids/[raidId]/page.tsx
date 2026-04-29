@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getRaid, hasRaidStorage } from "@/lib/raids";
-import { RaidAnnouncementPreview, RaidAttendanceActions, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
+import { RaidAnnouncementPreview, RaidAttendanceActions, RaidManageActions, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
   const { raidId } = await params;
   const query = await searchParams;
   const raid = await getRaid(raidId);
-  const visibleRaid = raid && (raid.status === "published" || canManage) ? raid : null;
+  const visibleRaid = raid && (raid.status === "published" || raid.status === "closed" || canManage) ? raid : null;
 
   return (
     <RaidPageShell
@@ -30,7 +30,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
             <RaidAnnouncementPreview
               raid={visibleRaid}
               actions={<RaidAttendanceActions raid={visibleRaid} />}
-              manageActions={canManage ? <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(visibleRaid.id)}/edit`}>Редагувати</a> : null}
+              manageActions={canManage ? <RaidManageActions raid={visibleRaid} /> : null}
             />
             <div className="raid-detail-links">
               {canManage ? <a className="btn subtle" href="/raids">До списку рейдів</a> : null}

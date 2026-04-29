@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
-import { saveAndMaybePublishRaid } from "@/lib/raids";
+import { closeRaid, deleteDraftRaid, saveAndMaybePublishRaid } from "@/lib/raids";
 import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -35,6 +35,29 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
+    const action = String(form.get("action") || "").trim();
+    const raidId = String(form.get("raidId") || "").trim();
+
+    if (action === "delete") {
+      const deleted = await deleteDraftRaid(raidId);
+      return redirectWithToast("/raids", {
+        tone: "success",
+        title: "Чернетку видалено",
+        message: deleted.title,
+        ttl: 5200,
+      });
+    }
+
+    if (action === "close") {
+      const closed = await closeRaid(raidId);
+      return redirectWithToast(`/raids/${encodeURIComponent(closed.id)}`, {
+        tone: "success",
+        title: "Рейд закрито",
+        message: "Запис вимкнено, кнопки Discord стали неактивними.",
+        ttl: 6400,
+      });
+    }
+
     const profile = user.profileId ? await getProfileById(user.profileId) : null;
     const result = await saveAndMaybePublishRaid(form, user, profile);
     return redirectWithToast(`/raids/${encodeURIComponent(result.raid.id)}/edit`, {
@@ -46,7 +69,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return redirectWithToast("/raids", {
       tone: "error",
-      title: "Рейд не збережено",
+      title: "Дію з рейдом не виконано",
       message: safeErrorMessage(error),
       ttl: 8600,
     });

@@ -7,6 +7,7 @@ import {
   createDiscordEmbedMessage,
   discordMessageUrl,
   editDiscordEmbedMessage,
+  normalizeDiscordEmbed,
   type DiscordMessageRef,
 } from "@/lib/discordAdmin";
 
@@ -57,7 +58,7 @@ export type RaidItem = {
   consumables: RaidConsumables;
   lootMode: RaidLootMode;
   composition: RaidComposition;
-  status: "draft" | "published";
+  status: "draft" | "published" | "closed";
   channelId?: string | null;
   messageId?: string | null;
   messageUrl?: string | null;
@@ -159,6 +160,58 @@ function cleanRole(value: unknown): RaidCharacterRole {
   return "dps";
 }
 
+function timezoneOffsetMs(date: Date, timeZone: string) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const asUtc = Date.UTC(
+      Number(values.year),
+      Number(values.month) - 1,
+      Number(values.day),
+      Number(values.hour === "24" ? "0" : values.hour),
+      Number(values.minute),
+      Number(values.second),
+    );
+    return asUtc - date.getTime();
+  } catch {
+    return 0;
+  }
+}
+
+function raidDateTimeToUtcMs(input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>) {
+  const date = cleanString((input as Record<string, unknown>).date, 20);
+  const time = cleanString((input as Record<string, unknown>).time, 20) || "00:00";
+  const dateMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = time.match(/^(\d{2}):(\d{2})/);
+  if (!dateMatch || !timeMatch) return null;
+  const y = Number(dateMatch[1]);
+  const m = Number(dateMatch[2]);
+  const d = Number(dateMatch[3]);
+  const hh = Number(timeMatch[1]);
+  const mm = Number(timeMatch[2]);
+  const guess = new Date(Date.UTC(y, m - 1, d, hh, mm, 0));
+  const timeZone = String(process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv");
+  return guess.getTime() - timezoneOffsetMs(guess, timeZone);
+}
+
+function isRaidDateTimeExpired(input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>) {
+  const startsAt = raidDateTimeToUtcMs(input);
+  return startsAt !== null && Date.now() >= startsAt;
+}
+
+export function isRaidClosed(raid: Pick<RaidItem, "status" | "date" | "time">) {
+  return raid.status === "closed" || (raid.status === "published" && isRaidDateTimeExpired(raid));
+}
+
 function characterRole(character?: ProfileCharacter | null): RaidCharacterRole {
   if (!character) return "dps";
   return resolveWowCharacterRole({
@@ -230,7 +283,8 @@ function normalizeSignup(value: unknown): RaidSignup | null {
 }
 
 function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
-  const status = data.status === "published" ? "published" : "draft";
+  const rawStatus = data.status === "published" ? "published" : data.status === "closed" ? "closed" : "draft";
+  const status = rawStatus === "published" && isRaidDateTimeExpired(data) ? "closed" : rawStatus;
   const signups = Array.isArray(data.signups)
     ? data.signups.map(normalizeSignup).filter(Boolean) as RaidSignup[]
     : [];
@@ -349,8 +403,13 @@ export function hasRaidStorage() {
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
   const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(Math.max(1, Math.min(100, limit))).get();
-  return snapshot.docs
-    .map((doc) => normalizeRaid(doc.id, doc.data() || {}))
+  const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
+  await Promise.all(snapshot.docs
+    .map((doc, index) => ({ rawStatus: doc.get("status"), raid: raids[index] }))
+    .filter((item): item is { rawStatus: unknown; raid: RaidItem } => item.rawStatus === "published" && Boolean(item.raid) && item.raid.status === "closed")
+    .slice(0, 8)
+    .map((item) => syncAutoClosedRaid(item.raid).catch(() => null)));
+  return raids
     .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
 }
 
@@ -359,7 +418,37 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
   if (!id || !hasRaidStorage()) return null;
   const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
   if (!snapshot.exists) return null;
-  return normalizeRaid(snapshot.id, snapshot.data() || {});
+  const rawStatus = snapshot.get("status");
+  const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+  if (rawStatus === "published" && raid.status === "closed") await syncAutoClosedRaid(raid).catch(() => null);
+  return raid;
+}
+
+async function syncAutoClosedRaid(raid: RaidItem) {
+  if (raid.status !== "closed" || !hasRaidStorage()) return;
+  const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
+  await ref.set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  if (raid.channelId && raid.messageId) {
+    await publishOrUpdateRaid({ ...raid, status: "closed" }, raid.channelId).catch(() => null);
+  }
+}
+
+export async function closeRaid(raidId: string) {
+  const raid = await getRaid(raidId);
+  if (!raid) throw new Error("Рейд не знайдено.");
+  if (raid.status === "draft") throw new Error("Чернетку не можна закрити. Її можна видалити або опублікувати.");
+  const closed: RaidItem = { ...raid, status: "closed" };
+  await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  if (closed.channelId && closed.messageId) await publishOrUpdateRaid(closed, closed.channelId);
+  return closed;
+}
+
+export async function deleteDraftRaid(raidId: string) {
+  const raid = await getRaid(raidId);
+  if (!raid) throw new Error("Рейд не знайдено.");
+  if (raid.status !== "draft") throw new Error("Видаляти можна тільки чернетки. Опублікований рейд спочатку закрий.");
+  await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
+  return raid;
 }
 
 export type ProfileRaidSignup = {
@@ -549,7 +638,9 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const parties = buildRaidParties(raid);
   const imageUrl = raid.imageUrl || undefined;
   const thumbUrl = raid.thumbnailUrl || raid.imageUrl || DEFAULT_RAID_IMAGE;
+  const closed = isRaidClosed(raid);
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
+    { name: "📌 Статус", value: closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито", inline: true },
     { name: "📅 Дата", value: dateTimeLabel(raid), inline: true },
     { name: "👤 Створив", value: `${raid.createdByName}${raid.createdByMain ? `\nmain: ${raid.createdByMain}` : ""}`, inline: true },
     { name: "🧪 Розхідники", value: raidConsumablesLabel(raid.consumables), inline: true },
@@ -559,8 +650,8 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     ...parties.map((party) => ({ name: `Паті ${party.index}`, value: partyDiscordText(party), inline: true })),
   ];
 
-  const embed = {
-    title: raidTitle(raid),
+  const embed = normalizeDiscordEmbed({
+    title: closed ? `${raidTitle(raid)} — Закрито` : raidTitle(raid),
     url: dashboardRaidUrl(raid.id),
     description: raid.description,
     color: DIFFICULTY_COLORS[raid.difficulty],
@@ -569,10 +660,10 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     fields,
     footer: { text: "Кнопки автоматично оновлюють склад рейду після кожної заявки." },
     timestamp: new Date().toISOString(),
-  };
+  });
 
   return {
-    content: `**${raidTitle(raid)}** • ${dateTimeLabel(raid)}`,
+    content: closed ? `🔒 **${raidTitle(raid)}** • рейд закрито` : `📣 **${raidTitle(raid)}** • ${dateTimeLabel(raid)}`,
     embed,
   };
 }
@@ -592,14 +683,14 @@ export function decodeRaidAttendanceCustomId(customId: string) {
   return { raidId: match[1], action: cleanSignupStatus(match[2]) };
 }
 
-export function buildRaidAttendanceComponents(raidId: string) {
+export function buildRaidAttendanceComponents(raidId: string, disabled = false) {
   return [
     {
       type: 1,
       components: [
-        { type: 2, style: 3, label: "Підписатися", custom_id: buildRaidAttendanceCustomId(raidId, "going") },
-        { type: 2, style: 2, label: "Пропустити", custom_id: buildRaidAttendanceCustomId(raidId, "skipped") },
-        { type: 2, style: 4, label: "Затримаюсь", custom_id: buildRaidAttendanceCustomId(raidId, "late") },
+        { type: 2, style: 3, label: "Підписатися", custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled },
+        { type: 2, style: 2, label: "Пропустити", custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
+        { type: 2, style: 4, label: "Затримаюсь", custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled },
       ],
     },
   ];
@@ -607,7 +698,8 @@ export function buildRaidAttendanceComponents(raidId: string) {
 
 export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | null) {
   const payload = buildRaidDiscordPayload(raid);
-  const components = buildRaidAttendanceComponents(raid.id);
+  const closed = isRaidClosed(raid);
+  const components = buildRaidAttendanceComponents(raid.id, closed);
   const targetChannelId = cleanString(channelId || raid.channelId, 32);
   if (!targetChannelId && !raid.channelId) throw new Error("Канал Discord для рейду не вибрано.");
 
@@ -636,7 +728,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   const messageUrl = nextChannelId && nextMessageId ? discordMessageUrl(nextChannelId, nextMessageId) : null;
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-    status: "published",
+    status: closed ? "closed" : "published",
     channelId: nextChannelId,
     messageId: nextMessageId,
     messageUrl,
@@ -652,7 +744,8 @@ export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSes
   const action = cleanString(form.get("action"), 40);
   if (action === "publish") {
     const result = await publishOrUpdateRaid(raid, form.get("channelId") ? cleanString(form.get("channelId"), 32) : raid.channelId);
-    return { raid: { ...raid, status: "published" as const, ...result }, published: result.messageUrl };
+    const nextStatus = isRaidClosed({ ...raid, ...result, status: "published" }) ? "closed" as const : "published" as const;
+    return { raid: { ...raid, status: nextStatus, ...result }, published: result.messageUrl };
   }
   return { raid, published: null };
 }
@@ -719,6 +812,7 @@ export async function handleRaidDiscordAction(params: {
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
 
   let profile: DashboardProfile | null = null;
@@ -747,6 +841,7 @@ export async function handleRaidSessionAction(params: {
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
 
   const discordId = params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id) ? params.user.id : "";
