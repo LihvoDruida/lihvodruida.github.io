@@ -45,13 +45,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
       return redirectToRaid(raidId, { tone: "error", title: "Запис не оновлено", message: result.content || "Дію не виконано.", ttl: 8200 });
     }
 
-    const successMessage = action === "going"
+    const successMessage = result.content || (action === "going"
       ? "Тебе записано на рейд. Склад оновлено."
       : action === "late"
         ? "Позначено, що ти затримаєшся. Склад оновлено."
-        : "Позначено, що ти пропускаєш рейд.";
+        : "Позначено, що ти пропускаєш рейд.");
 
-    return redirectToRaid(raidId, { tone: "success", title: "Запис оновлено", message: successMessage, ttl: 6200 });
+    return redirectToRaid(raidId, { tone: successMessage.includes("⚠️") ? "warning" : "success", title: "Запис оновлено", message: successMessage, ttl: successMessage.includes("⚠️") ? 9200 : 6200 });
   } catch (error) {
     return redirectToRaid(raidId, { tone: "error", title: "Запис не оновлено", message: safeErrorMessage(error), ttl: 8200 });
   }

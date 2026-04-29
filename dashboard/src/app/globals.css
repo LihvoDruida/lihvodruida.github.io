@@ -10278,3 +10278,26 @@ button.btn.danger:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.raid-ilvl-notice {
+  margin: -4px 0 16px 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 190, 88, .28);
+  border-radius: 10px;
+  background: rgba(122, 77, 18, .22);
+  color: rgba(255, 235, 197, .9);
+  font-size: .88rem;
+}
+
+.raid-party-row.is-undergeared {
+  border-color: rgba(255, 190, 88, .45);
+  background: rgba(122, 77, 18, .16);
+}
+
+.raid-party-member-copy .raid-ilvl-warning {
+  color: #ffd18a;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.25;
+}

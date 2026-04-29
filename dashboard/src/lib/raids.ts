@@ -52,6 +52,7 @@ export type RaidItem = {
   date: string;
   time: string;
   description: string;
+  minItemLevel?: number | null;
   imageUrl?: string | null;
   thumbnailUrl?: string | null;
   createdByDiscordId: string;
@@ -247,6 +248,14 @@ function clampInt(value: unknown, min: number, max: number, fallback: number) {
   return Math.max(min, Math.min(max, Math.floor(num)));
 }
 
+function cleanOptionalItemLevel(value: unknown) {
+  const raw = cleanString(value, 12).replace(",", ".");
+  if (!raw) return null;
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return null;
+  return Math.max(1, Math.min(9999, Math.floor(num)));
+}
+
 function normalizeSignup(value: unknown): RaidSignup | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
@@ -298,6 +307,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     date: cleanString(data.date, 20),
     time: cleanString(data.time, 20),
     description: cleanString(data.description, 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
     imageUrl: cleanUrl(data.imageUrl),
     thumbnailUrl: cleanUrl(data.thumbnailUrl),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
@@ -510,6 +520,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     date: cleanString(form.get("date"), 20),
     time: cleanString(form.get("time"), 20),
     description: cleanString(form.get("description"), 1200) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     imageUrl: cleanUrl(form.get("imageUrl")),
     thumbnailUrl: cleanUrl(form.get("thumbnailUrl")),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
@@ -668,8 +679,9 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
 function compactSignupDiscordLine(item?: RaidSignup | null, max = 48) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
+  const ilvl = item.itemLevel ? ` • ${item.itemLevel}` : "";
   const late = item.status === "late" ? " ⏱" : "";
-  const value = `${base}${late}`.trim();
+  const value = `${base}${ilvl}${late}`.trim();
   return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
@@ -708,6 +720,11 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const thumbUrl = raid.thumbnailUrl || raid.imageUrl || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
+  const rosterValue = [
+    `${counts.roster} / ${raidAutoCapacity(raid)}`,
+    compositionLongLabel(raid),
+    raid.minItemLevel ? `Мін. ilvl: ${raid.minItemLevel}` : null,
+  ].filter(Boolean).join("\n");
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: "📌 Статус",
@@ -736,8 +753,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     },
     {
       name: "👥 Склад рейду",
-      value: `${counts.roster} / ${raidAutoCapacity(raid)}
-${compositionLongLabel(raid)}`,
+      value: rosterValue,
       inline: true,
     },
     {
@@ -751,8 +767,7 @@ ${compositionLongLabel(raid)}`,
       inline: true,
     })),
     ...(omittedParties > 0
-      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:
-${dashboardRaidUrl(raid.id)}`, inline: false }]
+      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`, inline: false }]
       : []),
   ];
   const fields = compactDiscordFields(rawFields);
@@ -906,10 +921,23 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   return updated;
 }
 
+export function raidMinItemLevelWarning(raid: Pick<RaidItem, "minItemLevel">, signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName"> | null) {
+  const required = Number(raid.minItemLevel || 0);
+  const current = Number(signup?.itemLevel || 0);
+  if (!required || !Number.isFinite(required) || !current || !Number.isFinite(current) || current >= required) return null;
+  const name = signup?.characterName || signup?.discordName || "Персонаж";
+  return `⚠️ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Ти записаний, але краще підняти спорядження перед рейдом.`;
+}
+
 function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null) {
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}.`;
-  if (action === "late") return `⏱ Записано: ти затримаєшся на ${raidTitle(raid)}. Склад Discord оновлено.`;
-  return `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. Склад Discord оновлено.`;
+  const warning = raidMinItemLevelWarning(raid, signup);
+  const base = action === "late"
+    ? `⏱ Записано: ти затримаєшся на ${raidTitle(raid)}. Склад Discord оновлено.`
+    : `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. Склад Discord оновлено.`;
+  return warning ? `${base}
+
+${warning}` : base;
 }
 
 export async function handleRaidDiscordAction(params: {
