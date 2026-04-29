@@ -217,11 +217,21 @@ function splitIds(value?: string): Set<string> {
   );
 }
 
+function removeAmbiguousRoleIds(...sets: Set<string>[]) {
+  const counts = new Map<string, number>();
+  for (const set of sets) {
+    for (const roleId of set) counts.set(roleId, (counts.get(roleId) || 0) + 1);
+  }
+
+  return sets.map((set) => new Set(Array.from(set).filter((roleId) => counts.get(roleId) === 1)));
+}
+
 export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
-  const roles = new Set(roleIds.map(String));
-  const adminRoles = splitIds(process.env.DISCORD_ADMIN_ROLE_IDS);
-  const moderatorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
-  const memberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
+  const roles = new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean));
+  const rawAdminRoles = splitIds(process.env.DISCORD_ADMIN_ROLE_IDS);
+  const rawModeratorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  const rawMemberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
+  const [adminRoles, moderatorRoles, memberRoles] = removeAmbiguousRoleIds(rawAdminRoles, rawModeratorRoles, rawMemberRoles);
 
   for (const role of adminRoles) {
     if (roles.has(role)) return "admin";
@@ -235,7 +245,7 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
     if (roles.has(role)) return "member";
   }
 
-  if (!memberRoles.size && ["1", "true", "yes", "on"].includes(String(process.env.DISCORD_ALLOW_GUILD_MEMBERS || "").toLowerCase())) {
+  if (!rawMemberRoles.size && ["1", "true", "yes", "on"].includes(String(process.env.DISCORD_ALLOW_GUILD_MEMBERS || "").toLowerCase())) {
     return "member";
   }
 

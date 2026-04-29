@@ -52,7 +52,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
         ruleType = message.rulesType === "raid" ? "raid" : "guild";
         selectedRoleIds = message.rulesType === "raid" ? [] : message.roleIds;
         if (!message.isRules) {
-          configError = "Це повідомлення не схоже на rules embed із кнопками цієї панелі.";
+          configError = "Це повідомлення не схоже на правила, створені через цю панель.";
         }
       } else if (messageParam) {
         configError = "Посилання на Discord-повідомлення невалідне.";
@@ -68,9 +68,9 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="discord-editor-header panel">
           <div>
-            <span className="eyebrow">Rules embed • Редагування</span>
+            <span className="eyebrow">Правила • Редагування</span>
             <h1>{ruleType === "raid" ? "Редагування правил рейду" : "Редагування правил"}</h1>
-            <p>{ruleType === "raid" ? "Онови рейдові правила з кнопкою підпису та списком підписантів." : "Онови rules embed зі списку або через message link. Канал, embed і ролі розділені окремо."}</p>
+            <p>{ruleType === "raid" ? "Онови рейдові правила з кнопкою підпису та списком підписантів." : "Онови повідомлення правил зі списку або через посилання на повідомлення. Канал, повідомлення і ролі розділені окремо."}</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
@@ -81,14 +81,14 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
       {!isAdmin ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
+        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
       ) : configError && !messageParam ? (
-        <div className="notice panel error-note">{configError}</div>
+        <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (
         <div className="notice panel error-note">Не знайдено текстових каналів або ролей для вибору.</div>
       ) : (
         <>
-          {configError ? <div className="notice panel error-note">{configError}</div> : null}
+          {configError ? <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div> : null}
           <DiscordEmbedEditor
             mode="rules"
             ruleType={ruleType}

@@ -17,8 +17,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function StatusNotice({ params }: { params: Record<string, string | undefined> }) {
-  if (params.published) return <div className="notice panel success discord-notice">Опубліковано embed: <a href={params.published} target="_blank" rel="noreferrer">відкрити</a></div>;
-  if (params.updated) return <div className="notice panel success discord-notice">Оновлено embed: <a href={params.updated} target="_blank" rel="noreferrer">відкрити</a></div>;
+  if (params.published) return <div className="notice panel success discord-notice">Опубліковано повідомлення: <a href={params.published} target="_blank" rel="noreferrer">відкрити</a></div>;
+  if (params.updated) return <div className="notice panel success discord-notice">Оновлено повідомлення: <a href={params.updated} target="_blank" rel="noreferrer">відкрити</a></div>;
   if (params.error) return <div className="notice panel error-note discord-notice">{params.error}</div>;
   return null;
 }
@@ -67,13 +67,13 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
 
   return (
     <main className="container">
-      <section className="dashboard-shell content-shell discord-shell" aria-label="Звичайний Discord embed Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell discord-shell" aria-label="Звичайне Discord-повідомлення Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="discord-editor-header panel">
           <div>
-            <span className="eyebrow">Звичайний embed • {editMode ? "Редагування" : "Створення"}</span>
-            <h1>{editMode ? "Редагування embed" : "Звичайна відправка embed"}</h1>
-            <p>Створи або онови Discord embed без ручного JSON. Канал, текст, теги ролей і message link розділені окремо.</p>
+            <span className="eyebrow">Звичайне повідомлення • {editMode ? "Редагування" : "Створення"}</span>
+            <h1>{editMode ? "Редагування повідомлення" : "Звичайна відправка повідомлення"}</h1>
+            <p>Створи або онови Discord-повідомлення без ручного редагування коду. Канал, текст, теги ролей і посилання на повідомлення розділені окремо.</p>
           </div>
           <a className="btn subtle" href="/discord">Назад</a>
         </header>
@@ -84,14 +84,14 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Ця сторінка доступна гільдмайстеру та офіцерам.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
+        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
       ) : configError && !messageParam ? (
-        <div className="notice panel error-note">{configError}</div>
+        <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 ? (
         <div className="notice panel error-note">Не знайдено текстових каналів для вибору.</div>
       ) : (
         <>
-          {configError ? <div className="notice panel error-note">{configError}</div> : null}
+          {configError ? <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div> : null}
           <DiscordEmbedEditor
             mode="general"
             editorMode={editMode ? "edit" : "create"}

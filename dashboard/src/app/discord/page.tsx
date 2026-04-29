@@ -41,21 +41,21 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
 
   return (
     <main className="container">
-      <section className="dashboard-shell content-shell discord-shell" aria-label="Discord action панель Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell discord-shell" aria-label="Панель Discord-дій Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="hero panel dashboard-hero content-dashboard-hero discord-dashboard-hero">
           <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Discord publishing</div>
+            <div className="eyebrow">Mistblossom Vanguard • Discord</div>
             <div className="content-hero-status-row" aria-label="Стан Discord редактора">
               <span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span>
-              <span className="content-hero-path">{canViewRules ? "Статистика правил • Звичайні embed" : "Звичайні embed"}</span>
+              <span className="content-hero-path">{canViewRules ? "Статистика правил • Звичайні повідомлення" : "Звичайні повідомлення"}</span>
             </div>
-            <h1>Discord embeds</h1>
+            <h1>Discord-повідомлення</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Панель Discord embed-постів із доступом за ролями. Офіцери працюють зі звичайними embed, модератори бачать статистику правил, гільдмайстер може редагувати rules embed.</p>
+            <p className="lead">Публікація Discord-повідомлень, статистика правил і доступи за ролями в одному місці.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Доступ привʼязаний до ролі на сайті.</span>
+              <span>Панель показує тільки ті дії, які дозволені твоєю роллю.</span>
             </div>
           </div>
 
@@ -79,23 +79,23 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Твоя роль не має доступу до Discord-дій.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
+        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
       ) : (
-        <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules ? "" : "discord-hub-grid--single"}`} aria-label="Discord embed розділи">
+        <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules ? "" : "discord-hub-grid--single"}`} aria-label="Розділи Discord-повідомлень">
           {canViewRules ? (
             <a className="panel discord-hub-card discord-hub-card--rules" href="/discord/rules">
-              <span className="eyebrow">Rules stats • {hierarchyTitle(user.role)}</span>
+              <span className="eyebrow">Статистика правил • {hierarchyTitle(user.role)}</span>
               <strong>{canEditRules ? "Правила сервера" : "Статистика правил"}</strong>
-              <p>{canEditRules ? "Rules embed, статистика і ролі кнопки прийняття." : "Статистика звичайних правил і список підписантів правил рейду."}</p>
+              <p>{canEditRules ? "Правила, статистика і ролі кнопки прийняття." : "Статистика звичайних правил і список підписантів правил рейду."}</p>
               <span className="btn primary">{canEditRules ? "Відкрити правила" : "Відкрити статистику"}</span>
             </a>
           ) : null}
 
           <a className="panel discord-hub-card" href="/discord/embed">
-            <span className="eyebrow">Звичайні embed • {hierarchyTitle(user.role)}</span>
-            <strong>Звичайні embed-пости</strong>
-            <p>Звичайні embed, редагування за link і теги ролей.</p>
-            <span className="btn subtle">Відкрити embed-редактор</span>
+            <span className="eyebrow">Звичайні повідомлення • {hierarchyTitle(user.role)}</span>
+            <strong>Звичайні повідомлення</strong>
+            <p>Звичайні повідомлення, редагування за посиланням і теги ролей.</p>
+            <span className="btn subtle">Відкрити редактор</span>
           </a>
         </section>
       )}

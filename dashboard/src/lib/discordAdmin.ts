@@ -144,7 +144,7 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
         updatedAt: null,
         configured: false,
         source: "error",
-        error: typeof data?.error === "string" ? data.error : `Worker stats HTTP ${response.status}`,
+        error: typeof data?.error === "string" ? data.error : "Статистика звичайних правил тимчасово недоступна.",
       };
     }
 
@@ -158,7 +158,7 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
         updatedAt: null,
         configured: false,
         source: "error",
-        error: `Endpoint звичайних правил повернув дані типу ${returnedType}. Перевір DISCORD_RULES_STATS_ENDPOINT.`,
+        error: `Статистика звичайних правил тимчасово недоступна.`,
       };
     }
 
@@ -186,7 +186,7 @@ export async function fetchDiscordRulesStats(): Promise<DiscordRulesStats> {
       updatedAt: null,
       configured: false,
       source: "error",
-      error: error instanceof Error ? error.message : "Stats endpoint недоступний",
+      error: "Статистика правил тимчасово недоступна.",
     };
   }
 }
@@ -220,7 +220,7 @@ export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStat
         updatedAt: null,
         configured: false,
         source: "error",
-        error: typeof data?.error === "string" ? data.error : "Worker raid stats HTTP " + response.status,
+        error: typeof data?.error === "string" ? data.error : "Статистика рейдових правил тимчасово недоступна.",
       };
     }
 
@@ -233,7 +233,7 @@ export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStat
         updatedAt: null,
         configured: false,
         source: "error",
-        error: `Endpoint рейдових правил повернув дані типу ${returnedType}. Перевір DISCORD_RAID_RULES_STATS_ENDPOINT.`,
+        error: `Статистика рейдових правил тимчасово недоступна.`,
       };
     }
 
@@ -257,7 +257,7 @@ export async function fetchDiscordRaidRulesStats(): Promise<DiscordRaidRulesStat
       updatedAt: null,
       configured: false,
       source: "error",
-      error: error instanceof Error ? error.message : "Raid rules stats endpoint недоступний",
+      error: "Статистика рейдових правил тимчасово недоступна.",
     };
   }
 }
@@ -291,7 +291,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
         updatedAt: null,
         source: "error",
         signups: [],
-        error: typeof data?.error === "string" ? data.error : `Worker raid signups HTTP ${response.status}`,
+        error: typeof data?.error === "string" ? data.error : "Список підписантів тимчасово недоступний.",
       };
     }
 
@@ -304,7 +304,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
         updatedAt: null,
         source: "error",
         signups: [],
-        error: `Endpoint підписантів повернув дані типу ${returnedType}. Перевір DISCORD_RAID_RULES_SIGNUPS_ENDPOINT.`,
+        error: `Список підписантів тимчасово недоступний.`,
       };
     }
 
@@ -336,7 +336,7 @@ export async function fetchDiscordRaidRulesSignups(): Promise<DiscordRaidRulesSi
       updatedAt: null,
       source: "error",
       signups: [],
-      error: error instanceof Error ? error.message : "Raid rules signups endpoint недоступний",
+      error: error instanceof Error ? error.message : "Список підписантів тимчасово недоступний",
     };
   }
 }
@@ -400,7 +400,7 @@ function encodeAuditReason(reason?: string) {
 
 export async function discordApi<T = any>(path: string, init: DiscordRequestInit = {}): Promise<T> {
   const token = getBotToken();
-  if (!token) throw new Error("DISCORD_BOT_TOKEN не налаштовано.");
+  if (!token) throw new Error("Discord-бот тимчасово недоступний.");
 
   const headers = new Headers(init.headers || {});
   headers.set("Authorization", `Bot ${token}`);
@@ -553,7 +553,7 @@ function cleanFields(value: unknown) {
 
 export function normalizeDiscordEmbed(input: DiscordEmbedInput) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
-    throw new Error("Embed має бути JSON-обʼєктом.");
+    throw new Error("Повідомлення має бути коректним JSON-обʼєктом.");
   }
 
   const embed = {
@@ -574,7 +574,7 @@ export function normalizeDiscordEmbed(input: DiscordEmbedInput) {
   );
 
   if (!normalized.title && !normalized.description && !normalized.image && !normalized.thumbnail && !normalized.fields) {
-    throw new Error("Embed порожній: додай title, description, image, thumbnail або fields.");
+    throw new Error("Повідомлення порожнє: додай заголовок, опис, зображення або поля.");
   }
 
   return normalized;
@@ -600,7 +600,7 @@ export function parseEmbedJson(raw: FormDataEntryValue | null) {
 
 export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot> {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("DISCORD_GUILD_ID не налаштовано.");
+  if (!guildId) throw new Error("Discord-сервер не підключений.");
   const guild = await discordApi<any>(`/guilds/${guildId}`);
   return {
     id: String(guild.id || guildId),
@@ -611,7 +611,7 @@ export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot>
 
 export async function fetchDiscordTextChannels() {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("DISCORD_GUILD_ID не налаштовано.");
+  if (!guildId) throw new Error("Discord-сервер не підключений.");
 
   const [guild, channels] = await Promise.all([
     fetchDiscordGuildSnapshot().catch(() => null),
@@ -647,7 +647,7 @@ export async function fetchDiscordTextChannels() {
 
 export async function fetchDiscordRoles() {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("DISCORD_GUILD_ID не налаштовано.");
+  if (!guildId) throw new Error("Discord-сервер не підключений.");
   const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
 
   return roles
@@ -931,7 +931,7 @@ export function normalizeDiscordMessageForEditor(message: Record<string, unknown
   const id = snowflake(message.id) || "";
   const channelId = snowflake(message.channel_id) || snowflake(channelIdFallback) || "";
   const embed = firstEmbed(message);
-  const title = cleanText(embed?.title, 256) || cleanText(embed?.description, 64) || "Discord embed";
+  const title = cleanText(embed?.title, 256) || cleanText(embed?.description, 64) || "Discord-повідомлення";
   const rulesRoleIds = extractRulesRoleIdsFromMessage(message);
   const mentionRoleIds = extractMentionRoleIdsFromMessage(message);
   const decodedRules = readComponentCustomIds(message.components)
@@ -1022,7 +1022,7 @@ export async function kickGuildMember(params: {
 
 export async function verifyDiscordInteractionSignature(request: Request, rawBody: string) {
   const publicKey = getDiscordPublicKey();
-  if (!publicKey) throw new Error("DISCORD_PUBLIC_KEY не налаштовано.");
+  if (!publicKey) throw new Error("Перевірка Discord-команд тимчасово недоступна.");
 
   const signature = request.headers.get("x-signature-ed25519") || "";
   const timestamp = request.headers.get("x-signature-timestamp") || "";

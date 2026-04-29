@@ -449,7 +449,7 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
   const previewTimestamp = embed?.timestamp ? formatPreviewTimestamp() : "";
 
   return (
-    <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord embed">
+    <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord-повідомлення">
       <div className="discord-preview-titlebar">
         <span>Перегляд</span>
         <small>Стиль Discord</small>
@@ -511,7 +511,7 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
               {image ? <img className="discord-preview-image" src={image} alt="" /> : null}
             </article>
 
-            {!isValid ? <div className="discord-preview-error">Embed порожній або код кольору невалідний. Додай title, description, image, thumbnail або field.</div> : null}
+            {!isValid ? <div className="discord-preview-error">Повідомлення порожнє або код кольору невалідний. Додай заголовок, опис, зображення або поле.</div> : null}
           </div>
         </div>
       </div>
@@ -636,13 +636,13 @@ function EmbedFieldEditor({ fields, onChange }: {
           </label>
           <label className="inline-check discord-inline-check">
             <input type="checkbox" checked={field.inline} onChange={(event) => patchField(field.id, { inline: event.currentTarget.checked })} />
-            <span>Показувати inline</span>
+            <span>Показувати в один ряд</span>
           </label>
         </div>
       ))}
 
       <button className="btn subtle discord-add-field" type="button" onClick={addField} disabled={fields.length >= 25}>+ Додати поле</button>
-      <small>{fields.length}/25 fields</small>
+      <small>{fields.length}/25 полів</small>
     </div>
   );
 }
@@ -742,10 +742,10 @@ export default function DiscordEmbedEditor({
     const rawLink = normalizeMessageLink(messageLink);
     if (!rawLink || !looksLikeDiscordMessageRef(rawLink)) {
       if (force) {
-        const errorMessage = "Встав повне посилання Discord message або пару channelId/messageId.";
+        const errorMessage = "Встав повне посилання на Discord-повідомлення або пару ID каналу/повідомлення.";
         setMessageLoadState("error");
         setMessageLoadText(errorMessage);
-        dispatchDashboardToast({ tone: "warning", title: "Невалідний Discord link", message: errorMessage });
+        dispatchDashboardToast({ tone: "warning", title: "Невалідне посилання Discord", message: errorMessage });
       }
       return;
     }
@@ -753,9 +753,9 @@ export default function DiscordEmbedEditor({
     if (!force && rawLink === lastLoadedMessageLinkRef.current) return;
 
     setMessageLoadState("loading");
-    setMessageLoadText("Підтягуємо контент з Discord...");
+    setMessageLoadText("Завантажуємо повідомлення з Discord...");
     if (force) {
-      dispatchDashboardToast({ tone: "info", title: "Підтягуємо Discord повідомлення", message: "Завантажуємо content, embed, канал і ролі для редагування.", ttl: 3600 });
+      dispatchDashboardToast({ tone: "info", title: "Завантажуємо Discord-повідомлення", message: "Підтягуємо текст, оформлення, канал і ролі для редагування.", ttl: 3600 });
     }
 
     try {
@@ -770,7 +770,7 @@ export default function DiscordEmbedEditor({
         cache: "no-store",
         signal,
       });
-      const data = await response.json().catch(() => ({ error: "Сервер повернув не JSON-відповідь." }));
+      const data = await response.json().catch(() => ({ error: "Сервер повернув неочікувану відповідь." }));
 
       if (!response.ok || data?.error) {
         throw new Error(extractErrorMessage(data));
@@ -856,7 +856,7 @@ export default function DiscordEmbedEditor({
     setIsSubmitting(true);
     const submitMessage = effectiveSubmitAction === "edit"
       ? isRaidRules ? "Оновлюємо повідомлення з правилами рейду..." : isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
-      : isRaidRules ? "Публікуємо нові правила рейду..." : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо новий Discord embed...";
+      : isRaidRules ? "Публікуємо нові правила рейду..." : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо нове Discord-повідомлення...";
     setMessageLoadText(submitMessage);
     dispatchDashboardToast({
       tone: "info",
@@ -888,10 +888,10 @@ export default function DiscordEmbedEditor({
   const selectedMentionRoles = !isRules ? roles.filter((role) => selectedRoleIdSet.has(role.id)) : [];
   const selectedRolesCount = selectedRoleIdSet.size;
   const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
-  const title = isRaidRules ? "Редактор правил рейду" : isRules ? "Редактор правил" : "Редактор embed";
+  const title = isRaidRules ? "Редактор правил рейду" : isRules ? "Редактор правил" : "Редактор Discord-повідомлення";
   const actionLabel = effectiveSubmitAction === "edit"
-    ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за link" : "Зберегти зміни"
-    : isRaidRules ? "Опублікувати правила рейду" : isRules ? "Опублікувати правила" : "Опублікувати embed";
+    ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за посиланням" : "Зберегти зміни"
+    : isRaidRules ? "Опублікувати правила рейду" : isRules ? "Опублікувати правила" : "Опублікувати повідомлення";
 
   function updateColorFromText(value: string) {
     setColorHex(value.startsWith("#") ? value : `#${value}`);
@@ -901,17 +901,17 @@ export default function DiscordEmbedEditor({
     <div className="discord-builder-shell discord-builder-shell--site">
       <section className="discord-builder-panel panel" aria-label={title}>
         <div className="discord-builder-titlebar">
-          <span>{isRaidRules ? "Raid rules" : isRules ? "Rules" : "General"} embed</span>
+          <span>{isRaidRules ? "Правила рейду" : isRules ? "Правила" : "Звичайне повідомлення"}</span>
           <small>{isValid ? "Валідно" : "Потрібен контент"}</small>
         </div>
         <div className="discord-builder-body">
           <div className="discord-builder-head">
             <div>
-              <span className="eyebrow">{isRules ? "Правила" : "Звичайний embed"} • {editorMode === "edit" ? "Редагування" : "Створення"}</span>
+              <span className="eyebrow">{isRules ? "Правила" : "Звичайне повідомлення"} • {editorMode === "edit" ? "Редагування" : "Створення"}</span>
               <h2>{title}</h2>
-              <p>{isRaidRules ? "Канал, embed і кнопка підпису з перевіркою авторизації та main-персонажа." : isRules ? "Канал, embed і ролі для кнопки прийняття правил." : "Канал, embed, теги ролей і редагування за message link."}</p>
+              <p>{isRaidRules ? "Канал, оформлення і кнопка підпису з перевіркою профілю та main-персонажа." : isRules ? "Канал, оформлення і ролі для кнопки прийняття правил." : "Канал, оформлення, згадки ролей і редагування за посиланням."}</p>
             </div>
-            <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за link" : "Редагування" : "Створення"}</span>
+            <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за посиланням" : "Редагування" : "Створення"}</span>
           </div>
 
           <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-toast-managed="true" onSubmit={handleSubmit}>
@@ -925,11 +925,11 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section discord-visual-section--edit">
               <div className="content-form-section-head">
                 <strong>Редагування</strong>
-                <small>Message link потрібен тільки для оновлення існуючого повідомлення.</small>
+                <small>Посилання потрібне тільки для оновлення існуючого повідомлення.</small>
               </div>
               <div className="discord-edit-grid">
                 <div className="content-field discord-message-link-field">
-                  <span>Discord message link</span>
+                  <span>Посилання на Discord-повідомлення</span>
                   <div className="discord-message-link-row">
                     <input
                       className="input"
@@ -949,11 +949,11 @@ export default function DiscordEmbedEditor({
                     </button>
                   </div>
                   {hasInvalidMessageLink ? (
-                    <small className="discord-message-load-note discord-message-load-note--error" role="alert">Невалідний Discord message link.</small>
+                    <small className="discord-message-load-note discord-message-load-note--error" role="alert">Невалідне посилання на Discord-повідомлення.</small>
                   ) : messageLoadText ? (
                     <small className={`discord-message-load-note discord-message-load-note--${messageLoadState}`} role={messageLoadState === "error" ? "alert" : "status"}>{messageLoadText}</small>
                   ) : hasMessageLinkEditTarget ? (
-                    <small className="discord-message-load-note discord-message-load-note--loaded" role="status">Буде оновлено повідомлення за цим link.</small>
+                    <small className="discord-message-load-note discord-message-load-note--loaded" role="status">Буде оновлено повідомлення за цим посиланням.</small>
                   ) : (
                     <small>Залиш порожнім, щоб створити нове повідомлення.</small>
                   )}
@@ -964,7 +964,7 @@ export default function DiscordEmbedEditor({
             <div className="content-form-section discord-visual-section discord-visual-section--send">
               <div className="content-form-section-head">
                 <strong>Відправка</strong>
-                <small>Канал, текст над embed, колір і timestamp.</small>
+                <small>Канал, текст над повідомленням, колір і дата.</small>
               </div>
               <div className="discord-send-layout">
                 <div className="discord-send-controls">
@@ -972,7 +972,7 @@ export default function DiscordEmbedEditor({
                     <span>Канал</span>
                     <select className="select modern-select" name="channelId" value={channelId} onChange={(event) => setChannelId(event.currentTarget.value)} required>
                       {channels.map((channel) => (
-                        <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • announcement" : ""}</option>
+                        <option key={channel.id} value={channel.id}># {channel.name}{channel.type === 5 ? " • оголошення" : ""}</option>
                       ))}
                     </select>
                   </label>
@@ -984,7 +984,7 @@ export default function DiscordEmbedEditor({
                       type="color"
                       value={normalizedColor || COLOR_FALLBACK}
                       onChange={(event) => setColorHex(event.currentTarget.value.toUpperCase())}
-                      aria-label="Вибрати колір embed"
+                      aria-label="Вибрати колір повідомлення"
                     />
                   </label>
 
@@ -1002,18 +1002,18 @@ export default function DiscordEmbedEditor({
 
                   <label className="inline-check discord-inline-check discord-timestamp-check">
                     <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
-                    <span>Додати timestamp</span>
+                    <span>Додати дату</span>
                   </label>
                 </div>
 
                 <label className="content-field discord-content-field discord-content-field--full">
-                  <span>Текст над embed</span>
+                  <span>Текст над повідомленням</span>
                   <textarea
                     className="input textarea compact discord-builder-textarea"
                     name="content"
                     value={content}
                     maxLength={2000}
-                    placeholder="Необовʼязковий текст над embed"
+                    placeholder="Необовʼязковий текст над повідомленням"
                     onChange={(event) => setContent(event.currentTarget.value)}
                   />
                   <small>{content.length}/2000</small>
@@ -1023,7 +1023,7 @@ export default function DiscordEmbedEditor({
 
             <div className="content-form-section discord-visual-section discord-visual-section--accent">
               <div className="content-form-section-head">
-                <strong>Основний embed</strong>
+                <strong>Основне оформлення</strong>
                 <small>Заголовок, опис і URL.</small>
               </div>
 
@@ -1113,7 +1113,7 @@ export default function DiscordEmbedEditor({
                   onChange={setRoleIds}
                   ariaLabel="Ролі для згадки в Discord-повідомленні"
                   emptyLabel="Без тегів ролей"
-                  helperText="Ролі додаються над embed; ping дозволений тільки для них."
+                  helperText="Ролі згадуються над повідомленням; ping дозволений тільки для них."
                 />
               </div>
             ) : null}
@@ -1148,7 +1148,7 @@ export default function DiscordEmbedEditor({
 
             <div className="discord-builder-actions">
               <a className="btn subtle" href={returnTo || (isRules ? "/discord/rules" : "/discord")}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={!isValid || hasInvalidMessageLink || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай title, description, image, thumbnail або field та валідний HEX колір." : hasInvalidMessageLink ? "Виправ Discord message link або очисти поле." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
+              <button className="btn primary" type="submit" disabled={!isValid || hasInvalidMessageLink || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай заголовок, опис, зображення або поле та коректний HEX-колір." : hasInvalidMessageLink ? "Виправ посилання на повідомлення або очисти поле." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
             </div>
           </form>
         </div>

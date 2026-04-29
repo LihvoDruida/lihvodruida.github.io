@@ -59,7 +59,7 @@ export async function POST(
 
   if (status !== "accepted" && status !== "declined") {
     logDashboardEvent("warn", "applications.status.unsupported_status", request, { issueNumber, status });
-    return NextResponse.json({ error: "Unsupported status" }, { status: 400, headers: noStoreHeaders() });
+    return NextResponse.json({ error: "Невідомий статус заявки" }, { status: 400, headers: noStoreHeaders() });
   }
 
   try {

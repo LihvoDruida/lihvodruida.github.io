@@ -34,7 +34,7 @@ function StatusNotice({ params }: { params: Record<string, string | undefined> }
 }
 
 function roleName(roleId: string, roles: DiscordRoleOption[]) {
-  return roles.find((role) => role.id === roleId)?.name || `Невідома роль · ${roleId.slice(-6)}`;
+  return roles.find((role) => role.id === roleId)?.name || "Discord роль";
 }
 
 function roleColor(roleId: string, roles: DiscordRoleOption[]) {
@@ -59,19 +59,19 @@ function formatUpdatedAt(value: string | null) {
 function sourceLabel(source: string) {
   switch (source) {
     case "kv":
-      return "KV";
+      return "Дані є";
     case "worker":
-      return "Worker";
+      return "Дані є";
     case "missing-kv-binding":
-      return "KV не підключено";
+      return "Недоступно";
     case "invalid-binding":
-      return "KV binding некоректний";
+      return "Недоступно";
     case "unconfigured":
-      return "endpoint не задано";
+      return "Недоступно";
     case "error":
-      return "помилка";
+      return "Недоступно";
     default:
-      return source || "невідомо";
+      return source ? "Дані є" : "Невідомо";
   }
 }
 
@@ -108,11 +108,11 @@ function RulesDataOverview({
   const raidSigned = raidStats.configured ? Math.max(raidStats.signed, raidSignups.total, raidSignups.signups.length) : 0;
   const raidUpdatedAt = raidStats.updatedAt || raidSignups.updatedAt;
   const guildStatus = stats.configured
-    ? `Дані звичайних правил читаються окремо з namespace rules. Оновлено: ${formatUpdatedAt(stats.updatedAt)}.`
-    : (stats.error || "Статистика звичайних правил недоступна. Перевір RULES_STATS KV та endpoint.");
+    ? `Оновлено: ${formatUpdatedAt(stats.updatedAt)}.`
+    : (stats.error || "Статистика звичайних правил тимчасово недоступна.");
   const raidStatus = raidStats.configured || raidSignups.configured
-    ? `Дані правил рейду читаються окремо з namespace raid-rules. Оновлено: ${formatUpdatedAt(raidUpdatedAt)}.`
-    : (raidStats.error || raidSignups.error || "Статистика правил рейду недоступна. Перевір RULES_STATS KV та raid endpoint-и.");
+    ? `Оновлено: ${formatUpdatedAt(raidUpdatedAt)}.`
+    : (raidStats.error || raidSignups.error || "Статистика правил рейду тимчасово недоступна.");
 
   return (
     <section className="discord-rules-data-overview" aria-label="Розділені дані правил">
@@ -126,9 +126,9 @@ function RulesDataOverview({
         </div>
         <div className="discord-rules-metric-grid">
           <RulesMetric label="Прийняли" value={metricValue(stats.accepted, stats.configured)} hint="користувачів натиснули “Прийняти”" tone="good" />
-          <RulesMetric label="Відмовились" value={metricValue(stats.declined, stats.configured)} hint="відмови тільки звичайних правил" tone="bad" />
-          <RulesMetric label="Всього дій" value={metricValue(stats.total, stats.configured)} hint="accepted + declined" />
-          <RulesMetric label="Embed" value={guildMessagesCount} hint={`знайдено у ${channelLabel}`} tone="warn" />
+          <RulesMetric label="Відмовились" value={metricValue(stats.declined, stats.configured)} hint="користувачів натиснули “Відмовитися”" tone="bad" />
+          <RulesMetric label="Всього дій" value={metricValue(stats.total, stats.configured)} hint="прийняття й відмови" />
+          <RulesMetric label="Повідомлень" value={guildMessagesCount} hint={`знайдено у ${channelLabel}`} tone="warn" />
         </div>
         <p className="discord-rules-data-note">{guildStatus}</p>
       </article>
@@ -144,7 +144,7 @@ function RulesDataOverview({
         <div className="discord-rules-metric-grid">
           <RulesMetric label="Підписались" value={metricValue(raidSigned, raidStats.configured || raidSignups.configured)} hint="унікальних Discord-користувачів" tone="good" />
           <RulesMetric label="У списку" value={metricValue(raidSignups.signups.length, raidSignups.configured)} hint="з Discord + main-персонажем" />
-          <RulesMetric label="Embed" value={raidMessagesCount} hint={`рейдових embed у ${channelLabel}`} tone="warn" />
+          <RulesMetric label="Повідомлень" value={raidMessagesCount} hint={`рейдових повідомлень у ${channelLabel}`} tone="warn" />
         </div>
         <p className="discord-rules-data-note">{raidStatus}</p>
       </article>
@@ -168,16 +168,16 @@ function signedAtLabel(value: string) {
 function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsResponse }) {
   const updatedLabel = formatUpdatedAt(signups.updatedAt);
   const visibleCount = signups.signups.length;
-  const totalLabel = signups.configured ? `${visibleCount}${signups.total > visibleCount ? ` з ${signups.total}` : ""} підписантів` : "KV не підключено";
+  const totalLabel = signups.configured ? `${visibleCount}${signups.total > visibleCount ? ` з ${signups.total}` : ""} підписантів` : "Список недоступний";
   const hint = signups.configured
-    ? `Останнє оновлення: ${updatedLabel}. Тут показуються тільки підписанти рейдових правил, звичайні правила сюди не потрапляють.`
-    : (signups.error || "Онови Worker і додай endpoint /api/discord-raid-rules-signups з KV RULES_STATS.");
+    ? `Останнє оновлення: ${updatedLabel}. Список показує тільки підписантів правил рейду.`
+    : (signups.error || "Список підписантів тимчасово недоступний.");
 
   return (
     <section className="panel discord-raid-signups-panel" aria-label="Підписанти правил рейду">
       <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
         <div>
-          <span className="eyebrow">Raid rules</span>
+          <span className="eyebrow">Правила рейду</span>
           <h2>Хто підписався на правила рейду</h2>
         </div>
         <div className="content-toolbar-actions">
@@ -189,7 +189,7 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
       <p className="discord-raid-signups-hint">{hint}</p>
 
       {!signups.configured ? (
-        <div className="notice error-note">Список підписантів недоступний: {signups.error || "немає налаштування Worker/KV."}</div>
+        <div className="notice error-note">Список підписантів тимчасово недоступний.</div>
       ) : signups.signups.length === 0 ? (
         <div className="content-empty discord-empty-state">
           <strong>Підписантів ще немає.</strong>
@@ -206,8 +206,8 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
             <div className="discord-raid-signups-row" role="row" key={signup.discordId}>
               <span role="cell">
                 <small className="discord-raid-mobile-label">Discord</small>
-                <strong>{signup.discordName || "Discord user"}</strong>
-                <small>{signup.discordId}</small>
+                <strong>{signup.discordName || "Discord користувач"}</strong>
+                
               </span>
               <span role="cell">
                 <small className="discord-raid-mobile-label">Main персонаж</small>
@@ -295,8 +295,8 @@ function RulesMessagesPanel({ title, eyebrow, description, messages, roles, crea
       {messages.length === 0 ? (
         <div className="content-empty discord-empty-state">
           <strong>{emptyText}</strong>
-          <span>Якщо embed уже є у Discord, перевір канал, права бота Read Message History і тип кнопок.</span>
-          {canEditRules ? <a className="btn primary" href={createHref}>Створити embed</a> : null}
+          <span>Якщо повідомлення вже є у Discord, переконайся, що воно опубліковане через цю панель.</span>
+          {canEditRules ? <a className="btn primary" href={createHref}>Створити повідомлення</a> : null}
         </div>
       ) : (
         <div className="discord-rules-table" role="list">
@@ -382,7 +382,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="hero panel dashboard-hero content-dashboard-hero discord-dashboard-hero discord-dashboard-hero--rules-list">
           <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Rules embed</div>
+            <div className="eyebrow">Mistblossom Vanguard • Правила</div>
             <div className="content-hero-status-row">
               <span className="content-mode-pill content-mode-pill--library">Правила</span>
               <span className="content-hero-path">{rulesChannelName} • {canEditRules ? "керування й статистика" : "перегляд статистики"}</span>
@@ -406,9 +406,9 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       <StatusNotice params={params} />
 
       {!hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
+        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
       ) : configError ? (
-        <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
+        <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : (
         <>
           <RulesDataOverview
@@ -423,8 +423,8 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
 
           {canEditRules ? <div className="discord-rules-library-split" aria-label="Бібліотека правил">
             <RulesMessagesPanel
-              title="Звичайні embed-правила"
-              eyebrow="Rules library"
+              title="Звичайні правила"
+              eyebrow="Звичайні правила"
               description="Тільки повідомлення з кнопками прийняття/відмови. Рейдові підписи сюди не змішуються."
               messages={guildRulesMessages}
               roles={roles}
@@ -433,8 +433,8 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
               canEditRules={canEditRules}
             />
             <RulesMessagesPanel
-              title="Embed-правила рейду"
-              eyebrow="Raid rules library"
+              title="Правила рейду"
+              eyebrow="Правила рейду"
               description="Тільки повідомлення з кнопкою підпису на правила рейду."
               messages={raidRulesMessages}
               roles={roles}

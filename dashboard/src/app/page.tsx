@@ -98,21 +98,21 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   return (
     <div className="rio-panel">
       <div className="section-title">Raider.IO</div>
-      {(item.raider_io_error ?? null) ? <p className="hint warning">{item.raider_io_error ?? null}</p> : null}
+      {(item.raider_io_error ?? null) ? <p className="hint warning">Raider.IO тимчасово не відповів для цього персонажа.</p> : null}
       <div className="metric-grid">
-        <MiniMetric label="M+ current" value={formatScore(current.all)} />
+        <MiniMetric label="M+ зараз" value={formatScore(current.all)} />
         <MiniMetric label="Хіл" value={formatScore(current.healer)} />
         <MiniMetric label="DPS" value={formatScore(current.dps)} />
         <MiniMetric label="Танк" value={formatScore(current.tank)} />
-        <MiniMetric label="M+ previous" value={formatScore(previous.all)} />
+        <MiniMetric label="M+ попередній" value={formatScore(previous.all)} />
       </div>
       <div className="raid-grid">
         <div>
-          <strong>Рейди current</strong>
+          <strong>Рейди зараз</strong>
           {currentRaids.length ? currentRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
         </div>
         <div>
-          <strong>Рейди previous</strong>
+          <strong>Рейди раніше</strong>
           {previousRaids.length ? previousRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
         </div>
       </div>
@@ -145,13 +145,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <DashboardIdentity user={user} />
         <header className="hero panel dashboard-hero">
         <div className="hero-copy dashboard-hero__copy">
-          <div className="eyebrow">Mistblossom Vanguard • Secure dashboard</div>
+          <div className="eyebrow">Mistblossom Vanguard • Заявки</div>
           <h1>Заявки до гільдії</h1>
           <span className="hero-accent" aria-hidden="true" />
-          <p className="lead">Модеруй заявки, дивись Raider.IO, рейдовий прогрес і ключові дані персонажа в одному місці.</p>
+          <p className="lead">Переглядай заявки, оцінюй персонажів і швидко приймай рішення без зайвих переходів.</p>
           <div className="hero-secure-note">
             <span className="hero-lock" aria-hidden="true">🔒</span>
-            <span>Секрети та GitHub token залишаються тільки на сервері.</span>
+            <span>Доступ відкрито тільки ролям модерації.</span>
           </div>
         </div>
 
@@ -196,7 +196,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <button className="btn primary" type="submit">Фільтрувати</button>
       </form>
 
-      {!mayModerate ? <div className="notice panel">Твій акаунт має роль unauthorized: перегляд доступний, рішення по заявках вимкнені. Попроси адміна додати твою Discord роль у Moderator або Admin role IDs.</div> : null}
+      {!mayModerate ? <div className="notice panel">Твоя роль не має права змінювати заявки. Якщо це помилка, звернись до гільдмайстра.</div> : null}
 
       <section className="grid">
         {items.length ? items.map((item) => (
@@ -212,7 +212,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     <span>{item.class_name || "Клас не вказано"}</span>
                     <span>{item.faction || "Фракція не вказана"}</span>
                     <span>{formatDate(item.created_at)}</span>
-                    <a href={item.html_url} target="_blank" rel="noreferrer">GitHub Issue</a>
+                    <a href={item.html_url} target="_blank" rel="noreferrer">Відкрити заявку</a>
                   </div>
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
             <aside className="actions-panel">
               <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} canModerate={mayModerate} />
-              <small>{item.state === "closed" ? "Issue закрито" : "Issue відкрито"}</small>
+              <small>{item.state === "closed" ? "Заявку закрито" : "Очікує рішення"}</small>
             </aside>
           </article>
         )) : <div className="empty panel">Заявок за цими фільтрами немає.</div>}

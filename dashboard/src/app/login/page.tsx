@@ -102,8 +102,7 @@ export default async function LoginPage({
               </a>
             ) : (
               <div className="login-alert" role="alert">
-                Discord OAuth не налаштовано. Додай DISCORD_OAUTH_CLIENT_ID та
-                DISCORD_OAUTH_CLIENT_SECRET.
+                Вхід через Discord тимчасово недоступний.
               </div>
             )}
           </div>

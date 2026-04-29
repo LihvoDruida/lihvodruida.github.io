@@ -62,11 +62,11 @@ export async function GET(request: NextRequest) {
         channelId: message.channelId,
         messageId: message.id,
       });
-      return jsonResponse({ error: "Це rules embed. Офіцер не може підтягувати або редагувати правила." }, 403);
+      return jsonResponse({ error: "Це повідомлення правил. Офіцер не може відкривати або редагувати правила." }, 403);
     }
 
     const warning = mode === "rules" && !message.isRules
-      ? "Це повідомлення не схоже на rules embed із кнопками цієї панелі. Контент підтягнуто, але ролі можуть бути порожніми."
+      ? "Це повідомлення не схоже на повідомлення правил із кнопками цієї панелі. Контент завантажено, але ролі можуть бути порожніми."
       : "";
 
     logDashboardEvent("info", "discord.embed.message_loaded", request, {
@@ -101,6 +101,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logDashboardEvent("error", "discord.embed.message_load_failed", request, { actorId: session.id, message: safeErrorMessage(error) });
-    return jsonResponse({ error: safeErrorMessage(error) }, 500);
+    return jsonResponse({ error: "Не вдалося завантажити Discord-повідомлення. Спробуй ще раз пізніше." }, 500);
   }
 }

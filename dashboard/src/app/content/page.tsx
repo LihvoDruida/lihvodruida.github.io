@@ -393,7 +393,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       {params.edit && !selectedItem ? <div className="notice panel error-note">Матеріал не знайдено: <strong>{params.edit}</strong></div> : null}
 
       {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру. Офіцери можуть працювати із заявками та звичайними Discord embed, але не публікувати новини або гайди.</div>
+        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру. Офіцери можуть працювати із заявками та звичайними Discord-повідомленнями, але не публікувати новини або гайди.</div>
       ) : (
         <section className="content-page-stack">
           {showEditor ? (
@@ -413,7 +413,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
               </div>
   
               {items.length === 0 ? (
-                <p className="content-empty">Матеріали не знайдено або GitHub API не повернув колекції.</p>
+                <p className="content-empty">Матеріали не знайдено.</p>
               ) : (
                 <div className="content-library-split">
                   <ContentLibraryGroup

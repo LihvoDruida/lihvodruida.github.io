@@ -8,6 +8,25 @@ export type DashboardCapability = {
   enabled: boolean;
 };
 
+export const DASHBOARD_ROLE_ORDER: Record<DashboardRole, number> = {
+  member: 10,
+  moderator: 50,
+  admin: 100,
+};
+
+export function dashboardRoleRank(role: DashboardRole | null | undefined) {
+  return role ? DASHBOARD_ROLE_ORDER[role] || 0 : 0;
+}
+
+export function canAccessDashboardRole(viewer: DashboardSession | null | undefined, targetRole: DashboardRole | null | undefined) {
+  if (!viewer || !targetRole) return false;
+  return dashboardRoleRank(viewer.role) >= dashboardRoleRank(targetRole);
+}
+
+export function canViewProfiles(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+}
+
 export function hierarchyTitle(role: DashboardRole) {
   if (role === "admin") return "Гільдмайстер";
   if (role === "moderator") return "Офіцер";
@@ -31,9 +50,9 @@ export function siteStatusDescription(role: DashboardRole) {
     return "Може керувати всіма розділами панелі, включно з правилами Discord і матеріалами сайту.";
   }
   if (role === "moderator") {
-    return "Може працювати із заявками, звичайними Discord embed і переглядати статистику правил без права редагування правил та матеріалів сайту.";
+    return "Може працювати із заявками, звичайними Discord-повідомленнями й переглядати статистику правил без права редагування правил та матеріалів сайту.";
   }
-  return "Може переглядати лише власну сторінку профілю. Адмінські дані, заявки й Discord-інструменти приховані.";
+  return "Має доступ до власного профілю, персонажів і підписів правил.";
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
@@ -64,7 +83,7 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
     {
       key: "profile",
       title: "Особистий профіль",
-      description: "Перегляд власної унікальної сторінки профілю та статусу доступу.",
+      description: "Перегляд власного профілю. Офіцери й адміни бачать профілі ролей не вище свого рівня.",
       enabled: true,
     },
     {
@@ -75,16 +94,16 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
     },
     {
       key: "general-embeds",
-      title: "Звичайні Discord embed",
-      description: "Створення, редагування за Discord message link і тегання вибраних ролей.",
+      title: "Звичайні Discord-повідомлення",
+      description: "Створення, редагування за посиланням на Discord-повідомлення і згадування вибраних ролей.",
       enabled: canModerate,
     },
     {
       key: "rules-embeds",
       title: "Discord правила",
       description: isAdmin
-        ? "Створення та редагування rules embed, кнопки прийняття, ролі й статистика правил."
-        : "Перегляд статистики звичайних правил і підписантів правил рейду без редагування embed.",
+        ? "Створення та редагування повідомлень правил, кнопки прийняття, ролі й статистика правил."
+        : "Перегляд статистики звичайних правил і підписантів правил рейду без редагування повідомлень.",
       enabled: canModerate,
     },
     {
@@ -128,5 +147,5 @@ export function matchingDiscordRoleLabels(
   if (session.provider === "token") return ["Резервний адмін-токен"];
 
   const roleMap = new Map<string, string>(roles.map((role) => [role.id, role.name]));
-  return matchingDiscordRoleIds(session).map((roleId) => roleMap.get(roleId) || `Discord role · ${roleId.slice(-6)}`);
+  return matchingDiscordRoleIds(session).map((roleId) => roleMap.get(roleId) || `Discord роль ${roleId.slice(-6)}`);
 }

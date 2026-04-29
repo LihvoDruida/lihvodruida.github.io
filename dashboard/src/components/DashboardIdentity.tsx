@@ -1,6 +1,6 @@
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
-import { canManageApplications, canManageGeneralEmbeds, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
+import { canManageApplications, canManageGeneralEmbeds, canViewProfiles, hierarchyTitle, siteStatusLabel } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardIdentity({
@@ -8,12 +8,13 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content" | "discord" | "profile";
+  activeSection?: "applications" | "content" | "discord" | "profile" | "profiles";
 }) {
   const guild = await getGuildBranding();
   const avatar = user?.avatar_url || user?.avatar || null;
   const canUseApplications = canManageApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
+  const canUseProfiles = canViewProfiles(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
 
   return (
@@ -22,7 +23,7 @@ export default async function DashboardIdentity({
         <img className="guild-mark" src={guild.iconUrl} alt="" width={44} height={44} loading="eager" referrerPolicy="no-referrer" />
         <div>
           <strong>{guild.name}</strong>
-          <span>Secure applications dashboard</span>
+          <span>Панель гільдії</span>
         </div>
       </div>
 
@@ -39,6 +40,15 @@ export default async function DashboardIdentity({
                 aria-current={activeSection === "discord" ? "page" : undefined}
               >
                 Discord
+              </a>
+            ) : null}
+            {canUseProfiles ? (
+              <a
+                href="/profiles"
+                className={activeSection === "profiles" ? "is-active" : undefined}
+                aria-current={activeSection === "profiles" ? "page" : undefined}
+              >
+                Профілі
               </a>
             ) : null}
             {user.role === "admin" ? (

@@ -48,7 +48,7 @@ export default function ApplicationStatusActions({
   const lockedMessage = !canModerate
     ? "Недостатньо ролі для модерації. Перегляд доступний, рішення вимкнені."
     : isClosed
-      ? "GitHub Issue вже закрито. Повторна модерація вимкнена."
+      ? "Заявку вже закрито. Повторне рішення вимкнене."
       : isFinalStatus
         ? `Модерація завершена: ${LABELS[status]}.`
         : "";
@@ -59,11 +59,11 @@ export default function ApplicationStatusActions({
     const previousStatus = status;
     setStatus(nextStatus);
     setPendingStatus(nextStatus);
-    setMessage("Оновлюємо GitHub Issue і Discord embed...");
+    setMessage("Оновлюємо заявку і Discord-повідомлення...");
     dispatchDashboardToast({
       tone: "info",
       title: nextStatus === "accepted" ? "Приймаємо заявку" : "Відхиляємо заявку",
-      message: "Синхронізуємо GitHub Issue, статус і Discord embed.",
+      message: "Синхронізуємо статус заявки й Discord-повідомлення.",
       ttl: 3800,
     });
 
@@ -80,7 +80,7 @@ export default function ApplicationStatusActions({
         body: JSON.stringify({ status: nextStatus }),
       });
 
-      const data = await response.json().catch(() => ({ error: "Сервер повернув не JSON-відповідь. Перевір Vercel/Cloudflare logs." }));
+      const data = await response.json().catch(() => ({ error: "Сервер повернув неочікувану відповідь. Спробуй ще раз." }));
 
       if (!response.ok || data?.error) {
         throw new Error(data?.error || "Не вдалося змінити статус заявки.");
@@ -90,14 +90,14 @@ export default function ApplicationStatusActions({
       setStatus(confirmedStatus);
 
       if (data?.discord?.edited?.ok) {
-        setMessage("Готово: GitHub Issue і Discord embed оновлено.");
-        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "GitHub Issue і Discord embed синхронізовані." });
+        setMessage("Готово: заявку й Discord-повідомлення оновлено.");
+        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "Заявку й Discord-повідомлення синхронізовано." });
       } else if (data?.discord?.notified?.ok) {
-        setMessage("Готово: GitHub оновлено, Discord отримав повідомлення.");
-        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "GitHub синхронізовано, Discord отримав службове повідомлення." });
+        setMessage("Готово: заявку оновлено, Discord отримав повідомлення.");
+        dispatchDashboardToast({ tone: "success", title: "Заявку оновлено", message: "Заявку оновлено, Discord отримав повідомлення." });
       } else {
-        setMessage("GitHub оновлено. Discord не підтвердив редагування.");
-        dispatchDashboardToast({ tone: "warning", title: "Заявку оновлено частково", message: "GitHub змінено, але Discord не підтвердив редагування embed." });
+        setMessage("Заявку оновлено. Discord-повідомлення не підтвердило редагування.");
+        dispatchDashboardToast({ tone: "warning", title: "Заявку оновлено частково", message: "Заявку змінено, але Discord-повідомлення не підтвердило редагування." });
       }
     } catch (error) {
       console.error("[dashboard:applications.status]", error);

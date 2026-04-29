@@ -42,9 +42,9 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
         <DashboardIdentity user={user} activeSection="discord" />
         <header className="discord-editor-header panel">
           <div>
-            <span className="eyebrow">Rules embed • Створення</span>
+            <span className="eyebrow">Правила • Створення</span>
             <h1>{ruleType === "raid" ? "Нові правила рейду" : "Нові правила Discord"}</h1>
-            <p>{ruleType === "raid" ? "Створи рейдові правила з кнопкою підпису та перевіркою main-персонажа." : "Створи rules embed, вибери канал і ролі для кнопки прийняття."}</p>
+            <p>{ruleType === "raid" ? "Створи рейдові правила з кнопкою підпису та перевіркою main-персонажа." : "Створи повідомлення правил, вибери канал і ролі для кнопки прийняття."}</p>
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
@@ -55,9 +55,9 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
       {!isAdmin ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Не налаштовано Discord bot config. Потрібні DISCORD_BOT_TOKEN і DISCORD_GUILD_ID.</div>
+        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
       ) : configError ? (
-        <div className="notice panel error-note">Discord API не повернув дані: {configError}</div>
+        <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (
         <div className="notice panel error-note">Не знайдено текстових каналів або ролей для вибору.</div>
       ) : (

@@ -412,7 +412,7 @@ async function assertWorkerReadAccess(request, env, scope) {
   const token = statsAuthToken(env);
   if (token && !(await verifyBearerOrStatsToken(request, token))) {
     logWorkerEvent("warn", `${scope}.token_denied`, { hasToken: true });
-    return { ok: false, response: json({ error: "Stats token is required." }, 401, origin || "null") };
+    return { ok: false, response: json({ error: "Доступ до статистики заборонено." }, 401, origin || "null") };
   }
 
   return { ok: true, origin: origin || "null", authConfigured: Boolean(token) };
@@ -526,21 +526,21 @@ function raidRulesSignupProfileErrorMessage(env, profileResult) {
 
   switch (profileResult?.reason) {
     case "missing-profile-lookup-token":
-      return "❌ Підпис не зараховано: Worker не має INTERNAL_PROFILE_LOOKUP_TOKEN. Додай той самий токен у Worker і dashboard.";
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Звернись до гільдмайстра.";
     case "profile-lookup-forbidden":
-      return "❌ Підпис не зараховано: Worker не має доступу до profile lookup endpoint. Перевір INTERNAL_PROFILE_LOOKUP_TOKEN у Worker/dashboard або bypass для /api/profile/discord-lookup у Cloudflare Access. Панель: " + dashboardUrl;
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Авторизуйся в панелі та спробуй ще раз. Якщо помилка лишиться — звернись до гільдмайстра: " + dashboardUrl;
     case "profile-lookup-access-service-auth-missing":
-      return "❌ Підпис не зараховано: Cloudflare Access блокує /api/profile/discord-lookup, а Worker не передає Service Auth headers. Додай у Worker secrets CF_ACCESS_CLIENT_ID і CF_ACCESS_CLIENT_SECRET або зроби окремий bypass тільки для цього endpoint. Панель: " + dashboardUrl;
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити профіль через захист доступу. Звернись до гільдмайстра. Панель: " + dashboardUrl;
     case "profile-lookup-blocked":
-      return "❌ Підпис не зараховано: Cloudflare Access досі блокує /api/profile/discord-lookup. Перевір Service Auth policy для path /api/profile/discord-lookup і secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET у Worker. Панель: " + dashboardUrl;
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити профіль через захист доступу. Звернись до гільдмайстра. Панель: " + dashboardUrl;
     case "firebase-not-configured":
-      return "❌ Підпис не зараховано: у dashboard не налаштований Firebase Admin SDK для профілів.";
+      return "❌ Підпис не зараховано: збереження профілів тимчасово недоступне. Звернись до гільдмайстра.";
     case "invalid-discord-id":
-      return "❌ Підпис не зараховано: Discord не передав коректний user id.";
+      return "❌ Підпис не зараховано: Discord не передав коректний профіль користувача. Спробуй натиснути кнопку ще раз.";
     case "profile-not-found":
-      return "❌ Підпис не зараховано: у Firebase не знайдено профіль для твого Discord. Авторизуйся через Discord у панелі й вибери main: " + dashboardUrl;
+      return "❌ Підпис не зараховано: профіль для твого Discord не знайдено. Авторизуйся в панелі й вибери main-персонажа: " + dashboardUrl;
     default:
-      return "❌ Підпис не зараховано: не вдалося перевірити Firebase-профіль або main-персонажа. Авторизуйся в панелі та вибери main: " + dashboardUrl;
+      return "❌ Підпис не зараховано: не вдалося перевірити профіль або main-персонажа. Авторизуйся в панелі та вибери main: " + dashboardUrl;
   }
 }
 
@@ -1959,7 +1959,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     });
 
     if (!stored?.ok) {
-      return finishRulesDecision(interaction, "❌ Підпис не збережено: KV RULES_STATS недоступний або неправильно налаштований.");
+      return finishRulesDecision(interaction, "❌ Підпис не збережено: список підписантів тимчасово недоступний. Звернись до гільдмайстра.");
     }
 
     logWorkerEvent("info", "raid_rules.signup.accepted", { guildId, userId, character: stored.signup?.mainCharacter?.name });
@@ -2690,7 +2690,7 @@ export default {
 
       response = json(
         {
-          error: "Внутрішня помилка Worker.",
+          error: "Внутрішня помилка сервера.",
           request_id: requestId,
           diagnostics: isDebugResponseEnabled(request, env)
             ? { message: error?.message, env: envDiagnostics(env) }

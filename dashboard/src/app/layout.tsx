@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Mistblossom Applications Dashboard",
-  description: "Secure dashboard for reviewing Mistblossom Vanguard guild applications.",
+  description: "Панель Mistblossom Vanguard для заявок, профілів і Discord-правил.",
   robots: { index: false, follow: false }
 };
 

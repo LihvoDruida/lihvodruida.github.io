@@ -61,7 +61,7 @@ function parseBulkItems(body: BulkStatusInput) {
 
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) {
-    return forbiddenResponse("Недовірене джерело batch-модерації.");
+    return forbiddenResponse("Недовірене джерело запиту.");
   }
 
   const tooLarge = assertRequestBodySize(request, 24 * 1024);
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) {
     logDashboardEvent("warn", "applications.bulk_status.rate_limited", request, { userId: session.id, resetAt: limit.resetAt });
     return NextResponse.json(
-      { error: "Забагато batch-змін статусу. Зачекай кілька хвилин." },
+      { error: "Забагато змін статусу. Зачекай кілька хвилин." },
       { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.ceil((limit.resetAt - Date.now()) / 1000)) }) },
     );
   }
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   const items = parseBulkItems(body).slice(0, 50);
 
   if (!items.length) {
-    return NextResponse.json({ error: "Передай issueNumbers + status або items з issueNumber/status." }, { status: 400, headers: noStoreHeaders() });
+    return NextResponse.json({ error: "Вибери заявки й потрібний статус." }, { status: 400, headers: noStoreHeaders() });
   }
 
   try {
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logDashboardEvent("error", "applications.bulk_status.failed", request, { userId: session.id, message: safeErrorMessage(error) });
     return NextResponse.json(
-      { error: safeErrorMessage(error, "Batch-модерацію не виконано.") },
+      { error: safeErrorMessage(error, "Масову зміну статусів не виконано.") },
       { status: 500, headers: noStoreHeaders() },
     );
   }

@@ -10,16 +10,16 @@ function formUsesApi(form: HTMLFormElement) {
 }
 
 function actionText(action: string) {
-  if (action.includes("/applications/bulk-status")) return { label: "Синхронізуємо...", title: "Batch-модерація", message: "Паралельно оновлюємо вибрані заявки, GitHub Issue і Discord embed." };
-  if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Обробляємо вибраних персонажів одним batch-запитом." };
-  if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net сесію і записуємо персонажа у Firebase." };
-  if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо профіль і main-персонажа у Firebase." };
+  if (action.includes("/applications/bulk-status")) return { label: "Синхронізуємо...", title: "Масова модерація", message: "Оновлюємо вибрані заявки та Discord-повідомлення." };
+  if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Додаємо вибраних персонажів однією дією." };
+  if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net і додаємо персонажа до профілю." };
+  if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо список персонажів і main-персонажа." };
   if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для сайту й інтеграцій." };
   if (action.includes("/delete")) return { label: "Видаляємо...", title: "Видаляємо", message: "Обробляємо запит і оновлюємо дані." };
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
-  if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Валідуємо токен і відкриваємо панель." };
-  if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Discord дія виконується", message: "Надсилаємо запит до Discord API." };
-  if (action.includes("/content/create")) return { label: "Публікуємо...", title: "Публікуємо матеріал", message: "Зберігаємо контент і готуємо оновлення сторінки." };
+  if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
+  if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
+  if (action.includes("/content/create")) return { label: "Публікуємо...", title: "Публікуємо матеріал", message: "Зберігаємо матеріал і готуємо оновлення сторінки." };
   if (action.includes("/content/update")) return { label: "Зберігаємо...", title: "Зберігаємо зміни", message: "Оновлюємо матеріал." };
   return { label: "Виконуємо...", title: "Обробка дії", message: "Запит виконується. Зачекай кілька секунд." };
 }
@@ -70,7 +70,7 @@ export default function DashboardFormEnhancer() {
       }
 
       if (discordLoginLink) {
-        pushToast("Відкриваємо Discord", "Запускаємо OAuth-вхід і перевірку ролей доступу.");
+        pushToast("Відкриваємо Discord", "Відкриваємо вхід через Discord і перевірку ролей доступу.");
         discordLoginLink.classList.add("is-submitting");
         discordLoginLink.setAttribute("aria-busy", "true");
       }

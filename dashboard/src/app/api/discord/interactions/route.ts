@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
       return finishDecision(interaction, `✅ Підпис на правила рейду підтверджено. Main: ${mainCharacterLabel(mainCharacter)}.`);
     } catch (error) {
       logDashboardEvent("error", "discord.raid_rules.failed", request, { message: safeErrorMessage(error), guildId, userId });
-      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис: ${safeErrorMessage(error)}`);
+      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис. Спробуй ще раз пізніше або перевір, що в профілі вибрано main-персонажа: ${dashboardAuthUrl()}`);
     }
   }
 
@@ -225,6 +225,6 @@ export async function POST(request: NextRequest) {
     return finishDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
     logDashboardEvent("error", "discord.rules.action_failed", request, { message: safeErrorMessage(error), guildId, userId, action: parsed.action });
-    return finishDecision(interaction, `❌ Не вдалося виконати дію: ${safeErrorMessage(error)}`);
+    return finishDecision(interaction, "❌ Не вдалося виконати дію. Спробуй ще раз пізніше або звернись до гільдмайстра.");
   }
 }

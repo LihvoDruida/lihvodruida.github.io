@@ -71,7 +71,7 @@ function messageLinkFromForm(form: FormData, request: NextRequest, action: strin
 }
 
 export async function POST(request: NextRequest) {
-  if (!verifyTrustedOrigin(request)) return forbiddenResponse("Недовірене джерело публікації Discord embed.");
+  if (!verifyTrustedOrigin(request)) return forbiddenResponse("Недовірене джерело запиту.");
 
   const tooLarge = assertRequestBodySize(request, 64 * 1024);
   if (tooLarge) return tooLarge;
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 
     if (messageLink && !editRef) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "invalid_edit_link", actorId: session.id });
-      return redirectTo(request, { error: "Discord message link невалідний. Прибери його або встав повне посилання на повідомлення." }, returnTo);
+      return redirectTo(request, { error: "Посилання на Discord-повідомлення невалідне. Прибери його або встав повне посилання на повідомлення." }, returnTo);
     }
 
     if (shouldEdit) {
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
             channelId: editRef.channelId,
             messageId: editRef.messageId,
           });
-          return redirectTo(request, { error: "Це rules embed. Офіцер може редагувати тільки звичайні embed-пости." }, returnTo);
+          return redirectTo(request, { error: "Це повідомлення правил. Офіцер може редагувати тільки звичайні Discord-повідомлення." }, returnTo);
         }
       }
 
@@ -202,11 +202,11 @@ export async function POST(request: NextRequest) {
     });
 
     return redirectTo(request, {
-      published: created?.id ? discordMessageUrl(channelId, String(created.id)) : "Discord message",
+      published: created?.id ? discordMessageUrl(channelId, String(created.id)) : "Discord-повідомлення",
       tab: mode,
     }, returnTo);
   } catch (error) {
     logDashboardEvent("error", "discord.embed.failed", request, { actorId: session.id, message: safeErrorMessage(error) });
-    return redirectTo(request, { error: safeErrorMessage(error) }, returnTo);
+    return redirectTo(request, { error: "Не вдалося виконати дію з Discord-повідомленням. Спробуй ще раз або перевір права бота." }, returnTo);
   }
 }

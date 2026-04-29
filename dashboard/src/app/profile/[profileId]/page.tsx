@@ -14,7 +14,6 @@ import {
 import {
   canViewProfile,
   getMainCharacter,
-  getOwnProfilePath,
   getProfileById,
   profileFromSession,
   upsertProfileFromSession,
@@ -28,7 +27,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function providerLabel(provider: string) {
-  if (provider === "discord") return "Discord OAuth";
+  if (provider === "discord") return "Discord";
   if (provider === "github") return "GitHub";
   return "Резервний токен";
 }
@@ -60,16 +59,16 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
   const region = (profile.battlenet?.region?.toString().toUpperCase() || "EU");
   if (hasFreshBattleNetSession) {
     return {
-      eyebrow: "Свіжа перевірка активна",
+      eyebrow: "Список оновлено",
       title: "Додати ще персонажів",
-      hint: `${formatBattleNetAccount(profile)} • ${region} • список тимчасово відкритий після реавторизації`,
+      hint: `${formatBattleNetAccount(profile)} • ${region} • можна додати знайдених персонажів`,
     };
   }
   if (profile.battlenet?.linked) {
     return {
       eyebrow: "Battle.net підключено",
       title: "Оновити персонажів",
-      hint: `${formatBattleNetAccount(profile)} • ${region} • потрібна реавторизація для нового списку`,
+      hint: `${formatBattleNetAccount(profile)} • ${region} • онови список, щоб додати нових персонажів`,
     };
   }
   return {
@@ -119,7 +118,7 @@ function buildRoleChips(roleIds: string[], roles: DiscordRoleOption[]): ProfileR
       const role = roleMap.get(roleId);
       return {
         id: roleId,
-        label: role?.name || `Discord role · ${roleId.slice(-6)}`,
+        label: role?.name || `Discord роль ${roleId.slice(-6)}`,
         position: role?.position ?? 0,
       } satisfies ProfileRoleChip;
     })
@@ -232,14 +231,16 @@ export default async function ProfilePage({
   if (!viewer) redirect("/login");
 
   const { profileId } = await params;
-  const [ownPath, initialProfile, cookieStore] = await Promise.all([
-    getOwnProfilePath(viewer),
+  const [initialProfile, cookieStore] = await Promise.all([
     getProfileById(profileId),
     cookies(),
   ]);
 
-  const isOwnProfile = ownPath.endsWith(`/${profileId}`);
-  if (!canViewProfile(viewer, profileId) && !(viewer.role === "member" && isOwnProfile)) {
+  const isOwnProfile = Boolean(viewer.profileId && viewer.profileId === profileId);
+  if (initialProfile && !canViewProfile(viewer, profileId, initialProfile)) {
+    notFound();
+  }
+  if (!initialProfile && !isOwnProfile && !canViewProfile(viewer, profileId)) {
     notFound();
   }
 
@@ -250,7 +251,7 @@ export default async function ProfilePage({
     const result = await upsertProfileFromSession(viewer).catch(() => null);
     profile = result?.profile || { ...profileFromSession(viewer), profileId };
     if (!result?.stored) {
-      storageWarning = "Firebase профілі ще не налаштовані або тимчасово недоступні. Показано дані поточної сесії без службових деталей.";
+      storageWarning = "Профіль тимчасово показано з поточної сесії. Частина даних може оновитися після повторного входу.";
     }
   }
 
@@ -276,6 +277,7 @@ export default async function ProfilePage({
   const mainCharacter = getMainCharacter(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
+  const canInspectOtherProfile = !isOwnProfile && (viewer.role === "admin" || viewer.role === "moderator");
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
@@ -318,7 +320,7 @@ export default async function ProfilePage({
             <div className="eyebrow">Mistblossom Vanguard • Personal access</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Центр профілю: роль доступу, Discord-ідентичність, Battle.net персонажі, main-персонаж і швидкі дії без зайвих постійних блоків.</p>
+            <p className="lead">Профіль учасника: доступ, Discord-роль, Battle.net персонажі та main-персонаж в одному місці.</p>
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
               <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль доступу</small></span>
               <span><strong>{enabledCount}/{capabilities.length}</strong><small>Дій відкрито</small></span>
@@ -332,6 +334,7 @@ export default async function ProfilePage({
               <span>{siteStatusDescription(profile.role)}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+            {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Перегляд відкрито за твоєю роллю. Змінювати персонажів може тільки власник профілю.</div> : null}
           </div>
         </header>
       </section>
@@ -361,10 +364,12 @@ export default async function ProfilePage({
             )}
             <div className="profile-person-card__body">
               <strong>{profile.displayName}</strong>
-              <details className="profile-secret">
-                <summary>Показати ID профілю</summary>
-                <code>{profile.profileId}</code>
-              </details>
+              {viewer.role === "admin" || viewer.role === "moderator" ? (
+                <details className="profile-secret">
+                  <summary>Службовий ID</summary>
+                  <code>{profile.profileId}</code>
+                </details>
+              ) : null}
             </div>
           </div>
 
@@ -390,10 +395,10 @@ export default async function ProfilePage({
             <h2>Роль доступу</h2>
           </div>
 
-          <p className="profile-card-lead">Роль береться з Discord-сесії. Зверху показані ролі, які дали найвищий доступ у dashboard; нижче — всі інші ролі користувача.</p>
+          <p className="profile-card-lead">Роль береться з Discord-сесії. Зверху показані ролі, які дали найвищий доступ у панелі; нижче — всі інші ролі користувача.</p>
 
           <div className="profile-access-summary" aria-label="Поточний доступ">
-            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Найвищий dashboard-доступ</small></span>
+            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Найвищий доступ у панелі</small></span>
             <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступних дій</small></span>
           </div>
 
@@ -421,8 +426,8 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Discord role ID є в сесії, але назви ролей недоступні без налаштованого Discord Bot API.</small> : null}
-          {roleLoadError ? <small className="profile-warning">Назви ролей не підтягнулись із Discord API: {roleLoadError}</small> : null}
+          {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Назви ролей тимчасово недоступні. Доступ усе одно визначено коректно.</small> : null}
+          {roleLoadError ? <small className="profile-warning">Назви Discord-ролей тимчасово недоступні.</small> : null}
         </article>
 
         <article className="panel profile-card profile-card--characters">
@@ -488,7 +493,7 @@ export default async function ProfilePage({
                 <div>
                   <span className="eyebrow">Свіжа Battle.net перевірка</span>
                   <h3>Доступні для додавання</h3>
-                  <small className="profile-card-note">Цей список тимчасовий і з’являється лише після справжньої реавторизації. У Firebase він не зберігається.</small>
+                  <small className="profile-card-note">Список доступний після Battle.net перевірки. Додай потрібних персонажів одразу.</small>
                 </div>
                 <span className="profile-count-pill">{availableCandidates.length}</span>
               </div>

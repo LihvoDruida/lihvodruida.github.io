@@ -4,6 +4,7 @@ import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { BattleNetAccountInfo, BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
+import { canAccessDashboardRole } from "@/lib/permissions";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -152,10 +153,18 @@ export async function getOwnProfilePath(session: DashboardSession) {
   return `/profile/${profileId}`;
 }
 
-export function canViewProfile(viewer: DashboardSession | null | undefined, profileId: string) {
+export function canViewProfile(
+  viewer: DashboardSession | null | undefined,
+  profileId: string,
+  profile?: Pick<DashboardProfile, "role" | "profileId"> | null,
+) {
   if (!viewer) return false;
-  if (viewer.role === "admin" || viewer.role === "moderator") return true;
-  return Boolean(viewer.profileId && viewer.profileId === profileId);
+  const ownProfileId = viewer.profileId || "";
+  const isOwnProfile = Boolean(ownProfileId && ownProfileId === profileId);
+  if (isOwnProfile) return true;
+  if (viewer.role !== "admin" && viewer.role !== "moderator") return false;
+  if (!profile) return true;
+  return canAccessDashboardRole(viewer, profile.role);
 }
 
 export function canManageProfiles(viewer: DashboardSession | null | undefined) {
@@ -256,6 +265,40 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   }
 
   return null;
+}
+
+
+export async function listDashboardProfiles(params: {
+  viewer: DashboardSession;
+  query?: string;
+  limit?: number;
+}): Promise<DashboardProfile[]> {
+  if (!hasFirebaseProfileConfig()) return [];
+
+  const safeLimit = Math.max(10, Math.min(200, Number(params.limit || 120)));
+  const query = String(params.query || "").trim().toLowerCase();
+  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
+  const profiles = snapshot.docs
+    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+    .filter((profile) => canViewProfile(params.viewer, profile.profileId, profile));
+
+  const filtered = query
+    ? profiles.filter((profile) => [
+        profile.displayName,
+        profile.login,
+        profile.role,
+        profile.provider,
+        profile.characters.map((item) => item.name).join(" "),
+        profile.characters.map((item) => item.realmName || item.realmSlug).join(" "),
+        getMainCharacter(profile)?.name,
+      ].some((value) => String(value || "").toLowerCase().includes(query)))
+    : profiles;
+
+  return filtered.sort((a, b) => {
+    const aTime = Date.parse(a.lastLoginAt || a.updatedAt || a.createdAt || "") || 0;
+    const bTime = Date.parse(b.lastLoginAt || b.updatedAt || b.createdAt || "") || 0;
+    return bTime - aTime || a.displayName.localeCompare(b.displayName, "uk");
+  });
 }
 
 export function profileFromSession(session: DashboardSession): DashboardProfile {
