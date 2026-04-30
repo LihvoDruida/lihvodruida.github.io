@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-30 10:08:56'
+  updated_at: '2026-04-30 13:59:08'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2110,7 +2110,7 @@ characters:
         learned_points: 46
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2786,7 +2786,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Yokuha
   professions:
     primaries:
     - name: Herbalism
@@ -3596,7 +3596,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
   professions:
     primaries:
     - name: Enchanting
@@ -5881,7 +5881,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 90
+        learned_points: 91
         max_points: 100
     secondaries:
     - name: Cooking
