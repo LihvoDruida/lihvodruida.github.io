@@ -13,6 +13,7 @@ ALLOWED_ORIGINS = "https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https
 DISCORD_ALLOWED_ROLES = ""
 ADMIN_DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
 DASHBOARD_PROFILE_LOOKUP_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup"
+RAID_RULES_URL = "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024"
 ALLOW_DEBUG_QUERY = "0"
 
 

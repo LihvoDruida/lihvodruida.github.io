@@ -209,8 +209,14 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
           <button className="btn warning btn-sm" type="submit">Закрити</button>
         </form>
       ) : null}
-      <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
-        <button className="btn danger btn-sm" type="submit">Видалити</button>
+      <form
+        action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
+        method="post"
+        data-confirm-message={raid.status === "draft"
+          ? "Видалити чернетку рейду?"
+          : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+      >
+        <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
       </form>
     </div>
   );
@@ -269,6 +275,7 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
   const averageItemLevel = raidAverageItemLevel(raid);
   const statusClass = raidStatusClass(raid);
   const capacity = raidDisplayCapacity(raid);
+  const closed = isRaidClosed(raid);
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
@@ -292,8 +299,21 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
       <div className="raid-list-actions" aria-label="Керування рейдом">
         <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
         <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
-        <form action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
-          <button className="btn danger btn-sm" type="submit">Видалити</button>
+        {!closed && raid.status !== "draft" ? (
+          <form action={`/api/raids/${encodeURIComponent(raid.id)}/close`} method="post">
+            <button className="btn warning btn-sm" type="submit">Закрити</button>
+          </form>
+        ) : closed ? (
+          <span className="raid-list-archive-note">Архів</span>
+        ) : null}
+        <form
+          action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
+          method="post"
+          data-confirm-message={raid.status === "draft"
+            ? "Видалити чернетку рейду?"
+            : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+        >
+          <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
         </form>
       </div>
     </article>
@@ -402,12 +422,22 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
         </div>
       </form>
       {raid?.id ? (
-        <form className="panel raid-form-danger-zone raid-form-danger-zone--separate" action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
-          <strong>Видалення рейду</strong>
-          <p>Видаляє рейд зі списку. Якщо оголошення вже було в Discord, панель також спробує прибрати його там.</p>
-          <button className="btn danger" type="submit">Видалити рейд</button>
+        <form
+          className="panel raid-form-danger-zone raid-form-danger-zone--separate"
+          action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
+          method="post"
+          data-confirm-message={raid.status === "draft"
+            ? "Видалити чернетку рейду?"
+            : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+        >
+          <strong>{raid.status === "draft" ? "Видалення чернетки" : "Видалення рейду"}</strong>
+          <p>{raid.status === "draft"
+            ? "Чернетка зникне зі списку рейдів."
+            : "Автовидалення вимкнене: опубліковані й закриті рейди залишаються в архіві, доки ти не видалиш їх вручну."}</p>
+          <button className="btn danger" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
         </form>
       ) : null}
+
     </div>
   );
 }

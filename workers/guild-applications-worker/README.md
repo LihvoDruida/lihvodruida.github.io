@@ -125,3 +125,15 @@ GET /api/discord-raid-rules-signups
 ```env
 ALLOWED_ORIGINS=https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https://admin.lihvodruida.pp.ua
 ```
+
+## Raid announcement button safety
+
+Raid announcement buttons (`mbv1:raid:<raidId>:going|late|skipped`) are proxied to the dashboard endpoint configured in `DASHBOARD_RAID_ACTION_ENDPOINT`. When the dashboard reports that the user is not authorized or has no selected main character, the Worker returns a private Discord response with quick links to login, profile, raid rules, and the raid page.
+
+Set `RAID_RULES_URL` if the raid rules message changes:
+
+```bash
+wrangler secret put RAID_RULES_URL
+```
+
+Raid announcement messages can safely mention selected roles. The Worker only allows role mentions passed through `mentionRoleIds`, `mention_role_ids`, or `allowed_mentions.roles`; it never enables `@everyone`, `@here`, or unrestricted user mentions.

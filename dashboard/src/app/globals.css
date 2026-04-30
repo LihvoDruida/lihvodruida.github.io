@@ -12504,3 +12504,56 @@ button[type="submit"] {
     width: 100%;
   }
 }
+
+/* Raid v35: current list + persistent closed archive */
+.raid-list-page-panel--archive {
+  margin-top: 22px;
+  border-color: rgba(237, 66, 69, .22);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(237, 66, 69, .08), transparent 36%),
+    linear-gradient(180deg, rgba(12, 14, 18, .92), rgba(5, 7, 11, .96));
+}
+
+.raid-list-page-head--archive {
+  background:
+    linear-gradient(90deg, rgba(48, 20, 18, .74), rgba(11, 13, 16, .74)),
+    radial-gradient(circle at 88% 10%, rgba(237, 66, 69, .10), transparent 35%);
+}
+
+.raid-manager-list--archive .raid-list-item--closed {
+  opacity: .9;
+}
+
+.raid-list-archive-note {
+  width: 100%;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(237, 66, 69, .28);
+  border-radius: 10px;
+  color: #ffd4cf;
+  background: rgba(105, 27, 24, .18);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.raid-form-archive-note {
+  color: rgba(247, 230, 196, .86);
+}
+
+.raid-form-archive-note strong {
+  color: #ffe1a6;
+}
+
+@media (max-width: 760px) {
+  .raid-list-page-panel--archive {
+    margin-top: 16px;
+  }
+
+  .raid-list-archive-note {
+    min-height: 42px;
+  }
+}

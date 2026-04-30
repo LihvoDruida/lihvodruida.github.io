@@ -686,20 +686,29 @@ export async function deleteRaid(raidId: string) {
   if (!raid) throw new Error("Рейд не знайдено.");
 
   let discordDeleted = false;
+  let discordDeleteFailed = false;
   if (raid.channelId && raid.messageId) {
     try {
       await deleteDiscordRaidMessage({
         ref: { channelId: raid.channelId, messageId: raid.messageId },
-        auditReason: `Raid deleted: ${raid.id}`,
+        auditReason: `Raid manually deleted from dashboard: ${raid.id}`,
       });
       discordDeleted = true;
     } catch (error) {
-      console.warn("[raids] Failed to delete Discord raid message", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+      if (isMissingDiscordMessageError(error)) {
+        discordDeleted = true;
+      } else {
+        discordDeleteFailed = true;
+        console.warn("[raids] Failed to delete Discord raid message during manual raid deletion", {
+          raidId: raid.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
   }
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
-  return { ...raid, discordDeleted };
+  return { ...raid, discordDeleted, discordDeleteFailed };
 }
 
 export const deleteDraftRaid = deleteRaid;

@@ -38,10 +38,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const result = await deleteRaid(raidId);
     logDashboardEvent("info", "raids.delete.done", request, { raidId: result.id, actorId: user.id, actorRole: user.role });
     return redirectWithToast("/raids", {
-      tone: "success",
-      title: "Рейд видалено",
-      message: result.messageId ? (result.discordDeleted ? "Рейд прибрано зі списку, Discord-повідомлення також видалено." : "Рейд прибрано зі списку. Discord-повідомлення не вдалося видалити автоматично.") : "Рейд прибрано зі списку.",
-      ttl: 6200,
+      tone: result.discordDeleteFailed ? "warning" : "success",
+      title: result.status === "draft" ? "Чернетку видалено" : "Рейд видалено",
+      message: result.discordDeleteFailed
+        ? "Рейд видалено з панелі, але Discord-повідомлення не вдалося прибрати автоматично. Перевір права бота або видали повідомлення вручну."
+        : result.discordDeleted
+          ? "Рейд прибрано з панелі, а Discord-повідомлення видалено."
+          : "Рейд прибрано зі списку.",
+      ttl: result.discordDeleteFailed ? 9800 : 6200,
     });
   } catch (error) {
     logDashboardEvent("error", "raids.delete.failed", request, { raidId, actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });

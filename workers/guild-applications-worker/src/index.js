@@ -424,6 +424,86 @@ function dashboardAuthUrl(env) {
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
+function dashboardUrl(env, path = "/") {
+  try {
+    return new URL(path.startsWith("/") ? path : `/${path}`, dashboardAuthUrl(env)).toString();
+  } catch {
+    const base = dashboardAuthUrl(env).replace(/\/$/, "");
+    return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  }
+}
+
+function dashboardProfileUrl(env) {
+  return dashboardUrl(env, "/profile");
+}
+
+function dashboardRaidUrl(env, raidId) {
+  const cleanRaidId = String(raidId || "").trim();
+  return cleanRaidId ? dashboardUrl(env, `/raids/${encodeURIComponent(cleanRaidId)}`) : dashboardUrl(env, "/raids");
+}
+
+function dashboardLoginUrl(env, nextPath = "/profile") {
+  try {
+    const url = new URL("/login", dashboardAuthUrl(env));
+    if (nextPath) url.searchParams.set("next", nextPath.startsWith("/") ? nextPath : `/${nextPath}`);
+    url.searchParams.set("error", "session_required");
+    return url.toString();
+  } catch {
+    return dashboardProfileUrl(env);
+  }
+}
+
+function dashboardRaidRulesUrl(env) {
+  const explicit = String(env.RAID_RULES_URL || env.DISCORD_RAID_RULES_URL || env.NEXT_PUBLIC_RAID_RULES_URL || "").trim();
+  if (explicit) return explicit;
+  return "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024";
+}
+
+function discordLinkButton(label, url) {
+  const text = limitText(label, 80, "Відкрити");
+  const href = String(url || "").trim();
+  try {
+    const parsed = new URL(href);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+    return { type: 2, style: 5, label: text, url: parsed.toString() };
+  } catch {
+    return null;
+  }
+}
+
+function raidActionHelpComponents(env, raidId) {
+  const raidPath = raidId ? `/raids/${encodeURIComponent(String(raidId))}` : "/profile";
+  const buttons = [
+    discordLinkButton("Увійти через Discord", dashboardLoginUrl(env, raidPath)),
+    discordLinkButton("Відкрити профіль", dashboardProfileUrl(env)),
+    discordLinkButton("Правила рейду", dashboardRaidRulesUrl(env)),
+    raidId ? discordLinkButton("Сторінка рейду", dashboardRaidUrl(env, raidId)) : null,
+  ].filter(Boolean);
+
+  return buttons.length ? [{ type: 1, components: buttons.slice(0, 5) }] : [];
+}
+
+function raidActionHelpText(env, reason, raidId) {
+  const profile = dashboardProfileUrl(env);
+  const raidPath = raidId ? `/raids/${encodeURIComponent(String(raidId))}` : "/profile";
+  const login = dashboardLoginUrl(env, raidPath);
+  const rules = dashboardRaidRulesUrl(env);
+  const raid = raidId ? `
+Сторінка рейду: ${dashboardRaidUrl(env, raidId)}` : "";
+
+  if (reason === "main") {
+    return `❌ Дію не виконано: у профілі потрібно додати персонажа Battle.net і вибрати мейна.
+Увійти: ${login}
+Профіль: ${profile}
+Правила рейду: ${rules}${raid}`;
+  }
+
+  return `❌ Дію не виконано: спочатку увійди через Discord у панелі.
+Увійти: ${login}
+Профіль: ${profile}
+Правила рейду: ${rules}${raid}`;
+}
+
 function dashboardProfileLookupEndpoint(env) {
   const explicit = String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || "").trim();
   if (explicit) return explicit;
@@ -520,28 +600,34 @@ async function lookupDashboardProfileByDiscord(env, discordId) {
 }
 
 function raidRulesSignupProfileErrorMessage(env, profileResult) {
-  const dashboardUrl = dashboardAuthUrl(env);
+  const profileUrl = dashboardProfileUrl(env);
+  const loginUrl = dashboardLoginUrl(env, "/profile");
+  const rulesUrl = dashboardRaidRulesUrl(env);
+  const suffix = `
+Увійти: ${loginUrl}
+Профіль: ${profileUrl}
+Правила рейду: ${rulesUrl}`;
+
   if (profileResult?.ok && !hasUsableMainCharacter(profileResult.mainCharacter)) {
-    return "❌ Підпис не зараховано: профіль знайдено, але main-персонаж не вибраний. Відкрий профіль у панелі, натисни ‘Зробити мейном’ біля персонажа і повтори підпис: " + dashboardUrl;
+    return "❌ Підпис не зараховано: профіль знайдено, але main-персонаж не вибраний. Відкрий профіль, додай персонажа Battle.net або натисни ‘Зробити мейном’ біля потрібного персонажа, а потім повтори підпис." + suffix;
   }
 
   switch (profileResult?.reason) {
     case "missing-profile-lookup-token":
-      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Звернись до гільдмайстра.";
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Звернись до гільдмайстра." + suffix;
     case "profile-lookup-forbidden":
-      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Авторизуйся в панелі та спробуй ще раз. Якщо помилка лишиться — звернись до гільдмайстра: " + dashboardUrl;
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити твій профіль. Авторизуйся в панелі та спробуй ще раз. Якщо помилка лишиться — звернись до гільдмайстра." + suffix;
     case "profile-lookup-access-service-auth-missing":
-      return "❌ Підпис не зараховано: панель тимчасово не може перевірити профіль через захист доступу. Звернись до гільдмайстра. Панель: " + dashboardUrl;
     case "profile-lookup-blocked":
-      return "❌ Підпис не зараховано: панель тимчасово не може перевірити профіль через захист доступу. Звернись до гільдмайстра. Панель: " + dashboardUrl;
+      return "❌ Підпис не зараховано: панель тимчасово не може перевірити профіль через захист доступу. Звернись до гільдмайстра." + suffix;
     case "firebase-not-configured":
-      return "❌ Підпис не зараховано: збереження профілів тимчасово недоступне. Звернись до гільдмайстра.";
+      return "❌ Підпис не зараховано: збереження профілів тимчасово недоступне. Звернись до гільдмайстра." + suffix;
     case "invalid-discord-id":
-      return "❌ Підпис не зараховано: Discord не передав коректний профіль користувача. Спробуй натиснути кнопку ще раз.";
+      return "❌ Підпис не зараховано: Discord не передав коректний профіль користувача. Спробуй натиснути кнопку ще раз." + suffix;
     case "profile-not-found":
-      return "❌ Підпис не зараховано: профіль для твого Discord не знайдено. Авторизуйся в панелі й вибери main-персонажа: " + dashboardUrl;
+      return "❌ Підпис не зараховано: профіль для твого Discord не знайдено. Увійди в панель через Discord, додай персонажа Battle.net і вибери main-персонажа." + suffix;
     default:
-      return "❌ Підпис не зараховано: не вдалося перевірити профіль або main-персонажа. Авторизуйся в панелі та вибери main: " + dashboardUrl;
+      return "❌ Підпис не зараховано: не вдалося перевірити профіль або main-персонажа. Увійди в панель через Discord, додай персонажа Battle.net і вибери main-персонажа." + suffix;
   }
 }
 
@@ -1598,8 +1684,64 @@ async function verifyAnyBearerOrStatsToken(request, expectedTokens) {
   return false;
 }
 
+function safeDiscordButton(button) {
+  if (!button || typeof button !== "object" || Array.isArray(button)) return null;
+  const type = Number(button.type);
+  const style = Number(button.style);
+  if (type !== 2 || ![1, 2, 3, 4, 5].includes(style)) return null;
+
+  const safe = {
+    type: 2,
+    style,
+    label: limitText(button.label, 80, "Дія"),
+  };
+
+  if (style === 5) {
+    try {
+      const parsed = new URL(String(button.url || ""));
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+      safe.url = parsed.toString();
+    } catch {
+      return null;
+    }
+  } else {
+    const customId = String(button.custom_id || button.customId || "").trim().slice(0, 100);
+    if (!customId) return null;
+    safe.custom_id = customId;
+    if (typeof button.disabled === "boolean") safe.disabled = button.disabled;
+  }
+
+  return safe;
+}
+
 function safeDiscordComponents(value) {
-  return Array.isArray(value) ? value.slice(0, 5) : [];
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .slice(0, 5)
+    .map((row) => {
+      if (!row || typeof row !== "object" || Array.isArray(row) || Number(row.type) !== 1) return null;
+      const components = Array.isArray(row.components)
+        ? row.components.map(safeDiscordButton).filter(Boolean).slice(0, 5)
+        : [];
+      return components.length ? { type: 1, components } : null;
+    })
+    .filter(Boolean);
+}
+
+function cleanSnowflakeIds(values, max = 50) {
+  const list = Array.isArray(values) ? values : [values];
+  return Array.from(new Set(list.map(snowflake).filter(Boolean))).slice(0, max);
+}
+
+function safeAllowedMentions(body) {
+  const roles = cleanSnowflakeIds([
+    ...(Array.isArray(body?.mentionRoleIds) ? body.mentionRoleIds : []),
+    ...(Array.isArray(body?.mention_role_ids) ? body.mention_role_ids : []),
+    ...(Array.isArray(body?.allowed_mentions?.roles) ? body.allowed_mentions.roles : []),
+  ], 25);
+
+  return roles.length ? { parse: [], roles } : { parse: [] };
 }
 
 function safeDiscordEmbed(value) {
@@ -1653,7 +1795,7 @@ async function handleRaidDiscordMessageRelay(request, env) {
     content: limitText(body?.content || "", 2000, ""),
     embeds: [embed],
     components: safeDiscordComponents(body?.components),
-    allowed_mentions: { parse: [] },
+    allowed_mentions: safeAllowedMentions(body),
   };
 
   const path = action === "edit"
@@ -1914,12 +2056,14 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
   return { ok: true, label: targetLabel, closed: true };
 }
 
-function ephemeral(content) {
+function ephemeral(content, components = []) {
+  const safeComponents = safeDiscordComponents(components);
   return discordInteractionResponse({
     type: 4,
     data: {
       content: limitText(content, 1900, "Дію виконано."),
       flags: 64,
+      components: safeComponents,
       allowed_mentions: { parse: [] },
     },
   });
@@ -1929,19 +2073,19 @@ function isEphemeralMessageInteraction(interaction) {
   return Boolean(Number(interaction?.message?.flags || 0) & 64);
 }
 
-function updateInteractionMessage(content) {
+function updateInteractionMessage(content, components = []) {
   return discordInteractionResponse({
     type: 7,
     data: {
       content: limitText(content, 1900, "Дію виконано."),
-      components: [],
+      components: safeDiscordComponents(components),
       allowed_mentions: { parse: [] },
     },
   });
 }
 
-function finishRulesDecision(interaction, content) {
-  return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content) : ephemeral(content);
+function finishRulesDecision(interaction, content, components = []) {
+  return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content, components) : ephemeral(content, components);
 }
 
 function deferredEphemeral() {
@@ -1954,7 +2098,7 @@ function deferredEphemeral() {
   });
 }
 
-async function editOriginalInteractionResponse(interaction, content) {
+async function editOriginalInteractionResponse(interaction, content, components = []) {
   const applicationId = snowflake(interaction?.application_id);
   const token = String(interaction?.token || "").trim();
   if (!applicationId || !token) return false;
@@ -1964,6 +2108,7 @@ async function editOriginalInteractionResponse(interaction, content) {
     headers: { "Content-Type": "application/json; charset=utf-8" },
     body: JSON.stringify({
       content: limitText(content, 1900, "Дію виконано."),
+      components: safeDiscordComponents(components),
       allowed_mentions: { parse: [] },
     }),
   });
@@ -2147,7 +2292,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     const profileResult = await lookupDashboardProfileByDiscord(env, userId);
     if (!profileResult.ok || !hasUsableMainCharacter(profileResult.mainCharacter)) {
       logWorkerEvent("warn", "raid_rules.signup.profile_missing", { guildId, userId, reason: profileResult.reason, status: profileResult.status });
-      return finishRulesDecision(interaction, raidRulesSignupProfileErrorMessage(env, profileResult));
+      return finishRulesDecision(interaction, raidRulesSignupProfileErrorMessage(env, profileResult), raidActionHelpComponents(env));
     }
 
     const stored = await recordRaidRulesSignup(env, guildId, userId, userLabel, {
@@ -2159,7 +2304,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     });
 
     if (!stored?.ok) {
-      return finishRulesDecision(interaction, "❌ Підпис не збережено: список підписантів тимчасово недоступний. Звернись до гільдмайстра.");
+      return finishRulesDecision(interaction, "❌ Підпис не збережено: список підписантів тимчасово недоступний. Звернись до гільдмайстра.", raidActionHelpComponents(env));
     }
 
     logWorkerEvent("info", "raid_rules.signup.accepted", { guildId, userId, character: stored.signup?.mainCharacter?.name });
@@ -2260,11 +2405,55 @@ function dashboardRaidActionEndpoint(env, raidId) {
   }
 }
 
+function raidAnnouncementProxyFallback(env, raidId, reason = "later") {
+  if (reason === "profile") {
+    return {
+      content: raidActionHelpText(env, "login", raidId),
+      components: raidActionHelpComponents(env, raidId),
+    };
+  }
+
+  return {
+    content: "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.",
+    components: raidActionHelpComponents(env, raidId),
+  };
+}
+
+function normalizeRaidAnnouncementProxyResult(env, raidAction, data) {
+  const warning = typeof data?.warning === "string" ? data.warning.trim() : "";
+  let content = String(data?.content || "Дію оброблено.").trim();
+  if (warning && !content.includes(warning)) content = `${content}
+
+${warning}`;
+
+  const shouldAttachHelp = Boolean(data?.blockedByProfile || data?.needsProfile || data?.requiresProfile || data?.requiresMainCharacter);
+  const components = safeDiscordComponents(
+    Array.isArray(data?.components) && data.components.length
+      ? data.components
+      : shouldAttachHelp
+        ? raidActionHelpComponents(env, raidAction.raidId)
+        : []
+  );
+
+  return {
+    ok: Boolean(data?.ok),
+    content: limitText(content, 1800, "Дію оброблено."),
+    components,
+    warning,
+    blockedByMinItemLevel: Boolean(data?.blockedByMinItemLevel || String(content).includes("Запис заблоковано")),
+    blockedByMaxPlayers: Boolean(data?.blockedByMaxPlayers),
+    blockedByProfile: shouldAttachHelp,
+  };
+}
+
 async function raidAnnouncementProxyContent(interaction, env, raidAction) {
   const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
   if (!token) {
     logWorkerEvent("warn", "raid_announcement.proxy.missing_token", { raidId: raidAction.raidId });
-    return "❌ Запис на рейд тимчасово недоступний: серверний токен не налаштований.";
+    return {
+      content: "❌ Запис на рейд тимчасово недоступний: серверний зв’язок із панеллю не налаштований. Звернись до гільдмайстра.",
+      components: raidActionHelpComponents(env, raidAction.raidId),
+    };
   }
 
   try {
@@ -2280,6 +2469,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
         guildId: getInteractionGuildId(interaction, env),
+        source: "discord-interaction-worker",
       }),
     });
 
@@ -2289,40 +2479,45 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 
     if (!response.ok || !data) {
       logWorkerEvent("warn", "raid_announcement.proxy.bad_response", { raidId: raidAction.raidId, status: response.status, raw: raw.slice(0, 180) });
-      return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";
+      if (response.status === 401 || response.status === 403) {
+        return {
+          content: "❌ Запис на рейд тимчасово недоступний: панель не прийняла серверний запит. Звернись до гільдмайстра.",
+          components: raidActionHelpComponents(env, raidAction.raidId),
+        };
+      }
+      return raidAnnouncementProxyFallback(env, raidAction.raidId);
     }
 
-    const warning = typeof data.warning === "string" ? data.warning.trim() : "";
-    let content = String(data.content || "Дію оброблено.");
-    if (warning && !content.includes(warning)) content = `${content}
-
-${warning}`;
-
-    const blockedByMinItemLevel = Boolean(data.blockedByMinItemLevel || String(content).includes("Запис заблоковано"));
-    logWorkerEvent(data.ok ? "info" : "warn", "raid_announcement.proxy.done", {
+    const result = normalizeRaidAnnouncementProxyResult(env, raidAction, data);
+    logWorkerEvent(result.ok ? "info" : "warn", "raid_announcement.proxy.done", {
       raidId: raidAction.raidId,
       action: raidAction.action,
-      ok: Boolean(data.ok),
-      has_item_level_warning: Boolean(warning),
-      blocked_by_min_item_level: blockedByMinItemLevel,
+      ok: result.ok,
+      has_item_level_warning: Boolean(result.warning),
+      blocked_by_min_item_level: result.blockedByMinItemLevel,
+      blocked_by_max_players: result.blockedByMaxPlayers,
+      blocked_by_profile: result.blockedByProfile,
+      has_components: result.components.length > 0,
     });
-    if (blockedByMinItemLevel) {
+
+    if (result.blockedByMinItemLevel) {
       logWorkerEvent("warn", "raid_announcement.proxy.item_level_blocked", {
         raidId: raidAction.raidId,
         action: raidAction.action,
         userId: getDiscordUserId(interaction),
       });
-    } else if (warning) {
+    } else if (result.warning) {
       logWorkerEvent("warn", "raid_announcement.proxy.item_level_warning", {
         raidId: raidAction.raidId,
         action: raidAction.action,
         userId: getDiscordUserId(interaction),
       });
     }
-    return limitText(content, 1800, "Дію оброблено.");
+
+    return result;
   } catch (error) {
     logWorkerEvent("error", "raid_announcement.proxy.failed", { raidId: raidAction.raidId, action: raidAction.action, message: error?.message });
-    return "❌ Не вдалося оновити запис на рейд. Спробуй пізніше або звернись до офіцера.";
+    return raidAnnouncementProxyFallback(env, raidAction.raidId);
   }
 }
 
@@ -2333,13 +2528,22 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
 
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
-      const content = await raidAnnouncementProxyContent(interaction, env, raidAction);
-      await editOriginalInteractionResponse(interaction, content);
+      try {
+        const result = await raidAnnouncementProxyContent(interaction, env, raidAction);
+        await editOriginalInteractionResponse(interaction, result.content, result.components);
+      } catch (error) {
+        logWorkerEvent("error", "raid_announcement.deferred.failed", {
+          raidId: raidAction.raidId,
+          action: raidAction.action,
+          message: error?.message,
+        });
+      }
     })());
     return deferredEphemeral();
   }
 
-  return finishRulesDecision(interaction, await raidAnnouncementProxyContent(interaction, env, raidAction));
+  const result = await raidAnnouncementProxyContent(interaction, env, raidAction);
+  return finishRulesDecision(interaction, result.content, result.components);
 }
 
 async function handleDiscordInteraction(request, env, ctx) {
@@ -2350,7 +2554,12 @@ async function handleDiscordInteraction(request, env, ctx) {
     return new Response("invalid request signature", { status: 401 });
   }
 
-  const interaction = JSON.parse(rawBody || "{}");
+  let interaction;
+  try {
+    interaction = JSON.parse(rawBody || "{}");
+  } catch {
+    return new Response("invalid interaction payload", { status: 400 });
+  }
 
   if (interaction.type === 1) {
     return discordInteractionResponse({ type: 1 });
