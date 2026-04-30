@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -1226,6 +1226,21 @@ export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSes
   return { raid, published: null, discordAction: null };
 }
 
+async function refreshProfileBeforeRaidSignup(profile: DashboardProfile | null, context: { raidId: string; userId: string }) {
+  if (!profile?.characters?.length) return profile;
+  try {
+    return await refreshProfileCharactersForRaidSignup(profile);
+  } catch (error) {
+    console.warn("[raids] Battle.net character refresh before signup failed", {
+      raidId: context.raidId,
+      userId: context.userId,
+      profileId: profile.profileId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return profile;
+  }
+}
+
 function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null): RaidSignup {
   const main = profile ? getMainCharacter(profile) : null;
   const role = main ? characterRole(main) : "dps";
@@ -1345,6 +1360,7 @@ export async function handleRaidDiscordAction(params: {
   let profile: DashboardProfile | null = null;
   if (params.action !== "skipped") {
     profile = await getProfileByDiscordUserId(params.userId);
+    profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: params.userId });
     const main = profile ? getMainCharacter(profile) : null;
     if (!profile || !main) {
       return {
@@ -1398,6 +1414,7 @@ export async function handleRaidSessionAction(params: {
   }
 
   if (params.action !== "skipped") {
+    profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: discordId });
     const main = profile ? getMainCharacter(profile) : null;
     if (!profile || !main) {
       return {

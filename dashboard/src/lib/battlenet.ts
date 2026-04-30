@@ -213,6 +213,53 @@ export async function exchangeBattleNetCode(code: string, regionInput?: string |
   return data as { access_token: string; token_type?: string; expires_in?: number; scope?: string };
 }
 
+
+type BattleNetApplicationToken = {
+  accessToken: string;
+  expiresAt: number;
+};
+
+const battleNetApplicationTokenCache = new Map<BattleNetRegion, BattleNetApplicationToken>();
+
+async function fetchBattleNetApplicationToken(regionInput?: string | null) {
+  const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
+  const cached = battleNetApplicationTokenCache.get(region);
+  if (cached && cached.expiresAt > Date.now() + 60_000) return cached.accessToken;
+
+  const { clientId, clientSecret } = getBattleNetClient();
+  const body = new URLSearchParams({ grant_type: "client_credentials" });
+  const response = await fetch(`${battleNetOAuthBase(region)}/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basicAuth(clientId, clientSecret)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body,
+    cache: "no-store",
+  });
+
+  const raw = await response.text();
+  let data: any = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok || !data?.access_token) {
+    throw new Error(data?.error_description || data?.error || raw || `Battle.net application token error ${response.status}`);
+  }
+
+  const expiresIn = Number(data?.expires_in || 0);
+  battleNetApplicationTokenCache.set(region, {
+    accessToken: String(data.access_token),
+    expiresAt: Date.now() + Math.max(60, expiresIn - 60) * 1000,
+  });
+
+  return String(data.access_token);
+}
+
 async function bnetFetch(accessToken: string, path: string, params?: Record<string, string>, regionInput?: string | null) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const locale = getBattleNetLocale(region);
@@ -401,3 +448,60 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
     characters: filtered.sort((a, b) => a.name.localeCompare(b.name, "uk")),
   };
 }
+
+export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetCharacterCandidate, "region" | "name" | "normalizedName" | "realmSlug">): Promise<BattleNetCharacterCandidate | null> {
+  const region = normalizeBattleNetRegion(input.region || getDefaultBattleNetRegion());
+  const realmSlug = normalizeBattleNetRealmSlug(input.realmSlug);
+  const nameSlug = normalizeBattleNetNameSlug(input.normalizedName || input.name);
+  if (!realmSlug || !nameSlug) return null;
+
+  const accessToken = await fetchBattleNetApplicationToken(region);
+  const [details, media] = await Promise.all([
+    bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region),
+    bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
+  ]);
+
+  if (!isMistblossomGuild(details) && !envFlag("BATTLENET_ALLOW_NON_GUILD_CHARACTERS", false)) {
+    return null;
+  }
+
+  const avatarUrl = mediaAssetUrl(media, ["avatar", "inset"]);
+  const renderUrl = mediaAssetUrl(media, ["main-raw", "main"]);
+  const guildName = cleanText(details?.guild?.name || "", 120) || null;
+  const guildRealmSlug = cleanText(details?.guild?.realm?.slug || details?.guild?.realm?.name || "", 120).toLowerCase() || null;
+  const normalizedName = normalizeBattleNetNameSlug(details?.name || input.name);
+  const cleanRealmSlug = normalizeBattleNetRealmSlug(details?.realm?.slug || realmSlug);
+  const activeSpecName = pickLocalizedName(details?.active_spec || details?.active_specialization);
+  const activeSpecId = pickActiveSpecId(details?.active_spec || details?.active_specialization);
+  const className = pickLocalizedName(details?.character_class || details?.playable_class);
+  const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
+  if (!characterKey) return null;
+
+  return {
+    key: characterKey,
+    source: "battlenet" as const,
+    region,
+    name: cleanText(details?.name || input.name, 80),
+    normalizedName,
+    realmSlug: cleanRealmSlug,
+    realmName: cleanText(details?.realm?.name || realmSlug, 120),
+    level: Number.isFinite(Number(details?.level)) ? Number(details.level) : null,
+    faction: pickLocalizedName(details?.faction),
+    className,
+    activeSpecName,
+    activeSpecId,
+    activeSpecRole: resolveWowCharacterRole({ activeSpecName, activeSpecId, className }),
+    raceName: pickLocalizedName(details?.race || details?.playable_race),
+    genderName: pickLocalizedName(details?.gender),
+    guildName,
+    guildRealmSlug,
+    profileUrl: characterProfileUrl(region, cleanRealmSlug, normalizedName),
+    avatarUrl,
+    renderUrl,
+    mediaUrl: media?._links?.self?.href || null,
+    verifiedGuild: Boolean(guildName),
+    itemLevel: Number.isFinite(Number(details?.equipped_item_level || details?.average_item_level)) ? Number(details?.equipped_item_level || details?.average_item_level) : null,
+    lastSeenAt: new Date().toISOString(),
+  };
+}
+

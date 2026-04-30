@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import type { BattleNetAccountInfo, BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
+import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import { canAccessDashboardRole } from "@/lib/permissions";
@@ -385,6 +385,98 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
 
   await ref.set(payload, { merge: true });
   await ref.update({ "battlenet.candidateCharacters": FieldValue.delete() }).catch(() => null);
+}
+
+function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter): ProfileCharacter {
+  return {
+    ...current,
+    ...fresh,
+    key: current.key,
+    addedAt: current.addedAt || fresh.addedAt || null,
+    isMain: current.isMain,
+    verifiedGuild: fresh.verifiedGuild || current.verifiedGuild,
+    lastSeenAt: fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
+  };
+}
+
+async function refreshCharacterSnapshot(current: ProfileCharacter) {
+  const fresh = await fetchBattleNetCharacterSnapshot(current);
+  if (!fresh) return null;
+  const normalized = normalizeCharacter({ ...fresh, key: current.key }, current.isMain ? current.key : null);
+  return normalized;
+}
+
+export async function refreshProfileCharactersForRaidSignup(profile: DashboardProfile | null | undefined) {
+  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) return profile || null;
+
+  const mainKey = profile.mainCharacterKey || profile.characters[0]?.key || "";
+  const main = profile.characters.find((item) => item.key === mainKey) || profile.characters[0] || null;
+  if (!main) return profile;
+
+  const freshByKey = new Map<string, ProfileCharacter>();
+  let refreshed = 0;
+  let failed = 0;
+
+  try {
+    const freshMain = await refreshCharacterSnapshot(main);
+    if (freshMain?.key) {
+      freshByKey.set(main.key, freshMain);
+      refreshed += 1;
+    }
+  } catch {
+    failed += 1;
+  }
+
+  const rest = profile.characters.filter((item) => item.key !== main.key);
+  const restLimit = Math.max(0, Math.min(Number(process.env.BATTLENET_SIGNUP_REFRESH_REST_LIMIT || rest.length) || rest.length, rest.length));
+  const restToRefresh = rest.slice(0, restLimit);
+  const concurrency = Math.max(1, Math.min(Number(process.env.BATTLENET_SIGNUP_REFRESH_CONCURRENCY || 4) || 4, 8));
+
+  for (let index = 0; index < restToRefresh.length; index += concurrency) {
+    const batch = restToRefresh.slice(index, index + concurrency);
+    const results = await Promise.all(batch.map(async (character) => {
+      try {
+        const fresh = await refreshCharacterSnapshot(character);
+        return fresh ? { character, fresh } : null;
+      } catch {
+        failed += 1;
+        return null;
+      }
+    }));
+
+    for (const result of results) {
+      if (!result?.fresh?.key) continue;
+      freshByKey.set(result.character.key, result.fresh);
+      refreshed += 1;
+    }
+  }
+
+  if (!freshByKey.size) return profile;
+
+  const nextCharacters = profile.characters.map((current) => {
+    const fresh = freshByKey.get(current.key);
+    return fresh ? mergeFreshCharacter(current, fresh) : current;
+  });
+
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profile.profileId);
+  await ref.set({
+    characters: nextCharacters,
+    battlenet: {
+      linked: profile.battlenet?.linked ?? true,
+      region: profile.battlenet?.region || main.region || "eu",
+      lastSyncAt: FieldValue.serverTimestamp(),
+      lastCharacterRefreshAt: FieldValue.serverTimestamp(),
+      lastSignupRefresh: {
+        refreshed,
+        failed,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+    },
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  const snapshot = await ref.get().catch(() => null);
+  return snapshot?.exists ? normalizeProfile(profile.profileId, snapshot.data() || {}) : { ...profile, characters: nextCharacters };
 }
 
 export async function addProfileCharacter(profileId: string, candidateInput: BattleNetCharacterCandidate) {
