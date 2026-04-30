@@ -90,8 +90,15 @@ export default function DashboardFormEnhancer() {
       }
 
       if (submitter) {
+        const shouldPreserveLabel =
+          submitter.dataset.preserveLabel === "true" ||
+          submitter.classList.contains("profile-icon-action") ||
+          submitter.classList.contains("icon-only");
+
         submitter.dataset.originalText = submitter.textContent || "";
-        submitter.textContent = copy.label;
+        if (!shouldPreserveLabel) {
+          submitter.textContent = submitter.dataset.loadingLabel || copy.label;
+        }
       }
     }
 

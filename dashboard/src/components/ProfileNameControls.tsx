@@ -104,6 +104,7 @@ export default function ProfileNameControls({
               className="profile-icon-action profile-icon-action--confirm"
               type="submit"
               disabled={!canSubmitName}
+              data-preserve-label="true"
               aria-label="Зберегти імʼя"
               title="Зберегти імʼя"
             >
