@@ -127,7 +127,7 @@ export default function ProfileNameControls({
         <div className="profile-name-section__head">
           <div>
             <span className="profile-name-panel__label" id={`${inputId}-name-title`}>Імʼя</span>
-            <small>Для профілю та Discord-формату.</small>
+            <small>Для профілю.</small>
           </div>
           {!editing && canManage ? (
             <button
@@ -227,17 +227,17 @@ export default function ProfileNameControls({
             <span>Буде в Discord</span>
             <strong>{nicknamePreview}</strong>
             {discordOwnerLocked ? (
-              <small>Власника сервера Discord не дає перейменувати боту. Скопіюй і встанови вручну.</small>
+              <small>Власник сервера змінює імʼя вручну.</small>
             ) : synced ? (
               <small>Готово{lastSyncedAt ? ` • ${lastSyncedAt}` : ""}. Можна застосувати повторно.</small>
             ) : (
-              <small>Зміниться тільки на цьому сервері.</small>
+              <small>Лише на цьому сервері.</small>
             )}
           </div>
         ) : canManage ? (
           <small className="profile-nickname-hint">
             {!hasName
-              ? "Вкажи імʼя — зберемо Discord-формат автоматично."
+              ? "Вкажи імʼя — формат збереться автоматично."
               : "Discord-синхронізація доступна після входу через Discord."}
           </small>
         ) : null}
