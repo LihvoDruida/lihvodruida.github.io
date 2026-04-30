@@ -4,7 +4,7 @@ import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
-import { resolveWowCharacterRole } from "@/lib/wowRoles";
+import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
 import { canAccessDashboardRole } from "@/lib/permissions";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
@@ -23,6 +23,11 @@ export type DashboardProfile = {
   discordRoleIds: string[];
   characters: ProfileCharacter[];
   mainCharacterKey?: string | null;
+  raidRolePreference?: {
+    characterKey: string;
+    role: WowCharacterRole | null;
+    updatedAt?: string | null;
+  } | null;
   battlenet?: {
     linked: boolean;
     region?: BattleNetRegion | string | null;
@@ -130,6 +135,24 @@ function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
   return characters.slice(0, 50);
 }
 
+function normalizeRaidRolePreference(value: unknown, mainCharacterKey?: string | null): DashboardProfile["raidRolePreference"] {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  const characterKey = cleanCharacterKey(item.characterKey);
+  const role = normalizeWowRole(item.role);
+  if (!characterKey || !role) return null;
+
+  // Manual raid role belongs to the current main only. If the main changes,
+  // stale choices are ignored instead of being applied to a different character.
+  if (mainCharacterKey && characterKey !== mainCharacterKey) return null;
+
+  return {
+    characterKey,
+    role,
+    updatedAt: timestampToIso(item.updatedAt) || optionalString(item.updatedAt),
+  };
+}
+
 function normalizeProfile(profileId: string, data: Record<string, unknown>): DashboardProfile {
   const mainCharacterKey = cleanCharacterKey(data.mainCharacterKey) || null;
   const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
@@ -147,6 +170,7 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       : [],
     characters: normalizeCharacters(data.characters, mainCharacterKey),
     mainCharacterKey,
+    raidRolePreference: normalizeRaidRolePreference(data.raidRolePreference, mainCharacterKey),
     battlenet: battlenetRaw ? {
       linked: Boolean(battlenetRaw.linked),
       region: optionalString(battlenetRaw.region),
@@ -205,6 +229,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
     characters: [],
     mainCharacterKey: null,
+    raidRolePreference: null,
     battlenet: null,
   };
 
@@ -226,7 +251,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: profile.discordRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
     lastLoginAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null }),
+    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null }),
   }, { merge: true });
 
   return { profile, stored: true };
@@ -330,6 +355,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     discordRoleIds: session.discordRoleIds || [],
     characters: [],
     mainCharacterKey: null,
+    raidRolePreference: null,
     battlenet: null,
   };
 }
@@ -596,11 +622,16 @@ export async function removeProfileCharacter(profileId: string, characterKey: st
     const nextCharacters = profile.characters.filter((item) => item.key !== cleanKey);
     const nextMain = profile.mainCharacterKey === cleanKey ? nextCharacters[0]?.key || null : profile.mainCharacterKey || null;
 
-    transaction.set(ref, {
+    const updatePayload: Record<string, unknown> = {
       characters: nextCharacters,
       mainCharacterKey: nextMain,
       updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    };
+    if (profile.raidRolePreference?.characterKey === cleanKey || (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)) {
+      updatePayload.raidRolePreference = FieldValue.delete();
+    }
+
+    transaction.set(ref, updatePayload, { merge: true });
   });
 }
 
@@ -618,11 +649,59 @@ export async function setMainProfileCharacter(profileId: string, characterKey: s
       throw new Error("Персонаж не доданий до профілю.");
     }
 
-    transaction.set(ref, {
+    const updatePayload: Record<string, unknown> = {
       mainCharacterKey: cleanKey,
       updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    };
+    if (profile.mainCharacterKey && profile.mainCharacterKey !== cleanKey) {
+      updatePayload.raidRolePreference = FieldValue.delete();
+    }
+
+    transaction.set(ref, updatePayload, { merge: true });
   });
+}
+
+export async function setProfileRaidRolePreference(profileId: string, roleInput: unknown) {
+  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+
+  const role = normalizeWowRole(roleInput);
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+
+  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    const main = getMainCharacter(profile);
+    if (!main?.key) throw new Error("Спочатку вибери мейна.");
+
+    const updatePayload: Record<string, unknown> = {
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    if (!role) {
+      updatePayload.raidRolePreference = FieldValue.delete();
+    } else {
+      updatePayload.raidRolePreference = {
+        characterKey: main.key,
+        role,
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+    }
+
+    transaction.set(ref, updatePayload, { merge: true });
+  });
+}
+
+export function getProfileRaidRole(profile: DashboardProfile | null | undefined) {
+  const main = profile ? getMainCharacter(profile) : null;
+  const manualRole = profile?.raidRolePreference?.characterKey === main?.key ? profile?.raidRolePreference?.role : null;
+  return manualRole || (main ? resolveWowCharacterRole({
+    className: main.className,
+    activeSpecName: main.activeSpecName,
+    activeSpecId: main.activeSpecId,
+    activeSpecRole: main.activeSpecRole,
+  }) : "dps");
 }
 
 export function getMainCharacter(profile: DashboardProfile) {

@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfileRaidRole, refreshProfileCharactersForRaidSignup, type DashboardProfile } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -296,16 +296,6 @@ function isRaidDateTimeExpired(input: Pick<RaidItem, "date" | "time"> | Record<s
 
 export function isRaidClosed(raid: Pick<RaidItem, "status" | "date" | "time">) {
   return raid.status === "closed" || (raid.status === "published" && isRaidDateTimeExpired(raid));
-}
-
-function characterRole(character?: ProfileCharacter | null): RaidCharacterRole {
-  if (!character) return "dps";
-  return resolveWowCharacterRole({
-    className: character.className,
-    activeSpecName: character.activeSpecName,
-    activeSpecId: character.activeSpecId,
-    activeSpecRole: character.activeSpecRole,
-  });
 }
 
 function profileMainLabel(profile?: DashboardProfile | null) {
@@ -1243,7 +1233,7 @@ async function refreshProfileBeforeRaidSignup(profile: DashboardProfile | null, 
 
 function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null): RaidSignup {
   const main = profile ? getMainCharacter(profile) : null;
-  const role = main ? characterRole(main) : "dps";
+  const role = profile ? getProfileRaidRole(profile) : "dps";
   const now = new Date().toISOString();
 
   return {

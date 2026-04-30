@@ -10,7 +10,7 @@ import {
   raidTitle,
   type ProfileRaidSignup,
 } from "@/lib/raids";
-import { wowRoleLabel } from "@/lib/wowRoles";
+import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
@@ -22,6 +22,7 @@ import {
 import {
   canViewProfile,
   getMainCharacter,
+  getProfileRaidRole,
   getProfileById,
   profileFromSession,
   upsertProfileFromSession,
@@ -140,6 +141,83 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
   }
 
   return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
+}
+
+const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint: string }[] = [
+  { value: "auto", label: "Авто", hint: "Брати роль зі спеки мейна" },
+  { value: "tank", label: "Танк", hint: "Записувати як танка" },
+  { value: "healer", label: "Хіл", hint: "Записувати як хіла" },
+  { value: "dps", label: "ДД", hint: "Записувати як ДД" },
+];
+
+function characterAutoRaidRole(character?: ProfileCharacter | null): WowCharacterRole {
+  return character ? resolveWowCharacterRole({
+    className: character.className,
+    activeSpecName: character.activeSpecName,
+    activeSpecId: character.activeSpecId,
+    activeSpecRole: character.activeSpecRole,
+  }) : "dps";
+}
+
+function RaidRolePreferenceForm({
+  mainCharacter,
+  manualRole,
+  selectedRole,
+  canManage,
+}: {
+  mainCharacter?: ProfileCharacter | null;
+  manualRole?: WowCharacterRole | null;
+  selectedRole: WowCharacterRole;
+  canManage: boolean;
+}) {
+  const autoRole = characterAutoRaidRole(mainCharacter);
+  const sourceLabel = manualRole ? "Вибрано вручну" : "Авто з мейна";
+  const mainLabel = mainCharacter
+    ? `${mainCharacter.name}${mainCharacter.realmName || mainCharacter.realmSlug ? ` • ${mainCharacter.realmName || mainCharacter.realmSlug}` : ""}`
+    : "Мейн не вибраний";
+
+  return (
+    <div className="profile-raid-role-box" aria-label="Роль для запису на рейди">
+      <div className="profile-raid-role-box__head">
+        <span className="profile-raid-role-box__icon" aria-hidden="true">⚔</span>
+        <span>
+          <strong>Роль у рейді</strong>
+          <small>{mainLabel}</small>
+        </span>
+        <span className={`profile-raid-role-pill profile-raid-role-pill--${selectedRole}`}>
+          {wowRoleLabel(selectedRole)}
+        </span>
+      </div>
+
+      <p className="profile-raid-role-box__note">
+        {sourceLabel}: {manualRole ? wowRoleLabel(manualRole) : `${wowRoleLabel(autoRole)} зі спеки мейна`}. Саме ця роль піде в запис на рейд у вебі та Discord.
+      </p>
+
+      {canManage && mainCharacter ? (
+        <form className="profile-raid-role-form" action="/api/profile/raid-role" method="post">
+          {RAID_ROLE_OPTIONS.map((option) => {
+            const checked = option.value === "auto" ? !manualRole : manualRole === option.value;
+            const hint = option.value === "auto" ? `${option.hint}: ${wowRoleLabel(autoRole)}` : option.hint;
+            return (
+              <label className={`profile-raid-role-option${checked ? " is-selected" : ""}`} key={option.value}>
+                <input type="radio" name="raidRole" value={option.value} defaultChecked={checked} />
+                <span>
+                  <strong>{option.label}</strong>
+                  <small>{hint}</small>
+                </span>
+              </label>
+            );
+          })}
+          <button className="btn btn-primary btn-sm" type="submit">Зберегти роль</button>
+        </form>
+      ) : canManage ? (
+        <div className="profile-empty-characters profile-empty-characters--compact">
+          <strong>Спочатку вибери мейна</strong>
+          <span>Після цього можна буде вказати роль для рейдів.</span>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
@@ -351,6 +429,8 @@ export default async function ProfilePage({
   const capabilities = dashboardCapabilities(profile.role);
   const enabledCount = capabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
+  const manualRaidRole = profile.raidRolePreference?.characterKey === mainCharacter?.key ? profile.raidRolePreference.role : null;
+  const selectedRaidRole = getProfileRaidRole(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
   const canInspectOtherProfile = !isOwnProfile && (viewer.role === "admin" || viewer.role === "moderator");
@@ -525,9 +605,17 @@ export default async function ProfilePage({
           <div className="profile-bnet-summary" aria-label="Короткий підсумок персонажів">
             <span><strong>{savedCharacterCount}</strong><small>Додано</small></span>
             <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+            <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span>
             <span><strong>{formatCompactDate(profile.battlenet?.lastSyncAt || mainCharacter?.lastSeenAt)}</strong><small>Оновлено</small></span>
             {availableCandidates.length ? <span><strong>{availableCandidates.length}</strong><small>Можна додати</small></span> : null}
           </div>
+
+          <RaidRolePreferenceForm
+            mainCharacter={mainCharacter}
+            manualRole={manualRaidRole}
+            selectedRole={selectedRaidRole}
+            canManage={canManageCharacters}
+          />
 
           {profile.characters.length ? (
             <>

@@ -13028,3 +13028,193 @@ textarea {
     padding: 0.62rem 0.56rem;
   }
 }
+
+
+/* Profile raid role preference */
+.profile-raid-role-box {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.9rem 0 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(212, 166, 58, 0.22);
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(212, 166, 58, 0.14), transparent 34%),
+    rgba(10, 12, 18, 0.46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.profile-raid-role-box__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.72rem;
+}
+
+.profile-raid-role-box__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(212, 166, 58, 0.32);
+  background: rgba(212, 166, 58, 0.13);
+  color: var(--accent-strong, #f3d58a);
+  font-size: 1rem;
+}
+
+.profile-raid-role-box__head strong {
+  display: block;
+  font-family: var(--font-display, serif);
+  font-size: clamp(1.18rem, 1.65vw, 1.5rem);
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+}
+
+.profile-raid-role-box__head small,
+.profile-raid-role-box__note,
+.profile-raid-role-option small {
+  color: var(--text-muted, rgba(235, 229, 214, 0.72));
+}
+
+.profile-raid-role-box__head small {
+  display: block;
+  margin-top: 0.14rem;
+  font-size: 0.78rem;
+}
+
+.profile-raid-role-box__note {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.profile-raid-role-pill {
+  justify-self: end;
+  padding: 0.34rem 0.64rem;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 166, 58, 0.28);
+  background: rgba(212, 166, 58, 0.12);
+  color: var(--accent-strong, #f3d58a);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.profile-raid-role-pill--tank {
+  border-color: rgba(89, 161, 255, 0.36);
+  background: rgba(89, 161, 255, 0.12);
+}
+
+.profile-raid-role-pill--healer {
+  border-color: rgba(92, 214, 141, 0.36);
+  background: rgba(92, 214, 141, 0.12);
+}
+
+.profile-raid-role-pill--dps {
+  border-color: rgba(238, 109, 104, 0.34);
+  background: rgba(238, 109, 104, 0.11);
+}
+
+.profile-raid-role-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.profile-raid-role-option {
+  position: relative;
+  display: grid;
+  min-height: 4.45rem;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.035);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.profile-raid-role-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.profile-raid-role-option span {
+  display: grid;
+  align-content: center;
+  gap: 0.16rem;
+  padding: 0.62rem 0.7rem;
+  border-radius: inherit;
+}
+
+.profile-raid-role-option strong {
+  font-family: var(--font-display, serif);
+  font-size: clamp(1.05rem, 1.35vw, 1.24rem);
+  line-height: 1.02;
+}
+
+.profile-raid-role-option small {
+  font-size: 0.68rem;
+  line-height: 1.22;
+}
+
+.profile-raid-role-option:hover,
+.profile-raid-role-option:focus-within,
+.profile-raid-role-option.is-selected {
+  border-color: rgba(212, 166, 58, 0.52);
+  background: rgba(212, 166, 58, 0.105);
+  transform: translateY(-1px);
+}
+
+.profile-raid-role-form .btn {
+  min-height: 4.45rem;
+  white-space: nowrap;
+}
+
+.profile-empty-characters--compact {
+  padding: 0.72rem;
+}
+
+@media (max-width: 980px) {
+  .profile-raid-role-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-raid-role-form .btn {
+    grid-column: 1 / -1;
+    min-height: 2.8rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-raid-role-box {
+    margin-top: 0.72rem;
+    padding: 0.72rem;
+    border-radius: 1rem;
+  }
+
+  .profile-raid-role-box__head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .profile-raid-role-pill {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .profile-raid-role-form {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-raid-role-option {
+    min-height: 3.7rem;
+  }
+
+  .profile-raid-role-form .btn {
+    min-height: 2.7rem;
+  }
+}
