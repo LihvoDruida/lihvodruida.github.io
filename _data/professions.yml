@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-30 13:59:08'
+  updated_at: '2026-04-30 17:23:35'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -867,7 +867,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 62
+        learned_points: 63
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1745,7 +1745,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 79
+        learned_points: 80
         max_points: 100
     secondaries:
     - name: Cooking
@@ -4552,7 +4552,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 33
+        learned_points: 40
         max_points: 100
     - name: Tailoring
       id: 197
@@ -6101,7 +6101,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 64
+        learned_points: 65
         max_points: 100
     secondaries: []
 - name: Мавпита

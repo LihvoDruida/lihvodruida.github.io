@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-30 13:59:08'
+  updated_at: '2026-04-30 17:23:35'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13504
+      world: 13505
       region: 6021
       realm: 55
     heroic:
-      world: 15603
-      region: 6550
+      world: 15612
+      region: 6554
       realm: 52
     mythic:
-      world: 6782
-      region: 2922
+      world: 6785
+      region: 2923
       realm: 23
   blackrock-depths:
     normal:
@@ -554,7 +554,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3039.8
@@ -762,7 +762,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/128/183464576-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Bylik
-    item_level_equipped: 275
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2855
@@ -1649,11 +1649,11 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2850.4
-        color: '#1e74d9'
+        score: 2958.3
+        color: '#4369e0'
       dps:
-        score: 2491
-        color: '#5fb692'
+        score: 2598.9
+        color: '#5ca4a6'
       healer:
         score: 2578
         color: '#5da8a1'
@@ -1667,8 +1667,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2491
-        color: '#5fb692'
+        score: 2598.9
+        color: '#5ca4a6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3542,18 +3542,18 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Discipline
-      role: HEALING
+      name: Shadow
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 272
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 2764.4
         color: '#4485c6'
       dps:
-        score: 668.4
-        color: '#ddffd0'
+        score: 993.7
+        color: '#c3ffad'
       healer:
         score: 2764.4
         color: '#4485c6'
@@ -3567,8 +3567,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 668.4
-        color: '#ddffd0'
+        score: 993.7
+        color: '#c3ffad'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4690,13 +4690,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2871.5
+        score: 2879.6
         color: '#1e74d9'
       dps:
-        score: 2871.5
+        score: 2879.6
         color: '#1e74d9'
       healer:
         score: 0
@@ -4708,7 +4708,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2871.5
+        score: 2879.6
         color: '#1e74d9'
       spec_2:
         score: 0
@@ -5522,7 +5522,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 269
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2635.5
@@ -5969,8 +5969,8 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2516.6
-        color: '#5fb197'
+        score: 2620.6
+        color: '#5aa0ab'
       dps:
         score: 0
         color: '#ffffff'
@@ -5978,8 +5978,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2516.6
-        color: '#5fb197'
+        score: 2620.6
+        color: '#5aa0ab'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5987,8 +5987,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2516.6
-        color: '#5fb197'
+        score: 2620.6
+        color: '#5aa0ab'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6333,11 +6333,11 @@ members:
     item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1201.8
-        color: '#aeff95'
+        score: 1228.3
+        color: '#acff92'
       dps:
-        score: 1201.8
-        color: '#aeff95'
+        score: 1228.3
+        color: '#acff92'
       healer:
         score: 0
         color: '#ffffff'
@@ -6345,8 +6345,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1201.8
-        color: '#aeff95'
+        score: 1228.3
+        color: '#acff92'
       spec_1:
         score: 0
         color: '#ffffff'
