@@ -1236,6 +1236,24 @@ export async function addGuildMemberRoles(params: {
   );
 }
 
+export async function updateGuildMemberNickname(params: {
+  guildId: string;
+  userId: string;
+  nickname: string;
+  reason?: string;
+}) {
+  const guildId = snowflake(params.guildId);
+  const userId = snowflake(params.userId);
+  const nickname = cleanText(params.nickname, 32);
+  if (!guildId || !userId) throw new Error("Не вистачає guild/user ID для зміни імені.");
+  if (!nickname) throw new Error("Discord-імʼя порожнє.");
+
+  await discordApi<void>(`/guilds/${guildId}/members/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ nick: nickname }),
+    auditReason: params.reason,
+  });
+}
 export async function kickGuildMember(params: {
   guildId: string;
   userId: string;

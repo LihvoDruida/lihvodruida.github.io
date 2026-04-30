@@ -120,6 +120,12 @@ function getInteractionUserName(interaction: any) {
   ).slice(0, 80);
 }
 
+function getInteractionMessageRef(interaction: any) {
+  const channelId = String(interaction?.channel_id || interaction?.message?.channel_id || "").trim();
+  const messageId = String(interaction?.message?.id || "").trim();
+  return channelId && messageId ? { channelId, messageId } : null;
+}
+
 
 function mainCharacterLabel(character: any) {
   const name = String(character?.name || "").trim();
@@ -175,12 +181,16 @@ export async function POST(request: NextRequest) {
         action: raidAction.action,
         userId,
         userName,
+        messageRef: getInteractionMessageRef(interaction),
       });
       logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });
-      return finishDecision(interaction, result.content, "components" in result ? result.components || [] : []);
+
+      // Запис на рейд має оновлювати тільки саме рейдове повідомлення через handleRaidDiscordAction().
+      // Відповідь нижче персональна й не замінює публічний embed повідомленням про статус користувача.
+      return ephemeral(result.content, "components" in result ? result.components || [] : []);
     } catch (error) {
       logDashboardEvent("error", "discord.raid.action_failed", request, { message: safeErrorMessage(error), raidId: raidAction.raidId, action: raidAction.action, userId });
-      return finishDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй ще раз пізніше або звернись до офіцера.");
+      return ephemeral("❌ Не вдалося оновити запис на рейд. Спробуй ще раз пізніше або звернись до офіцера.");
     }
   }
 

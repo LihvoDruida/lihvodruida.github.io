@@ -17,6 +17,7 @@ export type DashboardProfile = {
   provider: DashboardSession["provider"];
   providerUserId: string;
   displayName: string;
+  preferredName?: string | null;
   login?: string | null;
   role: DashboardRole;
   avatarUrl?: string | null;
@@ -27,6 +28,12 @@ export type DashboardProfile = {
     characterKey: string;
     role: WowCharacterRole | null;
     updatedAt?: string | null;
+  } | null;
+  discordNickname?: {
+    value?: string | null;
+    syncedAt?: string | null;
+    sourcePreferredName?: string | null;
+    sourceCharacters?: string[];
   } | null;
   battlenet?: {
     linked: boolean;
@@ -65,6 +72,29 @@ function optionalString(value: unknown) {
 
 function cleanString(value: unknown, maxLength = 240) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function sliceCodePoints(value: string, maxLength: number) {
+  return Array.from(value).slice(0, Math.max(0, maxLength)).join("");
+}
+
+function codePointLength(value: string) {
+  return Array.from(value || "").length;
+}
+
+function cleanProfileName(value: unknown, maxLength = 32) {
+  const cleaned = String(value || "")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/[<>@#`*_~|{}[\]\\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[\s.,;:!?'"ʼ’\-]+|[\s.,;:!?'"ʼ’\-]+$/g, "")
+    .trim();
+  return sliceCodePoints(cleaned, maxLength).trim();
+}
+
+function cleanDiscordNicknamePart(value: unknown, maxLength = 32) {
+  return cleanProfileName(value, maxLength).replace(/[\[\]]/g, "").trim();
 }
 
 function cleanCharacterKey(value: unknown) {
@@ -156,12 +186,14 @@ function normalizeRaidRolePreference(value: unknown, mainCharacterKey?: string |
 function normalizeProfile(profileId: string, data: Record<string, unknown>): DashboardProfile {
   const mainCharacterKey = cleanCharacterKey(data.mainCharacterKey) || null;
   const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  const discordNicknameRaw = data.discordNickname && typeof data.discordNickname === "object" ? data.discordNickname as Record<string, unknown> : null;
 
   return {
     profileId,
     provider: data.provider === "github" || data.provider === "token" ? data.provider : "discord",
     providerUserId: String(data.providerUserId || ""),
     displayName: String(data.displayName || data.login || "Guild member").slice(0, 120),
+    preferredName: cleanProfileName(data.preferredName, 32) || null,
     login: data.login ? String(data.login).slice(0, 120) : null,
     role: cleanRole(data.role),
     avatarUrl: optionalString(data.avatarUrl),
@@ -171,6 +203,14 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
     characters: normalizeCharacters(data.characters, mainCharacterKey),
     mainCharacterKey,
     raidRolePreference: normalizeRaidRolePreference(data.raidRolePreference, mainCharacterKey),
+    discordNickname: discordNicknameRaw ? {
+      value: cleanDiscordNicknamePart(discordNicknameRaw.value, 32) || null,
+      syncedAt: timestampToIso(discordNicknameRaw.syncedAt) || optionalString(discordNicknameRaw.syncedAt),
+      sourcePreferredName: cleanProfileName(discordNicknameRaw.sourcePreferredName, 32) || null,
+      sourceCharacters: Array.isArray(discordNicknameRaw.sourceCharacters)
+        ? discordNicknameRaw.sourceCharacters.map((item: unknown) => cleanDiscordNicknamePart(item, 16)).filter(Boolean).slice(0, 3)
+        : [],
+    } : null,
     battlenet: battlenetRaw ? {
       linked: Boolean(battlenetRaw.linked),
       region: optionalString(battlenetRaw.region),
@@ -223,6 +263,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     provider: session.provider,
     providerUserId: session.id,
     displayName: session.name || session.login || "Guild member",
+    preferredName: null,
     login: session.login || null,
     role: session.role,
     avatarUrl: session.avatar_url || session.avatar || null,
@@ -230,6 +271,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     characters: [],
     mainCharacterKey: null,
     raidRolePreference: null,
+    discordNickname: null,
     battlenet: null,
   };
 
@@ -327,6 +369,7 @@ export async function listDashboardProfiles(params: {
   const filtered = query
     ? profiles.filter((profile) => [
         profile.displayName,
+        profile.preferredName,
         profile.login,
         profile.role,
         profile.provider,
@@ -349,6 +392,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     provider: session.provider,
     providerUserId: session.id,
     displayName: session.name || session.login || "Guild member",
+    preferredName: null,
     login: session.login || null,
     role: session.role,
     avatarUrl: session.avatar_url || session.avatar || null,
@@ -356,6 +400,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     characters: [],
     mainCharacterKey: null,
     raidRolePreference: null,
+    discordNickname: null,
     battlenet: null,
   };
 }
@@ -659,6 +704,164 @@ export async function setMainProfileCharacter(profileId: string, characterKey: s
 
     transaction.set(ref, updatePayload, { merge: true });
   });
+}
+
+export function normalizeProfilePreferredName(value: unknown) {
+  return cleanProfileName(value, 32);
+}
+
+export function getProfilePublicName(profile: DashboardProfile | null | undefined) {
+  return cleanProfileName(profile?.preferredName || "", 32) || cleanProfileName(profile?.displayName || profile?.login || "", 32) || "Учасник";
+}
+
+function orderedCharactersForNickname(profile: DashboardProfile) {
+  const main = getMainCharacter(profile);
+  const ordered = [
+    ...(main ? [main] : []),
+    ...profile.characters.filter((item) => item.key !== main?.key),
+  ];
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const character of ordered) {
+    const name = cleanDiscordNicknamePart(character.name, 16);
+    const key = name.toLowerCase();
+    if (!name || seen.has(key)) continue;
+    seen.add(key);
+    result.push(name);
+    if (result.length >= 3) break;
+  }
+  return result;
+}
+
+function composeDiscordNickname(name: string, characters: string[]) {
+  return characters.length ? `${name} [${characters.join(", ")}]` : name;
+}
+
+export type ProfileDiscordNicknamePlan = {
+  value: string | null;
+  baseName: string | null;
+  characterNames: string[];
+  requestedCharacterNames: string[];
+  hasRequiredName: boolean;
+  truncated: boolean;
+  maxLength: number;
+};
+
+export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null | undefined): ProfileDiscordNicknamePlan {
+  const maxLength = 32;
+  const base = cleanDiscordNicknamePart(profile?.preferredName || "", maxLength);
+  if (!profile || !base) {
+    return {
+      value: null,
+      baseName: base || null,
+      characterNames: [],
+      requestedCharacterNames: [],
+      hasRequiredName: Boolean(base),
+      truncated: false,
+      maxLength,
+    };
+  }
+
+  const requestedNames = orderedCharactersForNickname(profile)
+    .map((name) => sliceCodePoints(name, 16).trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  if (!requestedNames.length) {
+    return {
+      value: sliceCodePoints(base, maxLength),
+      baseName: base,
+      characterNames: [],
+      requestedCharacterNames: [],
+      hasRequiredName: true,
+      truncated: codePointLength(base) > maxLength,
+      maxLength,
+    };
+  }
+
+  for (let count = requestedNames.length; count >= 1; count -= 1) {
+    const names = requestedNames.slice(0, count);
+    const candidate = composeDiscordNickname(base, names);
+    if (codePointLength(candidate) <= maxLength) {
+      return {
+        value: candidate,
+        baseName: base,
+        characterNames: names,
+        requestedCharacterNames: requestedNames,
+        hasRequiredName: true,
+        truncated: count < requestedNames.length,
+        maxLength,
+      };
+    }
+  }
+
+  const spaceForMain = Math.max(1, maxLength - codePointLength(base) - 3);
+  if (spaceForMain >= 1 && codePointLength(base) <= maxLength - 4) {
+    const mainName = sliceCodePoints(requestedNames[0], spaceForMain).trim();
+    const candidate = composeDiscordNickname(base, mainName ? [mainName] : []);
+    if (mainName && codePointLength(candidate) <= maxLength) {
+      return {
+        value: candidate,
+        baseName: base,
+        characterNames: [mainName],
+        requestedCharacterNames: requestedNames,
+        hasRequiredName: true,
+        truncated: true,
+        maxLength,
+      };
+    }
+  }
+
+  return {
+    value: sliceCodePoints(base, maxLength),
+    baseName: base,
+    characterNames: [],
+    requestedCharacterNames: requestedNames,
+    hasRequiredName: true,
+    truncated: true,
+    maxLength,
+  };
+}
+
+export function buildProfileDiscordNickname(profile: DashboardProfile | null | undefined) {
+  return buildProfileDiscordNicknamePlan(profile).value;
+}
+
+export async function setProfilePreferredName(profileId: string, nameInput: unknown) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+
+  const preferredName = normalizeProfilePreferredName(nameInput);
+  if (codePointLength(preferredName) < 2) throw new Error("Імʼя має містити щонайменше 2 символи.");
+
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  await ref.set({
+    preferredName,
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  return preferredName;
+}
+
+export async function markProfileDiscordNicknameSynced(
+  profileId: string,
+  nickname: string,
+  source?: Pick<ProfileDiscordNicknamePlan, "baseName" | "characterNames">,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+
+  const sourceCharacterNames = Array.isArray(source?.characterNames) ? source.characterNames : [];
+
+  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
+    discordNickname: {
+      value: cleanDiscordNicknamePart(nickname, 32),
+      syncedAt: FieldValue.serverTimestamp(),
+      sourcePreferredName: cleanProfileName(source?.baseName || "", 32) || null,
+      sourceCharacters: sourceCharacterNames.map((item) => cleanDiscordNicknamePart(item, 16)).filter(Boolean).slice(0, 3),
+    },
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
 }
 
 export async function setProfileRaidRolePreference(profileId: string, roleInput: unknown) {

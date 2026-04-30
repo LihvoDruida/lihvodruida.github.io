@@ -1282,11 +1282,37 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   return updated;
 }
 
-async function syncRaidDiscordAfterSignup(raid: RaidItem) {
-  if (raid.status !== "published" || !raid.channelId || !raid.messageId) return false;
+function cleanDiscordMessageRef(input?: Partial<DiscordMessageRef> | null): DiscordMessageRef | null {
+  const channelId = cleanString((input as any)?.channelId || (input as any)?.channel_id, 32);
+  const messageId = cleanString((input as any)?.messageId || (input as any)?.message_id, 32);
+  return channelId && messageId ? { channelId, messageId } : null;
+}
+
+async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Partial<DiscordMessageRef> | null) {
+  const ref = cleanDiscordMessageRef(messageRef) || cleanDiscordMessageRef({ channelId: raid.channelId, messageId: raid.messageId });
+  if (raid.status !== "published" || !ref) return false;
+
+  const payload = buildRaidDiscordPayload(raid);
+  const components = buildRaidAttendanceComponents(raid.id, {
+    disabled: false,
+    full: isRaidRegistrationFull(raid),
+  });
+
+  await editDiscordRaidMessage({
+    ref,
+    content: payload.content,
+    embed: payload.embed,
+    components,
+    mentionRoleIds: payload.mentionRoleIds,
+    auditReason: `Raid signup changed: ${raid.id}`,
+  });
+
+  return true;
+}
+
+async function syncRaidDiscordAfterSignup(raid: RaidItem, messageRef?: Partial<DiscordMessageRef> | null) {
   try {
-    await publishOrUpdateRaid(raid, raid.channelId);
-    return true;
+    return await editCurrentRaidDiscordMessage(raid, messageRef);
   } catch (error) {
     console.warn("[raids] Discord message sync after signup failed", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
     return false;
@@ -1339,6 +1365,7 @@ export async function handleRaidDiscordAction(params: {
   action: RaidSignupStatus;
   userId: string;
   userName: string;
+  messageRef?: Partial<DiscordMessageRef> | null;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
@@ -1368,7 +1395,7 @@ export async function handleRaidDiscordAction(params: {
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
-  const discordSynced = await syncRaidDiscordAfterSignup(updated);
+  const discordSynced = await syncRaidDiscordAfterSignup(updated, params.messageRef);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
   return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
 }

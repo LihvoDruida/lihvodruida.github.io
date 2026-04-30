@@ -1,5 +1,6 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
+import ProfileNameControls from "@/components/ProfileNameControls";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -20,6 +21,7 @@ import {
   siteStatusDescription,
 } from "@/lib/permissions";
 import {
+  buildProfileDiscordNickname,
   canViewProfile,
   getMainCharacter,
   getProfileRaidRole,
@@ -443,6 +445,8 @@ export default async function ProfilePage({
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
   const savedCharacterCount = profile.characters.length;
+  const discordNicknamePreview = buildProfileDiscordNickname(profile);
+  const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
   const eligibleGuildCharacters = numberOrNull(profile.battlenet?.eligibleCharacters);
   const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
   const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
@@ -516,7 +520,15 @@ export default async function ProfilePage({
               </span>
             )}
             <div className="profile-person-card__body">
-              <strong>{profile.displayName}</strong>
+              <ProfileNameControls
+                preferredName={profile.preferredName}
+                discordName={profile.displayName}
+                nicknamePreview={discordNicknamePreview}
+                lastSyncedNickname={profile.discordNickname?.value}
+                lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
+                canManage={isOwnProfile}
+                canSyncDiscord={canSyncDiscordNickname}
+              />
               {viewer.role === "admin" || viewer.role === "moderator" ? (
                 <details className="profile-secret">
                   <summary>Технічний ID</summary>
