@@ -12557,3 +12557,474 @@ button[type="submit"] {
     min-height: 42px;
   }
 }
+
+/* Typography v36: WoW-inspired open fonts, PC/mobile scale and profile readability. */
+:root {
+  --font-ui: var(--font-mist-ui), "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-mist-display), "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+  --type-xxs: clamp(0.66rem, 0.63rem + 0.10vw, 0.72rem);
+  --type-xs: clamp(0.72rem, 0.68rem + 0.12vw, 0.80rem);
+  --type-sm: clamp(0.82rem, 0.78rem + 0.14vw, 0.92rem);
+  --type-md: clamp(0.94rem, 0.88rem + 0.18vw, 1.03rem);
+  --type-lg: clamp(1.08rem, 0.98rem + 0.34vw, 1.25rem);
+  --type-xl: clamp(1.42rem, 1.12rem + 1.08vw, 2.05rem);
+  --type-hero: clamp(2.45rem, 5.2vw, 4.85rem);
+  --type-card-title: clamp(1.45rem, 1.08rem + 1.18vw, 2.18rem);
+  --type-character-name: clamp(1.95rem, 2.15vw, 2.55rem);
+}
+
+html {
+  font-size: clamp(15px, 0.18vw + 14.45px, 16.5px);
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--type-sm);
+  line-height: 1.58;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+
+:where(
+  .hero h1,
+  .profile-hero h1,
+  .profile-directory-hero h1,
+  .discord-editor-header h1,
+  .content-editor-title h2,
+  .content-section-head h2,
+  .profile-card-head h2,
+  .profile-card-head h3,
+  .profile-character-title-row h3,
+  .profile-directory-card h2,
+  .card h2,
+  .login-card h1,
+  .discord-hub-card h2,
+  .raid-page-title,
+  .raid-form-title,
+  .raid-list-page-head h1,
+  .raid-preview-title
+) {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+:where(
+  .eyebrow,
+  .section-title,
+  .profile-role-group__head strong,
+  .profile-subsection-head strong,
+  .profile-bnet-summary small,
+  .profile-hero-strip small,
+  .profile-access-summary small,
+  .profile-character-showcase__stat small,
+  .profile-character-meta,
+  .profile-main-badge,
+  .profile-count-pill,
+  .dashboard-nav a,
+  .btn,
+  .action-button
+) {
+  font-family: var(--font-ui);
+}
+
+.hero h1,
+.profile-hero h1,
+.profile-directory-hero h1,
+.discord-editor-header h1 {
+  font-size: var(--type-hero) !important;
+  line-height: 0.98;
+}
+
+.lead,
+.profile-card-lead,
+.profile-warning,
+.profile-card-note,
+.profile-bnet-note,
+.profile-bnet-footnote,
+.raid-form-hint,
+.notice,
+.empty {
+  font-size: var(--type-sm);
+  line-height: 1.55;
+}
+
+.dashboard-brand strong,
+.dashboard-user strong {
+  font-size: var(--type-sm);
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+}
+
+.dashboard-brand span,
+.dashboard-user span {
+  font-size: var(--type-xs);
+  line-height: 1.35;
+}
+
+.dashboard-nav a {
+  font-size: var(--type-xs);
+  letter-spacing: 0.01em;
+}
+
+.btn,
+.action-button,
+.profile-character-actions .btn,
+.raid-action,
+.raid-preview-buttons button {
+  font-size: var(--type-xs);
+  line-height: 1.15;
+}
+
+.input,
+.select,
+.textarea {
+  font-size: var(--type-sm);
+  line-height: 1.35;
+}
+
+.profile-card {
+  padding: clamp(1rem, 1.15vw + 0.72rem, 1.45rem);
+}
+
+.profile-card-head h2 {
+  font-size: var(--type-card-title) !important;
+  line-height: 1.02;
+}
+
+.profile-card-head h3 {
+  font-size: clamp(1.28rem, 1.03rem + 0.72vw, 1.72rem);
+  line-height: 1.08;
+}
+
+.profile-person-card__body > strong,
+.profile-role-group__head strong,
+.profile-subsection-head strong,
+.profile-capability strong {
+  font-size: var(--type-sm);
+  line-height: 1.2;
+}
+
+.profile-facts dt,
+.profile-role-group__head small,
+.profile-subsection-head small,
+.profile-role-chip,
+.profile-count-pill {
+  font-size: var(--type-xs);
+}
+
+.profile-facts dd,
+.profile-access-summary strong,
+.profile-bnet-summary strong,
+.profile-hero-strip strong,
+.profile-raid-card__meta strong {
+  font-size: var(--type-md);
+  line-height: 1.14;
+}
+
+.profile-card--characters .profile-card-head--inline {
+  align-items: center;
+}
+
+.profile-card--characters .profile-card-lead {
+  max-width: 68ch;
+}
+
+.profile-bnet-summary {
+  gap: 0.65rem;
+}
+
+.profile-bnet-summary span,
+.profile-hero-strip span,
+.profile-access-summary span {
+  padding: clamp(0.62rem, 0.45rem + 0.45vw, 0.86rem) clamp(0.7rem, 0.52rem + 0.42vw, 0.95rem);
+}
+
+.profile-bnet-summary small,
+.profile-hero-strip small,
+.profile-access-summary small,
+.profile-character-showcase__stat small {
+  font-size: var(--type-xxs);
+  line-height: 1.22;
+  letter-spacing: 0.075em;
+}
+
+.profile-bnet-cta__eyebrow {
+  font-size: var(--type-xxs);
+  letter-spacing: 0.105em;
+}
+
+.profile-bnet-cta strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.28rem, 0.98rem + 0.72vw, 1.7rem) !important;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.profile-bnet-cta small {
+  font-size: var(--type-xs);
+  line-height: 1.4;
+}
+
+.profile-character-title-row h3,
+.profile-character-title-row--stacked h3 {
+  font-size: var(--type-character-name) !important;
+  line-height: 0.98;
+  letter-spacing: -0.018em;
+}
+
+.profile-character-title-row p,
+.profile-character-title-row--stacked p {
+  font-size: var(--type-sm);
+  line-height: 1.28;
+}
+
+.profile-character-meta span {
+  min-height: 1.75rem;
+  padding: 0.3rem 0.55rem;
+  font-size: var(--type-xxs);
+  line-height: 1.15;
+  letter-spacing: 0.065em;
+}
+
+.profile-character-showcase__stat {
+  min-height: clamp(4.7rem, 5vw, 5.55rem);
+}
+
+.profile-character-showcase__stat strong,
+.profile-character-showcase__stat--secondary strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 1.1rem + 1.15vw, 2.05rem) !important;
+  line-height: 0.98;
+  letter-spacing: -0.012em;
+}
+
+.profile-main-badge,
+.profile-main-badge--art {
+  font-size: var(--type-xxs);
+  letter-spacing: 0.05em;
+}
+
+.profile-empty-characters strong,
+.profile-raid-card__main strong,
+.profile-directory-card__main strong {
+  font-size: var(--type-md);
+  line-height: 1.18;
+}
+
+.global-toast__body strong {
+  font-size: var(--type-sm);
+}
+
+.global-toast__body small {
+  font-size: var(--type-xs);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --type-hero: clamp(2.05rem, 8vw, 3.25rem);
+    --type-card-title: clamp(1.38rem, 5.2vw, 2rem);
+    --type-character-name: clamp(1.72rem, 7.2vw, 2.35rem);
+  }
+
+  .dashboard-topbar {
+    gap: 0.65rem;
+  }
+
+  .dashboard-nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dashboard-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .profile-card--characters .profile-card-head--inline,
+  .profile-card-head--inline {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .profile-bnet-region-actions {
+    justify-content: stretch;
+  }
+}
+
+@media (max-width: 760px) {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    font-size: 0.9rem;
+    line-height: 1.52;
+  }
+
+  .container {
+    width: min(100% - 16px, 1280px);
+  }
+
+  .hero h1,
+  .profile-hero h1,
+  .profile-directory-hero h1,
+  .discord-editor-header h1 {
+    line-height: 1.02;
+  }
+
+  .lead,
+  .profile-card-lead,
+  .profile-warning,
+  .profile-card-note,
+  .profile-bnet-note,
+  .profile-bnet-footnote {
+    font-size: 0.84rem !important;
+    line-height: 1.48;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-user strong {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-brand span,
+  .dashboard-user span {
+    font-size: 0.76rem;
+  }
+
+  .dashboard-nav a {
+    min-height: 2.45rem;
+    padding-inline: 0.78rem;
+    font-size: 0.78rem;
+  }
+
+  .btn,
+  .action-button,
+  .profile-character-actions .btn,
+  .raid-action,
+  .raid-preview-buttons button {
+    min-height: 2.7rem;
+    font-size: 0.82rem;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea {
+    font-size: 16px;
+  }
+
+  .profile-card {
+    padding: 0.86rem !important;
+  }
+
+  .profile-card-head h2 {
+    line-height: 1.04;
+  }
+
+  .profile-hero-strip strong,
+  .profile-bnet-summary strong,
+  .profile-access-summary strong,
+  .profile-raid-card__meta strong {
+    font-size: 0.98rem !important;
+  }
+
+  .profile-hero-strip small,
+  .profile-bnet-summary small,
+  .profile-access-summary small,
+  .profile-raid-card__meta small {
+    font-size: 0.64rem !important;
+  }
+
+  .profile-bnet-cta strong {
+    font-size: 1.28rem !important;
+  }
+
+  .profile-character-title-row h3,
+  .profile-character-title-row--stacked h3 {
+    font-size: clamp(1.85rem, 8vw, 2.25rem) !important;
+    line-height: 1;
+  }
+
+  .profile-character-title-row p,
+  .profile-character-title-row--stacked p {
+    font-size: 0.84rem;
+  }
+
+  .profile-character-meta span {
+    min-height: 1.65rem;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.045em;
+  }
+
+  .profile-character-showcase__stat {
+    min-height: 4.25rem;
+  }
+
+  .profile-character-showcase__stat strong,
+  .profile-character-showcase__stat--secondary strong {
+    font-size: clamp(1.28rem, 5.5vw, 1.72rem) !important;
+  }
+
+  .profile-character-showcase__stat small {
+    font-size: 0.64rem !important;
+  }
+
+  .profile-role-chip,
+  .profile-count-pill {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --type-hero: clamp(1.95rem, 10.5vw, 2.65rem);
+    --type-card-title: clamp(1.28rem, 7.5vw, 1.82rem);
+  }
+
+  .container {
+    width: min(100% - 12px, 1280px);
+  }
+
+  .profile-hero,
+  .profile-directory-hero,
+  .profile-card,
+  .profile-directory-card {
+    padding-inline: 0.72rem !important;
+  }
+
+  .profile-bnet-summary span,
+  .profile-hero-strip span,
+  .profile-access-summary span,
+  .profile-facts div {
+    padding: 0.58rem 0.64rem;
+  }
+
+  .profile-character-body {
+    padding: 0.78rem !important;
+  }
+
+  .profile-character-title-row h3,
+  .profile-character-title-row--stacked h3 {
+    font-size: clamp(1.72rem, 9.5vw, 2.05rem) !important;
+  }
+
+  .profile-character-showcase {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .profile-character-showcase__stat {
+    padding: 0.62rem 0.56rem;
+  }
+}
