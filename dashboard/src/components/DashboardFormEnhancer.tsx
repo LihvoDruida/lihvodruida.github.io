@@ -13,14 +13,14 @@ function actionText(action: string) {
   if (action.includes("/applications/bulk-status")) return { label: "Синхронізуємо...", title: "Масова модерація", message: "Оновлюємо вибрані заявки та Discord-повідомлення." };
   if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Додаємо вибраних персонажів однією дією." };
   if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net і додаємо персонажа до профілю." };
-  if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо список персонажів і main-персонажа." };
-  if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для сайту й інтеграцій." };
+  if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо список персонажів і мейна." };
+  if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для сайту й Discord." };
   if (action.includes("/delete")) return { label: "Видаляємо...", title: "Видаляємо", message: "Обробляємо запит і оновлюємо дані." };
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
-  if (action.includes("/api/raids/publish")) return { label: "Публікуємо...", title: "Публікуємо рейд", message: "Окремо оновлюємо Discord-повідомлення та кнопки запису." };
-  if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Зберігаємо рейд", message: "Зберігаємо дані в панелі без публікації в Discord." };
+  if (action.includes("/api/raids/publish")) return { label: "Публікуємо...", title: "Публікуємо рейд", message: "Оновлюємо Discord-оголошення та кнопки запису." };
+  if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Зберігаємо рейд", message: "Зберігаємо зміни в панелі." };
   if (action.includes("/content/create")) return { label: "Публікуємо...", title: "Публікуємо матеріал", message: "Зберігаємо матеріал і готуємо оновлення сторінки." };
   if (action.includes("/content/update")) return { label: "Зберігаємо...", title: "Зберігаємо зміни", message: "Оновлюємо матеріал." };
   return { label: "Виконуємо...", title: "Обробка дії", message: "Запит виконується. Зачекай кілька секунд." };
@@ -28,6 +28,18 @@ function actionText(action: string) {
 
 function pushToast(title: string, message?: string) {
   dispatchDashboardToast({ tone: "info", title, message, ttl: 3600 });
+}
+
+function deleteConfirmText(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
+  const action = submitter?.formAction || form.getAttribute("action") || "";
+  const explicit = form.dataset.confirmMessage || submitter?.dataset.confirmMessage || "";
+  if (explicit) return explicit;
+
+  const dangerousButton = submitter?.classList.contains("danger") || submitter?.classList.contains("btn-danger");
+  if (action.includes("/delete") || dangerousButton) {
+    return "Підтвердити видалення? Дію не можна швидко скасувати.";
+  }
+  return "";
 }
 
 function preserveSubmitterValue(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
@@ -48,11 +60,18 @@ export default function DashboardFormEnhancer() {
       const form = event.target instanceof HTMLFormElement ? event.target : null;
       if (!form || !formUsesApi(form) || form.dataset.submitting === "true") return;
 
+      const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
+      const confirmText = deleteConfirmText(form, submitter);
+      if (confirmText && !window.confirm(confirmText)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       form.dataset.submitting = "true";
       form.classList.add("is-submitting");
       form.setAttribute("aria-busy", "true");
 
-      const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
       preserveSubmitterValue(form, submitter);
 
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
@@ -107,7 +126,7 @@ export default function DashboardFormEnhancer() {
       dispatchDashboardToast({
         tone: "warning",
         title: "Заповни обов’язкові поля",
-        message: field?.validationMessage || "Форма має невалідні або порожні значення.",
+        message: field?.validationMessage || "Перевір поля форми й заповни обов’язкові значення.",
         ttl: 4200,
       });
     }

@@ -52,7 +52,7 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             </div>
             <h1>Discord-повідомлення</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Публікація Discord-повідомлень, статистика правил і доступи за ролями в одному місці.</p>
+            <p className="lead">Публікація Discord-повідомлень, правила, статистика й доступи за ролями в одному місці.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>Панель показує тільки ті дії, які дозволені твоєю роллю.</span>
@@ -79,7 +79,7 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Твоя роль не має доступу до Discord-дій.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна.</div>
       ) : (
         <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules ? "" : "discord-hub-grid--single"}`} aria-label="Розділи Discord-повідомлень">
           {canViewRules ? (
@@ -94,14 +94,14 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
           <a className="panel discord-hub-card discord-hub-card--raid" href="/raids">
             <span className="eyebrow">Рейди • {hierarchyTitle(user.role)}</span>
             <strong>Рейдові оголошення</strong>
-            <p>Створення рейду, кнопки запису і автоматична побудова складу паті.</p>
+            <p>Створення рейдів, кнопки запису й автоматична побудова паті.</p>
             <span className="btn primary">Відкрити рейди</span>
           </a>
 
           <a className="panel discord-hub-card" href="/discord/embed">
             <span className="eyebrow">Звичайні повідомлення • {hierarchyTitle(user.role)}</span>
             <strong>Звичайні повідомлення</strong>
-            <p>Звичайні повідомлення, редагування за посиланням і теги ролей.</p>
+            <p>Повідомлення, редагування за посиланням і теги ролей.</p>
             <span className="btn subtle">Відкрити редактор</span>
           </a>
         </section>

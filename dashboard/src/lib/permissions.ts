@@ -154,7 +154,7 @@ export function matchingDiscordRoleLabels(
 ) {
   if (!session) return [] as string[];
 
-  if (session.provider === "token") return ["Резервний адмін-токен"];
+  if (session.provider === "token") return ["Резервний ключ адміністратора"];
 
   const roleMap = new Map<string, string>(roles.map((role) => [role.id, role.name]));
   return matchingDiscordRoleIds(session).map((roleId) => roleMap.get(roleId) || `Discord роль ${roleId.slice(-6)}`);

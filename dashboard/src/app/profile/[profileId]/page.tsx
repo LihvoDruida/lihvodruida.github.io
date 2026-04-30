@@ -37,7 +37,7 @@ export const revalidate = 0;
 function providerLabel(provider: string) {
   if (provider === "discord") return "Discord";
   if (provider === "github") return "GitHub";
-  return "Резервний токен";
+  return "Резервний ключ";
 }
 
 function formatDate(value?: string | null) {
@@ -262,7 +262,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
         </div>
         <span className="profile-count-pill">{active.length}</span>
       </div>
-      <p className="profile-card-lead">Тут видно, на який рейд підписався учасник і яким персонажем він іде. Дані беруться з main-персонажа на момент запису.</p>
+      <p className="profile-card-lead">Тут видно, на який рейд підписався учасник і яким персонажем він іде. Дані беруться з мейн-персонажа на момент запису.</p>
 
       {items.length ? (
         <div className="profile-raid-list">
@@ -305,7 +305,7 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
       </span>
       <span className="profile-character-candidate__body">
         <strong>{character.name}</strong>
-        <small>{character.realmName} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)} • Level {character.level || "—"}</small>
+        <small>{character.realmName} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)} • Рівень {character.level || "—"}</small>
       </span>
       <form action="/api/profile/characters/add" method="post">
         <input type="hidden" name="characterKey" value={character.key} />
@@ -389,7 +389,7 @@ export default async function ProfilePage({
   const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
   const accessRoleIds = roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId));
   const accessRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
-    ? [{ id: "token", label: "Резервний адмін-токен", position: 9999 }]
+    ? [{ id: "token", label: "Резервний ключ адміністратора", position: 9999 }]
     : buildRoleChips(accessRoleIds, roles);
   const fallbackAccessChip = !accessRoleChips.length
     ? ({
@@ -460,7 +460,7 @@ export default async function ProfilePage({
               <strong>{profile.displayName}</strong>
               {viewer.role === "admin" || viewer.role === "moderator" ? (
                 <details className="profile-secret">
-                  <summary>Службовий ID</summary>
+                  <summary>Технічний ID</summary>
                   <code>{profile.profileId}</code>
                 </details>
               ) : null}
@@ -492,7 +492,7 @@ export default async function ProfilePage({
           <p className="profile-card-lead">Зверху показані ролі, що дали доступ до панелі. Нижче — решта ролей Discord.</p>
 
           <div className="profile-access-summary" aria-label="Поточний доступ">
-            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Найвищий доступ у панелі</small></span>
+            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Поточний доступ у панелі</small></span>
             <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступно</small></span>
           </div>
 
@@ -516,7 +516,7 @@ export default async function ProfilePage({
             <div className="profile-role-stack profile-role-stack--secondary" aria-label="Інші Discord ролі користувача">
               {otherRoleChips.length ? otherRoleChips.map((role) => (
                 <span className="profile-role-chip profile-role-chip--secondary" key={role.id}>{role.label}</span>
-              )) : <span className="profile-role-chip profile-role-chip--muted">Інших ролей у сесії немає</span>}
+              )) : <span className="profile-role-chip profile-role-chip--muted">Інших ролей не знайдено</span>}
             </div>
           </div>
 
@@ -560,7 +560,7 @@ export default async function ProfilePage({
 
           {totalBattleNetCharacters !== null ? (
             <div className="profile-bnet-footnote">
-              На Battle.net акаунті: <strong>{totalBattleNetCharacters}</strong> персонажів. Нижче показані лише ті, що додані в профіль.
+              В акаунті Battle.net: <strong>{totalBattleNetCharacters}</strong> персонажів. Нижче показані лише ті, що додані в профіль.
             </div>
           ) : null}
 

@@ -26,17 +26,17 @@ export default async function RaidsListPage({ searchParams }: { searchParams: Pr
     <RaidPageShell
       user={user}
       title="Рейди"
-      description="Окремий список рейдів для модераторів та адмінів. Створення і редагування винесені на окремі сторінки."
+      description="Список рейдів для керування оголошеннями, складом, лімітами та записами."
     >
       <StatusNotice params={params} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейди не зможуть зберігатися.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Discord-бот не підключений: публікація оголошення недоступна.</div> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Перевір налаштування панелі.</div> : null}
+      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна переглядати локально.</div> : null}
 
       <section className="panel raid-list-page-panel">
         <div className="raid-list-page-head">
           <div>
             <h2>Усі рейди</h2>
-            <p>Відкрий рейд для перегляду складу, редагування або видалення запису.</p>
+            <p>Відкрий рейд, щоб переглянути склад, оновити оголошення або змінити запис.</p>
             <div className="raid-list-summary" aria-label="Коротка статистика рейдів">
               <span>Усього: {raids.length}</span>
               <span>Опубліковано: {publishedCount}</span>

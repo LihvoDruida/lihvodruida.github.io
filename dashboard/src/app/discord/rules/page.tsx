@@ -143,7 +143,7 @@ function RulesDataOverview({
         </div>
         <div className="discord-rules-metric-grid">
           <RulesMetric label="Підписались" value={metricValue(raidSigned, raidStats.configured || raidSignups.configured)} hint="унікальних Discord-користувачів" tone="good" />
-          <RulesMetric label="У списку" value={metricValue(raidSignups.signups.length, raidSignups.configured)} hint="з Discord + main-персонажем" />
+          <RulesMetric label="У списку" value={metricValue(raidSignups.signups.length, raidSignups.configured)} hint="з Discord і мейн-персонажем" />
           <RulesMetric label="Повідомлень" value={raidMessagesCount} hint={`рейдових повідомлень у ${channelLabel}`} tone="warn" />
         </div>
         <p className="discord-rules-data-note">{raidStatus}</p>
@@ -156,7 +156,7 @@ function characterLabel(signup: DiscordRaidRulesSignupsResponse["signups"][numbe
   const character = signup.mainCharacter || null;
   const name = String(character?.name || "").trim();
   const realm = String(character?.realmName || character?.realmSlug || "").trim();
-  if (!name) return "Main не знайдено";
+  if (!name) return "Мейн не знайдено";
   return realm ? `${name} • ${realm}` : name;
 }
 
@@ -193,13 +193,13 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
       ) : signups.signups.length === 0 ? (
         <div className="content-empty discord-empty-state">
           <strong>Підписантів ще немає.</strong>
-          <span>Коли користувач натисне кнопку під рейдовими правилами, бот запише Discord і main-персонажа сюди.</span>
+          <span>Коли користувач натисне кнопку під рейдовими правилами, бот запише Discord і мейн-персонажа сюди.</span>
         </div>
       ) : (
         <div className="discord-raid-signups-table" role="table" aria-label="Список підписантів рейдових правил">
           <div className="discord-raid-signups-row discord-raid-signups-row--head" role="row">
             <span role="columnheader">Discord</span>
-            <span role="columnheader">Main персонаж</span>
+            <span role="columnheader">Мейн-персонаж</span>
             <span role="columnheader">Підпис</span>
           </div>
           {signups.signups.map((signup) => (
@@ -210,7 +210,7 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
                 
               </span>
               <span role="cell">
-                <small className="discord-raid-mobile-label">Main персонаж</small>
+                <small className="discord-raid-mobile-label">Мейн-персонаж</small>
                 {signup.mainCharacter?.profileUrl ? (
                   <a href={signup.mainCharacter.profileUrl} target="_blank" rel="noreferrer">{characterLabel(signup)}</a>
                 ) : (
@@ -392,7 +392,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             <p className="lead">Окреме відображення звичайних правил, правил рейду, статистики та списку підписантів без змішування даних.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>Звичайні правила видають ролі. Рейдові правила записують Discord і main-персонажа.</span>
+              <span>Звичайні правила видають ролі. Рейдові правила записують Discord і мейн-персонажа.</span>
               <div className="content-hero-buttons">
                 {canEditRules ? <a className="btn primary content-add-btn" href="/discord/rules/new">Додати звичайні</a> : null}
                 {canEditRules ? <a className="btn subtle content-add-btn" href="/discord/rules/new?type=raid">Додати рейдові</a> : null}
@@ -406,7 +406,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       <StatusNotice params={params} />
 
       {!hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Перевір підключення бота або спробуй пізніше.</div>
       ) : configError ? (
         <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : (

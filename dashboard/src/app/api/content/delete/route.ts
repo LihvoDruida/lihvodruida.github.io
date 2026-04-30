@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   try {
     if (!isManagedContentPath(path)) {
-      throw new Error("Можна видаляти тільки Markdown-файли з _news або _guides.");
+      throw new Error("Можна видаляти тільки матеріали новин або гайдів.");
     }
 
     await deleteRepoFile(path, `content: delete ${path} by ${session.name}`);

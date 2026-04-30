@@ -81,7 +81,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
       {!isAdmin ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Перевір підключення бота або спробуй пізніше.</div>
       ) : configError && !messageParam ? (
         <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return redirectWithToast(`/raids/${encodeURIComponent(result.id)}`, {
       tone: "success",
       title: "Рейд закрито",
-      message: result.discordSynced ? "Запис вимкнено, Discord-кнопки стали неактивними." : "Рейд закрито в панелі, але Discord-кнопки не вдалося оновити автоматично. Натисни “Оновити Discord” після перевірки каналу.",
+      message: result.discordSynced ? "Запис вимкнено, кнопки в Discord стали неактивними." : "Рейд закрито в панелі. Кнопки в Discord не оновилися автоматично — перевір канал і натисни “Оновити Discord”.",
       ttl: 6200,
     });
   } catch (error) {

@@ -12379,3 +12379,51 @@ button[type="submit"] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* v32 global cleanup: safer wrapping, calmer controls and less mobile overflow */
+:where(
+  .notice,
+  .global-toast,
+  .btn,
+  .action-button,
+  .input,
+  .select,
+  .textarea,
+  .panel,
+  .card,
+  .hero,
+  .toolbar,
+  .content-row,
+  .discord-rules-row,
+  .raid-list-summary,
+  .raid-party-member-copy,
+  .profile-character-card,
+  .profile-directory-card
+) {
+  overflow-wrap: anywhere;
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action)[disabled],
+:where(.btn, .action-button, button[type="submit"], .raid-action)[aria-disabled="true"] {
+  cursor: not-allowed;
+  transform: none !important;
+  filter: saturate(0.82);
+}
+
+:where(.notice, .error-note, .profile-storage-warning, .raid-form-hint, .hero-secure-note) {
+  line-height: 1.55;
+}
+
+@media (max-width: 520px) {
+  :where(.panel, .card, .hero, .toolbar, .content-form-section, .discord-visual-section, .raid-form-panel) {
+    max-width: 100%;
+  }
+
+  :where(.btn, .action-button, button[type="submit"], .raid-action) {
+    min-height: 42px;
+  }
+
+  :where(.notice, .error-note, .profile-storage-warning, .raid-form-hint) {
+    font-size: 13px;
+  }
+}

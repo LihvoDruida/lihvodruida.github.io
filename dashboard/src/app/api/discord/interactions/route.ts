@@ -59,7 +59,7 @@ function finishDecision(interaction: any, content: string) {
 
 function rulesConfirmationResponse(action: { action: string; roleIds: string[] }) {
   if (action.action === "confirm_raid_signup") {
-    return ephemeral("🐉 Підтверди підпис на правила рейду. Бот перевірить авторизацію в панелі та main-персонажа.", [
+    return ephemeral("🐉 Підтверди правила рейду. Система перевірить твій профіль і мейн-персонажа.", [
       {
         type: 1,
         components: [
@@ -128,7 +128,7 @@ function dashboardAuthUrl() {
 function mainCharacterLabel(character: any) {
   const name = String(character?.name || "").trim();
   const realm = String(character?.realmName || character?.realmSlug || "").trim();
-  return name ? `${name}${realm ? ` • ${realm}` : ""}` : "main-персонаж не знайдений";
+  return name ? `${name}${realm ? ` • ${realm}` : ""}` : "мейн-персонаж не знайдений";
 }
 
 export async function POST(request: NextRequest) {
@@ -208,14 +208,14 @@ export async function POST(request: NextRequest) {
       const mainCharacter = profile ? getMainCharacter(profile) : null;
       if (!profile || !mainCharacter) {
         logDashboardEvent("warn", "discord.raid_rules.profile_missing", request, { guildId, userId });
-        return finishDecision(interaction, `❌ Підпис не зараховано: не знайдено авторизований профіль або main-персонажа. Авторизуйся в панелі та вибери main: ${dashboardAuthUrl()}`);
+        return finishDecision(interaction, `❌ Підпис не зараховано: не знайдено профіль або мейн-персонажа. Авторизуйся в панелі та вибери мейна: ${dashboardAuthUrl()}`);
       }
 
       logDashboardEvent("info", "discord.raid_rules.signed", request, { guildId, userId, profileId: profile.profileId, character: mainCharacter.name });
-      return finishDecision(interaction, `✅ Підпис на правила рейду підтверджено. Main: ${mainCharacterLabel(mainCharacter)}.`);
+      return finishDecision(interaction, `✅ Підпис на правила рейду підтверджено. Мейн: ${mainCharacterLabel(mainCharacter)}.`);
     } catch (error) {
       logDashboardEvent("error", "discord.raid_rules.failed", request, { message: safeErrorMessage(error), guildId, userId });
-      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис. Спробуй ще раз пізніше або перевір, що в профілі вибрано main-персонажа: ${dashboardAuthUrl()}`);
+      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис. Спробуй ще раз пізніше або перевір, що в профілі вибрано мейн-персонажа: ${dashboardAuthUrl()}`);
     }
   }
 

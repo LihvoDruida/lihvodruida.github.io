@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       return redirectWithToast(failurePath, {
         tone: "warning",
         title: "Дія не для цієї кнопки",
-        message: "Цей endpoint тільки зберігає чернетку або локальні зміни. Для Discord використовуй окрему кнопку публікації/оновлення.",
+        message: "Ця кнопка тільки зберігає зміни в панелі. Для Discord використовуй кнопку “Опублікувати” або “Оновити Discord”.",
         ttl: 7200,
       });
     }
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     return redirectWithToast(`/raids/${encodeURIComponent(raid.id)}/edit`, {
       tone: "success",
       title: raid.status === "draft" ? "Чернетку збережено" : "Зміни збережено",
-      message: raid.status === "published" ? "Зміни збережено в панелі. Щоб оновити Discord, натисни окрему кнопку “Оновити Discord”." : "Чернетку збережено без публікації в Discord.",
+      message: raid.status === "published" ? "Зміни збережено в панелі. Щоб показати їх у Discord, натисни “Оновити Discord”." : "Чернетку збережено. У Discord її ще не опубліковано.",
       ttl: 6200,
     });
   } catch (error) {

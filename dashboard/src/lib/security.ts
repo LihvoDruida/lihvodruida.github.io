@@ -330,15 +330,41 @@ export function unauthorizedResponse(message = "Потрібна авториз�
   );
 }
 
+function userFriendlyErrorMessage(message: string, fallback: string) {
+  const text = message.trim();
+  if (!text) return fallback;
+
+  if (/firebase|profile storage|firestore/i.test(text)) {
+    return "Збереження тимчасово недоступне. Перевір налаштування панелі або повтори пізніше.";
+  }
+
+  if (/channel_id|message id|unknown message|10008|discord.*404|invalid form body/i.test(text)) {
+    return "Discord не підтвердив повідомлення. Перевір канал, права бота і повтори дію.";
+  }
+
+  if (/fetch failed|network|econn|etimedout|timeout/i.test(text)) {
+    return "Не вдалося зв’язатися із зовнішнім сервісом. Повтори спробу трохи пізніше.";
+  }
+
+  if (/token|credential|private key|client secret|authorization/i.test(text)) {
+    return "Авторизація інтеграції тимчасово недоступна. Перевір налаштування доступу.";
+  }
+
+  return text;
+}
+
 export function safeErrorMessage(error: unknown, fallback = "Операція не виконана.") {
   const message = error instanceof Error ? error.message : String(error || "");
   if (!message) return fallback;
 
-  return message
+  const redacted = message
     .replace(/ghp_[A-Za-z0-9_]+/g, "[redacted]")
     .replace(/github_pat_[A-Za-z0-9_]+/g, "[redacted]")
     .replace(/Bot\s+[A-Za-z0-9._-]+/g, "Bot [redacted]")
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]")
     .slice(0, 240);
+
+  return userFriendlyErrorMessage(redacted, fallback).slice(0, 240);
 }
 
 export function noStoreHeaders(extra?: HeadersInit) {

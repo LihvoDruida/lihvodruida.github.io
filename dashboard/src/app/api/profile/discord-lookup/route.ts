@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!hasFirebaseProfileConfig()) {
-    return NextResponse.json({ found: false, error: "Firebase profile storage is not configured.", reason: "firebase-not-configured" }, { status: 503, headers: noStoreHeaders() });
+    return NextResponse.json({ found: false, error: "Збереження профілів тимчасово недоступне.", reason: "profile-storage-unavailable" }, { status: 503, headers: noStoreHeaders() });
   }
 
   const url = new URL(request.url);

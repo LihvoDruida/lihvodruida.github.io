@@ -22,7 +22,7 @@ function errorText(error?: string) {
     oauth_state: "Сесія входу застаріла. Повтори авторизацію.",
     discord_required: "Для входу потрібен Discord.",
     discord_only: "GitHub вхід вимкнено. Використай Discord.",
-    token: "Резервний токен неправильний.",
+    token: "Резервний ключ неправильний.",
     rate_limit: "Забагато спроб. Зачекай кілька хвилин.",
   };
 
@@ -55,7 +55,7 @@ export default async function LoginPage({
 
       <section className="login-shell" aria-labelledby="login-title">
         <div className="login-hero">
-          <div className="login-pill">Guild Admin</div>
+          <div className="login-pill">Панель гільдії</div>
 
           <div className="login-brandmark">
             <img
@@ -120,13 +120,13 @@ export default async function LoginPage({
             <details className="login-token">
               <summary>Резервний вхід</summary>
               <form method="post" action="/api/auth/login">
-                <label htmlFor="token">Адмін-токен</label>
+                <label htmlFor="token">Резервний ключ</label>
                 <div className="login-token__row">
                   <input
                     id="token"
                     name="token"
                     type="password"
-                    placeholder="ADMIN_DASHBOARD_TOKEN"
+                    placeholder="Введи резервний ключ"
                     autoComplete="current-password"
                   />
                   <button type="submit">Увійти</button>
@@ -136,7 +136,7 @@ export default async function LoginPage({
           ) : null}
 
           <p className="login-note">
-            Доступ визначається Discord ролями. Учасники бачать тільки власний профіль; службові ключі й чужі дані не передаються у браузер.
+            Доступ визначається Discord-ролями. Учасники бачать тільки власний профіль, а приватні дані не показуються в інтерфейсі.
           </p>
         </div>
       </section>

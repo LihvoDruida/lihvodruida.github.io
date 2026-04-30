@@ -32,11 +32,11 @@ export default async function EditRaidPage({ params, searchParams }: { params: P
     <RaidPageShell
       user={user}
       title="Редагування рейду"
-      description="Редагування доступне тільки модераторам та адмінам. Сторінка самого рейду залишається окремою для всіх учасників."
+      description="Редагуй дані рейду, склад, ліміти й Discord-оголошення. Сторінка рейду для учасників залишається окремою."
     >
       <StatusNotice params={query} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейди не зможуть зберігатися.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Discord-бот не підключений: публікація оголошення недоступна.</div> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Перевір налаштування панелі.</div> : null}
+      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Локальні зміни можна зберегти.</div> : null}
 
       {raid ? (
         <section className="raid-editor-layout">

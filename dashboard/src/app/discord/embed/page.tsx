@@ -73,7 +73,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
           <div>
             <span className="eyebrow">Звичайне повідомлення • {editMode ? "Редагування" : "Створення"}</span>
             <h1>{editMode ? "Редагування повідомлення" : "Звичайна відправка повідомлення"}</h1>
-            <p>Створи або онови Discord-повідомлення без ручного редагування коду. Канал, текст, теги ролей і посилання на повідомлення розділені окремо.</p>
+            <p>Створи або онови Discord-повідомлення. Канал, текст, теги ролей і посилання на повідомлення розділені окремо.</p>
           </div>
           <a className="btn subtle" href="/discord">Назад</a>
         </header>
@@ -84,14 +84,14 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Ця сторінка доступна гільдмайстеру та офіцерам.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Discord-бот ще не підключений до панелі.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна.</div>
       ) : configError && !messageParam ? (
-        <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
+        <div className="notice panel error-note">Не вдалося завантажити дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 ? (
         <div className="notice panel error-note">Не знайдено текстових каналів для вибору.</div>
       ) : (
         <>
-          {configError ? <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div> : null}
+          {configError ? <div className="notice panel error-note">Не вдалося завантажити дані Discord. Спробуй оновити сторінку.</div> : null}
           <DiscordEmbedEditor
             mode="general"
             editorMode={editMode ? "edit" : "create"}

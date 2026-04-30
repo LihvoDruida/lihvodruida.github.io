@@ -22,7 +22,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
       description="Пряме посилання доступне учасникам. Вони можуть тільки підписатися, пропустити рейд або позначити запізнення."
     >
       <StatusNotice params={query} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейдовий запис недоступний.</div> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Запис на рейди тимчасово недоступний. Повтори пізніше або звернись до офіцера.</div> : null}
 
       {visibleRaid ? (
         <section className="raid-member-layout">

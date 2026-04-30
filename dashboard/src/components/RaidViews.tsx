@@ -225,7 +225,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         </div>
       )}
       <div className="raid-preview-roster-head">
-        <div><strong>Склад рейду</strong><p>Паті будуються динамічно: пріоритет — танк, хіл і 3 ДД, але склад не блокується, якщо танка або хіла немає. Якщо будь-яка роль перевищує поточну схему, рейд одразу переходить на наступну, а всі активні гравці залишаються видимими.</p></div>
+        <div><strong>Склад рейду</strong><p>Паті будуються динамічно. Пріоритет — танк, хіл і 3 ДД, але всі активні гравці залишаються видимими навіть за нестандартного складу.</p></div>
       </div>
       <div className="raid-party-grid">
         {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />)}
@@ -289,7 +289,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
         <div className="raid-form-heading">
           <div>
             <div className="section-title">{raid?.id ? "Редагування рейду" : "Створення рейду"}</div>
-            <p>Чернетка лише зберігає дані. Публікація створює Discord-повідомлення, а редагування оновлює вже опублікований embed.</p>
+            <p>Чернетка зберігає дані без публікації. Публікація створює або оновлює Discord-оголошення з кнопками запису.</p>
           </div>
           {raid ? <em className={`raid-state raid-state--${raidStatusClass(raid)}`}>{raidStatusLabel(raid)}</em> : null}
         </div>
@@ -350,16 +350,16 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
         </div>
 
         <div className="raid-auto-composition-note">
-          <strong>Склад генерується автоматично</strong>
-          <span>Поточна схема: {defaultComposition}. Система розширює рейд не лише за кількістю гравців, а й за ролями: 2/2/7 або 2/3/6 одразу переходить на наступну схему. Наступний гнучкий шаблон — 2/4/14.</span>
+          <strong>Склад формується автоматично</strong>
+          <span>Поточна схема: {defaultComposition}. Якщо гравців або ролей стає більше, система одразу переходить на більший шаблон. Після 2/2/6 наступний шаблон — 2/4/14.</span>
         </div>
 
         <div className="raid-form-section">
           <strong>Текст і зображення</strong>
           <label className="field-label">Опис<textarea className="input textarea markdown-area raid-description-textarea" name="description" rows={8} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
-          <p className="raid-form-hint">Підтримується Discord Markdown: **жирний**, *курсив*, списки, заголовки, цитати, посилання, inline-code і блоки коду.</p>
+          <p className="raid-form-hint">Підтримується Markdown для Discord: жирний текст, курсив, списки, заголовки, цитати, посилання й код.</p>
           <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || resolveRaidThumbnailUrl({ difficulty: raid?.difficulty || "heroic" })} /><small>Якщо поле не змінювати, система автоматично використає мініатюру за типом рейду.</small></label>
-          <label className="field-label">Зображення embed<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
+          <label className="field-label">Зображення оголошення<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
         </div>
 
         <div className="raid-form-actions">
@@ -374,7 +374,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
       {raid?.id ? (
         <form className="panel raid-form-danger-zone raid-form-danger-zone--separate" action={`/api/raids/${encodeURIComponent(raid.id)}/delete`} method="post">
           <strong>Видалення рейду</strong>
-          <p>Видаляє рейд зі списку. Якщо рейд уже був опублікований, система також спробує прибрати Discord-повідомлення.</p>
+          <p>Видаляє рейд зі списку. Якщо оголошення вже було в Discord, панель також спробує прибрати його там.</p>
           <button className="btn danger" type="submit">Видалити рейд</button>
         </form>
       ) : null}
@@ -392,7 +392,7 @@ export function RaidPageShell({ user, title, description, children }: { user?: D
             <div className="eyebrow">Mistblossom Vanguard • Рейди</div>
             <div className="content-hero-status-row">
               <span className="content-mode-pill content-mode-pill--library">{user ? hierarchyTitle(user.role) : "Учасник"}</span>
-              <span className="content-hero-path">Discord-запис • склад паті • автоматичне оновлення</span>
+              <span className="content-hero-path">Запис у Discord • склад паті • автооновлення</span>
             </div>
             <h1>{title}</h1>
             <span className="hero-accent" aria-hidden="true" />

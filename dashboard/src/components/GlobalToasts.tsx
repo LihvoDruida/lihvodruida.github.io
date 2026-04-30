@@ -41,7 +41,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   character_added: {
     tone: "success",
     title: "Персонажа додано",
-    message: "Персонаж записаний у профілі. Якщо це перший персонаж у профілі, він автоматично стає main.",
+    message: "Персонаж записаний у профілі. Якщо це перший персонаж у профілі, він автоматично стає мейном.",
   },
   characters_added: {
     tone: "success",
@@ -141,7 +141,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   character_removed: {
     tone: "success",
     title: "Персонажа видалено",
-    message: "Запис прибрано з профілю. Якщо це був main, система автоматично вибере наступного доступного персонажа.",
+    message: "Запис прибрано з профілю. Якщо це був мейн, система автоматично вибере наступного доступного персонажа.",
     ttl: 6800,
   },
   character_remove_failed: {
@@ -176,31 +176,31 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   main_character_failed: {
     tone: "error",
     title: "Мейна не змінено",
-    message: "Не вдалося зберегти main-персонажа. Онови сторінку і повтори дію.",
+    message: "Не вдалося зберегти мейн-персонажа. Онови сторінку і повтори дію.",
     ttl: 8600,
   },
   main_character_invalid: {
     tone: "error",
-    title: "Некоректний main-персонаж",
-    message: "Дані персонажа застаріли або пошкоджені. Онови сторінку і натисни “Зробити мейном” ще раз.",
+    title: "Некоректний мейн-персонаж",
+    message: "Дані персонажа застаріли. Онови сторінку і натисни “Зробити мейном” ще раз.",
     ttl: 7600,
   },
   main_character_missing: {
     tone: "warning",
     title: "Спочатку додай персонажа",
-    message: "Main можна вибрати тільки серед персонажів, уже збережених у профілі.",
+    message: "Мейна можна вибрати тільки серед персонажів, уже збережених у профілі.",
     ttl: 7600,
   },
   main_character_profile_missing: {
     tone: "error",
-    title: "Профіль для main не знайдено",
+    title: "Профіль для мейна не знайдено",
     message: "Не вдалося знайти твій профіль. Вийди й увійди через Discord, потім повтори дію.",
     ttl: 8600,
   },
   main_character_firebase_unconfigured: {
     tone: "error",
-    title: "Профіль недоступний для main",
-    message: "Сервер тимчасово не може зберегти main-персонажа. Звернись до гільдмайстра або повтори пізніше.",
+    title: "Профіль недоступний для мейна",
+    message: "Сервер тимчасово не може зберегти мейн-персонажа. Звернись до гільдмайстра або повтори пізніше.",
     ttl: 8600,
   },
   rate_limit: {
@@ -211,7 +211,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
 };
 const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   rate_limit: { tone: "warning", title: "Забагато спроб входу", message: "Зачекай кілька хвилин і повтори авторизацію." },
-  token: { tone: "error", title: "Вхід не виконано", message: "Токен недійсний або застарів." },
+  token: { tone: "error", title: "Вхід не виконано", message: "Резервний ключ недійсний або застарів." },
   session_required: { tone: "warning", title: "Потрібен вхід", message: "Увійди в акаунт, щоб продовжити дію." },
   discord_only: { tone: "warning", title: "Доступ через Discord", message: "Для входу в панель використовується Discord." },
   oauth_state: { tone: "warning", title: "Перевірка Discord не пройшла", message: "Спробуй авторизуватися ще раз." },
@@ -313,7 +313,7 @@ function toastFromSearchParams(params: URLSearchParams): Toast[] {
       id: createId("published"),
       tone: "success",
       title: isDiscord ? "Discord повідомлення опубліковано" : "Матеріал опубліковано",
-      message: rawPublished,
+      message: isDiscord ? "Оголошення доступне в Discord." : rawPublished,
       ttl: 6800,
     });
   }
@@ -325,7 +325,7 @@ function toastFromSearchParams(params: URLSearchParams): Toast[] {
       id: createId("updated"),
       tone: "success",
       title: isDiscord ? "Discord повідомлення оновлено" : "Зміни збережено",
-      message: rawUpdated,
+      message: isDiscord ? "Оголошення в Discord оновлено." : rawUpdated,
       ttl: 6800,
     });
   }

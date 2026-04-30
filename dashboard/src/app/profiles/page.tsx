@@ -30,7 +30,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
         )}
         <div>
           <h2>{profile.displayName}</h2>
-          <p>{dashboardRoleLabel(profile.role)}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • main не вибрано"}</p>
+          <p>{dashboardRoleLabel(profile.role)}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • мейн не вибрано"}</p>
         </div>
       </div>
 
@@ -63,13 +63,13 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
             <div className="eyebrow">Mistblossom Vanguard • Профілі</div>
             <h1>Профілі учасників</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Перегляд Discord-профілів, main-персонажів і Battle.net-стану. Нижчі ролі не бачать профілі ролей вище свого доступу.</p>
+            <p className="lead">Перегляд профілів, Discord-ролей, мейн-персонажів і Battle.net-стану. Нижчі ролі не бачать профілі з вищим доступом.</p>
           </div>
         </header>
       </section>
 
       <form className="toolbar panel profile-directory-toolbar">
-        <input className="input" name="q" placeholder="Пошук: Discord, персонаж, realm..." defaultValue={query} />
+        <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
         <button className="btn primary" type="submit">Знайти</button>
         {query ? <a className="btn subtle" href="/profiles">Скинути</a> : null}
       </form>

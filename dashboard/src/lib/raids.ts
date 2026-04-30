@@ -1113,7 +1113,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
 
   const nextChannelId = String(message?.channel_id || targetChannelId);
   const nextMessageId = String(message?.id || "");
-  if (!nextChannelId || !nextMessageId) throw new Error("Discord повернув некоректну відповідь без channel_id/message id.");
+  if (!nextChannelId || !nextMessageId) throw new Error("Discord не повернув дані повідомлення. Перевір канал і права бота.");
   const messageUrl = discordMessageUrl(nextChannelId, nextMessageId);
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
@@ -1168,7 +1168,7 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
 
 export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   const id = cleanRaidId(raidId);
-  if (!id || !hasRaidStorage()) throw new Error("Рейд не знайдено або Firebase не налаштований.");
+  if (!id || !hasRaidStorage()) throw new Error("Рейд не знайдено або збереження тимчасово недоступне.");
 
   const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -1263,7 +1263,7 @@ export async function handleRaidDiscordAction(params: {
     if (!profile || !main) {
       return {
         ok: false,
-        content: "❌ Запис не зараховано: спочатку авторизуйся в панелі через Discord, додай персонажа Battle.net і вибери main.",
+        content: "❌ Запис не зараховано: спочатку увійди через Discord, додай персонажа Battle.net і вибери мейна.",
       };
     }
   } else {
@@ -1309,7 +1309,7 @@ export async function handleRaidSessionAction(params: {
     if (!profile || !main) {
       return {
         ok: false,
-        content: "❌ Запис не зараховано: додай персонажа Battle.net у профілі та вибери main.",
+        content: "❌ Запис не зараховано: додай персонажа Battle.net у профілі та вибери мейна.",
       };
     }
   }

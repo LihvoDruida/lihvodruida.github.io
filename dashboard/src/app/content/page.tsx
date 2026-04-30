@@ -92,7 +92,7 @@ function CreateContentForm({ author }: { author: string }) {
       <EditorHeader mode="create" eyebrow="Створення" title="Новий матеріал" />
 
       <form className="content-form content-form--modern" method="post" action="/api/content/create" encType="multipart/form-data">
-        <FormSection title="Основне" hint="Тип матеріалу, заголовок, slug і короткий SEO-опис.">
+        <FormSection title="Основне" hint="Тип матеріалу, заголовок, адреса сторінки й короткий опис.">
           <div className="form-row two">
             <label className="content-field">
               <span>Тип матеріалу</span>
@@ -102,7 +102,7 @@ function CreateContentForm({ author }: { author: string }) {
               </select>
             </label>
             <label className="content-field">
-              <span>Slug</span>
+              <span>Адреса сторінки</span>
               <input className="input" name="slug" placeholder="згенерується автоматично" />
             </label>
           </div>
@@ -114,7 +114,7 @@ function CreateContentForm({ author }: { author: string }) {
 
           <label className="content-field content-field--wide">
             <span>Короткий опис</span>
-            <textarea className="input textarea compact" name="description" placeholder="Короткий SEO-опис для картки та сторінки матеріалу" minLength={12} required />
+            <textarea className="input textarea compact" name="description" placeholder="Короткий опис для картки та сторінки матеріалу" minLength={12} required />
           </label>
         </FormSection>
 
@@ -189,7 +189,7 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
               <input className="input" name="title" defaultValue={item.title} minLength={3} required />
             </label>
             <label className="content-field">
-              <span>Slug</span>
+              <span>Адреса сторінки</span>
               <input className="input" name="slug" defaultValue={item.slug} required />
             </label>
           </div>
@@ -200,7 +200,7 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
           </label>
         </FormSection>
 
-        <FormSection title="Таксономія і медіа" hint="Категорії, теги, автор і обкладинка з живим preview.">
+        <FormSection title="Таксономія і медіа" hint="Категорії, теги, автор і попередній перегляд обкладинки.">
           <div className="form-row two">
             <label className="content-field">
               <span>Категорії</span>
@@ -222,13 +222,13 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
               <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} previewBaseUrl={sitePreviewBaseUrl()} />
               <label className="inline-check inline-check--card content-remove-cover">
                 <input type="checkbox" name="removeImage" value="1" />
-                <span>Прибрати обкладинку і поставити placeholder</span>
+                <span>Прибрати обкладинку і показати стандартне зображення</span>
               </label>
             </div>
           </div>
         </FormSection>
 
-        <FormSection title="Markdown" hint="Повний текст матеріалу. Зміни збережуться у відповідному Markdown-файлі." body>
+        <FormSection title="Markdown" hint="Повний текст матеріалу. Зміни збережуться для сторінки сайту." body>
           <label className="content-field content-field--wide">
             <span>Markdown</span>
             <textarea className="input textarea markdown-area" name="body" defaultValue={item.body} minLength={20} required />
@@ -245,7 +245,7 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
         <input type="hidden" name="path" value={item.path} />
         <div>
           <strong>Небезпечна дія</strong>
-          <small>Видаляє Markdown-файл. Картинка не видаляється, щоб не зламати інші матеріали.</small>
+          <small>Видаляє матеріал зі списку. Обкладинка лишається, щоб не зламати інші сторінки.</small>
         </div>
         <button className="btn danger" type="submit">Видалити матеріал</button>
       </form>
@@ -328,21 +328,21 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   const heroMode = isCreateMode ? "create" : selectedItem ? "edit" : "library";
   const heroTitle = isCreateMode ? "Новий матеріал" : selectedItem ? "Редагування матеріалу" : "Матеріали сайту";
   const heroEyebrow = isCreateMode
-    ? "Mistblossom Vanguard • Content editor"
+    ? "Mistblossom Vanguard • Редактор матеріалів"
     : selectedItem
-      ? `Mistblossom Vanguard • ${contentTypeLabel(selectedItem.kind)} editor`
-      : "Mistblossom Vanguard • Content panel";
+      ? `Mistblossom Vanguard • ${contentTypeLabel(selectedItem.kind)}`
+      : "Mistblossom Vanguard • Матеріали сайту";
   const heroLead = isCreateMode
     ? "Заповни основні дані, додай обкладинку й підготуй Markdown для публікації на основному сайті."
     : selectedItem
-      ? "Оновлюй заголовок, SEO-опис, категорії, теги, обкладинку та Markdown без зайвих переходів."
+      ? "Оновлюй заголовок, опис, категорії, теги, обкладинку та текст без зайвих переходів."
       : "Керуй новинами й гайдами для основного сайту: створюй, редагуй, переглядай і прибирай матеріали з однієї панелі.";
   const heroNote = isCreateMode
     ? "Автор автоматично береться з Discord-імені адміністратора."
     : selectedItem
       ? `${contentTypeLabel(selectedItem.kind)} • ${selectedItem.date || "без дати"} • ${selectedItem.author || "без автора"}`
       : "Новини та гайди розділені для зручності.";
-  const heroPath = selectedItem?.path || (isCreateMode ? "Новий Markdown-файл" : `${items.length} матеріалів у бібліотеці`);
+  const heroPath = selectedItem?.path || (isCreateMode ? "Новий матеріал" : `${items.length} матеріалів у бібліотеці`);
 
   return (
     <main className="container">
@@ -386,9 +386,9 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
         </header>
       </section>
 
-      {params.published ? <div className="notice panel success">Опубліковано файл: <strong>{params.published}</strong></div> : null}
-      {params.updated ? <div className="notice panel success">Оновлено файл: <strong>{params.updated}</strong></div> : null}
-      {params.deleted ? <div className="notice panel success">Видалено файл: <strong>{params.deleted}</strong></div> : null}
+      {params.published ? <div className="notice panel success">Опубліковано матеріал: <strong>{params.published}</strong></div> : null}
+      {params.updated ? <div className="notice panel success">Оновлено матеріал: <strong>{params.updated}</strong></div> : null}
+      {params.deleted ? <div className="notice panel success">Видалено матеріал: <strong>{params.deleted}</strong></div> : null}
       {params.error ? <div className="notice panel error-note">{params.error}</div> : null}
       {params.edit && !selectedItem ? <div className="notice panel error-note">Матеріал не знайдено: <strong>{params.edit}</strong></div> : null}
 
@@ -404,7 +404,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             <section className="content-list panel content-list--page" aria-label="Список матеріалів сайту">
               <div className="content-section-head content-section-head--toolbar">
                 <div>
-                  <span className="eyebrow">Бібліотека контенту</span>
+                  <span className="eyebrow">Бібліотека матеріалів</span>
                   <h2>Список матеріалів</h2>
                 </div>
                 <div className="content-toolbar-actions">
@@ -418,13 +418,13 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                 <div className="content-library-split">
                   <ContentLibraryGroup
                     title="Новини"
-                    description="Матеріали з колекції _news для головної стрічки сайту."
+                    description="Новини для головної стрічки сайту."
                     items={newsItems}
                     selectedPath={params.edit}
                   />
                   <ContentLibraryGroup
                     title="Гайди"
-                    description="Матеріали з колекції _guides: рейди, класи, довідники та сезонні гайди."
+                    description="Гайди: рейди, класи, довідники та сезонні матеріали."
                     items={guideItems}
                     selectedPath={params.edit}
                   />

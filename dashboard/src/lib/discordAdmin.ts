@@ -463,7 +463,7 @@ async function discordRaidMessageRelay<T = any>(payload: Record<string, unknown>
   const endpoint = raidDiscordMessageEndpoint();
   const token = raidDiscordRelayToken();
   if (!endpoint || !token) {
-    throw new Error("Discord-публікація рейдів не налаштована: додай DISCORD_BOT_TOKEN у dashboard або використовуй Worker relay через DISCORD_INTERACTIONS_ENDPOINT разом з уже наявним DISCORD_RULES_STATS_TOKEN / INTERNAL_PROFILE_LOOKUP_TOKEN.");
+    throw new Error("Публікація рейдів у Discord тимчасово недоступна. Перевір підключення бота або Worker-реле.");
   }
 
   const response = await fetch(endpoint, {
@@ -495,7 +495,7 @@ function encodeAuditReason(reason?: string) {
 
 export async function discordApi<T = any>(path: string, init: DiscordRequestInit = {}): Promise<T> {
   const token = getBotToken();
-  if (!token) throw new Error("Discord-бот тимчасово недоступний.");
+  if (!token) throw new Error("Публікація в Discord тимчасово недоступна.");
 
   const headers = new Headers(init.headers || {});
   headers.set("Authorization", `Bot ${token}`);
@@ -695,7 +695,7 @@ export function parseEmbedJson(raw: FormDataEntryValue | null) {
 
 export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot> {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("Discord-сервер не підключений.");
+  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
   const guild = await discordApi<any>(`/guilds/${guildId}`);
   return {
     id: String(guild.id || guildId),
@@ -719,7 +719,7 @@ export async function fetchDiscordTextChannels() {
         suggestedRulesChannelId: fallbackChannelId,
       };
     }
-    throw new Error("Discord-бот не підключений: додай DISCORD_BOT_TOKEN у dashboard або використовуй Worker через DISCORD_INTERACTIONS_ENDPOINT та наявний DISCORD_RULES_STATS_TOKEN / INTERNAL_PROFILE_LOOKUP_TOKEN.");
+    throw new Error("Публікація в Discord тимчасово недоступна. Перевір підключення бота або Worker-реле.");
   }
 
   if (!guildId) {
@@ -733,7 +733,7 @@ export async function fetchDiscordTextChannels() {
         suggestedRulesChannelId: fallbackChannelId,
       };
     }
-    throw new Error("Discord-сервер не підключений.");
+    throw new Error("Discord-сервер не підключений до панелі.");
   }
 
   const [guild, channels] = await Promise.all([
@@ -746,7 +746,7 @@ export async function fetchDiscordTextChannels() {
 
 async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
   const endpoint = discordGuildChannelsEndpoint();
-  if (!endpoint) throw new Error("Worker endpoint для Discord-каналів не налаштований.");
+  if (!endpoint) throw new Error("Список Discord-каналів тимчасово недоступний. Перевір підключення Worker-реле.");
 
   const response = await fetch(endpoint, {
     method: "GET",
@@ -803,7 +803,7 @@ function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapsh
 
 export async function fetchDiscordRoles() {
   const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("Discord-сервер не підключений.");
+  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
   const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
 
   return roles

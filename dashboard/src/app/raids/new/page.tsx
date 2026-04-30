@@ -31,11 +31,11 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
     <RaidPageShell
       user={user}
       title="Створення рейду"
-      description="Заповни дані рейду, збережи чернетку або одразу опублікуй Discord-оголошення з кнопками запису."
+      description="Заповни дані рейду, збережи чернетку або одразу опублікуй оголошення з кнопками запису."
     >
       <StatusNotice params={params} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Firebase не налаштований: рейди не зможуть зберігатися.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Discord-бот не підключений: публікація оголошення недоступна.</div> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Перевір налаштування панелі.</div> : null}
+      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетку можна зберегти.</div> : null}
 
       <section className="raid-editor-layout">
         <RaidForm channels={channels} roles={roles} />
