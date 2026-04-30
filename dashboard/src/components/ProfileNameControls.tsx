@@ -2,6 +2,63 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
+type IconName = "edit" | "check" | "x" | "copy" | "sync";
+
+function ProfileActionIcon({ name }: { name: IconName }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-hidden": true,
+    focusable: false,
+  } as const;
+
+  if (name === "edit") {
+    return (
+      <svg {...common}>
+        <path d="M4 20h4.6L19.1 9.5a2.2 2.2 0 0 0 0-3.1l-1.5-1.5a2.2 2.2 0 0 0-3.1 0L4 15.4V20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="m13.5 5.9 4.6 4.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "check") {
+    return (
+      <svg {...common}>
+        <path d="M5 12.6 9.2 17 19 7" stroke="currentColor" strokeWidth="2.35" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "x") {
+    return (
+      <svg {...common}>
+        <path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "copy") {
+    return (
+      <svg {...common}>
+        <rect x="8" y="8" width="11" height="11" rx="2.2" stroke="currentColor" strokeWidth="2" />
+        <path d="M5 15.5V6.8C5 5.8 5.8 5 6.8 5h8.7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <path d="M20 7v5h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 17v-5h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18.5 10A7 7 0 0 0 6.6 6.6L4 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 14A7 7 0 0 0 17.4 17.4L20 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 type Props = {
   preferredName?: string | null;
   discordName: string;
@@ -80,7 +137,7 @@ export default function ProfileNameControls({
               aria-label="Редагувати імʼя"
               title="Редагувати імʼя"
             >
-              ✎
+              <ProfileActionIcon name="edit" />
             </button>
           ) : null}
         </div>
@@ -108,7 +165,7 @@ export default function ProfileNameControls({
               aria-label="Зберегти імʼя"
               title="Зберегти імʼя"
             >
-              ✓
+              <ProfileActionIcon name="check" />
             </button>
             <button
               className="profile-icon-action profile-icon-action--cancel"
@@ -120,7 +177,7 @@ export default function ProfileNameControls({
               aria-label="Скасувати редагування"
               title="Скасувати"
             >
-              ×
+              <ProfileActionIcon name="x" />
             </button>
           </form>
         ) : (
@@ -146,8 +203,8 @@ export default function ProfileNameControls({
                 title={`Скопіювати: ${nicknamePreview}`}
                 aria-label="Скопіювати Discord nickname"
               >
-                <span aria-hidden="true">⧉</span>
-                {copied ? "Скопійовано" : "Скопіювати"}
+                <ProfileActionIcon name="copy" />
+                <span>{copied ? "Скопійовано" : "Скопіювати"}</span>
               </button>
             ) : (
               <form className="profile-discord-nick-form" action="/api/profile/discord-nickname" method="post">
@@ -157,8 +214,8 @@ export default function ProfileNameControls({
                   title={`Змінити серверне імʼя на: ${nicknamePreview}`}
                   aria-label="Стандартизувати серверне імʼя Discord"
                 >
-                  <span aria-hidden="true">↻</span>
-                  {syncLabel}
+                  <ProfileActionIcon name="sync" />
+                  <span>{syncLabel}</span>
                 </button>
               </form>
             )
