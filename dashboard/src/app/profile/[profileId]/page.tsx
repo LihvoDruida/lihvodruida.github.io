@@ -13,7 +13,7 @@ import {
 } from "@/lib/raids";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
-import { fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
+import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   configuredRoleIdsForDashboardRole,
   dashboardCapabilities,
@@ -448,9 +448,14 @@ export default async function ProfilePage({
   const discordNicknamePreview = buildProfileDiscordNickname(profile);
   const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
   let discordOwnerLocked = false;
+  let currentServerNickname: string | null = null;
   if (canSyncDiscordNickname && hasDiscordEmbedConfig()) {
-    const guild = await fetchDiscordGuildSnapshot().catch(() => null);
+    const [guild, member] = await Promise.all([
+      fetchDiscordGuildSnapshot().catch(() => null),
+      fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
+    ]);
     discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
+    currentServerNickname = member?.displayName || null;
   }
   const eligibleGuildCharacters = numberOrNull(profile.battlenet?.eligibleCharacters);
   const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
@@ -531,6 +536,7 @@ export default async function ProfilePage({
                 nicknamePreview={discordNicknamePreview}
                 lastSyncedNickname={profile.discordNickname?.value}
                 lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
+                currentServerNickname={currentServerNickname}
                 canManage={isOwnProfile}
                 canSyncDiscord={canSyncDiscordNickname}
                 discordOwnerLocked={discordOwnerLocked}

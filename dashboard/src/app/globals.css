@@ -15170,3 +15170,128 @@ body {
     font-size: 0.8rem !important;
   }
 }
+
+/* Profile identity server nickname + mobile layout v3. */
+.profile-server-nickname {
+  display: grid;
+  grid-template-columns: 1.85rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.52rem;
+  min-width: 0;
+  padding: 0.58rem 0.66rem;
+  border: 1px solid rgba(143, 199, 255, 0.18);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(58, 94, 154, 0.16), rgba(12, 18, 31, 0.34));
+}
+
+.profile-server-nickname__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 1px solid rgba(143, 199, 255, 0.2);
+  border-radius: 999px;
+  color: rgba(178, 214, 255, 0.95);
+  background: rgba(85, 129, 210, 0.14);
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.profile-server-nickname__body {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.profile-server-nickname__body small {
+  color: rgba(224, 235, 255, 0.66);
+  font-size: 0.7rem;
+  font-weight: 820;
+  letter-spacing: 0.035em;
+}
+
+.profile-server-nickname__body strong {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(235, 243, 255, 0.96);
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.14;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .profile-card--identity .profile-person-card {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center;
+    align-items: start;
+    gap: 0.72rem !important;
+    padding: 0.76rem !important;
+  }
+
+  .profile-card--identity .profile-person-card__avatar {
+    display: block;
+    justify-self: center;
+    width: 82px !important;
+    height: 82px !important;
+    margin: 0 auto 0.05rem !important;
+    border-radius: 22px !important;
+    object-fit: cover;
+  }
+
+  .profile-card--identity .profile-person-card__body {
+    width: min(100%, 420px) !important;
+    justify-self: stretch;
+  }
+
+  .profile-card--identity .profile-name-panel {
+    width: 100% !important;
+    gap: 0.58rem !important;
+  }
+
+  .profile-card--identity .profile-name-section,
+  .profile-card--identity .profile-discord-standard {
+    padding: 0.66rem !important;
+    border-radius: 16px !important;
+  }
+
+  .profile-card--identity .profile-server-nickname {
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: 0.46rem;
+    padding: 0.52rem 0.58rem;
+    border-radius: 13px;
+  }
+
+  .profile-card--identity .profile-server-nickname__icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.86rem;
+  }
+
+  .profile-card--identity .profile-server-nickname__body small {
+    font-size: 0.68rem !important;
+  }
+
+  .profile-card--identity .profile-server-nickname__body strong {
+    font-size: 0.84rem !important;
+  }
+
+  .profile-card--identity .profile-discord-standard__head {
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-card--identity .profile-person-card__avatar {
+    width: 86px !important;
+    height: 86px !important;
+    border-radius: 23px !important;
+  }
+
+  .profile-card--identity .profile-person-card__body {
+    width: 100% !important;
+  }
+}

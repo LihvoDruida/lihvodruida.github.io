@@ -373,6 +373,14 @@ export type DiscordMessageRef = {
   messageId: string;
 };
 
+export type DiscordGuildMemberSnapshot = {
+  userId: string;
+  nick: string | null;
+  username: string | null;
+  globalName: string | null;
+  displayName: string;
+};
+
 type DiscordEmbedInput = Record<string, unknown>;
 
 type DiscordRequestInit = Omit<RequestInit, "headers"> & {
@@ -1237,6 +1245,26 @@ export async function addGuildMemberRoles(params: {
       max: 5,
     },
   );
+}
+
+export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guildIdInput = getDiscordGuildId()): Promise<DiscordGuildMemberSnapshot> {
+  const guildId = snowflake(guildIdInput);
+  const userId = snowflake(userIdInput);
+  if (!guildId || !userId) throw new Error("Не вистачає guild/user ID для читання Discord-імені.");
+
+  const member = await discordApi<any>(`/guilds/${guildId}/members/${userId}`);
+  const user = member?.user && typeof member.user === "object" ? member.user : {};
+  const nick = cleanText(member?.nick, 32) || null;
+  const globalName = cleanText(user.global_name, 32) || null;
+  const username = cleanText(user.username, 32) || null;
+
+  return {
+    userId,
+    nick,
+    username,
+    globalName,
+    displayName: nick || globalName || username || "Discord",
+  };
 }
 
 export async function updateGuildMemberNickname(params: {

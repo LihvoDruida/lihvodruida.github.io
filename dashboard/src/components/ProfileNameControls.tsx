@@ -65,6 +65,7 @@ type Props = {
   nicknamePreview?: string | null;
   lastSyncedNickname?: string | null;
   lastSyncedAt?: string | null;
+  currentServerNickname?: string | null;
   canManage: boolean;
   canSyncDiscord: boolean;
   discordOwnerLocked?: boolean;
@@ -76,6 +77,7 @@ export default function ProfileNameControls({
   nicknamePreview,
   lastSyncedNickname,
   lastSyncedAt,
+  currentServerNickname,
   canManage,
   canSyncDiscord,
   discordOwnerLocked = false,
@@ -107,6 +109,8 @@ export default function ProfileNameControls({
   const draftName = value.trim();
   const hasName = Boolean(savedName);
   const synced = Boolean(nicknamePreview && lastSyncedNickname === nicknamePreview);
+  const serverNickname = (currentServerNickname || "").trim();
+  const showServerNickname = Boolean(hasName && nicknamePreview && serverNickname && serverNickname !== nicknamePreview);
   const canSubmitName = draftName.length >= 2 && draftName !== savedName;
   const syncLabel = synced ? "Оновити" : "Застосувати";
 
@@ -222,14 +226,24 @@ export default function ProfileNameControls({
           ) : null}
         </div>
 
+        {showServerNickname ? (
+          <div className="profile-server-nickname" aria-label="Поточне імʼя на Discord-сервері">
+            <span className="profile-server-nickname__icon" aria-hidden="true">⌁</span>
+            <span className="profile-server-nickname__body">
+              <small>Зараз на сервері</small>
+              <strong>{serverNickname}</strong>
+            </span>
+          </div>
+        ) : null}
+
         {canSyncDiscord && hasName && nicknamePreview ? (
           <div className={`profile-nickname-preview${synced ? " is-synced" : ""}${discordOwnerLocked ? " is-owner-locked" : ""}`}>
             <span>Буде в Discord</span>
             <strong>{nicknamePreview}</strong>
             {discordOwnerLocked ? (
-              <small>Власник сервера змінює імʼя вручну.</small>
+              <small>Власник сервера змінює вручну.</small>
             ) : synced ? (
-              <small>Готово{lastSyncedAt ? ` • ${lastSyncedAt}` : ""}. Можна застосувати повторно.</small>
+              <small>Готово{lastSyncedAt ? ` • ${lastSyncedAt}` : ""}.</small>
             ) : (
               <small>Лише на цьому сервері.</small>
             )}
