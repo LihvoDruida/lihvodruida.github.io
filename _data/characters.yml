@@ -1,3 +1,22 @@
+- name: Khayen
+  race: Haranir
+  class: Druid
+  region: eu
+  realm: Terokkar
+  avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+  link: https://raider.io/characters/eu/terokkar/Khayen
+  guild:
+    name: Mistblossom Vanguard
+    realm: Terokkar
+  dps:
+    score: 1970.5
+    color: '#4dff33'
+  healer:
+    score: 2532.2
+    color: '#5ead9c'
+  tank:
+    score: 0
+    color: '#ffffff'
 - name: Krouli
   race: Night Elf
   class: Demon Hunter
