@@ -281,6 +281,18 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Не вдалося знайти профіль для синхронізації Discord імені. Увійди ще раз.",
     ttl: 8600,
   },
+  discord_nick_owner: {
+    tone: "warning",
+    title: "Для власника — вручну",
+    message: "Discord не дозволяє боту змінювати nickname власника сервера. Скопіюй готовий формат у профілі й встанови його в Discord вручну.",
+    ttl: 9800,
+  },
+  discord_nick_hierarchy: {
+    tone: "warning",
+    title: "Discord не дозволив зміну",
+    message: "Зазвичай причина — власник сервера або роль користувача вище/на одному рівні з роллю бота. Для звичайних учасників підніми роль бота вище.",
+    ttl: 9800,
+  },
   discord_nick_failed: {
     tone: "error",
     title: "Discord імʼя не оновлено",

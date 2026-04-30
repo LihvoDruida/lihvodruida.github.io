@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getDiscordGuildId, updateGuildMemberNickname } from "@/lib/discordAdmin";
+import { fetchDiscordGuildSnapshot, getDiscordGuildId, updateGuildMemberNickname } from "@/lib/discordAdmin";
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
@@ -33,6 +33,11 @@ export async function POST(request: NextRequest) {
     const guildId = getDiscordGuildId();
     if (!guildId) return redirectToProfile(request, session.profileId, "discord_nick_failed");
 
+    const guild = await fetchDiscordGuildSnapshot().catch(() => null);
+    if (guild?.ownerId && guild.ownerId === profile.providerUserId) {
+      return redirectToProfile(request, session.profileId, "discord_nick_owner");
+    }
+
     const nicknamePlan = buildProfileDiscordNicknamePlan(profile);
     const nickname = nicknamePlan.value;
     if (!nickname) return redirectToProfile(request, session.profileId, "discord_nick_name_missing");
@@ -55,6 +60,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("warn", "profile.discord_nickname.failed", request, { profileId: session.profileId, message });
+    if (/Discord API\s+403|Missing Permissions|50013/i.test(message)) {
+      return redirectToProfile(request, session.profileId, "discord_nick_hierarchy");
+    }
     return redirectToProfile(request, session.profileId, "discord_nick_failed");
   }
 }

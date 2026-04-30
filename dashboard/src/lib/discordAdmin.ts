@@ -363,6 +363,7 @@ export type DiscordRoleOption = {
 export type DiscordGuildSnapshot = {
   id: string;
   name: string;
+  ownerId?: string | null;
   rules_channel_id?: string | null;
 };
 
@@ -700,6 +701,7 @@ export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot>
   return {
     id: String(guild.id || guildId),
     name: String(guild.name || "Discord guild"),
+    ownerId: guild.owner_id ? String(guild.owner_id) : null,
     rules_channel_id: guild.rules_channel_id ? String(guild.rules_channel_id) : null,
   };
 }
@@ -764,6 +766,7 @@ async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
   const guild: DiscordGuildSnapshot | null = guildRaw ? {
     id: String(guildRaw.id || ""),
     name: String(guildRaw.name || "Discord guild"),
+    ownerId: guildRaw.owner_id ? String(guildRaw.owner_id) : guildRaw.ownerId ? String(guildRaw.ownerId) : null,
     rules_channel_id: guildRaw.rules_channel_id ? String(guildRaw.rules_channel_id) : null,
   } : null;
 

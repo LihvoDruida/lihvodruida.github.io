@@ -10,6 +10,7 @@ type Props = {
   lastSyncedAt?: string | null;
   canManage: boolean;
   canSyncDiscord: boolean;
+  discordOwnerLocked?: boolean;
 };
 
 export default function ProfileNameControls({
@@ -20,10 +21,12 @@ export default function ProfileNameControls({
   lastSyncedAt,
   canManage,
   canSyncDiscord,
+  discordOwnerLocked = false,
 }: Props) {
   const inputId = useId();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(preferredName || "");
+  const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -39,12 +42,27 @@ export default function ProfileNameControls({
     });
   }, [editing]);
 
+  useEffect(() => {
+    setCopied(false);
+  }, [nicknamePreview]);
+
   const savedName = (preferredName || "").trim();
   const draftName = value.trim();
   const hasName = Boolean(savedName);
   const synced = Boolean(nicknamePreview && lastSyncedNickname === nicknamePreview);
   const canSubmitName = draftName.length >= 2 && draftName !== savedName;
-  const syncLabel = synced ? "Оновити ще раз" : "Застосувати";
+  const syncLabel = synced ? "Оновити" : "Застосувати";
+
+  async function copyNickname() {
+    if (!nicknamePreview) return;
+    try {
+      await navigator.clipboard.writeText(nicknamePreview);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2200);
+    } catch {
+      setCopied(false);
+    }
+  }
 
   return (
     <div className="profile-name-panel">
@@ -52,7 +70,7 @@ export default function ProfileNameControls({
         <div className="profile-name-section__head">
           <div>
             <span className="profile-name-panel__label" id={`${inputId}-name-title`}>Імʼя</span>
-            <small>Показується в профілі та використовується для серверного Discord-імені.</small>
+            <small>Для профілю та Discord-формату.</small>
           </div>
           {!editing && canManage ? (
             <button
@@ -106,7 +124,7 @@ export default function ProfileNameControls({
           </form>
         ) : (
           <div className={`profile-name-display-row${hasName ? "" : " is-empty"}`}>
-            <strong>{savedName || "Імʼя ще не вказано"}</strong>
+            <strong>{savedName || "Додай імʼя"}</strong>
           </div>
         )}
       </section>
@@ -119,35 +137,50 @@ export default function ProfileNameControls({
           </div>
 
           {canManage && canSyncDiscord && hasName && nicknamePreview ? (
-            <form className="profile-discord-nick-form" action="/api/profile/discord-nickname" method="post">
+            discordOwnerLocked ? (
               <button
-                className={`profile-nick-sync-button${synced ? " is-synced" : ""}`}
-                type="submit"
-                title={`Змінити серверне імʼя на: ${nicknamePreview}`}
-                aria-label="Стандартизувати серверне імʼя Discord"
+                className="profile-nick-sync-button profile-nick-sync-button--copy"
+                type="button"
+                onClick={copyNickname}
+                title={`Скопіювати: ${nicknamePreview}`}
+                aria-label="Скопіювати Discord nickname"
               >
-                <span aria-hidden="true">↻</span>
-                {syncLabel}
+                <span aria-hidden="true">⧉</span>
+                {copied ? "Скопійовано" : "Скопіювати"}
               </button>
-            </form>
+            ) : (
+              <form className="profile-discord-nick-form" action="/api/profile/discord-nickname" method="post">
+                <button
+                  className={`profile-nick-sync-button${synced ? " is-synced" : ""}`}
+                  type="submit"
+                  title={`Змінити серверне імʼя на: ${nicknamePreview}`}
+                  aria-label="Стандартизувати серверне імʼя Discord"
+                >
+                  <span aria-hidden="true">↻</span>
+                  {syncLabel}
+                </button>
+              </form>
+            )
           ) : null}
         </div>
 
         {canSyncDiscord && hasName && nicknamePreview ? (
-          <div className={`profile-nickname-preview${synced ? " is-synced" : ""}`}>
-            <span>Серверний формат</span>
+          <div className={`profile-nickname-preview${synced ? " is-synced" : ""}${discordOwnerLocked ? " is-owner-locked" : ""}`}>
+            <span>Буде в Discord</span>
             <strong>{nicknamePreview}</strong>
-            {synced ? (
-              <small>Синхронізовано{lastSyncedAt ? ` • ${lastSyncedAt}` : ""}. Кнопка може застосувати формат повторно.</small>
+            {discordOwnerLocked ? (
+              <small>Власника сервера Discord не дає перейменувати боту. Скопіюй і встанови вручну.</small>
+            ) : synced ? (
+              <small>Готово{lastSyncedAt ? ` • ${lastSyncedAt}` : ""}. Можна застосувати повторно.</small>
             ) : (
-              <small>Змінюється тільки nickname на цьому Discord-сервері. Глобальне Discord-імʼя не чіпається.</small>
+              <small>Зміниться тільки на цьому сервері.</small>
             )}
           </div>
         ) : canManage ? (
           <small className="profile-nickname-hint">
             {!hasName
-              ? "Вкажи імʼя, щоб отримати формат на кшталт: Дмитро [Main, Alt1, Alt2]."
-              : "Синхронізація доступна тільки для профілю, який увійшов через Discord."}
+              ? "Вкажи імʼя — зберемо Discord-формат автоматично."
+              : "Discord-синхронізація доступна після входу через Discord."}
           </small>
         ) : null}
       </section>

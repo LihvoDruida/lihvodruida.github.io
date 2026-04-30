@@ -13,7 +13,7 @@ import {
 } from "@/lib/raids";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
-import { fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
+import { fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   configuredRoleIdsForDashboardRole,
   dashboardCapabilities,
@@ -447,6 +447,11 @@ export default async function ProfilePage({
   const savedCharacterCount = profile.characters.length;
   const discordNicknamePreview = buildProfileDiscordNickname(profile);
   const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
+  let discordOwnerLocked = false;
+  if (canSyncDiscordNickname && hasDiscordEmbedConfig()) {
+    const guild = await fetchDiscordGuildSnapshot().catch(() => null);
+    discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
+  }
   const eligibleGuildCharacters = numberOrNull(profile.battlenet?.eligibleCharacters);
   const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
   const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
@@ -528,6 +533,7 @@ export default async function ProfilePage({
                 lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
                 canManage={isOwnProfile}
                 canSyncDiscord={canSyncDiscordNickname}
+                discordOwnerLocked={discordOwnerLocked}
               />
               {viewer.role === "admin" || viewer.role === "moderator" ? (
                 <details className="profile-secret">
