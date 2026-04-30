@@ -1282,13 +1282,20 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   return updated;
 }
 
-function cleanDiscordMessageRef(input?: Partial<DiscordMessageRef> | null): DiscordMessageRef | null {
-  const channelId = cleanString((input as any)?.channelId || (input as any)?.channel_id, 32);
-  const messageId = cleanString((input as any)?.messageId || (input as any)?.message_id, 32);
+type DiscordMessageRefInput = {
+  channelId?: string | null;
+  messageId?: string | null;
+  channel_id?: string | null;
+  message_id?: string | null;
+};
+
+function cleanDiscordMessageRef(input?: DiscordMessageRefInput | null): DiscordMessageRef | null {
+  const channelId = cleanString(input?.channelId || input?.channel_id, 32);
+  const messageId = cleanString(input?.messageId || input?.message_id, 32);
   return channelId && messageId ? { channelId, messageId } : null;
 }
 
-async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Partial<DiscordMessageRef> | null) {
+async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: DiscordMessageRefInput | null) {
   const ref = cleanDiscordMessageRef(messageRef) || cleanDiscordMessageRef({ channelId: raid.channelId, messageId: raid.messageId });
   if (raid.status !== "published" || !ref) return false;
 
@@ -1310,7 +1317,7 @@ async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Partia
   return true;
 }
 
-async function syncRaidDiscordAfterSignup(raid: RaidItem, messageRef?: Partial<DiscordMessageRef> | null) {
+async function syncRaidDiscordAfterSignup(raid: RaidItem, messageRef?: DiscordMessageRefInput | null) {
   try {
     return await editCurrentRaidDiscordMessage(raid, messageRef);
   } catch (error) {
@@ -1365,7 +1372,7 @@ export async function handleRaidDiscordAction(params: {
   action: RaidSignupStatus;
   userId: string;
   userName: string;
-  messageRef?: Partial<DiscordMessageRef> | null;
+  messageRef?: DiscordMessageRefInput | null;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
