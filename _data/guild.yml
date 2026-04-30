@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-30 06:29:14'
+  updated_at: '2026-04-30 10:08:56'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6020
       realm: 55
     heroic:
-      world: 15587
-      region: 6544
+      world: 15596
+      region: 6547
       realm: 52
     mythic:
-      world: 6763
+      world: 6770
       region: 2921
       realm: 23
   blackrock-depths:
@@ -2806,47 +2806,23 @@ members:
       slug: terokkar
     playable_class:
       id: 9
-      name: Warlock
+      name: null
     playable_race:
       id: 86
-      name: Haranir
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Demonology
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Yokuha
-    item_level_equipped: 267
-    mythic_plus_scores:
-      all:
-        score: 1749.4
-        color: '#73ff57'
-      dps:
-        score: 1749.4
-        color: '#73ff57'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 1535.4
-        color: '#8cff70'
-      spec_1:
-        score: 688.9
-        color: '#dbffcd'
-      spec_2:
-        score: 300
-        color: '#fafff7'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -3430,47 +3406,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: Monk
+      name: null
     playable_race:
       id: 37
-      name: Mechagnome
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/66/214528578-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
-    item_level_equipped: 268
-    mythic_plus_scores:
-      all:
-        score: 2727.8
-        color: '#4a8ac2'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2727.8
-        color: '#4a8ac2'
-      spec_0:
-        score: 2727.8
-        color: '#4a8ac2'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 2
   character:
@@ -4078,11 +4030,11 @@ members:
         score: 3020.1
         color: '#6c5de5'
       tank:
-        score: 2332.6
-        color: '#58d56b'
+        score: 2421.6
+        color: '#5fc382'
       spec_0:
-        score: 2332.6
-        color: '#58d56b'
+        score: 2421.6
+        color: '#5fc382'
       spec_1:
         score: 3020.1
         color: '#6c5de5'
@@ -4898,7 +4850,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мортург
-    item_level_equipped: 278
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2700

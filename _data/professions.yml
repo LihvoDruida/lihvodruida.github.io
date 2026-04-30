@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-04-30 06:29:14'
+  updated_at: '2026-04-30 10:08:56'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -867,7 +867,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 45
+        learned_points: 62
         max_points: 100
     - name: Alchemy
       id: 171
@@ -882,7 +882,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 9
+        learned_points: 30
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -905,6 +905,9 @@ characters:
         max_points: 300
       - name: Khaz Algar Fishing
         learned_points: 34
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 8
         max_points: 300
 - name: Hopeblood
   region: eu
@@ -2783,7 +2786,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Yokuha
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -3593,7 +3596,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Mexamer
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -4460,7 +4463,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 85
+        learned_points: 94
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6013,7 +6016,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 55
+        learned_points: 61
         max_points: 100
     - name: Mining
       id: 186
@@ -6022,7 +6025,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 66
+        learned_points: 75
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6141,7 +6144,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 63
+        learned_points: 64
         max_points: 100
     secondaries:
     - name: Cooking
@@ -6160,7 +6163,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 115
         max_points: 300
 - name: Kavunchyk
   region: eu
