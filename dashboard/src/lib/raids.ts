@@ -154,6 +154,53 @@ function absoluteDashboardAssetUrl(path: string) {
   }
 }
 
+export function dashboardProfileUrl() {
+  return `${dashboardBaseUrl()}/profile`;
+}
+
+export function dashboardLoginUrl(nextPath = "/profile") {
+  const url = new URL("/login", `${dashboardBaseUrl()}/`);
+  if (nextPath) url.searchParams.set("next", nextPath.startsWith("/") ? nextPath : `/${nextPath}`);
+  url.searchParams.set("error", "session_required");
+  return url.toString();
+}
+
+export function dashboardRaidRulesUrl() {
+  const value = String(
+    process.env.RAID_RULES_URL ||
+    process.env.NEXT_PUBLIC_RAID_RULES_URL ||
+    process.env.DISCORD_RAID_RULES_URL ||
+    "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024"
+  ).trim();
+  return value || dashboardProfileUrl();
+}
+
+function discordLinkButton(label: string, url: string) {
+  return { type: 2, style: 5, label: label.slice(0, 80), url };
+}
+
+export function raidActionHelpComponents(raidId?: string | null) {
+  const buttons = [
+    discordLinkButton("Відкрити профіль", dashboardProfileUrl()),
+    discordLinkButton("Правила рейду", dashboardRaidRulesUrl()),
+  ];
+  if (raidId) buttons.push(discordLinkButton("Сторінка рейду", dashboardRaidUrl(raidId)));
+  return [{ type: 1, components: buttons.slice(0, 5) }];
+}
+
+function raidActionHelpText(reason: "login" | "main") {
+  const profile = dashboardProfileUrl();
+  const rules = dashboardRaidRulesUrl();
+  if (reason === "login") {
+    return `❌ Запис не зараховано: спочатку увійди через Discord у панелі.
+Профіль: ${profile}
+Правила рейду: ${rules}`;
+  }
+  return `❌ Запис не зараховано: у профілі потрібно додати персонажа Battle.net і вибрати мейна.
+Профіль: ${profile}
+Правила рейду: ${rules}`;
+}
+
 export function defaultRaidThumbnailPath(difficulty: RaidDifficulty) {
   return RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic;
 }
@@ -725,14 +772,44 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
   };
 }
 
+function isValidRaidDate(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function isValidRaidTime(value: string) {
+  const match = value.match(/^(\d{2}):(\d{2})$/);
+  if (!match) return false;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+}
+
+function validateRaidPayload(payload: ReturnType<typeof formRaidPayload>, existingRaid?: RaidItem | null) {
+  if (payload.title.length < 2) throw new Error("Вкажи назву рейду.");
+  if (!isValidRaidDate(payload.date)) throw new Error("Вкажи коректну дату рейду.");
+  if (!isValidRaidTime(payload.time)) throw new Error("Вкажи коректний час рейду.");
+  if (!payload.description.trim()) throw new Error("Додай короткий опис рейду.");
+
+  const limit = raidRegistrationLimit({ maxPlayers: payload.maxPlayers });
+  const activeCount = existingRaid ? raidActiveRosterSize(existingRaid) : 0;
+  if (limit !== null && activeCount > limit) {
+    throw new Error(`Ліміт гравців не може бути меншим за поточний активний запис (${activeCount}). Спочатку закрий зайві записи або збільш ліміт.`);
+  }
+}
+
 export async function saveRaidFromForm(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
-  if (!hasRaidStorage()) throw new Error("Firebase для рейдів не налаштований.");
+  if (!hasRaidStorage()) throw new Error("Збереження рейдів тимчасово недоступне.");
 
   const db = getFirebaseAdminDb();
   const raidId = cleanRaidId(form.get("raidId"));
   const payload = formRaidPayload(form, user, profile);
   const ref = raidId ? db.collection(RAID_COLLECTION).doc(raidId) : db.collection(RAID_COLLECTION).doc();
   const snapshot = await ref.get();
+  const existingRaid = snapshot.exists ? normalizeRaid(snapshot.id, snapshot.data() || {}) : null;
+  validateRaidPayload(payload, existingRaid);
 
   await ref.set({
     ...payload,
@@ -806,7 +883,7 @@ function rosterForGroups(raid: Pick<RaidItem, "signups">) {
 }
 
 const RAID_PARTY_SIZE = 5;
-const MAX_RAID_PARTIES = 16;
+const MAX_RAID_PARTIES = 40;
 
 function partyMembersCount(party: RaidParty) {
   return (party.tank ? 1 : 0) + (party.healer ? 1 : 0) + party.dps.length;
@@ -851,7 +928,7 @@ function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
 export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "composition" | "signups">): RaidParty[] {
   const roster = rosterForGroups(raid);
   const visibleRosterSize = roster.active.length;
-  const groupCount = Math.max(2, Math.min(MAX_RAID_PARTIES, Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE)));
+  const groupCount = Math.max(1, Math.min(MAX_RAID_PARTIES, Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE)));
   const parties: RaidParty[] = Array.from({ length: groupCount }, (_, index) => ({ index: index + 1, dps: [], late: [], members: [] }));
 
   const tanks = [...roster.tanks];
@@ -1263,7 +1340,9 @@ export async function handleRaidDiscordAction(params: {
     if (!profile || !main) {
       return {
         ok: false,
-        content: "❌ Запис не зараховано: спочатку увійди через Discord, додай персонажа Battle.net і вибери мейна.",
+        content: raidActionHelpText(!profile ? "login" : "main"),
+        components: raidActionHelpComponents(raid.id),
+        blockedByProfile: true,
       };
     }
   } else {
@@ -1291,7 +1370,12 @@ export async function handleRaidSessionAction(params: {
 
   const discordId = params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id) ? params.user.id : "";
   if (!discordId) {
-    return { ok: false, content: "❌ Для запису на рейд потрібно увійти через Discord." };
+    return {
+      ok: false,
+      content: raidActionHelpText("login"),
+      components: raidActionHelpComponents(raid.id),
+      blockedByProfile: true,
+    };
   }
   const fullBlock = raidRegistrationFullMessage(raid, discordId, params.action);
   if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
@@ -1309,7 +1393,9 @@ export async function handleRaidSessionAction(params: {
     if (!profile || !main) {
       return {
         ok: false,
-        content: "❌ Запис не зараховано: додай персонажа Battle.net у профілі та вибери мейна.",
+        content: raidActionHelpText(!profile ? "login" : "main"),
+        components: raidActionHelpComponents(raid.id),
+        blockedByProfile: true,
       };
     }
   }

@@ -9,7 +9,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
-import { decodeRaidAttendanceCustomId, handleRaidDiscordAction } from "@/lib/raids";
+import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -38,12 +38,12 @@ function ephemeral(content: string, components: unknown[] = []) {
   });
 }
 
-function updateInteractionMessage(content: string) {
+function updateInteractionMessage(content: string, components: unknown[] = []) {
   return json({
     type: 7,
     data: {
       content,
-      components: [],
+      components,
       allowed_mentions: { parse: [] },
     },
   });
@@ -53,8 +53,8 @@ function isEphemeralMessageInteraction(interaction: any) {
   return Boolean(Number(interaction?.message?.flags || 0) & 64);
 }
 
-function finishDecision(interaction: any, content: string) {
-  return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content) : ephemeral(content);
+function finishDecision(interaction: any, content: string, components: unknown[] = []) {
+  return isEphemeralMessageInteraction(interaction) ? updateInteractionMessage(content, components) : ephemeral(content, components);
 }
 
 function rulesConfirmationResponse(action: { action: string; roleIds: string[] }) {
@@ -120,10 +120,6 @@ function getInteractionUserName(interaction: any) {
   ).slice(0, 80);
 }
 
-function dashboardAuthUrl() {
-  const raw = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || "https://admin.lihvodruida.pp.ua/").trim() || "https://admin.lihvodruida.pp.ua/";
-  return raw.endsWith("/") ? raw : `${raw}/`;
-}
 
 function mainCharacterLabel(character: any) {
   const name = String(character?.name || "").trim();
@@ -181,7 +177,7 @@ export async function POST(request: NextRequest) {
         userName,
       });
       logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });
-      return finishDecision(interaction, result.content);
+      return finishDecision(interaction, result.content, "components" in result ? result.components || [] : []);
     } catch (error) {
       logDashboardEvent("error", "discord.raid.action_failed", request, { message: safeErrorMessage(error), raidId: raidAction.raidId, action: raidAction.action, userId });
       return finishDecision(interaction, "❌ Не вдалося оновити запис на рейд. Спробуй ще раз пізніше або звернись до офіцера.");
@@ -208,14 +204,18 @@ export async function POST(request: NextRequest) {
       const mainCharacter = profile ? getMainCharacter(profile) : null;
       if (!profile || !mainCharacter) {
         logDashboardEvent("warn", "discord.raid_rules.profile_missing", request, { guildId, userId });
-        return finishDecision(interaction, `❌ Підпис не зараховано: не знайдено профіль або мейн-персонажа. Авторизуйся в панелі та вибери мейна: ${dashboardAuthUrl()}`);
+        return finishDecision(interaction, `❌ Підпис не зараховано: спочатку увійди через Discord у панелі, додай персонажа Battle.net і вибери мейна.
+Профіль: ${dashboardProfileUrl()}
+Правила рейду: ${dashboardRaidRulesUrl()}`, raidActionHelpComponents());
       }
 
       logDashboardEvent("info", "discord.raid_rules.signed", request, { guildId, userId, profileId: profile.profileId, character: mainCharacter.name });
       return finishDecision(interaction, `✅ Підпис на правила рейду підтверджено. Мейн: ${mainCharacterLabel(mainCharacter)}.`);
     } catch (error) {
       logDashboardEvent("error", "discord.raid_rules.failed", request, { message: safeErrorMessage(error), guildId, userId });
-      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис. Спробуй ще раз пізніше або перевір, що в профілі вибрано мейн-персонажа: ${dashboardAuthUrl()}`);
+      return finishDecision(interaction, `❌ Не вдалося підтвердити підпис. Спробуй ще раз пізніше або перевір, що в профілі вибрано мейн-персонажа.
+Профіль: ${dashboardProfileUrl()}
+Правила рейду: ${dashboardRaidRulesUrl()}`, raidActionHelpComponents());
     }
   }
 

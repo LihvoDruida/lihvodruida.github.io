@@ -12427,3 +12427,80 @@ button[type="submit"] {
     font-size: 13px;
   }
 }
+
+/* Raid action prerequisites: clear guidance before blocked signup actions. */
+.raid-attendance-stack {
+  display: grid;
+  gap: 12px;
+  margin: 8px 0 18px 8px;
+}
+
+.raid-attendance-stack .raid-preview-buttons {
+  margin: 0;
+}
+
+.raid-action-requirement {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 166, 58, .28);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(66, 45, 18, .52), rgba(34, 25, 17, .42));
+  color: rgba(246, 234, 214, .88);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.raid-action-requirement strong {
+  color: #f1d18a;
+  font-size: .96rem;
+}
+
+.raid-action-requirement span {
+  overflow-wrap: anywhere;
+}
+
+.raid-action-requirement-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.raid-action-requirement-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.06);
+  color: #ffe5ad;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.raid-action-requirement-links a:hover,
+.raid-action-requirement-links a:focus-visible {
+  border-color: rgba(244, 204, 122, .42);
+  background: rgba(244, 204, 122, .1);
+}
+
+@media (max-width: 560px) {
+  .raid-attendance-stack {
+    margin-left: 0;
+  }
+
+  .raid-action-requirement {
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+
+  .raid-action-requirement-links {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .raid-action-requirement-links a {
+    justify-content: center;
+    width: 100%;
+  }
+}

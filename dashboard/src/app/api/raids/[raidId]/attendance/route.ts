@@ -33,6 +33,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   if (!user) {
     const loginUrl = new URL("/login", appBaseUrl());
     loginUrl.searchParams.set("next", raidPath(raidId));
+    loginUrl.searchParams.set("error", "session_required");
     return NextResponse.redirect(loginUrl, { status: 303, headers: noStoreHeaders() });
   }
 

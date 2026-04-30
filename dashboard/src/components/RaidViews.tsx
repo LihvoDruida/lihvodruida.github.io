@@ -13,6 +13,7 @@ import {
   raidAutoCompositionLabel,
   raidAverageItemLevel,
   raidDisplayCapacity,
+  dashboardRaidRulesUrl,
   isRaidRegistrationFull,
   raidRegistrationLimit,
   raidConsumablesLabel,
@@ -148,24 +149,53 @@ export function RosterSideList({ raid }: { raid: RaidItem }) {
   );
 }
 
-export function RaidAttendanceActions({ raid, user }: { raid: RaidItem; user?: DashboardSession | null }) {
+export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: { raid: RaidItem; user?: DashboardSession | null; hasMainCharacter?: boolean | null }) {
   const closed = isRaidClosed(raid) || raid.status !== "published";
   const full = isRaidRegistrationFull(raid);
   const viewerDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
   const viewerSignup = viewerDiscordId ? raid.signups.find((item) => item.discordId === viewerDiscordId) : null;
   const viewerAlreadyActive = viewerSignup?.status === "going" || viewerSignup?.status === "late";
-  const activeJoinDisabled = closed || (full && !viewerAlreadyActive);
+  const needsLogin = !user;
+  const needsDiscordLogin = Boolean(user && !viewerDiscordId);
+  const needsMainCharacter = Boolean(viewerDiscordId && hasMainCharacter === false);
+  const canSubmitAnyAction = Boolean(user && viewerDiscordId);
+  const activeJoinDisabled = closed || needsLogin || needsDiscordLogin || needsMainCharacter || (full && !viewerAlreadyActive);
+  const skipDisabled = closed || !canSubmitAnyAction;
   const title = closed
     ? "Запис на цей рейд уже вимкнено."
-    : activeJoinDisabled
-      ? "Ліміт гравців досягнуто. Нові записи недоступні."
-      : undefined;
+    : needsLogin
+      ? "Спочатку увійди через Discord."
+      : needsDiscordLogin
+        ? "Для запису потрібен Discord-вхід."
+        : needsMainCharacter
+          ? "Спочатку додай персонажа Battle.net і вибери мейна."
+          : activeJoinDisabled
+            ? "Ліміт гравців досягнуто. Нові записи недоступні."
+            : undefined;
+  const showRequirement = needsLogin || needsDiscordLogin || needsMainCharacter;
+  const requirementTitle = needsLogin || needsDiscordLogin ? "Потрібна авторизація" : "Потрібен мейн-персонаж";
+  const requirementMessage = needsLogin || needsDiscordLogin
+    ? "Щоб підписатися на рейд, увійди через Discord. Після входу додай персонажа Battle.net і вибери мейна в профілі."
+    : "Запис на рейд бере роль, item level і нік із мейн-персонажа. Додай персонажа Battle.net у профілі та зроби його мейном.";
   return (
-    <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled}>
-      <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
-      <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={closed} title={closed ? title : undefined}>◷ Пропустити</button>
-      <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "✕ Затримаюсь"}</button>
-    </form>
+    <div className="raid-attendance-stack">
+      {showRequirement ? (
+        <div className="raid-action-requirement" role="note">
+          <strong>{requirementTitle}</strong>
+          <span>{requirementMessage}</span>
+          <span className="raid-action-requirement-links">
+            {needsLogin || needsDiscordLogin ? <a href={`/login?next=${encodeURIComponent(`/raids/${raid.id}`)}&error=session_required`}>Увійти через Discord</a> : null}
+            <a href="/profile">Відкрити профіль</a>
+            <a href={dashboardRaidRulesUrl()} target="_blank" rel="noreferrer">Правила рейду</a>
+          </span>
+        </div>
+      ) : null}
+      <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled}>
+        <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
+        <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={skipDisabled} title={skipDisabled ? title : undefined}>◷ Пропустити</button>
+        <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "✕ Затримаюсь"}</button>
+      </form>
+    </div>
   );
 }
 
@@ -208,7 +238,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
       <div className="raid-preview-meta">
         <span><strong>📌 Статус</strong>{raidStatusLabel(raid)}</span>
         <span><strong>📅 Дата</strong>{formatRaidDateTime(raid.date, raid.time)}</span>
-        <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>main: {raid.createdByMain}</small> : null}</span>
+        <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>Мейн: {raid.createdByMain}</small> : null}</span>
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
         {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}

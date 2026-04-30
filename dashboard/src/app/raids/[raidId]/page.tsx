@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById } from "@/lib/profiles";
 import { getRaid, hasRaidStorage } from "@/lib/raids";
 import { RaidAnnouncementPreview, RaidAttendanceActions, RaidManageActions, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
 
@@ -14,6 +15,13 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
   const query = await searchParams;
   const raid = await getRaid(raidId);
   const visibleRaid = raid && (raid.status === "published" || raid.status === "closed" || canManage) ? raid : null;
+  const userDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
+  const profile = user?.profileId
+    ? await getProfileById(user.profileId).catch(() => null)
+    : userDiscordId
+      ? await getProfileByDiscordUserId(userDiscordId).catch(() => null)
+      : null;
+  const hasMainCharacter = user ? Boolean(profile && getMainCharacter(profile)) : null;
 
   return (
     <RaidPageShell
@@ -29,7 +37,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
           <div className="raid-preview-column">
             <RaidAnnouncementPreview
               raid={visibleRaid}
-              actions={<RaidAttendanceActions raid={visibleRaid} user={user} />}
+              actions={<RaidAttendanceActions raid={visibleRaid} user={user} hasMainCharacter={hasMainCharacter} />}
               manageActions={canManage ? <RaidManageActions raid={visibleRaid} /> : null}
             />
             <div className="raid-detail-links">
