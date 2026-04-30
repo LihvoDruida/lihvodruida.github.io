@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-29 21:08:01'
+  updated_at: '2026-04-30 03:22:13'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-29T08:48:48.000Z'
+  raider_io_last_crawled_at: '2026-04-30T01:18:42.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 118
+  member_count: 121
 characters:
 - name: Бреинор
   region: eu
@@ -4963,7 +4963,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 160
+        learned_points: 166
         max_points: 300
 - name: Кеенди
   region: eu
@@ -5878,7 +5878,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 89
+        learned_points: 90
         max_points: 100
     secondaries:
     - name: Cooking
@@ -5975,7 +5975,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 1
+        learned_points: 9
         max_points: 100
     - name: Mining
       id: 186
@@ -5984,7 +5984,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 1
+        learned_points: 14
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6013,7 +6013,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 49
+        learned_points: 55
         max_points: 100
     - name: Mining
       id: 186
@@ -6022,7 +6022,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 61
+        learned_points: 66
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6122,7 +6122,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Yokum
   professions:
     primaries:
     - name: Skinning
@@ -6361,3 +6361,102 @@ characters:
       - name: Khaz Algar Fishing
         learned_points: 1
         max_points: 300
+- name: Адвокатправа
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 49
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 61
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 12
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 27
+        max_points: 300
+- name: Umbrak
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Umbrak
+  professions:
+    primaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Fishing
+        learned_points: 2
+        max_points: 300
+- name: Skirvir
+  region: eu
+  realm: turalyon
+  realm_slug: turalyon
+  profile_url: https://raider.io/characters/eu/turalyon/Skirvir
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 28
+        max_points: 100
+    - name: Leatherworking
+      id: 165
+      tiers:
+      - name: Classic Leatherworking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Leatherworking
+        learned_points: 67
+        max_points: 100
+    secondaries: []
