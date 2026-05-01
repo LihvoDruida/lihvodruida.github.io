@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-01 16:59:51'
+  updated_at: '2026-05-01 20:55:23'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1408,7 +1408,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 263
+        learned_points: 266
         max_points: 300
 - name: Katsyt
   region: eu
@@ -6492,7 +6492,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 32
+        learned_points: 37
         max_points: 100
     - name: Alchemy
       id: 171
