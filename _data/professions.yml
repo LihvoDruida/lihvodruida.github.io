@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-01 09:48:08'
+  updated_at: '2026-05-01 13:22:07'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -882,7 +882,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 30
+        learned_points: 45
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2704,7 +2704,7 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 1
+        learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
         learned_points: 28
@@ -4767,7 +4767,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 94
+        learned_points: 97
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6477,7 +6477,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 16
+        learned_points: 21
         max_points: 100
     - name: Alchemy
       id: 171
