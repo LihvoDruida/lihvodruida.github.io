@@ -16263,3 +16263,72 @@ body {
     padding: 6px 9px;
   }
 }
+
+/* v43: mobile bottom navigation should behave like a real bottom panel and never cover final content. */
+@media (max-width: 760px) {
+  :root {
+    --mobile-bottom-nav-height: 76px;
+    --mobile-bottom-nav-gap: 12px;
+    --mobile-bottom-nav-reserved: calc(var(--mobile-bottom-nav-height) + var(--mobile-bottom-nav-gap) + var(--safe-bottom));
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 18px);
+  }
+
+  body {
+    padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 18px) !important;
+  }
+
+  body::after {
+    content: "";
+    display: block;
+    height: calc(var(--mobile-bottom-nav-reserved) + 18px);
+    pointer-events: none;
+  }
+
+  :where(.container, .dashboard-shell, .content-shell, .discord-shell, .profile-shell, .raid-shell) {
+    padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 22px) !important;
+  }
+
+  .dashboard-topbar {
+    padding-bottom: 10px !important;
+    overflow: visible;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-inline: max(10px, env(safe-area-inset-left, 0px)) max(10px, env(safe-area-inset-right, 0px));
+    top: auto !important;
+    bottom: calc(10px + var(--safe-bottom)) !important;
+    min-height: var(--mobile-bottom-nav-height);
+    max-height: calc(var(--mobile-bottom-nav-height) + 6px);
+    z-index: 220;
+    align-items: stretch;
+    overscroll-behavior-x: contain;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: 58px;
+    min-width: 68px;
+    height: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --mobile-bottom-nav-height: 72px;
+    --mobile-bottom-nav-gap: 10px;
+  }
+
+  .dashboard-mobile-nav {
+    left: 9px !important;
+    right: 9px !important;
+    bottom: calc(8px + var(--safe-bottom)) !important;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: 54px;
+    min-width: 64px;
+  }
+}
