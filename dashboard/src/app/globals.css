@@ -17356,3 +17356,365 @@ canvas {
     height: 108px !important;
   }
 }
+
+/* v60: final dashboard layout standardization for consistent page widths and mobile UX. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(18px, 3vw, 32px);
+  --dash-section-gap: clamp(14px, 2vw, 22px);
+  --dash-card-pad: clamp(16px, 1.2rem + 0.45vw, 24px);
+  --dash-card-radius: clamp(18px, 1.6vw, 28px);
+}
+
+.container {
+  width: min(calc(100% - (var(--dash-page-gutter) * 2)), var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  display: grid !important;
+  gap: var(--dash-section-gap) !important;
+  align-content: start !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+:where(.dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .profile-hero, .profile-directory-hero, .raid-dashboard-hero, .panel, .profile-card, .profile-directory-card, .discord-hub-card, .raid-list-page-panel, .content-list, .application-card, .notice-box, .empty-state) {
+  border-radius: var(--dash-card-radius) !important;
+}
+
+:where(.dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .profile-hero, .profile-directory-hero, .raid-dashboard-hero, .panel, .profile-card, .profile-directory-card, .discord-hub-card, .raid-list-page-panel, .content-list) {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.dashboard-topbar {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+}
+
+.profile-directory-toolbar,
+.content-editor-toolbar,
+.discord-editor-toolbar,
+.raid-list-page-head,
+.toolbar {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.profile-directory-grid,
+.discord-hub-grid,
+.profile-grid,
+.raid-list-stack,
+.content-page-stack {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+@media (min-width: 761px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(230px, 1fr) auto minmax(250px, auto) !important;
+    align-items: center !important;
+    gap: clamp(10px, 1vw, 16px) !important;
+    padding: clamp(10px, 1vw, 14px) !important;
+  }
+
+  .dashboard-nav {
+    max-width: min(52vw, 720px) !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+
+  .dashboard-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .dashboard-nav a {
+    white-space: nowrap !important;
+  }
+
+  .dashboard-user {
+    min-width: 0 !important;
+    max-width: min(34vw, 390px) !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+  }
+
+  .dashboard-user__profile-link > div:last-child {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(14px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.4vw, 16px);
+    --dash-card-pad: clamp(14px, 4vw, 18px);
+    --dash-card-radius: clamp(18px, 5vw, 22px);
+    --dash-mobile-nav-height: clamp(72px, 17vw, 84px);
+    --dash-mobile-nav-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    --dash-mobile-nav-reserve: calc(var(--dash-mobile-nav-height) + var(--dash-mobile-nav-bottom) + 18px);
+  }
+
+  html {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    scroll-padding-bottom: calc(var(--dash-mobile-nav-reserve) + 14px) !important;
+  }
+
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    padding-bottom: var(--dash-mobile-nav-reserve) !important;
+  }
+
+  body::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    padding-top: calc(clamp(12px, 3.4vw, 18px) + var(--safe-top)) !important;
+    padding-bottom: calc(var(--dash-mobile-nav-reserve) + 16px) !important;
+    margin-inline: auto !important;
+  }
+
+  :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    gap: var(--dash-section-gap) !important;
+    overflow: visible !important;
+  }
+
+  :where(.dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .profile-hero, .profile-directory-hero, .raid-dashboard-hero, .panel, .profile-card, .profile-directory-card, .discord-hub-card, .raid-list-page-panel, .content-list, .application-card, .notice-box, .empty-state) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: var(--dash-card-pad) !important;
+    border-radius: var(--dash-card-radius) !important;
+  }
+
+  .dashboard-topbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: clamp(12px, 3.4vw, 16px) !important;
+    border-radius: var(--dash-card-radius) !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-brand {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .dashboard-brand > div,
+  .dashboard-user__profile-link > div:last-child {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-brand span,
+  .dashboard-user strong,
+  .dashboard-user span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-nav {
+    display: none !important;
+  }
+
+  .dashboard-user {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+  }
+
+  .profile-directory-toolbar,
+  .content-editor-toolbar,
+  .discord-editor-toolbar,
+  .raid-list-page-head,
+  .toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: var(--dash-card-pad) !important;
+  }
+
+  .profile-directory-toolbar form,
+  .profile-directory-toolbar .search-form,
+  .content-editor-toolbar form,
+  .discord-editor-toolbar form,
+  .toolbar form {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .profile-directory-toolbar input,
+  .profile-directory-toolbar select,
+  .profile-directory-toolbar button,
+  .content-editor-toolbar input,
+  .content-editor-toolbar select,
+  .content-editor-toolbar button,
+  .discord-editor-toolbar input,
+  .discord-editor-toolbar select,
+  .discord-editor-toolbar button,
+  .toolbar input,
+  .toolbar select,
+  .toolbar button {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .profile-directory-grid,
+  .profile-grid,
+  .discord-hub-grid,
+  .content-grid,
+  .raid-list-stack {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: var(--dash-section-gap) !important;
+  }
+
+  .profile-directory-card,
+  .profile-person-card,
+  .discord-hub-card,
+  .content-list-item,
+  .raid-list-item,
+  .application-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  :where(h1, h2, h3, p, span, strong, small, label, a, button) {
+    max-width: 100% !important;
+  }
+
+  :where(button, .btn, .button, .action-button, .dashboard-action, .raid-action, input, select, textarea) {
+    max-width: 100% !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dash-mobile-nav-bottom) !important;
+    top: auto !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    min-width: 0 !important;
+    height: var(--dash-mobile-nav-height) !important;
+    min-height: var(--dash-mobile-nav-height) !important;
+    max-height: var(--dash-mobile-nav-height) !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 1), minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: clamp(4px, 1.5vw, 8px) !important;
+    padding: clamp(7px, 2vw, 10px) !important;
+    border-radius: clamp(20px, 6vw, 26px) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav a {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 3px !important;
+    padding: clamp(5px, 1.5vw, 8px) 2px !important;
+    border-radius: clamp(14px, 4vw, 18px) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(1rem, 4.4vw, 1.22rem) !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: clamp(0.62rem, 2.45vw, 0.76rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.03em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.57rem, 2.18vw, 0.68rem) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 12px;
+    --dash-mobile-nav-height: 70px;
+  }
+
+  .dashboard-mobile-nav {
+    left: 6px !important;
+    right: 6px !important;
+    max-width: calc(100vw - 12px) !important;
+    gap: 3px !important;
+    padding: 6px !important;
+  }
+
+  .dashboard-mobile-nav a strong,
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.54rem !important;
+    letter-spacing: -0.045em !important;
+  }
+}
