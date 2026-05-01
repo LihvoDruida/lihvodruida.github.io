@@ -16332,3 +16332,107 @@ body {
     min-width: 64px;
   }
 }
+
+/* v44: fixed mobile bottom nav outside topbar, without profile/rules shortcuts. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-height: 66px;
+    --dashboard-mobile-nav-offset: calc(8px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-offset) + 22px);
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 16px) !important;
+  }
+
+  body {
+    padding-bottom: var(--dashboard-mobile-nav-reserve) !important;
+  }
+
+  body::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  :where(.container, .dashboard-shell, .content-shell, .discord-shell, .profile-shell, .raid-shell, .content-page-stack) {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 16px) !important;
+  }
+
+  .dashboard-topbar {
+    overflow: visible !important;
+    padding-bottom: 10px !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-block-start: auto !important;
+    top: auto !important;
+    bottom: var(--dashboard-mobile-nav-offset) !important;
+    left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    right: max(10px, env(safe-area-inset-right, 0px)) !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: calc(var(--dashboard-mobile-nav-height) + 4px) !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    padding: 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid rgba(214, 168, 79, 0.28) !important;
+    border-radius: 22px !important;
+    background: rgba(5, 8, 15, 0.94) !important;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(18px);
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-mobile-nav:empty {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 clamp(76px, 24vw, 98px) !important;
+    min-width: 76px !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 3px !important;
+    padding: 6px 8px !important;
+    border-radius: 16px !important;
+    line-height: 1.05 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --dashboard-mobile-nav-height: 62px;
+    --dashboard-mobile-nav-offset: calc(7px + var(--safe-bottom));
+  }
+
+  .dashboard-mobile-nav {
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-offset) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex-basis: clamp(70px, 25vw, 88px) !important;
+    min-width: 70px !important;
+    min-height: 50px !important;
+    height: 50px !important;
+  }
+}
