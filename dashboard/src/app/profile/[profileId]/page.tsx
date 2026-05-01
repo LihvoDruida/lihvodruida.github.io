@@ -434,7 +434,10 @@ export default async function ProfilePage({
   const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
   const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
-  const manualRaidRole = profile.raidRolePreference?.characterKey === mainCharacter?.key ? profile.raidRolePreference.role : null;
+  const raidRolePreference = profile.raidRolePreference || null;
+  const manualRaidRole = raidRolePreference && mainCharacter && raidRolePreference.characterKey === mainCharacter.key
+    ? raidRolePreference.role
+    : null;
   const selectedRaidRole = getProfileRaidRole(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
