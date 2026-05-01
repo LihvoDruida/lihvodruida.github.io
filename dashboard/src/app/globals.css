@@ -17718,3 +17718,69 @@ canvas {
     letter-spacing: -0.045em !important;
   }
 }
+
+/* v61: mobile page stack spacing standardization.
+   Keeps bottom spacing of dashboard/content shells and top spacing of following blocks identical across pages. */
+:root {
+  --dash-page-stack-gap: var(--dash-section-gap, clamp(14px, 2vw, 22px));
+}
+
+main.container {
+  display: grid !important;
+  align-content: start !important;
+  gap: var(--dash-page-stack-gap) !important;
+}
+
+main.container > * {
+  margin-block: 0 !important;
+  min-width: 0 !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page, .stats, .toolbar, .grid, .profile-directory-grid, .profile-grid, .discord-hub-grid, .raid-list-stack) {
+  margin-block: 0 !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) > * {
+  margin-block: 0 !important;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-stack-gap: clamp(12px, 3.4vw, 16px);
+    --dash-section-gap: var(--dash-page-stack-gap);
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: var(--dash-page-stack-gap) !important;
+    padding-inline: var(--dash-page-gutter, var(--mobile-edge, clamp(14px, 4vw, 18px))) !important;
+  }
+
+  main.container > :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page, .stats, .toolbar, .grid, .profile-directory-grid, .profile-grid, .discord-hub-grid, .raid-list-stack, .notice, .empty, .content-empty, .panel) {
+    margin-block: 0 !important;
+  }
+
+  :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: var(--dash-page-stack-gap) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) > * {
+    margin: 0 !important;
+  }
+
+  :where(.stats, .toolbar, .grid, .profile-directory-grid, .profile-grid, .discord-hub-grid, .raid-list-stack, .content-library-split, .metric-grid, .details-grid) {
+    gap: var(--dash-page-stack-gap) !important;
+    margin-block: 0 !important;
+  }
+
+  :where(.panel, .card, .stat, .toolbar, .notice, .empty, .content-empty, .content-list, .profile-card, .profile-directory-card, .discord-hub-card, .raid-list-page-panel, .application-card) {
+    margin-block: 0 !important;
+  }
+}
