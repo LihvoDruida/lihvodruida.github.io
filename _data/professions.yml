@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-01 13:22:07'
+  updated_at: '2026-05-01 16:59:51'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -882,7 +882,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 45
+        learned_points: 46
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1906,7 +1906,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 82
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Cooking
@@ -1948,6 +1948,9 @@ characters:
       - name: Shadowlands Fishing
         learned_points: 1
         max_points: 200
+      - name: Midnight Fishing
+        learned_points: 83
+        max_points: 300
 - name: Monkania
   region: eu
   realm: terokkar
@@ -2704,7 +2707,7 @@ characters:
       id: 333
       tiers:
       - name: Classic Enchanting
-        learned_points: 2
+        learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
         learned_points: 28
@@ -3711,7 +3714,19 @@ characters:
   realm_slug: howling-fjord
   profile_url: https://raider.io/characters/eu/howling-fjord/Артизан
   professions:
-    primaries: []
+    primaries:
+    - name: Inscription
+      id: 773
+      tiers:
+      - name: Classic Inscription
+        learned_points: 1
+        max_points: 300
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
     secondaries: []
 - name: Пандашоманко
   region: eu
@@ -4408,7 +4423,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 51
+        learned_points: 53
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -5270,7 +5285,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 166
+        learned_points: 172
         max_points: 300
 - name: Кеенди
   region: eu
@@ -6477,7 +6492,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 21
+        learned_points: 32
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6486,6 +6501,6 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 39
+        learned_points: 70
         max_points: 100
     secondaries: []
