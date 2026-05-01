@@ -15,6 +15,7 @@ import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/
 import { getSession } from "@/lib/auth";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
+  canViewProfileAccessDetails,
   configuredRoleIdsForDashboardRole,
   dashboardCapabilities,
   dashboardRoleLabel,
@@ -417,7 +418,8 @@ export default async function ProfilePage({
 
   let roles: DiscordRoleOption[] = [];
   let roleLoadError = "";
-  const shouldLoadRoles = hasDiscordEmbedConfig() && (viewer.role === "admin" || viewer.role === "moderator" || isOwnProfile);
+  const showAccessDetails = canViewProfileAccessDetails(viewer);
+  const shouldLoadRoles = hasDiscordEmbedConfig() && showAccessDetails;
 
   if (shouldLoadRoles) {
     try {
@@ -429,13 +431,14 @@ export default async function ProfilePage({
 
   const profileSession = profileAsSession(profile);
   const capabilities = dashboardCapabilities(profile.role);
-  const enabledCount = capabilities.filter((item) => item.enabled).length;
+  const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
+  const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
   const manualRaidRole = profile.raidRolePreference?.characterKey === mainCharacter?.key ? profile.raidRolePreference.role : null;
   const selectedRaidRole = getProfileRaidRole(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
-  const canInspectOtherProfile = !isOwnProfile && (viewer.role === "admin" || viewer.role === "moderator");
+  const canInspectOtherProfile = !isOwnProfile && showAccessDetails;
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
@@ -487,18 +490,29 @@ export default async function ProfilePage({
             <div className="eyebrow">Mistblossom Vanguard • Профіль</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Усе головне в одному місці: доступ, ролі Discord і персонажі Battle.net.</p>
+            <p className="lead">{showAccessDetails ? "Профіль, доступ, ролі Discord і персонажі Battle.net." : "Ім’я Discord, мейн-персонаж, роль для рейдів і мої записи."}</p>
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
-              <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
-              <span><strong>{enabledCount}/{capabilities.length}</strong><small>Можливості</small></span>
-              <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
-              <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>У гільдії</small></span>
-              <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
-              <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+              {showAccessDetails ? (
+                <>
+                  <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
+                  <span><strong>{enabledCount}/{visibleCapabilities.length}</strong><small>Можливості</small></span>
+                  <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
+                  <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>У гільдії</small></span>
+                  <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
+                  <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+                </>
+              ) : (
+                <>
+                  <span><strong>{savedCharacterCount}</strong><small>Персонажі</small></span>
+                  <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
+                  <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span>
+                  <span><strong>{formatCompactDate(profile.battlenet?.lastSyncAt || mainCharacter?.lastSeenAt)}</strong><small>Оновлено</small></span>
+                </>
+              )}
             </div>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>{siteStatusDescription(profile.role)}</span>
+              <span>{showAccessDetails ? siteStatusDescription(profile.role) : "Особиста панель: профіль, персонажі, рейди та правила."}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
@@ -510,7 +524,7 @@ export default async function ProfilePage({
         <article className="panel profile-card profile-card--identity">
           <div className="profile-card-head">
             <span className="eyebrow">Профіль</span>
-            <h2>Дані доступу</h2>
+            <h2>{showAccessDetails ? "Дані доступу" : "Імʼя та Discord"}</h2>
           </div>
 
           <div className="profile-person-card">
@@ -550,23 +564,25 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          <dl className="profile-facts profile-facts--compact">
-            <div>
-              <dt>Вхід</dt>
-              <dd>{providerLabel(profile.provider)}</dd>
-            </div>
-            <div>
-              <dt>Оновлено</dt>
-              <dd>{formatDate(profile.updatedAt || profile.lastLoginAt)}</dd>
-            </div>
-            <div>
-              <dt>Останній вхід</dt>
-              <dd>{formatDate(profile.lastLoginAt)}</dd>
-            </div>
-          </dl>
+          {showAccessDetails ? (
+            <dl className="profile-facts profile-facts--compact">
+              <div>
+                <dt>Вхід</dt>
+                <dd>{providerLabel(profile.provider)}</dd>
+              </div>
+              <div>
+                <dt>Оновлено</dt>
+                <dd>{formatDate(profile.updatedAt || profile.lastLoginAt)}</dd>
+              </div>
+              <div>
+                <dt>Останній вхід</dt>
+                <dd>{formatDate(profile.lastLoginAt)}</dd>
+              </div>
+            </dl>
+          ) : null}
         </article>
 
-        <article className="panel profile-card profile-card--roles">
+        {showAccessDetails ? <article className="panel profile-card profile-card--roles">
           <div className="profile-card-head">
             <span className="eyebrow">Discord</span>
             <h2>Роль доступу</h2>
@@ -576,7 +592,7 @@ export default async function ProfilePage({
 
           <div className="profile-access-summary" aria-label="Поточний доступ">
             <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Поточний доступ у панелі</small></span>
-            <span><strong>{enabledCount}/{capabilities.length}</strong><small>Доступно</small></span>
+            <span><strong>{enabledCount}/{visibleCapabilities.length}</strong><small>Доступно</small></span>
           </div>
 
           <div className="profile-role-group">
@@ -605,7 +621,7 @@ export default async function ProfilePage({
 
           {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Назви ролей тимчасово недоступні. Доступ усе одно визначено коректно.</small> : null}
           {roleLoadError ? <small className="profile-warning">Назви Discord-ролей тимчасово недоступні.</small> : null}
-        </article>
+        </article> : null}
 
         <article className="panel profile-card profile-card--characters">
           <div className="profile-card-head profile-card-head--inline">
@@ -679,17 +695,17 @@ export default async function ProfilePage({
 
         <ProfileRaidSignups items={raidSignups} />
 
-        <article className="panel profile-card profile-card--capabilities">
+        {showAccessDetails ? <article className="panel profile-card profile-card--capabilities">
           <div className="profile-card-head profile-card-head--inline">
             <div>
               <span className="eyebrow">Можливості</span>
               <h2>Доступні дії</h2>
             </div>
-            <span className="profile-count-pill">{enabledCount}/{capabilities.length}</span>
+            <span className="profile-count-pill">{enabledCount}/{visibleCapabilities.length}</span>
           </div>
 
           <ul className="profile-capabilities-list">
-            {capabilities.map((capability) => (
+            {visibleCapabilities.map((capability) => (
               <CapabilityRow
                 key={capability.key}
                 title={capability.title}
@@ -698,7 +714,7 @@ export default async function ProfilePage({
               />
             ))}
           </ul>
-        </article>
+        </article> : null}
       </section>
     </main>
   );

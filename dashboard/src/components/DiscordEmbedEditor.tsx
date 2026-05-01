@@ -178,6 +178,124 @@ function hasVisibleEmbedContent(embed: EmbedObject) {
 }
 
 const DISCORD_MARKDOWN_BLOCK_LIMIT = 160;
+const DISCORD_LIMITS = {
+  content: 2000,
+  title: 256,
+  description: 4096,
+  fieldName: 256,
+  fieldValue: 1024,
+  fields: 25,
+  authorName: 256,
+  footerText: 2048,
+  embedTotal: 6000,
+};
+
+type PreviewMode = "desktop" | "mobile";
+
+type LimitCounterProps = {
+  value: number;
+  max: number;
+  label?: string;
+};
+
+function limitTone(value: number, max: number) {
+  if (value > max) return "error";
+  if (value >= Math.floor(max * 0.9)) return "warning";
+  return "ok";
+}
+
+function LimitCounter({ value, max, label = "символів" }: LimitCounterProps) {
+  const tone = limitTone(value, max);
+  return <small className={`discord-limit-counter discord-limit-counter--${tone}`}>{value}/{max} {label}</small>;
+}
+
+function fieldTextLength(field: EmbedFieldState) {
+  return cleanEmbedValue(field.name).length + cleanEmbedValue(field.value).length;
+}
+
+function embedTextTotal(params: {
+  title: string;
+  description: string;
+  authorName: string;
+  footerText: string;
+  fields: EmbedFieldState[];
+}) {
+  return cleanEmbedValue(params.title).length +
+    cleanEmbedValue(params.description).length +
+    cleanEmbedValue(params.authorName).length +
+    cleanEmbedValue(params.footerText).length +
+    params.fields.slice(0, DISCORD_LIMITS.fields).reduce((sum, field) => sum + fieldTextLength(field), 0);
+}
+
+function findMarkdownWarnings(scope: string, value: string) {
+  const warnings: string[] = [];
+  const text = String(value || "");
+  if (!text) return warnings;
+
+  const fenceMatches = text.match(/```/g) || [];
+  if (fenceMatches.length % 2 === 1) warnings.push(`${scope}: не закритий code block \`\`\`.`);
+
+  const withoutFences = text.replace(/```[\s\S]*?```/g, "");
+  const inlineTicks = withoutFences.match(/(?<!\\)`/g) || [];
+  if (inlineTicks.length % 2 === 1) warnings.push(`${scope}: не закритий inline-code \`.`);
+
+  if (/^#{4,}\s/m.test(text)) warnings.push(`${scope}: Discord підтримує заголовки тільки #, ## і ###.`);
+  if (/<script|<style|<iframe/i.test(text)) warnings.push(`${scope}: HTML не підтримується в Discord Markdown.`);
+  if (/\[[^\]\n]+\]\([^\s<>)]+\s+[^)]*\)/.test(text)) warnings.push(`${scope}: посилання містить пробіли — Discord може показати його як текст.`);
+
+  return warnings;
+}
+
+function buildDiscordDiagnostics(params: {
+  content: string;
+  title: string;
+  description: string;
+  authorName: string;
+  footerText: string;
+  fields: EmbedFieldState[];
+}) {
+  const total = embedTextTotal(params);
+  const warnings = [
+    ...findMarkdownWarnings("Текст над повідомленням", params.content),
+    ...findMarkdownWarnings("Опис", params.description),
+    ...params.fields.flatMap((field, index) => [
+      ...findMarkdownWarnings(`Поле ${index + 1}: назва`, field.name),
+      ...findMarkdownWarnings(`Поле ${index + 1}: значення`, field.value),
+    ]),
+  ];
+
+  if (params.content.length > DISCORD_LIMITS.content) warnings.push("Текст над повідомленням перевищує Discord-ліміт.");
+  if (params.title.length > DISCORD_LIMITS.title) warnings.push("Title перевищує Discord-ліміт.");
+  if (params.description.length > DISCORD_LIMITS.description) warnings.push("Опис перевищує Discord-ліміт.");
+  if (params.authorName.length > DISCORD_LIMITS.authorName) warnings.push("Author name перевищує Discord-ліміт.");
+  if (params.footerText.length > DISCORD_LIMITS.footerText) warnings.push("Footer text перевищує Discord-ліміт.");
+  if (params.fields.length > DISCORD_LIMITS.fields) warnings.push("Забагато fields для Discord.");
+  params.fields.forEach((field, index) => {
+    if (field.name.length > DISCORD_LIMITS.fieldName) warnings.push(`Поле ${index + 1}: назва довша за Discord-ліміт.`);
+    if (field.value.length > DISCORD_LIMITS.fieldValue) warnings.push(`Поле ${index + 1}: значення довше за Discord-ліміт.`);
+  });
+  if (total > DISCORD_LIMITS.embedTotal) warnings.push("Загальний розмір embed перевищує 6000 символів.");
+
+  return { total, warnings };
+}
+
+function DiscordDiagnostics({ total, warnings }: { total: number; warnings: string[] }) {
+  const cleanWarnings = Array.from(new Set(warnings)).slice(0, 8);
+  return (
+    <div className="discord-diagnostics" data-state={cleanWarnings.length ? "warning" : "ok"}>
+      <div className="discord-diagnostics-head">
+        <strong>Перевірка Discord</strong>
+        <LimitCounter value={total} max={DISCORD_LIMITS.embedTotal} label="embed" />
+      </div>
+      {cleanWarnings.length ? (
+        <ul>
+          {cleanWarnings.map((warning) => <li key={warning}>{warning}</li>)}
+        </ul>
+      ) : <p>Ліміти й базовий Markdown виглядають коректно.</p>}
+    </div>
+  );
+}
+
 
 type InlineMarkdownToken = {
   index: number;
@@ -439,7 +557,7 @@ function formatPreviewTimestamp() {
   return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
 
-function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed: EmbedObject; content: string; isValid: boolean; mentionRoles?: DiscordRoleOption[] }) {
+function DiscordPreview({ embed, content, isValid, mentionRoles = [], previewMode = "desktop", onPreviewModeChange }: { embed: EmbedObject; content: string; isValid: boolean; mentionRoles?: DiscordRoleOption[]; previewMode?: PreviewMode; onPreviewModeChange?: (mode: PreviewMode) => void }) {
   const color = typeof embed?.color === "number" ? `#${Math.max(0, Math.min(0xffffff, embed.color)).toString(16).padStart(6, "0")}` : COLOR_FALLBACK;
   const author = embed?.author && typeof embed.author === "object" ? embed.author as Record<string, unknown> : null;
   const footer = embed?.footer && typeof embed.footer === "object" ? embed.footer as Record<string, unknown> : null;
@@ -449,10 +567,13 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [] }: { embed:
   const previewTimestamp = embed?.timestamp ? formatPreviewTimestamp() : "";
 
   return (
-    <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord-повідомлення">
+    <aside className={`discord-preview-panel panel discord-preview-panel--${previewMode}`} aria-label="Попередній перегляд Discord-повідомлення">
       <div className="discord-preview-titlebar">
         <span>Перегляд</span>
-        <small>Стиль Discord</small>
+        <div className="discord-preview-mode-toggle" aria-label="Режим перегляду Discord">
+          <button type="button" className={previewMode === "desktop" ? "is-active" : undefined} onClick={() => onPreviewModeChange?.("desktop")}>ПК</button>
+          <button type="button" className={previewMode === "mobile" ? "is-active" : undefined} onClick={() => onPreviewModeChange?.("mobile")}>Телефон</button>
+        </div>
       </div>
       <div className="discord-preview-canvas">
         <div className="discord-chat-preview">
@@ -629,11 +750,13 @@ function EmbedFieldEditor({ fields, onChange }: {
           </div>
           <label className="content-field">
             <span>Назва поля</span>
-            <input className="input" value={field.name} maxLength={256} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
+            <input className="input" value={field.name} maxLength={DISCORD_LIMITS.fieldName} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
+            <LimitCounter value={field.name.length} max={DISCORD_LIMITS.fieldName} />
           </label>
           <label className="content-field content-field--wide">
             <span>Значення поля</span>
-            <textarea className="input textarea compact" value={field.value} maxLength={1024} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
+            <textarea className="input textarea compact" value={field.value} maxLength={DISCORD_LIMITS.fieldValue} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
+            <LimitCounter value={field.value.length} max={DISCORD_LIMITS.fieldValue} />
           </label>
           <label className="inline-check discord-inline-check">
             <input type="checkbox" checked={field.inline} onChange={(event) => patchField(field.id, { inline: event.currentTarget.checked })} />
@@ -643,7 +766,7 @@ function EmbedFieldEditor({ fields, onChange }: {
       ))}
 
       <button className="btn subtle discord-add-field" type="button" onClick={addField} disabled={fields.length >= 25}>+ Додати поле</button>
-      <small>{fields.length}/25 полів</small>
+      <LimitCounter value={fields.length} max={DISCORD_LIMITS.fields} label="полів" />
     </div>
   );
 }
@@ -682,6 +805,7 @@ export default function DiscordEmbedEditor({
   const [footerIconUrl, setFooterIconUrl] = useState(text(footer.icon_url));
   const [timestampEnabled, setTimestampEnabled] = useState(Boolean(initialEmbed.timestamp));
   const [fields, setFields] = useState<EmbedFieldState[]>(initialFields(initialEmbed.fields));
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   const [messageLoadState, setMessageLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const [messageLoadText, setMessageLoadText] = useState("");
   const [loadedMessageLink, setLoadedMessageLink] = useState(normalizeMessageLink(defaultMessageLink));
@@ -888,7 +1012,16 @@ export default function DiscordEmbedEditor({
   const selectedRoleIdSet = new Set(uniqueIds(roleIds));
   const selectedMentionRoles = !isRules ? roles.filter((role) => selectedRoleIdSet.has(role.id)) : [];
   const selectedRolesCount = selectedRoleIdSet.size;
-  const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor);
+  const diagnostics = useMemo(() => buildDiscordDiagnostics({
+    content,
+    title: titleValue,
+    description: descriptionValue,
+    authorName,
+    footerText,
+    fields,
+  }), [content, titleValue, descriptionValue, authorName, footerText, fields]);
+  const hasHardLimitError = diagnostics.total > DISCORD_LIMITS.embedTotal || content.length > DISCORD_LIMITS.content || titleValue.length > DISCORD_LIMITS.title || descriptionValue.length > DISCORD_LIMITS.description || authorName.length > DISCORD_LIMITS.authorName || footerText.length > DISCORD_LIMITS.footerText || fields.some((field) => field.name.length > DISCORD_LIMITS.fieldName || field.value.length > DISCORD_LIMITS.fieldValue);
+  const isValid = hasVisibleEmbedContent(embed) && Boolean(normalizedColor) && !hasHardLimitError;
   const title = isRaidRules ? "Редактор правил рейду" : isRules ? "Редактор правил" : "Редактор Discord-повідомлення";
   const actionLabel = effectiveSubmitAction === "edit"
     ? hasLoadedEditableMessage && editorMode !== "edit" ? "Оновити підтягнуте повідомлення" : editorMode !== "edit" ? "Оновити повідомлення за посиланням" : "Зберегти зміни"
@@ -1017,7 +1150,7 @@ export default function DiscordEmbedEditor({
                     placeholder="Необовʼязковий текст над повідомленням"
                     onChange={(event) => setContent(event.currentTarget.value)}
                   />
-                  <small>{content.length}/2000</small>
+                  <LimitCounter value={content.length} max={DISCORD_LIMITS.content} />
                 </label>
               </div>
             </div>
@@ -1031,7 +1164,8 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Title</span>
-                  <input className="input" value={titleValue} maxLength={256} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
+                  <input className="input" value={titleValue} maxLength={DISCORD_LIMITS.title} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
+                  <LimitCounter value={titleValue.length} max={DISCORD_LIMITS.title} />
                 </label>
                 <label className="content-field">
                   <span>URL заголовка</span>
@@ -1042,7 +1176,7 @@ export default function DiscordEmbedEditor({
               <label className="content-field content-field--wide">
                 <span>Опис</span>
                 <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
-                <small>{descriptionValue.length}/4096</small>
+                <LimitCounter value={descriptionValue.length} max={DISCORD_LIMITS.description} />
               </label>
             </div>
 
@@ -1071,7 +1205,8 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid discord-builder-grid--three">
                 <label className="content-field">
                   <span>Author name</span>
-                  <input className="input" value={authorName} maxLength={256} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                  <input className="input" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                  <LimitCounter value={authorName.length} max={DISCORD_LIMITS.authorName} />
                 </label>
                 <label className="content-field">
                   <span>Author URL</span>
@@ -1085,7 +1220,8 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Footer text</span>
-                  <input className="input" value={footerText} maxLength={2048} onChange={(event) => setFooterText(event.currentTarget.value)} />
+                  <input className="input" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
+                  <LimitCounter value={footerText.length} max={DISCORD_LIMITS.footerText} />
                 </label>
                 <label className="content-field">
                   <span>Footer icon URL</span>
@@ -1147,15 +1283,17 @@ export default function DiscordEmbedEditor({
               </div>
             ) : null}
 
+            <DiscordDiagnostics total={diagnostics.total} warnings={diagnostics.warnings} />
+
             <div className="discord-builder-actions">
               <a className="btn subtle" href={returnTo || (isRules ? "/discord/rules" : "/discord")}>Скасувати</a>
-              <button className="btn primary" type="submit" disabled={!isValid || hasInvalidMessageLink || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Додай заголовок, опис, зображення або поле та коректний HEX-колір." : hasInvalidMessageLink ? "Виправ посилання на повідомлення або очисти поле." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
+              <button className="btn primary" type="submit" disabled={!isValid || hasInvalidMessageLink || isSubmitting || messageLoadState === "loading"} aria-busy={isSubmitting} title={!isValid ? "Перевір контент, HEX-колір і Discord-ліміти." : hasInvalidMessageLink ? "Виправ посилання на повідомлення або очисти поле." : undefined}>{isSubmitting ? "Виконуємо..." : actionLabel}</button>
             </div>
           </form>
         </div>
       </section>
 
-      <DiscordPreview embed={embed} content={content} isValid={isValid} mentionRoles={selectedMentionRoles} />
+      <DiscordPreview embed={embed} content={content} isValid={isValid} mentionRoles={selectedMentionRoles} previewMode={previewMode} onPreviewModeChange={setPreviewMode} />
     </div>
   );
 }

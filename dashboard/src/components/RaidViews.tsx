@@ -52,10 +52,11 @@ export function StatusNotice({ params: _params }: { params: Record<string, strin
   return null;
 }
 
-export function signupDisplayName(item?: RaidSignup | null) {
+export function signupDisplayName(item?: RaidSignup | null, options?: { showItemLevel?: boolean }) {
   if (!item) return "—";
   const name = item.characterName || item.discordName || "Гравець";
-  return item.itemLevel ? `${name} • ${item.itemLevel}` : name;
+  const showItemLevel = options?.showItemLevel !== false;
+  return showItemLevel && item.itemLevel ? `${name} • ${item.itemLevel}` : name;
 }
 
 function signupSpecLabel(item?: RaidSignup | null) {
@@ -81,16 +82,16 @@ function raidPartyRoleLabel(role: RaidCharacterRole) {
   return "ДД";
 }
 
-function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { label: string; item?: RaidSignup | null; role: RaidCharacterRole; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
-  const block = item ? raidMinItemLevelBlockMessage({ minItemLevel, minItemLevelRequired }, item) : null;
-  const warning = item ? raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item) : null;
+function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired, showItemLevel = true }: { label: string; item?: RaidSignup | null; role: RaidCharacterRole; minItemLevel?: number | null; minItemLevelRequired?: boolean | null; showItemLevel?: boolean }) {
+  const block = showItemLevel && item ? raidMinItemLevelBlockMessage({ minItemLevel, minItemLevelRequired }, item) : null;
+  const warning = showItemLevel && item ? raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item) : null;
   const issue = block || warning;
   return (
     <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
       <span className="raid-role-label">{label}</span>
       <span className="raid-party-member-copy">
-        <strong>{signupDisplayName(item)}</strong>
+        <strong>{signupDisplayName(item, { showItemLevel })}</strong>
         {item ? <small>{signupSpecLabel(item)}</small> : null}
         {issue ? <small className="raid-ilvl-warning">{issue}</small> : null}
       </span>
@@ -98,28 +99,28 @@ function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired }: { la
   );
 }
 
-function PartyCard({ party, minItemLevel, minItemLevelRequired }: { party: RaidParty; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
+function PartyCard({ party, minItemLevel, minItemLevelRequired, showItemLevel = true }: { party: RaidParty; minItemLevel?: number | null; minItemLevelRequired?: boolean | null; showItemLevel?: boolean }) {
   const hasMembers = party.members.length > 0;
   return (
     <article className="raid-party-card">
       <h3>Паті {party.index}</h3>
-      {party.tank ? <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
-      {party.healer ? <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
+      {party.tank ? <RoleRow label="Танк" role="tank" item={party.tank} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} showItemLevel={showItemLevel} /> : null}
+      {party.healer ? <RoleRow label="Хіл" role="healer" item={party.healer} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} showItemLevel={showItemLevel} /> : null}
       {party.dps.length ? party.dps.map((member, index) => (
-        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label={raidPartyRoleLabel(member.role)} role={member.role} item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} />
-      )) : !hasMembers ? <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} /> : null}
+        <RoleRow key={`${party.index}-${member.discordId}-${member.characterName || member.discordName}-${index}`} label={raidPartyRoleLabel(member.role)} role={member.role} item={member} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} showItemLevel={showItemLevel} />
+      )) : !hasMembers ? <RoleRow label="ДД" role="dps" item={null} minItemLevel={minItemLevel} minItemLevelRequired={minItemLevelRequired} showItemLevel={showItemLevel} /> : null}
     </article>
   );
 }
 
-function RosterBlock({ title, items, empty = "Поки порожньо" }: { title: string; items: RaidSignup[]; empty?: string }) {
+function RosterBlock({ title, items, empty = "Поки порожньо", showItemLevel = true }: { title: string; items: RaidSignup[]; empty?: string; showItemLevel?: boolean }) {
   return (
     <div className="raid-roster-block">
       <h4>{title}</h4>
       {items.length ? items.map((item) => (
         <div className="raid-roster-member" key={`${title}-${item.discordId}`}>
           <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
-          <strong>{signupDisplayName(item)}</strong>
+          <strong>{signupDisplayName(item, { showItemLevel })}</strong>
           <small>{signupSpecLabel(item) || item.discordName}</small>
         </div>
       )) : <p>{empty}</p>}
@@ -127,7 +128,7 @@ function RosterBlock({ title, items, empty = "Поки порожньо" }: { ti
   );
 }
 
-export function RosterSideList({ raid }: { raid: RaidItem }) {
+export function RosterSideList({ raid, showItemLevel = true }: { raid: RaidItem; showItemLevel?: boolean }) {
   const composition = raidAutoComposition(raid);
   const grouped = {
     tanks: raid.signups.filter((item) => item.status !== "skipped" && item.role === "tank"),
@@ -140,11 +141,11 @@ export function RosterSideList({ raid }: { raid: RaidItem }) {
   return (
     <aside className="raid-roster-panel panel">
       <div className="raid-roster-heading"><strong>Хто йде</strong><span>{counts.roster} / {raidDisplayCapacity(raid)}</span></div>
-      <RosterBlock title={`Танки (${grouped.tanks.length}/${composition.tanks})`} items={grouped.tanks} />
-      <RosterBlock title={`Хіли (${grouped.healers.length}/${composition.healers})`} items={grouped.healers} />
-      <RosterBlock title={`ДД (${grouped.dps.length}/${composition.dps})`} items={grouped.dps} />
-      <RosterBlock title={`Затримаюсь (${grouped.late.length})`} items={grouped.late} empty="—" />
-      <RosterBlock title={`Пропускають (${grouped.skipped.length})`} items={grouped.skipped} empty="—" />
+      <RosterBlock title={`Танки (${grouped.tanks.length}/${composition.tanks})`} items={grouped.tanks} showItemLevel={showItemLevel} />
+      <RosterBlock title={`Хіли (${grouped.healers.length}/${composition.healers})`} items={grouped.healers} showItemLevel={showItemLevel} />
+      <RosterBlock title={`ДД (${grouped.dps.length}/${composition.dps})`} items={grouped.dps} showItemLevel={showItemLevel} />
+      <RosterBlock title={`Затримаюсь (${grouped.late.length})`} items={grouped.late} empty="—" showItemLevel={showItemLevel} />
+      <RosterBlock title={`Пропускають (${grouped.skipped.length})`} items={grouped.skipped} empty="—" showItemLevel={showItemLevel} />
     </aside>
   );
 }
@@ -190,7 +191,7 @@ export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: {
           </span>
         </div>
       ) : null}
-      <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled}>
+      <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled} data-dashboard-live-submit="true">
         <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
         <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={skipDisabled} title={skipDisabled ? title : undefined}>◷ Пропустити</button>
         <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "✕ Затримаюсь"}</button>
@@ -222,7 +223,7 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
   );
 }
 
-export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid: RaidItem; actions?: ReactNode; manageActions?: ReactNode }) {
+export function RaidAnnouncementPreview({ raid, actions, manageActions, showRosterDetails = true, showMemberItemLevels = true }: { raid: RaidItem; actions?: ReactNode; manageActions?: ReactNode; showRosterDetails?: boolean; showMemberItemLevels?: boolean }) {
   const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
   const parties = buildRaidParties(raid);
@@ -247,11 +248,11 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
         <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>Мейн: {raid.createdByMain}</small> : null}</span>
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
-        {raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
-        {averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
-        <span><strong>👥 Склад</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
+        {showRosterDetails && raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
+        {showRosterDetails && averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
+        <span><strong>👥 Записано</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
       </div>
-      {raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
+      {showRosterDetails && raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
       {raidRegistrationLimit(raid) ? <div className={`raid-ilvl-notice${isRaidRegistrationFull(raid) ? " is-blocked" : ""}`}>👥 Максимум гравців для цього рейду: <strong>{raidRegistrationLimit(raid)}</strong>. {isRaidRegistrationFull(raid) ? "Ліміт досягнуто — нові записи недоступні." : "Після досягнення ліміту нові записи будуть заблоковані."}</div> : null}
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
@@ -260,17 +261,26 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions }: { raid
           <span className="raid-action raid-action--late">✕ Затримаюсь</span>
         </div>
       )}
-      <div className="raid-preview-roster-head">
-        <div><strong>Склад рейду</strong><p>Паті будуються динамічно. Пріоритет — танк, хіл і 3 ДД, але всі активні гравці залишаються видимими навіть за нестандартного складу.</p></div>
-      </div>
-      <div className="raid-party-grid">
-        {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />)}
-      </div>
+      {showRosterDetails ? (
+        <>
+          <div className="raid-preview-roster-head">
+            <div><strong>Склад рейду</strong><p>Паті будуються динамічно. Пріоритет — танк, хіл і 3 ДД, але всі активні гравці залишаються видимими навіть за нестандартного складу.</p></div>
+          </div>
+          <div className="raid-party-grid">
+            {parties.map((party) => <PartyCard key={party.index} party={party} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} showItemLevel={showMemberItemLevels} />)}
+          </div>
+        </>
+      ) : (
+        <div className="raid-member-roster-note">
+          <strong>Склад формують офіцери</strong>
+          <span>Ти можеш записатися, пропустити рейд або позначити запізнення. Детальний розподіл паті видно офіцерам.</span>
+        </div>
+      )}
     </section>
   );
 }
 
-export function RaidListCard({ raid }: { raid: RaidItem }) {
+export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canManage?: boolean }) {
   const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
   const statusClass = raidStatusClass(raid);
@@ -288,7 +298,8 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
           <span className="raid-list-facts">
             <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
             <small>👤 {raid.createdByName}{raid.createdByMain ? ` • ${raid.createdByMain}` : ""}</small>
-            <small>👥 {counts.roster} / {capacity} • {raidAutoCompositionLabel(raid)}</small>
+            <small>👥 {counts.roster} / {capacity}{canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}</small>
+            {raid.minItemLevel ? <small>⭐ Мін. ilvl: {raid.minItemLevel}</small> : null}
             {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
           </span>
           <span className="raid-list-progress" aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}>
@@ -296,25 +307,31 @@ export function RaidListCard({ raid }: { raid: RaidItem }) {
           </span>
         </span>
       </a>
-      <div className="raid-list-actions" aria-label="Керування рейдом">
+      <div className="raid-list-actions" aria-label={canManage ? "Керування рейдом" : "Дії рейду"}>
         <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити</a>
-        <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
-        {!closed && raid.status !== "draft" ? (
-          <form action={`/api/raids/${encodeURIComponent(raid.id)}/close`} method="post">
-            <button className="btn warning btn-sm" type="submit">Закрити</button>
-          </form>
+        {canManage ? (
+          <>
+            <a className="btn subtle btn-sm" href={`/raids/${encodeURIComponent(raid.id)}/edit`}>Редагувати</a>
+            {!closed && raid.status !== "draft" ? (
+              <form action={`/api/raids/${encodeURIComponent(raid.id)}/close`} method="post">
+                <button className="btn warning btn-sm" type="submit">Закрити</button>
+              </form>
+            ) : closed ? (
+              <span className="raid-list-archive-note">Архів</span>
+            ) : null}
+            <form
+              action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
+              method="post"
+              data-confirm-message={raid.status === "draft"
+                ? "Видалити чернетку рейду?"
+                : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+            >
+              <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
+            </form>
+          </>
         ) : closed ? (
           <span className="raid-list-archive-note">Архів</span>
         ) : null}
-        <form
-          action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
-          method="post"
-          data-confirm-message={raid.status === "draft"
-            ? "Видалити чернетку рейду?"
-            : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
-        >
-          <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
-        </form>
       </div>
     </article>
   );

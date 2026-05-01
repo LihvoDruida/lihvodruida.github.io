@@ -23,6 +23,26 @@ export function canAccessDashboardRole(viewer: DashboardSession | null | undefin
   return dashboardRoleRank(viewer.role) >= dashboardRoleRank(targetRole);
 }
 
+export function isDashboardStaff(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+}
+
+export function isDashboardAdmin(session: DashboardSession | null | undefined) {
+  return Boolean(session && session.role === "admin");
+}
+
+export function canViewRaidDirectory(session: DashboardSession | null | undefined) {
+  return Boolean(session);
+}
+
+export function canViewRaidRoster(session: DashboardSession | null | undefined) {
+  return isDashboardStaff(session);
+}
+
+export function canViewProfileAccessDetails(session: DashboardSession | null | undefined) {
+  return isDashboardStaff(session);
+}
+
 export function canViewProfiles(session: DashboardSession | null | undefined) {
   return Boolean(session && (session.role === "admin" || session.role === "moderator"));
 }
@@ -47,12 +67,12 @@ export function siteStatusLabel(role: DashboardRole) {
 
 export function siteStatusDescription(role: DashboardRole) {
   if (role === "admin") {
-    return "Може керувати всією панеллю: профілями, заявками, Discord-розділами та матеріалами сайту.";
+    return "Повний доступ до профілів, заявок, рейдів, Discord-розділів і матеріалів сайту.";
   }
   if (role === "moderator") {
-    return "Може працювати із заявками, звичайними Discord-повідомленнями та переглядати статистику. Розділи адміна залишаються закритими.";
+    return "Офіцерський доступ до заявок, профілів, рейдів і Discord-повідомлень без адмінських розділів.";
   }
-  return "Має доступ лише до власного профілю, своїх персонажів і власних дій.";
+  return "Особистий профіль, персонажі, рейди, запис і правила без адмінських блоків.";
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
@@ -87,7 +107,13 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
     {
       key: "profile",
       title: "Особистий профіль",
-      description: "Кожен бачить свій профіль. Офіцери й адміни можуть відкривати лише профілі ролей не вище свого рівня.",
+      description: "Особисті дані, персонажі Battle.net, роль для рейдів і серверне Discord-ім’я.",
+      enabled: true,
+    },
+    {
+      key: "raid-signup",
+      title: "Рейди та запис",
+      description: "Перегляд опублікованих рейдів, правила і власний запис на участь.",
       enabled: true,
     },
     {

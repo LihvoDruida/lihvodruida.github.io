@@ -1459,6 +1459,31 @@ export async function handleRaidSessionAction(params: {
   return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
 }
 
+export function raidLiveRevision(raid: RaidItem) {
+  const signupsSignature = [...(raid.signups || [])]
+    .sort((a, b) => `${a.discordId}:${a.characterName || ""}`.localeCompare(`${b.discordId}:${b.characterName || ""}`))
+    .map((item) => [
+      item.discordId,
+      item.status,
+      item.role,
+      item.characterName || "",
+      item.realmSlug || item.realmName || "",
+      item.itemLevel ?? "",
+      item.updatedAt || item.signedAt || "",
+    ].join("~"))
+    .join("|");
+
+  return [
+    raid.id,
+    raid.status,
+    raid.updatedAt || "",
+    raid.channelId || "",
+    raid.messageId || "",
+    raid.signups?.length || 0,
+    signupsSignature,
+  ].join("::");
+}
+
 export function dashboardRaidUrl(raidId: string) {
   const base = dashboardBaseUrl();
   return `${base}/raids/${encodeURIComponent(raidId)}`;

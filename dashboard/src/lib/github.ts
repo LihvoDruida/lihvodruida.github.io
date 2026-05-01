@@ -508,6 +508,21 @@ export async function listIssues() {
   }
 }
 
+export async function listApplicationFilterOptions() {
+  const issues = await listIssues();
+  const items = issues.map(mapApplicationIssue);
+  return {
+    classes: Array.from(new Set(items.map((item) => String(item.class_name || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "uk")),
+    total: items.length,
+  };
+}
+
+function timestampForApplicationSort(item: ApplicationItem, key: "created" | "updated") {
+  const value = key === "updated" ? item.updated_at || item.created_at : item.created_at;
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
 export async function listApplications(params?: URLSearchParams) {
   const issues = await listIssues();
   let items = issues.map(mapApplicationIssue);
@@ -515,6 +530,7 @@ export async function listApplications(params?: URLSearchParams) {
   const status = params?.get("status") || "";
   const query = (params?.get("q") || "").trim().toLowerCase();
   const className = (params?.get("class") || "").trim().toLowerCase();
+  const sort = params?.get("sort") === "updated" ? "updated" : "created";
 
   if (status && status !== "all") {
     items = items.filter((item) => item.status_key === normalizeStatus(status));
@@ -538,6 +554,8 @@ export async function listApplications(params?: URLSearchParams) {
       ].some((value) => String(value || "").toLowerCase().includes(query))
     );
   }
+
+  items = [...items].sort((a, b) => timestampForApplicationSort(b, sort) - timestampForApplicationSort(a, sort));
 
   const { results } = await mapConcurrent(
     items,

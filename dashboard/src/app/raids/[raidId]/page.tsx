@@ -1,7 +1,8 @@
 import { getSession } from "@/lib/auth";
-import { canManageRaids } from "@/lib/permissions";
+import { canManageRaids, canViewRaidRoster } from "@/lib/permissions";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById } from "@/lib/profiles";
-import { getRaid, hasRaidStorage } from "@/lib/raids";
+import { getRaid, hasRaidStorage, raidLiveRevision } from "@/lib/raids";
+import RaidLiveSync from "@/components/RaidLiveSync";
 import { RaidAnnouncementPreview, RaidAttendanceActions, RaidManageActions, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
 
 export const runtime = "nodejs";
@@ -11,6 +12,7 @@ export const revalidate = 0;
 export default async function RaidDetailsPage({ params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   const canManage = canManageRaids(user);
+  const canSeeRoster = canViewRaidRoster(user);
   const { raidId } = await params;
   const query = await searchParams;
   const raid = await getRaid(raidId);
@@ -30,6 +32,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
       description="Пряме посилання доступне учасникам. Вони можуть тільки підписатися, пропустити рейд або позначити запізнення."
     >
       <StatusNotice params={query} />
+      {visibleRaid ? <RaidLiveSync raidId={visibleRaid.id} initialRevision={raidLiveRevision(visibleRaid)} /> : null}
       {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Запис на рейди тимчасово недоступний. Повтори пізніше або звернись до офіцера.</div> : null}
 
       {visibleRaid ? (
@@ -39,13 +42,15 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
               raid={visibleRaid}
               actions={<RaidAttendanceActions raid={visibleRaid} user={user} hasMainCharacter={hasMainCharacter} />}
               manageActions={canManage ? <RaidManageActions raid={visibleRaid} /> : null}
+              showRosterDetails={true}
+              showMemberItemLevels={canManage}
             />
             <div className="raid-detail-links">
               {canManage ? <a className="btn subtle" href="/raids">До списку рейдів</a> : null}
               {visibleRaid.messageUrl ? <a className="btn subtle" href={visibleRaid.messageUrl} target="_blank" rel="noreferrer">Відкрити повідомлення в Discord</a> : null}
             </div>
           </div>
-          <RosterSideList raid={visibleRaid} />
+          {canSeeRoster ? <RosterSideList raid={visibleRaid} showItemLevel={canManage} /> : null}
         </section>
       ) : <RaidUnavailableState canManage={canManage} />}
     </RaidPageShell>

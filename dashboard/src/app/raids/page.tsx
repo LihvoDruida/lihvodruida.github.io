@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { canManageRaids } from "@/lib/permissions";
+import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
+import { getOwnProfilePath } from "@/lib/profiles";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasRaidStorage, isRaidClosed, listRaids } from "@/lib/raids";
 import { RaidListCard, RaidPageShell, StatusNotice } from "@/components/RaidViews";
+import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,58 +14,63 @@ export const revalidate = 0;
 export default async function RaidsListPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) redirect("/login");
-  if (!canManageRaids(user)) redirect("/profile");
+  if (!canViewRaidDirectory(user)) redirect(await getOwnProfilePath(user));
 
+  const canManage = canManageRaids(user);
   const params = await searchParams;
   if (params.raid) redirect(`/raids/${encodeURIComponent(params.raid)}`);
 
   const raids = await listRaids(100);
   const activeRaids = raids.filter((raid) => raid.status === "published" && !isRaidClosed(raid));
-  const draftRaids = raids.filter((raid) => raid.status === "draft");
+  const draftRaids = canManage ? raids.filter((raid) => raid.status === "draft") : [];
   const closedRaids = raids.filter((raid) => isRaidClosed(raid));
-  const currentRaids = [...activeRaids, ...draftRaids];
+  const currentRaids = canManage ? [...activeRaids, ...draftRaids] : activeRaids;
+  const visibleTotal = canManage ? raids.length : activeRaids.length + closedRaids.length;
 
   return (
     <RaidPageShell
       user={user}
-      title="Рейди"
-      description="Список рейдів для керування оголошеннями, складом, лімітами та записами. Минулі рейди закриваються автоматично й залишаються в архіві до ручного видалення."
+      title={canManage ? "Рейди" : "Мої рейди"}
+      description={canManage
+        ? "Керування рейдами, оголошеннями, складом, лімітами та записами. Минулі рейди залишаються в архіві до ручного видалення."
+        : "Опубліковані рейди, запис на участь і посилання на правила без зайвих адмінських блоків."}
     >
       <StatusNotice params={params} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Перевір налаштування панелі.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна переглядати локально.</div> : null}
+      {canManage ? <IntegrationStatusPanel compact /> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Рейди тимчасово недоступні. Спробуй пізніше або звернись до офіцера.</div> : null}
+      {canManage && !hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна переглядати локально.</div> : null}
 
       <section className="panel raid-list-page-panel">
         <div className="raid-list-page-head">
           <div>
-            <h2>Поточні рейди</h2>
-            <p>Активні рейди та чернетки. Закриті рейди винесені в окремий архів нижче.</p>
+            <h2>{canManage ? "Поточні рейди" : "Доступні рейди"}</h2>
+            <p>{canManage ? "Активні рейди та чернетки. Закриті рейди винесені в окремий архів нижче." : "Тут видно рейди, на які можна записатися або переглянути свій статус."}</p>
             <div className="raid-list-summary" aria-label="Коротка статистика рейдів">
-              <span>Усього: {raids.length}</span>
+              <span>Усього: {visibleTotal}</span>
               <span>Активні: {activeRaids.length}</span>
-              <span>Чернетки: {draftRaids.length}</span>
+              {canManage ? <span>Чернетки: {draftRaids.length}</span> : null}
               <span>Архів: {closedRaids.length}</span>
             </div>
           </div>
-          <a className="btn primary" href="/raids/new">＋ Створити рейд</a>
+          {canManage ? <a className="btn primary" href="/raids/new">＋ Створити рейд</a> : null}
         </div>
         <div className="raid-manager-list">
-          {currentRaids.length ? currentRaids.map((raid) => <RaidListCard key={raid.id} raid={raid} />) : <p className="raid-empty">Активних рейдів і чернеток поки немає.</p>}
+          {currentRaids.length ? currentRaids.map((raid) => <RaidListCard key={raid.id} raid={raid} canManage={canManage} />) : <p className="raid-empty">Активних рейдів поки немає.</p>}
         </div>
       </section>
 
       <section className="panel raid-list-page-panel raid-list-page-panel--archive">
         <div className="raid-list-page-head raid-list-page-head--archive">
           <div>
-            <h2>Минулі закриті рейди</h2>
-            <p>Архів для перегляду складу, записів, середнього item level і посилань на Discord-повідомлення. Автовидалення вимкнене: видалення доступне тільки вручну.</p>
+            <h2>Минулі рейди</h2>
+            <p>{canManage ? "Архів для перегляду складу, записів, середнього item level і посилань на Discord-повідомлення." : "Завершені рейди залишаються доступними для перегляду."}</p>
             <div className="raid-list-summary" aria-label="Статистика архіву рейдів">
               <span>Закрито: {closedRaids.length}</span>
             </div>
           </div>
         </div>
         <div className="raid-manager-list raid-manager-list--archive">
-          {closedRaids.length ? closedRaids.map((raid) => <RaidListCard key={raid.id} raid={raid} />) : <p className="raid-empty">Минулі закриті рейди з’являться тут після завершення або ручного закриття рейду.</p>}
+          {closedRaids.length ? closedRaids.map((raid) => <RaidListCard key={raid.id} raid={raid} canManage={canManage} />) : <p className="raid-empty">Минулі рейди з’являться тут після завершення.</p>}
         </div>
       </section>
     </RaidPageShell>

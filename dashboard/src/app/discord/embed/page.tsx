@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds } from "@/lib/permissions";
@@ -80,6 +81,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
       </section>
 
       <StatusNotice params={params} />
+      <IntegrationStatusPanel compact />
 
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Ця сторінка доступна гільдмайстеру та офіцерам.</div>

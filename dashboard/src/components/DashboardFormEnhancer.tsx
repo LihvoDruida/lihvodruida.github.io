@@ -1,12 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
+
+type ToastPayload = {
+  tone?: "info" | "success" | "warning" | "error";
+  title?: string;
+  message?: string;
+  ttl?: number;
+};
 
 function formUsesApi(form: HTMLFormElement) {
   if (form.dataset.toastManaged === "true") return false;
   const action = form.getAttribute("action") || "";
   return action.startsWith("/api/") || action.includes("/api/");
+}
+
+function formUsesLiveSubmit(form: HTMLFormElement) {
+  return form.dataset.dashboardLiveSubmit === "true";
 }
 
 function actionText(action: string) {
@@ -18,6 +30,7 @@ function actionText(action: string) {
   if (action.includes("/profile/raid-role")) return { label: "Зберігаємо...", title: "Зберігаємо роль у рейді", message: "Оновлюємо пріоритет ролі для запису на рейди." };
   if (action.includes("/profile/name")) return { label: "Зберігаємо...", title: "Зберігаємо імʼя", message: "Оновлюємо імʼя в профілі." };
   if (action.includes("/profile/discord-nickname")) return { label: "Синхронізуємо...", title: "Оновлюємо Discord імʼя", message: "Змінюємо серверний nickname у Discord за профільним стандартом." };
+  if (action.includes("/raids/") && action.includes("/attendance")) return { label: "Оновлюємо...", title: "Оновлюємо запис", message: "Записуємо дію та оновлюємо склад рейду без перезавантаження." };
   if (action.includes("/delete")) return { label: "Видаляємо...", title: "Видаляємо", message: "Обробляємо запит і оновлюємо дані." };
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
@@ -57,8 +70,110 @@ function preserveSubmitterValue(form: HTMLFormElement, submitter: HTMLButtonElem
   form.appendChild(input);
 }
 
+function preserveButtonState(buttons: HTMLButtonElement[]) {
+  for (const button of buttons) {
+    button.dataset.wasDisabled = button.disabled ? "true" : "false";
+    button.dataset.originalText = button.textContent || "";
+  }
+}
+
+function setWorking(form: HTMLFormElement, buttons: HTMLButtonElement[], submitter: HTMLButtonElement | null, label: string) {
+  form.dataset.submitting = "true";
+  form.classList.add("is-submitting");
+  form.setAttribute("aria-busy", "true");
+
+  for (const button of buttons) {
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("btn-working");
+  }
+
+  if (submitter) {
+    const shouldPreserveLabel =
+      submitter.dataset.preserveLabel === "true" ||
+      submitter.classList.contains("profile-icon-action") ||
+      submitter.classList.contains("icon-only");
+
+    if (!shouldPreserveLabel) {
+      submitter.textContent = submitter.dataset.loadingLabel || label;
+    }
+  }
+}
+
+function resetWorking(form: HTMLFormElement, buttons: HTMLButtonElement[]) {
+  delete form.dataset.submitting;
+  form.classList.remove("is-submitting");
+  form.removeAttribute("aria-busy");
+  form.querySelectorAll<HTMLInputElement>('input[data-submitter-proxy="true"]').forEach((input) => input.remove());
+
+  for (const button of buttons) {
+    button.disabled = button.dataset.wasDisabled === "true";
+    button.removeAttribute("aria-busy");
+    button.classList.remove("btn-working");
+    if (button.dataset.originalText) button.textContent = button.dataset.originalText;
+    delete button.dataset.wasDisabled;
+    delete button.dataset.originalText;
+  }
+}
+
+function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
+  if (data && typeof data === "object" && "toast" in data) {
+    const toast = (data as { toast?: ToastPayload }).toast;
+    if (toast?.title) return toast;
+  }
+  if (data && typeof data === "object" && "message" in data) {
+    const message = String((data as { message?: unknown }).message || "");
+    if (message) return { tone: responseOk ? "success" : "error", title: responseOk ? "Готово" : "Дію не виконано", message };
+  }
+  return responseOk
+    ? { tone: "success", title: "Готово", message: "Дані оновлено." }
+    : { tone: "error", title: "Дію не виконано", message: "Сервер не повернув зрозумілу відповідь." };
+}
+
 export default function DashboardFormEnhancer() {
+  const router = useRouter();
+
   useEffect(() => {
+    async function submitLiveForm(form: HTMLFormElement, submitter: HTMLButtonElement | null, buttons: HTMLButtonElement[], action: string, label: string) {
+      try {
+        const response = await fetch(action || window.location.href, {
+          method: (form.method || "post").toUpperCase(),
+          body: new FormData(form),
+          credentials: "same-origin",
+          headers: {
+            Accept: "application/json",
+            "X-Dashboard-Action": "live",
+          },
+        });
+        const data = await response.json().catch(() => null);
+        const toast = toastFromResponse(data, response.ok);
+        dispatchDashboardToast({
+          tone: toast.tone || (response.ok ? "success" : "error"),
+          title: toast.title || (response.ok ? "Готово" : "Дію не виконано"),
+          message: toast.message,
+          ttl: toast.ttl || (response.ok ? 4200 : 7600),
+        });
+
+        const loginUrl = data && typeof data === "object" && "loginUrl" in data ? String((data as { loginUrl?: unknown }).loginUrl || "") : "";
+        if (!response.ok && loginUrl) {
+          window.setTimeout(() => window.location.assign(loginUrl), 650);
+          return;
+        }
+
+        if (response.ok) router.refresh();
+      } catch {
+        dispatchDashboardToast({
+          tone: "error",
+          title: "Немає відповіді від сервера",
+          message: "Перевір інтернет або повтори дію через кілька секунд.",
+          ttl: 7600,
+        });
+      } finally {
+        resetWorking(form, buttons);
+        if (submitter) submitter.focus({ preventScroll: true });
+      }
+    }
+
     function onSubmit(event: SubmitEvent) {
       const form = event.target instanceof HTMLFormElement ? event.target : null;
       if (!form || !formUsesApi(form) || form.dataset.submitting === "true") return;
@@ -71,34 +186,19 @@ export default function DashboardFormEnhancer() {
         return;
       }
 
-      form.dataset.submitting = "true";
-      form.classList.add("is-submitting");
-      form.setAttribute("aria-busy", "true");
-
-      preserveSubmitterValue(form, submitter);
-
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
       const action = submitter?.formAction || form.getAttribute("action") || "";
       const copy = actionText(action);
 
+      preserveSubmitterValue(form, submitter);
+      preserveButtonState(buttons);
+      setWorking(form, buttons, submitter, copy.label);
       pushToast(copy.title, copy.message);
 
-      for (const button of buttons) {
-        button.disabled = true;
-        button.setAttribute("aria-busy", "true");
-        button.classList.add("btn-working");
-      }
-
-      if (submitter) {
-        const shouldPreserveLabel =
-          submitter.dataset.preserveLabel === "true" ||
-          submitter.classList.contains("profile-icon-action") ||
-          submitter.classList.contains("icon-only");
-
-        submitter.dataset.originalText = submitter.textContent || "";
-        if (!shouldPreserveLabel) {
-          submitter.textContent = submitter.dataset.loadingLabel || copy.label;
-        }
+      if (formUsesLiveSubmit(form)) {
+        event.preventDefault();
+        event.stopPropagation();
+        void submitLiveForm(form, submitter, buttons, action, copy.label);
       }
     }
 
@@ -149,7 +249,7 @@ export default function DashboardFormEnhancer() {
       window.removeEventListener("click", onClick, true);
       window.removeEventListener("invalid", onInvalid, true);
     };
-  }, []);
+  }, [router]);
 
   return null;
 }

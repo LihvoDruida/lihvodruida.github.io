@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, canModerate } from "@/lib/auth";
-import { listApplications } from "@/lib/github";
+import { listApplicationFilterOptions, listApplications } from "@/lib/github";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage, unauthorizedResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +17,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const url = new URL(request.url);
-    const items = await listApplications(url.searchParams);
+    const [items, filterOptions] = await Promise.all([listApplications(url.searchParams), listApplicationFilterOptions()]);
+    const counts = {
+      all: items.length,
+      review: items.filter((item) => item.status_key === "review").length,
+      accepted: items.filter((item) => item.status_key === "accepted").length,
+      declined: items.filter((item) => item.status_key === "declined").length,
+    };
 
     logDashboardEvent("debug", "applications.list.success", request, { count: items.length, userId: session?.id });
-    return NextResponse.json({ items }, { headers: noStoreHeaders() });
+    return NextResponse.json({ items, counts, classOptions: filterOptions.classes }, { headers: noStoreHeaders() });
   } catch (error) {
     logDashboardEvent("error", "applications.list.failed", request, { message: safeErrorMessage(error) });
     return NextResponse.json(

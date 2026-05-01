@@ -1,10 +1,12 @@
 import ApplicationStatusActions from "@/components/ApplicationStatusActions";
+import ApplicationFilters from "@/components/ApplicationFilters";
+import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
-import { ApplicationItem, listApplications } from "@/lib/github";
+import { ApplicationItem, listApplicationFilterOptions, listApplications } from "@/lib/github";
 import { getOwnProfilePath } from "@/lib/profiles";
 
 function formatDate(value?: string | null) {
@@ -130,14 +132,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const params = await searchParams;
   const urlParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) urlParams.set(key, value);
-  const items = await listApplications(urlParams);
+  const [items, filterOptions] = await Promise.all([listApplications(urlParams), listApplicationFilterOptions()]);
   const counts = {
     all: items.length,
     review: items.filter((item) => item.status_key === "review").length,
     accepted: items.filter((item) => item.status_key === "accepted").length,
     declined: items.filter((item) => item.status_key === "declined").length
   };
-  const classOptions = Array.from(new Set(items.map((item) => item.class_name).filter(Boolean))).sort();
+  const classOptions = filterOptions.classes;
 
   return (
     <main className="container">
@@ -177,24 +179,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="stat panel declined"><strong>{counts.declined}</strong><span>Відхилено</span></div>
       </section>
 
-      <form className="toolbar panel">
-        <input className="input" name="q" placeholder="Пошук: персонаж, realm, клас..." defaultValue={params.q || ""} />
-        <select className="select" name="status" defaultValue={params.status || "all"}>
-          <option value="all">Усі статуси</option>
-          <option value="review">На розгляді</option>
-          <option value="accepted">Прийнято</option>
-          <option value="declined">Відхилено</option>
-        </select>
-        <select className="select" name="class" defaultValue={params.class || "all"}>
-          <option value="all">Усі класи</option>
-          {classOptions.map((className) => <option key={className} value={className}>{className}</option>)}
-        </select>
-        <select className="select" name="sort" defaultValue={params.sort || "created"}>
-          <option value="created">За датою</option>
-          <option value="updated">За оновленням</option>
-        </select>
-        <button className="btn primary" type="submit">Фільтрувати</button>
-      </form>
+      <IntegrationStatusPanel compact />
+
+      <ApplicationFilters
+        initialQuery={params.q || ""}
+        initialStatus={params.status || "all"}
+        initialClass={params.class || "all"}
+        initialSort={params.sort || "created"}
+        classOptions={classOptions}
+      />
 
       {!mayModerate ? <div className="notice panel">Твоя роль не має права змінювати заявки. Якщо це помилка, звернись до гільдмайстра.</div> : null}
 

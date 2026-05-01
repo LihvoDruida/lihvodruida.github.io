@@ -260,6 +260,11 @@ async function fetchBattleNetApplicationToken(regionInput?: string | null) {
   return String(data.access_token);
 }
 
+export async function checkBattleNetApplicationAccess(regionInput?: string | null) {
+  await fetchBattleNetApplicationToken(regionInput);
+  return true;
+}
+
 async function bnetFetch(accessToken: string, path: string, params?: Record<string, string>, regionInput?: string | null) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const locale = getBattleNetLocale(region);
