@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-04-30 21:03:35'
+  updated_at: '2026-05-01 03:32:15'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-04-30T01:18:42.000Z'
+  raider_io_last_crawled_at: '2026-05-01T02:23:36.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -1833,7 +1833,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 90
+        learned_points: 91
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -1858,7 +1858,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 91
+        learned_points: 93
         max_points: 100
     - name: Fishing
       id: 356
@@ -3753,7 +3753,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 52
+        learned_points: 54
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5978,7 +5978,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 9
+        learned_points: 13
         max_points: 100
     - name: Mining
       id: 186
@@ -5987,7 +5987,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 14
+        learned_points: 19
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6016,7 +6016,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 61
+        learned_points: 67
         max_points: 100
     - name: Mining
       id: 186
@@ -6025,7 +6025,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 75
+        learned_points: 78
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6378,7 +6378,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 49
+        learned_points: 54
         max_points: 100
     - name: Mining
       id: 186
@@ -6387,7 +6387,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Mining
-        learned_points: 61
+        learned_points: 63
         max_points: 100
     secondaries:
     - name: Fishing
