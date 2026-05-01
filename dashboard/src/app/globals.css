@@ -16716,3 +16716,198 @@ body {
     font-size: 0.46rem !important;
   }
 }
+
+/* v47: mobile raid list logo/card polish and larger adaptive bottom nav. */
+@media (max-width: 760px) {
+  .raid-manager-list .raid-list-item {
+    gap: clamp(12px, 3.2vw, 16px) !important;
+    padding: clamp(12px, 3.5vw, 16px) !important;
+    overflow: hidden !important;
+  }
+
+  .raid-manager-list .raid-list-main-link {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: start !important;
+    gap: clamp(9px, 2.8vw, 13px) !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .raid-manager-list .raid-list-main-link > img,
+  .raid-manager-list .raid-list-fallback {
+    width: clamp(98px, 29vw, 124px) !important;
+    height: clamp(98px, 29vw, 124px) !important;
+    margin: 0 auto !important;
+    border-radius: 18px !important;
+    justify-self: center !important;
+    align-self: center !important;
+    object-fit: cover !important;
+  }
+
+  .raid-manager-list .raid-list-copy,
+  .raid-list-copy {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: grid !important;
+    gap: clamp(7px, 2vw, 10px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .raid-list-title-row {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: center !important;
+    gap: 7px !important;
+    text-align: center !important;
+  }
+
+  .raid-list-title-row strong {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    text-align: center !important;
+    font-size: clamp(1rem, 4.4vw, 1.18rem) !important;
+    line-height: 1.16 !important;
+  }
+
+  .raid-list-title-row .raid-state {
+    justify-self: center !important;
+    align-self: center !important;
+    min-width: min(100%, 138px) !important;
+    text-align: center !important;
+  }
+
+  .raid-list-facts {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 5px !important;
+    padding: 0 !important;
+  }
+
+  .raid-list-facts small {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    line-height: 1.28 !important;
+    font-size: clamp(0.82rem, 3.35vw, 0.94rem) !important;
+  }
+
+  .raid-list-progress {
+    width: 100% !important;
+    height: clamp(8px, 2.35vw, 10px) !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(214, 168, 79, 0.26) !important;
+    background: rgba(4, 8, 15, 0.62) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.42) !important;
+  }
+
+  .raid-list-progress span {
+    min-width: 5px !important;
+    height: 100% !important;
+    display: block !important;
+    border-radius: inherit !important;
+    background: linear-gradient(90deg, rgba(72, 210, 128, 0.96), rgba(214, 168, 79, 0.96)) !important;
+    box-shadow: 0 0 12px rgba(72, 210, 128, 0.24) !important;
+  }
+
+  .raid-manager-list .raid-list-actions {
+    margin-top: 2px !important;
+  }
+
+  :root {
+    --dashboard-mobile-nav-edge: clamp(8px, 2.6vw, 13px);
+    --dashboard-mobile-nav-gap: clamp(4px, 1.35vw, 7px);
+    --dashboard-mobile-nav-pad: clamp(6px, 1.65vw, 8px);
+    --dashboard-mobile-nav-height: clamp(64px, 16vw, 74px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(6px, 1.8vw, 10px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + clamp(10px, 2.4vw, 16px));
+  }
+
+  .dashboard-mobile-nav {
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    padding: var(--dashboard-mobile-nav-pad) !important;
+    border-radius: clamp(19px, 5vw, 24px) !important;
+  }
+
+  .dashboard-mobile-nav a {
+    gap: clamp(2px, 0.85vw, 4px) !important;
+    padding: clamp(6px, 1.55vw, 8px) clamp(2px, 1vw, 5px) !important;
+    border-radius: clamp(15px, 4.2vw, 19px) !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(0.98rem, 4.7vw, 1.18rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.64rem, 2.65vw, 0.78rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.018em !important;
+  }
+
+  .dashboard-mobile-nav[data-items="4"] a strong {
+    font-size: clamp(0.6rem, 2.35vw, 0.73rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a span {
+    font-size: clamp(0.9rem, 4.05vw, 1.08rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.54rem, 2.12vw, 0.66rem) !important;
+    letter-spacing: -0.035em !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --dashboard-mobile-nav-edge: 6px;
+    --dashboard-mobile-nav-gap: 3px;
+    --dashboard-mobile-nav-pad: 5px;
+    --dashboard-mobile-nav-height: 60px;
+    --dashboard-mobile-nav-bottom-offset: calc(5px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 8px);
+  }
+
+  .raid-manager-list .raid-list-main-link > img,
+  .raid-manager-list .raid-list-fallback {
+    width: 94px !important;
+    height: 94px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.92rem !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.59rem !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.52rem !important;
+  }
+}
