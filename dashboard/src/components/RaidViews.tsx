@@ -193,8 +193,8 @@ export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: {
       ) : null}
       <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled} data-dashboard-live-submit="true">
         <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
-        <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={skipDisabled} title={skipDisabled ? title : undefined}>◷ Пропустити</button>
-        <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "✕ Затримаюсь"}</button>
+        <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={skipDisabled} title={skipDisabled ? title : undefined}>↩ Пропустити</button>
+        <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "🕒 Затримаюсь"}</button>
       </form>
     </div>
   );
@@ -257,8 +257,8 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions, showRost
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
           <span className="raid-action raid-action--go">✓ Підписатися</span>
-          <span className="raid-action raid-action--skip">◷ Пропустити</span>
-          <span className="raid-action raid-action--late">✕ Затримаюсь</span>
+          <span className="raid-action raid-action--skip">↩ Пропустити</span>
+          <span className="raid-action raid-action--late">🕒 Затримаюсь</span>
         </div>
       )}
       {showRosterDetails ? (

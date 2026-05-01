@@ -850,7 +850,7 @@ function signupName(item?: RaidSignup | null) {
   const name = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` • ${item.activeSpecName}` : "";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel} ilvl` : "";
-  const late = item.status === "late" ? " ⏱" : "";
+  const late = item.status === "late" ? " 🕒" : "";
   return `${name}${spec}${ilvl}${late}`;
 }
 
@@ -957,34 +957,48 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` ${item.activeSpecName}` : "";
-  const late = item.status === "late" ? " ⏱" : "";
+  const late = item.status === "late" ? " 🕒" : "";
   const text = `${base}${spec}${late}`.trim();
   return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
-function compactSignupDiscordLine(item?: RaidSignup | null, max = 48) {
+function isSignupBelowRaidMinimum(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null) {
+  const minimum = Number(raid?.minItemLevel || 0);
+  const current = Number(item?.itemLevel || 0);
+  return Boolean(item && item.status !== "skipped" && Number.isFinite(minimum) && minimum > 0 && Number.isFinite(current) && current > 0 && current < minimum);
+}
+
+function discordSignupMarkers(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null) {
+  if (!item) return "";
+  const markers = [
+    isSignupBelowRaidMinimum(item, raid) ? "⚠️" : null,
+    item.status === "late" ? "🕒" : null,
+  ].filter(Boolean);
+  return markers.length ? `${markers.join(" ")} ` : "";
+}
+
+function compactSignupDiscordLine(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null, max = 48) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel}` : "";
-  const late = item.status === "late" ? " ⏱" : "";
-  const value = `${base}${ilvl}${late}`.trim();
+  const value = `${discordSignupMarkers(item, raid)}${base}${ilvl}`.trim();
   return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
-function compactSignupDiscordLines(items: RaidSignup[], max = 44) {
+function compactSignupDiscordLines(items: RaidSignup[], raid?: Pick<RaidItem, "minItemLevel"> | null, max = 44) {
   return items.length
-    ? items.map((item) => `• ${compactSignupDiscordLine(item, max)}`).join("\n")
+    ? items.map((item) => `• ${compactSignupDiscordLine(item, raid, max)}`).join("\n")
     : "—";
 }
 
-function partyDiscordText(party: RaidParty) {
+function partyDiscordText(party: RaidParty, raid?: Pick<RaidItem, "minItemLevel"> | null) {
   const tanks = [party.tank, ...party.dps.filter((item) => item.role === "tank")].filter(Boolean) as RaidSignup[];
   const healers = [party.healer, ...party.dps.filter((item) => item.role === "healer")].filter(Boolean) as RaidSignup[];
   const dps = party.dps.filter((item) => item.role === "dps");
   const sections = [
-    tanks.length ? `**Танк**\n${compactSignupDiscordLines(tanks, 42)}` : null,
-    healers.length ? `**Хіл**\n${compactSignupDiscordLines(healers, 42)}` : null,
-    dps.length ? `**ДД**\n${compactSignupDiscordLines(dps, 40)}` : null,
+    tanks.length ? `**Танк**\n${compactSignupDiscordLines(tanks, raid, 42)}` : null,
+    healers.length ? `**Хіл**\n${compactSignupDiscordLines(healers, raid, 42)}` : null,
+    dps.length ? `**ДД**\n${compactSignupDiscordLines(dps, raid, 40)}` : null,
   ].filter(Boolean) as string[];
 
   return truncateDiscordField(sections.length ? sections.join("\n\n") : "—", 700);
@@ -1024,7 +1038,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   ].filter(Boolean).join("\n");
   const minItemLevelValue = raid.minItemLevel
     ? [
-        `**Мінімум:** ${raid.minItemLevel}`,
+        `⚠️ **Мінімум:** ${raid.minItemLevel}`,
         raid.minItemLevelRequired
           ? "⛔ Запис блокується, якщо персонаж нижче порогу"
           : "⚠️ Лише попередження, запис не блокується",
@@ -1062,7 +1076,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: rosterValue,
       inline: true,
     },
-    ...(minItemLevelValue ? [{ name: "⭐ Item level", value: minItemLevelValue, inline: true }] : []),
+    ...(minItemLevelValue ? [{ name: "⚠️ Item level", value: minItemLevelValue, inline: true }] : []),
     ...(averageItemLevel ? [{ name: "📊 Середній ilvl", value: `${averageItemLevel}`, inline: true }] : []),
     {
       name: "⚔️ Ролі",
@@ -1071,7 +1085,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     },
     ...parties.map((party) => ({
       name: `Паті ${party.index}`,
-      value: partyDiscordText(party),
+      value: partyDiscordText(party, raid),
       inline: true,
     })),
     ...(omittedParties > 0
@@ -1123,9 +1137,9 @@ export function buildRaidAttendanceComponents(raidId: string, options: boolean |
     {
       type: 1,
       components: [
-        { type: 2, style: 3, label: full && !disabled ? "Заповнено" : "Підписатися", custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
-        { type: 2, style: 2, label: "Пропустити", custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
-        { type: 2, style: 4, label: full && !disabled ? "Ліміт досягнуто" : "Затримаюсь", custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
+        { type: 2, style: 3, label: full && !disabled ? "Заповнено" : "Підписатися", emoji: { name: "✅" }, custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
+        { type: 2, style: 2, label: "Пропустити", emoji: { name: "↩️" }, custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
+        { type: 2, style: 4, label: full && !disabled ? "Ліміт досягнуто" : "Затримаюсь", emoji: { name: "🕒" }, custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
       ],
     },
   ];
@@ -1362,7 +1376,7 @@ function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
   const base = action === "late"
-    ? `⏱ Записано: ти затримаєшся на ${raidTitle(raid)}. ${syncText}`
+    ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}. ${syncText}`
     : `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. ${syncText}`;
   return warning ? `${base}\n\n${warning}` : base;
 }
