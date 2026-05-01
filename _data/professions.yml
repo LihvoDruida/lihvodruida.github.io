@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-01 03:32:15'
+  updated_at: '2026-05-01 06:38:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-01T02:23:36.000Z'
+  raider_io_last_crawled_at: '2026-05-01T05:19:32.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -2361,7 +2361,7 @@ characters:
   region: eu
   realm: doomhammer
   realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -2779,7 +2779,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 95
+        learned_points: 96
         max_points: 100
     secondaries: []
 - name: Yokuha
@@ -4155,7 +4155,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -5695,7 +5695,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Тузольд
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -5837,7 +5837,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting

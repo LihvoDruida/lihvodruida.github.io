@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-01 03:32:15'
+  updated_at: '2026-05-01 06:38:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-01T02:23:36.000Z'
+  raider_io_last_crawled_at: '2026-05-01T05:19:32.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6026
       realm: 55
     heroic:
-      world: 15686
-      region: 6580
+      world: 15696
+      region: 6581
       realm: 53
     mythic:
-      world: 6865
+      world: 6873
       region: 2956
       realm: 23
   blackrock-depths:
@@ -2286,47 +2286,23 @@ members:
       slug: doomhammer
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 3
-      name: Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Holy
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
-    item_level_equipped: 273
-    mythic_plus_scores:
-      all:
-        score: 2763.9
-        color: '#4485c6'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 2763.9
-        color: '#4485c6'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2763.9
-        color: '#4485c6'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -2714,7 +2690,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mólfár
-    item_level_equipped: 266
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 2628.2
@@ -4158,47 +4134,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 9
-      name: Warlock
+      name: null
     playable_race:
       id: 22
-      name: Worgen
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Affliction
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
-    item_level_equipped: 246
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4693,11 +4645,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2879.6
-        color: '#1e74d9'
+        score: 2954.8
+        color: '#4369e0'
       dps:
-        score: 2879.6
-        color: '#1e74d9'
+        score: 2954.8
+        color: '#4369e0'
       healer:
         score: 0
         color: '#ffffff'
@@ -4708,8 +4660,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2879.6
-        color: '#1e74d9'
+        score: 2954.8
+        color: '#4369e0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5354,47 +5306,23 @@ members:
       slug: gordunni
     playable_class:
       id: 6
-      name: Death Knight
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Unholy
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 272
-    mythic_plus_scores:
-      all:
-        score: 2629.3
-        color: '#589baf'
-      dps:
-        score: 2629.3
-        color: '#589baf'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 221.5
-        color: '#ffffff'
-      spec_0:
-        score: 221.5
-        color: '#ffffff'
-      spec_1:
-        score: 331.8
-        color: '#f6fff2'
-      spec_2:
-        score: 2600.5
-        color: '#5ca4a6'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -5614,47 +5542,23 @@ members:
       slug: gordunni
     playable_class:
       id: 1
-      name: Warrior
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Fury
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Альянсс
-    item_level_equipped: 253
-    mythic_plus_scores:
-      all:
-        score: 1194.5
-        color: '#b1ff98'
-      dps:
-        score: 1194.5
-        color: '#b1ff98'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 1194.5
-        color: '#b1ff98'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -6018,7 +5922,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мавпита
-    item_level_equipped: 266
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 2615.2
