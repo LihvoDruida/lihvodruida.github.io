@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-01 06:38:59'
+  updated_at: '2026-05-01 09:48:08'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 121
+  member_count: 122
   achievement_points: 465
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6026
       realm: 55
     heroic:
-      world: 15696
+      world: 15697
       region: 6581
       realm: 53
     mythic:
-      world: 6873
-      region: 2956
+      world: 6874
+      region: 2957
       realm: 23
   blackrock-depths:
     normal:
@@ -142,10 +142,10 @@ members:
     mythic_plus_scores:
       all:
         score: 409.9
-        color: '#f0ffea'
+        color: '#f1ffea'
       dps:
         score: 409.9
-        color: '#f0ffea'
+        color: '#f1ffea'
       healer:
         score: 0
         color: '#ffffff'
@@ -160,7 +160,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 409.9
-        color: '#f0ffea'
+        color: '#f1ffea'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -194,10 +194,10 @@ members:
     mythic_plus_scores:
       all:
         score: 695.3
-        color: '#dbffcd'
+        color: '#dcffce'
       dps:
         score: 695.3
-        color: '#dbffcd'
+        color: '#dcffce'
       healer:
         score: 0
         color: '#ffffff'
@@ -212,7 +212,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 695.3
-        color: '#dbffcd'
+        color: '#dcffce'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -610,10 +610,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2054.2
-        color: '#33ff1a'
+        color: '#3aff22'
       dps:
         score: 2054.2
-        color: '#33ff1a'
+        color: '#3aff22'
       healer:
         score: 0
         color: '#ffffff'
@@ -628,7 +628,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2054.2
-        color: '#33ff1a'
+        color: '#3aff22'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -714,7 +714,7 @@ members:
     mythic_plus_scores:
       all:
         score: 1694.6
-        color: '#7aff5d'
+        color: '#7cff60'
       dps:
         score: 0
         color: '#ffffff'
@@ -723,10 +723,10 @@ members:
         color: '#ffffff'
       tank:
         score: 1694.6
-        color: '#7aff5d'
+        color: '#7cff60'
       spec_0:
         score: 1694.6
-        color: '#7aff5d'
+        color: '#7cff60'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -778,7 +778,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 1453.5
-        color: '#95ff79'
+        color: '#96ff7b'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -818,10 +818,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2472.6
-        color: '#5fba8d'
+        color: '#5fbd8a'
       dps:
         score: 2472.6
-        color: '#5fba8d'
+        color: '#5fbd8a'
       healer:
         score: 0
         color: '#ffffff'
@@ -836,7 +836,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2472.6
-        color: '#5fba8d'
+        color: '#5fbd8a'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -870,10 +870,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2072.3
-        color: '#33ff1a'
+        color: '#3aff22'
       dps:
         score: 2072.3
-        color: '#33ff1a'
+        color: '#3aff22'
       healer:
         score: 0
         color: '#ffffff'
@@ -882,13 +882,65 @@ members:
         color: '#ffffff'
       spec_0:
         score: 1959.6
-        color: '#4dff33'
+        color: '#52ff37'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
         score: 297.7
         color: '#fafff7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Kavunchyk
+    id: 183981777
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 170
+        color: '#ffffff'
+      dps:
+        score: 170
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 170
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1442,13 +1494,13 @@ members:
     mythic_plus_scores:
       all:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
       tank:
         score: 0
         color: '#ffffff'
@@ -1463,7 +1515,7 @@ members:
         color: '#ffffff'
       spec_3:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -1653,22 +1705,22 @@ members:
         color: '#6062e3'
       dps:
         score: 2695.1
-        color: '#5292b9'
+        color: '#5393b7'
       healer:
         score: 2578
-        color: '#5da8a1'
+        color: '#5eaa9f'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 2578
-        color: '#5da8a1'
+        color: '#5eaa9f'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
         score: 2695.1
-        color: '#5292b9'
+        color: '#5393b7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1702,13 +1754,13 @@ members:
     mythic_plus_scores:
       all:
         score: 1992
-        color: '#47ff2e'
+        color: '#4cff33'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 1992
-        color: '#47ff2e'
+        color: '#4cff33'
       tank:
         score: 0
         color: '#ffffff'
@@ -1717,7 +1769,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 1992
-        color: '#47ff2e'
+        color: '#4cff33'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -1754,10 +1806,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2563.2
-        color: '#5da8a1'
+        color: '#5eaa9f'
       dps:
         score: 2563.2
-        color: '#5da8a1'
+        color: '#5eaa9f'
       healer:
         score: 0
         color: '#ffffff'
@@ -1766,13 +1818,13 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2542.7
-        color: '#5ead9c'
+        color: '#5faf9a'
       spec_1:
         score: 447.1
-        color: '#efffe7'
+        color: '#efffe8'
       spec_2:
         score: 486.3
-        color: '#ebffe2'
+        color: '#ebffe3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1910,19 +1962,19 @@ members:
     mythic_plus_scores:
       all:
         score: 2735.9
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       dps:
         score: 2735.9
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       healer:
         score: 438.8
-        color: '#efffe7'
+        color: '#efffe8'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 2735.9
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1931,7 +1983,7 @@ members:
         color: '#ffffff'
       spec_3:
         score: 438.8
-        color: '#efffe7'
+        color: '#efffe8'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -1962,7 +2014,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2108.5
-        color: '#1eff00'
+        color: '#2aff10'
       dps:
         score: 0
         color: '#ffffff'
@@ -1971,7 +2023,7 @@ members:
         color: '#ffffff'
       tank:
         score: 2108.5
-        color: '#1eff00'
+        color: '#2aff10'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -1980,7 +2032,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2108.5
-        color: '#1eff00'
+        color: '#2aff10'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2014,10 +2066,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
       dps:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
       healer:
         score: 0
         color: '#ffffff'
@@ -2032,7 +2084,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2253.4
-        color: '#4fe356'
+        color: '#4be750'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2286,23 +2338,47 @@ members:
       slug: doomhammer
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 3
-      name: null
+      name: Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Holy
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/133/188593285-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Sneydilio
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2763.9
+        color: '#4586c6'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2763.9
+        color: '#4586c6'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2763.9
+        color: '#4586c6'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -2382,10 +2458,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2628.5
-        color: '#589baf'
+        color: '#5ba1a9'
       dps:
         score: 2628.5
-        color: '#589baf'
+        color: '#5ba1a9'
       healer:
         score: 0
         color: '#ffffff'
@@ -2397,7 +2473,7 @@ members:
         color: '#fdfffc'
       spec_1:
         score: 2628.5
-        color: '#589baf'
+        color: '#5ba1a9'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -2434,10 +2510,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2470.9
-        color: '#5fba8d'
+        color: '#5fbd8a'
       dps:
         score: 2470.9
-        color: '#5fba8d'
+        color: '#5fbd8a'
       healer:
         score: 0
         color: '#ffffff'
@@ -2452,7 +2528,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2470.9
-        color: '#5fba8d'
+        color: '#5fbd8a'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2512,6 +2588,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Skirvir
+    id: 188842818
+    level: 90
+    realm:
+      id: 553
+      slug: turalyon
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 3
+      name: Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/turalyon/Skirvir
+    item_level_equipped: 271
+    mythic_plus_scores:
+      all:
+        score: 1627.6
+        color: '#83ff66'
+      dps:
+        score: 1627.6
+        color: '#83ff66'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1627.6
+        color: '#83ff66'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Athang
@@ -2538,25 +2666,25 @@ members:
     mythic_plus_scores:
       all:
         score: 2125.4
-        color: '#2dfa20'
+        color: '#1eff00'
       dps:
         score: 705.5
-        color: '#d9ffcb'
+        color: '#daffcb'
       healer:
         score: 716.2
-        color: '#d9ffcb'
+        color: '#daffcb'
       tank:
         score: 2082.9
-        color: '#2aff10'
+        color: '#33ff1a'
       spec_0:
         score: 2082.9
-        color: '#2aff10'
+        color: '#33ff1a'
       spec_1:
         score: 716.2
-        color: '#d9ffcb'
+        color: '#daffcb'
       spec_2:
         score: 705.5
-        color: '#d9ffcb'
+        color: '#daffcb'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2590,19 +2718,19 @@ members:
     mythic_plus_scores:
       all:
         score: 2593.2
-        color: '#5ca4a6'
+        color: '#5ca6a4'
       dps:
         score: 1970.5
-        color: '#4dff33'
+        color: '#52ff37'
       healer:
         score: 2532.2
-        color: '#5ead9c'
+        color: '#5faf9a'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 1970.5
-        color: '#4dff33'
+        color: '#52ff37'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2611,7 +2739,7 @@ members:
         color: '#ffffff'
       spec_3:
         score: 2532.2
-        color: '#5ead9c'
+        color: '#5faf9a'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -2642,7 +2770,7 @@ members:
     mythic_plus_scores:
       all:
         score: 696.6
-        color: '#dbffcd'
+        color: '#dcffce'
       dps:
         score: 0
         color: '#ffffff'
@@ -2651,7 +2779,7 @@ members:
         color: '#ffffff'
       tank:
         score: 696.6
-        color: '#dbffcd'
+        color: '#dcffce'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -2660,7 +2788,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 696.6
-        color: '#dbffcd'
+        color: '#dcffce'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2694,10 +2822,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2628.2
-        color: '#589baf'
+        color: '#5ba1a9'
       dps:
         score: 2628.2
-        color: '#589baf'
+        color: '#5ba1a9'
       healer:
         score: 0
         color: '#ffffff'
@@ -2706,13 +2834,13 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2274
-        color: '#53df5e'
+        color: '#50e258'
       spec_1:
         score: 300.8
         color: '#f8fff5'
       spec_2:
         score: 2387.3
-        color: '#5ec87d'
+        color: '#5bcf73'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2772,6 +2900,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Umbrak
+    id: 189215394
+    level: 81
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 4
+      name: Rogue
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Outlaw
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Umbrak
+    item_level_equipped: 138
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Yokuha
@@ -2798,10 +2978,10 @@ members:
     mythic_plus_scores:
       all:
         score: 1749.4
-        color: '#73ff57'
+        color: '#76ff59'
       dps:
         score: 1749.4
-        color: '#73ff57'
+        color: '#76ff59'
       healer:
         score: 0
         color: '#ffffff'
@@ -2810,13 +2990,65 @@ members:
         color: '#ffffff'
       spec_0:
         score: 1535.4
-        color: '#8cff70'
+        color: '#8eff72'
       spec_1:
         score: 688.9
-        color: '#dbffcd'
+        color: '#dcffce'
       spec_2:
         score: 300
         color: '#fafff7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Yokum
+    id: 189317829
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 22
+      name: Worgen
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Yokum
+    item_level_equipped: 233
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2850,10 +3082,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2760.2
-        color: '#4485c6'
+        color: '#4586c6'
       dps:
         score: 2760.2
-        color: '#4485c6'
+        color: '#4586c6'
       healer:
         score: 0
         color: '#ffffff'
@@ -2868,7 +3100,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2760.2
-        color: '#4485c6'
+        color: '#4586c6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2902,10 +3134,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       dps:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       healer:
         score: 0
         color: '#ffffff'
@@ -2920,7 +3152,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2954,7 +3186,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       dps:
         score: 0
         color: '#ffffff'
@@ -2963,13 +3195,13 @@ members:
         color: '#ffffff'
       tank:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
         score: 2308.6
-        color: '#56da64'
+        color: '#53de5f'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3110,10 +3342,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2071.7
-        color: '#33ff1a'
+        color: '#3aff22'
       dps:
         score: 2071.7
-        color: '#33ff1a'
+        color: '#3aff22'
       healer:
         score: 0
         color: '#ffffff'
@@ -3122,7 +3354,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2031.3
-        color: '#3bff22'
+        color: '#41ff28'
       spec_1:
         score: 541.7
         color: '#e7ffdd'
@@ -3162,10 +3394,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2884.6
-        color: '#1e74d9'
+        color: '#1f74d8'
       dps:
         score: 2884.6
-        color: '#1e74d9'
+        color: '#1f74d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -3174,10 +3406,10 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2884.6
-        color: '#1e74d9'
+        color: '#1f74d8'
       spec_1:
         score: 658.1
-        color: '#ddffd0'
+        color: '#deffd0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3214,10 +3446,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2779.6
-        color: '#3e81cb'
+        color: '#3f82ca'
       dps:
         score: 2779.6
-        color: '#3e81cb'
+        color: '#3f82ca'
       healer:
         score: 0
         color: '#ffffff'
@@ -3232,7 +3464,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2779.6
-        color: '#3e81cb'
+        color: '#3f82ca'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3422,7 +3654,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2727.8
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       dps:
         score: 0
         color: '#ffffff'
@@ -3431,10 +3663,10 @@ members:
         color: '#ffffff'
       tank:
         score: 2727.8
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       spec_0:
         score: 2727.8
-        color: '#4a8ac2'
+        color: '#4a8ac1'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3526,25 +3758,25 @@ members:
     mythic_plus_scores:
       all:
         score: 2764.4
-        color: '#4485c6'
+        color: '#4586c6'
       dps:
         score: 993.7
-        color: '#c3ffad'
+        color: '#c3ffae'
       healer:
         score: 2764.4
-        color: '#4485c6'
+        color: '#4586c6'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 2764.4
-        color: '#4485c6'
+        color: '#4586c6'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
         score: 993.7
-        color: '#c3ffad'
+        color: '#c3ffae'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3630,10 +3862,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2659.1
-        color: '#5597b4'
+        color: '#5698b3'
       dps:
         score: 2659.1
-        color: '#5597b4'
+        color: '#5698b3'
       healer:
         score: 0
         color: '#ffffff'
@@ -3648,7 +3880,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2659.1
-        color: '#5597b4'
+        color: '#5698b3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3734,10 +3966,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2548.5
-        color: '#5ead9c'
+        color: '#5faf9a'
       dps:
         score: 2548.5
-        color: '#5ead9c'
+        color: '#5faf9a'
       healer:
         score: 0
         color: '#ffffff'
@@ -3749,7 +3981,59 @@ members:
         color: '#ffffff'
       spec_1:
         score: 2548.5
-        color: '#5ead9c'
+        color: '#5faf9a'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Ponziani
+    id: 220012325
+    level: 83
+    realm:
+      id: 1305
+      slug: kazzak
+    playable_class:
+      id: 5
+      name: Priest
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Discipline
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/220012325-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Ponziani
+    item_level_equipped: 140
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3954,7 +4238,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2477.3
-        color: '#5fba8d'
+        color: '#5fbd8a'
       spec_1:
         score: 333.9
         color: '#f6fff2'
@@ -4055,10 +4339,10 @@ members:
         color: '#6c5de5'
       tank:
         score: 2421.6
-        color: '#5fc382'
+        color: '#5ec67f'
       spec_0:
         score: 2421.6
-        color: '#5fc382'
+        color: '#5ec67f'
       spec_1:
         score: 3026.2
         color: '#6c5de5'
@@ -4098,10 +4382,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2793
-        color: '#3e81cb'
+        color: '#3f82ca'
       dps:
         score: 2793
-        color: '#3e81cb'
+        color: '#3f82ca'
       healer:
         score: 0
         color: '#ffffff'
@@ -4116,7 +4400,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2793
-        color: '#3e81cb'
+        color: '#3f82ca'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4134,23 +4418,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 9
-      name: null
+      name: Warlock
     playable_race:
       id: 22
-      name: null
+      name: Worgen
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/224357833-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Bierdestroer
+    item_level_equipped: 246
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -4178,10 +4486,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2567.5
-        color: '#5da8a1'
+        color: '#5eaa9f'
       dps:
         score: 2567.5
-        color: '#5da8a1'
+        color: '#5eaa9f'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -4190,10 +4498,10 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2541
-        color: '#5ead9c'
+        color: '#5faf9a'
       spec_1:
         score: 708.2
-        color: '#d9ffcb'
+        color: '#daffcb'
       spec_2:
         score: 165.8
         color: '#ffffff'
@@ -4282,10 +4590,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2648.6
-        color: '#589baf'
+        color: '#589dae'
       dps:
         score: 2648.6
-        color: '#589baf'
+        color: '#589dae'
       healer:
         score: 0
         color: '#ffffff'
@@ -4300,7 +4608,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2648.6
-        color: '#589baf'
+        color: '#589dae'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4382,14 +4690,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2223.2
-        color: '#4ae84e'
+        color: '#46ec47'
       dps:
         score: 2223.2
-        color: '#4ae84e'
+        color: '#46ec47'
       healer:
         score: 0
         color: '#ffffff'
@@ -4398,10 +4706,10 @@ members:
         color: '#ffffff'
       spec_0:
         score: 1187.4
-        color: '#b1ff98'
+        color: '#b2ff99'
       spec_1:
         score: 2048.9
-        color: '#3bff22'
+        color: '#41ff28'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4490,7 +4798,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2033.3
-        color: '#3bff22'
+        color: '#41ff28'
       dps:
         score: 300.4
         color: '#f8fff5'
@@ -4499,7 +4807,7 @@ members:
         color: '#ffffff'
       tank:
         score: 2010.4
-        color: '#41ff28'
+        color: '#47ff2e'
       spec_0:
         score: 300.4
         color: '#f8fff5'
@@ -4508,7 +4816,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2010.4
-        color: '#41ff28'
+        color: '#47ff2e'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4542,10 +4850,10 @@ members:
     mythic_plus_scores:
       all:
         score: 1416.3
-        color: '#9aff7f'
+        color: '#9cff80'
       dps:
         score: 1416.3
-        color: '#9aff7f'
+        color: '#9cff80'
       healer:
         score: 0
         color: '#ffffff'
@@ -4557,7 +4865,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 1416.3
-        color: '#9aff7f'
+        color: '#9cff80'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4698,10 +5006,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2217.1
-        color: '#45ec46'
+        color: '#40f13d'
       dps:
         score: 2217.1
-        color: '#45ec46'
+        color: '#40f13d'
       healer:
         score: 0
         color: '#ffffff'
@@ -4710,7 +5018,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2217.1
-        color: '#45ec46'
+        color: '#40f13d'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4750,7 +5058,7 @@ members:
     mythic_plus_scores:
       all:
         score: 892.6
-        color: '#cbffb8'
+        color: '#ccffb9'
       dps:
         score: 0
         color: '#ffffff'
@@ -4759,13 +5067,13 @@ members:
         color: '#ffffff'
       tank:
         score: 892.6
-        color: '#cbffb8'
+        color: '#ccffb9'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
         score: 892.6
-        color: '#cbffb8'
+        color: '#ccffb9'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4854,19 +5162,19 @@ members:
     mythic_plus_scores:
       all:
         score: 2700
-        color: '#5292b9'
+        color: '#5393b7'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 2700
-        color: '#5292b9'
+        color: '#5393b7'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 2700
-        color: '#5292b9'
+        color: '#5393b7'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4906,10 +5214,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2331.6
-        color: '#58d56b'
+        color: '#56d966'
       dps:
         score: 2331.6
-        color: '#58d56b'
+        color: '#56d966'
       healer:
         score: 0
         color: '#ffffff'
@@ -4918,7 +5226,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2331.6
-        color: '#58d56b'
+        color: '#56d966'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4958,10 +5266,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2674
-        color: '#5597b4'
+        color: '#5698b3'
       dps:
         score: 2674
-        color: '#5597b4'
+        color: '#5698b3'
       healer:
         score: 0
         color: '#ffffff'
@@ -4976,7 +5284,7 @@ members:
         color: '#fbfffa'
       spec_2:
         score: 2674
-        color: '#5597b4'
+        color: '#5698b3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5010,10 +5318,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2578.9
-        color: '#5da8a1'
+        color: '#5eaa9f'
       dps:
         score: 2578.9
-        color: '#5da8a1'
+        color: '#5eaa9f'
       healer:
         score: 0
         color: '#ffffff'
@@ -5028,7 +5336,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2578.9
-        color: '#5da8a1'
+        color: '#5eaa9f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5114,10 +5422,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2322.5
-        color: '#58d56b'
+        color: '#56d966'
       dps:
         score: 2322.5
-        color: '#58d56b'
+        color: '#56d966'
       healer:
         score: 0
         color: '#ffffff'
@@ -5126,10 +5434,10 @@ members:
         color: '#ffffff'
       spec_0:
         score: 2321.2
-        color: '#58d56b'
+        color: '#56d966'
       spec_1:
         score: 1090
-        color: '#baffa3'
+        color: '#bbffa4'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5218,7 +5526,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2572.8
-        color: '#5da8a1'
+        color: '#5eaa9f'
       dps:
         score: 360.1
         color: '#f4ffef'
@@ -5227,7 +5535,7 @@ members:
         color: '#ffffff'
       tank:
         score: 2572.8
-        color: '#5da8a1'
+        color: '#5eaa9f'
       spec_0:
         score: 360.1
         color: '#f4ffef'
@@ -5236,7 +5544,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2572.8
-        color: '#5da8a1'
+        color: '#5eaa9f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5306,23 +5614,47 @@ members:
       slug: gordunni
     playable_class:
       id: 6
-      name: null
+      name: Death Knight
     playable_race:
       id: 29
-      name: null
+      name: Void Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Тузольд
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 2629.3
+        color: '#5ba1a9'
+      dps:
+        score: 2629.3
+        color: '#5ba1a9'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 221.5
+        color: '#ffffff'
+      spec_0:
+        score: 221.5
+        color: '#ffffff'
+      spec_1:
+        score: 331.8
+        color: '#f6fff2'
+      spec_2:
+        score: 2600.5
+        color: '#5ca6a4'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -5350,10 +5682,10 @@ members:
     mythic_plus_scores:
       all:
         score: 1084.5
-        color: '#baffa3'
+        color: '#bbffa4'
       dps:
         score: 1084.5
-        color: '#baffa3'
+        color: '#bbffa4'
       healer:
         score: 0
         color: '#ffffff'
@@ -5368,7 +5700,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 1084.5
-        color: '#baffa3'
+        color: '#bbffa4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5454,10 +5786,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2636.1
-        color: '#589baf'
+        color: '#589dae'
       dps:
         score: 2636.1
-        color: '#589baf'
+        color: '#589dae'
       healer:
         score: 0
         color: '#ffffff'
@@ -5469,7 +5801,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 2636.1
-        color: '#589baf'
+        color: '#589dae'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5542,23 +5874,47 @@ members:
       slug: gordunni
     playable_class:
       id: 1
-      name: null
+      name: Warrior
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Fury
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/254/265698302-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+    item_level_equipped: 253
+    mythic_plus_scores:
+      all:
+        score: 1194.5
+        color: '#b2ff99'
+      dps:
+        score: 1194.5
+        color: '#b2ff99'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 1194.5
+        color: '#b2ff99'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -5614,7 +5970,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2144.3
-        color: '#2dfa20'
+        color: '#1eff00'
       dps:
         score: 0
         color: '#ffffff'
@@ -5623,13 +5979,13 @@ members:
         color: '#ffffff'
       tank:
         score: 2144.3
-        color: '#2dfa20'
+        color: '#1eff00'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
         score: 2144.3
-        color: '#2dfa20'
+        color: '#1eff00'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5666,13 +6022,13 @@ members:
     mythic_plus_scores:
       all:
         score: 2857.2
-        color: '#1e74d9'
+        color: '#1f74d8'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 2857.2
-        color: '#1e74d9'
+        color: '#1f74d8'
       tank:
         score: 0
         color: '#ffffff'
@@ -5687,7 +6043,7 @@ members:
         color: '#ffffff'
       spec_3:
         score: 2857.2
-        color: '#1e74d9'
+        color: '#1f74d8'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5718,10 +6074,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2251.2
-        color: '#4fe356'
+        color: '#4be750'
       dps:
         score: 2251.2
-        color: '#4fe356'
+        color: '#4be750'
       healer:
         score: 0
         color: '#ffffff'
@@ -5733,7 +6089,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 2251.2
-        color: '#4fe356'
+        color: '#4be750'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5770,13 +6126,13 @@ members:
     mythic_plus_scores:
       all:
         score: 2521.2
-        color: '#5fb197'
+        color: '#5fb395'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 2521.2
-        color: '#5fb197'
+        color: '#5fb395'
       tank:
         score: 0
         color: '#ffffff'
@@ -5791,7 +6147,59 @@ members:
         color: '#ffffff'
       spec_3:
         score: 2521.2
-        color: '#5fb197'
+        color: '#5fb395'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Адвокатправа
+    id: 265786535
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
+    item_level_equipped: 265
+    mythic_plus_scores:
+      all:
+        score: 2040.4
+        color: '#41ff28'
+      dps:
+        score: 2040.4
+        color: '#41ff28'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2040.4
+        color: '#41ff28'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -5822,10 +6230,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2511.6
-        color: '#5fb197'
+        color: '#5fb395'
       dps:
         score: 2511.6
-        color: '#5fb197'
+        color: '#5fb395'
       healer:
         score: 0
         color: '#ffffff'
@@ -5840,7 +6248,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2511.6
-        color: '#5fb197'
+        color: '#5fb395'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5874,7 +6282,7 @@ members:
     mythic_plus_scores:
       all:
         score: 2689.3
-        color: '#5292b9'
+        color: '#5393b7'
       dps:
         score: 0
         color: '#ffffff'
@@ -5883,7 +6291,7 @@ members:
         color: '#ffffff'
       tank:
         score: 2689.3
-        color: '#5292b9'
+        color: '#5393b7'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5892,7 +6300,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2689.3
-        color: '#5292b9'
+        color: '#5393b7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5926,10 +6334,10 @@ members:
     mythic_plus_scores:
       all:
         score: 2615.2
-        color: '#5aa0ab'
+        color: '#5ba1a9'
       dps:
         score: 2615.2
-        color: '#5aa0ab'
+        color: '#5ba1a9'
       healer:
         score: 0
         color: '#ffffff'
@@ -5944,7 +6352,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 2615.2
-        color: '#5aa0ab'
+        color: '#5ba1a9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5954,313 +6362,29 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Yokum
-    id: 189317829
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 22
-      name: Worgen
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 233
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Kavunchyk
-    id: 183981777
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
-    item_level_equipped: 269
-    mythic_plus_scores:
-      all:
-        score: 170
-        color: '#ffffff'
-      dps:
-        score: 170
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 170
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Ponziani
-    id: 220012325
-    level: 83
-    realm:
-      id: 1305
-      slug: kazzak
-    playable_class:
-      id: 5
-      name: Priest
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Discipline
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/220012325-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/kazzak/Ponziani
-    item_level_equipped: 140
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Адвокатправа
-    id: 265786535
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 265
-    mythic_plus_scores:
-      all:
-        score: 2040.4
-        color: '#3bff22'
-      dps:
-        score: 2040.4
-        color: '#3bff22'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2040.4
-        color: '#3bff22'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Umbrak
-    id: 189215394
+    name: Душа
+    id: 266007559
     level: 81
     realm:
-      id: 1415
-      slug: terokkar
+      id: 1929
+      slug: blackscar
     playable_class:
-      id: 4
-      name: Rogue
+      id: 5
+      name: null
     playable_race:
-      id: 4
-      name: Night Elf
+      id: 52
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Outlaw
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-    item_level_equipped: 138
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Skirvir
-    id: 188842818
-    level: 90
-    realm:
-      id: 553
-      slug: turalyon
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 3
-      name: Dwarf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-    profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 271
-    mythic_plus_scores:
-      all:
-        score: 1627.6
-        color: '#80ff64'
-      dps:
-        score: 1627.6
-        color: '#80ff64'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 1627.6
-        color: '#80ff64'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
