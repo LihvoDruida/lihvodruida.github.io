@@ -16436,3 +16436,126 @@ body {
     height: 50px !important;
   }
 }
+
+/* v45: final fixed bottom mobile nav with compact dynamic safe area. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-height: 58px;
+    --dashboard-mobile-nav-bottom-offset: calc(6px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 8px);
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 8px) !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  body::after {
+    display: none !important;
+    content: none !important;
+    height: 0 !important;
+  }
+
+  .container {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 8px) !important;
+  }
+
+  :where(.dashboard-shell, .content-shell, .discord-shell, .profile-shell, .raid-shell, .content-page-stack) {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-block-start: auto !important;
+    top: auto !important;
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 3), minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 5px !important;
+    padding: 5px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(214, 168, 79, 0.3) !important;
+    border-radius: 20px !important;
+    background: rgba(5, 8, 15, 0.95) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(18px);
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  .dashboard-mobile-nav a {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: initial !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    gap: 2px !important;
+    padding: 5px 3px !important;
+    border-radius: 15px !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.98rem !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: clamp(0.58rem, 2.15vw, 0.69rem) !important;
+    letter-spacing: -0.015em !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --dashboard-mobile-nav-height: 56px;
+    --dashboard-mobile-nav-bottom-offset: calc(5px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 7px);
+  }
+
+  .dashboard-mobile-nav {
+    left: max(7px, env(safe-area-inset-left, 0px)) !important;
+    right: max(7px, env(safe-area-inset-right, 0px)) !important;
+    gap: 4px !important;
+    padding: 5px !important;
+    border-radius: 18px !important;
+  }
+
+  .dashboard-mobile-nav a {
+    padding-inline: 2px !important;
+    border-radius: 14px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.9rem !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.54rem, 2.35vw, 0.64rem) !important;
+  }
+}

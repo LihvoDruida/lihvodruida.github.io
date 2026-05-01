@@ -1,6 +1,6 @@
+import type { CSSProperties } from "react";
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
-import { dashboardRaidRulesUrl } from "@/lib/raids";
 import {
   canManageApplications,
   canManageGeneralEmbeds,
@@ -29,8 +29,26 @@ export default async function DashboardIdentity({
   const canUseProfiles = canViewProfiles(user);
   const canUseContent = canManageSiteContent(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
-  const rulesHref = dashboardRaidRulesUrl();
-  const hasMobileNav = canUseApplications || canUseRaids || canUseDiscord || canUseProfiles || canUseContent;
+  const mobileNavItems = user
+    ? [
+        canUseApplications
+          ? { href: "/", section: "applications" as const, icon: "✉", label: "Заявки" }
+          : null,
+        canUseRaids
+          ? { href: "/raids", section: "raids" as const, icon: "⚔", label: "Рейди" }
+          : null,
+        canUseDiscord
+          ? { href: "/discord", section: "discord" as const, icon: "◆", label: "Discord" }
+          : null,
+        canUseProfiles
+          ? { href: "/profiles", section: "profiles" as const, icon: "☷", label: "Профілі" }
+          : null,
+        canUseContent
+          ? { href: "/content", section: "content" as const, icon: "✦", label: "Новини" }
+          : null,
+      ].filter((item): item is NonNullable<typeof item> => Boolean(item))
+    : [];
+  const hasMobileNav = mobileNavItems.length > 0;
 
   return (
     <>
@@ -58,14 +76,6 @@ export default async function DashboardIdentity({
                   {canCreateRaids ? "Рейди" : "Мої рейди"}
                 </a>
               ) : null}
-              <a
-                href={profileHref}
-                className={activeSection === "profile" ? "is-active" : undefined}
-                aria-current={activeSection === "profile" ? "page" : undefined}
-              >
-                Профіль
-              </a>
-              <a href={rulesHref} target="_blank" rel="noreferrer">Правила</a>
               {canUseDiscord ? (
                 <a
                   href="/discord"
@@ -118,22 +128,23 @@ export default async function DashboardIdentity({
       </header>
 
       {user && hasMobileNav ? (
-        <nav className="dashboard-mobile-nav" aria-label="Швидка навігація">
-          {canUseApplications ? (
-            <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}><span aria-hidden="true">✉</span><strong>Заявки</strong></a>
-          ) : null}
-          {canUseRaids ? (
-            <a href="/raids" className={activeSection === "raids" ? "is-active" : undefined} aria-current={activeSection === "raids" ? "page" : undefined}><span aria-hidden="true">⚔</span><strong>Рейди</strong></a>
-          ) : null}
-          {canUseDiscord ? (
-            <a href="/discord" className={activeSection === "discord" ? "is-active" : undefined} aria-current={activeSection === "discord" ? "page" : undefined}><span aria-hidden="true">◆</span><strong>Discord</strong></a>
-          ) : null}
-          {canUseProfiles ? (
-            <a href="/profiles" className={activeSection === "profiles" ? "is-active" : undefined} aria-current={activeSection === "profiles" ? "page" : undefined}><span aria-hidden="true">☷</span><strong>Профілі</strong></a>
-          ) : null}
-          {canUseContent ? (
-            <a href="/content" className={activeSection === "content" ? "is-active" : undefined} aria-current={activeSection === "content" ? "page" : undefined}><span aria-hidden="true">✦</span><strong>Новини</strong></a>
-          ) : null}
+        <nav
+          className="dashboard-mobile-nav"
+          aria-label="Швидка навігація"
+          data-items={mobileNavItems.length}
+          style={{ "--dashboard-mobile-nav-items": mobileNavItems.length } as CSSProperties}
+        >
+          {mobileNavItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={activeSection === item.section ? "is-active" : undefined}
+              aria-current={activeSection === item.section ? "page" : undefined}
+            >
+              <span aria-hidden="true">{item.icon}</span>
+              <strong>{item.label}</strong>
+            </a>
+          ))}
         </nav>
       ) : null}
     </>
