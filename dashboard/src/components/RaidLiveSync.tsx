@@ -25,7 +25,7 @@ export default function RaidLiveSync({ raidId, initialRevision }: { raidId: stri
 
   useEffect(() => {
     let cancelled = false;
-    let timer: ReturnType<typeof window.setTimeout> | null = null;
+    let timer: number | null = null;
 
     async function check() {
       if (cancelled) return;
