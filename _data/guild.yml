@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 06:09:20'
+  updated_at: '2026-05-02 09:08:48'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13545
+      world: 13546
       region: 6034
       realm: 55
     heroic:
-      world: 15783
-      region: 6612
+      world: 15787
+      region: 6613
       realm: 53
     mythic:
-      world: 6925
+      world: 6928
       region: 2972
       realm: 23
   blackrock-depths:
@@ -3022,20 +3022,20 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Mistweaver
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 233
+    item_level_equipped: 243
     mythic_plus_scores:
       all:
-        score: 0
+        score: 168.5
         color: '#ffffff'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 0
+        score: 168.5
         color: '#ffffff'
       tank:
         score: 0
@@ -3044,7 +3044,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 0
+        score: 168.5
         color: '#ffffff'
       spec_2:
         score: 0
@@ -3757,20 +3757,20 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2793.6
-        color: '#4485c6'
+        score: 2804.3
+        color: '#3e81cb'
       dps:
         score: 993.7
         color: '#c3ffae'
       healer:
-        score: 2793.6
-        color: '#4485c6'
+        score: 2804.3
+        color: '#3e81cb'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2793.6
-        color: '#4485c6'
+        score: 2804.3
+        color: '#3e81cb'
       spec_1:
         score: 0
         color: '#ffffff'

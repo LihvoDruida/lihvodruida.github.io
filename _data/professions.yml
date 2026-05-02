@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 06:09:20'
+  updated_at: '2026-05-02 09:08:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2719,7 +2719,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 67
+        learned_points: 71
         max_points: 100
     secondaries: []
 - name: Athang
@@ -3075,7 +3075,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 115
+        learned_points: 237
         max_points: 300
 - name: Straponeero
   region: eu
@@ -5746,7 +5746,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 84
+        learned_points: 86
         max_points: 100
     - name: Fishing
       id: 356
@@ -5761,7 +5761,7 @@ characters:
         learned_points: 121
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 169
+        learned_points: 171
         max_points: 300
 - name: Бафометище
   region: eu
@@ -6373,7 +6373,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 83
+        learned_points: 94
         max_points: 100
     - name: Mining
       id: 186
@@ -6382,7 +6382,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Mining
-        learned_points: 83
+        learned_points: 92
         max_points: 100
     secondaries:
     - name: Fishing
