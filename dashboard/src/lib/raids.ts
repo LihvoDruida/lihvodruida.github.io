@@ -1036,14 +1036,10 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     compositionLongLabel(raid),
     registrationLimit ? (registrationFull ? "🔒 Ліміт запису досягнуто" : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`) : null,
   ].filter(Boolean).join("\n");
-  const minItemLevelValue = raid.minItemLevel
-    ? [
-        `⚠️ **Мінімум:** ${raid.minItemLevel}`,
-        raid.minItemLevelRequired
-          ? "⛔ Запис блокується, якщо персонаж нижче порогу"
-          : "⚠️ Лише попередження, запис не блокується",
-      ].join("\n")
-    : null;
+  const minItemLevelPolicyText = raid.minItemLevelRequired
+    ? "⛔ Запис блокується, якщо персонаж нижче порогу"
+    : "⚠️ Лише попередження, запис не блокується";
+  const minItemLevelValue = raid.minItemLevel ? `${raid.minItemLevel}\n${minItemLevelPolicyText}` : null;
   const description = truncateDiscordField(raid.description, 4096);
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
@@ -1076,7 +1072,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: rosterValue,
       inline: true,
     },
-    ...(minItemLevelValue ? [{ name: "⚠️ Item level", value: minItemLevelValue, inline: true }] : []),
+    ...(minItemLevelValue ? [{ name: "👙 Мін. ilvl", value: minItemLevelValue, inline: true }] : []),
     ...(averageItemLevel ? [{ name: "📊 Середній ilvl", value: `${averageItemLevel}`, inline: true }] : []),
     {
       name: "⚔️ Ролі",

@@ -246,11 +246,11 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions, showRost
         <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>Мейн: {raid.createdByMain}</small> : null}</span>
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
-        {showRosterDetails && raid.minItemLevel ? <span><strong>⭐ Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
+        {showRosterDetails && raid.minItemLevel ? <span><strong>👙 Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
         {showRosterDetails && averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
         <span><strong>👥 Записано</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
       </div>
-      {showRosterDetails && raid.minItemLevel ? <div className="raid-ilvl-notice">⭐ Мінімальний item level для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
+      {showRosterDetails && raid.minItemLevel ? <div className="raid-ilvl-notice">👙 Мінімальний ilvl для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
       {raidRegistrationLimit(raid) ? <div className={`raid-ilvl-notice${isRaidRegistrationFull(raid) ? " is-blocked" : ""}`}>👥 Максимум гравців для цього рейду: <strong>{raidRegistrationLimit(raid)}</strong>. {isRaidRegistrationFull(raid) ? "Ліміт досягнуто — нові записи недоступні." : "Після досягнення ліміту нові записи будуть заблоковані."}</div> : null}
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
@@ -297,7 +297,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
             <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
             <small>👤 {raid.createdByName}{raid.createdByMain ? ` • ${raid.createdByMain}` : ""}</small>
             <small>👥 {counts.roster} / {capacity}{canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}</small>
-            {raid.minItemLevel ? <small>⭐ Мін. ilvl: {raid.minItemLevel}</small> : null}
+            {raid.minItemLevel ? <small>👙 Мін. ilvl: {raid.minItemLevel}</small> : null}
             {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
           </span>
           <span className="raid-list-progress" aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}>
