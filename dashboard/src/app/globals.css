@@ -6419,7 +6419,7 @@ form.is-submitting button[type="submit"],
   grid-template-columns: minmax(180px, 0.95fr) minmax(180px, 0.95fr) minmax(130px, 0.6fr) !important;
   grid-template-areas:
     "channel channel channel"
-    "picker code timestamp" !important;
+    "picker code timestamp";
   align-items: end;
   column-gap: 12px;
   row-gap: 10px;
@@ -6466,7 +6466,7 @@ form.is-submitting button[type="submit"],
       "channel"
       "picker"
       "code"
-      "timestamp" !important;
+      "timestamp";
   }
 
   .discord-builder-shell--site .discord-send-controls .discord-timestamp-check {
@@ -17790,9 +17790,7 @@ main.container > * {
   .raid-roster-member {
     display: grid !important;
     grid-template-columns: 24px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "role name"
-      ". meta" !important;
+    grid-template-rows: auto auto !important;
     align-items: center !important;
     column-gap: 10px !important;
     row-gap: 3px !important;
@@ -17800,7 +17798,8 @@ main.container > * {
   }
 
   .raid-roster-member > span:first-child {
-    grid-area: role !important;
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
     width: 24px !important;
     min-width: 24px !important;
     height: 24px !important;
@@ -17811,7 +17810,8 @@ main.container > * {
   }
 
   .raid-roster-member > strong {
-    grid-area: name !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
     min-width: 0 !important;
     max-width: 100% !important;
     font-size: clamp(0.9rem, 3.6vw, 0.98rem) !important;
@@ -17822,7 +17822,8 @@ main.container > * {
   }
 
   .raid-roster-member > small {
-    grid-area: meta !important;
+    grid-column: 2 !important;
+    grid-row: 2 !important;
     min-width: 0 !important;
     max-width: 100% !important;
     justify-self: start !important;
@@ -17998,80 +17999,6 @@ main.container > * {
   }
 }
 
-/* Raid mobile list layout v31: centered status, full-width title under the raid image. */
-@media (max-width: 760px) {
-  .raid-manager-list .raid-list-main-link {
-    grid-template-columns: 1fr !important;
-    justify-items: center;
-    align-items: start;
-    gap: 10px;
-    text-align: center;
-  }
-
-  .raid-manager-list .raid-list-main-link img,
-  .raid-manager-list .raid-list-fallback {
-    width: 86px;
-    height: 86px;
-    justify-self: center;
-  }
-
-  .raid-list-copy {
-    width: 100%;
-    max-width: 100%;
-    justify-items: stretch;
-    text-align: center;
-  }
-
-  .raid-list-title-row {
-    width: 100%;
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    text-align: center;
-  }
-
-  .raid-list-title-row .raid-state,
-  .raid-state.raid-state--published {
-    order: -1;
-    align-self: center;
-    justify-self: center;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .raid-list-title-row strong {
-    width: 100%;
-    max-width: 100%;
-    display: block;
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.12;
-    text-wrap: balance;
-    word-break: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .raid-list-facts,
-  .raid-list-progress {
-    width: 100%;
-  }
-
-  .raid-list-facts small {
-    text-align: center;
-  }
-}
-
-@media (max-width: 390px) {
-  .raid-manager-list .raid-list-main-link img,
-  .raid-manager-list .raid-list-fallback {
-    width: 82px;
-    height: 82px;
-  }
-}
 
 /* Profile identity typography v4: keep name and Discord blocks aligned with global site scale. */
 .profile-card--identity .profile-person-card {
@@ -18261,68 +18188,80 @@ main.container > * {
   }
 }
 
-/* Raid mobile list title v32: force published state centered above full-width raid title. */
+
+/* Raid mobile list title v33: clean mobile stack, centered status, full-width title. */
 @media (max-width: 760px) {
+  .raid-list-item,
+  .raid-manager-list .raid-list-item {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .raid-list-main-link,
   .raid-manager-list .raid-list-main-link {
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
     justify-items: center !important;
     align-items: start !important;
+    row-gap: 10px !important;
+    column-gap: 0 !important;
     text-align: center !important;
-    gap: 10px !important;
   }
 
+  .raid-list-main-link > img,
   .raid-manager-list .raid-list-main-link > img,
+  .raid-list-main-link .raid-list-fallback,
   .raid-manager-list .raid-list-fallback {
-    order: 0 !important;
+    width: 86px !important;
+    height: 86px !important;
     justify-self: center !important;
     align-self: center !important;
     margin: 0 auto !important;
   }
 
-  .raid-manager-list .raid-list-copy,
-  .raid-list-copy {
-    order: 1 !important;
+  .raid-list-copy,
+  .raid-manager-list .raid-list-copy {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    display: grid !important;
-    justify-items: stretch !important;
-    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
+    text-align: center !important;
   }
 
-  .raid-manager-list .raid-list-title-row,
-  .raid-list-title-row {
+  .raid-list-title-row,
+  .raid-manager-list .raid-list-title-row {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-areas:
-      "state"
-      "title" !important;
-    justify-items: center !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
     padding: 0 !important;
     margin: 0 !important;
     text-align: center !important;
   }
 
-  .raid-manager-list .raid-list-title-row .raid-state,
-  .raid-list-title-row .raid-state,
-  .raid-manager-list .raid-state--published,
-  .raid-state.raid-state--published {
-    grid-area: state !important;
-    order: 0 !important;
-    justify-self: center !important;
+  .raid-list-title-row > .raid-state,
+  .raid-manager-list .raid-list-title-row > .raid-state,
+  .raid-list-title-row > .raid-state.raid-state--published,
+  .raid-manager-list .raid-list-title-row > .raid-state.raid-state--published {
+    order: -1 !important;
+    flex: 0 0 auto !important;
     align-self: center !important;
-    width: fit-content !important;
-    min-width: 0 !important;
+    justify-self: center !important;
+    width: auto !important;
     max-width: calc(100% - 18px) !important;
+    min-width: 0 !important;
     margin: 0 auto !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -18330,25 +18269,28 @@ main.container > * {
     text-align: center !important;
   }
 
-  .raid-manager-list .raid-list-title-row > strong,
-  .raid-list-title-row > strong {
-    grid-area: title !important;
-    order: 1 !important;
+  .raid-list-title-row > strong,
+  .raid-manager-list .raid-list-title-row > strong {
+    order: 0 !important;
+    flex: 0 1 auto !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     display: block !important;
+    padding-inline: 0 !important;
+    margin: 0 auto !important;
     text-align: center !important;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;
     word-break: normal !important;
-    overflow-wrap: anywhere !important;
-    text-wrap: balance !important;
+    overflow-wrap: break-word !important;
     line-height: 1.14 !important;
   }
 
+  .raid-list-facts,
   .raid-manager-list .raid-list-facts,
+  .raid-list-progress,
   .raid-manager-list .raid-list-progress {
     width: 100% !important;
     max-width: 100% !important;
