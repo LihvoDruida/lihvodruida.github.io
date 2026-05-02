@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-01 20:55:23'
+  updated_at: '2026-05-02 02:48:32'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-01T05:19:32.000Z'
+  raider_io_last_crawled_at: '2026-05-01T23:58:18.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 122
+  member_count: 123
 characters:
 - name: Бреинор
   region: eu
@@ -1185,7 +1185,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 33
+        learned_points: 50
         max_points: 100
     secondaries:
     - name: Fishing
@@ -1195,7 +1195,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 20
+        learned_points: 27
         max_points: 300
 - name: Darthkenobi
   region: eu
@@ -2022,7 +2022,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 93
+        learned_points: 95
         max_points: 100
     - name: Fishing
       id: 356
@@ -2700,7 +2700,7 @@ characters:
   region: eu
   realm: turalyon
   realm_slug: turalyon
-  profile_url: https://raider.io/characters/eu/turalyon/Skirvir
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -6335,7 +6335,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 67
+        learned_points: 70
         max_points: 100
     - name: Mining
       id: 186
@@ -6344,7 +6344,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 78
+        learned_points: 79
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6373,7 +6373,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 54
+        learned_points: 59
         max_points: 100
     - name: Mining
       id: 186
@@ -6382,7 +6382,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Mining
-        learned_points: 63
+        learned_points: 67
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6482,7 +6482,7 @@ characters:
   region: eu
   realm: blackscar
   realm_slug: blackscar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/blackscar/Душа
   professions:
     primaries:
     - name: Herbalism
@@ -6504,3 +6504,38 @@ characters:
         learned_points: 70
         max_points: 100
     secondaries: []
+- name: Mistéry
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Mistéry
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Engineering
+        learned_points: 39
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 33
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
