@@ -17784,3 +17784,216 @@ main.container > * {
     margin-block: 0 !important;
   }
 }
+
+/* v52: mobile raid/application layout polish. */
+@media (max-width: 760px) {
+  .raid-roster-member {
+    display: grid !important;
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "role name"
+      ". meta" !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+    row-gap: 3px !important;
+    padding: 10px 10px !important;
+  }
+
+  .raid-roster-member > span:first-child {
+    grid-area: role !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    display: grid !important;
+    place-items: center !important;
+    line-height: 1 !important;
+    text-align: center !important;
+  }
+
+  .raid-roster-member > strong {
+    grid-area: name !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: clamp(0.9rem, 3.6vw, 0.98rem) !important;
+    line-height: 1.22 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: left !important;
+  }
+
+  .raid-roster-member > small {
+    grid-area: meta !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    justify-self: start !important;
+    font-size: clamp(0.73rem, 3.15vw, 0.8rem) !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: left !important;
+  }
+
+  .card-main {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 14px !important;
+  }
+
+  .character-head {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: start !important;
+  }
+
+  .character-avatar,
+  .character-avatar.placeholder {
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 16px !important;
+  }
+
+  .card-main h2,
+  .card h2 {
+    max-width: 100% !important;
+    font-size: clamp(1.05rem, 5vw, 1.28rem) !important;
+    line-height: 1.14 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-wrap: balance !important;
+  }
+
+  .card-main .meta,
+  .meta {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
+    overflow: visible !important;
+  }
+
+  .card-main .meta span,
+  .card-main .meta a,
+  .meta span,
+  .meta a {
+    max-width: 100% !important;
+    min-height: 24px !important;
+    padding-inline: 9px !important;
+    line-height: 1.15 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .detail-box,
+  .detail-box strong {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .application-filter-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .application-filter-actions .btn,
+  .application-filter-actions button {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .application-filter-state {
+    min-width: max-content !important;
+    white-space: nowrap !important;
+    text-align: right !important;
+    line-height: 1.15 !important;
+  }
+
+  .raid-manager-list .raid-list-main-link {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: start !important;
+    text-align: center !important;
+    gap: 9px !important;
+  }
+
+  .raid-manager-list .raid-list-main-link > img,
+  .raid-manager-list .raid-list-fallback {
+    order: 0 !important;
+    justify-self: center !important;
+    margin-inline: auto !important;
+  }
+
+  .raid-manager-list .raid-list-copy,
+  .raid-list-copy {
+    order: 1 !important;
+    width: 100% !important;
+    display: grid !important;
+    justify-items: center !important;
+    text-align: center !important;
+    gap: 7px !important;
+  }
+
+  .raid-manager-list .raid-list-title-row,
+  .raid-list-title-row {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 7px !important;
+  }
+
+  .raid-manager-list .raid-list-title-row .raid-state,
+  .raid-list-title-row .raid-state,
+  .raid-manager-list .raid-state--published,
+  .raid-manager-list .raid-state--draft,
+  .raid-manager-list .raid-state--closed {
+    order: -1 !important;
+    justify-self: center !important;
+    align-self: center !important;
+    width: fit-content !important;
+    min-width: min(100%, 112px) !important;
+    max-width: 100% !important;
+    margin: 0 auto 1px !important;
+    text-align: center !important;
+  }
+
+  .raid-manager-list .raid-list-title-row strong,
+  .raid-list-title-row strong {
+    order: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .application-filter-actions {
+    grid-template-columns: 1fr !important;
+    justify-items: stretch !important;
+  }
+
+  .application-filter-state {
+    justify-self: center !important;
+    text-align: center !important;
+  }
+}
