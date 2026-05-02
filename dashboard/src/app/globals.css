@@ -18260,3 +18260,97 @@ main.container > * {
     min-height: 2.72rem !important;
   }
 }
+
+/* Raid mobile list title v32: force published state centered above full-width raid title. */
+@media (max-width: 760px) {
+  .raid-manager-list .raid-list-main-link {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: center !important;
+    align-items: start !important;
+    text-align: center !important;
+    gap: 10px !important;
+  }
+
+  .raid-manager-list .raid-list-main-link > img,
+  .raid-manager-list .raid-list-fallback {
+    order: 0 !important;
+    justify-self: center !important;
+    align-self: center !important;
+    margin: 0 auto !important;
+  }
+
+  .raid-manager-list .raid-list-copy,
+  .raid-list-copy {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    justify-items: stretch !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+
+  .raid-manager-list .raid-list-title-row,
+  .raid-list-title-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "state"
+      "title" !important;
+    justify-items: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .raid-manager-list .raid-list-title-row .raid-state,
+  .raid-list-title-row .raid-state,
+  .raid-manager-list .raid-state--published,
+  .raid-state.raid-state--published {
+    grid-area: state !important;
+    order: 0 !important;
+    justify-self: center !important;
+    align-self: center !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 18px) !important;
+    margin: 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .raid-manager-list .raid-list-title-row > strong,
+  .raid-list-title-row > strong {
+    grid-area: title !important;
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    text-wrap: balance !important;
+    line-height: 1.14 !important;
+  }
+
+  .raid-manager-list .raid-list-facts,
+  .raid-manager-list .raid-list-progress {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
