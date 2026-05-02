@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 02:48:32'
+  updated_at: '2026-05-02 06:09:20'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13541
+      world: 13545
       region: 6034
       realm: 55
     heroic:
-      world: 15772
-      region: 6611
+      world: 15783
+      region: 6612
       realm: 53
     mythic:
-      world: 6919
-      region: 2971
+      world: 6925
+      region: 2972
       realm: 23
   blackrock-depths:
     normal:
@@ -2598,23 +2598,47 @@ members:
       slug: turalyon
     playable_class:
       id: 3
-      name: null
+      name: Hunter
     playable_race:
       id: 3
-      name: null
+      name: Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
+    profile_url: https://raider.io/characters/eu/turalyon/Skirvir
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2032.8
+        color: '#41ff28'
+      dps:
+        score: 2032.8
+        color: '#41ff28'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2032.8
+        color: '#41ff28'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -6153,11 +6177,11 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2256
-        color: '#4ae84e'
+        score: 2329.4
+        color: '#56da64'
       dps:
-        score: 2256
-        color: '#4ae84e'
+        score: 2329.4
+        color: '#56da64'
       healer:
         score: 0
         color: '#ffffff'
@@ -6171,8 +6195,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2256
-        color: '#4ae84e'
+        score: 2329.4
+        color: '#56da64'
       spec_3:
         score: 0
         color: '#ffffff'

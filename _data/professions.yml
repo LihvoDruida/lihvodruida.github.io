@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 02:48:32'
+  updated_at: '2026-05-02 06:09:20'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2700,7 +2700,7 @@ characters:
   region: eu
   realm: turalyon
   realm_slug: turalyon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/turalyon/Skirvir
   professions:
     primaries:
     - name: Enchanting
@@ -6373,7 +6373,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 59
+        learned_points: 83
         max_points: 100
     - name: Mining
       id: 186
@@ -6382,7 +6382,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Mining
-        learned_points: 67
+        learned_points: 83
         max_points: 100
     secondaries:
     - name: Fishing
