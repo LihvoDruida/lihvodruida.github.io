@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 09:08:48'
+  updated_at: '2026-05-02 13:15:42'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -433,7 +433,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
@@ -3075,7 +3075,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 237
+        learned_points: 296
         max_points: 300
 - name: Straponeero
   region: eu
@@ -6492,7 +6492,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 37
+        learned_points: 39
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6501,7 +6501,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 70
+        learned_points: 71
         max_points: 100
     secondaries: []
 - name: Mistéry

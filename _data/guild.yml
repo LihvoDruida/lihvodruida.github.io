@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 09:08:48'
+  updated_at: '2026-05-02 13:15:42'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13546
-      region: 6034
+      world: 13550
+      region: 6035
       realm: 55
     heroic:
-      world: 15787
+      world: 15795
       region: 6613
       realm: 53
     mythic:
-      world: 6928
-      region: 2972
+      world: 6939
+      region: 2974
       realm: 23
   blackrock-depths:
     normal:
@@ -542,47 +542,23 @@ members:
       slug: tarren-mill
     playable_class:
       id: 4
-      name: Rogue
+      name: null
     playable_race:
       id: 5
-      name: Undead
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Subtlety
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 280
-    mythic_plus_scores:
-      all:
-        score: 3064.9
-        color: '#715be5'
-      dps:
-        score: 3064.9
-        color: '#715be5'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3064.9
-        color: '#715be5'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -2662,7 +2638,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Athang
-    item_level_equipped: 261
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 2125.4
@@ -3754,7 +3730,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2804.3
@@ -5962,15 +5938,15 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Retribution
-      role: DPS
+      name: Protection
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
-    item_level_equipped: 270
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2144.3
-        color: '#1eff00'
+        score: 2461.4
+        color: '#5fbf88'
       dps:
         score: 0
         color: '#ffffff'
@@ -5978,14 +5954,14 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2144.3
-        color: '#1eff00'
+        score: 2461.4
+        color: '#5fbf88'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2144.3
-        color: '#1eff00'
+        score: 2461.4
+        color: '#5fbf88'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6364,7 +6340,7 @@ members:
   character:
     name: Душа
     id: 266007559
-    level: 85
+    level: 86
     realm:
       id: 1929
       slug: blackscar
