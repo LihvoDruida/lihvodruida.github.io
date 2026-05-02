@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 13:15:42'
+  updated_at: '2026-05-02 16:51:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -433,7 +433,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
   professions:
     primaries:
     - name: Engineering
@@ -1997,7 +1997,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -5459,18 +5459,6 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Мортург
   professions:
     primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Herbalism
-        learned_points: 100
-        max_points: 100
-      - name: Midnight Herbalism
-        learned_points: 100
-        max_points: 100
     - name: Mining
       id: 186
       tiers:
@@ -5483,6 +5471,15 @@ characters:
       - name: Midnight Mining
         learned_points: 100
         max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 17
+        max_points: 100
     secondaries:
     - name: Archaeology
       id: 794
@@ -5494,7 +5491,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 3
+        learned_points: 15
         max_points: 100
     - name: Fishing
       id: 356
@@ -5746,7 +5743,7 @@ characters:
         learned_points: 60
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 86
+        learned_points: 88
         max_points: 100
     - name: Fishing
       id: 356
@@ -6458,7 +6455,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 65
+        learned_points: 66
         max_points: 100
     secondaries: []
 - name: Мавпита

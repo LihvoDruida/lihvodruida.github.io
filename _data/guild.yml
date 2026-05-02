@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-02 13:15:42'
+  updated_at: '2026-05-02 16:51:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13550
-      region: 6035
+      world: 13555
+      region: 6037
       realm: 55
     heroic:
-      world: 15795
-      region: 6613
+      world: 15803
+      region: 6615
       realm: 53
     mythic:
-      world: 6939
+      world: 6940
       region: 2974
       realm: 23
   blackrock-depths:
@@ -542,23 +542,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 4
-      name: null
+      name: Rogue
     playable_race:
       id: 5
-      name: null
+      name: Undead
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
+    item_level_equipped: 280
+    mythic_plus_scores:
+      all:
+        score: 3064.9
+        color: '#715be5'
+      dps:
+        score: 3064.9
+        color: '#715be5'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3064.9
+        color: '#715be5'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -738,7 +762,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/128/183464576-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Bylik
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2970.6
@@ -1674,7 +1698,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3016.7
@@ -2586,7 +2610,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2032.8
@@ -3730,23 +3754,23 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 275
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2804.3
-        color: '#3e81cb'
+        score: 2898.5
+        color: '#1e74d9'
       dps:
         score: 993.7
         color: '#c3ffae'
       healer:
-        score: 2804.3
-        color: '#3e81cb'
+        score: 2898.5
+        color: '#1e74d9'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2804.3
-        color: '#3e81cb'
+        score: 2898.5
+        color: '#1e74d9'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4298,11 +4322,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Mistweaver
-      role: HEALING
+      name: Brewmaster
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 278
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 3026.2
@@ -4314,11 +4338,11 @@ members:
         score: 3026.2
         color: '#6560e4'
       tank:
-        score: 2516.2
-        color: '#5fb692'
+        score: 2729.7
+        color: '#4e8ebd'
       spec_0:
-        score: 2516.2
-        color: '#5fb692'
+        score: 2729.7
+        color: '#4e8ebd'
       spec_1:
         score: 3026.2
         color: '#6560e4'
@@ -5134,7 +5158,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мортург
-    item_level_equipped: 276
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2700
@@ -5290,14 +5314,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/85/263543893-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
-    item_level_equipped: 270
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
-        score: 2578.9
-        color: '#5ead9c'
+        score: 2580.3
+        color: '#5da8a1'
       dps:
-        score: 2578.9
-        color: '#5ead9c'
+        score: 2580.3
+        color: '#5da8a1'
       healer:
         score: 0
         color: '#ffffff'
@@ -5311,8 +5335,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2578.9
-        color: '#5ead9c'
+        score: 2580.3
+        color: '#5da8a1'
       spec_3:
         score: 0
         color: '#ffffff'
