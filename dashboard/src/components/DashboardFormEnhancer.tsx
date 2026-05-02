@@ -190,14 +190,19 @@ export default function DashboardFormEnhancer() {
       const action = submitter?.formAction || form.getAttribute("action") || "";
       const copy = actionText(action);
 
+      const liveSubmit = formUsesLiveSubmit(form);
+      if (liveSubmit) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      }
+
       preserveSubmitterValue(form, submitter);
       preserveButtonState(buttons);
       setWorking(form, buttons, submitter, copy.label);
       pushToast(copy.title, copy.message);
 
-      if (formUsesLiveSubmit(form)) {
-        event.preventDefault();
-        event.stopPropagation();
+      if (liveSubmit) {
         void submitLiveForm(form, submitter, buttons, action, copy.label);
       }
     }

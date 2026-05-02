@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import RaidAttendanceClient from "@/components/RaidAttendanceClient";
 import RaidRoleMentionPicker from "@/components/RaidRoleMentionPicker";
 import type { DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
@@ -179,24 +180,21 @@ export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: {
     ? "Щоб підписатися на рейд, увійди через Discord. Після входу додай персонажа Battle.net і вибери мейна в профілі."
     : "Запис на рейд бере роль, item level і нік із мейн-персонажа. Додай персонажа Battle.net у профілі та зроби його мейном.";
   return (
-    <div className="raid-attendance-stack">
-      {showRequirement ? (
-        <div className="raid-action-requirement" role="note">
-          <strong>{requirementTitle}</strong>
-          <span>{requirementMessage}</span>
-          <span className="raid-action-requirement-links">
-            {needsLogin || needsDiscordLogin ? <a href={`/login?next=${encodeURIComponent(`/raids/${raid.id}`)}&error=session_required`}>Увійти через Discord</a> : null}
-            <a href="/profile">Відкрити профіль</a>
-            <a href={dashboardRaidRulesUrl()} target="_blank" rel="noreferrer">Правила рейду</a>
-          </span>
-        </div>
-      ) : null}
-      <form className="raid-preview-buttons raid-preview-buttons--interactive" action={`/api/raids/${encodeURIComponent(raid.id)}/attendance`} method="post" aria-disabled={closed || activeJoinDisabled} data-dashboard-live-submit="true">
-        <button className="raid-action raid-action--go" type="submit" name="action" value="going" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✓ Заповнено" : "✓ Підписатися"}</button>
-        <button className="raid-action raid-action--skip" type="submit" name="action" value="skipped" disabled={skipDisabled} title={skipDisabled ? title : undefined}>↩ Пропустити</button>
-        <button className="raid-action raid-action--late" type="submit" name="action" value="late" disabled={activeJoinDisabled} title={title}>{full && !viewerAlreadyActive ? "✕ Ліміт" : "🕒 Затримаюсь"}</button>
-      </form>
-    </div>
+    <RaidAttendanceClient
+      raidId={raid.id}
+      closed={closed}
+      full={full}
+      viewerAlreadyActive={Boolean(viewerAlreadyActive)}
+      activeJoinDisabled={activeJoinDisabled}
+      skipDisabled={skipDisabled}
+      showRequirement={showRequirement}
+      requirementTitle={requirementTitle}
+      requirementMessage={requirementMessage}
+      loginHref={`/login?next=${encodeURIComponent(`/raids/${raid.id}`)}&error=session_required`}
+      profileHref="/profile"
+      rulesHref={dashboardRaidRulesUrl()}
+      title={title}
+    />
   );
 }
 

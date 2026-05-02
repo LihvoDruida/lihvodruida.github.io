@@ -85,6 +85,15 @@ export function middleware(request: NextRequest) {
     return forbiddenResponse("Недовірене джерело запиту.");
   }
 
+  const staleRaidActionMatch = request.nextUrl.pathname.match(/^\/raids\/([^/]+)$/);
+  if (request.method === "POST" && staleRaidActionMatch && request.nextUrl.searchParams.has("nxtPraidId")) {
+    const target = request.nextUrl.clone();
+    target.pathname = `/api/raids/${encodeURIComponent(staleRaidActionMatch[1])}/attendance`;
+    target.search = "";
+    logDashboardEvent("warn", "middleware.raid_stale_server_action_rewrite", request, { raidId: staleRaidActionMatch[1] });
+    return NextResponse.rewrite(target, { headers: noStoreHeaders() });
+  }
+
   const nonce = createNonce();
   const csp = contentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);

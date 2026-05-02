@@ -41,6 +41,16 @@ function cleanAction(value: unknown): RaidSignupStatus {
   return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
 }
 
+async function readAttendanceAction(request: NextRequest): Promise<RaidSignupStatus> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    const body = await request.json().catch(() => null) as { action?: unknown } | null;
+    return cleanAction(body?.action);
+  }
+  const form = await request.formData();
+  return cleanAction(form.get("action"));
+}
+
 export async function POST(request: NextRequest, context: { params: Promise<{ raidId: string }> }) {
   const { raidId } = await context.params;
   const user = await getSession();
@@ -58,8 +68,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   }
 
   try {
-    const form = await request.formData();
-    const action = cleanAction(form.get("action"));
+    const action = await readAttendanceAction(request);
     const result = await handleRaidSessionAction({ raidId, action, user });
 
     if (!result.ok) {

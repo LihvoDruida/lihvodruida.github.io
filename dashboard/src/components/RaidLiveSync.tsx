@@ -13,6 +13,8 @@ type RaidSnapshot = {
   capacity?: number;
 };
 
+type RaidUpdatedEvent = CustomEvent<{ raidId?: string; revision?: string; source?: "site" | "discord" | string }>;
+
 export default function RaidLiveSync({ raidId, initialRevision }: { raidId: string; initialRevision: string }) {
   const router = useRouter();
   const revisionRef = useRef(initialRevision);
@@ -27,10 +29,14 @@ export default function RaidLiveSync({ raidId, initialRevision }: { raidId: stri
     let cancelled = false;
     let timer: number | null = null;
 
-    async function check() {
+    function schedule(delay = 7000) {
+      if (!cancelled) timer = window.setTimeout(check, delay);
+    }
+
+    async function check(showToast = true) {
       if (cancelled) return;
       if (document.visibilityState === "hidden") {
-        timer = window.setTimeout(check, 12000);
+        schedule(12000);
         return;
       }
 
@@ -51,26 +57,52 @@ export default function RaidLiveSync({ raidId, initialRevision }: { raidId: stri
           revisionRef.current = data.revision;
           setState("updated");
           router.refresh();
-          dispatchDashboardToast({
-            tone: "info",
-            title: "Рейд оновлено",
-            message: "Склад або статус рейду змінився. Дані на сторінці оновлюються автоматично.",
-            ttl: 3600,
-          });
+          if (showToast) {
+            dispatchDashboardToast({
+              tone: "info",
+              title: "Рейд оновлено",
+              message: "Склад або статус рейду змінився. Дані на сторінці оновлюються автоматично.",
+              ttl: 3600,
+            });
+          }
         } else {
           setState("idle");
         }
       } catch {
         setState("offline");
       } finally {
-        if (!cancelled) timer = window.setTimeout(check, 10000);
+        schedule();
       }
     }
 
-    timer = window.setTimeout(check, 2500);
+    function checkSoon() {
+      if (timer) window.clearTimeout(timer);
+      schedule(250);
+    }
+
+    function onRaidUpdated(event: Event) {
+      const detail = (event as RaidUpdatedEvent).detail || {};
+      if (detail.raidId && detail.raidId !== raidId) return;
+      if (detail.revision) revisionRef.current = detail.revision;
+      setState("updated");
+      router.refresh();
+      checkSoon();
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") checkSoon();
+    }
+
+    schedule(1800);
+    window.addEventListener("dashboard:raid-updated", onRaidUpdated);
+    window.addEventListener("focus", checkSoon);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
+      window.removeEventListener("dashboard:raid-updated", onRaidUpdated);
+      window.removeEventListener("focus", checkSoon);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [raidId, router]);
 

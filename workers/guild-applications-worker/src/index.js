@@ -2405,6 +2405,12 @@ function dashboardRaidActionEndpoint(env, raidId) {
   }
 }
 
+function getRaidInteractionMessageRef(interaction) {
+  const channelId = snowflake(interaction?.channel_id || interaction?.message?.channel_id);
+  const messageId = snowflake(interaction?.message?.id);
+  return { channelId, messageId };
+}
+
 function raidAnnouncementProxyFallback(env, raidId, reason = "later") {
   if (reason === "profile") {
     return {
@@ -2469,6 +2475,8 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
         guildId: getInteractionGuildId(interaction, env),
+        channelId: getRaidInteractionMessageRef(interaction).channelId,
+        messageId: getRaidInteractionMessageRef(interaction).messageId,
         source: "discord-interaction-worker",
       }),
     });
