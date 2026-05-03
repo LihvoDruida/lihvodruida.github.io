@@ -20533,3 +20533,173 @@ a.profile-directory-card small,
     width: 100% !important;
   }
 }
+
+/* Final profile buttons repair */
+.profile-display-mode-form {
+  align-items: stretch !important;
+}
+
+.profile-display-mode-action {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+.profile-display-mode-action > button {
+  height: 100% !important;
+}
+
+.profile-display-mode-option {
+  align-items: start !important;
+  align-content: start !important;
+  overflow: hidden !important;
+}
+
+.profile-display-mode-option > span:last-child {
+  align-content: start !important;
+}
+
+.profile-display-mode-option strong,
+.profile-display-mode-option small {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.profile-display-mode-option small {
+  white-space: normal !important;
+}
+
+.profile-card,
+.profile-card--identity,
+.profile-card--roles,
+.profile-card--characters,
+.profile-card--raids,
+.profile-card--capabilities {
+  padding: clamp(14px, 1.45vw, 18px) !important;
+}
+
+.profile-card-head h2 {
+  font-size: clamp(22px, 1.7vw, 30px) !important;
+}
+
+.profile-card-head .eyebrow,
+.profile-card--identity .profile-name-panel__label,
+.profile-facts dt,
+.profile-subsection-head small,
+.profile-role-group__head small,
+.profile-bnet-summary small,
+.profile-access-summary small,
+.profile-raid-card__meta small,
+.profile-capability small {
+  font-size: 11px !important;
+}
+
+.profile-card-lead,
+.profile-warning,
+.profile-card-note,
+.profile-card--identity .profile-name-section__head small,
+.profile-card--identity .profile-display-mode-section small,
+.profile-card--identity .profile-discord-standard__identity small,
+.profile-card--identity .profile-name-display-row__value small,
+.profile-card--identity .profile-public-name-preview span,
+.profile-card--identity .profile-nickname-preview small,
+.profile-card--identity .profile-server-nickname__body small,
+.profile-card--identity .profile-nickname-hint,
+.profile-public-status-card__body em,
+.profile-raid-role-box__note,
+.profile-character-title-row p,
+.profile-character-meta span,
+.profile-character-candidate__body small,
+.profile-raid-card__main small {
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+.profile-name-display-row strong,
+.profile-public-name-preview strong,
+.profile-card--identity .profile-discord-standard__identity strong,
+.profile-card--identity .profile-nickname-preview strong,
+.profile-card--identity .profile-server-nickname strong,
+.profile-public-status-card__body strong {
+  font-size: clamp(16px, 1.1vw, 19px) !important;
+}
+
+.profile-display-mode-option {
+  min-height: 68px !important;
+  padding: 10px 12px !important;
+}
+
+.profile-display-mode-option strong {
+  font-size: 14px !important;
+}
+
+.profile-display-mode-option small {
+  font-size: 11px !important;
+}
+
+.profile-display-mode-option__radio {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.profile-name-status-pill,
+.profile-role-chip,
+.profile-count-pill {
+  min-height: 30px !important;
+  font-size: 11px !important;
+}
+
+.profile-person-card {
+  padding: 12px !important;
+}
+
+.profile-person-card__avatar {
+  width: 76px !important;
+  height: 76px !important;
+}
+
+.profile-bnet-summary span,
+.profile-access-summary span,
+.profile-hero-strip span,
+.profile-name-display-row,
+.profile-public-name-preview,
+.profile-nickname-preview,
+.profile-server-nickname,
+.profile-character-card,
+.profile-raid-card,
+.profile-capability,
+.profile-empty-characters,
+.profile-character-candidate {
+  padding: 10px 12px !important;
+}
+
+.profile-bnet-summary strong,
+.profile-access-summary strong,
+.profile-hero-strip strong,
+.profile-character-showcase__stat strong,
+.profile-raid-card__main strong,
+.profile-character-title-row h3,
+.profile-facts dd,
+.profile-capability strong,
+.profile-empty-characters strong,
+.profile-role-group__head strong,
+.profile-subsection-head strong {
+  font-size: 14px !important;
+}
+
+.profile-hero {
+  padding: clamp(14px, 1.7vw, 18px) !important;
+}
+
+.profile-hero .hero-copy h1 {
+  font-size: clamp(26px, 2vw, 34px) !important;
+}
+
+.profile-hero .lead {
+  font-size: 12px !important;
+}
+
+@media (max-width: 920px) {
+  .profile-display-mode-form {
+    grid-template-columns: 1fr !important;
+  }
+}
