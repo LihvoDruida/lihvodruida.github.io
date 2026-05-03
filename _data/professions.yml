@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 13:14:26'
+  updated_at: '2026-05-03 16:54:10'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -870,7 +870,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 72
+        learned_points: 74
         max_points: 100
     - name: Alchemy
       id: 171
@@ -900,6 +900,9 @@ characters:
       - name: Khaz Algar Cooking
         learned_points: 2
         max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -916,7 +919,7 @@ characters:
   region: eu
   realm: doomhammer
   realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -1825,7 +1828,7 @@ characters:
       id: 185
       tiers:
       - name: Classic Cooking
-        learned_points: 3
+        learned_points: 4
         max_points: 300
     - name: Fishing
       id: 356
@@ -2109,7 +2112,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 71
+        learned_points: 76
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2690,7 +2693,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 77
+        learned_points: 81
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2732,7 +2735,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Lightass
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -5669,7 +5672,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 23
+        learned_points: 37
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5694,13 +5697,13 @@ characters:
         learned_points: 34
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 110
+        learned_points: 115
         max_points: 300
 - name: Лилая
   region: eu
   realm: grom
   realm_slug: grom
-  profile_url: https://raider.io/characters/eu/grom/Лилая
+  profile_url: null
   professions:
     primaries:
     - name: Inscription
@@ -6344,7 +6347,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -6523,7 +6526,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 91
+        learned_points: 100
         max_points: 100
     - name: Mining
       id: 186
@@ -6532,7 +6535,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 94
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6680,7 +6683,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 55
+        learned_points: 59
         max_points: 100
     - name: Alchemy
       id: 171
