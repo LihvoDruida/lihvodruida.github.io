@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 06:27:48'
+  updated_at: '2026-05-03 09:23:35'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 126
+  member_count: 127
   achievement_points: 465
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13587
-      region: 6050
+      world: 13589
+      region: 6051
       realm: 55
     heroic:
-      world: 15893
-      region: 6638
+      world: 15898
+      region: 6640
       realm: 53
     mythic:
       world: 6975
@@ -1104,6 +1104,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Nebatur
+    id: 185042794
+    level: 86
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/106/185042794-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Nebatur
+    item_level_equipped: 151
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Illidonson
@@ -1179,6 +1231,58 @@ members:
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/186136183-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Katsyt
     item_level_equipped: 95
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Mistéry
+    id: 186173837
+    level: 90
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/141/186173837-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Mistéry
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 0
@@ -3026,17 +3130,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 249
+    item_level_equipped: 250
     mythic_plus_scores:
       all:
-        score: 168.5
-        color: '#ffffff'
+        score: 368.4
+        color: '#f4fff0'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 168.5
-        color: '#ffffff'
+        score: 368.4
+        color: '#f4fff0'
       tank:
         score: 0
         color: '#ffffff'
@@ -3044,8 +3148,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 168.5
-        color: '#ffffff'
+        score: 368.4
+        color: '#f4fff0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3576,6 +3680,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Bloemfontain
+    id: 210978265
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Windwalker
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 2722.1
+        color: '#5393b7'
+      dps:
+        score: 2722.1
+        color: '#5393b7'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2722.1
+        color: '#5393b7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Kensshi
@@ -3754,29 +3910,81 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2898.5
-        color: '#1f74d8'
+        score: 2944.8
+        color: '#0070dd'
       dps:
         score: 993.7
         color: '#c4ffb0'
       healer:
-        score: 2898.5
-        color: '#1f74d8'
+        score: 2944.8
+        color: '#0070dd'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2898.5
-        color: '#1f74d8'
+        score: 2944.8
+        color: '#0070dd'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
         score: 993.7
         color: '#c4ffb0'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Juzø
+    id: 216613101
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/237/216613101-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Juzø
+    item_level_equipped: 281
+    mythic_plus_scores:
+      all:
+        score: 3410.3
+        color: '#c845bf'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 3410.3
+        color: '#c845bf'
+      spec_0:
+        score: 3410.3
+        color: '#c845bf'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4158,47 +4366,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: Monk
+      name: null
     playable_race:
       id: 34
-      name: Dark Iron Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 278
-    mythic_plus_scores:
-      all:
-        score: 3088.7
-        color: '#7658e6'
-      dps:
-        score: 335.8
-        color: '#f6fff2'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 3088.7
-        color: '#7658e6'
-      spec_0:
-        score: 3088.7
-        color: '#7658e6'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 335.8
-        color: '#f6fff2'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4849,10 +5033,10 @@ members:
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2206.1
+        score: 2207.2
         color: '#38f531'
       dps:
-        score: 2206.1
+        score: 2207.2
         color: '#38f531'
       healer:
         score: 0
@@ -4864,7 +5048,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2206.1
+        score: 2207.2
         color: '#38f531'
       spec_2:
         score: 0
@@ -5158,7 +5342,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мортург
-    item_level_equipped: 276
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2702.1
@@ -5317,11 +5501,11 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2604.6
-        color: '#5eaa9f'
+        score: 2605.4
+        color: '#5ca6a4'
       dps:
-        score: 2604.6
-        color: '#5eaa9f'
+        score: 2605.4
+        color: '#5ca6a4'
       healer:
         score: 0
         color: '#ffffff'
@@ -5335,8 +5519,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2604.6
-        color: '#5eaa9f'
+        score: 2605.4
+        color: '#5ca6a4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6414,171 +6598,15 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Mistéry
-    id: 186173837
+    name: Silpo
+    id: 172370451
     level: 90
     realm:
-      id: 506
-      slug: draenor
+      id: 554
+      slug: ravencrest
     playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 2
-      name: Orc
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/141/186173837-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Mistéry
-    item_level_equipped: 247
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Nebatur
-    id: 185042794
-    level: 86
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/106/185042794-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Nebatur
-    item_level_equipped: 151
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Juzø
-    id: 216613101
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/237/216613101-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Juzø
-    item_level_equipped: 281
-    mythic_plus_scores:
-      all:
-        score: 3410.3
-        color: '#c845bf'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 3410.3
-        color: '#c845bf'
-      spec_0:
-        score: 3410.3
-        color: '#c845bf'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Bloemfontain
-    id: 210978265
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 10
-      name: Monk
+      id: 6
+      name: Death Knight
     playable_race:
       id: 34
       name: Dark Iron Dwarf
@@ -6586,18 +6614,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Windwalker
+      name: Unholy
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 272
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Silpo
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2722.1
-        color: '#5393b7'
+        score: 2902.1
+        color: '#1f74d8'
       dps:
-        score: 2722.1
-        color: '#5393b7'
+        score: 2902.1
+        color: '#1f74d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -6611,8 +6639,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2722.1
-        color: '#5393b7'
+        score: 2902.1
+        color: '#1f74d8'
       spec_3:
         score: 0
         color: '#ffffff'
