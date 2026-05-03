@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 03:23:45'
+  updated_at: '2026-05-03 06:27:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2580,7 +2580,7 @@ characters:
   region: eu
   realm: burning-legion
   realm_slug: burning-legion
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/burning-legion/Ragnarøøk
   professions:
     primaries:
     - name: Enchanting
@@ -3040,7 +3040,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Yokum
   professions:
     primaries:
     - name: Skinning
@@ -6136,7 +6136,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Медведдич
   professions:
     primaries:
     - name: Enchanting
