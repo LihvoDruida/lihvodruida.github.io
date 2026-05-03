@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 09:23:35'
+  updated_at: '2026-05-03 13:14:26'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -910,7 +910,7 @@ characters:
         learned_points: 34
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 8
+        learned_points: 11
         max_points: 300
 - name: Hopeblood
   region: eu
@@ -4496,7 +4496,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Forchun
   professions:
     primaries:
     - name: Engineering
@@ -4737,7 +4737,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     secondaries:
     - name: Cooking
@@ -5669,7 +5669,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 20
+        learned_points: 23
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6485,7 +6485,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 13
+        learned_points: 17
         max_points: 100
     - name: Mining
       id: 186
@@ -6494,7 +6494,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 19
+        learned_points: 23
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6680,7 +6680,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 46
+        learned_points: 55
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6691,7 +6691,16 @@ characters:
       - name: Midnight Alchemy
         learned_points: 92
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Silpo
   region: eu
   realm: ravencrest
