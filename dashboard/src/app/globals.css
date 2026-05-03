@@ -19693,3 +19693,578 @@ a.profile-directory-card small,
     font-size: 14px;
   }
 }
+
+/* Profile refactor v2: layout, typography and adaptive polish */
+.profile-grid {
+  --profile-card-radius: 28px;
+  --profile-inner-radius: 20px;
+  --profile-gap: clamp(14px, 1.6vw, 18px);
+  align-items: start !important;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr) !important;
+  gap: var(--profile-gap) !important;
+  margin-bottom: 36px !important;
+}
+
+.profile-card,
+.profile-card--identity,
+.profile-card--roles,
+.profile-card--characters,
+.profile-card--raids,
+.profile-card--capabilities {
+  align-self: start !important;
+  min-height: 0 !important;
+}
+
+.profile-card {
+  padding: clamp(18px, 2vw, 24px) !important;
+  border-radius: var(--profile-card-radius) !important;
+}
+
+.profile-card::before {
+  inset: 9px !important;
+  border-radius: calc(var(--profile-card-radius) - 8px) !important;
+}
+
+.profile-card-head {
+  margin-bottom: 16px !important;
+}
+
+.profile-card-head h2 {
+  font-size: clamp(26px, 2.1vw, 40px) !important;
+  line-height: 1.02 !important;
+}
+
+.profile-card-head .eyebrow,
+.profile-role-group__head strong,
+.profile-subsection-head strong {
+  letter-spacing: 0.09em !important;
+}
+
+.profile-card-lead,
+.profile-warning,
+.profile-card-note {
+  max-width: 64ch;
+  color: rgba(233, 240, 255, 0.76) !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+.profile-person-card {
+  gap: 16px !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+  border-radius: calc(var(--profile-inner-radius) + 2px) !important;
+}
+
+.profile-person-card__avatar {
+  width: 90px !important;
+  height: 90px !important;
+  border-radius: 24px !important;
+}
+
+.profile-person-card__body {
+  gap: 12px !important;
+}
+
+.profile-name-panel {
+  gap: 14px !important;
+}
+
+.profile-card--identity .profile-name-section,
+.profile-card--identity .profile-display-mode-section,
+.profile-card--identity .profile-discord-standard,
+.profile-public-status-card,
+.profile-raid-role-box,
+.profile-candidates-box {
+  padding: 16px !important;
+  border-radius: var(--profile-inner-radius) !important;
+}
+
+.profile-card--identity .profile-name-section__head,
+.profile-card--identity .profile-name-section__head--modern,
+.profile-card--identity .profile-discord-standard__head,
+.profile-card--identity .profile-discord-standard__head--modern {
+  margin-bottom: 12px !important;
+}
+
+.profile-card--identity .profile-name-panel__label,
+.profile-subsection-head small,
+.profile-role-group__head small,
+.profile-facts dt,
+.profile-character-showcase__stat small,
+.profile-raid-card__meta small,
+.profile-bnet-summary small,
+.profile-access-summary small,
+.profile-capability small {
+  font-size: 12px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.profile-card--identity .profile-name-section__head small,
+.profile-card--identity .profile-display-mode-section small,
+.profile-card--identity .profile-discord-standard__identity small,
+.profile-public-status-card__body em,
+.profile-card--identity .profile-nickname-preview small,
+.profile-card--identity .profile-name-display-row small,
+.profile-card--identity .profile-public-name-preview span,
+.profile-card--identity .profile-server-nickname__body small,
+.profile-card--identity .profile-nickname-hint {
+  font-size: 13px !important;
+}
+
+.profile-name-edit-form {
+  align-items: center !important;
+}
+
+.profile-name-display-row,
+.profile-public-name-preview,
+.profile-nickname-preview,
+.profile-server-nickname,
+.profile-access-summary span,
+.profile-facts div,
+.profile-bnet-summary span,
+.profile-raid-card,
+.profile-character-card,
+.profile-capability,
+.profile-empty-characters,
+.profile-character-candidate {
+  border-radius: 18px !important;
+}
+
+.profile-name-display-row {
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.profile-name-display-row strong,
+.profile-public-name-preview strong,
+.profile-card--identity .profile-discord-standard__identity strong,
+.profile-card--identity .profile-nickname-preview strong,
+.profile-card--identity .profile-server-nickname strong,
+.profile-public-status-card__body strong {
+  font-size: clamp(18px, 1.4vw, 23px) !important;
+}
+
+.profile-display-mode-form {
+  gap: 10px !important;
+}
+
+.profile-display-mode-option {
+  min-height: 82px !important;
+  padding: 14px !important;
+}
+
+.profile-display-mode-option strong {
+  font-size: 16px !important;
+}
+
+.profile-display-mode-option small {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.profile-discord-standard__identity {
+  min-width: 0 !important;
+}
+
+.profile-nick-sync-button,
+.profile-nick-sync-button--copy,
+.profile-icon-action,
+.profile-bnet-cta,
+.profile-candidate-bulk-actions .btn,
+.profile-character-actions .btn,
+.profile-raid-role-form .btn {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background-color 0.16s ease !important;
+}
+
+.profile-nick-sync-button:hover,
+.profile-nick-sync-button--copy:hover,
+.profile-icon-action:hover,
+.profile-bnet-cta:hover,
+.profile-candidate-bulk-actions .btn:hover,
+.profile-character-actions .btn:hover,
+.profile-raid-role-form .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+}
+
+.profile-public-status-card__icon,
+.profile-raid-role-box__icon,
+.profile-raid-card__icon {
+  flex: 0 0 auto;
+}
+
+.profile-facts {
+  margin-top: 14px !important;
+}
+
+.profile-facts div {
+  min-height: 62px !important;
+  padding: 12px 14px !important;
+}
+
+.profile-facts dd {
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+.profile-access-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.profile-access-summary span {
+  min-height: 96px !important;
+  padding: 16px 16px 16px 62px !important;
+}
+
+.profile-access-summary span::before {
+  left: 16px !important;
+  top: 16px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+}
+
+.profile-access-summary strong {
+  font-size: clamp(21px, 1.8vw, 28px) !important;
+}
+
+.profile-role-group {
+  padding-top: 16px !important;
+}
+
+.profile-role-stack {
+  gap: 8px !important;
+}
+
+.profile-role-chip,
+.profile-count-pill {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+}
+
+.profile-bnet-summary,
+.profile-hero-strip,
+.profile-character-list,
+.profile-raid-list,
+.profile-capabilities-list {
+  gap: 12px !important;
+}
+
+.profile-bnet-summary {
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)) !important;
+}
+
+.profile-bnet-summary span,
+.profile-hero-strip span {
+  min-height: 76px !important;
+  padding: 12px 14px !important;
+}
+
+.profile-bnet-summary strong,
+.profile-hero-strip strong {
+  font-size: 18px !important;
+}
+
+.profile-raid-role-box__head {
+  gap: 12px !important;
+}
+
+.profile-raid-role-box__note {
+  margin: 12px 0 14px !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+.profile-raid-role-form {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.profile-raid-role-form > .btn {
+  justify-self: start;
+}
+
+.profile-raid-role-option {
+  min-height: 78px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+}
+
+.profile-subsection-head,
+.profile-role-group__head {
+  margin-bottom: 10px !important;
+}
+
+.profile-character-list {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+}
+
+.profile-character-card {
+  padding: 14px !important;
+  gap: 14px !important;
+}
+
+.profile-character-artwork {
+  border-radius: 18px !important;
+  min-height: 160px !important;
+}
+
+.profile-character-title-row h3 {
+  font-size: 22px !important;
+  line-height: 1.08 !important;
+}
+
+.profile-character-title-row p,
+.profile-character-meta span,
+.profile-character-candidate__body small,
+.profile-raid-card__main small {
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.profile-character-showcase {
+  gap: 10px !important;
+}
+
+.profile-character-showcase__stat {
+  padding: 10px 12px !important;
+}
+
+.profile-character-showcase__stat strong {
+  font-size: 20px !important;
+}
+
+.profile-character-actions {
+  gap: 8px !important;
+}
+
+.profile-raid-card {
+  padding: 14px !important;
+  gap: 12px !important;
+}
+
+.profile-raid-card__main {
+  gap: 12px !important;
+}
+
+.profile-raid-card__main strong {
+  font-size: 18px !important;
+  line-height: 1.14 !important;
+}
+
+.profile-raid-card__meta {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.profile-raid-card__meta span {
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.profile-empty-characters {
+  padding: 16px !important;
+}
+
+.profile-empty-characters strong {
+  font-size: 18px !important;
+}
+
+.profile-candidate-bulk-actions {
+  margin-bottom: 12px !important;
+  gap: 10px !important;
+}
+
+.profile-character-candidates {
+  gap: 10px !important;
+}
+
+.profile-character-candidate {
+  grid-template-columns: auto auto minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  align-items: center !important;
+  padding: 12px !important;
+}
+
+.profile-character-candidate__avatar {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+}
+
+.profile-capabilities-list {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+}
+
+.profile-capability {
+  padding: 14px !important;
+}
+
+.profile-capability strong {
+  font-size: 16px !important;
+}
+
+.profile-hero {
+  min-height: 220px !important;
+}
+
+.profile-hero .hero-copy h1 {
+  font-size: clamp(32px, 2.8vw, 46px) !important;
+}
+
+.profile-hero .lead {
+  max-width: 70ch;
+}
+
+@media (max-width: 1180px) {
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-card--identity,
+  .profile-card--roles {
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .profile-card {
+    padding: 16px !important;
+  }
+
+  .profile-person-card {
+    grid-template-columns: 78px minmax(0, 1fr) !important;
+  }
+
+  .profile-person-card__avatar {
+    width: 78px !important;
+    height: 78px !important;
+  }
+
+  .profile-card-head h2 {
+    font-size: clamp(24px, 6vw, 34px) !important;
+  }
+
+  .profile-access-summary,
+  .profile-display-mode-form,
+  .profile-facts div,
+  .profile-raid-role-form,
+  .profile-raid-card__meta {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-character-list,
+  .profile-capabilities-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-grid {
+    gap: 14px !important;
+  }
+
+  .profile-card {
+    --profile-card-radius: 22px;
+    padding: 14px !important;
+    border-radius: var(--profile-card-radius) !important;
+  }
+
+  .profile-card::before {
+    inset: 7px !important;
+    border-radius: 16px !important;
+  }
+
+  .profile-person-card {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  .profile-person-card__avatar {
+    width: 72px !important;
+    height: 72px !important;
+  }
+
+  .profile-card--identity .profile-name-section,
+  .profile-card--identity .profile-display-mode-section,
+  .profile-card--identity .profile-discord-standard,
+  .profile-public-status-card,
+  .profile-raid-role-box,
+  .profile-candidates-box {
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .profile-name-edit-form {
+    grid-template-columns: 1fr auto auto !important;
+  }
+
+  .profile-name-display-row,
+  .profile-card--identity .profile-discord-standard__head,
+  .profile-card--identity .profile-discord-standard__head--modern,
+  .profile-card--identity .profile-name-section__head,
+  .profile-card--identity .profile-name-section__head--modern,
+  .profile-public-status-card,
+  .profile-server-nickname {
+    grid-template-columns: 1fr !important;
+    display: grid !important;
+  }
+
+  .profile-name-status-pill,
+  .profile-icon-action,
+  .profile-nick-sync-button,
+  .profile-nick-sync-button--copy,
+  .profile-bnet-cta,
+  .profile-candidate-bulk-actions .btn,
+  .profile-character-actions .btn,
+  .profile-raid-role-form > .btn {
+    width: 100% !important;
+  }
+
+  .profile-name-display-row strong,
+  .profile-public-name-preview strong,
+  .profile-card--identity .profile-discord-standard__identity strong,
+  .profile-card--identity .profile-nickname-preview strong,
+  .profile-card--identity .profile-server-nickname strong,
+  .profile-public-status-card__body strong {
+    font-size: 20px !important;
+  }
+
+  .profile-access-summary span,
+  .profile-bnet-summary span,
+  .profile-hero-strip span {
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+
+  .profile-character-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-character-artwork {
+    min-height: 140px !important;
+  }
+
+  .profile-character-candidate {
+    grid-template-columns: auto 1fr !important;
+    align-items: start !important;
+  }
+
+  .profile-character-candidate > form,
+  .profile-character-candidate .profile-candidate-select {
+    grid-column: 1 / -1;
+  }
+
+  .profile-hero {
+    min-height: 0 !important;
+  }
+
+  .profile-hero .hero-copy h1 {
+    font-size: clamp(28px, 10vw, 38px) !important;
+  }
+}
