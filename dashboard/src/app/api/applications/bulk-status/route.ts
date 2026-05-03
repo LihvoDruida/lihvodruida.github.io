@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { ApplicationStatus, normalizeStatus } from "@/lib/github";
 import { moderateApplications } from "@/lib/moderation";
 import { canManageApplications, hierarchyTitle } from "@/lib/permissions";
@@ -92,10 +93,11 @@ export async function POST(request: NextRequest) {
 
   try {
     logDashboardEvent("info", "applications.bulk_status.attempt", request, { userId: session.id, count: items.length });
+    const moderatorName = (await resolveAuthorIdentity(session)).primaryName;
 
     const result = await moderateApplications({
       items,
-      moderator: `${session.name} (${hierarchyTitle(session.role)})`,
+      moderator: `${moderatorName} (${hierarchyTitle(session.role)})`,
       source: "dashboard",
     });
 

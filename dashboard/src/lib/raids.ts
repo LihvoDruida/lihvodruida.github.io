@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfileRaidRole, refreshProfileCharactersForRaidSignup, type DashboardProfile } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, getProfileRaidRole, refreshProfileCharactersForRaidSignup, type DashboardProfile } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -762,7 +762,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
     mentionRoleIds: cleanSnowflakeIds(form.getAll("mentionRoleIds")),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
-    createdByName: user.name || user.login || "Raid Lead",
+    createdByName: profile ? getProfilePublicName(profile) : user.name || user.login || "Raid Lead",
     createdByMain: profileMainLabel(profile),
     consumables: cleanConsumables(form.get("consumables")),
     lootMode: cleanLootMode(form.get("lootMode")),
@@ -1248,7 +1248,7 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
 
   return {
     discordId: userId,
-    discordName: userName || profile?.displayName || "Discord user",
+    discordName: profile ? getProfilePublicName(profile) : userName || "Discord user",
     profileId: profile?.profileId || null,
     status,
     role,

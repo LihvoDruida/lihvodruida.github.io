@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { defaultRaidRulesEmbed, defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import {
   fetchDiscordEditableMessage,
@@ -23,6 +24,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
   if (!canManageRulesEmbeds(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
+  const authorIdentity = await resolveAuthorIdentity(user);
   const isAdmin = user.role === "admin";
   const messageParam = String(params.message || params.url || "").trim();
   let configError = "";
@@ -100,6 +102,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
             defaultContent={content}
             defaultMessageLink={messageLink}
             selectedRoleIds={selectedRoleIds}
+            authorSuggestions={authorIdentity.suggestions}
             returnTo="/discord/rules"
           />
         </>

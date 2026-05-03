@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import ContentImageField from "@/components/ContentImageField";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
-import { getOwnProfilePath } from "@/lib/profiles";
+import { getOwnProfilePath, type AuthorNameSuggestion } from "@/lib/profiles";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { canManageSiteContent } from "@/lib/permissions";
 import { listSiteContent, type SiteContentItem } from "@/lib/content";
 import { redirect } from "next/navigation";
@@ -86,7 +88,7 @@ function FormSection({
   );
 }
 
-function CreateContentForm({ author }: { author: string }) {
+function CreateContentForm({ author, authorSuggestions }: { author: string; authorSuggestions: AuthorNameSuggestion[] }) {
   return (
     <section className="panel content-editor-panel content-editor-panel--modern" aria-label="Створення матеріалу">
       <EditorHeader mode="create" eyebrow="Створення" title="Новий матеріал" />
@@ -133,8 +135,9 @@ function CreateContentForm({ author }: { author: string }) {
           <div className="content-media-layout">
             <label className="content-field content-author-field">
               <span>Автор</span>
-              <input className="input" name="authorPreview" value={author} readOnly />
-              <small>Береться з Discord-імені адміністратора.</small>
+              <input id="content-author-create" className="input" name="author" defaultValue={author} />
+              <AuthorSuggestionChips targetId="content-author-create" suggestions={authorSuggestions} />
+              <small>За замовчуванням береться імʼя з профілю. Можна швидко підставити серверне Discord-імʼя, Discord-імʼя або імʼя з сайту.</small>
             </label>
             <ContentImageField label="Обкладинка" hint="JPG, PNG, WEBP або GIF до 8 MB" previewBaseUrl={sitePreviewBaseUrl()} />
           </div>
@@ -156,7 +159,7 @@ function CreateContentForm({ author }: { author: string }) {
   );
 }
 
-function EditContentForm({ item, author }: { item: SiteContentItem; author: string }) {
+function EditContentForm({ item, author, authorSuggestions }: { item: SiteContentItem; author: string; authorSuggestions: AuthorNameSuggestion[] }) {
   return (
     <section className="panel content-editor-panel content-editor-panel--modern" aria-label={`Редагування: ${item.title}`}>
       <EditorHeader mode="edit" eyebrow={`Редагування • ${contentTypeLabel(item.kind)}`} title={item.title} meta={item.path} />
@@ -215,8 +218,9 @@ function EditContentForm({ item, author }: { item: SiteContentItem; author: stri
           <div className="content-media-layout">
             <label className="content-field content-author-field">
               <span>Автор</span>
-              <input className="input" name="author" defaultValue={item.author || author} />
-              <small>Для нових матеріалів автор береться з Discord-імені.</small>
+              <input id="content-author-edit" className="input" name="author" defaultValue={item.author || author} />
+              <AuthorSuggestionChips targetId="content-author-edit" suggestions={authorSuggestions} />
+              <small>Можна швидко підставити серверне Discord-імʼя, Discord-імʼя або імʼя з сайту.</small>
             </label>
             <div className="content-cover-stack">
               <ContentImageField label="Обкладинка" hint="Нова картинка замінить поточний шлях" currentImage={item.image} previewBaseUrl={sitePreviewBaseUrl()} />
@@ -318,6 +322,9 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   if (!canManageSiteContent(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
+  const authorIdentity = await resolveAuthorIdentity(user);
+  const authorName = authorIdentity.primaryName;
+  const authorSuggestions = authorIdentity.suggestions;
   const isAdmin = user.role === "admin";
   const items = isAdmin ? await listSiteContent() : [];
   const newsItems = items.filter((item) => item.kind === "news");
@@ -338,7 +345,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       ? "Оновлюй заголовок, опис, категорії, теги, обкладинку та текст без зайвих переходів."
       : "Керуй новинами й гайдами для основного сайту: створюй, редагуй, переглядай і прибирай матеріали з однієї панелі.";
   const heroNote = isCreateMode
-    ? "Автор автоматично береться з Discord-імені адміністратора."
+    ? "Автор автоматично береться з профілю. За потреби його можна замінити одним кліком."
     : selectedItem
       ? `${contentTypeLabel(selectedItem.kind)} • ${selectedItem.date || "без дати"} • ${selectedItem.author || "без автора"}`
       : "Новини та гайди розділені для зручності.";
@@ -397,7 +404,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       ) : (
         <section className="content-page-stack">
           {showEditor ? (
-            isCreateMode ? <CreateContentForm author={user.name} /> : selectedItem ? <EditContentForm item={selectedItem} author={user.name} /> : null
+            isCreateMode ? <CreateContentForm author={authorName} authorSuggestions={authorSuggestions} /> : selectedItem ? <EditContentForm item={selectedItem} author={authorName} authorSuggestions={authorSuggestions} /> : null
           ) : null}
 
           {!showEditor ? (

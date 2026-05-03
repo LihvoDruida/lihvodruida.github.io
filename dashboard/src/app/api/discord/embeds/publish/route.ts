@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { canManageGeneralEmbeds, canManageRulesEmbeds, hierarchyTitle } from "@/lib/permissions";
 import {
   assertRequestBodySize,
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
     const editRef = parseDiscordMessageRef(messageLink);
     const shouldEdit = action === "edit" || Boolean(editRef);
     const effectiveAction = shouldEdit ? "edit" : "publish";
-    const actor = session.name || session.login || session.id;
+    const actor = (await resolveAuthorIdentity(session)).primaryName || session.name || session.login || session.id;
     const auditReason = `Mistblossom dashboard: ${isRules ? ruleType === "raid" ? "raid rules" : "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
 
     logDashboardEvent("info", "discord.embed.submit", request, {

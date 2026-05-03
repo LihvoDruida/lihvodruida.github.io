@@ -3,6 +3,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { canManageGeneralEmbeds } from "@/lib/permissions";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { defaultGeneralEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
@@ -32,6 +33,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   if (!canUseGeneralEmbeds) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
+  const authorIdentity = await resolveAuthorIdentity(user);
   const messageParam = String(params.message || params.url || "").trim();
   const editMode = Boolean(messageParam);
   let configError = "";
@@ -104,6 +106,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
             defaultContent={content}
             defaultMessageLink={messageLink}
             selectedRoleIds={selectedRoleIds}
+            authorSuggestions={authorIdentity.suggestions}
             returnTo="/discord/embed"
           />
         </>

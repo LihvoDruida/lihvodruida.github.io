@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { createSiteContent, isContentKind } from "@/lib/content";
 import {
   assertRequestBodySize,
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       tags: String(form.get("tags") || ""),
       slug: String(form.get("slug") || ""),
       image: imageValue instanceof File ? imageValue : null,
-      author: session.name,
+      author: String(form.get("author") || (await resolveAuthorIdentity(session)).primaryName || session.name),
       user: session,
     });
 

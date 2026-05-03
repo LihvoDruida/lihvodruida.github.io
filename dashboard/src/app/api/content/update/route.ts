@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { isContentKind, updateSiteContent } from "@/lib/content";
 import {
   assertRequestBodySize,
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       existingImage: String(form.get("existingImage") || ""),
       removeImage: String(form.get("removeImage") || "") === "1",
       image: imageValue instanceof File ? imageValue : null,
-      author: String(form.get("author") || session.name),
+      author: String(form.get("author") || (await resolveAuthorIdentity(session)).primaryName || session.name),
       user: session,
     });
 

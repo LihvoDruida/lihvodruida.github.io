@@ -239,6 +239,12 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Профільне імʼя оновлено. Тепер можна синхронізувати серверне імʼя в Discord.",
     ttl: 6200,
   },
+  profile_name_mode_saved: {
+    tone: "success",
+    title: "Формат імені збережено",
+    message: "Панель тепер використовує вибраний формат у профілі, рейдах, авторах і списках.",
+    ttl: 6200,
+  },
   profile_name_invalid: {
     tone: "warning",
     title: "Імʼя не збережено",

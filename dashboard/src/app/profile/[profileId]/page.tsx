@@ -25,7 +25,9 @@ import {
   buildProfileDiscordNickname,
   canViewProfile,
   getMainCharacter,
+  getProfilePublicName,
   getProfileRaidRole,
+  getProfileServerStyleName,
   getProfileById,
   profileFromSession,
   upsertProfileFromSession,
@@ -452,6 +454,8 @@ export default async function ProfilePage({
   const bulkFormId = "profile-candidate-bulk-add";
   const savedCharacterCount = profile.characters.length;
   const discordNicknamePreview = buildProfileDiscordNickname(profile);
+  const publicNamePreview = getProfilePublicName(profile);
+  const serverStyleNamePreview = getProfileServerStyleName(profile);
   const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
   let discordOwnerLocked = false;
   let currentServerNickname: string | null = null;
@@ -549,7 +553,10 @@ export default async function ProfilePage({
             <div className="profile-person-card__body">
               <ProfileNameControls
                 preferredName={profile.preferredName}
+                publicNameMode={profile.publicNameMode}
                 discordName={profile.displayName}
+                publicNamePreview={publicNamePreview}
+                serverStyleNamePreview={serverStyleNamePreview}
                 nicknamePreview={discordNicknamePreview}
                 lastSyncedNickname={profile.discordNickname?.value}
                 lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}

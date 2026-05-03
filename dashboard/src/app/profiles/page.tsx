@@ -1,7 +1,7 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
 import { canViewProfiles, dashboardRoleLabel } from "@/lib/permissions";
-import { getMainCharacter, getOwnProfilePath, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
+import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,7 @@ function formatDate(value?: string | null) {
 
 function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const main = getMainCharacter(profile);
+  const displayName = getProfilePublicName(profile);
   const avatar = profile.avatarUrl || main?.avatarUrl || main?.renderUrl || null;
 
   return (
@@ -25,11 +26,11 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
           <img className="profile-directory-card__avatar" src={avatar} alt="" width={56} height={56} loading="lazy" referrerPolicy="no-referrer" />
         ) : (
           <span className="profile-directory-card__avatar profile-directory-card__avatar--fallback" aria-hidden="true">
-            {(profile.displayName || "?").charAt(0)}
+            {(displayName || "?").charAt(0)}
           </span>
         )}
         <div>
-          <h2>{profile.displayName}</h2>
+          <h2>{displayName}</h2>
           <p>{dashboardRoleLabel(profile.role)}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • мейн не вибрано"}</p>
         </div>
       </div>

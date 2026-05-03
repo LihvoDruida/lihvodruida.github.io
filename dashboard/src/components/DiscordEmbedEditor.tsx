@@ -1,7 +1,9 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
+import type { AuthorNameSuggestion } from "@/lib/profiles";
 
 export type DiscordChannelOption = {
   id: string;
@@ -37,6 +39,7 @@ type DiscordEmbedEditorProps = {
   defaultContent?: string;
   defaultMessageLink?: string;
   selectedRoleIds?: string[];
+  authorSuggestions?: AuthorNameSuggestion[];
   returnTo: string;
 };
 
@@ -782,6 +785,7 @@ export default function DiscordEmbedEditor({
   defaultContent = "",
   defaultMessageLink = "",
   selectedRoleIds = [],
+  authorSuggestions = [],
   returnTo,
 }: DiscordEmbedEditorProps) {
   const initialEmbed = useMemo(() => parseInitialEmbed(defaultEmbedJson), [defaultEmbedJson]);
@@ -1205,7 +1209,8 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid discord-builder-grid--three">
                 <label className="content-field">
                   <span>Author name</span>
-                  <input className="input" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                  <input id="discord-author-name" className="input" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                  <AuthorSuggestionChips targetId="discord-author-name" suggestions={authorSuggestions} onPick={setAuthorName} />
                   <LimitCounter value={authorName.length} max={DISCORD_LIMITS.authorName} />
                 </label>
                 <label className="content-field">

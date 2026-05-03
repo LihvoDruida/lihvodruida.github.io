@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { defaultRaidRulesEmbed, defaultRulesEmbed, prettyDiscordJson } from "@/lib/discordEmbedDefaults";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
@@ -17,6 +18,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
   if (!canManageRulesEmbeds(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
+  const authorIdentity = await resolveAuthorIdentity(user);
   const isAdmin = user.role === "admin";
   const ruleType = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
   const defaultEmbed = ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed;
@@ -69,6 +71,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
           roles={roles}
           suggestedChannelId={suggestedRulesChannelId}
           defaultEmbedJson={prettyDiscordJson(defaultEmbed)}
+          authorSuggestions={authorIdentity.suggestions}
           returnTo="/discord/rules"
         />
       )}

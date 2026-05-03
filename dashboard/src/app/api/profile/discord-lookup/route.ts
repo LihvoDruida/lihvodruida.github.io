@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProfileByDiscordUserId, getMainCharacter } from "@/lib/profiles";
+import { getProfileByDiscordUserId, getMainCharacter, getProfilePublicName } from "@/lib/profiles";
 import { hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
@@ -53,7 +53,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       found: true,
       profileId: profile.profileId,
-      displayName: profile.displayName,
+      displayName: getProfilePublicName(profile),
+      discordName: profile.displayName,
       mainCharacter,
       hasMainCharacter: Boolean(mainCharacter?.name && (mainCharacter.realmName || mainCharacter.realmSlug)),
       characterCount: Array.isArray(profile.characters) ? profile.characters.length : 0,

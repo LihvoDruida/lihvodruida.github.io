@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { canManageRaids } from "@/lib/permissions";
 import { hasRaidStorage } from "@/lib/raids";
@@ -25,7 +26,8 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
     channels = channelsResult?.channels || [];
     roles = roleData;
   }
-  const previewRaid = makePreviewRaid(user);
+  const authorIdentity = await resolveAuthorIdentity(user);
+  const previewRaid = makePreviewRaid(user, authorIdentity.primaryName);
 
   return (
     <RaidPageShell

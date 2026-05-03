@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { ApplicationStatus } from "@/lib/github";
 import { moderateApplication } from "@/lib/moderation";
 import { canManageApplications, hierarchyTitle } from "@/lib/permissions";
@@ -63,10 +64,11 @@ export async function POST(
   }
 
   try {
+    const moderatorName = (await resolveAuthorIdentity(session)).primaryName;
     const result = await moderateApplication({
       issueNumber,
       status,
-      moderator: `${session.name} (${hierarchyTitle(session.role)})`,
+      moderator: `${moderatorName} (${hierarchyTitle(session.role)})`,
       source: "dashboard",
     });
 

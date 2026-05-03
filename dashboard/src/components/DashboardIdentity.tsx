@@ -12,6 +12,7 @@ import {
   siteStatusLabel,
 } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
+import { getProfileById, getProfilePublicName } from "@/lib/profiles";
 
 export default async function DashboardIdentity({
   user,
@@ -21,7 +22,9 @@ export default async function DashboardIdentity({
   activeSection?: "applications" | "content" | "discord" | "profile" | "profiles" | "raids" | "rules";
 }) {
   const guild = await getGuildBranding();
-  const avatar = user?.avatar_url || user?.avatar || null;
+  const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
+  const displayName = profile ? getProfilePublicName(profile) : (user?.name || user?.login || "Користувач");
+  const avatar = profile?.avatarUrl || user?.avatar_url || user?.avatar || null;
   const canUseApplications = canManageApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
   const canUseRaids = canViewRaidDirectory(user);
@@ -109,15 +112,15 @@ export default async function DashboardIdentity({
               <a
                 className={`dashboard-user__profile-link${activeSection === "profile" ? " is-active" : ""}`}
                 href={profileHref}
-                aria-label={`Відкрити профіль ${user.name || user.login || "користувача"}`}
+                aria-label={`Відкрити профіль ${displayName || user.name || user.login || "користувача"}`}
                 aria-current={activeSection === "profile" ? "page" : undefined}
               >
                 <div className="dashboard-user__avatar-wrap">
-                  {avatar ? <img className="discord-avatar" src={avatar} alt="" width={44} height={44} loading="lazy" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(user.name || user.login || "A").charAt(0)}</span>}
+                  {avatar ? <img className="discord-avatar" src={avatar} alt="" width={44} height={44} loading="lazy" referrerPolicy="no-referrer" /> : <span className="discord-avatar-fallback">{(displayName || user.name || user.login || "A").charAt(0)}</span>}
                   <span className="dashboard-user__status" aria-hidden="true" />
                 </div>
                 <div>
-                  <strong>{user.name}</strong>
+                  <strong>{displayName}</strong>
                   <span>{hierarchyTitle(user.role)} • {siteStatusLabel(user.role)}</span>
                 </div>
               </a>

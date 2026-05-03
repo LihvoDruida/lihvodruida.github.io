@@ -489,7 +489,7 @@ export function RaidUnavailableState({ canManage = false }: { canManage?: boolea
   );
 }
 
-export function makePreviewRaid(user: DashboardSession): RaidItem {
+export function makePreviewRaid(user: DashboardSession, createdByName?: string): RaidItem {
   return {
     id: "previewraid",
     title: "Войдспайр",
@@ -498,7 +498,7 @@ export function makePreviewRaid(user: DashboardSession): RaidItem {
     time: "20:00",
     description: "Глибоко в серці темної цитаделі Войдспайр нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!",
     createdByDiscordId: user.provider === "discord" ? user.id : "",
-    createdByName: user.name || "@Sebas",
+    createdByName: createdByName || user.name || "@Sebas",
     createdByMain: null,
     consumables: "own",
     lootMode: "ms-os",

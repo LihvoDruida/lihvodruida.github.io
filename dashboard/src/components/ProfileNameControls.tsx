@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import type { ProfilePublicNameMode } from "@/lib/profiles";
 
 type IconName = "edit" | "check" | "x" | "copy" | "sync";
 
@@ -61,7 +62,10 @@ function ProfileActionIcon({ name }: { name: IconName }) {
 
 type Props = {
   preferredName?: string | null;
+  publicNameMode?: ProfilePublicNameMode;
   discordName: string;
+  publicNamePreview?: string | null;
+  serverStyleNamePreview?: string | null;
   nicknamePreview?: string | null;
   lastSyncedNickname?: string | null;
   lastSyncedAt?: string | null;
@@ -73,7 +77,10 @@ type Props = {
 
 export default function ProfileNameControls({
   preferredName,
+  publicNameMode = "name",
   discordName,
+  publicNamePreview,
+  serverStyleNamePreview,
   nicknamePreview,
   lastSyncedNickname,
   lastSyncedAt,
@@ -189,6 +196,43 @@ export default function ProfileNameControls({
             <strong>{savedName || "Додай імʼя"}</strong>
           </div>
         )}
+      </section>
+
+      <section className="profile-display-mode-section" aria-label="Формат імені у панелі">
+        <div className="profile-name-section__head">
+          <div>
+            <span className="profile-name-panel__label">Відображення</span>
+            <small>Яке імʼя показувати в панелі, рейдах і авторах.</small>
+          </div>
+        </div>
+        <div className="profile-public-name-preview">
+          <span>Зараз у системі</span>
+          <strong>{publicNamePreview || savedName || discordName || "Учасник"}</strong>
+        </div>
+        {canManage ? (
+          <form className="profile-display-mode-form" action="/api/profile/name-mode" method="post">
+            <button
+              className={`profile-display-mode-option${publicNameMode !== "server_nickname" ? " is-selected" : ""}`}
+              type="submit"
+              name="publicNameMode"
+              value="name"
+              disabled={publicNameMode !== "server_nickname"}
+            >
+              <strong>Імʼя</strong>
+              <small>{savedName || discordName || "Discord"}</small>
+            </button>
+            <button
+              className={`profile-display-mode-option${publicNameMode === "server_nickname" ? " is-selected" : ""}`}
+              type="submit"
+              name="publicNameMode"
+              value="server_nickname"
+              disabled={publicNameMode === "server_nickname"}
+            >
+              <strong>Імʼя + персонажі</strong>
+              <small>{serverStyleNamePreview || nicknamePreview || publicNamePreview || savedName || discordName || "Учасник"}</small>
+            </button>
+          </form>
+        ) : null}
       </section>
 
       <section className="profile-discord-standard" aria-label="Discord nickname">
