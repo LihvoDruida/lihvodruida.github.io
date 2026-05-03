@@ -1271,7 +1271,7 @@ export default function DiscordEmbedEditor({
                   selectedRoleIds={roleIds}
                   onChange={setRoleIds}
                   ariaLabel="Ролі для кнопки прийняття правил"
-                  helperText="Видаються після натискання кнопки прийняття правил."
+                  helperText="Видаються одразу після натискання кнопки. Сайт, авторизація або додаткове підтвердження не потрібні."
                 />
               </div>
             ) : null}

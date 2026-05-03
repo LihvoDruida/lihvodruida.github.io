@@ -90,14 +90,14 @@ function rulesConfirmationResponse(action: { action: string; roleIds: string[] }
     ]);
   }
 
-  return ephemeral("🌸 Підтверди прийняття правил. Після підтвердження бот видасть потрібну роль.", [
+  return ephemeral("🌸 Натисни “Прийняти правила”, і бот одразу видасть потрібну роль. Сайт або реєстрація не потрібні.", [
     {
       type: 1,
       components: [
         {
           type: 2,
           style: 3,
-          label: "Підтвердити прийняття",
+          label: "Прийняти правила",
           custom_id: buildRulesAcceptCustomId(action.roleIds),
         },
       ],
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
     return ephemeral("Ця кнопка вже застаріла.");
   }
 
-  if (parsed.action === "confirm_accept" || parsed.action === "confirm_decline") {
+  if (parsed.action === "confirm_decline") {
     logDashboardEvent("info", "discord.rules.confirmation_requested", request, {
       action: parsed.action,
       guildId,

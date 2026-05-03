@@ -255,7 +255,9 @@ function decodeRulesCustomId(customId) {
   const confirmAcceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:c:a:`;
   if (value.startsWith(confirmAcceptPrefix)) {
     const roleIds = decodeRoleIdsFromCustomId(value, confirmAcceptPrefix);
-    return roleIds.length ? { type: "guild", action: "confirm_accept", roleIds } : null;
+    // Backward compatibility: older rules messages used confirmation IDs.
+    // Guild rules acceptance is now one-click and does not require website login or a second confirmation.
+    return roleIds.length ? { type: "guild", action: "accept", roleIds } : null;
   }
 
   return null;
@@ -2194,7 +2196,7 @@ function rulesConfirmationResponse(rulesAction) {
         ? "🐉 Підтверди підпис на правила рейду. Бот перевірить твою авторизацію в панелі та main-персонажа."
         : isDecline
           ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
-          : "🌸 Підтверди прийняття правил. Після підтвердження бот видасть потрібну роль.",
+          : "🌸 Натисни “Прийняти правила”, і бот одразу видасть потрібну роль. Сайт або реєстрація не потрібні.",
       components,
     },
   });
@@ -2265,13 +2267,13 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
   const userId = getDiscordUserId(interaction);
   const userLabel = getDiscordUserLabel(interaction);
 
-  if (rulesAction.action === "confirm_accept" || rulesAction.action === "confirm_decline" || rulesAction.action === "confirm_raid_signup") {
+  if (rulesAction.action === "confirm_decline" || rulesAction.action === "confirm_raid_signup") {
     logWorkerEvent("info", "rules.confirmation.requested", { action: rulesAction.action, guildId, userId, roles: rulesAction.roleIds?.length || 0 });
 
     if (rulesAction.action !== "confirm_raid_signup") {
       const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
 
-      if (recordedDecision === "accepted" || (rulesAction.action === "confirm_accept" && memberHasAllRoles(interaction, rulesAction.roleIds))) {
+      if (recordedDecision === "accepted") {
         await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
         return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Кнопки для тебе більше не потрібні.");
       }
