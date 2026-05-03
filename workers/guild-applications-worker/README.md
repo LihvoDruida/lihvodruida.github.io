@@ -1,63 +1,50 @@
 # Guild Applications Worker
 
-Cloudflare Worker for Mistblossom Vanguard applications and Discord interaction buttons.
+Cloudflare Worker for **Mistblossom Vanguard** guild applications, GitHub Issue storage, Discord application moderation buttons, Discord rules buttons, raid-rules signups, raid announcement button proxying, and dashboard-facing statistics.
 
-## Routes
+This Worker is designed to sit between:
 
-- `GET /` and `GET /api/guild-applications` — list GitHub-backed applications.
-- `POST /api/guild-applications` — create a new application, GitHub Issue and Discord notification.
-- `POST /api/discord-interactions` — single Discord interaction endpoint for all button actions.
-- `GET /api/discord-rules-stats` — dashboard stats for normal rule accepts/declines only.
-- `GET /api/discord-raid-rules-stats` — dashboard stats for raid-rules signups only.
-- `GET /api/discord-raid-rules-signups` — dashboard list of raid-rules signups with Discord user and main character.
+- the public guild site that submits applications;
+- GitHub Issues, used as the application database;
+- Discord, used for notifications, moderation buttons, rules buttons, role assignment and raid buttons;
+- the admin dashboard, used for profile checks, raid actions and statistics;
+- Cloudflare KV, used for rules statistics and raid-rules signup records.
 
-## Supported Discord actions
+## Documentation
 
-- `guild_application:accepted:<issueNumber>` — accept application, close GitHub Issue, update Discord message.
-- `guild_application:declined:<issueNumber>` — decline application, close GitHub Issue, update Discord message.
-- `mbv1:c:a:<roleIdBase36>[.<roleIdBase36>]` — public rules button that opens a private confirmation panel.
-- `mbv1:c:d` — public decline button that opens a private confirmation panel.
-- `mbv1:a:<roleIdBase36>[.<roleIdBase36>]` — private confirmation button that accepts rules and gives one or more roles.
-- `mbv1:d` — private confirmation button that declines rules and kicks the member.
-- `mbv1:r:c:s` — public raid-rules button that opens a private confirmation panel.
-- `mbv1:r:s` — private confirmation button that signs the user to raid rules after dashboard profile/main-character verification.
+- [Functionality overview](docs/en/FUNCTIONALITY.md)
+- [API reference](docs/en/API.md)
+- [Environment variables and bindings](docs/en/VARIABLES.md)
+- [Dashboard shared variables checklist](docs/en/DASHBOARD_SHARED_VARIABLES.md)
+- [Deployment guide](docs/en/DEPLOYMENT.md)
 
-Normal Discord embed posts stay passive: they use the same dashboard/bot setup, but no Worker action is needed unless they include buttons.
+Ukrainian documentation is available in [`README.ua.md`](README.ua.md) and [`docs/ua`](docs/ua).
 
+## Main routes
 
+| Route | Method | Purpose |
+|---|---:|---|
+| `/` | `GET` | List guild applications from GitHub Issues. |
+| `/` | `POST` | Create a guild application. |
+| `/api/guild-applications` | `GET` | List guild applications from GitHub Issues. |
+| `/api/guild-applications` | `POST` | Create a guild application, GitHub Issue and Discord notification. |
+| `/api/discord-interactions` | `POST` | Discord interaction endpoint for application buttons, rules buttons, raid-rules signup and raid attendance buttons. |
+| `/api/discord-rules-stats` | `GET` | Read normal guild rules accept/decline statistics. Can also proxy raid stats with `type=raid`. |
+| `/api/discord-raid-rules-stats` | `GET` | Read raid-rules signup statistics. |
+| `/api/discord-raid-rules-signups` | `GET` | Read the list of raid-rules signups with profile/main-character data. |
+| `/api/discord-raid-message` | `POST` | Create, edit or delete Discord raid announcement messages through the Worker. |
+| `/api/discord-guild-channels` | `GET` | Return available Discord text/news channels for dashboard selectors. |
 
-## Per-user button behavior
-
-Discord does not support hiding components on a public channel message for only one member. To get per-user behavior, the dashboard now publishes public rule buttons that open an ephemeral confirmation panel. The final accept/decline buttons live in that private panel, and after the user confirms, the Worker updates only that ephemeral panel and removes its buttons for that user.
-
-
-## Required secrets / vars
-
-Use `wrangler secret put` for secrets:
-
-```bash
-wrangler secret put GITHUB_TOKEN
-wrangler secret put DISCORD_BOT_TOKEN
-wrangler secret put DISCORD_PUBLIC_KEY
-wrangler secret put DISCORD_GUILD_ID
-wrangler secret put INTERNAL_PROFILE_LOOKUP_TOKEN
-```
-
-`DISCORD_ALLOWED_ROLES` is optional and controls who can accept/decline applications. Rules buttons are intended for regular members and do not require moderator roles.
-
-Raid rules use `ADMIN_DASHBOARD_URL` / `DASHBOARD_PROFILE_LOOKUP_ENDPOINT` and `INTERNAL_PROFILE_LOOKUP_TOKEN` to verify that the Discord user authorized in the dashboard and selected a main character. If the admin dashboard is protected by Cloudflare Access, the Worker also sends `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` as Service Auth headers. If verification fails, the Worker returns an ephemeral message with `https://admin.lihvodruida.pp.ua/`.
-
-The bot needs `Send Messages`, `Embed Links`, `Read Message History`, `Manage Roles`, and `Kick Members`. The bot role must be higher than roles it assigns.
-
-## Rules stats
-
-The Worker can count unique rule decisions with Cloudflare KV. Create and bind the namespace:
+## Quick deployment
 
 ```bash
+cd workers/guild-applications-worker
+npm install -g wrangler
+wrangler login
 wrangler kv namespace create RULES_STATS
 ```
 
-Then add the returned binding to `wrangler.toml`:
+Paste the KV namespace id into `wrangler.toml`:
 
 ```toml
 [[kv_namespaces]]
@@ -65,75 +52,40 @@ binding = "RULES_STATS"
 id = "paste_kv_namespace_id_here"
 ```
 
-Stats are stored per guild and per user. If the same user clicks again, the counter is not duplicated; if their decision changes, the previous counter is adjusted. Discord cannot hide buttons only for one user on a public message, so the Worker returns an ephemeral confirmation to the clicker and keeps the public buttons available for other members.
+Set production secrets:
 
-`GET /api/discord-rules-stats?guild_id=<serverId>` reads only normal Discord rules stats from the `rules:<guildId>:*` namespace. `GET /api/discord-rules-stats?type=raid&guild_id=<serverId>` and `GET /api/discord-raid-rules-stats?guild_id=<serverId>` read only raid-rules stats from the `raid-rules:<guildId>:*` namespace.
-
-`GET /api/discord-rules-stats?guild_id=<serverId>` reads the exact server stats. If `guild_id` and `DISCORD_GUILD_ID` are both missing, the Worker aggregates all `rules:<guildId>:*` counters from KV. This prevents the dashboard from showing zero when the Worker records stats under the Discord guild ID but the stats request does not pass that ID.
-
-
-## Raid rules signups
-
-Raid rules use the same `RULES_STATS` KV namespace, but store data under `raid-rules:<guildId>:user:<discordId>`. The saved record contains the Discord user label, dashboard profile id, selected main character, and signup timestamp. Repeated clicks update the same user record instead of duplicating it.
-
-The dashboard reads raid stats and the signup list through:
-
-```text
-GET /api/discord-raid-rules-stats?guild_id=<serverId>
-GET /api/discord-raid-rules-signups?guild_id=<serverId>
+```bash
+wrangler secret put GITHUB_TOKEN
+wrangler secret put DISCORD_BOT_TOKEN
+wrangler secret put DISCORD_PUBLIC_KEY
+wrangler secret put DISCORD_GUILD_ID
+wrangler secret put INTERNAL_PROFILE_LOOKUP_TOKEN
+wrangler secret put DISCORD_RULES_STATS_TOKEN
 ```
 
-For production, keep these values aligned between the dashboard and Worker:
-
-```env
-ADMIN_DASHBOARD_URL=https://admin.lihvodruida.pp.ua
-DASHBOARD_PROFILE_LOOKUP_ENDPOINT=https://admin.lihvodruida.pp.ua/api/profile/discord-lookup
-INTERNAL_PROFILE_LOOKUP_TOKEN=<same-secret-as-dashboard>
-CF_ACCESS_CLIENT_ID=<cloudflare-access-service-token-client-id>
-CF_ACCESS_CLIENT_SECRET=<cloudflare-access-service-token-client-secret>
-```
-
-
-Cloudflare Access protected dashboard:
+If the admin dashboard is protected by Cloudflare Access, also set:
 
 ```bash
 wrangler secret put CF_ACCESS_CLIENT_ID
 wrangler secret put CF_ACCESS_CLIENT_SECRET
 ```
 
-Create a Cloudflare Access application/policy for `admin.lihvodruida.pp.ua/api/profile/discord-lookup` and allow the Service Token used by these two secrets. Keep `INTERNAL_PROFILE_LOOKUP_TOKEN` enabled too; it protects the Next.js endpoint after Access lets the request through.
-
-## Security notes added in this build
-
-- Debug output from `?debug=1` / `?diag=1` is ignored unless `ALLOW_DEBUG_QUERY=1` is explicitly set.
-- Stats/signups endpoints support a shared bearer token. Recommended production setup:
+Deploy:
 
 ```bash
-wrangler secret put DISCORD_RULES_STATS_TOKEN
+wrangler deploy
 ```
 
-Set the same value in the admin dashboard as `DISCORD_RULES_STATS_TOKEN`. When this secret exists, the Worker requires `Authorization: Bearer <token>` or `X-Worker-Stats-Token` for:
+## Required production basics
 
-```text
-GET /api/discord-rules-stats
-GET /api/discord-raid-rules-stats
-GET /api/discord-raid-rules-signups
-```
+At minimum, production needs:
 
-- `ALLOWED_ORIGINS` should include both the public site and admin dashboard:
+- `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` for GitHub Issues;
+- `ALLOWED_ORIGINS` with the public site and admin dashboard origins;
+- `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_GUILD_ID` for Discord bot/interactions;
+- `DISCORD_CHANNEL_ID` if application notifications must be posted to Discord;
+- `RULES_STATS` KV binding if rules/raid-rules statistics must work;
+- `INTERNAL_PROFILE_LOOKUP_TOKEN` and `ADMIN_DASHBOARD_URL` for raid-rules and raid attendance profile checks;
+- `DISCORD_RULES_STATS_TOKEN` shared with the dashboard for protected stats/message endpoints.
 
-```env
-ALLOWED_ORIGINS=https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https://admin.lihvodruida.pp.ua
-```
-
-## Raid announcement button safety
-
-Raid announcement buttons (`mbv1:raid:<raidId>:going|late|skipped`) are proxied to the dashboard endpoint configured in `DASHBOARD_RAID_ACTION_ENDPOINT`. When the dashboard reports that the user is not authorized or has no selected main character, the Worker returns a private Discord response with quick links to login, profile, raid rules, and the raid page.
-
-Set `RAID_RULES_URL` if the raid rules message changes:
-
-```bash
-wrangler secret put RAID_RULES_URL
-```
-
-Raid announcement messages can safely mention selected roles. The Worker only allows role mentions passed through `mentionRoleIds`, `mention_role_ids`, or `allowed_mentions.roles`; it never enables `@everyone`, `@here`, or unrestricted user mentions.
+See the full variable matrix in [docs/en/VARIABLES.md](docs/en/VARIABLES.md).

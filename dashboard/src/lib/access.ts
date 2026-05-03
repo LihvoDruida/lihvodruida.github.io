@@ -28,6 +28,7 @@ export {
   canAccessDashboardRole,
   dashboardCapabilities,
   dashboardRoleLabel,
+  guildStatusLabel,
   hierarchyTitle,
   matchingDiscordRoleIds,
   matchingDiscordRoleLabels,

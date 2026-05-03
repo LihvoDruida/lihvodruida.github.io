@@ -1,6 +1,6 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { getSession } from "@/lib/auth";
-import { canViewProfiles, dashboardRoleLabel } from "@/lib/permissions";
+import { canViewProfiles, guildStatusLabel } from "@/lib/permissions";
 import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
 import { redirect } from "next/navigation";
 
@@ -18,9 +18,11 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const main = getMainCharacter(profile);
   const displayName = getProfilePublicName(profile);
   const avatar = profile.avatarUrl || main?.avatarUrl || main?.renderUrl || null;
+  const guildStatus = guildStatusLabel(profile.role);
+  const href = `/profile/${profile.profileId}`;
 
   return (
-    <article className="panel profile-directory-card">
+    <a className="panel profile-directory-card profile-directory-card--clickable" href={href} aria-label={`Відкрити профіль: ${displayName}`}>
       <div className="profile-directory-card__main">
         {avatar ? (
           <img className="profile-directory-card__avatar" src={avatar} alt="" width={56} height={56} loading="lazy" referrerPolicy="no-referrer" />
@@ -31,7 +33,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
         )}
         <div>
           <h2>{displayName}</h2>
-          <p>{dashboardRoleLabel(profile.role)}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • мейн не вибрано"}</p>
+          <p>{guildStatus}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • мейн не вибрано"}</p>
         </div>
       </div>
 
@@ -40,9 +42,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
         <span><strong>{profile.battlenet?.linked ? "Так" : "Ні"}</strong><small>Battle.net</small></span>
         <span><strong>{formatDate(profile.lastLoginAt || profile.updatedAt)}</strong><small>активність</small></span>
       </div>
-
-      <a className="btn subtle profile-directory-card__action" href={`/profile/${profile.profileId}`}>Відкрити профіль</a>
-    </article>
+    </a>
   );
 }
 

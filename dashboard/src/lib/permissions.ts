@@ -53,6 +53,12 @@ export function hierarchyTitle(role: DashboardRole) {
   return "Учасник гільдії";
 }
 
+export function guildStatusLabel(role: DashboardRole) {
+  if (role === "admin") return "Гільдмайстер";
+  if (role === "moderator") return "Офіцер";
+  return "Учасник";
+}
+
 export function dashboardRoleLabel(role: DashboardRole) {
   if (role === "admin") return "Адмін";
   if (role === "moderator") return "Модератор";

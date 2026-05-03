@@ -19,6 +19,7 @@ import {
   configuredRoleIdsForDashboardRole,
   dashboardCapabilities,
   dashboardRoleLabel,
+  guildStatusLabel,
   siteStatusDescription,
 } from "@/lib/permissions";
 import {
@@ -456,6 +457,7 @@ export default async function ProfilePage({
   const discordNicknamePreview = buildProfileDiscordNickname(profile);
   const publicNamePreview = getProfilePublicName(profile);
   const serverStyleNamePreview = getProfileServerStyleName(profile);
+  const guildStatus = guildStatusLabel(profile.role);
   const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
   let discordOwnerLocked = false;
   let currentServerNickname: string | null = null;
@@ -501,7 +503,7 @@ export default async function ProfilePage({
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
               {showAccessDetails ? (
                 <>
-                  <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Роль</small></span>
+                  <span><strong>{guildStatus}</strong><small>Статус</small></span>
                   <span><strong>{enabledCount}/{visibleCapabilities.length}</strong><small>Можливості</small></span>
                   <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
                   <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>У гільдії</small></span>
@@ -510,6 +512,7 @@ export default async function ProfilePage({
                 </>
               ) : (
                 <>
+                  <span><strong>{guildStatus}</strong><small>Статус</small></span>
                   <span><strong>{savedCharacterCount}</strong><small>Персонажі</small></span>
                   <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
                   <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span>
@@ -565,6 +568,14 @@ export default async function ProfilePage({
                 canSyncDiscord={canSyncDiscordNickname}
                 discordOwnerLocked={discordOwnerLocked}
               />
+              <div className="profile-public-status-card" aria-label="Публічний статус у гільдії">
+                <span className="profile-public-status-card__icon" aria-hidden="true">✦</span>
+                <span className="profile-public-status-card__body">
+                  <small>Статус у гільдії</small>
+                  <strong>{guildStatus}</strong>
+                  <em>Показується у профілі та списках учасників.</em>
+                </span>
+              </div>
               {viewer.role === "admin" || viewer.role === "moderator" ? (
                 <details className="profile-secret">
                   <summary>Технічний ID</summary>
