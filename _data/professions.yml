@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 16:54:10'
+  updated_at: '2026-05-03 20:44:53'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -919,7 +919,7 @@ characters:
   region: eu
   realm: doomhammer
   realm_slug: doomhammer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
   professions:
     primaries:
     - name: Enchanting
@@ -1201,7 +1201,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 27
+        learned_points: 29
         max_points: 300
 - name: Darthkenobi
   region: eu
@@ -2735,7 +2735,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Lightass
   professions:
     primaries:
     - name: Herbalism
@@ -5672,7 +5672,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 37
+        learned_points: 47
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5703,7 +5703,7 @@ characters:
   region: eu
   realm: grom
   realm_slug: grom
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/grom/Лилая
   professions:
     primaries:
     - name: Inscription
@@ -6347,7 +6347,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Альянсс
   professions:
     primaries:
     - name: Enchanting
@@ -6640,7 +6640,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 32
+        learned_points: 36
         max_points: 100
     - name: Jewelcrafting
       id: 755
