@@ -20805,3 +20805,174 @@ a.profile-directory-card small,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Character card layout refinement: centered, closer artwork and denser cards */
+.profile-character-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 360px)) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: 14px !important;
+}
+
+.profile-character-card {
+  width: 100% !important;
+  max-width: 360px !important;
+  align-self: start !important;
+  display: grid !important;
+  grid-template-rows: clamp(250px, 24vw, 300px) auto !important;
+  overflow: hidden !important;
+  padding: 10px !important;
+  gap: 0 !important;
+}
+
+.profile-character-artwork {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  align-items: end !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  height: clamp(240px, 23vw, 290px) !important;
+  padding: 8px 8px 0 !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(52, 179, 108, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(6, 11, 19, 0.28), rgba(0, 0, 0, 0.62)) !important;
+}
+
+.profile-character-artwork img {
+  width: 128% !important;
+  height: 128% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  object-position: center 18% !important;
+  transform: scale(1.1) translateY(6px) !important;
+  filter: drop-shadow(0 22px 32px rgba(0, 0, 0, 0.62)) !important;
+}
+
+.profile-main-badge--art {
+  right: 12px !important;
+  bottom: 12px !important;
+}
+
+.profile-character-body {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 12px 10px 10px !important;
+}
+
+.profile-character-title-row--stacked {
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.profile-character-title-row h3,
+.profile-character-title-row--stacked h3 {
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.08 !important;
+}
+
+.profile-character-title-row p,
+.profile-character-title-row--stacked p {
+  margin: 0 !important;
+  font-size: 12px !important;
+}
+
+.profile-character-meta {
+  gap: 6px !important;
+}
+
+.profile-character-meta span {
+  min-height: 28px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+}
+
+.profile-character-showcase {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  border-top: 1px solid rgba(214, 168, 79, 0.14) !important;
+  border-bottom: 1px solid rgba(214, 168, 79, 0.10) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0)) !important;
+}
+
+.profile-character-showcase__stat {
+  display: grid !important;
+  align-content: center !important;
+  min-height: 72px !important;
+  padding: 10px 8px !important;
+}
+
+.profile-character-showcase__stat + .profile-character-showcase__stat {
+  border-left: 1px solid rgba(214, 168, 79, 0.18) !important;
+}
+
+.profile-character-showcase__stat small {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+}
+
+.profile-character-showcase__stat strong,
+.profile-character-showcase__stat--secondary strong {
+  margin-top: 4px !important;
+  font-size: 18px !important;
+  line-height: 1.05 !important;
+}
+
+.profile-character-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 2px !important;
+}
+
+.profile-character-actions form {
+  display: inline-flex !important;
+}
+
+.profile-character-actions .btn {
+  min-height: 38px !important;
+}
+
+@media (max-width: 980px) {
+  .profile-character-list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  }
+
+  .profile-character-card {
+    max-width: none !important;
+  }
+
+  .profile-character-artwork {
+    height: clamp(220px, 42vw, 280px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-character-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-character-card {
+    grid-template-rows: clamp(220px, 66vw, 280px) auto !important;
+    padding: 8px !important;
+  }
+
+  .profile-character-artwork {
+    height: clamp(210px, 62vw, 260px) !important;
+    padding: 6px 6px 0 !important;
+  }
+
+  .profile-character-artwork img {
+    width: 132% !important;
+    height: 132% !important;
+    object-position: center 14% !important;
+  }
+
+  .profile-character-body {
+    padding: 10px 8px 8px !important;
+  }
+}
