@@ -134,11 +134,11 @@ export default function ProfileNameControls({
 
   return (
     <div className="profile-name-panel">
-      <section className="profile-name-section" aria-labelledby={`${inputId}-name-title`}>
-        <div className="profile-name-section__head">
+      <section className="profile-name-section profile-name-section--personal" aria-labelledby={`${inputId}-name-title`}>
+        <div className="profile-name-section__head profile-name-section__head--modern">
           <div>
-            <span className="profile-name-panel__label" id={`${inputId}-name-title`}>Імʼя</span>
-            <small>Для профілю.</small>
+            <span className="profile-name-panel__label" id={`${inputId}-name-title`}>Імʼя в панелі</span>
+            <small>Основне імʼя для профілю, рейдів, авторів і службових дій.</small>
           </div>
           {!editing && canManage ? (
             <button
@@ -192,17 +192,21 @@ export default function ProfileNameControls({
             </button>
           </form>
         ) : (
-          <div className={`profile-name-display-row${hasName ? "" : " is-empty"}`}>
-            <strong>{savedName || "Додай імʼя"}</strong>
+          <div className={`profile-name-display-row profile-name-display-row--modern${hasName ? "" : " is-empty"}`}>
+            <span className="profile-name-display-row__value">
+              <strong>{savedName || "Додай імʼя"}</strong>
+              <small>{hasName ? "Буде пріоритетним замість Discord-імені." : "Після збереження це імʼя стане основним."}</small>
+            </span>
+            {hasName ? <span className="profile-name-status-pill">Активне</span> : null}
           </div>
         )}
       </section>
 
       <section className="profile-display-mode-section" aria-label="Формат імені у панелі">
-        <div className="profile-name-section__head">
+        <div className="profile-name-section__head profile-name-section__head--modern">
           <div>
             <span className="profile-name-panel__label">Відображення</span>
-            <small>Яке імʼя показувати в панелі, рейдах і авторах.</small>
+            <small>Вибери, як імʼя буде виглядати в панелі, рейдах і авторах.</small>
           </div>
         </div>
         <div className="profile-public-name-preview">
@@ -210,36 +214,47 @@ export default function ProfileNameControls({
           <strong>{publicNamePreview || savedName || discordName || "Учасник"}</strong>
         </div>
         {canManage ? (
-          <form className="profile-display-mode-form" action="/api/profile/name-mode" method="post">
-            <button
-              className={`profile-display-mode-option${publicNameMode !== "server_nickname" ? " is-selected" : ""}`}
-              type="submit"
-              name="publicNameMode"
-              value="name"
-              disabled={publicNameMode !== "server_nickname"}
-            >
-              <strong>Імʼя</strong>
-              <small>{savedName || discordName || "Discord"}</small>
-            </button>
-            <button
-              className={`profile-display-mode-option${publicNameMode === "server_nickname" ? " is-selected" : ""}`}
-              type="submit"
-              name="publicNameMode"
-              value="server_nickname"
-              disabled={publicNameMode === "server_nickname"}
-            >
-              <strong>Імʼя + персонажі</strong>
-              <small>{serverStyleNamePreview || nicknamePreview || publicNamePreview || savedName || discordName || "Учасник"}</small>
-            </button>
-          </form>
+          <div className="profile-display-mode-form" role="group" aria-label="Вибір формату імені">
+            <form className="profile-display-mode-action" action="/api/profile/name-mode" method="post">
+              <input type="hidden" name="publicNameMode" value="name" />
+              <button
+                className={`profile-display-mode-option${publicNameMode !== "server_nickname" ? " is-selected" : ""}`}
+                type="submit"
+                disabled={publicNameMode !== "server_nickname"}
+                data-preserve-label="true"
+              >
+                <span className="profile-display-mode-option__radio" aria-hidden="true" />
+                <span>
+                  <strong>Імʼя</strong>
+                  <small>{savedName || discordName || "Discord"}</small>
+                </span>
+              </button>
+            </form>
+            <form className="profile-display-mode-action" action="/api/profile/name-mode" method="post">
+              <input type="hidden" name="publicNameMode" value="server_nickname" />
+              <button
+                className={`profile-display-mode-option${publicNameMode === "server_nickname" ? " is-selected" : ""}`}
+                type="submit"
+                disabled={publicNameMode === "server_nickname"}
+                data-preserve-label="true"
+              >
+                <span className="profile-display-mode-option__radio" aria-hidden="true" />
+                <span>
+                  <strong>Імʼя + персонажі</strong>
+                  <small>{serverStyleNamePreview || nicknamePreview || publicNamePreview || savedName || discordName || "Учасник"}</small>
+                </span>
+              </button>
+            </form>
+          </div>
         ) : null}
       </section>
 
       <section className="profile-discord-standard" aria-label="Discord nickname">
-        <div className="profile-discord-standard__head">
+        <div className="profile-discord-standard__head profile-discord-standard__head--modern">
           <div className="profile-discord-standard__identity">
             <span className="profile-name-panel__label">Discord</span>
             <strong title={discordName || "Discord"}>{discordName || "Discord"}</strong>
+            <small>Оригінальне імʼя з Discord. У панелі пріоритет має імʼя з профілю.</small>
           </div>
 
           {canManage && canSyncDiscord && hasName && nicknamePreview ? (
@@ -259,6 +274,7 @@ export default function ProfileNameControls({
                 <button
                   className={`profile-nick-sync-button${synced ? " is-synced" : ""}`}
                   type="submit"
+                  data-preserve-label="true"
                   title={`Змінити серверне імʼя на: ${nicknamePreview}`}
                   aria-label="Стандартизувати серверне імʼя Discord"
                 >

@@ -28,6 +28,7 @@ function actionText(action: string) {
   if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо список персонажів і мейна." };
   if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для сайту й Discord." };
   if (action.includes("/profile/raid-role")) return { label: "Зберігаємо...", title: "Зберігаємо роль у рейді", message: "Оновлюємо пріоритет ролі для запису на рейди." };
+  if (action.includes("/profile/name-mode")) return { label: "Зберігаємо...", title: "Зберігаємо формат імені", message: "Оновлюємо, як імʼя показується в панелі, рейдах і авторах." };
   if (action.includes("/profile/name")) return { label: "Зберігаємо...", title: "Зберігаємо імʼя", message: "Оновлюємо імʼя в профілі." };
   if (action.includes("/profile/discord-nickname")) return { label: "Синхронізуємо...", title: "Оновлюємо Discord імʼя", message: "Змінюємо серверний nickname у Discord за профільним стандартом." };
   if (action.includes("/raids/") && action.includes("/attendance")) return { label: "Оновлюємо...", title: "Оновлюємо запис", message: "Записуємо дію та оновлюємо склад рейду без перезавантаження." };
@@ -84,8 +85,13 @@ function setWorking(form: HTMLFormElement, buttons: HTMLButtonElement[], submitt
 
   for (const button of buttons) {
     button.disabled = true;
-    button.setAttribute("aria-busy", "true");
-    button.classList.add("btn-working");
+    if (button === submitter) {
+      button.setAttribute("aria-busy", "true");
+      button.classList.add("btn-working");
+    } else {
+      button.removeAttribute("aria-busy");
+      button.classList.add("btn-waiting");
+    }
   }
 
   if (submitter) {
@@ -109,7 +115,7 @@ function resetWorking(form: HTMLFormElement, buttons: HTMLButtonElement[]) {
   for (const button of buttons) {
     button.disabled = button.dataset.wasDisabled === "true";
     button.removeAttribute("aria-busy");
-    button.classList.remove("btn-working");
+    button.classList.remove("btn-working", "btn-waiting");
     if (button.dataset.originalText) button.textContent = button.dataset.originalText;
     delete button.dataset.wasDisabled;
     delete button.dataset.originalText;
