@@ -18436,3 +18436,137 @@ main.container > * {
     border-radius: 13px;
   }
 }
+
+/* Author/footer editor layout fix: stable desktop and mobile fields */
+.discord-author-footer-section {
+  overflow: hidden;
+}
+
+.discord-author-footer-section .content-form-section-head {
+  min-width: 0;
+}
+
+.discord-author-footer-grid,
+.discord-footer-grid {
+  display: grid;
+  gap: clamp(10px, 1.5vw, 14px);
+  align-items: start;
+  min-width: 0;
+}
+
+.discord-author-footer-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.discord-footer-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+}
+
+.discord-author-name-field {
+  grid-column: 1 / -1;
+}
+
+.discord-author-footer-section .content-field {
+  min-width: 0;
+  align-self: start;
+}
+
+.discord-author-footer-section .input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-height, 44px);
+  height: auto;
+}
+
+.discord-author-footer-section .limit-counter {
+  justify-self: end;
+}
+
+.author-suggestion-chips {
+  min-width: 0;
+}
+
+.discord-author-footer-section .author-suggestion-chips {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px;
+  border: 1px solid rgba(212, 166, 58, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.discord-author-footer-section .author-suggestion-chips > small {
+  display: block;
+  margin-bottom: 8px;
+  font-size: var(--ui-text-sm, 13px);
+  line-height: 1.35;
+}
+
+.discord-author-footer-section .author-suggestion-chips > span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.discord-author-footer-section .author-suggestion-chips button {
+  min-height: 38px;
+  max-width: min(100%, 340px);
+  flex: 0 1 auto;
+  padding: 8px 11px;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.discord-author-footer-section .author-suggestion-chips button strong,
+.discord-author-footer-section .author-suggestion-chips button em {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.discord-author-footer-section .author-suggestion-chips button strong {
+  overflow: visible;
+  text-overflow: clip;
+  font-size: var(--ui-text-sm, 13px);
+}
+
+.discord-author-footer-section .author-suggestion-chips button em {
+  font-size: var(--ui-text-xs, 12px);
+}
+
+@media (max-width: 980px) {
+  .discord-author-footer-grid,
+  .discord-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-author-name-field {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .discord-author-footer-section {
+    padding: clamp(12px, 4vw, 16px);
+  }
+
+  .discord-author-footer-section .author-suggestion-chips {
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .discord-author-footer-section .author-suggestion-chips > span {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .discord-author-footer-section .author-suggestion-chips button {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+    gap: 6px 8px;
+    border-radius: 13px;
+  }
+}

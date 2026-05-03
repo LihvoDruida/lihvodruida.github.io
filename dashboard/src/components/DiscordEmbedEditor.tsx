@@ -1201,28 +1201,28 @@ export default function DiscordEmbedEditor({
               </div>
             </div>
 
-            <div className="content-form-section discord-visual-section">
+            <div className="content-form-section discord-visual-section discord-author-footer-section">
               <div className="content-form-section-head">
                 <strong>Author / footer</strong>
                 <small>Автор і підпис.</small>
               </div>
-              <div className="discord-builder-grid discord-builder-grid--three">
-                <label className="content-field">
+              <div className="discord-author-footer-grid">
+                <label className="content-field discord-author-name-field">
                   <span>Author name</span>
                   <input id="discord-author-name" className="input" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
                   <AuthorSuggestionChips targetId="discord-author-name" suggestions={authorSuggestions} onPick={setAuthorName} />
                   <LimitCounter value={authorName.length} max={DISCORD_LIMITS.authorName} />
                 </label>
-                <label className="content-field">
+                <label className="content-field discord-author-url-field">
                   <span>Author URL</span>
                   <input className="input" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
                 </label>
-                <label className="content-field">
+                <label className="content-field discord-author-icon-field">
                   <span>Author icon URL</span>
                   <input className="input" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
                 </label>
               </div>
-              <div className="discord-builder-grid">
+              <div className="discord-footer-grid">
                 <label className="content-field">
                   <span>Footer text</span>
                   <input className="input" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
