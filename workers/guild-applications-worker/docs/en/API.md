@@ -199,9 +199,9 @@ Other types return an ephemeral `This interaction type is not supported` message
 |---|---|
 | `guild_application:accepted:<issueNumber>` | Accept application, update labels, close Issue, update Discord message. |
 | `guild_application:declined:<issueNumber>` | Decline application, update labels, close Issue, update Discord message. |
-| `mbv1:c:a:<base36RoleId>[.<base36RoleId>]` | Public rules accept button: opens a private confirmation panel. |
+| `mbv1:a:<base36RoleId>[.<base36RoleId>]` | Public guild-rules accept button: immediately assigns the configured roles without dashboard login/profile checks. |
 | `mbv1:c:d` | Public rules decline button: opens a private confirmation panel. |
-| `mbv1:a:<base36RoleId>[.<base36RoleId>]` | Final private accept button: assigns roles. |
+| `mbv1:c:a:<base36RoleId>[.<base36RoleId>]` | Legacy guild-rules accept button: also immediately assigns roles without a confirmation panel. |
 | `mbv1:d` | Final private decline button: kicks the user. |
 | `mbv1:r:c:s` | Public raid-rules signup button: opens a confirmation panel. |
 | `mbv1:r:s` | Final raid-rules signup: verifies dashboard profile + main character and stores signup. |

@@ -255,9 +255,7 @@ function decodeRulesCustomId(customId) {
   const confirmAcceptPrefix = `${RULES_CUSTOM_ID_PREFIX}:c:a:`;
   if (value.startsWith(confirmAcceptPrefix)) {
     const roleIds = decodeRoleIdsFromCustomId(value, confirmAcceptPrefix);
-    // Backward compatibility: older rules messages used confirmation IDs.
-    // Guild rules acceptance is now one-click and does not require website login or a second confirmation.
-    return roleIds.length ? { type: "guild", action: "accept", roleIds } : null;
+    return roleIds.length ? { type: "guild", action: "confirm_accept", roleIds } : null;
   }
 
   return null;
@@ -2147,7 +2145,7 @@ function buildRulesDirectDecisionComponents(roleIds) {
           type: 2,
           style: 4,
           label: "Відмовитися",
-          custom_id: `${RULES_CUSTOM_ID_PREFIX}:d`,
+          custom_id: `${RULES_CUSTOM_ID_PREFIX}:c:d`,
         },
       ],
     },
@@ -2196,7 +2194,7 @@ function rulesConfirmationResponse(rulesAction) {
         ? "🐉 Підтверди підпис на правила рейду. Бот перевірить твою авторизацію в панелі та main-персонажа."
         : isDecline
           ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
-          : "🌸 Натисни “Прийняти правила”, і бот одразу видасть потрібну роль. Сайт або реєстрація не потрібні.",
+          : "🌸 Натисни “Прийняти правила” ще раз. Звичайні правила гільдії видають роль одразу, без додаткового підтвердження.",
       components,
     },
   });
@@ -2267,10 +2265,14 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
   const userId = getDiscordUserId(interaction);
   const userLabel = getDiscordUserLabel(interaction);
 
-  if (rulesAction.action === "confirm_decline" || rulesAction.action === "confirm_raid_signup") {
-    logWorkerEvent("info", "rules.confirmation.requested", { action: rulesAction.action, guildId, userId, roles: rulesAction.roleIds?.length || 0 });
+  const effectiveRulesAction = rulesAction.action === "confirm_accept"
+    ? { ...rulesAction, action: "accept" }
+    : rulesAction;
 
-    if (rulesAction.action !== "confirm_raid_signup") {
+  if (effectiveRulesAction.action === "confirm_decline" || effectiveRulesAction.action === "confirm_raid_signup") {
+    logWorkerEvent("info", "rules.confirmation.requested", { action: effectiveRulesAction.action, guildId, userId, roles: effectiveRulesAction.roleIds?.length || 0 });
+
+    if (effectiveRulesAction.action !== "confirm_raid_signup") {
       const recordedDecision = await getRecordedRulesDecision(env, guildId, userId).catch(() => null);
 
       if (recordedDecision === "accepted") {
@@ -2283,14 +2285,14 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
       }
     }
 
-    return rulesConfirmationResponse(rulesAction);
+    return rulesConfirmationResponse(effectiveRulesAction);
   }
 
   if (isInteractionRateLimited(interaction, "rules")) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
-  if (rulesAction.action === "raid_signup") {
+  if (effectiveRulesAction.action === "raid_signup") {
     const profileResult = await lookupDashboardProfileByDiscord(env, userId);
     if (!profileResult.ok || !hasUsableMainCharacter(profileResult.mainCharacter)) {
       logWorkerEvent("warn", "raid_rules.signup.profile_missing", { guildId, userId, reason: profileResult.reason, status: profileResult.status });
@@ -2314,7 +2316,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
   }
 
   try {
-    if (rulesAction.action === "accept") {
+    if (effectiveRulesAction.action === "accept") {
       if (memberHasAllRoles(interaction, rulesAction.roleIds)) {
         await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
         return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Роль уже є, повторно нічого робити не потрібно.");
@@ -2338,7 +2340,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     logWorkerEvent("info", "rules.declined", { guildId, userId });
     return finishRulesDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
-    logWorkerEvent("error", "rules.action.failed", { action: rulesAction.action, guildId, userId, message: error?.message });
+    logWorkerEvent("error", "rules.action.failed", { action: effectiveRulesAction.action, guildId, userId, message: error?.message });
     return finishRulesDecision(
       interaction,
       `❌ Не вдалося виконати дію правил: ${limitText(error?.message, 180, "невідома помилка")}`

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   addGuildMemberRoles,
-  buildRulesAcceptCustomId,
   buildRulesDeclineCustomId,
   decodeRulesCustomId,
   getDiscordGuildId,
@@ -90,19 +89,7 @@ function rulesConfirmationResponse(action: { action: string; roleIds: string[] }
     ]);
   }
 
-  return ephemeral("🌸 Натисни “Прийняти правила”, і бот одразу видасть потрібну роль. Сайт або реєстрація не потрібні.", [
-    {
-      type: 1,
-      components: [
-        {
-          type: 2,
-          style: 3,
-          label: "Прийняти правила",
-          custom_id: buildRulesAcceptCustomId(action.roleIds),
-        },
-      ],
-    },
-  ]);
+  return ephemeral("Ця дія вже застаріла. Натисни кнопку “Прийняти правила” ще раз.");
 }
 
 function getInteractionUserId(interaction: any) {
@@ -198,17 +185,21 @@ export async function POST(request: NextRequest) {
     return ephemeral("Ця кнопка вже застаріла.");
   }
 
-  if (parsed.action === "confirm_decline") {
+  const effectiveParsed = parsed.action === "confirm_accept"
+    ? { ...parsed, action: "accept" as const }
+    : parsed;
+
+  if (effectiveParsed.action === "confirm_decline" || effectiveParsed.action === "confirm_raid_signup") {
     logDashboardEvent("info", "discord.rules.confirmation_requested", request, {
-      action: parsed.action,
+      action: effectiveParsed.action,
       guildId,
       userId,
-      roles: parsed.roleIds.length,
+      roles: effectiveParsed.roleIds.length,
     });
-    return rulesConfirmationResponse(parsed);
+    return rulesConfirmationResponse(effectiveParsed);
   }
 
-  if (parsed.action === "raid_signup") {
+  if (effectiveParsed.action === "raid_signup") {
     try {
       const profile = await getProfileByDiscordUserId(userId);
       const mainCharacter = profile ? getMainCharacter(profile) : null;
@@ -230,18 +221,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    if (parsed.action === "accept") {
+    if (effectiveParsed.action === "accept") {
       await addGuildMemberRoles({
         guildId,
         userId,
-        roleIds: parsed.roleIds,
+        roleIds: effectiveParsed.roleIds,
         reason: `Rules accepted by ${userName}`,
       });
 
       logDashboardEvent("info", "discord.rules.accepted", request, {
         guildId,
         userId,
-        roles: parsed.roleIds.length,
+        roles: effectiveParsed.roleIds.length,
       });
 
       return finishDecision(interaction, "✅ Правила прийнято. Роль видано. Для тебе ця дія вже завершена.");
@@ -256,7 +247,7 @@ export async function POST(request: NextRequest) {
     logDashboardEvent("info", "discord.rules.declined", request, { guildId, userId });
     return finishDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
   } catch (error) {
-    logDashboardEvent("error", "discord.rules.action_failed", request, { message: safeErrorMessage(error), guildId, userId, action: parsed.action });
+    logDashboardEvent("error", "discord.rules.action_failed", request, { message: safeErrorMessage(error), guildId, userId, action: effectiveParsed.action });
     return finishDecision(interaction, "❌ Не вдалося виконати дію. Спробуй ще раз пізніше або звернись до гільдмайстра.");
   }
 }

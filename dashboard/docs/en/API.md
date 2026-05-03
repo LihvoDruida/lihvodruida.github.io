@@ -517,8 +517,8 @@ Discord interaction endpoint for buttons.
 **Supports:**
 
 - Discord ping;
-- rules accept/decline confirmation;
-- guild rules accept/decline;
+- direct guild-rules accept without dashboard login/profile checks;
+- guild-rules decline confirmation;
 - raid rules signup confirmation;
 - raid attendance buttons `mbv1:raid:<raidId>:going|late|skipped`.
 

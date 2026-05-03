@@ -199,9 +199,9 @@ Worker перевіряє signature через `DISCORD_PUBLIC_KEY`. Timestamp �
 |---|---|
 | `guild_application:accepted:<issueNumber>` | Прийняти заявку, оновити labels, закрити Issue, оновити Discord message. |
 | `guild_application:declined:<issueNumber>` | Відхилити заявку, оновити labels, закрити Issue, оновити Discord message. |
-| `mbv1:c:a:<base36RoleId>[.<base36RoleId>]` | Public rules accept button: відкриває private confirmation panel. |
-| `mbv1:c:d` | Public rules decline button: відкриває private confirmation panel. |
-| `mbv1:a:<base36RoleId>[.<base36RoleId>]` | Final private accept button: видає ролі. |
+| `mbv1:a:<base36RoleId>[.<base36RoleId>]` | Public guild-rules accept button: одразу видає задані ролі без dashboard login/profile. |
+| `mbv1:c:d` | Public rules decline button: відкриває приватне confirmation-підтвердження перед kick. |
+| `mbv1:c:a:<base36RoleId>[.<base36RoleId>]` | Legacy guild-rules accept button: теж одразу видає задані ролі без confirmation panel. |
 | `mbv1:d` | Final private decline button: kick user. |
 | `mbv1:r:c:s` | Public raid-rules signup button: відкриває confirmation panel. |
 | `mbv1:r:s` | Final raid-rules signup: перевіряє dashboard profile + main character і записує signup. |

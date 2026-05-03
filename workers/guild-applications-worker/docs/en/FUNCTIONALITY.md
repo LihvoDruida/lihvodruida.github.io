@@ -87,20 +87,22 @@ When a moderator clicks a button, the Worker:
 
 The Worker supports rules buttons with the `mbv1` prefix.
 
-### Why the confirmation flow exists
+### Guild rules flow
 
-Discord cannot hide components on a public message for only one member. The Worker therefore uses this flow:
+Guild-rules acceptance is intentionally simple:
 
-1. The public embed contains a confirmation button.
-2. The user clicks it.
-3. The Worker opens a private ephemeral message.
-4. The final accept/decline buttons live only in that private message.
-5. After the action, the Worker updates only that private message and removes its buttons for that user.
+1. The public embed contains the `Accept rules` button.
+2. The member clicks the button.
+3. The Worker immediately assigns one or more configured roles through the Discord API.
+4. Dashboard login, profile, Battle.net, main character, and website navigation are not required.
+5. The result is returned privately to that member.
+
+The `Decline` button still uses a safety confirmation because the final action kicks the member from the server.
 
 ### Rules actions
 
-- Accept rules: the Worker assigns one or more roles through the Discord API.
-- Decline rules: the Worker kicks the user from the server.
+- Accept rules: the Worker immediately assigns one or more roles through the Discord API.
+- Decline rules: after confirmation, the Worker kicks the user from the server.
 - Repeated accepts do not duplicate statistics.
 - If the user already has all target roles, the Worker says the action is already complete.
 

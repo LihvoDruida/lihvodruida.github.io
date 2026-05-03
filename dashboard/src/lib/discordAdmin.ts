@@ -919,9 +919,7 @@ export function decodeRulesCustomId(customId: string) {
   const confirmPrefix = `${DASHBOARD_CUSTOM_ID_PREFIX}:c:a:`;
   if (value.startsWith(confirmPrefix)) {
     const roleIds = decodeRoleIds(value, confirmPrefix);
-    // Backward compatibility: older rules messages used a confirmation custom_id.
-    // Guild rules acceptance must now be one-click and must not require website login or another confirmation step.
-    return roleIds.length ? { type: "guild" as const, action: "accept" as const, roleIds } : null;
+    return roleIds.length ? { type: "guild" as const, action: "confirm_accept" as const, roleIds } : null;
   }
 
   return null;

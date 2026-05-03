@@ -517,10 +517,10 @@ Discord interaction endpoint для кнопок.
 **Підтримує:**
 
 - Discord ping;
-- rules accept/decline confirmation;
-- guild rules accept/decline;
-- raid rules signup confirmation;
-- raid attendance buttons `mbv1:raid:<raidId>:going|late|skipped`.
+- пряме прийняття правил гільдії без входу в dashboard і перевірки профілю;
+- підтвердження відмови від правил гільдії;
+- підтвердження підпису на правила рейду;
+- кнопки запису на рейд `mbv1:raid:<raidId>:going|late|skipped`.
 
 Якщо interactions обробляє Cloudflare Worker, цей endpoint можна залишити як fallback.
 
