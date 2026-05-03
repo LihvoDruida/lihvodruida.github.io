@@ -20703,3 +20703,54 @@ a.profile-directory-card small,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Character cards hotfix: do not stretch across all empty width */
+.profile-character-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 360px)) !important;
+  justify-content: start !important;
+  align-items: start !important;
+}
+
+.profile-character-card {
+  width: 100% !important;
+  max-width: 360px !important;
+  align-self: start !important;
+  height: auto !important;
+}
+
+.profile-character-artwork {
+  min-height: 0 !important;
+  height: clamp(180px, 22vw, 300px) !important;
+}
+
+.profile-character-artwork img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+@media (max-width: 900px) {
+  .profile-character-list {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  }
+
+  .profile-character-card {
+    max-width: none !important;
+  }
+
+  .profile-character-artwork {
+    height: clamp(170px, 48vw, 240px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-character-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-character-artwork {
+    height: clamp(160px, 56vw, 220px) !important;
+  }
+}
