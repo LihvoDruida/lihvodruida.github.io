@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-04 14:05:10'
+  updated_at: '2026-05-04 17:43:01'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1245,7 +1245,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
   professions:
     primaries:
     - name: Herbalism
@@ -3219,7 +3219,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 50
+        learned_points: 100
         max_points: 100
     - name: Fishing
       id: 356
@@ -4664,7 +4664,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 53
+        learned_points: 56
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -4673,7 +4673,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 67
+        learned_points: 69
         max_points: 100
     secondaries: []
 - name: Oxydenis

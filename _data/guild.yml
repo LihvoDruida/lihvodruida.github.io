@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-04 14:05:10'
+  updated_at: '2026-05-04 17:43:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13626
-      region: 6072
+      world: 13630
+      region: 6074
       realm: 55
     heroic:
-      world: 12765
-      region: 5480
+      world: 12772
+      region: 5483
       realm: 45
     mythic:
-      world: 7089
-      region: 3042
+      world: 7094
+      region: 3045
       realm: 23
   blackrock-depths:
     normal:
@@ -190,14 +190,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2914.7
-        color: '#1f74d8'
+        score: 2972.9
+        color: '#0070dd'
       dps:
-        score: 2914.7
-        color: '#1f74d8'
+        score: 2972.9
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2914.7
-        color: '#1f74d8'
+        score: 2972.9
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1062,23 +1062,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 1
-      name: null
+      name: Warrior
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/181/185007029-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Darthkenobi
+    item_level_equipped: 116
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -6018,14 +6042,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2779.3
-        color: '#4a8ac1'
+        score: 2828.6
+        color: '#3f82ca'
       dps:
-        score: 2779.3
-        color: '#4a8ac1'
+        score: 2828.6
+        color: '#3f82ca'
       healer:
         score: 0
         color: '#ffffff'
@@ -6036,8 +6060,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2779.3
-        color: '#4a8ac1'
+        score: 2828.6
+        color: '#3f82ca'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6618,7 +6642,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 253
+    item_level_equipped: 256
     mythic_plus_scores:
       all:
         score: 0
@@ -6670,7 +6694,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/82/225144146-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Misselles
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3162
