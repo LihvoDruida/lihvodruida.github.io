@@ -335,11 +335,11 @@ function userFriendlyErrorMessage(message: string, fallback: string) {
   if (!text) return fallback;
 
   if (/firebase|profile storage|firestore/i.test(text)) {
-    return "Збереження тимчасово недоступне. Перевір налаштування панелі або повтори пізніше.";
+    return "Збереження тимчасово недоступне. Спробуй пізніше або звернись до гільдмайстра.";
   }
 
   if (/channel_id|message id|unknown message|10008|discord.*404|invalid form body/i.test(text)) {
-    return "Discord не підтвердив повідомлення. Перевір канал, права бота і повтори дію.";
+    return "Discord не підтвердив повідомлення. Перевір канал і повтори дію.";
   }
 
   if (/fetch failed|network|econn|etimedout|timeout/i.test(text)) {
@@ -347,7 +347,7 @@ function userFriendlyErrorMessage(message: string, fallback: string) {
   }
 
   if (/token|credential|private key|client secret|authorization/i.test(text)) {
-    return "Авторизація інтеграції тимчасово недоступна. Перевір налаштування доступу.";
+    return "Авторизація тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.";
   }
 
   return text;

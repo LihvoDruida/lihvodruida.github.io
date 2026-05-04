@@ -8,6 +8,14 @@ import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { canManageSiteContent } from "@/lib/permissions";
 import { listSiteContent, type SiteContentItem } from "@/lib/content";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Матеріали сайту",
+  description: "Створення й редагування новин та гайдів Mistblossom Vanguard для основного сайту в зручному й чистому форматі.",
+  path: "/content",
+  keywords: ["новини гільдії", "гайди WoW", "редактор сайту"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

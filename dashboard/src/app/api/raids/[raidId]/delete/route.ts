@@ -41,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       tone: result.discordDeleteFailed ? "warning" : "success",
       title: result.status === "draft" ? "Чернетку видалено" : "Рейд видалено",
       message: result.discordDeleteFailed
-        ? "Рейд видалено з панелі, але Discord-повідомлення не вдалося прибрати автоматично. Перевір права бота або видали повідомлення вручну."
+        ? "Рейд видалено з панелі, але Discord-повідомлення не вдалося прибрати автоматично. Перевір його в Discord вручну."
         : result.discordDeleted
           ? "Рейд прибрано з панелі, а Discord-повідомлення видалено."
           : "Рейд прибрано зі списку.",

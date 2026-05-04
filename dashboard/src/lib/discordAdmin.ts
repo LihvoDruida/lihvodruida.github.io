@@ -472,7 +472,7 @@ async function discordRaidMessageRelay<T = any>(payload: Record<string, unknown>
   const endpoint = raidDiscordMessageEndpoint();
   const token = raidDiscordRelayToken();
   if (!endpoint || !token) {
-    throw new Error("Публікація рейдів у Discord тимчасово недоступна. Перевір підключення бота або Worker-реле.");
+    throw new Error("Публікація рейдів у Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.");
   }
 
   const response = await fetch(endpoint, {
@@ -729,7 +729,7 @@ export async function fetchDiscordTextChannels() {
         suggestedRulesChannelId: fallbackChannelId,
       };
     }
-    throw new Error("Публікація в Discord тимчасово недоступна. Перевір підключення бота або Worker-реле.");
+    throw new Error("Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.");
   }
 
   if (!guildId) {
@@ -756,7 +756,7 @@ export async function fetchDiscordTextChannels() {
 
 async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
   const endpoint = discordGuildChannelsEndpoint();
-  if (!endpoint) throw new Error("Список Discord-каналів тимчасово недоступний. Перевір підключення Worker-реле.");
+  if (!endpoint) throw new Error("Список Discord-каналів тимчасово недоступний. Спробуй пізніше або звернись до гільдмайстра.");
 
   const response = await fetch(endpoint, {
     method: "GET",

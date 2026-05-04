@@ -3,6 +3,14 @@ import { getSession } from "@/lib/auth";
 import { canViewProfiles, guildStatusLabel } from "@/lib/permissions";
 import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Профілі учасників",
+  description: "Список профілів Mistblossom Vanguard з персонажами, ролями, мейнами та доступними діями за правами користувача.",
+  path: "/profiles",
+  keywords: ["профілі учасників", "персонажі WoW", "Battle.net"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

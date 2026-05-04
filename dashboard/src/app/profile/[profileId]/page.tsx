@@ -11,6 +11,7 @@ import {
   raidTitle,
   type ProfileRaidSignup,
 } from "@/lib/raids";
+import { buildPageMetadata } from "@/lib/seo";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
@@ -37,6 +38,13 @@ import {
 } from "@/lib/profiles";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
+
+export const metadata = buildPageMetadata({
+  title: "Профіль учасника",
+  description: "Особиста сторінка учасника Mistblossom Vanguard з Discord-імʼям, мейн-персонажем, рейдовою роллю та записами на рейди.",
+  path: "/profile",
+  keywords: ["профіль учасника", "мейн персонаж", "Battle.net", "рейдова роль"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

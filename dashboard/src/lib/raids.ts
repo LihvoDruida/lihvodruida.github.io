@@ -1200,7 +1200,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
 
   const nextChannelId = String(message?.channel_id || targetChannelId);
   const nextMessageId = String(message?.id || "");
-  if (!nextChannelId || !nextMessageId) throw new Error("Discord не повернув дані повідомлення. Перевір канал і права бота.");
+  if (!nextChannelId || !nextMessageId) throw new Error("Discord не підтвердив повідомлення. Перевір канал і повтори дію.");
   const messageUrl = discordMessageUrl(nextChannelId, nextMessageId);
 
   await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({

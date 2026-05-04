@@ -6,8 +6,16 @@ import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasRaidStorage, isRaidClosed, listRaids } from "@/lib/raids";
 import { RaidListCard, RaidPageShell, StatusNotice } from "@/components/RaidViews";
 import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
+export const metadata = buildPageMetadata({
+  title: "Рейди",
+  description: "Список активних і минулих рейдів Mistblossom Vanguard із записом, складом, правилами та архівом.",
+  path: "/raids",
+  keywords: ["рейди WoW", "запис на рейд", "архів рейдів"],
+});
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -38,7 +46,7 @@ export default async function RaidsListPage({ searchParams }: { searchParams: Pr
       <StatusNotice params={params} />
       {canManage ? <IntegrationStatusPanel compact /> : null}
       {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Рейди тимчасово недоступні. Спробуй пізніше або звернись до офіцера.</div> : null}
-      {canManage && !hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна переглядати локально.</div> : null}
+      {canManage && !hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна підготувати й опублікувати пізніше.</div> : null}
 
       <section className="panel raid-list-page-panel">
         <div className="raid-list-page-head">

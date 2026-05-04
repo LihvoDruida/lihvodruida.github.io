@@ -14,6 +14,14 @@ import {
   hasDiscordEmbedConfig,
   parseDiscordMessageRef,
 } from "@/lib/discordAdmin";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Редактор Discord-повідомлень",
+  description: "Підготовка, перевірка та публікація Discord-повідомлень Mistblossom Vanguard у зручному редакторі.",
+  path: "/discord/embed",
+  keywords: ["Discord embed", "редактор повідомлень"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

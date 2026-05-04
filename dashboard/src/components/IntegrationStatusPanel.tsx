@@ -27,7 +27,7 @@ function formatCheckedAt(value?: string | null) {
 function statusText(state: IntegrationState) {
   if (state === "ok") return "працює";
   if (state === "warning") return "увага";
-  if (state === "unconfigured") return "не налаштовано";
+  if (state === "unconfigured") return "потребує уваги";
   return "помилка";
 }
 
@@ -74,7 +74,7 @@ export default function IntegrationStatusPanel({ compact = false }: { compact?: 
       <div className="integration-status-head">
         <div>
           <strong>Стан системи</strong>
-          <span>Discord, Battle.net, GitHub і Firebase</span>
+          <span>Discord, Battle.net, заявки й профілі</span>
         </div>
         <button className="btn subtle btn-sm" type="button" onClick={() => loadStatus()} disabled={loading} aria-busy={loading}>{loading ? "..." : "Оновити"}</button>
       </div>
@@ -82,7 +82,7 @@ export default function IntegrationStatusPanel({ compact = false }: { compact?: 
       {error ? <p className="integration-status-error">{error}</p> : null}
 
       <div className="integration-status-grid">
-        {(items.length ? items : ["Discord", "Battle.net", "GitHub Issues", "Firebase"].map((label, index) => ({ key: `${index}`, label, state: "warning" as IntegrationState, message: loading ? "перевіряємо" : "немає даних", checkedAt: summary?.checkedAt || "" }))).map((item) => (
+        {(items.length ? items : ["Discord", "Battle.net", "Заявки", "Профілі"].map((label, index) => ({ key: `${index}`, label, state: "warning" as IntegrationState, message: loading ? "перевіряємо" : "немає даних", checkedAt: summary?.checkedAt || "" }))).map((item) => (
           <div className="integration-status-item" data-state={item.state} key={item.key} title={item.message}>
             <span className="integration-status-dot" aria-hidden="true" />
             <strong>{item.label}</strong>

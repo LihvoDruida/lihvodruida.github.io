@@ -1,6 +1,6 @@
 import { checkBattleNetApplicationAccess, getDefaultBattleNetRegion } from "@/lib/battlenet";
 import { discordApi, getDiscordGuildId, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
-import { hasFirebaseProfileConfig, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import { hasПрофіліProfileConfig, getПрофіліAdminDb } from "@/lib/firebaseAdmin";
 import { githubFetch } from "@/lib/github";
 
 export type IntegrationState = "ok" | "warning" | "error" | "unconfigured";
@@ -29,7 +29,7 @@ function safeMessage(error: unknown, fallback: string) {
 
 async function checkDiscord(checkedAt: string): Promise<IntegrationStatusItem> {
   if (!hasDiscordEmbedConfig()) {
-    return item("discord", "Discord", "unconfigured", "не налаштовано", checkedAt);
+    return item("discord", "Discord", "unconfigured", "потребує уваги", checkedAt);
   }
 
   const guildId = getDiscordGuildId();
@@ -43,7 +43,7 @@ async function checkDiscord(checkedAt: string): Promise<IntegrationStatusItem> {
   } catch (error) {
     const message = safeMessage(error, "Discord тимчасово недоступний");
     if (/тимчасово недоступна|bot token|публікація/i.test(message)) {
-      return item("discord", "Discord", "warning", "підключено через Worker або без прямої перевірки", checkedAt);
+      return item("discord", "Discord", "warning", "підключено, але потрібна ручна перевірка", checkedAt);
     }
     return item("discord", "Discord", "error", message, checkedAt);
   }
@@ -56,7 +56,7 @@ async function checkBattleNet(checkedAt: string): Promise<IntegrationStatusItem>
   } catch (error) {
     const message = safeMessage(error, "Battle.net тимчасово недоступний");
     if (/not configured|env is not configured|oauth env/i.test(message)) {
-      return item("battlenet", "Battle.net", "unconfigured", "не налаштовано", checkedAt);
+      return item("battlenet", "Battle.net", "unconfigured", "потребує уваги", checkedAt);
     }
     return item("battlenet", "Battle.net", "error", message, checkedAt);
   }
@@ -65,27 +65,27 @@ async function checkBattleNet(checkedAt: string): Promise<IntegrationStatusItem>
 async function checkGitHub(checkedAt: string): Promise<IntegrationStatusItem> {
   try {
     await githubFetch("/issues?per_page=1&state=all");
-    return item("github", "GitHub Issues", "ok", "працює", checkedAt);
+    return item("github", "Заявки", "ok", "працює", checkedAt);
   } catch (error) {
-    const message = safeMessage(error, "GitHub Issues тимчасово недоступний");
+    const message = safeMessage(error, "Заявки тимчасово недоступні");
     if (/env is not configured|not configured/i.test(message)) {
-      return item("github", "GitHub Issues", "unconfigured", "не налаштовано", checkedAt);
+      return item("github", "Заявки", "unconfigured", "потребує уваги", checkedAt);
     }
-    return item("github", "GitHub Issues", "error", message, checkedAt);
+    return item("github", "Заявки", "error", message, checkedAt);
   }
 }
 
-async function checkFirebase(checkedAt: string): Promise<IntegrationStatusItem> {
-  if (!hasFirebaseProfileConfig()) {
-    return item("firebase", "Firebase", "unconfigured", "не налаштовано", checkedAt);
+async function checkПрофілі(checkedAt: string): Promise<IntegrationStatusItem> {
+  if (!hasПрофіліProfileConfig()) {
+    return item("firebase", "Профілі", "unconfigured", "потребує уваги", checkedAt);
   }
 
   try {
-    const db = getFirebaseAdminDb();
+    const db = getПрофіліAdminDb();
     await db.collection("profiles").limit(1).get();
-    return item("firebase", "Firebase", "ok", "працює", checkedAt);
+    return item("firebase", "Профілі", "ok", "працює", checkedAt);
   } catch (error) {
-    return item("firebase", "Firebase", "error", safeMessage(error, "Firebase тимчасово недоступний"), checkedAt);
+    return item("firebase", "Профілі", "error", safeMessage(error, "Профілі тимчасово недоступні"), checkedAt);
   }
 }
 
@@ -95,14 +95,14 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
     checkDiscord(checkedAt),
     checkBattleNet(checkedAt),
     checkGitHub(checkedAt),
-    checkFirebase(checkedAt),
+    checkПрофілі(checkedAt),
   ]);
 
   const fallbackKeys: Array<[IntegrationStatusItem["key"], string]> = [
     ["discord", "Discord"],
     ["battlenet", "Battle.net"],
-    ["github", "GitHub Issues"],
-    ["firebase", "Firebase"],
+    ["github", "Заявки"],
+    ["firebase", "Профілі"],
   ];
 
   return {

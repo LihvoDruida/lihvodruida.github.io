@@ -698,7 +698,7 @@ export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "role
 
       <div className="discord-role-list" role="listbox" aria-label={ariaLabel}>
         {filteredRoles.length === 0 ? (
-          <div className="discord-role-empty">Нічого не знайдено. Очисти пошук або перевір список ролей бота.</div>
+          <div className="discord-role-empty">Нічого не знайдено. Очисти пошук або перевір список ролей.</div>
         ) : null}
         {filteredRoles.map((role) => (
           <label className="discord-role-option" key={role.id} data-selected={selected.has(role.id) ? "true" : "false"}>

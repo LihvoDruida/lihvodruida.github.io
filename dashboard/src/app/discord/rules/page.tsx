@@ -16,8 +16,16 @@ import {
   type DiscordRulesStats,
   type DiscordTextChannel,
 } from "@/lib/discordAdmin";
+import { buildPageMetadata } from "@/lib/seo";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds, canViewRulesStats } from "@/lib/permissions";
+
+export const metadata = buildPageMetadata({
+  title: "Правила Discord",
+  description: "Правила сервера, правила рейду, статистика прийняття та список підписантів Mistblossom Vanguard в одному зрозумілому місці.",
+  path: "/discord/rules",
+  keywords: ["правила гільдії", "правила рейду", "Discord правила"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -389,7 +397,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             </div>
             <h1>Правила Discord</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Окреме відображення звичайних правил, правил рейду, статистики та списку підписантів без змішування даних.</p>
+            <p className="lead">Правила сервера, правила рейду, статистика прийняття та список підписантів зібрані в одному зрозумілому місці.</p>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>Звичайні правила видають ролі. Рейдові правила записують Discord і мейн-персонажа.</span>
@@ -406,7 +414,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
       <StatusNotice params={params} />
 
       {!hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Перевір підключення бота або спробуй пізніше.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.</div>
       ) : configError ? (
         <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : (

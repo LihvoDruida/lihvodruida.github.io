@@ -7,6 +7,14 @@ import { defaultRaidRulesEmbed, defaultRulesEmbed, prettyDiscordJson } from "@/l
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds } from "@/lib/permissions";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Нові правила Discord",
+  description: "Створення нового повідомлення правил Mistblossom Vanguard з кнопками прийняття та зрозумілим текстом для учасників.",
+  path: "/discord/rules/new",
+  keywords: ["створення правил", "Discord правила"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -57,7 +65,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
       {!isAdmin ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Перевір підключення бота або спробуй пізніше.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.</div>
       ) : configError ? (
         <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (

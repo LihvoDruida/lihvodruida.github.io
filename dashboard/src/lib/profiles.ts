@@ -437,7 +437,7 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   characters?: BattleNetCharacterCandidate[];
 }, account?: BattleNetAccountInfo | null) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   const snapshot = await ref.get();
@@ -580,7 +580,7 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
   if (!candidate || !cleanKey || !candidate.verifiedGuild) {
     throw new Error("Цей персонаж не підтверджений через Battle.net або не належить до Mistblossom Vanguard.");
   }
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -624,7 +624,7 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
   if (!normalized.size) {
     throw new Error("Немає підтверджених персонажів для додавання.");
   }
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const addedKeys: string[] = [];
   const skippedKeys: string[] = [];
@@ -681,7 +681,7 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
 export async function removeProfileCharacter(profileId: string, characterKey: string) {
   const cleanKey = cleanCharacterKey(characterKey);
   if (!cleanKey) throw new Error("Некоректний персонаж.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -707,7 +707,7 @@ export async function removeProfileCharacter(profileId: string, characterKey: st
 export async function setMainProfileCharacter(profileId: string, characterKey: string) {
   const cleanKey = cleanCharacterKey(characterKey);
   if (!cleanKey) throw new Error("Некоректний персонаж.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -906,7 +906,7 @@ export function buildProfileDiscordNickname(profile: DashboardProfile | null | u
 
 export async function setProfilePreferredName(profileId: string, nameInput: unknown) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const preferredName = normalizeProfilePreferredName(nameInput);
   if (codePointLength(preferredName) < 2) throw new Error("Імʼя має містити щонайменше 2 символи.");
@@ -922,7 +922,7 @@ export async function setProfilePreferredName(profileId: string, nameInput: unkn
 
 export async function setProfilePublicNameMode(profileId: string, modeInput: unknown) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const publicNameMode = cleanProfilePublicNameMode(modeInput);
   await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
@@ -939,7 +939,7 @@ export async function markProfileDiscordNicknameSynced(
   source?: Pick<ProfileDiscordNicknamePlan, "baseName" | "characterNames">,
 ) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const sourceCharacterNames = Array.isArray(source?.characterNames) ? source.characterNames : [];
 
@@ -955,7 +955,7 @@ export async function markProfileDiscordNicknameSynced(
 }
 
 export async function setProfileRaidRolePreference(profileId: string, roleInput: unknown) {
-  if (!hasFirebaseProfileConfig()) throw new Error("Firebase профілі не налаштовані.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
   const role = normalizeWowRole(roleInput);
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);

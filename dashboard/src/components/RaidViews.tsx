@@ -213,7 +213,7 @@ export function RaidManageActions({ raid }: { raid: RaidItem }) {
         method="post"
         data-confirm-message={raid.status === "draft"
           ? "Видалити чернетку рейду?"
-          : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+          : "Видалити рейд із панелі? Повʼязане Discord-повідомлення також буде прибране, якщо це можливо."}
       >
         <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
       </form>
@@ -322,7 +322,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
               method="post"
               data-confirm-message={raid.status === "draft"
                 ? "Видалити чернетку рейду?"
-                : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+                : "Видалити рейд із панелі? Повʼязане Discord-повідомлення також буде прибране, якщо це можливо."}
             >
               <button className="btn danger btn-sm" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
             </form>
@@ -344,7 +344,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
   const isExistingRaid = Boolean(raid?.id);
   const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
   const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
-  const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти локально" : "Зберегти чернетку";
+  const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти без публікації" : "Зберегти чернетку";
   const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
     <div className="raid-form-stack">
@@ -443,7 +443,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
           method="post"
           data-confirm-message={raid.status === "draft"
             ? "Видалити чернетку рейду?"
-            : "Видалити рейд із панелі? Discord-повідомлення також буде видалено, якщо бот має доступ."}
+            : "Видалити рейд із панелі? Повʼязане Discord-повідомлення також буде прибране, якщо це можливо."}
         >
           <strong>{raid.status === "draft" ? "Видалення чернетки" : "Видалення рейду"}</strong>
           <p>{raid.status === "draft"

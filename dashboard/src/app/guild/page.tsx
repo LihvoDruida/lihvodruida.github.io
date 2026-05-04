@@ -1,20 +1,21 @@
 import { redirect } from "next/navigation";
-import type { Metadata } from "next";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import GuildRosterExplorer from "@/components/GuildRosterExplorer";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
 import { loadGuildRosterData } from "@/lib/guildRoster";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const revalidate = 0;
 
-export const metadata: Metadata = {
-  title: "Склад гільдії • Mistblossom Vanguard",
-  description: "Склад гільдії Mistblossom Vanguard з Raider.IO, item level, ролями, класами та фільтрами.",
-  robots: { index: false, follow: false },
-};
+export const metadata = buildPageMetadata({
+  title: "Склад гільдії",
+  description: "Огляд складу Mistblossom Vanguard: ролі, класи, типи броні, item level, Mythic+ рейтинг і зручні фільтри для учасників.",
+  path: "/guild",
+  keywords: ["склад гільдії", "рейдери WoW", "Raider.IO", "item level"],
+});
 
 function formatDate(value?: string | null) {
   if (!value) return "оновлення очікується";

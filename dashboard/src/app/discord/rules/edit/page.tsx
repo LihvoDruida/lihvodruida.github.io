@@ -11,8 +11,16 @@ import {
   hasDiscordEmbedConfig,
   parseDiscordMessageRef,
 } from "@/lib/discordAdmin";
+import { buildPageMetadata } from "@/lib/seo";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds } from "@/lib/permissions";
+
+export const metadata = buildPageMetadata({
+  title: "Редагування правил Discord",
+  description: "Оновлення чинних правил Mistblossom Vanguard, ролей і повідомлень без зайвого ручного редагування.",
+  path: "/discord/rules/edit",
+  keywords: ["редагування правил", "Discord правила"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -83,7 +91,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
       {!isAdmin ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
-        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Перевір підключення бота або спробуй пізніше.</div>
+        <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.</div>
       ) : configError && !messageParam ? (
         <div className="notice panel error-note">Не вдалося отримати дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 || (ruleType === "guild" && roles.length === 0) ? (

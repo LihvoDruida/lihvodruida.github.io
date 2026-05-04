@@ -5,6 +5,14 @@ import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Discord-повідомлення",
+  description: "Керування повідомленнями, правилами та ролями Discord для Mistblossom Vanguard з акуратним попереднім переглядом.",
+  path: "/discord",
+  keywords: ["Discord повідомлення", "правила Discord", "ролі Discord"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

@@ -208,6 +208,6 @@ export async function POST(request: NextRequest) {
     }, returnTo);
   } catch (error) {
     logDashboardEvent("error", "discord.embed.failed", request, { actorId: session.id, message: safeErrorMessage(error) });
-    return redirectTo(request, { error: "Не вдалося виконати дію з Discord-повідомленням. Спробуй ще раз або перевір права бота." }, returnTo);
+    return redirectTo(request, { error: "Не вдалося виконати дію з Discord-повідомленням. Спробуй ще раз або перевір доступ до каналу." }, returnTo);
   }
 }

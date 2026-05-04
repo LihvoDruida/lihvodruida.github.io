@@ -15,7 +15,7 @@ export function hasFirebaseProfileConfig() {
 
 export function getFirebaseAdminDb() {
   if (!hasFirebaseProfileConfig()) {
-    throw new Error("Firebase profile storage is not configured.");
+    throw new Error("Profile storage is not configured.");
   }
 
   const app = getApps()[0] || initializeApp({

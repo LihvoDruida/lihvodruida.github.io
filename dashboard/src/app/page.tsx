@@ -3,6 +3,14 @@ import ApplicationFilters from "@/components/ApplicationFilters";
 import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import { buildPageMetadata } from "@/lib/seo";
+export const metadata = buildPageMetadata({
+  title: "Заявки до гільдії",
+  description: "Перегляд заявок до Mistblossom Vanguard, статусів кандидатів, персонажів і коротких підказок для офіцерів.",
+  path: "/",
+  keywords: ["заявки до гільдії", "кандидати WoW", "офіцерська панель"],
+});
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";

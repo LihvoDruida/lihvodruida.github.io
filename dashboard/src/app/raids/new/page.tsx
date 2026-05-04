@@ -5,8 +5,16 @@ import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } fr
 import { canManageRaids } from "@/lib/permissions";
 import { hasRaidStorage } from "@/lib/raids";
 import { makePreviewRaid, RaidAnnouncementPreview, RaidForm, RaidPageShell, RosterSideList, StatusNotice } from "@/components/RaidViews";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
+export const metadata = buildPageMetadata({
+  title: "Створення рейду",
+  description: "Створення рейду Mistblossom Vanguard з описом, датою, складом, лімітами та Discord-оголошенням.",
+  path: "/raids/new",
+  keywords: ["створити рейд", "рейдовий календар", "Discord оголошення"],
+});
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -36,8 +44,8 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
       description="Заповни дані рейду, збережи чернетку або одразу опублікуй оголошення з кнопками запису."
     >
       <StatusNotice params={params} />
-      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Перевір налаштування панелі.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетку можна зберегти.</div> : null}
+      {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Спробуй пізніше або звернись до гільдмайстра.</div> : null}
+      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетку можна підготувати й опублікувати пізніше.</div> : null}
 
       <section className="raid-editor-layout">
         <RaidForm channels={channels} roles={roles} />

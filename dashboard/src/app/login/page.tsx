@@ -1,6 +1,14 @@
 import { isAuthenticated } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Вхід до панелі",
+  description: "Безпечний вхід до особистої панелі Mistblossom Vanguard через Discord для учасників, офіцерів і гільдмайстра.",
+  path: "/login",
+  keywords: ["вхід Discord", "панель гільдії"],
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
