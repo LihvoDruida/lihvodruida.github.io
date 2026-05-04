@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-04 06:39:46'
+  updated_at: '2026-05-04 10:15:54'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 127
+  member_count: 128
   achievement_points: 475
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13623
-      region: 6071
+      world: 13626
+      region: 6072
       realm: 55
     heroic:
-      world: 12750
-      region: 5474
+      world: 12755
+      region: 5477
       realm: 44
     mythic:
-      world: 7080
-      region: 3041
+      world: 7082
+      region: 3042
       realm: 23
   blackrock-depths:
     normal:
@@ -161,6 +161,58 @@ members:
       spec_2:
         score: 410.8
         color: '#f1ffeb'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Silpo
+    id: 172370451
+    level: 90
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Silpo
+    item_level_equipped: 280
+    mythic_plus_scores:
+      all:
+        score: 2914.7
+        color: '#1e74d9'
+      dps:
+        score: 2914.7
+        color: '#1e74d9'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2914.7
+        color: '#1e74d9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4772,6 +4824,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Panharanir
+    id: 224646724
+    level: 90
+    realm:
+      id: 1305
+      slug: kazzak
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 86
+      name: Haranir
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Panharanir
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2616.8
+        color: '#5da8a1'
+      dps:
+        score: 2616.8
+        color: '#5da8a1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2616.8
+        color: '#5da8a1'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Kokosik
@@ -5782,13 +5886,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2630.3
+        score: 2636.7
         color: '#5ca4a6'
       dps:
-        score: 2630.3
+        score: 2636.7
         color: '#5ca4a6'
       healer:
         score: 0
@@ -5803,8 +5907,8 @@ members:
         score: 331.8
         color: '#f6fff2'
       spec_2:
-        score: 2625.6
-        color: '#5da8a1'
+        score: 2632
+        color: '#5ca4a6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6570,34 +6674,34 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Silpo
-    id: 172370451
+    name: Misselles
+    id: 225144146
     level: 90
     realm:
-      id: 554
-      slug: ravencrest
+      id: 549
+      slug: silvermoon
     playable_class:
-      id: 6
-      name: Death Knight
+      id: 9
+      name: Warlock
     playable_race:
-      id: 34
-      name: Dark Iron Dwarf
+      id: 52
+      name: Dracthyr
     faction:
       type: ALLIANCE
-    gender: male
+    gender: female
     active_spec:
-      name: Unholy
+      name: Demonology
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 280
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/82/225144146-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Misselles
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2914.7
-        color: '#1e74d9'
+        score: 3162
+        color: '#9148eb'
       dps:
-        score: 2914.7
-        color: '#1e74d9'
+        score: 3162
+        color: '#9148eb'
       healer:
         score: 0
         color: '#ffffff'
@@ -6608,60 +6712,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2914.7
-        color: '#1e74d9'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Panharanir
-    id: 224646724
-    level: 90
-    realm:
-      id: 1305
-      slug: kazzak
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 86
-      name: Haranir
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Marksmanship
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
-    profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 274
-    mythic_plus_scores:
-      all:
-        score: 2616.8
-        color: '#5da8a1'
-      dps:
-        score: 2616.8
-        color: '#5da8a1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 2616.8
-        color: '#5da8a1'
+        score: 3162
+        color: '#9148eb'
       spec_2:
         score: 0
         color: '#ffffff'
