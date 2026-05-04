@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-04 02:59:26'
+  updated_at: '2026-05-04 06:39:46'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-03T02:55:48.000Z'
+  raider_io_last_crawled_at: '2026-05-04T05:09:00.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -3084,7 +3084,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 96
+        learned_points: 97
         max_points: 100
     secondaries: []
 - name: Umbrak

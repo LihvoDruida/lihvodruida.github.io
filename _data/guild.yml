@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-04 02:59:26'
+  updated_at: '2026-05-04 06:39:46'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-03T02:55:48.000Z'
+  raider_io_last_crawled_at: '2026-05-04T05:09:00.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13616
-      region: 6067
+      world: 13623
+      region: 6071
       realm: 55
     heroic:
-      world: 12731
-      region: 5471
+      world: 12750
+      region: 5474
       realm: 44
     mythic:
-      world: 7075
-      region: 3040
+      world: 7080
+      region: 3041
       realm: 23
   blackrock-depths:
     normal:
@@ -554,7 +554,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 281
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3066
@@ -866,7 +866,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2073
@@ -970,7 +970,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-    item_level_equipped: 274
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2937.2
@@ -1646,7 +1646,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Ionax
-    item_level_equipped: 248
+    item_level_equipped: 253
     mythic_plus_scores:
       all:
         score: 329.3
@@ -2662,7 +2662,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Lightass
-    item_level_equipped: 280
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 3071.8
@@ -3130,7 +3130,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 252
+    item_level_equipped: 251
     mythic_plus_scores:
       all:
         score: 368.4
@@ -3854,8 +3854,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Guardian
-      role: TANK
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
     item_level_equipped: 277
@@ -4430,7 +4430,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
-    item_level_equipped: 279
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3254.2
@@ -4530,8 +4530,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Mistweaver
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
     item_level_equipped: 280
@@ -4546,10 +4546,10 @@ members:
         score: 3027.1
         color: '#5764e2'
       tank:
-        score: 2730.5
+        score: 2732.2
         color: '#5292b9'
       spec_0:
-        score: 2730.5
+        score: 2732.2
         color: '#5292b9'
       spec_1:
         score: 3027.1
@@ -4690,7 +4690,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2576.6
@@ -4996,11 +4996,11 @@ members:
       name: Void Elf
     faction:
       type: ALLIANCE
-    gender: female
+    gender: male
     active_spec:
       name: Arms
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/151/253815447-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Амарак
     item_level_equipped: 266
     mythic_plus_scores:
@@ -5106,7 +5106,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 281
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3000.3
@@ -5262,7 +5262,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 259
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3091.6
@@ -5990,11 +5990,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-    item_level_equipped: 275
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 3024.8
-        color: '#5764e2'
+        score: 3084.9
+        color: '#715be5'
       dps:
         score: 0
         color: '#ffffff'
@@ -6002,8 +6002,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3024.8
-        color: '#5764e2'
+        score: 3084.9
+        color: '#715be5'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6011,8 +6011,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3024.8
-        color: '#5764e2'
+        score: 3084.9
+        color: '#715be5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6174,7 +6174,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 280
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2858.2
@@ -6229,11 +6229,11 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2286
-        color: '#4ae84e'
+        score: 2432.3
+        color: '#5ccc77'
       dps:
-        score: 2286
-        color: '#4ae84e'
+        score: 2432.3
+        color: '#5ccc77'
       healer:
         score: 0
         color: '#ffffff'
@@ -6244,8 +6244,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2286
-        color: '#4ae84e'
+        score: 2432.3
+        color: '#5ccc77'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6278,7 +6278,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 276
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2572.4
@@ -6538,7 +6538,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 226
+    item_level_equipped: 251
     mythic_plus_scores:
       all:
         score: 0
@@ -6590,7 +6590,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 281
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2914.7
