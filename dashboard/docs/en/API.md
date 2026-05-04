@@ -192,6 +192,37 @@ Changes application statuses in bulk.
 
 **Limit:** up to 50 applications per request.
 
+## Guild roster
+
+### `POST /api/guild/refresh`
+
+Forces a runtime cache refresh for the guild roster from the Battle.net Guild Roster API and Raider.IO.
+
+**Access:** any authenticated dashboard user who can access `/guild`.
+
+**Body:** none.
+
+**What it does:**
+
+- loads the current guild roster from Battle.net;
+- refreshes Raider.IO M+ `ALL`, `DPS`, `HEALER`, `TANK` for each character;
+- recalculates average RIO, average item level, max RIO and max item level;
+- stores the cache in Firebase or in-memory runtime cache.
+
+**Response:**
+
+```json
+{
+  "ok": true,
+  "memberCount": 120,
+  "updatedAt": "2026-05-04T00:00:00.000Z",
+  "source": "Battle.net Guild Roster API + Raider.IO Character API • cache",
+  "error": null
+}
+```
+
+---
+
 ## Profile
 
 ### `POST /api/profile/name`

@@ -19,6 +19,7 @@ export {
   canManageSiteContent,
   canViewRulesStats,
   canViewRaidDirectory,
+  canViewGuildRoster,
   canViewRaidRoster,
   canViewProfileAccessDetails,
   isDashboardStaff,

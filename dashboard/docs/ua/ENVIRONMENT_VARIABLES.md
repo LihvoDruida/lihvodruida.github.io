@@ -134,11 +134,18 @@
 | `WOW_GUILD_REALM` | optional | Строгий realm filter. |
 | `BATTLENET_ALLOWED_GUILD_NAME` | alias | Legacy alias для `WOW_GUILD_NAME`. |
 | `BATTLENET_ALLOWED_GUILD_REALM` | alias | Legacy alias для `WOW_GUILD_REALM`. |
+| `GUILD_ROSTER_REGION` | optional | Region для live-сторінки складу гільдії `/guild`, fallback на `WOW_REGION`. |
+| `GUILD_ROSTER_REALM` | optional | Realm slug для Battle.net Guild Roster API, fallback на `WOW_REALM` / `WOW_GUILD_REALM`. |
+| `GUILD_ROSTER_NAME` | optional | Назва гільдії для live-складу, fallback на `WOW_GUILD_NAME`. |
+| `GUILD_ROSTER_CACHE_TTL_SECONDS` | optional | TTL кешу складу гільдії у Firebase/in-memory, default 1800 секунд. |
+| `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Concurrency оновлення персонажів Raider.IO для `/guild`. |
+| `GUILD_ROSTER_MEMBER_LIMIT` | optional | Максимум персонажів для одного оновлення складу. |
 
 ### Raider.IO і продуктивність
 
 | Variable | Обов’язковість | Опис |
 |---|---|---|
+| `RAIDERIO_ACCESS_KEY` | optional secret | Raider.IO access key для стабільнішого live-оновлення складу і заявок. |
 | `RAIDERIO_ENABLED` | optional | Вмикає Raider.IO enrichment. |
 | `RAIDERIO_CONCURRENCY` | optional | Legacy/general concurrency Raider.IO. |
 | `RAIDERIO_LOOKUP_CONCURRENCY` | optional | Adaptive lookup concurrency. |

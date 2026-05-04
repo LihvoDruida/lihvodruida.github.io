@@ -35,6 +35,10 @@ export function canViewRaidDirectory(session: DashboardSession | null | undefine
   return Boolean(session);
 }
 
+export function canViewGuildRoster(session: DashboardSession | null | undefined) {
+  return Boolean(session);
+}
+
 export function canViewRaidRoster(session: DashboardSession | null | undefined) {
   return isDashboardStaff(session);
 }
@@ -120,6 +124,12 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
       key: "raid-signup",
       title: "Рейди та запис",
       description: "Перегляд опублікованих рейдів, правила і власний запис на участь.",
+      enabled: true,
+    },
+    {
+      key: "guild-roster",
+      title: "Склад гільдії",
+      description: "Перегляд персонажів гільдії, Raider.IO, item level, ролей, класів і фільтрів.",
       enabled: true,
     },
     {

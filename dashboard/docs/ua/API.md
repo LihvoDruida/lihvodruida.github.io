@@ -192,6 +192,37 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 **Ліміти:** максимум 50 заявок за один запит.
 
+## Склад гільдії
+
+### `POST /api/guild/refresh`
+
+Примусово оновлює runtime-кеш складу гільдії з Battle.net Guild Roster API та Raider.IO.
+
+**Доступ:** будь-який авторизований користувач dashboard, який має доступ до `/guild`.
+
+**Body:** не потрібен.
+
+**Що робить:**
+
+- отримує актуальний guild roster з Battle.net;
+- для кожного персонажа оновлює Raider.IO M+ `ALL`, `DPS`, `HEALER`, `TANK`;
+- перераховує середній RIO, середній item level, max RIO/max item level;
+- записує кеш у Firebase або in-memory runtime cache.
+
+**Response:**
+
+```json
+{
+  "ok": true,
+  "memberCount": 120,
+  "updatedAt": "2026-05-04T00:00:00.000Z",
+  "source": "Battle.net Guild Roster API + Raider.IO Character API • cache",
+  "error": null
+}
+```
+
+---
+
 ## Профіль
 
 ### `POST /api/profile/name`

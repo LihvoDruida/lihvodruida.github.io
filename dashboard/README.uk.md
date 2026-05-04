@@ -111,3 +111,24 @@ NEXT_PUBLIC_RAID_TIME_ZONE=Europe/Kyiv
 - Якщо Discord interactions обробляє Worker, Interaction Endpoint у Discord Developer Portal має вести на Worker.
 - Якщо Worker викликає dashboard, shared tokens мають збігатися.
 - `FIREBASE_PRIVATE_KEY` у Vercel краще зберігати з escaped `\n`.
+
+## Склад гільдії `/guild`
+
+Сторінка `/guild` доступна всім авторизованим ролям dashboard: учасникам, офіцерам і гільдмайстру.
+Вона показує живий склад гільдії з Battle.net Guild Roster API та Raider.IO: RIO `ALL`, `DPS`, `HEALER`, `TANK`, item level, клас, спек, роль, фракцію та посилання Raider.IO.
+
+Дані більше не залежать від `scripts/update_guild.py` або згенерованих файлів. Dashboard сам отримує склад через серверну інтеграцію, кешує результат у Firebase, а якщо Firebase не налаштований — використовує короткий in-memory cache поточного runtime.
+
+Основні змінні:
+
+```env
+GUILD_ROSTER_REGION=eu
+GUILD_ROSTER_REALM=terokkar
+GUILD_ROSTER_NAME=Mistblossom Vanguard
+GUILD_ROSTER_CACHE_TTL_SECONDS=1800
+GUILD_ROSTER_REFRESH_CONCURRENCY=6
+GUILD_ROSTER_MEMBER_LIMIT=500
+RAIDERIO_ACCESS_KEY=
+```
+
+`BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` або `BATTLENET_CLIENT_ID` / `BATTLENET_CLIENT_SECRET` потрібні для Battle.net application token. Кнопка “Оновити склад” викликає `/api/guild/refresh` і примусово перезбирає кеш з Battle.net + Raider.IO.

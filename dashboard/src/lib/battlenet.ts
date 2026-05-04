@@ -309,6 +309,13 @@ async function bnetFetch(accessToken: string, path: string, params?: Record<stri
   return data;
 }
 
+export async function fetchBattleNetApplicationData(path: string, params?: Record<string, string>, regionInput?: string | null) {
+  const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
+  const accessToken = await fetchBattleNetApplicationToken(region);
+  return bnetFetch(accessToken, path, params, region);
+}
+
+
 function pickLocalizedName(value: any): string | null {
   if (!value) return null;
   if (typeof value === "string") return cleanText(value, 120) || null;

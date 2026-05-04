@@ -134,11 +134,18 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `WOW_GUILD_REALM` | optional | Strict realm filter. |
 | `BATTLENET_ALLOWED_GUILD_NAME` | alias | Legacy alias for `WOW_GUILD_NAME`. |
 | `BATTLENET_ALLOWED_GUILD_REALM` | alias | Legacy alias for `WOW_GUILD_REALM`. |
+| `GUILD_ROSTER_REGION` | optional | Region for the live guild roster page `/guild`, falls back to `WOW_REGION`. |
+| `GUILD_ROSTER_REALM` | optional | Realm slug for the Battle.net Guild Roster API, falls back to `WOW_REALM` / `WOW_GUILD_REALM`. |
+| `GUILD_ROSTER_NAME` | optional | Guild name for the live roster, falls back to `WOW_GUILD_NAME`. |
+| `GUILD_ROSTER_CACHE_TTL_SECONDS` | optional | Guild roster cache TTL in Firebase/in-memory, default 1800 seconds. |
+| `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Raider.IO character refresh concurrency for `/guild`. |
+| `GUILD_ROSTER_MEMBER_LIMIT` | optional | Max characters per roster refresh. |
 
 ### Raider.IO and performance
 
 | Variable | Requirement | Description |
 |---|---|---|
+| `RAIDERIO_ACCESS_KEY` | optional secret | Raider.IO access key for more stable live roster and application enrichment. |
 | `RAIDERIO_ENABLED` | optional | Enables Raider.IO enrichment. |
 | `RAIDERIO_CONCURRENCY` | optional | Legacy/general Raider.IO concurrency. |
 | `RAIDERIO_LOOKUP_CONCURRENCY` | optional | Adaptive lookup concurrency. |

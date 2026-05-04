@@ -111,3 +111,24 @@ See the full environment documentation for all variables and Worker sharing note
 - If Discord interactions are handled by Worker, the Discord Developer Portal Interaction Endpoint must point to Worker.
 - If Worker calls the dashboard, shared tokens must match.
 - In Vercel, `FIREBASE_PRIVATE_KEY` is usually stored with escaped `\n`.
+
+## Guild roster `/guild`
+
+The `/guild` page is available to every authenticated dashboard role: member, moderator, and admin.
+It displays a live guild roster from the Battle.net Guild Roster API and Raider.IO: `ALL`, `DPS`, `HEALER`, `TANK` RIO, item level, class, spec, role, faction, and Raider.IO profile links.
+
+The dashboard no longer depends on `scripts/update_guild.py` or generated files for this page. Runtime code fetches the roster server-side, stores the result in Firebase cache, and falls back to short in-memory cache when Firebase is not configured.
+
+Main variables:
+
+```env
+GUILD_ROSTER_REGION=eu
+GUILD_ROSTER_REALM=terokkar
+GUILD_ROSTER_NAME=Mistblossom Vanguard
+GUILD_ROSTER_CACHE_TTL_SECONDS=1800
+GUILD_ROSTER_REFRESH_CONCURRENCY=6
+GUILD_ROSTER_MEMBER_LIMIT=500
+RAIDERIO_ACCESS_KEY=
+```
+
+`BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` or `BATTLENET_CLIENT_ID` / `BATTLENET_CLIENT_SECRET` are required for the Battle.net application token. The “Refresh roster” button calls `/api/guild/refresh` and rebuilds the cache from Battle.net + Raider.IO.

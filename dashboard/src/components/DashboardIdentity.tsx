@@ -7,6 +7,7 @@ import {
   canManageRaids,
   canManageSiteContent,
   canViewProfiles,
+  canViewGuildRoster,
   canViewRaidDirectory,
   hierarchyTitle,
   siteStatusLabel,
@@ -19,7 +20,7 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content" | "discord" | "profile" | "profiles" | "raids" | "rules";
+  activeSection?: "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
 }) {
   const guild = await getGuildBranding();
   const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
@@ -30,6 +31,7 @@ export default async function DashboardIdentity({
   const canUseRaids = canViewRaidDirectory(user);
   const canCreateRaids = canManageRaids(user);
   const canUseProfiles = canViewProfiles(user);
+  const canUseGuildRoster = canViewGuildRoster(user);
   const canUseContent = canManageSiteContent(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
   const mobileNavItems = user
@@ -39,6 +41,9 @@ export default async function DashboardIdentity({
           : null,
         canUseRaids
           ? { href: "/raids", section: "raids" as const, icon: "⚔", label: "Рейди" }
+          : null,
+        canUseGuildRoster
+          ? { href: "/guild", section: "guild" as const, icon: "☘", label: "Склад" }
           : null,
         canUseDiscord
           ? { href: "/discord", section: "discord" as const, icon: "◆", label: "Discord" }
@@ -77,6 +82,15 @@ export default async function DashboardIdentity({
                   aria-current={activeSection === "raids" ? "page" : undefined}
                 >
                   {canCreateRaids ? "Рейди" : "Мої рейди"}
+                </a>
+              ) : null}
+              {canUseGuildRoster ? (
+                <a
+                  href="/guild"
+                  className={activeSection === "guild" ? "is-active" : undefined}
+                  aria-current={activeSection === "guild" ? "page" : undefined}
+                >
+                  Склад гільдії
                 </a>
               ) : null}
               {canUseDiscord ? (

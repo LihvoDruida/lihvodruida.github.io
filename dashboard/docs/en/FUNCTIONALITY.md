@@ -55,6 +55,19 @@ An admin can see and manage everything:
 - integration status panels;
 - full staff-only details.
 
+## Guild roster
+
+The `/guild` page is available to members, officers, and admins. It shows a live guild roster without pre-generated files:
+
+- character list from the Battle.net Guild Roster API;
+- Raider.IO M+ ratings for `ALL`, `DPS`, `HEALER`, `TANK`;
+- item level, class, spec, role, faction, realm, and avatar;
+- header statistics: average RIO, average item level, max RIO/item level;
+- “Armor type” and “Average guild RIO” statistic blocks;
+- filters for RIO, item level, class, spec, role, faction, and text search.
+
+Refreshes run through the runtime endpoint `/api/guild/refresh`. The result is cached in Firebase Firestore or in in-memory cache when Firebase is not configured.
+
 ## 3. Authentication
 
 ### Discord login
