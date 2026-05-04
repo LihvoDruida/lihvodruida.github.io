@@ -22210,3 +22210,35 @@ a.profile-directory-card small,
     padding: 8px !important;
   }
 }
+
+/* v63: dynamic mobile bottom safe area based on the real fixed nav size. */
+@media (max-width: 760px) {
+  :root {
+    --dash-mobile-nav-actual-height: var(--dash-mobile-nav-height, 72px);
+    --dash-mobile-nav-actual-bottom: var(--dash-mobile-nav-bottom, max(8px, env(safe-area-inset-bottom, 0px)));
+    --dash-mobile-nav-clearance: clamp(12px, 3vw, 20px);
+    --dash-mobile-nav-dynamic-reserve: calc(
+      var(--dash-mobile-nav-actual-height) +
+      var(--dash-mobile-nav-actual-bottom) +
+      var(--dash-mobile-nav-clearance)
+    );
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dash-mobile-nav-dynamic-reserve) + 8px) !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  .container,
+  main.container {
+    padding-bottom: var(--dash-mobile-nav-dynamic-reserve) !important;
+  }
+
+  :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page) {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}

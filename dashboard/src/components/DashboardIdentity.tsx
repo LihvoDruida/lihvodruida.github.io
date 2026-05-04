@@ -13,6 +13,7 @@ import {
   siteStatusLabel,
 } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
+import MobileNavSafeAreaSync from "@/components/MobileNavSafeAreaSync";
 import { getProfileById, getProfilePublicName } from "@/lib/profiles";
 
 export default async function DashboardIdentity({
@@ -145,24 +146,27 @@ export default async function DashboardIdentity({
       </header>
 
       {user && hasMobileNav ? (
-        <nav
-          className="dashboard-mobile-nav"
-          aria-label="Швидка навігація"
-          data-items={mobileNavItems.length}
-          style={{ "--dashboard-mobile-nav-items": mobileNavItems.length } as CSSProperties}
-        >
-          {mobileNavItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={activeSection === item.section ? "is-active" : undefined}
-              aria-current={activeSection === item.section ? "page" : undefined}
-            >
-              <span aria-hidden="true">{item.icon}</span>
-              <strong>{item.label}</strong>
-            </a>
-          ))}
-        </nav>
+        <>
+          <MobileNavSafeAreaSync />
+          <nav
+            className="dashboard-mobile-nav"
+            aria-label="Швидка навігація"
+            data-items={mobileNavItems.length}
+            style={{ "--dashboard-mobile-nav-items": mobileNavItems.length } as CSSProperties}
+          >
+            {mobileNavItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className={activeSection === item.section ? "is-active" : undefined}
+                aria-current={activeSection === item.section ? "page" : undefined}
+              >
+                <span aria-hidden="true">{item.icon}</span>
+                <strong>{item.label}</strong>
+              </a>
+            ))}
+          </nav>
+        </>
       ) : null}
     </>
   );
