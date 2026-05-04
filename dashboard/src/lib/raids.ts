@@ -721,6 +721,7 @@ export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "pr
 
   const raids = await listRaids(Math.max(20, Math.min(120, limit)));
   return raids
+    .filter((raid) => raid.status === "published" && !isRaidClosed(raid))
     .map((raid) => {
       const signup = raid.signups.find((item) => signupMatchesProfile(item, profile));
       return signup ? { raid, signup } : null;

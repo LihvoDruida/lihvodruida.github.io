@@ -160,6 +160,17 @@ function parseNumberInput(event: ChangeEvent<HTMLInputElement>, fallback: number
   return parsed;
 }
 
+const RANGE_THUMB_HALF_PX = 10;
+
+function rangePosition(percentValue: number) {
+  const safePercent = Math.min(100, Math.max(0, percentValue));
+  const insetCompensation = RANGE_THUMB_HALF_PX * (1 - (safePercent / 50));
+  const roundedPercent = Number(safePercent.toFixed(4));
+  const roundedCompensation = Number(insetCompensation.toFixed(4));
+
+  return `calc(${roundedPercent}% + ${roundedCompensation}px)`;
+}
+
 function RangeFilter({
   idBase,
   nameBase,
@@ -229,8 +240,8 @@ function RangeFilter({
       <div
         className="guild-dual-range"
         style={{
-          "--range-start": `${startPercent}%`,
-          "--range-end": `${endPercent}%`,
+          "--range-start": rangePosition(startPercent),
+          "--range-end": rangePosition(endPercent),
         } as CSSProperties}
       >
         <div className="guild-dual-range__line" aria-hidden="true" />

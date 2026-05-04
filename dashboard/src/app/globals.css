@@ -21406,22 +21406,26 @@ a.profile-directory-card small,
 }
 
 .guild-dual-range {
+  --guild-range-thumb-size: 20px;
+  --guild-range-track-inset: calc(var(--guild-range-thumb-size) / 2);
   position: relative;
-  height: 28px;
+  height: 34px;
+  min-width: 0;
+  overflow: visible;
 }
 
 .guild-dual-range__line,
 .guild-dual-range__active {
   position: absolute;
-  left: 0;
-  right: 0;
   top: 50%;
-  height: 4px;
+  height: 5px;
   border-radius: 999px;
   transform: translateY(-50%);
 }
 
 .guild-dual-range__line {
+  left: var(--guild-range-track-inset);
+  right: var(--guild-range-track-inset);
   background: rgba(255, 255, 255, 0.16);
 }
 
@@ -21434,42 +21438,47 @@ a.profile-directory-card small,
 
 .guild-dual-range__input {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  bottom: 0;
+  left: var(--guild-range-track-inset);
+  right: var(--guild-range-track-inset);
+  width: auto;
+  min-width: 0;
   margin: 0;
   background: none;
   appearance: none;
   -webkit-appearance: none;
   pointer-events: none;
+  touch-action: pan-y;
 }
 
 .guild-dual-range__input::-webkit-slider-runnable-track {
-  height: 4px;
+  height: 5px;
   background: transparent;
 }
 
 .guild-dual-range__input::-moz-range-track {
-  height: 4px;
+  height: 5px;
   background: transparent;
 }
 
 .guild-dual-range__input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: var(--guild-range-thumb-size);
+  height: var(--guild-range-thumb-size);
   border-radius: 50%;
   border: 2px solid #ffad22;
   background: #fff7e7;
   box-shadow: 0 0 0 3px rgba(255, 173, 34, 0.12), 0 4px 14px rgba(0, 0, 0, 0.35);
-  margin-top: -8px;
+  margin-top: calc((5px - var(--guild-range-thumb-size)) / 2);
   pointer-events: auto;
   cursor: pointer;
 }
 
 .guild-dual-range__input::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: var(--guild-range-thumb-size);
+  height: var(--guild-range-thumb-size);
   border-radius: 50%;
   border: 2px solid #ffad22;
   background: #fff7e7;
@@ -21942,8 +21951,34 @@ a.profile-directory-card small,
     grid-column: 1 / -1;
   }
 
+  .guild-range-group {
+    gap: 10px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .guild-range-head {
+    gap: 6px;
+  }
+
+  .guild-range-head strong {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
   .guild-range-inputs {
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .guild-range-value input {
+    min-height: 38px;
+    padding: 0 11px;
+    font-size: 14px;
+  }
+
+  .guild-dual-range {
+    height: 32px;
   }
 
   .guild-member-card {
