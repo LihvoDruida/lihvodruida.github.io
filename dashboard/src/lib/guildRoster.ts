@@ -8,6 +8,8 @@ export type GuildRosterRole = "tank" | "healer" | "dps" | "unknown";
 
 export type GuildRosterMember = {
   key: string;
+  ownerProfileId?: string | null;
+  ownerDisplayName?: string | null;
   rank: number | null;
   name: string;
   realmSlug: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { GuildRosterMember, GuildRosterStats, GuildScoreSegment } from "@/lib/guildRoster";
 
 type SortKey = "rio-desc" | "rio-asc" | "ilvl-desc" | "name-asc" | "rank-asc";
@@ -317,6 +317,23 @@ function CharacterAvatar({ member }: { member: GuildRosterMember }) {
   return <span className="guild-member-avatar guild-member-avatar--empty">{member.name.charAt(0).toUpperCase()}</span>;
 }
 
+
+function openProfileCard(event: MouseEvent<HTMLElement>, href?: string | null) {
+  if (!href) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest("a,button,input,select,textarea,label")) return;
+  window.location.href = href;
+}
+
+function openProfileCardWithKeyboard(event: KeyboardEvent<HTMLElement>, href?: string | null) {
+  if (!href) return;
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest("a,button,input,select,textarea,label")) return;
+  event.preventDefault();
+  window.location.href = href;
+}
+
 function SegmentBadges({ member, activeSegment }: { member: GuildRosterMember; activeSegment: GuildScoreSegment }) {
   return (
     <div className="guild-score-badges" aria-label="Raider.IO сегменти">
@@ -607,8 +624,18 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
           <div className="guild-member-list">
             {filteredMembers.length ? filteredMembers.map((member, index) => {
               const score = member.scores[segment] || 0;
+              const ownerProfileHref = member.ownerProfileId ? `/profile/${encodeURIComponent(member.ownerProfileId)}` : null;
               return (
-                <article className={`guild-member-card panel guild-member-card--${member.role}`} key={member.key}>
+                <article
+                  className={`guild-member-card panel guild-member-card--${member.role}${ownerProfileHref ? " guild-member-card--clickable" : ""}`}
+                  key={member.key}
+                  role={ownerProfileHref ? "link" : undefined}
+                  tabIndex={ownerProfileHref ? 0 : undefined}
+                  data-profile-href={ownerProfileHref || undefined}
+                  title={ownerProfileHref ? `Відкрити профіль: ${member.ownerDisplayName || member.name}` : undefined}
+                  onClick={(event) => openProfileCard(event, ownerProfileHref)}
+                  onKeyDown={(event) => openProfileCardWithKeyboard(event, ownerProfileHref)}
+                >
                   <div className="guild-member-leading">
                     <CharacterAvatar member={member} />
                     <div className="guild-member-rank">#{index + 1}</div>
@@ -636,7 +663,10 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                       <span className={`guild-faction-tag guild-faction-tag--${member.faction.toLowerCase()}`}>{member.faction}</span>
                     </div>
                     <SegmentBadges member={member} activeSegment={segment} />
-                    {member.profileUrl ? <a href={member.profileUrl} target="_blank" rel="noreferrer">Raider.IO</a> : <span className="guild-no-link">Без Raider.IO</span>}
+                    <div className="guild-member-links">
+                      {ownerProfileHref ? <a className="guild-profile-link" href={ownerProfileHref} onClick={(event) => event.stopPropagation()}>Профіль</a> : <span className="guild-no-link">Профіль не привʼязано</span>}
+                      {member.profileUrl ? <a href={member.profileUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>Raider.IO</a> : <span className="guild-no-link">Без Raider.IO</span>}
+                    </div>
                   </div>
                 </article>
               );

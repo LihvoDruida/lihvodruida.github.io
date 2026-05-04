@@ -65,6 +65,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_GUILD_NAME` | optional | Fallback guild/server name. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Roles that grant admin/guildmaster access. |
 | `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. |
+| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Default: `90`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Roles that grant officer/moderator access. |
 | `DISCORD_MEMBER_ROLE_IDS` | optional | Roles that grant member access. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | If true and no member roles are set, any guild member can get member access. |

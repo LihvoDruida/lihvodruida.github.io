@@ -4,6 +4,8 @@ import GuildRosterExplorer from "@/components/GuildRosterExplorer";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
 import { loadGuildRosterData } from "@/lib/guildRoster";
+import { listCharacterProfileLinks } from "@/lib/profiles";
+import { buildBattleNetCharacterKey } from "@/lib/wowCharacters";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +31,16 @@ export default async function GuildRosterPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const roster = await loadGuildRosterData();
+  const [roster, profileLinks] = await Promise.all([
+    loadGuildRosterData(),
+    listCharacterProfileLinks().catch(() => new Map()),
+  ]);
+  const members = roster.members.map((member) => {
+    const profileLink = profileLinks.get(buildBattleNetCharacterKey(member.region, member.realmSlug, member.name));
+    return profileLink
+      ? { ...member, ownerProfileId: profileLink.profileId, ownerDisplayName: profileLink.displayName }
+      : member;
+  });
 
   return (
     <main className="container guild-page">
@@ -69,7 +80,7 @@ export default async function GuildRosterPage() {
         </header>
       </section>
 
-      <GuildRosterExplorer members={roster.members} stats={roster.stats} source={roster.source} error={roster.error} />
+      <GuildRosterExplorer members={members} stats={roster.stats} source={roster.source} error={roster.error} />
     </main>
   );
 }

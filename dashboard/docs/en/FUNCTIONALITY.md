@@ -409,3 +409,5 @@ Recent UI work standardizes:
 - metric grids.
 
 The goal is to make the mobile version feel like a usable app rather than a compressed desktop site.
+
+Live Discord access sync: on each signed-in session, the dashboard periodically re-checks the user's current guild roles with the Discord bot and recalculates dashboard permissions from the ENV role mapping.

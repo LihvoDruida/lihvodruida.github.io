@@ -22242,3 +22242,68 @@ a.profile-directory-card small,
     margin-bottom: 0 !important;
   }
 }
+
+/* Guild roster profile linking */
+.guild-member-card--clickable {
+  cursor: pointer;
+}
+
+.guild-member-card--clickable:hover,
+.guild-member-card--clickable:focus-visible {
+  border-color: rgba(127, 221, 159, 0.46);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(127, 221, 159, 0.18) inset;
+  transform: translateY(-1px);
+}
+
+.guild-member-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.guild-member-links a,
+.guild-member-links span {
+  white-space: nowrap;
+}
+
+.guild-profile-link {
+  color: var(--accent, #a5f3c6);
+  font-weight: 800;
+}
+
+/* Live Discord role-to-permission associations */
+.profile-role-group--associations {
+  border-color: rgba(127, 221, 159, 0.22);
+}
+
+.profile-role-associations {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.profile-role-association {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.45fr) 1fr;
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.profile-role-association > span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.profile-role-association > span small {
+  color: var(--muted, rgba(255, 255, 255, 0.62));
+}
+
+@media (max-width: 760px) {
+  .profile-role-association {
+    grid-template-columns: 1fr;
+  }
+}

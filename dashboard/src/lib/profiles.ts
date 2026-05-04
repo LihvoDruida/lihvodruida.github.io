@@ -3,9 +3,8 @@ import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
-import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
+import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
-import { canAccessDashboardRole } from "@/lib/permissions";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -262,9 +261,13 @@ export function canViewProfile(
   const ownProfileId = viewer.profileId || "";
   const isOwnProfile = Boolean(ownProfileId && ownProfileId === profileId);
   if (isOwnProfile) return true;
-  if (viewer.role !== "admin" && viewer.role !== "moderator") return false;
-  if (!profile) return true;
-  return canAccessDashboardRole(viewer, profile.role);
+
+  // Existing saved profiles are safe to open as public member pages.
+  // Access details, Discord role lists and technical fields are still hidden
+  // unless canViewProfileAccessDetails(viewer) allows them on the page.
+  if (profile) return true;
+
+  return viewer.role === "admin" || viewer.role === "moderator";
 }
 
 export function canManageProfiles(viewer: DashboardSession | null | undefined) {
@@ -407,6 +410,51 @@ export async function listDashboardProfiles(params: {
     const bTime = Date.parse(b.lastLoginAt || b.updatedAt || b.createdAt || "") || 0;
     return bTime - aTime || getProfilePublicName(a).localeCompare(getProfilePublicName(b), "uk");
   });
+}
+
+export type CharacterProfileLink = {
+  profileId: string;
+  displayName: string;
+};
+
+function characterProfileLinkKeys(character: ProfileCharacter) {
+  const keys = new Set<string>();
+  const existingKey = normalizeCharacterKey(character.key);
+  if (existingKey) keys.add(existingKey);
+
+  const region = character.region || "eu";
+  const realmValues = [character.realmSlug, character.realmName].filter(Boolean);
+  const nameValues = [character.normalizedName, character.name].filter(Boolean);
+
+  for (const realm of realmValues) {
+    for (const name of nameValues) {
+      const key = buildBattleNetCharacterKey(region, realm, name);
+      if (key) keys.add(key);
+    }
+  }
+
+  return keys;
+}
+
+export async function listCharacterProfileLinks() {
+  const links = new Map<string, CharacterProfileLink>();
+  if (!hasFirebaseProfileConfig()) return links;
+
+  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(1000).get();
+  const profiles = snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
+
+  for (const profile of profiles) {
+    const displayName = getProfilePublicName(profile);
+    for (const character of profile.characters) {
+      for (const key of characterProfileLinkKeys(character)) {
+        if (!links.has(key)) {
+          links.set(key, { profileId: profile.profileId, displayName });
+        }
+      }
+    }
+  }
+
+  return links;
 }
 
 export function profileFromSession(session: DashboardSession): DashboardProfile {

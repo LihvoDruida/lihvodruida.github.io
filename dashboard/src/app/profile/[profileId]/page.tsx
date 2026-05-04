@@ -13,7 +13,7 @@ import {
 } from "@/lib/raids";
 import { buildPageMetadata } from "@/lib/seo";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
-import { getSession } from "@/lib/auth";
+import { getSession, resolveDashboardRole, type DashboardSession } from "@/lib/auth";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   canViewProfileAccessDetails,
@@ -103,7 +103,7 @@ function CapabilityRow({ title, description, enabled }: { title: string; descrip
   );
 }
 
-function profileAsSession(profile: DashboardProfile) {
+function profileAsSession(profile: DashboardProfile): DashboardSession {
   return {
     provider: profile.provider,
     id: profile.providerUserId,
@@ -395,8 +395,12 @@ export default async function ProfilePage({
 }: {
   params: Promise<{ profileId: string }>;
 }) {
-  const viewer = await getSession();
-  if (!viewer) redirect("/login");
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+    throw new Error("Unauthorized");
+  }
+  const viewer: DashboardSession = session;
 
   const { profileId } = await params;
   const [initialProfile, cookieStore] = await Promise.all([
@@ -430,6 +434,7 @@ export default async function ProfilePage({
   let roles: DiscordRoleOption[] = [];
   let roleLoadError = "";
   const showAccessDetails = canViewProfileAccessDetails(viewer);
+  const discordMemberReadable = profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId) && hasDiscordEmbedConfig();
   const shouldLoadRoles = hasDiscordEmbedConfig() && showAccessDetails;
 
   if (shouldLoadRoles) {
@@ -440,10 +445,6 @@ export default async function ProfilePage({
     }
   }
 
-  const profileSession = profileAsSession(profile);
-  const capabilities = dashboardCapabilities(profile.role);
-  const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
-  const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
   const mainCharacter = getMainCharacter(profile);
   const raidRolePreference = profile.raidRolePreference || null;
   const manualRaidRole = raidRolePreference && mainCharacter && raidRolePreference.characterKey === mainCharacter.key
@@ -465,21 +466,52 @@ export default async function ProfilePage({
   const discordNicknamePreview = buildProfileDiscordNickname(profile);
   const publicNamePreview = getProfilePublicName(profile);
   const serverStyleNamePreview = getProfileServerStyleName(profile);
-  const guildStatus = guildStatusLabel(profile.role);
-  const canSyncDiscordNickname = isOwnProfile && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
+  const canSyncDiscordNickname = isOwnProfile && discordMemberReadable;
   let discordOwnerLocked = false;
   let currentServerNickname: string | null = null;
-  if (canSyncDiscordNickname && hasDiscordEmbedConfig()) {
+  let liveDiscordMember: Awaited<ReturnType<typeof fetchDiscordGuildMemberSnapshot>> | null = null;
+
+  if (discordMemberReadable && (showAccessDetails || canSyncDiscordNickname)) {
     const [guild, member] = await Promise.all([
-      fetchDiscordGuildSnapshot().catch(() => null),
+      canSyncDiscordNickname ? fetchDiscordGuildSnapshot().catch(() => null) : Promise.resolve(null),
       fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
     ]);
+    liveDiscordMember = member;
     discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
     currentServerNickname = member?.displayName || null;
   }
+
+  const liveRoleIds = Array.from(new Set((liveDiscordMember?.roleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
+  const liveDashboardRole = liveRoleIds.length ? resolveDashboardRole(liveRoleIds) : null;
+  const effectiveProfileRole = liveDashboardRole || profile.role;
+  const liveAccessState = liveRoleIds.length
+    ? liveDashboardRole
+      ? "synced"
+      : "no-access"
+    : discordMemberReadable
+      ? "unavailable"
+      : "not-discord";
+  const liveAccessDescription = liveAccessState === "synced"
+    ? "Ролі й доступ оновлені напряму з Discord-сервера."
+    : liveAccessState === "no-access"
+      ? "На Discord-сервері не знайдено ролей, які привʼязані до доступу в панелі."
+      : liveAccessState === "unavailable"
+        ? "Discord-ролі тимчасово недоступні, показано останні збережені дані профілю."
+        : "Профіль не привʼязаний до Discord-акаунта.";
+  const profileSession: DashboardSession = {
+    ...profileAsSession(profile),
+    role: effectiveProfileRole,
+    discordRoleIds: liveRoleIds.length ? liveRoleIds : profile.discordRoleIds,
+  };
+  const capabilities = dashboardCapabilities(effectiveProfileRole);
+  const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
+  const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
+  const guildStatus = guildStatusLabel(effectiveProfileRole);
   const eligibleGuildCharacters = numberOrNull(profile.battlenet?.eligibleCharacters);
-  const roleIdsFromSession = Array.from(new Set((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
-  const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(profile.role));
+  const roleIdsFromSession: string[] = Array.from(
+    new Set<string>((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))
+  );
+  const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(effectiveProfileRole));
   const accessRoleIds = roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId));
   const accessRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? [{ id: "token", label: "Резервний ключ адміністратора", position: 9999 }]
@@ -487,7 +519,7 @@ export default async function ProfilePage({
   const fallbackAccessChip = !accessRoleChips.length
     ? ({
         id: "access-fallback",
-        label: profile.role === "member" ? "Доступ через участь на Discord-сервері" : `${dashboardRoleLabel(profile.role)}`,
+        label: effectiveProfileRole === "member" ? "Доступ через участь на Discord-сервері" : `${dashboardRoleLabel(effectiveProfileRole)}`,
         position: -1,
         muted: true,
       } satisfies ProfileRoleChip)
@@ -496,6 +528,12 @@ export default async function ProfilePage({
   const otherRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? []
     : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
+  const roleAssociationCards = (["admin", "moderator", "mentor", "member"] as const).map((role) => ({
+    role,
+    label: dashboardRoleLabel(role),
+    roles: buildRoleChips(configuredRoleIdsForDashboardRole(role), roles),
+    capabilities: dashboardCapabilities(role).filter((item) => item.enabled).length,
+  }));
   const raidSignups = await listProfileRaidSignups(profile).catch(() => []);
 
   return (
@@ -530,7 +568,7 @@ export default async function ProfilePage({
             </div>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>{showAccessDetails ? siteStatusDescription(profile.role) : "Особиста панель: профіль, персонажі, рейди та правила."}</span>
+              <span>{showAccessDetails ? siteStatusDescription(effectiveProfileRole) : "Особиста панель: профіль, персонажі, рейди та правила."}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
@@ -620,8 +658,29 @@ export default async function ProfilePage({
           <p className="profile-card-lead">Зверху показані ролі, що дали доступ до панелі. Нижче — решта ролей Discord.</p>
 
           <div className="profile-access-summary" aria-label="Поточний доступ">
-            <span><strong>{dashboardRoleLabel(profile.role)}</strong><small>Поточний доступ у панелі</small></span>
+            <span><strong>{dashboardRoleLabel(effectiveProfileRole)}</strong><small>Поточний доступ у панелі</small></span>
             <span><strong>{enabledCount}/{visibleCapabilities.length}</strong><small>Доступно</small></span>
+          </div>
+
+          <small className={`profile-warning profile-warning--${liveAccessState}`}>{liveAccessDescription}</small>
+
+          <div className="profile-role-group profile-role-group--associations">
+            <div className="profile-role-group__head">
+              <strong>Discord ролі → дозволи</strong>
+              <small>live</small>
+            </div>
+            <div className="profile-role-associations" aria-label="Асоціації Discord ролей з правами панелі">
+              {roleAssociationCards.map((item) => (
+                <div className="profile-role-association" key={item.role}>
+                  <span><strong>{item.label}</strong><small>{item.capabilities} можливостей</small></span>
+                  <div className="profile-role-stack profile-role-stack--secondary">
+                    {item.roles.length ? item.roles.map((role) => (
+                      <span className="profile-role-chip profile-role-chip--secondary" key={`${item.role}-${role.id}`}>{role.label}</span>
+                    )) : <span className="profile-role-chip profile-role-chip--muted">Роль не задана в ENV</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="profile-role-group">

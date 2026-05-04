@@ -379,6 +379,7 @@ export type DiscordGuildMemberSnapshot = {
   username: string | null;
   globalName: string | null;
   displayName: string;
+  roleIds: string[];
 };
 
 type DiscordEmbedInput = Record<string, unknown>;
@@ -1257,6 +1258,9 @@ export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guild
   const nick = cleanText(member?.nick, 32) || null;
   const globalName = cleanText(user.global_name, 32) || null;
   const username = cleanText(user.username, 32) || null;
+  const roleIds = Array.isArray(member?.roles)
+    ? member.roles.map((roleId: unknown) => snowflake(roleId)).filter(Boolean).slice(0, 100)
+    : [];
 
   return {
     userId,
@@ -1264,6 +1268,7 @@ export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guild
     username,
     globalName,
     displayName: nick || globalName || username || "Discord",
+    roleIds,
   };
 }
 

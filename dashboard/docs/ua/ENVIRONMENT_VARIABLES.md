@@ -65,6 +65,7 @@
 | `DISCORD_GUILD_NAME` | optional | Fallback назва гільдії/сервера. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Ролі, які дають admin/гільдмайстер доступ. |
 | `DISCORD_MENTOR_ROLE_IDS` | optional | Discord role ids наставників новачків. Дає read-only перегляд заявок без BattleTag. |
+| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. За замовчуванням: `90`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Ролі, які дають officer/moderator доступ. |
 | `DISCORD_MEMBER_ROLE_IDS` | optional | Ролі, які дають member доступ. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | Якщо true і member ролі не задані, пускає будь-якого учасника сервера. |

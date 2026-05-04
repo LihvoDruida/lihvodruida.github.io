@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { fetchDiscordGuildMemberSnapshot } from "@/lib/discordAdmin";
 
 export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
 
@@ -28,6 +29,70 @@ function getSessionMaxAgeSeconds() {
 }
 
 const SESSION_MAX_AGE_SECONDS = getSessionMaxAgeSeconds();
+
+type LiveDiscordAccessCacheEntry = {
+  checkedAt: number;
+  session: DashboardSession | null;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomLiveDiscordAccessCache: Map<string, LiveDiscordAccessCacheEntry> | undefined;
+}
+
+function liveDiscordAccessSyncTtlMs() {
+  const parsed = Number(process.env.DISCORD_LIVE_ACCESS_SYNC_SECONDS || 90);
+  if (!Number.isFinite(parsed)) return 90_000;
+  return Math.max(15, Math.min(900, Math.floor(parsed))) * 1000;
+}
+
+function canRefreshDiscordAccess(session: DashboardSession | null | undefined): session is DashboardSession & { provider: "discord"; id: string } {
+  return Boolean(
+    session &&
+    session.provider === "discord" &&
+    /^\d{16,25}$/.test(session.id) &&
+    String(process.env.DISCORD_BOT_TOKEN || "").trim() &&
+    String(process.env.DISCORD_GUILD_ID || "").trim()
+  );
+}
+
+async function refreshDiscordAccess(session: DashboardSession | null): Promise<DashboardSession | null> {
+  if (!canRefreshDiscordAccess(session)) return session;
+
+  const cacheKey = `${session.provider}:${session.id}`;
+  const ttlMs = liveDiscordAccessSyncTtlMs();
+  const cache = globalThis.__mistblossomLiveDiscordAccessCache || new Map<string, LiveDiscordAccessCacheEntry>();
+  globalThis.__mistblossomLiveDiscordAccessCache = cache;
+  const cached = cache.get(cacheKey);
+  if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.session;
+
+  try {
+    const member = await fetchDiscordGuildMemberSnapshot(session.id);
+    const liveRole = resolveDashboardRole(member.roleIds || []);
+    const liveSession: DashboardSession | null = liveRole
+      ? {
+          ...session,
+          name: member.displayName || session.name,
+          role: liveRole,
+          discordRoleIds: member.roleIds || [],
+        }
+      : null;
+
+    cache.set(cacheKey, { checkedAt: Date.now(), session: liveSession });
+    return liveSession;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (/^Discord API 404:/.test(message)) {
+      cache.set(cacheKey, { checkedAt: Date.now(), session: null });
+      return null;
+    }
+
+    // Discord outages must not lock everyone out. Keep the signed session,
+    // but retry soon so role changes still propagate quickly.
+    cache.set(cacheKey, { checkedAt: Date.now() - Math.floor(ttlMs * 0.75), session });
+    return session;
+  }
+}
 
 function getSecret() {
   const secret = process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || "";
@@ -171,7 +236,8 @@ export async function verifySessionToken(token?: string | null): Promise<Dashboa
 export async function getSession(): Promise<DashboardSession | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value || store.get(LEGACY_SESSION_COOKIE)?.value;
-  return verifySessionToken(token);
+  const session = await verifySessionToken(token);
+  return refreshDiscordAccess(session);
 }
 
 export async function setSession(session: DashboardSession) {
