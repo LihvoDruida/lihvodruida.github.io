@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
 import type { GuildRosterMember, GuildRosterStats, GuildScoreSegment } from "@/lib/guildRoster";
 
 type SortKey = "rio-desc" | "rio-asc" | "ilvl-desc" | "name-asc" | "rank-asc";
@@ -309,6 +309,25 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
   const [itemLevelMin, setItemLevelMin] = useState(0);
   const [itemLevelMax, setItemLevelMax] = useState(Math.ceil(stats.maxItemLevel || 0));
   const [sort, setSort] = useState<SortKey>("rio-desc");
+  const [filtersOpen, setFiltersOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const media = window.matchMedia("(max-width: 720px)");
+    const applyState = () => {
+      setFiltersOpen(!media.matches);
+    };
+
+    applyState();
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", applyState);
+      return () => media.removeEventListener("change", applyState);
+    }
+
+    media.addListener(applyState);
+    return () => media.removeListener(applyState);
+  }, []);
 
   const maxRio = Math.max(0, Math.ceil(stats.maxRioAll || 0));
   const maxItemLevel = Math.max(0, Math.ceil(stats.maxItemLevel || 0));
@@ -442,59 +461,68 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
       </section>
 
       <section className="guild-roster-layout">
-        <aside className="guild-filter-panel panel" aria-label="Фільтри складу гільдії">
+        <aside className={`guild-filter-panel panel ${filtersOpen ? "is-open" : "is-collapsed"}`} aria-label="Фільтри складу гільдії">
           <div className="guild-filter-head">
             <div>
               <span className="eyebrow">Фільтри</span>
               <h2>Пошук по складу</h2>
             </div>
-            <button type="button" onClick={resetFilters}>Скинути</button>
+            <div className="guild-filter-head__actions">
+              <button type="button" className="guild-filter-toggle" onClick={() => setFiltersOpen((value) => !value)} aria-expanded={filtersOpen}>
+                {filtersOpen ? "Згорнути" : "Показати"}
+              </button>
+              <button type="button" className="guild-filter-reset" onClick={resetFilters}>Скинути</button>
+            </div>
           </div>
 
-          <label className="guild-filter-field guild-filter-field--wide">
-            <span>Пошук</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Нік, клас, спек, реалм…" />
-          </label>
+          {filtersOpen ? (
+            <div className="guild-filter-body">
+              <label className="guild-filter-field guild-filter-field--wide">
+                <span>Пошук</span>
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Нік, клас, спек, реалм…" />
+              </label>
 
-          <RangeFilter
-            label="RIO"
-            minValue={rioMin}
-            maxValue={rioMax}
-            absoluteMin={0}
-            absoluteMax={maxRio}
-            onMinChange={setRioMin}
-            onMaxChange={setRioMax}
-          />
+              <RangeFilter
+                label="RIO"
+                minValue={rioMin}
+                maxValue={rioMax}
+                absoluteMin={0}
+                absoluteMax={maxRio}
+                onMinChange={setRioMin}
+                onMaxChange={setRioMax}
+              />
 
-          <RangeFilter
-            label="Item level"
-            minValue={itemLevelMin}
-            maxValue={itemLevelMax}
-            absoluteMin={0}
-            absoluteMax={maxItemLevel}
-            onMinChange={setItemLevelMin}
-            onMaxChange={setItemLevelMax}
-          />
+              <RangeFilter
+                label="Item level"
+                minValue={itemLevelMin}
+                maxValue={itemLevelMax}
+                absoluteMin={0}
+                absoluteMax={maxItemLevel}
+                onMinChange={setItemLevelMin}
+                onMaxChange={setItemLevelMax}
+              />
 
-          <FilterSelect label="Клас" value={classFilter} options={options.classes} onChange={setClassFilter} />
-          <FilterSelect label="Спек" value={specFilter} options={options.specs} onChange={setSpecFilter} />
-          <FilterSelect label="Роль" value={roleFilter} options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]} onChange={setRoleFilter} />
-          <FilterSelect label="Фракція" value={factionFilter} options={options.factions} onChange={setFactionFilter} />
-          <label className="guild-filter-field">
-            <span>Сортування</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
-              <option value="rio-desc">RIO: від більшого</option>
-              <option value="rio-asc">RIO: від меншого</option>
-              <option value="ilvl-desc">Item level: від більшого</option>
-              <option value="name-asc">Ім’я: А–Я</option>
-              <option value="rank-asc">Гільдійний ранг</option>
-            </select>
-          </label>
+              <FilterSelect label="Клас" value={classFilter} options={options.classes} onChange={setClassFilter} />
+              <FilterSelect label="Спек" value={specFilter} options={options.specs} onChange={setSpecFilter} />
+              <FilterSelect label="Роль" value={roleFilter} options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]} onChange={setRoleFilter} />
+              <FilterSelect label="Фракція" value={factionFilter} options={options.factions} onChange={setFactionFilter} />
+              <label className="guild-filter-field">
+                <span>Сортування</span>
+                <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
+                  <option value="rio-desc">RIO: від більшого</option>
+                  <option value="rio-asc">RIO: від меншого</option>
+                  <option value="ilvl-desc">Item level: від більшого</option>
+                  <option value="name-asc">Ім’я: А–Я</option>
+                  <option value="rank-asc">Гільдійний ранг</option>
+                </select>
+              </label>
 
-          <div className="guild-filter-source">
-            <span>Джерело: {source}</span>
-            {stats.updatedAt ? <span>Оновлено: {stats.updatedAt}</span> : null}
-          </div>
+              <div className="guild-filter-source">
+                <span>Джерело: {source}</span>
+                {stats.updatedAt ? <span>Оновлено: {stats.updatedAt}</span> : null}
+              </div>
+            </div>
+          ) : null}
         </aside>
 
         <section className="guild-roster-main" aria-label="Список персонажів гільдії">
@@ -546,12 +574,21 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                     <div className="guild-member-score">
                       <small>RAIDER.IO M+</small>
                       <strong>{formatNumber(score, 1)}</strong>
+                      <div className="guild-member-metrics">
+                        <span className="guild-member-metric guild-member-metric--rio">
+                          <small>{SEGMENT_LABELS[segment]}</small>
+                          <strong>{formatNumber(score)}</strong>
+                        </span>
+                        <span className="guild-member-metric guild-member-metric--ilvl">
+                          <small>ILVL</small>
+                          <strong>{member.itemLevel || "—"}</strong>
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="guild-member-side">
                     <div className="guild-member-tags">
                       <span className={`guild-role-tag guild-role-tag--${member.role}`}>{roleShort(member.role)}</span>
-                      <span className="guild-ilvl-tag">{member.itemLevel || "—"}</span>
                       <span className={`guild-faction-tag guild-faction-tag--${member.faction.toLowerCase()}`}>{member.faction}</span>
                     </div>
                     <SegmentBadges member={member} activeSegment={segment} />

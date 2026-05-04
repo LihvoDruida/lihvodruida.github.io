@@ -21273,15 +21273,48 @@ a.profile-directory-card small,
   gap: 12px;
 }
 
-.guild-filter-head button {
-  min-height: 34px;
-  padding: 0 12px;
+.guild-filter-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.guild-filter-toggle,
+.guild-filter-reset {
+  min-height: 36px;
+  padding: 0 14px;
   border: 1px solid rgba(214, 168, 79, 0.25);
   border-radius: 999px;
   background: rgba(214, 168, 79, 0.10);
   color: var(--gold-bright);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.guild-filter-toggle:hover,
+.guild-filter-reset:hover {
+  transform: translateY(-1px);
+  border-color: rgba(214, 168, 79, 0.46);
+  background: rgba(214, 168, 79, 0.16);
+}
+
+.guild-filter-toggle {
+  background: rgba(153, 80, 255, 0.14);
+  border-color: rgba(153, 80, 255, 0.32);
+  color: #d8b0ff;
+}
+
+.guild-filter-toggle:hover {
+  border-color: rgba(153, 80, 255, 0.46);
+  background: rgba(153, 80, 255, 0.18);
+}
+
+.guild-filter-body {
+  display: grid;
+  gap: 12px;
 }
 
 .guild-filter-field {
@@ -21471,14 +21504,14 @@ a.profile-directory-card small,
   z-index: 1;
   display: grid;
   gap: 4px;
-  min-height: 58px;
+  min-height: 60px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.03));
   color: var(--text);
   text-align: left;
   padding: 10px 12px;
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
 .guild-segment-tabs button:hover,
@@ -21486,6 +21519,7 @@ a.profile-directory-card small,
   transform: translateY(-1px);
   border-color: rgba(177, 90, 255, 0.55);
   background: rgba(128, 75, 255, 0.16);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .guild-segment-tabs strong {
@@ -21615,7 +21649,7 @@ a.profile-directory-card small,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: -0.03em;
 }
@@ -21635,14 +21669,15 @@ a.profile-directory-card small,
 .guild-member-main p {
   margin: 7px 0 0;
   color: var(--text);
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .guild-member-score {
   margin-top: 12px;
 }
 
-.guild-member-score small {
+.guild-member-score > small {
   display: block;
   color: var(--muted);
   font-size: 11px;
@@ -21650,13 +21685,62 @@ a.profile-directory-card small,
   letter-spacing: 0.06em;
 }
 
-.guild-member-score strong {
+.guild-member-score > strong {
   display: block;
   margin-top: 4px;
   color: #b95cff;
   font-size: clamp(24px, 4vw, 30px);
   line-height: 1;
   letter-spacing: -0.05em;
+}
+
+.guild-member-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.guild-member-metric {
+  display: inline-grid;
+  gap: 2px;
+  min-width: 86px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.045);
+  text-align: center;
+}
+
+.guild-member-metric small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.guild-member-metric strong {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.guild-member-metric--rio {
+  border-color: rgba(185, 92, 255, 0.45);
+  background: rgba(185, 92, 255, 0.16);
+}
+
+.guild-member-metric--rio strong {
+  color: #cf60ff;
+}
+
+.guild-member-metric--ilvl {
+  border-color: rgba(214, 168, 79, 0.35);
+  background: rgba(214, 168, 79, 0.12);
+}
+
+.guild-member-metric--ilvl strong {
+  color: var(--gold-bright);
 }
 
 .guild-member-side {
@@ -21758,8 +21842,8 @@ a.profile-directory-card small,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  padding: 0 12px;
+  min-height: 34px;
+  padding: 0 14px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 900;
@@ -21828,6 +21912,21 @@ a.profile-directory-card small,
 @media (max-width: 720px) {
   .guild-page {
     width: min(100% - 18px, 1180px);
+  }
+
+  .guild-filter-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .guild-filter-head__actions {
+    width: 100%;
+  }
+
+  .guild-filter-toggle,
+  .guild-filter-reset {
+    flex: 1 1 0;
+    justify-content: center;
   }
 
   .guild-hero,
@@ -21927,6 +22026,15 @@ a.profile-directory-card small,
   .guild-score-badges span {
     min-width: 64px;
     padding: 6px 8px;
+  }
+
+  .guild-member-metrics {
+    gap: 6px;
+  }
+
+  .guild-member-metric {
+    min-width: 74px;
+    padding: 7px 10px;
   }
 
   .guild-member-side a,
