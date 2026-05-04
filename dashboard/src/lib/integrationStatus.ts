@@ -1,6 +1,6 @@
 import { checkBattleNetApplicationAccess, getDefaultBattleNetRegion } from "@/lib/battlenet";
 import { discordApi, getDiscordGuildId, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
-import { hasПрофіліProfileConfig, getПрофіліAdminDb } from "@/lib/firebaseAdmin";
+import { hasFirebaseProfileConfig, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
 import { githubFetch } from "@/lib/github";
 
 export type IntegrationState = "ok" | "warning" | "error" | "unconfigured";
@@ -75,14 +75,14 @@ async function checkGitHub(checkedAt: string): Promise<IntegrationStatusItem> {
   }
 }
 
-async function checkПрофілі(checkedAt: string): Promise<IntegrationStatusItem> {
-  if (!hasПрофіліProfileConfig()) {
+async function checkFirebaseProfiles(checkedAt: string): Promise<IntegrationStatusItem> {
+  if (!hasFirebaseProfileConfig()) {
     return item("firebase", "Профілі", "unconfigured", "потребує уваги", checkedAt);
   }
 
   try {
-    const db = getПрофіліAdminDb();
-    await db.collection("profiles").limit(1).get();
+    const db = getFirebaseAdminDb();
+    await db.collection("dashboardProfiles").limit(1).get();
     return item("firebase", "Профілі", "ok", "працює", checkedAt);
   } catch (error) {
     return item("firebase", "Профілі", "error", safeMessage(error, "Профілі тимчасово недоступні"), checkedAt);
@@ -95,7 +95,7 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
     checkDiscord(checkedAt),
     checkBattleNet(checkedAt),
     checkGitHub(checkedAt),
-    checkПрофілі(checkedAt),
+    checkFirebaseProfiles(checkedAt),
   ]);
 
   const fallbackKeys: Array<[IntegrationStatusItem["key"], string]> = [
