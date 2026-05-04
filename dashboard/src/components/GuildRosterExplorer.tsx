@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
 import type { GuildRosterMember, GuildRosterStats, GuildScoreSegment } from "@/lib/guildRoster";
 
 type SortKey = "rio-desc" | "rio-asc" | "ilvl-desc" | "name-asc" | "rank-asc";
@@ -130,6 +130,107 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
         {options.map((option) => <option value={option} key={option}>{option}</option>)}
       </select>
     </label>
+  );
+}
+
+function clampValue(value: number, min: number, max: number) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(max, Math.max(min, value));
+}
+
+function parseNumberInput(event: ChangeEvent<HTMLInputElement>, fallback: number) {
+  const raw = event.target.value.trim();
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return fallback;
+  return parsed;
+}
+
+function RangeFilter({
+  label,
+  minValue,
+  maxValue,
+  absoluteMin,
+  absoluteMax,
+  onMinChange,
+  onMaxChange,
+}: {
+  label: string;
+  minValue: number;
+  maxValue: number;
+  absoluteMin: number;
+  absoluteMax: number;
+  onMinChange: (value: number) => void;
+  onMaxChange: (value: number) => void;
+}) {
+  const safeAbsoluteMax = Math.max(absoluteMin, absoluteMax);
+  const safeMin = clampValue(minValue, absoluteMin, safeAbsoluteMax);
+  const safeMax = clampValue(maxValue, absoluteMin, safeAbsoluteMax);
+  const low = Math.min(safeMin, safeMax);
+  const high = Math.max(safeMin, safeMax);
+  const span = Math.max(1, safeAbsoluteMax - absoluteMin);
+  const startPercent = ((low - absoluteMin) / span) * 100;
+  const endPercent = 100 - ((high - absoluteMin) / span) * 100;
+
+  return (
+    <div className="guild-range-group">
+      <div className="guild-range-head">
+        <span>{label}</span>
+        <strong>{formatNumber(low)} — {formatNumber(high)}</strong>
+      </div>
+
+      <div className="guild-range-inputs">
+        <label className="guild-range-value">
+          <span>від</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={absoluteMin}
+            max={safeAbsoluteMax}
+            value={safeMin}
+            onChange={(event) => onMinChange(clampValue(parseNumberInput(event, safeMin), absoluteMin, safeAbsoluteMax))}
+          />
+        </label>
+        <label className="guild-range-value">
+          <span>до</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={absoluteMin}
+            max={safeAbsoluteMax}
+            value={safeMax}
+            onChange={(event) => onMaxChange(clampValue(parseNumberInput(event, safeMax), absoluteMin, safeAbsoluteMax))}
+          />
+        </label>
+      </div>
+
+      <div
+        className="guild-dual-range"
+        style={{
+          "--range-start": `${startPercent}%`,
+          "--range-end": `${endPercent}%`,
+        } as CSSProperties}
+      >
+        <div className="guild-dual-range__line" aria-hidden="true" />
+        <div className="guild-dual-range__active" aria-hidden="true" />
+        <input
+          className="guild-dual-range__input"
+          type="range"
+          min={absoluteMin}
+          max={safeAbsoluteMax}
+          value={safeMin}
+          onChange={(event) => onMinChange(clampValue(Number(event.target.value), absoluteMin, safeAbsoluteMax))}
+        />
+        <input
+          className="guild-dual-range__input"
+          type="range"
+          min={absoluteMin}
+          max={safeAbsoluteMax}
+          value={safeMax}
+          onChange={(event) => onMaxChange(clampValue(Number(event.target.value), absoluteMin, safeAbsoluteMax))}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -355,27 +456,25 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Нік, клас, спек, реалм…" />
           </label>
 
-          <div className="guild-range-group">
-            <div className="guild-range-head">
-              <span>RIO</span>
-              <strong>{formatNumber(Math.min(rioMin, rioMax))} — {formatNumber(Math.max(rioMin, rioMax))}</strong>
-            </div>
-            <div className="guild-range-row">
-              <input type="range" min={0} max={maxRio} value={Math.min(rioMin, maxRio)} onChange={(event) => setRioMin(Number(event.target.value))} />
-              <input type="range" min={0} max={maxRio} value={Math.min(rioMax, maxRio)} onChange={(event) => setRioMax(Number(event.target.value))} />
-            </div>
-          </div>
+          <RangeFilter
+            label="RIO"
+            minValue={rioMin}
+            maxValue={rioMax}
+            absoluteMin={0}
+            absoluteMax={maxRio}
+            onMinChange={setRioMin}
+            onMaxChange={setRioMax}
+          />
 
-          <div className="guild-range-group">
-            <div className="guild-range-head">
-              <span>Item level</span>
-              <strong>{formatNumber(Math.min(itemLevelMin, itemLevelMax))} — {formatNumber(Math.max(itemLevelMin, itemLevelMax))}</strong>
-            </div>
-            <div className="guild-range-row">
-              <input type="range" min={0} max={maxItemLevel} value={Math.min(itemLevelMin, maxItemLevel)} onChange={(event) => setItemLevelMin(Number(event.target.value))} />
-              <input type="range" min={0} max={maxItemLevel} value={Math.min(itemLevelMax, maxItemLevel)} onChange={(event) => setItemLevelMax(Number(event.target.value))} />
-            </div>
-          </div>
+          <RangeFilter
+            label="Item level"
+            minValue={itemLevelMin}
+            maxValue={itemLevelMax}
+            absoluteMin={0}
+            absoluteMax={maxItemLevel}
+            onMinChange={setItemLevelMin}
+            onMaxChange={setItemLevelMax}
+          />
 
           <FilterSelect label="Клас" value={classFilter} options={options.classes} onChange={setClassFilter} />
           <FilterSelect label="Спек" value={specFilter} options={options.specs} onChange={setSpecFilter} />
@@ -434,8 +533,10 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
               const score = member.scores[segment] || 0;
               return (
                 <article className={`guild-member-card panel guild-member-card--${member.role}`} key={member.key}>
-                  <div className="guild-member-rank">#{index + 1}</div>
-                  <CharacterAvatar member={member} />
+                  <div className="guild-member-leading">
+                    <CharacterAvatar member={member} />
+                    <div className="guild-member-rank">#{index + 1}</div>
+                  </div>
                   <div className="guild-member-main">
                     <div className="guild-member-title">
                       <h3 style={{ color: classColor(member.className) }}>{member.name}</h3>
