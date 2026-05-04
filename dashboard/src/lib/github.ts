@@ -275,6 +275,72 @@ function extract(body: string, pattern: RegExp) {
   return (String(body || "").match(pattern)?.[1] || "").trim();
 }
 
+function isRedactedBattleTagValue(value: string) {
+  return /приховано|hidden|redacted/i.test(value);
+}
+
+function cleanBattleTagCandidate(value: unknown) {
+  const clean = stripDiscordMarker(String(value || ""))
+    .replace(/^`+|`+$/g, "")
+    .replace(/^\*+|\*+$/g, "")
+    .replace(/^>+\s*/g, "")
+    .trim()
+    .split(/\r?\n/)[0]
+    .trim();
+
+  if (!clean || isRedactedBattleTagValue(clean)) return null;
+
+  const direct = clean.match(/[\p{L}\p{N}_-]{2,32}#\d{3,6}/u)?.[0] || "";
+  return direct && !isRedactedBattleTagValue(direct) ? direct.trim() : null;
+}
+
+function extractBattleTag(body: string) {
+  const text = String(body || "");
+
+  const metadataPatterns = [
+    /["']?battle[_-]?tag["']?\s*[:=]\s*["']([^"'\n,}]+)["']/im,
+    /["']?battletag["']?\s*[:=]\s*["']([^"'\n,}]+)["']/im,
+    /<!--\s*mistblossom:(?:application|guild-application|battletag|battle-tag)\s+({[\s\S]*?})\s*-->/im,
+  ];
+
+  for (const pattern of metadataPatterns) {
+    const match = text.match(pattern);
+    const rawValue = match?.[1] || "";
+
+    if (rawValue.trim().startsWith("{")) {
+      try {
+        const parsed = JSON.parse(rawValue);
+        const candidate = cleanBattleTagCandidate(parsed.battle_tag || parsed.battleTag || parsed.battletag || parsed.bnet_tag || parsed.bnetTag);
+        if (candidate) return candidate;
+      } catch {
+        // Continue with visible body patterns.
+      }
+    } else {
+      const candidate = cleanBattleTagCandidate(rawValue);
+      if (candidate) return candidate;
+    }
+  }
+
+  const labelPatterns = [
+    /^\s*(?:[-*•]\s*)?(?:\*\*)?Battle\s*Tag(?:\*\*)?\s*[:：-]\s*(.+)$/gim,
+    /^\s*(?:[-*•]\s*)?(?:\*\*)?Battle\.net(?:\s*(?:tag|тег))?(?:\*\*)?\s*[:：-]\s*(.+)$/gim,
+    /^\s*(?:[-*•]\s*)?(?:\*\*)?BNet(?:\s*(?:tag|тег))?(?:\*\*)?\s*[:：-]\s*(.+)$/gim,
+    /^\s*(?:[-*•]\s*)?(?:\*\*)?Батл(?:\.net|нет)?\s*(?:тег|tag)?(?:\*\*)?\s*[:：-]\s*(.+)$/gim,
+    /^\s*(?:[-*•]\s*)?(?:\*\*)?Бател\s*тег(?:\*\*)?\s*[:：-]\s*(.+)$/gim,
+    /^\s*#{1,6}\s*(?:Battle\s*Tag|Battle\.net|BNet|Батл(?:\.net|нет)?\s*(?:тег|tag)?|Бател\s*тег)\s*\r?\n([^#\r\n]+)/gim,
+    /^\s*\|\s*(?:Battle\s*Tag|Battle\.net|BNet|Батл(?:\.net|нет)?\s*(?:тег|tag)?|Бател\s*тег)\s*\|\s*([^|\r\n]+)\s*\|/gim,
+  ];
+
+  for (const pattern of labelPatterns) {
+    pattern.lastIndex = 0;
+    const match = pattern.exec(text);
+    const candidate = cleanBattleTagCandidate(match?.[1]);
+    if (candidate) return candidate;
+  }
+
+  return cleanBattleTagCandidate(text);
+}
+
 function stripDiscordMarker(value: string) {
   return String(value || "")
     .replace(/<!--\s*mistblossom:discord[\s\S]*?-->/gi, "")
@@ -479,7 +545,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     class_name: extract(body, /- Клас: (.+)/),
     source: extract(body, /- Звідки дізнався: (.+)/),
     availability: extractAvailability(body),
-    battle_tag: extract(body, /- BattleTag: (.+)/i) || extract(body, /- Battle\.net: (.+)/i) || extract(body, /- Батл(?:\.net|нет)?(?: тег|Tag)?: (.+)/i) || null,
+    battle_tag: extractBattleTag(body),
     avatar_url: null,
     profile_url: null,
     raider_io: null,

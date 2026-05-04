@@ -94,21 +94,43 @@ export function siteStatusDescription(role: DashboardRole) {
 }
 
 export function canViewApplications(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator" || session.role === "mentor"));
+  if (!session) return false;
+  if (session.role === "admin" || session.role === "moderator" || session.role === "mentor") return true;
+
+  return hasAnyConfiguredRoleId(session, ["admin", "moderator", "mentor"]);
+}
+
+function hasAnyConfiguredRoleId(session: DashboardSession | null | undefined, roles: DashboardRole[]) {
+  if (!session?.discordRoleIds?.length) return false;
+
+  const allowedRoleIds = new Set(
+    roles.flatMap((role) => configuredRoleIdsForDashboardRole(role))
+  );
+
+  if (!allowedRoleIds.size) return false;
+
+  return session.discordRoleIds.some((roleId) => allowedRoleIds.has(String(roleId || "").trim()));
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  if (!session) return false;
+  if (session.role === "admin" || session.role === "moderator") return true;
+
+  // Defensive fallback for already-issued Discord sessions: if the visible role label
+  // and the stored role id list ever get out of sync, application moderation must
+  // follow the configured admin/moderator role ids, not the lower display role.
+  return hasAnyConfiguredRoleId(session, ["admin", "moderator"]);
 }
 
 export function canViewApplicationBattleTag(session: DashboardSession | null | undefined) {
-  // BattleTag is a contact/sensitive field. It is visible only to roles that
-  // can make application decisions. Mentor/member views must never receive it.
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  // BattleTag visibility intentionally follows the same privileged access as
+  // application moderation. Mentors can inspect applications, but never receive
+  // this contact field.
+  return canManageApplications(session);
 }
 
 export function canViewApplicationSensitiveFields(session: DashboardSession | null | undefined) {
-  return canViewApplicationBattleTag(session);
+  return canManageApplications(session);
 }
 
 export function canManageGeneralEmbeds(session: DashboardSession | null | undefined) {

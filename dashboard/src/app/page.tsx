@@ -224,7 +224,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
               <div className="details-grid">
                 <div className="detail-box"><span>Звідки дізнався</span><strong>{item.source || "Не вказано"}</strong></div>
-                {mayViewSensitiveApplications && item.battle_tag ? <div className="detail-box"><span>BattleTag</span><strong>{item.battle_tag}</strong></div> : null}
+                {mayViewSensitiveApplications ? <div className="detail-box"><span>BattleTag</span><strong>{item.battle_tag || "Не вказано"}</strong></div> : null}
                 <div className="detail-box"><span>Коли грає</span><strong>{item.availability || "Не вказано"}</strong></div>
               </div>
 
