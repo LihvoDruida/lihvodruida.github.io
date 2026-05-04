@@ -57,7 +57,7 @@ Dashboard — це приватна адмін-панель для гільді�
 
 ## Склад гільдії
 
-Сторінка `/guild` доступна учасникам, офіцерам і гільдмайстру. Вона показує live-склад гільдії без попередньо згенерованих файлів:
+Сторінка `/guild` доступна учасникам, наставникам новачків, офіцерам і гільдмайстру. Вона показує live-склад гільдії без попередньо згенерованих файлів:
 
 - список персонажів із Battle.net Guild Roster API;
 - Raider.IO M+ рейтинги `ALL`, `DPS`, `HEALER`, `TANK`;
@@ -66,7 +66,7 @@ Dashboard — це приватна адмін-панель для гільді�
 - блоки “Тип броні” та “Середній RIO гільдії”;
 - фільтри за RIO, item level, класом, спеком, роллю, фракцією та пошуком.
 
-Оновлення працює через runtime endpoint `/api/guild/refresh`. Результат кешується у Firebase Firestore або в in-memory cache, якщо Firebase не налаштований.
+Оновлення працює через runtime endpoint `/api/guild/refresh`. Результат кешується у Firebase Firestore або в in-memory cache, якщо Firebase не налаштований. Привʼязки персонажів до профілів кешуються через `PROFILE_CHARACTER_LINK_CACHE_SECONDS` і не створюються, якщо один персонаж знайдений у кількох профілях.
 
 ## 3. Авторизація
 
@@ -78,7 +78,7 @@ Dashboard — це приватна адмін-панель для гільді�
 
 1. перевіряє Discord user id;
 2. отримує ролі користувача на сервері;
-3. зіставляє ролі з `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_MEMBER_ROLE_IDS`;
+3. зіставляє ролі з `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_MEMBER_ROLE_IDS` з пріоритетом admin > moderator > mentor > member;
 4. створює підписану server-side session cookie;
 5. створює або оновлює профіль у Firebase.
 

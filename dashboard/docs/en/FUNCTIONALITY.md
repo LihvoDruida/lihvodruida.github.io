@@ -57,7 +57,7 @@ An admin can see and manage everything:
 
 ## Guild roster
 
-The `/guild` page is available to members, officers, and admins. It shows a live guild roster without pre-generated files:
+The `/guild` page is available to members, newcomer mentors, officers, and admins. It shows a live guild roster without pre-generated files:
 
 - character list from the Battle.net Guild Roster API;
 - Raider.IO M+ ratings for `ALL`, `DPS`, `HEALER`, `TANK`;
@@ -66,7 +66,7 @@ The `/guild` page is available to members, officers, and admins. It shows a live
 - “Armor type” and “Average guild RIO” statistic blocks;
 - filters for RIO, item level, class, spec, role, faction, and text search.
 
-Refreshes run through the runtime endpoint `/api/guild/refresh`. The result is cached in Firebase Firestore or in in-memory cache when Firebase is not configured.
+Refreshes run through the runtime endpoint `/api/guild/refresh`. The result is cached in Firebase Firestore or in in-memory cache when Firebase is not configured. Character-to-profile links are cached with `PROFILE_CHARACTER_LINK_CACHE_SECONDS` and are omitted when the same character appears in multiple profiles.
 
 ## 3. Authentication
 
@@ -78,7 +78,7 @@ After login, the system:
 
 1. validates the Discord user id;
 2. fetches the user's guild roles;
-3. maps the roles to `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, and `DISCORD_MEMBER_ROLE_IDS`;
+3. maps the roles to `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, and `DISCORD_MEMBER_ROLE_IDS` with priority admin > moderator > mentor > member;
 4. creates a signed server-side session cookie;
 5. creates or updates the Firebase profile.
 

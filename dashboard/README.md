@@ -69,6 +69,7 @@ DISCORD_ADMIN_ROLE_IDS=
 DISCORD_MODERATOR_ROLE_IDS=
 DISCORD_MENTOR_ROLE_IDS=
 DISCORD_LIVE_ACCESS_SYNC_SECONDS=90
+DISCORD_ROLES_CACHE_SECONDS=300
 DISCORD_BOT_TOKEN=
 
 GITHUB_OWNER=LihvoDruida
@@ -104,6 +105,7 @@ See the full environment documentation for all variables and Worker sharing note
 
 - **Member:** profile, characters, raids, signup, rules.
 - **Newcomer mentor:** all member rights plus read-only applications without BattleTag/source links.
+- Live role sync requires `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID`; if Discord is temporarily unavailable, admin/moderator/mentor sessions are downgraded to member until the next successful check.
 - **Officer:** applications, profiles, raids, rosters, moderation, Discord embeds.
 - **Guildmaster:** full access, rules, content, system status.
 
@@ -117,7 +119,7 @@ See the full environment documentation for all variables and Worker sharing note
 
 ## Guild roster `/guild`
 
-The `/guild` page is available to every authenticated dashboard role: member, moderator, and admin.
+The `/guild` page is available to every authenticated dashboard role: member, newcomer mentor, moderator, and admin. Character cards link to the owner profile only when the character is uniquely associated with one profile; duplicate ownership is intentionally left unlinked.
 It displays a live guild roster from the Battle.net Guild Roster API and Raider.IO: `ALL`, `DPS`, `HEALER`, `TANK` RIO, item level, class, spec, role, faction, and Raider.IO profile links.
 
 The dashboard no longer depends on `scripts/update_guild.py` or generated files for this page. Runtime code fetches the roster server-side, stores the result in Firebase cache, and falls back to short in-memory cache when Firebase is not configured.
@@ -129,6 +131,7 @@ GUILD_ROSTER_REGION=eu
 GUILD_ROSTER_REALM=terokkar
 GUILD_ROSTER_NAME=Mistblossom Vanguard
 GUILD_ROSTER_CACHE_TTL_SECONDS=1800
+PROFILE_CHARACTER_LINK_CACHE_SECONDS=120
 GUILD_ROSTER_REFRESH_CONCURRENCY=6
 GUILD_ROSTER_MEMBER_LIMIT=500
 RAIDERIO_ACCESS_KEY=

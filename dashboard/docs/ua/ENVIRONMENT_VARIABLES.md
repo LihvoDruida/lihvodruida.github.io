@@ -65,7 +65,8 @@
 | `DISCORD_GUILD_NAME` | optional | Fallback назва гільдії/сервера. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Ролі, які дають admin/гільдмайстер доступ. |
 | `DISCORD_MENTOR_ROLE_IDS` | optional | Discord role ids наставників новачків. Дає read-only перегляд заявок без BattleTag. |
-| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. За замовчуванням: `90`. |
+| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. Потребує `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Підвищені сесії знижуються до member, якщо Discord тимчасово недоступний. За замовчуванням: `90`. |
+| `DISCORD_ROLES_CACHE_SECONDS` | optional | TTL кешу назв Discord-ролей для превʼю доступу в профілі. За замовчуванням: `300`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Ролі, які дають officer/moderator доступ. |
 | `DISCORD_MEMBER_ROLE_IDS` | optional | Ролі, які дають member доступ. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | Якщо true і member ролі не задані, пускає будь-якого учасника сервера. |
@@ -141,6 +142,7 @@
 | `GUILD_ROSTER_NAME` | optional | Назва гільдії для live-складу, fallback на `WOW_GUILD_NAME`. |
 | `GUILD_ROSTER_CACHE_TTL_SECONDS` | optional | TTL кешу складу гільдії у Firebase/in-memory, default 1800 секунд. |
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Concurrency оновлення персонажів Raider.IO для `/guild`. |
+| `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | TTL кешу привʼязок персонаж -> профіль на `/guild`. Дублікати навмисно не лінкуються. За замовчуванням: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Максимум персонажів для одного оновлення складу. |
 
 ### Raider.IO і продуктивність

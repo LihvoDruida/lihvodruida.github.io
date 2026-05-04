@@ -69,6 +69,7 @@ DISCORD_ADMIN_ROLE_IDS=
 DISCORD_MODERATOR_ROLE_IDS=
 DISCORD_MENTOR_ROLE_IDS=
 DISCORD_LIVE_ACCESS_SYNC_SECONDS=90
+DISCORD_ROLES_CACHE_SECONDS=300
 DISCORD_BOT_TOKEN=
 
 GITHUB_OWNER=LihvoDruida
@@ -104,6 +105,7 @@ NEXT_PUBLIC_RAID_TIME_ZONE=Europe/Kyiv
 
 - **Учасник:** профіль, персонажі, рейди, запис, правила.
 - **Наставник новачків:** усі права учасника + перегляд заявок без BattleTag і без посилання на джерело заявки.
+- Live-sync ролей потребує `DISCORD_BOT_TOKEN` і `DISCORD_GUILD_ID`; якщо Discord тимчасово недоступний, admin/moderator/mentor-сесії знижуються до member до наступної успішної перевірки.
 - **Офіцер:** заявки, профілі, рейди, склади, модерація, Discord embed.
 - **Гільдмайстер:** повний доступ, правила, контент, системні статуси.
 
@@ -117,7 +119,7 @@ NEXT_PUBLIC_RAID_TIME_ZONE=Europe/Kyiv
 
 ## Склад гільдії `/guild`
 
-Сторінка `/guild` доступна всім авторизованим ролям dashboard: учасникам, офіцерам і гільдмайстру.
+Сторінка `/guild` доступна всім авторизованим ролям dashboard: учасникам, наставникам новачків, офіцерам і гільдмайстру. Картка персонажа веде на профіль власника тільки тоді, коли персонаж однозначно привʼязаний до одного профілю; дублікати навмисно не лінкуються.
 Вона показує живий склад гільдії з Battle.net Guild Roster API та Raider.IO: RIO `ALL`, `DPS`, `HEALER`, `TANK`, item level, клас, спек, роль, фракцію та посилання Raider.IO.
 
 Дані більше не залежать від `scripts/update_guild.py` або згенерованих файлів. Dashboard сам отримує склад через серверну інтеграцію, кешує результат у Firebase, а якщо Firebase не налаштований — використовує короткий in-memory cache поточного runtime.
@@ -129,6 +131,7 @@ GUILD_ROSTER_REGION=eu
 GUILD_ROSTER_REALM=terokkar
 GUILD_ROSTER_NAME=Mistblossom Vanguard
 GUILD_ROSTER_CACHE_TTL_SECONDS=1800
+PROFILE_CHARACTER_LINK_CACHE_SECONDS=120
 GUILD_ROSTER_REFRESH_CONCURRENCY=6
 GUILD_ROSTER_MEMBER_LIMIT=500
 RAIDERIO_ACCESS_KEY=

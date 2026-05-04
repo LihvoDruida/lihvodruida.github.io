@@ -417,6 +417,26 @@ export type CharacterProfileLink = {
   displayName: string;
 };
 
+type CharacterProfileLinksCacheEntry = {
+  checkedAt: number;
+  links: Map<string, CharacterProfileLink>;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomCharacterProfileLinksCache: CharacterProfileLinksCacheEntry | undefined;
+}
+
+function characterProfileLinksCacheTtlMs() {
+  const parsed = Number(process.env.PROFILE_CHARACTER_LINK_CACHE_SECONDS || 120);
+  if (!Number.isFinite(parsed)) return 120_000;
+  return Math.max(30, Math.min(900, Math.floor(parsed))) * 1000;
+}
+
+export function clearCharacterProfileLinksCache() {
+  globalThis.__mistblossomCharacterProfileLinksCache = undefined;
+}
+
 function characterProfileLinkKeys(character: ProfileCharacter) {
   const keys = new Set<string>();
   const existingKey = normalizeCharacterKey(character.key);
@@ -437,9 +457,16 @@ function characterProfileLinkKeys(character: ProfileCharacter) {
 }
 
 export async function listCharacterProfileLinks() {
-  const links = new Map<string, CharacterProfileLink>();
-  if (!hasFirebaseProfileConfig()) return links;
+  const emptyLinks = new Map<string, CharacterProfileLink>();
+  if (!hasFirebaseProfileConfig()) return emptyLinks;
 
+  const cached = globalThis.__mistblossomCharacterProfileLinksCache;
+  const ttlMs = characterProfileLinksCacheTtlMs();
+  if (cached && Date.now() - cached.checkedAt < ttlMs) {
+    return new Map(cached.links);
+  }
+
+  const contenders = new Map<string, { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }>();
   const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(1000).get();
   const profiles = snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
 
@@ -447,13 +474,30 @@ export async function listCharacterProfileLinks() {
     const displayName = getProfilePublicName(profile);
     for (const character of profile.characters) {
       for (const key of characterProfileLinkKeys(character)) {
-        if (!links.has(key)) {
-          links.set(key, { profileId: profile.profileId, displayName });
+        const existing = contenders.get(key);
+        if (!existing) {
+          contenders.set(key, {
+            link: { profileId: profile.profileId, displayName },
+            profileIds: new Set([profile.profileId]),
+            duplicate: false,
+          });
+          continue;
+        }
+
+        existing.profileIds.add(profile.profileId);
+        if (existing.profileIds.size > 1) {
+          existing.duplicate = true;
         }
       }
     }
   }
 
+  const links = new Map<string, CharacterProfileLink>();
+  for (const [key, contender] of contenders) {
+    if (!contender.duplicate) links.set(key, contender.link);
+  }
+
+  globalThis.__mistblossomCharacterProfileLinksCache = { checkedAt: Date.now(), links: new Map(links) };
   return links;
 }
 
@@ -617,6 +661,7 @@ export async function refreshProfileCharactersForRaidSignup(profile: DashboardPr
     },
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
+  clearCharacterProfileLinksCache();
 
   const snapshot = await ref.get().catch(() => null);
   return snapshot?.exists ? normalizeProfile(profile.profileId, snapshot.data() || {}) : { ...profile, characters: nextCharacters };
@@ -654,6 +699,7 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
 
+    clearCharacterProfileLinksCache();
     return { added: true, key: cleanKey };
   });
 }
@@ -715,6 +761,8 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
     }, { merge: true });
   });
 
+  if (addedKeys.length) clearCharacterProfileLinksCache();
+
   return {
     requested,
     validRequested: normalized.size,
@@ -750,6 +798,7 @@ export async function removeProfileCharacter(profileId: string, characterKey: st
 
     transaction.set(ref, updatePayload, { merge: true });
   });
+  clearCharacterProfileLinksCache();
 }
 
 export async function setMainProfileCharacter(profileId: string, characterKey: string) {

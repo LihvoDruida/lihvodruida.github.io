@@ -511,22 +511,37 @@ export async function listIssues() {
 }
 
 
+const SENSITIVE_APPLICATION_FIELD_RE = /battle[_-]?tag|battletag|bnet[_-]?tag|discord[_-]?ref|discord[_-]?message[_-]?ref/i;
+const BATTLE_TAG_TEXT_RE = /(^|[^\p{L}\p{N}_-])([\p{L}\p{N}_-]{2,32}#\d{3,6})(?=$|[^\p{L}\p{N}_-])/gu;
+
+function redactApplicationText(value: string) {
+  return value.replace(BATTLE_TAG_TEXT_RE, "$1BattleTag приховано");
+}
+
+function redactApplicationValueForReadOnlyViewer(value: unknown): unknown {
+  if (typeof value === "string") return redactApplicationText(value);
+  if (Array.isArray(value)) return value.map((item) => redactApplicationValueForReadOnlyViewer(item));
+  if (!value || typeof value !== "object") return value;
+
+  const output: Record<string, unknown> = {};
+  for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+    if (SENSITIVE_APPLICATION_FIELD_RE.test(key)) continue;
+    output[key] = redactApplicationValueForReadOnlyViewer(nestedValue);
+  }
+  return output;
+}
+
 export function sanitizeApplicationForReadOnlyViewer(item: ApplicationItem): ApplicationItem {
-  const sanitized: ApplicationItem = {
-    ...item,
+  const sanitized = redactApplicationValueForReadOnlyViewer(item) as ApplicationItem;
+
+  return {
+    ...sanitized,
     html_url: "",
     battle_tag: null,
     discord_ref: null,
     discord_message_ref: null,
+    labels: Array.isArray(sanitized.labels) ? sanitized.labels : [],
   };
-
-  for (const key of Object.keys(sanitized)) {
-    if (/battle[_-]?tag|battletag|bnet[_-]?tag/i.test(key)) {
-      delete sanitized[key];
-    }
-  }
-
-  return sanitized;
 }
 
 export function sanitizeApplicationsForReadOnlyViewer(items: ApplicationItem[]): ApplicationItem[] {

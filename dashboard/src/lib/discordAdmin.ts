@@ -382,6 +382,22 @@ export type DiscordGuildMemberSnapshot = {
   roleIds: string[];
 };
 
+type DiscordRolesCacheEntry = {
+  checkedAt: number;
+  roles: DiscordRoleOption[];
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomDiscordRolesCache: Map<string, DiscordRolesCacheEntry> | undefined;
+}
+
+function discordRolesCacheTtlMs() {
+  const parsed = Number(process.env.DISCORD_ROLES_CACHE_SECONDS || 300);
+  if (!Number.isFinite(parsed)) return 300_000;
+  return Math.max(30, Math.min(1800, Math.floor(parsed))) * 1000;
+}
+
 type DiscordEmbedInput = Record<string, unknown>;
 
 type DiscordRequestInit = Omit<RequestInit, "headers"> & {
@@ -816,18 +832,34 @@ function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapsh
 export async function fetchDiscordRoles() {
   const guildId = getDiscordGuildId();
   if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
-  const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
 
-  return roles
-    .filter((role) => role && String(role.id) !== guildId && !role.managed)
-    .map((role) => ({
-      id: String(role.id),
-      name: String(role.name || "role"),
-      color: Number(role.color || 0),
-      position: Number(role.position || 0),
-      managed: Boolean(role.managed),
-    } satisfies DiscordRoleOption))
-    .sort((a, b) => b.position - a.position || a.name.localeCompare(b.name, "uk"));
+  const cache = globalThis.__mistblossomDiscordRolesCache || new Map<string, DiscordRolesCacheEntry>();
+  globalThis.__mistblossomDiscordRolesCache = cache;
+  const cached = cache.get(guildId);
+  const ttlMs = discordRolesCacheTtlMs();
+  if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.roles;
+
+  try {
+    const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
+    const normalized = roles
+      .filter((role) => role && String(role.id) !== guildId && !role.managed)
+      .map((role) => ({
+        id: String(role.id),
+        name: String(role.name || "role"),
+        color: Number(role.color || 0),
+        position: Number(role.position || 0),
+        managed: Boolean(role.managed),
+      } satisfies DiscordRoleOption))
+      .sort((a, b) => b.position - a.position || a.name.localeCompare(b.name, "uk"));
+
+    cache.set(guildId, { checkedAt: Date.now(), roles: normalized });
+    return normalized;
+  } catch (error) {
+    // Role names are display-only. Returning stale names is safer than making
+    // profile pages fail because Discord's roles endpoint is temporarily down.
+    if (cached?.roles?.length) return cached.roles;
+    throw error;
+  }
 }
 
 function snowflakeToBase36(id: string) {

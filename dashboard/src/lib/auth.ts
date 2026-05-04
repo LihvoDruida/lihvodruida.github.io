@@ -56,6 +56,20 @@ function canRefreshDiscordAccess(session: DashboardSession | null | undefined): 
   );
 }
 
+function isSensitiveDashboardRole(role: DashboardRole | null | undefined) {
+  return role === "admin" || role === "moderator" || role === "mentor";
+}
+
+function downgradeToSafeMemberSession(session: DashboardSession): DashboardSession {
+  return {
+    ...session,
+    role: "member",
+    // Do not keep stale Discord role ids after a failed live read. Role ids are
+    // rehydrated on the next successful Discord API check.
+    discordRoleIds: [],
+  };
+}
+
 async function refreshDiscordAccess(session: DashboardSession | null): Promise<DashboardSession | null> {
   if (!canRefreshDiscordAccess(session)) return session;
 
@@ -87,10 +101,11 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
       return null;
     }
 
-    // Discord outages must not lock everyone out. Keep the signed session,
-    // but retry soon so role changes still propagate quickly.
-    cache.set(cacheKey, { checkedAt: Date.now() - Math.floor(ttlMs * 0.75), session });
-    return session;
+    // Discord outages must not preserve elevated access from a stale cookie.
+    // Keep only safe member-level access, then retry soon.
+    const fallbackSession = isSensitiveDashboardRole(session.role) ? downgradeToSafeMemberSession(session) : session;
+    cache.set(cacheKey, { checkedAt: Date.now() - Math.floor(ttlMs * 0.75), session: fallbackSession });
+    return fallbackSession;
   }
 }
 
@@ -283,13 +298,31 @@ function splitIds(value?: string): Set<string> {
   );
 }
 
-function removeAmbiguousRoleIds(...sets: Set<string>[]) {
-  const counts = new Map<string, number>();
-  for (const set of sets) {
-    for (const roleId of set) counts.set(roleId, (counts.get(roleId) || 0) + 1);
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomDashboardRoleConfigWarnings: Set<string> | undefined;
+}
+
+function warnAmbiguousRoleIds(roleSets: Record<DashboardRole, Set<string>>) {
+  const owners = new Map<string, DashboardRole[]>();
+  for (const [role, ids] of Object.entries(roleSets) as Array<[DashboardRole, Set<string>]>) {
+    for (const roleId of ids) {
+      const current = owners.get(roleId) || [];
+      current.push(role);
+      owners.set(roleId, current);
+    }
   }
 
-  return sets.map((set) => new Set(Array.from(set).filter((roleId) => counts.get(roleId) === 1)));
+  const warned = globalThis.__mistblossomDashboardRoleConfigWarnings || new Set<string>();
+  globalThis.__mistblossomDashboardRoleConfigWarnings = warned;
+  for (const [roleId, roles] of owners) {
+    if (roles.length <= 1 || warned.has(roleId)) continue;
+    warned.add(roleId);
+    console.warn(
+      `[dashboard-auth] Discord role id ${roleId} is configured for multiple dashboard roles (${roles.join(", ")}). ` +
+      "Access will use priority: admin > moderator > mentor > member."
+    );
+  }
 }
 
 export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
@@ -298,7 +331,17 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
   const rawModeratorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
   const rawMentorRoles = splitIds(process.env.DISCORD_MENTOR_ROLE_IDS || process.env.DISCORD_NEWCOMER_MENTOR_ROLE_IDS);
   const rawMemberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
-  const [adminRoles, moderatorRoles, mentorRoles, memberRoles] = removeAmbiguousRoleIds(rawAdminRoles, rawModeratorRoles, rawMentorRoles, rawMemberRoles);
+  warnAmbiguousRoleIds({
+    admin: rawAdminRoles,
+    moderator: rawModeratorRoles,
+    mentor: rawMentorRoles,
+    member: rawMemberRoles,
+  });
+
+  const adminRoles = rawAdminRoles;
+  const moderatorRoles = rawModeratorRoles;
+  const mentorRoles = rawMentorRoles;
+  const memberRoles = rawMemberRoles;
 
   for (const role of adminRoles) {
     if (roles.has(role)) return "admin";

@@ -234,7 +234,7 @@ function RaidRolePreferenceForm({
   );
 }
 
-function CharacterCard({ character, canManage }: { character: ProfileCharacter; canManage: boolean }) {
+function CharacterCard({ character, canManage, showMainBadge }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean }) {
   const classLabel = character.className || "Клас невідомий";
   const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
   const roleLabel = wowRoleLabel(character.activeSpecRole);
@@ -242,10 +242,10 @@ function CharacterCard({ character, canManage }: { character: ProfileCharacter; 
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
 
   return (
-    <article className={`profile-character-card${character.isMain ? " is-main" : ""}`} aria-label={`${character.isMain ? "Основний персонаж" : "Персонаж"}: ${character.name}`}>
+    <article className={`profile-character-card${showMainBadge && character.isMain ? " is-main" : ""}`} aria-label={`${showMainBadge && character.isMain ? "Основний персонаж" : "Персонаж"}: ${character.name}`}>
       <div className="profile-character-artwork">
         <CharacterArtwork character={character} />
-        {character.isMain ? <span className="profile-main-badge profile-main-badge--art">Мейн</span> : null}
+        {showMainBadge && character.isMain ? <span className="profile-main-badge profile-main-badge--art">Мейн</span> : null}
       </div>
       <div className="profile-character-body">
         <div className="profile-character-title-row profile-character-title-row--stacked">
@@ -454,6 +454,7 @@ export default async function ProfilePage({
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
   const canInspectOtherProfile = !isOwnProfile && showAccessDetails;
+  const canViewPrivateProfileBlocks = isOwnProfile || showAccessDetails;
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
@@ -534,7 +535,7 @@ export default async function ProfilePage({
     roles: buildRoleChips(configuredRoleIdsForDashboardRole(role), roles),
     capabilities: dashboardCapabilities(role).filter((item) => item.enabled).length,
   }));
-  const raidSignups = await listProfileRaidSignups(profile).catch(() => []);
+  const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
 
   return (
     <main className="container">
@@ -545,7 +546,7 @@ export default async function ProfilePage({
             <div className="eyebrow">Mistblossom Vanguard • Профіль</div>
             <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">{showAccessDetails ? "Профіль, доступ, ролі Discord і персонажі Battle.net." : "Ім’я Discord, мейн-персонаж, роль для рейдів і мої записи."}</p>
+            <p className="lead">{showAccessDetails ? "Профіль, доступ, ролі Discord і персонажі Battle.net." : canViewPrivateProfileBlocks ? "Ім’я Discord, мейн-персонаж, роль для рейдів і мої записи." : "Публічна картка учасника та привʼязані персонажі гільдії."}</p>
             <div className="profile-hero-strip" aria-label="Короткий стан профілю">
               {showAccessDetails ? (
                 <>
@@ -560,15 +561,15 @@ export default async function ProfilePage({
                 <>
                   <span><strong>{guildStatus}</strong><small>Статус</small></span>
                   <span><strong>{savedCharacterCount}</strong><small>Персонажі</small></span>
-                  <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
-                  <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span>
+                  {canViewPrivateProfileBlocks ? <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span> : null}
+                  {canViewPrivateProfileBlocks ? <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span> : null}
                   <span><strong>{formatCompactDate(profile.battlenet?.lastSyncAt || mainCharacter?.lastSeenAt)}</strong><small>Оновлено</small></span>
                 </>
               )}
             </div>
             <div className="hero-secure-note content-hero-actions">
               <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>{showAccessDetails ? siteStatusDescription(effectiveProfileRole) : "Особиста панель: профіль, персонажі, рейди та правила."}</span>
+              <span>{showAccessDetails ? siteStatusDescription(effectiveProfileRole) : canViewPrivateProfileBlocks ? "Особиста панель: профіль, персонажі, рейди та правила." : "Публічний перегляд без рейдових записів, приватних ролей і технічних даних."}</span>
             </div>
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
@@ -728,22 +729,22 @@ export default async function ProfilePage({
             ) : null}
           </div>
 
-          <p className="profile-card-lead">Мейн використовується для запису на рейди. Перед записом система сама оновлює ilvl, роль і зображення з Battle.net.</p>
+          <p className="profile-card-lead">{canViewPrivateProfileBlocks ? "Мейн використовується для запису на рейди. Перед записом система сама оновлює ilvl, роль і зображення з Battle.net." : "Тут показані тільки привʼязані персонажі учасника. Рейдові записи й приватні налаштування приховані."}</p>
 
           <div className="profile-bnet-summary" aria-label="Короткий підсумок персонажів">
             <span><strong>{savedCharacterCount}</strong><small>Додано</small></span>
-            <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
-            <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span>
+            {canViewPrivateProfileBlocks ? <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span> : null}
+            {canViewPrivateProfileBlocks ? <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span> : null}
             <span><strong>{formatCompactDate(profile.battlenet?.lastSyncAt || mainCharacter?.lastSeenAt)}</strong><small>Оновлено</small></span>
-            {availableCandidates.length ? <span><strong>{availableCandidates.length}</strong><small>Можна додати</small></span> : null}
+            {canViewPrivateProfileBlocks && availableCandidates.length ? <span><strong>{availableCandidates.length}</strong><small>Можна додати</small></span> : null}
           </div>
 
-          <RaidRolePreferenceForm
+          {canViewPrivateProfileBlocks ? <RaidRolePreferenceForm
             mainCharacter={mainCharacter}
             manualRole={manualRaidRole}
             selectedRole={selectedRaidRole}
             canManage={canManageCharacters}
-          />
+          /> : null}
 
           {profile.characters.length ? (
             <>
@@ -752,7 +753,7 @@ export default async function ProfilePage({
                 <small>{savedCharacterCount}</small>
               </div>
               <div className="profile-character-list">
-                {profile.characters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} />)}
+                {profile.characters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} />)}
               </div>
             </>
           ) : (
@@ -781,7 +782,7 @@ export default async function ProfilePage({
           ) : null}
         </article>
 
-        <ProfileRaidSignups items={raidSignups} />
+        {canViewPrivateProfileBlocks ? <ProfileRaidSignups items={raidSignups} /> : null}
 
         {showAccessDetails ? <article className="panel profile-card profile-card--capabilities">
           <div className="profile-card-head profile-card-head--inline">

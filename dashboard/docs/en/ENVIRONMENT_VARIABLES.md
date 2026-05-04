@@ -65,7 +65,8 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_GUILD_NAME` | optional | Fallback guild/server name. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Roles that grant admin/guildmaster access. |
 | `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. |
-| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Default: `90`. |
+| `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Requires `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Elevated sessions downgrade to member if Discord is temporarily unavailable. Default: `90`. |
+| `DISCORD_ROLES_CACHE_SECONDS` | optional | Cache TTL for Discord role-name lookups used in profile access previews. Default: `300`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Roles that grant officer/moderator access. |
 | `DISCORD_MEMBER_ROLE_IDS` | optional | Roles that grant member access. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | If true and no member roles are set, any guild member can get member access. |
@@ -141,6 +142,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `GUILD_ROSTER_NAME` | optional | Guild name for the live roster, falls back to `WOW_GUILD_NAME`. |
 | `GUILD_ROSTER_CACHE_TTL_SECONDS` | optional | Guild roster cache TTL in Firebase/in-memory, default 1800 seconds. |
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Raider.IO character refresh concurrency for `/guild`. |
+| `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | Cache TTL for character -> owner profile links on `/guild`. Duplicates are intentionally unlinked. Default: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Max characters per roster refresh. |
 
 ### Raider.IO and performance
