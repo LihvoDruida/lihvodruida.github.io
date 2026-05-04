@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-04 17:43:01'
+  updated_at: '2026-05-04 21:10:35'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-04T13:21:23.000Z'
+  raider_io_last_crawled_at: '2026-05-04T20:49:28.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 128
+  member_count: 132
   achievement_points: 475
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,17 +52,17 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13630
-      region: 6074
+      world: 13635
+      region: 6079
       realm: 55
     heroic:
-      world: 12772
-      region: 5483
-      realm: 45
+      world: 12800
+      region: 5508
+      realm: 46
     mythic:
-      world: 7094
-      region: 3045
-      realm: 23
+      world: 7119
+      region: 3066
+      realm: 24
   blackrock-depths:
     normal:
       world: 0
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2972.9
-        color: '#0070dd'
+        score: 3020.3
+        color: '#5764e2'
       dps:
-        score: 2972.9
-        color: '#0070dd'
+        score: 3020.3
+        color: '#5764e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2972.9
-        color: '#0070dd'
+        score: 3020.3
+        color: '#5764e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1022,7 +1022,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/135/184119943-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Elderwizard
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2937.2
@@ -1909,14 +1909,14 @@ members:
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 1992.9
-        color: '#55ff3b'
+        score: 2322.8
+        color: '#50e258'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1992.9
-        color: '#55ff3b'
+        score: 2322.8
+        color: '#50e258'
       tank:
         score: 0
         color: '#ffffff'
@@ -1924,8 +1924,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1992.9
-        color: '#55ff3b'
+        score: 2322.8
+        color: '#50e258'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -2714,7 +2714,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Lightass
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3071.8
@@ -2866,8 +2866,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 277
@@ -2970,18 +2970,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Destruction
+      name: Affliction
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mólfár
-    item_level_equipped: 265
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2644.4
-        color: '#5ca6a4'
+        score: 2673.4
+        color: '#5ba1a9'
       dps:
-        score: 2644.4
-        color: '#5ca6a4'
+        score: 2673.4
+        color: '#5ba1a9'
       healer:
         score: 0
         color: '#ffffff'
@@ -2989,8 +2989,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2290.2
-        color: '#46ec47'
+        score: 2320.7
+        color: '#50e258'
       spec_1:
         score: 300.8
         color: '#f8fff5'
@@ -3178,11 +3178,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Mistweaver
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 251
+    item_level_equipped: 253
     mythic_plus_scores:
       all:
         score: 368.4
@@ -3702,7 +3702,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
-    item_level_equipped: 245
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 164.6
@@ -4641,11 +4641,11 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2794
-        color: '#4a8ac1'
+        score: 2828.5
+        color: '#3f82ca'
       dps:
-        score: 2794
-        color: '#4a8ac1'
+        score: 2828.5
+        color: '#3f82ca'
       healer:
         score: 0
         color: '#ffffff'
@@ -4659,8 +4659,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2794
-        color: '#4a8ac1'
+        score: 2828.5
+        color: '#3f82ca'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5366,7 +5366,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 281
+    item_level_equipped: 260
     mythic_plus_scores:
       all:
         score: 3091.6
@@ -5889,10 +5889,10 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2636.7
+        score: 2638.6
         color: '#5ca6a4'
       dps:
-        score: 2636.7
+        score: 2638.6
         color: '#5ca6a4'
       healer:
         score: 0
@@ -5907,7 +5907,7 @@ members:
         score: 331.8
         color: '#f6fff2'
       spec_2:
-        score: 2632
+        score: 2633.9
         color: '#5ca6a4'
       spec_3:
         score: 0
@@ -6042,14 +6042,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 276
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2828.6
-        color: '#3f82ca'
+        score: 2872.1
+        color: '#2d79d4'
       dps:
-        score: 2828.6
-        color: '#3f82ca'
+        score: 2872.1
+        color: '#2d79d4'
       healer:
         score: 0
         color: '#ffffff'
@@ -6060,8 +6060,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2828.6
-        color: '#3f82ca'
+        score: 2872.1
+        color: '#2d79d4'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6382,7 +6382,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2572.4
@@ -6645,10 +6645,10 @@ members:
     item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 0
+        score: 158.8
         color: '#ffffff'
       dps:
-        score: 0
+        score: 158.8
         color: '#ffffff'
       healer:
         score: 0
@@ -6663,7 +6663,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
+        score: 158.8
         color: '#ffffff'
       spec_3:
         score: 0
@@ -6694,14 +6694,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/82/225144146-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Misselles
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3162
-        color: '#9148eb'
+        score: 3171.3
+        color: '#9a3fec'
       dps:
-        score: 3162
-        color: '#9148eb'
+        score: 3171.3
+        color: '#9a3fec'
       healer:
         score: 0
         color: '#ffffff'
@@ -6712,8 +6712,216 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3162
-        color: '#9148eb'
+        score: 3171.3
+        color: '#9a3fec'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Darkleaf
+    id: 189160430
+    level: 80
+    realm:
+      id: 1392
+      slug: burning-steppes
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 27
+      name: Nightborne
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: null
+      role: null
+    avatar: https://eu.battle.net/wow/static/images/2d/avatar/27-0.jpg
+    profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
+    item_level_equipped: 0
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Zanzimon
+    id: 180729561
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 26
+      name: Pandaren
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/217/180729561-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
+    item_level_equipped: 263
+    mythic_plus_scores:
+      all:
+        score: 1429.1
+        color: '#9cff81'
+      dps:
+        score: 869.2
+        color: '#cfffbd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 892.4
+        color: '#cdffbb'
+      spec_0:
+        score: 892.4
+        color: '#cdffbb'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 869.2
+        color: '#cfffbd'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 2
+  character:
+    name: Zanzithor
+    id: 185900766
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 31
+      name: Zandalari Troll
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/185900766-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
+    item_level_equipped: 278
+    mythic_plus_scores:
+      all:
+        score: 3059.5
+        color: '#6560e4'
+      dps:
+        score: 3059.5
+        color: '#6560e4'
+      healer:
+        score: 326.1
+        color: '#f6fff2'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 3059.5
+        color: '#6560e4'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 326.1
+        color: '#f6fff2'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Pyatochka
+    id: 189323702
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: null
+      role: null
+    avatar: https://eu.battle.net/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+    item_level_equipped: 0
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
       spec_2:
         score: 0
         color: '#ffffff'
