@@ -14,8 +14,8 @@ export const metadata = buildPageMetadata({
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
-import { canManageApplications, canViewApplicationSensitiveFields, canViewApplications } from "@/lib/permissions";
-import { ApplicationItem, listApplicationFilterOptions, listApplications, sanitizeApplicationsForReadOnlyViewer } from "@/lib/github";
+import { canManageApplications, canViewApplicationBattleTag, canViewApplications } from "@/lib/permissions";
+import { ApplicationItem, listApplicationFilterOptions, listApplications, sanitizeApplicationsForMentorViewer } from "@/lib/github";
 import { getOwnProfilePath } from "@/lib/profiles";
 
 function formatDate(value?: string | null) {
@@ -138,13 +138,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (!user) redirect("/login");
   const mayViewApplications = canViewApplications(user);
   const mayManageApplications = canManageApplications(user);
-  const mayViewSensitiveApplications = canViewApplicationSensitiveFields(user);
+  const mayViewSensitiveApplications = canViewApplicationBattleTag(user);
   if (!mayViewApplications) redirect(await getOwnProfilePath(user));
   const params = await searchParams;
   const urlParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) urlParams.set(key, value);
   const [rawItems, filterOptions] = await Promise.all([listApplications(urlParams), listApplicationFilterOptions()]);
-  const items = mayViewSensitiveApplications ? rawItems : sanitizeApplicationsForReadOnlyViewer(rawItems);
+  const items = mayViewSensitiveApplications ? rawItems : sanitizeApplicationsForMentorViewer(rawItems);
   const counts = {
     all: items.length,
     review: items.filter((item) => item.status_key === "review").length,

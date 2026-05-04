@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { canViewApplications, canViewApplicationSensitiveFields } from "@/lib/permissions";
-import { listApplicationFilterOptions, listApplications, sanitizeApplicationsForReadOnlyViewer } from "@/lib/github";
+import { canViewApplications, canViewApplicationBattleTag } from "@/lib/permissions";
+import { listApplicationFilterOptions, listApplications, sanitizeApplicationsForMentorViewer } from "@/lib/github";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage, unauthorizedResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const [rawItems, filterOptions] = await Promise.all([listApplications(url.searchParams), listApplicationFilterOptions()]);
-    const items = canViewApplicationSensitiveFields(session) ? rawItems : sanitizeApplicationsForReadOnlyViewer(rawItems);
+    const items = canViewApplicationBattleTag(session) ? rawItems : sanitizeApplicationsForMentorViewer(rawItems);
     const counts = {
       all: items.length,
       review: items.filter((item) => item.status_key === "review").length,

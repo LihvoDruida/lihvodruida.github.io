@@ -104,7 +104,7 @@ See the full environment documentation for all variables and Worker sharing note
 ## Access roles
 
 - **Member:** profile, characters, raids, signup, rules.
-- **Newcomer mentor:** all member rights plus read-only applications without BattleTag/source links.
+- **Newcomer mentor:** all member rights plus read-only applications without BattleTag/source links. Admins and moderators keep full application data, including BattleTag.
 - Live role sync requires `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID`; if Discord is temporarily unavailable, admin/moderator/mentor sessions are downgraded to member until the next successful check.
 - **Officer:** applications, profiles, raids, rosters, moderation, Discord embeds.
 - **Guildmaster:** full access, rules, content, system status.

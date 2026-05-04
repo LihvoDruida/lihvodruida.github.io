@@ -64,7 +64,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_GUILD_ID` | required | Discord server id. |
 | `DISCORD_GUILD_NAME` | optional | Fallback guild/server name. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Roles that grant admin/guildmaster access. |
-| `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. |
+| `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. Admin/moderator roles still receive full application data. |
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Requires `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Elevated sessions downgrade to member if Discord is temporarily unavailable. Default: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | Cache TTL for Discord role-name lookups used in profile access previews. Default: `300`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Roles that grant officer/moderator access. |

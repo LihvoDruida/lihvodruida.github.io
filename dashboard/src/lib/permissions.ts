@@ -101,8 +101,14 @@ export function canManageApplications(session: DashboardSession | null | undefin
   return Boolean(session && (session.role === "admin" || session.role === "moderator"));
 }
 
+export function canViewApplicationBattleTag(session: DashboardSession | null | undefined) {
+  // BattleTag is a contact/sensitive field. It is visible only to roles that
+  // can make application decisions. Mentor/member views must never receive it.
+  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+}
+
 export function canViewApplicationSensitiveFields(session: DashboardSession | null | undefined) {
-  return canManageApplications(session);
+  return canViewApplicationBattleTag(session);
 }
 
 export function canManageGeneralEmbeds(session: DashboardSession | null | undefined) {

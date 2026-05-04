@@ -125,7 +125,7 @@ Does not log out. Returns `405`, because logout must be `POST`.
 
 Returns the GitHub Issues application list.
 
-**Access:** officer/admin for full data and actions; newcomer mentor for read-only data with BattleTag and source links removed.
+**Access:** officer/admin for full data and actions, including BattleTag; newcomer mentor for read-only data with BattleTag and source links removed.
 
 **Query:**
 

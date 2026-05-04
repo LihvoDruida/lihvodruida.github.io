@@ -64,7 +64,7 @@
 | `DISCORD_GUILD_ID` | required | Discord server id. |
 | `DISCORD_GUILD_NAME` | optional | Fallback назва гільдії/сервера. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Ролі, які дають admin/гільдмайстер доступ. |
-| `DISCORD_MENTOR_ROLE_IDS` | optional | Discord role ids наставників новачків. Дає read-only перегляд заявок без BattleTag. |
+| `DISCORD_MENTOR_ROLE_IDS` | optional | Discord role ids наставників новачків. Дає read-only перегляд заявок без BattleTag. Admin/moderator ролі й далі отримують повні дані заявки. |
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. Потребує `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Підвищені сесії знижуються до member, якщо Discord тимчасово недоступний. За замовчуванням: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | TTL кешу назв Discord-ролей для превʼю доступу в профілі. За замовчуванням: `300`. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Ролі, які дають officer/moderator доступ. |

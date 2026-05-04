@@ -15,6 +15,7 @@ export {
   canViewApplications,
   canManageApplications,
   canViewApplicationSensitiveFields,
+  canViewApplicationBattleTag,
   canManageGeneralEmbeds,
   canManageRulesEmbeds,
   canManageRaids,

@@ -531,7 +531,7 @@ function redactApplicationValueForReadOnlyViewer(value: unknown): unknown {
   return output;
 }
 
-export function sanitizeApplicationForReadOnlyViewer(item: ApplicationItem): ApplicationItem {
+export function sanitizeApplicationForMentorViewer(item: ApplicationItem): ApplicationItem {
   const sanitized = redactApplicationValueForReadOnlyViewer(item) as ApplicationItem;
 
   return {
@@ -544,9 +544,16 @@ export function sanitizeApplicationForReadOnlyViewer(item: ApplicationItem): App
   };
 }
 
-export function sanitizeApplicationsForReadOnlyViewer(items: ApplicationItem[]): ApplicationItem[] {
-  return items.map((item) => sanitizeApplicationForReadOnlyViewer(item));
+export function sanitizeApplicationsForMentorViewer(items: ApplicationItem[]): ApplicationItem[] {
+  return items.map((item) => sanitizeApplicationForMentorViewer(item));
 }
+
+/**
+ * Backward-compatible alias. Prefer sanitizeApplicationsForMentorViewer for new code,
+ * so it is clear that this DTO is only for mentor/member read-only views.
+ */
+export const sanitizeApplicationForReadOnlyViewer = sanitizeApplicationForMentorViewer;
+export const sanitizeApplicationsForReadOnlyViewer = sanitizeApplicationsForMentorViewer;
 
 export async function listApplicationFilterOptions() {
   const issues = await listIssues();
