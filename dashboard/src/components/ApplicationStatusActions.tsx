@@ -126,6 +126,7 @@ export default function ApplicationStatusActions({
       {!locked ? (
         <div className="action-row" aria-label="Зміна статусу заявки">
           <select
+            id={`application-status-action-${issueNumber}`}
             className="select status-select"
             value={selectedStatus}
             disabled={!canApply}

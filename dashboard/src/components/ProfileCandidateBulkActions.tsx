@@ -46,6 +46,7 @@ export default function ProfileCandidateBulkActions({ formId, count }: Props) {
     <div className="profile-candidate-bulk-actions" aria-label="Масове додавання персонажів">
       <label className="profile-candidate-toggle-all">
         <input
+          id={`${formId}-toggle-all`}
           type="checkbox"
           checked={allSelected}
           ref={(input) => {

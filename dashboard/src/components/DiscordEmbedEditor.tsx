@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 import type { AuthorNameSuggestion } from "@/lib/profiles";
@@ -657,6 +657,7 @@ export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "role
   helperText?: string;
 }) {
   const [query, setQuery] = useState("");
+  const pickerId = useId();
   const normalizedSelectedRoleIds = uniqueIds(selectedRoleIds);
   const selected = new Set(normalizedSelectedRoleIds);
   const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(query.trim().toLowerCase()));
@@ -687,6 +688,7 @@ export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "role
       </div>
 
       <input
+        id={`${pickerId}-search`}
         className="input discord-role-search"
         type="search"
         value={query}
@@ -753,16 +755,16 @@ function EmbedFieldEditor({ fields, onChange }: {
           </div>
           <label className="content-field">
             <span>Назва поля</span>
-            <input className="input" value={field.name} maxLength={DISCORD_LIMITS.fieldName} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
+            <input id={`discord-embed-${field.id}-name`} className="input" value={field.name} maxLength={DISCORD_LIMITS.fieldName} onChange={(event) => patchField(field.id, { name: event.currentTarget.value })} />
             <LimitCounter value={field.name.length} max={DISCORD_LIMITS.fieldName} />
           </label>
           <label className="content-field content-field--wide">
             <span>Значення поля</span>
-            <textarea className="input textarea compact" value={field.value} maxLength={DISCORD_LIMITS.fieldValue} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
+            <textarea id={`discord-embed-${field.id}-value`} className="input textarea compact" value={field.value} maxLength={DISCORD_LIMITS.fieldValue} onChange={(event) => patchField(field.id, { value: event.currentTarget.value })} />
             <LimitCounter value={field.value.length} max={DISCORD_LIMITS.fieldValue} />
           </label>
           <label className="inline-check discord-inline-check">
-            <input type="checkbox" checked={field.inline} onChange={(event) => patchField(field.id, { inline: event.currentTarget.checked })} />
+            <input id={`discord-embed-${field.id}-inline`} type="checkbox" checked={field.inline} onChange={(event) => patchField(field.id, { inline: event.currentTarget.checked })} />
             <span>Показувати в один ряд</span>
           </label>
         </div>
@@ -1070,6 +1072,7 @@ export default function DiscordEmbedEditor({
                   <span>Посилання на Discord-повідомлення</span>
                   <div className="discord-message-link-row">
                     <input
+                      id="discord-message-link"
                       className="input"
                       value={messageLink}
                       placeholder="https://discord.com/channels/.../.../..."
@@ -1118,6 +1121,7 @@ export default function DiscordEmbedEditor({
                   <label className="content-field discord-color-picker-field">
                     <span>Вибір кольору</span>
                     <input
+                      id="discord-embed-color-picker"
                       className="discord-color-picker"
                       type="color"
                       value={normalizedColor || COLOR_FALLBACK}
@@ -1129,6 +1133,7 @@ export default function DiscordEmbedEditor({
                   <label className="content-field discord-color-code-field">
                     <span>Код кольору</span>
                     <input
+                      id="discord-embed-color-code"
                       className="input discord-color-code"
                       value={colorHex}
                       placeholder="#B8E986"
@@ -1139,7 +1144,7 @@ export default function DiscordEmbedEditor({
                   </label>
 
                   <label className="inline-check discord-inline-check discord-timestamp-check">
-                    <input type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
+                    <input id="discord-embed-timestamp-enabled" type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
                     <span>Додати дату</span>
                   </label>
                 </div>
@@ -1168,18 +1173,18 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Title</span>
-                  <input className="input" value={titleValue} maxLength={DISCORD_LIMITS.title} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
+                  <input id="discord-embed-title" className="input" value={titleValue} maxLength={DISCORD_LIMITS.title} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
                   <LimitCounter value={titleValue.length} max={DISCORD_LIMITS.title} />
                 </label>
                 <label className="content-field">
                   <span>URL заголовка</span>
-                  <input className="input" value={urlValue} placeholder="https://..." onChange={(event) => setUrlValue(event.currentTarget.value)} />
+                  <input id="discord-embed-title-url" className="input" value={urlValue} placeholder="https://..." onChange={(event) => setUrlValue(event.currentTarget.value)} />
                 </label>
               </div>
 
               <label className="content-field content-field--wide">
                 <span>Опис</span>
-                <textarea className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
+                <textarea id="discord-embed-description" className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
                 <LimitCounter value={descriptionValue.length} max={DISCORD_LIMITS.description} />
               </label>
             </div>
@@ -1192,11 +1197,11 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Thumbnail URL</span>
-                  <input className="input" value={thumbnailUrl} placeholder="https://..." onChange={(event) => setThumbnailUrl(event.currentTarget.value)} />
+                  <input id="discord-embed-thumbnail-url" className="input" value={thumbnailUrl} placeholder="https://..." onChange={(event) => setThumbnailUrl(event.currentTarget.value)} />
                 </label>
                 <label className="content-field">
                   <span>Image URL</span>
-                  <input className="input" value={imageUrl} placeholder="https://..." onChange={(event) => setImageUrl(event.currentTarget.value)} />
+                  <input id="discord-embed-image-url" className="input" value={imageUrl} placeholder="https://..." onChange={(event) => setImageUrl(event.currentTarget.value)} />
                 </label>
               </div>
             </div>
@@ -1215,22 +1220,22 @@ export default function DiscordEmbedEditor({
                 </label>
                 <label className="content-field discord-author-url-field">
                   <span>Author URL</span>
-                  <input className="input" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
+                  <input id="discord-author-url" className="input" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
                 </label>
                 <label className="content-field discord-author-icon-field">
                   <span>Author icon URL</span>
-                  <input className="input" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
+                  <input id="discord-author-icon-url" className="input" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
                 </label>
               </div>
               <div className="discord-footer-grid">
                 <label className="content-field">
                   <span>Footer text</span>
-                  <input className="input" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
+                  <input id="discord-footer-text" className="input" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
                   <LimitCounter value={footerText.length} max={DISCORD_LIMITS.footerText} />
                 </label>
                 <label className="content-field">
                   <span>Footer icon URL</span>
-                  <input className="input" value={footerIconUrl} placeholder="https://..." onChange={(event) => setFooterIconUrl(event.currentTarget.value)} />
+                  <input id="discord-footer-icon-url" className="input" value={footerIconUrl} placeholder="https://..." onChange={(event) => setFooterIconUrl(event.currentTarget.value)} />
                 </label>
               </div>
             </div>
