@@ -1,12 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 type RefreshState = "idle" | "loading" | "done" | "error";
 
 export default function GuildRosterRefreshButton() {
-  const router = useRouter();
   const [state, setState] = useState<RefreshState>("idle");
   const [message, setMessage] = useState("");
 
@@ -27,7 +26,7 @@ export default function GuildRosterRefreshButton() {
 
       setState("done");
       setMessage(`Оновлено: ${payload?.memberCount ?? 0} персонажів`);
-      router.refresh();
+      notifyDashboardDataChanged({ scope: "guild", source: "guild-roster-refresh", action: "refresh" });
       window.setTimeout(() => {
         setState("idle");
         setMessage("");

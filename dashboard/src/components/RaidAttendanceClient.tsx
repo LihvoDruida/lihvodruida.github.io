@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
+import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 type RaidSignupStatus = "going" | "late" | "skipped";
 type ToastPayload = {
@@ -64,7 +64,6 @@ export default function RaidAttendanceClient({
   rulesHref,
   title,
 }: RaidAttendanceClientProps) {
-  const router = useRouter();
   const [busyAction, setBusyAction] = useState<RaidSignupStatus | null>(null);
 
   async function submitAttendance(action: RaidSignupStatus) {
@@ -116,8 +115,7 @@ export default function RaidAttendanceClient({
         const revision = data && typeof data === "object" && "revision" in data
           ? String((data as { revision?: unknown }).revision || "")
           : "";
-        window.dispatchEvent(new CustomEvent("dashboard:raid-updated", { detail: { raidId, revision, source: "site" } }));
-        router.refresh();
+        notifyDashboardDataChanged({ scope: "raids", resourceId: raidId, revision, source: "raid-attendance", action });
       }
     } catch {
       dispatchDashboardToast({

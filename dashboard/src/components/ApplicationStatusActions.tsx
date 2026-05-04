@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
+import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 type StatusKey = "review" | "accepted" | "declined";
 
@@ -88,6 +89,12 @@ export default function ApplicationStatusActions({
 
       const confirmedStatus = FINAL_STATUSES.includes(data?.status) ? data.status : nextStatus;
       setStatus(confirmedStatus);
+      notifyDashboardDataChanged({
+        scope: "applications",
+        resourceId: String(issueNumber),
+        source: "application-status",
+        action: confirmedStatus,
+      });
 
       if (data?.discord?.edited?.ok) {
         setMessage("Готово: заявку й Discord-повідомлення оновлено.");

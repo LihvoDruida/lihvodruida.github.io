@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
+import { notifyDashboardDataChanged, type DashboardDataScope } from "@/lib/dashboardLiveRefresh";
 
 type ToastPayload = {
   tone?: "info" | "success" | "warning" | "error";
@@ -122,6 +122,18 @@ function resetWorking(form: HTMLFormElement, buttons: HTMLButtonElement[]) {
   }
 }
 
+
+function mutationScopeFromAction(action: string): DashboardDataScope {
+  if (action.includes("/applications/")) return "applications";
+  if (action.includes("/content/")) return "content";
+  if (action.includes("/discord/")) return "discord";
+  if (action.includes("/guild/")) return "guild";
+  if (action.includes("/profile/")) return "profile";
+  if (action.includes("/raids")) return "raids";
+  if (action.includes("/auth/")) return "session";
+  return "unknown";
+}
+
 function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
   if (data && typeof data === "object" && "toast" in data) {
     const toast = (data as { toast?: ToastPayload }).toast;
@@ -137,8 +149,6 @@ function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
 }
 
 export default function DashboardFormEnhancer() {
-  const router = useRouter();
-
   useEffect(() => {
     async function submitLiveForm(form: HTMLFormElement, submitter: HTMLButtonElement | null, buttons: HTMLButtonElement[], action: string, label: string) {
       try {
@@ -166,7 +176,9 @@ export default function DashboardFormEnhancer() {
           return;
         }
 
-        if (response.ok) router.refresh();
+        if (response.ok) {
+          notifyDashboardDataChanged({ scope: mutationScopeFromAction(action), action, source: "form-enhancer" });
+        }
       } catch {
         dispatchDashboardToast({
           tone: "error",
@@ -260,7 +272,7 @@ export default function DashboardFormEnhancer() {
       window.removeEventListener("click", onClick, true);
       window.removeEventListener("invalid", onInvalid, true);
     };
-  }, [router]);
+  }, []);
 
   return null;
 }
