@@ -572,17 +572,13 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                     </div>
                     <p>{member.specName} {member.className} • {member.raceName}</p>
                     <div className="guild-member-score">
-                      <small>RAIDER.IO M+</small>
-                      <strong>{formatNumber(score, 1)}</strong>
-                      <div className="guild-member-metrics">
-                        <span className="guild-member-metric guild-member-metric--rio">
-                          <small>{SEGMENT_LABELS[segment]}</small>
-                          <strong>{formatNumber(score)}</strong>
-                        </span>
-                        <span className="guild-member-metric guild-member-metric--ilvl">
-                          <small>ILVL</small>
-                          <strong>{member.itemLevel || "—"}</strong>
-                        </span>
+                      <div className="guild-member-score-block guild-member-score-block--rio">
+                        <small>RAIDER.IO M+</small>
+                        <strong>{formatNumber(score, 1)}</strong>
+                      </div>
+                      <div className="guild-member-score-block guild-member-score-block--ilvl">
+                        <small>ITEM LEVEL</small>
+                        <strong>{member.itemLevel || "—"}</strong>
                       </div>
                     </div>
                   </div>
