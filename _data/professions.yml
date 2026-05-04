@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-03 20:44:53'
+  updated_at: '2026-05-04 02:59:26'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2827,7 +2827,16 @@ characters:
       - name: Midnight Leatherworking
         learned_points: 71
         max_points: 100
-    secondaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Athang
   region: eu
   realm: terokkar
@@ -3181,7 +3190,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 296
+        learned_points: 300
         max_points: 300
 - name: Straponeero
   region: eu
@@ -5115,155 +5124,6 @@ characters:
         learned_points: 3
         max_points: 100
     secondaries: []
-- name: Алфлейм
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Алфлейм
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Kul Tiran Enchanting
-        learned_points: 3
-        max_points: 175
-      - name: Cataclysm Enchanting
-        learned_points: 9
-        max_points: 75
-      - name: Classic Enchanting
-        learned_points: 20
-        max_points: 300
-      - name: Dragon Isles Enchanting
-        learned_points: 25
-        max_points: 100
-      - name: Khaz Algar Enchanting
-        learned_points: 100
-        max_points: 100
-      - name: Midnight Enchanting
-        learned_points: 82
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Kul Tiran Tailoring
-        learned_points: 152
-        max_points: 175
-      - name: Legion Tailoring
-        learned_points: 10
-        max_points: 100
-      - name: Draenor Tailoring
-        learned_points: 100
-        max_points: 100
-      - name: Pandaria Tailoring
-        learned_points: 75
-        max_points: 75
-      - name: Cataclysm Tailoring
-        learned_points: 75
-        max_points: 75
-      - name: Northrend Tailoring
-        learned_points: 75
-        max_points: 75
-      - name: Outland Tailoring
-        learned_points: 75
-        max_points: 75
-      - name: Classic Tailoring
-        learned_points: 300
-        max_points: 300
-      - name: Shadowlands Tailoring
-        learned_points: 100
-        max_points: 100
-      - name: Dragon Isles Tailoring
-        learned_points: 31
-        max_points: 100
-      - name: Khaz Algar Tailoring
-        learned_points: 100
-        max_points: 100
-      - name: Midnight Tailoring
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Kul Tiran Cooking
-        learned_points: 129
-        max_points: 175
-      - name: Legion Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Cooking
-        learned_points: 59
-        max_points: 100
-      - name: Pandaria Cooking
-        learned_points: 75
-        max_points: 75
-      - name: Cataclysm Cooking
-        learned_points: 75
-        max_points: 75
-      - name: Northrend Cooking
-        learned_points: 75
-        max_points: 75
-      - name: Outland Cooking
-        learned_points: 75
-        max_points: 75
-      - name: Classic Cooking
-        learned_points: 300
-        max_points: 300
-      - name: Shadowlands Cooking
-        learned_points: 75
-        max_points: 75
-      - name: Dragon Isles Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Khaz Algar Cooking
-        learned_points: 70
-        max_points: 100
-      - name: Midnight Cooking
-        learned_points: 60
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 109
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 100
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 75
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 75
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 75
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 75
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 300
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 174
-        max_points: 200
-      - name: Dragon Isles Fishing
-        learned_points: 31
-        max_points: 100
-      - name: Khaz Algar Fishing
-        learned_points: 90
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 127
-        max_points: 300
 - name: Зермонг
   region: eu
   realm: gordunni
@@ -6564,7 +6424,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 98
+        learned_points: 100
         max_points: 100
     - name: Mining
       id: 186
@@ -6683,7 +6543,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 59
+        learned_points: 71
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6741,4 +6601,42 @@ characters:
         max_points: 100
       - name: Midnight Fishing
         learned_points: 1
+        max_points: 300
+- name: Panharanir
+  region: eu
+  realm: kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Panharanir
+  professions:
+    primaries:
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 100
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Cataclysm Alchemy
+        learned_points: 1
+        max_points: 75
+      - name: Classic Alchemy
+        learned_points: 52
+        max_points: 300
+      - name: Midnight Alchemy
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 11
         max_points: 300
