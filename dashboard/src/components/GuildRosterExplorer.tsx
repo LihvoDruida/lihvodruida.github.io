@@ -122,11 +122,25 @@ function buildConicSegments(items: Array<{ value: number; color: string }>) {
   }).join(", ");
 }
 
-function FilterSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
+function FilterSelect({
+  id,
+  name,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
   return (
-    <label className="guild-filter-field">
+    <label className="guild-filter-field" htmlFor={id}>
       <span>{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
+      <select id={id} name={name} value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => <option value={option} key={option}>{option}</option>)}
       </select>
     </label>
@@ -147,6 +161,8 @@ function parseNumberInput(event: ChangeEvent<HTMLInputElement>, fallback: number
 }
 
 function RangeFilter({
+  idBase,
+  nameBase,
   label,
   minValue,
   maxValue,
@@ -155,6 +171,8 @@ function RangeFilter({
   onMinChange,
   onMaxChange,
 }: {
+  idBase: string;
+  nameBase: string;
   label: string;
   minValue: number;
   maxValue: number;
@@ -180,9 +198,11 @@ function RangeFilter({
       </div>
 
       <div className="guild-range-inputs">
-        <label className="guild-range-value">
+        <label className="guild-range-value" htmlFor={`${idBase}-min`}>
           <span>від</span>
           <input
+            id={`${idBase}-min`}
+            name={`${nameBase}_min`}
             type="number"
             inputMode="numeric"
             min={absoluteMin}
@@ -191,9 +211,11 @@ function RangeFilter({
             onChange={(event) => onMinChange(clampValue(parseNumberInput(event, safeMin), absoluteMin, safeAbsoluteMax))}
           />
         </label>
-        <label className="guild-range-value">
+        <label className="guild-range-value" htmlFor={`${idBase}-max`}>
           <span>до</span>
           <input
+            id={`${idBase}-max`}
+            name={`${nameBase}_max`}
             type="number"
             inputMode="numeric"
             min={absoluteMin}
@@ -214,6 +236,8 @@ function RangeFilter({
         <div className="guild-dual-range__line" aria-hidden="true" />
         <div className="guild-dual-range__active" aria-hidden="true" />
         <input
+          id={`${idBase}-min-slider`}
+          name={`${nameBase}_min_slider`}
           className="guild-dual-range__input"
           type="range"
           min={absoluteMin}
@@ -222,6 +246,8 @@ function RangeFilter({
           onChange={(event) => onMinChange(clampValue(Number(event.target.value), absoluteMin, safeAbsoluteMax))}
         />
         <input
+          id={`${idBase}-max-slider`}
+          name={`${nameBase}_max_slider`}
           className="guild-dual-range__input"
           type="range"
           min={absoluteMin}
@@ -477,12 +503,21 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
 
           {filtersOpen ? (
             <div className="guild-filter-body">
-              <label className="guild-filter-field guild-filter-field--wide">
+              <label className="guild-filter-field guild-filter-field--wide" htmlFor="guild-roster-search">
                 <span>Пошук</span>
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Нік, клас, спек, реалм…" />
+                <input
+                  id="guild-roster-search"
+                  name="guild_roster_search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Нік, клас, спек, реалм…"
+                  autoComplete="off"
+                />
               </label>
 
               <RangeFilter
+                idBase="guild-roster-rio"
+                nameBase="guild_roster_rio"
                 label="RIO"
                 minValue={rioMin}
                 maxValue={rioMax}
@@ -493,6 +528,8 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
               />
 
               <RangeFilter
+                idBase="guild-roster-item-level"
+                nameBase="guild_roster_item_level"
                 label="Item level"
                 minValue={itemLevelMin}
                 maxValue={itemLevelMax}
@@ -502,13 +539,13 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                 onMaxChange={setItemLevelMax}
               />
 
-              <FilterSelect label="Клас" value={classFilter} options={options.classes} onChange={setClassFilter} />
-              <FilterSelect label="Спек" value={specFilter} options={options.specs} onChange={setSpecFilter} />
-              <FilterSelect label="Роль" value={roleFilter} options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]} onChange={setRoleFilter} />
-              <FilterSelect label="Фракція" value={factionFilter} options={options.factions} onChange={setFactionFilter} />
-              <label className="guild-filter-field">
+              <FilterSelect id="guild-roster-class" name="guild_roster_class" label="Клас" value={classFilter} options={options.classes} onChange={setClassFilter} />
+              <FilterSelect id="guild-roster-spec" name="guild_roster_spec" label="Спек" value={specFilter} options={options.specs} onChange={setSpecFilter} />
+              <FilterSelect id="guild-roster-role" name="guild_roster_role" label="Роль" value={roleFilter} options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]} onChange={setRoleFilter} />
+              <FilterSelect id="guild-roster-faction" name="guild_roster_faction" label="Фракція" value={factionFilter} options={options.factions} onChange={setFactionFilter} />
+              <label className="guild-filter-field" htmlFor="guild-roster-sort">
                 <span>Сортування</span>
-                <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
+                <select id="guild-roster-sort" name="guild_roster_sort" value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
                   <option value="rio-desc">RIO: від більшого</option>
                   <option value="rio-asc">RIO: від меншого</option>
                   <option value="ilvl-desc">Item level: від більшого</option>
