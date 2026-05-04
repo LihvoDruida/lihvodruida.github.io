@@ -78,7 +78,7 @@ After login, the system:
 
 1. validates the Discord user id;
 2. fetches the user's guild roles;
-3. maps the roles to `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, and `DISCORD_MEMBER_ROLE_IDS`;
+3. maps the roles to `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, and `DISCORD_MEMBER_ROLE_IDS`;
 4. creates a signed server-side session cookie;
 5. creates or updates the Firebase profile.
 

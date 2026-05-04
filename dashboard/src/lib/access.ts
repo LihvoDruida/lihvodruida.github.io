@@ -12,7 +12,9 @@ export type {
 } from "./auth";
 
 export {
+  canViewApplications,
   canManageApplications,
+  canViewApplicationSensitiveFields,
   canManageGeneralEmbeds,
   canManageRulesEmbeds,
   canManageRaids,

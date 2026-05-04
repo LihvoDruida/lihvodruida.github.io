@@ -4,7 +4,7 @@ Private dashboard panel for the **Mistblossom Vanguard** guild: applications, pr
 
 ## Features
 
-- Discord login with role-based access: member, officer, guildmaster.
+- Discord login with role-based access: member, newcomer mentor, officer, guildmaster.
 - Member profiles with Battle.net characters.
 - Main character and raid role preference.
 - Discord server nickname standardization: `Name [Main, Alt1, Alt2]`.
@@ -67,6 +67,7 @@ DISCORD_OAUTH_CLIENT_SECRET=
 DISCORD_GUILD_ID=
 DISCORD_ADMIN_ROLE_IDS=
 DISCORD_MODERATOR_ROLE_IDS=
+DISCORD_MENTOR_ROLE_IDS=
 DISCORD_BOT_TOKEN=
 
 GITHUB_OWNER=LihvoDruida
@@ -101,6 +102,7 @@ See the full environment documentation for all variables and Worker sharing note
 ## Access roles
 
 - **Member:** profile, characters, raids, signup, rules.
+- **Newcomer mentor:** all member rights plus read-only applications without BattleTag/source links.
 - **Officer:** applications, profiles, raids, rosters, moderation, Discord embeds.
 - **Guildmaster:** full access, rules, content, system status.
 

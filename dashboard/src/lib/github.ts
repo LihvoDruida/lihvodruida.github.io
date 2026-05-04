@@ -75,6 +75,7 @@ export type ApplicationItem = {
   class_name?: string;
   source?: string;
   availability?: string;
+  battle_tag?: string | null;
   avatar_url?: string | null;
   profile_url?: string | null;
   raider_io?: RaiderIoApplicationData | null;
@@ -478,6 +479,7 @@ export function mapApplicationIssue(issue: any): ApplicationItem {
     class_name: extract(body, /- Клас: (.+)/),
     source: extract(body, /- Звідки дізнався: (.+)/),
     availability: extractAvailability(body),
+    battle_tag: extract(body, /- BattleTag: (.+)/i) || extract(body, /- Battle\.net: (.+)/i) || extract(body, /- Батл(?:\.net|нет)?(?: тег|Tag)?: (.+)/i) || null,
     avatar_url: null,
     profile_url: null,
     raider_io: null,
@@ -506,6 +508,29 @@ export async function listIssues() {
 
     throw error;
   }
+}
+
+
+export function sanitizeApplicationForReadOnlyViewer(item: ApplicationItem): ApplicationItem {
+  const sanitized: ApplicationItem = {
+    ...item,
+    html_url: "",
+    battle_tag: null,
+    discord_ref: null,
+    discord_message_ref: null,
+  };
+
+  for (const key of Object.keys(sanitized)) {
+    if (/battle[_-]?tag|battletag|bnet[_-]?tag/i.test(key)) {
+      delete sanitized[key];
+    }
+  }
+
+  return sanitized;
+}
+
+export function sanitizeApplicationsForReadOnlyViewer(items: ApplicationItem[]): ApplicationItem[] {
+  return items.map((item) => sanitizeApplicationForReadOnlyViewer(item));
 }
 
 export async function listApplicationFilterOptions() {

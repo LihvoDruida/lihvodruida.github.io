@@ -66,7 +66,7 @@ function timestampToIso(value: unknown) {
 }
 
 function cleanRole(value: unknown): DashboardRole {
-  return value === "admin" || value === "moderator" || value === "member" ? value : "member";
+  return value === "admin" || value === "moderator" || value === "mentor" || value === "member" ? value : "member";
 }
 
 function optionalString(value: unknown) {

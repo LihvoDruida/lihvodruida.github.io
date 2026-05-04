@@ -4,7 +4,7 @@ All secrets must remain server-side. Values with `NEXT_PUBLIC_*` are exposed to 
 
 ## Minimal production set
 
-A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
+A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
 
 ## Shared with Cloudflare Worker
 
@@ -64,6 +64,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_GUILD_ID` | required | Discord server id. |
 | `DISCORD_GUILD_NAME` | optional | Fallback guild/server name. |
 | `DISCORD_ADMIN_ROLE_IDS` | required | Roles that grant admin/guildmaster access. |
+| `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. |
 | `DISCORD_MODERATOR_ROLE_IDS` | required | Roles that grant officer/moderator access. |
 | `DISCORD_MEMBER_ROLE_IDS` | optional | Roles that grant member access. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | If true and no member roles are set, any guild member can get member access. |

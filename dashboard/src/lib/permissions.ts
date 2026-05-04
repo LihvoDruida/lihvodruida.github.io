@@ -10,6 +10,7 @@ export type DashboardCapability = {
 
 export const DASHBOARD_ROLE_ORDER: Record<DashboardRole, number> = {
   member: 10,
+  mentor: 20,
   moderator: 50,
   admin: 100,
 };
@@ -54,24 +55,28 @@ export function canViewProfiles(session: DashboardSession | null | undefined) {
 export function hierarchyTitle(role: DashboardRole) {
   if (role === "admin") return "Гільдмайстер";
   if (role === "moderator") return "Офіцер";
+  if (role === "mentor") return "Наставник новачків";
   return "Учасник гільдії";
 }
 
 export function guildStatusLabel(role: DashboardRole) {
   if (role === "admin") return "Гільдмайстер";
   if (role === "moderator") return "Офіцер";
+  if (role === "mentor") return "Наставник";
   return "Учасник";
 }
 
 export function dashboardRoleLabel(role: DashboardRole) {
   if (role === "admin") return "Адмін";
   if (role === "moderator") return "Модератор";
+  if (role === "mentor") return "Наставник";
   return "Учасник";
 }
 
 export function siteStatusLabel(role: DashboardRole) {
   if (role === "admin") return "Повний доступ";
   if (role === "moderator") return "Офіцерський доступ";
+  if (role === "mentor") return "Наставник новачків";
   return "Особистий профіль";
 }
 
@@ -82,11 +87,22 @@ export function siteStatusDescription(role: DashboardRole) {
   if (role === "moderator") {
     return "Офіцерський доступ до заявок, профілів, рейдів і Discord-повідомлень без адмінських розділів.";
   }
+  if (role === "mentor") {
+    return "Особистий профіль і перегляд заявок без BattleTag та без керування статусами.";
+  }
   return "Особистий профіль, персонажі, рейди, запис і правила без адмінських блоків.";
+}
+
+export function canViewApplications(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.role === "admin" || session.role === "moderator" || session.role === "mentor"));
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
   return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+}
+
+export function canViewApplicationSensitiveFields(session: DashboardSession | null | undefined) {
+  return canManageApplications(session);
 }
 
 export function canManageGeneralEmbeds(session: DashboardSession | null | undefined) {
@@ -112,6 +128,7 @@ export function canManageSiteContent(session: DashboardSession | null | undefine
 export function dashboardCapabilities(role: DashboardRole): DashboardCapability[] {
   const isAdmin = role === "admin";
   const canModerate = role === "admin" || role === "moderator";
+  const canReviewApplications = canModerate || role === "mentor";
 
   return [
     {
@@ -135,8 +152,10 @@ export function dashboardCapabilities(role: DashboardRole): DashboardCapability[
     {
       key: "applications",
       title: "Заявки до гільдії",
-      description: "Перегляд заявок, даних персонажа та рішення по кандидатах.",
-      enabled: canModerate,
+      description: role === "mentor"
+        ? "Перегляд заявок і даних персонажа без BattleTag та без права приймати рішення."
+        : "Перегляд заявок, даних персонажа та рішення по кандидатах.",
+      enabled: canReviewApplications,
     },
     {
       key: "general-embeds",
@@ -177,6 +196,7 @@ export function splitConfiguredRoleIds(value?: string) {
 export function configuredRoleIdsForDashboardRole(role: DashboardRole) {
   if (role === "admin") return splitConfiguredRoleIds(process.env.DISCORD_ADMIN_ROLE_IDS);
   if (role === "moderator") return splitConfiguredRoleIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  if (role === "mentor") return splitConfiguredRoleIds(process.env.DISCORD_MENTOR_ROLE_IDS || process.env.DISCORD_NEWCOMER_MENTOR_ROLE_IDS);
   return splitConfiguredRoleIds(process.env.DISCORD_MEMBER_ROLE_IDS);
 }
 

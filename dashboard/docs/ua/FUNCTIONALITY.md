@@ -78,7 +78,7 @@ Dashboard — це приватна адмін-панель для гільді�
 
 1. перевіряє Discord user id;
 2. отримує ролі користувача на сервері;
-3. зіставляє ролі з `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MEMBER_ROLE_IDS`;
+3. зіставляє ролі з `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_MEMBER_ROLE_IDS`;
 4. створює підписану server-side session cookie;
 5. створює або оновлює профіль у Firebase.
 

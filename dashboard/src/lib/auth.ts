@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export type DashboardRole = "admin" | "moderator" | "member";
+export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
 
 export type DashboardSession = {
   provider: "discord" | "github" | "token";
@@ -102,7 +102,7 @@ export async function createStableProfileId(provider: string, providerUserId: st
 
 function normalizeSessionPayload(parsed: any): DashboardSession | null {
   if (!parsed || parsed.aud !== SESSION_AUDIENCE) return null;
-  if (parsed.role !== "admin" && parsed.role !== "moderator" && parsed.role !== "member") return null;
+  if (parsed.role !== "admin" && parsed.role !== "moderator" && parsed.role !== "mentor" && parsed.role !== "member") return null;
 
   const id = String(parsed.id || "").trim();
   if (!id) return null;
@@ -230,8 +230,9 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
   const roles = new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean));
   const rawAdminRoles = splitIds(process.env.DISCORD_ADMIN_ROLE_IDS);
   const rawModeratorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
+  const rawMentorRoles = splitIds(process.env.DISCORD_MENTOR_ROLE_IDS || process.env.DISCORD_NEWCOMER_MENTOR_ROLE_IDS);
   const rawMemberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
-  const [adminRoles, moderatorRoles, memberRoles] = removeAmbiguousRoleIds(rawAdminRoles, rawModeratorRoles, rawMemberRoles);
+  const [adminRoles, moderatorRoles, mentorRoles, memberRoles] = removeAmbiguousRoleIds(rawAdminRoles, rawModeratorRoles, rawMentorRoles, rawMemberRoles);
 
   for (const role of adminRoles) {
     if (roles.has(role)) return "admin";
@@ -239,6 +240,10 @@ export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
 
   for (const role of moderatorRoles) {
     if (roles.has(role)) return "moderator";
+  }
+
+  for (const role of mentorRoles) {
+    if (roles.has(role)) return "mentor";
   }
 
   for (const role of memberRoles) {
@@ -293,7 +298,7 @@ export async function createSessionCookie(session: (Partial<DashboardSession> & 
     id: String(session.id || "local"),
     name: String(session.name || session.login || "Local admin"),
     login: session.login || session.name || "Local admin",
-    role: session.role === "moderator" ? "moderator" : session.role === "member" ? "member" : "admin",
+    role: session.role === "moderator" ? "moderator" : session.role === "mentor" ? "mentor" : session.role === "member" ? "member" : "admin",
     avatar: session.avatar || null,
     avatar_url: session.avatar_url || session.avatar || null,
     discordRoleIds: session.discordRoleIds || [],

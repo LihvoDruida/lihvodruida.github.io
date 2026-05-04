@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession, canModerate } from "@/lib/auth";
-import { listApplicationFilterOptions, listApplications } from "@/lib/github";
+import { getSession } from "@/lib/auth";
+import { canViewApplications, canViewApplicationSensitiveFields } from "@/lib/permissions";
+import { listApplicationFilterOptions, listApplications, sanitizeApplicationsForReadOnlyViewer } from "@/lib/github";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage, unauthorizedResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
-  if (!canModerate(session)) {
+  if (!canViewApplications(session)) {
     logDashboardEvent("warn", "applications.list.unauthorized", request);
     return unauthorizedResponse();
   }
@@ -17,7 +18,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const url = new URL(request.url);
-    const [items, filterOptions] = await Promise.all([listApplications(url.searchParams), listApplicationFilterOptions()]);
+    const [rawItems, filterOptions] = await Promise.all([listApplications(url.searchParams), listApplicationFilterOptions()]);
+    const items = canViewApplicationSensitiveFields(session) ? rawItems : sanitizeApplicationsForReadOnlyViewer(rawItems);
     const counts = {
       all: items.length,
       review: items.filter((item) => item.status_key === "review").length,

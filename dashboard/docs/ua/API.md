@@ -125,7 +125,7 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 Повертає список заявок із GitHub Issues.
 
-**Доступ:** officer/admin.
+**Доступ:** officer/admin для повних даних і дій; наставник новачків для read-only перегляду без BattleTag і посилань на джерело заявки.
 
 **Query:**
 

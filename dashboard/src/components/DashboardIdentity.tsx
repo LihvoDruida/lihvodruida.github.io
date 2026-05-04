@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { DashboardSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import {
-  canManageApplications,
+  canViewApplications,
   canManageGeneralEmbeds,
   canManageRaids,
   canManageSiteContent,
@@ -27,7 +27,7 @@ export default async function DashboardIdentity({
   const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
   const displayName = profile ? getProfilePublicName(profile) : (user?.name || user?.login || "Користувач");
   const avatar = profile?.avatarUrl || user?.avatar_url || user?.avatar || null;
-  const canUseApplications = canManageApplications(user);
+  const canUseApplications = canViewApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
   const canUseRaids = canViewRaidDirectory(user);
   const canCreateRaids = canManageRaids(user);
@@ -66,7 +66,7 @@ export default async function DashboardIdentity({
           <img className="guild-mark" src={guild.iconUrl} alt="" width={44} height={44} loading="eager" referrerPolicy="no-referrer" />
           <div>
             <strong>{guild.name}</strong>
-            <span>{user?.role === "member" ? "Особиста панель" : "Панель гільдії"}</span>
+            <span>{user?.role === "member" ? "Особиста панель" : user?.role === "mentor" ? "Панель наставника" : "Панель гільдії"}</span>
           </div>
         </div>
 

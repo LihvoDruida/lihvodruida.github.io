@@ -17,7 +17,7 @@ function safeNextPath(value?: string) {
   const path = String(value || "").trim();
   if (!path || path.length > 220) return "";
   if (!path.startsWith("/") || path.startsWith("//")) return "";
-  if (/^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  if (path === "/" || /^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
   return "";
 }
 
@@ -25,7 +25,7 @@ function errorText(error?: string) {
   if (!error) return null;
 
   const map: Record<string, string> = {
-    access_denied: "Доступ закрито: потрібна роль адміна, модератора або дозволений доступ учасника гільдії.",
+    access_denied: "Доступ закрито: потрібна роль адміна, модератора, наставника або дозволений доступ учасника гільдії.",
     discord_oauth: "Discord не завершив авторизацію. Спробуй ще раз.",
     oauth_state: "Сесія входу застаріла. Повтори авторизацію.",
     discord_required: "Для входу потрібен Discord.",
@@ -83,7 +83,7 @@ export default async function LoginPage({
             <span>гільдії</span>
           </h1>
           <p className="login-lead">
-            Увійди через Discord. Адміни й офіцери отримують панель керування, учасники — лише власний профіль.
+            Увійди через Discord. Адміни й офіцери отримують керування, наставники — перегляд заявок, учасники — особистий профіль.
           </p>
 
           <div className="login-feature-list" aria-label="Можливості панелі">

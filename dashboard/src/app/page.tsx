@@ -13,8 +13,9 @@ export const metadata = buildPageMetadata({
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-import { canModerate, getSessionUser, isAuthenticated } from "@/lib/auth";
-import { ApplicationItem, listApplicationFilterOptions, listApplications } from "@/lib/github";
+import { getSessionUser, isAuthenticated } from "@/lib/auth";
+import { canManageApplications, canViewApplicationSensitiveFields, canViewApplications } from "@/lib/permissions";
+import { ApplicationItem, listApplicationFilterOptions, listApplications, sanitizeApplicationsForReadOnlyViewer } from "@/lib/github";
 import { getOwnProfilePath } from "@/lib/profiles";
 
 function formatDate(value?: string | null) {
@@ -135,12 +136,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (!(await isAuthenticated())) redirect("/login");
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const mayModerate = canModerate(user);
-  if (!mayModerate) redirect(await getOwnProfilePath(user));
+  const mayViewApplications = canViewApplications(user);
+  const mayManageApplications = canManageApplications(user);
+  const mayViewSensitiveApplications = canViewApplicationSensitiveFields(user);
+  if (!mayViewApplications) redirect(await getOwnProfilePath(user));
   const params = await searchParams;
   const urlParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) urlParams.set(key, value);
-  const [items, filterOptions] = await Promise.all([listApplications(urlParams), listApplicationFilterOptions()]);
+  const [rawItems, filterOptions] = await Promise.all([listApplications(urlParams), listApplicationFilterOptions()]);
+  const items = mayViewSensitiveApplications ? rawItems : sanitizeApplicationsForReadOnlyViewer(rawItems);
   const counts = {
     all: items.length,
     review: items.filter((item) => item.status_key === "review").length,
@@ -161,7 +165,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <p className="lead">Переглядай заявки, оцінюй персонажів і швидко приймай рішення без зайвих переходів.</p>
           <div className="hero-secure-note">
             <span className="hero-lock" aria-hidden="true">🔒</span>
-            <span>Доступ відкрито тільки ролям модерації.</span>
+            <span>{mayManageApplications ? "Доступ відкрито ролям модерації." : "Доступ відкрито в режимі перегляду без BattleTag."}</span>
           </div>
         </div>
 
@@ -197,7 +201,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         classOptions={classOptions}
       />
 
-      {!mayModerate ? <div className="notice panel">Твоя роль не має права змінювати заявки. Якщо це помилка, звернись до гільдмайстра.</div> : null}
+      {!mayManageApplications ? <div className="notice panel">Режим наставника: заявки можна переглядати, але BattleTag приховано, а рішення по кандидатах недоступні.</div> : null}
 
       <section className="grid">
         {items.length ? items.map((item) => (
@@ -213,13 +217,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     <span>{item.class_name || "Клас не вказано"}</span>
                     <span>{item.faction || "Фракція не вказана"}</span>
                     <span>{formatDate(item.created_at)}</span>
-                    <a href={item.html_url} target="_blank" rel="noreferrer">Відкрити заявку</a>
+                    {mayViewSensitiveApplications && item.html_url ? <a href={item.html_url} target="_blank" rel="noreferrer">Відкрити заявку</a> : null}
                   </div>
                 </div>
               </div>
 
               <div className="details-grid">
                 <div className="detail-box"><span>Звідки дізнався</span><strong>{item.source || "Не вказано"}</strong></div>
+                {mayViewSensitiveApplications && item.battle_tag ? <div className="detail-box"><span>BattleTag</span><strong>{item.battle_tag}</strong></div> : null}
                 <div className="detail-box"><span>Коли грає</span><strong>{item.availability || "Не вказано"}</strong></div>
               </div>
 
@@ -227,7 +232,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
 
             <aside className="actions-panel">
-              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} canModerate={mayModerate} />
+              <ApplicationStatusActions issueNumber={item.number} initialStatus={item.status_key} issueState={item.state} canModerate={mayManageApplications} />
               <small>{item.state === "closed" ? "Заявку закрито" : "Очікує рішення"}</small>
             </aside>
           </article>
