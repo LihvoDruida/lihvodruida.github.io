@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-04 21:10:35'
+  updated_at: '2026-05-05 02:50:58'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-04T20:49:28.000Z'
+  raider_io_last_crawled_at: '2026-05-05T00:23:36.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 132
+  member_count: 133
 characters:
 - name: Бреинор
   region: eu
@@ -6628,7 +6628,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 98
+        learned_points: 99
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6865,4 +6865,12 @@ characters:
       - name: Midnight Jewelcrafting
         learned_points: 44
         max_points: 100
+    secondaries: []
+- name: Товстопуз
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
+  professions:
+    primaries: []
     secondaries: []
