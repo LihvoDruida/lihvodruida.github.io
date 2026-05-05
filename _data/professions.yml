@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 13:58:03'
+  updated_at: '2026-05-05 17:26:05'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -949,7 +949,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 49
+        learned_points: 51
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5638,7 +5638,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 186
+        learned_points: 188
         max_points: 300
 - name: Кеенди
   region: eu
