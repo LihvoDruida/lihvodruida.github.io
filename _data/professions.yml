@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-05 06:18:25'
+  updated_at: '2026-05-05 10:05:11'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-05T00:23:36.000Z'
+  raider_io_last_crawled_at: '2026-05-05T07:44:40.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -723,6 +723,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 300
         max_points: 300
+- name: Zanzimon
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
+  professions:
+    primaries:
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 50
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 66
+        max_points: 100
+    secondaries: []
 - name: Алак
   region: eu
   realm: goldrinn
@@ -908,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 74
+        learned_points: 78
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1518,6 +1544,80 @@ characters:
         max_points: 100
       - name: Midnight Fishing
         learned_points: 266
+        max_points: 300
+- name: Zanzithor
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 100
+        max_points: 100
+    - name: Leatherworking
+      id: 165
+      tiers:
+      - name: Classic Leatherworking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Leatherworking
+        learned_points: 83
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 2
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 4
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Khaz Algar Fishing
+        learned_points: 124
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Katsyt
   region: eu
@@ -3099,6 +3199,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 6
         max_points: 300
+- name: Darkleaf
+  region: eu
+  realm: burning-steppes
+  realm_slug: burning-steppes
+  profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 26
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 25
+        max_points: 100
+    secondaries: []
 - name: Blackberry
   region: eu
   realm: terokkar
@@ -3230,6 +3356,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 300
         max_points: 300
+- name: Pyatochka
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 47
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 44
+        max_points: 100
+    secondaries: []
 - name: Straponeero
   region: eu
   realm: tarren-mill
@@ -5011,6 +5163,77 @@ characters:
       - name: Midnight Fishing
         learned_points: 9
         max_points: 300
+- name: Misselles
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Misselles
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 61
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 77
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Midnight Fishing
+        learned_points: 48
+        max_points: 300
 - name: Нежнаяпулька
   region: eu
   realm: eversong
@@ -5608,7 +5831,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 47
+        learned_points: 48
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6643,229 +6866,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
-- name: Misselles
-  region: eu
-  realm: silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Misselles
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 61
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 77
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 100
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Midnight Fishing
-        learned_points: 48
-        max_points: 300
-- name: Darkleaf
-  region: eu
-  realm: burning-steppes
-  realm_slug: burning-steppes
-  profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 26
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 25
-        max_points: 100
-    secondaries: []
-- name: Zanzimon
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
-  professions:
-    primaries:
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 50
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 66
-        max_points: 100
-    secondaries: []
-- name: Zanzithor
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Blacksmithing
-        learned_points: 100
-        max_points: 100
-    - name: Leatherworking
-      id: 165
-      tiers:
-      - name: Classic Leatherworking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Leatherworking
-        learned_points: 83
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 2
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 1
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Zandalari Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 4
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Khaz Algar Fishing
-        learned_points: 124
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300
-- name: Pyatochka
-  region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Blacksmithing
-        learned_points: 47
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 44
-        max_points: 100
-    secondaries: []
 - name: Товстопуз
   region: eu
   realm: gordunni
