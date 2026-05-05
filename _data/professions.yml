@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 17:26:05'
+  updated_at: '2026-05-05 21:05:28'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 133
+  member_count: 132
 characters:
 - name: Бреинор
   region: eu
@@ -194,7 +194,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 81
+        learned_points: 82
         max_points: 100
     secondaries:
     - name: Cooking
@@ -372,7 +372,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 74
+        learned_points: 78
         max_points: 100
     secondaries: []
 - name: Nwlck
@@ -949,7 +949,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 51
+        learned_points: 56
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1897,7 +1897,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 55
+        learned_points: 56
         max_points: 100
     - name: Mining
       id: 186
@@ -1909,7 +1909,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Mining
-        learned_points: 44
+        learned_points: 47
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2595,74 +2595,6 @@ characters:
         learned_points: 5
         max_points: 100
     secondaries: []
-- name: Ahilles
-  region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Ahilles
-  professions:
-    primaries:
-    - name: Skinning
-      id: 393
-      tiers:
-      - name: Classic Skinning
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Skinning
-        learned_points: 36
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Draenor Mining
-        learned_points: 5
-        max_points: 100
-      - name: Classic Mining
-        learned_points: 4
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 94
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Kul Tiran Cooking
-        learned_points: 1
-        max_points: 175
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
 - name: Demhunt
   region: eu
   realm: terokkar
@@ -3004,7 +2936,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 90
+        learned_points: 91
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3421,7 +3353,7 @@ characters:
   region: eu
   realm: eversong
   realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Клеосса
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
@@ -4988,7 +4920,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting

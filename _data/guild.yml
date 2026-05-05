@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 17:26:05'
+  updated_at: '2026-05-05 21:05:28'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 133
+  member_count: 132
   achievement_points: 475
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13651
-      region: 6086
+      world: 13652
+      region: 6087
       realm: 55
     heroic:
-      world: 12849
-      region: 5522
+      world: 12863
+      region: 5534
       realm: 46
     mythic:
-      world: 7138
-      region: 3070
+      world: 7146
+      region: 3077
       realm: 24
   blackrock-depths:
     normal:
@@ -557,13 +557,13 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3030.6
+        score: 3040.1
         color: '#5366e2'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3030.6
+        score: 3040.1
         color: '#5366e2'
       tank:
         score: 0
@@ -572,7 +572,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3030.6
+        score: 3040.1
         color: '#5366e2'
       spec_2:
         score: 0
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3066
@@ -710,11 +710,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/217/180729561-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
-    item_level_equipped: 263
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1429.1
-        color: '#9cff81'
+        score: 1594.1
+        color: '#8dff70'
       dps:
         score: 869.2
         color: '#cfffbd'
@@ -722,11 +722,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 892.4
-        color: '#cdffbb'
+        score: 1227.4
+        color: '#afff97'
       spec_0:
-        score: 892.4
-        color: '#cdffbb'
+        score: 1227.4
+        color: '#afff97'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -866,7 +866,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/128/183464576-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Bylik
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3008.2
@@ -921,26 +921,26 @@ members:
     item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2506
-        color: '#5fc184'
+        score: 2545
+        color: '#5fb88f'
       dps:
-        score: 2506
-        color: '#5fc184'
+        score: 2545
+        color: '#5fb88f'
       healer:
         score: 0
         color: '#ffffff'
       tank:
-        score: 0
+        score: 170
         color: '#ffffff'
       spec_0:
-        score: 0
+        score: 170
         color: '#ffffff'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2506
-        color: '#5fc184'
+        score: 2545
+        color: '#5fb88f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2404,58 +2404,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 1
-  character:
-    name: Ahilles
-    id: 188069002
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Havoc
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/138/188069002-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Ahilles
-    item_level_equipped: 224
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 4
   character:
     name: Demhunt
@@ -3338,17 +3286,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 254
+    item_level_equipped: 257
     mythic_plus_scores:
       all:
-        score: 897.7
-        color: '#cdffbb'
+        score: 1279.9
+        color: '#abff91'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 897.7
-        color: '#cdffbb'
+        score: 1279.9
+        color: '#abff91'
       tank:
         score: 0
         color: '#ffffff'
@@ -3356,8 +3304,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 897.7
-        color: '#cdffbb'
+        score: 1279.9
+        color: '#abff91'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -3482,47 +3430,23 @@ members:
       slug: eversong
     playable_class:
       id: 9
-      name: Warlock
+      name: null
     playable_race:
       id: 10
-      name: Blood Elf
+      name: null
     faction:
       type: HORDE
-    gender: female
+    gender: null
     active_spec:
-      name: Destruction
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/eversong/188/190326716-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
-    profile_url: https://raider.io/characters/eu/eversong/Клеосса
-    item_level_equipped: 272
-    mythic_plus_scores:
-      all:
-        score: 2309.5
-        color: '#4be750'
-      dps:
-        score: 2309.5
-        color: '#4be750'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2309.5
-        color: '#4be750'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -3910,17 +3834,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
-    item_level_equipped: 250
+    item_level_equipped: 252
     mythic_plus_scores:
       all:
-        score: 982.2
-        color: '#c5ffb1'
+        score: 1668.8
+        color: '#84ff68'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 982.2
-        color: '#c5ffb1'
+        score: 1668.8
+        color: '#84ff68'
       tank:
         score: 0
         color: '#ffffff'
@@ -3931,8 +3855,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 982.2
-        color: '#c5ffb1'
+        score: 1668.8
+        color: '#84ff68'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4806,11 +4730,11 @@ members:
         score: 3027.1
         color: '#5366e2'
       tank:
-        score: 2836.8
-        color: '#3f82ca'
+        score: 2850
+        color: '#377dcf'
       spec_0:
-        score: 2836.8
-        color: '#3f82ca'
+        score: 2850
+        color: '#377dcf'
       spec_1:
         score: 3027.1
         color: '#5366e2'
@@ -4990,47 +4914,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 5
-      name: Priest
+      name: null
     playable_race:
       id: 37
-      name: Mechagnome
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Holy
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/28/224554268-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Technoihor
-    item_level_equipped: 231
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -5470,7 +5370,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3000.3
@@ -6302,14 +6202,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2877.5
-        color: '#2d79d4'
+        score: 2906.4
+        color: '#1f74d8'
       dps:
-        score: 2877.5
-        color: '#2d79d4'
+        score: 2906.4
+        color: '#1f74d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -6320,8 +6220,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2877.5
-        color: '#2d79d4'
+        score: 2906.4
+        color: '#1f74d8'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6354,11 +6254,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3109.7
-        color: '#7658e6'
+        score: 3156.7
+        color: '#8a4de9'
       dps:
         score: 0
         color: '#ffffff'
@@ -6366,8 +6266,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3109.7
-        color: '#7658e6'
+        score: 3156.7
+        color: '#8a4de9'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6375,8 +6275,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3109.7
-        color: '#7658e6'
+        score: 3156.7
+        color: '#8a4de9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6590,7 +6490,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/121/265783673-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2432.3
@@ -6798,10 +6698,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2857.4
+        score: 2859.6
         color: '#377dcf'
       dps:
         score: 0
@@ -6810,7 +6710,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2857.4
+        score: 2859.6
         color: '#377dcf'
       spec_0:
         score: 0
@@ -6819,7 +6719,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2857.4
+        score: 2859.6
         color: '#377dcf'
       spec_3:
         score: 0
@@ -6902,7 +6802,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 260
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
         score: 938.6
