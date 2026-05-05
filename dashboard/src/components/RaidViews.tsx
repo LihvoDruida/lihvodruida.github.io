@@ -244,6 +244,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions, showRost
         <span><strong>📌 Статус</strong>{raidStatusLabel(raid)}</span>
         <span><strong>📅 Дата</strong>{formatRaidDateTime(raid.date, raid.time)}</span>
         <span><strong>👤 Створив</strong>{raid.createdByName}{raid.createdByMain ? <small>Мейн: {raid.createdByMain}</small> : null}</span>
+        {raid.raidLeaderName ? <span><strong>🧭 РЛ</strong>{raid.raidLeaderName}</span> : null}
         <span><strong>🧪 Розхідники</strong>{raidConsumablesLabel(raid.consumables)}</span>
         <span><strong>🎁 Лут</strong>{raidLootLabel(raid.lootMode)}</span>
         {showRosterDetails && raid.minItemLevel ? <span><strong>👙 Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
@@ -296,6 +297,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
           <span className="raid-list-facts">
             <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
             <small>👤 {raid.createdByName}{raid.createdByMain ? ` • ${raid.createdByMain}` : ""}</small>
+            {raid.raidLeaderName ? <small>🧭 РЛ: {raid.raidLeaderName}</small> : null}
             <small>👥 {counts.roster} / {capacity}{canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}</small>
             {raid.minItemLevel ? <small>👙 Мін. ilvl: {raid.minItemLevel}</small> : null}
             {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
@@ -373,6 +375,10 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
             <label className="field-label">Дата<input className="input" type="date" name="date" defaultValue={raid?.date || todayIso()} required /></label>
             <label className="field-label">Час<input className="input" type="time" name="time" defaultValue={raid?.time || "20:00"} required /></label>
           </div>
+          <label className="field-label">Рейд-лідер / РЛ
+            <input className="input" name="raidLeaderName" placeholder="Напр. Sebas" defaultValue={raid?.raidLeaderName || ""} maxLength={120} />
+            <small>Необов’язково. Якщо поле порожнє, у Discord-оголошенні блок РЛ не показується.</small>
+          </label>
           <label className="field-label">Мінімальний item level
             <input className="input" type="number" name="minItemLevel" min="1" max="9999" step="1" placeholder="Напр. 675" defaultValue={raid?.minItemLevel || ""} />
             <small>Необов’язково. Без галочки нижче це лише попередження; з галочкою запис нижче порогу буде заблоковано.</small>
@@ -500,6 +506,7 @@ export function makePreviewRaid(user: DashboardSession, createdByName?: string):
     createdByDiscordId: user.provider === "discord" ? user.id : "",
     createdByName: createdByName || user.name || "@Sebas",
     createdByMain: null,
+    raidLeaderName: null,
     consumables: "own",
     lootMode: "ms-os",
     composition: { tanks: 2, healers: 2, dps: 6 },

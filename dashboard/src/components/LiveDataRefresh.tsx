@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   DASHBOARD_DATA_MUTATED_EVENT,
@@ -57,8 +57,15 @@ function routePolicy(pathname: string): RefreshPolicy {
     return { ...DEFAULT_POLICY, intervalMs: 55_000, minSpacingMs: 12_000, label: "профілі" };
   }
 
-  if (pathname === "/profile" || pathname.startsWith("/profile/")) {
+  if (pathname === "/profile") {
     return { ...DEFAULT_POLICY, intervalMs: 55_000, minSpacingMs: 12_000, label: "профіль" };
+  }
+
+  if (pathname.startsWith("/profile/")) {
+    // Profile detail pages are fairly heavy and can be opened by previews/crawlers.
+    // Keep them fresh after real data mutations, but avoid periodic RSC polling that can
+    // leave noisy aborted fetches in the browser console.
+    return { ...DEFAULT_POLICY, intervalMs: 0, minSpacingMs: 18_000, label: "профіль", focusRefresh: false };
   }
 
   if (pathname === "/guild") {
@@ -93,6 +100,11 @@ function hasActiveEditor() {
   return Boolean(document.querySelector('form[data-submitting="true"], [aria-busy="true"]'));
 }
 
+function isIgnorableExtensionMessage(reason: unknown) {
+  const message = reason instanceof Error ? reason.message : String(reason || "");
+  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated/i.test(message);
+}
+
 function shouldHandleMutationOnPath(pathname: string, detail: DashboardDataMutationDetail) {
   const scope = detail.scope || "unknown";
   if (scope === "unknown" || scope === "session" || scope === "integrations") return true;
@@ -114,11 +126,25 @@ export default function LiveDataRefresh() {
   const lastRefreshRef = useRef(0);
   const lastEditRef = useRef(0);
   const pendingReasonRef = useRef("initial");
+  const refreshInFlightRef = useRef(false);
 
   useEffect(() => {
     lastRefreshRef.current = 0;
     pendingReasonRef.current = "route-change";
+    refreshInFlightRef.current = false;
   }, [pathname]);
+
+  useEffect(() => {
+    function onUnhandledRejection(event: PromiseRejectionEvent) {
+      // This message is commonly produced by browser extensions trying to talk to a
+      // disconnected content script. It is not actionable for the dashboard and it
+      // otherwise appears as an app error while live refresh is active.
+      if (isIgnorableExtensionMessage(event.reason)) event.preventDefault();
+    }
+
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+    return () => window.removeEventListener("unhandledrejection", onUnhandledRejection);
+  }, []);
 
   useEffect(() => {
     if (!policy.enabled) return undefined;
@@ -170,15 +196,32 @@ export default function LiveDataRefresh() {
         return;
       }
 
+      if (refreshInFlightRef.current) {
+        schedule(Math.max(policy.minSpacingMs, 5_000), reason);
+        return;
+      }
+
       lastRefreshRef.current = Date.now();
+      refreshInFlightRef.current = true;
       setState("checking");
-      router.refresh();
-      window.dispatchEvent(new CustomEvent(DASHBOARD_DATA_REFRESHED_EVENT, {
-        detail: { label: policy.label, pathname, reason, timestamp: Date.now() },
-      }));
+      try {
+        startTransition(() => {
+          router.refresh();
+        });
+        window.dispatchEvent(new CustomEvent(DASHBOARD_DATA_REFRESHED_EVENT, {
+          detail: { label: policy.label, pathname, reason, timestamp: Date.now() },
+        }));
+      } catch (error) {
+        console.warn("[LiveDataRefresh] Background refresh skipped", {
+          pathname,
+          reason,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
       window.setTimeout(() => {
+        refreshInFlightRef.current = false;
         if (!cancelled) setState("idle");
-      }, 600);
+      }, 1_200);
       schedule(policy.intervalMs || 0, "interval");
     }
 

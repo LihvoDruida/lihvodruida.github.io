@@ -61,6 +61,7 @@ export type RaidItem = {
   createdByDiscordId: string;
   createdByName: string;
   createdByMain?: string | null;
+  raidLeaderName?: string | null;
   consumables: RaidConsumables;
   lootMode: RaidLootMode;
   composition: RaidComposition;
@@ -414,6 +415,7 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
     createdByName: cleanString(data.createdByName, 120) || "@Raid Lead",
     createdByMain: cleanString(data.createdByMain, 160) || null,
+    raidLeaderName: cleanString(data.raidLeaderName || data.raid_leader_name || data.raidLeadName || data.raid_lead_name, 120) || null,
     consumables: cleanConsumables(data.consumables),
     lootMode: cleanLootMode(data.lootMode),
     composition: normalizeComposition(data.composition),
@@ -765,6 +767,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     createdByDiscordId: user.provider === "discord" ? user.id : "",
     createdByName: profile ? getProfilePublicName(profile) : user.name || user.login || "Raid Lead",
     createdByMain: profileMainLabel(profile),
+    raidLeaderName: cleanString(form.get("raidLeaderName"), 120) || null,
     consumables: cleanConsumables(form.get("consumables")),
     lootMode: cleanLootMode(form.get("lootMode")),
     composition: normalizeComposition(composition),
@@ -1058,6 +1061,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: raid.createdByName,
       inline: true,
     },
+    ...(raid.raidLeaderName ? [{ name: "🧭 РЛ", value: raid.raidLeaderName, inline: true }] : []),
     {
       name: "🧪 Розхідники",
       value: raidConsumablesLabel(raid.consumables),
@@ -1490,6 +1494,7 @@ export function raidLiveRevision(raid: RaidItem) {
     raid.updatedAt || "",
     raid.channelId || "",
     raid.messageId || "",
+    raid.raidLeaderName || "",
     raid.signups?.length || 0,
     signupsSignature,
   ].join("::");

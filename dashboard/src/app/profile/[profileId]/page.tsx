@@ -529,12 +529,6 @@ export default async function ProfilePage({
   const otherRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? []
     : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
-  const roleAssociationCards = (["admin", "moderator", "mentor", "member"] as const).map((role) => ({
-    role,
-    label: dashboardRoleLabel(role),
-    roles: buildRoleChips(configuredRoleIdsForDashboardRole(role), roles),
-    capabilities: dashboardCapabilities(role).filter((item) => item.enabled).length,
-  }));
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
 
   return (
@@ -665,24 +659,6 @@ export default async function ProfilePage({
 
           <small className={`profile-warning profile-warning--${liveAccessState}`}>{liveAccessDescription}</small>
 
-          <div className="profile-role-group profile-role-group--associations">
-            <div className="profile-role-group__head">
-              <strong>Discord ролі → дозволи</strong>
-              <small>live</small>
-            </div>
-            <div className="profile-role-associations" aria-label="Асоціації Discord ролей з правами панелі">
-              {roleAssociationCards.map((item) => (
-                <div className="profile-role-association" key={item.role}>
-                  <span><strong>{item.label}</strong><small>{item.capabilities} можливостей</small></span>
-                  <div className="profile-role-stack profile-role-stack--secondary">
-                    {item.roles.length ? item.roles.map((role) => (
-                      <span className="profile-role-chip profile-role-chip--secondary" key={`${item.role}-${role.id}`}>{role.label}</span>
-                    )) : <span className="profile-role-chip profile-role-chip--muted">Роль не задана в ENV</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           <div className="profile-role-group">
             <div className="profile-role-group__head">
