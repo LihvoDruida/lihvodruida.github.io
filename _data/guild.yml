@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 10:05:11'
+  updated_at: '2026-05-05 13:58:03'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13647
-      region: 6084
+      world: 13651
+      region: 6086
       realm: 55
     heroic:
-      world: 12834
-      region: 5516
+      world: 12842
+      region: 5518
       realm: 46
     mythic:
       world: 7136
@@ -973,11 +973,11 @@ members:
     item_level_equipped: 272
     mythic_plus_scores:
       all:
-        score: 2073
-        color: '#46ff2d'
+        score: 2121.1
+        color: '#3aff21'
       dps:
-        score: 2073
-        color: '#46ff2d'
+        score: 2121.1
+        color: '#3aff21'
       healer:
         score: 0
         color: '#ffffff'
@@ -985,8 +985,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1960.4
-        color: '#5aff3f'
+        score: 2008.4
+        color: '#51ff37'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4114,15 +4114,15 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Guardian
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2922.3
-        color: '#1f74d8'
+        score: 2955.8
+        color: '#0070dd'
       dps:
         score: 0
         color: '#ffffff'
@@ -4130,8 +4130,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2922.3
-        color: '#1f74d8'
+        score: 2955.8
+        color: '#0070dd'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4139,8 +4139,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2922.3
-        color: '#1f74d8'
+        score: 2955.8
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6302,13 +6302,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2872.1
+        score: 2877.5
         color: '#2d79d4'
       dps:
-        score: 2872.1
+        score: 2877.5
         color: '#2d79d4'
       healer:
         score: 0
@@ -6320,7 +6320,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2872.1
+        score: 2877.5
         color: '#2d79d4'
       spec_2:
         score: 0
@@ -6850,7 +6850,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мавпита
-    item_level_equipped: 269
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2631.3
