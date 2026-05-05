@@ -525,10 +525,6 @@ export default async function ProfilePage({
         muted: true,
       } satisfies ProfileRoleChip)
     : null;
-  const accessRoleIdSet = new Set(accessRoleIds);
-  const otherRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
-    ? []
-    : buildRoleChips(roleIdsFromSession.filter((roleId) => !accessRoleIdSet.has(roleId)), roles);
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
 
   return (
@@ -672,17 +668,6 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          <div className="profile-role-group">
-            <div className="profile-role-group__head">
-              <strong>Інші Discord ролі</strong>
-              <small>{otherRoleChips.length}</small>
-            </div>
-            <div className="profile-role-stack profile-role-stack--secondary" aria-label="Інші Discord ролі користувача">
-              {otherRoleChips.length ? otherRoleChips.map((role) => (
-                <span className="profile-role-chip profile-role-chip--secondary" key={role.id}>{role.label}</span>
-              )) : <span className="profile-role-chip profile-role-chip--muted">Інших ролей не знайдено</span>}
-            </div>
-          </div>
 
           {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Назви ролей тимчасово недоступні. Доступ усе одно визначено коректно.</small> : null}
           {roleLoadError ? <small className="profile-warning">Назви Discord-ролей тимчасово недоступні.</small> : null}

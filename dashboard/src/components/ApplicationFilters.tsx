@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ApplicationFiltersProps = {
@@ -23,7 +23,7 @@ function normalizedValue(value: string | null | undefined, fallback: string) {
   return clean || fallback;
 }
 
-function buildNextUrl(pathname: string, currentParams: URLSearchParams, updates: Record<string, string>) {
+function buildNextUrl(pathname: string, currentParams: { toString(): string }, updates: Record<string, string>) {
   const params = new URLSearchParams(currentParams.toString());
 
   for (const [key, value] of Object.entries(updates)) {
@@ -55,6 +55,7 @@ export default function ApplicationFilters({
   const [status, setStatus] = useState(normalizedValue(initialStatus, DEFAULTS.status));
   const [className, setClassName] = useState(normalizedValue(initialClass, DEFAULTS.class));
   const [sort, setSort] = useState(normalizedValue(initialSort, DEFAULTS.sort));
+  const latestFiltersRef = useRef({ status, className, sort });
 
   const options = useMemo(() => Array.from(new Set(classOptions.filter(Boolean))).sort(), [classOptions]);
 
@@ -65,21 +66,27 @@ export default function ApplicationFilters({
     setSort(normalizedValue(initialSort, DEFAULTS.sort));
   }, [initialQuery, initialStatus, initialClass, initialSort]);
 
-  function applyFilters(updates: Record<string, string>) {
-    const nextUrl = buildNextUrl(pathname, searchParams, updates);
+  useEffect(() => {
+    latestFiltersRef.current = { status, className, sort };
+  }, [status, className, sort]);
+
+  const applyFilters = useCallback((updates: Record<string, string>) => {
+    const safePathname = pathname || "/";
+    const nextUrl = buildNextUrl(safePathname, searchParams, updates);
     startTransition(() => {
       router.replace(nextUrl, { scroll: false });
       router.refresh();
     });
-  }
+  }, [pathname, router, searchParams, startTransition]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      applyFilters({ q: query, status, class: className, sort });
+      const latest = latestFiltersRef.current;
+      applyFilters({ q: query, status: latest.status, class: latest.className, sort: latest.sort });
     }, 360);
 
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [applyFilters, query]);
 
   function applyImmediate(next: Partial<Record<keyof typeof DEFAULTS, string>>) {
     const merged = {

@@ -451,28 +451,6 @@ function hasDirectDiscordBotConfig() {
   return Boolean(getBotToken());
 }
 
-function discordWorkerEndpoint(path: string, explicitEnvKey: string) {
-  const explicit = String(process.env[explicitEnvKey] || "").trim();
-  if (explicit) return explicit;
-
-  const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || "").trim();
-  if (!interactions) return "";
-
-  if (/\/api\/discord-interactions\/?$/i.test(interactions)) {
-    return interactions.replace(/\/api\/discord-interactions\/?$/i, path);
-  }
-
-  try {
-    const url = new URL(interactions);
-    url.pathname = path;
-    url.search = "";
-    url.hash = "";
-    return url.toString();
-  } catch {
-    return "";
-  }
-}
-
 function raidDiscordMessageEndpoint() {
   return workerApiEndpoint("/api/discord-raid-message", "DISCORD_RAID_MESSAGE_ENDPOINT");
 }

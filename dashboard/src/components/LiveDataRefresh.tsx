@@ -62,10 +62,11 @@ function routePolicy(pathname: string): RefreshPolicy {
   }
 
   if (pathname.startsWith("/profile/")) {
-    // Profile detail pages are fairly heavy and can be opened by previews/crawlers.
-    // Keep them fresh after real data mutations, but avoid periodic RSC polling that can
-    // leave noisy aborted fetches in the browser console.
-    return { ...DEFAULT_POLICY, intervalMs: 0, minSpacingMs: 18_000, label: "профіль", focusRefresh: false };
+    // Profile detail pages are heavy and can be opened by previews/crawlers.
+    // Do not run global RSC refresh here: real profile actions already redirect
+    // or update their own UI, while background refresh can leave noisy aborted
+    // `_rsc` fetches in the browser console.
+    return { ...DEFAULT_POLICY, enabled: false, intervalMs: 0, label: "профіль", focusRefresh: false };
   }
 
   if (pathname === "/guild") {
