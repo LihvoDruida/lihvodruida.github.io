@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 02:50:58'
+  updated_at: '2026-05-05 06:18:25'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6666,7 +6666,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 73
+        learned_points: 77
         max_points: 100
     secondaries:
     - name: Archaeology

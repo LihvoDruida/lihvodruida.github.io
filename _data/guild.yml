@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-05 02:50:58'
+  updated_at: '2026-05-05 06:18:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13639
-      region: 6082
+      world: 13642
+      region: 6083
       realm: 55
     heroic:
-      world: 12821
-      region: 5514
+      world: 12832
+      region: 5516
       realm: 46
     mythic:
-      world: 7129
+      world: 7132
       region: 3068
       realm: 24
   blackrock-depths:
@@ -1590,11 +1590,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Fury
-      role: DPS
+      name: Protection
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 186
+    item_level_equipped: 218
     mythic_plus_scores:
       all:
         score: 0
