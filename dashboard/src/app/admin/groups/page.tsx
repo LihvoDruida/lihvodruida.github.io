@@ -11,7 +11,7 @@ export const revalidate = 0;
 
 export const metadata = buildPageMetadata({
   title: "Групи та права",
-  description: "Керування групами доступу dashboard, Discord role ID і правами Mistblossom Vanguard.",
+  description: "Керування групами доступу, однією Discord-роллю на групу і правами Mistblossom Vanguard.",
   path: "/admin/groups",
   keywords: ["dashboard права", "групи доступу", "адміністрування"],
 });
@@ -24,8 +24,9 @@ async function saveGroupAction(formData: FormData) {
     currentId: formData.get("currentId"),
     id: formData.get("id"),
     name: formData.get("name"),
+    role: formData.get("role"),
     rank: formData.get("rank"),
-    discordRoleIds: formData.get("discordRoleIds"),
+    discordRoleId: formData.get("discordRoleId"),
     permissions: formData.getAll("permissions"),
   }, user);
   await recordAdminAudit("access_group.upsert", user, { groupId: String(formData.get("id") || formData.get("currentId") || "") });
@@ -49,8 +50,8 @@ async function impersonateAction(formData: FormData) {
   const group = await getAccessGroup(String(formData.get("groupId") || ""));
   if (!group) { redirect("/admin/groups"); throw new Error("Group not found"); }
   await setSession(applyAccessGroupToSession({ ...user, impersonatedBy: user.id }, group, false));
-  await recordAdminAudit("access_group.impersonate", user, { groupId: group.id });
-  redirect("/");
+  await recordAdminAudit("access_group.impersonate", user, { groupId: group.id, groupName: group.name });
+  redirect(user.profileId ? `/profile/${user.profileId}` : "/");
 }
 
 export default async function AdminGroupsPage() {
@@ -67,7 +68,7 @@ export default async function AdminGroupsPage() {
         <div>
           <span className="eyebrow">Адміністрування</span>
           <h1>Групи та права доступу</h1>
-          <p>Права зберігаються у Firebase. Env більше не керує ролями доступу — він потрібен лише для підключень Discord, Firebase і сесій.</p>
+          <p>Права зберігаються у Firebase. Кожна група має одну Discord-роль, власний ранг і набір дозволів. Env використовується лише для підключень.</p>
         </div>
         <div className="hero-actions">
           <span className="status-pill">Поточна група: {user.groupName || user.role}</span>

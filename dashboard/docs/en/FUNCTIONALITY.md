@@ -78,7 +78,7 @@ After login, the system:
 
 1. validates the Discord user id;
 2. fetches the user's guild roles;
-3. resolves dashboard access from Firebase groups configured on `/admin/groups`; Discord role IDs are stored on the groups, not in env;
+3. resolves dashboard access from Firebase groups configured on `/admin/groups`; Discord role ID are stored on the groups, not in env;
 4. creates a signed server-side session cookie;
 5. creates or updates the Firebase profile.
 

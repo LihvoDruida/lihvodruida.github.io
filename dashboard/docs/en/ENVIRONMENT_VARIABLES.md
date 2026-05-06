@@ -171,5 +171,5 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 4. If Vercel route `/api/discord/interactions` is used as fallback, Vercel must have `DISCORD_PUBLIC_KEY`.
 5. For Firebase private key in Vercel, keep escaped `\\n`; the code converts them to real newlines.
 
-> Access role IDs are no longer configured in env. Manage dashboard groups, Discord role IDs and permissions in Firebase from `/admin/groups`.
+> Access role IDs are no longer configured in env. Manage dashboard groups, a single Discord role ID and permissions in Firebase from `/admin/groups`.
 

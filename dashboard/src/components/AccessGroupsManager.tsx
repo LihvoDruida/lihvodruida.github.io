@@ -1,8 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { DashboardRole } from "@/lib/auth";
 import type { AccessGroup, DashboardPermissionKey } from "@/lib/accessGroupSchema";
-import { DASHBOARD_PERMISSION_KEYS, PERMISSION_META, DEFAULT_ADMIN_GROUP_ID, DEFAULT_MODERATOR_GROUP_ID, DEFAULT_MENTOR_GROUP_ID, DEFAULT_MEMBER_GROUP_ID } from "@/lib/accessGroupSchema";
+import {
+  DASHBOARD_PERMISSION_KEYS,
+  DEFAULT_ADMIN_GROUP_ID,
+  DEFAULT_MEMBER_GROUP_ID,
+  DEFAULT_MENTOR_GROUP_ID,
+  DEFAULT_MODERATOR_GROUP_ID,
+  PERMISSION_META,
+} from "@/lib/accessGroupSchema";
+
+const ROLE_OPTIONS: Array<{ value: DashboardRole; label: string; hint: string }> = [
+  { value: "member", label: "Учасник", hint: "Базовий доступ до профілю та рейдів" },
+  { value: "mentor", label: "Наставник", hint: "Перегляд заявок без чутливих даних" },
+  { value: "moderator", label: "Модератор", hint: "Офіцерські дії без керування адмінами" },
+  { value: "admin", label: "Адмін", hint: "Адміністративний рівень" },
+];
 
 type Props = {
   groups: AccessGroup[];
@@ -30,31 +45,71 @@ function fixedLabel(group: AccessGroup) {
   return "Користувацька група";
 }
 
+function roleLabel(role: DashboardRole) {
+  return ROLE_OPTIONS.find((item) => item.value === role)?.label || "Група";
+}
+
+function roleHint(role: DashboardRole) {
+  return ROLE_OPTIONS.find((item) => item.value === role)?.hint || "Налаштовується правами нижче";
+}
+
+function primaryDiscordRoleId(group: AccessGroup) {
+  return group.discordRoleIds[0] || "";
+}
+
+function cannotEditReason(group: AccessGroup, currentGroupId: string | undefined, isServerOwner: boolean) {
+  if (isServerOwner) return "";
+  if (group.id === currentGroupId) return "Це твоя поточна група. Самому собі права не змінюємо.";
+  if (group.id === DEFAULT_ADMIN_GROUP_ID || group.role === "admin" || group.rank >= 100 || group.permissions.includes("groups.manage")) {
+    return "Адмінські групи та право керування групами змінює тільки власник Discord-сервера.";
+  }
+  return "";
+}
+
+function PermissionCheckbox({ permissionKey, checked, disabled }: { permissionKey: DashboardPermissionKey; checked: boolean; disabled: boolean }) {
+  return (
+    <label className="permission-check">
+      <input type="checkbox" name="permissions" value={permissionKey} defaultChecked={checked} disabled={disabled} />
+      <span>
+        <strong>{PERMISSION_META[permissionKey].title}</strong>
+        <small>{PERMISSION_META[permissionKey].description}</small>
+      </span>
+    </label>
+  );
+}
+
 export default function AccessGroupsManager({ groups, isServerOwner, currentGroupId, saveGroupAction, deleteGroupAction, impersonateAction }: Props) {
   const [expanded, setExpanded] = useState<string>(groups[0]?.id || "new");
-  const categories: Array<[string, DashboardPermissionKey[]]> = Object.entries(permissionsByCategory()) as Array<[string, DashboardPermissionKey[]]>;
+  const categories = useMemo(() => Object.entries(permissionsByCategory()) as Array<[string, DashboardPermissionKey[]]>, []);
 
   return (
     <div className="access-groups-layout">
-      <aside className="access-groups-list panel">
-        <div className="section-title">Групи</div>
+      <aside className="access-groups-list panel" aria-label="Список груп доступу">
+        <div className="access-groups-list__header">
+          <span className="section-title">Групи</span>
+          <small>{groups.length} груп</small>
+        </div>
         {groups.map((group) => (
           <button key={group.id} type="button" className={expanded === group.id ? "is-active" : undefined} onClick={() => setExpanded(group.id)}>
             <strong>{group.name}</strong>
-            <span>ID {group.id} · {group.permissions.length} прав</span>
+            <span>ID {group.id} · {roleLabel(group.role)} · {group.permissions.length} прав</span>
           </button>
         ))}
         <button type="button" className={expanded === "new" ? "is-active" : undefined} onClick={() => setExpanded("new")}>
-          <strong>＋ Нова група</strong>
-          <span>ID, назва, Discord role ID і права</span>
+          <strong>Нова група</strong>
+          <span>ID, назва, 1 Discord role ID та права</span>
         </button>
       </aside>
 
       <div className="access-groups-editor">
         {groups.map((group) => {
-          const canEdit = isServerOwner || (group.id !== currentGroupId && group.id !== DEFAULT_ADMIN_GROUP_ID);
+          const reason = cannotEditReason(group, currentGroupId, isServerOwner);
+          const canEdit = !reason;
           const canDelete = canEdit && !group.protectedGroup;
-          const adminFixed = group.id === DEFAULT_ADMIN_GROUP_ID;
+          const isFixedSystemGroup = group.id === DEFAULT_ADMIN_GROUP_ID || group.id === DEFAULT_MODERATOR_GROUP_ID || group.id === DEFAULT_MEMBER_GROUP_ID;
+          const canEditRole = canEdit && !isFixedSystemGroup;
+          const canEditRank = canEdit && !isFixedSystemGroup;
+
           return expanded === group.id ? (
             <form key={group.id} className="panel access-group-card" action={saveGroupAction}>
               <input type="hidden" name="currentId" value={group.id} />
@@ -62,51 +117,68 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                 <div>
                   <span className="eyebrow">{fixedLabel(group)}</span>
                   <h2>{group.name}</h2>
-                  <p>{group.id === currentGroupId ? "Це твоя поточна група. Самому собі права не змінюємо." : adminFixed && !isServerOwner ? "Права адміна може змінювати тільки власник Discord-сервера." : "Зміни застосуються після наступного оновлення сесії користувача."}</p>
+                  <p>{reason || "Зміни збережуться у Firebase. Користувачі отримають нові права після оновлення сесії або повторного входу."}</p>
                 </div>
                 {isServerOwner ? (
-                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit">Перегляд як</button>
+                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit">
+                    Переглянути як цю групу
+                  </button>
                 ) : null}
               </div>
 
-              <div className="form-grid compact-form-grid">
+              <div className="access-group-summary" aria-label="Коротко про групу">
+                <span><strong>{roleLabel(group.role)}</strong><small>{roleHint(group.role)}</small></span>
+                <span><strong>Ранг {group.rank}</strong><small>Вищий ранг має пріоритет, якщо в Discord є кілька ролей</small></span>
+                <span><strong>{primaryDiscordRoleId(group) || "Discord role ID не заданий"}</strong><small>Для однієї групи дозволена тільки одна Discord-роль</small></span>
+              </div>
+
+              <div className="form-grid compact-form-grid access-form-grid">
                 <label>
                   <span>ID групи</span>
-                  <input name="id" defaultValue={group.id} readOnly={group.lockedId || !canEdit} />
+                  <input name="id" defaultValue={group.id} readOnly={group.lockedId || !canEdit} inputMode="text" autoComplete="off" />
+                  <small>{group.lockedId ? "Системний ID не змінюється." : "Лише латиниця, цифри, _ або -."}</small>
                 </label>
                 <label>
-                  <span>Назва</span>
-                  <input name="name" defaultValue={group.name} readOnly={!canEdit} />
+                  <span>Назва групи</span>
+                  <input name="name" defaultValue={group.name} readOnly={!canEdit} maxLength={80} autoComplete="off" />
+                  <small>Коротка назва, яка буде показана в dashboard.</small>
+                </label>
+                <label>
+                  <span>Роль у системі</span>
+                  <select name="role" defaultValue={group.role} disabled={!canEditRole}>
+                    {ROLE_OPTIONS.map((role) => (
+                      <option key={role.value} value={role.value} disabled={role.value === "admin" && !isServerOwner}>{role.label}</option>
+                    ))}
+                  </select>
+                  <small>{isFixedSystemGroup ? "Для системних груп роль зафіксована." : "Впливає на тексти, рівень доступу і сумісність старих перевірок."}</small>
                 </label>
                 <label>
                   <span>Ранг</span>
-                  <input name="rank" type="number" min="1" max="100" defaultValue={group.rank} readOnly={group.protectedGroup || !canEdit} />
+                  <input name="rank" type="number" min="1" max="100" defaultValue={group.rank} readOnly={!canEditRank} />
+                  <small>Пріоритет групи. Якщо ролей кілька — перемагає більший ранг.</small>
                 </label>
-                <label>
+                <label className="access-form-grid__wide">
                   <span>Discord role ID</span>
-                  <input name="discordRoleIds" defaultValue={group.discordRoleIds.join(", ")} placeholder="123456789012345678, ..." readOnly={!canEdit} />
+                  <input name="discordRoleId" defaultValue={primaryDiscordRoleId(group)} placeholder="Наприклад: 123456789012345678" readOnly={!canEdit} inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
+                  <small>Тільки одна Discord-роль на групу. Якщо поле порожнє, група не прив’язана до ролі Discord.</small>
                 </label>
               </div>
+
+              {!canEdit ? <div className="access-warning" role="status">{reason}</div> : null}
 
               <div className="permissions-grid">
                 {categories.map(([category, keys]) => (
                   <fieldset key={category}>
                     <legend>{category}</legend>
-                    {keys.map((key) => {
-                      const checked = group.permissions.includes(key);
-                      return (
-                        <label key={key} className="permission-check">
-                          <input type="checkbox" name="permissions" value={key} defaultChecked={checked} disabled={!canEdit || key === "dashboard.view" || (key === "groups.manage" && !isServerOwner)} />
-                          <span><strong>{PERMISSION_META[key].title}</strong><small>{PERMISSION_META[key].description}</small></span>
-                        </label>
-                      );
-                    })}
+                    {keys.map((key) => (
+                      <PermissionCheckbox key={key} permissionKey={key} checked={group.permissions.includes(key)} disabled={!canEdit || key === "dashboard.view" || (key === "groups.manage" && !isServerOwner)} />
+                    ))}
                   </fieldset>
                 ))}
               </div>
 
-              <div className="form-actions">
-                <button className="btn primary" type="submit" disabled={!canEdit}>Зберегти права</button>
+              <div className="form-actions access-form-actions">
+                <button className="btn primary" type="submit" disabled={!canEdit}>Зберегти зміни</button>
                 {canDelete ? <button className="btn danger" formAction={deleteGroupAction} name="groupId" value={group.id} type="submit">Видалити групу</button> : null}
               </div>
             </form>
@@ -119,29 +191,51 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
               <div>
                 <span className="eyebrow">Нова група</span>
                 <h2>Додати групу доступу</h2>
-                <p>Вкажи власний ID, назву, Discord role ID і потрібні права. Системні ID 1, 2 і 99 зайняті.</p>
+                <p>Створи групу, прив’яжи одну Discord-роль і вибери тільки ті права, які їй реально потрібні. Системні ID 1, 2 і 99 зайняті.</p>
               </div>
             </div>
-            <div className="form-grid compact-form-grid">
-              <label><span>ID групи</span><input name="id" placeholder="10" required /></label>
-              <label><span>Назва</span><input name="name" placeholder="Рейд-лідер" required /></label>
-              <label><span>Ранг</span><input name="rank" type="number" min="1" max="100" defaultValue="20" /></label>
-              <label><span>Discord role ID</span><input name="discordRoleIds" placeholder="123456789012345678" /></label>
+            <div className="form-grid compact-form-grid access-form-grid">
+              <label>
+                <span>ID групи</span>
+                <input name="id" placeholder="Наприклад: raid_lead" required autoComplete="off" />
+                <small>Унікальний ID: латиниця, цифри, _ або -.</small>
+              </label>
+              <label>
+                <span>Назва групи</span>
+                <input name="name" placeholder="Рейд-лідер" required maxLength={80} autoComplete="off" />
+                <small>Назва для списків і статусів у панелі.</small>
+              </label>
+              <label>
+                <span>Роль у системі</span>
+                <select name="role" defaultValue="member">
+                  {ROLE_OPTIONS.map((role) => (
+                    <option key={role.value} value={role.value} disabled={role.value === "admin" && !isServerOwner}>{role.label}</option>
+                  ))}
+                </select>
+                <small>Адмінську роль може створювати тільки власник сервера.</small>
+              </label>
+              <label>
+                <span>Ранг</span>
+                <input name="rank" type="number" min="1" max="100" defaultValue="20" />
+                <small>Чим вищий ранг, тим пріоритетніша група.</small>
+              </label>
+              <label className="access-form-grid__wide">
+                <span>Discord role ID</span>
+                <input name="discordRoleId" placeholder="123456789012345678" inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
+                <small>Одна група = одна Discord-роль. Додаткові ролі створюй окремими групами.</small>
+              </label>
             </div>
             <div className="permissions-grid">
               {categories.map(([category, keys]) => (
                 <fieldset key={category}>
                   <legend>{category}</legend>
                   {keys.map((key) => (
-                    <label key={key} className="permission-check">
-                      <input type="checkbox" name="permissions" value={key} defaultChecked={key === "dashboard.view"} disabled={key === "dashboard.view" || (key === "groups.manage" && !isServerOwner)} />
-                      <span><strong>{PERMISSION_META[key].title}</strong><small>{PERMISSION_META[key].description}</small></span>
-                    </label>
+                    <PermissionCheckbox key={key} permissionKey={key} checked={key === "dashboard.view"} disabled={key === "dashboard.view" || (key === "groups.manage" && !isServerOwner)} />
                   ))}
                 </fieldset>
               ))}
             </div>
-            <div className="form-actions"><button className="btn primary" type="submit">Створити групу</button></div>
+            <div className="form-actions access-form-actions"><button className="btn primary" type="submit">Створити групу</button></div>
           </form>
         ) : null}
       </div>

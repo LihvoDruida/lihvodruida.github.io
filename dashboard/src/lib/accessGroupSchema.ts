@@ -57,5 +57,5 @@ export const PERMISSION_META: Record<DashboardPermissionKey, { title: string; de
   "rules.stats.view": { title: "Статистика правил", description: "Перегляд статистики прийняття правил.", category: "Discord" },
   "content.manage": { title: "Новини та гайди", description: "Керування матеріалами сайту.", category: "Контент" },
   "groups.view": { title: "Перегляд груп", description: "Доступ до сторінки груп і прав.", category: "Адміністрування" },
-  "groups.manage": { title: "Керування групами", description: "Додавання груп, зміна назв, Discord role ID і прав.", category: "Адміністрування" },
+  "groups.manage": { title: "Керування групами", description: "Додавання груп, зміна назв, однієї Discord-ролі та прав.", category: "Адміністрування" },
 };

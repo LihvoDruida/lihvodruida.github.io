@@ -48,7 +48,6 @@ const DEFAULT_GROUPS: AccessGroup[] = [
       "rules.stats.view",
     ],
   },
-
   {
     id: DEFAULT_MENTOR_GROUP_ID,
     name: "Наставник новачків",
@@ -94,7 +93,8 @@ function cleanName(value: unknown, fallback = "Група") {
 
 function cleanDiscordRoleIds(value: unknown) {
   const items = Array.isArray(value) ? value : String(value || "").split(/[\s,;]+/g);
-  return Array.from(new Set(items.map((item) => String(item || "").trim()).filter((item) => /^\d{16,25}$/.test(item)))).slice(0, 50);
+  const firstValidRoleId = items.map((item) => String(item || "").trim()).find((item) => /^\d{16,25}$/.test(item));
+  return firstValidRoleId ? [firstValidRoleId] : [];
 }
 
 function cleanPermissions(value: unknown) {
@@ -103,9 +103,21 @@ function cleanPermissions(value: unknown) {
   return Array.from(new Set(items.map((item) => String(item || "").trim()).filter((item): item is DashboardPermissionKey => allowed.has(item))));
 }
 
-function roleForGroupId(id: string, rank: number): DashboardRole {
-  if (id === DEFAULT_ADMIN_GROUP_ID || rank >= 100) return "admin";
-  if (id === DEFAULT_MODERATOR_GROUP_ID || rank >= 50) return "moderator";
+function cleanRole(value: unknown, fallback: DashboardRole = "member"): DashboardRole {
+  return value === "admin" || value === "moderator" || value === "mentor" || value === "member" ? value : fallback;
+}
+
+function roleForGroup(id: string, rank: number, requestedRole?: unknown): DashboardRole {
+  if (id === DEFAULT_ADMIN_GROUP_ID) return "admin";
+  if (id === DEFAULT_MODERATOR_GROUP_ID) return "moderator";
+  if (id === DEFAULT_MENTOR_GROUP_ID) return "mentor";
+  if (id === DEFAULT_MEMBER_GROUP_ID) return "member";
+  if (requestedRole !== undefined && requestedRole !== null && String(requestedRole).trim()) {
+    return cleanRole(requestedRole, "member");
+  }
+  if (rank >= 100) return "admin";
+  if (rank >= 50) return "moderator";
+  if (rank >= 20) return "mentor";
   return "member";
 }
 
@@ -113,9 +125,7 @@ function normalizeGroup(idInput: string, raw: Record<string, unknown> = {}): Acc
   const id = cleanId(raw.id || idInput);
   const fallback = DEFAULT_GROUPS.find((group) => group.id === id);
   const rank = Number.isFinite(Number(raw.rank)) ? Math.floor(Number(raw.rank)) : fallback?.rank ?? 10;
-  const role = raw.role === "admin" || raw.role === "moderator" || raw.role === "mentor" || raw.role === "member"
-    ? raw.role
-    : fallback?.role || roleForGroupId(id, rank);
+  const role = roleForGroup(id, rank, raw.role || fallback?.role);
   const permissions = cleanPermissions(raw.permissions);
 
   return {
@@ -125,7 +135,7 @@ function normalizeGroup(idInput: string, raw: Record<string, unknown> = {}): Acc
     rank,
     lockedId: Boolean(raw.lockedId ?? fallback?.lockedId ?? FIXED_GROUP_IDS.has(id)),
     protectedGroup: Boolean(raw.protectedGroup ?? fallback?.protectedGroup ?? FIXED_GROUP_IDS.has(id)),
-    discordRoleIds: cleanDiscordRoleIds(raw.discordRoleIds),
+    discordRoleIds: cleanDiscordRoleIds(raw.discordRoleId ?? raw.discordRoleIds),
     permissions: permissions.length ? permissions : fallback?.permissions || ["dashboard.view"],
     createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
@@ -155,12 +165,24 @@ export async function ensureDefaultAccessGroups() {
   await Promise.all(DEFAULT_GROUPS.map(async (group) => {
     const doc = ref.doc(group.id);
     const snap = await doc.get();
-    if (snap.exists) return;
-    await doc.set({
-      ...group,
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
-    });
+    if (!snap.exists) {
+      await doc.set({
+        ...group,
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      });
+      return;
+    }
+
+    const current = normalizeGroup(group.id, snap.data());
+    const patch: Partial<AccessGroup> & { updatedAt?: string } = {};
+    if (current.role !== group.role) patch.role = group.role;
+    if (current.lockedId !== group.lockedId) patch.lockedId = group.lockedId;
+    if (current.protectedGroup !== group.protectedGroup) patch.protectedGroup = group.protectedGroup;
+    if (group.id === DEFAULT_MENTOR_GROUP_ID && !current.name) patch.name = group.name;
+    if (Object.keys(patch).length) {
+      await doc.set({ ...patch, updatedAt: nowIso() }, { merge: true });
+    }
   }));
   return fallbackGroups();
 }
@@ -213,7 +235,7 @@ export function hasPermission(session: DashboardSession | null | undefined, perm
 }
 
 export function canManageGroups(session: DashboardSession | null | undefined) {
-  return hasPermission(session, "groups.manage") && session?.role === "admin";
+  return Boolean(session && session.role === "admin" && hasPermission(session, "groups.manage"));
 }
 
 export function canEditTargetGroup(viewer: DashboardSession | null | undefined, target: AccessGroup) {
@@ -221,6 +243,7 @@ export function canEditTargetGroup(viewer: DashboardSession | null | undefined, 
   if (!viewer) return false;
   if (viewer.isServerOwner) return true;
   if (target.id === DEFAULT_ADMIN_GROUP_ID) return false;
+  if (target.role === "admin" || target.rank >= 100 || target.permissions.includes("groups.manage")) return false;
   if (viewer.groupId && viewer.groupId === target.id) return false;
   return true;
 }
@@ -229,7 +252,9 @@ export async function upsertAccessGroup(input: {
   id?: unknown;
   currentId?: unknown;
   name?: unknown;
+  role?: unknown;
   rank?: unknown;
+  discordRoleId?: unknown;
   discordRoleIds?: unknown;
   permissions?: unknown;
 }, viewer: DashboardSession) {
@@ -241,37 +266,44 @@ export async function upsertAccessGroup(input: {
   if (!nextId) throw new Error("Вкажи ID групи.");
 
   const groups = await listAccessGroups();
-  const existing = groups.find((group) => group.id === currentId || group.id === nextId) || null;
-  const target = existing || normalizeGroup(nextId, { id: nextId, name: input.name, permissions: ["dashboard.view"] });
-  if (existing && !canEditTargetGroup(viewer, existing)) throw new Error("Цю групу не можна змінювати з поточного акаунта.");
+  const currentGroup = currentId ? groups.find((group) => group.id === currentId) || null : null;
+  const conflictGroup = groups.find((group) => group.id === nextId && group.id !== currentId) || null;
+  if (conflictGroup) throw new Error("Група з таким ID уже існує.");
 
-  const fixedId = existing?.lockedId || FIXED_GROUP_IDS.has(currentId || nextId);
-  const id = fixedId ? (existing?.id || nextId) : nextId;
-  const rank = Number.isFinite(Number(input.rank)) ? Math.max(1, Math.min(100, Math.floor(Number(input.rank)))) : target.rank;
+  const target = currentGroup || normalizeGroup(nextId, { id: nextId, name: input.name, permissions: ["dashboard.view"] });
+  if (currentGroup && !canEditTargetGroup(viewer, currentGroup)) throw new Error("Цю групу не можна змінювати з поточного акаунта.");
+
+  const fixedId = currentGroup?.lockedId || FIXED_GROUP_IDS.has(currentId || nextId);
+  const id = fixedId ? (currentGroup?.id || nextId) : nextId;
+  const rankInput = Number(input.rank);
+  const rank = Number.isFinite(rankInput) ? Math.max(1, Math.min(100, Math.floor(rankInput))) : target.rank;
   const effectiveRank = id === DEFAULT_ADMIN_GROUP_ID ? 100 : id === DEFAULT_MODERATOR_GROUP_ID ? 50 : id === DEFAULT_MEMBER_GROUP_ID ? 10 : rank;
+  const effectiveRole = roleForGroup(id, effectiveRank, input.role || target.role);
   const requestedPermissions = cleanPermissions(input.permissions);
-  if (!viewer.isServerOwner && (id === DEFAULT_ADMIN_GROUP_ID || effectiveRank >= 100 || requestedPermissions.includes("groups.manage"))) {
+  if (!requestedPermissions.includes("dashboard.view")) requestedPermissions.unshift("dashboard.view");
+
+  if (!viewer.isServerOwner && (id === DEFAULT_ADMIN_GROUP_ID || effectiveRole === "admin" || effectiveRank >= 100 || requestedPermissions.includes("groups.manage"))) {
     throw new Error("Адміністративні права груп може змінювати тільки власник Discord-сервера.");
   }
 
+  const roleIdSource = input.discordRoleId ?? input.discordRoleIds;
   const doc = {
     id,
     name: cleanName(input.name, target.name),
-    role: roleForGroupId(id, effectiveRank),
+    role: effectiveRole,
     rank: effectiveRank,
     lockedId: FIXED_GROUP_IDS.has(id) || Boolean(target.lockedId),
     protectedGroup: FIXED_GROUP_IDS.has(id) || Boolean(target.protectedGroup),
-    discordRoleIds: cleanDiscordRoleIds(input.discordRoleIds),
+    discordRoleIds: cleanDiscordRoleIds(roleIdSource),
     permissions: requestedPermissions,
     updatedAt: nowIso(),
   };
-  if (!doc.permissions.includes("dashboard.view")) doc.permissions.unshift("dashboard.view");
 
   const ref = collectionRef();
   if (currentId && currentId !== id) {
     await ref.doc(currentId).delete();
   }
-  await ref.doc(id).set({ ...doc, createdAt: existing?.createdAt || nowIso() }, { merge: true });
+  await ref.doc(id).set({ ...doc, createdAt: currentGroup?.createdAt || nowIso() }, { merge: true });
   return normalizeGroup(id, doc);
 }
 
@@ -279,7 +311,9 @@ export async function deleteAccessGroup(groupId: string, viewer: DashboardSessio
   if (!canManageGroups(viewer)) throw new Error("Недостатньо прав для видалення груп.");
   const id = cleanId(groupId);
   if (!id || FIXED_GROUP_IDS.has(id)) throw new Error("Системні групи не видаляються.");
-  if (viewer.groupId === id) throw new Error("Не можна видалити власну групу.");
+  const group = await getAccessGroup(id);
+  if (!group) return true;
+  if (!canEditTargetGroup(viewer, group)) throw new Error("Цю групу не можна видалити з поточного акаунта.");
   await collectionRef().doc(id).delete();
   return true;
 }

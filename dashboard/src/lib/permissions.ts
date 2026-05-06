@@ -151,7 +151,7 @@ export function dashboardCapabilities(role: DashboardRole, permissions?: string[
     { key: "raids", title: "Рейди", description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.", enabled: enabled("raids.manage", canModerate) },
     { key: "rules-embeds", title: "Discord правила", description: isAdmin ? "Керування повідомленнями правил, кнопками прийняття, ролями та статистикою." : "Перегляд статистики правил без права змінювати самі повідомлення.", enabled: enabled("discord.rules.manage", isAdmin) },
     { key: "site-content", title: "Новини та гайди сайту", description: "Створення, редагування та видалення матеріалів сайту.", enabled: enabled("content.manage", isAdmin) },
-    { key: "groups", title: "Групи та права", description: "Керування групами доступу, Discord role ID і дозволами.", enabled: enabled("groups.manage", isAdmin) },
+    { key: "groups", title: "Групи та права", description: "Керування групами доступу, Discord role ID та дозволами.", enabled: enabled("groups.manage", isAdmin) },
   ];
 }
 

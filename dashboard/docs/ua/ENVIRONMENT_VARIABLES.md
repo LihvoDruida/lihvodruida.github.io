@@ -171,5 +171,5 @@
 4. Якщо Vercel route `/api/discord/interactions` використовується як fallback, у Vercel має бути `DISCORD_PUBLIC_KEY`.
 5. Для Firebase private key залишай `\\n` у Vercel env, код сам перетворить їх у переноси рядків.
 
-> ID ролей доступу більше не налаштовуються в env. Групи dashboard, Discord role ID і права керуються у Firebase на `/admin/groups`.
+> ID ролей доступу більше не налаштовуються в env. Групи dashboard, Discord role ID та права керуються у Firebase на `/admin/groups`.
 
