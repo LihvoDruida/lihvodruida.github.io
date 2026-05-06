@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-06 10:21:21'
+  updated_at: '2026-05-06 14:15:16'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13665
+      world: 13668
       region: 6090
       realm: 55
     heroic:
-      world: 12925
+      world: 12929
       region: 5542
       realm: 46
     mythic:
-      world: 7201
+      world: 7204
       region: 3077
       realm: 24
   blackrock-depths:
@@ -1961,11 +1961,11 @@ members:
     item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3056.4
-        color: '#5764e2'
+        score: 3085.5
+        color: '#6560e4'
       dps:
-        score: 3045.7
-        color: '#5764e2'
+        score: 3074.8
+        color: '#6560e4'
       healer:
         score: 2579.4
         color: '#5fb692'
@@ -1979,8 +1979,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3045.7
-        color: '#5764e2'
+        score: 3074.8
+        color: '#6560e4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5418,14 +5418,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3000.3
-        color: '#316cdf'
+        score: 3043.5
+        color: '#4769e0'
       dps:
-        score: 3000.3
-        color: '#316cdf'
+        score: 3043.5
+        color: '#4769e0'
       healer:
         score: 0
         color: '#ffffff'
@@ -5436,8 +5436,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3000.3
-        color: '#316cdf'
+        score: 3043.5
+        color: '#4769e0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6094,14 +6094,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2638.6
-        color: '#5da8a1'
+        score: 2688.4
+        color: '#5aa0ab'
       dps:
-        score: 2638.6
-        color: '#5da8a1'
+        score: 2688.4
+        color: '#5aa0ab'
       healer:
         score: 0
         color: '#ffffff'
@@ -6115,8 +6115,8 @@ members:
         score: 331.8
         color: '#f6fff2'
       spec_2:
-        score: 2633.9
-        color: '#5da8a1'
+        score: 2683.7
+        color: '#5aa0ab'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6850,7 +6850,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 265
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 938.6

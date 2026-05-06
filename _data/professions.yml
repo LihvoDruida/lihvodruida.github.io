@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-06 10:21:21'
+  updated_at: '2026-05-06 14:15:16'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2895,7 +2895,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 81
+        learned_points: 82
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6774,7 +6774,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 85
+        learned_points: 87
         max_points: 100
     - name: Alchemy
       id: 171
