@@ -25,6 +25,9 @@ import {
   resolveRaidThumbnailUrl,
   raidMinItemLevelWarning,
   raidMinItemLevelBlockMessage,
+  raidSignupCharacterMinimumNote,
+  isRaidSubjectBlockedByMinItemLevel,
+  isRaidSubjectWarnedByMinItemLevel,
   type RaidCharacterRole,
   type RaidItem,
   type RaidParty,
@@ -152,16 +155,19 @@ export function RosterSideList({ raid, showItemLevel = true }: { raid: RaidItem;
   );
 }
 
-function characterSignupOption(character: DashboardProfile["characters"][number]): RaidSignupCharacterOption {
+function characterSignupOption(character: DashboardProfile["characters"][number], raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">): RaidSignupCharacterOption {
   const realm = character.realmName || character.realmSlug || "realm";
+  const warningPrefix = isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : "";
+  const minimumNote = raidSignupCharacterMinimumNote(raid, character);
   const meta = [
+    minimumNote || null,
     character.activeSpecName || null,
     character.className || null,
     character.itemLevel ? `${character.itemLevel} ilvl` : null,
   ].filter(Boolean).join(" • ");
   return {
     key: character.key,
-    label: `${character.name} • ${realm}`,
+    label: `${warningPrefix}${character.name} • ${realm}`,
     meta,
   };
 }
@@ -172,11 +178,18 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
   const viewerDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
   const viewerSignup = viewerDiscordId ? raid.signups.find((item) => item.discordId === viewerDiscordId) : null;
   const viewerAlreadyActive = viewerSignup?.status === "going" || viewerSignup?.status === "late";
-  const characterOptions = profile?.characters.map(characterSignupOption) || [];
-  const selectedCharacterKey = viewerSignup?.characterKey || profile?.mainCharacterKey || characterOptions[0]?.key || "";
-  const hasAnyCharacter = characterOptions.length > 0 || Boolean(hasMainCharacter);
+  const allCharacters = profile?.characters || [];
+  const characterOptions = allCharacters
+    .filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character))
+    .map((character) => characterSignupOption(character, raid));
+  const optionKeys = new Set(characterOptions.map((item) => item.key));
+  const selectedCharacterKey = [viewerSignup?.characterKey, profile?.mainCharacterKey, characterOptions[0]?.key]
+    .find((key): key is string => Boolean(key && optionKeys.has(key))) || "";
+  const hiddenByMinItemLevel = Math.max(0, allCharacters.length - characterOptions.length);
+  const hasAnyCharacter = characterOptions.length > 0;
   const needsLogin = !user;
   const needsDiscordLogin = Boolean(user && !viewerDiscordId);
+  const needsEligibleCharacter = Boolean(viewerDiscordId && allCharacters.length > 0 && !characterOptions.length && raid.minItemLevelRequired && raid.minItemLevel);
   const needsCharacter = Boolean(viewerDiscordId && !hasAnyCharacter);
   const canSubmitAnyAction = Boolean(user && viewerDiscordId);
   const activeJoinDisabled = closed || needsLogin || needsDiscordLogin || needsCharacter || (full && !viewerAlreadyActive);
@@ -187,16 +200,20 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
       ? "Спочатку увійди через Discord."
       : needsDiscordLogin
         ? "Для запису потрібен Discord-вхід."
-        : needsCharacter
-          ? "Спочатку додай хоча б одного персонажа Battle.net у профілі."
-          : activeJoinDisabled
-            ? "Ліміт гравців досягнуто. Нові записи недоступні."
-            : undefined;
+        : needsEligibleCharacter
+          ? `Немає персонажа з мінімальним item level ${raid.minItemLevel}. Персонажі нижче порогу приховані.`
+          : needsCharacter
+            ? "Спочатку додай хоча б одного персонажа Battle.net у профілі."
+            : activeJoinDisabled
+              ? "Ліміт гравців досягнуто. Нові записи недоступні."
+              : undefined;
   const showRequirement = needsLogin || needsDiscordLogin || needsCharacter;
-  const requirementTitle = needsLogin || needsDiscordLogin ? "Потрібна авторизація" : "Потрібен персонаж";
+  const requirementTitle = needsLogin || needsDiscordLogin ? "Потрібна авторизація" : needsEligibleCharacter ? "Немає доступного персонажа" : "Потрібен персонаж";
   const requirementMessage = needsLogin || needsDiscordLogin
     ? "Щоб підписатися на рейд, увійди через Discord. Після входу додай персонажа Battle.net у профілі."
-    : "Запис на рейд бере роль, item level і нік із вибраного персонажа. Додай персонажа Battle.net у профілі та повтори запис.";
+    : needsEligibleCharacter
+      ? `Для цього рейду потрібен мінімум ${raid.minItemLevel} ilvl. Персонажі нижче порогу приховані, бо увімкнено блокування запису.`
+      : "Запис на рейд бере роль, item level і нік із вибраного персонажа. Додай персонажа Battle.net у профілі та повтори запис.";
   return (
     <RaidAttendanceClient
       raidId={raid.id}
@@ -213,7 +230,7 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
       rulesHref={dashboardRaidRulesUrl()}
       characterOptions={characterOptions}
       selectedCharacterKey={selectedCharacterKey}
-      title={title}
+      title={hiddenByMinItemLevel > 0 && !needsEligibleCharacter ? `${hiddenByMinItemLevel} персонаж(ів) нижче мінімального ilvl приховано.` : title}
     />
   );
 }

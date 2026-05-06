@@ -619,6 +619,62 @@ export function raidAverageItemLevel(raid: Pick<RaidItem, "signups">) {
   return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
 }
 
+type RaidMinimumPolicy = Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">;
+type RaidItemLevelSubject = Pick<RaidSignup, "itemLevel" | "status"> | Pick<ProfileCharacter, "itemLevel"> | null | undefined;
+
+function raidMinimumItemLevel(raid: Pick<RaidItem, "minItemLevel">) {
+  const minimum = Number(raid.minItemLevel || 0);
+  return Number.isFinite(minimum) && minimum > 0 ? Math.floor(minimum) : 0;
+}
+
+function raidSubjectItemLevel(subject: RaidItemLevelSubject) {
+  const current = Number(subject?.itemLevel || 0);
+  return Number.isFinite(current) && current > 0 ? Math.floor(current) : null;
+}
+
+function isSkippedItemLevelSubject(subject: RaidItemLevelSubject) {
+  return Boolean(subject && "status" in subject && subject.status === "skipped");
+}
+
+export function isRaidSubjectBelowMinItemLevel(raid: Pick<RaidItem, "minItemLevel">, subject: RaidItemLevelSubject) {
+  const required = raidMinimumItemLevel(raid);
+  const current = raidSubjectItemLevel(subject);
+  return Boolean(required && current !== null && current < required);
+}
+
+export function isRaidSubjectBlockedByMinItemLevel(raid: RaidMinimumPolicy, subject: RaidItemLevelSubject) {
+  const required = raidMinimumItemLevel(raid);
+  if (!raid.minItemLevelRequired || !required || isSkippedItemLevelSubject(subject)) return false;
+  const current = raidSubjectItemLevel(subject);
+  return current === null || current < required;
+}
+
+export function isRaidSubjectWarnedByMinItemLevel(raid: RaidMinimumPolicy, subject: RaidItemLevelSubject) {
+  const required = raidMinimumItemLevel(raid);
+  if (raid.minItemLevelRequired || !required || isSkippedItemLevelSubject(subject)) return false;
+  return isRaidSubjectBelowMinItemLevel(raid, subject);
+}
+
+export function raidEligibleSignupCharacters(raid: RaidMinimumPolicy, profile?: Pick<DashboardProfile, "characters"> | null) {
+  const characters = profile?.characters || [];
+  return characters.filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character));
+}
+
+export function raidSignupCharacterMinimumNote(raid: RaidMinimumPolicy, character: Pick<ProfileCharacter, "itemLevel">) {
+  const required = raidMinimumItemLevel(raid);
+  const current = raidSubjectItemLevel(character);
+  if (!required) return null;
+  if (isRaidSubjectBlockedByMinItemLevel(raid, character)) {
+    return current === null
+      ? `⛔ ilvl не визначено, мінімум ${required}`
+      : `⛔ ${current} ilvl нижче мінімуму ${required}`;
+  }
+  if (isRaidSubjectWarnedByMinItemLevel(raid, character)) {
+    return `⚠️ ${current} ilvl нижче мінімуму ${required}`;
+  }
+  return null;
+}
+
 export function hasRaidStorage() {
   return hasFirebaseProfileConfig();
 }
@@ -1133,6 +1189,16 @@ export function decodeRaidAttendanceCustomId(customId: string) {
   return { raidId: match[1], action: cleanSignupStatus(match[2]) };
 }
 
+export function decodeRaidCharacterSelectCustomId(customId: string, values?: unknown) {
+  const value = cleanString(customId, 120);
+  const match = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  if (!match) return null;
+  const selectedValues = Array.isArray(values) ? values : [];
+  const characterKey = cleanString(selectedValues[0], 260);
+  if (!characterKey) return null;
+  return { raidId: match[1], action: cleanSignupStatus(match[2]), characterKey };
+}
+
 export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean } = false) {
   const disabled = typeof options === "boolean" ? options : Boolean(options.disabled);
   const full = typeof options === "object" && Boolean(options.full);
@@ -1163,22 +1229,28 @@ function raidCharacterOptionLabel(character: ProfileCharacter) {
   return `${character.name} • ${realm}`.slice(0, 100);
 }
 
-function raidCharacterOptionDescription(character: ProfileCharacter) {
+function raidCharacterOptionDescription(character: ProfileCharacter, raid?: RaidMinimumPolicy | null) {
+  const minimumNote = raid ? raidSignupCharacterMinimumNote(raid, character) : null;
   return [
+    minimumNote || null,
     character.activeSpecName || null,
     character.className || null,
     character.itemLevel ? `${character.itemLevel} ilvl` : null,
   ].filter(Boolean).join(" • ").slice(0, 100) || "Персонаж Battle.net";
 }
 
-export function buildRaidCharacterSelectComponents(raidId: string, action: RaidSignupStatus, profile: DashboardProfile, selectedCharacterKey?: string | null) {
+export function buildRaidCharacterSelectComponents(raidId: string, action: RaidSignupStatus, profile: DashboardProfile, selectedCharacterKey?: string | null, raid?: RaidMinimumPolicy | null) {
   const selectedKey = normalizeCharacterKey(selectedCharacterKey);
-  const options = profile.characters.slice(0, 25).map((character, index) => ({
-    label: raidCharacterOptionLabel(character),
-    description: raidCharacterOptionDescription(character),
-    value: `c${index}`,
-    default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
-  }));
+  const options = profile.characters
+    .map((character, index) => ({ character, index }))
+    .filter(({ character }) => !raid || !isRaidSubjectBlockedByMinItemLevel(raid, character))
+    .slice(0, 25)
+    .map(({ character, index }) => ({
+      label: `${raid && isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : ""}${raidCharacterOptionLabel(character)}`.slice(0, 100),
+      description: raidCharacterOptionDescription(character, raid),
+      value: `c${index}`,
+      default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
+    }));
 
   if (!options.length) return [];
 
@@ -1433,29 +1505,26 @@ export function raidMinItemLevelBlockMessage(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
   signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
 ) {
-  const required = Number(raid.minItemLevel || 0);
-  if (!raid.minItemLevelRequired || !required || !Number.isFinite(required) || signup?.status === "skipped") return null;
+  if (!isRaidSubjectBlockedByMinItemLevel(raid, signup)) return null;
 
-  const current = Number(signup?.itemLevel || 0);
+  const required = raidMinimumItemLevel(raid);
+  const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  if (!current || !Number.isFinite(current)) {
-    return `⛔ ${name}: item level не визначено. Для цього рейду потрібен мінімум ${Math.floor(required)}. Запис заблоковано.`;
+  if (current === null) {
+    return `⛔ ${name}: item level не визначено. Для цього рейду потрібен мінімум ${required}. Запис заблоковано.`;
   }
-  if (current < required) {
-    return `⛔ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Запис заблоковано для цього рейду.`;
-  }
-  return null;
+  return `⛔ ${name}: item level ${current} нижче мінімального порогу ${required}. Запис заблоковано для цього рейду.`;
 }
 
 export function raidMinItemLevelWarning(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
   signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
 ) {
-  const required = Number(raid.minItemLevel || 0);
-  const current = Number(signup?.itemLevel || 0);
-  if (raid.minItemLevelRequired || signup?.status === "skipped" || !required || !Number.isFinite(required) || !current || !Number.isFinite(current) || current >= required) return null;
+  if (!isRaidSubjectWarnedByMinItemLevel(raid, signup)) return null;
+  const required = raidMinimumItemLevel(raid);
+  const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  return `⚠️ ${name}: item level ${Math.floor(current)} нижче мінімального порогу ${Math.floor(required)}. Ти записаний, але краще підняти спорядження перед рейдом.`;
+  return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. Ти записаний, але краще підняти спорядження перед рейдом.`;
 }
 
 function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null, discordSynced = true) {
@@ -1487,6 +1556,7 @@ export async function handleRaidDiscordAction(params: {
   if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
 
   let profile: DashboardProfile | null = null;
+  let selectedCharacter: ProfileCharacter | null = null;
   if (params.action !== "skipped") {
     profile = await getProfileByDiscordUserId(params.userId);
     profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: params.userId });
@@ -1498,30 +1568,44 @@ export async function handleRaidDiscordAction(params: {
         blockedByProfile: true,
       };
     }
-    const selectedCharacter = resolveProfileCharacterSelection(profile, params.characterKey) || (profile.characters.length === 1 ? profile.characters[0] : null);
-    if (!selectedCharacter && profile.characters.length > 1) {
+
+    const requestedCharacter = resolveProfileCharacterSelection(profile, params.characterKey);
+    const eligibleCharacters = raidEligibleSignupCharacters(raid, profile);
+    if (requestedCharacter && isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)) {
+      const blockedSignup = signupFromProfile(params.action, params.userId, params.userName, profile, requestedCharacter.key);
+      return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
+    }
+    selectedCharacter = requestedCharacter || (eligibleCharacters.length === 1 ? eligibleCharacters[0] : null);
+
+    if (!selectedCharacter && eligibleCharacters.length > 1) {
       const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
+      const hiddenCount = profile.characters.length - eligibleCharacters.length;
       return {
         ok: true,
-        content: "🎯 Обери персонажа, яким хочеш записатися на рейд. Це приватний вибір — інші його не бачать.",
-        components: buildRaidCharacterSelectComponents(raid.id, params.action, profile, currentSignup?.characterKey || null),
+        content: `🎯 Обери персонажа, яким хочеш записатися на рейд. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`,
+        components: buildRaidCharacterSelectComponents(raid.id, params.action, profile, currentSignup?.characterKey || null, raid),
         requiresCharacterSelection: true,
       };
     }
     if (!selectedCharacter) {
+      const minimum = raidMinimumItemLevel(raid);
+      const content = profile.characters.length && raid.minItemLevelRequired && minimum
+        ? `⛔ Немає доступних персонажів для запису: потрібен мінімум ${minimum} ilvl. Персонажі нижче порогу не показуються і не можуть бути записані.`
+        : raidActionHelpText("main");
+      const allBlocked = Boolean(profile.characters.length && raid.minItemLevelRequired && minimum);
       return {
         ok: false,
-        content: raidActionHelpText("main"),
-        components: raidActionHelpComponents(raid.id),
-        blockedByProfile: true,
+        content,
+        components: allBlocked ? [] : raidActionHelpComponents(raid.id),
+        blockedByProfile: !allBlocked,
+        blockedByMinItemLevel: allBlocked,
       };
     }
   } else {
     profile = await getProfileByDiscordUserId(params.userId).catch(() => null);
   }
 
-  const explicitCharacter = params.action === "skipped" ? null : resolveProfileCharacterSelection(profile, params.characterKey);
-  const signup = signupFromProfile(params.action, params.userId, params.userName, profile, explicitCharacter?.key || params.characterKey);
+  const signup = signupFromProfile(params.action, params.userId, params.userName, profile, selectedCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
@@ -1561,21 +1645,36 @@ export async function handleRaidSessionAction(params: {
     profile = await getProfileByDiscordUserId(discordId).catch(() => null);
   }
 
+  let selectedCharacter: ProfileCharacter | null = null;
   if (params.action !== "skipped") {
     profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: discordId });
-    const selectedCharacter = resolveProfileCharacterSelection(profile, params.characterKey) || (profile?.characters.length === 1 ? profile.characters[0] : null);
+    const requestedCharacter = resolveProfileCharacterSelection(profile, params.characterKey);
+    const eligibleCharacters = raidEligibleSignupCharacters(raid, profile);
+    if (requestedCharacter && isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)) {
+      const blockedSignup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, requestedCharacter.key);
+      return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
+    }
+    selectedCharacter = requestedCharacter || (eligibleCharacters.length === 1 ? eligibleCharacters[0] : null);
     if (!profile || !profile.characters.length || !selectedCharacter) {
+      const minimum = raidMinimumItemLevel(raid);
+      const allBlocked = Boolean(profile?.characters.length && raid.minItemLevelRequired && minimum && eligibleCharacters.length === 0);
       return {
         ok: false,
-        content: !profile ? raidActionHelpText("login") : params.characterKey ? "❌ Обраного персонажа не знайдено у твоєму профілі. Онови персонажів у профілі й повтори запис." : raidActionHelpText("main"),
+        content: !profile
+          ? raidActionHelpText("login")
+          : allBlocked
+            ? `⛔ Немає доступних персонажів для запису: потрібен мінімум ${minimum} ilvl. Персонажі нижче порогу не показуються і не можуть бути записані.`
+            : params.characterKey
+              ? "❌ Обраного персонажа не знайдено у твоєму профілі або він недоступний для цього рейду. Онови персонажів у профілі й повтори запис."
+              : raidActionHelpText("main"),
         components: raidActionHelpComponents(raid.id),
-        blockedByProfile: true,
+        blockedByProfile: !allBlocked,
+        blockedByMinItemLevel: allBlocked,
       };
     }
   }
 
-  const explicitCharacter = params.action === "skipped" ? null : resolveProfileCharacterSelection(profile, params.characterKey);
-  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, explicitCharacter?.key || params.characterKey);
+  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, selectedCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);

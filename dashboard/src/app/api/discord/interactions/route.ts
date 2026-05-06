@@ -8,7 +8,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
-import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
+import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -150,7 +150,8 @@ export async function POST(request: NextRequest) {
   }
 
   const customId = String(interaction?.data?.custom_id || "");
-  const raidAction = decodeRaidAttendanceCustomId(customId);
+  const raidSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
+  const raidAction = raidSelectAction || decodeRaidAttendanceCustomId(customId);
   const parsed = raidAction ? null : decodeRulesCustomId(customId);
   if (!raidAction && !parsed) {
     logDashboardEvent("warn", "discord.rules.unknown_custom_id", request, { customId: customId.slice(0, 24) });
@@ -168,6 +169,7 @@ export async function POST(request: NextRequest) {
         action: raidAction.action,
         userId,
         userName,
+        characterKey: "characterKey" in raidAction ? String(raidAction.characterKey || "") : null,
         messageRef: getInteractionMessageRef(interaction),
       });
       logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });
