@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-06 14:15:16'
+  updated_at: '2026-05-06 17:43:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 132
+  member_count: 131
 characters:
 - name: Бреинор
   region: eu
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 81
+        learned_points: 84
         max_points: 100
     - name: Alchemy
       id: 171
@@ -5216,7 +5216,7 @@ characters:
         learned_points: 4
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 98
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -6141,53 +6141,6 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 98
-        max_points: 300
-- name: Дупця
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дупця
-  professions:
-    primaries:
-    - name: Skinning
-      id: 393
-      tiers:
-      - name: Classic Skinning
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Skinning
-        learned_points: 1
-        max_points: 100
-      - name: Midnight Skinning
-        learned_points: 100
-        max_points: 100
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 1
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 17
         max_points: 300
 - name: Корбус
   region: eu
