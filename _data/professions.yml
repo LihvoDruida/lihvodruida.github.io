@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-06 17:43:02'
+  updated_at: '2026-05-06 21:12:53'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1008,7 +1008,7 @@ characters:
         learned_points: 54
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 70
+        learned_points: 73
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1265,7 +1265,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 29
+        learned_points: 31
         max_points: 300
 - name: Darthkenobi
   region: eu
@@ -1449,7 +1449,7 @@ characters:
         learned_points: 16
         max_points: 75
       - name: Cataclysm Skinning
-        learned_points: 14
+        learned_points: 15
         max_points: 75
       - name: Northrend Skinning
         learned_points: 15
@@ -1543,7 +1543,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 266
+        learned_points: 267
         max_points: 300
 - name: Zanzithor
   region: eu
@@ -4359,7 +4359,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 57
+        learned_points: 60
         max_points: 100
     secondaries:
     - name: Fishing
