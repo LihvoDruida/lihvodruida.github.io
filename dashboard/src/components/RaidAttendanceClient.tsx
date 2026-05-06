@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
 import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
@@ -10,6 +10,12 @@ type ToastPayload = {
   title?: string;
   message?: string;
   ttl?: number;
+};
+
+export type RaidSignupCharacterOption = {
+  key: string;
+  label: string;
+  meta?: string;
 };
 
 type RaidAttendanceClientProps = {
@@ -25,6 +31,8 @@ type RaidAttendanceClientProps = {
   loginHref: string;
   profileHref: string;
   rulesHref: string;
+  characterOptions?: RaidSignupCharacterOption[];
+  selectedCharacterKey?: string;
   title?: string;
 };
 
@@ -62,14 +70,37 @@ export default function RaidAttendanceClient({
   loginHref,
   profileHref,
   rulesHref,
+  characterOptions = [],
+  selectedCharacterKey = "",
   title,
 }: RaidAttendanceClientProps) {
   const [busyAction, setBusyAction] = useState<RaidSignupStatus | null>(null);
+  const [characterKey, setCharacterKey] = useState(selectedCharacterKey || characterOptions[0]?.key || "");
+  const needsCharacterChoice = characterOptions.length > 0;
+  const selectedCharacter = characterOptions.find((item) => item.key === characterKey) || null;
+  const activeDisabled = activeJoinDisabled || (needsCharacterChoice && !selectedCharacter);
+
+  useEffect(() => {
+    setCharacterKey((current) => {
+      if (current && characterOptions.some((item) => item.key === current)) return current;
+      return selectedCharacterKey || characterOptions[0]?.key || "";
+    });
+  }, [characterOptions, selectedCharacterKey]);
 
   async function submitAttendance(action: RaidSignupStatus) {
     if (busyAction) return;
-    if ((action === "going" || action === "late") && activeJoinDisabled) return;
+    if ((action === "going" || action === "late") && activeDisabled) return;
     if (action === "skipped" && skipDisabled) return;
+
+    if ((action === "going" || action === "late") && needsCharacterChoice && !selectedCharacter) {
+      dispatchDashboardToast({
+        tone: "warning",
+        title: "Вибери персонажа",
+        message: "Перед записом на рейд потрібно вибрати, яким персонажем ти йдеш.",
+        ttl: 5600,
+      });
+      return;
+    }
 
     setBusyAction(action);
     dispatchDashboardToast({
@@ -81,6 +112,7 @@ export default function RaidAttendanceClient({
 
     const formData = new FormData();
     formData.set("action", action);
+    if (characterKey) formData.set("characterKey", characterKey);
 
     try {
       const response = await fetch(`/api/raids/${encodeURIComponent(raidId)}/attendance`, {
@@ -143,15 +175,27 @@ export default function RaidAttendanceClient({
         </div>
       ) : null}
 
+      {needsCharacterChoice ? (
+        <label className="raid-character-picker">
+          <span>Персонаж для запису</span>
+          <select className="select" value={characterKey} onChange={(event) => setCharacterKey(event.target.value)} disabled={closed || Boolean(busyAction)}>
+            {characterOptions.map((character) => (
+              <option key={character.key} value={character.key}>{character.label}</option>
+            ))}
+          </select>
+          {selectedCharacter?.meta ? <small>{selectedCharacter.meta}</small> : null}
+        </label>
+      ) : null}
+
       <div
         className={`raid-preview-buttons raid-preview-buttons--interactive${busyAction ? " is-submitting" : ""}`}
-        aria-disabled={closed || activeJoinDisabled}
+        aria-disabled={closed || activeDisabled}
         aria-busy={busyAction ? "true" : undefined}
       >
         <button
           className="raid-action raid-action--go"
           type="button"
-          disabled={activeJoinDisabled || Boolean(busyAction)}
+          disabled={activeDisabled || Boolean(busyAction)}
           title={title}
           onClick={() => submitAttendance("going")}
         >
@@ -169,7 +213,7 @@ export default function RaidAttendanceClient({
         <button
           className="raid-action raid-action--late"
           type="button"
-          disabled={activeJoinDisabled || Boolean(busyAction)}
+          disabled={activeDisabled || Boolean(busyAction)}
           title={title}
           onClick={() => submitAttendance("late")}
         >

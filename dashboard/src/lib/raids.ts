@@ -1,7 +1,8 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, getProfileRaidRole, refreshProfileCharactersForRaidSignup, type DashboardProfile } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -29,6 +30,7 @@ export type RaidSignup = {
   discordId: string;
   discordName: string;
   profileId?: string | null;
+  characterKey?: string | null;
   status: RaidSignupStatus;
   role: RaidCharacterRole;
   characterName?: string | null;
@@ -197,7 +199,7 @@ function raidActionHelpText(reason: "login" | "main") {
 Профіль: ${profile}
 Правила рейду: ${rules}`;
   }
-  return `❌ Запис не зараховано: у профілі потрібно додати персонажа Battle.net і вибрати мейна.
+  return `❌ Запис не зараховано: у профілі потрібно додати хоча б одного персонажа Battle.net.
 Профіль: ${profile}
 Правила рейду: ${rules}`;
 }
@@ -372,6 +374,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     discordId,
     discordName: cleanString(item.discordName, 100) || "Discord user",
     profileId: cleanString(item.profileId, 80) || null,
+    characterKey: normalizeCharacterKey(item.characterKey || item.character_key) || null,
     status: cleanSignupStatus(item.status),
     role: resolvedRole,
     characterName: cleanString(item.characterName, 80) || null,
@@ -1146,6 +1149,69 @@ export function buildRaidAttendanceComponents(raidId: string, options: boolean |
   ];
 }
 
+
+export function buildRaidCharacterSelectCustomId(raidId: string, action: RaidSignupStatus) {
+  const id = cleanRaidId(raidId);
+  const safeAction = cleanSignupStatus(action);
+  const customId = `mbv1:rc:${id}:${safeAction}`;
+  if (!id || customId.length > 100) throw new Error("Некоректний ID рейду для Discord-вибору персонажа.");
+  return customId;
+}
+
+function raidCharacterOptionLabel(character: ProfileCharacter) {
+  const realm = character.realmName || character.realmSlug || "realm";
+  return `${character.name} • ${realm}`.slice(0, 100);
+}
+
+function raidCharacterOptionDescription(character: ProfileCharacter) {
+  return [
+    character.activeSpecName || null,
+    character.className || null,
+    character.itemLevel ? `${character.itemLevel} ilvl` : null,
+  ].filter(Boolean).join(" • ").slice(0, 100) || "Персонаж Battle.net";
+}
+
+export function buildRaidCharacterSelectComponents(raidId: string, action: RaidSignupStatus, profile: DashboardProfile, selectedCharacterKey?: string | null) {
+  const selectedKey = normalizeCharacterKey(selectedCharacterKey);
+  const options = profile.characters.slice(0, 25).map((character, index) => ({
+    label: raidCharacterOptionLabel(character),
+    description: raidCharacterOptionDescription(character),
+    value: `c${index}`,
+    default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
+  }));
+
+  if (!options.length) return [];
+
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: buildRaidCharacterSelectCustomId(raidId, action),
+          placeholder: action === "late" ? "Ким позначити запізнення?" : "Ким підписатися на рейд?",
+          min_values: 1,
+          max_values: 1,
+          options,
+        },
+      ],
+    },
+  ];
+}
+
+function resolveProfileCharacterSelection(profile: DashboardProfile | null | undefined, characterKey?: unknown): ProfileCharacter | null {
+  if (!profile?.characters?.length) return null;
+  const raw = cleanString(characterKey, 260);
+  if (!raw) return null;
+  const indexMatch = raw.match(/^c(\d{1,2})$/i);
+  if (indexMatch) {
+    const byIndex = profile.characters[Number(indexMatch[1])];
+    if (byIndex) return byIndex;
+  }
+  const cleanKey = normalizeCharacterKey(raw);
+  return cleanKey ? profile.characters.find((item) => normalizeCharacterKey(item.key) === cleanKey) || null : null;
+}
+
 function isMissingDiscordMessageError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || "");
   return /404|unknown message|10008/i.test(message);
@@ -1246,27 +1312,49 @@ async function refreshProfileBeforeRaidSignup(profile: DashboardProfile | null, 
   }
 }
 
-function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null): RaidSignup {
-  const main = profile ? getMainCharacter(profile) : null;
-  const role = profile ? getProfileRaidRole(profile) : "dps";
+function resolveRaidSignupCharacter(profile?: DashboardProfile | null, characterKey?: unknown): ProfileCharacter | null {
+  if (!profile?.characters?.length) return null;
+  const cleanKey = normalizeCharacterKey(characterKey);
+  if (cleanKey) {
+    const selected = profile.characters.find((item) => normalizeCharacterKey(item.key) === cleanKey);
+    if (selected) return selected;
+  }
+  return getMainCharacter(profile);
+}
+
+function resolveRaidSignupRole(profile: DashboardProfile | null | undefined, character: ProfileCharacter | null): RaidCharacterRole {
+  if (!character) return "dps";
+  const manualRole = profile?.raidRolePreference?.characterKey === character.key ? profile?.raidRolePreference?.role : null;
+  return manualRole || resolveWowCharacterRole({
+    className: character.className,
+    activeSpecName: character.activeSpecName,
+    activeSpecId: character.activeSpecId,
+    activeSpecRole: character.activeSpecRole,
+  });
+}
+
+function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null, characterKey?: unknown): RaidSignup {
+  const character = resolveRaidSignupCharacter(profile, characterKey);
+  const role = resolveRaidSignupRole(profile, character);
   const now = new Date().toISOString();
 
   return {
     discordId: userId,
     discordName: profile ? getProfilePublicName(profile) : userName || "Discord user",
     profileId: profile?.profileId || null,
+    characterKey: character?.key || null,
     status,
     role,
-    characterName: main?.name || null,
-    realmName: main?.realmName || main?.realmSlug || null,
-    realmSlug: main?.realmSlug || null,
-    region: main?.region || "eu",
-    className: main?.className || null,
-    activeSpecName: main?.activeSpecName || null,
-    activeSpecId: Number.isFinite(Number(main?.activeSpecId)) ? Number(main?.activeSpecId) : null,
-    avatarUrl: main?.avatarUrl || main?.renderUrl || main?.mediaUrl || null,
-    itemLevel: Number.isFinite(Number(main?.itemLevel)) ? Number(main?.itemLevel) : null,
-    profileUrl: main?.profileUrl || null,
+    characterName: character?.name || null,
+    realmName: character?.realmName || character?.realmSlug || null,
+    realmSlug: character?.realmSlug || null,
+    region: character?.region || "eu",
+    className: character?.className || null,
+    activeSpecName: character?.activeSpecName || null,
+    activeSpecId: Number.isFinite(Number(character?.activeSpecId)) ? Number(character?.activeSpecId) : null,
+    avatarUrl: character?.avatarUrl || character?.renderUrl || character?.mediaUrl || null,
+    itemLevel: Number.isFinite(Number(character?.itemLevel)) ? Number(character?.itemLevel) : null,
+    profileUrl: character?.profileUrl || null,
     signedAt: now,
     updatedAt: now,
   };
@@ -1376,9 +1464,10 @@ function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?
     : "Запис збережено, але Discord-повідомлення не оновилося автоматично. Офіцер може натиснути “Оновити Discord”.";
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
+  const characterText = signup?.characterName ? ` як ${signup.characterName}` : "";
   const base = action === "late"
-    ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}. ${syncText}`
-    : `✅ Ти записаний на ${raidTitle(raid)}${signup?.characterName ? ` як ${signup.characterName}` : ""}. ${syncText}`;
+    ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}. ${syncText}`
+    : `✅ Ти записаний на ${raidTitle(raid)}${characterText}. ${syncText}`;
   return warning ? `${base}\n\n${warning}` : base;
 }
 
@@ -1387,6 +1476,7 @@ export async function handleRaidDiscordAction(params: {
   action: RaidSignupStatus;
   userId: string;
   userName: string;
+  characterKey?: string | null;
   messageRef?: DiscordMessageRefInput | null;
 }) {
   const raid = await getRaid(params.raidId);
@@ -1400,11 +1490,28 @@ export async function handleRaidDiscordAction(params: {
   if (params.action !== "skipped") {
     profile = await getProfileByDiscordUserId(params.userId);
     profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: params.userId });
-    const main = profile ? getMainCharacter(profile) : null;
-    if (!profile || !main) {
+    if (!profile || !profile.characters.length) {
       return {
         ok: false,
         content: raidActionHelpText(!profile ? "login" : "main"),
+        components: raidActionHelpComponents(raid.id),
+        blockedByProfile: true,
+      };
+    }
+    const selectedCharacter = resolveProfileCharacterSelection(profile, params.characterKey) || (profile.characters.length === 1 ? profile.characters[0] : null);
+    if (!selectedCharacter && profile.characters.length > 1) {
+      const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
+      return {
+        ok: true,
+        content: "🎯 Обери персонажа, яким хочеш записатися на рейд. Це приватний вибір — інші його не бачать.",
+        components: buildRaidCharacterSelectComponents(raid.id, params.action, profile, currentSignup?.characterKey || null),
+        requiresCharacterSelection: true,
+      };
+    }
+    if (!selectedCharacter) {
+      return {
+        ok: false,
+        content: raidActionHelpText("main"),
         components: raidActionHelpComponents(raid.id),
         blockedByProfile: true,
       };
@@ -1413,7 +1520,8 @@ export async function handleRaidDiscordAction(params: {
     profile = await getProfileByDiscordUserId(params.userId).catch(() => null);
   }
 
-  const signup = signupFromProfile(params.action, params.userId, params.userName, profile);
+  const explicitCharacter = params.action === "skipped" ? null : resolveProfileCharacterSelection(profile, params.characterKey);
+  const signup = signupFromProfile(params.action, params.userId, params.userName, profile, explicitCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
@@ -1426,6 +1534,7 @@ export async function handleRaidSessionAction(params: {
   raidId: string;
   action: RaidSignupStatus;
   user: DashboardSession;
+  characterKey?: string | null;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
@@ -1454,18 +1563,19 @@ export async function handleRaidSessionAction(params: {
 
   if (params.action !== "skipped") {
     profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: discordId });
-    const main = profile ? getMainCharacter(profile) : null;
-    if (!profile || !main) {
+    const selectedCharacter = resolveProfileCharacterSelection(profile, params.characterKey) || (profile?.characters.length === 1 ? profile.characters[0] : null);
+    if (!profile || !profile.characters.length || !selectedCharacter) {
       return {
         ok: false,
-        content: raidActionHelpText(!profile ? "login" : "main"),
+        content: !profile ? raidActionHelpText("login") : params.characterKey ? "❌ Обраного персонажа не знайдено у твоєму профілі. Онови персонажів у профілі й повтори запис." : raidActionHelpText("main"),
         components: raidActionHelpComponents(raid.id),
         blockedByProfile: true,
       };
     }
   }
 
-  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile);
+  const explicitCharacter = params.action === "skipped" ? null : resolveProfileCharacterSelection(profile, params.characterKey);
+  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, explicitCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
   const updated = await recordRaidSignup(raid.id, signup);
@@ -1479,6 +1589,7 @@ export function raidLiveRevision(raid: RaidItem) {
     .sort((a, b) => `${a.discordId}:${a.characterName || ""}`.localeCompare(`${b.discordId}:${b.characterName || ""}`))
     .map((item) => [
       item.discordId,
+      item.characterKey || "",
       item.status,
       item.role,
       item.characterName || "",

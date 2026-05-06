@@ -34,6 +34,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
       action: cleanAction(body?.action),
       userId: String(body?.userId || body?.user_id || ""),
       userName: String(body?.userName || body?.user_name || "Discord user"),
+      characterKey: String(body?.characterKey || body?.character_key || "").trim() || null,
       messageRef: {
         channelId: String(body?.channelId || body?.channel_id || ""),
         messageId: String(body?.messageId || body?.message_id || ""),

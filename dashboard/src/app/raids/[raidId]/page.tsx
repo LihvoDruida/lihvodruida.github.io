@@ -76,7 +76,7 @@ export default async function RaidDetailsPage({ params, searchParams }: { params
           <div className="raid-preview-column">
             <RaidAnnouncementPreview
               raid={visibleRaid}
-              actions={<RaidAttendanceActions raid={visibleRaid} user={user} hasMainCharacter={hasMainCharacter} />}
+              actions={<RaidAttendanceActions raid={visibleRaid} user={user} profile={profile} hasMainCharacter={hasMainCharacter} />}
               manageActions={canManage ? <RaidManageActions raid={visibleRaid} /> : null}
               showRosterDetails={true}
               showMemberItemLevels={canManage}

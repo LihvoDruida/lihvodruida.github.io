@@ -41,14 +41,20 @@ function cleanAction(value: unknown): RaidSignupStatus {
   return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
 }
 
-async function readAttendanceAction(request: NextRequest): Promise<RaidSignupStatus> {
+async function readAttendanceInput(request: NextRequest): Promise<{ action: RaidSignupStatus; characterKey: string | null }> {
   const contentType = request.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
-    const body = await request.json().catch(() => null) as { action?: unknown } | null;
-    return cleanAction(body?.action);
+    const body = await request.json().catch(() => null) as { action?: unknown; characterKey?: unknown; character_key?: unknown } | null;
+    return {
+      action: cleanAction(body?.action),
+      characterKey: String(body?.characterKey || body?.character_key || "").trim() || null,
+    };
   }
   const form = await request.formData();
-  return cleanAction(form.get("action"));
+  return {
+    action: cleanAction(form.get("action")),
+    characterKey: String(form.get("characterKey") || "").trim() || null,
+  };
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ raidId: string }> }) {
@@ -68,8 +74,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   }
 
   try {
-    const action = await readAttendanceAction(request);
-    const result = await handleRaidSessionAction({ raidId, action, user });
+    const { action, characterKey } = await readAttendanceInput(request);
+    const result = await handleRaidSessionAction({ raidId, action, user, characterKey });
 
     if (!result.ok) {
       if (jsonMode) return jsonToast({ ok: false, tone: "error", title: "Запис не оновлено", message: result.content || "Дію не виконано." });

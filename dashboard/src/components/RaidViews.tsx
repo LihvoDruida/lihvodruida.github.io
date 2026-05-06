@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
-import RaidAttendanceClient from "@/components/RaidAttendanceClient";
+import RaidAttendanceClient, { type RaidSignupCharacterOption } from "@/components/RaidAttendanceClient";
 import RaidRoleMentionPicker from "@/components/RaidRoleMentionPicker";
 import type { DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import type { DashboardSession } from "@/lib/auth";
+import type { DashboardProfile } from "@/lib/profiles";
 import { hierarchyTitle } from "@/lib/permissions";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import {
@@ -151,17 +152,34 @@ export function RosterSideList({ raid, showItemLevel = true }: { raid: RaidItem;
   );
 }
 
-export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: { raid: RaidItem; user?: DashboardSession | null; hasMainCharacter?: boolean | null }) {
+function characterSignupOption(character: DashboardProfile["characters"][number]): RaidSignupCharacterOption {
+  const realm = character.realmName || character.realmSlug || "realm";
+  const meta = [
+    character.activeSpecName || null,
+    character.className || null,
+    character.itemLevel ? `${character.itemLevel} ilvl` : null,
+  ].filter(Boolean).join(" • ");
+  return {
+    key: character.key,
+    label: `${character.name} • ${realm}`,
+    meta,
+  };
+}
+
+export function RaidAttendanceActions({ raid, user, profile = null, hasMainCharacter = null }: { raid: RaidItem; user?: DashboardSession | null; profile?: DashboardProfile | null; hasMainCharacter?: boolean | null }) {
   const closed = isRaidClosed(raid) || raid.status !== "published";
   const full = isRaidRegistrationFull(raid);
   const viewerDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
   const viewerSignup = viewerDiscordId ? raid.signups.find((item) => item.discordId === viewerDiscordId) : null;
   const viewerAlreadyActive = viewerSignup?.status === "going" || viewerSignup?.status === "late";
+  const characterOptions = profile?.characters.map(characterSignupOption) || [];
+  const selectedCharacterKey = viewerSignup?.characterKey || profile?.mainCharacterKey || characterOptions[0]?.key || "";
+  const hasAnyCharacter = characterOptions.length > 0 || Boolean(hasMainCharacter);
   const needsLogin = !user;
   const needsDiscordLogin = Boolean(user && !viewerDiscordId);
-  const needsMainCharacter = Boolean(viewerDiscordId && hasMainCharacter === false);
+  const needsCharacter = Boolean(viewerDiscordId && !hasAnyCharacter);
   const canSubmitAnyAction = Boolean(user && viewerDiscordId);
-  const activeJoinDisabled = closed || needsLogin || needsDiscordLogin || needsMainCharacter || (full && !viewerAlreadyActive);
+  const activeJoinDisabled = closed || needsLogin || needsDiscordLogin || needsCharacter || (full && !viewerAlreadyActive);
   const skipDisabled = closed || !canSubmitAnyAction;
   const title = closed
     ? "Запис на цей рейд уже вимкнено."
@@ -169,16 +187,16 @@ export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: {
       ? "Спочатку увійди через Discord."
       : needsDiscordLogin
         ? "Для запису потрібен Discord-вхід."
-        : needsMainCharacter
-          ? "Спочатку додай персонажа Battle.net і вибери мейна."
+        : needsCharacter
+          ? "Спочатку додай хоча б одного персонажа Battle.net у профілі."
           : activeJoinDisabled
             ? "Ліміт гравців досягнуто. Нові записи недоступні."
             : undefined;
-  const showRequirement = needsLogin || needsDiscordLogin || needsMainCharacter;
-  const requirementTitle = needsLogin || needsDiscordLogin ? "Потрібна авторизація" : "Потрібен мейн-персонаж";
+  const showRequirement = needsLogin || needsDiscordLogin || needsCharacter;
+  const requirementTitle = needsLogin || needsDiscordLogin ? "Потрібна авторизація" : "Потрібен персонаж";
   const requirementMessage = needsLogin || needsDiscordLogin
-    ? "Щоб підписатися на рейд, увійди через Discord. Після входу додай персонажа Battle.net і вибери мейна в профілі."
-    : "Запис на рейд бере роль, item level і нік із мейн-персонажа. Додай персонажа Battle.net у профілі та зроби його мейном.";
+    ? "Щоб підписатися на рейд, увійди через Discord. Після входу додай персонажа Battle.net у профілі."
+    : "Запис на рейд бере роль, item level і нік із вибраного персонажа. Додай персонажа Battle.net у профілі та повтори запис.";
   return (
     <RaidAttendanceClient
       raidId={raid.id}
@@ -193,6 +211,8 @@ export function RaidAttendanceActions({ raid, user, hasMainCharacter = null }: {
       loginHref={`/login?next=${encodeURIComponent(`/raids/${raid.id}`)}&error=session_required`}
       profileHref="/profile"
       rulesHref={dashboardRaidRulesUrl()}
+      characterOptions={characterOptions}
+      selectedCharacterKey={selectedCharacterKey}
       title={title}
     />
   );

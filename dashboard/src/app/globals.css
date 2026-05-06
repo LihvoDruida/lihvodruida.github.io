@@ -22272,3 +22272,29 @@ a.profile-directory-card small,
   font-weight: 800;
 }
 
+
+/* Raid signup character choice */
+.raid-character-picker {
+  display: grid;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 1px solid rgba(125, 168, 255, .2);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(42, 58, 92, .34), rgba(20, 26, 40, .3));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.raid-character-picker > span {
+  color: rgba(234, 241, 255, .92);
+  font-weight: 850;
+  letter-spacing: .01em;
+}
+
+.raid-character-picker .select {
+  width: 100%;
+}
+
+.raid-character-picker small {
+  color: rgba(213, 226, 255, .72);
+  overflow-wrap: anywhere;
+}

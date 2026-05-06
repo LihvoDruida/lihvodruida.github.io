@@ -1714,6 +1714,43 @@ function safeDiscordButton(button) {
   return safe;
 }
 
+function safeDiscordStringSelect(select) {
+  if (!select || typeof select !== "object" || Array.isArray(select) || Number(select.type) !== 3) return null;
+  const customId = String(select.custom_id || select.customId || "").trim().slice(0, 100);
+  if (!customId) return null;
+  const options = Array.isArray(select.options)
+    ? select.options.slice(0, 25).map((option) => {
+        if (!option || typeof option !== "object" || Array.isArray(option)) return null;
+        const label = limitText(option.label, 100, "Персонаж");
+        const value = String(option.value || "").trim().slice(0, 100);
+        if (!value) return null;
+        const safe = { label, value };
+        const description = String(option.description || "").trim();
+        if (description) safe.description = limitText(description, 100, "");
+        if (typeof option.default === "boolean") safe.default = option.default;
+        return safe;
+      }).filter(Boolean)
+    : [];
+  if (!options.length) return null;
+
+  const minValues = Number(select.min_values ?? select.minValues ?? 1);
+  const maxValues = Number(select.max_values ?? select.maxValues ?? 1);
+  const safe = {
+    type: 3,
+    custom_id: customId,
+    options,
+    placeholder: limitText(select.placeholder, 100, "Вибери персонажа"),
+    min_values: Number.isFinite(minValues) ? Math.max(0, Math.min(25, Math.floor(minValues))) : 1,
+    max_values: Number.isFinite(maxValues) ? Math.max(1, Math.min(25, Math.floor(maxValues))) : 1,
+  };
+  if (typeof select.disabled === "boolean") safe.disabled = select.disabled;
+  return safe;
+}
+
+function safeDiscordMessageComponent(component) {
+  return safeDiscordButton(component) || safeDiscordStringSelect(component);
+}
+
 function safeDiscordComponents(value) {
   if (!Array.isArray(value)) return [];
 
@@ -1722,7 +1759,7 @@ function safeDiscordComponents(value) {
     .map((row) => {
       if (!row || typeof row !== "object" || Array.isArray(row) || Number(row.type) !== 1) return null;
       const components = Array.isArray(row.components)
-        ? row.components.map(safeDiscordButton).filter(Boolean).slice(0, 5)
+        ? row.components.map(safeDiscordMessageComponent).filter(Boolean).slice(0, 5)
         : [];
       return components.length ? { type: 1, components } : null;
     })
@@ -2396,7 +2433,16 @@ function decodeRaidAttendanceCustomId(customId) {
   const value = String(customId || "").trim();
   const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
   if (!match) return null;
-  return { raidId: match[1], action: match[2] };
+  return { raidId: match[1], action: match[2], characterKey: "" };
+}
+
+function decodeRaidCharacterSelectCustomId(customId, values) {
+  const value = String(customId || "").trim();
+  const match = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  if (!match) return null;
+  const selected = Array.isArray(values) ? String(values[0] || "").trim() : "";
+  if (!selected) return null;
+  return { raidId: match[1], action: match[2], characterKey: selected };
 }
 
 function dashboardRaidActionEndpoint(env, raidId) {
@@ -2476,6 +2522,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
       },
       body: JSON.stringify({
         action: raidAction.action,
+        characterKey: raidAction.characterKey || "",
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
         guildId: getInteractionGuildId(interaction, env),
@@ -2516,12 +2563,14 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
       logWorkerEvent("warn", "raid_announcement.proxy.item_level_blocked", {
         raidId: raidAction.raidId,
         action: raidAction.action,
+        characterKey: raidAction.characterKey || "",
         userId: getDiscordUserId(interaction),
       });
     } else if (result.warning) {
       logWorkerEvent("warn", "raid_announcement.proxy.item_level_warning", {
         raidId: raidAction.raidId,
         action: raidAction.action,
+        characterKey: raidAction.characterKey || "",
         userId: getDiscordUserId(interaction),
       });
     }
@@ -2585,6 +2634,9 @@ async function handleDiscordInteraction(request, env, ctx) {
 
   const applicationResult = await handleApplicationInteraction(interaction, env, customId);
   if (applicationResult) return applicationResult;
+
+  const raidCharacterSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
+  if (raidCharacterSelectAction) return handleRaidAnnouncementInteraction(interaction, env, raidCharacterSelectAction, ctx);
 
   const raidAnnouncementAction = decodeRaidAttendanceCustomId(customId);
   if (raidAnnouncementAction) return handleRaidAnnouncementInteraction(interaction, env, raidAnnouncementAction, ctx);
