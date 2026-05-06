@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { resolveDashboardRole } from "@/lib/access";
+import { applyAccessGroupToSession, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
+import { fetchDiscordGuildSnapshot } from "@/lib/discordAdmin";
 import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE, createStableProfileId } from "@/lib/auth";
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
@@ -60,22 +61,25 @@ export async function GET(request: NextRequest) {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
       : null;
 
-    const role = resolveDashboardRole(member.roles || []);
-    if (!role) {
+    const discordRoleIds = Array.isArray(member.roles) ? member.roles.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean) : [];
+    const guild = await fetchDiscordGuildSnapshot().catch(() => null);
+    const resolved = await resolveAccessGroupFromDiscord(discordRoleIds, String(user.id), guild?.ownerId || null);
+    if (!resolved.group.permissions.includes("dashboard.view")) {
       logDashboardEvent("warn", "auth.discord.callback.access_denied", request, { userId: user.id });
       return loginRedirect("access_denied");
     }
 
-    const session = {
+    const session = applyAccessGroupToSession({
       provider: "discord" as const,
       id: String(user.id),
       profileId: await createStableProfileId("discord", String(user.id)),
       name: user.global_name || user.username || String(user.id),
-      role,
+      role: resolved.group.role,
       avatar: avatarUrl,
       avatar_url: avatarUrl,
-      discordRoleIds: Array.isArray(member.roles) ? member.roles.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean) : [],
-    };
+      discordRoleIds,
+    }, resolved.group, resolved.isServerOwner);
+    const role = session.role;
 
     const profileWrite = await upsertProfileFromSession(session).catch((error) => {
       logDashboardEvent("error", "auth.discord.profile_upsert_failed", request, { userId: user.id, role, message: error instanceof Error ? error.message : String(error) });

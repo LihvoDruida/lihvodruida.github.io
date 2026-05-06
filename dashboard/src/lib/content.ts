@@ -1,5 +1,6 @@
 import { githubFetch } from "@/lib/github";
 import type { DashboardSession } from "@/lib/auth";
+import { canManageSiteContent } from "@/lib/permissions";
 import { mapConcurrent } from "@/lib/concurrency";
 
 export type ContentKind = "news" | "guides";
@@ -255,7 +256,7 @@ function buildFrontmatter(input: {
 }
 
 function validateContentInput(input: CreateContentInput, slug: string, body: string) {
-  if (input.user.role !== "admin") throw new Error("Керувати новинами та гайдами може лише гільдмайстер.");
+  if (!canManageSiteContent(input.user)) throw new Error("Недостатньо прав для керування новинами та гайдами.");
   if (!isContentKind(input.kind)) throw new Error("Невідомий тип матеріалу.");
   if (input.title.trim().length < 3) throw new Error("Заголовок занадто короткий.");
   if (input.description.trim().length < 12) throw new Error("Опис занадто короткий.");

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { canManageSiteContent } from "@/lib/permissions";
 import { deleteRepoFile, isManagedContentPath } from "@/lib/content";
 import {
   assertRequestBodySize,
@@ -33,9 +34,9 @@ export async function POST(request: NextRequest) {
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
-  if (!session || session.role !== "admin") {
+  if (!canManageSiteContent(session)) {
     logDashboardEvent("warn", "content.delete.unauthorized", request);
-    return unauthorizedResponse("Доступ лише для адміністратора.");
+    return unauthorizedResponse("Недостатньо прав для керування матеріалами.");
   }
 
   const ip = getClientIp(request);

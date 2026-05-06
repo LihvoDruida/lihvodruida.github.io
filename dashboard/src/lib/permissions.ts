@@ -1,5 +1,6 @@
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import type { DiscordRoleOption } from "@/lib/discordAdmin";
+import { DASHBOARD_PERMISSION_KEYS, type DashboardPermissionKey } from "@/lib/accessGroupSchema";
 
 export type DashboardCapability = {
   key: string;
@@ -21,35 +22,46 @@ export function dashboardRoleRank(role: DashboardRole | null | undefined) {
 
 export function canAccessDashboardRole(viewer: DashboardSession | null | undefined, targetRole: DashboardRole | null | undefined) {
   if (!viewer || !targetRole) return false;
-  return dashboardRoleRank(viewer.role) >= dashboardRoleRank(targetRole);
+  return (viewer.groupRank || dashboardRoleRank(viewer.role)) >= dashboardRoleRank(targetRole);
+}
+
+function permitted(session: DashboardSession | null | undefined, permission: DashboardPermissionKey, fallbackRoles: DashboardRole[] = []) {
+  if (!session) return false;
+  if (session.isServerOwner) return true;
+  if (session.permissions?.length) return session.permissions.includes(permission);
+  return fallbackRoles.includes(session.role);
 }
 
 export function isDashboardStaff(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  return permitted(session, "applications.manage", ["admin", "moderator"]);
 }
 
 export function isDashboardAdmin(session: DashboardSession | null | undefined) {
-  return Boolean(session && session.role === "admin");
+  return Boolean(session && (session.isServerOwner || (session.role === "admin" && session.permissions?.includes("groups.manage"))));
 }
 
 export function canViewRaidDirectory(session: DashboardSession | null | undefined) {
-  return Boolean(session);
+  return permitted(session, "raids.view", ["admin", "moderator", "mentor", "member"]);
 }
 
 export function canViewGuildRoster(session: DashboardSession | null | undefined) {
-  return Boolean(session);
+  return permitted(session, "guild.roster.view", ["admin", "moderator", "mentor", "member"]);
 }
 
 export function canViewRaidRoster(session: DashboardSession | null | undefined) {
-  return isDashboardStaff(session);
+  return permitted(session, "raids.roster.view", ["admin", "moderator"]);
 }
 
 export function canViewProfileAccessDetails(session: DashboardSession | null | undefined) {
-  return isDashboardStaff(session);
+  return permitted(session, "profiles.access.view", ["admin", "moderator"]);
 }
 
 export function canViewProfiles(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  return permitted(session, "profiles.view", ["admin", "moderator"]);
+}
+
+export function canManageGroups(session: DashboardSession | null | undefined) {
+  return Boolean(session && (session.isServerOwner || (session.role === "admin" && permitted(session, "groups.manage", []))));
 }
 
 export function hierarchyTitle(role: DashboardRole) {
@@ -81,171 +93,87 @@ export function siteStatusLabel(role: DashboardRole) {
 }
 
 export function siteStatusDescription(role: DashboardRole) {
-  if (role === "admin") {
-    return "Повний доступ до профілів, заявок, рейдів, Discord-розділів і матеріалів сайту.";
-  }
-  if (role === "moderator") {
-    return "Офіцерський доступ до заявок, профілів, рейдів і Discord-повідомлень без адмінських розділів.";
-  }
-  if (role === "mentor") {
-    return "Особистий профіль і перегляд заявок без BattleTag та без керування статусами.";
-  }
+  if (role === "admin") return "Повний доступ до профілів, заявок, рейдів, Discord-розділів і матеріалів сайту.";
+  if (role === "moderator") return "Офіцерський доступ до заявок, профілів, рейдів і Discord-повідомлень без адмінських розділів.";
+  if (role === "mentor") return "Особистий профіль і перегляд заявок без BattleTag та без керування статусами.";
   return "Особистий профіль, персонажі, рейди, запис і правила без адмінських блоків.";
 }
 
 export function canViewApplications(session: DashboardSession | null | undefined) {
-  if (!session) return false;
-  if (session.role === "admin" || session.role === "moderator" || session.role === "mentor") return true;
-
-  return hasAnyConfiguredRoleId(session, ["admin", "moderator", "mentor"]);
-}
-
-function hasAnyConfiguredRoleId(session: DashboardSession | null | undefined, roles: DashboardRole[]) {
-  if (!session?.discordRoleIds?.length) return false;
-
-  const allowedRoleIds = new Set(
-    roles.flatMap((role) => configuredRoleIdsForDashboardRole(role))
-  );
-
-  if (!allowedRoleIds.size) return false;
-
-  return session.discordRoleIds.some((roleId) => allowedRoleIds.has(String(roleId || "").trim()));
+  return permitted(session, "applications.view", ["admin", "moderator", "mentor"]);
 }
 
 export function canManageApplications(session: DashboardSession | null | undefined) {
-  if (!session) return false;
-  if (session.role === "admin" || session.role === "moderator") return true;
-
-  // Defensive fallback for already-issued Discord sessions: if the visible role label
-  // and the stored role id list ever get out of sync, application moderation must
-  // follow the configured admin/moderator role ids, not the lower display role.
-  return hasAnyConfiguredRoleId(session, ["admin", "moderator"]);
+  return permitted(session, "applications.manage", ["admin", "moderator"]);
 }
 
 export function canViewApplicationBattleTag(session: DashboardSession | null | undefined) {
-  // BattleTag visibility intentionally follows the same privileged access as
-  // application moderation. Mentors can inspect applications, but never receive
-  // this contact field.
-  return canManageApplications(session);
+  return permitted(session, "applications.sensitive.view", ["admin", "moderator"]);
 }
 
 export function canViewApplicationSensitiveFields(session: DashboardSession | null | undefined) {
-  return canManageApplications(session);
+  return canViewApplicationBattleTag(session);
 }
 
 export function canManageGeneralEmbeds(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  return permitted(session, "discord.embeds.manage", ["admin", "moderator"]);
 }
 
 export function canManageRulesEmbeds(session: DashboardSession | null | undefined) {
-  return Boolean(session && session.role === "admin");
+  return permitted(session, "discord.rules.manage", ["admin"]);
 }
 
 export function canManageRaids(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  return permitted(session, "raids.manage", ["admin", "moderator"]);
 }
 
 export function canViewRulesStats(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.role === "admin" || session.role === "moderator"));
+  return permitted(session, "rules.stats.view", ["admin", "moderator"]);
 }
 
 export function canManageSiteContent(session: DashboardSession | null | undefined) {
-  return Boolean(session && session.role === "admin");
+  return permitted(session, "content.manage", ["admin"]);
 }
 
-export function dashboardCapabilities(role: DashboardRole): DashboardCapability[] {
+export function dashboardCapabilities(role: DashboardRole, permissions?: string[]): DashboardCapability[] {
+  const permissionSet = new Set(permissions?.length ? permissions : []);
+  const enabled = (key: DashboardPermissionKey, fallback: boolean) => permissions?.length ? permissionSet.has(key) : fallback;
   const isAdmin = role === "admin";
   const canModerate = role === "admin" || role === "moderator";
   const canReviewApplications = canModerate || role === "mentor";
 
   return [
-    {
-      key: "profile",
-      title: "Особистий профіль",
-      description: "Особисті дані, персонажі Battle.net, роль для рейдів і серверне Discord-ім’я.",
-      enabled: true,
-    },
-    {
-      key: "raid-signup",
-      title: "Рейди та запис",
-      description: "Перегляд опублікованих рейдів, правила і власний запис на участь.",
-      enabled: true,
-    },
-    {
-      key: "guild-roster",
-      title: "Склад гільдії",
-      description: "Перегляд персонажів гільдії, Raider.IO, item level, ролей, класів і фільтрів.",
-      enabled: true,
-    },
-    {
-      key: "applications",
-      title: "Заявки до гільдії",
-      description: role === "mentor"
-        ? "Перегляд заявок і даних персонажа без BattleTag та без права приймати рішення."
-        : "Перегляд заявок, даних персонажа та рішення по кандидатах.",
-      enabled: canReviewApplications,
-    },
-    {
-      key: "general-embeds",
-      title: "Звичайні Discord-повідомлення",
-      description: "Створення і редагування звичайних Discord-повідомлень, а також згадування вибраних ролей.",
-      enabled: canModerate,
-    },
-    {
-      key: "raids",
-      title: "Рейди",
-      description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.",
-      enabled: canModerate,
-    },
-    {
-      key: "rules-embeds",
-      title: "Discord правила",
-      description: isAdmin
-        ? "Керування повідомленнями правил, кнопками прийняття, ролями та статистикою."
-        : "Перегляд статистики правил без права змінювати самі повідомлення.",
-      enabled: canModerate,
-    },
-    {
-      key: "site-content",
-      title: "Новини та гайди сайту",
-      description: "Створення, редагування та видалення матеріалів сайту.",
-      enabled: isAdmin,
-    },
+    { key: "profile", title: "Особистий профіль", description: "Особисті дані, персонажі Battle.net, роль для рейдів і серверне Discord-ім’я.", enabled: true },
+    { key: "raid-signup", title: "Рейди та запис", description: "Перегляд опублікованих рейдів, правила і власний запис на участь.", enabled: enabled("raids.view", true) },
+    { key: "guild-roster", title: "Склад гільдії", description: "Перегляд персонажів гільдії, Raider.IO, item level, ролей, класів і фільтрів.", enabled: enabled("guild.roster.view", true) },
+    { key: "applications", title: "Заявки до гільдії", description: role === "mentor" ? "Перегляд заявок і даних персонажа без BattleTag та без права приймати рішення." : "Перегляд заявок, даних персонажа та рішення по кандидатах.", enabled: enabled("applications.view", canReviewApplications) },
+    { key: "general-embeds", title: "Звичайні Discord-повідомлення", description: "Створення і редагування звичайних Discord-повідомлень, а також згадування вибраних ролей.", enabled: enabled("discord.embeds.manage", canModerate) },
+    { key: "raids", title: "Рейди", description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.", enabled: enabled("raids.manage", canModerate) },
+    { key: "rules-embeds", title: "Discord правила", description: isAdmin ? "Керування повідомленнями правил, кнопками прийняття, ролями та статистикою." : "Перегляд статистики правил без права змінювати самі повідомлення.", enabled: enabled("discord.rules.manage", isAdmin) },
+    { key: "site-content", title: "Новини та гайди сайту", description: "Створення, редагування та видалення матеріалів сайту.", enabled: enabled("content.manage", isAdmin) },
+    { key: "groups", title: "Групи та права", description: "Керування групами доступу, Discord role ID і дозволами.", enabled: enabled("groups.manage", isAdmin) },
   ];
 }
 
 export function splitConfiguredRoleIds(value?: string) {
-  return String(value || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
+  return String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
 }
 
-export function configuredRoleIdsForDashboardRole(role: DashboardRole) {
-  if (role === "admin") return splitConfiguredRoleIds(process.env.DISCORD_ADMIN_ROLE_IDS);
-  if (role === "moderator") return splitConfiguredRoleIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
-  if (role === "mentor") return splitConfiguredRoleIds(process.env.DISCORD_MENTOR_ROLE_IDS || process.env.DISCORD_NEWCOMER_MENTOR_ROLE_IDS);
-  return splitConfiguredRoleIds(process.env.DISCORD_MEMBER_ROLE_IDS);
+export function configuredRoleIdsForDashboardRole(_role: DashboardRole) {
+  return [] as string[];
 }
 
 export function matchingDiscordRoleIds(session: DashboardSession | null | undefined) {
   if (!session) return [] as string[];
-
-  const configured = new Set<string>(configuredRoleIdsForDashboardRole(session.role));
-  const userRoleIds = Array.from(new Set<string>((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
-  const matched = userRoleIds.filter((roleId) => configured.has(roleId));
-
-  return matched.length ? matched : Array.from(configured);
+  return Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
 }
 
-export function matchingDiscordRoleLabels(
-  session: DashboardSession | null | undefined,
-  roles: DiscordRoleOption[] = []
-) {
+export function matchingDiscordRoleLabels(session: DashboardSession | null | undefined, roles: DiscordRoleOption[] = []) {
   if (!session) return [] as string[];
-
   if (session.provider === "token") return ["Резервний ключ адміністратора"];
-
+  if (session.isServerOwner) return ["Власник Discord-сервера"];
   const roleMap = new Map<string, string>(roles.map((role) => [role.id, role.name]));
   return matchingDiscordRoleIds(session).map((roleId) => roleMap.get(roleId) || `Discord роль ${roleId.slice(-6)}`);
 }
+
+export { DASHBOARD_PERMISSION_KEYS };

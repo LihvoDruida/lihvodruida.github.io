@@ -333,8 +333,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   const authorIdentity = await resolveAuthorIdentity(user);
   const authorName = authorIdentity.primaryName;
   const authorSuggestions = authorIdentity.suggestions;
-  const isAdmin = user.role === "admin";
-  const items = isAdmin ? await listSiteContent() : [];
+  const items = await listSiteContent();
   const newsItems = items.filter((item) => item.kind === "news");
   const guideItems = items.filter((item) => item.kind === "guides");
   const selectedItem = params.edit ? items.find((item) => item.path === params.edit) : undefined;
@@ -379,7 +378,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
               <span className="hero-lock" aria-hidden="true">✦</span>
               <span>{heroNote}</span>
               <div className="content-hero-buttons">
-                {!showEditor && isAdmin ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
+                {!showEditor ? <a className="btn primary content-add-btn" href="/content?new=1">Додати матеріал</a> : null}
                 {showEditor ? <a className="btn subtle content-add-btn" href="/content">До списку</a> : null}
                 {selectedItem ? <a className="btn ghost content-add-btn" href={contentPublicHref(selectedItem)} target="_blank" rel="noreferrer">Превʼю</a> : null}
               </div>
@@ -407,10 +406,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       {params.error ? <div className="notice panel error-note">{params.error}</div> : null}
       {params.edit && !selectedItem ? <div className="notice panel error-note">Матеріал не знайдено: <strong>{params.edit}</strong></div> : null}
 
-      {!isAdmin ? (
-        <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру. Офіцери можуть працювати із заявками та звичайними Discord-повідомленнями, але не публікувати новини або гайди.</div>
-      ) : (
-        <section className="content-page-stack">
+      <section className="content-page-stack">
           {showEditor ? (
             isCreateMode ? <CreateContentForm author={authorName} authorSuggestions={authorSuggestions} /> : selectedItem ? <EditContentForm item={selectedItem} author={authorName} authorSuggestions={authorSuggestions} /> : null
           ) : null}
@@ -448,7 +444,6 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             </section>
           ) : null}
         </section>
-      )}
     </main>
   );
 }

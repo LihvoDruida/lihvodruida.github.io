@@ -29,6 +29,7 @@ export {
   isDashboardAdmin,
   dashboardRoleRank,
   canViewProfiles,
+  canManageGroups,
   canAccessDashboardRole,
   dashboardCapabilities,
   dashboardRoleLabel,
@@ -41,3 +42,24 @@ export {
 } from "./permissions";
 
 export type { DashboardCapability } from "./permissions";
+
+export {
+  listAccessGroups,
+  ensureDefaultAccessGroups,
+  getAccessGroup,
+  upsertAccessGroup,
+  deleteAccessGroup,
+  recordAdminAudit,
+  canEditTargetGroup,
+} from "./accessGroups";
+
+export {
+  DASHBOARD_PERMISSION_KEYS,
+  PERMISSION_META,
+  DEFAULT_ADMIN_GROUP_ID,
+  DEFAULT_MODERATOR_GROUP_ID,
+  DEFAULT_MENTOR_GROUP_ID,
+  DEFAULT_MEMBER_GROUP_ID,
+} from "./accessGroupSchema";
+
+export type { AccessGroup, DashboardPermissionKey } from "./accessGroupSchema";

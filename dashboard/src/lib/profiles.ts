@@ -5,6 +5,7 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
+import { canManageApplications, canViewProfiles } from "@/lib/permissions";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -267,11 +268,11 @@ export function canViewProfile(
   // unless canViewProfileAccessDetails(viewer) allows them on the page.
   if (profile) return true;
 
-  return viewer.role === "admin" || viewer.role === "moderator";
+  return canViewProfiles(viewer);
 }
 
 export function canManageProfiles(viewer: DashboardSession | null | undefined) {
-  return Boolean(viewer && (viewer.role === "admin" || viewer.role === "moderator"));
+  return canManageApplications(viewer);
 }
 
 export function canManageOwnCharacters(viewer: DashboardSession | null | undefined, profileId: string) {

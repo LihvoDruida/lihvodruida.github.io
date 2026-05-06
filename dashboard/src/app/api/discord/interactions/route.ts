@@ -108,6 +108,10 @@ function getInteractionUserName(interaction: any) {
 }
 
 function getInteractionMessageRef(interaction: any) {
+  // Ephemeral interaction messages are private follow-ups/select menus, not the public raid embed.
+  // Never use them as the target for raid embed synchronization.
+  if (isEphemeralMessageInteraction(interaction)) return null;
+
   const channelId = String(interaction?.channel_id || interaction?.message?.channel_id || "").trim();
   const messageId = String(interaction?.message?.id || "").trim();
   return channelId && messageId ? { channelId, messageId } : null;
@@ -175,8 +179,8 @@ export async function POST(request: NextRequest) {
       logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });
 
       // Запис на рейд має оновлювати тільки саме рейдове повідомлення через handleRaidDiscordAction().
-      // Відповідь нижче персональна й не замінює публічний embed повідомленням про статус користувача.
-      return ephemeral(result.content, "components" in result ? result.components || [] : []);
+      // Персональну відповідь із вибором персонажа редагуємо на місці, щоб не плодити приватні повідомлення.
+      return finishDecision(interaction, result.content, "components" in result ? result.components || [] : []);
     } catch (error) {
       logDashboardEvent("error", "discord.raid.action_failed", request, { message: safeErrorMessage(error), raidId: raidAction.raidId, action: raidAction.action, userId });
       return ephemeral("❌ Не вдалося оновити запис на рейд. Спробуй ще раз пізніше або звернись до офіцера.");

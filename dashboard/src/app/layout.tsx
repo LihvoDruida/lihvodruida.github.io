@@ -1,10 +1,12 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Cormorant_Garamond, Noto_Sans } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
 import LiveDataRefresh from "@/components/LiveDataRefresh";
+import ImpersonationToast from "@/components/ImpersonationToast";
+import { getSession } from "@/lib/auth";
 import { DASHBOARD_TITLE, DEFAULT_SEO_DESCRIPTION, dashboardBaseUrl, privateRobots } from "@/lib/seo";
 
 const mistUiFont = Noto_Sans({
@@ -100,10 +102,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const session = await getSession().catch(() => null);
   return (
     <html lang="uk" className={`${mistUiFont.variable} ${mistDisplayFont.variable}`}>
-      <body><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{children}</body>
+      <body><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}</body>
     </html>
   );
 }

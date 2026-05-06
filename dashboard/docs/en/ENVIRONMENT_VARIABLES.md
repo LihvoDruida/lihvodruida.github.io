@@ -4,7 +4,7 @@ All secrets must remain server-side. Values with `NEXT_PUBLIC_*` are exposed to 
 
 ## Minimal production set
 
-A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
+A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
 
 ## Shared with Cloudflare Worker
 
@@ -18,8 +18,6 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_RULES_STATS_TOKEN` | optional shared secret | Protects stats/raid Worker endpoints. | Yes, must match. |
 | `WORKER_STATS_TOKEN` | optional alias | Alias for shared Worker token. | Yes, must match. |
 | `INTERNAL_PROFILE_LOOKUP_TOKEN` | required for lookup | Worker calls `/api/profile/discord-lookup` or raid action endpoint. | Yes, must match. |
-| `DISCORD_ADMIN_ROLE_IDS` | conditional | Staff role ids. | Only if Worker validates staff actions. |
-| `DISCORD_MODERATOR_ROLE_IDS` | conditional | Officer role ids. | Only if Worker validates staff actions. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Role assignment concurrency. | If Worker assigns roles. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max role assignment concurrency. | If Worker assigns roles. |
 | `GITHUB_OWNER` | conditional | GitHub owner for applications. | Only if Worker moderates GitHub Issues. |
@@ -63,12 +61,8 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_CLIENT_SECRET` | alias secret | Legacy alias for client secret. |
 | `DISCORD_GUILD_ID` | required | Discord server id. |
 | `DISCORD_GUILD_NAME` | optional | Fallback guild/server name. |
-| `DISCORD_ADMIN_ROLE_IDS` | required | Roles that grant admin/guildmaster access. |
-| `DISCORD_MENTOR_ROLE_IDS` | optional | Newcomer mentor role ids. Grants read-only applications without BattleTag. Admin/moderator roles still receive full application data. |
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Requires `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Elevated sessions downgrade to member if Discord is temporarily unavailable. Default: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | Cache TTL for Discord role-name lookups used in profile access previews. Default: `300`. |
-| `DISCORD_MODERATOR_ROLE_IDS` | required | Roles that grant officer/moderator access. |
-| `DISCORD_MEMBER_ROLE_IDS` | optional | Roles that grant member access. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | If true and no member roles are set, any guild member can get member access. |
 | `DISCORD_BOT_TOKEN` | required for Discord actions | Bot token for Discord REST. |
 | `DISCORD_CHANNEL_ID` | optional | Default channel for older/default publish flows. |
@@ -176,3 +170,6 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 3. If Worker handles interactions, the Discord Developer Portal Interaction Endpoint should point to Worker, not Vercel.
 4. If Vercel route `/api/discord/interactions` is used as fallback, Vercel must have `DISCORD_PUBLIC_KEY`.
 5. For Firebase private key in Vercel, keep escaped `\\n`; the code converts them to real newlines.
+
+> Access role IDs are no longer configured in env. Manage dashboard groups, Discord role IDs and permissions in Firebase from `/admin/groups`.
+

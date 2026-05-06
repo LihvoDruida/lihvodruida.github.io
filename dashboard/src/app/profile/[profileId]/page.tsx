@@ -13,7 +13,8 @@ import {
 } from "@/lib/raids";
 import { buildPageMetadata } from "@/lib/seo";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
-import { getSession, resolveDashboardRole, type DashboardSession } from "@/lib/auth";
+import { getSession, type DashboardSession } from "@/lib/auth";
+import { resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
 import {
   canViewProfileAccessDetails,
@@ -483,7 +484,8 @@ export default async function ProfilePage({
   }
 
   const liveRoleIds = Array.from(new Set((liveDiscordMember?.roleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
-  const liveDashboardRole = liveRoleIds.length ? resolveDashboardRole(liveRoleIds) : null;
+  const liveAccessGroup = liveRoleIds.length ? await resolveAccessGroupFromDiscord(liveRoleIds, profile.providerUserId, discordOwnerLocked ? profile.providerUserId : null).catch(() => null) : null;
+  const liveDashboardRole = liveAccessGroup?.group.role || null;
   const effectiveProfileRole = liveDashboardRole || profile.role;
   const liveAccessState = liveRoleIds.length
     ? liveDashboardRole
@@ -503,8 +505,13 @@ export default async function ProfilePage({
     ...profileAsSession(profile),
     role: effectiveProfileRole,
     discordRoleIds: liveRoleIds.length ? liveRoleIds : profile.discordRoleIds,
+    groupId: liveAccessGroup?.group.id,
+    groupName: liveAccessGroup?.group.name,
+    groupRank: liveAccessGroup?.group.rank,
+    permissions: liveAccessGroup?.group.permissions,
+    isServerOwner: Boolean(liveAccessGroup?.isServerOwner),
   };
-  const capabilities = dashboardCapabilities(effectiveProfileRole);
+  const capabilities = dashboardCapabilities(effectiveProfileRole, profileSession.permissions);
   const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
   const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
   const guildStatus = guildStatusLabel(effectiveProfileRole);
@@ -512,8 +519,8 @@ export default async function ProfilePage({
   const roleIdsFromSession: string[] = Array.from(
     new Set<string>((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))
   );
-  const configuredAccessRoleIds = new Set(configuredRoleIdsForDashboardRole(effectiveProfileRole));
-  const accessRoleIds = roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId));
+  const configuredAccessRoleIds = new Set(liveAccessGroup?.group.discordRoleIds?.length ? liveAccessGroup.group.discordRoleIds : configuredRoleIdsForDashboardRole(effectiveProfileRole));
+  const accessRoleIds = configuredAccessRoleIds.size ? roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId)) : roleIdsFromSession;
   const accessRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
     ? [{ id: "token", label: "Резервний ключ адміністратора", position: 9999 }]
     : buildRoleChips(accessRoleIds, roles);
@@ -613,7 +620,7 @@ export default async function ProfilePage({
                   <em>Показується у профілі та списках учасників.</em>
                 </span>
               </div>
-              {viewer.role === "admin" || viewer.role === "moderator" ? (
+              {showAccessDetails ? (
                 <details className="profile-secret">
                   <summary>Технічний ID</summary>
                   <code>{profile.profileId}</code>

@@ -27,7 +27,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
 
   const params = await searchParams;
   const authorIdentity = await resolveAuthorIdentity(user);
-  const isAdmin = user.role === "admin";
+  const canEditRules = canManageRulesEmbeds(user);
   const ruleType = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
   const defaultEmbed = ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed;
   let configError = "";
@@ -35,7 +35,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let suggestedRulesChannelId = "";
 
-  if (isAdmin && hasDiscordEmbedConfig()) {
+  if (canEditRules && hasDiscordEmbedConfig()) {
     try {
       const [channelData, roleData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles()]);
       channels = channelData.channels;
@@ -62,7 +62,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
 
       {params.error ? <div className="notice panel error-note discord-notice">{params.error}</div> : null}
 
-      {!isAdmin ? (
+      {!canEditRules ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.</div>

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { fetchDiscordGuildMemberSnapshot } from "@/lib/discordAdmin";
+import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot } from "@/lib/discordAdmin";
+import { applyAccessGroupToSession, hasPermission, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
 
 export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
 
@@ -13,6 +14,12 @@ export type DashboardSession = {
   avatar?: string | null;
   avatar_url?: string | null;
   discordRoleIds?: string[];
+  groupId?: string;
+  groupName?: string;
+  groupRank?: number;
+  permissions?: string[];
+  isServerOwner?: boolean;
+  impersonatedBy?: string;
 };
 
 export type SessionUser = DashboardSession;
@@ -81,15 +88,18 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
   if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.session;
 
   try {
-    const member = await fetchDiscordGuildMemberSnapshot(session.id);
-    const liveRole = resolveDashboardRole(member.roleIds || []);
-    const liveSession: DashboardSession | null = liveRole
-      ? {
+    const [member, guild] = await Promise.all([
+      fetchDiscordGuildMemberSnapshot(session.id),
+      fetchDiscordGuildSnapshot().catch(() => null),
+    ]);
+    const resolved = await resolveAccessGroupFromDiscord(member.roleIds || [], session.id, guild?.ownerId || null);
+    const liveSession: DashboardSession | null = resolved.group.permissions.includes("dashboard.view")
+      ? applyAccessGroupToSession({
           ...session,
           name: member.displayName || session.name,
-          role: liveRole,
           discordRoleIds: member.roleIds || [],
-        }
+          impersonatedBy: undefined,
+        }, resolved.group, resolved.isServerOwner)
       : null;
 
     cache.set(cacheKey, { checkedAt: Date.now(), session: liveSession });
@@ -207,6 +217,14 @@ function normalizeSessionPayload(parsed: any): DashboardSession | null {
     discordRoleIds: Array.isArray(parsed.discordRoleIds)
       ? parsed.discordRoleIds.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean).slice(0, 100)
       : [],
+    groupId: typeof parsed.groupId === "string" ? parsed.groupId.slice(0, 32) : undefined,
+    groupName: typeof parsed.groupName === "string" ? parsed.groupName.slice(0, 80) : undefined,
+    groupRank: Number.isFinite(Number(parsed.groupRank)) ? Math.floor(Number(parsed.groupRank)) : undefined,
+    permissions: Array.isArray(parsed.permissions)
+      ? parsed.permissions.map((item: unknown) => String(item || "").trim()).filter(Boolean).slice(0, 100)
+      : [],
+    isServerOwner: Boolean(parsed.isServerOwner),
+    impersonatedBy: typeof parsed.impersonatedBy === "string" ? parsed.impersonatedBy.slice(0, 80) : undefined,
   };
 }
 
@@ -224,6 +242,12 @@ export async function createSessionToken(session: DashboardSession) {
       avatar: session.avatar || null,
       avatar_url: session.avatar_url || session.avatar || null,
       discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
+      groupId: session.groupId || null,
+      groupName: session.groupName || null,
+      groupRank: session.groupRank || 0,
+      permissions: Array.from(new Set((session.permissions || []).map((item) => String(item || "").trim()).filter(Boolean))).slice(0, 100),
+      isServerOwner: Boolean(session.isServerOwner),
+      impersonatedBy: session.impersonatedBy || null,
       iat: now,
       exp: now + SESSION_MAX_AGE_SECONDS,
     })
@@ -252,6 +276,7 @@ export async function getSession(): Promise<DashboardSession | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value || store.get(LEGACY_SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);
+  if (session?.impersonatedBy) return session;
   return refreshDiscordAccess(session);
 }
 
@@ -289,91 +314,22 @@ export async function clearSession() {
   store.set(LEGACY_OAUTH_STATE_COOKIE, "", legacyCookieOptions);
 }
 
-function splitIds(value?: string): Set<string> {
-  return new Set(
-    String(value || "")
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean)
-  );
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __mistblossomDashboardRoleConfigWarnings: Set<string> | undefined;
-}
-
-function warnAmbiguousRoleIds(roleSets: Record<DashboardRole, Set<string>>) {
-  const owners = new Map<string, DashboardRole[]>();
-  for (const [role, ids] of Object.entries(roleSets) as Array<[DashboardRole, Set<string>]>) {
-    for (const roleId of ids) {
-      const current = owners.get(roleId) || [];
-      current.push(role);
-      owners.set(roleId, current);
-    }
-  }
-
-  const warned = globalThis.__mistblossomDashboardRoleConfigWarnings || new Set<string>();
-  globalThis.__mistblossomDashboardRoleConfigWarnings = warned;
-  for (const [roleId, roles] of owners) {
-    if (roles.length <= 1 || warned.has(roleId)) continue;
-    warned.add(roleId);
-    console.warn(
-      `[dashboard-auth] Discord role id ${roleId} is configured for multiple dashboard roles (${roles.join(", ")}). ` +
-      "Access will use priority: admin > moderator > mentor > member."
-    );
-  }
-}
-
-export function resolveDashboardRole(roleIds: string[]): DashboardRole | null {
-  const roles = new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean));
-  const rawAdminRoles = splitIds(process.env.DISCORD_ADMIN_ROLE_IDS);
-  const rawModeratorRoles = splitIds(process.env.DISCORD_MODERATOR_ROLE_IDS);
-  const rawMentorRoles = splitIds(process.env.DISCORD_MENTOR_ROLE_IDS || process.env.DISCORD_NEWCOMER_MENTOR_ROLE_IDS);
-  const rawMemberRoles = splitIds(process.env.DISCORD_MEMBER_ROLE_IDS);
-  warnAmbiguousRoleIds({
-    admin: rawAdminRoles,
-    moderator: rawModeratorRoles,
-    mentor: rawMentorRoles,
-    member: rawMemberRoles,
-  });
-
-  const adminRoles = rawAdminRoles;
-  const moderatorRoles = rawModeratorRoles;
-  const mentorRoles = rawMentorRoles;
-  const memberRoles = rawMemberRoles;
-
-  for (const role of adminRoles) {
-    if (roles.has(role)) return "admin";
-  }
-
-  for (const role of moderatorRoles) {
-    if (roles.has(role)) return "moderator";
-  }
-
-  for (const role of mentorRoles) {
-    if (roles.has(role)) return "mentor";
-  }
-
-  for (const role of memberRoles) {
-    if (roles.has(role)) return "member";
-  }
-
-  if (!rawMemberRoles.size && ["1", "true", "yes", "on"].includes(String(process.env.DISCORD_ALLOW_GUILD_MEMBERS || "").toLowerCase())) {
-    return "member";
-  }
-
+/**
+ * Legacy sync resolver kept only for older imports. Real access is resolved
+ * asynchronously from Firestore groups in accessGroups.ts.
+ */
+export function resolveDashboardRole(_roleIds: string[]): DashboardRole | null {
   return null;
 }
 
 export function assertCanModerate(session: DashboardSession | null): asserts session is DashboardSession {
-  if (!session || (session.role !== "admin" && session.role !== "moderator")) {
+  if (!session || !hasPermission(session, "applications.manage")) {
     throw new Error("Access denied");
   }
 }
 
 export function assertAdmin(session: DashboardSession | null): asserts session is DashboardSession {
-  if (!session || session.role !== "admin") {
+  if (!session || !hasPermission(session, "groups.manage") || session.role !== "admin") {
     throw new Error("Admin access required");
   }
 }
@@ -390,7 +346,7 @@ export async function getSessionUser() {
 }
 
 export function canModerate(user: DashboardSession | null | undefined) {
-  return !!user && (user.role === "admin" || user.role === "moderator");
+  return hasPermission(user, "applications.manage");
 }
 
 export async function createSessionCookie(session: (Partial<DashboardSession> & { login?: string }) | string) {

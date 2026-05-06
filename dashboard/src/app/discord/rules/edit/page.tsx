@@ -33,7 +33,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
 
   const params = await searchParams;
   const authorIdentity = await resolveAuthorIdentity(user);
-  const isAdmin = user.role === "admin";
+  const canEditRules = canManageRulesEmbeds(user);
   const messageParam = String(params.message || params.url || "").trim();
   let configError = "";
   let channels: Array<{ id: string; name: string; type: number }> = [];
@@ -45,7 +45,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
   let messageLink = messageParam;
   let selectedRoleIds: string[] = [];
 
-  if (isAdmin && hasDiscordEmbedConfig()) {
+  if (canEditRules && hasDiscordEmbedConfig()) {
     try {
       const [channelData, roleData] = await Promise.all([fetchDiscordTextChannels(), fetchDiscordRoles()]);
       channels = channelData.channels;
@@ -88,7 +88,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
 
       {params.error ? <div className="notice panel error-note discord-notice">{params.error}</div> : null}
 
-      {!isAdmin ? (
+      {!canEditRules ? (
         <div className="notice panel">Ця сторінка доступна тільки гільдмайстеру.</div>
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.</div>

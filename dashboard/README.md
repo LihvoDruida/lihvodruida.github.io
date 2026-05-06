@@ -65,9 +65,8 @@ DASHBOARD_ALLOWED_HOSTS=admin.lihvodruida.pp.ua
 DISCORD_OAUTH_CLIENT_ID=
 DISCORD_OAUTH_CLIENT_SECRET=
 DISCORD_GUILD_ID=
-DISCORD_ADMIN_ROLE_IDS=
-DISCORD_MODERATOR_ROLE_IDS=
-DISCORD_MENTOR_ROLE_IDS=
+# Access groups are configured in Firebase from /admin/groups.
+# System group IDs: admin=1, moderator=2, mentor=3, member=99. Only 1, 2 and 99 have fixed IDs.
 DISCORD_LIVE_ACCESS_SYNC_SECONDS=90
 DISCORD_ROLES_CACHE_SECONDS=300
 DISCORD_BOT_TOKEN=

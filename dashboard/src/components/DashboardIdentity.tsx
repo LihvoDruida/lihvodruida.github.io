@@ -9,6 +9,7 @@ import {
   canViewProfiles,
   canViewGuildRoster,
   canViewRaidDirectory,
+  canManageGroups,
   hierarchyTitle,
   siteStatusLabel,
 } from "@/lib/permissions";
@@ -21,7 +22,7 @@ export default async function DashboardIdentity({
   activeSection = "applications",
 }: {
   user: DashboardSession | null;
-  activeSection?: "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
+  activeSection?: "admin" | "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
 }) {
   const guild = await getGuildBranding();
   const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
@@ -34,6 +35,7 @@ export default async function DashboardIdentity({
   const canUseProfiles = canViewProfiles(user);
   const canUseGuildRoster = canViewGuildRoster(user);
   const canUseContent = canManageSiteContent(user);
+  const canUseAdmin = canManageGroups(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
   const mobileNavItems = user
     ? [
@@ -54,6 +56,9 @@ export default async function DashboardIdentity({
           : null,
         canUseContent
           ? { href: "/content", section: "content" as const, icon: "✦", label: "Новини" }
+          : null,
+        canUseAdmin
+          ? { href: "/admin/groups", section: "admin" as const, icon: "⚙", label: "Права" }
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];
@@ -121,6 +126,15 @@ export default async function DashboardIdentity({
                   Новини / гайди
                 </a>
               ) : null}
+              {canUseAdmin ? (
+                <a
+                  href="/admin/groups"
+                  className={activeSection === "admin" ? "is-active" : undefined}
+                  aria-current={activeSection === "admin" ? "page" : undefined}
+                >
+                  Права
+                </a>
+              ) : null}
             </nav>
 
             <div className="dashboard-user">
@@ -136,7 +150,7 @@ export default async function DashboardIdentity({
                 </div>
                 <div>
                   <strong>{displayName}</strong>
-                  <span>{hierarchyTitle(user.role)} • {siteStatusLabel(user.role)}</span>
+                  <span>{user.groupName || hierarchyTitle(user.role)} • {user.isServerOwner ? "Власник сервера" : siteStatusLabel(user.role)}</span>
                 </div>
               </a>
               <LogoutButton />

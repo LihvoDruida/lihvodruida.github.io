@@ -1471,8 +1471,19 @@ function cleanDiscordMessageRef(input?: DiscordMessageRefInput | null): DiscordM
 }
 
 async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: DiscordMessageRefInput | null) {
-  const ref = cleanDiscordMessageRef(messageRef) || cleanDiscordMessageRef({ channelId: raid.channelId, messageId: raid.messageId });
-  if (raid.status !== "published" || !ref) return false;
+  if (raid.status !== "published") return false;
+
+  // Важливо: під час вибору персонажа Discord надсилає ref на приватне ephemeral-повідомлення
+  // з select-menu, а не на основний публічний embed рейду. Якщо редагувати цей ref першим,
+  // синхронізація падає і користувач бачить "Discord-повідомлення не оновилося автоматично".
+  // Тому основне джерело істини — messageId/channelId, збережені в документі рейду.
+  const storedRef = cleanDiscordMessageRef({ channelId: raid.channelId, messageId: raid.messageId });
+  const fallbackRef = cleanDiscordMessageRef(messageRef);
+  const ref = storedRef || fallbackRef;
+  if (!ref) {
+    console.warn("[raids] Discord message sync skipped: raid has no stored message ref", { raidId: raid.id });
+    return false;
+  }
 
   const payload = buildRaidDiscordPayload(raid);
   const components = buildRaidAttendanceComponents(raid.id, {

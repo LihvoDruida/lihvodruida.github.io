@@ -4,7 +4,7 @@
 
 ## Мінімальний production-набір
 
-Для повного production потрібні: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_ADMIN_ROLE_IDS`, `DISCORD_MODERATOR_ROLE_IDS`, `DISCORD_MENTOR_ROLE_IDS`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
+Для повного production потрібні: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
 
 ## Спільні з Cloudflare Worker
 
@@ -18,8 +18,6 @@
 | `DISCORD_RULES_STATS_TOKEN` | optional shared secret | Захист stats/raid Worker endpoints. | Так, має збігатися. |
 | `WORKER_STATS_TOKEN` | optional alias | Alias для shared Worker token. | Так, має збігатися. |
 | `INTERNAL_PROFILE_LOOKUP_TOKEN` | required для lookup | Worker викликає `/api/profile/discord-lookup` або raid action endpoint. | Так, має збігатися. |
-| `DISCORD_ADMIN_ROLE_IDS` | conditional | Staff role ids. | Тільки якщо Worker сам перевіряє staff. |
-| `DISCORD_MODERATOR_ROLE_IDS` | conditional | Officer role ids. | Тільки якщо Worker сам перевіряє staff. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Concurrency видачі ролей. | Якщо Worker видає ролі. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max concurrency видачі ролей. | Якщо Worker видає ролі. |
 | `GITHUB_OWNER` | conditional | GitHub owner для заявок. | Тільки якщо Worker модерує GitHub Issues. |
@@ -63,12 +61,8 @@
 | `DISCORD_CLIENT_SECRET` | alias secret | Legacy alias для client secret. |
 | `DISCORD_GUILD_ID` | required | Discord server id. |
 | `DISCORD_GUILD_NAME` | optional | Fallback назва гільдії/сервера. |
-| `DISCORD_ADMIN_ROLE_IDS` | required | Ролі, які дають admin/гільдмайстер доступ. |
-| `DISCORD_MENTOR_ROLE_IDS` | optional | Discord role ids наставників новачків. Дає read-only перегляд заявок без BattleTag. Admin/moderator ролі й далі отримують повні дані заявки. |
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. Потребує `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Підвищені сесії знижуються до member, якщо Discord тимчасово недоступний. За замовчуванням: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | TTL кешу назв Discord-ролей для превʼю доступу в профілі. За замовчуванням: `300`. |
-| `DISCORD_MODERATOR_ROLE_IDS` | required | Ролі, які дають officer/moderator доступ. |
-| `DISCORD_MEMBER_ROLE_IDS` | optional | Ролі, які дають member доступ. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | Якщо true і member ролі не задані, пускає будь-якого учасника сервера. |
 | `DISCORD_BOT_TOKEN` | required для Discord actions | Bot token для Discord REST. |
 | `DISCORD_CHANNEL_ID` | optional | Default канал для старих/default publish flows. |
@@ -176,3 +170,6 @@
 3. Якщо Worker обробляє interactions, у Discord Developer Portal Interaction Endpoint має вести на Worker, а не на Vercel.
 4. Якщо Vercel route `/api/discord/interactions` використовується як fallback, у Vercel має бути `DISCORD_PUBLIC_KEY`.
 5. Для Firebase private key залишай `\\n` у Vercel env, код сам перетворить їх у переноси рядків.
+
+> ID ролей доступу більше не налаштовуються в env. Групи dashboard, Discord role ID і права керуються у Firebase на `/admin/groups`.
+
