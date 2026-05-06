@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-06 02:56:57'
+  updated_at: '2026-05-06 06:31:21'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-05T21:37:28.000Z'
+  raider_io_last_crawled_at: '2026-05-06T03:03:30.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -2563,7 +2563,37 @@ characters:
   realm_slug: terokkar
   profile_url: https://raider.io/characters/eu/terokkar/Kashin
   professions:
-    primaries: []
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Legion Skinning
+        learned_points: 12
+        max_points: 100
+      - name: Northrend Skinning
+        learned_points: 75
+        max_points: 75
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Skinning
+        learned_points: 1
+        max_points: 100
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Legion Herbalism
+        learned_points: 46
+        max_points: 100
+      - name: Northrend Herbalism
+        learned_points: 53
+        max_points: 75
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Herbalism
+        learned_points: 5
+        max_points: 100
     secondaries: []
 - name: Demhunt
   region: eu
