@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
-  if (!canManageSiteContent(session)) {
+  if (!session || !canManageSiteContent(session)) {
     logDashboardEvent("warn", "content.update.unauthorized", request);
     return unauthorizedResponse("Недостатньо прав для керування матеріалами.");
   }
