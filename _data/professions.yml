@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-06 06:31:21'
+  updated_at: '2026-05-06 10:21:21'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-06T03:03:30.000Z'
+  raider_io_last_crawled_at: '2026-05-06T08:45:07.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -3267,7 +3267,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 94
+        learned_points: 95
         max_points: 100
     secondaries:
     - name: Cooking
@@ -6774,7 +6774,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 82
+        learned_points: 85
         max_points: 100
     - name: Alchemy
       id: 171

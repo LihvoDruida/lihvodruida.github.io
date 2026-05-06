@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-06 06:31:21'
+  updated_at: '2026-05-06 10:21:21'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-06T03:03:30.000Z'
+  raider_io_last_crawled_at: '2026-05-06T08:45:07.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6090
       realm: 55
     heroic:
-      world: 12922
+      world: 12925
       region: 5542
       realm: 46
     mythic:
-      world: 7198
+      world: 7201
       region: 3077
       realm: 24
   blackrock-depths:
@@ -2818,7 +2818,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2798.2
@@ -3286,7 +3286,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 258
+    item_level_equipped: 260
     mythic_plus_scores:
       all:
         score: 1621.8
@@ -4742,7 +4742,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 280
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 3047.1
@@ -5574,7 +5574,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3192.3
@@ -6042,7 +6042,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -6094,7 +6094,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2638.6
@@ -6850,7 +6850,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 264
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 938.6
