@@ -36,6 +36,7 @@ export type AccessGroup = {
   lockedId: boolean;
   protectedGroup: boolean;
   discordRoleIds: string[];
+  icon?: string | null;
   permissions: DashboardPermissionKey[];
   createdAt?: string | null;
   updatedAt?: string | null;

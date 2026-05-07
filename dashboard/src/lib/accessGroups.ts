@@ -23,6 +23,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
     lockedId: true,
     protectedGroup: true,
     discordRoleIds: [],
+    icon: "👑",
     permissions: [...DASHBOARD_PERMISSION_KEYS],
   },
   {
@@ -33,6 +34,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
     lockedId: true,
     protectedGroup: true,
     discordRoleIds: [],
+    icon: "🛡️",
     permissions: [
       "dashboard.view",
       "applications.view",
@@ -56,6 +58,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
     lockedId: false,
     protectedGroup: false,
     discordRoleIds: [],
+    icon: "🌿",
     permissions: [
       "dashboard.view",
       "applications.view",
@@ -71,6 +74,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
     lockedId: true,
     protectedGroup: true,
     discordRoleIds: [],
+    icon: "🍃",
     permissions: [
       "dashboard.view",
       "raids.view",
@@ -95,6 +99,13 @@ function cleanDiscordRoleIds(value: unknown) {
   const items = Array.isArray(value) ? value : String(value || "").split(/[\s,;]+/g);
   const firstValidRoleId = items.map((item) => String(item || "").trim()).find((item) => /^\d{16,25}$/.test(item));
   return firstValidRoleId ? [firstValidRoleId] : [];
+}
+
+function cleanGroupIcon(value: unknown) {
+  const icon = String(value || "").trim().replace(/\s+/g, " ").slice(0, 24);
+  if (!icon) return null;
+  // Optional visual marker only: emoji, short text, or compact symbol. No HTML/URLs.
+  return icon.replace(/[<>]/g, "");
 }
 
 function cleanPermissions(value: unknown) {
@@ -136,6 +147,7 @@ function normalizeGroup(idInput: string, raw: Record<string, unknown> = {}): Acc
     lockedId: Boolean(raw.lockedId ?? fallback?.lockedId ?? FIXED_GROUP_IDS.has(id)),
     protectedGroup: Boolean(raw.protectedGroup ?? fallback?.protectedGroup ?? FIXED_GROUP_IDS.has(id)),
     discordRoleIds: cleanDiscordRoleIds(raw.discordRoleId ?? raw.discordRoleIds),
+    icon: cleanGroupIcon(raw.icon ?? fallback?.icon),
     permissions: permissions.length ? permissions : fallback?.permissions || ["dashboard.view"],
     createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
@@ -179,6 +191,7 @@ export async function ensureDefaultAccessGroups() {
     if (current.role !== group.role) patch.role = group.role;
     if (current.lockedId !== group.lockedId) patch.lockedId = group.lockedId;
     if (current.protectedGroup !== group.protectedGroup) patch.protectedGroup = group.protectedGroup;
+    if (!current.icon && group.icon) patch.icon = group.icon;
     if (group.id === DEFAULT_MENTOR_GROUP_ID && !current.name) patch.name = group.name;
     if (Object.keys(patch).length) {
       await doc.set({ ...patch, updatedAt: nowIso() }, { merge: true });
@@ -256,6 +269,7 @@ export async function upsertAccessGroup(input: {
   rank?: unknown;
   discordRoleId?: unknown;
   discordRoleIds?: unknown;
+  icon?: unknown;
   permissions?: unknown;
 }, viewer: DashboardSession) {
   if (!canManageGroups(viewer)) throw new Error("Недостатньо прав для зміни груп.");
@@ -299,6 +313,7 @@ export async function upsertAccessGroup(input: {
     lockedId: FIXED_GROUP_IDS.has(id) || Boolean(target.lockedId),
     protectedGroup: FIXED_GROUP_IDS.has(id) || Boolean(target.protectedGroup),
     discordRoleIds: cleanDiscordRoleIds(roleIdSource),
+    icon: cleanGroupIcon(input.icon ?? target.icon),
     permissions: requestedPermissions,
     updatedAt: nowIso(),
   };

@@ -22642,3 +22642,194 @@ a.profile-directory-card small,
     bottom: max(82px, calc(env(safe-area-inset-bottom) + 82px));
   }
 }
+
+/* v63: smaller global gutters, access groups polish, and unified action feedback. */
+:root {
+  --dash-page-gutter: clamp(12px, 2vw, 24px);
+  --dash-section-gap: clamp(12px, 1.6vw, 18px);
+  --dash-card-pad: clamp(14px, 1rem + 0.35vw, 20px);
+}
+
+.container {
+  width: min(calc(100% - (var(--dash-page-gutter) * 2)), var(--dash-page-max, 1280px)) !important;
+}
+
+main.container {
+  gap: var(--dash-section-gap) !important;
+}
+
+.access-groups-page {
+  --access-panel-gap: var(--dash-section-gap, 14px);
+}
+
+.access-groups-hero {
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-groups-list,
+.access-group-card {
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-group-tab.btn {
+  min-height: 0 !important;
+  padding: 10px 11px !important;
+  transition: transform 150ms ease, filter 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease !important;
+}
+
+.access-group-tab.btn:active,
+.access-groups-page .btn:active,
+.global-toast__action:active {
+  transform: translateY(0) scale(0.985) !important;
+}
+
+.access-group-tab strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.access-group-tab__icon,
+.access-group-title-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.75em;
+  height: 1.75em;
+  border: 1px solid rgba(214, 168, 79, 0.24);
+  border-radius: 0.72em;
+  background: rgba(214, 168, 79, 0.10);
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+.access-group-card__head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px !important;
+}
+
+.access-group-title-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+}
+
+.access-form-grid label > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.access-form-grid label > span em {
+  color: var(--muted);
+  font-size: var(--text-caption, .76rem);
+  font-style: normal;
+  font-weight: 750;
+}
+
+.access-form-grid .input,
+.access-form-grid .select {
+  min-height: 2.6rem !important;
+  border-radius: 13px !important;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease !important;
+}
+
+.access-form-grid .input:focus,
+.access-form-grid .select:focus {
+  border-color: rgba(255, 217, 139, 0.56) !important;
+  box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+.access-groups-page form.is-submitting .access-form-grid,
+.access-groups-page form.is-submitting .permissions-grid {
+  opacity: 0.78;
+}
+
+.access-groups-page .btn[aria-busy="true"],
+.access-groups-page .btn-working {
+  box-shadow: 0 14px 34px rgba(214,168,79,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.global-toast-stack--persistent {
+  pointer-events: none;
+}
+
+.global-toast--persistent {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  border-color: rgba(250, 204, 21, 0.48);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.16), transparent 55%),
+    rgba(24, 20, 10, 0.96);
+}
+
+.global-toast--persistent form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: max-content;
+}
+
+.global-toast__action.btn {
+  min-height: 2.25rem;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+/* Keep legacy selector harmless if an older component is still cached. */
+.impersonation-toast {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(10px, 3vw, 14px);
+    --dash-section-gap: clamp(10px, 3vw, 14px);
+    --dash-card-pad: clamp(12px, 3.4vw, 16px);
+  }
+
+  .container,
+  main.container {
+    padding-inline: var(--dash-page-gutter) !important;
+  }
+
+  .access-groups-layout {
+    gap: var(--dash-section-gap) !important;
+  }
+
+  .access-group-card__head h2 {
+    align-items: flex-start;
+  }
+
+  .global-toast--persistent {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .global-toast--persistent form {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .global-toast__action.btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 9px;
+  }
+}
+
+.global-toast-stack--persistent {
+  bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 84px)) !important;
+}
+
+@media (max-width: 760px) {
+  .global-toast-stack--persistent {
+    bottom: max(132px, calc(env(safe-area-inset-bottom, 0px) + 132px)) !important;
+  }
+}

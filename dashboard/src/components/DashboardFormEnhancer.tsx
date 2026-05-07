@@ -13,6 +13,7 @@ type ToastPayload = {
 
 function formUsesApi(form: HTMLFormElement) {
   if (form.dataset.toastManaged === "true") return false;
+  if (form.dataset.dashboardActionForm === "true") return true;
   const action = form.getAttribute("action") || "";
   return action.startsWith("/api/") || action.includes("/api/");
 }
@@ -22,6 +23,11 @@ function formUsesLiveSubmit(form: HTMLFormElement) {
 }
 
 function actionText(action: string) {
+  if (action === "access-groups-create") return { label: "Створюємо...", title: "Створюємо групу", message: "Перевіряємо ID, Discord role ID, іконку та права доступу." };
+  if (action === "access-groups-save") return { label: "Зберігаємо...", title: "Зберігаємо групу", message: "Оновлюємо назву, іконку, Discord role ID та права у Firebase." };
+  if (action === "access-groups-delete") return { label: "Видаляємо...", title: "Видаляємо групу", message: "Перевіряємо захист системних груп і оновлюємо список." };
+  if (action === "access-groups-impersonate") return { label: "Вмикаємо перегляд...", title: "Вмикаємо режим перегляду", message: "Перемикаємо тестовий доступ без зміни реальної ролі акаунта." };
+  if (action === "access-groups-impersonation-end") return { label: "Завершуємо...", title: "Завершуємо режим перегляду", message: "Повертаємо реальні права твого акаунта." };
   if (action.includes("/applications/bulk-status")) return { label: "Синхронізуємо...", title: "Масова модерація", message: "Оновлюємо вибрані заявки та Discord-повідомлення." };
   if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Додаємо вибраних персонажів однією дією." };
   if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net і додаємо персонажа до профілю." };
@@ -205,7 +211,8 @@ export default function DashboardFormEnhancer() {
       }
 
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
-      const action = submitter?.formAction || form.getAttribute("action") || "";
+      const action = submitter?.dataset.dashboardAction || form.dataset.dashboardAction || submitter?.formAction || form.getAttribute("action") || "";
+      const submitAction = submitter?.formAction || form.getAttribute("action") || "";
       const copy = actionText(action);
 
       const liveSubmit = formUsesLiveSubmit(form);
@@ -221,7 +228,7 @@ export default function DashboardFormEnhancer() {
       pushToast(copy.title, copy.message);
 
       if (liveSubmit) {
-        void submitLiveForm(form, submitter, buttons, action, copy.label);
+        void submitLiveForm(form, submitter, buttons, submitAction, copy.label);
       }
     }
 

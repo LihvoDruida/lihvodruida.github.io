@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import AccessGroupsManager from "@/components/AccessGroupsManager";
 import { buildPageMetadata } from "@/lib/seo";
@@ -16,6 +17,11 @@ export const metadata = buildPageMetadata({
   keywords: ["dashboard права", "групи доступу", "адміністрування"],
 });
 
+async function setActionToast(tone: "success" | "info" | "warning" | "error", title: string, message?: string) {
+  const store = await cookies();
+  store.set("dashboard_toast", JSON.stringify({ tone, title, message }), { path: "/", maxAge: 45, sameSite: "lax" });
+}
+
 async function saveGroupAction(formData: FormData) {
   "use server";
   const user = await getSession();
@@ -27,10 +33,15 @@ async function saveGroupAction(formData: FormData) {
     role: formData.get("role"),
     rank: formData.get("rank"),
     discordRoleId: formData.get("discordRoleId"),
+    icon: formData.get("icon"),
     permissions: formData.getAll("permissions"),
   }, user);
-  await recordAdminAudit("access_group.upsert", user, { groupId: String(formData.get("id") || formData.get("currentId") || "") });
+  const groupId = String(formData.get("id") || formData.get("currentId") || "");
+  await recordAdminAudit("access_group.upsert", user, { groupId });
   revalidatePath("/admin/groups");
+  await setActionToast("success", formData.get("currentId") ? "Групу оновлено" : "Групу створено", "Права, Discord role ID та іконку збережено у Firebase.");
+  const statusParam = formData.get("currentId") ? "updated" : "created";
+  redirect(`/admin/groups?${statusParam}=${encodeURIComponent("Групу доступу збережено у Firebase.")}`);
 }
 
 async function deleteGroupAction(formData: FormData) {
@@ -41,6 +52,8 @@ async function deleteGroupAction(formData: FormData) {
   await deleteAccessGroup(groupId, user);
   await recordAdminAudit("access_group.delete", user, { groupId });
   revalidatePath("/admin/groups");
+  await setActionToast("success", "Групу видалено", "Список груп доступу оновлено.");
+  redirect(`/admin/groups?deleted=${encodeURIComponent("Групу доступу видалено.")}`);
 }
 
 async function impersonateAction(formData: FormData) {
@@ -51,6 +64,7 @@ async function impersonateAction(formData: FormData) {
   if (!group) { redirect("/admin/groups"); throw new Error("Group not found"); }
   await setSession(applyAccessGroupToSession({ ...user, impersonatedBy: user.id }, group, false));
   await recordAdminAudit("access_group.impersonate", user, { groupId: group.id, groupName: group.name });
+  await setActionToast("info", `Перегляд як: ${group.name}`, "Реальні права акаунта не змінені. Завершити режим можна через постійне повідомлення внизу.");
   redirect(user.profileId ? `/profile/${user.profileId}` : "/");
 }
 

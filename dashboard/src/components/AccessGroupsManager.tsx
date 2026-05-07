@@ -57,6 +57,10 @@ function primaryDiscordRoleId(group: AccessGroup) {
   return group.discordRoleIds[0] || "";
 }
 
+function groupIcon(group: AccessGroup) {
+  return group.icon || (group.role === "admin" ? "👑" : group.role === "moderator" ? "🛡️" : group.role === "mentor" ? "🌿" : "🍃");
+}
+
 function cannotEditReason(group: AccessGroup, currentGroupId: string | undefined, isServerOwner: boolean) {
   if (isServerOwner) return "";
   if (group.id === currentGroupId) return "Це твоя поточна група. Самому собі права не змінюємо.";
@@ -91,13 +95,13 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
         </div>
         {groups.map((group) => (
           <button key={group.id} type="button" className={`btn subtle access-group-tab${expanded === group.id ? " is-active" : ""}`} onClick={() => setExpanded(group.id)}>
-            <strong>{group.name}</strong>
+            <strong><span className="access-group-tab__icon" aria-hidden="true">{groupIcon(group)}</span>{group.name}</strong>
             <span>ID {group.id} · {roleLabel(group.role)} · {group.permissions.length} прав</span>
           </button>
         ))}
         <button type="button" className={`btn subtle access-group-tab${expanded === "new" ? " is-active" : ""}`} onClick={() => setExpanded("new")}>
-          <strong>Нова група</strong>
-          <span>ID, назва, Discord роль і права</span>
+          <strong><span className="access-group-tab__icon" aria-hidden="true">＋</span>Нова група</strong>
+          <span>ID, назва, іконка, Discord роль і права</span>
         </button>
       </aside>
 
@@ -111,23 +115,23 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
           const canEditRank = canEdit && !isFixedSystemGroup;
 
           return expanded === group.id ? (
-            <form key={group.id} className="panel access-group-card" action={saveGroupAction}>
+            <form key={group.id} className="panel access-group-card" action={saveGroupAction} data-dashboard-action-form="true" data-dashboard-action="access-groups-save">
               <input type="hidden" name="currentId" value={group.id} />
               <div className="access-group-card__head">
                 <div>
                   <span className="eyebrow">{fixedLabel(group)}</span>
-                  <h2>{group.name}</h2>
+                  <h2><span className="access-group-title-icon" aria-hidden="true">{groupIcon(group)}</span>{group.name}</h2>
                   <p>{reason || "Зміни збережуться у Firebase. Користувачі отримають нові права автоматично після оновлення сесії або повторного входу."}</p>
                 </div>
                 {isServerOwner ? (
-                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit" formNoValidate>
+                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit" formNoValidate data-dashboard-action="access-groups-impersonate" data-loading-label="Вмикаємо перегляд...">
                     Переглянути як
                   </button>
                 ) : null}
               </div>
 
               <div className="access-group-summary" aria-label="Коротко про групу">
-                <span><strong>{roleLabel(group.role)}</strong><small>{roleHint(group.role)}</small></span>
+                <span><strong>{groupIcon(group)} {roleLabel(group.role)}</strong><small>{roleHint(group.role)}</small></span>
                 <span><strong>Ранг {group.rank}</strong><small>Вищий ранг має пріоритет, якщо в Discord є кілька ролей</small></span>
                 <span><strong>{primaryDiscordRoleId(group) || "Discord role ID не заданий"}</strong><small>Для однієї групи дозволена тільки одна Discord-роль</small></span>
               </div>
@@ -157,7 +161,12 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                   <input className="input" name="rank" type="number" min="1" max="100" defaultValue={group.rank} readOnly={!canEditRank} />
                   <small>Пріоритет групи. Якщо ролей кілька — перемагає більший ранг.</small>
                 </label>
-                <label className="access-form-grid__wide">
+                <label>
+                  <span>Іконка групи <em>необов’язково</em></span>
+                  <input className="input" name="icon" defaultValue={group.icon || ""} placeholder="👑" readOnly={!canEdit} maxLength={24} autoComplete="off" />
+                  <small>Короткий emoji або символ для швидкого впізнавання групи.</small>
+                </label>
+                <label>
                   <span>Discord role ID</span>
                   <input className="input" name="discordRoleId" defaultValue={primaryDiscordRoleId(group)} placeholder="123456789012345678" readOnly={!canEdit} inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
                   <small>Тільки одна Discord-роль на групу. Якщо поле порожнє, група не прив’язана до ролі Discord.</small>
@@ -178,15 +187,15 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
               </div>
 
               <div className="form-actions access-form-actions">
-                <button className="btn primary" type="submit" disabled={!canEdit}>Зберегти зміни</button>
-                {canDelete ? <button className="btn danger" formAction={deleteGroupAction} name="groupId" value={group.id} type="submit" data-confirm-message="Видалити цю групу доступу? Дію не можна швидко скасувати.">Видалити групу</button> : null}
+                <button className="btn primary" type="submit" disabled={!canEdit} data-dashboard-action="access-groups-save" data-loading-label="Зберігаємо...">Зберегти зміни</button>
+                {canDelete ? <button className="btn danger" formAction={deleteGroupAction} name="groupId" value={group.id} type="submit" data-dashboard-action="access-groups-delete" data-loading-label="Видаляємо..." data-confirm-message="Видалити цю групу доступу? Дію не можна швидко скасувати.">Видалити групу</button> : null}
               </div>
             </form>
           ) : null;
         })}
 
         {expanded === "new" ? (
-          <form className="panel access-group-card" action={saveGroupAction}>
+          <form className="panel access-group-card" action={saveGroupAction} data-dashboard-action-form="true" data-dashboard-action="access-groups-create">
             <div className="access-group-card__head">
               <div>
                 <span className="eyebrow">Нова група</span>
@@ -219,7 +228,12 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                 <input className="input" name="rank" type="number" min="1" max="100" defaultValue="20" />
                 <small>Чим вищий ранг, тим пріоритетніша група.</small>
               </label>
-              <label className="access-form-grid__wide">
+              <label>
+                <span>Іконка групи <em>необов’язково</em></span>
+                <input className="input" name="icon" placeholder="🌿" maxLength={24} autoComplete="off" />
+                <small>Emoji або короткий символ. Можна залишити порожнім.</small>
+              </label>
+              <label>
                 <span>Discord role ID</span>
                 <input className="input" name="discordRoleId" placeholder="123456789012345678" inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
                 <small>Одна група = одна Discord-роль. Додаткові ролі створюй окремими групами.</small>
@@ -235,7 +249,7 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                 </fieldset>
               ))}
             </div>
-            <div className="form-actions access-form-actions"><button className="btn primary" type="submit">Створити групу</button></div>
+            <div className="form-actions access-form-actions"><button className="btn primary" type="submit" data-dashboard-action="access-groups-create" data-loading-label="Створюємо...">Створити групу</button></div>
           </form>
         ) : null}
       </div>
