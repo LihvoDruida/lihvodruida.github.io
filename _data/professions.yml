@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-07 10:26:09'
+  updated_at: '2026-05-07 14:12:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-07T04:47:30.000Z'
+  raider_io_last_crawled_at: '2026-05-07T12:54:17.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 133
+  member_count: 134
 characters:
 - name: Бреинор
   region: eu
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 84
+        learned_points: 85
         max_points: 100
     - name: Alchemy
       id: 171
@@ -1230,7 +1230,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 46
+        learned_points: 51
         max_points: 300
 - name: Elderwizard
   region: eu
@@ -1297,7 +1297,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Umbramind
   professions:
     primaries:
     - name: Herbalism
@@ -1549,7 +1549,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
   professions:
     primaries:
     - name: Blacksmithing
@@ -2147,7 +2147,7 @@ characters:
       id: 171
       tiers:
       - name: Classic Alchemy
-        learned_points: 1
+        learned_points: 3
         max_points: 300
       - name: Midnight Alchemy
         learned_points: 100
@@ -2876,7 +2876,7 @@ characters:
   region: eu
   realm: turalyon
   realm_slug: turalyon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/turalyon/Skirvir
   professions:
     primaries:
     - name: Enchanting
@@ -2886,7 +2886,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 28
+        learned_points: 68
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -2895,7 +2895,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 82
+        learned_points: 87
         max_points: 100
     secondaries:
     - name: Fishing
@@ -4819,7 +4819,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 56
+        learned_points: 59
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -5097,7 +5097,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
   professions:
     primaries:
     - name: Enchanting
@@ -6417,7 +6417,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 30
+        learned_points: 31
         max_points: 105
     - name: Mining
       id: 186
@@ -6882,4 +6882,21 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 6
+        max_points: 300
+- name: Kaijuro
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
