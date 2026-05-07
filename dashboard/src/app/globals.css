@@ -22957,3 +22957,141 @@ main.container > :where(.dashboard-shell, .content-shell, .profile-directory-she
     --dash-page-gutter: 13px;
   }
 }
+
+/* v50: navigation overflow fix — keep desktop nav in one row and make mobile bottom nav usable with many items. */
+.dashboard-topbar {
+  grid-template-columns: minmax(190px, 0.82fr) minmax(280px, 1.4fr) minmax(220px, auto) !important;
+  min-width: 0 !important;
+}
+
+.dashboard-brand,
+.dashboard-user {
+  min-width: 0 !important;
+}
+
+.dashboard-nav {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+}
+
+.dashboard-nav::-webkit-scrollbar {
+  display: none !important;
+}
+
+.dashboard-nav a {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1101px) {
+  .dashboard-nav[data-items="7"] a {
+    padding-inline: 12px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) !important;
+  }
+
+  .dashboard-nav {
+    order: 3;
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-user {
+    justify-self: end;
+    max-width: min(100%, 420px);
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-nav {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav {
+    --dashboard-mobile-nav-height: clamp(64px, 15vw, 72px);
+    --dashboard-mobile-nav-edge: clamp(10px, 3.2vw, 14px);
+    --dashboard-mobile-nav-gap: 7px;
+    --dashboard-mobile-nav-pad: 7px;
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(7px, 2vw, 11px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 14px);
+    left: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
+    right: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    padding: var(--dashboard-mobile-nav-pad) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none !important;
+    border-radius: 22px !important;
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 clamp(76px, 22vw, 96px) !important;
+    width: clamp(76px, 22vw, 96px) !important;
+    min-width: clamp(76px, 22vw, 96px) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    scroll-snap-align: start;
+    padding: 7px 6px !important;
+    gap: 4px !important;
+    border-radius: 16px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(1rem, 4.4vw, 1.16rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.67rem, 2.55vw, 0.78rem) !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  .container {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 12px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .dashboard-mobile-nav {
+    --dashboard-mobile-nav-height: 62px;
+    --dashboard-mobile-nav-gap: 6px;
+    --dashboard-mobile-nav-pad: 6px;
+  }
+
+  .dashboard-mobile-nav a {
+    flex-basis: 74px !important;
+    width: 74px !important;
+    min-width: 74px !important;
+  }
+}

@@ -37,32 +37,32 @@ export default async function DashboardIdentity({
   const canUseContent = canManageSiteContent(user);
   const canUseAdmin = canManageGroups(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
-  const mobileNavItems = user
+  const navItems = user
     ? [
         canUseApplications
-          ? { href: "/", section: "applications" as const, icon: "✉", label: "Заявки" }
+          ? { href: "/", section: "applications" as const, icon: "✉", label: "Заявки", desktopLabel: "Заявки" }
           : null,
         canUseRaids
-          ? { href: "/raids", section: "raids" as const, icon: "⚔", label: "Рейди" }
+          ? { href: "/raids", section: "raids" as const, icon: "⚔", label: "Рейди", desktopLabel: canCreateRaids ? "Рейди" : "Мої рейди" }
           : null,
         canUseGuildRoster
-          ? { href: "/guild", section: "guild" as const, icon: "☘", label: "Склад" }
+          ? { href: "/guild", section: "guild" as const, icon: "☘", label: "Склад", desktopLabel: "Склад гільдії" }
           : null,
         canUseDiscord
-          ? { href: "/discord", section: "discord" as const, icon: "◆", label: "Discord" }
+          ? { href: "/discord", section: "discord" as const, icon: "◆", label: "Discord", desktopLabel: "Discord" }
           : null,
         canUseProfiles
-          ? { href: "/profiles", section: "profiles" as const, icon: "☷", label: "Профілі" }
+          ? { href: "/profiles", section: "profiles" as const, icon: "☷", label: "Профілі", desktopLabel: "Профілі" }
           : null,
         canUseContent
-          ? { href: "/content", section: "content" as const, icon: "✦", label: "Новини" }
+          ? { href: "/content", section: "content" as const, icon: "✦", label: "Новини", desktopLabel: "Новини / гайди" }
           : null,
         canUseAdmin
-          ? { href: "/admin/groups", section: "admin" as const, icon: "⚙", label: "Права" }
+          ? { href: "/admin/groups", section: "admin" as const, icon: "⚙", label: "Права", desktopLabel: "Права" }
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];
-  const hasMobileNav = mobileNavItems.length > 0;
+  const hasMobileNav = navItems.length > 0;
 
   return (
     <>
@@ -77,64 +77,23 @@ export default async function DashboardIdentity({
 
         {user ? (
           <>
-            <nav className="dashboard-nav" aria-label="Панель керування">
-              {canUseApplications ? (
-                <a href="/" className={activeSection === "applications" ? "is-active" : undefined} aria-current={activeSection === "applications" ? "page" : undefined}>Заявки</a>
-              ) : null}
-              {canUseRaids ? (
+            <nav
+              className="dashboard-nav"
+              aria-label="Панель керування"
+              data-items={navItems.length}
+              style={{ "--dashboard-nav-items": navItems.length } as CSSProperties}
+            >
+              {navItems.map((item) => (
                 <a
-                  href="/raids"
-                  className={activeSection === "raids" ? "is-active" : undefined}
-                  aria-current={activeSection === "raids" ? "page" : undefined}
+                  key={item.href}
+                  href={item.href}
+                  className={activeSection === item.section ? "is-active" : undefined}
+                  aria-current={activeSection === item.section ? "page" : undefined}
+                  title={item.desktopLabel}
                 >
-                  {canCreateRaids ? "Рейди" : "Мої рейди"}
+                  {item.desktopLabel}
                 </a>
-              ) : null}
-              {canUseGuildRoster ? (
-                <a
-                  href="/guild"
-                  className={activeSection === "guild" ? "is-active" : undefined}
-                  aria-current={activeSection === "guild" ? "page" : undefined}
-                >
-                  Склад гільдії
-                </a>
-              ) : null}
-              {canUseDiscord ? (
-                <a
-                  href="/discord"
-                  className={activeSection === "discord" ? "is-active" : undefined}
-                  aria-current={activeSection === "discord" ? "page" : undefined}
-                >
-                  Discord
-                </a>
-              ) : null}
-              {canUseProfiles ? (
-                <a
-                  href="/profiles"
-                  className={activeSection === "profiles" ? "is-active" : undefined}
-                  aria-current={activeSection === "profiles" ? "page" : undefined}
-                >
-                  Профілі
-                </a>
-              ) : null}
-              {canUseContent ? (
-                <a
-                  href="/content"
-                  className={activeSection === "content" ? "is-active" : undefined}
-                  aria-current={activeSection === "content" ? "page" : undefined}
-                >
-                  Новини / гайди
-                </a>
-              ) : null}
-              {canUseAdmin ? (
-                <a
-                  href="/admin/groups"
-                  className={activeSection === "admin" ? "is-active" : undefined}
-                  aria-current={activeSection === "admin" ? "page" : undefined}
-                >
-                  Права
-                </a>
-              ) : null}
+              ))}
             </nav>
 
             <div className="dashboard-user">
@@ -165,10 +124,10 @@ export default async function DashboardIdentity({
           <nav
             className="dashboard-mobile-nav"
             aria-label="Швидка навігація"
-            data-items={mobileNavItems.length}
-            style={{ "--dashboard-mobile-nav-items": mobileNavItems.length } as CSSProperties}
+            data-items={navItems.length}
+            style={{ "--dashboard-mobile-nav-items": navItems.length } as CSSProperties}
           >
-            {mobileNavItems.map((item) => (
+            {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
