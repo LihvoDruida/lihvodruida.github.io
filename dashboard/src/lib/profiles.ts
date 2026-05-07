@@ -53,6 +53,8 @@ export type DashboardProfile = {
     totalCharacters?: number;
     scannedCharacters?: number;
     eligibleCharacters?: number;
+    guildCharacters?: number;
+    otherCharacters?: number;
     candidateCharacters?: ProfileCharacter[];
   } | null;
   createdAt?: string | null;
@@ -167,7 +169,7 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     avatarUrl: optionalString(item.avatarUrl),
     renderUrl: optionalString(item.renderUrl),
     mediaUrl: optionalString(item.mediaUrl),
-    verifiedGuild: Boolean(item.verifiedGuild),
+    verifiedGuild: typeof item.verifiedGuild === "boolean" ? item.verifiedGuild : Boolean(item.guildName),
     itemLevel: Number.isFinite(Number(item.itemLevel)) ? Number(item.itemLevel) : null,
     lastSeenAt: timestampToIso(item.lastSeenAt) || optionalString(item.lastSeenAt) || null || new Date(0).toISOString(),
     addedAt: timestampToIso(item.addedAt) || optionalString(item.addedAt),
@@ -298,6 +300,8 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters)) ? Number(battlenetRaw.totalCharacters) : undefined,
       scannedCharacters: Number.isFinite(Number(battlenetRaw.scannedCharacters)) ? Number(battlenetRaw.scannedCharacters) : undefined,
       eligibleCharacters: Number.isFinite(Number(battlenetRaw.eligibleCharacters)) ? Number(battlenetRaw.eligibleCharacters) : undefined,
+      guildCharacters: Number.isFinite(Number(battlenetRaw.guildCharacters)) ? Number(battlenetRaw.guildCharacters) : undefined,
+      otherCharacters: Number.isFinite(Number(battlenetRaw.otherCharacters)) ? Number(battlenetRaw.otherCharacters) : undefined,
       candidateCharacters: [],
     } : null,
     createdAt: timestampToIso(data.createdAt),
@@ -601,6 +605,8 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   totalCharacters: number;
   scannedCharacters: number;
   eligibleCharacters: number;
+  guildCharacters?: number;
+  otherCharacters?: number;
   characters?: BattleNetCharacterCandidate[];
 }, account?: BattleNetAccountInfo | null) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
@@ -619,6 +625,12 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
       totalCharacters: scan.totalCharacters,
       scannedCharacters: scan.scannedCharacters,
       eligibleCharacters: scan.eligibleCharacters,
+      guildCharacters: Number.isFinite(Number(scan.guildCharacters))
+        ? Math.max(0, Math.floor(Number(scan.guildCharacters)))
+        : (scan.characters || []).filter((character) => Boolean(character.verifiedGuild)).length,
+      otherCharacters: Number.isFinite(Number(scan.otherCharacters))
+        ? Math.max(0, Math.floor(Number(scan.otherCharacters)))
+        : Math.max(0, scan.eligibleCharacters - (scan.characters || []).filter((character) => Boolean(character.verifiedGuild)).length),
     },
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -656,7 +668,7 @@ function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter)
     key: current.key,
     addedAt: current.addedAt || fresh.addedAt || null,
     isMain: current.isMain,
-    verifiedGuild: fresh.verifiedGuild || current.verifiedGuild,
+    verifiedGuild: fresh.verifiedGuild,
     lastSeenAt: fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
   };
 }
@@ -745,8 +757,8 @@ export async function refreshProfileCharactersForRaidSignup(profile: DashboardPr
 export async function addProfileCharacter(profileId: string, candidateInput: BattleNetCharacterCandidate) {
   const candidate = normalizeCharacter(candidateInput, null);
   const cleanKey = cleanCharacterKey(candidate?.key);
-  if (!candidate || !cleanKey || !candidate.verifiedGuild) {
-    throw new Error("Цей персонаж не підтверджений через Battle.net або не належить до Mistblossom Vanguard.");
+  if (!candidate || !cleanKey) {
+    throw new Error("Цей персонаж не підтверджений через Battle.net або має некоректні дані.");
   }
   if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
@@ -786,12 +798,12 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
   for (const input of candidateInputs || []) {
     const candidate = normalizeCharacter(input, null);
     const cleanKey = cleanCharacterKey(candidate?.key);
-    if (!candidate || !cleanKey || !candidate.verifiedGuild) continue;
+    if (!candidate || !cleanKey) continue;
     normalized.set(cleanKey, candidate);
   }
 
   if (!normalized.size) {
-    throw new Error("Немає підтверджених персонажів для додавання.");
+    throw new Error("Немає підтверджених Battle.net персонажів для додавання.");
   }
   if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 

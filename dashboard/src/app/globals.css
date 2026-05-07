@@ -23676,3 +23676,71 @@ main.container > :where(.dashboard-shell, .content-shell, .profile-directory-she
     justify-self: center !important;
   }
 }
+
+/* Guild / other Battle.net character grouping */
+.profile-character-section-stack,
+.profile-candidate-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-character-section,
+.profile-candidate-group {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-subsection-head--compact {
+  margin-bottom: 6px !important;
+}
+
+.profile-character-kind,
+.profile-character-candidate__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(244, 232, 212, 0.82);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.profile-character-kind--is-guild,
+.profile-character-candidate.is-guild .profile-character-candidate__kind {
+  border-color: rgba(106, 194, 111, 0.35);
+  background: rgba(106, 194, 111, 0.12);
+}
+
+.profile-character-kind--is-other,
+.profile-character-candidate.is-other .profile-character-candidate__kind {
+  border-color: rgba(123, 170, 255, 0.38);
+  background: rgba(123, 170, 255, 0.12);
+}
+
+.profile-character-card.is-other,
+.profile-character-candidate.is-other,
+.raid-party-row.is-non-guild,
+.raid-roster-member.is-non-guild {
+  border-color: rgba(123, 170, 255, 0.36) !important;
+  box-shadow: inset 0 0 0 1px rgba(123, 170, 255, 0.05);
+}
+
+.raid-roster-member.is-undergeared {
+  border-color: rgba(255, 190, 88, 0.45);
+  background: rgba(122, 77, 18, 0.16);
+}
+
+@media (max-width: 760px) {
+  .profile-character-kind,
+  .profile-character-candidate__kind {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+}

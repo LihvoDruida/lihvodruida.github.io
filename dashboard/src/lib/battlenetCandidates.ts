@@ -34,7 +34,8 @@ type CandidateCookieTuple = [
   itemLevel?: number | null,
   activeSpecName?: string | null,
   activeSpecId?: number | null,
-  activeSpecRole?: string | null
+  activeSpecRole?: string | null,
+  verifiedGuild?: boolean | null
 ];
 
 type CandidateCookiePayloadV2 = {
@@ -139,6 +140,7 @@ function toCandidateTuple(character: BattleNetCharacterCandidate): CandidateCook
     optionalText(character.activeSpecName),
     Number.isFinite(Number(character.activeSpecId)) ? Number(character.activeSpecId) : null,
     optionalText(character.activeSpecRole),
+    Boolean(character.verifiedGuild),
   ];
 }
 
@@ -163,6 +165,7 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     activeSpecName,
     activeSpecId,
     activeSpecRole,
+    verifiedGuild,
   ] = tuple;
 
   const safeKey = normalizeCharacterKey(key) || buildBattleNetCharacterKey(region, realmSlug, normalizedName || name);
@@ -190,7 +193,7 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     avatarUrl: emptyToNull(avatarUrl),
     renderUrl: emptyToNull(renderUrl),
     mediaUrl: null,
-    verifiedGuild: true,
+    verifiedGuild: typeof verifiedGuild === "boolean" ? verifiedGuild : Boolean(guildName),
     itemLevel: Number.isFinite(Number(itemLevel)) ? Number(itemLevel) : null,
     lastSeenAt: optionalText(lastSeenAt) || new Date(0).toISOString(),
   };
@@ -229,7 +232,7 @@ export function createBattleNetCandidatesCookieValue(input: {
   const expiresAt = Date.now() + MAX_COOKIE_AGE_SECONDS * 1000;
   const unique = new Map<string, BattleNetCharacterCandidate>();
   for (const character of input.characters || []) {
-    const compact = character?.verifiedGuild ? compactCandidate(character) : null;
+    const compact = character ? compactCandidate(character) : null;
     if (compact?.key) unique.set(compact.key, compact);
   }
 

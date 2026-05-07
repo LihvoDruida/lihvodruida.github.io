@@ -17,13 +17,19 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   bnet_connected: {
     tone: "success",
     title: "Battle.net перевірено",
-    message: "Свіжий список персонажів відкритий тимчасово. Додавай потрібних одразу: у профілі збережуться тільки вибрані персонажі.",
+    message: "Свіжий список персонажів відкритий тимчасово. Можна додати гільдійних і інших персонажів, а у рейді вони будуть позначені окремо.",
     ttl: 7200,
+  },
+  bnet_no_characters: {
+    tone: "warning",
+    title: "Персонажів не знайдено",
+    message: "Battle.net підключено, але список персонажів не повернувся. Перевір регіон, доступ wow.profile і повтори оновлення.",
+    ttl: 8200,
   },
   bnet_no_guild_characters: {
     tone: "warning",
-    title: "У гільдії нікого не знайдено",
-    message: "Battle.net підключено, але не підтвердив персонажів Mistblossom Vanguard. Перевір гільдію персонажа, регіон EU і повтори оновлення.",
+    title: "Гільдійних персонажів не знайдено",
+    message: "Battle.net не підтвердив персонажів Mistblossom Vanguard, але інших персонажів можна додавати для запису в рейд із позначкою 🤝.",
     ttl: 8200,
   },
   bnet_failed: {
@@ -68,8 +74,8 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   },
   characters_bulk_no_verified: {
     tone: "error",
-    title: "Немає підтверджених персонажів гільдії",
-    message: "У вибраному Battle.net списку немає персонажів, підтверджених як Mistblossom Vanguard. Онови персонажів через Battle.net і перевір гільдію/регіон.",
+    title: "Немає коректних персонажів",
+    message: "У вибраному Battle.net списку немає персонажів, які можна зберегти. Онови список через Battle.net і повтори дію.",
     ttl: 9000,
   },
   characters_bulk_all_duplicates: {
@@ -110,8 +116,8 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   },
   character_add_not_guild: {
     tone: "error",
-    title: "Персонаж не підтверджений у гільдії",
-    message: "Додаються тільки персонажі, яких свіжа Battle.net перевірка позначила як Mistblossom Vanguard. Перевір гільдію персонажа, EU-регіон і зроби нову перевірку.",
+    title: "Персонажа не додано",
+    message: "Дані персонажа не пройшли Battle.net перевірку або застаріли. Онови список через Battle.net і повтори дію.",
     ttl: 9000,
   },
   character_add_profile_missing: {

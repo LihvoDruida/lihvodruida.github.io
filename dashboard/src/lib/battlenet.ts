@@ -399,7 +399,8 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
       ]);
 
-      if (!isMistblossomGuild(details) && !envFlag("BATTLENET_ALLOW_NON_GUILD_CHARACTERS", false)) return null;
+      const verifiedGuild = isMistblossomGuild(details);
+      if (!verifiedGuild && envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false)) return null;
 
       const avatarUrl = mediaAssetUrl(media, ["avatar", "inset"]);
       const renderUrl = mediaAssetUrl(media, ["main-raw", "main"]);
@@ -435,7 +436,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         avatarUrl,
         renderUrl,
         mediaUrl: media?._links?.self?.href || null,
-        verifiedGuild: Boolean(guildName),
+        verifiedGuild,
         itemLevel: Number.isFinite(Number(details?.equipped_item_level || details?.average_item_level)) ? Number(details?.equipped_item_level || details?.average_item_level) : null,
         lastSeenAt: new Date().toISOString(),
       } satisfies BattleNetCharacterCandidate;
@@ -449,15 +450,18 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   });
 
   const filtered = candidates.filter(Boolean) as BattleNetCharacterCandidate[];
+  const guildCharacters = filtered.filter((character) => character.verifiedGuild).length;
   return {
     region,
     totalCharacters: allCharacters.length,
     scannedCharacters: limitedCharacters.length,
     eligibleCharacters: filtered.length,
+    guildCharacters,
+    otherCharacters: Math.max(0, filtered.length - guildCharacters),
     concurrency: meta.concurrency,
     failedCharacters: meta.failed,
     durationMs: Date.now() - startedAt,
-    characters: filtered.sort((a, b) => a.name.localeCompare(b.name, "uk")),
+    characters: filtered.sort((a, b) => Number(b.verifiedGuild) - Number(a.verifiedGuild) || a.name.localeCompare(b.name, "uk")),
   };
 }
 
@@ -473,7 +477,8 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
   ]);
 
-  if (!isMistblossomGuild(details) && !envFlag("BATTLENET_ALLOW_NON_GUILD_CHARACTERS", false)) {
+  const verifiedGuild = isMistblossomGuild(details);
+  if (!verifiedGuild && envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false)) {
     return null;
   }
 
@@ -511,7 +516,7 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
     avatarUrl,
     renderUrl,
     mediaUrl: media?._links?.self?.href || null,
-    verifiedGuild: Boolean(guildName),
+    verifiedGuild,
     itemLevel: Number.isFinite(Number(details?.equipped_item_level || details?.average_item_level)) ? Number(details?.equipped_item_level || details?.average_item_level) : null,
     lastSeenAt: new Date().toISOString(),
   };

@@ -57,18 +57,30 @@ export function StatusNotice({ params: _params }: { params: Record<string, strin
   return null;
 }
 
-export function signupDisplayName(item?: RaidSignup | null, options?: { showItemLevel?: boolean }) {
+function signupMarkers(item?: RaidSignup | null, options?: { hasItemLevelIssue?: boolean }) {
+  if (!item) return "";
+  return [
+    options?.hasItemLevelIssue ? "⚠️" : null,
+    item.status === "late" ? "🕒" : null,
+    item.verifiedGuild === false ? "🤝" : null,
+  ].filter(Boolean).join(" ");
+}
+
+export function signupDisplayName(item?: RaidSignup | null, options?: { showItemLevel?: boolean; hasItemLevelIssue?: boolean }) {
   if (!item) return "—";
   const name = item.characterName || item.discordName || "Гравець";
   const showItemLevel = options?.showItemLevel !== false;
-  return showItemLevel && item.itemLevel ? `${name} • ${item.itemLevel}` : name;
+  const markers = signupMarkers(item, { hasItemLevelIssue: options?.hasItemLevelIssue });
+  const value = showItemLevel && item.itemLevel ? `${name} • ${item.itemLevel}` : name;
+  return markers ? `${markers} ${value}` : value;
 }
 
 function signupSpecLabel(item?: RaidSignup | null) {
   if (!item) return "";
   const spec = item.activeSpecName ? `${item.activeSpecName}${item.className ? ` • ${item.className}` : ""}` : item.className || "";
   const role = wowRoleLabel(item.role);
-  return [spec, role].filter(Boolean).join(" • ");
+  const guildLabel = item.verifiedGuild === false ? "Інший персонаж" : "";
+  return [spec, role, guildLabel].filter(Boolean).join(" • ");
 }
 
 function raidStatusLabel(raid: RaidItem) {
@@ -92,11 +104,11 @@ function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired, showIt
   const warning = showItemLevel && item ? raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item) : null;
   const issue = block || warning;
   return (
-    <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
+    <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${item?.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
       <span className="raid-role-label">{label}</span>
       <span className="raid-party-member-copy">
-        <strong>{signupDisplayName(item, { showItemLevel })}</strong>
+        <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
         {item ? <small>{signupSpecLabel(item)}</small> : null}
         {issue ? <small className="raid-ilvl-warning">{issue}</small> : null}
       </span>
@@ -118,17 +130,22 @@ function PartyCard({ party, minItemLevel, minItemLevelRequired, showItemLevel = 
   );
 }
 
-function RosterBlock({ title, items, empty = "Поки порожньо", showItemLevel = true }: { title: string; items: RaidSignup[]; empty?: string; showItemLevel?: boolean }) {
+function RosterBlock({ title, items, empty = "Поки порожньо", showItemLevel = true, minItemLevel, minItemLevelRequired }: { title: string; items: RaidSignup[]; empty?: string; showItemLevel?: boolean; minItemLevel?: number | null; minItemLevelRequired?: boolean | null }) {
   return (
     <div className="raid-roster-block">
       <h4>{title}</h4>
-      {items.length ? items.map((item) => (
-        <div className="raid-roster-member" key={`${title}-${item.discordId}`}>
-          <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
-          <strong>{signupDisplayName(item, { showItemLevel })}</strong>
-          <small>{signupSpecLabel(item) || item.discordName}</small>
-        </div>
-      )) : <p>{empty}</p>}
+      {items.length ? items.map((item) => {
+        const issue = showItemLevel
+          ? raidMinItemLevelBlockMessage({ minItemLevel, minItemLevelRequired }, item) || raidMinItemLevelWarning({ minItemLevel, minItemLevelRequired }, item)
+          : null;
+        return (
+          <div className={`raid-roster-member${item.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}`} key={`${title}-${item.discordId}`}>
+            <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
+            <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
+            <small>{signupSpecLabel(item) || item.discordName}</small>
+          </div>
+        );
+      }) : <p>{empty}</p>}
     </div>
   );
 }
@@ -146,11 +163,11 @@ export function RosterSideList({ raid, showItemLevel = true }: { raid: RaidItem;
   return (
     <aside className="raid-roster-panel panel">
       <div className="raid-roster-heading"><strong>Хто йде</strong><span>{counts.roster} / {raidDisplayCapacity(raid)}</span></div>
-      <RosterBlock title={`Танки (${grouped.tanks.length}/${composition.tanks})`} items={grouped.tanks} showItemLevel={showItemLevel} />
-      <RosterBlock title={`Хіли (${grouped.healers.length}/${composition.healers})`} items={grouped.healers} showItemLevel={showItemLevel} />
-      <RosterBlock title={`ДД (${grouped.dps.length}/${composition.dps})`} items={grouped.dps} showItemLevel={showItemLevel} />
-      <RosterBlock title={`Затримаюсь (${grouped.late.length})`} items={grouped.late} empty="—" showItemLevel={showItemLevel} />
-      <RosterBlock title={`Пропускають (${grouped.skipped.length})`} items={grouped.skipped} empty="—" showItemLevel={showItemLevel} />
+      <RosterBlock title={`Танки (${grouped.tanks.length}/${composition.tanks})`} items={grouped.tanks} showItemLevel={showItemLevel} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />
+      <RosterBlock title={`Хіли (${grouped.healers.length}/${composition.healers})`} items={grouped.healers} showItemLevel={showItemLevel} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />
+      <RosterBlock title={`ДД (${grouped.dps.length}/${composition.dps})`} items={grouped.dps} showItemLevel={showItemLevel} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />
+      <RosterBlock title={`Затримаюсь (${grouped.late.length})`} items={grouped.late} empty="—" showItemLevel={showItemLevel} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />
+      <RosterBlock title={`Пропускають (${grouped.skipped.length})`} items={grouped.skipped} empty="—" showItemLevel={showItemLevel} minItemLevel={raid.minItemLevel} minItemLevelRequired={raid.minItemLevelRequired} />
     </aside>
   );
 }
@@ -158,16 +175,18 @@ export function RosterSideList({ raid, showItemLevel = true }: { raid: RaidItem;
 function characterSignupOption(character: DashboardProfile["characters"][number], raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">): RaidSignupCharacterOption {
   const realm = character.realmName || character.realmSlug || "realm";
   const warningPrefix = isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : "";
+  const guildPrefix = character.verifiedGuild ? "" : "🤝 ";
   const minimumNote = raidSignupCharacterMinimumNote(raid, character);
   const meta = [
     minimumNote || null,
+    character.verifiedGuild ? "Гільдійний" : "Інший персонаж",
     character.activeSpecName || null,
     character.className || null,
     character.itemLevel ? `${character.itemLevel} ilvl` : null,
   ].filter(Boolean).join(" • ");
   return {
     key: character.key,
-    label: `${warningPrefix}${character.name} • ${realm}`,
+    label: `${warningPrefix}${guildPrefix}${character.name} • ${realm}`,
     meta,
   };
 }

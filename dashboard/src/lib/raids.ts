@@ -43,6 +43,9 @@ export type RaidSignup = {
   avatarUrl?: string | null;
   itemLevel?: number | null;
   profileUrl?: string | null;
+  verifiedGuild?: boolean | null;
+  guildName?: string | null;
+  guildRealmSlug?: string | null;
   signedAt?: string | null;
   updatedAt?: string | null;
 };
@@ -370,6 +373,12 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
     activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
   });
+  const rawVerifiedGuild = item.verifiedGuild ?? item.verified_guild;
+  const verifiedGuild = typeof rawVerifiedGuild === "boolean"
+    ? rawVerifiedGuild
+    : String(rawVerifiedGuild || "").toLowerCase() === "false"
+      ? false
+      : true;
   return {
     discordId,
     discordName: cleanString(item.discordName, 100) || "Discord user",
@@ -387,6 +396,9 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     avatarUrl: cleanUrl(item.avatarUrl),
     itemLevel: Number.isFinite(ilvl) && ilvl > 0 ? Math.floor(ilvl) : null,
     profileUrl: cleanUrl(item.profileUrl),
+    verifiedGuild,
+    guildName: cleanString(item.guildName || item.guild_name, 120) || null,
+    guildRealmSlug: cleanString(item.guildRealmSlug || item.guild_realm_slug, 120) || null,
     signedAt: timestampToIso(item.signedAt) || null,
     updatedAt: timestampToIso(item.updatedAt) || null,
   };
@@ -1020,8 +1032,9 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` ${item.activeSpecName}` : "";
-  const late = item.status === "late" ? " 🕒" : "";
-  const text = `${base}${spec}${late}`.trim();
+  const markers = [item.status === "late" ? "🕒" : null, item.verifiedGuild === false ? "🤝" : null].filter(Boolean);
+  const prefix = markers.length ? `${markers.join(" ")} ` : "";
+  const text = `${prefix}${base}${spec}`.trim();
   return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
@@ -1031,11 +1044,16 @@ function isSignupBelowRaidMinimum(item?: RaidSignup | null, raid?: Pick<RaidItem
   return Boolean(item && item.status !== "skipped" && Number.isFinite(minimum) && minimum > 0 && Number.isFinite(current) && current > 0 && current < minimum);
 }
 
+function isSignupNonGuildCharacter(item?: Pick<RaidSignup, "verifiedGuild"> | null) {
+  return Boolean(item && item.verifiedGuild === false);
+}
+
 function discordSignupMarkers(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null) {
   if (!item) return "";
   const markers = [
     isSignupBelowRaidMinimum(item, raid) ? "⚠️" : null,
     item.status === "late" ? "🕒" : null,
+    isSignupNonGuildCharacter(item) ? "🤝" : null,
   ].filter(Boolean);
   return markers.length ? `${markers.join(" ")} ` : "";
 }
@@ -1226,13 +1244,15 @@ export function buildRaidCharacterSelectCustomId(raidId: string, action: RaidSig
 
 function raidCharacterOptionLabel(character: ProfileCharacter) {
   const realm = character.realmName || character.realmSlug || "realm";
-  return `${character.name} • ${realm}`.slice(0, 100);
+  const prefix = character.verifiedGuild ? "" : "🤝 ";
+  return `${prefix}${character.name} • ${realm}`.slice(0, 100);
 }
 
 function raidCharacterOptionDescription(character: ProfileCharacter, raid?: RaidMinimumPolicy | null) {
   const minimumNote = raid ? raidSignupCharacterMinimumNote(raid, character) : null;
   return [
     minimumNote || null,
+    character.verifiedGuild ? "Гільдійний" : "Інший персонаж",
     character.activeSpecName || null,
     character.className || null,
     character.itemLevel ? `${character.itemLevel} ilvl` : null,
@@ -1427,6 +1447,9 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     avatarUrl: character?.avatarUrl || character?.renderUrl || character?.mediaUrl || null,
     itemLevel: Number.isFinite(Number(character?.itemLevel)) ? Number(character?.itemLevel) : null,
     profileUrl: character?.profileUrl || null,
+    verifiedGuild: character ? Boolean(character.verifiedGuild) : null,
+    guildName: character?.guildName || null,
+    guildRealmSlug: character?.guildRealmSlug || null,
     signedAt: now,
     updatedAt: now,
   };
@@ -1705,6 +1728,7 @@ export function raidLiveRevision(raid: RaidItem) {
       item.characterName || "",
       item.realmSlug || item.realmName || "",
       item.itemLevel ?? "",
+      item.verifiedGuild === false ? "other" : "guild",
       item.updatedAt || item.signedAt || "",
     ].join("~"))
     .join("|");

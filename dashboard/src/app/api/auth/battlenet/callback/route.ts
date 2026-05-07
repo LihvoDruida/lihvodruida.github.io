@@ -60,12 +60,14 @@ export async function GET(request: NextRequest) {
       totalCharacters: scan.totalCharacters,
       scannedCharacters: scan.scannedCharacters,
       eligibleCharacters: scan.eligibleCharacters,
+      guildCharacters: scan.guildCharacters,
+      otherCharacters: scan.otherCharacters,
       concurrency: scan.concurrency,
       failedCharacters: scan.failedCharacters,
       durationMs: scan.durationMs,
     });
 
-    const response = redirectToProfile(session.profileId, scan.eligibleCharacters ? "bnet_connected" : "bnet_no_guild_characters");
+    const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters");
     if (scan.characters.length) {
       setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
     } else {
