@@ -40,7 +40,7 @@ function StatusNotice({ params }: { params: Record<string, string | undefined> }
 
 export default async function DiscordHubPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
 
   const params = await searchParams;
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
@@ -81,8 +81,6 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             <div className="hero-platform" />
           </div>
         </header>
-      </section>
-
       <StatusNotice params={params} />
       <IntegrationStatusPanel compact />
 
@@ -116,6 +114,7 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
           </a>
         </section>
       )}
+      </section>
     </main>
   );
 }

@@ -21,7 +21,7 @@ export const revalidate = 0;
 
 export default async function RaidsListPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canViewRaidDirectory(user)) redirect(await getOwnProfilePath(user));
 
   const canManage = canManageRaids(user);

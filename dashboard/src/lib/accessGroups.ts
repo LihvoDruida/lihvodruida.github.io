@@ -168,7 +168,7 @@ export async function listAccessGroups(): Promise<AccessGroup[]> {
   await ensureDefaultAccessGroups();
   const snapshot = await ref.get();
   const groups = snapshot.docs.map((doc: any) => normalizeGroup(doc.id, doc.data()));
-  return groups.sort((a: AccessGroup, b: AccessGroup) => b.rank - a.rank || Number(a.id) - Number(b.id) || a.name.localeCompare(b.name, "uk"));
+  return groups.sort((a: AccessGroup, b: AccessGroup) => b.rank - a.rank || a.id.localeCompare(b.id, "uk", { numeric: true }) || a.name.localeCompare(b.name, "uk"));
 }
 
 export async function ensureDefaultAccessGroups() {
@@ -243,7 +243,7 @@ export function applyAccessGroupToSession(session: DashboardSession, group: Acce
 export function hasPermission(session: DashboardSession | null | undefined, permission: DashboardPermissionKey) {
   if (!session) return false;
   if (session.isServerOwner) return true;
-  if (session.permissions?.length) return Boolean(session.permissions.includes(permission));
+  if (session.groupId || session.permissions?.length) return Boolean(session.permissions?.includes(permission));
   return session.role === "admin";
 }
 
@@ -305,6 +305,12 @@ export async function upsertAccessGroup(input: {
   }
 
   const roleIdSource = input.discordRoleId ?? input.discordRoleIds;
+  const discordRoleIds = cleanDiscordRoleIds(roleIdSource);
+  const roleConflict = discordRoleIds[0]
+    ? groups.find((group) => group.id !== currentId && group.discordRoleIds.includes(discordRoleIds[0]))
+    : null;
+  if (roleConflict) throw new Error(`Discord role ID уже привʼязаний до групи «${roleConflict.name}». Одна Discord-роль не повинна керувати кількома групами.`);
+
   const doc = {
     id,
     name: cleanName(input.name, target.name),
@@ -312,7 +318,7 @@ export async function upsertAccessGroup(input: {
     rank: effectiveRank,
     lockedId: FIXED_GROUP_IDS.has(id) || Boolean(target.lockedId),
     protectedGroup: FIXED_GROUP_IDS.has(id) || Boolean(target.protectedGroup),
-    discordRoleIds: cleanDiscordRoleIds(roleIdSource),
+    discordRoleIds,
     icon: cleanGroupIcon(input.icon ?? target.icon),
     permissions: requestedPermissions,
     updatedAt: nowIso(),

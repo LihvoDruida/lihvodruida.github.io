@@ -27,9 +27,9 @@ function formatDate(value?: string | null) {
 }
 
 export default async function GuildRosterPage() {
-  if (!(await isAuthenticated())) redirect("/login");
+  if (!(await isAuthenticated())) { redirect("/login"); throw new Error("Login required"); }
   const user = await getSessionUser();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
 
   const [roster, profileLinks] = await Promise.all([
     loadGuildRosterData(),
@@ -44,7 +44,7 @@ export default async function GuildRosterPage() {
 
   return (
     <main className="container guild-page">
-      <section className="dashboard-shell" aria-label="Панель Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell" aria-label="Панель Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="guild" />
         <header className="hero panel guild-hero">
           <div className="hero-copy dashboard-hero__copy">
@@ -78,9 +78,8 @@ export default async function GuildRosterPage() {
             </div>
           </div>
         </header>
-      </section>
-
       <GuildRosterExplorer members={members} stats={roster.stats} source={roster.source} error={roster.error} />
+      </section>
     </main>
   );
 }

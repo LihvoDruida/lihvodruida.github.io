@@ -56,7 +56,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
 
 export default async function ProfilesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canViewProfiles(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
@@ -75,8 +75,6 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
             <p className="lead">Перегляд профілів, Discord-ролей, мейн-персонажів і Battle.net-стану. Нижчі ролі не бачать профілі з вищим доступом.</p>
           </div>
         </header>
-      </section>
-
       <form className="toolbar panel profile-directory-toolbar">
         <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
         <button className="btn primary" type="submit">Знайти</button>
@@ -90,6 +88,7 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
             <span>Спробуй змінити пошук або дочекайся, поки учасники увійдуть через Discord.</span>
           </div>
         )}
+      </section>
       </section>
     </main>
   );

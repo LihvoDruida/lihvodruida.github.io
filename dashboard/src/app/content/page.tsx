@@ -326,7 +326,7 @@ function ContentLibraryGroup({
 
 export default async function ContentPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageSiteContent(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
@@ -398,8 +398,6 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             <div className="hero-platform" />
           </div>
         </header>
-      </section>
-
       {params.published ? <div className="notice panel success">Опубліковано матеріал: <strong>{params.published}</strong></div> : null}
       {params.updated ? <div className="notice panel success">Оновлено матеріал: <strong>{params.updated}</strong></div> : null}
       {params.deleted ? <div className="notice panel success">Видалено матеріал: <strong>{params.deleted}</strong></div> : null}
@@ -444,6 +442,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             </section>
           ) : null}
         </section>
+      </section>
     </main>
   );
 }

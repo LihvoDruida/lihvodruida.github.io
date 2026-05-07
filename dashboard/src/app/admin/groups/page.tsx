@@ -26,22 +26,30 @@ async function saveGroupAction(formData: FormData) {
   "use server";
   const user = await getSession();
   if (!user || !canManageGroups(user)) { redirect("/login"); throw new Error("Access denied"); }
-  await upsertAccessGroup({
-    currentId: formData.get("currentId"),
-    id: formData.get("id"),
-    name: formData.get("name"),
-    role: formData.get("role"),
-    rank: formData.get("rank"),
-    discordRoleId: formData.get("discordRoleId"),
-    icon: formData.get("icon"),
-    permissions: formData.getAll("permissions"),
-  }, user);
-  const groupId = String(formData.get("id") || formData.get("currentId") || "");
-  await recordAdminAudit("access_group.upsert", user, { groupId });
-  revalidatePath("/admin/groups");
-  await setActionToast("success", formData.get("currentId") ? "Групу оновлено" : "Групу створено", "Права, Discord role ID та іконку збережено у Firebase.");
-  const statusParam = formData.get("currentId") ? "updated" : "created";
-  redirect(`/admin/groups?${statusParam}=${encodeURIComponent("Групу доступу збережено у Firebase.")}`);
+
+  const isUpdate = Boolean(formData.get("currentId"));
+  let targetUrl = `/admin/groups?${isUpdate ? "updated" : "created"}=${encodeURIComponent("Групу доступу збережено у Firebase.")}`;
+  try {
+    await upsertAccessGroup({
+      currentId: formData.get("currentId"),
+      id: formData.get("id"),
+      name: formData.get("name"),
+      role: formData.get("role"),
+      rank: formData.get("rank"),
+      discordRoleId: formData.get("discordRoleId"),
+      icon: formData.get("icon"),
+      permissions: formData.getAll("permissions"),
+    }, user);
+    const groupId = String(formData.get("id") || formData.get("currentId") || "");
+    await recordAdminAudit("access_group.upsert", user, { groupId });
+    revalidatePath("/admin/groups");
+    await setActionToast("success", isUpdate ? "Групу оновлено" : "Групу створено", "Права, Discord role ID та іконку збережено у Firebase.");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Перевір ID, роль, ранг, Discord role ID і права групи.";
+    await setActionToast("error", isUpdate ? "Групу не оновлено" : "Групу не створено", message);
+    targetUrl = `/admin/groups?error=${encodeURIComponent(message)}`;
+  }
+  redirect(targetUrl);
 }
 
 async function deleteGroupAction(formData: FormData) {
@@ -49,23 +57,37 @@ async function deleteGroupAction(formData: FormData) {
   const user = await getSession();
   if (!user || !canManageGroups(user)) { redirect("/login"); throw new Error("Access denied"); }
   const groupId = String(formData.get("groupId") || "");
-  await deleteAccessGroup(groupId, user);
-  await recordAdminAudit("access_group.delete", user, { groupId });
-  revalidatePath("/admin/groups");
-  await setActionToast("success", "Групу видалено", "Список груп доступу оновлено.");
-  redirect(`/admin/groups?deleted=${encodeURIComponent("Групу доступу видалено.")}`);
+  let targetUrl = `/admin/groups?deleted=${encodeURIComponent("Групу доступу видалено.")}`;
+  try {
+    await deleteAccessGroup(groupId, user);
+    await recordAdminAudit("access_group.delete", user, { groupId });
+    revalidatePath("/admin/groups");
+    await setActionToast("success", "Групу видалено", "Список груп доступу оновлено.");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Групу не вдалося видалити.";
+    await setActionToast("error", "Групу не видалено", message);
+    targetUrl = `/admin/groups?error=${encodeURIComponent(message)}`;
+  }
+  redirect(targetUrl);
 }
 
 async function impersonateAction(formData: FormData) {
   "use server";
   const user = await getSession();
   if (!user?.isServerOwner) { redirect("/admin/groups"); throw new Error("Access denied"); }
-  const group = await getAccessGroup(String(formData.get("groupId") || ""));
-  if (!group) { redirect("/admin/groups"); throw new Error("Group not found"); }
-  await setSession(applyAccessGroupToSession({ ...user, impersonatedBy: user.id }, group, false));
-  await recordAdminAudit("access_group.impersonate", user, { groupId: group.id, groupName: group.name });
-  await setActionToast("info", `Перегляд як: ${group.name}`, "Реальні права акаунта не змінені. Завершити режим можна через постійне повідомлення внизу.");
-  redirect(user.profileId ? `/profile/${user.profileId}` : "/");
+  let targetUrl = user.profileId ? `/profile/${user.profileId}` : "/";
+  try {
+    const group = await getAccessGroup(String(formData.get("groupId") || ""));
+    if (!group) throw new Error("Групу для перегляду не знайдено.");
+    await setSession(applyAccessGroupToSession({ ...user, impersonatedBy: user.id }, group, false));
+    await recordAdminAudit("access_group.impersonate", user, { groupId: group.id, groupName: group.name });
+    await setActionToast("info", `Перегляд як: ${group.name}`, "Реальні права акаунта не змінені. Завершити режим можна через постійне повідомлення внизу.");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Режим перегляду не вдалося увімкнути.";
+    await setActionToast("error", "Перегляд не увімкнено", message);
+    targetUrl = `/admin/groups?error=${encodeURIComponent(message)}`;
+  }
+  redirect(targetUrl);
 }
 
 export default async function AdminGroupsPage() {

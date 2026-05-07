@@ -22888,3 +22888,72 @@ main.container {
     --dash-page-gutter: 12px;
   }
 }
+
+/* v65: shared dashboard page skeleton and final gutter normalization. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(8px, 1.25vw, 18px);
+  --dash-section-gap: clamp(12px, 1.55vw, 18px);
+  --dash-card-pad: clamp(14px, 0.95rem + 0.32vw, 20px);
+}
+
+main.container {
+  width: min(100%, var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+  padding-inline: var(--dash-page-gutter) !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: var(--dash-section-gap) !important;
+}
+
+main.container > :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .applications-page, .access-groups-page) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: var(--dash-section-gap) !important;
+  margin: 0 !important;
+}
+
+main.container > :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .applications-page, .access-groups-page) > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-block: 0 !important;
+}
+
+:where(.stats, .toolbar, .grid, .profile-directory-grid, .profile-grid, .discord-hub-grid, .content-page-stack, .raid-editor-layout, .raid-member-layout, .raid-manager-list, .access-groups-layout) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .profile-hero, .discord-dashboard-hero, .guild-hero, .raid-dashboard-hero, .admin-hero) + :where(.notice, .stats, .toolbar, .grid, .profile-directory-grid, .profile-grid, .discord-hub-grid, .content-page-stack, .raid-editor-layout, .raid-member-layout, .raid-list-page-panel, .access-groups-layout) {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(14px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.2vw, 16px);
+    --dash-card-pad: clamp(13px, 3.7vw, 17px);
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    gap: var(--dash-section-gap) !important;
+  }
+
+  main.container > :where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .applications-page, .access-groups-page) {
+    gap: var(--dash-section-gap) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 13px;
+  }
+}

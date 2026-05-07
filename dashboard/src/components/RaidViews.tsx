@@ -503,7 +503,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
 export function RaidPageShell({ user, title, description, children }: { user?: DashboardSession | null; title: string; description: string; children: ReactNode }) {
   return (
     <main className="container raid-page">
-      <section className="dashboard-shell raid-shell" aria-label="Панель рейдів Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell raid-shell" aria-label="Панель рейдів Mistblossom Vanguard">
         {user ? <DashboardIdentity user={user} activeSection="raids" /> : null}
         <header className="hero panel dashboard-hero raid-dashboard-hero">
           <div className="hero-copy dashboard-hero__copy">
@@ -517,8 +517,8 @@ export function RaidPageShell({ user, title, description, children }: { user?: D
             <p className="lead">{description}</p>
           </div>
         </header>
+        {children}
       </section>
-      {children}
     </main>
   );
 }

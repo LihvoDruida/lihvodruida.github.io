@@ -27,7 +27,7 @@ export const revalidate = 0;
 
 export default async function EditDiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
 
   if (!canManageRulesEmbeds(user)) redirect(await getOwnProfilePath(user));
 
@@ -84,8 +84,6 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
           </div>
           <a className="btn subtle" href="/discord/rules">До списку</a>
         </header>
-      </section>
-
       {params.error ? <div className="notice panel error-note discord-notice">{params.error}</div> : null}
 
       {!canEditRules ? (
@@ -115,6 +113,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
           />
         </>
       )}
+      </section>
     </main>
   );
 }

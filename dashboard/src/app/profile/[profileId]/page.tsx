@@ -572,8 +572,6 @@ export default async function ProfilePage({
             {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
           </div>
         </header>
-      </section>
-
       <section className="profile-grid" aria-label="Дані доступу">
         <article className="panel profile-card profile-card--identity">
           <div className="profile-card-head">
@@ -772,6 +770,7 @@ export default async function ProfilePage({
             ))}
           </ul>
         </article> : null}
+      </section>
       </section>
     </main>
   );

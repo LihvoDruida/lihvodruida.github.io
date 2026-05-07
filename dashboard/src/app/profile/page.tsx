@@ -15,6 +15,6 @@ export const revalidate = 0;
 
 export default async function ProfileRedirectPage() {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
   redirect(await getOwnProfilePath(user));
 }

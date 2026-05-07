@@ -133,9 +133,9 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  if (!(await isAuthenticated())) redirect("/login");
+  if (!(await isAuthenticated())) { redirect("/login"); throw new Error("Login required"); }
   const user = await getSessionUser();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
   const mayViewApplications = canViewApplications(user);
   const mayManageApplications = canManageApplications(user);
   const mayViewSensitiveApplications = canViewApplicationBattleTag(user);
@@ -155,7 +155,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="container">
-      <section className="dashboard-shell" aria-label="Панель заявок Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell applications-page" aria-label="Панель заявок Mistblossom Vanguard">
         <DashboardIdentity user={user} />
         <header className="hero panel dashboard-hero">
         <div className="hero-copy dashboard-hero__copy">
@@ -182,8 +182,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="hero-platform" />
         </div>
         </header>
-      </section>
-
       <section className="stats">
         <div className="stat panel"><strong>{counts.all}</strong><span>Всього</span></div>
         <div className="stat panel review"><strong>{counts.review}</strong><span>На розгляді</span></div>
@@ -237,6 +235,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </aside>
           </article>
         )) : <div className="empty panel">Заявок за цими фільтрами немає.</div>}
+      </section>
       </section>
     </main>
   );

@@ -335,7 +335,7 @@ function uniqueMessages(messages: DiscordEditableMessage[]) {
 
 export default async function DiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
 
   if (!canViewRulesStats(user)) redirect(await getOwnProfilePath(user));
 
@@ -409,8 +409,6 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
             </div>
           </div>
         </header>
-      </section>
-
       <StatusNotice params={params} />
 
       {!hasDiscordEmbedConfig() ? (
@@ -453,6 +451,7 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
           </div> : null}
         </>
       )}
+      </section>
     </main>
   );
 }

@@ -28,7 +28,7 @@ export function canAccessDashboardRole(viewer: DashboardSession | null | undefin
 function permitted(session: DashboardSession | null | undefined, permission: DashboardPermissionKey, fallbackRoles: DashboardRole[] = []) {
   if (!session) return false;
   if (session.isServerOwner) return true;
-  if (session.permissions?.length) return session.permissions.includes(permission);
+  if (session.groupId || session.permissions?.length) return Boolean(session.permissions?.includes(permission));
   return fallbackRoles.includes(session.role);
 }
 
@@ -37,7 +37,7 @@ export function isDashboardStaff(session: DashboardSession | null | undefined) {
 }
 
 export function isDashboardAdmin(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.isServerOwner || (session.role === "admin" && session.permissions?.includes("groups.manage"))));
+  return Boolean(session && (session.isServerOwner || (session.role === "admin" && (session.groupId ? session.permissions?.includes("groups.manage") : true))));
 }
 
 export function canViewRaidDirectory(session: DashboardSession | null | undefined) {
@@ -61,7 +61,7 @@ export function canViewProfiles(session: DashboardSession | null | undefined) {
 }
 
 export function canManageGroups(session: DashboardSession | null | undefined) {
-  return Boolean(session && (session.isServerOwner || (session.role === "admin" && permitted(session, "groups.manage", []))));
+  return Boolean(session && (session.isServerOwner || (session.role === "admin" && permitted(session, "groups.manage", ["admin"]))));
 }
 
 export function hierarchyTitle(role: DashboardRole) {

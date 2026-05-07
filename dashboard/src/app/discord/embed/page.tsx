@@ -35,7 +35,7 @@ function StatusNotice({ params }: { params: Record<string, string | undefined> }
 
 export default async function GeneralDiscordEmbedPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
-  if (!user) redirect("/login");
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
 
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
   if (!canUseGeneralEmbeds) redirect(await getOwnProfilePath(user));
@@ -88,8 +88,6 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
           </div>
           <a className="btn subtle" href="/discord">Назад</a>
         </header>
-      </section>
-
       <StatusNotice params={params} />
       <IntegrationStatusPanel compact />
 
@@ -119,6 +117,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
           />
         </>
       )}
+      </section>
     </main>
   );
 }
