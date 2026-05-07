@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-07 06:37:22'
+  updated_at: '2026-05-07 10:26:09'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 132
+  member_count: 133
   achievement_points: 475
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13693
+      world: 13696
       region: 6102
       realm: 55
     heroic:
-      world: 13014
-      region: 5583
+      world: 13018
+      region: 5584
       realm: 46
     mythic:
-      world: 7285
-      region: 3125
+      world: 7289
+      region: 3126
       realm: 24
   blackrock-depths:
     normal:
@@ -1166,47 +1166,23 @@ members:
       slug: terokkar
     playable_class:
       id: 5
-      name: Priest
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Shadow
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/5/185040389-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Umbramind
-    item_level_equipped: 131
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -1322,47 +1298,23 @@ members:
       slug: tarren-mill
     playable_class:
       id: 7
-      name: Shaman
+      name: null
     playable_race:
       id: 31
-      name: Zandalari Troll
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Elemental
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/185900766-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
-    item_level_equipped: 278
-    mythic_plus_scores:
-      all:
-        score: 3059.5
-        color: '#5764e2'
-      dps:
-        score: 3059.5
-        color: '#5764e2'
-      healer:
-        score: 326.1
-        color: '#f6fff3'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 3059.5
-        color: '#5764e2'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 326.1
-        color: '#f6fff3'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -2806,47 +2758,23 @@ members:
       slug: turalyon
     playable_class:
       id: 3
-      name: Hunter
+      name: null
     playable_race:
       id: 3
-      name: Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
-    profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 282
-    mythic_plus_scores:
-      all:
-        score: 2866.7
-        color: '#3f82ca'
-      dps:
-        score: 2866.7
-        color: '#3f82ca'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2866.7
-        color: '#3f82ca'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -3164,7 +3092,7 @@ members:
   character:
     name: Umbrak
     id: 189215394
-    level: 82
+    level: 83
     realm:
       id: 1415
       slug: terokkar
@@ -3836,6 +3764,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Eshwood
+    id: 196224283
+    level: 90
+    realm:
+      id: 625
+      slug: twisting-nether
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Feral
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/twisting-nether/27/196224283-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/twisting-nether/Eshwood
+    item_level_equipped: 280
+    mythic_plus_scores:
+      all:
+        score: 3358.8
+        color: '#bc3fd1'
+      dps:
+        score: 3358.8
+        color: '#bc3fd1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 3358.8
+        color: '#bc3fd1'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Пандашоманко
@@ -4121,19 +4101,19 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 3022.3
+        score: 3041.1
         color: '#4769e0'
       dps:
         score: 994.8
         color: '#c6ffb2'
       healer:
-        score: 3022.3
+        score: 3041.1
         color: '#4769e0'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3022.3
+        score: 3041.1
         color: '#4769e0'
       spec_1:
         score: 0
@@ -5042,47 +5022,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: Mage
+      name: null
     playable_race:
       id: 7
-      name: Gnome
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-    item_level_equipped: 271
-    mythic_plus_scores:
-      all:
-        score: 2649.4
-        color: '#5eaa9f'
-      dps:
-        score: 2649.4
-        color: '#5eaa9f'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2649.4
-        color: '#5eaa9f'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -6882,34 +6838,34 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Eshwood
-    id: 196224283
+    name: Sangvyn
+    id: 185570879
     level: 90
     realm:
-      id: 625
-      slug: twisting-nether
+      id: 1306
+      slug: tarren-mill
     playable_class:
-      id: 11
-      name: Druid
+      id: 8
+      name: Mage
     playable_race:
-      id: 4
-      name: Night Elf
+      id: 10
+      name: Blood Elf
     faction:
-      type: ALLIANCE
+      type: HORDE
     gender: male
     active_spec:
-      name: Feral
+      name: Frost
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/twisting-nether/27/196224283-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/twisting-nether/Eshwood
-    item_level_equipped: 280
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3358.8
-        color: '#bc3fd1'
+        score: 3027.5
+        color: '#4769e0'
       dps:
-        score: 3358.8
-        color: '#bc3fd1'
+        score: 3027.5
+        color: '#4769e0'
       healer:
         score: 0
         color: '#ffffff'
@@ -6920,11 +6876,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3358.8
-        color: '#bc3fd1'
-      spec_2:
         score: 0
         color: '#ffffff'
+      spec_2:
+        score: 3027.5
+        color: '#4769e0'
       spec_3:
         score: 0
         color: '#ffffff'
