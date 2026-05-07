@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
@@ -379,7 +379,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
     activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
   });
-  const grammaticalGender = String(item.grammaticalGender || item.grammatical_gender || item.gender || "").toLowerCase() === "female" ? "female" : "male";
+  const grammaticalGender = cleanProfileGrammaticalGender(item.grammaticalGender || item.grammatical_gender || item.gender);
   const rawVerifiedGuild = item.verifiedGuild ?? item.verified_guild;
   const verifiedGuild = typeof rawVerifiedGuild === "boolean"
     ? rawVerifiedGuild
@@ -1481,7 +1481,7 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     characterKey: character?.key || null,
     status,
     role,
-    grammaticalGender: profile?.grammaticalGender || "male",
+    grammaticalGender: cleanProfileGrammaticalGender(profile?.grammaticalGender),
     characterName: character?.name || null,
     realmName: character?.realmName || character?.realmSlug || null,
     realmSlug: character?.realmSlug || null,
@@ -1608,7 +1608,7 @@ export function raidMinItemLevelWarning(
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана");
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записано");
   return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. ${signedText}, але краще підняти спорядження перед рейдом.`;
 }
 
@@ -1619,7 +1619,7 @@ function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
   const characterText = signup?.characterName ? ` як ${signup.characterName}` : "";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана");
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записано");
   const base = action === "late"
     ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}. ${syncText}`
     : `✅ ${signedText} на ${raidTitle(raid)}${characterText}. ${syncText}`;
@@ -1780,7 +1780,7 @@ export function raidLiveRevision(raid: RaidItem) {
       item.characterName || "",
       item.realmSlug || item.realmName || "",
       item.itemLevel ?? "",
-      item.grammaticalGender || "male",
+      item.grammaticalGender || "unspecified",
       item.verifiedGuild === false ? "other" : "guild",
       item.updatedAt || item.signedAt || "",
     ].join("~"))

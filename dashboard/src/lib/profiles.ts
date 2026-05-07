@@ -15,7 +15,7 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
-export type ProfileGrammaticalGender = "male" | "female";
+export type ProfileGrammaticalGender = "unspecified" | "neutral" | "male" | "female";
 
 export type DashboardProfile = {
   profileId: string;
@@ -130,15 +130,25 @@ function cleanProfilePublicNameMode(value: unknown): ProfilePublicNameMode {
 
 export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammaticalGender {
   const key = String(value || "").trim().toLowerCase();
-  return ["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key) ? "female" : "male";
+  if (["male", "man", "boy", "m", "чоловік", "чоловіча", "ч", "хлопець"].includes(key)) return "male";
+  if (["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key)) return "female";
+  if (["neutral", "neuter", "n", "нейтральна", "нейтральне", "нейтрально", "нейтральний"].includes(key)) return "neutral";
+  return "unspecified";
 }
 
 export function profileGenderLabel(value: unknown) {
-  return cleanProfileGrammaticalGender(value) === "female" ? "Жіноча" : "Чоловіча";
+  const gender = cleanProfileGrammaticalGender(value);
+  if (gender === "male") return "Чоловіча";
+  if (gender === "female") return "Жіноча";
+  if (gender === "neutral") return "Нейтральне";
+  return "Не вибрано";
 }
 
-export function profileGenderedText(value: unknown, maleText: string, femaleText: string) {
-  return cleanProfileGrammaticalGender(value) === "female" ? femaleText : maleText;
+export function profileGenderedText(value: unknown, maleText: string, femaleText: string, neutralText = maleText) {
+  const gender = cleanProfileGrammaticalGender(value);
+  if (gender === "male") return maleText;
+  if (gender === "female") return femaleText;
+  return neutralText;
 }
 
 function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
@@ -369,7 +379,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     displayName: session.name || session.login || "Guild member",
     preferredName: null,
     publicNameMode: "name",
-    grammaticalGender: "male",
+    grammaticalGender: "unspecified",
     login: session.login || null,
     role: session.role,
     groupId: session.groupId || null,
@@ -405,7 +415,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: profile.discordRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
     lastLoginAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null, publicNameMode: "name", grammaticalGender: "male" }),
+    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null, publicNameMode: "name", grammaticalGender: "unspecified" }),
   }, { merge: true });
 
   return { profile, stored: true };
@@ -602,7 +612,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     displayName: session.name || session.login || "Guild member",
     preferredName: null,
     publicNameMode: "name",
-    grammaticalGender: "male",
+    grammaticalGender: "unspecified",
     login: session.login || null,
     role: session.role,
     groupId: session.groupId || null,

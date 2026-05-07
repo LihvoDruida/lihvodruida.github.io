@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
-  const grammaticalGender = String(form.get("grammaticalGender") || "male").trim().toLowerCase();
+  const grammaticalGender = String(form.get("grammaticalGender") || "unspecified").trim().toLowerCase();
 
   try {
     const savedGender = await setProfileGrammaticalGender(session.profileId, grammaticalGender);
