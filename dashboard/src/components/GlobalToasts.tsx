@@ -251,6 +251,18 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Панель тепер використовує вибраний формат у профілі, рейдах, авторах і списках.",
     ttl: 6200,
   },
+  profile_gender_saved: {
+    tone: "success",
+    title: "Звертання збережено",
+    message: "Персональні повідомлення сайту та Discord тепер використовуватимуть вибрану форму.",
+    ttl: 6200,
+  },
+  profile_gender_failed: {
+    tone: "error",
+    title: "Звертання не збережено",
+    message: "Профіль не вдалося оновити. Онови сторінку і повтори дію.",
+    ttl: 8600,
+  },
   profile_name_invalid: {
     tone: "warning",
     title: "Імʼя не збережено",

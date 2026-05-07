@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
@@ -33,6 +33,7 @@ export type RaidSignup = {
   characterKey?: string | null;
   status: RaidSignupStatus;
   role: RaidCharacterRole;
+  grammaticalGender?: ProfileGrammaticalGender | null;
   characterName?: string | null;
   realmName?: string | null;
   realmSlug?: string | null;
@@ -378,6 +379,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
     activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
   });
+  const grammaticalGender = String(item.grammaticalGender || item.grammatical_gender || item.gender || "").toLowerCase() === "female" ? "female" : "male";
   const rawVerifiedGuild = item.verifiedGuild ?? item.verified_guild;
   const verifiedGuild = typeof rawVerifiedGuild === "boolean"
     ? rawVerifiedGuild
@@ -392,6 +394,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     characterKey: normalizeCharacterKey(item.characterKey || item.character_key) || null,
     status: cleanSignupStatus(item.status),
     role: resolvedRole,
+    grammaticalGender,
     characterName: cleanString(item.characterName, 80) || null,
     realmName: cleanString(item.realmName, 120) || null,
     realmSlug: cleanString(item.realmSlug, 120) || null,
@@ -800,18 +803,18 @@ function signupMatchesProfile(signup: RaidSignup, profile: Pick<DashboardProfile
   return false;
 }
 
-export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId">, limit = 80): Promise<ProfileRaidSignup[]> {
+export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId" | "grammaticalGender">, limit = 80): Promise<ProfileRaidSignup[]> {
   if (!profile?.profileId || !hasRaidStorage()) return [];
 
   const raids = await listRaids(Math.max(20, Math.min(120, limit)));
-  return raids
-    .filter((raid) => raid.status === "published" && !isRaidClosed(raid))
-    .map((raid) => {
-      const signup = raid.signups.find((item) => signupMatchesProfile(item, profile));
-      return signup ? { raid, signup } : null;
-    })
-    .filter((item): item is ProfileRaidSignup => Boolean(item))
-    .sort((a, b) => `${b.raid.date} ${b.raid.time}`.localeCompare(`${a.raid.date} ${a.raid.time}`));
+  const items: ProfileRaidSignup[] = [];
+  for (const raid of raids) {
+    if (raid.status !== "published" || isRaidClosed(raid)) continue;
+    const signup = raid.signups.find((item) => signupMatchesProfile(item, profile));
+    if (!signup) continue;
+    items.push({ raid, signup: { ...signup, grammaticalGender: profile.grammaticalGender } });
+  }
+  return items.sort((a, b) => `${b.raid.date} ${b.raid.time}`.localeCompare(`${a.raid.date} ${a.raid.time}`));
 }
 
 function cleanRaidId(value: unknown) {
@@ -1448,6 +1451,7 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     characterKey: character?.key || null,
     status,
     role,
+    grammaticalGender: profile?.grammaticalGender || "male",
     characterName: character?.name || null,
     realmName: character?.realmName || character?.realmSlug || null,
     realmSlug: character?.realmSlug || null,
@@ -1553,7 +1557,7 @@ async function syncRaidDiscordAfterSignup(raid: RaidItem, messageRef?: DiscordMe
 
 export function raidMinItemLevelBlockMessage(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
-  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
+  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status" | "grammaticalGender"> | null,
 ) {
   if (!isRaidSubjectBlockedByMinItemLevel(raid, signup)) return null;
 
@@ -1568,13 +1572,14 @@ export function raidMinItemLevelBlockMessage(
 
 export function raidMinItemLevelWarning(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
-  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status"> | null,
+  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status" | "grammaticalGender"> | null,
 ) {
   if (!isRaidSubjectWarnedByMinItemLevel(raid, signup)) return null;
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. Ти записаний, але краще підняти спорядження перед рейдом.`;
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана");
+  return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. ${signedText}, але краще підняти спорядження перед рейдом.`;
 }
 
 function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null, discordSynced = true) {
@@ -1584,9 +1589,10 @@ function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
   const characterText = signup?.characterName ? ` як ${signup.characterName}` : "";
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана");
   const base = action === "late"
     ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}. ${syncText}`
-    : `✅ Ти записаний на ${raidTitle(raid)}${characterText}. ${syncText}`;
+    : `✅ ${signedText} на ${raidTitle(raid)}${characterText}. ${syncText}`;
   return warning ? `${base}\n\n${warning}` : base;
 }
 
@@ -1744,6 +1750,7 @@ export function raidLiveRevision(raid: RaidItem) {
       item.characterName || "",
       item.realmSlug || item.realmName || "",
       item.itemLevel ?? "",
+      item.grammaticalGender || "male",
       item.verifiedGuild === false ? "other" : "guild",
       item.updatedAt || item.signedAt || "",
     ].join("~"))

@@ -27,6 +27,8 @@ import {
 import {
   buildProfileDiscordNickname,
   canViewProfile,
+  profileGenderLabel,
+  profileGenderedText,
   getMainCharacter,
   getProfilePublicName,
   getProfileRaidRole,
@@ -116,6 +118,41 @@ function profileAsSession(profile: DashboardProfile): DashboardSession {
     avatar_url: profile.avatarUrl || null,
     discordRoleIds: profile.discordRoleIds,
   };
+}
+
+function ProfileGenderForm({ gender, canManage }: { gender: DashboardProfile["grammaticalGender"]; canManage: boolean }) {
+  return (
+    <div className="profile-gender-box" aria-label="Стать і звертання в повідомленнях">
+      <div className="profile-gender-box__head">
+        <span className="profile-gender-box__icon" aria-hidden="true">✦</span>
+        <span>
+          <strong>Стать / звертання</strong>
+          <small>Для особистих повідомлень сайту та Discord</small>
+        </span>
+        <span className="profile-gender-pill">{profileGenderLabel(gender)}</span>
+      </div>
+
+      {canManage ? (
+        <form className="profile-gender-form" action="/api/profile/gender" method="post">
+          {([
+            ["male", "Чоловіча", "записаний, підписаний"],
+            ["female", "Жіноча", "записана, підписана"],
+          ] as const).map(([value, label, hint]) => (
+            <label className={`profile-gender-option${gender === value ? " is-selected" : ""}`} key={value}>
+              <input type="radio" name="grammaticalGender" value={value} defaultChecked={gender === value} />
+              <span>
+                <strong>{label}</strong>
+                <small>{hint}</small>
+              </span>
+            </label>
+          ))}
+          <button className="btn btn-primary btn-sm" type="submit">Зберегти звертання</button>
+        </form>
+      ) : (
+        <p className="profile-card-lead profile-card-lead--compact">Впливає тільки на персональні фрази в інтерфейсі та Discord-відповідях.</p>
+      )}
+    </div>
+  );
 }
 
 type ProfileRoleChip = {
@@ -316,8 +353,8 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
   );
 }
 
-function raidSignupStatusLabel(status: string) {
-  if (status === "going") return "Підписаний";
+function raidSignupStatusLabel(status: string, gender?: DashboardProfile["grammaticalGender"] | null) {
+  if (status === "going") return profileGenderedText(gender, "Підписаний", "Підписана");
   if (status === "late") return "Затримаюсь";
   if (status === "skipped") return "Пропускає";
   return "Невідомо";
@@ -341,7 +378,7 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
         </span>
       </a>
       <div className="profile-raid-card__meta">
-        <span><strong>{raidSignupStatusLabel(item.signup.status)}</strong><small>Статус</small></span>
+        <span><strong>{raidSignupStatusLabel(item.signup.status, item.signup.grammaticalGender)}</strong><small>Статус</small></span>
         <span><strong>{characterLabel}</strong><small>Персонаж</small></span>
         <span><strong>{wowRoleLabel(item.signup.role)}</strong><small>{specLabel || "Роль"}</small></span>
         <span><strong>{composition}</strong><small>Склад</small></span>
@@ -647,6 +684,7 @@ export default async function ProfilePage({
                 canSyncDiscord={canSyncDiscordNickname}
                 discordOwnerLocked={discordOwnerLocked}
               />
+              <ProfileGenderForm gender={profile.grammaticalGender} canManage={isOwnProfile} />
               <div className="profile-public-status-card" aria-label="Публічний статус у гільдії">
                 <span className="profile-public-status-card__icon" aria-hidden="true">✦</span>
                 <span className="profile-public-status-card__body">

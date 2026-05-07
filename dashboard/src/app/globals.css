@@ -23889,3 +23889,92 @@ main.container > :where(.dashboard-shell, .content-shell, .profile-directory-she
     grid-area: meta2 !important;
   }
 }
+
+/* Profile grammatical gender preference */
+.profile-gender-box {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(188, 141, 72, .22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.profile-gender-box__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-gender-box__head > span:nth-child(2) {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-gender-box__head strong {
+  color: #f2e5ce;
+}
+
+.profile-gender-box__head small,
+.profile-gender-option small,
+.profile-card-lead--compact {
+  color: rgba(236, 226, 207, .62);
+}
+
+.profile-gender-box__icon,
+.profile-gender-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(0, 0, 0, .22);
+}
+
+.profile-gender-box__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  color: #e7c15e;
+}
+
+.profile-gender-pill {
+  width: fit-content;
+  min-height: 28px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #f2e5ce;
+  font-size: .76rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.profile-gender-form {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-gender-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .18);
+  cursor: pointer;
+}
+
+.profile-gender-option.is-selected {
+  border-color: rgba(231, 193, 94, .45);
+  background: rgba(231, 193, 94, .10);
+}
+
+.profile-gender-option > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}

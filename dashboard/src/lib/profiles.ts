@@ -15,6 +15,7 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
+export type ProfileGrammaticalGender = "male" | "female";
 
 export type DashboardProfile = {
   profileId: string;
@@ -23,6 +24,7 @@ export type DashboardProfile = {
   displayName: string;
   preferredName?: string | null;
   publicNameMode?: ProfilePublicNameMode;
+  grammaticalGender: ProfileGrammaticalGender;
   login?: string | null;
   role: DashboardRole;
   groupId?: string | null;
@@ -124,6 +126,19 @@ function cleanCharacterKey(value: unknown) {
 
 function cleanProfilePublicNameMode(value: unknown): ProfilePublicNameMode {
   return value === "server_nickname" ? "server_nickname" : "name";
+}
+
+export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammaticalGender {
+  const key = String(value || "").trim().toLowerCase();
+  return ["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key) ? "female" : "male";
+}
+
+export function profileGenderLabel(value: unknown) {
+  return cleanProfileGrammaticalGender(value) === "female" ? "Жіноча" : "Чоловіча";
+}
+
+export function profileGenderedText(value: unknown, maleText: string, femaleText: string) {
+  return cleanProfileGrammaticalGender(value) === "female" ? femaleText : maleText;
 }
 
 function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
@@ -270,6 +285,7 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
     displayName: String(data.displayName || data.login || "Guild member").slice(0, 120),
     preferredName: cleanProfileName(data.preferredName, 32) || null,
     publicNameMode: cleanProfilePublicNameMode(data.publicNameMode),
+    grammaticalGender: cleanProfileGrammaticalGender(data.grammaticalGender || data.gender || data.sex),
     login: data.login ? String(data.login).slice(0, 120) : null,
     role: cleanRole(data.role),
     groupId: cleanGroupId(data.groupId),
@@ -353,6 +369,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     displayName: session.name || session.login || "Guild member",
     preferredName: null,
     publicNameMode: "name",
+    grammaticalGender: "male",
     login: session.login || null,
     role: session.role,
     groupId: session.groupId || null,
@@ -388,7 +405,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: profile.discordRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
     lastLoginAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null, publicNameMode: "name" }),
+    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null, publicNameMode: "name", grammaticalGender: "male" }),
   }, { merge: true });
 
   return { profile, stored: true };
@@ -585,6 +602,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     displayName: session.name || session.login || "Guild member",
     preferredName: null,
     publicNameMode: "name",
+    grammaticalGender: "male",
     login: session.login || null,
     role: session.role,
     groupId: session.groupId || null,
@@ -1115,6 +1133,19 @@ export async function setProfilePublicNameMode(profileId: string, modeInput: unk
   }, { merge: true });
 
   return publicNameMode;
+}
+
+export async function setProfileGrammaticalGender(profileId: string, genderInput: unknown) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+
+  const grammaticalGender = cleanProfileGrammaticalGender(genderInput);
+  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
+    grammaticalGender,
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  return grammaticalGender;
 }
 
 export async function markProfileDiscordNicknameSynced(

@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
     });
 
     logDashboardEvent("info", "discord.rules.declined", request, { guildId, userId });
-    return finishDecision(interaction, "🚪 Ти відмовився від правил, тому бот видалив тебе із сервера.");
+    return finishDecision(interaction, "🚪 Відмову від правил прийнято, тому бот видалив тебе із сервера.");
   } catch (error) {
     logDashboardEvent("error", "discord.rules.action_failed", request, { message: safeErrorMessage(error), guildId, userId, action: effectiveParsed.action });
     return finishDecision(interaction, "❌ Не вдалося виконати дію. Спробуй ще раз пізніше або звернись до гільдмайстра.");
