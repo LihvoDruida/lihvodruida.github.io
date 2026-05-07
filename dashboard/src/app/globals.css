@@ -22299,20 +22299,35 @@ a.profile-directory-card small,
   overflow-wrap: anywhere;
 }
 
+.access-groups-page {
+  --access-panel-gap: var(--section-gap, 14px);
+}
+
+.access-groups-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.access-groups-hero p {
+  max-width: 72ch;
+}
+
 .access-groups-layout {
   display: grid;
-  grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
-  gap: clamp(14px, 2vw, 22px);
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: var(--access-panel-gap);
   align-items: start;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .access-groups-list {
   position: sticky;
   top: 88px;
   display: grid;
-  gap: 10px;
-  padding: 14px;
+  gap: 8px;
+  padding: 12px;
 }
 
 .access-groups-list__header {
@@ -22320,52 +22335,54 @@ a.profile-directory-card small,
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 2px;
+  padding: 2px 2px 6px;
 }
 
 .access-groups-list__header small {
-  color: var(--muted, #94a3b8);
-  font-size: .78rem;
-  font-weight: 750;
+  color: var(--muted);
+  font-size: var(--text-caption, .78rem);
+  font-weight: 800;
 }
 
-.access-groups-list button {
+.access-group-tab.btn {
   width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.54);
-  color: inherit;
+  min-height: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  white-space: normal;
   text-align: left;
-  padding: 12px 14px;
-  cursor: pointer;
-  transition: border-color .18s ease, background .18s ease, transform .18s ease;
-}
-
-.access-groups-list button:hover,
-.access-groups-list button.is-active {
-  border-color: rgba(125, 211, 252, 0.58);
-  background: rgba(14, 165, 233, 0.13);
-}
-
-.access-groups-list button:hover {
-  transform: translateY(-1px);
-}
-
-.access-groups-list button strong,
-.access-groups-list button span {
-  display: block;
-}
-
-.access-groups-list button strong {
-  font-size: .95rem;
+  padding: 11px 12px;
+  border-radius: 14px;
   line-height: 1.25;
+  box-shadow: none;
 }
 
-.access-groups-list button span {
-  margin-top: 4px;
-  color: var(--muted, #94a3b8);
-  font-size: 0.8rem;
-  line-height: 1.35;
+.access-group-tab.btn:hover,
+.access-group-tab.btn.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(255, 217, 139, 0.48);
+  background: rgba(214, 168, 79, 0.12);
+}
+
+.access-group-tab strong,
+.access-group-tab span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.access-group-tab strong {
+  color: var(--text);
+  font-size: var(--text-ui, .92rem);
+  font-weight: 900;
+}
+
+.access-group-tab span {
+  color: var(--muted);
+  font-size: var(--text-caption, .78rem);
+  font-weight: 750;
 }
 
 .access-groups-editor {
@@ -22374,28 +22391,29 @@ a.profile-directory-card small,
 
 .access-group-card {
   display: grid;
-  gap: clamp(16px, 2vw, 22px);
-  padding: clamp(16px, 2.2vw, 26px);
+  gap: var(--card-gap, 14px);
+  padding: 1rem;
 }
 
 .access-group-card__head {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
 }
 
 .access-group-card__head h2 {
   margin: 4px 0 6px;
-  font-size: clamp(1.2rem, 2vw, 1.55rem);
-  line-height: 1.15;
+  font-size: var(--title-card, clamp(1.25rem, 2vw, 1.55rem));
+  line-height: 1.12;
 }
 
 .access-group-card__head p {
-  max-width: 820px;
+  max-width: 72ch;
   margin: 0;
-  color: var(--muted, #94a3b8);
-  line-height: 1.55;
+  color: var(--muted);
+  font-size: var(--text-small, .9rem);
+  line-height: 1.5;
 }
 
 .access-group-summary {
@@ -22408,10 +22426,10 @@ a.profile-directory-card small,
   min-width: 0;
   display: grid;
   gap: 3px;
-  padding: 12px 14px;
-  border: 1px solid rgba(148, 163, 184, .18);
-  border-radius: 16px;
-  background: rgba(15, 23, 42, .34);
+  padding: 10px 12px;
+  border: 1px solid rgba(214,168,79,0.18);
+  border-radius: 15px;
+  background: rgba(4, 9, 18, 0.42);
 }
 
 .access-group-summary strong,
@@ -22420,13 +22438,14 @@ a.profile-directory-card small,
 }
 
 .access-group-summary small {
-  color: var(--muted, #94a3b8);
-  line-height: 1.35;
+  color: var(--muted);
+  font-size: var(--text-caption, .78rem);
+  line-height: 1.32;
 }
 
 .compact-form-grid.access-form-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .access-form-grid__wide {
@@ -22439,71 +22458,59 @@ a.profile-directory-card small,
 }
 
 .access-form-grid label > span {
-  color: rgba(226, 232, 240, .94);
-  font-size: .86rem;
-  font-weight: 850;
+  color: rgba(247, 239, 226, 0.94);
+  font-size: var(--text-ui, .88rem);
+  font-weight: 900;
 }
 
-.access-form-grid input,
-.access-form-grid select {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid rgba(148, 163, 184, .25);
-  border-radius: 14px;
-  background: rgba(15, 23, 42, .62);
-  color: rgba(248, 250, 252, .96);
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+.access-form-grid .input,
+.access-form-grid .select {
+  min-height: 2.85rem;
 }
 
-.access-form-grid input:focus,
-.access-form-grid select:focus {
-  border-color: rgba(125, 211, 252, .65);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, .16);
-  background: rgba(15, 23, 42, .78);
-}
-
-.access-form-grid input[readonly],
-.access-form-grid select:disabled {
-  color: rgba(203, 213, 225, .72);
+.access-form-grid .input[readonly],
+.access-form-grid .select:disabled {
+  color: rgba(216, 225, 238, .7);
   cursor: not-allowed;
-  background: rgba(15, 23, 42, .34);
+  background-color: rgba(4, 9, 18, 0.42);
+  border-color: rgba(214,168,79,0.16);
 }
 
 .access-form-grid small {
-  color: var(--muted, #94a3b8);
-  font-size: .78rem;
+  color: var(--muted);
+  font-size: var(--text-caption, .78rem);
   line-height: 1.35;
 }
 
 .access-warning {
-  padding: 12px 14px;
-  border: 1px solid rgba(250, 204, 21, .38);
-  border-radius: 16px;
-  background: rgba(113, 63, 18, .22);
+  padding: 11px 12px;
+  border: 1px solid rgba(250, 204, 21, .34);
+  border-radius: 15px;
+  background: rgba(113, 63, 18, .18);
   color: #fde68a;
+  font-size: var(--text-small, .9rem);
   line-height: 1.45;
 }
 
 .permissions-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .permissions-grid fieldset {
   min-width: 0;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 18px;
-  padding: 14px;
-  background: rgba(15, 23, 42, 0.34);
+  border: 1px solid rgba(214,168,79,0.18);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(4, 9, 18, 0.38);
 }
 
 .permissions-grid legend {
-  padding: 0 8px;
-  color: #e2e8f0;
-  font-weight: 850;
+  padding: 0 7px;
+  color: var(--gold-bright);
+  font-size: var(--text-ui, .88rem);
+  font-weight: 900;
 }
 
 .permission-check {
@@ -22511,18 +22518,18 @@ a.profile-directory-card small,
   grid-template-columns: auto 1fr;
   gap: 10px;
   align-items: start;
-  padding: 9px 0;
+  padding: 8px 0;
 }
 
 .permission-check + .permission-check {
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  border-top: 1px solid rgba(214,168,79,0.10);
 }
 
 .permission-check input {
   margin-top: 3px;
   width: 18px;
   height: 18px;
-  accent-color: #38bdf8;
+  accent-color: #d6a84f;
 }
 
 .permission-check span,
@@ -22532,25 +22539,27 @@ a.profile-directory-card small,
 
 .permission-check strong {
   color: rgba(248, 250, 252, .94);
-  font-size: .92rem;
+  font-size: var(--text-ui, .9rem);
 }
 
 .permission-check small {
   margin-top: 3px;
-  color: var(--muted, #94a3b8);
-  font-size: .8rem;
-  line-height: 1.35;
+  color: var(--muted);
+  font-size: var(--text-caption, .78rem);
+  line-height: 1.33;
 }
 
 .access-form-actions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
 }
 
-.btn.danger {
+.access-groups-page .btn.danger {
   border-color: rgba(248, 113, 113, 0.45);
-  background: rgba(127, 29, 29, 0.24);
-  color: #fecaca;
+  background: linear-gradient(135deg, rgba(255,107,107,0.18), rgba(120,34,38,0.42));
+  color: #ffeaea;
 }
 
 .impersonation-toast {
@@ -22583,14 +22592,15 @@ a.profile-directory-card small,
 }
 
 .impersonation-toast button {
+  min-height: 2.45rem;
   white-space: nowrap;
   border: 1px solid rgba(250, 204, 21, 0.5);
   border-radius: 999px;
   background: rgba(250, 204, 21, 0.18);
   color: #fef08a;
-  padding: 9px 13px;
+  padding: 0 13px;
   cursor: pointer;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 @media (max-width: 1040px) {
@@ -22607,21 +22617,17 @@ a.profile-directory-card small,
 }
 
 @media (max-width: 640px) {
-  .access-groups-layout {
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  .access-groups-list,
-  .access-group-card {
-    padding: 14px;
-  }
-
+  .access-groups-hero,
   .access-group-card__head,
   .impersonation-toast,
   .access-form-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .access-groups-list,
+  .access-group-card {
+    padding: 0.86rem;
   }
 
   .access-group-card__head .btn,

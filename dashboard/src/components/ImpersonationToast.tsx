@@ -6,7 +6,7 @@ export default function ImpersonationToast({ groupName }: { groupName: string })
         <span>Це тільки тестовий режим для власника сервера. Реальні права акаунта не змінені.</span>
       </div>
       <form action="/api/admin/impersonation/end" method="post">
-        <button type="submit">Завершити перегляд</button>
+        <button className="btn subtle" type="submit">Завершити перегляд</button>
       </form>
     </div>
   );

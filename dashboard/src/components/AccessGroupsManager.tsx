@@ -90,14 +90,14 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
           <small>{groups.length} груп</small>
         </div>
         {groups.map((group) => (
-          <button key={group.id} type="button" className={expanded === group.id ? "is-active" : undefined} onClick={() => setExpanded(group.id)}>
+          <button key={group.id} type="button" className={`btn subtle access-group-tab${expanded === group.id ? " is-active" : ""}`} onClick={() => setExpanded(group.id)}>
             <strong>{group.name}</strong>
             <span>ID {group.id} · {roleLabel(group.role)} · {group.permissions.length} прав</span>
           </button>
         ))}
-        <button type="button" className={expanded === "new" ? "is-active" : undefined} onClick={() => setExpanded("new")}>
+        <button type="button" className={`btn subtle access-group-tab${expanded === "new" ? " is-active" : ""}`} onClick={() => setExpanded("new")}>
           <strong>Нова група</strong>
-          <span>ID, назва, 1 Discord role ID та права</span>
+          <span>ID, назва, Discord роль і права</span>
         </button>
       </aside>
 
@@ -117,11 +117,11 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                 <div>
                   <span className="eyebrow">{fixedLabel(group)}</span>
                   <h2>{group.name}</h2>
-                  <p>{reason || "Зміни збережуться у Firebase. Користувачі отримають нові права після оновлення сесії або повторного входу."}</p>
+                  <p>{reason || "Зміни збережуться у Firebase. Користувачі отримають нові права автоматично після оновлення сесії або повторного входу."}</p>
                 </div>
                 {isServerOwner ? (
-                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit">
-                    Переглянути як цю групу
+                  <button className="btn subtle" formAction={impersonateAction} name="groupId" value={group.id} type="submit" formNoValidate>
+                    Переглянути як
                   </button>
                 ) : null}
               </div>
@@ -135,31 +135,31 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
               <div className="form-grid compact-form-grid access-form-grid">
                 <label>
                   <span>ID групи</span>
-                  <input name="id" defaultValue={group.id} readOnly={group.lockedId || !canEdit} inputMode="text" autoComplete="off" />
+                  <input className="input" name="id" defaultValue={group.id} readOnly={group.lockedId || !canEdit} inputMode="text" autoComplete="off" />
                   <small>{group.lockedId ? "Системний ID не змінюється." : "Лише латиниця, цифри, _ або -."}</small>
                 </label>
                 <label>
                   <span>Назва групи</span>
-                  <input name="name" defaultValue={group.name} readOnly={!canEdit} maxLength={80} autoComplete="off" />
+                  <input className="input" name="name" defaultValue={group.name} readOnly={!canEdit} maxLength={80} autoComplete="off" />
                   <small>Коротка назва, яка буде показана в dashboard.</small>
                 </label>
                 <label>
                   <span>Роль у системі</span>
-                  <select name="role" defaultValue={group.role} disabled={!canEditRole}>
+                  <select className="select" name="role" defaultValue={group.role} disabled={!canEditRole}>
                     {ROLE_OPTIONS.map((role) => (
                       <option key={role.value} value={role.value} disabled={role.value === "admin" && !isServerOwner}>{role.label}</option>
                     ))}
                   </select>
-                  <small>{isFixedSystemGroup ? "Для системних груп роль зафіксована." : "Впливає на тексти, рівень доступу і сумісність старих перевірок."}</small>
+                  <small>{isFixedSystemGroup ? "Для системних груп роль зафіксована." : "Впливає на рівень доступу та службові підписи в панелі."}</small>
                 </label>
                 <label>
                   <span>Ранг</span>
-                  <input name="rank" type="number" min="1" max="100" defaultValue={group.rank} readOnly={!canEditRank} />
+                  <input className="input" name="rank" type="number" min="1" max="100" defaultValue={group.rank} readOnly={!canEditRank} />
                   <small>Пріоритет групи. Якщо ролей кілька — перемагає більший ранг.</small>
                 </label>
                 <label className="access-form-grid__wide">
                   <span>Discord role ID</span>
-                  <input name="discordRoleId" defaultValue={primaryDiscordRoleId(group)} placeholder="Наприклад: 123456789012345678" readOnly={!canEdit} inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
+                  <input className="input" name="discordRoleId" defaultValue={primaryDiscordRoleId(group)} placeholder="123456789012345678" readOnly={!canEdit} inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
                   <small>Тільки одна Discord-роль на групу. Якщо поле порожнє, група не прив’язана до ролі Discord.</small>
                 </label>
               </div>
@@ -179,7 +179,7 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
 
               <div className="form-actions access-form-actions">
                 <button className="btn primary" type="submit" disabled={!canEdit}>Зберегти зміни</button>
-                {canDelete ? <button className="btn danger" formAction={deleteGroupAction} name="groupId" value={group.id} type="submit">Видалити групу</button> : null}
+                {canDelete ? <button className="btn danger" formAction={deleteGroupAction} name="groupId" value={group.id} type="submit" data-confirm-message="Видалити цю групу доступу? Дію не можна швидко скасувати.">Видалити групу</button> : null}
               </div>
             </form>
           ) : null;
@@ -191,23 +191,23 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
               <div>
                 <span className="eyebrow">Нова група</span>
                 <h2>Додати групу доступу</h2>
-                <p>Створи групу, прив’яжи одну Discord-роль і вибери тільки ті права, які їй реально потрібні. Системні ID 1, 2 і 99 зайняті.</p>
+                <p>Створи групу, прив’яжи одну Discord-роль і вибери тільки потрібні права. Системні ID 1, 2 і 99 зайняті.</p>
               </div>
             </div>
             <div className="form-grid compact-form-grid access-form-grid">
               <label>
                 <span>ID групи</span>
-                <input name="id" placeholder="Наприклад: raid_lead" required autoComplete="off" />
+                <input className="input" name="id" placeholder="raid_lead" required autoComplete="off" />
                 <small>Унікальний ID: латиниця, цифри, _ або -.</small>
               </label>
               <label>
                 <span>Назва групи</span>
-                <input name="name" placeholder="Рейд-лідер" required maxLength={80} autoComplete="off" />
+                <input className="input" name="name" placeholder="Рейд-лідер" required maxLength={80} autoComplete="off" />
                 <small>Назва для списків і статусів у панелі.</small>
               </label>
               <label>
                 <span>Роль у системі</span>
-                <select name="role" defaultValue="member">
+                <select className="select" name="role" defaultValue="member">
                   {ROLE_OPTIONS.map((role) => (
                     <option key={role.value} value={role.value} disabled={role.value === "admin" && !isServerOwner}>{role.label}</option>
                   ))}
@@ -216,12 +216,12 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
               </label>
               <label>
                 <span>Ранг</span>
-                <input name="rank" type="number" min="1" max="100" defaultValue="20" />
+                <input className="input" name="rank" type="number" min="1" max="100" defaultValue="20" />
                 <small>Чим вищий ранг, тим пріоритетніша група.</small>
               </label>
               <label className="access-form-grid__wide">
                 <span>Discord role ID</span>
-                <input name="discordRoleId" placeholder="123456789012345678" inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
+                <input className="input" name="discordRoleId" placeholder="123456789012345678" inputMode="numeric" pattern="[0-9]{16,25}" autoComplete="off" />
                 <small>Одна група = одна Discord-роль. Додаткові ролі створюй окремими групами.</small>
               </label>
             </div>

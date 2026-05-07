@@ -62,13 +62,13 @@ export default async function AdminGroupsPage() {
   const groups = await listAccessGroups();
 
   return (
-    <main className="dashboard-shell content-shell">
+    <main className="dashboard-shell content-shell access-groups-page">
       <DashboardIdentity user={user} activeSection="admin" />
-      <section className="hero panel admin-hero">
+      <section className="hero panel admin-hero access-groups-hero">
         <div>
           <span className="eyebrow">Адміністрування</span>
           <h1>Групи та права доступу</h1>
-          <p>Права зберігаються у Firebase. Кожна група має одну Discord-роль, власний ранг і набір дозволів. Env використовується лише для підключень.</p>
+          <p>Права зберігаються у Firebase. Кожна група має одну Discord-роль, ранг і набір дозволів. Env використовується лише для підключень.</p>
         </div>
         <div className="hero-actions">
           <span className="status-pill">Поточна група: {user.groupName || user.role}</span>

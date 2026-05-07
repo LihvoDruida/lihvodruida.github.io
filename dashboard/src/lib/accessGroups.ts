@@ -282,6 +282,10 @@ export async function upsertAccessGroup(input: {
   const requestedPermissions = cleanPermissions(input.permissions);
   if (!requestedPermissions.includes("dashboard.view")) requestedPermissions.unshift("dashboard.view");
 
+  if (requestedPermissions.includes("groups.manage") && effectiveRole !== "admin") {
+    throw new Error("Право керування групами можна видавати тільки групам із системною роллю адміна.");
+  }
+
   if (!viewer.isServerOwner && (id === DEFAULT_ADMIN_GROUP_ID || effectiveRole === "admin" || effectiveRank >= 100 || requestedPermissions.includes("groups.manage"))) {
     throw new Error("Адміністративні права груп може змінювати тільки власник Discord-сервера.");
   }
