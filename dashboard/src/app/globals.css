@@ -22833,3 +22833,58 @@ main.container {
     bottom: max(132px, calc(env(safe-area-inset-bottom, 0px) + 132px)) !important;
   }
 }
+
+/* v64: keep /admin/groups on the same container/section skeleton as other dashboard pages and normalize edge gutters. */
+:root {
+  --dash-page-gutter: clamp(10px, 1.55vw, 20px);
+  --dash-section-gap: clamp(12px, 1.6vw, 18px);
+  --dash-card-pad: clamp(14px, 1rem + 0.35vw, 20px);
+}
+
+.container {
+  box-sizing: border-box !important;
+  width: min(100%, var(--dash-page-max, 1280px)) !important;
+  max-width: var(--dash-page-max, 1280px) !important;
+  padding-inline: var(--dash-page-gutter) !important;
+}
+
+.access-groups-container {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  row-gap: var(--dash-section-gap) !important;
+}
+
+.access-groups-container > .access-groups-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.access-groups-page {
+  --access-panel-gap: var(--dash-section-gap);
+}
+
+.access-groups-hero > div {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(12px, 3.6vw, 16px);
+    --dash-section-gap: clamp(11px, 3.2vw, 15px);
+    --dash-card-pad: clamp(12px, 3.4vw, 16px);
+  }
+
+  .container,
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 12px;
+  }
+}

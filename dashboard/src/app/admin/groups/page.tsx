@@ -76,9 +76,10 @@ export default async function AdminGroupsPage() {
   const groups = await listAccessGroups();
 
   return (
-    <main className="dashboard-shell content-shell access-groups-page">
-      <DashboardIdentity user={user} activeSection="admin" />
-      <section className="hero panel admin-hero access-groups-hero">
+    <main className="container access-groups-container">
+      <section className="dashboard-shell content-shell access-groups-page" aria-label="Керування групами та правами доступу Mistblossom Vanguard">
+        <DashboardIdentity user={user} activeSection="admin" />
+        <header className="hero panel admin-hero access-groups-hero">
         <div>
           <span className="eyebrow">Адміністрування</span>
           <h1>Групи та права доступу</h1>
@@ -88,15 +89,16 @@ export default async function AdminGroupsPage() {
           <span className="status-pill">Поточна група: {user.groupName || user.role}</span>
           {user.isServerOwner ? <span className="status-pill good">Власник сервера</span> : null}
         </div>
+        </header>
+        <AccessGroupsManager
+          groups={groups}
+          isServerOwner={Boolean(user.isServerOwner)}
+          currentGroupId={user.groupId}
+          saveGroupAction={saveGroupAction}
+          deleteGroupAction={deleteGroupAction}
+          impersonateAction={impersonateAction}
+        />
       </section>
-      <AccessGroupsManager
-        groups={groups}
-        isServerOwner={Boolean(user.isServerOwner)}
-        currentGroupId={user.groupId}
-        saveGroupAction={saveGroupAction}
-        deleteGroupAction={deleteGroupAction}
-        impersonateAction={impersonateAction}
-      />
     </main>
   );
 }
