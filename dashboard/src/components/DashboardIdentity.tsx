@@ -150,7 +150,7 @@ export default async function DashboardIdentity({
         <>
           <MobileNavSafeAreaSync />
           <div
-            className={`dashboard-mobile-nav-shell${navItems.length > 4 ? " is-scrollable" : ""}`}
+            className="dashboard-mobile-nav-shell"
             data-items={navItems.length}
           >
             <nav

@@ -23447,3 +23447,84 @@ main.container > :where(.dashboard-shell, .content-shell, .profile-directory-she
     font-size: 0.6rem !important;
   }
 }
+
+/* v49: mobile bottom navigation functional overflow states and stable height. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-edge: clamp(10px, 3vw, 15px);
+    --dashboard-mobile-nav-shell-pad: clamp(6px, 1.8vw, 8px);
+    --dashboard-mobile-nav-gap: clamp(7px, 2vw, 10px);
+    --dashboard-mobile-nav-item-width: clamp(78px, 24vw, 96px);
+    --dashboard-mobile-nav-height: clamp(70px, 17vw, 78px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(8px, 2.2vw, 12px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 16px);
+  }
+
+  .dashboard-mobile-nav-shell {
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    padding: var(--dashboard-mobile-nav-shell-pad) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav-shell::before,
+  .dashboard-mobile-nav-shell::after {
+    width: clamp(18px, 6vw, 28px) !important;
+    opacity: 0 !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-left::before,
+  .dashboard-mobile-nav-shell.can-scroll-right::after {
+    opacity: 1 !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-left::before {
+    left: 0 !important;
+    background: linear-gradient(90deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-right::after {
+    right: 0 !important;
+    background: linear-gradient(270deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
+  }
+
+  .dashboard-mobile-nav {
+    height: 100% !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    max-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    align-content: center !important;
+    padding-block: clamp(8px, 2.2vw, 10px) clamp(7px, 2vw, 9px) !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(0.98rem, 4vw, 1.12rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.64rem, 2.5vw, 0.74rem) !important;
+    line-height: 1.08 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --dashboard-mobile-nav-height: 66px;
+    --dashboard-mobile-nav-item-width: 76px;
+    --dashboard-mobile-nav-shell-pad: 6px;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.62rem !important;
+  }
+}
