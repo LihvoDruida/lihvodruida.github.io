@@ -40,7 +40,12 @@ export type RaidSignup = {
   className?: string | null;
   activeSpecName?: string | null;
   activeSpecId?: number | null;
+  level?: number | null;
+  raceName?: string | null;
+  faction?: string | null;
   avatarUrl?: string | null;
+  renderUrl?: string | null;
+  mediaUrl?: string | null;
   itemLevel?: number | null;
   profileUrl?: string | null;
   verifiedGuild?: boolean | null;
@@ -379,6 +384,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     : String(rawVerifiedGuild || "").toLowerCase() === "false"
       ? false
       : true;
+  const level = Number(item.level);
   return {
     discordId,
     discordName: cleanString(item.discordName, 100) || "Discord user",
@@ -393,7 +399,12 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     className,
     activeSpecName,
     activeSpecId: Number.isFinite(activeSpecId) ? Math.floor(activeSpecId) : null,
+    level: Number.isFinite(level) && level > 0 ? Math.floor(level) : null,
+    raceName: cleanString(item.raceName, 80) || null,
+    faction: cleanString(item.faction, 80) || null,
     avatarUrl: cleanUrl(item.avatarUrl),
+    renderUrl: cleanUrl(item.renderUrl),
+    mediaUrl: cleanUrl(item.mediaUrl),
     itemLevel: Number.isFinite(ilvl) && ilvl > 0 ? Math.floor(ilvl) : null,
     profileUrl: cleanUrl(item.profileUrl),
     verifiedGuild,
@@ -1444,7 +1455,12 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     className: character?.className || null,
     activeSpecName: character?.activeSpecName || null,
     activeSpecId: Number.isFinite(Number(character?.activeSpecId)) ? Number(character?.activeSpecId) : null,
+    level: Number.isFinite(Number(character?.level)) ? Number(character?.level) : null,
+    raceName: character?.raceName || null,
+    faction: character?.faction || null,
     avatarUrl: character?.avatarUrl || character?.renderUrl || character?.mediaUrl || null,
+    renderUrl: character?.renderUrl || null,
+    mediaUrl: character?.mediaUrl || null,
     itemLevel: Number.isFinite(Number(character?.itemLevel)) ? Number(character?.itemLevel) : null,
     profileUrl: character?.profileUrl || null,
     verifiedGuild: character ? Boolean(character.verifiedGuild) : null,

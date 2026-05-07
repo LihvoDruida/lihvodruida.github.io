@@ -149,8 +149,22 @@ function statValue(value: number | null | undefined) {
   return typeof value === "number" ? value : "—";
 }
 
+function characterVisualUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
+  if (!character) return null;
+  return character.renderUrl || character.avatarUrl || character.mediaUrl || null;
+}
+
+function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction" | "guildName">) {
+  return [
+    typeof character.level === "number" ? `Lvl ${character.level}` : null,
+    character.raceName || null,
+    character.faction || null,
+    character.guildName || null,
+  ].filter(Boolean);
+}
+
 function CharacterArtwork({ character }: { character: ProfileCharacter }) {
-  const image = character.renderUrl || character.avatarUrl;
+  const image = characterVisualUrl(character);
   if (image) {
     return <img src={image} alt="" loading="lazy" referrerPolicy="no-referrer" />;
   }
@@ -241,6 +255,7 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
   const roleLabel = wowRoleLabel(character.activeSpecRole);
   const itemLevel = typeof character.itemLevel === "number" ? character.itemLevel : null;
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
+  const extraMeta = characterAuxMeta(character);
   const guildBadge = character.verifiedGuild
     ? { label: "Гільдійний", icon: "🌿", className: "is-guild" }
     : { label: "Інший", icon: "🤝", className: "is-other" };
@@ -263,13 +278,18 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
         <div className="profile-character-meta">
           <span>{specLabel}</span>
           <span>{roleLabel}</span>
-          {character.guildName ? <span>{character.guildName}</span> : null}
+          <span>{realmLabel}</span>
+          {extraMeta.map((value) => <span key={value}>{value}</span>)}
         </div>
 
         <div className="profile-character-showcase">
           <div className="profile-character-showcase__stat">
             <small>ilvl</small>
             <strong>{itemLevel ?? "—"}</strong>
+          </div>
+          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
+            <small>Рівень</small>
+            <strong>{typeof character.level === "number" ? character.level : "—"}</strong>
           </div>
           <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
             <small>Оновлено</small>
@@ -343,7 +363,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
         </div>
         <span className="profile-count-pill">{active.length}</span>
       </div>
-      <p className="profile-card-lead">Тут видно активні записи на рейди. Персонаж береться з мейна після автоматичного оновлення перед записом.</p>
+      <p className="profile-card-lead">Тут видно активні записи на рейди. За замовчуванням використовується мейн, але для запису можна вибрати будь-якого доданого персонажа.</p>
 
       {items.length ? (
         <div className="profile-raid-list">
@@ -369,6 +389,9 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
 
 function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
   const kindLabel = character.verifiedGuild ? "🌿 Гільдійний" : "🤝 Інший";
+  const image = characterVisualUrl(character);
+  const realmLabel = character.realmName || character.realmSlug || "Реалм —";
+  const extraMeta = characterAuxMeta(character);
   return (
     <li className={`profile-character-candidate${character.verifiedGuild ? " is-guild" : " is-other"}`}>
       <label className="profile-candidate-select" title={`Позначити ${character.name}`}>
@@ -383,11 +406,12 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
         <span aria-hidden="true" />
       </label>
       <span className="profile-character-candidate__avatar">
-        {character.avatarUrl ? <img src={character.avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" /> : character.name.charAt(0)}
+        {image ? <img src={image} alt="" loading="lazy" referrerPolicy="no-referrer" /> : character.name.charAt(0)}
       </span>
       <span className="profile-character-candidate__body">
         <strong>{character.name} <em className="profile-character-candidate__kind">{kindLabel}</em></strong>
-        <small>{character.realmName || character.realmSlug} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}</small>
+        <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}</small>
+        {extraMeta.length ? <small>{extraMeta.join(" • ")}</small> : null}
       </span>
       <form action="/api/profile/characters/add" method="post">
         <input type="hidden" name="characterKey" value={character.key} />

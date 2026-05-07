@@ -83,6 +83,30 @@ function signupSpecLabel(item?: RaidSignup | null) {
   return [spec, role, guildLabel].filter(Boolean).join(" • ");
 }
 
+function signupExtraLabel(item?: RaidSignup | null) {
+  if (!item) return "";
+  return [
+    typeof item.level === "number" ? `Lvl ${item.level}` : null,
+    item.raceName || null,
+    item.faction || null,
+    item.guildName || null,
+  ].filter(Boolean).join(" • ");
+}
+
+function signupAvatarUrl(item?: RaidSignup | null) {
+  if (!item) return null;
+  return item.renderUrl || item.avatarUrl || item.mediaUrl || null;
+}
+
+function SignupAvatar({ item }: { item?: RaidSignup | null }) {
+  if (!item) return <span className="raid-signup-avatar raid-signup-avatar--empty" aria-hidden="true">—</span>;
+  const image = signupAvatarUrl(item);
+  if (image) {
+    return <img className="raid-signup-avatar" src={image} alt="" loading="lazy" referrerPolicy="no-referrer" />;
+  }
+  return <span className="raid-signup-avatar raid-signup-avatar--empty" aria-hidden="true">{(item.characterName || item.discordName || "A").charAt(0)}</span>;
+}
+
 function raidStatusLabel(raid: RaidItem) {
   if (isRaidClosed(raid)) return "Закрито";
   return raid.status === "published" ? "Опубліковано" : "Чернетка";
@@ -107,9 +131,11 @@ function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired, showIt
     <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${item?.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
       <span className="raid-role-label">{label}</span>
+      <SignupAvatar item={item} />
       <span className="raid-party-member-copy">
         <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
         {item ? <small>{signupSpecLabel(item)}</small> : null}
+        {item ? <small>{signupExtraLabel(item)}</small> : null}
         {issue ? <small className="raid-ilvl-warning">{issue}</small> : null}
       </span>
     </div>
@@ -141,8 +167,10 @@ function RosterBlock({ title, items, empty = "Поки порожньо", showIt
         return (
           <div className={`raid-roster-member${item.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}`} key={`${title}-${item.discordId}`}>
             <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
+            <SignupAvatar item={item} />
             <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
             <small>{signupSpecLabel(item) || item.discordName}</small>
+            {signupExtraLabel(item) ? <small>{signupExtraLabel(item)}</small> : null}
           </div>
         );
       }) : <p>{empty}</p>}
