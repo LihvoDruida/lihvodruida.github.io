@@ -62,7 +62,7 @@ export default async function DashboardIdentity({
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];
-  const maxDesktopPrimaryItems = 5;
+  const maxDesktopPrimaryItems = 4;
   const primaryNavItems = navItems.slice(0, maxDesktopPrimaryItems);
   const secondaryNavItems = navItems.slice(maxDesktopPrimaryItems);
   const activeSecondaryItem = secondaryNavItems.find((item) => activeSection === item.section);
