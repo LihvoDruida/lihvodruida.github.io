@@ -817,6 +817,36 @@ export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "pr
   return items.sort((a, b) => `${b.raid.date} ${b.raid.time}`.localeCompare(`${a.raid.date} ${a.raid.time}`));
 }
 
+export async function syncRaidSignupGenderForProfile(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId" | "grammaticalGender">, limit = 120) {
+  if (!profile?.profileId || !hasRaidStorage()) return { updatedRaids: 0, updatedSignups: 0 };
+
+  const raids = await listRaids(Math.max(20, Math.min(120, limit)));
+  let updatedRaids = 0;
+  let updatedSignups = 0;
+  const discordId = profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId || "") ? profile.providerUserId : "";
+
+  for (const raid of raids) {
+    if (raid.status !== "published" || isRaidClosed(raid) || !raid.signups.length) continue;
+    let changed = false;
+    const nextSignups = raid.signups.map((signup) => {
+      const matches = signup.profileId === profile.profileId || Boolean(discordId && signup.discordId === discordId);
+      if (!matches || signup.grammaticalGender === profile.grammaticalGender) return signup;
+      changed = true;
+      updatedSignups += 1;
+      return { ...signup, profileId: signup.profileId || profile.profileId, grammaticalGender: profile.grammaticalGender, updatedAt: new Date().toISOString() };
+    });
+
+    if (!changed) continue;
+    await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
+      signups: nextSignups,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    updatedRaids += 1;
+  }
+
+  return { updatedRaids, updatedSignups };
+}
+
 function cleanRaidId(value: unknown) {
   const text = cleanString(value, 80);
   return /^[A-Za-z0-9_-]{8,80}$/.test(text) ? text : "";

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { profileGenderLabel, setProfileGrammaticalGender } from "@/lib/profiles";
+import { syncRaidSignupGenderForProfile } from "@/lib/raids";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
@@ -27,7 +28,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const savedGender = await setProfileGrammaticalGender(session.profileId, grammaticalGender);
-    logDashboardEvent("info", "profile.gender.saved", request, { profileId: session.profileId, grammaticalGender: savedGender, label: profileGenderLabel(savedGender) });
+    const syncResult = await syncRaidSignupGenderForProfile({
+      profileId: session.profileId,
+      provider: session.provider,
+      providerUserId: session.id,
+      grammaticalGender: savedGender,
+    }).catch((syncError) => {
+      logDashboardEvent("warn", "profile.gender.raid_sync_failed", request, { profileId: session.profileId, message: safeErrorMessage(syncError) });
+      return null;
+    });
+    logDashboardEvent("info", "profile.gender.saved", request, { profileId: session.profileId, grammaticalGender: savedGender, label: profileGenderLabel(savedGender), syncResult });
     return redirectToProfile(request, session.profileId, "profile_gender_saved");
   } catch (error) {
     const message = safeErrorMessage(error);

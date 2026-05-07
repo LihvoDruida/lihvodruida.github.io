@@ -240,7 +240,7 @@ function RaidRolePreferenceForm({
   const sourceLabel = manualRole ? "Вибрано вручну" : "Авто з мейна";
   const mainLabel = mainCharacter
     ? `${mainCharacter.name}${mainCharacter.realmName || mainCharacter.realmSlug ? ` • ${mainCharacter.realmName || mainCharacter.realmSlug}` : ""}`
-    : "Мейн не вибраний";
+    : "Мейн не вибрано";
 
   return (
     <div className="profile-raid-role-box" aria-label="Роль для запису на рейди">

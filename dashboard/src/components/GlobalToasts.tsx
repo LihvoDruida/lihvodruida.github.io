@@ -47,7 +47,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   character_added: {
     tone: "success",
     title: "Персонажа додано",
-    message: "Персонаж записаний у профілі. Якщо це перший персонаж у профілі, він автоматично стає мейном.",
+    message: "Персонажа додано до профілю. Якщо це перший персонаж у профілі, він автоматично стає мейном.",
   },
   characters_added: {
     tone: "success",
