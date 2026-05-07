@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-07 14:12:44'
+  updated_at: '2026-05-07 17:50:15'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13698
-      region: 6102
+      world: 13699
+      region: 6103
       realm: 55
     heroic:
-      world: 13024
-      region: 5586
+      world: 13028
+      region: 5588
       realm: 46
     mythic:
-      world: 7294
-      region: 3127
+      world: 7303
+      region: 3135
       realm: 24
   blackrock-depths:
     normal:
@@ -5473,11 +5473,11 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3043.5
-        color: '#4769e0'
+        score: 3062.4
+        color: '#5764e2'
       dps:
-        score: 3043.5
-        color: '#4769e0'
+        score: 3062.4
+        color: '#5764e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -5488,8 +5488,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3043.5
-        color: '#4769e0'
+        score: 3062.4
+        color: '#5764e2'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7006,7 +7006,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-    item_level_equipped: 102
+    item_level_equipped: 124
     mythic_plus_scores:
       all:
         score: 0
