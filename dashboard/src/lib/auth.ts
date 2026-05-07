@@ -74,7 +74,7 @@ function downgradeToSafeMemberSession(session: DashboardSession): DashboardSessi
     groupId: undefined,
     groupName: "Учасник",
     groupRank: 10,
-    permissions: ["dashboard.view", "raids.view", "guild.roster.view"],
+    permissions: ["dashboard.view", "raids.view", "guild.roster.view", "profiles.group.view"],
     isServerOwner: false,
     // Do not keep stale Discord role ids after a failed live read. Role ids are
     // rehydrated on the next successful Discord API check.

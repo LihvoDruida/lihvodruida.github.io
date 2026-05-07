@@ -26,7 +26,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const main = getMainCharacter(profile);
   const displayName = getProfilePublicName(profile);
   const avatar = profile.avatarUrl || main?.avatarUrl || main?.renderUrl || null;
-  const guildStatus = guildStatusLabel(profile.role);
+  const guildStatus = profile.groupName || guildStatusLabel(profile.role);
   const href = `/profile/${profile.profileId}`;
 
   return (

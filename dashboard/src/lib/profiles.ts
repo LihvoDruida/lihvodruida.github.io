@@ -5,7 +5,9 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
-import { canManageApplications, canViewProfiles } from "@/lib/permissions";
+import { canManageApplications, canViewAllProfiles, canViewProfiles, canViewProfilesInOwnGroupOrBelow, dashboardRoleRank } from "@/lib/permissions";
+import { listAccessGroups } from "@/lib/accessGroups";
+import type { AccessGroup } from "@/lib/accessGroupSchema";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
@@ -23,6 +25,9 @@ export type DashboardProfile = {
   publicNameMode?: ProfilePublicNameMode;
   login?: string | null;
   role: DashboardRole;
+  groupId?: string | null;
+  groupName?: string | null;
+  groupRank?: number | null;
   avatarUrl?: string | null;
   discordRoleIds: string[];
   characters: ProfileCharacter[];
@@ -183,6 +188,56 @@ function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
   return characters.slice(0, 50);
 }
 
+function cleanGroupId(value: unknown) {
+  const cleaned = String(value || "").trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32);
+  return cleaned || null;
+}
+
+function cleanGroupName(value: unknown) {
+  const cleaned = String(value || "").trim().replace(/\s+/g, " ").slice(0, 80);
+  return cleaned || null;
+}
+
+function cleanGroupRank(value: unknown) {
+  const rank = Number(value);
+  return Number.isFinite(rank) ? Math.floor(rank) : null;
+}
+
+function fallbackProfileRank(role: DashboardRole) {
+  return dashboardRoleRank(role) || 10;
+}
+
+function groupForProfile(profile: Pick<DashboardProfile, "groupId" | "role">, groups: AccessGroup[]) {
+  if (profile.groupId) {
+    const byId = groups.find((group) => group.id === profile.groupId);
+    if (byId) return byId;
+  }
+  return groups.find((group) => group.role === profile.role) || null;
+}
+
+function applyCurrentProfileGroup(profile: DashboardProfile, groups: AccessGroup[]) {
+  const group = groupForProfile(profile, groups);
+  if (!group) {
+    return {
+      ...profile,
+      groupRank: profile.groupRank ?? fallbackProfileRank(profile.role),
+      groupName: profile.groupName || null,
+    };
+  }
+  return {
+    ...profile,
+    role: group.role,
+    groupId: group.id,
+    groupName: group.name,
+    groupRank: group.rank,
+  };
+}
+
+export async function resolveProfileAccessForCurrentGroups(profile: DashboardProfile) {
+  const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
+  return groups.length ? applyCurrentProfileGroup(profile, groups) : profile;
+}
+
 function normalizeRaidRolePreference(value: unknown, mainCharacterKey?: string | null): DashboardProfile["raidRolePreference"] {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
@@ -215,6 +270,9 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
     publicNameMode: cleanProfilePublicNameMode(data.publicNameMode),
     login: data.login ? String(data.login).slice(0, 120) : null,
     role: cleanRole(data.role),
+    groupId: cleanGroupId(data.groupId),
+    groupName: cleanGroupName(data.groupName),
+    groupRank: cleanGroupRank(data.groupRank),
     avatarUrl: optionalString(data.avatarUrl),
     discordRoleIds: Array.isArray(data.discordRoleIds)
       ? data.discordRoleIds.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean).slice(0, 100)
@@ -256,20 +314,23 @@ export async function getOwnProfilePath(session: DashboardSession) {
 export function canViewProfile(
   viewer: DashboardSession | null | undefined,
   profileId: string,
-  profile?: Pick<DashboardProfile, "role" | "profileId"> | null,
+  profile?: Pick<DashboardProfile, "role" | "profileId" | "provider" | "providerUserId" | "groupId" | "groupRank"> | null,
 ) {
   if (!viewer) return false;
   const ownProfileId = viewer.profileId || "";
-  const isOwnProfile = Boolean(ownProfileId && ownProfileId === profileId);
+  const isOwnProfile = Boolean(ownProfileId && ownProfileId === profileId)
+    || Boolean(profile && profile.provider === viewer.provider && profile.providerUserId === viewer.id);
   if (isOwnProfile) return true;
 
-  // Existing saved profiles are safe to open as public member pages.
-  // Access details, Discord role lists and technical fields are still hidden
-  // unless canViewProfileAccessDetails(viewer) allows them on the page.
-  if (profile) return true;
+  if (canViewAllProfiles(viewer)) return true;
+  if (!profile) return canViewProfiles(viewer);
+  if (!canViewProfilesInOwnGroupOrBelow(viewer)) return false;
 
-  return canViewProfiles(viewer);
+  const viewerRank = Number.isFinite(Number(viewer.groupRank)) ? Math.floor(Number(viewer.groupRank)) : dashboardRoleRank(viewer.role);
+  const targetRank = Number.isFinite(Number(profile.groupRank)) ? Math.floor(Number(profile.groupRank)) : dashboardRoleRank(profile.role);
+  return viewerRank >= targetRank;
 }
+
 
 export function canManageProfiles(viewer: DashboardSession | null | undefined) {
   return canManageApplications(viewer);
@@ -290,6 +351,9 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     publicNameMode: "name",
     login: session.login || null,
     role: session.role,
+    groupId: session.groupId || null,
+    groupName: session.groupName || null,
+    groupRank: Number.isFinite(Number(session.groupRank)) ? Math.floor(Number(session.groupRank)) : dashboardRoleRank(session.role),
     avatarUrl: session.avatar_url || session.avatar || null,
     discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
     characters: [],
@@ -313,6 +377,9 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     displayName: profile.displayName,
     login: profile.login || null,
     role: profile.role,
+    groupId: profile.groupId || null,
+    groupName: profile.groupName || null,
+    groupRank: Number.isFinite(Number(profile.groupRank)) ? Math.floor(Number(profile.groupRank)) : fallbackProfileRank(profile.role),
     avatarUrl: profile.avatarUrl || null,
     discordRoleIds: profile.discordRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
@@ -329,7 +396,7 @@ export async function getProfileById(profileId: string) {
 
   const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).get();
   if (!snapshot.exists) return null;
-  return normalizeProfile(profileId, snapshot.data() || {});
+  return resolveProfileAccessForCurrentGroups(normalizeProfile(profileId, snapshot.data() || {}));
 }
 
 export async function getProfileByDiscordUserId(discordUserId: string) {
@@ -355,7 +422,7 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   for (const doc of byProviderUserId.docs) {
     const profile = normalizeProfile(doc.id, doc.data() || {});
     if (profile.provider === "discord" || profile.providerUserId === cleanDiscordId) {
-      return profile;
+      return resolveProfileAccessForCurrentGroups(profile);
     }
   }
 
@@ -369,7 +436,7 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
       .catch(() => null);
 
     const doc = snapshot?.docs?.[0];
-    if (doc) return normalizeProfile(doc.id, doc.data() || {});
+    if (doc) return resolveProfileAccessForCurrentGroups(normalizeProfile(doc.id, doc.data() || {}));
   }
 
   return null;
@@ -385,9 +452,13 @@ export async function listDashboardProfiles(params: {
 
   const safeLimit = Math.max(10, Math.min(200, Number(params.limit || 120)));
   const query = String(params.query || "").trim().toLowerCase();
-  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
+  const [snapshot, groups] = await Promise.all([
+    getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get(),
+    listAccessGroups().catch(() => [] as AccessGroup[]),
+  ]);
   const profiles: DashboardProfile[] = snapshot.docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile)
     .filter((profile: DashboardProfile) => canViewProfile(params.viewer, profile.profileId, profile));
 
   const filtered = query
@@ -512,6 +583,9 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     publicNameMode: "name",
     login: session.login || null,
     role: session.role,
+    groupId: session.groupId || null,
+    groupName: session.groupName || null,
+    groupRank: Number.isFinite(Number(session.groupRank)) ? Math.floor(Number(session.groupRank)) : dashboardRoleRank(session.role),
     avatarUrl: session.avatar_url || session.avatar || null,
     discordRoleIds: session.discordRoleIds || [],
     characters: [],

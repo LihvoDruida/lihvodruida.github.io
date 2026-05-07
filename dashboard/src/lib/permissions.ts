@@ -56,8 +56,16 @@ export function canViewProfileAccessDetails(session: DashboardSession | null | u
   return permitted(session, "profiles.access.view", ["admin", "moderator"]);
 }
 
-export function canViewProfiles(session: DashboardSession | null | undefined) {
+export function canViewAllProfiles(session: DashboardSession | null | undefined) {
   return permitted(session, "profiles.view", ["admin", "moderator"]);
+}
+
+export function canViewProfilesInOwnGroupOrBelow(session: DashboardSession | null | undefined) {
+  return permitted(session, "profiles.group.view", ["admin", "moderator", "mentor", "member"]);
+}
+
+export function canViewProfiles(session: DashboardSession | null | undefined) {
+  return canViewAllProfiles(session) || canViewProfilesInOwnGroupOrBelow(session);
 }
 
 export function canManageGroups(session: DashboardSession | null | undefined) {
@@ -146,6 +154,7 @@ export function dashboardCapabilities(role: DashboardRole, permissions?: string[
     { key: "profile", title: "Особистий профіль", description: "Особисті дані, персонажі Battle.net, роль для рейдів і серверне Discord-ім’я.", enabled: true },
     { key: "raid-signup", title: "Рейди та запис", description: "Перегляд опублікованих рейдів, правила і власний запис на участь.", enabled: enabled("raids.view", true) },
     { key: "guild-roster", title: "Склад гільдії", description: "Перегляд персонажів гільдії, Raider.IO, item level, ролей, класів і фільтрів.", enabled: enabled("guild.roster.view", true) },
+    { key: "profiles", title: enabled("profiles.view", canModerate) ? "Профілі: повний доступ" : "Профілі: своя група і нижче", description: enabled("profiles.view", canModerate) ? "Перегляд усіх профілів учасників." : "Перегляд власного профілю, своєї групи та груп нижче за рангом.", enabled: enabled("profiles.view", canModerate) || enabled("profiles.group.view", true) },
     { key: "applications", title: "Заявки до гільдії", description: role === "mentor" ? "Перегляд заявок і даних персонажа без BattleTag та без права приймати рішення." : "Перегляд заявок, даних персонажа та рішення по кандидатах.", enabled: enabled("applications.view", canReviewApplications) },
     { key: "general-embeds", title: "Звичайні Discord-повідомлення", description: "Створення і редагування звичайних Discord-повідомлень, а також згадування вибраних ролей.", enabled: enabled("discord.embeds.manage", canModerate) },
     { key: "raids", title: "Рейди", description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.", enabled: enabled("raids.manage", canModerate) },

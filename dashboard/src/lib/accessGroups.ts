@@ -46,6 +46,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
       "raids.roster.view",
       "guild.roster.view",
       "profiles.view",
+      "profiles.group.view",
       "profiles.access.view",
       "rules.stats.view",
     ],
@@ -64,6 +65,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
       "applications.view",
       "raids.view",
       "guild.roster.view",
+      "profiles.group.view",
     ],
   },
   {
@@ -79,6 +81,7 @@ const DEFAULT_GROUPS: AccessGroup[] = [
       "dashboard.view",
       "raids.view",
       "guild.roster.view",
+      "profiles.group.view",
     ],
   },
 ];
@@ -193,6 +196,9 @@ export async function ensureDefaultAccessGroups() {
     if (current.protectedGroup !== group.protectedGroup) patch.protectedGroup = group.protectedGroup;
     if (!current.icon && group.icon) patch.icon = group.icon;
     if (group.id === DEFAULT_MENTOR_GROUP_ID && !current.name) patch.name = group.name;
+    if ((group.id === DEFAULT_MENTOR_GROUP_ID || group.id === DEFAULT_MEMBER_GROUP_ID) && !current.permissions.includes("profiles.group.view")) {
+      patch.permissions = Array.from(new Set([...current.permissions, "profiles.group.view"]));
+    }
     if (Object.keys(patch).length) {
       await doc.set({ ...patch, updatedAt: nowIso() }, { merge: true });
     }

@@ -4,7 +4,8 @@ import GuildRosterExplorer from "@/components/GuildRosterExplorer";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
 import { loadGuildRosterData } from "@/lib/guildRoster";
-import { listCharacterProfileLinks } from "@/lib/profiles";
+import { getOwnProfilePath, listCharacterProfileLinks } from "@/lib/profiles";
+import { canViewGuildRoster } from "@/lib/permissions";
 import { buildBattleNetCharacterKey } from "@/lib/wowCharacters";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -30,6 +31,7 @@ export default async function GuildRosterPage() {
   if (!(await isAuthenticated())) { redirect("/login"); throw new Error("Login required"); }
   const user = await getSessionUser();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
+  if (!canViewGuildRoster(user)) redirect(await getOwnProfilePath(user));
 
   const [roster, profileLinks] = await Promise.all([
     loadGuildRosterData(),

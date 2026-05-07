@@ -505,9 +505,9 @@ export default async function ProfilePage({
     ...profileAsSession(profile),
     role: effectiveProfileRole,
     discordRoleIds: liveRoleIds.length ? liveRoleIds : profile.discordRoleIds,
-    groupId: liveAccessGroup?.group.id,
-    groupName: liveAccessGroup?.group.name,
-    groupRank: liveAccessGroup?.group.rank,
+    groupId: liveAccessGroup?.group.id || profile.groupId || undefined,
+    groupName: liveAccessGroup?.group.name || profile.groupName || undefined,
+    groupRank: liveAccessGroup?.group.rank ?? profile.groupRank ?? undefined,
     permissions: liveAccessGroup?.group.permissions,
     isServerOwner: Boolean(liveAccessGroup?.isServerOwner),
   };
