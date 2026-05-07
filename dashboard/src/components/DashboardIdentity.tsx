@@ -149,24 +149,29 @@ export default async function DashboardIdentity({
       {user && hasMobileNav ? (
         <>
           <MobileNavSafeAreaSync />
-          <nav
-            className="dashboard-mobile-nav"
-            aria-label="Швидка навігація"
+          <div
+            className={`dashboard-mobile-nav-shell${navItems.length > 4 ? " is-scrollable" : ""}`}
             data-items={navItems.length}
-            style={{ "--dashboard-mobile-nav-items": navItems.length } as CSSProperties}
           >
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={activeSection === item.section ? "is-active" : undefined}
-                aria-current={activeSection === item.section ? "page" : undefined}
-              >
-                <span aria-hidden="true">{item.icon}</span>
-                <strong>{item.label}</strong>
-              </a>
-            ))}
-          </nav>
+            <nav
+              className="dashboard-mobile-nav"
+              aria-label="Швидка навігація"
+              data-items={navItems.length}
+              style={{ "--dashboard-mobile-nav-items": navItems.length } as CSSProperties}
+            >
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={activeSection === item.section ? "is-active" : undefined}
+                  aria-current={activeSection === item.section ? "page" : undefined}
+                >
+                  <span aria-hidden="true">{item.icon}</span>
+                  <strong>{item.label}</strong>
+                </a>
+              ))}
+            </nav>
+          </div>
         </>
       ) : null}
     </>
