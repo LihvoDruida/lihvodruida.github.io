@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-07 21:06:32'
+  updated_at: '2026-05-08 02:59:16'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-07T12:54:17.000Z'
+  raider_io_last_crawled_at: '2026-05-07T22:15:58.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13701
-      region: 6105
+      world: 13710
+      region: 6108
       realm: 55
     heroic:
-      world: 13072
-      region: 5632
+      world: 13138
+      region: 5640
       realm: 46
     mythic:
-      world: 7328
-      region: 3158
+      world: 7374
+      region: 3160
       realm: 24
   blackrock-depths:
     normal:
@@ -193,10 +193,10 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3077.6
+        score: 3078.8
         color: '#6560e4'
       dps:
-        score: 3077.6
+        score: 3078.8
         color: '#6560e4'
       healer:
         score: 0
@@ -211,7 +211,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3077.6
+        score: 3078.8
         color: '#6560e4'
       spec_3:
         score: 0
@@ -710,7 +710,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/217/180729561-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 1594.1
@@ -914,11 +914,11 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 264
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 2593.9
@@ -2821,11 +2821,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2894.5
-        color: '#377dcf'
+        score: 2967.4
+        color: '#1f74d8'
       dps:
-        score: 2894.5
-        color: '#377dcf'
+        score: 2967.4
+        color: '#1f74d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -2833,8 +2833,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2894.5
-        color: '#377dcf'
+        score: 2967.4
+        color: '#1f74d8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2918,20 +2918,20 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2597.6
+        score: 2604.4
         color: '#5fb395'
       dps:
         score: 1971.8
         color: '#5eff43'
       healer:
-        score: 2536.5
+        score: 2543.3
         color: '#5fbd8a'
       tank:
         score: 0
@@ -2946,7 +2946,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2536.5
+        score: 2543.3
         color: '#5fbd8a'
     sources:
       roster: blizzard
@@ -4121,8 +4121,8 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3108.6
-        color: '#715be5'
+        score: 3132.3
+        color: '#7c55e7'
       dps:
         score: 0
         color: '#ffffff'
@@ -4130,8 +4130,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3108.6
-        color: '#715be5'
+        score: 3132.3
+        color: '#7c55e7'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4139,8 +4139,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3108.6
-        color: '#715be5'
+        score: 3132.3
+        color: '#7c55e7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4173,20 +4173,20 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 3086.4
-        color: '#6560e4'
+        score: 3115.1
+        color: '#715be5'
       dps:
         score: 994.8
         color: '#c6ffb2'
       healer:
-        score: 3086.4
-        color: '#6560e4'
+        score: 3115.1
+        color: '#715be5'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3086.4
-        color: '#6560e4'
+        score: 3115.1
+        color: '#715be5'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4794,7 +4794,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3047.1
@@ -4946,11 +4946,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Enhancement
+      name: Elemental
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 275
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2704.4
@@ -5782,7 +5782,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Севатар
-    item_level_equipped: 279
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2674.9
@@ -5990,7 +5990,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/100/265349988-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Корбус
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2598.2
@@ -6094,7 +6094,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2700.6
@@ -6250,7 +6250,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 278
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3003.7
@@ -6305,8 +6305,8 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3217.5
-        color: '#9a3fec'
+        score: 3260
+        color: '#a937e8'
       dps:
         score: 0
         color: '#ffffff'
@@ -6314,8 +6314,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3217.5
-        color: '#9a3fec'
+        score: 3260
+        color: '#a937e8'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6323,8 +6323,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3217.5
-        color: '#9a3fec'
+        score: 3260
+        color: '#a937e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6798,13 +6798,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мавпита
-    item_level_equipped: 270
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2657.9
+        score: 2663.8
         color: '#5ca6a4'
       dps:
-        score: 2657.9
+        score: 2663.8
         color: '#5ca6a4'
       healer:
         score: 0
@@ -6819,7 +6819,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2657.9
+        score: 2663.8
         color: '#5ca6a4'
       spec_3:
         score: 0
@@ -6853,11 +6853,11 @@ members:
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 1740.1
-        color: '#7dff61'
+        score: 2095.3
+        color: '#46ff2d'
       dps:
-        score: 1740.1
-        color: '#7dff61'
+        score: 2095.3
+        color: '#46ff2d'
       healer:
         score: 0
         color: '#ffffff'
@@ -6871,8 +6871,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1740.1
-        color: '#7dff61'
+        score: 2095.3
+        color: '#46ff2d'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6884,7 +6884,7 @@ members:
   character:
     name: Товстопуз
     id: 266050253
-    level: 80
+    level: 81
     realm:
       id: 1602
       slug: gordunni
@@ -6988,7 +6988,7 @@ members:
   character:
     name: Kaijuro
     id: 225023935
-    level: 84
+    level: 85
     realm:
       id: 549
       slug: silvermoon
