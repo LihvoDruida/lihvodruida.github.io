@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 17:20:31'
+  updated_at: '2026-05-08 21:02:30'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -527,7 +527,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 35
+        learned_points: 51
         max_points: 100
     - name: Fishing
       id: 356
@@ -5188,7 +5188,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 61
+        learned_points: 63
         max_points: 100
     - name: Tailoring
       id: 197
@@ -5197,7 +5197,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 81
+        learned_points: 83
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5393,7 +5393,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 73
+        learned_points: 78
         max_points: 100
     secondaries:
     - name: Fishing
