@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 13:51:52'
+  updated_at: '2026-05-08 17:20:31'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -16,7 +16,7 @@ guild:
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 133
-  achievement_points: 485
+  achievement_points: 495
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6108
       realm: 55
     heroic:
-      world: 13159
-      region: 5641
+      world: 13168
+      region: 5647
       realm: 46
     mythic:
-      world: 7396
-      region: 3162
+      world: 7404
+      region: 3164
       realm: 24
   blackrock-depths:
     normal:
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3097.7
@@ -2873,11 +2873,11 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 2967.4
-        color: '#1f74d8'
+        score: 2984.6
+        color: '#0070dd'
       dps:
-        score: 2967.4
-        color: '#1f74d8'
+        score: 2984.6
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -2885,8 +2885,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2967.4
-        color: '#1f74d8'
+        score: 2984.6
+        color: '#0070dd'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3338,17 +3338,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 265
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1624.7
-        color: '#8cff6f'
+        score: 2307
+        color: '#46ec47'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1624.7
-        color: '#8cff6f'
+        score: 2307
+        color: '#46ec47'
       tank:
         score: 0
         color: '#ffffff'
@@ -3356,8 +3356,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1624.7
-        color: '#8cff6f'
+        score: 2307
+        color: '#46ec47'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4806,10 +4806,10 @@ members:
         score: 3027.1
         color: '#4769e0'
       tank:
-        score: 2925.7
+        score: 2947.5
         color: '#1f74d8'
       spec_0:
-        score: 2925.7
+        score: 2947.5
         color: '#1f74d8'
       spec_1:
         score: 3027.1
@@ -5265,10 +5265,10 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3171.3
+        score: 3186.1
         color: '#9148eb'
       dps:
-        score: 3171.3
+        score: 3186.1
         color: '#9148eb'
       healer:
         score: 0
@@ -5280,7 +5280,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3171.3
+        score: 3186.1
         color: '#9148eb'
       spec_2:
         score: 0
@@ -5314,14 +5314,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2449.6
-        color: '#5bcf73'
+        score: 2477.4
+        color: '#5dcb79'
       dps:
-        score: 2449.6
-        color: '#5bcf73'
+        score: 2477.4
+        color: '#5dcb79'
       healer:
         score: 0
         color: '#ffffff'
@@ -5329,8 +5329,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2432.1
-        color: '#59d46d'
+        score: 2459.9
+        color: '#5bcf73'
       spec_1:
         score: 2049.8
         color: '#50ff36'
@@ -6149,11 +6149,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2700.6
-        color: '#5ba1a9'
+        score: 2715.8
+        color: '#589dae'
       dps:
-        score: 2700.6
-        color: '#5ba1a9'
+        score: 2715.8
+        color: '#589dae'
       healer:
         score: 0
         color: '#ffffff'
@@ -6167,8 +6167,8 @@ members:
         score: 331.8
         color: '#f6fff3'
       spec_2:
-        score: 2695.9
-        color: '#5ba1a9'
+        score: 2711.1
+        color: '#589dae'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6746,7 +6746,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 273
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2624.7

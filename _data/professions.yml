@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 13:51:52'
+  updated_at: '2026-05-08 17:20:31'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1151,7 +1151,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 81
+        learned_points: 87
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1230,7 +1230,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 51
+        learned_points: 151
         max_points: 300
 - name: Elderwizard
   region: eu
@@ -2825,7 +2825,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 72
+        learned_points: 75
         max_points: 100
     secondaries: []
 - name: Mafik
@@ -6731,7 +6731,7 @@ characters:
         learned_points: 9
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 83
+        learned_points: 85
         max_points: 100
     - name: Tailoring
       id: 197
@@ -6746,7 +6746,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 73
+        learned_points: 76
         max_points: 100
     secondaries: []
 - name: Кхаарн
