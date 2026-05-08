@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 09:23:48'
+  updated_at: '2026-05-08 13:51:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 134
+  member_count: 133
 characters:
 - name: Бреинор
   region: eu
@@ -857,7 +857,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Characternuk
   professions:
     primaries:
     - name: Enchanting
@@ -1544,6 +1544,59 @@ characters:
         max_points: 100
       - name: Midnight Fishing
         learned_points: 267
+        max_points: 300
+- name: Sangvyn
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
+  professions:
+    primaries:
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Tailoring
+        learned_points: 7
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Khaz Algar Fishing
+        learned_points: 84
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 6
         max_points: 300
 - name: Zanzithor
   region: eu
@@ -2895,7 +2948,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 90
+        learned_points: 93
         max_points: 100
     secondaries:
     - name: Cooking
@@ -3974,77 +4027,6 @@ characters:
         learned_points: 1
         max_points: 300
     secondaries: []
-- name: Eshwood
-  region: eu
-  realm: twisting-nether
-  realm_slug: twisting-nether
-  profile_url: https://raider.io/characters/eu/twisting-nether/Eshwood
-  professions:
-    primaries:
-    - name: Engineering
-      id: 202
-      tiers:
-      - name: Kul Tiran Engineering
-        learned_points: 1
-        max_points: 175
-      - name: Northrend Engineering
-        learned_points: 1
-        max_points: 75
-      - name: Outland Engineering
-        learned_points: 1
-        max_points: 75
-      - name: Classic Engineering
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Engineering
-        learned_points: 1
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 100
-        max_points: 100
-      - name: Midnight Cooking
-        learned_points: 100
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Midnight Fishing
-        learned_points: 9
-        max_points: 300
 - name: Пандашоманко
   region: eu
   realm: eversong
@@ -4784,7 +4766,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
   professions:
     primaries:
     - name: Tailoring
@@ -5174,6 +5156,23 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 9
+        max_points: 300
+- name: Kaijuro
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Misselles
   region: eu
@@ -6839,73 +6838,3 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Sangvyn
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-  professions:
-    primaries:
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Tailoring
-        learned_points: 7
-        max_points: 100
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Zandalari Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Khaz Algar Fishing
-        learned_points: 84
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 6
-        max_points: 300
-- name: Kaijuro
-  region: eu
-  realm: silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-  professions:
-    primaries: []
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300

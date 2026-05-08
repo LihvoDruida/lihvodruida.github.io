@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 09:23:48'
+  updated_at: '2026-05-08 13:51:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 134
+  member_count: 133
   achievement_points: 485
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13714
+      world: 13715
       region: 6108
       realm: 55
     heroic:
-      world: 13155
+      world: 13159
       region: 5641
       realm: 46
     mythic:
-      world: 7383
-      region: 3161
+      world: 7396
+      region: 3162
       realm: 24
   blackrock-depths:
     normal:
@@ -802,23 +802,47 @@ members:
       slug: terokkar
     playable_class:
       id: 6
-      name: null
+      name: Death Knight
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Characternuk
+    item_level_equipped: 262
+    mythic_plus_scores:
+      all:
+        score: 1695.5
+        color: '#83ff67'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 1695.5
+        color: '#83ff67'
+      spec_0:
+        score: 1695.5
+        color: '#83ff67'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -1281,6 +1305,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Sangvyn
+    id: 185570879
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
+    item_level_equipped: 280
+    mythic_plus_scores:
+      all:
+        score: 3027.5
+        color: '#4769e0'
+      dps:
+        score: 3027.5
+        color: '#4769e0'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3027.5
+        color: '#4769e0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2794,7 +2870,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2967.4
@@ -3262,7 +3338,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 264
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
         score: 1624.7
@@ -3782,14 +3858,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/18/196190994-avatar.jpg?alt=/wow/static/images/2d/avatar/8-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Артизан
-    item_level_equipped: 232
+    item_level_equipped: 240
     mythic_plus_scores:
       all:
-        score: 170
-        color: '#ffffff'
+        score: 667.2
+        color: '#dfffd2'
       dps:
-        score: 170
-        color: '#ffffff'
+        score: 667.2
+        color: '#dfffd2'
       healer:
         score: 0
         color: '#ffffff'
@@ -3797,63 +3873,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 170
-        color: '#ffffff'
+        score: 667.2
+        color: '#dfffd2'
       spec_1:
         score: 0
         color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Eshwood
-    id: 196224283
-    level: 90
-    realm:
-      id: 625
-      slug: twisting-nether
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Feral
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/twisting-nether/27/196224283-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/twisting-nether/Eshwood
-    item_level_equipped: 280
-    mythic_plus_scores:
-      all:
-        score: 3358.8
-        color: '#bc3fd1'
-      dps:
-        score: 3358.8
-        color: '#bc3fd1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 3358.8
-        color: '#bc3fd1'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4654,23 +4678,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+    item_level_equipped: 279
+    mythic_plus_scores:
+      all:
+        score: 3254.2
+        color: '#a937e8'
+      dps:
+        score: 3254.2
+        color: '#a937e8'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2478.4
+        color: '#5dcb79'
+      spec_1:
+        score: 333.9
+        color: '#f6fff3'
+      spec_2:
+        score: 3254.2
+        color: '#a937e8'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -5142,6 +5190,58 @@ members:
       professions: blizzard
 - rank: 4
   character:
+    name: Kaijuro
+    id: 225023935
+    level: 85
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 52
+      name: Dracthyr
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
+    item_level_equipped: 124
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
     name: Misselles
     id: 225144146
     level: 90
@@ -5162,7 +5262,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/82/225144146-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Misselles
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3171.3
@@ -6855,110 +6955,6 @@ members:
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/205/266050253-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
     item_level_equipped: 106
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Sangvyn
-    id: 185570879
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 8
-      name: Mage
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 280
-    mythic_plus_scores:
-      all:
-        score: 3027.5
-        color: '#4769e0'
-      dps:
-        score: 3027.5
-        color: '#4769e0'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3027.5
-        color: '#4769e0'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Kaijuro
-    id: 225023935
-    level: 85
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 52
-      name: Dracthyr
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Protection
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-    item_level_equipped: 124
     mythic_plus_scores:
       all:
         score: 0
