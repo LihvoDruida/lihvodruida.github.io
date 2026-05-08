@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-08 02:59:16'
+  updated_at: '2026-05-08 05:58:20'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-07T22:15:58.000Z'
+  raider_io_last_crawled_at: '2026-05-08T02:58:50.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13710
+      world: 13713
       region: 6108
       realm: 55
     heroic:
-      world: 13138
+      world: 13152
       region: 5640
       realm: 46
     mythic:
-      world: 7374
+      world: 7380
       region: 3160
       realm: 24
   blackrock-depths:
@@ -2114,7 +2114,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/119/187879543-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Daslight
-    item_level_equipped: 269
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 338.8
@@ -3026,7 +3026,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/250/189147130-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mólfár
-    item_level_equipped: 268
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 2673.4
@@ -3182,7 +3182,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-    item_level_equipped: 138
+    item_level_equipped: 139
     mythic_plus_scores:
       all:
         score: 0
@@ -3289,13 +3289,13 @@ members:
     item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 1621.8
+        score: 1624.7
         color: '#8cff6f'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1621.8
+        score: 1624.7
         color: '#8cff6f'
       tank:
         score: 0
@@ -3304,7 +3304,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1621.8
+        score: 1624.7
         color: '#8cff6f'
       spec_2:
         score: 0
@@ -4170,7 +4170,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3115.1
@@ -4846,7 +4846,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 2913.3
@@ -5674,11 +5674,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Retribution
-      role: DPS
+      name: Holy
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/132/261921924-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мортург
-    item_level_equipped: 277
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2739.6
