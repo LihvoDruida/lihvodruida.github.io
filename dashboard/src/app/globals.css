@@ -23978,3 +23978,357 @@ main.container > :where(.dashboard-shell, .content-shell, .profile-directory-she
   gap: 2px;
   min-width: 0;
 }
+
+
+/* vNext: global layout/access polish pass — final override layer.
+   Keeps spacing predictable, prevents cards from merging, and makes access groups readable. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(18px, 3vw, 34px);
+  --dash-section-gap: clamp(14px, 2vw, 22px);
+  --dash-card-pad: clamp(15px, 1rem + 0.55vw, 24px);
+  --dash-card-radius: clamp(18px, 1.6vw, 26px);
+  --dash-inner-gap: clamp(10px, 1.15vw, 16px);
+  --dash-border-soft: rgba(214, 168, 79, 0.22);
+  --dash-panel-bg: linear-gradient(180deg, rgba(17, 20, 25, 0.94), rgba(8, 11, 16, 0.90));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+main.container {
+  width: min(100%, var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+  padding-inline: var(--dash-page-gutter) !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .access-groups-page, .applications-page, .content-page-stack) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: var(--dash-section-gap) !important;
+  align-content: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+
+:where(.dashboard-shell, .content-shell, .profile-directory-shell, .profile-shell, .discord-shell, .raid-shell, .access-groups-page, .applications-page, .content-page-stack) > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-block: 0 !important;
+}
+
+:where(.panel, .profile-card, .profile-directory-card, .raid-list-page-panel, .raid-party-card, .raid-roster-panel, .discord-hub-card, .content-list, .application-card, .access-groups-list, .access-group-card) {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  border-radius: var(--dash-card-radius) !important;
+  border-color: var(--dash-border-soft) !important;
+  background: var(--dash-panel-bg);
+}
+
+:where(.profile-grid, .profile-directory-grid, .discord-hub-grid, .raid-editor-layout, .raid-member-layout, .raid-layout-grid, .access-groups-layout, .content-library-split) {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  align-items: start !important;
+  gap: var(--dash-section-gap) !important;
+}
+
+:where(.profile-card-head, .profile-card-head--inline, .profile-subsection-head, .raid-roster-heading, .access-groups-list__header, .access-group-card__head, .raid-list-page-head, .toolbar, .profile-directory-toolbar) {
+  min-width: 0 !important;
+  gap: var(--dash-inner-gap) !important;
+}
+
+:where(.profile-card-head--inline, .profile-subsection-head, .raid-roster-heading, .access-groups-list__header, .access-group-card__head) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+}
+
+:where(.profile-card-head--inline > *, .profile-subsection-head > *, .raid-roster-heading > *, .access-groups-list__header > *, .access-group-card__head > *) {
+  min-width: 0 !important;
+}
+
+:where(.profile-character-list, .profile-character-section-stack, .profile-candidate-groups, .profile-character-candidates, .profile-raid-list, .permissions-grid, .access-form-grid, .access-group-summary, .raid-party-grid, .raid-list-stack) {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: var(--dash-inner-gap) !important;
+}
+
+.profile-character-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+  align-items: start !important;
+}
+
+.profile-character-card {
+  height: auto !important;
+  align-self: start !important;
+  overflow: hidden !important;
+}
+
+.profile-character-artwork {
+  min-height: 190px !important;
+  overflow: hidden !important;
+}
+
+.profile-character-artwork img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.profile-character-meta,
+.profile-character-showcase,
+.profile-raid-card__meta,
+.profile-bnet-summary,
+.profile-access-summary,
+.access-group-summary,
+.raid-list-facts {
+  min-width: 0 !important;
+  gap: 8px !important;
+}
+
+:where(.profile-character-meta span, .profile-character-showcase__stat, .profile-raid-card__meta span, .profile-bnet-summary span, .profile-access-summary span, .access-group-summary span, .raid-list-facts span) {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+:where(.profile-character-meta span, .profile-character-showcase__stat strong, .profile-raid-card__meta strong, .profile-bnet-summary strong, .profile-access-summary strong, .access-group-summary strong, .raid-list-facts strong, .raid-party-member-copy strong, .raid-roster-member strong, .profile-directory-card h2, .profile-directory-card p) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.raid-party-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)) !important;
+}
+
+.raid-party-card {
+  padding: clamp(12px, 1vw, 16px) !important;
+  overflow: hidden !important;
+}
+
+.raid-party-row {
+  grid-template-columns: 24px 42px 32px minmax(0, 1fr) !important;
+  gap: 7px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  min-height: 40px !important;
+}
+
+.raid-role-label {
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.raid-party-member-copy {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.raid-party-member-copy small,
+.raid-roster-member small {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.raid-roster-member {
+  grid-template-columns: 22px 32px minmax(0, 1fr) !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  align-items: center !important;
+}
+
+.raid-signup-avatar,
+.raid-signup-avatar--empty,
+.profile-directory-card__avatar,
+.profile-character-candidate__avatar,
+.guild-member-avatar,
+.character-avatar {
+  flex: 0 0 auto !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.access-groups-layout {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr) !important;
+}
+
+.access-groups-list {
+  position: sticky !important;
+  top: 14px !important;
+  align-self: start !important;
+  display: grid !important;
+  gap: 8px !important;
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-group-tab {
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-content: start !important;
+  text-align: left !important;
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.access-group-tab strong,
+.access-group-tab span,
+.access-group-card__head p,
+.permission-check small {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+
+.access-group-card {
+  padding: var(--dash-card-pad) !important;
+  display: grid !important;
+  gap: var(--dash-section-gap) !important;
+}
+
+.access-form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)) !important;
+}
+
+.permissions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+  align-items: start !important;
+}
+
+.permissions-grid fieldset {
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.permission-check {
+  min-width: 0 !important;
+  align-items: start !important;
+}
+
+.permission-check input:disabled + span {
+  opacity: 0.72;
+}
+
+.dashboard-user__profile-link,
+.dashboard-brand,
+.profile-directory-card__main,
+.profile-person-card,
+.profile-character-title-row,
+.profile-character-candidate,
+.raid-list-main-link {
+  min-width: 0 !important;
+}
+
+:where(.input, .select, .textarea, button, .btn, .raid-action) {
+  max-width: 100% !important;
+}
+
+@media (max-width: 1100px) {
+  .access-groups-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .access-groups-list {
+    position: static !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(13px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.2vw, 16px);
+    --dash-card-pad: clamp(13px, 3.7vw, 17px);
+    --dash-inner-gap: 10px;
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve, 90px) + 18px) !important;
+  }
+
+  .dashboard-topbar,
+  .dashboard-hero,
+  .content-dashboard-hero,
+  .profile-hero,
+  .profile-directory-hero,
+  .raid-dashboard-hero,
+  .panel,
+  .profile-card,
+  .profile-directory-card,
+  .access-group-card,
+  .access-groups-list {
+    padding: var(--dash-card-pad) !important;
+  }
+
+  .profile-character-list,
+  .profile-directory-grid,
+  .profile-grid,
+  .raid-party-grid,
+  .raid-editor-layout,
+  .raid-member-layout,
+  .permissions-grid,
+  .access-form-grid,
+  .access-group-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-character-artwork {
+    min-height: clamp(180px, 48vw, 260px) !important;
+  }
+
+  .raid-party-row {
+    grid-template-columns: 24px 38px 30px minmax(0, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .raid-party-member-copy strong,
+  .raid-party-member-copy small,
+  .raid-roster-member strong,
+  .raid-roster-member small {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.22 !important;
+  }
+
+  .profile-directory-toolbar,
+  .toolbar,
+  .form-actions,
+  .access-form-actions,
+  .raid-form-actions,
+  .profile-candidate-bulk-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .profile-directory-toolbar :where(.btn, button, input),
+  .toolbar :where(.btn, button, input, select),
+  .form-actions :where(.btn, button),
+  .access-form-actions :where(.btn, button),
+  .raid-form-actions :where(.btn, button),
+  .profile-candidate-bulk-buttons :where(.btn, button) {
+    width: 100% !important;
+  }
+}

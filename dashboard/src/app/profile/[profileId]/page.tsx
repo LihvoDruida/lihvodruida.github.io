@@ -562,20 +562,25 @@ export default async function ProfilePage({
   }
 
   const liveRoleIds = Array.from(new Set((liveDiscordMember?.roleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
-  const liveAccessGroup = liveRoleIds.length ? await resolveAccessGroupFromDiscord(liveRoleIds, profile.providerUserId, discordOwnerLocked ? profile.providerUserId : null).catch(() => null) : null;
+  const liveAccessChecked = Boolean(discordMemberReadable && liveDiscordMember);
+  const liveAccessGroup = liveAccessChecked
+    ? await resolveAccessGroupFromDiscord(liveRoleIds, profile.providerUserId, discordOwnerLocked ? profile.providerUserId : null).catch(() => null)
+    : null;
   const liveDashboardRole = liveAccessGroup?.group.role || null;
   const effectiveProfileRole = liveDashboardRole || profile.role;
-  const liveAccessState = liveRoleIds.length
-    ? liveDashboardRole
+  const liveAccessState = liveAccessChecked
+    ? liveAccessGroup
       ? "synced"
       : "no-access"
     : discordMemberReadable
       ? "unavailable"
       : "not-discord";
   const liveAccessDescription = liveAccessState === "synced"
-    ? "Ролі й доступ оновлені напряму з Discord-сервера."
+    ? liveRoleIds.length
+      ? "Ролі й доступ оновлені напряму з Discord-сервера."
+      : "Discord-сервер підтвердив профіль без привʼязаних ролей доступу; показано базову групу учасника."
     : liveAccessState === "no-access"
-      ? "На Discord-сервері не знайдено ролей, які привʼязані до доступу в панелі."
+      ? "Discord-сервер не підтвердив жодної групи доступу для цього профілю."
       : liveAccessState === "unavailable"
         ? "Discord-ролі тимчасово недоступні, показано останні збережені дані профілю."
         : "Профіль не привʼязаний до Discord-акаунта.";

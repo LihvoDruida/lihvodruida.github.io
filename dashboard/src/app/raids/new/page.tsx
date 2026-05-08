@@ -6,6 +6,7 @@ import { canManageRaids } from "@/lib/permissions";
 import { hasRaidStorage } from "@/lib/raids";
 import { makePreviewRaid, RaidAnnouncementPreview, RaidForm, RaidPageShell, RosterSideList, StatusNotice } from "@/components/RaidViews";
 import { buildPageMetadata } from "@/lib/seo";
+import { getOwnProfilePath } from "@/lib/profiles";
 
 export const runtime = "nodejs";
 export const metadata = buildPageMetadata({
@@ -21,7 +22,7 @@ export const revalidate = 0;
 export default async function NewRaidPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
-  if (!canManageRaids(user)) redirect("/profile");
+  if (!canManageRaids(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
   let channels: Array<{ id: string; name: string }> = [];

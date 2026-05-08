@@ -5,6 +5,7 @@ import { canManageRaids } from "@/lib/permissions";
 import { getRaid, hasRaidStorage } from "@/lib/raids";
 import { RaidAnnouncementPreview, RaidForm, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
 import { buildPageMetadata } from "@/lib/seo";
+import { getOwnProfilePath } from "@/lib/profiles";
 
 export const metadata = buildPageMetadata({
   title: "Редагування рейду",
@@ -20,7 +21,7 @@ export const revalidate = 0;
 export default async function EditRaidPage({ params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
-  if (!canManageRaids(user)) redirect("/profile");
+  if (!canManageRaids(user)) redirect(await getOwnProfilePath(user));
 
   const { raidId } = await params;
   const query = await searchParams;

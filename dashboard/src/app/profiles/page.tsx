@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { canViewProfiles, guildStatusLabel } from "@/lib/permissions";
 import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
 import { redirect } from "next/navigation";
+import { pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
@@ -22,10 +23,15 @@ function formatDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
+function profileDirectoryAvatarUrl(profile: DashboardProfile) {
+  const main = getMainCharacter(profile);
+  return profile.avatarUrl || pickWowAvatarImageUrl(main?.avatarUrl, main?.renderUrl, main?.mediaUrl) || null;
+}
+
 function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const main = getMainCharacter(profile);
   const displayName = getProfilePublicName(profile);
-  const avatar = profile.avatarUrl || main?.avatarUrl || main?.renderUrl || null;
+  const avatar = profileDirectoryAvatarUrl(profile);
   const guildStatus = profile.groupName || guildStatusLabel(profile.role);
   const href = `/profile/${profile.profileId}`;
 

@@ -41,7 +41,7 @@ function fixedLabel(group: AccessGroup) {
   if (group.id === DEFAULT_ADMIN_GROUP_ID) return "Системна група · ID 1";
   if (group.id === DEFAULT_MODERATOR_GROUP_ID) return "Системна група · ID 2";
   if (group.id === DEFAULT_MEMBER_GROUP_ID) return "Системна група · ID 99";
-  if (group.id === DEFAULT_MENTOR_GROUP_ID) return "Стандартна група · наставники";
+  if (group.id === DEFAULT_MENTOR_GROUP_ID) return "Системна група · наставники";
   return "Користувацька група";
 }
 

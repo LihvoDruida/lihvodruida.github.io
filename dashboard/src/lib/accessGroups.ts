@@ -56,8 +56,8 @@ const DEFAULT_GROUPS: AccessGroup[] = [
     name: "Наставник новачків",
     role: "mentor",
     rank: 20,
-    lockedId: false,
-    protectedGroup: false,
+    lockedId: true,
+    protectedGroup: true,
     discordRoleIds: [],
     icon: "🌿",
     permissions: [
