@@ -8,6 +8,7 @@ import type { DashboardSession } from "@/lib/auth";
 import type { DashboardProfile } from "@/lib/profiles";
 import { hierarchyTitle } from "@/lib/permissions";
 import { wowRoleLabel } from "@/lib/wowRoles";
+import { pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   buildRaidParties,
   isRaidClosed,
@@ -95,7 +96,7 @@ function signupExtraLabel(item?: RaidSignup | null) {
 
 function signupAvatarUrl(item?: RaidSignup | null) {
   if (!item) return null;
-  return item.renderUrl || item.avatarUrl || item.mediaUrl || null;
+  return pickWowAvatarImageUrl(item.avatarUrl, item.renderUrl, item.mediaUrl);
 }
 
 function SignupAvatar({ item }: { item?: RaidSignup | null }) {

@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
-import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -405,7 +405,7 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     level: Number.isFinite(level) && level > 0 ? Math.floor(level) : null,
     raceName: cleanString(item.raceName, 80) || null,
     faction: cleanString(item.faction, 80) || null,
-    avatarUrl: cleanUrl(item.avatarUrl),
+    avatarUrl: pickWowAvatarImageUrl(item.avatarUrl, item.renderUrl),
     renderUrl: cleanUrl(item.renderUrl),
     mediaUrl: cleanUrl(item.mediaUrl),
     itemLevel: Number.isFinite(ilvl) && ilvl > 0 ? Math.floor(ilvl) : null,
@@ -1492,7 +1492,7 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
     level: Number.isFinite(Number(character?.level)) ? Number(character?.level) : null,
     raceName: character?.raceName || null,
     faction: character?.faction || null,
-    avatarUrl: character?.avatarUrl || character?.renderUrl || character?.mediaUrl || null,
+    avatarUrl: pickWowAvatarImageUrl(character?.avatarUrl, character?.renderUrl),
     renderUrl: character?.renderUrl || null,
     mediaUrl: character?.mediaUrl || null,
     itemLevel: Number.isFinite(Number(character?.itemLevel)) ? Number(character?.itemLevel) : null,

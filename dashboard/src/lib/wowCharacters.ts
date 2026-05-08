@@ -61,3 +61,33 @@ export function normalizeCharacterKey(value: unknown) {
   const [regionInput, realmInput, nameInput] = parts;
   return buildBattleNetCharacterKey(regionInput, realmInput, nameInput);
 }
+
+export function normalizeWowAvatarImageUrl(value: unknown) {
+  const text = cleanWowText(value, 700);
+  if (!text) return null;
+
+  try {
+    const url = new URL(text);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+
+    const path = url.pathname;
+    const avatarPath = path.replace(/-(?:main-raw|main)\.png$/i, "-avatar.jpg");
+    if (avatarPath !== path) {
+      url.pathname = avatarPath;
+      return url.toString();
+    }
+
+    if (/\.(?:png|jpe?g|webp)$/i.test(path)) return url.toString();
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function pickWowAvatarImageUrl(...values: unknown[]) {
+  for (const value of values) {
+    const avatarUrl = normalizeWowAvatarImageUrl(value);
+    if (avatarUrl) return avatarUrl;
+  }
+  return null;
+}

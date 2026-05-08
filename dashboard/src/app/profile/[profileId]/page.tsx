@@ -3,7 +3,7 @@ import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkAction
 import ProfileNameControls from "@/components/ProfileNameControls";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
-import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   listProfileRaidSignups,
   raidDisplayCapacity,
@@ -190,7 +190,12 @@ function statValue(value: number | null | undefined) {
 
 function characterVisualUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
   if (!character) return null;
-  return character.renderUrl || character.avatarUrl || character.mediaUrl || null;
+  return character.renderUrl || pickWowAvatarImageUrl(character.avatarUrl, character.mediaUrl);
+}
+
+function characterAvatarUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
+  if (!character) return null;
+  return pickWowAvatarImageUrl(character.avatarUrl, character.renderUrl, character.mediaUrl);
 }
 
 function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction" | "guildName">) {
@@ -428,7 +433,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
 
 function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
   const kindLabel = character.verifiedGuild ? "🌿 Гільдійний" : "🤝 Інший";
-  const image = characterVisualUrl(character);
+  const image = characterAvatarUrl(character);
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
   const extraMeta = characterAuxMeta(character);
   return (
