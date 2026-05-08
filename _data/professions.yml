@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 05:58:20'
+  updated_at: '2026-05-08 09:23:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -857,7 +857,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Characternuk
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -4784,7 +4784,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
+  profile_url: null
   professions:
     primaries:
     - name: Tailoring

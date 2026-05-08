@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-08 05:58:20'
+  updated_at: '2026-05-08 09:23:48'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13713
+      world: 13714
       region: 6108
       realm: 55
     heroic:
-      world: 13152
-      region: 5640
+      world: 13155
+      region: 5641
       realm: 46
     mythic:
-      world: 7380
-      region: 3160
+      world: 7383
+      region: 3161
       realm: 24
   blackrock-depths:
     normal:
@@ -802,47 +802,23 @@ members:
       slug: terokkar
     playable_class:
       id: 6
-      name: Death Knight
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Blood
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/139/182839435-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Characternuk
-    item_level_equipped: 262
-    mythic_plus_scores:
-      all:
-        score: 1695.5
-        color: '#83ff67'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 1695.5
-        color: '#83ff67'
-      spec_0:
-        score: 1695.5
-        color: '#83ff67'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4678,47 +4654,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 8
-      name: Mage
+      name: null
     playable_race:
       id: 4
-      name: Night Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/69/223189573-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Vîøn
-    item_level_equipped: 279
-    mythic_plus_scores:
-      all:
-        score: 3254.2
-        color: '#a937e8'
-      dps:
-        score: 3254.2
-        color: '#a937e8'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2478.4
-        color: '#5dcb79'
-      spec_1:
-        score: 333.9
-        color: '#f6fff3'
-      spec_2:
-        score: 3254.2
-        color: '#a937e8'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -6850,7 +6802,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 270
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2095.3
