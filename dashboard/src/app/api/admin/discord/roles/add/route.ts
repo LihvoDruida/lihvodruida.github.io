@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
+
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { addDiscordMemberRoles } from "@/lib/discordMemberManagement";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const guard = await requireDiscordAdmin(request, "roles-add");
@@ -13,6 +17,9 @@ export async function POST(request: NextRequest) {
       roleIds: form.getAll("roleIds"),
       reason: `Mistblossom manual role add by ${guard.session.name || guard.session.id}`,
     });
+    if (result.expectedChangeTotal > 0 && result.changed < result.expectedChangeTotal) {
+      throw new Error(`Discord не підтвердив видачу всіх вибраних ролей. Очікувалось змін: ${result.expectedChangeTotal}, підтверджено: ${result.changed}.`);
+    }
     const status = result.changed > 0 ? "success" : "info";
     const summary = result.changed > 0
       ? `${result.displayName}: видано ролей ${result.addedRoleIds.length}; уже були ${result.alreadyHadRoleIds.length}.`

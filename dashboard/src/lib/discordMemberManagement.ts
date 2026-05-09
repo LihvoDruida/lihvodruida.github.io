@@ -125,11 +125,39 @@ async function applyDiscordRoleDelta(params: {
   const requestedRemove = Array.from(new Set((params.removeRoleIds || []).filter(Boolean)));
   const addSet = new Set(requestedAdd);
   const removeSet = new Set(requestedRemove);
+  const conflictedRoleIds = requestedAdd.filter((roleId) => removeSet.has(roleId));
+  if (conflictedRoleIds.length) {
+    throw new Error(`Одна й та сама Discord-роль не може одночасно видаватись і зніматись: ${conflictedRoleIds.join(", ")}.`);
+  }
 
   const addableRoleIds = requestedAdd.filter((roleId) => !before.roleIds.includes(roleId));
   const removableRoleIds = requestedRemove.filter((roleId) => before.roleIds.includes(roleId));
   const alreadyHadRoleIds = requestedAdd.filter((roleId) => before.roleIds.includes(roleId));
   const alreadyMissingRoleIds = requestedRemove.filter((roleId) => !before.roleIds.includes(roleId));
+
+  if (!addableRoleIds.length && !removableRoleIds.length) {
+    return {
+      before,
+      after: before,
+      requestedAddRoleIds: requestedAdd,
+      requestedRemoveRoleIds: requestedRemove,
+      addableRoleIds,
+      removableRoleIds,
+      alreadyHadRoleIds,
+      alreadyMissingRoleIds,
+      addedRoleIds: [] as string[],
+      removedRoleIds: [] as string[],
+      stillMissingRoleIds: [] as string[],
+      stillPresentRoleIds: [] as string[],
+      usedPatchFallback: false,
+      changed: 0,
+      expectedChangeTotal: 0,
+      unchangedBecauseAlreadyCorrect: alreadyHadRoleIds.length + alreadyMissingRoleIds.length,
+      hasRequestedRole(roleId: string) {
+        return addSet.has(roleId) || removeSet.has(roleId);
+      },
+    };
+  }
 
   if (removableRoleIds.length) {
     await removeGuildMemberRoles({
@@ -181,7 +209,7 @@ async function applyDiscordRoleDelta(params: {
     stillMissingRoleIds = addableRoleIds.filter((roleId) => !after?.roleIds.includes(roleId));
   }
 
-  if (!after) throw new Error("Discord прийняв запит, але не вдалося повторно прочитати учасника для перевірки результату.");
+  if (!after) throw new Error("Discord прийняв запит, але не вдалося повторно прочитати учасника для перевірки результату. Успіх не підтверджено.");
 
   const removedRoleIds = removableRoleIds.filter((roleId) => !after.roleIds.includes(roleId));
   const addedRoleIds = addableRoleIds.filter((roleId) => after.roleIds.includes(roleId));

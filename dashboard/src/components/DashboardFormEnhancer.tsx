@@ -163,12 +163,38 @@ export default function DashboardFormEnhancer() {
           method: (form.method || "post").toUpperCase(),
           body: new FormData(form),
           credentials: "same-origin",
+          redirect: "manual",
           headers: {
             Accept: "application/json",
             "X-Dashboard-Action": "live",
           },
         });
-        const data = await response.json().catch(() => null);
+
+        const contentType = response.headers.get("content-type") || "";
+        const location = response.headers.get("location") || "";
+        const isRedirect = response.status >= 300 && response.status < 400;
+
+        if (isRedirect) {
+          if (location) {
+            window.location.assign(location);
+            return;
+          }
+          throw new Error("redirect_without_location");
+        }
+
+        const isJson = contentType.toLowerCase().includes("application/json");
+        const data = isJson ? await response.json().catch(() => null) : null;
+        if (!isJson) {
+          dispatchDashboardToast({
+            tone: "error",
+            title: "Сервер не повернув результат дії",
+            message: "Запит не дав JSON-відповіді. Сторінку буде оновлено, щоб показати справжній стан.",
+            ttl: 7600,
+          });
+          window.setTimeout(() => window.location.reload(), 850);
+          return;
+        }
+
         const toast = toastFromResponse(data, response.ok);
         dispatchDashboardToast({
           tone: toast.tone || (response.ok ? "success" : "error"),

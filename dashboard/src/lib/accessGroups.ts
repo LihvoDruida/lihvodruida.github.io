@@ -367,6 +367,23 @@ export type AdminAuditLogItem = {
   createdAt: string | null;
 };
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditFallback: AdminAuditLogItem[] | undefined;
+}
+
+function fallbackAuditLogs() {
+  const logs = globalThis.__mistblossomAdminAuditFallback || [];
+  globalThis.__mistblossomAdminAuditFallback = logs;
+  return logs;
+}
+
+function pushFallbackAdminAudit(item: AdminAuditLogItem) {
+  const logs = fallbackAuditLogs();
+  logs.unshift(item);
+  if (logs.length > 120) logs.splice(120);
+}
+
 function auditCollectionRef() {
   return getFirebaseAdminDb().collection("dashboardAdminAudit");
 }
@@ -427,20 +444,42 @@ async function pruneAdminAuditLogs(max = 100) {
 }
 
 export async function listAdminAuditLogs(limitInput: unknown = 100) {
-  if (!hasFirebaseProfileConfig()) return [] as AdminAuditLogItem[];
   const limit = Math.max(10, Math.min(100, Math.floor(Number(limitInput) || 50)));
-  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(limit).get().catch(() => null);
-  if (!snapshot) return [] as AdminAuditLogItem[];
-  return snapshot.docs.map((doc: any) => normalizeAuditLog(doc.id, doc.data() || {}));
+  const fallback = fallbackAuditLogs().slice(0, limit);
+  if (!hasFirebaseProfileConfig()) return fallback;
+
+  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(limit).get().catch((error) => {
+    logDashboardEvent("error", "admin.audit.read_failed", undefined, {
+      error: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return null;
+  });
+  if (!snapshot) return fallback;
+
+  const stored = snapshot.docs.map((doc: any) => normalizeAuditLog(doc.id, doc.data() || {}));
+  if (stored.length >= limit) return stored;
+
+  const seen = new Set(stored.map((item) => item.id));
+  return [...stored, ...fallback.filter((item) => !seen.has(item.id))].slice(0, limit);
 }
 
 export async function recordAdminAudit(action: string, viewer: DashboardSession, details: Record<string, unknown> = {}) {
-  if (!hasFirebaseProfileConfig()) {
-    logDashboardEvent("warn", "admin.audit.unconfigured", undefined, { action, actorId: viewer.id, status: details.status || "info" });
-    return false;
-  }
-
   const status = auditStatus(details.status);
+  const createdAtIso = new Date().toISOString();
+  const fallbackItem: AdminAuditLogItem = normalizeAuditLog(
+    `local-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
+    {
+      action,
+      actorId: viewer.id,
+      actorName: viewer.name || viewer.login || null,
+      actorGroupId: viewer.groupId || null,
+      isServerOwner: Boolean(viewer.isServerOwner),
+      status,
+      details: { ...details, status, auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory" },
+      createdAtIso,
+    },
+  );
+
   const payload = {
     action,
     actorId: viewer.id,
@@ -450,8 +489,14 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     status,
     details: { ...details, status },
     createdAt: FieldValue.serverTimestamp(),
-    createdAtIso: new Date().toISOString(),
+    createdAtIso,
   };
+
+  if (!hasFirebaseProfileConfig()) {
+    pushFallbackAdminAudit(fallbackItem);
+    logDashboardEvent("warn", "admin.audit.unconfigured", undefined, { action, actorId: viewer.id, status });
+    return false;
+  }
 
   try {
     await auditCollectionRef().add(payload);
@@ -459,6 +504,14 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
     return true;
   } catch (error) {
+    pushFallbackAdminAudit({
+      ...fallbackItem,
+      details: {
+        ...fallbackItem.details,
+        auditStorage: "memory_after_firestore_failure",
+        auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
+      },
+    });
     logDashboardEvent("error", "admin.audit.write_failed", undefined, {
       action,
       actorId: viewer.id,

@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
+
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { removeRolesFromMembersWithInvalidNicknames } from "@/lib/discordMemberManagement";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const guard = await requireDiscordAdmin(request, "nicknames-cleanup", 32 * 1024);

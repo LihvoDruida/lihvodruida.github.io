@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
+
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { syncDiscordOfficerRolesFromProfiles } from "@/lib/discordMemberManagement";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const guard = await requireDiscordAdmin(request, "officers-sync", 16 * 1024);

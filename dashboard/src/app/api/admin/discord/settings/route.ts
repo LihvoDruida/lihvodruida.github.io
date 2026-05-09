@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
+
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { setGuildDiscordManagementSettings } from "@/lib/guildNicknamePolicy";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const guard = await requireDiscordAdmin(request, "settings");

@@ -1,5 +1,6 @@
 import { mapConcurrent } from "@/lib/concurrency";
 import { rulesAcceptUrl } from "@/lib/rulesOnboarding";
+import { logDashboardEvent } from "@/lib/security";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const DASHBOARD_CUSTOM_ID_PREFIX = "mbv1";
@@ -536,6 +537,8 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
   const token = getBotToken();
   if (!token) throw new Error("Discord bot token не налаштований. Дії з ролями, ніками та учасниками не можуть виконуватись напряму через Discord API.");
 
+  const method = String(init.method || "GET").toUpperCase();
+  const isMutation = method !== "GET" && method !== "HEAD";
   const headers = new Headers(init.headers || {});
   headers.set("Authorization", `Bot ${token}`);
 
@@ -546,7 +549,7 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
   const auditReason = encodeAuditReason(init.auditReason);
   if (auditReason) headers.set("X-Audit-Log-Reason", auditReason);
 
-  const maxAttempts = String(init.method || "GET").toUpperCase() === "DELETE" ? 7 : 5;
+  const maxAttempts = method === "DELETE" ? 7 : 5;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const response = await fetch(`${DISCORD_API_BASE}${path}`, {
       ...init,
@@ -554,7 +557,17 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
       cache: "no-store",
     });
 
-    if (response.status === 204) return undefined as T;
+    if (response.status === 204) {
+      if (isMutation) {
+        logDashboardEvent("info", "discord.api.mutation_ok", undefined, {
+          method,
+          path,
+          status: response.status,
+          attempt: attempt + 1,
+        });
+      }
+      return undefined as T;
+    }
 
     const raw = await response.text().catch(() => "");
     const json = raw ? tryParseJson(raw) : null;
@@ -566,8 +579,24 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
 
     if (!response.ok) {
       const detail = typeof json?.message === "string" ? json.message : raw;
+      logDashboardEvent("warn", "discord.api.request_failed", undefined, {
+        method,
+        path,
+        status: response.status,
+        attempt: attempt + 1,
+        detail: String(detail || "невідома помилка").slice(0, 220),
+      });
       const rateHint = response.status === 429 ? " Після кількох повторів Discord усе ще обмежує запити." : "";
       throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}${rateHint}`);
+    }
+
+    if (isMutation) {
+      logDashboardEvent("info", "discord.api.mutation_ok", undefined, {
+        method,
+        path,
+        status: response.status,
+        attempt: attempt + 1,
+      });
     }
 
     return (json ?? raw) as T;

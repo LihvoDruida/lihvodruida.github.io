@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
+
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { inspectDiscordNicknameTemplate } from "@/lib/discordMemberManagement";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const guard = await requireDiscordAdmin(request, "nicknames-inspect", 8 * 1024);
