@@ -198,21 +198,21 @@ export default async function AdminDiscordPage() {
           </form>
 
           <form className="panel discord-management-card" action="/api/admin/discord/officers/sync" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-            <div className="profile-card-head"><span className="eyebrow">Battle.net</span><h2>Видати роль офіцерам гільдії</h2></div>
-            <p className="profile-card-lead">Перебирає всі профілі сайту і всіх їхніх персонажів, звіряє персонажів з live Battle.net roster гільдії за точним ключем регіон + реалм + імʼя. Роль видається тільки тоді, коли хоча б один персонаж профілю реально має статус <strong>Глава</strong> або <strong>Офіцер</strong>. Серверний нік перевіряється саме через Discord <code>member.nick</code>, не через глобальне імʼя.</p>
+            <div className="profile-card-head"><span className="eyebrow">Склад гільдії</span><h2>Видати роль офіцерам гільдії</h2></div>
+            <p className="profile-card-lead">Перебирає всі профілі сайту і всіх їхніх персонажів, звіряє їх зі збереженим складом гільдії на сайті за точним ключем регіон + реалм + імʼя. Спочатку фільтрує склад за <code>guildStatus=officer</code> або <code>guildStatus=guild_master</code>, тому роль видається тільки профілям, де хоча б один персонаж реально позначений як <strong>Глава</strong> або <strong>Офіцер</strong> у вже збережених даних. Серверний нік перевіряється саме через Discord <code>member.nick</code>, не через глобальне імʼя.</p>
             <input type="hidden" name="limit" value="0" />
             <RoleCheckboxes roles={roles} fieldName="officerRoleIds" inputType="radio" emptyText="Немає доступних ролей для видачі офіцерам. Перевір роль бота та право “Керувати ролями”." />
             <div className="discord-officer-sync-summary" aria-label="Що перевіряється">
-              <span><strong>Battle.net</strong><small>Live roster: точний персонаж + ранг 0/1</small></span>
+              <span><strong>Склад</strong><small>Збережені guildStatus officer/guild_master</small></span>
               <span><strong>Профілі</strong><small>Усі профілі, усі персонажі</small></span>
               <span><strong>Discord</strong><small>Серверний нік member.nick</small></span>
             </div>
-            <button className="btn primary" type="submit" disabled={!hasManageableRoles} data-confirm-message="Видати вибрану Discord-роль тільки профілям, де персонаж підтверджений у живому Battle.net roster як Глава або Офіцер?">Синхронізувати офіцерську роль</button>
+            <button className="btn primary" type="submit" disabled={!hasManageableRoles} data-confirm-message="Видати вибрану Discord-роль тільки профілям, де персонаж є у збереженому складі гільдії зі статусом Глава або Офіцер?">Синхронізувати офіцерську роль</button>
           </form>
 
           <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/nicknames/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Ролі за неправильний серверний нік</h2></div>
-            <p className="profile-card-lead">Перевіряє тільки серверні ніки Discord (<code>member.nick</code>), не глобальні імена. Перед реальною зміною кожен учасник перечитується з Discord ще раз: якщо нік уже правильний, ролі не чіпаються. Цей блок не призначений для офіцерських ролей — офіцерські права видавай через синхронізацію Battle.net вище.</p>
+            <p className="profile-card-lead">Перевіряє тільки серверні ніки Discord (<code>member.nick</code>), не глобальні імена. Перед реальною зміною кожен учасник перечитується з Discord ще раз: якщо нік уже правильний, ролі не чіпаються. Цей блок не призначений для офіцерських ролей — офіцерські права видавай через синхронізацію складу гільдії вище.</p>
             <input type="hidden" name="apply" value="1" />
             <label className="field-label">Скільки учасників перевірити<input className="input" name="limit" type="number" min="0" max="50000" defaultValue="0" /><small>0 = пройти всіх учасників Discord-сервера посторінково. Для великих проходів краще лишати паралельність низькою.</small></label>
             <div className="discord-cleanup-role-grid" aria-label="Ролі для масової дії за серверним ніком">

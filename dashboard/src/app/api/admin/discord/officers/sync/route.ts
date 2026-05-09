@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const result = await syncDiscordOfficerRolesFromProfiles({
       roleIds: form.getAll("officerRoleIds"),
       limit: form.get("limit"),
-      reason: `Mistblossom Battle.net officer role sync by ${guard.session.name || guard.session.id}`,
+      reason: `Mistblossom stored guild officer role sync by ${guard.session.name || guard.session.id}`,
     });
 
     const nicknameSkipped = (result.skippedMissingNickname || result.skippedInvalidNickname)
@@ -23,10 +23,13 @@ export async function POST(request: NextRequest) {
       : "";
     const roleHint = result.selectedRoleName ? ` Роль: ${result.selectedRoleName}.` : "";
     const ignoredHint = result.ignoredLowerRoleIds?.length ? ` Нижчі вибрані ролі проігноровано: ${result.ignoredLowerRoleIds.length}.` : "";
-    const summary = `Перевірено профілів ${result.checkedProfiles}; персонажів у профілях ${result.checkedCharacters || 0}; персонажів у live roster ${result.checkedRosterCharacters || 0}; Discord-учасників ${result.checkedDiscordMembers || 0}; знайдено офіцерських профілів ${result.officerProfiles}; офіцерських персонажів ${result.officerCharactersTotal || 0}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${roleHint}${ignoredHint}${nicknameSkipped}`;
+    const storedSourceHint = result.checkedStoredRosterCharacters
+      ? `збережений склад ${result.checkedStoredRosterCharacters || 0}, офіцерських у складі ${result.checkedStoredRosterOfficerCharacters || 0}`
+      : `fallback з профілів, офіцерських персонажів ${result.checkedStoredProfileOfficerCharacters || 0}`;
+    const summary = `Перевірено профілів ${result.checkedProfiles}; персонажів у профілях ${result.checkedCharacters || 0}; джерело статусів: ${storedSourceHint}; Discord-учасників ${result.checkedDiscordMembers || 0}; знайдено офіцерських профілів ${result.officerProfiles}; офіцерських персонажів ${result.officerCharactersTotal || 0}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${roleHint}${ignoredHint}${nicknameSkipped}`;
     const hasWarnings = Boolean(result.failed || result.skippedMissingNickname || result.skippedInvalidNickname);
 
-    await auditDiscordAdmin("discord.member.roles.sync_bnet_officers", guard.session, {
+    await auditDiscordAdmin("discord.member.roles.sync_stored_officers", guard.session, {
       status: hasWarnings ? "warning" : "success",
       summary,
       checkedProfiles: result.checkedProfiles,
@@ -34,6 +37,12 @@ export async function POST(request: NextRequest) {
       checkedCharacters: result.checkedCharacters,
       checkedDiscordMembers: result.checkedDiscordMembers,
       checkedRosterCharacters: result.checkedRosterCharacters,
+      checkedStoredRosterCharacters: result.checkedStoredRosterCharacters,
+      checkedStoredRosterOfficerCharacters: result.checkedStoredRosterOfficerCharacters,
+      checkedStoredProfileOfficerCharacters: result.checkedStoredProfileOfficerCharacters,
+      matchedStoredOfficerCharacterKeys: result.matchedStoredOfficerCharacterKeys,
+      storedRosterSource: result.storedRosterSource,
+      storedRosterError: result.storedRosterError,
       checkedBattleNetRegions: result.checkedBattleNetRegions,
       officerCharactersTotal: result.officerCharactersTotal,
       matchMode: result.matchMode,

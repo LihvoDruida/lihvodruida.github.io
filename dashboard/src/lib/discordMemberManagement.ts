@@ -16,9 +16,9 @@ import {
   type DiscordGuildMemberSnapshot,
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
-import { fetchBattleNetGuildRankMap, getEnabledBattleNetRegions, type BattleNetGuildRankInfo } from "@/lib/battlenet";
+import { loadStoredGuildRosterData, type GuildRosterMember } from "@/lib/guildRoster";
 import { listAllDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
-import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
+import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 
 function snowflake(value: unknown) {
   const text = String(value || "").trim();
@@ -674,16 +674,58 @@ function profileDiscordId(profile: DashboardProfile) {
   return direct || "";
 }
 
-function profileCharacterRankLookupKeys(character: ProfileCharacter) {
-  const keys = new Set<string>();
-  const storedKey = String(character.key || "").trim().toLocaleLowerCase("uk");
-  if (storedKey) keys.add(storedKey);
+type StoredGuildRankInfo = {
+  key: string;
+  region?: string | null;
+  characterName?: string | null;
+  realmSlug?: string | null;
+  realmName?: string | null;
+  rank?: number | null;
+  status: "guild_master" | "officer" | "member" | null;
+  label?: string | null;
+  source: "stored_guild_roster" | "stored_profile_character";
+};
 
-  const region = character.region || "eu";
-  const realms = [character.realmSlug, character.realmName]
+function isStoredOfficerStatus(value: unknown) {
+  return value === "guild_master" || value === "officer";
+}
+
+function guildRankPriority(rankInfo: StoredGuildRankInfo | null) {
+  if (rankInfo?.status === "guild_master") return 0;
+  if (rankInfo?.status === "officer") return 1;
+  if (rankInfo?.status === "member") return 2;
+  return 99;
+}
+
+type OfficerCharacterMatch = {
+  character: ProfileCharacter;
+  rankInfo: StoredGuildRankInfo;
+  matchedKey: string;
+};
+
+function addCharacterLookupKeys(keys: Set<string>, input: {
+  key?: unknown;
+  region?: unknown;
+  realmSlug?: unknown;
+  realmName?: unknown;
+  name?: unknown;
+  normalizedName?: unknown;
+}) {
+  const normalizedStoredKey = normalizeCharacterKey(input.key);
+  if (normalizedStoredKey) keys.add(normalizedStoredKey);
+
+  const rawStoredKey = String(input.key || "").normalize("NFC").trim().toLocaleLowerCase("uk");
+  const rawParts = rawStoredKey.split(":").filter(Boolean);
+  if (rawParts.length >= 3) {
+    const keyFromFirstThreeParts = normalizeCharacterKey(rawParts.slice(0, 3).join(":"));
+    if (keyFromFirstThreeParts) keys.add(keyFromFirstThreeParts);
+  }
+
+  const region = input.region || "eu";
+  const realms = [input.realmSlug, input.realmName]
     .map((value) => normalizeBattleNetRealmSlug(value))
     .filter(Boolean);
-  const names = [character.normalizedName, character.name]
+  const names = [input.normalizedName, input.name]
     .map((value) => normalizeBattleNetNameSlug(value))
     .filter(Boolean);
 
@@ -693,38 +735,109 @@ function profileCharacterRankLookupKeys(character: ProfileCharacter) {
       if (key) keys.add(key);
     }
   }
+}
 
+function profileCharacterRankLookupKeys(character: ProfileCharacter) {
+  const keys = new Set<string>();
+  addCharacterLookupKeys(keys, character);
   return Array.from(keys);
 }
 
-function profileCharacterLiveRankInfo(character: ProfileCharacter, rankMap: Map<string, BattleNetGuildRankInfo>) {
-  for (const key of profileCharacterRankLookupKeys(character)) {
-    const rankInfo = rankMap.get(key);
-    if (rankInfo) return rankInfo;
+function rosterMemberRankLookupKeys(member: GuildRosterMember) {
+  const keys = new Set<string>();
+  addCharacterLookupKeys(keys, {
+    key: member.key,
+    region: member.region,
+    realmSlug: member.realmSlug,
+    realmName: member.realmName,
+    name: member.name,
+    normalizedName: member.name,
+  });
+  return Array.from(keys);
+}
+
+function characterStoredRankInfo(character: ProfileCharacter): StoredGuildRankInfo | null {
+  if (!isStoredOfficerStatus(character.guildStatus)) return null;
+  const keys = profileCharacterRankLookupKeys(character);
+  const key = keys[0] || String(character.key || "").normalize("NFC").trim().toLocaleLowerCase("uk");
+  if (!key) return null;
+
+  return {
+    key,
+    region: character.region || "eu",
+    realmSlug: character.realmSlug || null,
+    realmName: character.realmName || null,
+    characterName: character.name || null,
+    rank: Number.isFinite(Number(character.guildRank)) ? Number(character.guildRank) : null,
+    status: character.guildStatus,
+    label: character.guildStatusLabel || (character.guildStatus === "guild_master" ? "Глава" : "Офіцер"),
+    source: "stored_profile_character",
+  };
+}
+
+function buildStoredGuildRankMap(params: { profiles: DashboardProfile[]; rosterMembers: GuildRosterMember[] }) {
+  const rankMap = new Map<string, StoredGuildRankInfo>();
+  const sourceCounts = { storedRosterCharacters: 0, storedRosterOfficerCharacters: 0, storedProfileOfficerCharacters: 0 };
+
+  const setRankInfo = (key: string, rankInfo: StoredGuildRankInfo) => {
+    const previous = rankMap.get(key);
+    if (!previous || guildRankPriority(rankInfo) < guildRankPriority(previous)) {
+      rankMap.set(key, rankInfo);
+    }
+  };
+
+  const storedRosterOfficerMembers = params.rosterMembers.filter((member) => isStoredOfficerStatus(member.guildStatus));
+  sourceCounts.storedRosterCharacters = params.rosterMembers.length;
+  sourceCounts.storedRosterOfficerCharacters = storedRosterOfficerMembers.length;
+
+  for (const member of storedRosterOfficerMembers) {
+    const keys = rosterMemberRankLookupKeys(member);
+    const primaryKey = keys[0] || String(member.key || "").normalize("NFC").trim().toLocaleLowerCase("uk");
+    if (!primaryKey) continue;
+
+    const rankInfo: StoredGuildRankInfo = {
+      key: primaryKey,
+      region: member.region || "eu",
+      realmSlug: member.realmSlug || null,
+      realmName: member.realmName || null,
+      characterName: member.name || null,
+      rank: Number.isFinite(Number(member.rank)) ? Number(member.rank) : null,
+      status: member.guildStatus,
+      label: member.guildStatusLabel || (member.guildStatus === "guild_master" ? "Глава" : "Офіцер"),
+      source: "stored_guild_roster",
+    };
+
+    for (const key of keys.length ? keys : [primaryKey]) {
+      setRankInfo(key, rankInfo);
+    }
   }
-  return null;
+
+  // Fallback for cases where the guild roster cache has not been written yet,
+  // but profile characters already contain trusted guildStatus/guildStatusLabel
+  // from the site sync. This stays stored-only: no Battle.net request is made here.
+  if (!rankMap.size) {
+    for (const profile of params.profiles) {
+      for (const character of profile.characters) {
+        const rankInfo = characterStoredRankInfo(character);
+        if (!rankInfo) continue;
+        sourceCounts.storedProfileOfficerCharacters += 1;
+        for (const key of profileCharacterRankLookupKeys(character)) {
+          setRankInfo(key, rankInfo);
+        }
+      }
+    }
+  }
+
+  return { rankMap, ...sourceCounts };
 }
 
-function guildRankPriority(rankInfo: BattleNetGuildRankInfo | null) {
-  if (rankInfo?.status === "guild_master") return 0;
-  if (rankInfo?.status === "officer") return 1;
-  if (rankInfo?.status === "member") return 2;
-  return 99;
-}
-
-type OfficerCharacterMatch = {
-  character: ProfileCharacter;
-  rankInfo: BattleNetGuildRankInfo;
-  matchedKey: string;
-};
-
-function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, BattleNetGuildRankInfo>): OfficerCharacterMatch[] {
+function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, StoredGuildRankInfo>): OfficerCharacterMatch[] {
   const matches: OfficerCharacterMatch[] = [];
 
   for (const character of profile.characters) {
     for (const key of profileCharacterRankLookupKeys(character)) {
       const rankInfo = rankMap.get(key);
-      if (!rankInfo || (rankInfo.status !== "guild_master" && rankInfo.status !== "officer")) continue;
+      if (!rankInfo || !isStoredOfficerStatus(rankInfo.status)) continue;
       matches.push({ character, rankInfo, matchedKey: key });
       break;
     }
@@ -736,24 +849,8 @@ function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, 
 function formatOfficerCharacter(match: OfficerCharacterMatch) {
   const label = match.rankInfo.label || (match.rankInfo.status === "guild_master" ? "Глава" : match.rankInfo.status === "officer" ? "Офіцер" : "");
   const rosterName = match.rankInfo.characterName && match.rankInfo.characterName !== match.character.name ? ` → ${match.rankInfo.characterName}` : "";
-  return `${match.character.name}${rosterName}${label ? ` (${label})` : ""}`;
-}
-
-async function fetchEnabledBattleNetGuildRankMap() {
-  const regions = getEnabledBattleNetRegions();
-  const maps = await Promise.all(regions.map(async (region) => ({
-    region,
-    ranks: await fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>()),
-  })));
-
-  const merged = new Map<string, BattleNetGuildRankInfo>();
-  for (const item of maps) {
-    for (const [key, rankInfo] of item.ranks) {
-      merged.set(key, { ...rankInfo, region: rankInfo.region || item.region, key: rankInfo.key || key });
-    }
-  }
-
-  return { regions, rankMap: merged };
+  const source = match.rankInfo.source === "stored_guild_roster" ? "склад" : "профіль";
+  return `${match.character.name}${rosterName}${label ? ` (${label})` : ""} • ${source}`;
 }
 
 export async function syncDiscordOfficerRolesFromProfiles(input: {
@@ -769,16 +866,17 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
   const parsedLimit = Number(input.limit);
   const profileLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(50_000, Math.floor(parsedLimit)) : undefined;
 
-  const [profiles, roster, policy, discordMembers] = await Promise.all([
+  const [profiles, storedRoster, policy, discordMembers] = await Promise.all([
     listAllDashboardProfilesForDiscordSync(profileLimit),
-    fetchEnabledBattleNetGuildRankMap(),
+    loadStoredGuildRosterData(),
     getGuildNicknamePolicy(),
     fetchDiscordGuildMembers(0),
   ]);
-  const rankMap = roster.rankMap;
+  const storedRankMap = buildStoredGuildRankMap({ profiles, rosterMembers: storedRoster.members });
+  const rankMap = storedRankMap.rankMap;
 
   if (!rankMap.size) {
-    throw new Error("Battle.net roster не повернув жодного персонажа гільдії. Офіцерські ролі не змінено, щоб не видати їх не тим учасникам.");
+    throw new Error("У збережених даних сайту немає персонажів зі статусом guildStatus=officer або guildStatus=guild_master. Офіцерські ролі не змінено.");
   }
 
   const discordMemberMap = new Map(discordMembers.map((member) => [member.userId, member]));
@@ -835,7 +933,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
           userId: candidate.discordId,
           addRoleIds: manageableRoleIds,
           before: snapshot,
-          reason: input.reason || "Mistblossom Battle.net officer sync",
+          reason: input.reason || "Mistblossom stored guild officer sync",
           actionLabel: "Синхронізація офіцерської ролі",
         });
       } catch (error) {
@@ -879,8 +977,14 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
     checkedProfiles: profiles.length,
     checkedCharacters,
     checkedDiscordMembers: discordMembers.length,
-    checkedRosterCharacters: rankMap.size,
-    checkedBattleNetRegions: roster.regions,
+    checkedRosterCharacters: storedRankMap.storedRosterCharacters,
+    checkedStoredRosterCharacters: storedRankMap.storedRosterCharacters,
+    checkedStoredRosterOfficerCharacters: storedRankMap.storedRosterOfficerCharacters,
+    checkedStoredProfileOfficerCharacters: storedRankMap.storedProfileOfficerCharacters,
+    matchedStoredOfficerCharacterKeys: rankMap.size,
+    storedRosterSource: storedRoster.source,
+    storedRosterError: storedRoster.error || null,
+    checkedBattleNetRegions: [],
     officerProfiles: candidates.length,
     officerCharactersTotal,
     changed: changedItems.length,
@@ -899,7 +1003,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
     ignoredLowerRoleIds: officerRole.ignoredLowerRoleIds,
     nicknameTemplate: policy.template,
     checkedField: "server_nick",
-    matchMode: "exact_character_name_realm_from_live_battlenet_roster",
+    matchMode: "stored_site_profile_characters_x_stored_guild_roster_by_character_key",
     concurrency: meta.concurrency,
     durationMs: meta.durationMs,
     changedItems: changedItems.slice(0, 200),

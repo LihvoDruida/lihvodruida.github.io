@@ -535,6 +535,19 @@ function publicFromCache(cache: CachedRoster): GuildRosterLoadResult {
   };
 }
 
+
+export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult> {
+  const cached = await readCachedRoster().catch(() => null);
+  if (cached) return publicFromCache(cached);
+
+  return {
+    members: [],
+    stats: fallbackStats(),
+    source: "stored-cache-missing",
+    error: "Збережений склад гільдії ще не знайдено в кеші сайту.",
+  };
+}
+
 export async function loadGuildRosterData(options: GuildRosterLoadOptions = {}): Promise<GuildRosterLoadResult> {
   const cached = await readCachedRoster().catch(() => null);
   if (!options.forceRefresh && isFresh(cached)) {
