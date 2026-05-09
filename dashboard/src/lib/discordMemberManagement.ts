@@ -13,6 +13,7 @@ import {
   replaceGuildMemberRoles,
   updateGuildMemberNickname,
   type DiscordGuildMemberModerationItem,
+  type DiscordGuildMemberSnapshot,
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
 import { fetchBattleNetGuildRankMap, getEnabledBattleNetRegions, type BattleNetGuildRankInfo } from "@/lib/battlenet";
@@ -185,7 +186,7 @@ async function applyDiscordRoleDelta(params: {
   removeRoleIds?: string[];
   reason?: string;
   actionLabel?: string;
-  before?: { roleIds: string[]; displayName?: string | null } | null;
+  before?: DiscordGuildMemberSnapshot | null;
 }) {
   const before = params.before || await memberSnapshot(params.userId);
   if (!before) throw new Error("Discord-учасника не знайдено на сервері або бот не може його прочитати.");
