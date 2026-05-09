@@ -403,7 +403,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
   const skipped = items.filter((item) => item.signup.status === "skipped");
 
   return (
-    <article className="panel profile-card profile-card--raids">
+    <article id="profile-raids" className="panel profile-card profile-card--raids">
       <div className="profile-card-head profile-card-head--inline">
         <div>
           <span className="eyebrow">Рейди</span>
@@ -622,49 +622,108 @@ export default async function ProfilePage({
       } satisfies ProfileRoleChip)
     : null;
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
+  const serverNicknameLabel = currentServerNickname || "Не встановлено";
+  const accountStatusLabel = showAccessDetails ? dashboardRoleLabel(effectiveProfileRole) : guildStatus;
+  const profileUpdatedLabel = formatCompactDate(profile.battlenet?.lastSyncAt || profile.updatedAt || profile.lastLoginAt || mainCharacter?.lastSeenAt);
 
   return (
     <main className="container">
-      <section className="dashboard-shell content-shell profile-shell" aria-label="Персональна сторінка панелі Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell profile-shell profile-account-page" aria-label="Персональна сторінка панелі Mistblossom Vanguard">
         <DashboardIdentity user={viewer} activeSection="profile" />
-        <header className="hero panel dashboard-hero profile-hero">
-          <div className="hero-copy dashboard-hero__copy profile-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Профіль</div>
-            <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
-            <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">{showAccessDetails ? "Профіль, доступ, ролі Discord і персонажі Battle.net." : canViewPrivateProfileBlocks ? "Ім’я Discord, мейн-персонаж, роль для рейдів і мої записи." : "Публічна картка учасника та привʼязані персонажі гільдії."}</p>
-            <div className="profile-hero-strip" aria-label="Короткий стан профілю">
-              {showAccessDetails ? (
-                <>
-                  <span><strong>{guildStatus}</strong><small>Статус</small></span>
-                  <span><strong>{enabledCount}/{visibleCapabilities.length}</strong><small>Можливості</small></span>
-                  <span><strong>{savedCharacterCount}</strong><small>У профілі</small></span>
-                  <span><strong>{statValue(eligibleGuildCharacters)}</strong><small>Гільдійні</small></span>
-                  <span><strong>{statValue(eligibleOtherCharacters)}</strong><small>Інші</small></span>
-                  <span><strong>{availableCandidates.length}</strong><small>Доступно</small></span>
-                  <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span>
-                </>
+        <div className="profile-account-layout">
+          <aside className="panel profile-account-sidebar" aria-label="Коротка навігація профілю">
+            <div className="profile-account-sidebar__identity">
+              {profile.avatarUrl ? (
+                <img
+                  className="profile-account-sidebar__avatar"
+                  src={profile.avatarUrl}
+                  alt=""
+                  width={84}
+                  height={84}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
               ) : (
-                <>
-                  <span><strong>{guildStatus}</strong><small>Статус</small></span>
-                  <span><strong>{savedCharacterCount}</strong><small>Персонажі</small></span>
-                  {canViewPrivateProfileBlocks ? <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span> : null}
-                  {canViewPrivateProfileBlocks ? <span><strong>{mainCharacter?.name || "—"}</strong><small>Мейн</small></span> : null}
-                  {canViewPrivateProfileBlocks ? <span><strong>{wowRoleLabel(selectedRaidRole)}</strong><small>Роль у рейді</small></span> : null}
-                  <span><strong>{formatCompactDate(profile.battlenet?.lastSyncAt || mainCharacter?.lastSeenAt)}</strong><small>Оновлено</small></span>
-                </>
+                <span className="profile-account-sidebar__avatar profile-account-sidebar__avatar--fallback" aria-hidden="true">
+                  {(publicNamePreview || profile.displayName || "A").charAt(0)}
+                </span>
               )}
+              <strong>{publicNamePreview}</strong>
+              <span>{accountStatusLabel}</span>
+              <div className="profile-account-sidebar__pills" aria-label="Стан профілю">
+                <span>☘ {profileGuildCharacters.length} гільд.</span>
+                <span>⚔ {wowRoleLabel(selectedRaidRole)}</span>
+              </div>
             </div>
-            <div className="hero-secure-note content-hero-actions">
-              <span className="hero-lock" aria-hidden="true">✦</span>
-              <span>{showAccessDetails ? siteStatusDescription(effectiveProfileRole) : canViewPrivateProfileBlocks ? "Особиста панель: профіль, персонажі, рейди та правила." : "Публічний перегляд без рейдових записів, приватних ролей і технічних даних."}</span>
-            </div>
+            <nav className="profile-account-sidebar__nav" aria-label="Розділи профілю">
+              <a href="#profile-overview" aria-current="page"><span aria-hidden="true">✦</span> Огляд</a>
+              <a href="#profile-settings"><span aria-hidden="true">👤</span> Профіль</a>
+              <a href="#profile-characters"><span aria-hidden="true">⚔</span> Персонажі</a>
+              {canViewPrivateProfileBlocks ? <a href="#profile-raids"><span aria-hidden="true">◆</span> Рейди</a> : null}
+              {showAccessDetails ? <a href="#profile-discord-access"><span aria-hidden="true">🛡</span> Доступ</a> : null}
+            </nav>
+          </aside>
+
+          <div className="profile-account-main">
+            <header className="profile-account-header" id="profile-overview">
+              <div>
+                <span className="eyebrow">Mistblossom Vanguard • Профіль</span>
+                <h1>{isOwnProfile ? "Огляд акаунта" : "Огляд профілю"}</h1>
+                <p>{showAccessDetails ? "Профіль, Discord-доступ і персонажі Battle.net в одному чистому вигляді." : canViewPrivateProfileBlocks ? "Ім’я Discord, серверний нік, мейн, рейдова роль і привʼязані персонажі." : "Публічна картка учасника та персонажі гільдії."}</p>
+              </div>
+              <span className="profile-account-header__badge">{guildStatus}</span>
+            </header>
+
+            <section className="profile-account-overview" aria-label="Короткий стан профілю">
+              <div className="profile-account-overview-card profile-account-overview-card--primary">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">👤</span>
+                <span>
+                  <small>Акаунт</small>
+                  <strong>{publicNamePreview}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">#</span>
+                <span>
+                  <small>Серверний нік</small>
+                  <strong>{serverNicknameLabel}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card profile-account-overview-card--success">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">☘</span>
+                <span>
+                  <small>Персонажі</small>
+                  <strong>{savedCharacterCount}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">⚔</span>
+                <span>
+                  <small>Мейн</small>
+                  <strong>{mainCharacter?.name || "—"}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">✦</span>
+                <span>
+                  <small>Роль у рейді</small>
+                  <strong>{wowRoleLabel(selectedRaidRole)}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">↻</span>
+                <span>
+                  <small>Оновлено</small>
+                  <strong>{profileUpdatedLabel}</strong>
+                </span>
+              </div>
+            </section>
+
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
-          </div>
-        </header>
-      <section className="profile-grid" aria-label="Дані доступу">
-        <article className="panel profile-card profile-card--identity">
+
+            <section className="profile-grid" aria-label="Дані доступу">
+        <article id="profile-settings" className="panel profile-card profile-card--identity">
           <div className="profile-card-head">
             <span className="eyebrow">Профіль</span>
             <h2>{showAccessDetails ? "Дані доступу" : "Імʼя та Discord"}</h2>
@@ -738,7 +797,7 @@ export default async function ProfilePage({
           ) : null}
         </article>
 
-        {showAccessDetails ? <article className="panel profile-card profile-card--roles">
+        {showAccessDetails ? <article id="profile-discord-access" className="panel profile-card profile-card--roles">
           <div className="profile-card-head">
             <span className="eyebrow">Discord</span>
             <h2>Роль доступу</h2>
@@ -771,7 +830,7 @@ export default async function ProfilePage({
           {roleLoadError ? <small className="profile-warning">Назви Discord-ролей тимчасово недоступні.</small> : null}
         </article> : null}
 
-        <article className="panel profile-card profile-card--characters">
+        <article id="profile-characters" className="panel profile-card profile-card--characters">
           <div className="profile-card-head profile-card-head--inline">
             <div>
               <span className="eyebrow">Battle.net</span>
@@ -877,7 +936,7 @@ export default async function ProfilePage({
 
         {canViewPrivateProfileBlocks ? <ProfileRaidSignups items={raidSignups} /> : null}
 
-        {showAccessDetails ? <article className="panel profile-card profile-card--capabilities">
+        {showAccessDetails ? <article id="profile-capabilities" className="panel profile-card profile-card--capabilities">
           <div className="profile-card-head profile-card-head--inline">
             <div>
               <span className="eyebrow">Можливості</span>
@@ -897,7 +956,9 @@ export default async function ProfilePage({
             ))}
           </ul>
         </article> : null}
-      </section>
+            </section>
+          </div>
+        </div>
       </section>
     </main>
   );
