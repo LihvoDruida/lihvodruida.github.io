@@ -187,6 +187,19 @@ export default async function AdminDiscordPage() {
             <button className="btn danger" type="submit" disabled={!hasManageableRoles} data-confirm-message="Зняти вибрані ролі з цього учасника?">Зняти вибрані ролі</button>
           </form>
 
+          <form className="panel discord-management-card" action="/api/admin/discord/officers/sync" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+            <div className="profile-card-head"><span className="eyebrow">Battle.net</span><h2>Видати роль офіцерам гільдії</h2></div>
+            <p className="profile-card-lead">Перевіряє профілі сайту, шукає гільдійних персонажів зі статусом <strong>Глава</strong> або <strong>Офіцер</strong> у Battle.net roster, знаходить привʼязаний Discord-акаунт і видає вибрану Discord-роль, якщо людина є учасником сервера.</p>
+            <input type="hidden" name="limit" value="1000" />
+            <RoleCheckboxes roles={roles} fieldName="officerRoleIds" emptyText="Немає доступних ролей для видачі офіцерам. Перевір роль бота та право “Керувати ролями”." />
+            <div className="discord-officer-sync-summary" aria-label="Що перевіряється">
+              <span><strong>Battle.net</strong><small>Ранг 0 = глава, ранг 1 = офіцер</small></span>
+              <span><strong>Профілі</strong><small>Тільки акаунти з Discord ID</small></span>
+              <span><strong>Discord</strong><small>Видає роль лише учасникам сервера</small></span>
+            </div>
+            <button className="btn primary" type="submit" disabled={!hasManageableRoles} data-confirm-message="Видати вибрану Discord-роль усім профілям, де є гільдійний персонаж зі статусом Глава або Офіцер?">Синхронізувати офіцерську роль</button>
+          </form>
+
           <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/nicknames/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Ролі за неправильний серверний нік</h2></div>
             <p className="profile-card-lead">Перевіряє саме серверні ніки Discord (<code>member.nick</code>) за глобальним шаблоном. Якщо серверний нік не встановлено або не відповідає шаблону — учасник потрапляє в невідповідності. Кнопка перевірки лише показує результат, а червона кнопка реально знімає вибрані ролі та може видати окремо вибрані ролі тим самим учасникам сервера. Для списку учасників бот має мати доступ до Guild Members.</p>

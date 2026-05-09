@@ -660,6 +660,7 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                   <div className="guild-member-side">
                     <div className="guild-member-tags">
                       <span className={`guild-role-tag guild-role-tag--${member.role}`}>{roleShort(member.role)}</span>
+                      {member.guildStatusLabel ? <span className={`guild-status-tag guild-status-tag--${member.guildStatus || "member"}`}>{member.guildStatusLabel}</span> : null}
                       <span className={`guild-faction-tag guild-faction-tag--${member.faction.toLowerCase()}`}>{member.faction}</span>
                     </div>
                     <SegmentBadges member={member} activeSegment={segment} />

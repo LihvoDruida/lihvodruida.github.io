@@ -25335,3 +25335,113 @@ button[aria-busy="true"]::after,
     grid-template-columns: 1fr;
   }
 }
+
+/* vNext: button action states keep text stable; only the left icon indicates progress. */
+:where(.btn, .action-button, button[type="submit"], .raid-action).btn-working,
+:where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"] {
+  position: relative;
+  cursor: progress;
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action).btn-working::before,
+:where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"]::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: dashboard-spin 720ms linear infinite;
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action).btn-waiting::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.54em;
+  height: 0.54em;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.guild-status-tag,
+.profile-character-guild-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 4px 9px;
+  border: 1px solid rgba(224, 190, 116, 0.28);
+  background: rgba(224, 190, 116, 0.09);
+  color: #f4deb0;
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.guild-status-tag--guild_master,
+.profile-character-guild-status--guild_master {
+  border-color: rgba(247, 201, 92, 0.48);
+  background: rgba(247, 201, 92, 0.15);
+  color: #ffe6a6;
+}
+
+.guild-status-tag--officer,
+.profile-character-guild-status--officer {
+  border-color: rgba(108, 164, 255, 0.45);
+  background: rgba(108, 164, 255, 0.13);
+  color: #cfe0ff;
+}
+
+.guild-status-tag--member,
+.profile-character-guild-status--member {
+  border-color: rgba(129, 209, 162, 0.35);
+  background: rgba(129, 209, 162, 0.1);
+  color: #ccefd5;
+}
+
+.discord-officer-sync-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.discord-officer-sync-summary span {
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.discord-officer-sync-summary strong {
+  color: #f3e4c4;
+  font-size: 1rem;
+}
+
+.discord-officer-sync-summary small {
+  color: rgba(246,239,226,.58);
+  font-size: .72rem;
+}
+
+@media (max-width: 760px) {
+  .discord-officer-sync-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* vNext override: no right-side loading indicators anywhere; progress is left-only. */
+:where(button[aria-busy="true"], .btn-working)::after {
+  content: none !important;
+  display: none !important;
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action).btn-working,
+:where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"] {
+  font-size: inherit;
+}

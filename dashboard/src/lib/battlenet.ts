@@ -29,6 +29,14 @@ export type BattleNetAccountInfo = {
   accountIdHash: string | null;
 };
 
+export type BattleNetGuildCharacterStatus = "guild_master" | "officer" | "member";
+
+export type BattleNetGuildRankInfo = {
+  rank: number | null;
+  status: BattleNetGuildCharacterStatus | null;
+  label: string | null;
+};
+
 export type BattleNetCharacterCandidate = {
   key: string;
   source: "battlenet";
@@ -47,6 +55,9 @@ export type BattleNetCharacterCandidate = {
   genderName: string | null;
   guildName: string | null;
   guildRealmSlug: string | null;
+  guildRank: number | null;
+  guildStatus: BattleNetGuildCharacterStatus | null;
+  guildStatusLabel: string | null;
   profileUrl: string;
   avatarUrl: string | null;
   renderUrl: string | null;
@@ -220,6 +231,12 @@ type BattleNetApplicationToken = {
 };
 
 const battleNetApplicationTokenCache = new Map<BattleNetRegion, BattleNetApplicationToken>();
+const battleNetGuildRankMapCache = new Map<string, { checkedAt: number; ranks: Map<string, BattleNetGuildRankInfo> }>();
+
+function guildRankCacheTtlMs() {
+  const value = Number(process.env.BATTLENET_GUILD_RANK_CACHE_SECONDS || 600);
+  return Math.max(60, Math.min(3600, Number.isFinite(value) ? Math.floor(value) : 600)) * 1000;
+}
 
 async function fetchBattleNetApplicationToken(regionInput?: string | null) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
@@ -334,6 +351,64 @@ function normalizeGuildName(value: unknown) {
   return cleanText(value, 120).normalize("NFC").toLocaleLowerCase();
 }
 
+function guildSlug(value: unknown) {
+  return cleanText(value, 140)
+    .normalize("NFC")
+    .toLocaleLowerCase()
+    .replace(/[ʼ’']/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function guildRosterConfig(regionInput?: string | null) {
+  const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
+  const guildName = cleanText(process.env.GUILD_ROSTER_NAME || process.env.WOW_GUILD_NAME || process.env.BATTLENET_ALLOWED_GUILD_NAME || DEFAULT_GUILD_NAME, 140) || DEFAULT_GUILD_NAME;
+  const realmSlug = normalizeBattleNetRealmSlug(process.env.GUILD_ROSTER_REALM || process.env.WOW_REALM || process.env.WOW_GUILD_REALM || process.env.BATTLENET_ALLOWED_GUILD_REALM || "terokkar") || "terokkar";
+  return { region, guildName, guildSlug: guildSlug(guildName) || guildSlug(DEFAULT_GUILD_NAME), realmSlug };
+}
+
+export function guildStatusFromRank(rankInput: unknown): BattleNetGuildRankInfo {
+  const rank = Number(rankInput);
+  const normalizedRank = Number.isFinite(rank) && rank >= 0 ? Math.floor(rank) : null;
+  if (normalizedRank === null) return { rank: null, status: null, label: null };
+  if (normalizedRank === 0) return { rank: normalizedRank, status: "guild_master", label: "Глава" };
+  if (normalizedRank === 1) return { rank: normalizedRank, status: "officer", label: "Офіцер" };
+  return { rank: normalizedRank, status: "member", label: "Учасник" };
+}
+
+function guildRankMapKey(region: BattleNetRegion | string, realmSlug: unknown, name: unknown) {
+  const key = buildBattleNetCharacterKey(region, normalizeBattleNetRealmSlug(realmSlug), normalizeBattleNetNameSlug(name));
+  return key || "";
+}
+
+export async function fetchBattleNetGuildRankMap(regionInput?: string | null): Promise<Map<string, BattleNetGuildRankInfo>> {
+  const config = guildRosterConfig(regionInput);
+  const cacheKey = `${config.region}:${config.realmSlug}:${config.guildSlug}`;
+  const cached = battleNetGuildRankMapCache.get(cacheKey);
+  if (cached && Date.now() - cached.checkedAt < guildRankCacheTtlMs()) return new Map(cached.ranks);
+
+  const accessToken = await fetchBattleNetApplicationToken(config.region);
+  const roster = await bnetFetch(
+    accessToken,
+    `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
+    { namespace: `dynamic-${config.region}` },
+    config.region,
+  );
+  const members = Array.isArray(roster?.members) ? roster.members : [];
+  const map = new Map<string, BattleNetGuildRankInfo>();
+  for (const entry of members) {
+    const character = entry?.character || {};
+    const name = cleanText(character?.name, 80);
+    const realmSlug = normalizeBattleNetRealmSlug(character?.realm?.slug || character?.realm?.name || config.realmSlug);
+    const key = guildRankMapKey(config.region, realmSlug, name);
+    if (!key) continue;
+    map.set(key, guildStatusFromRank(entry?.rank));
+  }
+  battleNetGuildRankMapCache.set(cacheKey, { checkedAt: Date.now(), ranks: new Map(map) });
+  return map;
+}
+
 function isMistblossomGuild(characterProfile: any) {
   const configuredGuildName = process.env.WOW_GUILD_NAME || process.env.BATTLENET_ALLOWED_GUILD_NAME || DEFAULT_GUILD_NAME;
   const configuredRealm = cleanText(process.env.WOW_GUILD_REALM || process.env.BATTLENET_ALLOWED_GUILD_REALM || "", 120).toLowerCase();
@@ -388,6 +463,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   const maxCharacters = Math.max(1, Math.min(Number(process.env.BATTLENET_SCAN_MAX_CHARACTERS || 80) || 80, 120));
   const limitedCharacters = allCharacters.slice(0, maxCharacters);
   const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
+  const guildRankMap = await fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>());
 
   const { results: candidates, meta } = await mapConcurrent(limitedCharacters, async (character) => {
     const nameSlug = normalizeBattleNetNameSlug(character.name);
@@ -413,6 +489,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
       const className = pickLocalizedName(details?.character_class || details?.playable_class || character?.playable_class);
       const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
       if (!characterKey) return null;
+      const guildRankInfo = verifiedGuild ? guildRankMap.get(characterKey) || guildStatusFromRank(null) : guildStatusFromRank(null);
 
       return {
         key: characterKey,
@@ -432,6 +509,9 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         genderName: pickLocalizedName(details?.gender || character?.gender),
         guildName,
         guildRealmSlug,
+        guildRank: guildRankInfo.rank,
+        guildStatus: guildRankInfo.status,
+        guildStatusLabel: guildRankInfo.label,
         profileUrl: characterProfileUrl(region, cleanRealmSlug, normalizedName),
         avatarUrl,
         renderUrl,
@@ -472,9 +552,10 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
   if (!realmSlug || !nameSlug) return null;
 
   const accessToken = await fetchBattleNetApplicationToken(region);
-  const [details, media] = await Promise.all([
+  const [details, media, guildRankMap] = await Promise.all([
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region),
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
+    fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>()),
   ]);
 
   const verifiedGuild = isMistblossomGuild(details);
@@ -493,6 +574,7 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
   const className = pickLocalizedName(details?.character_class || details?.playable_class);
   const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
   if (!characterKey) return null;
+  const guildRankInfo = verifiedGuild ? guildRankMap.get(characterKey) || guildStatusFromRank(null) : guildStatusFromRank(null);
 
   return {
     key: characterKey,
@@ -512,6 +594,9 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
     genderName: pickLocalizedName(details?.gender),
     guildName,
     guildRealmSlug,
+    guildRank: guildRankInfo.rank,
+    guildStatus: guildRankInfo.status,
+    guildStatusLabel: guildRankInfo.label,
     profileUrl: characterProfileUrl(region, cleanRealmSlug, normalizedName),
     avatarUrl,
     renderUrl,

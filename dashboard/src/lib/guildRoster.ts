@@ -1,5 +1,5 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, normalizeBattleNetRegion, type BattleNetRegion } from "@/lib/battlenet";
+import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, guildStatusFromRank, normalizeBattleNetRegion, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 
@@ -11,6 +11,8 @@ export type GuildRosterMember = {
   ownerProfileId?: string | null;
   ownerDisplayName?: string | null;
   rank: number | null;
+  guildStatus: BattleNetGuildCharacterStatus | null;
+  guildStatusLabel: string | null;
   name: string;
   realmSlug: string;
   realmName: string;
@@ -350,9 +352,13 @@ function buildMemberFromSources(input: {
   const profileUrl = cleanText(raider?.profile_url) || null;
   const avatarUrl = cleanText(raider?.thumbnail_url || raider?.avatar_url || character.avatarUrl || character.avatar) || null;
 
+  const rankInfo = guildStatusFromRank(input.rosterEntry?.rank);
+
   return {
     key: characterKey(input.region, realmSlug, name, character.id || input.index),
-    rank: Number.isFinite(Number(input.rosterEntry?.rank)) ? Number(input.rosterEntry.rank) : null,
+    rank: rankInfo.rank,
+    guildStatus: rankInfo.status,
+    guildStatusLabel: rankInfo.label,
     name,
     realmSlug,
     realmName,

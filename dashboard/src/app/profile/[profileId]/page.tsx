@@ -200,11 +200,12 @@ function characterAvatarUrl(character?: Pick<ProfileCharacter, "renderUrl" | "av
   return pickWowAvatarImageUrl(character.avatarUrl, character.renderUrl, character.mediaUrl);
 }
 
-function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction" | "guildName">) {
+function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction" | "guildName" | "guildStatusLabel" | "guildRank">) {
   return [
     typeof character.level === "number" ? `Lvl ${character.level}` : null,
     character.raceName || null,
     character.faction || null,
+    character.guildStatusLabel ? `${character.guildStatusLabel}${typeof character.guildRank === "number" ? ` • ранг ${character.guildRank}` : ""}` : null,
     character.guildName || null,
   ].filter(Boolean);
 }
@@ -319,6 +320,7 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
             <p>{realmLabel}</p>
           </div>
           <span className={`profile-character-kind profile-character-kind--${guildBadge.className}`}>{guildBadge.icon} {guildBadge.label}</span>
+          {character.guildStatusLabel ? <span className={`profile-character-guild-status profile-character-guild-status--${character.guildStatus || "member"}`}>{character.guildStatusLabel}</span> : null}
         </div>
 
         <div className="profile-character-meta">
@@ -456,7 +458,7 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
       </span>
       <span className="profile-character-candidate__body">
         <strong>{character.name} <em className="profile-character-candidate__kind">{kindLabel}</em></strong>
-        <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}</small>
+        <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}{character.guildStatusLabel ? ` • ${character.guildStatusLabel}` : ""}</small>
         {extraMeta.length ? <small>{extraMeta.join(" • ")}</small> : null}
       </span>
       <form action="/api/profile/characters/add" method="post">

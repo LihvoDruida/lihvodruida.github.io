@@ -28,6 +28,9 @@ type CandidateCookieTuple = [
   genderName: string | null,
   guildName: string | null,
   guildRealmSlug: string | null,
+  guildRank: number | null,
+  guildStatus: string | null,
+  guildStatusLabel: string | null,
   avatarUrl: string | null,
   renderUrl: string | null,
   lastSeenAt: string | null,
@@ -100,6 +103,9 @@ function compactCandidate(character: BattleNetCharacterCandidate): BattleNetChar
     genderName: character.genderName,
     guildName: character.guildName,
     guildRealmSlug: character.guildRealmSlug,
+    guildRank: Number.isFinite(Number(character.guildRank)) ? Number(character.guildRank) : null,
+    guildStatus: character.guildStatus || null,
+    guildStatusLabel: character.guildStatusLabel || null,
     profileUrl: character.profileUrl,
     avatarUrl: character.avatarUrl,
     renderUrl: character.renderUrl,
@@ -133,6 +139,9 @@ function toCandidateTuple(character: BattleNetCharacterCandidate): CandidateCook
     optionalText(character.genderName),
     optionalText(character.guildName),
     optionalText(character.guildRealmSlug),
+    Number.isFinite(Number(character.guildRank)) ? Number(character.guildRank) : null,
+    optionalText(character.guildStatus),
+    optionalText(character.guildStatusLabel),
     optionalText(character.avatarUrl),
     optionalText(character.renderUrl),
     optionalText(character.lastSeenAt),
@@ -145,6 +154,8 @@ function toCandidateTuple(character: BattleNetCharacterCandidate): CandidateCook
 }
 
 function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion | string): BattleNetCharacterCandidate | null {
+  const raw = tuple as unknown[];
+  const legacy = raw.length <= 20;
   const [
     key,
     name,
@@ -158,15 +169,30 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     genderName,
     guildName,
     guildRealmSlug,
-    avatarUrl,
-    renderUrl,
-    lastSeenAt,
-    itemLevel,
-    activeSpecName,
-    activeSpecId,
-    activeSpecRole,
-    verifiedGuild,
-  ] = tuple;
+    maybeGuildRankOrAvatar,
+    maybeGuildStatusOrRender,
+    maybeGuildStatusLabelOrLastSeen,
+    maybeAvatarOrItemLevel,
+    maybeRenderOrActiveSpecName,
+    maybeLastSeenOrActiveSpecId,
+    maybeItemLevelOrActiveSpecRole,
+    maybeActiveSpecNameOrVerifiedGuild,
+    maybeActiveSpecId,
+    maybeActiveSpecRole,
+    maybeVerifiedGuild,
+  ] = raw;
+
+  const guildRank = legacy ? null : maybeGuildRankOrAvatar;
+  const guildStatus = legacy ? null : maybeGuildStatusOrRender;
+  const guildStatusLabel = legacy ? null : maybeGuildStatusLabelOrLastSeen;
+  const avatarUrl = legacy ? maybeGuildRankOrAvatar : maybeAvatarOrItemLevel;
+  const renderUrl = legacy ? maybeGuildStatusOrRender : maybeRenderOrActiveSpecName;
+  const lastSeenAt = legacy ? maybeGuildStatusLabelOrLastSeen : maybeLastSeenOrActiveSpecId;
+  const itemLevel = legacy ? maybeAvatarOrItemLevel : maybeItemLevelOrActiveSpecRole;
+  const activeSpecName = legacy ? maybeRenderOrActiveSpecName : maybeActiveSpecNameOrVerifiedGuild;
+  const activeSpecId = legacy ? maybeLastSeenOrActiveSpecId : maybeActiveSpecId;
+  const activeSpecRole = legacy ? maybeItemLevelOrActiveSpecRole : maybeActiveSpecRole;
+  const verifiedGuild = legacy ? maybeActiveSpecNameOrVerifiedGuild : maybeVerifiedGuild;
 
   const safeKey = normalizeCharacterKey(key) || buildBattleNetCharacterKey(region, realmSlug, normalizedName || name);
   if (!safeKey || !name || !realmSlug) return null;
@@ -175,10 +201,10 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     key: safeKey,
     source: "battlenet",
     region: String(region || "eu").toLowerCase() as BattleNetRegion,
-    name,
+    name: String(name),
     normalizedName: normalizeBattleNetNameSlug(normalizedName || name),
-    realmSlug,
-    realmName: realmName || realmSlug,
+    realmSlug: String(realmSlug),
+    realmName: String(realmName || realmSlug),
     level: Number.isFinite(Number(level)) ? Number(level) : null,
     faction: emptyToNull(faction),
     className: emptyToNull(className),
@@ -189,6 +215,9 @@ function tupleToCandidate(tuple: CandidateCookieTuple, region: BattleNetRegion |
     genderName: emptyToNull(genderName),
     guildName: emptyToNull(guildName),
     guildRealmSlug: emptyToNull(guildRealmSlug),
+    guildRank: Number.isFinite(Number(guildRank)) ? Number(guildRank) : null,
+    guildStatus: ["guild_master", "officer", "member"].includes(String(guildStatus || "")) ? guildStatus as any : null,
+    guildStatusLabel: emptyToNull(guildStatusLabel),
     profileUrl: "#",
     avatarUrl: emptyToNull(avatarUrl),
     renderUrl: emptyToNull(renderUrl),

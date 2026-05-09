@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
+import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
 import { DEFAULT_NICKNAME_TEMPLATE, renderNicknameFromTemplate } from "@/lib/guildNicknamePolicy";
@@ -11,6 +11,9 @@ import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
+  guildRank?: number | null;
+  guildStatus?: BattleNetGuildCharacterStatus | null;
+  guildStatusLabel?: string | null;
   addedAt?: string | null;
   isMain?: boolean;
 };
@@ -193,6 +196,9 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     genderName: optionalString(item.genderName),
     guildName: optionalString(item.guildName),
     guildRealmSlug: optionalString(item.guildRealmSlug),
+    guildRank: Number.isFinite(Number(item.guildRank)) ? Math.max(0, Math.floor(Number(item.guildRank))) : null,
+    guildStatus: ["guild_master", "officer", "member"].includes(String(item.guildStatus || "")) ? item.guildStatus as BattleNetGuildCharacterStatus : null,
+    guildStatusLabel: optionalString(item.guildStatusLabel),
     profileUrl: optionalString(item.profileUrl) || "#",
     avatarUrl: optionalString(item.avatarUrl),
     renderUrl: optionalString(item.renderUrl),
@@ -516,6 +522,16 @@ export async function listDashboardProfiles(params: {
     const bTime = Date.parse(b.lastLoginAt || b.updatedAt || b.createdAt || "") || 0;
     return bTime - aTime || getProfilePublicName(a).localeCompare(getProfilePublicName(b), "uk");
   });
+}
+
+export async function listDashboardProfilesForDiscordSync(limit = 1000): Promise<DashboardProfile[]> {
+  if (!hasFirebaseProfileConfig()) return [];
+  const safeLimit = Math.max(10, Math.min(1000, Math.floor(Number(limit) || 1000)));
+  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
+  const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
+  return snapshot.docs
+    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile);
 }
 
 export type CharacterProfileLink = {

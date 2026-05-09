@@ -13,6 +13,9 @@ import {
   type DiscordGuildMemberModerationItem,
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
+import { fetchBattleNetGuildRankMap, guildStatusFromRank } from "@/lib/battlenet";
+import { listDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { buildBattleNetCharacterKey } from "@/lib/wowCharacters";
 
 function snowflake(value: unknown) {
   const text = String(value || "").trim();
@@ -331,3 +334,137 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   };
 }
 
+
+
+function profileDiscordId(profile: DashboardProfile) {
+  const direct = snowflake(profile.providerUserId);
+  return direct || "";
+}
+
+function profileCharacterRankLookupKey(character: ProfileCharacter) {
+  return buildBattleNetCharacterKey(character.region || "eu", character.realmSlug || character.realmName, character.normalizedName || character.name);
+}
+
+function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, { rank: number | null; status: string | null; label: string | null }>) {
+  return profile.characters.filter((character) => {
+    if (!character.verifiedGuild) return false;
+    const key = profileCharacterRankLookupKey(character);
+    const rankInfo = (key && rankMap.get(key)) || guildStatusFromRank(character.guildRank);
+    const status = rankInfo.status || character.guildStatus || null;
+    return status === "guild_master" || status === "officer";
+  });
+}
+
+export async function syncDiscordOfficerRolesFromProfiles(input: {
+  roleIds?: unknown;
+  limit?: unknown;
+  reason?: string;
+}) {
+  const guildId = getDiscordGuildId();
+  if (!guildId) throw new Error("Discord-сервер не підключений.");
+
+  const roleIds = cleanRoleIds(input.roleIds);
+  if (!roleIds.length) throw new Error("Вибери Discord-роль, яку потрібно видати офіцерам.");
+  const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
+  const limit = Math.max(10, Math.min(1000, Math.floor(Number(input.limit) || 1000)));
+
+  const [profiles, rankMap] = await Promise.all([
+    listDashboardProfilesForDiscordSync(limit),
+    fetchBattleNetGuildRankMap().catch(() => new Map<string, { rank: number | null; status: string | null; label: string | null }>()),
+  ]);
+
+  const candidates = profiles.map((profile) => {
+    const discordId = profileDiscordId(profile);
+    const officers = guildOfficerCharacters(profile, rankMap);
+    return { profile, discordId, officers };
+  }).filter((item) => item.discordId && item.officers.length > 0);
+
+  const { results, meta } = await mapConcurrentSettled(
+    candidates,
+    async (candidate) => {
+      const snapshot = await memberSnapshot(candidate.discordId);
+      if (!snapshot) {
+        return {
+          profileId: candidate.profile.profileId,
+          userId: candidate.discordId,
+          name: getProfilePublicName(candidate.profile),
+          officerCharacters: candidate.officers.map((character) => character.name),
+          skipped: true,
+          skipReason: "Discord-учасника не знайдено на сервері.",
+          added: [] as string[],
+          alreadyHad: [] as string[],
+          stillMissing: [] as string[],
+        };
+      }
+
+      const addableRoleIds = manageableRoleIds.filter((roleId) => !snapshot.roleIds.includes(roleId));
+      const alreadyHad = manageableRoleIds.filter((roleId) => snapshot.roleIds.includes(roleId));
+
+      if (addableRoleIds.length) {
+        await addGuildMemberRoles({
+          guildId,
+          userId: candidate.discordId,
+          roleIds: addableRoleIds,
+          reason: input.reason || "Mistblossom Battle.net officer sync",
+          concurrency: 1,
+          maxConcurrency: 1,
+        });
+      }
+
+      const after = await memberSnapshot(candidate.discordId);
+      const currentRoleIds = after?.roleIds || [];
+      const stillMissing = addableRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
+      const added = addableRoleIds.filter((roleId) => !stillMissing.includes(roleId));
+
+      if (addableRoleIds.length && stillMissing.length === addableRoleIds.length) {
+        throw new Error(`Discord прийняв запит, але офіцерська роль не зʼявилась: ${stillMissing.join(", ")}. Перевір ієрархію ролей бота.`);
+      }
+
+      return {
+        profileId: candidate.profile.profileId,
+        userId: candidate.discordId,
+        name: after?.displayName || getProfilePublicName(candidate.profile),
+        officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
+        skipped: false,
+        added,
+        alreadyHad,
+        stillMissing,
+      };
+    },
+    { profile: "external-api", concurrency: 1, min: 1, max: 1 },
+  );
+
+  const okItems = results.filter((item) => item.ok);
+  const failedItems = results.filter((item) => !item.ok);
+  const changedItems = okItems.filter((item) => !item.value.skipped && item.value.added.length > 0).map((item) => item.value);
+  const skippedItems = okItems.filter((item) => item.value.skipped).map((item) => item.value);
+  const alreadyHadItems = okItems.filter((item) => !item.value.skipped && item.value.added.length === 0 && item.value.alreadyHad.length > 0).map((item) => item.value);
+  const addedRolesTotal = changedItems.reduce((sum, item) => sum + item.added.length, 0);
+
+  return {
+    checkedProfiles: profiles.length,
+    officerProfiles: candidates.length,
+    changed: changedItems.length,
+    addedRolesTotal,
+    alreadyHad: alreadyHadItems.length,
+    skipped: skippedItems.length,
+    failed: failedItems.length,
+    roleIds: manageableRoleIds,
+    concurrency: meta.concurrency,
+    durationMs: meta.durationMs,
+    changedItems: changedItems.slice(0, 200),
+    changedItemsTotal: changedItems.length,
+    skippedItems: skippedItems.slice(0, 100),
+    skippedItemsTotal: skippedItems.length,
+    alreadyHadItems: alreadyHadItems.slice(0, 100),
+    alreadyHadItemsTotal: alreadyHadItems.length,
+    errors: failedItems.slice(0, 100).map((item) => ({
+      profileId: item.item.profile.profileId,
+      userId: item.item.discordId,
+      name: getProfilePublicName(item.item.profile),
+      officerCharacters: item.item.officers.map((character) => character.name),
+      error: item.error instanceof Error ? item.error.message : String(item.error || "Помилка Discord API"),
+    })),
+    errorsTotal: failedItems.length,
+  };
+}

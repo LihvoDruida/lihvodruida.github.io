@@ -45,6 +45,7 @@ function actionText(action: string) {
   if (action.includes("/api/admin/discord/nickname")) return { label: "Змінюємо...", title: "Змінюємо нік у Discord", message: "Надсилаємо PATCH-запит до Discord і перевіряємо результат." };
   if (action.includes("/api/admin/discord/roles/add")) return { label: "Видаємо...", title: "Видаємо ролі в Discord", message: "Надсилаємо роль учаснику та перевіряємо, що вона зʼявилась." };
   if (action.includes("/api/admin/discord/roles/remove")) return { label: "Знімаємо...", title: "Знімаємо ролі в Discord", message: "Знімаємо вибрані ролі та перевіряємо результат." };
+  if (action.includes("/api/admin/discord/officers/sync")) return { label: "Синхронізуємо...", title: "Синхронізуємо офіцерську роль", message: "Перевіряємо Battle.net статуси персонажів і видаємо вибрану Discord-роль офіцерам гільдії." };
   if (action.includes("/api/admin/discord/nicknames/inspect")) return { label: "Перевіряємо...", title: "Перевіряємо ніки Discord", message: "Звіряємо серверні ніки з глобальним шаблоном." };
   if (action.includes("/api/admin/discord/nicknames/cleanup")) return { label: "Застосовуємо...", title: "Застосовуємо ролі за неправильний серверний нік", message: "Перевіряємо серверні ніки за шаблоном, знімаємо вибрані ролі й видаємо ролі з правого списку." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
@@ -106,15 +107,11 @@ function setWorking(form: HTMLFormElement, buttons: HTMLButtonElement[], submitt
     }
   }
 
+  // Keep button labels stable. The global UI now shows action progress only
+  // with the left loading indicator, so layout, text width and translations do
+  // not jump while a request is running.
   if (submitter) {
-    const shouldPreserveLabel =
-      submitter.dataset.preserveLabel === "true" ||
-      submitter.classList.contains("profile-icon-action") ||
-      submitter.classList.contains("icon-only");
-
-    if (!shouldPreserveLabel) {
-      submitter.textContent = submitter.dataset.loadingLabel || label;
-    }
+    submitter.dataset.loadingLabel = submitter.dataset.loadingLabel || label;
   }
 }
 
