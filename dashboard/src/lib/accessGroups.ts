@@ -2,6 +2,7 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
+import { logDashboardEvent } from "@/lib/security";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import {
   DASHBOARD_PERMISSION_KEYS,
@@ -411,7 +412,7 @@ function normalizeAuditLog(id: string, raw: Record<string, unknown>): AdminAudit
     status: auditStatus(raw.status || details.status),
     summary: auditSummary(String(raw.action || "admin.action"), details),
     details,
-    createdAt: timestampToIso(raw.createdAt),
+    createdAt: timestampToIso(raw.createdAt) || timestampToIso(raw.createdAtIso),
   };
 }
 
@@ -434,9 +435,13 @@ export async function listAdminAuditLogs(limitInput: unknown = 100) {
 }
 
 export async function recordAdminAudit(action: string, viewer: DashboardSession, details: Record<string, unknown> = {}) {
-  if (!hasFirebaseProfileConfig()) return;
+  if (!hasFirebaseProfileConfig()) {
+    logDashboardEvent("warn", "admin.audit.unconfigured", undefined, { action, actorId: viewer.id, status: details.status || "info" });
+    return false;
+  }
+
   const status = auditStatus(details.status);
-  await auditCollectionRef().add({
+  const payload = {
     action,
     actorId: viewer.id,
     actorName: viewer.name || viewer.login || null,
@@ -445,6 +450,21 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     status,
     details: { ...details, status },
     createdAt: FieldValue.serverTimestamp(),
-  }).catch(() => null);
-  void pruneAdminAuditLogs(100);
+    createdAtIso: new Date().toISOString(),
+  };
+
+  try {
+    await auditCollectionRef().add(payload);
+    void pruneAdminAuditLogs(100);
+    logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
+    return true;
+  } catch (error) {
+    logDashboardEvent("error", "admin.audit.write_failed", undefined, {
+      action,
+      actorId: viewer.id,
+      status,
+      error: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return false;
+  }
 }

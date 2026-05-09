@@ -70,6 +70,6 @@ export async function POST(request: NextRequest) {
       data: { result, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.nicknames_cleanup_failed", error, "Масову дію не виконано.", guard.session);
+    return await discordAdminError(request, "admin.discord.nicknames_cleanup_failed", error, "Масову дію не виконано.", guard.session);
   }
 }

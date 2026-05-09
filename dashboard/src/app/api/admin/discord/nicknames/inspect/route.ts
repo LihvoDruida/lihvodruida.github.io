@@ -29,6 +29,6 @@ export async function POST(request: NextRequest) {
       data: { checked: result.checked, checkedField: result.checkedField, mismatchedTotal: result.mismatchedTotal, missingServerNicknameTotal: result.missingServerNicknameTotal || 0, preview: result.mismatched, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.nicknames_inspect_failed", error, "Перевірку ніків не виконано.", guard.session);
+    return await discordAdminError(request, "admin.discord.nicknames_inspect_failed", error, "Перевірку ніків не виконано.", guard.session);
   }
 }

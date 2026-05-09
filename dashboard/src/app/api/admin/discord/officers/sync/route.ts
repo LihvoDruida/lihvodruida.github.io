@@ -62,6 +62,6 @@ export async function POST(request: NextRequest) {
       data: { result, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.officers_sync_failed", error, "Офіцерські ролі не синхронізовано.", guard.session);
+    return await discordAdminError(request, "admin.discord.officers_sync_failed", error, "Офіцерські ролі не синхронізовано.", guard.session);
   }
 }

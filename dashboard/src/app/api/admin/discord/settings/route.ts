@@ -33,6 +33,6 @@ export async function POST(request: NextRequest) {
       data: { policy, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.settings_failed", error, "Налаштування не збережено.", guard.session);
+    return await discordAdminError(request, "admin.discord.settings_failed", error, "Налаштування не збережено.", guard.session);
   }
 }

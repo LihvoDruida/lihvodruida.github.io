@@ -13,9 +13,30 @@ export async function POST(request: NextRequest) {
       roleIds: form.getAll("roleIds"),
       reason: `Mistblossom manual role add by ${guard.session.name || guard.session.id}`,
     });
-    await auditDiscordAdmin("discord.member.roles.add", guard.session, { ...result, status: "success", summary: `${result.displayName}: видано ролей ${result.roleIds.length}.` });
-    return adminDiscordResponse(request, { ok: true, title: "Ролі видано в Discord", message: `${result.displayName}: додано ${result.roleIds.length}.`, data: result });
+    const status = result.changed > 0 ? "success" : "info";
+    const summary = result.changed > 0
+      ? `${result.displayName}: видано ролей ${result.addedRoleIds.length}; уже були ${result.alreadyHadRoleIds.length}.`
+      : `${result.displayName}: вибрані ролі вже були в учасника.`;
+    await auditDiscordAdmin("discord.member.roles.add", guard.session, {
+      ...result,
+      status,
+      summary,
+      changed: result.changed,
+      addedRoles: result.addedRoleIds.length,
+      alreadyHadRoles: result.alreadyHadRoleIds.length,
+      roleIds: result.roleIds,
+      changedItems: result.addedRoleIds.length ? [{ userId: result.userId, name: result.displayName, added: result.addedRoleIds }] : [],
+      changedItemsTotal: result.addedRoleIds.length ? 1 : 0,
+      changedNames: result.addedRoleIds.length ? [result.displayName] : [],
+    });
+    return adminDiscordResponse(request, {
+      ok: true,
+      tone: result.changed > 0 ? "success" : "info",
+      title: result.changed > 0 ? "Ролі видано в Discord" : "Ролі вже були видані",
+      message: summary,
+      data: { ...result, refresh: true },
+    });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.roles_add_failed", error, "Discord не видав ролі.", guard.session);
+    return await discordAdminError(request, "admin.discord.roles_add_failed", error, "Discord не видав ролі.", guard.session);
   }
 }

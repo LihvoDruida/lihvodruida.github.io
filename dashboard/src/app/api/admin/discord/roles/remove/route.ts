@@ -13,9 +13,30 @@ export async function POST(request: NextRequest) {
       roleIds: form.getAll("roleIds"),
       reason: `Mistblossom manual role remove by ${guard.session.name || guard.session.id}`,
     });
-    await auditDiscordAdmin("discord.member.roles.remove", guard.session, { ...result, status: "success", summary: `${result.displayName}: знято ролей ${result.roleIds.length}.` });
-    return adminDiscordResponse(request, { ok: true, title: "Ролі знято в Discord", message: `${result.displayName}: знято ${result.roleIds.length}.`, data: result });
+    const status = result.changed > 0 ? "success" : "info";
+    const summary = result.changed > 0
+      ? `${result.displayName}: знято ролей ${result.removedRoleIds.length}; уже були відсутні ${result.alreadyMissingRoleIds.length}.`
+      : `${result.displayName}: вибраних ролей уже не було в учасника.`;
+    await auditDiscordAdmin("discord.member.roles.remove", guard.session, {
+      ...result,
+      status,
+      summary,
+      changed: result.changed,
+      removedRoles: result.removedRoleIds.length,
+      alreadyMissingRoles: result.alreadyMissingRoleIds.length,
+      roleIds: result.roleIds,
+      changedItems: result.removedRoleIds.length ? [{ userId: result.userId, name: result.displayName, removed: result.removedRoleIds }] : [],
+      changedItemsTotal: result.removedRoleIds.length ? 1 : 0,
+      changedNames: result.removedRoleIds.length ? [result.displayName] : [],
+    });
+    return adminDiscordResponse(request, {
+      ok: true,
+      tone: result.changed > 0 ? "success" : "info",
+      title: result.changed > 0 ? "Ролі знято в Discord" : "Ролі вже були відсутні",
+      message: summary,
+      data: { ...result, refresh: true },
+    });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.roles_remove_failed", error, "Discord не зняв ролі.", guard.session);
+    return await discordAdminError(request, "admin.discord.roles_remove_failed", error, "Discord не зняв ролі.", guard.session);
   }
 }

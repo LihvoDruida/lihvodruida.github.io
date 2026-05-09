@@ -13,9 +13,22 @@ export async function POST(request: NextRequest) {
       nickname: form.get("nickname"),
       reason: `Mistblossom manual nickname update by ${guard.session.name || guard.session.id}`,
     });
-    await auditDiscordAdmin("discord.member.nickname.update", guard.session, { ...result, status: "success", summary: `${result.displayName}: нік змінено на ${result.nickname}.` });
-    return adminDiscordResponse(request, { ok: true, title: "Нік змінено в Discord", message: `${result.displayName}: ${result.nickname}.`, data: result });
+    await auditDiscordAdmin("discord.member.nickname.update", guard.session, {
+      ...result,
+      status: "success",
+      summary: `${result.displayName}: нік змінено з ${result.beforeNickname || "—"} на ${result.afterNickname || result.nickname}.`,
+      changed: 1,
+      changedItems: [{ userId: result.userId, name: result.displayName, beforeNickname: result.beforeNickname, afterNickname: result.afterNickname }],
+      changedItemsTotal: 1,
+      changedNames: [result.displayName],
+    });
+    return adminDiscordResponse(request, {
+      ok: true,
+      title: "Нік змінено в Discord",
+      message: `${result.displayName}: ${result.beforeNickname || "—"} → ${result.afterNickname || result.nickname}.`,
+      data: { ...result, refresh: true },
+    });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.nickname_failed", error, "Discord не змінив серверний нік.", guard.session);
+    return await discordAdminError(request, "admin.discord.nickname_failed", error, "Discord не змінив серверний нік.", guard.session);
   }
 }

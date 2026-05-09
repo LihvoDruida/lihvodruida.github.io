@@ -96,19 +96,49 @@ export function adminDiscordResponse(request: NextRequest, input: AdminDiscordRe
 }
 
 export async function auditDiscordAdmin(action: string, session: NonNullable<Awaited<ReturnType<typeof getSession>>>, details: Record<string, unknown>) {
-  await recordAdminAudit(action, session, details).catch(() => null);
+  const recorded = await recordAdminAudit(action, session, details).catch((error) => {
+    logDashboardEvent("error", "admin.discord.audit_unhandled_failure", undefined, {
+      action,
+      actorId: session.id,
+      error: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return false;
+  });
+
+  if (!recorded) {
+    logDashboardEvent("warn", "admin.discord.audit_not_recorded", undefined, {
+      action,
+      actorId: session.id,
+      status: details.status || "info",
+      summary: details.summary || details.message || null,
+    });
+  }
+
+  return recorded;
 }
 
-export function discordAdminError(request: NextRequest, event: string, error: unknown, fallback: string, session?: NonNullable<Awaited<ReturnType<typeof getSession>>> | null, details: Record<string, unknown> = {}) {
+export async function discordAdminError(request: NextRequest, event: string, error: unknown, fallback: string, session?: NonNullable<Awaited<ReturnType<typeof getSession>>> | null, details: Record<string, unknown> = {}) {
   const message = safeErrorMessage(error, fallback);
   logDashboardEvent("warn", event, request, { message, ...details });
   if (session) {
-    void recordAdminAudit(event, session, {
+    const recorded = await recordAdminAudit(event, session, {
       ...details,
       status: "error",
+      summary: message,
       message,
       error: error instanceof Error ? error.message : String(error || ""),
-    }).catch(() => null);
+    }).catch((auditError) => {
+      logDashboardEvent("error", "admin.discord.error_audit_failed", request, {
+        event,
+        actorId: session.id,
+        message,
+        error: auditError instanceof Error ? auditError.message : String(auditError || "unknown"),
+      });
+      return false;
+    });
+    if (!recorded) {
+      logDashboardEvent("warn", "admin.discord.error_audit_not_recorded", request, { event, actorId: session.id, message });
+    }
   }
   return adminDiscordResponse(request, { ok: false, tone: "error", title: "Дію не виконано", message, status: 400, data: { error: message } });
 }
