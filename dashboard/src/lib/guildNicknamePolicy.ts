@@ -41,11 +41,13 @@ function codePointLength(value: string) {
 }
 
 function cleanTemplateText(value: unknown) {
-  return String(value || "")
+  return Array.from(String(value || "")
+    .normalize("NFC")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 96);
+    .trim())
+    .slice(0, 96)
+    .join("");
 }
 
 function isSupportedNicknameTemplate(template: string) {
@@ -153,6 +155,7 @@ export async function setGuildDiscordManagementSettings(input: {
 
 function cleanNicknamePart(value: unknown, maxLength: number) {
   return sliceCodePoints(String(value || "")
+    .normalize("NFC")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/[<>@#`*_~|{}[\]\\]/g, "")
     .replace(/\s+/g, " ")
@@ -165,7 +168,7 @@ function normalizeCharacterNames(values: unknown) {
   const result: string[] = [];
   for (const item of items) {
     const name = cleanNicknamePart(item, 16);
-    const key = name.toLowerCase();
+    const key = name.normalize("NFC").toLocaleLowerCase("uk");
     if (!name || seen.has(key)) continue;
     seen.add(key);
     result.push(name);
@@ -315,7 +318,7 @@ export function nicknameTemplateToRegex(templateInput: unknown) {
 }
 
 export function nicknameMatchesTemplate(nicknameInput: unknown, templateInput: unknown) {
-  const nickname = String(nicknameInput || "").replace(/\s+/g, " ").trim();
+  const nickname = String(nicknameInput || "").normalize("NFC").replace(/\s+/g, " ").trim();
   if (!nickname) return false;
   return nicknameTemplateToRegex(templateInput).test(nickname);
 }

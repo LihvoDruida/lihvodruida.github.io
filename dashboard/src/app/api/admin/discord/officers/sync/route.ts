@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       : "";
     const roleHint = result.selectedRoleName ? ` Роль: ${result.selectedRoleName}.` : "";
     const ignoredHint = result.ignoredLowerRoleIds?.length ? ` Нижчі вибрані ролі проігноровано: ${result.ignoredLowerRoleIds.length}.` : "";
-    const summary = `Перевірено профілів ${result.checkedProfiles}; знайдено офіцерських профілів ${result.officerProfiles}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${roleHint}${ignoredHint}${nicknameSkipped}`;
+    const summary = `Перевірено профілів ${result.checkedProfiles}; персонажів у профілях ${result.checkedCharacters || 0}; персонажів у live roster ${result.checkedRosterCharacters || 0}; Discord-учасників ${result.checkedDiscordMembers || 0}; знайдено офіцерських профілів ${result.officerProfiles}; офіцерських персонажів ${result.officerCharactersTotal || 0}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${roleHint}${ignoredHint}${nicknameSkipped}`;
     const hasWarnings = Boolean(result.failed || result.skippedMissingNickname || result.skippedInvalidNickname);
 
     await auditDiscordAdmin("discord.member.roles.sync_bnet_officers", guard.session, {
@@ -31,6 +31,12 @@ export async function POST(request: NextRequest) {
       summary,
       checkedProfiles: result.checkedProfiles,
       officerProfiles: result.officerProfiles,
+      checkedCharacters: result.checkedCharacters,
+      checkedDiscordMembers: result.checkedDiscordMembers,
+      checkedRosterCharacters: result.checkedRosterCharacters,
+      checkedBattleNetRegions: result.checkedBattleNetRegions,
+      officerCharactersTotal: result.officerCharactersTotal,
+      matchMode: result.matchMode,
       changed: result.changed,
       addedRoles: result.addedRolesTotal,
       alreadyHad: result.alreadyHad,

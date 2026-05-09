@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldPath, FieldValue } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
@@ -100,6 +100,7 @@ function codePointLength(value: string) {
 
 function cleanProfileName(value: unknown, maxLength = 32) {
   const cleaned = String(value || "")
+    .normalize("NFC")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/[<>@#`*_~|{}[\]\\]/g, "")
     .replace(/\s+/g, " ")
@@ -115,6 +116,7 @@ function cleanDiscordNicknamePart(value: unknown, maxLength = 32) {
 
 function cleanAuthorName(value: unknown, maxLength = 80) {
   const cleaned = String(value || "")
+    .normalize("NFC")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/[<>@#`*_~|{}\\]/g, "")
     .replace(/\s+/g, " ")
@@ -133,7 +135,7 @@ function cleanProfilePublicNameMode(value: unknown): ProfilePublicNameMode {
 }
 
 export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammaticalGender {
-  const key = String(value || "").trim().toLowerCase();
+  const key = String(value || "").trim().toLocaleLowerCase("uk");
   if (["male", "man", "boy", "m", "чоловік", "чоловіча", "ч", "хлопець"].includes(key)) return "male";
   if (["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key)) return "female";
   if (["nonbinary", "non-binary", "non_binary", "nb", "небінарна", "небінарний", "небінарна особа"].includes(key)) return "nonbinary";
@@ -181,7 +183,7 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   return {
     key,
     source: "battlenet",
-    region: (cleanString(item.region, 12).toLowerCase() || "eu") as BattleNetRegion,
+    region: (cleanString(item.region, 12).toLocaleLowerCase("uk") || "eu") as BattleNetRegion,
     name,
     normalizedName,
     realmSlug,
@@ -230,7 +232,7 @@ function cleanGroupId(value: unknown) {
 }
 
 function cleanGroupName(value: unknown) {
-  const cleaned = String(value || "").trim().replace(/\s+/g, " ").slice(0, 80);
+  const cleaned = Array.from(String(value || "").normalize("NFC").trim().replace(/\s+/g, " ")).slice(0, 80).join("");
   return cleaned || null;
 }
 
@@ -491,7 +493,7 @@ export async function listDashboardProfiles(params: {
   if (!hasFirebaseProfileConfig()) return [];
 
   const safeLimit = Math.max(10, Math.min(200, Number(params.limit || 120)));
-  const query = String(params.query || "").trim().toLowerCase();
+  const query = String(params.query || "").trim().toLocaleLowerCase("uk");
   const [snapshot, groups] = await Promise.all([
     getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get(),
     listAccessGroups().catch(() => [] as AccessGroup[]),
@@ -514,7 +516,7 @@ export async function listDashboardProfiles(params: {
         profile.characters.map((item: ProfileCharacter) => item.name).join(" "),
         profile.characters.map((item: ProfileCharacter) => item.realmName || item.realmSlug).join(" "),
         getMainCharacter(profile)?.name,
-      ].some((value) => String(value || "").toLowerCase().includes(query)))
+      ].some((value) => String(value || "").toLocaleLowerCase("uk").includes(query)))
     : profiles;
 
   return filtered.sort((a: DashboardProfile, b: DashboardProfile) => {
@@ -530,6 +532,36 @@ export async function listDashboardProfilesForDiscordSync(limit = 1000): Promise
   const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
   return snapshot.docs
+    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile);
+}
+
+export async function listAllDashboardProfilesForDiscordSync(maxTotalInput?: unknown): Promise<DashboardProfile[]> {
+  if (!hasFirebaseProfileConfig()) return [];
+
+  const maxTotalNumber = Number(maxTotalInput);
+  const maxTotal = Number.isFinite(maxTotalNumber) && maxTotalNumber > 0
+    ? Math.min(50_000, Math.floor(maxTotalNumber))
+    : 50_000;
+  const pageSize = 500;
+  const db = getFirebaseAdminDb();
+  const baseQuery = db.collection("dashboardProfiles").orderBy(FieldPath.documentId());
+  const docs: any[] = [];
+  let cursor: any = null;
+
+  while (docs.length < maxTotal) {
+    let query: any = baseQuery.limit(Math.min(pageSize, maxTotal - docs.length));
+    if (cursor) query = baseQuery.startAfter(cursor).limit(Math.min(pageSize, maxTotal - docs.length));
+
+    const snapshot = await query.get();
+    if (snapshot.empty) break;
+    docs.push(...snapshot.docs);
+    cursor = snapshot.docs[snapshot.docs.length - 1];
+    if (snapshot.docs.length < pageSize) break;
+  }
+
+  const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
+  return docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
     .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile);
 }
@@ -1014,7 +1046,7 @@ export function buildAuthorNameSuggestions(params: {
   const seen = new Set<string>();
   return candidates.filter((item) => {
     const value = String(item.value || "").trim();
-    const key = value.toLowerCase();
+    const key = value.toLocaleLowerCase("uk");
     if (!value || seen.has(key)) return false;
     seen.add(key);
     item.value = value;
@@ -1032,7 +1064,7 @@ function orderedCharactersForNickname(profile: DashboardProfile) {
   const result: string[] = [];
   for (const character of ordered) {
     const name = cleanDiscordNicknamePart(character.name, 16);
-    const key = name.toLowerCase();
+    const key = name.toLocaleLowerCase("uk");
     if (!name || seen.has(key)) continue;
     seen.add(key);
     result.push(name);

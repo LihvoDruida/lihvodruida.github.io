@@ -70,6 +70,7 @@ type Props = {
   lastSyncedNickname?: string | null;
   lastSyncedAt?: string | null;
   currentServerNickname?: string | null;
+  serverNicknameChecked?: boolean;
   canManage: boolean;
   canSyncDiscord: boolean;
   discordOwnerLocked?: boolean;
@@ -85,6 +86,7 @@ export default function ProfileNameControls({
   lastSyncedNickname,
   lastSyncedAt,
   currentServerNickname,
+  serverNicknameChecked = false,
   canManage,
   canSyncDiscord,
   discordOwnerLocked = false,
@@ -117,7 +119,7 @@ export default function ProfileNameControls({
   const hasName = Boolean(savedName);
   const synced = Boolean(nicknamePreview && lastSyncedNickname === nicknamePreview);
   const serverNickname = (currentServerNickname || "").trim();
-  const showServerNickname = Boolean(hasName && nicknamePreview && serverNickname && serverNickname !== nicknamePreview);
+  const showServerNickname = Boolean(serverNicknameChecked || serverNickname);
   const canSubmitName = draftName.length >= 2 && draftName !== savedName;
   const syncLabel = synced ? "Оновити" : "Застосувати";
 
@@ -290,8 +292,8 @@ export default function ProfileNameControls({
           <div className="profile-server-nickname" aria-label="Поточне імʼя на Discord-сервері">
             <span className="profile-server-nickname__icon" aria-hidden="true">⌁</span>
             <span className="profile-server-nickname__body">
-              <small>Зараз на сервері</small>
-              <strong>{serverNickname}</strong>
+              <small>Реальний серверний нік</small>
+              <strong>{serverNickname || "Не встановлено"}</strong>
             </span>
           </div>
         ) : null}

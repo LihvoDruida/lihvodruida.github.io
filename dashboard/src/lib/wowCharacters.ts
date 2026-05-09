@@ -1,22 +1,29 @@
 import { createHash } from "crypto";
 
 export function cleanWowText(value: unknown, maxLength = 160) {
-  return String(value || "")
+  return Array.from(String(value || "")
     .normalize("NFC")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, maxLength);
+    .trim())
+    .slice(0, Math.max(0, maxLength))
+    .join("");
+}
+
+export function normalizeWowLookupText(value: unknown, maxLength = 160) {
+  return cleanWowText(value, maxLength)
+    .toLocaleLowerCase("uk")
+    .replace(/[ʼ’']/g, "'")
+    .trim();
 }
 
 export function normalizeBattleNetNameSlug(value: unknown, maxLength = 80) {
-  return cleanWowText(value, maxLength)
-    .toLocaleLowerCase()
+  return normalizeWowLookupText(value, maxLength)
     .replace(/\s+/g, "-");
 }
 
 export function normalizeBattleNetRealmSlug(value: unknown, maxLength = 120) {
-  return cleanWowText(value, maxLength)
-    .toLocaleLowerCase()
+  return normalizeWowLookupText(value, maxLength)
     .replace(/\s+/g, "-");
 }
 
@@ -30,7 +37,7 @@ function hashUnicodeSegment(value: string, prefix: "u" | "r") {
 }
 
 function normalizeKeySegment(value: unknown, prefix: "u" | "r") {
-  const clean = cleanWowText(value, 160).toLocaleLowerCase().replace(/\s+/g, "-");
+  const clean = normalizeWowLookupText(value, 160).replace(/\s+/g, "-");
   if (!clean) return "";
 
   // Already encoded segments are accepted as-is. This keeps existing saved
@@ -52,7 +59,7 @@ export function buildBattleNetCharacterKey(regionInput: unknown, realmSlugInput:
 }
 
 export function normalizeCharacterKey(value: unknown) {
-  const raw = cleanWowText(value, 260).toLocaleLowerCase();
+  const raw = normalizeWowLookupText(value, 260);
   if (!raw) return "";
 
   const parts = raw.split(":");

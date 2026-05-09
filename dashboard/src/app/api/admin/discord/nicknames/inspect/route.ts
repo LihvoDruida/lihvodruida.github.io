@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
-    const result = await inspectDiscordNicknameTemplate(Number(form.get("limit") || 5000));
+    const result = await inspectDiscordNicknameTemplate(form.get("limit") || 0);
     const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
     const summary = `Перевірено серверні ніки ${result.checked} учасників; не відповідають шаблону: ${result.mismatchedTotal}.${missingNick}`;
     await auditDiscordAdmin("discord.nickname_policy.inspect", guard.session, {

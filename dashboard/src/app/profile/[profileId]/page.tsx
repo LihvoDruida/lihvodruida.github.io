@@ -563,7 +563,7 @@ export default async function ProfilePage({
     ]);
     liveDiscordMember = member;
     discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
-    currentServerNickname = member?.displayName || null;
+    currentServerNickname = member?.nick || null;
   }
 
   const liveRoleIds = Array.from(new Set((liveDiscordMember?.roleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
@@ -697,6 +697,7 @@ export default async function ProfilePage({
                 lastSyncedNickname={profile.discordNickname?.value}
                 lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
                 currentServerNickname={currentServerNickname}
+                serverNicknameChecked={Boolean(discordMemberReadable && liveDiscordMember)}
                 canManage={isOwnProfile}
                 canSyncDiscord={canSyncDiscordNickname}
                 discordOwnerLocked={discordOwnerLocked}

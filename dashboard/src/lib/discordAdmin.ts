@@ -619,7 +619,12 @@ function snowflake(value: unknown) {
 }
 
 function cleanText(value: unknown, max: number) {
-  return String(value || "").replace(/\r\n/g, "\n").trim().slice(0, max);
+  return Array.from(String(value || "")
+    .normalize("NFC")
+    .replace(/\r\n/g, "\n")
+    .trim())
+    .slice(0, Math.max(0, max))
+    .join("");
 }
 
 function cleanRoleIds(values: unknown) {
@@ -1659,10 +1664,14 @@ function normalizeGuildMemberForModeration(member: any): DiscordGuildMemberModer
   };
 }
 
-export async function fetchDiscordGuildMembers(limitInput = 1000) {
+export async function fetchDiscordGuildMembers(limitInput: unknown = 1000) {
   const guildId = getDiscordGuildId();
   if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
-  const safeLimit = Math.max(1, Math.min(5000, Math.floor(Number(limitInput) || 1000)));
+
+  const parsedLimit = Number(limitInput);
+  const safeLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+    ? Math.min(50_000, Math.floor(parsedLimit))
+    : 50_000;
   const result: DiscordGuildMemberModerationItem[] = [];
   let after = "0";
 

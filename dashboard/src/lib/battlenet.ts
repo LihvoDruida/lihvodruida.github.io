@@ -35,6 +35,11 @@ export type BattleNetGuildRankInfo = {
   rank: number | null;
   status: BattleNetGuildCharacterStatus | null;
   label: string | null;
+  key?: string | null;
+  region?: BattleNetRegion | string | null;
+  characterName?: string | null;
+  normalizedName?: string | null;
+  realmSlug?: string | null;
 };
 
 export type BattleNetCharacterCandidate = {
@@ -77,7 +82,13 @@ const DEFAULT_LOCALE_BY_REGION: Record<BattleNetRegion, string> = {
 };
 
 function cleanText(value: unknown, maxLength = 160) {
-  return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength);
+  return Array.from(String(value || "")
+    .normalize("NFC")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim())
+    .slice(0, Math.max(0, maxLength))
+    .join("");
 }
 
 function envFlag(name: string, fallback = false) {
@@ -348,13 +359,13 @@ function pickActiveSpecId(value: any): number | null {
 }
 
 function normalizeGuildName(value: unknown) {
-  return cleanText(value, 120).normalize("NFC").toLocaleLowerCase();
+  return cleanText(value, 120).normalize("NFC").toLocaleLowerCase("uk");
 }
 
 function guildSlug(value: unknown) {
   return cleanText(value, 140)
     .normalize("NFC")
-    .toLocaleLowerCase()
+    .toLocaleLowerCase("uk")
     .replace(/[ʼ’']/g, "")
     .replace(/[^\p{L}\p{N}]+/gu, "-")
     .replace(/-+/g, "-")
@@ -403,7 +414,15 @@ export async function fetchBattleNetGuildRankMap(regionInput?: string | null): P
     const realmSlug = normalizeBattleNetRealmSlug(character?.realm?.slug || character?.realm?.name || config.realmSlug);
     const key = guildRankMapKey(config.region, realmSlug, name);
     if (!key) continue;
-    map.set(key, guildStatusFromRank(entry?.rank));
+    const rankInfo = guildStatusFromRank(entry?.rank);
+    map.set(key, {
+      ...rankInfo,
+      key,
+      region: config.region,
+      characterName: name,
+      normalizedName: normalizeBattleNetNameSlug(name),
+      realmSlug,
+    });
   }
   battleNetGuildRankMapCache.set(cacheKey, { checkedAt: Date.now(), ranks: new Map(map) });
   return map;
