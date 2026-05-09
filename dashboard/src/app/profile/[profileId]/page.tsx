@@ -12,6 +12,7 @@ import {
   type ProfileRaidSignup,
 } from "@/lib/raids";
 import { buildPageMetadata } from "@/lib/seo";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
@@ -472,6 +473,7 @@ export default async function ProfilePage({
   params: Promise<{ profileId: string }>;
 }) {
   const session = await getSession();
+  const nicknamePolicy = await getGuildNicknamePolicy();
   if (!session) {
     redirect("/login");
     throw new Error("Unauthorized");
@@ -544,9 +546,9 @@ export default async function ProfilePage({
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
   const savedCharacterCount = profile.characters.length;
-  const discordNicknamePreview = buildProfileDiscordNickname(profile);
-  const publicNamePreview = getProfilePublicName(profile);
-  const serverStyleNamePreview = getProfileServerStyleName(profile);
+  const discordNicknamePreview = buildProfileDiscordNickname(profile, nicknamePolicy.template);
+  const publicNamePreview = getProfilePublicName(profile, nicknamePolicy.template);
+  const serverStyleNamePreview = getProfileServerStyleName(profile, 80, nicknamePolicy.template);
   const canSyncDiscordNickname = isOwnProfile && discordMemberReadable;
   let discordOwnerLocked = false;
   let currentServerNickname: string | null = null;

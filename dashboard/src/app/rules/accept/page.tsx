@@ -6,6 +6,7 @@ import { getProfileById, profileGenderLabel, type DashboardProfile } from "@/lib
 import { parseRulesRoleToken, rulesLoginPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import { buildPageMetadata } from "@/lib/seo";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 
 export const metadata = buildPageMetadata({
   title: "Прийняття правил",
@@ -33,8 +34,8 @@ function statusNotice(status?: string | null) {
   return null;
 }
 
-function StepList({ profile, token }: { profile: DashboardProfile | null; token: string }) {
-  const status = rulesOnboardingStatus(profile);
+function StepList({ profile, token, nicknameTemplate }: { profile: DashboardProfile | null; token: string; nicknameTemplate: string }) {
+  const status = rulesOnboardingStatus(profile, nicknameTemplate);
   return (
     <div className="rules-onboarding-steps" role="list">
       {status.steps.map((step) => (
@@ -51,8 +52,8 @@ function StepList({ profile, token }: { profile: DashboardProfile | null; token:
   );
 }
 
-function ProfileSummary({ profile }: { profile: DashboardProfile }) {
-  const status = rulesOnboardingStatus(profile);
+function ProfileSummary({ profile, nicknameTemplate }: { profile: DashboardProfile; nicknameTemplate: string }) {
+  const status = rulesOnboardingStatus(profile, nicknameTemplate);
   const main = status.mainCharacter;
   const role = profile.raidRolePreference?.characterKey === main?.key ? profile.raidRolePreference?.role : null;
   return (
@@ -72,8 +73,9 @@ export default async function RulesAcceptPage({ searchParams }: { searchParams: 
   const roleIds = parseRulesRoleToken(token);
   const notice = statusNotice(String(Array.isArray(params.status) ? params.status[0] : params.status || ""));
   const session = await getSession();
+  const nicknamePolicy = await getGuildNicknamePolicy();
   const profile = session?.profileId ? await getProfileById(session.profileId).catch(() => null) : null;
-  const status = rulesOnboardingStatus(profile);
+  const status = rulesOnboardingStatus(profile, nicknamePolicy.template);
   const roles = roleIds.length ? await fetchDiscordRoles().catch(() => []) : [];
   const primaryRegion = getEnabledBattleNetRegions()[0] || "eu";
 
@@ -109,13 +111,13 @@ export default async function RulesAcceptPage({ searchParams }: { searchParams: 
             <div className="login-alert profile-storage-warning" role="status">Посилання правил не містить підтвердженої ролі. Натисни актуальну кнопку “Прийняти правила” в Discord або попроси офіцера оновити embed правил.</div>
           ) : profile ? (
             <>
-              <ProfileSummary profile={profile} />
-              <StepList profile={profile} token={token} />
+              <ProfileSummary profile={profile} nicknameTemplate={nicknamePolicy.template} />
+              <StepList profile={profile} token={token} nicknameTemplate={nicknamePolicy.template} />
 
               <div className="rules-onboarding-role-box">
                 <strong>Роль після завершення</strong>
                 <span>{roleIds.map((roleId) => roleName(roleId, roles)).join(", ")}</span>
-                <small>Роль буде видано тільки після натискання “Завершити реєстрацію”. До цього Discord-роль не змінюється.</small>
+                <small>Роль буде видано тільки після натискання “Завершити реєстрацію”. Нік формується за шаблоном: {nicknamePolicy.template}.</small>
               </div>
 
               <div className="rules-onboarding-actions">

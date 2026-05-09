@@ -195,9 +195,13 @@ export async function ensureDefaultAccessGroups() {
     if (current.lockedId !== group.lockedId) patch.lockedId = group.lockedId;
     if (current.protectedGroup !== group.protectedGroup) patch.protectedGroup = group.protectedGroup;
     if (!current.icon && group.icon) patch.icon = group.icon;
+    if (group.id === DEFAULT_ADMIN_GROUP_ID) {
+      const mergedAdminPermissions = Array.from(new Set([...current.permissions, ...DASHBOARD_PERMISSION_KEYS]));
+      if (mergedAdminPermissions.length !== current.permissions.length) patch.permissions = mergedAdminPermissions;
+    }
     if (group.id === DEFAULT_MENTOR_GROUP_ID && !current.name) patch.name = group.name;
     if ((group.id === DEFAULT_MENTOR_GROUP_ID || group.id === DEFAULT_MEMBER_GROUP_ID) && !current.permissions.includes("profiles.group.view")) {
-      patch.permissions = Array.from(new Set([...current.permissions, "profiles.group.view"]));
+      patch.permissions = Array.from(new Set([...(patch.permissions || current.permissions), "profiles.group.view"]));
     }
     if (Object.keys(patch).length) {
       await doc.set({ ...patch, updatedAt: nowIso() }, { merge: true });

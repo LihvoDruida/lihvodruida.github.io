@@ -10,12 +10,14 @@ import {
   canViewGuildRoster,
   canViewRaidDirectory,
   canManageGroups,
+  canManageDiscordMembers,
   hierarchyTitle,
   siteStatusLabel,
 } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 import MobileNavSafeAreaSync from "@/components/MobileNavSafeAreaSync";
 import { getProfileById, getProfilePublicName } from "@/lib/profiles";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 
 export default async function DashboardIdentity({
   user,
@@ -24,9 +26,12 @@ export default async function DashboardIdentity({
   user: DashboardSession | null;
   activeSection?: "admin" | "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
 }) {
-  const guild = await getGuildBranding();
+  const [guild, nicknamePolicy] = await Promise.all([
+    getGuildBranding(),
+    getGuildNicknamePolicy().catch(() => ({ template: "{name} [{characters}]" })),
+  ]);
   const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
-  const displayName = profile ? getProfilePublicName(profile) : (user?.name || user?.login || "Користувач");
+  const displayName = profile ? getProfilePublicName(profile, nicknamePolicy.template) : (user?.name || user?.login || "Користувач");
   const avatar = profile?.avatarUrl || user?.avatar_url || user?.avatar || null;
   const canUseApplications = canViewApplications(user);
   const canUseDiscord = canManageGeneralEmbeds(user);
@@ -35,7 +40,7 @@ export default async function DashboardIdentity({
   const canUseProfiles = canViewProfiles(user);
   const canUseGuildRoster = canViewGuildRoster(user);
   const canUseContent = canManageSiteContent(user);
-  const canUseAdmin = canManageGroups(user);
+  const canUseAdmin = canManageGroups(user) || canManageDiscordMembers(user);
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
   const navItems = user
     ? [
@@ -58,7 +63,7 @@ export default async function DashboardIdentity({
           ? { href: "/content", section: "content" as const, icon: "✦", label: "Новини", desktopLabel: "Новини / гайди" }
           : null,
         canUseAdmin
-          ? { href: "/admin/groups", section: "admin" as const, icon: "⚙", label: "Права", desktopLabel: "Права" }
+          ? { href: "/admin", section: "admin" as const, icon: "⚙", label: "Керування", desktopLabel: "Керування" }
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];

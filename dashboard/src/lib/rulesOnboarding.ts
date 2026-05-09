@@ -97,7 +97,7 @@ export function rulesLoginPath(roleToken: string) {
   return `/api/auth/discord/start?next=${encodeURIComponent(next)}`;
 }
 
-export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined) {
+export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined, nicknameTemplate?: string) {
   const profileHref = profile?.profileId ? `/profile/${profile.profileId}` : "/profile";
   const main = profile ? getMainCharacter(profile) : null;
   const hasName = Boolean(profile?.preferredName && profile.preferredName.trim().length >= 2);
@@ -105,7 +105,7 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
   const hasCharacters = Boolean(profile?.characters?.length);
   const hasMain = Boolean(main?.key && profile?.mainCharacterKey);
   const hasRaidRole = Boolean(profile?.raidRolePreference?.characterKey && profile.raidRolePreference.characterKey === main?.key && profile.raidRolePreference.role);
-  const nicknamePlan = buildProfileDiscordNicknamePlan(profile);
+  const nicknamePlan = buildProfileDiscordNicknamePlan(profile, nicknameTemplate);
   const hasNicknameTemplate = Boolean(nicknamePlan.value && nicknamePlan.hasRequiredName && hasMain);
 
   const steps: RulesOnboardingStep[] = [
@@ -149,7 +149,7 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
       title: "Серверний нік Discord",
       description: hasNicknameTemplate
         ? `Буде встановлено: ${nicknamePlan.value}`
-        : "Після завершення система автоматично поставить нік за шаблоном: Імʼя [Мейн, Альт1, Альт2].",
+        : "Після завершення система автоматично поставить нік за глобальним шаблоном із налаштувань керування.",
       complete: hasNicknameTemplate,
       href: profileHref,
     },

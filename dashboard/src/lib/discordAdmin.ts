@@ -1356,3 +1356,86 @@ export function discordMessageUrl(channelId: string, messageId: string) {
   const guildId = getDiscordGuildId() || "@me";
   return `https://discord.com/channels/${guildId}/${channelId}/${messageId}`;
 }
+
+export type DiscordGuildMemberModerationItem = {
+  userId: string;
+  username: string | null;
+  globalName: string | null;
+  nick: string | null;
+  displayName: string;
+  roleIds: string[];
+};
+
+function normalizeGuildMemberForModeration(member: any): DiscordGuildMemberModerationItem | null {
+  if (!member || typeof member !== "object") return null;
+  const user = member.user && typeof member.user === "object" ? member.user : {};
+  const userId = snowflake(user.id || member.user_id || member.id);
+  if (!userId || Boolean(user.bot)) return null;
+  const nick = cleanText(member.nick, 32) || null;
+  const username = cleanText(user.username, 32) || null;
+  const globalName = cleanText(user.global_name, 32) || null;
+  const roleIds = Array.isArray(member.roles)
+    ? member.roles.map((roleId: unknown) => snowflake(roleId)).filter(Boolean).slice(0, 100)
+    : [];
+  return {
+    userId,
+    username,
+    globalName,
+    nick,
+    displayName: nick || globalName || username || `Discord ${userId.slice(-6)}`,
+    roleIds,
+  };
+}
+
+export async function fetchDiscordGuildMembers(limitInput = 1000) {
+  const guildId = getDiscordGuildId();
+  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
+  const safeLimit = Math.max(1, Math.min(5000, Math.floor(Number(limitInput) || 1000)));
+  const result: DiscordGuildMemberModerationItem[] = [];
+  let after = "0";
+
+  while (result.length < safeLimit) {
+    const batchSize = Math.min(1000, safeLimit - result.length);
+    const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=${batchSize}&after=${after}`);
+    if (!Array.isArray(members) || members.length === 0) break;
+    for (const member of members) {
+      const normalized = normalizeGuildMemberForModeration(member);
+      if (normalized) result.push(normalized);
+    }
+    const lastUserId = members[members.length - 1]?.user?.id;
+    if (!lastUserId || String(lastUserId) === after || members.length < batchSize) break;
+    after = String(lastUserId);
+  }
+
+  return result;
+}
+
+export async function removeGuildMemberRoles(params: {
+  guildId: string;
+  userId: string;
+  roleIds: string[];
+  reason?: string;
+}) {
+  const guildId = snowflake(params.guildId);
+  const userId = snowflake(params.userId);
+  const roleIds = Array.from(new Set(params.roleIds.map(snowflake).filter(Boolean)));
+
+  if (!guildId || !userId || roleIds.length === 0) throw new Error("Не вистачає guild/user/role ID для зняття ролі.");
+
+  await mapConcurrent(
+    roleIds,
+    async (roleId) => {
+      await discordApi<void>(`/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+        method: "DELETE",
+        auditReason: params.reason,
+      });
+    },
+    {
+      profile: "external-api",
+      envKey: "DISCORD_ROLE_REMOVE_CONCURRENCY",
+      maxEnvKey: "DISCORD_ROLE_REMOVE_MAX_CONCURRENCY",
+      min: 1,
+      max: 5,
+    },
+  );
+}

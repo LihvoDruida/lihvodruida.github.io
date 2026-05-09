@@ -5,6 +5,7 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
+import { DEFAULT_NICKNAME_TEMPLATE, renderNicknameFromTemplate } from "@/lib/guildNicknamePolicy";
 import { canManageApplications, canViewAllProfiles, canViewProfiles, canViewProfilesInOwnGroupOrBelow, dashboardRoleRank } from "@/lib/permissions";
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
@@ -956,23 +957,23 @@ export function getProfileDiscordName(profile: DashboardProfile | null | undefin
   return cleanProfileName(profile?.displayName || profile?.login || "", 32) || "Discord";
 }
 
-export function getProfileServerStyleName(profile: DashboardProfile | null | undefined, maxLength = 80) {
+export function getProfileServerStyleName(profile: DashboardProfile | null | undefined, maxLength = 80, template = DEFAULT_NICKNAME_TEMPLATE) {
   if (!profile) return "Учасник";
   const base = cleanDiscordNicknamePart(profile.preferredName || profile.displayName || profile.login || "", 32) || "Учасник";
   const characterNames = orderedCharactersForNickname(profile).slice(0, 3);
   if (!characterNames.length) return sliceCodePoints(base, maxLength).trim() || "Учасник";
 
   for (let count = characterNames.length; count >= 1; count -= 1) {
-    const candidate = composeDiscordNickname(base, characterNames.slice(0, count));
+    const candidate = composeDiscordNickname(base, characterNames.slice(0, count), template);
     if (codePointLength(candidate) <= maxLength) return candidate;
   }
 
   return sliceCodePoints(base, maxLength).trim() || "Учасник";
 }
 
-export function getProfilePublicName(profile: DashboardProfile | null | undefined) {
+export function getProfilePublicName(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE) {
   if (!profile) return "Учасник";
-  return profile.publicNameMode === "server_nickname" ? getProfileServerStyleName(profile) : getProfileSiteName(profile);
+  return profile.publicNameMode === "server_nickname" ? getProfileServerStyleName(profile, 80, template) : getProfileSiteName(profile);
 }
 
 export type AuthorNameSuggestion = {
@@ -1024,8 +1025,8 @@ function orderedCharactersForNickname(profile: DashboardProfile) {
   return result;
 }
 
-function composeDiscordNickname(name: string, characters: string[]) {
-  return characters.length ? `${name} [${characters.join(", ")}]` : name;
+function composeDiscordNickname(name: string, characters: string[], template = DEFAULT_NICKNAME_TEMPLATE) {
+  return renderNicknameFromTemplate(template, { name, characters });
 }
 
 export type ProfileDiscordNicknamePlan = {
@@ -1038,7 +1039,7 @@ export type ProfileDiscordNicknamePlan = {
   maxLength: number;
 };
 
-export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null | undefined): ProfileDiscordNicknamePlan {
+export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE): ProfileDiscordNicknamePlan {
   const maxLength = 32;
   const base = cleanDiscordNicknamePart(profile?.preferredName || "", maxLength);
   if (!profile || !base) {
@@ -1072,7 +1073,7 @@ export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null
 
   for (let count = requestedNames.length; count >= 1; count -= 1) {
     const names = requestedNames.slice(0, count);
-    const candidate = composeDiscordNickname(base, names);
+    const candidate = composeDiscordNickname(base, names, template);
     if (codePointLength(candidate) <= maxLength) {
       return {
         value: candidate,
@@ -1089,7 +1090,7 @@ export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null
   const spaceForMain = Math.max(1, maxLength - codePointLength(base) - 3);
   if (spaceForMain >= 1 && codePointLength(base) <= maxLength - 4) {
     const mainName = sliceCodePoints(requestedNames[0], spaceForMain).trim();
-    const candidate = composeDiscordNickname(base, mainName ? [mainName] : []);
+    const candidate = composeDiscordNickname(base, mainName ? [mainName] : [], template);
     if (mainName && codePointLength(candidate) <= maxLength) {
       return {
         value: candidate,
@@ -1114,8 +1115,8 @@ export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null
   };
 }
 
-export function buildProfileDiscordNickname(profile: DashboardProfile | null | undefined) {
-  return buildProfileDiscordNicknamePlan(profile).value;
+export function buildProfileDiscordNickname(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE) {
+  return buildProfileDiscordNicknamePlan(profile, template).value;
 }
 
 export async function setProfilePreferredName(profileId: string, nameInput: unknown) {

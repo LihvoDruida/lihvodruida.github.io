@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordGuildSnapshot, getDiscordGuildId, updateGuildMemberNickname } from "@/lib/discordAdmin";
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
       return redirectToProfile(request, session.profileId, "discord_nick_owner");
     }
 
-    const nicknamePlan = buildProfileDiscordNicknamePlan(profile);
+    const nicknamePolicy = await getGuildNicknamePolicy();
+    const nicknamePlan = buildProfileDiscordNicknamePlan(profile, nicknamePolicy.template);
     const nickname = nicknamePlan.value;
     if (!nickname) return redirectToProfile(request, session.profileId, "discord_nick_name_missing");
 

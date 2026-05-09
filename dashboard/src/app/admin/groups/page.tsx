@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import AccessGroupsManager from "@/components/AccessGroupsManager";
+import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession, setSession } from "@/lib/auth";
 import { applyAccessGroupToSession, canManageGroups, deleteAccessGroup, getAccessGroup, listAccessGroups, recordAdminAudit, upsertAccessGroup } from "@/lib/accessGroups";
@@ -112,6 +113,7 @@ export default async function AdminGroupsPage() {
           {user.isServerOwner ? <span className="status-pill good">Власник сервера</span> : null}
         </div>
         </header>
+        <AdminTabs active="groups" />
         <AccessGroupsManager
           groups={groups}
           isServerOwner={Boolean(user.isServerOwner)}

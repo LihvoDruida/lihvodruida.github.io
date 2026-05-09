@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { addGuildMemberRoles, fetchDiscordGuildSnapshot, getDiscordGuildId, updateGuildMemberNickname } from "@/lib/discordAdmin";
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
 import { markRulesOnboardingCompleted, parseRulesRoleToken, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToToken(request: NextRequest, token: string, status: string) {
@@ -33,7 +34,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const profile = await getProfileById(session.profileId);
-    const onboarding = rulesOnboardingStatus(profile);
+    const nicknamePolicy = await getGuildNicknamePolicy();
+    const onboarding = rulesOnboardingStatus(profile, nicknamePolicy.template);
     if (!profile || !onboarding.complete) {
       logDashboardEvent("warn", "rules.onboarding.incomplete", request, { profileId: session.profileId, missing: onboarding.missing.map((step) => step.key) });
       return redirectToToken(request, token, "incomplete");
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
     if (!guildId) return redirectToToken(request, token, "discord_not_configured");
 
     const guild = await fetchDiscordGuildSnapshot().catch(() => null);
-    const nicknamePlan = buildProfileDiscordNicknamePlan(profile);
+    const nicknamePlan = buildProfileDiscordNicknamePlan(profile, nicknamePolicy.template);
     const nickname = nicknamePlan.value;
     let nicknameSynced = false;
     const isGuildOwner = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
