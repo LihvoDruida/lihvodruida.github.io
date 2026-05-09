@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 06:18:22'
+  updated_at: '2026-05-09 09:21:30'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5197,7 +5197,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 83
+        learned_points: 85
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5404,6 +5404,53 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 1
+        max_points: 300
+- name: Базрог
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Базрог
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Blacksmithing
+        learned_points: 27
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 72
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 1
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 35
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Fishing
+        learned_points: 51
         max_points: 300
 - name: Амарак
   region: eu
@@ -6806,7 +6853,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 87
+        learned_points: 90
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6838,50 +6885,3 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Базрог
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Базрог
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Blacksmithing
-        learned_points: 27
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Mining
-        learned_points: 72
-        max_points: 100
-      - name: Midnight Mining
-        learned_points: 1
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 35
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Fishing
-        learned_points: 51
-        max_points: 300
