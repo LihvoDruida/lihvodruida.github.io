@@ -13,14 +13,28 @@ const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 const OAUTH_NONCE_COOKIE_MAX_AGE = 60 * 10;
 const MAX_PARALLEL_OAUTH_FLOWS = 8;
 
-function parseRememberedOAuthNonces(value?: string | null) {
+function normalizeOAuthNonces(values: unknown[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .map((item) => String(item || "").trim())
+        .filter((item): item is string => Boolean(item))
+    )
+  ).slice(-MAX_PARALLEL_OAUTH_FLOWS);
+}
+
+function parseRememberedOAuthNonces(value?: string | null): string[] {
   const raw = String(value || "").trim();
-  if (!raw) return [] as string[];
+  if (!raw) return [];
 
   try {
-    const parsed = JSON.parse(raw);
-    const list = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.nonces) ? parsed.nonces : [];
-    return Array.from(new Set(list.map((item: unknown) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS);
+    const parsed = JSON.parse(raw) as unknown;
+    const list = Array.isArray(parsed)
+      ? parsed
+      : parsed && typeof parsed === "object" && Array.isArray((parsed as { nonces?: unknown }).nonces)
+        ? (parsed as { nonces: unknown[] }).nonces
+        : [];
+    return normalizeOAuthNonces(list);
   } catch {
     // Old deployments stored the whole state string directly in the cookie.
     return [raw];
@@ -28,7 +42,7 @@ function parseRememberedOAuthNonces(value?: string | null) {
 }
 
 function serializeRememberedOAuthNonces(nonces: string[]) {
-  return JSON.stringify({ v: 1, nonces: Array.from(new Set(nonces.map((item) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS) });
+  return JSON.stringify({ v: 1, nonces: normalizeOAuthNonces(nonces) });
 }
 
 function expireOAuthCookie(response: NextResponse, name: string, secure: boolean) {

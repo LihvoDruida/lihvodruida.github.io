@@ -26,14 +26,28 @@ function isEnabled(value: string | null) {
   return /^(1|true|yes|force|switch)$/i.test(String(value || "").trim());
 }
 
-function parseRememberedOAuthNonces(value?: string | null) {
+function normalizeOAuthNonces(values: unknown[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .map((item) => String(item || "").trim())
+        .filter((item): item is string => Boolean(item))
+    )
+  ).slice(-MAX_PARALLEL_OAUTH_FLOWS);
+}
+
+function parseRememberedOAuthNonces(value?: string | null): string[] {
   const raw = String(value || "").trim();
-  if (!raw) return [] as string[];
+  if (!raw) return [];
 
   try {
-    const parsed = JSON.parse(raw);
-    const list = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.nonces) ? parsed.nonces : [];
-    return Array.from(new Set(list.map((item: unknown) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS);
+    const parsed = JSON.parse(raw) as unknown;
+    const list = Array.isArray(parsed)
+      ? parsed
+      : parsed && typeof parsed === "object" && Array.isArray((parsed as { nonces?: unknown }).nonces)
+        ? (parsed as { nonces: unknown[] }).nonces
+        : [];
+    return normalizeOAuthNonces(list);
   } catch {
     // Compatibility with the old single-state cookie. It stores the full state
     // token, so keep it as a candidate instead of deleting it aggressively.
@@ -42,7 +56,7 @@ function parseRememberedOAuthNonces(value?: string | null) {
 }
 
 function serializeRememberedOAuthNonces(nonces: string[]) {
-  return JSON.stringify({ v: 1, nonces: Array.from(new Set(nonces.map((item) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS) });
+  return JSON.stringify({ v: 1, nonces: normalizeOAuthNonces(nonces) });
 }
 
 function expireCookie(response: NextResponse, name: string, secure: boolean) {
