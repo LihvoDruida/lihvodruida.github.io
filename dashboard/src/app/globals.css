@@ -24958,52 +24958,77 @@ main.container {
   }
 }
 
-/* Admin Discord v3: REST/Guild Members diagnostics and safer role hierarchy UI */
-.discord-management-status {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.discord-management-status__item small {
-  white-space: normal;
-  line-height: 1.35;
-}
-
-.discord-management-note {
-  display: grid;
-  gap: 6px;
-  padding: 14px 16px;
+/* vNext: Discord admin role hierarchy diagnostics */
+.discord-management-card--notice {
   border-color: rgba(92, 153, 255, .28);
-  background: linear-gradient(180deg, rgba(28, 47, 79, .34), rgba(8, 10, 14, .78));
+  background: linear-gradient(180deg, rgba(18, 24, 35, .9), rgba(8, 11, 17, .84));
 }
 
-.discord-management-note strong {
-  color: #f4e8d4;
+.discord-management-card--notice.is-ok {
+  border-color: rgba(106, 194, 111, .34);
 }
 
-.discord-management-note p {
-  margin: 0;
-  color: rgba(232, 220, 202, .72);
-  line-height: 1.5;
+.discord-management-card--notice.is-warning {
+  border-color: rgba(255, 190, 88, .42);
 }
 
 .discord-role-checkboxes label.is-disabled {
-  opacity: .58;
   cursor: not-allowed;
-  border-color: rgba(255, 190, 88, .16);
-  background: rgba(255, 190, 88, .045);
+  opacity: .62;
+  border-color: rgba(255, 255, 255, .06);
+  background: rgba(255, 255, 255, .025);
 }
 
 .discord-role-checkboxes label.is-disabled:hover {
   transform: none;
-  border-color: rgba(255, 190, 88, .22);
+  border-color: rgba(255, 255, 255, .06);
+  background: rgba(255, 255, 255, .025);
+}
+
+.discord-role-checkboxes label.is-disabled span {
+  color: rgba(235, 225, 207, .58);
+}
+
+.discord-role-checkboxes label.is-disabled small {
+  color: rgba(255, 190, 88, .78);
+}
+
+.discord-management-details {
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .035);
+  overflow: hidden;
+}
+
+.discord-management-details summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: #ffe08c;
+  font-weight: 800;
+}
+
+.discord-management-blocked-roles {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.discord-management-blocked-roles span {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 190, 88, .14);
+  border-radius: 10px;
   background: rgba(255, 190, 88, .055);
 }
 
-.discord-role-checkboxes label.is-disabled span,
-.discord-role-checkboxes label.is-disabled small {
-  color: rgba(232, 220, 202, .52);
+.discord-management-blocked-roles strong {
+  color: #f2e5ce;
+  font-size: .88rem;
 }
 
-.discord-role-checkboxes input:disabled {
-  cursor: not-allowed;
+.discord-management-blocked-roles small {
+  color: rgba(235, 225, 207, .68);
+  line-height: 1.35;
 }

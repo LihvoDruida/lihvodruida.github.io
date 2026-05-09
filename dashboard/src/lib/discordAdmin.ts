@@ -361,28 +361,32 @@ export type DiscordRoleOption = {
   managed: boolean;
 };
 
+export type DiscordManageableRoleOption = DiscordRoleOption & {
+  manageable: boolean;
+  blockedReason?: string | null;
+  isBotTopRole?: boolean;
+};
+
+export type DiscordBotRoleControlSnapshot = {
+  guild: DiscordGuildSnapshot | null;
+  bot: {
+    id: string;
+    username: string;
+    displayName: string;
+  } | null;
+  botTopRole: DiscordRoleOption | null;
+  botCanManageRoles: boolean;
+  roles: DiscordManageableRoleOption[];
+  manageableRoles: DiscordManageableRoleOption[];
+  blockedRoles: DiscordManageableRoleOption[];
+  error?: string | null;
+};
+
 export type DiscordGuildSnapshot = {
   id: string;
   name: string;
   ownerId?: string | null;
   rules_channel_id?: string | null;
-};
-
-export type DiscordBotManagementSnapshot = {
-  botId: string;
-  botName: string;
-  topRolePosition: number;
-  topRoleName: string | null;
-  manageableRoleIds: string[];
-  unmanageableRoleIds: string[];
-  roleCount: number;
-};
-
-export type DiscordGuildMembersAccessCheck = {
-  ok: boolean;
-  checked: number;
-  message: string;
-  code?: number | string | null;
 };
 
 export type DiscordMessageRef = {
@@ -542,9 +546,7 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
 
   if (!response.ok) {
     const detail = typeof json?.message === "string" ? json.message : raw;
-    const code = json && typeof json === "object" && "code" in json ? String((json as { code?: unknown }).code || "") : "";
-    const codeText = code ? ` code ${code}:` : ":";
-    throw new Error(`Discord API ${response.status}${codeText} ${String(detail || "невідома помилка").slice(0, 220)}`);
+    throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}`);
   }
 
   return (json ?? raw) as T;
@@ -827,6 +829,176 @@ function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapsh
   };
 }
 
+
+function rolePermissions(value: unknown) {
+  try {
+    const raw = typeof value === "bigint" ? value : BigInt(String(value || "0"));
+    return raw >= 0n ? raw : 0n;
+  } catch {
+    return 0n;
+  }
+}
+
+function discordRoleSort(a: Pick<DiscordRoleOption, "id" | "name" | "position">, b: Pick<DiscordRoleOption, "id" | "name" | "position">) {
+  const position = Number(b.position || 0) - Number(a.position || 0);
+  if (position !== 0) return position;
+  try {
+    const snowflakeOrder = BigInt(b.id) > BigInt(a.id) ? 1 : BigInt(b.id) < BigInt(a.id) ? -1 : 0;
+    if (snowflakeOrder !== 0) return snowflakeOrder;
+  } catch {
+    // fall back to name sorting
+  }
+  return String(a.name || "").localeCompare(String(b.name || ""), "uk");
+}
+
+function normalizeDiscordRole(role: any): DiscordRoleOption & { permissionsRaw?: bigint } | null {
+  const id = snowflake(role?.id);
+  if (!id) return null;
+  return {
+    id,
+    name: cleanText(role?.name || "role", 100) || "role",
+    color: Number(role?.color || 0),
+    position: Number(role?.position || 0),
+    managed: Boolean(role?.managed),
+    permissionsRaw: rolePermissions(role?.permissions),
+  };
+}
+
+async function fetchDiscordRawRoles(guildId: string) {
+  const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
+  return (Array.isArray(roles) ? roles : [])
+    .map(normalizeDiscordRole)
+    .filter(Boolean) as Array<DiscordRoleOption & { permissionsRaw?: bigint }>;
+}
+
+async function fetchDiscordCurrentBotUser() {
+  const user = await discordApi<any>("/users/@me");
+  const id = snowflake(user?.id);
+  if (!id) throw new Error("Discord bot token не повернув ID бота.");
+  return {
+    id,
+    username: cleanText(user?.username, 80) || "Discord bot",
+    displayName: cleanText(user?.global_name || user?.username, 100) || "Discord bot",
+  };
+}
+
+function highestRoleForMember(roleIds: string[], roles: DiscordRoleOption[]) {
+  const roleMap = new Map(roles.map((role) => [role.id, role]));
+  return roleIds
+    .map((roleId) => roleMap.get(roleId))
+    .filter(Boolean)
+    .sort(discordRoleSort)[0] || null;
+}
+
+function memberHasManageRolesPermission(memberRoleIds: string[], roles: Array<DiscordRoleOption & { permissionsRaw?: bigint }>, guildId: string) {
+  const roleMap = new Map(roles.map((role) => [role.id, role]));
+  let permissions = roleMap.get(guildId)?.permissionsRaw || 0n;
+  for (const roleId of memberRoleIds) {
+    permissions |= roleMap.get(roleId)?.permissionsRaw || 0n;
+  }
+
+  const ADMINISTRATOR = 1n << 3n;
+  const MANAGE_ROLES = 1n << 28n;
+  return Boolean((permissions & ADMINISTRATOR) === ADMINISTRATOR || (permissions & MANAGE_ROLES) === MANAGE_ROLES);
+}
+
+function roleBlockedReason(role: DiscordRoleOption, guildId: string, botTopRole: DiscordRoleOption | null, botCanManageRoles: boolean) {
+  if (role.id === guildId) return "@everyone не можна видавати або знімати вручну.";
+  if (role.managed) return "Керована Discord/integration роль не може видаватися вручну.";
+  if (!botTopRole) return "Не вдалося визначити найвищу роль бота.";
+  if (!botCanManageRoles) return "У бота немає дозволу “Керувати ролями”.";
+  if (role.id === botTopRole.id) return "Це найвища роль самого бота.";
+  if (Number(role.position || 0) >= Number(botTopRole.position || 0)) {
+    return "Роль знаходиться вище або на одному рівні з найвищою роллю бота.";
+  }
+  return null;
+}
+
+export async function fetchDiscordRoleControlSnapshot(): Promise<DiscordBotRoleControlSnapshot> {
+  const guildId = getDiscordGuildId();
+  if (!guildId) {
+    return {
+      guild: null,
+      bot: null,
+      botTopRole: null,
+      botCanManageRoles: false,
+      roles: [],
+      manageableRoles: [],
+      blockedRoles: [],
+      error: "Discord-сервер не підключений.",
+    };
+  }
+
+  try {
+    const [guild, bot, rawRoles] = await Promise.all([
+      fetchDiscordGuildSnapshot().catch(() => null),
+      fetchDiscordCurrentBotUser(),
+      fetchDiscordRawRoles(guildId),
+    ]);
+
+    const botMember = await discordApi<any>(`/guilds/${guildId}/members/${bot.id}`);
+    const botRoleIds = Array.isArray(botMember?.roles)
+      ? botMember.roles.map((roleId: unknown) => snowflake(roleId)).filter(Boolean)
+      : [];
+    const sortedRoles = rawRoles.sort(discordRoleSort);
+    const botTopRole = highestRoleForMember(botRoleIds, sortedRoles);
+    const botCanManageRoles = memberHasManageRolesPermission(botRoleIds, rawRoles, guildId);
+
+    const roles = sortedRoles
+      .filter((role) => role.id !== guildId)
+      .map((role) => {
+        const blockedReason = roleBlockedReason(role, guildId, botTopRole, botCanManageRoles);
+        return {
+          id: role.id,
+          name: role.name,
+          color: role.color,
+          position: role.position,
+          managed: role.managed,
+          manageable: !blockedReason,
+          blockedReason,
+          isBotTopRole: botTopRole?.id === role.id,
+        } satisfies DiscordManageableRoleOption;
+      });
+
+    return {
+      guild,
+      bot,
+      botTopRole,
+      botCanManageRoles,
+      roles,
+      manageableRoles: roles.filter((role) => role.manageable),
+      blockedRoles: roles.filter((role) => !role.manageable),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      guild: null,
+      bot: null,
+      botTopRole: null,
+      botCanManageRoles: false,
+      roles: [],
+      manageableRoles: [],
+      blockedRoles: [],
+      error: error instanceof Error ? error.message : String(error || "Discord API недоступний."),
+    };
+  }
+}
+
+export async function assertDiscordRolesManageable(roleIdsInput: unknown[]) {
+  const requested = Array.from(new Set(roleIdsInput.map(snowflake).filter(Boolean)));
+  if (!requested.length) throw new Error("Вибери хоча б одну Discord-роль.");
+  const snapshot = await fetchDiscordRoleControlSnapshot();
+  if (snapshot.error) throw new Error(snapshot.error);
+  const roleMap = new Map(snapshot.roles.map((role) => [role.id, role]));
+  const blocked = requested
+    .map((roleId) => roleMap.get(roleId) || { id: roleId, name: roleId, manageable: false, blockedReason: "Роль не знайдено на сервері." })
+    .filter((role) => !role.manageable);
+  if (blocked.length) {
+    throw new Error(blocked.map((role) => `${role.name}: ${role.blockedReason || "роль недоступна для керування."}`).join(" "));
+  }
+  return requested;
+}
+
 export async function fetchDiscordRoles() {
   const guildId = getDiscordGuildId();
   if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
@@ -838,17 +1010,17 @@ export async function fetchDiscordRoles() {
   if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.roles;
 
   try {
-    const roles = await discordApi<any[]>(`/guilds/${guildId}/roles`);
+    const roles = await fetchDiscordRawRoles(guildId);
     const normalized = roles
-      .filter((role) => role && String(role.id) !== guildId && !role.managed)
+      .filter((role) => role.id !== guildId && !role.managed)
       .map((role) => ({
-        id: String(role.id),
-        name: String(role.name || "role"),
-        color: Number(role.color || 0),
-        position: Number(role.position || 0),
-        managed: Boolean(role.managed),
+        id: role.id,
+        name: role.name,
+        color: role.color,
+        position: role.position,
+        managed: role.managed,
       } satisfies DiscordRoleOption))
-      .sort((a, b) => b.position - a.position || a.name.localeCompare(b.name, "uk"));
+      .sort(discordRoleSort);
 
     cache.set(guildId, { checkedAt: Date.now(), roles: normalized });
     return normalized;
@@ -860,57 +1032,6 @@ export async function fetchDiscordRoles() {
   }
 }
 
-export async function fetchDiscordBotManagementSnapshot(rolesInput?: DiscordRoleOption[]): Promise<DiscordBotManagementSnapshot> {
-  const guildId = getDiscordGuildId();
-  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
-
-  const [botUser, roles] = await Promise.all([
-    discordApi<any>("/users/@me"),
-    rolesInput?.length ? Promise.resolve(rolesInput) : fetchDiscordRoles(),
-  ]);
-
-  const botId = snowflake(botUser?.id);
-  if (!botId) throw new Error("Discord bot token не повернув ID бота.");
-
-  const botMember = await fetchDiscordGuildMemberSnapshot(botId, guildId);
-  const botRoleIds = new Set(botMember.roleIds);
-  const botRoles = roles.filter((role) => botRoleIds.has(role.id));
-  const topRole = botRoles.sort((a, b) => b.position - a.position)[0] || null;
-  const topRolePosition = Number(topRole?.position || 0);
-
-  return {
-    botId,
-    botName: cleanText(botUser?.global_name || botUser?.username || botMember.displayName, 80) || "Discord bot",
-    topRolePosition,
-    topRoleName: topRole?.name || null,
-    manageableRoleIds: roles.filter((role) => role.position > 0 && role.position < topRolePosition).map((role) => role.id),
-    unmanageableRoleIds: roles.filter((role) => role.position >= topRolePosition).map((role) => role.id),
-    roleCount: roles.length,
-  };
-}
-
-export async function checkDiscordGuildMembersAccess(): Promise<DiscordGuildMembersAccessCheck> {
-  const guildId = getDiscordGuildId();
-  if (!guildId) {
-    return { ok: false, checked: 0, message: "Discord server ID не налаштовано." };
-  }
-
-  try {
-    const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=1&after=0`);
-    return {
-      ok: true,
-      checked: Array.isArray(members) ? members.length : 0,
-      message: "List Guild Members доступний. Масова перевірка ніків може працювати через REST API.",
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error || "");
-    const privilegedHint = /403|50001|50013|Missing Access|Missing Permissions/i.test(message)
-      ? "List Guild Members недоступний. Увімкни Privileged Gateway Intent: Guild Members у Discord Developer Portal для цього бота. Це потрібно навіть для REST endpoint списку учасників."
-      : message || "List Guild Members недоступний.";
-    const codeMatch = message.match(/code\s+(\d+)/i);
-    return { ok: false, checked: 0, message: privilegedHint, code: codeMatch?.[1] || null };
-  }
-}
 
 function snowflakeToBase36(id: string) {
   return BigInt(id).toString(36);
@@ -1465,25 +1586,17 @@ export async function fetchDiscordGuildMembers(limitInput = 1000) {
   const result: DiscordGuildMemberModerationItem[] = [];
   let after = "0";
 
-  try {
-    while (result.length < safeLimit) {
-      const batchSize = Math.min(1000, safeLimit - result.length);
-      const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=${batchSize}&after=${after}`);
-      if (!Array.isArray(members) || members.length === 0) break;
-      for (const member of members) {
-        const normalized = normalizeGuildMemberForModeration(member);
-        if (normalized) result.push(normalized);
-      }
-      const lastUserId = members[members.length - 1]?.user?.id;
-      if (!lastUserId || String(lastUserId) === after || members.length < batchSize) break;
-      after = String(lastUserId);
+  while (result.length < safeLimit) {
+    const batchSize = Math.min(1000, safeLimit - result.length);
+    const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=${batchSize}&after=${after}`);
+    if (!Array.isArray(members) || members.length === 0) break;
+    for (const member of members) {
+      const normalized = normalizeGuildMemberForModeration(member);
+      if (normalized) result.push(normalized);
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error || "");
-    if (/403|50001|50013|Missing Access|Missing Permissions/i.test(message)) {
-      throw new Error("Discord не віддав список учасників. Для масової перевірки ніків потрібен Privileged Gateway Intent: Guild Members у Developer Portal бота; REST endpoint List Guild Members теж залежить від цього дозволу.");
-    }
-    throw error;
+    const lastUserId = members[members.length - 1]?.user?.id;
+    if (!lastUserId || String(lastUserId) === after || members.length < batchSize) break;
+    after = String(lastUserId);
   }
 
   return result;
