@@ -2,21 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageDiscordMembers } from "@/lib/permissions";
-import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, unauthorizedResponse, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export async function requireDiscordAdmin(request: NextRequest, action: string, bodyLimit = 16 * 1024) {
-  if (!verifyTrustedOrigin(request)) return { error: forbiddenResponse() };
+  if (!verifyTrustedOrigin(request)) {
+    return { error: adminDiscordResponse(request, { ok: false, tone: "error", title: "Дію заблоковано", message: "Недовірене джерело запиту.", status: 403 }) };
+  }
   const tooLarge = assertRequestBodySize(request, bodyLimit);
-  if (tooLarge) return { error: tooLarge };
+  if (tooLarge) {
+    return { error: adminDiscordResponse(request, { ok: false, tone: "error", title: "Запит завеликий", message: "Форма містить забагато даних. Онови сторінку і повтори дію.", status: 413 }) };
+  }
 
   const session = await getSession();
-  if (!session) return { error: unauthorizedResponse("Потрібен вхід у панель.") };
-  if (!canManageDiscordMembers(session)) return { error: forbiddenResponse("Немає права керувати Discord-учасниками.") };
+  if (!session) {
+    return { error: adminDiscordResponse(request, { ok: false, tone: "warning", title: "Потрібен вхід", message: "Сесія застаріла. Увійди в панель ще раз і повтори дію.", status: 401, data: { loginUrl: "/login" } }) };
+  }
+  if (!canManageDiscordMembers(session)) {
+    return { error: adminDiscordResponse(request, { ok: false, tone: "error", title: "Немає доступу", message: "У цього акаунта немає права керувати Discord-учасниками.", status: 403 }) };
+  }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`admin-discord:${action}:${session.id}:${ip}`, action.includes("cleanup") ? 8 : 30, 10 * 60 * 1000);
-  if (!limit.ok) return { error: rateLimitResponse(limit.resetAt) };
+  if (!limit.ok) {
+    return { error: adminDiscordResponse(request, { ok: false, tone: "warning", title: "Забагато дій", message: "Зачекай кілька хвилин і повтори Discord-дію.", status: 429 }) };
+  }
 
   return { session };
 }
