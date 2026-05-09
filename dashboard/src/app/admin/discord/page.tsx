@@ -1,21 +1,11 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers } from "@/lib/permissions";
 import { fetchDiscordGuildSnapshot, fetchDiscordRoles, getDiscordGuildId } from "@/lib/discordAdmin";
-import { recordAdminAudit } from "@/lib/accessGroups";
-import { getGuildNicknamePolicy, nicknameTemplateExample, setGuildDiscordManagementSettings } from "@/lib/guildNicknamePolicy";
-import {
-  addDiscordMemberRoles,
-  inspectDiscordNicknameTemplate,
-  removeDiscordMemberRoles,
-  removeRolesFromMembersWithInvalidNicknames,
-  updateDiscordMemberNickname,
-} from "@/lib/discordMemberManagement";
+import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,116 +16,6 @@ export const metadata = buildPageMetadata({
   path: "/admin/discord",
   keywords: ["Discord", "ролі", "ніки", "керування"],
 });
-
-async function setActionToast(tone: "success" | "info" | "warning" | "error", title: string, message?: string) {
-  const store = await cookies();
-  store.set("dashboard_toast", JSON.stringify({ tone, title, message }), { path: "/", maxAge: 45, sameSite: "lax" });
-}
-
-async function saveDiscordSettingsAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const policy = await setGuildDiscordManagementSettings({
-      template: formData.get("template"),
-      roleRemoveConcurrency: formData.get("roleRemoveConcurrency"),
-      roleRemoveMaxConcurrency: formData.get("roleRemoveMaxConcurrency"),
-      nicknameCleanupConcurrency: formData.get("nicknameCleanupConcurrency"),
-      nicknameCleanupMaxConcurrency: formData.get("nicknameCleanupMaxConcurrency"),
-    }, user);
-    await recordAdminAudit("discord.management_settings.update", user, {
-      template: policy.template,
-      roleRemoveConcurrency: policy.roleRemoveConcurrency,
-      roleRemoveMaxConcurrency: policy.roleRemoveMaxConcurrency,
-      nicknameCleanupConcurrency: policy.nicknameCleanupConcurrency,
-      nicknameCleanupMaxConcurrency: policy.nicknameCleanupMaxConcurrency,
-    });
-    revalidatePath("/admin/discord");
-    revalidatePath("/profile/[profileId]", "page");
-    revalidatePath("/rules/accept");
-    await setActionToast("success", "Discord-налаштування оновлено", `Шаблон: ${policy.template}. Паралельність тепер береться з цієї сторінки.`);
-  } catch (error) {
-    await setActionToast("error", "Налаштування не збережено", error instanceof Error ? error.message : "Перевір шаблон і числові значення.");
-  }
-  redirect("/admin/discord");
-}
-
-async function updateNicknameAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const result = await updateDiscordMemberNickname({ userId: formData.get("userId"), nickname: formData.get("nickname"), reason: `Mistblossom manual nickname update by ${user.name || user.id}` });
-    await recordAdminAudit("discord.member.nickname.update", user, result);
-    await setActionToast("success", "Нік оновлено", `Discord ID ${result.userId}: ${result.nickname}`);
-  } catch (error) {
-    await setActionToast("error", "Нік не оновлено", error instanceof Error ? error.message : "Discord API відхилив зміну ніку.");
-  }
-  redirect("/admin/discord");
-}
-
-async function addRoleAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const result = await addDiscordMemberRoles({ userId: formData.get("userId"), roleIds: formData.getAll("roleIds"), reason: `Mistblossom manual role add by ${user.name || user.id}` });
-    await recordAdminAudit("discord.member.roles.add", user, result);
-    await setActionToast("success", "Роль видано", `Discord ID ${result.userId}: ролей додано ${result.roleIds.length}.`);
-  } catch (error) {
-    await setActionToast("error", "Роль не видано", error instanceof Error ? error.message : "Discord API відхилив видачу ролі.");
-  }
-  redirect("/admin/discord");
-}
-
-async function removeRoleAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const result = await removeDiscordMemberRoles({ userId: formData.get("userId"), roleIds: formData.getAll("roleIds"), reason: `Mistblossom manual role remove by ${user.name || user.id}` });
-    await recordAdminAudit("discord.member.roles.remove", user, result);
-    await setActionToast("success", "Роль знято", `Discord ID ${result.userId}: ролей знято ${result.roleIds.length}.`);
-  } catch (error) {
-    await setActionToast("error", "Роль не знято", error instanceof Error ? error.message : "Discord API відхилив зняття ролі.");
-  }
-  redirect("/admin/discord");
-}
-
-async function inspectNicknameTemplateAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const result = await inspectDiscordNicknameTemplate(Number(formData.get("limit") || 1000));
-    await recordAdminAudit("discord.nickname_policy.inspect", user, { checked: result.checked, mismatched: result.mismatchedTotal, template: result.template });
-    await setActionToast("info", "Перевірку завершено", `Перевірено ${result.checked}. Не відповідають шаблону: ${result.mismatchedTotal}.`);
-  } catch (error) {
-    await setActionToast("error", "Перевірка не виконана", error instanceof Error ? error.message : "Discord API не повернув список учасників.");
-  }
-  redirect("/admin/discord");
-}
-
-async function removeInvalidNicknameRolesAction(formData: FormData) {
-  "use server";
-  const user = await getSession();
-  if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
-  try {
-    const apply = String(formData.get("apply") || "") === "1";
-    const result = await removeRolesFromMembersWithInvalidNicknames({
-      roleIds: formData.getAll("roleIds"),
-      limit: formData.get("limit"),
-      dryRun: !apply,
-      reason: `Nickname does not match Mistblossom template; action by ${user.name || user.id}`,
-    });
-    await recordAdminAudit("discord.member.roles.remove_invalid_nickname", user, { dryRun: result.dryRun, checked: result.checked, targets: result.matchedTargets, changed: result.changed, failed: result.failed });
-    await setActionToast(result.dryRun ? "info" : "success", result.dryRun ? "Попередній перегляд готовий" : "Ролі знято", result.dryRun ? `Знайдено ${result.matchedTargets} учасників із неправильним ніком. Для реального зняття ролей увімкни підтвердження.` : `Змінено ${result.changed}, помилок ${result.failed}.`);
-  } catch (error) {
-    await setActionToast("error", "Масову дію не виконано", error instanceof Error ? error.message : "Перевір роль, права бота і доступ до списку учасників.");
-  }
-  redirect("/admin/discord");
-}
 
 function RoleCheckboxes({ roles }: { roles: Array<{ id: string; name: string; position?: number }> }) {
   if (!roles.length) {
@@ -212,7 +92,7 @@ export default async function AdminDiscordPage() {
             </div>
             <span className="profile-count-pill">{roles.length} ролей</span>
           </div>
-          <p className="profile-card-lead">Цей блок є джерелом правди для шаблону ніку та швидкості масових Discord-дій. `.env` більше не потрібен для цих значень; після збереження вони беруться з панелі.</p>
+          <p className="profile-card-lead">Цей блок є джерелом правди для шаблону ніку та швидкості масових Discord-дій. Після збереження профіль, прийняття правил і Discord-операції беруть ці значення з панелі.</p>
           <form className="discord-management-form discord-management-form--settings" action="/api/admin/discord/settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <label className="field-label discord-management-form__wide">Шаблон ніку
               <input className="input" name="template" defaultValue={policy.template} placeholder="{name} [{characters}]" required />

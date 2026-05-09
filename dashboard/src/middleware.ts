@@ -85,6 +85,22 @@ export function middleware(request: NextRequest) {
     return forbiddenResponse("Недовірене джерело запиту.");
   }
 
+  if (request.method === "POST" && request.nextUrl.pathname === "/admin/discord") {
+    const target = request.nextUrl.clone();
+    target.pathname = "/admin/discord";
+    target.search = "";
+    logDashboardEvent("warn", "middleware.admin_discord_stale_server_action_redirect", request);
+    const response = NextResponse.redirect(target, 303);
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.cookies.set("dashboard_toast", JSON.stringify({
+      tone: "warning",
+      title: "Сторінку Discord-керування оновлено",
+      message: "Форма була з попередньої версії деплою. Відкрий сторінку ще раз і повтори дію — тепер дії йдуть через API, а не Server Action.",
+      ttl: 8200,
+    }), { path: "/", maxAge: 45, sameSite: "lax" });
+    return response;
+  }
+
   const staleRaidActionMatch = request.nextUrl.pathname.match(/^\/raids\/([^/]+)$/);
   if (request.method === "POST" && staleRaidActionMatch && request.nextUrl.searchParams.has("nxtPraidId")) {
     const target = request.nextUrl.clone();
