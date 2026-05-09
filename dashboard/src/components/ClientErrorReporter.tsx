@@ -23,8 +23,12 @@ function errorStack(value: unknown) {
   return "";
 }
 
-function isIgnorableClientError(message: string) {
-  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications/i.test(message);
+export function isIgnorableClientError(message: string) {
+  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(message);
+}
+
+export function isTransientClientStreamError(message: string) {
+  return /Connection closed\.?|Error in input stream/i.test(message);
 }
 
 async function reportClientError(payload: ClientErrorPayload) {

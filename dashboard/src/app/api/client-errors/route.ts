@@ -11,6 +11,10 @@ function cleanStack(value: unknown) {
   return String(value || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").slice(0, 4000);
 }
 
+function isIgnorableClientErrorMessage(message: string) {
+  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(message);
+}
+
 export async function POST(request: NextRequest) {
   const tooLarge = assertRequestBodySize(request, 12 * 1024);
   if (tooLarge) return tooLarge;
@@ -19,6 +23,9 @@ export async function POST(request: NextRequest) {
     const data = await request.json().catch(() => ({}));
     const message = clean(data?.message, 500);
     if (!message) return NextResponse.json({ ok: false, error: "Empty client error." }, { status: 400, headers: noStoreHeaders() });
+    if (isIgnorableClientErrorMessage(message)) {
+      return NextResponse.json({ ok: true, ignored: true }, { headers: noStoreHeaders() });
+    }
 
     const session = await getSession().catch(() => null);
     const details = {
