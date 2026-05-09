@@ -334,7 +334,7 @@ const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   token: { tone: "error", title: "Вхід не виконано", message: "Резервний ключ недійсний або застарів." },
   session_required: { tone: "warning", title: "Потрібен вхід", message: "Увійди в акаунт, щоб продовжити дію." },
   discord_only: { tone: "warning", title: "Доступ через Discord", message: "Для входу в панель використовується Discord." },
-  oauth_state: { tone: "warning", title: "Перевірка Discord не пройшла", message: "Спробуй авторизуватися ще раз." },
+  oauth_state: { tone: "warning", title: "Вхід Discord не завершився", message: "Спробуй авторизуватися ще раз. Паралельні входи з різних вкладок тепер не мають блокувати один одного." },
   oauth_failed: { tone: "error", title: "Авторизація не вдалася", message: "Спробуй повторити вхід через Discord. Якщо помилка лишиться — звернись до гільдмайстра." },
   access_denied: { tone: "error", title: "Доступ заборонено", message: "У цього акаунта немає потрібної ролі." },
 };

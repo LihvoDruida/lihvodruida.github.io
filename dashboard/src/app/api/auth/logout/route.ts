@@ -8,6 +8,8 @@ import {
 } from "@/lib/session";
 import { logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
+const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
+
 function expireAuthCookies(response: NextResponse) {
   response.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
@@ -31,6 +33,13 @@ function expireAuthCookies(response: NextResponse) {
   });
   response.cookies.set(LEGACY_OAUTH_STATE_COOKIE, "", {
     httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  response.cookies.set(LOGIN_NEXT_COOKIE, "", {
+    httpOnly: true,
+    secure: true,
     sameSite: "lax",
     path: "/",
     maxAge: 0,

@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { OAUTH_STATE_COOKIE } from "@/lib/auth";
-import { buildDiscordOAuthUrl, randomState } from "@/lib/oauth";
+import {
+  LEGACY_OAUTH_STATE_COOKIE,
+  LEGACY_SESSION_COOKIE,
+  OAUTH_STATE_COOKIE,
+  SESSION_COOKIE,
+  createOAuthStateToken,
+} from "@/lib/auth";
+import { buildDiscordOAuthUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
+const OAUTH_NONCE_COOKIE_MAX_AGE = 60 * 10;
+const MAX_PARALLEL_OAUTH_FLOWS = 8;
 
 function safeNextPath(value: string | null) {
   const path = String(value || "").trim();
@@ -14,11 +22,49 @@ function safeNextPath(value: string | null) {
   return "";
 }
 
+function isEnabled(value: string | null) {
+  return /^(1|true|yes|force|switch)$/i.test(String(value || "").trim());
+}
+
+function parseRememberedOAuthNonces(value?: string | null) {
+  const raw = String(value || "").trim();
+  if (!raw) return [] as string[];
+
+  try {
+    const parsed = JSON.parse(raw);
+    const list = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.nonces) ? parsed.nonces : [];
+    return Array.from(new Set(list.map((item: unknown) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS);
+  } catch {
+    // Compatibility with the old single-state cookie. It stores the full state
+    // token, so keep it as a candidate instead of deleting it aggressively.
+    return [raw];
+  }
+}
+
+function serializeRememberedOAuthNonces(nonces: string[]) {
+  return JSON.stringify({ v: 1, nonces: Array.from(new Set(nonces.map((item) => String(item || "").trim()).filter(Boolean))).slice(-MAX_PARALLEL_OAUTH_FLOWS) });
+}
+
+function expireCookie(response: NextResponse, name: string, secure: boolean) {
+  response.cookies.set(name, "", {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
+function clearLocalSessionOnResponse(response: NextResponse) {
+  expireCookie(response, SESSION_COOKIE, true);
+  expireCookie(response, LEGACY_SESSION_COOKIE, false);
+}
+
 export async function GET(request: NextRequest) {
   logDashboardEvent("info", "auth.discord.start", request);
 
   const ip = getClientIp(request);
-  const limit = checkRateLimit(`discord-oauth-start:${ip}`, 20, 10 * 60 * 1000);
+  const limit = checkRateLimit(`discord-oauth-start:${ip}`, 30, 10 * 60 * 1000);
 
   if (!limit.ok) {
     logDashboardEvent("warn", "auth.discord.start.rate_limited", request, { resetAt: limit.resetAt });
@@ -27,29 +73,30 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
-  const state = randomState();
-  const nextPath = safeNextPath(new URL(request.url).searchParams.get("next"));
+  const url = new URL(request.url);
+  const nextPath = safeNextPath(url.searchParams.get("next"));
+  const forceFreshLogin = isEnabled(url.searchParams.get("force")) || isEnabled(url.searchParams.get("switch")) || isEnabled(url.searchParams.get("reauth"));
+  const state = await createOAuthStateToken(nextPath);
   const store = await cookies();
-  store.set(OAUTH_STATE_COOKIE, state, {
+  const remembered = parseRememberedOAuthNonces(store.get(OAUTH_STATE_COOKIE)?.value || store.get(LEGACY_OAUTH_STATE_COOKIE)?.value);
+  const nonces = [...remembered, state.nonce].slice(-MAX_PARALLEL_OAUTH_FLOWS);
+
+  const response = NextResponse.redirect(buildDiscordOAuthUrl(state.token), 303);
+  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
+
+  response.cookies.set(OAUTH_STATE_COOKIE, serializeRememberedOAuthNonces(nonces), {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 10,
+    maxAge: OAUTH_NONCE_COOKIE_MAX_AGE,
   });
-  if (nextPath) {
-    store.set(LOGIN_NEXT_COOKIE, nextPath, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 10,
-    });
-  } else {
-    store.delete(LOGIN_NEXT_COOKIE);
+  expireCookie(response, LEGACY_OAUTH_STATE_COOKIE, false);
+  expireCookie(response, LOGIN_NEXT_COOKIE, true);
+
+  if (forceFreshLogin) {
+    clearLocalSessionOnResponse(response);
   }
 
-  const response = NextResponse.redirect(buildDiscordOAuthUrl(state));
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
   return response;
 }

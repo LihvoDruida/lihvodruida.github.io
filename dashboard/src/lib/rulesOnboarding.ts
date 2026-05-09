@@ -94,7 +94,7 @@ export function rulesAcceptUrl(roleIds: string[]) {
 export function rulesLoginPath(roleToken: string) {
   const safeToken = String(roleToken || "").trim();
   const next = safeToken ? `/rules/accept?rt=${encodeURIComponent(safeToken)}` : "/rules/accept";
-  return `/api/auth/discord/start?next=${encodeURIComponent(next)}`;
+  return `/api/auth/discord/start?force=1&next=${encodeURIComponent(next)}`;
 }
 
 export function rulesLoginUrl(roleIds: string[]) {

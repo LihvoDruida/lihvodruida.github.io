@@ -29,6 +29,7 @@ export const LEGACY_SESSION_COOKIE = "mistblossom_dashboard_session";
 export const OAUTH_STATE_COOKIE = "__Host-mistblossom_oauth_state";
 export const LEGACY_OAUTH_STATE_COOKIE = "mistblossom_oauth_state";
 const SESSION_AUDIENCE = "mistblossom-dashboard";
+const OAUTH_STATE_AUDIENCE = "mistblossom-oauth-state";
 function getSessionMaxAgeSeconds() {
   const parsed = Number(process.env.SESSION_MAX_AGE_SECONDS || 60 * 60 * 24 * 7);
   if (!Number.isFinite(parsed) || parsed < 60 * 30) return 60 * 60 * 24 * 7;
@@ -167,6 +168,71 @@ function constantTimeEqual(a: string, b: string) {
     diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
   }
   return diff === 0;
+}
+
+
+export type OAuthStatePayload = {
+  nonce: string;
+  nextPath?: string;
+  issuedAt: number;
+};
+
+function safeOAuthNextPath(value?: string | null) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 1500) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (path === "/" || /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
+  return "";
+}
+
+function createNonce(bytesLength = 24) {
+  const bytes = new Uint8Array(bytesLength);
+  crypto.getRandomValues(bytes);
+  return base64UrlEncode(bytes);
+}
+
+export async function createOAuthStateToken(nextPathInput?: string | null): Promise<OAuthStatePayload & { token: string }> {
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const nonce = createNonce();
+  const nextPath = safeOAuthNextPath(nextPathInput) || undefined;
+  const payload = base64UrlEncode(JSON.stringify({
+    aud: OAUTH_STATE_AUDIENCE,
+    n: nonce,
+    next: nextPath || null,
+    iat: issuedAt,
+  }));
+  return {
+    nonce,
+    nextPath,
+    issuedAt,
+    token: `${payload}.${await sign(payload)}`,
+  };
+}
+
+export async function parseOAuthStateToken(token?: string | null): Promise<OAuthStatePayload | null> {
+  const value = String(token || "").trim();
+  if (!value || !value.includes(".")) return null;
+  const [payload, signature, extra] = value.split(".");
+  if (!payload || !signature || extra) return null;
+  const expected = await sign(payload);
+  if (!constantTimeEqual(expected, signature)) return null;
+
+  try {
+    const parsed = JSON.parse(base64UrlDecode(payload));
+    if (!parsed || parsed.aud !== OAUTH_STATE_AUDIENCE) return null;
+    const nonce = String(parsed.n || "").trim();
+    const issuedAt = Number(parsed.iat || 0);
+    const now = Math.floor(Date.now() / 1000);
+    if (!nonce || !Number.isFinite(issuedAt)) return null;
+    if (issuedAt > now + 60 || now - issuedAt > 60 * 10) return null;
+    return {
+      nonce,
+      nextPath: safeOAuthNextPath(parsed.next),
+      issuedAt,
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function sha256Base64Url(value: string) {

@@ -17,7 +17,7 @@ function safeNextPath(value?: string) {
   const path = String(value || "").trim();
   if (!path || path.length > 220) return "";
   if (!path.startsWith("/") || path.startsWith("//")) return "";
-  if (path === "/" || /^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  if (path === "/" || /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
   return "";
 }
 
@@ -27,7 +27,7 @@ function errorText(error?: string) {
   const map: Record<string, string> = {
     access_denied: "Доступ закрито: потрібна роль адміна, модератора, наставника або дозволений доступ учасника гільдії.",
     discord_oauth: "Discord не завершив авторизацію. Спробуй ще раз.",
-    oauth_state: "Сесія входу застаріла. Повтори авторизацію.",
+    oauth_state: "Сесія входу застаріла або було відкрито кілька входів одночасно. Натисни вхід ще раз — тепер паралельні входи обробляються без блокування.",
     discord_required: "Для входу потрібен Discord.",
     discord_only: "GitHub вхід вимкнено. Використай Discord.",
     token: "Резервний ключ неправильний.",
@@ -37,14 +37,27 @@ function errorText(error?: string) {
   return map[error] || "Не вдалося увійти. Перевір доступ у Discord.";
 }
 
+function isEnabled(value?: string) {
+  return /^(1|true|yes|force|switch)$/i.test(String(value || "").trim());
+}
+
+function discordStartPath(nextPath: string, forceFreshLogin: boolean) {
+  const params = new URLSearchParams();
+  if (forceFreshLogin) params.set("force", "1");
+  if (nextPath) params.set("next", nextPath);
+  const query = params.toString();
+  return `/api/auth/discord/start${query ? `?${query}` : ""}`;
+}
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; force?: string; switch?: string; reauth?: string }>;
 }) {
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
-  if (await isAuthenticated()) redirect(nextPath || "/");
+  const forceFreshLogin = isEnabled(params.force) || isEnabled(params.switch) || isEnabled(params.reauth);
+  if (!forceFreshLogin && await isAuthenticated()) redirect(nextPath || "/");
 
   const guild = await getGuildBranding();
   const error = errorText(params.error);
@@ -100,7 +113,7 @@ export default async function LoginPage({
 
           <div className="login-action-row">
             {hasDiscord ? (
-              <a className="login-discord-button" href={nextPath ? `/api/auth/discord/start?next=${encodeURIComponent(nextPath)}` : "/api/auth/discord/start"}>
+              <a className="login-discord-button" href={discordStartPath(nextPath, forceFreshLogin)}>
                 <span className="login-discord-button__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false">
                     <path
