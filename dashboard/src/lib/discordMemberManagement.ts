@@ -3,6 +3,7 @@ import "server-only";
 import { mapConcurrentSettled } from "@/lib/concurrency";
 import {
   addGuildMemberRoles,
+  fetchDiscordGuildMemberSnapshot,
   fetchDiscordGuildMembers,
   getDiscordGuildId,
   removeGuildMemberRoles,
@@ -29,6 +30,27 @@ function displayName(member: DiscordGuildMemberModerationItem) {
   return member.nick || member.globalName || member.username || member.userId;
 }
 
+function explainDiscordModerationError(error: unknown, action: string) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (/50013|Missing Permissions|permission/i.test(message)) {
+    return `${action}: Discord не дозволив дію. Найчастіше причина — роль бота нижче цільової ролі/учасника, або цільовий користувач є власником сервера.`;
+  }
+  if (/10007|Unknown Member|404/i.test(message)) {
+    return `${action}: учасника не знайдено на цьому Discord-сервері.`;
+  }
+  if (/50001|Missing Access/i.test(message)) {
+    return `${action}: бот не має доступу до цього сервера або каналу керування.`;
+  }
+  if (/token|401|Unauthorized/i.test(message)) {
+    return `${action}: Discord bot token недійсний або не налаштований.`;
+  }
+  return message || `${action}: Discord API не виконав дію.`;
+}
+
+async function memberSnapshot(userId: string) {
+  return fetchDiscordGuildMemberSnapshot(userId).catch(() => null);
+}
+
 export async function updateDiscordMemberNickname(input: { userId: unknown; nickname: unknown; reason?: string }) {
   const guildId = getDiscordGuildId();
   const userId = snowflake(input.userId);
@@ -36,8 +58,16 @@ export async function updateDiscordMemberNickname(input: { userId: unknown; nick
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!nickname) throw new Error("Вкажи новий серверний нік.");
-  await updateGuildMemberNickname({ guildId, userId, nickname, reason: input.reason || "Mistblossom manual nickname update" });
-  return { userId, nickname };
+  try {
+    await updateGuildMemberNickname({ guildId, userId, nickname, reason: input.reason || "Mistblossom manual nickname update" });
+  } catch (error) {
+    throw new Error(explainDiscordModerationError(error, "Зміна ніку"));
+  }
+  const snapshot = await memberSnapshot(userId);
+  if (snapshot?.nick && snapshot.nick !== nickname) {
+    throw new Error("Discord прийняв запит, але серверний нік не змінився. Перевір ієрархію ролей бота або зміни нік вручну.");
+  }
+  return { userId, nickname, displayName: snapshot?.displayName || nickname };
 }
 
 export async function addDiscordMemberRoles(input: { userId: unknown; roleIds: unknown; reason?: string }) {
@@ -47,8 +77,17 @@ export async function addDiscordMemberRoles(input: { userId: unknown; roleIds: u
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!roleIds.length) throw new Error("Вибери хоча б одну Discord-роль.");
-  await addGuildMemberRoles({ guildId, userId, roleIds, reason: input.reason || "Mistblossom manual role add" });
-  return { userId, roleIds };
+  try {
+    await addGuildMemberRoles({ guildId, userId, roleIds, reason: input.reason || "Mistblossom manual role add" });
+  } catch (error) {
+    throw new Error(explainDiscordModerationError(error, "Видача ролі"));
+  }
+  const snapshot = await memberSnapshot(userId);
+  const missing = snapshot ? roleIds.filter((roleId) => !snapshot.roleIds.includes(roleId)) : [];
+  if (missing.length) {
+    throw new Error(`Discord прийняв запит, але ролі не зʼявилися в учасника: ${missing.join(", ")}. Перевір ієрархію ролей бота.`);
+  }
+  return { userId, roleIds, displayName: snapshot?.displayName || userId };
 }
 
 export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds: unknown; reason?: string }) {
@@ -59,15 +98,24 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!roleIds.length) throw new Error("Вибери хоча б одну Discord-роль.");
   const policy = await getGuildNicknamePolicy();
-  await removeGuildMemberRoles({
-    guildId,
-    userId,
-    roleIds,
-    reason: input.reason || "Mistblossom manual role remove",
-    concurrency: policy.roleRemoveConcurrency,
-    maxConcurrency: policy.roleRemoveMaxConcurrency,
-  });
-  return { userId, roleIds };
+  try {
+    await removeGuildMemberRoles({
+      guildId,
+      userId,
+      roleIds,
+      reason: input.reason || "Mistblossom manual role remove",
+      concurrency: policy.roleRemoveConcurrency,
+      maxConcurrency: policy.roleRemoveMaxConcurrency,
+    });
+  } catch (error) {
+    throw new Error(explainDiscordModerationError(error, "Зняття ролі"));
+  }
+  const snapshot = await memberSnapshot(userId);
+  const stillPresent = snapshot ? roleIds.filter((roleId) => snapshot.roleIds.includes(roleId)) : [];
+  if (stillPresent.length) {
+    throw new Error(`Discord прийняв запит, але ролі досі є в учасника: ${stillPresent.join(", ")}. Перевір ієрархію ролей бота.`);
+  }
+  return { userId, roleIds, displayName: snapshot?.displayName || userId };
 }
 
 export async function inspectDiscordNicknameTemplate(limit = 1000) {

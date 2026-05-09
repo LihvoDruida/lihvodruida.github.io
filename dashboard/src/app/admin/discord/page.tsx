@@ -6,7 +6,7 @@ import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers } from "@/lib/permissions";
-import { fetchDiscordRoles } from "@/lib/discordAdmin";
+import { fetchDiscordGuildSnapshot, fetchDiscordRoles, getDiscordGuildId } from "@/lib/discordAdmin";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { getGuildNicknamePolicy, nicknameTemplateExample, setGuildDiscordManagementSettings } from "@/lib/guildNicknamePolicy";
 import {
@@ -138,6 +138,9 @@ async function removeInvalidNicknameRolesAction(formData: FormData) {
 }
 
 function RoleCheckboxes({ roles }: { roles: Array<{ id: string; name: string; position?: number }> }) {
+  if (!roles.length) {
+    return <div className="discord-role-checkboxes discord-role-checkboxes--empty">Discord-ролі не завантажились. Перевір bot token, guild ID і право Manage Roles.</div>;
+  }
   return (
     <div className="discord-role-checkboxes">
       {roles.map((role) => (
@@ -159,10 +162,14 @@ export default async function AdminDiscordPage() {
     throw new Error("Access denied");
   }
 
-  const [policy, roles] = await Promise.all([
+  const [policy, rolesResult, guild] = await Promise.all([
     getGuildNicknamePolicy(),
-    fetchDiscordRoles().catch(() => []),
+    fetchDiscordRoles().then((roles) => ({ roles, error: "" })).catch((error) => ({ roles: [], error: error instanceof Error ? error.message : "Discord ролі недоступні" })),
+    fetchDiscordGuildSnapshot().catch(() => null),
   ]);
+  const roles = rolesResult.roles;
+  const hasManageableRoles = roles.length > 0;
+  const guildId = getDiscordGuildId();
 
   return (
     <main className="container admin-container">
@@ -176,11 +183,26 @@ export default async function AdminDiscordPage() {
           </div>
           <div className="hero-actions">
             <span className="status-pill">Доступ: {user.groupName || user.role}</span>
-            <span className="status-pill good">Шаблон активний</span>
+            <span className={`status-pill ${guild ? "good" : "warning"}`}>{guild ? guild.name : guildId ? "Discord API недоступний" : "Discord не підключено"}</span>
           </div>
         </header>
 
         <AdminTabs active="discord" />
+
+        <section className="discord-management-status" aria-label="Стан Discord-підключення">
+          <div className={`discord-management-status__item ${guildId ? "is-ok" : "is-warning"}`}>
+            <strong>{guildId || "—"}</strong>
+            <small>Discord server ID</small>
+          </div>
+          <div className={`discord-management-status__item ${guild ? "is-ok" : "is-warning"}`}>
+            <strong>{guild?.name || "Сервер не прочитано"}</strong>
+            <small>{guild ? "Bot API відповідає" : "Перевір DISCORD_BOT_TOKEN і права бота"}</small>
+          </div>
+          <div className={`discord-management-status__item ${rolesResult.error ? "is-warning" : "is-ok"}`}>
+            <strong>{roles.length}</strong>
+            <small>{rolesResult.error ? `Ролі недоступні: ${rolesResult.error}` : "Доступних ролей для керування"}</small>
+          </div>
+        </section>
 
         <section className="panel discord-management-card" aria-label="Глобальний шаблон ніку">
           <div className="profile-card-head profile-card-head--inline">
@@ -191,7 +213,7 @@ export default async function AdminDiscordPage() {
             <span className="profile-count-pill">{roles.length} ролей</span>
           </div>
           <p className="profile-card-lead">Цей блок є джерелом правди для шаблону ніку та швидкості масових Discord-дій. `.env` більше не потрібен для цих значень; після збереження вони беруться з панелі.</p>
-          <form className="discord-management-form discord-management-form--settings" action={saveDiscordSettingsAction}>
+          <form className="discord-management-form discord-management-form--settings" action="/api/admin/discord/settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <label className="field-label discord-management-form__wide">Шаблон ніку
               <input className="input" name="template" defaultValue={policy.template} placeholder="{name} [{characters}]" required />
               <small>Доступні змінні: <code>{"{name}"}</code>, <code>{"{main}"}</code>, <code>{"{alts}"}</code>, <code>{"{characters}"}</code>. Приклад: {nicknameTemplateExample(policy.template)}</small>
@@ -228,28 +250,28 @@ export default async function AdminDiscordPage() {
         </section>
 
         <section className="discord-management-grid" aria-label="Дії з учасниками Discord">
-          <form className="panel discord-management-card" action={updateNicknameAction}>
+          <form className="panel discord-management-card" action="/api/admin/discord/nickname" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Учасник</span><h2>Перейменувати на сервері</h2></div>
             <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
             <label className="field-label">Новий серверний нік<input className="input" name="nickname" maxLength={32} required placeholder={nicknameTemplateExample(policy.template)} /></label>
             <button className="btn primary" type="submit">Змінити нік</button>
           </form>
 
-          <form className="panel discord-management-card" action={addRoleAction}>
+          <form className="panel discord-management-card" action="/api/admin/discord/roles/add" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Додати роль учаснику</h2></div>
             <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
             <RoleCheckboxes roles={roles} />
-            <button className="btn primary" type="submit">Додати вибрані ролі</button>
+            <button className="btn primary" type="submit" disabled={!hasManageableRoles}>Додати вибрані ролі</button>
           </form>
 
-          <form className="panel discord-management-card" action={removeRoleAction}>
+          <form className="panel discord-management-card" action="/api/admin/discord/roles/remove" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Зняти роль з учасника</h2></div>
             <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
             <RoleCheckboxes roles={roles} />
-            <button className="btn danger" type="submit" data-confirm-message="Зняти вибрані ролі з цього учасника?">Зняти вибрані ролі</button>
+            <button className="btn danger" type="submit" disabled={!hasManageableRoles} data-confirm-message="Зняти вибрані ролі з цього учасника?">Зняти вибрані ролі</button>
           </form>
 
-          <form className="panel discord-management-card discord-management-card--wide" action={removeInvalidNicknameRolesAction}>
+          <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/nicknames/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Зняти ролі за неправильний нік</h2></div>
             <p className="profile-card-lead">Перевіряє серверні ніки за глобальним шаблоном і знімає тільки вибрані ролі. Спочатку запускай як попередній перегляд. Для списку учасників бот має мати доступ до Guild Members.</p>
             <label className="field-label">Ліміт учасників для перевірки<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="1000" /></label>
@@ -259,8 +281,8 @@ export default async function AdminDiscordPage() {
               <span>Підтверджую реальне зняття ролей. Без цієї галочки буде тільки попередній перегляд.</span>
             </label>
             <div className="form-actions">
-              <button className="btn subtle" formAction={inspectNicknameTemplateAction} type="submit">Тільки перевірити шаблон</button>
-              <button className="btn danger" type="submit" data-confirm-message="Ця дія може масово зняти вибрані ролі. Продовжити?">Запустити перевірку ролей</button>
+              <button className="btn subtle" formAction="/api/admin/discord/nicknames/inspect" formMethod="post" type="submit">Тільки перевірити шаблон</button>
+              <button className="btn danger" type="submit" disabled={!hasManageableRoles} data-confirm-message="Ця дія може масово зняти вибрані ролі. Продовжити?">Запустити перевірку ролей</button>
             </div>
           </form>
         </section>

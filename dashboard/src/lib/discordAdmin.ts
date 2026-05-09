@@ -500,7 +500,7 @@ function encodeAuditReason(reason?: string) {
 
 export async function discordApi<T = any>(path: string, init: DiscordRequestInit = {}): Promise<T> {
   const token = getBotToken();
-  if (!token) throw new Error("Публікація в Discord тимчасово недоступна.");
+  if (!token) throw new Error("Discord bot token не налаштований. Дії з ролями, ніками та учасниками не можуть виконуватись напряму через Discord API.");
 
   const headers = new Headers(init.headers || {});
   headers.set("Authorization", `Bot ${token}`);

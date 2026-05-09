@@ -41,6 +41,12 @@ function actionText(action: string) {
   if (action.includes("/delete")) return { label: "Видаляємо...", title: "Видаляємо", message: "Обробляємо запит і оновлюємо дані." };
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
+  if (action.includes("/api/admin/discord/settings")) return { label: "Зберігаємо...", title: "Зберігаємо Discord-налаштування", message: "Оновлюємо шаблон ніку та ліміти масових Discord-дій." };
+  if (action.includes("/api/admin/discord/nickname")) return { label: "Змінюємо...", title: "Змінюємо нік у Discord", message: "Надсилаємо PATCH-запит до Discord і перевіряємо результат." };
+  if (action.includes("/api/admin/discord/roles/add")) return { label: "Видаємо...", title: "Видаємо ролі в Discord", message: "Надсилаємо роль учаснику та перевіряємо, що вона зʼявилась." };
+  if (action.includes("/api/admin/discord/roles/remove")) return { label: "Знімаємо...", title: "Знімаємо ролі в Discord", message: "Знімаємо вибрані ролі та перевіряємо результат." };
+  if (action.includes("/api/admin/discord/nicknames/inspect")) return { label: "Перевіряємо...", title: "Перевіряємо ніки Discord", message: "Звіряємо серверні ніки з глобальним шаблоном." };
+  if (action.includes("/api/admin/discord/nicknames/cleanup")) return { label: "Запускаємо...", title: "Перевіряємо ніки та ролі", message: "Готуємо попередній перегляд або виконуємо підтверджене зняття ролей." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
   if (action.includes("/api/raids/publish")) return { label: "Публікуємо...", title: "Публікуємо рейд", message: "Оновлюємо Discord-оголошення та кнопки запису." };
   if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Зберігаємо рейд", message: "Зберігаємо зміни в панелі." };
@@ -184,6 +190,10 @@ export default function DashboardFormEnhancer() {
 
         if (response.ok) {
           notifyDashboardDataChanged({ scope: mutationScopeFromAction(action), action, source: "form-enhancer" });
+          const shouldRefresh = Boolean(data && typeof data === "object" && "refresh" in data && (data as { refresh?: unknown }).refresh);
+          if (shouldRefresh) {
+            window.setTimeout(() => window.location.reload(), 650);
+          }
         }
       } catch {
         dispatchDashboardToast({
