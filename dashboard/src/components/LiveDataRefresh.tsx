@@ -77,8 +77,11 @@ function routePolicy(pathname: string): RefreshPolicy {
     return { ...DEFAULT_POLICY, intervalMs: 75_000, minSpacingMs: 15_000, label: "Discord" };
   }
 
-  if (pathname === "/discord/embed" || pathname === "/content") {
-    return { ...DEFAULT_POLICY, intervalMs: 0, minSpacingMs: 15_000, label: "редактор", skipWhenEditing: true };
+  if (pathname === "/discord/embed" || pathname === "/discord/rules/new" || pathname === "/discord/rules/edit" || pathname === "/content") {
+    // Editors keep large controlled forms and live previews. Background refreshes
+    // can replace server payload while a user is typing and cause hydration/client
+    // state errors, so editor pages refresh only through explicit actions.
+    return { ...DEFAULT_POLICY, enabled: false, intervalMs: 0, label: "редактор", focusRefresh: false };
   }
 
   if (pathname.startsWith("/admin")) {

@@ -370,12 +370,12 @@ function formatDiscordTimestamp(unixSeconds: string, style = "f") {
   const date = new Date(timestamp * 1000);
   if (Number.isNaN(date.getTime())) return `<t:${unixSeconds}${style ? `:${style}` : ""}>`;
 
-  if (style === "t") return new Intl.DateTimeFormat("uk-UA", { hour: "2-digit", minute: "2-digit" }).format(date);
-  if (style === "T") return new Intl.DateTimeFormat("uk-UA", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
-  if (style === "d") return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
-  if (style === "D") return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+  if (style === "t") return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", hour: "2-digit", minute: "2-digit" }).format(date);
+  if (style === "T") return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
+  if (style === "d") return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  if (style === "D") return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "long", year: "numeric" }).format(date);
   if (style === "R") return "відносний час";
-  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
 function firstInlineToken(value: string): InlineMarkdownToken | null {
@@ -568,18 +568,25 @@ function DiscordMarkdown({ value, compact = false }: { value: string; compact?: 
   );
 }
 
-function formatPreviewTimestamp() {
-  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date());
+function formatPreviewTimestamp(date = new Date()) {
+  return new Intl.DateTimeFormat("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
 function DiscordPreview({ embed, content, isValid, mentionRoles = [], previewMode = "desktop", onPreviewModeChange }: { embed: EmbedObject; content: string; isValid: boolean; mentionRoles?: DiscordRoleOption[]; previewMode?: PreviewMode; onPreviewModeChange?: (mode: PreviewMode) => void }) {
+  const [previewNow, setPreviewNow] = useState({ label: "зараз", iso: "" });
+
+  useEffect(() => {
+    const now = new Date();
+    setPreviewNow({ label: formatPreviewTimestamp(now), iso: now.toISOString() });
+  }, []);
+
   const color = typeof embed?.color === "number" ? `#${Math.max(0, Math.min(0xffffff, embed.color)).toString(16).padStart(6, "0")}` : COLOR_FALLBACK;
   const author = embed?.author && typeof embed.author === "object" ? embed.author as Record<string, unknown> : null;
   const footer = embed?.footer && typeof embed.footer === "object" ? embed.footer as Record<string, unknown> : null;
   const fields = Array.isArray(embed?.fields) ? embed.fields.slice(0, 25) : [];
   const thumbnail = urlFrom(embed?.thumbnail);
   const image = urlFrom(embed?.image);
-  const previewTimestamp = embed?.timestamp ? formatPreviewTimestamp() : "";
+  const previewTimestamp = embed?.timestamp ? previewNow.label : "";
 
   return (
     <aside className={`discord-preview-panel panel discord-preview-panel--${previewMode}`} aria-label="Попередній перегляд Discord-повідомлення">
@@ -596,7 +603,7 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [], previewMod
           <div className="discord-chat-preview__body">
             <div className="discord-chat-preview__meta">
               <strong>Mistblossom Bot</strong>
-              <span>{formatPreviewTimestamp()}</span>
+              <span suppressHydrationWarning>{previewNow.label}</span>
             </div>
 
             {(mentionRoles.length > 0 || content) ? (
@@ -642,7 +649,7 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [], previewMod
                       {footer?.icon_url ? <img src={text(footer.icon_url)} alt="" /> : null}
                       {footer?.text ? <span>{text(footer.text)}</span> : null}
                       {footer?.text && previewTimestamp ? <span className="discord-preview-footer-separator">•</span> : null}
-                      {previewTimestamp ? <time dateTime={new Date().toISOString()}>{previewTimestamp}</time> : null}
+                      {previewTimestamp ? <time dateTime={previewNow.iso || undefined} suppressHydrationWarning>{previewTimestamp}</time> : null}
                     </footer>
                   ) : null}
                 </div>
@@ -1077,13 +1084,14 @@ export default function DiscordEmbedEditor({
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за посиланням" : "Редагування" : "Створення"}</span>
           </div>
 
-          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-toast-managed="true" onSubmit={handleSubmit}>
+          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-dashboard-action-form="true" data-dashboard-live-submit="true" data-dashboard-action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="ruleType" value={ruleType} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <input type="hidden" name="action" value={effectiveSubmitAction} />
             <input type="hidden" name="messageLink" value={messageLink} />
             <input type="hidden" name="embedJson" value={generatedEmbedJson} />
+            <input type="hidden" name="fieldsJson" value={JSON.stringify(fields)} />
 
             <div className="content-form-section discord-visual-section discord-visual-section--edit">
               <div className="content-form-section-head">
@@ -1147,6 +1155,7 @@ export default function DiscordEmbedEditor({
                       id="discord-embed-color-picker"
                       className="discord-color-picker"
                       type="color"
+                      name="colorPickerHex"
                       value={normalizedColor || COLOR_FALLBACK}
                       onChange={(event) => setColorHex(event.currentTarget.value.toUpperCase())}
                       aria-label="Вибрати колір повідомлення"
@@ -1158,6 +1167,7 @@ export default function DiscordEmbedEditor({
                     <input
                       id="discord-embed-color-code"
                       className="input discord-color-code"
+                      name="colorHex"
                       value={colorHex}
                       placeholder="#B8E986"
                       maxLength={7}
@@ -1167,7 +1177,7 @@ export default function DiscordEmbedEditor({
                   </label>
 
                   <label className="inline-check discord-inline-check discord-timestamp-check">
-                    <input id="discord-embed-timestamp-enabled" type="checkbox" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
+                    <input id="discord-embed-timestamp-enabled" type="checkbox" name="timestampEnabled" value="true" checked={timestampEnabled} onChange={(event) => setTimestampEnabled(event.currentTarget.checked)} />
                     <span>Додати дату</span>
                   </label>
                 </div>
@@ -1196,18 +1206,18 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Title</span>
-                  <input id="discord-embed-title" className="input" value={titleValue} maxLength={DISCORD_LIMITS.title} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
+                  <input id="discord-embed-title" className="input" name="title" value={titleValue} maxLength={DISCORD_LIMITS.title} placeholder="🌸 Заголовок" onChange={(event) => setTitleValue(event.currentTarget.value)} />
                   <LimitCounter value={titleValue.length} max={DISCORD_LIMITS.title} />
                 </label>
                 <label className="content-field">
                   <span>URL заголовка</span>
-                  <input id="discord-embed-title-url" className="input" value={urlValue} placeholder="https://..." onChange={(event) => setUrlValue(event.currentTarget.value)} />
+                  <input id="discord-embed-title-url" className="input" name="titleUrl" value={urlValue} placeholder="https://..." onChange={(event) => setUrlValue(event.currentTarget.value)} />
                 </label>
               </div>
 
               <label className="content-field content-field--wide">
                 <span>Опис</span>
-                <textarea id="discord-embed-description" className="input textarea markdown-area discord-description-area" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
+                <textarea id="discord-embed-description" className="input textarea markdown-area discord-description-area" name="description" value={descriptionValue} maxLength={4096} placeholder="Discord Markdown: **жирний**, *курсив*, __підкреслення__, ~~закреслення~~, > цитата, `код`, [посилання](https://...)" onChange={(event) => setDescriptionValue(event.currentTarget.value)} />
                 <LimitCounter value={descriptionValue.length} max={DISCORD_LIMITS.description} />
               </label>
             </div>
@@ -1220,11 +1230,11 @@ export default function DiscordEmbedEditor({
               <div className="discord-builder-grid">
                 <label className="content-field">
                   <span>Thumbnail URL</span>
-                  <input id="discord-embed-thumbnail-url" className="input" value={thumbnailUrl} placeholder="https://..." onChange={(event) => setThumbnailUrl(event.currentTarget.value)} />
+                  <input id="discord-embed-thumbnail-url" className="input" name="thumbnailUrl" value={thumbnailUrl} placeholder="https://..." onChange={(event) => setThumbnailUrl(event.currentTarget.value)} />
                 </label>
                 <label className="content-field">
                   <span>Image URL</span>
-                  <input id="discord-embed-image-url" className="input" value={imageUrl} placeholder="https://..." onChange={(event) => setImageUrl(event.currentTarget.value)} />
+                  <input id="discord-embed-image-url" className="input" name="imageUrl" value={imageUrl} placeholder="https://..." onChange={(event) => setImageUrl(event.currentTarget.value)} />
                 </label>
               </div>
             </div>
@@ -1237,28 +1247,28 @@ export default function DiscordEmbedEditor({
               <div className="discord-author-footer-grid">
                 <label className="content-field discord-author-name-field">
                   <span>Author name</span>
-                  <input id="discord-author-name" className="input" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
+                  <input id="discord-author-name" className="input" name="authorName" value={authorName} maxLength={DISCORD_LIMITS.authorName} onChange={(event) => setAuthorName(event.currentTarget.value)} />
                   <AuthorSuggestionChips targetId="discord-author-name" suggestions={authorSuggestions} onPick={setAuthorName} />
                   <LimitCounter value={authorName.length} max={DISCORD_LIMITS.authorName} />
                 </label>
                 <label className="content-field discord-author-url-field">
                   <span>Author URL</span>
-                  <input id="discord-author-url" className="input" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
+                  <input id="discord-author-url" className="input" name="authorUrl" value={authorUrl} placeholder="https://..." onChange={(event) => setAuthorUrl(event.currentTarget.value)} />
                 </label>
                 <label className="content-field discord-author-icon-field">
                   <span>Author icon URL</span>
-                  <input id="discord-author-icon-url" className="input" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
+                  <input id="discord-author-icon-url" className="input" name="authorIconUrl" value={authorIconUrl} placeholder="https://..." onChange={(event) => setAuthorIconUrl(event.currentTarget.value)} />
                 </label>
               </div>
               <div className="discord-footer-grid">
                 <label className="content-field">
                   <span>Footer text</span>
-                  <input id="discord-footer-text" className="input" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
+                  <input id="discord-footer-text" className="input" name="footerText" value={footerText} maxLength={DISCORD_LIMITS.footerText} onChange={(event) => setFooterText(event.currentTarget.value)} />
                   <LimitCounter value={footerText.length} max={DISCORD_LIMITS.footerText} />
                 </label>
                 <label className="content-field">
                   <span>Footer icon URL</span>
-                  <input id="discord-footer-icon-url" className="input" value={footerIconUrl} placeholder="https://..." onChange={(event) => setFooterIconUrl(event.currentTarget.value)} />
+                  <input id="discord-footer-icon-url" className="input" name="footerIconUrl" value={footerIconUrl} placeholder="https://..." onChange={(event) => setFooterIconUrl(event.currentTarget.value)} />
                 </label>
               </div>
             </div>

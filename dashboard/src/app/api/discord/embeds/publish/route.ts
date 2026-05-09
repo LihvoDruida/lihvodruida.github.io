@@ -27,6 +27,94 @@ function safeReturnTo(value: FormDataEntryValue | string | null | undefined) {
   return path.startsWith("/discord") ? path.slice(0, 240) : "/discord";
 }
 
+function wantsJsonResponse(request: NextRequest) {
+  const action = String(request.headers.get("x-dashboard-action") || "").toLowerCase();
+  const accept = String(request.headers.get("accept") || "").toLowerCase();
+  return action === "live" || accept.includes("application/json");
+}
+
+function toastForParams(params: Record<string, string>) {
+  if (params.error) {
+    return { tone: "error" as const, title: "Discord повідомлення не збережено", message: params.error, ttl: 8600 };
+  }
+  if (params.updated) {
+    return { tone: "success" as const, title: "Discord повідомлення оновлено", message: "Зміни передано в Discord. Перевір повідомлення у каналі.", ttl: 6800 };
+  }
+  if (params.published) {
+    return { tone: "success" as const, title: "Discord повідомлення опубліковано", message: "Нове повідомлення створено в Discord. Перевір канал.", ttl: 6800 };
+  }
+  return { tone: "success" as const, title: "Готово", message: "Дію виконано.", ttl: 5200 };
+}
+
+function respondTo(request: NextRequest, params: Record<string, string>, returnTo = "/discord", status = 200) {
+  if (wantsJsonResponse(request)) {
+    const toast = toastForParams(params);
+    return NextResponse.json({
+      ok: !params.error,
+      ...params,
+      toast,
+    }, { status: params.error ? status >= 400 ? status : 400 : status, headers: noStoreHeaders() });
+  }
+  return redirectTo(request, params, returnTo);
+}
+
+function formText(form: FormData, key: string, max = 4096) {
+  return String(form.get(key) || "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .slice(0, max);
+}
+
+function urlObject(value: string) {
+  const url = value.trim();
+  return url ? { url } : undefined;
+}
+
+function parseFieldsJson(value: FormDataEntryValue | null) {
+  if (!value) return [] as Array<{ name: string; value: string; inline?: boolean }>;
+  try {
+    const parsed = JSON.parse(String(value));
+    if (!Array.isArray(parsed)) return [];
+    return parsed.slice(0, 25).map((field) => ({
+      name: String(field?.name || ""),
+      value: String(field?.value || ""),
+      inline: Boolean(field?.inline),
+    })).filter((field) => field.name.trim() && field.value.trim());
+  } catch {
+    return [];
+  }
+}
+
+function embedFromEditableForm(form: FormData) {
+  const hasEditableKeys = ["title", "titleUrl", "description", "colorHex", "authorName", "authorUrl", "authorIconUrl", "thumbnailUrl", "imageUrl", "footerText", "footerIconUrl", "fieldsJson"].some((key) => form.has(key));
+  if (!hasEditableKeys) return parseEmbedJson(form.get("embedJson"));
+
+  const colorHex = (formText(form, "colorHex", 16).trim() || formText(form, "colorPickerHex", 16).trim());
+  const color = /^#?[0-9a-fA-F]{6}$/.test(colorHex) ? Number.parseInt(colorHex.replace(/^#/, ""), 16) : undefined;
+  const authorName = formText(form, "authorName", 256).trim();
+  const footerText = formText(form, "footerText", 2048).trim();
+  const fields = parseFieldsJson(form.get("fieldsJson"));
+  const embed: Record<string, unknown> = {
+    title: formText(form, "title", 256).trim() || undefined,
+    url: formText(form, "titleUrl", 2048).trim() || undefined,
+    description: formText(form, "description", 4096).trim() || undefined,
+    color,
+    thumbnail: urlObject(formText(form, "thumbnailUrl", 2048)),
+    image: urlObject(formText(form, "imageUrl", 2048)),
+    author: authorName ? {
+      name: authorName,
+      url: formText(form, "authorUrl", 2048).trim() || undefined,
+      icon_url: formText(form, "authorIconUrl", 2048).trim() || undefined,
+    } : undefined,
+    footer: footerText ? {
+      text: footerText,
+      icon_url: formText(form, "footerIconUrl", 2048).trim() || undefined,
+    } : undefined,
+    fields: fields.length ? fields : undefined,
+    timestamp: form.has("timestampEnabled") ? true : undefined,
+  };
+  return parseEmbedJson(JSON.stringify(Object.fromEntries(Object.entries(embed).filter(([, value]) => value !== undefined && value !== null))));
+}
+
 function redirectTo(request: NextRequest, params: Record<string, string>, returnTo = "/discord") {
   const url = new URL(returnTo, request.url);
   for (const [key, value] of Object.entries(params)) {
@@ -79,12 +167,12 @@ export async function POST(request: NextRequest) {
 
   const session = await getSession();
   if (!session || !canManageGeneralEmbeds(session)) {
-    return redirectTo(request, { error: "Ця дія доступна тільки гільдмайстеру або офіцеру." });
+    return respondTo(request, { error: "Ця дія доступна тільки гільдмайстеру або офіцеру." }, "/discord", 403);
   }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`discord-embed:${session.id}:${ip}`, 20, 10 * 60 * 1000);
-  if (!limit.ok) return redirectTo(request, { error: "Забагато Discord-операцій. Спробуй пізніше." });
+  if (!limit.ok) return respondTo(request, { error: "Забагато Discord-операцій. Спробуй пізніше." }, "/discord", 429);
 
   let returnTo = "/discord";
 
@@ -97,7 +185,7 @@ export async function POST(request: NextRequest) {
     const channelId = String(form.get("channelId") || "").trim();
     const messageLink = messageLinkFromForm(form, request, action);
     const content = String(form.get("content") || "").trim();
-    const embed = parseEmbedJson(form.get("embedJson"));
+    const embed = embedFromEditableForm(form);
     const isRules = mode === "rules";
     const selectedRoles = selectedRoleIds(form);
     const roleIds = isRules && ruleType === "guild" ? selectedRoles : [];
@@ -125,23 +213,23 @@ export async function POST(request: NextRequest) {
 
     if (isRules && !canManageRulesEmbeds(session)) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "rules_forbidden", actorId: session.id, actorRole: session.role });
-      return redirectTo(request, { error: "Створення й редагування правил доступне тільки гільдмайстеру." }, returnTo);
+      return respondTo(request, { error: "Створення й редагування правил доступне тільки гільдмайстеру." }, returnTo, 403);
     }
 
     if (isRules && ruleType === "guild" && roleIds.length === 0) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", actorId: session.id });
-      return redirectTo(request, { error: "Для правил потрібно вибрати роль, яка буде видана після завершення реєстрації." }, returnTo);
+      return respondTo(request, { error: "Для правил потрібно вибрати роль, яка буде видана після завершення реєстрації." }, returnTo, 400);
     }
 
     if (messageLink && !editRef) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "invalid_edit_link", actorId: session.id });
-      return redirectTo(request, { error: "Посилання на Discord-повідомлення невалідне. Прибери його або встав повне посилання на повідомлення." }, returnTo);
+      return respondTo(request, { error: "Посилання на Discord-повідомлення невалідне. Прибери його або встав повне посилання на повідомлення." }, returnTo, 400);
     }
 
     if (shouldEdit) {
       if (!editRef) {
         logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_edit_link", actorId: session.id });
-        return redirectTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo);
+        return respondTo(request, { error: "Для редагування встав посилання на Discord-повідомлення." }, returnTo, 400);
       }
 
       if (!canManageRulesEmbeds(session)) {
@@ -154,7 +242,7 @@ export async function POST(request: NextRequest) {
             channelId: editRef.channelId,
             messageId: editRef.messageId,
           });
-          return redirectTo(request, { error: "Це повідомлення правил. Офіцер може редагувати тільки звичайні Discord-повідомлення." }, returnTo);
+          return respondTo(request, { error: "Це повідомлення правил. Офіцер може редагувати тільки звичайні Discord-повідомлення." }, returnTo, 403);
         }
       }
 
@@ -177,7 +265,7 @@ export async function POST(request: NextRequest) {
         actorRole: session.role,
       });
 
-      return redirectTo(request, {
+      return respondTo(request, {
         updated: discordMessageUrl(editRef.channelId, editRef.messageId),
         tab: mode,
       }, returnTo);
@@ -202,12 +290,12 @@ export async function POST(request: NextRequest) {
       actorRole: session.role,
     });
 
-    return redirectTo(request, {
+    return respondTo(request, {
       published: created?.id ? discordMessageUrl(channelId, String(created.id)) : "Discord-повідомлення",
       tab: mode,
     }, returnTo);
   } catch (error) {
     logDashboardEvent("error", "discord.embed.failed", request, { actorId: session.id, message: safeErrorMessage(error) });
-    return redirectTo(request, { error: "Не вдалося виконати дію з Discord-повідомленням. Спробуй ще раз або перевір доступ до каналу." }, returnTo);
+    return respondTo(request, { error: "Не вдалося виконати дію з Discord-повідомленням. Спробуй ще раз або перевір доступ до каналу." }, returnTo, 500);
   }
 }
