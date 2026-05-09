@@ -7,7 +7,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
-import { rulesAcceptUrl } from "@/lib/rulesOnboarding";
+import { rulesLoginUrl } from "@/lib/rulesOnboarding";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
@@ -228,22 +228,22 @@ export async function POST(request: NextRequest) {
 
   try {
     if (effectiveParsed.action === "accept") {
-      const acceptUrl = rulesAcceptUrl(effectiveParsed.roleIds);
+      const loginUrl = rulesLoginUrl(effectiveParsed.roleIds);
       logDashboardEvent("info", "discord.rules.accept_redirect_required", request, {
         guildId,
         userId,
         roles: effectiveParsed.roleIds.length,
       });
 
-      return finishDecision(interaction, "🌸 Щоб прийняти правила, заверши реєстрацію профілю на сайті. Роль Discord буде видано тільки після заповнення всіх обовʼязкових даних.", [
+      return finishDecision(interaction, "🌸 Щоб прийняти правила, відкрий реєстрацію. Якщо ти ще не увійшов через Discord, сайт одразу проведе через вхід і поверне назад до завершення профілю.", [
         {
           type: 1,
           components: [
             {
               type: 2,
               style: 5,
-              label: "Завершити реєстрацію",
-              url: acceptUrl,
+              label: "Увійти / завершити",
+              url: loginUrl,
             },
           ],
         },

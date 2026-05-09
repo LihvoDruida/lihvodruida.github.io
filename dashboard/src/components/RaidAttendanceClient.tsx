@@ -75,7 +75,7 @@ export default function RaidAttendanceClient({
   title,
 }: RaidAttendanceClientProps) {
   const [busyAction, setBusyAction] = useState<RaidSignupStatus | null>(null);
-  const [characterKey, setCharacterKey] = useState(selectedCharacterKey || characterOptions[0]?.key || "");
+  const [characterKey, setCharacterKey] = useState(selectedCharacterKey || "");
   const needsCharacterChoice = characterOptions.length > 0;
   const selectedCharacter = characterOptions.find((item) => item.key === characterKey) || null;
   const activeDisabled = activeJoinDisabled || (needsCharacterChoice && !selectedCharacter);
@@ -83,7 +83,7 @@ export default function RaidAttendanceClient({
   useEffect(() => {
     setCharacterKey((current) => {
       if (current && characterOptions.some((item) => item.key === current)) return current;
-      return selectedCharacterKey || characterOptions[0]?.key || "";
+      return selectedCharacterKey || "";
     });
   }, [characterOptions, selectedCharacterKey]);
 
@@ -178,12 +178,13 @@ export default function RaidAttendanceClient({
       {needsCharacterChoice ? (
         <label className="raid-character-picker">
           <span>Персонаж для запису</span>
-          <select className="select" value={characterKey} onChange={(event) => setCharacterKey(event.target.value)} disabled={closed || Boolean(busyAction)}>
+          <select className="select" value={characterKey} onChange={(event) => setCharacterKey(event.target.value)} disabled={closed || Boolean(busyAction)} required>
+            <option value="">Спочатку вибери персонажа</option>
             {characterOptions.map((character) => (
               <option key={character.key} value={character.key}>{character.label}</option>
             ))}
           </select>
-          {selectedCharacter?.meta ? <small>{selectedCharacter.meta}</small> : null}
+          {selectedCharacter?.meta ? <small>{selectedCharacter.meta}</small> : <small>Автовибір вимкнено: запис почнеться тільки після явного вибору персонажа.</small>}
         </label>
       ) : null}
 

@@ -230,9 +230,7 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
   const characterOptions = allCharacters
     .filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character))
     .map((character) => characterSignupOption(character, raid));
-  const optionKeys = new Set(characterOptions.map((item) => item.key));
-  const selectedCharacterKey = [viewerSignup?.characterKey, profile?.mainCharacterKey, characterOptions[0]?.key]
-    .find((key): key is string => Boolean(key && optionKeys.has(key))) || "";
+  const selectedCharacterKey = "";
   const hiddenByMinItemLevel = Math.max(0, allCharacters.length - characterOptions.length);
   const hasAnyCharacter = characterOptions.length > 0;
   const needsLogin = !user;

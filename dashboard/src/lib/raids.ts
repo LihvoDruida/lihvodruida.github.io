@@ -1304,7 +1304,6 @@ function raidCharacterOptionDescription(character: ProfileCharacter, raid?: Raid
 }
 
 export function buildRaidCharacterSelectComponents(raidId: string, action: RaidSignupStatus, profile: DashboardProfile, selectedCharacterKey?: string | null, raid?: RaidMinimumPolicy | null) {
-  const selectedKey = normalizeCharacterKey(selectedCharacterKey);
   const options = profile.characters
     .map((character, index) => ({ character, index }))
     .filter(({ character }) => !raid || !isRaidSubjectBlockedByMinItemLevel(raid, character))
@@ -1313,7 +1312,6 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
       label: `${raid && isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : ""}${raidCharacterOptionLabel(character)}`.slice(0, 100),
       description: raidCharacterOptionDescription(character, raid),
       value: `c${index}`,
-      default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
     }));
 
   if (!options.length) return [];
@@ -1661,9 +1659,9 @@ export async function handleRaidDiscordAction(params: {
       const blockedSignup = signupFromProfile(params.action, params.userId, params.userName, profile, requestedCharacter.key);
       return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
     }
-    selectedCharacter = requestedCharacter || (eligibleCharacters.length === 1 ? eligibleCharacters[0] : null);
+    selectedCharacter = requestedCharacter;
 
-    if (!selectedCharacter && eligibleCharacters.length > 1) {
+    if (!selectedCharacter && eligibleCharacters.length > 0) {
       const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
       const hiddenCount = profile.characters.length - eligibleCharacters.length;
       return {
@@ -1740,7 +1738,7 @@ export async function handleRaidSessionAction(params: {
       const blockedSignup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, requestedCharacter.key);
       return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
     }
-    selectedCharacter = requestedCharacter || (eligibleCharacters.length === 1 ? eligibleCharacters[0] : null);
+    selectedCharacter = requestedCharacter;
     if (!profile || !profile.characters.length || !selectedCharacter) {
       const minimum = raidMinimumItemLevel(raid);
       const allBlocked = Boolean(profile?.characters.length && raid.minItemLevelRequired && minimum && eligibleCharacters.length === 0);
@@ -1752,7 +1750,9 @@ export async function handleRaidSessionAction(params: {
             ? `⛔ Немає доступних персонажів для запису: потрібен мінімум ${minimum} ilvl. Персонажі нижче порогу не показуються і не можуть бути записані.`
             : params.characterKey
               ? "❌ Обраного персонажа не знайдено у твоєму профілі або він недоступний для цього рейду. Онови персонажів у профілі й повтори запис."
-              : raidActionHelpText("main"),
+              : eligibleCharacters.length > 0
+                ? "🎯 Перед записом на рейд потрібно явно вибрати персонажа. Автовибір вимкнено, щоб випадково не записати не того персонажа."
+                : raidActionHelpText("main"),
         components: raidActionHelpComponents(raid.id),
         blockedByProfile: !allBlocked,
         blockedByMinItemLevel: allBlocked,

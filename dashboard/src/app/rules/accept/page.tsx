@@ -122,7 +122,7 @@ export default async function RulesAcceptPage({ searchParams }: { searchParams: 
 
               <div className="rules-onboarding-actions">
                 <a className="btn subtle" href={`/profile/${profile.profileId}?from=rules&rt=${encodeURIComponent(token)}`}>Відкрити профіль</a>
-                <a className="btn subtle" href={`/api/auth/battlenet/start?region=${primaryRegion}`}>Оновити Battle.net</a>
+                <a className="btn subtle" href={`/api/auth/battlenet/start?region=${primaryRegion}&next=${encodeURIComponent(`/rules/accept?rt=${token}`)}`}>Оновити Battle.net і повернутися</a>
                 <form action="/api/rules/accept/complete" method="post">
                   <input type="hidden" name="rt" value={token} />
                   <button className="btn primary" type="submit" disabled={!status.complete}>Завершити реєстрацію й отримати роль</button>

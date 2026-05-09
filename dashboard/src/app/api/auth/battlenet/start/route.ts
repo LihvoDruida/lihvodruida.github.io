@@ -6,6 +6,18 @@ import { BNET_OAUTH_STATE_COOKIE, buildBattleNetOAuthUrl, getEnabledBattleNetReg
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
 
+function safeNextPath(value: string | null) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 1500) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (path === "/" || /^\/(?:profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
+  return "";
+}
+
+function encodeNextPath(path: string) {
+  return Buffer.from(path, "utf8").toString("base64url");
+}
+
 function redirectWithNoStore(target: string) {
   const response = NextResponse.redirect(target, 303);
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
@@ -26,9 +38,10 @@ export async function GET(request: NextRequest) {
 
   const url = new URL(request.url);
   const requestedRegion = normalizeBattleNetRegion(url.searchParams.get("region"));
+  const nextPath = safeNextPath(url.searchParams.get("next"));
   const enabledRegions = getEnabledBattleNetRegions();
   const region = enabledRegions.includes(requestedRegion) ? requestedRegion : enabledRegions[0];
-  const state = `${randomState()}.${region}.${session.profileId || session.id}`;
+  const state = `${randomState()}.${region}.${session.profileId || session.id}${nextPath ? `.${encodeNextPath(nextPath)}` : ""}`;
   const store = await cookies();
   store.set(BNET_OAUTH_STATE_COOKIE, state, {
     httpOnly: true,

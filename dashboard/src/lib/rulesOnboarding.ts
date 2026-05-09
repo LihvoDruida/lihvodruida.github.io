@@ -97,6 +97,11 @@ export function rulesLoginPath(roleToken: string) {
   return `/api/auth/discord/start?next=${encodeURIComponent(next)}`;
 }
 
+export function rulesLoginUrl(roleIds: string[]) {
+  const token = createRulesRoleToken(roleIds);
+  return `${getDashboardUrl()}${rulesLoginPath(token)}`;
+}
+
 export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined, nicknameTemplate?: string) {
   const profileHref = profile?.profileId ? `/profile/${profile.profileId}` : "/profile";
   const main = profile ? getMainCharacter(profile) : null;

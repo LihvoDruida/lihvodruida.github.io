@@ -8,13 +8,39 @@ import { saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 
+function getOAuthStateParts(state: string) {
+  return String(state || "").split(".");
+}
+
 function getRegionFromOAuthState(state: string) {
-  const parts = String(state || "").split(".");
+  const parts = getOAuthStateParts(state);
   return normalizeBattleNetRegion(parts.length >= 3 ? parts[1] : null);
 }
 
-function redirectToProfile(profileId: string, status: string) {
-  const response = NextResponse.redirect(`${getDashboardUrl()}/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, 303);
+function safeNextPath(value: string | null | undefined) {
+  const path = String(value || "").trim();
+  if (!path || path.length > 1500) return "";
+  if (!path.startsWith("/") || path.startsWith("//")) return "";
+  if (path === "/" || /^\/(?:profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
+  return "";
+}
+
+function getNextPathFromOAuthState(state: string) {
+  const parts = getOAuthStateParts(state);
+  const encoded = parts.length >= 4 ? parts.slice(3).join(".") : "";
+  if (!encoded) return "";
+  try {
+    return safeNextPath(Buffer.from(encoded, "base64url").toString("utf8"));
+  } catch {
+    return "";
+  }
+}
+
+function redirectToProfile(profileId: string, status: string, nextPath = "") {
+  const targetPath = safeNextPath(nextPath);
+  const target = targetPath ? new URL(`${getDashboardUrl()}${targetPath}`) : new URL(`${getDashboardUrl()}/profile/${profileId}`);
+  target.searchParams.set("characterStatus", status);
+  const response = NextResponse.redirect(target.toString(), 303);
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
   return response;
 }
@@ -67,7 +93,7 @@ export async function GET(request: NextRequest) {
       durationMs: scan.durationMs,
     });
 
-    const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters");
+    const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters", getNextPathFromOAuthState(state));
     if (scan.characters.length) {
       setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
     } else {
@@ -76,6 +102,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     logDashboardEvent("error", "auth.battlenet.callback.failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });
-    return redirectToProfile(session.profileId, "bnet_failed");
+    return redirectToProfile(session.profileId, "bnet_failed", getNextPathFromOAuthState(state));
   }
 }
