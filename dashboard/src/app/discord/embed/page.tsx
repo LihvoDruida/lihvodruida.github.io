@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
-import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
 import { getSession } from "@/lib/auth";
 import { resolveAuthorIdentity } from "@/lib/authorIdentity";
@@ -48,7 +47,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
   let channels: Array<{ id: string; name: string; type: number }> = [];
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let suggestedChannelId = "";
-  let embedJson = prettyDiscordJson(defaultGeneralEmbed);
+  let embedJson = prettyDiscordJson({ ...defaultGeneralEmbed, author: { name: authorIdentity.primaryName } });
   let content = "";
   let messageLink = messageParam;
   let selectedRoleIds: string[] = [];
@@ -89,8 +88,6 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
           <a className="btn subtle" href="/discord">Назад</a>
         </header>
       <StatusNotice params={params} />
-      <IntegrationStatusPanel compact />
-
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Ця сторінка доступна гільдмайстеру та офіцерам.</div>
       ) : !hasDiscordEmbedConfig() ? (

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import AdminTabs from "@/components/AdminTabs";
+import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers, canManageGroups, canViewAdminLogs } from "@/lib/permissions";
@@ -43,6 +44,10 @@ export default async function AdminOverviewPage() {
         </header>
 
         <AdminTabs active="overview" />
+
+        <section className="admin-system-status-panel" aria-label="Стан системи">
+          <IntegrationStatusPanel compact />
+        </section>
 
         <section className="admin-overview-grid" aria-label="Швидкі переходи">
           <a className="panel admin-overview-card" href="/admin/groups">

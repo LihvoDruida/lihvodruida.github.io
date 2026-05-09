@@ -1,6 +1,5 @@
 import ApplicationStatusActions from "@/components/ApplicationStatusActions";
 import ApplicationFilters from "@/components/ApplicationFilters";
-import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import { buildPageMetadata } from "@/lib/seo";
@@ -188,8 +187,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="stat panel accepted"><strong>{counts.accepted}</strong><span>Прийнято</span></div>
         <div className="stat panel declined"><strong>{counts.declined}</strong><span>Відхилено</span></div>
       </section>
-
-      <IntegrationStatusPanel compact />
 
       <ApplicationFilters
         initialQuery={params.q || ""}

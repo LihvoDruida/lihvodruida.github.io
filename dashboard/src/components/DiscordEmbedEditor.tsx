@@ -177,7 +177,15 @@ function buildEmbed(params: {
 }
 
 function hasVisibleEmbedContent(embed: EmbedObject) {
-  return Boolean(embed.title || embed.description || embed.image || embed.thumbnail || (Array.isArray(embed.fields) && embed.fields.length));
+  return Boolean(
+    embed.title ||
+    embed.description ||
+    embed.author ||
+    embed.footer ||
+    embed.image ||
+    embed.thumbnail ||
+    (Array.isArray(embed.fields) && embed.fields.length)
+  );
 }
 
 const DISCORD_MARKDOWN_BLOCK_LIMIT = 160;
@@ -601,9 +609,13 @@ function DiscordPreview({ embed, content, isValid, mentionRoles = [], previewMod
             <article className="discord-message-preview" style={{ borderLeftColor: color }}>
               <div className="discord-message-preview__body">
                 <div className="discord-message-preview__main">
-                  {author?.icon_url ? <img className="discord-preview-author-icon" src={text(author.icon_url)} alt="" /> : null}
-                  {author?.name ? (
-                    text(author.url) ? <a className="discord-preview-author discord-preview-link" href={text(author.url)} target="_blank" rel="noreferrer">{text(author.name)}</a> : <div className="discord-preview-author">{text(author.name)}</div>
+                  {(author?.name || author?.icon_url) ? (
+                    <div className="discord-preview-author-row">
+                      {author?.icon_url ? <img className="discord-preview-author-icon" src={text(author.icon_url)} alt="" /> : null}
+                      {author?.name ? (
+                        text(author.url) ? <a className="discord-preview-author discord-preview-link" href={text(author.url)} target="_blank" rel="noreferrer">{text(author.name)}</a> : <div className="discord-preview-author">{text(author.name)}</div>
+                      ) : null}
+                    </div>
                   ) : null}
                   {embed?.title ? (
                     text(embed.url)

@@ -40,7 +40,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let suggestedRulesChannelId = "";
   let ruleType: "guild" | "raid" = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
-  let embedJson = prettyDiscordJson(ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed);
+  let embedJson = prettyDiscordJson({ ...(ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed), author: { name: authorIdentity.primaryName } });
   let content = "";
   let messageLink = messageParam;
   let selectedRoleIds: string[] = [];

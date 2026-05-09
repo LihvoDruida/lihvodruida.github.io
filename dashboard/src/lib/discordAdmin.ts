@@ -546,7 +546,7 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
   const auditReason = encodeAuditReason(init.auditReason);
   if (auditReason) headers.set("X-Audit-Log-Reason", auditReason);
 
-  const maxAttempts = 5;
+  const maxAttempts = String(init.method || "GET").toUpperCase() === "DELETE" ? 7 : 5;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const response = await fetch(`${DISCORD_API_BASE}${path}`, {
       ...init,
@@ -718,8 +718,8 @@ export function normalizeDiscordEmbed(input: DiscordEmbedInput) {
     Object.entries(embed).filter(([, value]) => value !== undefined && value !== null)
   );
 
-  if (!normalized.title && !normalized.description && !normalized.image && !normalized.thumbnail && !normalized.fields) {
-    throw new Error("Повідомлення порожнє: додай заголовок, опис, зображення або поля.");
+  if (!normalized.title && !normalized.description && !normalized.image && !normalized.thumbnail && !normalized.fields && !normalized.author && !normalized.footer) {
+    throw new Error("Повідомлення порожнє: додай заголовок, опис, автора, футер, зображення або поля.");
   }
 
   return normalized;

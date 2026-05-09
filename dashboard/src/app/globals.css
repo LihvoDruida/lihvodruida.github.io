@@ -25214,3 +25214,29 @@ main.container {
   border-color: rgba(237, 66, 69, .34);
   background: rgba(125, 31, 31, .14);
 }
+
+
+/* Admin overview: move global system status into the management panel only. */
+.admin-system-status-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-system-status-panel .integration-status-panel {
+  margin: 0;
+}
+
+.discord-preview-author-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.discord-preview-author-row .discord-preview-author {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

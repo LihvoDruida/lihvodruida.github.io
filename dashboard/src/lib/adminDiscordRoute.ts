@@ -45,11 +45,9 @@ function adminDiscordPayload(input: AdminDiscordResultInput) {
 }
 
 function wantsJsonResponse(request: NextRequest) {
-  const dashboardAction = String(request.headers.get("x-dashboard-action") || "").toLowerCase();
-  if (dashboardAction === "live") return true;
-
-  const accept = String(request.headers.get("accept") || "").toLowerCase();
-  return accept.includes("application/json") && !accept.includes("text/html");
+  // Admin forms should never dump raw JSON into the browser on normal navigation.
+  // JSON is returned only for DashboardFormEnhancer live-submit requests.
+  return String(request.headers.get("x-dashboard-action") || "").toLowerCase() === "live";
 }
 
 function safeAdminRedirectUrl(request: NextRequest) {

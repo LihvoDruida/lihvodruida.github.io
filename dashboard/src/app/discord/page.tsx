@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
-import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
@@ -82,8 +81,6 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
           </div>
         </header>
       <StatusNotice params={params} />
-      <IntegrationStatusPanel compact />
-
       {!canUseGeneralEmbeds ? (
         <div className="notice panel">Твоя роль не має доступу до Discord-дій.</div>
       ) : !hasDiscordEmbedConfig() ? (

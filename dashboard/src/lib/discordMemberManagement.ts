@@ -220,8 +220,10 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
         userId: member.userId,
         roleIds: removableRoleIds,
         reason: input.reason || `Nickname does not match template: ${policy.template}`,
-        concurrency: policy.roleRemoveConcurrency,
-        maxConcurrency: policy.roleRemoveMaxConcurrency,
+        // Cleanup is intentionally fully sequential: Discord rate-limits DELETE role
+        // routes aggressively, and safety is more important than speed here.
+        concurrency: 1,
+        maxConcurrency: 1,
       });
 
       const snapshot = await memberSnapshot(member.userId);

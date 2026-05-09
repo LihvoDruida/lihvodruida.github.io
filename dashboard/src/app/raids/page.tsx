@@ -5,7 +5,6 @@ import { getOwnProfilePath } from "@/lib/profiles";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasRaidStorage, isRaidClosed, listRaids } from "@/lib/raids";
 import { RaidListCard, RaidPageShell, StatusNotice } from "@/components/RaidViews";
-import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
@@ -44,7 +43,6 @@ export default async function RaidsListPage({ searchParams }: { searchParams: Pr
         : "Опубліковані рейди, запис на участь і посилання на правила без зайвих адмінських блоків."}
     >
       <StatusNotice params={params} />
-      {canManage ? <IntegrationStatusPanel compact /> : null}
       {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Рейди тимчасово недоступні. Спробуй пізніше або звернись до офіцера.</div> : null}
       {canManage && !hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Чернетки можна підготувати й опублікувати пізніше.</div> : null}
 

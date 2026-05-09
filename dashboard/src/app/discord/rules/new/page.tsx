@@ -29,7 +29,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
   const authorIdentity = await resolveAuthorIdentity(user);
   const canEditRules = canManageRulesEmbeds(user);
   const ruleType = String(params.type || params.ruleType || "guild") === "raid" ? "raid" : "guild";
-  const defaultEmbed = ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed;
+  const defaultEmbed = { ...(ruleType === "raid" ? defaultRaidRulesEmbed : defaultRulesEmbed), author: { name: authorIdentity.primaryName } };
   let configError = "";
   let channels: Array<{ id: string; name: string; type: number }> = [];
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
