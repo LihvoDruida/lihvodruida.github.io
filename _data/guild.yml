@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 06:18:22'
+  updated_at: '2026-05-09 09:21:30'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13734
-      region: 6118
+      world: 13736
+      region: 6120
       realm: 55
     heroic:
-      world: 13243
-      region: 5676
+      world: 13245
+      region: 5677
       realm: 46
     mythic:
-      world: 7446
-      region: 3180
+      world: 7449
+      region: 3181
       realm: 25
   blackrock-depths:
     normal:
@@ -606,14 +606,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3142.7
-        color: '#715be5'
+        score: 3160.2
+        color: '#7c55e7'
       dps:
-        score: 3142.7
-        color: '#715be5'
+        score: 3160.2
+        color: '#7c55e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -627,8 +627,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3142.7
-        color: '#715be5'
+        score: 3160.2
+        color: '#7c55e7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -869,11 +869,11 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 3141.5
-        color: '#715be5'
+        score: 3159
+        color: '#7c55e7'
       dps:
-        score: 3141.5
-        color: '#715be5'
+        score: 3159
+        color: '#7c55e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -887,8 +887,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3141.5
-        color: '#715be5'
+        score: 3159
+        color: '#7c55e7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1854,7 +1854,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Ionax
-    item_level_equipped: 253
+    item_level_equipped: 254
     mythic_plus_scores:
       all:
         score: 329.3
@@ -3130,7 +3130,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/burning-steppes/238/189160430-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
-    item_level_equipped: 110
+    item_level_equipped: 115
     mythic_plus_scores:
       all:
         score: 0
@@ -5396,6 +5396,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Базрог
+    id: 243140772
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 1
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Базрог
+    item_level_equipped: 270
+    mythic_plus_scores:
+      all:
+        score: 2496.3
+        color: '#5dcb79'
+      dps:
+        score: 242
+        color: '#fdfffd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2496.3
+        color: '#5dcb79'
+      spec_0:
+        score: 2496.3
+        color: '#5dcb79'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 242
+        color: '#fdfffd'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Амарак
@@ -6977,58 +7029,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Базрог
-    id: 243140772
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 6
-      name: Death Knight
-    playable_race:
-      id: 1
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Blood
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Базрог
-    item_level_equipped: 270
-    mythic_plus_scores:
-      all:
-        score: 2496.3
-        color: '#5dcb79'
-      dps:
-        score: 242
-        color: '#fdfffd'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2496.3
-        color: '#5dcb79'
-      spec_0:
-        score: 2496.3
-        color: '#5dcb79'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 242
-        color: '#fdfffd'
       spec_3:
         score: 0
         color: '#ffffff'
