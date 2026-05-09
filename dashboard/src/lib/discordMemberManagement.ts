@@ -171,8 +171,13 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       checked: members.length,
       matchedTargets: targets.length,
       changed: 0,
+      removedRolesTotal: 0,
+      unchanged: 0,
+      stillPresentTotal: 0,
       failed: 0,
       preview: targets.slice(0, 50),
+      changedItems: [],
+      errors: [],
     };
   }
 
@@ -180,7 +185,10 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     targets,
     async (member) => {
       const removableRoleIds = manageableRoleIds.filter((roleId) => member.roleIds.includes(roleId));
-      if (!removableRoleIds.length) return { userId: member.userId, removed: [] as string[] };
+      if (!removableRoleIds.length) {
+        return { userId: member.userId, name: displayName(member), requested: [] as string[], removed: [] as string[], stillPresent: [] as string[] };
+      }
+
       await removeGuildMemberRoles({
         guildId,
         userId: member.userId,
@@ -189,7 +197,24 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
         concurrency: policy.roleRemoveConcurrency,
         maxConcurrency: policy.roleRemoveMaxConcurrency,
       });
-      return { userId: member.userId, removed: removableRoleIds };
+
+      const snapshot = await memberSnapshot(member.userId);
+      const stillPresent = snapshot
+        ? removableRoleIds.filter((roleId) => snapshot.roleIds.includes(roleId))
+        : [];
+      const removed = removableRoleIds.filter((roleId) => !stillPresent.includes(roleId));
+
+      if (stillPresent.length === removableRoleIds.length) {
+        throw new Error(`Discord прийняв запит, але ролі не знялися: ${stillPresent.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
+      }
+
+      return {
+        userId: member.userId,
+        name: displayName(member),
+        requested: removableRoleIds,
+        removed,
+        stillPresent,
+      };
     },
     {
       profile: "external-api",
@@ -199,17 +224,25 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     },
   );
 
+  const okItems = results.filter((result) => result.ok);
   const failedItems = results.filter((result) => !result.ok);
+  const changedItems = okItems.filter((result) => result.value.removed.length > 0);
+  const removedRolesTotal = changedItems.reduce((sum, result) => sum + result.value.removed.length, 0);
+  const stillPresentTotal = okItems.reduce((sum, result) => sum + result.value.stillPresent.length, 0);
   return {
     dryRun: false,
     template: policy.template,
     checked: members.length,
     matchedTargets: targets.length,
-    changed: results.filter((result) => result.ok).length,
+    changed: changedItems.length,
+    removedRolesTotal,
+    unchanged: okItems.length - changedItems.length,
+    stillPresentTotal,
     failed: failedItems.length,
     concurrency: meta.concurrency,
     durationMs: meta.durationMs,
     preview: targets.slice(0, 50),
+    changedItems: changedItems.slice(0, 20).map((item) => item.value),
     errors: failedItems.slice(0, 10).map((item) => ({
       userId: item.item.userId,
       name: displayName(item.item),

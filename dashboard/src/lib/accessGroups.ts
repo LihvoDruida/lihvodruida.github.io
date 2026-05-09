@@ -353,15 +353,98 @@ export async function deleteAccessGroup(groupId: string, viewer: DashboardSessio
   return true;
 }
 
+export type AdminAuditLogItem = {
+  id: string;
+  action: string;
+  actorId: string;
+  actorName: string | null;
+  actorGroupId: string | null;
+  isServerOwner: boolean;
+  status: "success" | "warning" | "error" | "info";
+  summary: string | null;
+  details: Record<string, unknown>;
+  createdAt: string | null;
+};
+
+function auditCollectionRef() {
+  return getFirebaseAdminDb().collection("dashboardAdminAudit");
+}
+
+function timestampToIso(value: any): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (typeof value.toDate === "function") return value.toDate().toISOString();
+  if (value instanceof Date) return value.toISOString();
+  return null;
+}
+
+function auditStatus(value: unknown): AdminAuditLogItem["status"] {
+  return value === "success" || value === "warning" || value === "error" || value === "info" ? value : "info";
+}
+
+function auditSummary(action: string, details: Record<string, unknown>) {
+  const explicit = String(details.summary || details.message || "").trim();
+  if (explicit) return explicit.slice(0, 260);
+  if (typeof details.checked === "number" || typeof details.changed === "number" || typeof details.failed === "number") {
+    return [
+      typeof details.checked === "number" ? `перевірено ${details.checked}` : null,
+      typeof details.targets === "number" ? `цілей ${details.targets}` : null,
+      typeof details.changed === "number" ? `змінено ${details.changed}` : null,
+      typeof details.removedRoles === "number" ? `ролей знято ${details.removedRoles}` : null,
+      typeof details.failed === "number" ? `помилок ${details.failed}` : null,
+    ].filter(Boolean).join(" • ") || action;
+  }
+  return action;
+}
+
+function normalizeAuditLog(id: string, raw: Record<string, unknown>): AdminAuditLogItem {
+  const details = raw.details && typeof raw.details === "object" && !Array.isArray(raw.details)
+    ? raw.details as Record<string, unknown>
+    : {};
+  return {
+    id,
+    action: String(raw.action || "admin.action").slice(0, 120),
+    actorId: String(raw.actorId || "").slice(0, 80),
+    actorName: raw.actorName ? String(raw.actorName).slice(0, 100) : null,
+    actorGroupId: raw.actorGroupId ? String(raw.actorGroupId).slice(0, 80) : null,
+    isServerOwner: Boolean(raw.isServerOwner),
+    status: auditStatus(raw.status || details.status),
+    summary: auditSummary(String(raw.action || "admin.action"), details),
+    details,
+    createdAt: timestampToIso(raw.createdAt),
+  };
+}
+
+async function pruneAdminAuditLogs(max = 100) {
+  if (!hasFirebaseProfileConfig()) return;
+  const safeMax = Math.max(20, Math.min(100, Math.floor(Number(max) || 100)));
+  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(safeMax + 40).get().catch(() => null);
+  if (!snapshot || snapshot.docs.length <= safeMax) return;
+  const batch = getFirebaseAdminDb().batch();
+  for (const doc of snapshot.docs.slice(safeMax)) batch.delete(doc.ref);
+  await batch.commit().catch(() => null);
+}
+
+export async function listAdminAuditLogs(limitInput: unknown = 100) {
+  if (!hasFirebaseProfileConfig()) return [] as AdminAuditLogItem[];
+  const limit = Math.max(10, Math.min(100, Math.floor(Number(limitInput) || 50)));
+  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(limit).get().catch(() => null);
+  if (!snapshot) return [] as AdminAuditLogItem[];
+  return snapshot.docs.map((doc: any) => normalizeAuditLog(doc.id, doc.data() || {}));
+}
+
 export async function recordAdminAudit(action: string, viewer: DashboardSession, details: Record<string, unknown> = {}) {
   if (!hasFirebaseProfileConfig()) return;
-  await getFirebaseAdminDb().collection("dashboardAdminAudit").add({
+  const status = auditStatus(details.status);
+  await auditCollectionRef().add({
     action,
     actorId: viewer.id,
-    actorName: viewer.name,
+    actorName: viewer.name || viewer.login || null,
     actorGroupId: viewer.groupId || null,
     isServerOwner: Boolean(viewer.isServerOwner),
-    details,
+    status,
+    details: { ...details, status },
     createdAt: FieldValue.serverTimestamp(),
   }).catch(() => null);
+  void pruneAdminAuditLogs(100);
 }

@@ -3,7 +3,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
-import { canManageDiscordMembers, canManageGroups } from "@/lib/permissions";
+import { canManageDiscordMembers, canManageGroups, canViewAdminLogs } from "@/lib/permissions";
 import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export const metadata = buildPageMetadata({
 export default async function AdminOverviewPage() {
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
-  if (!canManageGroups(user) && !canManageDiscordMembers(user)) {
+  if (!canManageGroups(user) && !canManageDiscordMembers(user) && !canViewAdminLogs(user)) {
     redirect(user.profileId ? `/profile/${user.profileId}` : "/profile");
     throw new Error("Access denied");
   }
@@ -54,6 +54,11 @@ export default async function AdminOverviewPage() {
             <span aria-hidden="true">◆</span>
             <strong>Discord-учасники</strong>
             <small>Видача/зняття ролей, перейменування та контроль шаблону ніку.</small>
+          </a>
+          <a className="panel admin-overview-card" href="/admin/logs">
+            <span aria-hidden="true">▦</span>
+            <strong>Журнал дій</strong>
+            <small>Останні дії, результати Discord API, помилки та статистика.</small>
           </a>
           <article className="panel admin-overview-card admin-overview-card--wide">
             <span aria-hidden="true">✦</span>

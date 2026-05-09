@@ -20,7 +20,7 @@ export async function requireDiscordAdmin(request: NextRequest, action: string, 
   return { session };
 }
 
-export function adminDiscordJson(input: { ok: boolean; tone?: "success" | "info" | "warning" | "error"; title: string; message?: string; status?: number; data?: Record<string, unknown> }) {
+export function adminDiscordJson(input: { ok: boolean; tone?: "success" | "info" | "warning" | "error"; title: string; message?: string; status?: number; data?: Record<string, unknown>; ttl?: number }) {
   return NextResponse.json({
     ok: input.ok,
     ...(input.data || {}),
@@ -28,7 +28,7 @@ export function adminDiscordJson(input: { ok: boolean; tone?: "success" | "info"
       tone: input.tone || (input.ok ? "success" : "error"),
       title: input.title,
       message: input.message,
-      ttl: input.ok ? 5200 : 8200,
+      ttl: input.ttl || (input.ok ? 5200 : 8200),
     },
   }, { status: input.status || (input.ok ? 200 : 400), headers: noStoreHeaders() });
 }
@@ -37,8 +37,16 @@ export async function auditDiscordAdmin(action: string, session: NonNullable<Awa
   await recordAdminAudit(action, session, details).catch(() => null);
 }
 
-export function discordAdminError(request: NextRequest, event: string, error: unknown, fallback: string) {
+export function discordAdminError(request: NextRequest, event: string, error: unknown, fallback: string, session?: NonNullable<Awaited<ReturnType<typeof getSession>>> | null, details: Record<string, unknown> = {}) {
   const message = safeErrorMessage(error, fallback);
-  logDashboardEvent("warn", event, request, { message });
-  return adminDiscordJson({ ok: false, tone: "error", title: "Дію не виконано", message, status: 400 });
+  logDashboardEvent("warn", event, request, { message, ...details });
+  if (session) {
+    void recordAdminAudit(event, session, {
+      ...details,
+      status: "error",
+      message,
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => null);
+  }
+  return adminDiscordJson({ ok: false, tone: "error", title: "Дію не виконано", message, status: 400, data: { error: message } });
 }

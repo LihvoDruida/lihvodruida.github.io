@@ -244,7 +244,7 @@ export function nicknameTemplateToRegex(templateInput: unknown) {
     lastIndex = (match.index || 0) + match[0].length;
   }
   output += escapeRegex(template.slice(lastIndex));
-  return new RegExp(`^\s*${output}\s*$`, "iu");
+  return new RegExp(`^\\s*${output}\\s*$`, "iu");
 }
 
 export function nicknameMatchesTemplate(nicknameInput: unknown, templateInput: unknown) {

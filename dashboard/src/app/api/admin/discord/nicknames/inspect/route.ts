@@ -9,15 +9,23 @@ export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
     const result = await inspectDiscordNicknameTemplate(Number(form.get("limit") || 1000));
-    await auditDiscordAdmin("discord.nickname_policy.inspect", guard.session, { checked: result.checked, mismatched: result.mismatchedTotal, template: result.template });
+    const summary = `Перевірено ${result.checked}; не відповідають шаблону: ${result.mismatchedTotal}.`;
+    await auditDiscordAdmin("discord.nickname_policy.inspect", guard.session, {
+      status: result.mismatchedTotal ? "warning" : "success",
+      summary,
+      checked: result.checked,
+      mismatched: result.mismatchedTotal,
+      template: result.template,
+      preview: result.mismatched.slice(0, 20),
+    });
     return adminDiscordJson({
       ok: true,
       tone: result.mismatchedTotal ? "warning" : "success",
       title: "Перевірку ніків завершено",
-      message: `Перевірено ${result.checked}. Не відповідають шаблону: ${result.mismatchedTotal}.`,
-      data: { checked: result.checked, mismatchedTotal: result.mismatchedTotal, preview: result.mismatched },
+      message: summary,
+      data: { checked: result.checked, mismatchedTotal: result.mismatchedTotal, preview: result.mismatched, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.nicknames_inspect_failed", error, "Перевірку ніків не виконано.");
+    return discordAdminError(request, "admin.discord.nicknames_inspect_failed", error, "Перевірку ніків не виконано.", guard.session);
   }
 }

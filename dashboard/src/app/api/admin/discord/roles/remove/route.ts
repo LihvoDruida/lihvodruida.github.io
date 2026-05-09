@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       roleIds: form.getAll("roleIds"),
       reason: `Mistblossom manual role remove by ${guard.session.name || guard.session.id}`,
     });
-    await auditDiscordAdmin("discord.member.roles.remove", guard.session, result);
+    await auditDiscordAdmin("discord.member.roles.remove", guard.session, { ...result, status: "success", summary: `${result.displayName}: знято ролей ${result.roleIds.length}.` });
     return adminDiscordJson({ ok: true, title: "Ролі знято в Discord", message: `${result.displayName}: знято ${result.roleIds.length}.`, data: result });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.roles_remove_failed", error, "Discord не зняв ролі.");
+    return discordAdminError(request, "admin.discord.roles_remove_failed", error, "Discord не зняв ролі.", guard.session);
   }
 }

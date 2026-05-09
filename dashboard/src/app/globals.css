@@ -25032,3 +25032,149 @@ main.container {
   color: rgba(235, 225, 207, .68);
   line-height: 1.35;
 }
+
+/* Admin logs: audit trail for Discord/admin actions */
+.admin-logs-page {
+  display: grid;
+  gap: clamp(14px, 2vw, 20px);
+}
+
+.admin-log-toolbar {
+  padding: 14px;
+}
+
+.admin-log-limit-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 360px) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-log-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-log-row {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-left: 4px solid rgba(145, 162, 184, .55);
+}
+
+.admin-log-row__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-log-row__head strong,
+.admin-log-row p,
+.admin-log-meta,
+.admin-log-details pre {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-log-row__head strong {
+  color: #f4e8d4;
+}
+
+.admin-log-row__head time,
+.admin-log-meta,
+.admin-log-row p {
+  color: rgba(232, 220, 202, .68);
+}
+
+.admin-log-row p {
+  margin: 0;
+}
+
+.admin-log-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 26px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: #f4e8d4;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.admin-log-row--success { border-left-color: rgba(95, 211, 128, .8); }
+.admin-log-row--warning { border-left-color: rgba(255, 190, 88, .9); }
+.admin-log-row--error { border-left-color: rgba(255, 93, 93, .9); }
+.admin-log-row--info { border-left-color: rgba(102, 159, 255, .78); }
+
+.admin-log-status--success {
+  border-color: rgba(95, 211, 128, .42);
+  background: rgba(95, 211, 128, .12);
+  color: #c8ffd5;
+}
+
+.admin-log-status--warning {
+  border-color: rgba(255, 190, 88, .48);
+  background: rgba(255, 190, 88, .12);
+  color: #ffe0a8;
+}
+
+.admin-log-status--error {
+  border-color: rgba(255, 93, 93, .48);
+  background: rgba(255, 93, 93, .12);
+  color: #ffd0d0;
+}
+
+.admin-log-status--info {
+  border-color: rgba(102, 159, 255, .42);
+  background: rgba(102, 159, 255, .12);
+  color: #d4e5ff;
+}
+
+.admin-log-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: .85rem;
+}
+
+.admin-log-meta span {
+  padding: 5px 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+}
+
+.admin-log-details summary {
+  cursor: pointer;
+  color: #d9c08e;
+  font-weight: 800;
+}
+
+.admin-log-details pre {
+  max-height: 360px;
+  overflow: auto;
+  margin: 10px 0 0;
+  padding: 12px;
+  border: 1px solid rgba(188, 141, 72, .18);
+  border-radius: 12px;
+  background: rgba(0,0,0,.28);
+  color: rgba(244, 232, 212, .82);
+  font-size: .78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 760px) {
+  .admin-log-limit-form,
+  .admin-log-row__head {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-log-row__head time {
+    justify-self: start;
+  }
+}

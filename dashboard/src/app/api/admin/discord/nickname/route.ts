@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       nickname: form.get("nickname"),
       reason: `Mistblossom manual nickname update by ${guard.session.name || guard.session.id}`,
     });
-    await auditDiscordAdmin("discord.member.nickname.update", guard.session, result);
+    await auditDiscordAdmin("discord.member.nickname.update", guard.session, { ...result, status: "success", summary: `${result.displayName}: нік змінено на ${result.nickname}.` });
     return adminDiscordJson({ ok: true, title: "Нік змінено в Discord", message: `${result.displayName}: ${result.nickname}.`, data: result });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.nickname_failed", error, "Discord не змінив серверний нік.");
+    return discordAdminError(request, "admin.discord.nickname_failed", error, "Discord не змінив серверний нік.", guard.session);
   }
 }

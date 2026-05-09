@@ -135,6 +135,10 @@ export function canManageDiscordMembers(session: DashboardSession | null | undef
   return permitted(session, "discord.members.manage", ["admin"]);
 }
 
+export function canViewAdminLogs(session: DashboardSession | null | undefined) {
+  return permitted(session, "admin.logs.view", ["admin"]);
+}
+
 export function canManageRaids(session: DashboardSession | null | undefined) {
   return permitted(session, "raids.manage", ["admin", "moderator"]);
 }
@@ -164,6 +168,7 @@ export function dashboardCapabilities(role: DashboardRole, permissions?: string[
     { key: "raids", title: "Рейди", description: "Створення рейдових оголошень, Discord-кнопки запису та автоматична побудова складу.", enabled: enabled("raids.manage", canModerate) },
     { key: "rules-embeds", title: "Discord правила", description: isAdmin ? "Керування повідомленнями правил, кнопками прийняття, ролями та статистикою." : "Перегляд статистики правил без права змінювати самі повідомлення.", enabled: enabled("discord.rules.manage", isAdmin) },
     { key: "discord-members", title: "Discord учасники", description: "Видача й зняття ролей, серверні ніки та перевірка шаблону ніку.", enabled: enabled("discord.members.manage", isAdmin) },
+    { key: "admin-logs", title: "Журнал дій", description: "Останні адміністративні дії, результати Discord API та помилки.", enabled: enabled("admin.logs.view", isAdmin) },
     { key: "site-content", title: "Новини та гайди сайту", description: "Створення, редагування та видалення матеріалів сайту.", enabled: enabled("content.manage", isAdmin) },
     { key: "groups", title: "Групи та права", description: "Керування групами доступу, Discord role ID та дозволами.", enabled: enabled("groups.manage", isAdmin) },
   ];

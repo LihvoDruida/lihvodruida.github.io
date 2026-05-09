@@ -1,10 +1,11 @@
-export type AdminTabKey = "overview" | "groups" | "discord";
+export type AdminTabKey = "overview" | "groups" | "discord" | "logs";
 
 export default function AdminTabs({ active }: { active: AdminTabKey }) {
   const tabs = [
     { key: "overview" as const, href: "/admin", icon: "⚙", label: "Керування", description: "загальний центр" },
     { key: "groups" as const, href: "/admin/groups", icon: "🧩", label: "Групи та права доступу", description: "ролі й дозволи" },
     { key: "discord" as const, href: "/admin/discord", icon: "◆", label: "Discord-учасники", description: "ролі, ніки, шаблон" },
+    { key: "logs" as const, href: "/admin/logs", icon: "▦", label: "Журнал дій", description: "результати й помилки" },
   ];
 
   return (

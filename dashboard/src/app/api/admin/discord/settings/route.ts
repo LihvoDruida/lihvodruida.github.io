@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
     }, guard.session);
 
     await auditDiscordAdmin("discord.management_settings.update", guard.session, {
+      status: "success",
+      summary: `Оновлено Discord-налаштування. Шаблон: ${policy.template}`,
       template: policy.template,
       roleRemoveConcurrency: policy.roleRemoveConcurrency,
       roleRemoveMaxConcurrency: policy.roleRemoveMaxConcurrency,
@@ -31,6 +33,6 @@ export async function POST(request: NextRequest) {
       data: { policy, refresh: true },
     });
   } catch (error) {
-    return discordAdminError(request, "admin.discord.settings_failed", error, "Налаштування не збережено.");
+    return discordAdminError(request, "admin.discord.settings_failed", error, "Налаштування не збережено.", guard.session);
   }
 }
