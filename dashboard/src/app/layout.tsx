@@ -6,6 +6,7 @@ import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
 import LiveDataRefresh from "@/components/LiveDataRefresh";
 import ImpersonationToast from "@/components/ImpersonationToast";
+import AppFooter from "@/components/AppFooter";
 import { getSession } from "@/lib/auth";
 import { DASHBOARD_TITLE, DEFAULT_SEO_DESCRIPTION, dashboardBaseUrl, privateRobots } from "@/lib/seo";
 
@@ -106,7 +107,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const session = await getSession().catch(() => null);
   return (
     <html lang="uk" className={`${mistUiFont.variable} ${mistDisplayFont.variable}`}>
-      <body><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}</body>
+      <body><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}<AppFooter /></body>
     </html>
   );
 }

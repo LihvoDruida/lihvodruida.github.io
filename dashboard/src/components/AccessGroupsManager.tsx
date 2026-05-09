@@ -145,7 +145,7 @@ export default function AccessGroupsManager({ groups, isServerOwner, currentGrou
                 <label>
                   <span>Назва групи</span>
                   <input className="input" name="name" defaultValue={group.name} readOnly={!canEdit} maxLength={80} autoComplete="off" />
-                  <small>Коротка назва, яка буде показана в dashboard.</small>
+                  <small>Коротка назва, яка буде показана в панелі.</small>
                 </label>
                 <label>
                   <span>Роль у системі</span>

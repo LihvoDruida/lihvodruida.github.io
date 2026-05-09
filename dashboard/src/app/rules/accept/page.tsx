@@ -23,9 +23,12 @@ function roleName(roleId: string, roles: Array<{ id: string; name: string }>) {
 
 function statusNotice(status?: string | null) {
   if (status === "completed") return { tone: "ok", text: "✅ Реєстрацію завершено. Discord-роль видано, серверний нік оновлено." };
-  if (status === "completed_nickname_manual") return { tone: "warning", text: "✅ Discord-роль видано. Нік не вдалося змінити автоматично — перевір права бота або зміни нік вручну." };
+  if (status === "completed_owner_nickname_manual") return { tone: "warning", text: "✅ Discord-роль видано. Ти власник сервера, тому Discord не дозволяє боту змінити твій нік — зміни його вручну за шаблоном у профілі." };
+  if (status === "completed_nickname_manual") return { tone: "warning", text: "✅ Discord-роль видано. Серверний нік потрібно змінити вручну за шаблоном у профілі." };
   if (status === "incomplete") return { tone: "warning", text: "Заповни всі обовʼязкові пункти, після цього роль можна буде видати." };
   if (status === "missing_role_token") return { tone: "warning", text: "Посилання не містить підтвердженої ролі. Натисни актуальну кнопку правил у Discord." };
+  if (status === "not_discord_profile") return { tone: "warning", text: "Реєстрацію правил можна завершити тільки через Discord-вхід." };
+  if (status === "discord_not_configured") return { tone: "error", text: "Discord-видача ролей тимчасово не налаштована. Звернись до офіцера." };
   if (status === "failed") return { tone: "error", text: "Не вдалося завершити реєстрацію. Спробуй ще раз або звернись до офіцера." };
   return null;
 }

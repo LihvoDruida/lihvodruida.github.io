@@ -5,12 +5,6 @@ import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNick
 import { markRulesOnboardingCompleted, parseRulesRoleToken, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
-function redirectTo(request: NextRequest, status: string) {
-  const response = NextResponse.redirect(new URL(`/rules/accept?status=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
-}
-
 function redirectToToken(request: NextRequest, token: string, status: string) {
   const url = new URL("/rules/accept", request.url);
   if (token) url.searchParams.set("rt", token);
@@ -55,8 +49,9 @@ export async function POST(request: NextRequest) {
     const nicknamePlan = buildProfileDiscordNicknamePlan(profile);
     const nickname = nicknamePlan.value;
     let nicknameSynced = false;
+    const isGuildOwner = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
 
-    if (nickname && guild?.ownerId !== profile.providerUserId) {
+    if (nickname && !isGuildOwner) {
       try {
         await updateGuildMemberNickname({
           guildId,
@@ -79,10 +74,10 @@ export async function POST(request: NextRequest) {
     });
     await markRulesOnboardingCompleted(profile.profileId, { roleIds, nickname: nicknameSynced ? nickname : null });
 
-    logDashboardEvent("info", "rules.onboarding.completed", request, { profileId: profile.profileId, roles: roleIds.length, nicknameSynced });
-    return redirectToToken(request, token, nicknameSynced ? "completed" : "completed_nickname_manual");
+    logDashboardEvent("info", "rules.onboarding.completed", request, { profileId: profile.profileId, roles: roleIds.length, nicknameSynced, nicknameManualReason: isGuildOwner ? "guild_owner" : nickname && !nicknameSynced ? "discord_denied" : null });
+    return redirectToToken(request, token, nicknameSynced ? "completed" : isGuildOwner ? "completed_owner_nickname_manual" : "completed_nickname_manual");
   } catch (error) {
     logDashboardEvent("error", "rules.onboarding.complete_failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });
-    return redirectTo(request, "failed");
+    return redirectToToken(request, token, "failed");
   }
 }

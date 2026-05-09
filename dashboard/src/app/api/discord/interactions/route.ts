@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
   const parsed = raidAction ? null : decodeRulesCustomId(customId);
   if (!raidAction && !parsed) {
     logDashboardEvent("warn", "discord.rules.unknown_custom_id", request, { customId: customId.slice(0, 24) });
-    return ephemeral("Ця кнопка не належить Mistblossom dashboard або вже застаріла.");
+    return ephemeral("Ця кнопка не належить панелі Mistblossom або вже застаріла.");
   }
 
   const guildId = String(interaction?.guild_id || getDiscordGuildId() || "");

@@ -44,7 +44,7 @@ export type AccessGroup = {
 };
 
 export const PERMISSION_META: Record<DashboardPermissionKey, { title: string; description: string; category: string }> = {
-  "dashboard.view": { title: "Вхід у панель", description: "Дозволяє користувачу заходити в dashboard.", category: "База" },
+  "dashboard.view": { title: "Вхід у панель", description: "Дозволяє користувачу заходити в панель.", category: "База" },
   "applications.view": { title: "Перегляд заявок", description: "Показує сторінку заявок до гільдії.", category: "Заявки" },
   "applications.manage": { title: "Керування заявками", description: "Дозволяє приймати, відхиляти та міняти статуси.", category: "Заявки" },
   "applications.sensitive.view": { title: "BattleTag і приватні поля", description: "Показує BattleTag та контактні поля в заявках.", category: "Заявки" },

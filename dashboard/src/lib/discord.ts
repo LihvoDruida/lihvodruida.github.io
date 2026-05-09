@@ -46,7 +46,7 @@ function buildFallbackEmbed(params: {
     title: `📋 Заявка #${params.issueNumber} оновлена`,
     description: [
       `**Статус:** ${statusEmoji(params.status)} **${statusText(params.status)}**`,
-      `**Джерело:** ${params.source === "dashboard" ? "Dashboard" : "Discord"}`,
+      `**Джерело:** ${params.source === "dashboard" ? "Панель" : "Discord"}`,
       `**Модератор:** ${cleanText(params.moderator, 80)}`,
       params.issueUrl ? `**Issue:** ${params.issueUrl}` : "",
     ].filter(Boolean).join("\n"),

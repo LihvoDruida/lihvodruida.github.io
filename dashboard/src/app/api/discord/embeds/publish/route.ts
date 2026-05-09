@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const shouldEdit = action === "edit" || Boolean(editRef);
     const effectiveAction = shouldEdit ? "edit" : "publish";
     const actor = (await resolveAuthorIdentity(session)).primaryName || session.name || session.login || session.id;
-    const auditReason = `Mistblossom dashboard: ${isRules ? ruleType === "raid" ? "raid rules" : "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
+    const auditReason = `Mistblossom panel: ${isRules ? ruleType === "raid" ? "raid rules" : "rules" : "embed"} ${effectiveAction} by ${actor} (${hierarchyTitle(session.role)})`;
 
     logDashboardEvent("info", "discord.embed.submit", request, {
       mode,
