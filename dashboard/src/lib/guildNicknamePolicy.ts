@@ -49,7 +49,7 @@ function cleanTemplateText(value: unknown) {
 }
 
 function isSupportedNicknameTemplate(template: string) {
-  if (!template || !/\{name\}/i.test(template) || !/\{main\}/i.test(template)) return false;
+  if (!template || !/\{name\}/i.test(template) || !/\{(main|alt)\}/i.test(template)) return false;
   const unknownTokens = Array.from(template.matchAll(/\{([^}]+)\}/g))
     .map((match) => match[1]?.toLowerCase())
     .filter((token) => token && !["name", "main", "alt"].includes(token));
@@ -85,8 +85,8 @@ export function cleanNicknameTemplate(value: unknown) {
   if (!/\{name\}/i.test(template)) {
     throw new Error("Шаблон ніку має містити {name}.");
   }
-  if (!/\{main\}/i.test(template)) {
-    throw new Error("Шаблон ніку має містити {main}, щоб було видно мейна.");
+  if (!/\{(main|alt)\}/i.test(template)) {
+    throw new Error("Шаблон ніку має містити хоча б одну змінну персонажа: {main} або {alt}.");
   }
   const unknownTokens = Array.from(template.matchAll(/\{([^}]+)\}/g))
     .map((match) => match[1]?.toLowerCase())
@@ -222,28 +222,95 @@ export function renderNicknameFromTemplate(templateInput: unknown, input: { name
   return sliceCodePoints(baseName, maxLength).trim() || "Учасник";
 }
 
-function escapeRegex(value: string) {
+function escapeRegexChar(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function templateLiteralToRegex(literal: string) {
+  let output = "";
+  let pendingWhitespace = false;
+
+  for (const char of literal) {
+    if (/\s/u.test(char)) {
+      if (output.endsWith("\\s*")) continue;
+      pendingWhitespace = true;
+      continue;
+    }
+
+    if (char === ",") {
+      output += "\\s*,\\s*";
+      pendingWhitespace = false;
+      continue;
+    }
+
+    if (char === "[") {
+      output += "\\[\\s*";
+      pendingWhitespace = false;
+      continue;
+    }
+
+    if (char === "]") {
+      output += "\\s*\\]";
+      pendingWhitespace = false;
+      continue;
+    }
+
+    if (char === "(") {
+      output += "\\(\\s*";
+      pendingWhitespace = false;
+      continue;
+    }
+
+    if (char === ")") {
+      output += "\\s*\\)";
+      pendingWhitespace = false;
+      continue;
+    }
+
+    if (pendingWhitespace) {
+      output += "\\s+";
+      pendingWhitespace = false;
+    }
+    output += escapeRegexChar(char);
+  }
+
+  if (pendingWhitespace) output += "\\s+";
+  return output;
+}
+
+function characterNicknamePattern() {
+  return "[^\\[\\],\\n]{2,16}";
 }
 
 export function nicknameTemplateToRegex(templateInput: unknown) {
   const template = normalizeStoredTemplate(templateInput);
   let output = "";
   let lastIndex = 0;
+  let seenCharacterToken = false;
   const pattern = /\{(name|main|alt)\}/gi;
+
   for (const match of template.matchAll(pattern)) {
     const token = match[1].toLowerCase();
     const literal = template.slice(lastIndex, match.index);
-    if (token === "alt") {
-      output += `(?:${escapeRegex(literal)}[^\\[\\],\\n]{2,16})?`;
+
+    if (token === "name") {
+      output += templateLiteralToRegex(literal);
+      output += "[^\\[\\]\\n]{2,32}";
     } else {
-      output += escapeRegex(literal);
-      if (token === "name") output += "[^\\[\\]\\n]{2,32}";
-      if (token === "main") output += "[^\\[\\],\\n]{2,16}";
+      const characterToken = characterNicknamePattern();
+      if (seenCharacterToken) {
+        output += `(?:${templateLiteralToRegex(literal)}${characterToken})?`;
+      } else {
+        output += templateLiteralToRegex(literal);
+        output += characterToken;
+        seenCharacterToken = true;
+      }
     }
+
     lastIndex = (match.index || 0) + match[0].length;
   }
-  output += escapeRegex(template.slice(lastIndex));
+
+  output += templateLiteralToRegex(template.slice(lastIndex));
   return new RegExp(`^\\s*${output}\\s*$`, "iu");
 }
 

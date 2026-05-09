@@ -32,6 +32,25 @@ function displayName(member: DiscordGuildMemberModerationItem) {
   return member.nick || member.globalName || member.username || member.userId;
 }
 
+function serverNickname(member: DiscordGuildMemberModerationItem) {
+  return cleanNickname(member.nick || "");
+}
+
+function memberHasInvalidServerNickname(member: DiscordGuildMemberModerationItem, template: string) {
+  const nickname = serverNickname(member);
+  return !nickname || !nicknameMatchesTemplate(nickname, template);
+}
+
+function memberModerationPreview(member: DiscordGuildMemberModerationItem, template: string) {
+  const nick = serverNickname(member);
+  return {
+    ...member,
+    serverNickname: nick || null,
+    checkedNickname: nick || "",
+    mismatchReason: nick ? `Серверний нік не відповідає шаблону: ${template}` : "Серверний нік не встановлено.",
+  };
+}
+
 function explainDiscordModerationError(error: unknown, action: string) {
   const message = error instanceof Error ? error.message : String(error || "");
   if (/50013|Missing Permissions|permission/i.test(message)) {
@@ -137,12 +156,14 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
 export async function inspectDiscordNicknameTemplate(limit = 1000) {
   const policy = await getGuildNicknamePolicy();
   const members = await fetchDiscordGuildMembers(limit);
-  const mismatched = members.filter((member) => !nicknameMatchesTemplate(displayName(member), policy.template));
+  const mismatched = members.filter((member) => memberHasInvalidServerNickname(member, policy.template));
   return {
     template: policy.template,
     checked: members.length,
-    mismatched: mismatched.slice(0, 50),
+    checkedField: "server_nick",
+    mismatched: mismatched.slice(0, 50).map((member) => memberModerationPreview(member, policy.template)),
     mismatchedTotal: mismatched.length,
+    missingServerNicknameTotal: mismatched.filter((member) => !serverNickname(member)).length,
   };
 }
 
@@ -162,7 +183,8 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   const members = await fetchDiscordGuildMembers(limit);
   const targets = members
     .filter((member) => manageableRoleIds.some((roleId) => member.roleIds.includes(roleId)))
-    .filter((member) => !nicknameMatchesTemplate(displayName(member), policy.template));
+    .filter((member) => memberHasInvalidServerNickname(member, policy.template));
+  const previewTargets = targets.map((member) => memberModerationPreview(member, policy.template));
 
   if (input.dryRun) {
     return {
@@ -175,7 +197,9 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       unchanged: 0,
       stillPresentTotal: 0,
       failed: 0,
-      preview: targets.slice(0, 50),
+      checkedField: "server_nick",
+      missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
+      preview: previewTargets.slice(0, 50),
       changedItems: [],
       errors: [],
     };
@@ -186,7 +210,7 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     async (member) => {
       const removableRoleIds = manageableRoleIds.filter((roleId) => member.roleIds.includes(roleId));
       if (!removableRoleIds.length) {
-        return { userId: member.userId, name: displayName(member), requested: [] as string[], removed: [] as string[], stillPresent: [] as string[] };
+        return { userId: member.userId, name: displayName(member), serverNickname: serverNickname(member) || null, requested: [] as string[], removed: [] as string[], stillPresent: [] as string[] };
       }
 
       await removeGuildMemberRoles({
@@ -211,6 +235,7 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       return {
         userId: member.userId,
         name: displayName(member),
+        serverNickname: serverNickname(member) || null,
         requested: removableRoleIds,
         removed,
         stillPresent,
@@ -241,11 +266,14 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     failed: failedItems.length,
     concurrency: meta.concurrency,
     durationMs: meta.durationMs,
-    preview: targets.slice(0, 50),
+    checkedField: "server_nick",
+    missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
+    preview: previewTargets.slice(0, 50),
     changedItems: changedItems.slice(0, 20).map((item) => item.value),
     errors: failedItems.slice(0, 10).map((item) => ({
       userId: item.item.userId,
       name: displayName(item.item),
+      serverNickname: serverNickname(item.item) || null,
       error: item.error instanceof Error ? item.error.message : String(item.error || "Помилка Discord API"),
     })),
   };

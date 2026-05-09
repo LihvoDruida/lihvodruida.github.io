@@ -9,21 +9,24 @@ export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
     const result = await inspectDiscordNicknameTemplate(Number(form.get("limit") || 1000));
-    const summary = `Перевірено ${result.checked}; не відповідають шаблону: ${result.mismatchedTotal}.`;
+    const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
+    const summary = `Перевірено серверні ніки ${result.checked} учасників; не відповідають шаблону: ${result.mismatchedTotal}.${missingNick}`;
     await auditDiscordAdmin("discord.nickname_policy.inspect", guard.session, {
       status: result.mismatchedTotal ? "warning" : "success",
       summary,
       checked: result.checked,
+      checkedField: result.checkedField,
       mismatched: result.mismatchedTotal,
+      missingServerNickname: result.missingServerNicknameTotal || 0,
       template: result.template,
       preview: result.mismatched.slice(0, 20),
     });
     return adminDiscordJson({
       ok: true,
       tone: result.mismatchedTotal ? "warning" : "success",
-      title: "Перевірку ніків завершено",
+      title: "Перевірку серверних ніків завершено",
       message: summary,
-      data: { checked: result.checked, mismatchedTotal: result.mismatchedTotal, preview: result.mismatched, refresh: true },
+      data: { checked: result.checked, checkedField: result.checkedField, mismatchedTotal: result.mismatchedTotal, missingServerNicknameTotal: result.missingServerNicknameTotal || 0, preview: result.mismatched, refresh: true },
     });
   } catch (error) {
     return discordAdminError(request, "admin.discord.nicknames_inspect_failed", error, "Перевірку ніків не виконано.", guard.session);

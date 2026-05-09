@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
-    const apply = String(form.get("apply") || "") === "1";
+    const apply = String(form.get("apply") || form.get("mode") || "") === "1" || String(form.get("mode") || "") === "apply";
     const result = await removeRolesFromMembersWithInvalidNicknames({
       roleIds: form.getAll("roleIds"),
       limit: form.get("limit"),
@@ -16,9 +16,10 @@ export async function POST(request: NextRequest) {
       reason: `Nickname does not match Mistblossom template; action by ${guard.session.name || guard.session.id}`,
     });
 
+    const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
     const summary = result.dryRun
-      ? `Перевірено ${result.checked}; невідповідних учасників із вибраними ролями: ${result.matchedTargets}; зміни не застосовувались.`
-      : `Перевірено ${result.checked}; цілей ${result.matchedTargets}; ролі знято з ${result.changed} учасників; знятих ролей ${result.removedRolesTotal || 0}; без змін ${result.unchanged || 0}; помилок ${result.failed}.`;
+      ? `Перевірено серверні ніки ${result.checked} учасників; невідповідних із вибраними ролями: ${result.matchedTargets}.${missingNick} Зміни не застосовувались.`
+      : `Перевірено серверні ніки ${result.checked} учасників; цілей ${result.matchedTargets}; ролі знято з ${result.changed} учасників; знятих ролей ${result.removedRolesTotal || 0}; без змін ${result.unchanged || 0}; помилок ${result.failed}.${missingNick}`;
 
     await auditDiscordAdmin("discord.member.roles.remove_invalid_nickname", guard.session, {
       status: result.dryRun ? "info" : result.failed ? "warning" : "success",
@@ -27,6 +28,8 @@ export async function POST(request: NextRequest) {
       template: result.template,
       checked: result.checked,
       targets: result.matchedTargets,
+      checkedField: result.checkedField,
+      missingServerNickname: result.missingServerNicknameTotal || 0,
       changed: result.changed,
       removedRoles: result.removedRolesTotal || 0,
       unchanged: result.unchanged || 0,
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
     return adminDiscordJson({
       ok: true,
       tone: result.dryRun ? "info" : result.failed ? "warning" : "success",
-      title: result.dryRun ? "Попередній перегляд готовий" : "Масове зняття ролей завершено",
+      title: result.dryRun ? "Перевірку серверних ніків завершено" : "Зняття ролей за серверним ніком завершено",
       message: `${summary}${failedHint}`,
       ttl: result.dryRun ? 9000 : 14000,
       data: { result, refresh: true },

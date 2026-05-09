@@ -132,7 +132,7 @@ export default async function AdminDiscordPage() {
           <form className="discord-management-form discord-management-form--settings" action="/api/admin/discord/settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <label className="field-label discord-management-form__wide">Шаблон ніку
               <input className="input" name="template" defaultValue={policy.template} placeholder="{name} [{main}, {alt}, {alt}]" required />
-              <small>Доступні змінні: <code>{"{name}"}</code>, <code>{"{main}"}</code>, <code>{"{alt}"}</code>. <code>{"{alt}"}</code> означає один альт, тому для кількох альтів додай змінну кілька разів. Приклад: {nicknameTemplateExample(policy.template)}</small>
+              <small>Доступні змінні: <code>{"{name}"}</code>, <code>{"{main}"}</code>, <code>{"{alt}"}</code>. <code>{"{alt}"}</code> означає один персонаж/альт, тому для кількох персонажів додай змінну кілька разів. Приклад за поточним шаблоном: {nicknameTemplateExample(policy.template)}. Якщо гільдійного мейна ще немає, валідними лишаються варіанти на кшталт <code>{"{name} [{alt}]"}</code> або <code>{"{name} [{alt}, {alt}]"}</code>.</small>
             </label>
 
             <div className="discord-settings-grid" aria-label="Паралельність Discord-дій">
@@ -188,13 +188,14 @@ export default async function AdminDiscordPage() {
           </form>
 
           <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/nicknames/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-            <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Зняти ролі за неправильний нік</h2></div>
-            <p className="profile-card-lead">Перевіряє серверні ніки за глобальним шаблоном. Кнопка перевірки лише показує невідповідності, а червона кнопка реально знімає вибрані ролі з учасників, чиї ніки не відповідають шаблону. Для списку учасників бот має мати доступ до Guild Members.</p>
+            <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Зняти ролі за неправильний серверний нік</h2></div>
+            <p className="profile-card-lead">Перевіряє саме серверні ніки Discord (<code>member.nick</code>) за глобальним шаблоном. Якщо серверний нік не встановлено або не відповідає шаблону — учасник потрапляє в невідповідності. Кнопка перевірки лише показує результат, а червона кнопка реально знімає вибрані ролі з учасників сервера. Для списку учасників бот має мати доступ до Guild Members.</p>
+            <input type="hidden" name="apply" value="1" />
             <label className="field-label">Ліміт учасників для перевірки<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="1000" /></label>
             <RoleCheckboxes roles={roles} />
             <div className="form-actions">
-              <button className="btn subtle" formAction="/api/admin/discord/nicknames/inspect" formMethod="post" type="submit">Тільки перевірити шаблон</button>
-              <button className="btn danger" name="apply" value="1" type="submit" disabled={!hasManageableRoles} data-confirm-message="Ця дія масово зніме вибрані ролі з учасників, чиї ніки не відповідають шаблону. Продовжити?">Зняти ролі за неправильний нік</button>
+              <button className="btn subtle" formAction="/api/admin/discord/nicknames/inspect" formMethod="post" type="submit">Тільки перевірити серверні ніки</button>
+              <button className="btn danger" name="mode" value="apply" type="submit" disabled={!hasManageableRoles} data-confirm-message="Ця дія масово зніме вибрані ролі з учасників сервера, чиї серверні ніки не відповідають шаблону. Продовжити?">Зняти ролі за неправильний серверний нік</button>
             </div>
           </form>
         </section>
