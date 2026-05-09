@@ -1454,6 +1454,8 @@ export async function addGuildMemberRoles(params: {
   userId: string;
   roleIds: string[];
   reason?: string;
+  concurrency?: number;
+  maxConcurrency?: number;
 }) {
   const guildId = snowflake(params.guildId);
   const userId = snowflake(params.userId);
@@ -1471,10 +1473,11 @@ export async function addGuildMemberRoles(params: {
     },
     {
       profile: "external-api",
+      concurrency: Number(params.concurrency || 0) > 0 ? Number(params.concurrency) : undefined,
       envKey: "DISCORD_ROLE_ASSIGN_CONCURRENCY",
       maxEnvKey: "DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY",
       min: 1,
-      max: 5,
+      max: Math.max(1, Math.min(5, Math.floor(Number(params.maxConcurrency || 5)))),
     },
   );
 }

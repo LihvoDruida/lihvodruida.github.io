@@ -168,22 +168,38 @@ export async function inspectDiscordNicknameTemplate(limit = 5000) {
 }
 
 export async function removeRolesFromMembersWithInvalidNicknames(input: {
-  roleIds: unknown;
+  roleIds?: unknown;
+  removeRoleIds?: unknown;
+  addRoleIds?: unknown;
   limit?: unknown;
   dryRun?: boolean;
   reason?: string;
 }) {
   const guildId = getDiscordGuildId();
   if (!guildId) throw new Error("Discord-сервер не підключений.");
-  const roleIds = cleanRoleIds(input.roleIds);
-  if (!roleIds.length) throw new Error("Вибери ролі, які можна знімати при неправильному ніку.");
-  const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
+
+  const removeRoleIds = cleanRoleIds(input.removeRoleIds ?? input.roleIds);
+  const addRoleIds = cleanRoleIds(input.addRoleIds);
+  if (!removeRoleIds.length && !addRoleIds.length) {
+    throw new Error("Вибери хоча б одну Discord-роль: що знімати або що видавати при неправильному ніку.");
+  }
+
+  const manageableRemoveRoleIds = removeRoleIds.length ? await assertDiscordRolesManageable(removeRoleIds) : [];
+  const manageableAddRoleIds = addRoleIds.length ? await assertDiscordRolesManageable(addRoleIds) : [];
+  const duplicated = manageableRemoveRoleIds.filter((roleId) => manageableAddRoleIds.includes(roleId));
+  if (duplicated.length) {
+    throw new Error(`Одна й та сама роль не може одночасно зніматись і видаватись: ${duplicated.join(", ")}.`);
+  }
+
   const limit = Math.max(1, Math.min(5000, Math.floor(Number(input.limit) || 5000)));
   const policy = await getGuildNicknamePolicy();
   const members = await fetchDiscordGuildMembers(limit);
-  const targets = members
-    .filter((member) => manageableRoleIds.some((roleId) => member.roleIds.includes(roleId)))
-    .filter((member) => memberHasInvalidServerNickname(member, policy.template));
+  const invalidMembers = members.filter((member) => memberHasInvalidServerNickname(member, policy.template));
+  const targets = invalidMembers.filter((member) => {
+    const hasRemovable = manageableRemoveRoleIds.some((roleId) => member.roleIds.includes(roleId));
+    const hasMissingAddable = manageableAddRoleIds.some((roleId) => !member.roleIds.includes(roleId));
+    return hasRemovable || hasMissingAddable;
+  });
   const previewTargets = targets.map((member) => memberModerationPreview(member, policy.template));
 
   if (input.dryRun) {
@@ -191,13 +207,18 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       dryRun: true,
       template: policy.template,
       checked: members.length,
+      invalidTotal: invalidMembers.length,
       matchedTargets: targets.length,
       changed: 0,
       removedRolesTotal: 0,
+      addedRolesTotal: 0,
       unchanged: 0,
       stillPresentTotal: 0,
+      stillMissingTotal: 0,
       failed: 0,
       checkedField: "server_nick",
+      removeRoleIds: manageableRemoveRoleIds,
+      addRoleIds: manageableAddRoleIds,
       missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
       preview: previewTargets.slice(0, 100),
       changedItems: [],
@@ -210,30 +231,44 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   const { results, meta } = await mapConcurrentSettled(
     targets,
     async (member) => {
-      const removableRoleIds = manageableRoleIds.filter((roleId) => member.roleIds.includes(roleId));
-      if (!removableRoleIds.length) {
-        return { userId: member.userId, name: displayName(member), serverNickname: serverNickname(member) || null, requested: [] as string[], removed: [] as string[], stillPresent: [] as string[] };
+      const removableRoleIds = manageableRemoveRoleIds.filter((roleId) => member.roleIds.includes(roleId));
+      const addableRoleIds = manageableAddRoleIds.filter((roleId) => !member.roleIds.includes(roleId));
+
+      if (removableRoleIds.length) {
+        await removeGuildMemberRoles({
+          guildId,
+          userId: member.userId,
+          roleIds: removableRoleIds,
+          reason: input.reason || `Nickname does not match template: ${policy.template}`,
+          concurrency: 1,
+          maxConcurrency: 1,
+        });
       }
 
-      await removeGuildMemberRoles({
-        guildId,
-        userId: member.userId,
-        roleIds: removableRoleIds,
-        reason: input.reason || `Nickname does not match template: ${policy.template}`,
-        // Cleanup is intentionally fully sequential: Discord rate-limits DELETE role
-        // routes aggressively, and safety is more important than speed here.
-        concurrency: 1,
-        maxConcurrency: 1,
-      });
+      if (addableRoleIds.length) {
+        await addGuildMemberRoles({
+          guildId,
+          userId: member.userId,
+          roleIds: addableRoleIds,
+          reason: input.reason || `Nickname does not match template: ${policy.template}`,
+          concurrency: 1,
+          maxConcurrency: 1,
+        });
+      }
 
       const snapshot = await memberSnapshot(member.userId);
-      const stillPresent = snapshot
-        ? removableRoleIds.filter((roleId) => snapshot.roleIds.includes(roleId))
-        : [];
+      const currentRoleIds = snapshot?.roleIds || [];
+      const stillPresent = removableRoleIds.filter((roleId) => currentRoleIds.includes(roleId));
       const removed = removableRoleIds.filter((roleId) => !stillPresent.includes(roleId));
+      const stillMissing = addableRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
+      const added = addableRoleIds.filter((roleId) => !stillMissing.includes(roleId));
 
-      if (stillPresent.length === removableRoleIds.length) {
+      if (removableRoleIds.length && stillPresent.length === removableRoleIds.length && !added.length) {
         throw new Error(`Discord прийняв запит, але ролі не знялися: ${stillPresent.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
+      }
+
+      if (addableRoleIds.length && stillMissing.length === addableRoleIds.length && !removed.length) {
+        throw new Error(`Discord прийняв запит, але ролі не видались: ${stillMissing.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
       }
 
       return {
@@ -241,15 +276,16 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
         name: displayName(member),
         serverNickname: serverNickname(member) || null,
         requested: removableRoleIds,
+        requestedRemove: removableRoleIds,
+        requestedAdd: addableRoleIds,
         removed,
+        added,
         stillPresent,
+        stillMissing,
       };
     },
     {
       profile: "external-api",
-      // Масове зняття ролей навмисно виконується послідовно. Discord дуже швидко
-      // віддає 429 на DELETE role routes, а нам важливіше безпечно пройти всі цілі
-      // за один запуск, ніж робити операцію швидкою, але частково проваленою.
       concurrency: 1,
       min: 1,
       max: 1,
@@ -258,22 +294,29 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
 
   const okItems = results.filter((result) => result.ok);
   const failedItems = results.filter((result) => !result.ok);
-  const changedItems = okItems.filter((result) => result.value.removed.length > 0);
+  const changedItems = okItems.filter((result) => result.value.removed.length > 0 || result.value.added.length > 0);
   const removedRolesTotal = changedItems.reduce((sum, result) => sum + result.value.removed.length, 0);
+  const addedRolesTotal = changedItems.reduce((sum, result) => sum + result.value.added.length, 0);
   const stillPresentTotal = okItems.reduce((sum, result) => sum + result.value.stillPresent.length, 0);
+  const stillMissingTotal = okItems.reduce((sum, result) => sum + result.value.stillMissing.length, 0);
   return {
     dryRun: false,
     template: policy.template,
     checked: members.length,
+    invalidTotal: invalidMembers.length,
     matchedTargets: targets.length,
     changed: changedItems.length,
     removedRolesTotal,
+    addedRolesTotal,
     unchanged: okItems.length - changedItems.length,
     stillPresentTotal,
+    stillMissingTotal,
     failed: failedItems.length,
     concurrency: meta.concurrency,
     durationMs: meta.durationMs,
     checkedField: "server_nick",
+    removeRoleIds: manageableRemoveRoleIds,
+    addRoleIds: manageableAddRoleIds,
     missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
     preview: previewTargets.slice(0, 100),
     changedItems: changedItems.slice(0, 200).map((item) => item.value),
@@ -287,3 +330,4 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     errorsTotal: failedItems.length,
   };
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 import type { AuthorNameSuggestion } from "@/lib/profiles";
@@ -799,7 +799,7 @@ function EmbedFieldEditor({ fields, onChange }: {
   );
 }
 
-export default function DiscordEmbedEditor({
+function DiscordEmbedEditorInner({
   mode,
   ruleType = "guild",
   editorMode,
@@ -845,7 +845,7 @@ export default function DiscordEmbedEditor({
   const [messageLoadState, setMessageLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const [messageLoadText, setMessageLoadText] = useState("");
   const [loadedMessageLink, setLoadedMessageLink] = useState(normalizeMessageLink(defaultMessageLink));
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = false;
   const lastLoadedMessageLinkRef = useRef(normalizeMessageLink(defaultMessageLink));
   const channelsKey = channels.map((channel) => channel.id).join("|");
   const selectedRoleIdsKey = uniqueIds(selectedRoleIds).join("|");
@@ -1013,20 +1013,6 @@ export default function DiscordEmbedEditor({
   );
   const effectiveSubmitAction = editorMode === "edit" || hasMessageLinkEditTarget ? "edit" : "publish";
 
-  function handleSubmit(_: FormEvent<HTMLFormElement>) {
-    setIsSubmitting(true);
-    const submitMessage = effectiveSubmitAction === "edit"
-      ? isRaidRules ? "Оновлюємо повідомлення з правилами рейду..." : isRules ? "Оновлюємо підтягнуте повідомлення з правилами..." : "Оновлюємо підтягнуте Discord-повідомлення..."
-      : isRaidRules ? "Публікуємо нові правила рейду..." : isRules ? "Публікуємо нові правила Discord..." : "Публікуємо нове Discord-повідомлення...";
-    setMessageLoadText(submitMessage);
-    dispatchDashboardToast({
-      tone: "info",
-      title: effectiveSubmitAction === "edit" ? "Оновлюємо Discord повідомлення" : "Публікуємо Discord повідомлення",
-      message: submitMessage,
-      ttl: 4200,
-    });
-  }
-
   const embed = useMemo(() => buildEmbed({
     title: titleValue,
     url: urlValue,
@@ -1084,7 +1070,7 @@ export default function DiscordEmbedEditor({
             <span className="discord-mode-pill">{effectiveSubmitAction === "edit" ? hasLoadedEditableMessage && editorMode !== "edit" ? "Редагуємо підтягнуте" : editorMode !== "edit" ? "Редагуємо за посиланням" : "Редагування" : "Створення"}</span>
           </div>
 
-          <form className={isSubmitting ? "discord-builder-form is-submitting" : "discord-builder-form"} method="post" action="/api/discord/embeds/publish" data-dashboard-action-form="true" data-dashboard-live-submit="true" data-dashboard-action="/api/discord/embeds/publish" onSubmit={handleSubmit}>
+          <form className="discord-builder-form" method="post" action="/api/discord/embeds/publish" data-dashboard-action-form="true" data-dashboard-live-submit="true" data-dashboard-action="/api/discord/embeds/publish">
             <input type="hidden" name="mode" value={mode} />
             <input type="hidden" name="ruleType" value={ruleType} />
             <input type="hidden" name="returnTo" value={returnTo} />
@@ -1339,4 +1325,34 @@ export default function DiscordEmbedEditor({
       <DiscordPreview embed={embed} content={content} isValid={isValid} mentionRoles={selectedMentionRoles} previewMode={previewMode} onPreviewModeChange={setPreviewMode} />
     </div>
   );
+}
+
+export default function DiscordEmbedEditor(props: DiscordEmbedEditorProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="discord-builder-shell discord-builder-shell--site" suppressHydrationWarning>
+        <section className="discord-builder-panel panel" aria-label="Завантаження Discord-редактора">
+          <div className="discord-builder-titlebar">
+            <span>Редактор Discord</span>
+            <small>завантажуємо</small>
+          </div>
+          <div className="discord-builder-body">
+            <div className="notice panel">Редактор завантажується…</div>
+          </div>
+        </section>
+        <aside className="discord-preview-panel panel" aria-label="Попередній перегляд Discord-повідомлення">
+          <div className="discord-preview-titlebar"><span>Перегляд</span></div>
+          <div className="discord-preview-canvas"><div className="notice panel">Preview зʼявиться після завантаження редактора.</div></div>
+        </aside>
+      </div>
+    );
+  }
+
+  return <DiscordEmbedEditorInner {...props} />;
 }

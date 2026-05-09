@@ -124,7 +124,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               <p>{item.summary || "Дію виконано."}</p>
               {listStrings(item.details.changedNames).length ? (
                 <div className="admin-log-highlight admin-log-highlight--success">
-                  <strong>Знято з:</strong>
+                  <strong>Змінено ролі у:</strong>
                   <span>{listStrings(item.details.changedNames).join(", ")}{Number(item.details.changedItemsTotal || 0) > listStrings(item.details.changedNames).length ? ` та ще ${Number(item.details.changedItemsTotal || 0) - listStrings(item.details.changedNames).length}` : ""}</span>
                 </div>
               ) : null}

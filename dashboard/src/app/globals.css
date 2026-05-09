@@ -25303,3 +25303,35 @@ button[aria-busy="true"]::after,
 @keyframes dashboard-button-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Discord cleanup role action: separate roles to remove and roles to grant */
+.discord-cleanup-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.discord-cleanup-role-column {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.discord-cleanup-role-column .profile-card-head h3 {
+  margin: 0;
+  font-size: .98rem;
+}
+
+.discord-cleanup-role-column .profile-card-lead {
+  margin: 6px 0 12px;
+  font-size: .84rem;
+}
+
+@media (max-width: 860px) {
+  .discord-cleanup-role-grid {
+    grid-template-columns: 1fr;
+  }
+}

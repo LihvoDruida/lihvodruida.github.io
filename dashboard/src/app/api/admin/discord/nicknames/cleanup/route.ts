@@ -9,8 +9,12 @@ export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
     const apply = String(form.get("apply") || form.get("mode") || "") === "1" || String(form.get("mode") || "") === "apply";
+    const removeRoleIds = form.getAll("removeRoleIds");
+    const legacyRoleIds = form.getAll("roleIds");
+    const addRoleIds = form.getAll("addRoleIds");
     const result = await removeRolesFromMembersWithInvalidNicknames({
-      roleIds: form.getAll("roleIds"),
+      removeRoleIds: removeRoleIds.length ? removeRoleIds : legacyRoleIds,
+      addRoleIds,
       limit: form.get("limit"),
       dryRun: !apply,
       reason: `Nickname does not match Mistblossom template; action by ${guard.session.name || guard.session.id}`,
@@ -18,10 +22,10 @@ export async function POST(request: NextRequest) {
 
     const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
     const summary = result.dryRun
-      ? `Перевірено серверні ніки ${result.checked} учасників; невідповідних із вибраними ролями: ${result.matchedTargets}.${missingNick} Зміни не застосовувались.`
-      : `Перевірено серверні ніки ${result.checked} учасників; цілей ${result.matchedTargets}; ролі знято з ${result.changed} учасників; знятих ролей ${result.removedRolesTotal || 0}; без змін ${result.unchanged || 0}; помилок ${result.failed}.${missingNick}`;
+      ? `Перевірено серверні ніки ${result.checked} учасників; невідповідних загалом ${result.invalidTotal || result.matchedTargets}; цілей для вибраних ролей: ${result.matchedTargets}.${missingNick} Зміни не застосовувались.`
+      : `Перевірено серверні ніки ${result.checked} учасників; цілей ${result.matchedTargets}; ролі змінено у ${result.changed} учасників; знято ролей ${result.removedRolesTotal || 0}; видано ролей ${result.addedRolesTotal || 0}; без змін ${result.unchanged || 0}; помилок ${result.failed}.${missingNick}`;
 
-    await auditDiscordAdmin("discord.member.roles.remove_invalid_nickname", guard.session, {
+    await auditDiscordAdmin("discord.member.roles.apply_invalid_nickname", guard.session, {
       status: result.dryRun ? "info" : result.failed ? "warning" : "success",
       summary,
       dryRun: result.dryRun,
@@ -32,8 +36,12 @@ export async function POST(request: NextRequest) {
       missingServerNickname: result.missingServerNicknameTotal || 0,
       changed: result.changed,
       removedRoles: result.removedRolesTotal || 0,
+      addedRoles: result.addedRolesTotal || 0,
+      removeRoleIds: result.removeRoleIds || [],
+      addRoleIds: result.addRoleIds || [],
       unchanged: result.unchanged || 0,
       stillPresent: result.stillPresentTotal || 0,
+      stillMissing: result.stillMissingTotal || 0,
       failed: result.failed,
       errors: result.errors || [],
       changedItems: result.changedItems || [],
@@ -44,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const changedNames = result.changedItems?.slice(0, 6).map((item) => item.name).filter(Boolean) || [];
     const changedHint = !result.dryRun && changedNames.length
-      ? ` Знято з: ${changedNames.join(", ")}${result.changed > changedNames.length ? ` та ще ${result.changed - changedNames.length}` : ""}.`
+      ? ` Змінено ролі у: ${changedNames.join(", ")}${result.changed > changedNames.length ? ` та ще ${result.changed - changedNames.length}` : ""}.`
       : "";
     const failedHint = result.failed
       ? ` Помилки: ${result.errors?.slice(0, 3).map((item) => `${item.name}: ${item.error}`).join(" | ")}`
@@ -56,7 +64,7 @@ export async function POST(request: NextRequest) {
     return adminDiscordResponse(request, {
       ok: true,
       tone: result.dryRun ? "info" : result.failed ? "warning" : "success",
-      title: result.dryRun ? "Перевірку серверних ніків завершено" : "Зняття ролей за серверним ніком завершено",
+      title: result.dryRun ? "Перевірку серверних ніків завершено" : "Ролі за серверним ніком оновлено",
       message: `${summary}${changedHint}${failedHint}${rateLimitHint}`,
       ttl: result.dryRun ? 9000 : 16000,
       data: { result, refresh: true },
