@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 13:20:52'
+  updated_at: '2026-05-09 16:57:31'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13739
-      region: 6121
+      world: 13740
+      region: 6122
       realm: 55
     heroic:
-      world: 13251
-      region: 5678
+      world: 13257
+      region: 5679
       realm: 46
     mythic:
-      world: 7453
-      region: 3182
+      world: 7467
+      region: 3184
       realm: 25
   blackrock-depths:
     normal:
@@ -1389,11 +1389,11 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 3077
-        color: '#5764e2'
+        score: 3129.2
+        color: '#715be5'
       dps:
-        score: 3077
-        color: '#5764e2'
+        score: 3129.2
+        color: '#715be5'
       healer:
         score: 326.1
         color: '#f7fff3'
@@ -1401,8 +1401,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3077
-        color: '#5764e2'
+        score: 3129.2
+        color: '#715be5'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2766,7 +2766,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 271
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2602.8
@@ -5192,7 +5192,7 @@ members:
   character:
     name: Kaijuro
     id: 225023935
-    level: 86
+    level: 87
     realm:
       id: 549
       slug: silvermoon
@@ -5317,11 +5317,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2477.4
-        color: '#5bcf73'
+        score: 2568.8
+        color: '#5fbd8a'
       dps:
-        score: 2477.4
-        color: '#5bcf73'
+        score: 2568.8
+        color: '#5fbd8a'
       healer:
         score: 0
         color: '#ffffff'
@@ -5329,8 +5329,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2459.9
-        color: '#59d46d'
+        score: 2551.3
+        color: '#5fc184'
       spec_1:
         score: 2049.8
         color: '#55ff3a'
@@ -6357,10 +6357,10 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3030.7
+        score: 3041.1
         color: '#316cdf'
       dps:
-        score: 3030.7
+        score: 3041.1
         color: '#316cdf'
       healer:
         score: 0
@@ -6372,7 +6372,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3030.7
+        score: 3041.1
         color: '#316cdf'
       spec_2:
         score: 0
@@ -6798,7 +6798,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 238
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2651.7
