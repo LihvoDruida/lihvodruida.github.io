@@ -3,6 +3,7 @@ import "server-only";
 import { mapConcurrentSettled } from "@/lib/concurrency";
 import {
   addGuildMemberRoles,
+  fetchDiscordBotManagementSnapshot,
   fetchDiscordGuildMemberSnapshot,
   fetchDiscordGuildMembers,
   getDiscordGuildId,
@@ -28,6 +29,16 @@ function cleanRoleIds(values: unknown) {
 
 function displayName(member: DiscordGuildMemberModerationItem) {
   return member.nick || member.globalName || member.username || member.userId;
+}
+
+async function assertRolesManageable(roleIds: string[], action: string) {
+  const status = await fetchDiscordBotManagementSnapshot().catch(() => null);
+  if (!status || !status.roleCount) return;
+
+  const blocked = roleIds.filter((roleId) => status.unmanageableRoleIds.includes(roleId));
+  if (!blocked.length) return;
+
+  throw new Error(`${action}: бот не може керувати ${blocked.length === 1 ? "цією роллю" : "цими ролями"}, бо його найвища роль ${status.topRoleName ? `“${status.topRoleName}”` : ""} не стоїть вище. Підніми роль бота в Discord або вибери роль нижче бота.`);
 }
 
 function explainDiscordModerationError(error: unknown, action: string) {
@@ -77,6 +88,7 @@ export async function addDiscordMemberRoles(input: { userId: unknown; roleIds: u
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!roleIds.length) throw new Error("Вибери хоча б одну Discord-роль.");
+  await assertRolesManageable(roleIds, "Видача ролі");
   try {
     await addGuildMemberRoles({ guildId, userId, roleIds, reason: input.reason || "Mistblossom manual role add" });
   } catch (error) {
@@ -97,6 +109,7 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!roleIds.length) throw new Error("Вибери хоча б одну Discord-роль.");
+  await assertRolesManageable(roleIds, "Зняття ролі");
   const policy = await getGuildNicknamePolicy();
   try {
     await removeGuildMemberRoles({
@@ -140,6 +153,7 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   const roleIds = cleanRoleIds(input.roleIds);
   if (!roleIds.length) throw new Error("Вибери ролі, які можна знімати при неправильному ніку.");
+  await assertRolesManageable(roleIds, "Масове зняття ролей");
   const limit = Math.max(1, Math.min(5000, Math.floor(Number(input.limit) || 1000)));
   const policy = await getGuildNicknamePolicy();
   const members = await fetchDiscordGuildMembers(limit);

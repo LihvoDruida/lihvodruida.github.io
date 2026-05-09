@@ -4,7 +4,7 @@ import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers } from "@/lib/permissions";
-import { fetchDiscordGuildSnapshot, fetchDiscordRoles, getDiscordGuildId } from "@/lib/discordAdmin";
+import { checkDiscordGuildMembersAccess, fetchDiscordBotManagementSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, getDiscordGuildId } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
 
 export const dynamic = "force-dynamic";
@@ -17,19 +17,22 @@ export const metadata = buildPageMetadata({
   keywords: ["Discord", "ролі", "ніки", "керування"],
 });
 
-function RoleCheckboxes({ roles }: { roles: Array<{ id: string; name: string; position?: number }> }) {
+function RoleCheckboxes({ roles, manageableRoleIds }: { roles: Array<{ id: string; name: string; position?: number }>; manageableRoleIds?: Set<string> | null }) {
   if (!roles.length) {
-    return <div className="discord-role-checkboxes discord-role-checkboxes--empty">Discord-ролі не завантажились. Перевір bot token, guild ID і право Manage Roles.</div>;
+    return <div className="discord-role-checkboxes discord-role-checkboxes--empty">Discord-ролі не завантажились. Перевір bot token, guild ID і доступ бота до сервера.</div>;
   }
   return (
     <div className="discord-role-checkboxes">
-      {roles.map((role) => (
-        <label key={role.id}>
-          <input type="checkbox" name="roleIds" value={role.id} />
-          <span>{role.name}</span>
-          <small>{role.id}</small>
-        </label>
-      ))}
+      {roles.map((role) => {
+        const canManageRole = manageableRoleIds ? manageableRoleIds.has(role.id) : true;
+        return (
+          <label key={role.id} className={canManageRole ? "" : "is-disabled"} title={canManageRole ? role.id : "Бот не може керувати цією роллю: роль бота має бути вище."}>
+            <input type="checkbox" name="roleIds" value={role.id} disabled={!canManageRole} />
+            <span>{role.name}</span>
+            <small>{canManageRole ? role.id : "Недоступно: роль вище або на рівні бота"}</small>
+          </label>
+        );
+      })}
     </div>
   );
 }
@@ -42,13 +45,16 @@ export default async function AdminDiscordPage() {
     throw new Error("Access denied");
   }
 
-  const [policy, rolesResult, guild] = await Promise.all([
+  const [policy, rolesResult, guild, membersAccess] = await Promise.all([
     getGuildNicknamePolicy(),
     fetchDiscordRoles().then((roles) => ({ roles, error: "" })).catch((error) => ({ roles: [], error: error instanceof Error ? error.message : "Discord ролі недоступні" })),
     fetchDiscordGuildSnapshot().catch(() => null),
+    checkDiscordGuildMembersAccess(),
   ]);
   const roles = rolesResult.roles;
-  const hasManageableRoles = roles.length > 0;
+  const botStatus = roles.length ? await fetchDiscordBotManagementSnapshot(roles).catch(() => null) : null;
+  const manageableRoleIds = botStatus ? new Set(botStatus.manageableRoleIds) : null;
+  const hasManageableRoles = roles.length > 0 && (!manageableRoleIds || roles.some((role) => manageableRoleIds.has(role.id)));
   const guildId = getDiscordGuildId();
 
   return (
@@ -76,12 +82,25 @@ export default async function AdminDiscordPage() {
           </div>
           <div className={`discord-management-status__item ${guild ? "is-ok" : "is-warning"}`}>
             <strong>{guild?.name || "Сервер не прочитано"}</strong>
-            <small>{guild ? "Bot API відповідає" : "Перевір DISCORD_BOT_TOKEN і права бота"}</small>
+            <small>{guild ? "Bot REST API відповідає" : "Перевір DISCORD_BOT_TOKEN і доступ бота"}</small>
+          </div>
+          <div className={`discord-management-status__item ${botStatus ? "is-ok" : "is-warning"}`}>
+            <strong>{botStatus?.topRoleName || "Роль бота невідома"}</strong>
+            <small>{botStatus ? `Найвища роль бота • позиція ${botStatus.topRolePosition}` : "Без цього не можна точно визначити керовані ролі"}</small>
           </div>
           <div className={`discord-management-status__item ${rolesResult.error ? "is-warning" : "is-ok"}`}>
-            <strong>{roles.length}</strong>
-            <small>{rolesResult.error ? `Ролі недоступні: ${rolesResult.error}` : "Доступних ролей для керування"}</small>
+            <strong>{manageableRoleIds ? roles.filter((role) => manageableRoleIds.has(role.id)).length : roles.length}</strong>
+            <small>{rolesResult.error ? `Ролі недоступні: ${rolesResult.error}` : "Ролей нижче бота, якими можна керувати"}</small>
           </div>
+          <div className={`discord-management-status__item ${membersAccess.ok ? "is-ok" : "is-warning"}`}>
+            <strong>{membersAccess.ok ? "Guild Members OK" : "Guild Members потрібен"}</strong>
+            <small>{membersAccess.message}</small>
+          </div>
+        </section>
+
+        <section className="panel discord-management-note" aria-label="Як працює Discord-керування">
+          <strong>Режим роботи Discord API</strong>
+          <p>Зміна ніків і ролей виконується через Discord REST API. Gateway не потрібен для цих дій і не підходить для постійного WebSocket-підключення всередині Vercel serverless. Масова перевірка учасників використовує REST endpoint List Guild Members, але Discord вимагає увімкнений privileged intent <b>Guild Members</b> у Developer Portal.</p>
         </section>
 
         <section className="panel discord-management-card" aria-label="Глобальний шаблон ніку">
@@ -140,14 +159,14 @@ export default async function AdminDiscordPage() {
           <form className="panel discord-management-card" action="/api/admin/discord/roles/add" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Додати роль учаснику</h2></div>
             <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
-            <RoleCheckboxes roles={roles} />
+            <RoleCheckboxes roles={roles} manageableRoleIds={manageableRoleIds} />
             <button className="btn primary" type="submit" disabled={!hasManageableRoles}>Додати вибрані ролі</button>
           </form>
 
           <form className="panel discord-management-card" action="/api/admin/discord/roles/remove" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Зняти роль з учасника</h2></div>
             <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
-            <RoleCheckboxes roles={roles} />
+            <RoleCheckboxes roles={roles} manageableRoleIds={manageableRoleIds} />
             <button className="btn danger" type="submit" disabled={!hasManageableRoles} data-confirm-message="Зняти вибрані ролі з цього учасника?">Зняти вибрані ролі</button>
           </form>
 
@@ -155,7 +174,7 @@ export default async function AdminDiscordPage() {
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Зняти ролі за неправильний нік</h2></div>
             <p className="profile-card-lead">Перевіряє серверні ніки за глобальним шаблоном і знімає тільки вибрані ролі. Спочатку запускай як попередній перегляд. Для списку учасників бот має мати доступ до Guild Members.</p>
             <label className="field-label">Ліміт учасників для перевірки<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="1000" /></label>
-            <RoleCheckboxes roles={roles} />
+            <RoleCheckboxes roles={roles} manageableRoleIds={manageableRoleIds} />
             <label className="raid-checkbox-line">
               <input type="checkbox" name="apply" value="1" />
               <span>Підтверджую реальне зняття ролей. Без цієї галочки буде тільки попередній перегляд.</span>

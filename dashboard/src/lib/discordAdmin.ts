@@ -368,6 +368,23 @@ export type DiscordGuildSnapshot = {
   rules_channel_id?: string | null;
 };
 
+export type DiscordBotManagementSnapshot = {
+  botId: string;
+  botName: string;
+  topRolePosition: number;
+  topRoleName: string | null;
+  manageableRoleIds: string[];
+  unmanageableRoleIds: string[];
+  roleCount: number;
+};
+
+export type DiscordGuildMembersAccessCheck = {
+  ok: boolean;
+  checked: number;
+  message: string;
+  code?: number | string | null;
+};
+
 export type DiscordMessageRef = {
   guildId?: string;
   channelId: string;
@@ -525,7 +542,9 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
 
   if (!response.ok) {
     const detail = typeof json?.message === "string" ? json.message : raw;
-    throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}`);
+    const code = json && typeof json === "object" && "code" in json ? String((json as { code?: unknown }).code || "") : "";
+    const codeText = code ? ` code ${code}:` : ":";
+    throw new Error(`Discord API ${response.status}${codeText} ${String(detail || "невідома помилка").slice(0, 220)}`);
   }
 
   return (json ?? raw) as T;
@@ -838,6 +857,58 @@ export async function fetchDiscordRoles() {
     // profile pages fail because Discord's roles endpoint is temporarily down.
     if (cached?.roles?.length) return cached.roles;
     throw error;
+  }
+}
+
+export async function fetchDiscordBotManagementSnapshot(rolesInput?: DiscordRoleOption[]): Promise<DiscordBotManagementSnapshot> {
+  const guildId = getDiscordGuildId();
+  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
+
+  const [botUser, roles] = await Promise.all([
+    discordApi<any>("/users/@me"),
+    rolesInput?.length ? Promise.resolve(rolesInput) : fetchDiscordRoles(),
+  ]);
+
+  const botId = snowflake(botUser?.id);
+  if (!botId) throw new Error("Discord bot token не повернув ID бота.");
+
+  const botMember = await fetchDiscordGuildMemberSnapshot(botId, guildId);
+  const botRoleIds = new Set(botMember.roleIds);
+  const botRoles = roles.filter((role) => botRoleIds.has(role.id));
+  const topRole = botRoles.sort((a, b) => b.position - a.position)[0] || null;
+  const topRolePosition = Number(topRole?.position || 0);
+
+  return {
+    botId,
+    botName: cleanText(botUser?.global_name || botUser?.username || botMember.displayName, 80) || "Discord bot",
+    topRolePosition,
+    topRoleName: topRole?.name || null,
+    manageableRoleIds: roles.filter((role) => role.position > 0 && role.position < topRolePosition).map((role) => role.id),
+    unmanageableRoleIds: roles.filter((role) => role.position >= topRolePosition).map((role) => role.id),
+    roleCount: roles.length,
+  };
+}
+
+export async function checkDiscordGuildMembersAccess(): Promise<DiscordGuildMembersAccessCheck> {
+  const guildId = getDiscordGuildId();
+  if (!guildId) {
+    return { ok: false, checked: 0, message: "Discord server ID не налаштовано." };
+  }
+
+  try {
+    const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=1&after=0`);
+    return {
+      ok: true,
+      checked: Array.isArray(members) ? members.length : 0,
+      message: "List Guild Members доступний. Масова перевірка ніків може працювати через REST API.",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    const privilegedHint = /403|50001|50013|Missing Access|Missing Permissions/i.test(message)
+      ? "List Guild Members недоступний. Увімкни Privileged Gateway Intent: Guild Members у Discord Developer Portal для цього бота. Це потрібно навіть для REST endpoint списку учасників."
+      : message || "List Guild Members недоступний.";
+    const codeMatch = message.match(/code\s+(\d+)/i);
+    return { ok: false, checked: 0, message: privilegedHint, code: codeMatch?.[1] || null };
   }
 }
 
@@ -1394,17 +1465,25 @@ export async function fetchDiscordGuildMembers(limitInput = 1000) {
   const result: DiscordGuildMemberModerationItem[] = [];
   let after = "0";
 
-  while (result.length < safeLimit) {
-    const batchSize = Math.min(1000, safeLimit - result.length);
-    const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=${batchSize}&after=${after}`);
-    if (!Array.isArray(members) || members.length === 0) break;
-    for (const member of members) {
-      const normalized = normalizeGuildMemberForModeration(member);
-      if (normalized) result.push(normalized);
+  try {
+    while (result.length < safeLimit) {
+      const batchSize = Math.min(1000, safeLimit - result.length);
+      const members = await discordApi<any[]>(`/guilds/${guildId}/members?limit=${batchSize}&after=${after}`);
+      if (!Array.isArray(members) || members.length === 0) break;
+      for (const member of members) {
+        const normalized = normalizeGuildMemberForModeration(member);
+        if (normalized) result.push(normalized);
+      }
+      const lastUserId = members[members.length - 1]?.user?.id;
+      if (!lastUserId || String(lastUserId) === after || members.length < batchSize) break;
+      after = String(lastUserId);
     }
-    const lastUserId = members[members.length - 1]?.user?.id;
-    if (!lastUserId || String(lastUserId) === after || members.length < batchSize) break;
-    after = String(lastUserId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (/403|50001|50013|Missing Access|Missing Permissions/i.test(message)) {
+      throw new Error("Discord не віддав список учасників. Для масової перевірки ніків потрібен Privileged Gateway Intent: Guild Members у Developer Portal бота; REST endpoint List Guild Members теж залежить від цього дозволу.");
+    }
+    throw error;
   }
 
   return result;
