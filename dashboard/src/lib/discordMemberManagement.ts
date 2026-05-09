@@ -54,6 +54,17 @@ function memberModerationPreview(member: DiscordGuildMemberModerationItem, templ
   };
 }
 
+function serverNicknameValidation(member: { nick?: string | null }, template: string) {
+  const nickname = cleanNickname(member.nick || "");
+  if (!nickname) {
+    return { ok: false, nickname: null, reason: "Серверний нік не встановлено." };
+  }
+  if (!nicknameMatchesTemplate(nickname, template)) {
+    return { ok: false, nickname, reason: `Серверний нік не відповідає шаблону: ${template}` };
+  }
+  return { ok: true, nickname, reason: "" };
+}
+
 function explainDiscordModerationError(error: unknown, action: string) {
   const message = error instanceof Error ? error.message : String(error || "");
   if (/50013|Missing Permissions|permission/i.test(message)) {
@@ -368,9 +379,10 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
   const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
   const limit = Math.max(10, Math.min(1000, Math.floor(Number(input.limit) || 1000)));
 
-  const [profiles, rankMap] = await Promise.all([
+  const [profiles, rankMap, policy] = await Promise.all([
     listDashboardProfilesForDiscordSync(limit),
     fetchBattleNetGuildRankMap().catch(() => new Map<string, { rank: number | null; status: string | null; label: string | null }>()),
+    getGuildNicknamePolicy(),
   ]);
 
   const candidates = profiles.map((profile) => {
@@ -391,6 +403,23 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
           officerCharacters: candidate.officers.map((character) => character.name),
           skipped: true,
           skipReason: "Discord-учасника не знайдено на сервері.",
+          serverNickname: null as string | null,
+          added: [] as string[],
+          alreadyHad: [] as string[],
+          stillMissing: [] as string[],
+        };
+      }
+
+      const nicknameCheck = serverNicknameValidation(snapshot, policy.template);
+      if (!nicknameCheck.ok) {
+        return {
+          profileId: candidate.profile.profileId,
+          userId: candidate.discordId,
+          name: snapshot.displayName || getProfilePublicName(candidate.profile),
+          officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
+          skipped: true,
+          skipReason: nicknameCheck.reason,
+          serverNickname: nicknameCheck.nickname,
           added: [] as string[],
           alreadyHad: [] as string[],
           stillMissing: [] as string[],
@@ -426,6 +455,8 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
         name: after?.displayName || getProfilePublicName(candidate.profile),
         officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
         skipped: false,
+        skipReason: "",
+        serverNickname: serverNicknameValidation(after || snapshot, policy.template).nickname,
         added,
         alreadyHad,
         stillMissing,
@@ -440,6 +471,8 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
   const skippedItems = okItems.filter((item) => item.value.skipped).map((item) => item.value);
   const alreadyHadItems = okItems.filter((item) => !item.value.skipped && item.value.added.length === 0 && item.value.alreadyHad.length > 0).map((item) => item.value);
   const addedRolesTotal = changedItems.reduce((sum, item) => sum + item.added.length, 0);
+  const skippedMissingNickname = skippedItems.filter((item) => !item.serverNickname).length;
+  const skippedInvalidNickname = skippedItems.filter((item) => item.serverNickname && /шаблону/i.test(item.skipReason || "")).length;
 
   return {
     checkedProfiles: profiles.length,
@@ -448,8 +481,12 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
     addedRolesTotal,
     alreadyHad: alreadyHadItems.length,
     skipped: skippedItems.length,
+    skippedMissingNickname,
+    skippedInvalidNickname,
     failed: failedItems.length,
     roleIds: manageableRoleIds,
+    nicknameTemplate: policy.template,
+    checkedField: "server_nick",
     concurrency: meta.concurrency,
     durationMs: meta.durationMs,
     changedItems: changedItems.slice(0, 200),

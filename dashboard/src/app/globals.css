@@ -25445,3 +25445,23 @@ button[aria-busy="true"]::after,
 :where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"] {
   font-size: inherit;
 }
+
+
+/* vNext: action-state buttons replace label with action text but keep progress indicator left-only. */
+:where(button[aria-busy="true"], .btn-working, .profile-bnet-cta[aria-busy="true"])::after {
+  content: none !important;
+  display: none !important;
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action, .profile-bnet-cta).btn-working::before,
+:where(.btn, .action-button, button[type="submit"], .raid-action, .profile-bnet-cta)[aria-busy="true"]::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  display: inline-block;
+  animation: dashboard-spin 720ms linear infinite;
+}

@@ -107,11 +107,9 @@ function setWorking(form: HTMLFormElement, buttons: HTMLButtonElement[], submitt
     }
   }
 
-  // Keep button labels stable. The global UI now shows action progress only
-  // with the left loading indicator, so layout, text width and translations do
-  // not jump while a request is running.
   if (submitter) {
     submitter.dataset.loadingLabel = submitter.dataset.loadingLabel || label;
+    submitter.textContent = label;
   }
 }
 

@@ -14,10 +14,14 @@ export async function POST(request: NextRequest) {
       reason: `Mistblossom Battle.net officer role sync by ${guard.session.name || guard.session.id}`,
     });
 
-    const summary = `Перевірено профілів ${result.checkedProfiles}; знайдено офіцерських профілів ${result.officerProfiles}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.`;
+    const nicknameSkipped = (result.skippedMissingNickname || result.skippedInvalidNickname)
+      ? ` Пропущено через серверний нік: без ніку ${result.skippedMissingNickname || 0}, не за шаблоном ${result.skippedInvalidNickname || 0}.`
+      : "";
+    const summary = `Перевірено профілів ${result.checkedProfiles}; знайдено офіцерських профілів ${result.officerProfiles}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${nicknameSkipped}`;
+    const hasWarnings = Boolean(result.failed || result.skippedMissingNickname || result.skippedInvalidNickname);
 
     await auditDiscordAdmin("discord.member.roles.sync_bnet_officers", guard.session, {
-      status: result.failed ? "warning" : "success",
+      status: hasWarnings ? "warning" : "success",
       summary,
       checkedProfiles: result.checkedProfiles,
       officerProfiles: result.officerProfiles,
@@ -26,6 +30,10 @@ export async function POST(request: NextRequest) {
       alreadyHad: result.alreadyHad,
       skipped: result.skipped,
       failed: result.failed,
+      skippedMissingNickname: result.skippedMissingNickname,
+      skippedInvalidNickname: result.skippedInvalidNickname,
+      nicknameTemplate: result.nicknameTemplate,
+      checkedField: result.checkedField,
       roleIds: result.roleIds,
       changedItems: result.changedItems,
       changedItemsTotal: result.changedItemsTotal,
@@ -47,10 +55,10 @@ export async function POST(request: NextRequest) {
 
     return adminDiscordResponse(request, {
       ok: true,
-      tone: result.failed ? "warning" : "success",
+      tone: hasWarnings ? "warning" : "success",
       title: "Синхронізацію офіцерських ролей завершено",
       message: `${summary}${changedHint}${errorHint}`,
-      ttl: result.failed ? 14000 : 7600,
+      ttl: hasWarnings ? 14000 : 7600,
       data: { result, refresh: true },
     });
   } catch (error) {
