@@ -140,7 +140,7 @@ export default function ProfileNameControls({
         <div className="profile-name-section__head profile-name-section__head--modern">
           <div>
             <span className="profile-name-panel__label" id={`${inputId}-name-title`}>Імʼя в панелі</span>
-            <small>Основне імʼя для профілю, рейдів, авторів і службових дій.</small>
+            <small>Основне імʼя для сайту.</small>
           </div>
           {!editing && canManage ? (
             <button
@@ -197,7 +197,7 @@ export default function ProfileNameControls({
           <div className={`profile-name-display-row profile-name-display-row--modern${hasName ? "" : " is-empty"}`}>
             <span className="profile-name-display-row__value">
               <strong>{savedName || "Додай імʼя"}</strong>
-              <small>{hasName ? "Буде пріоритетним замість Discord-імені." : "Після збереження це імʼя стане основним."}</small>
+              <small>{hasName ? "Пріоритетне імʼя в панелі." : "Буде основним у панелі."}</small>
             </span>
             {hasName ? <span className="profile-name-status-pill">Активне</span> : null}
           </div>
@@ -208,12 +208,8 @@ export default function ProfileNameControls({
         <div className="profile-name-section__head profile-name-section__head--modern">
           <div>
             <span className="profile-name-panel__label">Відображення</span>
-            <small>Вибери, як імʼя буде виглядати в панелі, рейдах і авторах.</small>
+            <small>Формат показу в панелі й рейдах.</small>
           </div>
-        </div>
-        <div className="profile-public-name-preview">
-          <span>Зараз у системі</span>
-          <strong>{publicNamePreview || savedName || discordName || "Учасник"}</strong>
         </div>
         {canManage ? (
           <div className="profile-display-mode-form" role="group" aria-label="Вибір формату імені">
@@ -256,7 +252,7 @@ export default function ProfileNameControls({
           <div className="profile-discord-standard__identity">
             <span className="profile-name-panel__label">Discord</span>
             <strong title={discordName || "Discord"}>{discordName || "Discord"}</strong>
-            <small>Оригінальне імʼя з Discord. У панелі пріоритет має імʼя з профілю.</small>
+            <small>Оригінальне імʼя Discord.</small>
           </div>
 
           {canManage && canSyncDiscord && hasName && nicknamePreview ? (
@@ -298,7 +294,7 @@ export default function ProfileNameControls({
           </div>
         ) : null}
 
-        {canSyncDiscord && hasName && nicknamePreview ? (
+        {canSyncDiscord && hasName && nicknamePreview && (!synced || discordOwnerLocked) ? (
           <div className={`profile-nickname-preview${synced ? " is-synced" : ""}${discordOwnerLocked ? " is-owner-locked" : ""}`}>
             <span>Буде в Discord</span>
             <strong>{nicknamePreview}</strong>
@@ -314,7 +310,7 @@ export default function ProfileNameControls({
           <small className="profile-nickname-hint">
             {!hasName
               ? "Вкажи імʼя — формат збереться автоматично."
-              : "Discord-синхронізація доступна після входу через Discord."}
+              : "Синхронізація доступна після входу через Discord."}
           </small>
         ) : null}
       </section>

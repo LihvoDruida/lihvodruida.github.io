@@ -25932,3 +25932,346 @@ button[aria-busy="true"]::after,
     border-top: 1px solid rgba(214, 168, 79, 0.14);
   }
 }
+
+/* Profile cleanup pass: remove duplicate visual noise and make the layout read as one clean profile page. */
+.profile-account-page {
+  max-width: 1500px;
+  margin-inline: auto;
+}
+
+.profile-account-layout {
+  grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.profile-account-main {
+  gap: 16px;
+}
+
+.profile-account-header {
+  min-height: auto;
+  padding-top: 2px;
+}
+
+.profile-account-header h1 {
+  font-size: clamp(30px, 3.3vw, 44px);
+}
+
+.profile-account-header p {
+  max-width: 680px;
+}
+
+.profile-account-overview--clean {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-account-overview--clean .profile-account-overview-card {
+  min-height: 82px;
+  padding: 14px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  border-radius: 18px;
+}
+
+.profile-account-overview--clean .profile-account-overview-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+}
+
+.profile-account-overview--clean .profile-account-overview-card strong {
+  font-size: clamp(16px, 1.55vw, 20px);
+}
+
+.profile-account-main .profile-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.profile-account-main .profile-card--characters,
+.profile-account-main .profile-card--raids {
+  grid-column: 1 / -1;
+}
+
+.profile-account-main .profile-card {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(16px, 1.9vw, 22px);
+}
+
+.profile-card--clean-profile .profile-person-card,
+.profile-card--clean-profile .profile-person-card__avatar,
+.profile-card--clean-profile .profile-public-status-card {
+  display: none !important;
+}
+
+.profile-card--clean-profile .profile-name-panel {
+  gap: 10px !important;
+}
+
+.profile-card--clean-profile .profile-name-section,
+.profile-card--clean-profile .profile-display-mode-section,
+.profile-card--clean-profile .profile-discord-standard {
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+
+.profile-card--clean-profile .profile-name-section__head small,
+.profile-card--clean-profile .profile-discord-standard__identity small,
+.profile-card--clean-profile .profile-name-display-row__value small,
+.profile-card--clean-profile .profile-nickname-preview span,
+.profile-card--clean-profile .profile-nickname-preview small,
+.profile-card--clean-profile .profile-nickname-hint {
+  display: none !important;
+}
+
+.profile-card--clean-profile .profile-name-display-row--modern {
+  padding: 10px 12px !important;
+}
+
+.profile-card--clean-profile .profile-display-mode-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.profile-card--clean-profile .profile-display-mode-option {
+  min-height: 56px !important;
+  padding: 10px !important;
+}
+
+.profile-card--clean-profile .profile-display-mode-option small {
+  display: none !important;
+}
+
+.profile-card--clean-profile .profile-discord-standard__head--modern {
+  align-items: center !important;
+}
+
+.profile-card--clean-profile .profile-nickname-preview,
+.profile-card--clean-profile .profile-server-nickname {
+  padding: 10px 12px !important;
+}
+
+.profile-card--access-clean {
+  align-content: start;
+}
+
+.profile-card--access-clean .profile-warning {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.profile-role-stack--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.profile-card-toolbar--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.profile-card-toolbar--compact span {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid rgba(214, 168, 79, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.profile-card-toolbar--compact strong {
+  color: var(--text);
+  font-weight: 950;
+}
+
+.profile-card-toolbar--compact small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.profile-compact-details {
+  margin-top: 12px;
+  border: 1px solid rgba(214, 168, 79, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.profile-compact-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+  list-style: none;
+}
+
+.profile-compact-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-compact-details > summary::after {
+  content: "⌄";
+  color: var(--gold-bright);
+  transition: transform 160ms ease;
+}
+
+.profile-compact-details[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.profile-compact-details > summary strong {
+  margin-left: auto;
+  padding: 4px 9px;
+  border: 1px solid rgba(89, 214, 141, 0.20);
+  border-radius: 999px;
+  color: #dcffd3;
+  background: rgba(89, 214, 141, 0.09);
+  font-size: 11px;
+}
+
+.profile-compact-details > :not(summary) {
+  margin: 0 12px 12px !important;
+}
+
+.profile-compact-details .profile-gender-box,
+.profile-compact-details .profile-raid-role-box {
+  border: 0 !important;
+  background: rgba(4, 8, 14, 0.32) !important;
+  box-shadow: none !important;
+}
+
+.profile-compact-details .profile-gender-box__head small,
+.profile-compact-details .profile-raid-role-box__note {
+  display: none !important;
+}
+
+.profile-compact-details .profile-gender-form,
+.profile-compact-details .profile-raid-role-form {
+  gap: 8px !important;
+}
+
+.profile-compact-details .profile-gender-option,
+.profile-compact-details .profile-raid-role-option {
+  min-height: 50px !important;
+  padding: 10px !important;
+}
+
+.profile-compact-details .profile-gender-option small,
+.profile-compact-details .profile-raid-role-option small {
+  display: none !important;
+}
+
+.profile-facts--technical {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin-top: 10px !important;
+}
+
+.profile-facts--technical dd {
+  overflow-wrap: anywhere;
+}
+
+.profile-account-main .profile-character-list--single-flow {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 286px), 318px));
+  justify-content: start;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.profile-account-main .profile-character-list--single-flow .profile-character-card {
+  max-width: 318px;
+}
+
+.profile-account-main .profile-character-card {
+  grid-template-rows: clamp(260px, 26vw, 330px) auto;
+}
+
+.profile-account-main .profile-character-body {
+  padding: 16px;
+}
+
+.profile-account-main .profile-character-title-row h3 {
+  font-size: clamp(23px, 2.4vw, 30px);
+}
+
+.profile-character-title-row--stacked .profile-character-kind,
+.profile-character-title-row--stacked .profile-character-guild-status {
+  margin-top: 8px;
+}
+
+.profile-character-meta span:nth-child(n+4) {
+  display: none;
+}
+
+.profile-account-main .profile-character-showcase {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-account-main .profile-character-showcase__stat:nth-child(3) {
+  display: none;
+}
+
+.profile-account-main .profile-bnet-summary,
+.profile-account-main .profile-card-lead {
+  display: none !important;
+}
+
+.profile-candidates-box .profile-card-note {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .profile-account-main .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-account-overview--clean {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .profile-account-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-account-overview--clean,
+  .profile-account-main .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card--clean-profile .profile-display-mode-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profile-account-main .profile-character-list--single-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-account-main .profile-character-list--single-flow .profile-character-card {
+    max-width: none;
+  }
+
+  .profile-account-main .profile-character-showcase {
+    grid-template-columns: 1fr 1fr;
+  }
+}
