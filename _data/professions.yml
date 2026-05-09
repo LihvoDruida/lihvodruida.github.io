@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 16:57:31'
+  updated_at: '2026-05-09 20:46:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 134
+  member_count: 135
 characters:
 - name: Бреинор
   region: eu
@@ -2958,7 +2958,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 90
+        learned_points: 92
         max_points: 100
     - name: Fishing
       id: 356
@@ -6885,3 +6885,44 @@ characters:
   professions:
     primaries: []
     secondaries: []
+- name: Рокталл
+  region: eu
+  realm: soulflayer
+  realm_slug: soulflayer
+  profile_url: null
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Herbalism
+        learned_points: 50
+        max_points: 150
+      - name: Midnight Herbalism
+        learned_points: 4
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Mining
+        learned_points: 61
+        max_points: 150
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
