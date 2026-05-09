@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auditDiscordAdmin, adminDiscordJson, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
+import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { removeRolesFromMembersWithInvalidNicknames } from "@/lib/discordMemberManagement";
 
 export async function POST(request: NextRequest) {
@@ -37,18 +37,28 @@ export async function POST(request: NextRequest) {
       failed: result.failed,
       errors: result.errors || [],
       changedItems: result.changedItems || [],
+      changedItemsTotal: result.changedItemsTotal ?? result.changed,
+      changedNames: result.changedItems?.map((item) => item.name).filter(Boolean) || [],
+      errorsTotal: result.errorsTotal ?? result.failed,
     });
 
+    const changedNames = result.changedItems?.slice(0, 6).map((item) => item.name).filter(Boolean) || [];
+    const changedHint = !result.dryRun && changedNames.length
+      ? ` Знято з: ${changedNames.join(", ")}${result.changed > changedNames.length ? ` та ще ${result.changed - changedNames.length}` : ""}.`
+      : "";
     const failedHint = result.failed
       ? ` Помилки: ${result.errors?.slice(0, 3).map((item) => `${item.name}: ${item.error}`).join(" | ")}`
       : "";
+    const rateLimitHint = result.errors?.some((item) => /429|rate limit/i.test(String(item.error || "")))
+      ? " Частина запитів уперлась у rate limit Discord; система повторює такі запити, але Discord може все одно обмежити операцію. Запусти дію ще раз для залишку або зменш паралельність до 1."
+      : "";
 
-    return adminDiscordJson({
+    return adminDiscordResponse(request, {
       ok: true,
       tone: result.dryRun ? "info" : result.failed ? "warning" : "success",
       title: result.dryRun ? "Перевірку серверних ніків завершено" : "Зняття ролей за серверним ніком завершено",
-      message: `${summary}${failedHint}`,
-      ttl: result.dryRun ? 9000 : 14000,
+      message: `${summary}${changedHint}${failedHint}${rateLimitHint}`,
+      ttl: result.dryRun ? 9000 : 16000,
       data: { result, refresh: true },
     });
   } catch (error) {

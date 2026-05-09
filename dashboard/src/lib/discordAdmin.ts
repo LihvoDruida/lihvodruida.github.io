@@ -519,6 +519,19 @@ function encodeAuditReason(reason?: string) {
   return encodeURIComponent(value.slice(0, 512));
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function discordRetryAfterMs(response: Response, json: any, attempt: number) {
+  const retryAfter = Number(json?.retry_after ?? response.headers.get("retry-after") ?? 0);
+  const normalized = Number.isFinite(retryAfter) && retryAfter > 0
+    ? retryAfter > 50 ? retryAfter : retryAfter * 1000
+    : 900 + attempt * 550;
+  const jitter = 150 + Math.floor(Math.random() * 250);
+  return Math.max(500, Math.min(15_000, Math.floor(normalized + jitter)));
+}
+
 export async function discordApi<T = any>(path: string, init: DiscordRequestInit = {}): Promise<T> {
   const token = getBotToken();
   if (!token) throw new Error("Discord bot token не налаштований. Дії з ролями, ніками та учасниками не можуть виконуватись напряму через Discord API.");
@@ -533,23 +546,34 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
   const auditReason = encodeAuditReason(init.auditReason);
   if (auditReason) headers.set("X-Audit-Log-Reason", auditReason);
 
-  const response = await fetch(`${DISCORD_API_BASE}${path}`, {
-    ...init,
-    headers,
-    cache: "no-store",
-  });
+  const maxAttempts = 5;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const response = await fetch(`${DISCORD_API_BASE}${path}`, {
+      ...init,
+      headers,
+      cache: "no-store",
+    });
 
-  if (response.status === 204) return undefined as T;
+    if (response.status === 204) return undefined as T;
 
-  const raw = await response.text().catch(() => "");
-  const json = raw ? tryParseJson(raw) : null;
+    const raw = await response.text().catch(() => "");
+    const json = raw ? tryParseJson(raw) : null;
 
-  if (!response.ok) {
-    const detail = typeof json?.message === "string" ? json.message : raw;
-    throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}`);
+    if (response.status === 429 && attempt < maxAttempts - 1) {
+      await sleep(discordRetryAfterMs(response, json, attempt));
+      continue;
+    }
+
+    if (!response.ok) {
+      const detail = typeof json?.message === "string" ? json.message : raw;
+      const rateHint = response.status === 429 ? " Після кількох повторів Discord усе ще обмежує запити." : "";
+      throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}${rateHint}`);
+    }
+
+    return (json ?? raw) as T;
   }
 
-  return (json ?? raw) as T;
+  throw new Error("Discord API 429: Discord продовжує обмежувати запити після кількох повторів.");
 }
 
 function tryParseJson(value: string) {

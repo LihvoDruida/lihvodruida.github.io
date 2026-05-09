@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auditDiscordAdmin, adminDiscordJson, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
+import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { updateDiscordMemberNickname } from "@/lib/discordMemberManagement";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       reason: `Mistblossom manual nickname update by ${guard.session.name || guard.session.id}`,
     });
     await auditDiscordAdmin("discord.member.nickname.update", guard.session, { ...result, status: "success", summary: `${result.displayName}: нік змінено на ${result.nickname}.` });
-    return adminDiscordJson({ ok: true, title: "Нік змінено в Discord", message: `${result.displayName}: ${result.nickname}.`, data: result });
+    return adminDiscordResponse(request, { ok: true, title: "Нік змінено в Discord", message: `${result.displayName}: ${result.nickname}.`, data: result });
   } catch (error) {
     return discordAdminError(request, "admin.discord.nickname_failed", error, "Discord не змінив серверний нік.", guard.session);
   }

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auditDiscordAdmin, adminDiscordJson, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
+import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { setGuildDiscordManagementSettings } from "@/lib/guildNicknamePolicy";
 
 export async function POST(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       nicknameCleanupMaxConcurrency: policy.nicknameCleanupMaxConcurrency,
     });
 
-    return adminDiscordJson({
+    return adminDiscordResponse(request, {
       ok: true,
       title: "Discord-налаштування збережено",
       message: `Шаблон: ${policy.template}. Нові дії Discord беруть ці значення з панелі.`,

@@ -45,6 +45,23 @@ function statusLabel(status: string) {
   return "Інфо";
 }
 
+
+function listStrings(value: unknown, limit = 8) {
+  if (!Array.isArray(value)) return [] as string[];
+  return value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, limit);
+}
+
+function errorSummaries(value: unknown, limit = 4) {
+  if (!Array.isArray(value)) return [] as string[];
+  return value.slice(0, limit).map((item) => {
+    if (!item || typeof item !== "object") return String(item || "").trim();
+    const entry = item as Record<string, unknown>;
+    const name = String(entry.name || entry.userId || "Учасник").trim();
+    const error = String(entry.error || "помилка").trim();
+    return `${name}: ${error}`;
+  }).filter(Boolean);
+}
+
 function detailsJson(details: Record<string, unknown>) {
   try {
     return JSON.stringify(details, null, 2);
@@ -105,6 +122,18 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
                 <time dateTime={item.createdAt || undefined}>{formatDate(item.createdAt)}</time>
               </div>
               <p>{item.summary || "Дію виконано."}</p>
+              {listStrings(item.details.changedNames).length ? (
+                <div className="admin-log-highlight admin-log-highlight--success">
+                  <strong>Знято з:</strong>
+                  <span>{listStrings(item.details.changedNames).join(", ")}{Number(item.details.changedItemsTotal || 0) > listStrings(item.details.changedNames).length ? ` та ще ${Number(item.details.changedItemsTotal || 0) - listStrings(item.details.changedNames).length}` : ""}</span>
+                </div>
+              ) : null}
+              {errorSummaries(item.details.errors).length ? (
+                <div className="admin-log-highlight admin-log-highlight--error">
+                  <strong>Помилки:</strong>
+                  <span>{errorSummaries(item.details.errors).join(" | ")}</span>
+                </div>
+              ) : null}
               <div className="admin-log-meta">
                 <span>Автор: <strong>{item.actorName || item.actorId || "невідомо"}</strong></span>
                 {item.actorGroupId ? <span>Група: <strong>{item.actorGroupId}</strong></span> : null}

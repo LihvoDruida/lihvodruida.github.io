@@ -153,7 +153,7 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
   return { userId, roleIds: manageableRoleIds, displayName: snapshot?.displayName || userId };
 }
 
-export async function inspectDiscordNicknameTemplate(limit = 1000) {
+export async function inspectDiscordNicknameTemplate(limit = 5000) {
   const policy = await getGuildNicknamePolicy();
   const members = await fetchDiscordGuildMembers(limit);
   const mismatched = members.filter((member) => memberHasInvalidServerNickname(member, policy.template));
@@ -178,7 +178,7 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   const roleIds = cleanRoleIds(input.roleIds);
   if (!roleIds.length) throw new Error("Вибери ролі, які можна знімати при неправильному ніку.");
   const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
-  const limit = Math.max(1, Math.min(5000, Math.floor(Number(input.limit) || 1000)));
+  const limit = Math.max(1, Math.min(5000, Math.floor(Number(input.limit) || 5000)));
   const policy = await getGuildNicknamePolicy();
   const members = await fetchDiscordGuildMembers(limit);
   const targets = members
@@ -199,9 +199,11 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       failed: 0,
       checkedField: "server_nick",
       missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
-      preview: previewTargets.slice(0, 50),
+      preview: previewTargets.slice(0, 100),
       changedItems: [],
+      changedItemsTotal: 0,
       errors: [],
+      errorsTotal: 0,
     };
   }
 
@@ -243,9 +245,12 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     },
     {
       profile: "external-api",
-      concurrency: policy.nicknameCleanupConcurrency > 0 ? policy.nicknameCleanupConcurrency : undefined,
+      // Масове зняття ролей навмисно виконується послідовно. Discord дуже швидко
+      // віддає 429 на DELETE role routes, а нам важливіше безпечно пройти всі цілі
+      // за один запуск, ніж робити операцію швидкою, але частково проваленою.
+      concurrency: 1,
       min: 1,
-      max: policy.nicknameCleanupMaxConcurrency,
+      max: 1,
     },
   );
 
@@ -268,13 +273,15 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     durationMs: meta.durationMs,
     checkedField: "server_nick",
     missingServerNicknameTotal: targets.filter((member) => !serverNickname(member)).length,
-    preview: previewTargets.slice(0, 50),
-    changedItems: changedItems.slice(0, 20).map((item) => item.value),
-    errors: failedItems.slice(0, 10).map((item) => ({
+    preview: previewTargets.slice(0, 100),
+    changedItems: changedItems.slice(0, 200).map((item) => item.value),
+    changedItemsTotal: changedItems.length,
+    errors: failedItems.slice(0, 100).map((item) => ({
       userId: item.item.userId,
       name: displayName(item.item),
       serverNickname: serverNickname(item.item) || null,
       error: item.error instanceof Error ? item.error.message : String(item.error || "Помилка Discord API"),
     })),
+    errorsTotal: failedItems.length,
   };
 }

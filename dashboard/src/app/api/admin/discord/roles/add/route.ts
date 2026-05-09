@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auditDiscordAdmin, adminDiscordJson, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
+import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { addDiscordMemberRoles } from "@/lib/discordMemberManagement";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       reason: `Mistblossom manual role add by ${guard.session.name || guard.session.id}`,
     });
     await auditDiscordAdmin("discord.member.roles.add", guard.session, { ...result, status: "success", summary: `${result.displayName}: видано ролей ${result.roleIds.length}.` });
-    return adminDiscordJson({ ok: true, title: "Ролі видано в Discord", message: `${result.displayName}: додано ${result.roleIds.length}.`, data: result });
+    return adminDiscordResponse(request, { ok: true, title: "Ролі видано в Discord", message: `${result.displayName}: додано ${result.roleIds.length}.`, data: result });
   } catch (error) {
     return discordAdminError(request, "admin.discord.roles_add_failed", error, "Discord не видав ролі.", guard.session);
   }

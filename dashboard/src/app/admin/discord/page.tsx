@@ -191,7 +191,7 @@ export default async function AdminDiscordPage() {
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Зняти ролі за неправильний серверний нік</h2></div>
             <p className="profile-card-lead">Перевіряє саме серверні ніки Discord (<code>member.nick</code>) за глобальним шаблоном. Якщо серверний нік не встановлено або не відповідає шаблону — учасник потрапляє в невідповідності. Кнопка перевірки лише показує результат, а червона кнопка реально знімає вибрані ролі з учасників сервера. Для списку учасників бот має мати доступ до Guild Members.</p>
             <input type="hidden" name="apply" value="1" />
-            <label className="field-label">Ліміт учасників для перевірки<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="1000" /></label>
+            <label className="field-label">Скільки учасників перевірити<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="5000" /><small>5000 = пройти весь сервер у межах технічного ліміту панелі. Для Mistblossom цього достатньо, щоб перевірити всіх учасників.</small></label>
             <RoleCheckboxes roles={roles} />
             <div className="form-actions">
               <button className="btn subtle" formAction="/api/admin/discord/nicknames/inspect" formMethod="post" type="submit">Тільки перевірити серверні ніки</button>

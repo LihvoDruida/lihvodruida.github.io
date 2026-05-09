@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageDiscordMembers } from "@/lib/permissions";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, unauthorizedResponse, verifyTrustedOrigin } from "@/lib/security";
+import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export async function requireDiscordAdmin(request: NextRequest, action: string, bodyLimit = 16 * 1024) {
   if (!verifyTrustedOrigin(request)) return { error: forbiddenResponse() };
@@ -20,8 +21,18 @@ export async function requireDiscordAdmin(request: NextRequest, action: string, 
   return { session };
 }
 
-export function adminDiscordJson(input: { ok: boolean; tone?: "success" | "info" | "warning" | "error"; title: string; message?: string; status?: number; data?: Record<string, unknown>; ttl?: number }) {
-  return NextResponse.json({
+type AdminDiscordResultInput = {
+  ok: boolean;
+  tone?: "success" | "info" | "warning" | "error";
+  title: string;
+  message?: string;
+  status?: number;
+  data?: Record<string, unknown>;
+  ttl?: number;
+};
+
+function adminDiscordPayload(input: AdminDiscordResultInput) {
+  return {
     ok: input.ok,
     ...(input.data || {}),
     toast: {
@@ -30,7 +41,50 @@ export function adminDiscordJson(input: { ok: boolean; tone?: "success" | "info"
       message: input.message,
       ttl: input.ttl || (input.ok ? 5200 : 8200),
     },
-  }, { status: input.status || (input.ok ? 200 : 400), headers: noStoreHeaders() });
+  };
+}
+
+function wantsJsonResponse(request: NextRequest) {
+  const dashboardAction = String(request.headers.get("x-dashboard-action") || "").toLowerCase();
+  if (dashboardAction === "live") return true;
+
+  const accept = String(request.headers.get("accept") || "").toLowerCase();
+  return accept.includes("application/json") && !accept.includes("text/html");
+}
+
+function safeAdminRedirectUrl(request: NextRequest) {
+  const fallback = new URL("/admin/discord", request.url);
+  const ref = request.headers.get("referer");
+  if (!ref) return fallback;
+
+  try {
+    const url = new URL(ref);
+    const current = new URL(request.url);
+    if (url.origin !== current.origin) return fallback;
+    if (!url.pathname.startsWith("/admin")) return fallback;
+    return url;
+  } catch {
+    return fallback;
+  }
+}
+
+export function adminDiscordJson(input: AdminDiscordResultInput) {
+  return NextResponse.json(adminDiscordPayload(input), { status: input.status || (input.ok ? 200 : 400), headers: noStoreHeaders() });
+}
+
+export function adminDiscordResponse(request: NextRequest, input: AdminDiscordResultInput) {
+  if (wantsJsonResponse(request)) return adminDiscordJson(input);
+
+  const payload = adminDiscordPayload(input);
+  const response = NextResponse.redirect(safeAdminRedirectUrl(request), 303);
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.append("Set-Cookie", dashboardToastCookie({
+    tone: payload.toast.tone,
+    title: payload.toast.title,
+    message: payload.toast.message,
+    ttl: payload.toast.ttl,
+  }));
+  return response;
 }
 
 export async function auditDiscordAdmin(action: string, session: NonNullable<Awaited<ReturnType<typeof getSession>>>, details: Record<string, unknown>) {
@@ -48,5 +102,5 @@ export function discordAdminError(request: NextRequest, event: string, error: un
       error: error instanceof Error ? error.message : String(error || ""),
     }).catch(() => null);
   }
-  return adminDiscordJson({ ok: false, tone: "error", title: "Дію не виконано", message, status: 400, data: { error: message } });
+  return adminDiscordResponse(request, { ok: false, tone: "error", title: "Дію не виконано", message, status: 400, data: { error: message } });
 }

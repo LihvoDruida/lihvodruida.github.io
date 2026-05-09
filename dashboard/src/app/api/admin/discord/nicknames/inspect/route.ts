@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { auditDiscordAdmin, adminDiscordJson, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
+import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { inspectDiscordNicknameTemplate } from "@/lib/discordMemberManagement";
 
 export async function POST(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
-    const result = await inspectDiscordNicknameTemplate(Number(form.get("limit") || 1000));
+    const result = await inspectDiscordNicknameTemplate(Number(form.get("limit") || 5000));
     const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
     const summary = `Перевірено серверні ніки ${result.checked} учасників; не відповідають шаблону: ${result.mismatchedTotal}.${missingNick}`;
     await auditDiscordAdmin("discord.nickname_policy.inspect", guard.session, {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       template: result.template,
       preview: result.mismatched.slice(0, 20),
     });
-    return adminDiscordJson({
+    return adminDiscordResponse(request, {
       ok: true,
       tone: result.mismatchedTotal ? "warning" : "success",
       title: "Перевірку серверних ніків завершено",

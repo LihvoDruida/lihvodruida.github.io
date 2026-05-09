@@ -25178,3 +25178,39 @@ main.container {
     justify-self: start;
   }
 }
+
+/* Admin logs v2: structured Discord action highlights */
+.admin-log-highlight {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.045);
+  color: rgba(246, 236, 218, .9);
+}
+
+.admin-log-highlight strong {
+  color: #f5e2b8;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.admin-log-highlight span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: .86rem;
+  line-height: 1.35;
+}
+
+.admin-log-highlight--success {
+  border-color: rgba(106, 194, 111, .32);
+  background: rgba(50, 122, 62, .13);
+}
+
+.admin-log-highlight--error {
+  border-color: rgba(237, 66, 69, .34);
+  background: rgba(125, 31, 31, .14);
+}
