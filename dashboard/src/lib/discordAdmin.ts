@@ -1,4 +1,5 @@
 import { mapConcurrent } from "@/lib/concurrency";
+import { rulesAcceptUrl } from "@/lib/rulesOnboarding";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const DASHBOARD_CUSTOM_ID_PREFIX = "mbv1";
@@ -959,9 +960,9 @@ export function buildRulesComponents(roleIds: string[], rulesType: DiscordRulesT
       components: [
         {
           type: 2,
-          style: 3,
+          style: 5,
           label: "Прийняти правила",
-          custom_id: buildRulesAcceptCustomId(roleIds),
+          url: rulesAcceptUrl(roleIds),
         },
         {
           type: 2,

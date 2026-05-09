@@ -50,7 +50,7 @@ export function formatRaidDateTime(date?: string | null, time?: string | null) {
 export function attendanceStatusLabel(action?: string) {
   if (action === "skipped") return "Позначено, що ти пропускаєш рейд.";
   if (action === "late") return "Записано: ти затримаєшся. Склад рейду оновлено.";
-  if (action === "going") return "Тебе записано на рейд. Склад рейду оновлено.";
+  if (action === "going") return "Тебе записали на рейд. Склад рейду оновлено.";
   return "Дію виконано.";
 }
 

@@ -274,7 +274,7 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
             <time dateTime={message.editedAt || message.createdAt || undefined}>{stateLabel}</time>
             <span className={`discord-rules-type-chip${isRaidRules ? " discord-rules-type-chip--raid" : ""}`}>{isRaidRules ? "Рейд" : "Звичайні"}</span>
           </span>
-          <span className="discord-rules-row-roles-label">{isRaidRules ? "Дія кнопки" : "Видає ролі"}</span>
+          <span className="discord-rules-row-roles-label">{isRaidRules ? "Дія кнопки" : "Роль після реєстрації"}</span>
           {isRaidRules ? <span className="discord-rules-role-empty">Підпис на правила рейду</span> : <RulesRoleBadges roleIds={message.roleIds} roles={roles} />}
         </span>
       </div>

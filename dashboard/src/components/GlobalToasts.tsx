@@ -360,7 +360,7 @@ function cleanMessage(value: string | null | undefined, limit = 360) {
 function toastFromAttendance(value: string | null): Toast | null {
   const action = cleanMessage(value, 32);
   if (!action) return null;
-  if (action === "going") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Тебе записано на рейд. Склад оновлено.", ttl: 6200 };
+  if (action === "going") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Тебе записали на рейд. Склад оновлено.", ttl: 6200 };
   if (action === "late") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Позначено, що ти затримаєшся. Склад оновлено.", ttl: 6200 };
   if (action === "skipped") return { id: createId("attendance"), tone: "success", title: "Запис оновлено", message: "Позначено, що ти пропускаєш рейд.", ttl: 6200 };
   return null;

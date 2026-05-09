@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  addGuildMemberRoles,
   buildRulesDeclineCustomId,
   decodeRulesCustomId,
   getDiscordGuildId,
@@ -8,6 +7,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
+import { rulesAcceptUrl } from "@/lib/rulesOnboarding";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
@@ -228,20 +228,26 @@ export async function POST(request: NextRequest) {
 
   try {
     if (effectiveParsed.action === "accept") {
-      await addGuildMemberRoles({
-        guildId,
-        userId,
-        roleIds: effectiveParsed.roleIds,
-        reason: `Rules accepted by ${userName}`,
-      });
-
-      logDashboardEvent("info", "discord.rules.accepted", request, {
+      const acceptUrl = rulesAcceptUrl(effectiveParsed.roleIds);
+      logDashboardEvent("info", "discord.rules.accept_redirect_required", request, {
         guildId,
         userId,
         roles: effectiveParsed.roleIds.length,
       });
 
-      return finishDecision(interaction, "✅ Правила прийнято. Роль видано. Для тебе ця дія вже завершена.");
+      return finishDecision(interaction, "🌸 Щоб прийняти правила, заверши реєстрацію профілю на сайті. Роль Discord буде видано тільки після заповнення всіх обовʼязкових даних.", [
+        {
+          type: 1,
+          components: [
+            {
+              type: 2,
+              style: 5,
+              label: "Завершити реєстрацію",
+              url: acceptUrl,
+            },
+          ],
+        },
+      ]);
     }
 
     await kickGuildMember({

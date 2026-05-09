@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
 
     if (isRules && ruleType === "guild" && roleIds.length === 0) {
       logDashboardEvent("warn", "discord.embed.validation_failed", request, { reason: "missing_rules_role", actorId: session.id });
-      return redirectTo(request, { error: "Для правил потрібно вибрати хоча б одну роль для кнопки “Прийняти”." }, returnTo);
+      return redirectTo(request, { error: "Для правил потрібно вибрати роль, яка буде видана після завершення реєстрації." }, returnTo);
     }
 
     if (messageLink && !editRef) {

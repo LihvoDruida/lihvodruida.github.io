@@ -8,9 +8,9 @@ const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 
 function safeNextPath(value: string | null) {
   const path = String(value || "").trim();
-  if (!path || path.length > 220) return "";
+  if (!path || path.length > 1500) return "";
   if (!path.startsWith("/") || path.startsWith("//")) return "";
-  if (path === "/" || /^\/(?:raids|profile)(?:\/|$)/.test(path)) return path;
+  if (path === "/" || /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
   return "";
 }
 

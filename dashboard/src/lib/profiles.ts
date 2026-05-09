@@ -15,7 +15,7 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
-export type ProfileGrammaticalGender = "unspecified" | "neutral" | "male" | "female";
+export type ProfileGrammaticalGender = "unspecified" | "neutral" | "nonbinary" | "male" | "female";
 
 export type DashboardProfile = {
   profileId: string;
@@ -132,7 +132,8 @@ export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammatica
   const key = String(value || "").trim().toLowerCase();
   if (["male", "man", "boy", "m", "чоловік", "чоловіча", "ч", "хлопець"].includes(key)) return "male";
   if (["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key)) return "female";
-  if (["neutral", "neuter", "n", "нейтральна", "нейтральне", "нейтрально", "нейтральний"].includes(key)) return "neutral";
+  if (["nonbinary", "non-binary", "non_binary", "nb", "небінарна", "небінарний", "небінарна особа"].includes(key)) return "nonbinary";
+  if (["neutral", "neuter", "n", "нейтральна", "нейтральне", "нейтрально", "нейтральний", "нейтральне звертання"].includes(key)) return "neutral";
   return "unspecified";
 }
 
@@ -140,7 +141,8 @@ export function profileGenderLabel(value: unknown) {
   const gender = cleanProfileGrammaticalGender(value);
   if (gender === "male") return "Чоловіча";
   if (gender === "female") return "Жіноча";
-  if (gender === "neutral") return "Нейтральне";
+  if (gender === "nonbinary") return "Небінарна особа";
+  if (gender === "neutral") return "Нейтральне звертання";
   return "Не вибрано";
 }
 

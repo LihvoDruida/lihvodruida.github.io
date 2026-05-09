@@ -135,10 +135,11 @@ function ProfileGenderForm({ gender, canManage }: { gender: DashboardProfile["gr
       {canManage ? (
         <form className="profile-gender-form" action="/api/profile/gender" method="post">
           {([
-            ["unspecified", "Не вибрано", "дефолт: нейтральні повідомлення"],
-            ["neutral", "Нейтральне", "записано, підписано"],
-            ["male", "Чоловіча", "записаний, підписаний"],
-            ["female", "Жіноча", "записана, підписана"],
+            ["unspecified", "Не вибрано", "дефолт: нейтральні безособові форми множини"],
+            ["neutral", "Нейтральне звертання", "тебе записали, підписали"],
+            ["nonbinary", "Небінарна особа", "нейтрально: тебе записали, підписали"],
+            ["male", "Чоловіча", "ти записаний, підписаний"],
+            ["female", "Жіноча", "ти записана, підписана"],
           ] as const).map(([value, label, hint]) => (
             <label className={`profile-gender-option${gender === value ? " is-selected" : ""}`} key={value}>
               <input type="radio" name="grammaticalGender" value={value} defaultChecked={gender === value} />
@@ -361,7 +362,7 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
 }
 
 function raidSignupStatusLabel(status: string, gender?: DashboardProfile["grammaticalGender"] | null) {
-  if (status === "going") return profileGenderedText(gender, "Підписаний", "Підписана", "Підписано");
+  if (status === "going") return profileGenderedText(gender, "Підписаний", "Підписана", "Підписали");
   if (status === "late") return "Затримаюсь";
   if (status === "skipped") return "Пропускає";
   return "Невідомо";

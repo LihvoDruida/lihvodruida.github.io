@@ -647,7 +647,7 @@ function roleColor(value: number) {
   return value > 0 ? colorNumberToHex(value) : "#B8E986";
 }
 
-export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "roleIds", ariaLabel = "Вибір ролей", emptyLabel = "Ролі ще не вибрані", helperText = "Бот зможе працювати тільки з ролями, які доступні йому в Discord." }: {
+export function RolePicker({ roles, selectedRoleIds, onChange, fieldName = "roleIds", ariaLabel = "Вибір ролей", emptyLabel = "Ролі ще не вибрані", helperText = "Ця роль буде видана не одразу після кнопки, а тільки після завершення профілю на сайті." }: {
   roles: DiscordRoleOption[];
   selectedRoleIds: string[];
   onChange: (ids: string[]) => void;
@@ -1268,15 +1268,15 @@ export default function DiscordEmbedEditor({
             {isRules && !isRaidRules ? (
               <div className="content-form-section discord-visual-section discord-visual-section--roles">
                 <div className="content-form-section-head">
-                  <strong>Ролі для кнопки “Прийняти правила”</strong>
+                  <strong>Роль після завершення реєстрації</strong>
                   <small>Вибрано: {selectedRolesCount}</small>
                 </div>
                 <RolePicker
                   roles={roles}
                   selectedRoleIds={roleIds}
                   onChange={setRoleIds}
-                  ariaLabel="Ролі для кнопки прийняття правил"
-                  helperText="Видаються після натискання кнопки прийняття правил."
+                  ariaLabel="Роль, яка видається після завершення реєстрації"
+                  helperText="Кнопка відкриває авторизацію та профіль. Роль видається тільки після повного завершення реєстрації."
                 />
               </div>
             ) : null}

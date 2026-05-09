@@ -1608,7 +1608,7 @@ export function raidMinItemLevelWarning(
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записано");
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записали");
   return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. ${signedText}, але краще підняти спорядження перед рейдом.`;
 }
 
@@ -1619,7 +1619,7 @@ function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?
   if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
   const characterText = signup?.characterName ? ` як ${signup.characterName}` : "";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записано");
+  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записали");
   const base = action === "late"
     ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}. ${syncText}`
     : `✅ ${signedText} на ${raidTitle(raid)}${characterText}. ${syncText}`;
