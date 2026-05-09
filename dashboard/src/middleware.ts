@@ -86,10 +86,25 @@ export function middleware(request: NextRequest) {
   }
 
   if (request.method === "POST" && request.nextUrl.pathname === "/admin/discord") {
+    const wantsJson = String(request.headers.get("x-dashboard-action") || "").toLowerCase() === "live" || String(request.headers.get("accept") || "").toLowerCase().includes("application/json");
+    logDashboardEvent("warn", "middleware.admin_discord_stale_server_action_redirect", request, { wantsJson });
+
+    if (wantsJson) {
+      return NextResponse.json({
+        ok: false,
+        refresh: true,
+        toast: {
+          tone: "error",
+          title: "Discord-дія не дійшла до API",
+          message: "Форма відправилась на /admin/discord замість /api/admin/discord/*. Онови сторінку після деплою й повтори дію.",
+          ttl: 8200,
+        },
+      }, { status: 409, headers: noStoreHeaders() });
+    }
+
     const target = request.nextUrl.clone();
     target.pathname = "/admin/discord";
     target.search = "";
-    logDashboardEvent("warn", "middleware.admin_discord_stale_server_action_redirect", request);
     const response = NextResponse.redirect(target, 303);
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
     response.cookies.set("dashboard_toast", JSON.stringify({

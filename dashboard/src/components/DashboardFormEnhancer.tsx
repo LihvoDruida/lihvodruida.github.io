@@ -22,6 +22,22 @@ function formUsesLiveSubmit(form: HTMLFormElement) {
   return form.dataset.dashboardLiveSubmit === "true";
 }
 
+function submitterOverride(submitter: HTMLButtonElement | null, attribute: "formaction" | "formmethod") {
+  if (!submitter || !submitter.hasAttribute(attribute)) return "";
+  return submitter.getAttribute(attribute) || "";
+}
+
+function submitActionUrl(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
+  // Do not read submitter.formAction as the primary value. In browsers it can
+  // resolve to the current page URL when the button has no explicit formaction,
+  // which posts /admin/discord and returns HTML instead of the API JSON result.
+  return submitterOverride(submitter, "formaction") || form.getAttribute("action") || form.action || window.location.href;
+}
+
+function submitMethod(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
+  return (submitterOverride(submitter, "formmethod") || form.getAttribute("method") || form.method || "post").toUpperCase();
+}
+
 function actionText(action: string) {
   if (action === "access-groups-create") return { label: "Створюємо...", title: "Створюємо групу", message: "Перевіряємо ID, Discord role ID, іконку та права доступу." };
   if (action === "access-groups-save") return { label: "Зберігаємо...", title: "Зберігаємо групу", message: "Оновлюємо назву, іконку, Discord role ID та права у Firebase." };
@@ -61,7 +77,7 @@ function pushToast(title: string, message?: string) {
 }
 
 function deleteConfirmText(form: HTMLFormElement, submitter: HTMLButtonElement | null) {
-  const action = submitter?.formAction || form.getAttribute("action") || "";
+  const action = submitActionUrl(form, submitter);
   const explicit = form.dataset.confirmMessage || submitter?.dataset.confirmMessage || "";
   if (explicit) return explicit;
 
@@ -160,7 +176,7 @@ export default function DashboardFormEnhancer() {
     async function submitLiveForm(form: HTMLFormElement, submitter: HTMLButtonElement | null, buttons: HTMLButtonElement[], action: string, label: string) {
       try {
         const response = await fetch(action || window.location.href, {
-          method: (form.method || "post").toUpperCase(),
+          method: submitMethod(form, submitter),
           body: new FormData(form),
           credentials: "same-origin",
           redirect: "manual",
@@ -188,7 +204,7 @@ export default function DashboardFormEnhancer() {
           dispatchDashboardToast({
             tone: "error",
             title: "Сервер не повернув результат дії",
-            message: "Запит не дав JSON-відповіді. Сторінку буде оновлено, щоб показати справжній стан.",
+            message: `Запит пішов не в JSON API (${response.status}). Сторінку буде оновлено, щоб показати справжній стан.`,
             ttl: 7600,
           });
           window.setTimeout(() => window.location.reload(), 850);
@@ -242,8 +258,8 @@ export default function DashboardFormEnhancer() {
       }
 
       const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"], button:not([type])'));
-      const action = submitter?.dataset.dashboardAction || form.dataset.dashboardAction || submitter?.formAction || form.getAttribute("action") || "";
-      const submitAction = submitter?.formAction || form.getAttribute("action") || "";
+      const submitAction = submitActionUrl(form, submitter);
+      const action = submitter?.dataset.dashboardAction || form.dataset.dashboardAction || submitAction;
       const copy = actionText(action);
 
       const liveSubmit = formUsesLiveSubmit(form);
