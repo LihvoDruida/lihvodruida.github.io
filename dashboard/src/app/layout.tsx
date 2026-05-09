@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { Cormorant_Garamond, Noto_Sans } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./profile.css";
 import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
 import LiveDataRefresh from "@/components/LiveDataRefresh";
