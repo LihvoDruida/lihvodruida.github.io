@@ -882,11 +882,15 @@ async function fetchDiscordCurrentBotUser() {
   };
 }
 
+function isDiscordRoleOption(value: DiscordRoleOption | undefined): value is DiscordRoleOption {
+  return Boolean(value?.id);
+}
+
 function highestRoleForMember(roleIds: string[], roles: DiscordRoleOption[]) {
   const roleMap = new Map(roles.map((role) => [role.id, role]));
   return roleIds
     .map((roleId) => roleMap.get(roleId))
-    .filter(Boolean)
+    .filter(isDiscordRoleOption)
     .sort(discordRoleSort)[0] || null;
 }
 
