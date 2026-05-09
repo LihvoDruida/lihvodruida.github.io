@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 09:21:30'
+  updated_at: '2026-05-09 13:20:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -914,7 +914,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Mining
-        learned_points: 96
+        learned_points: 97
         max_points: 100
     secondaries: []
 - name: Krekor
@@ -2948,7 +2948,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 93
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Cooking
@@ -4810,7 +4810,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 59
+        learned_points: 61
         max_points: 100
     - name: Jewelcrafting
       id: 755

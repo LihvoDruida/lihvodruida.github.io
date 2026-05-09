@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 09:21:30'
+  updated_at: '2026-05-09 13:20:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13736
-      region: 6120
+      world: 13739
+      region: 6121
       realm: 55
     heroic:
-      world: 13245
-      region: 5677
+      world: 13251
+      region: 5678
       realm: 46
     mythic:
-      world: 7449
-      region: 3181
+      world: 7453
+      region: 3182
       realm: 25
   blackrock-depths:
     normal:
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1594,7 +1594,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/177/186365617-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Allune
-    item_level_equipped: 245
+    item_level_equipped: 249
     mythic_plus_scores:
       all:
         score: 480.7
@@ -3341,14 +3341,14 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2650
-        color: '#5faf9a'
+        score: 2702.9
+        color: '#5ca6a4'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2650
-        color: '#5faf9a'
+        score: 2702.9
+        color: '#5ca6a4'
       tank:
         score: 0
         color: '#ffffff'
@@ -3356,8 +3356,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2650
-        color: '#5faf9a'
+        score: 2702.9
+        color: '#5ca6a4'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -4794,10 +4794,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3058.5
+        score: 3059.2
         color: '#4769e0'
       dps:
         score: 295.9
@@ -4806,11 +4806,11 @@ members:
         score: 3027.1
         color: '#316cdf'
       tank:
-        score: 2985.6
-        color: '#1f74d8'
+        score: 3022.7
+        color: '#0070dd'
       spec_0:
-        score: 2985.6
-        color: '#1f74d8'
+        score: 3022.7
+        color: '#0070dd'
       spec_1:
         score: 3027.1
         color: '#316cdf'
