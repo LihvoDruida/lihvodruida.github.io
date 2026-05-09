@@ -78,6 +78,7 @@ export default async function NewDiscordRulesPage({ searchParams }: { searchPara
           suggestedChannelId={suggestedRulesChannelId}
           defaultEmbedJson={prettyDiscordJson(defaultEmbed)}
           authorSuggestions={authorIdentity.suggestions}
+          defaultAuthorName={authorIdentity.primaryName}
           returnTo="/discord/rules"
         />
       )}

@@ -40,6 +40,7 @@ type DiscordEmbedEditorProps = {
   defaultMessageLink?: string;
   selectedRoleIds?: string[];
   authorSuggestions?: AuthorNameSuggestion[];
+  defaultAuthorName?: string;
   returnTo: string;
 };
 
@@ -58,6 +59,9 @@ function text(value: unknown) {
   return typeof value === "string" ? value : "";
 }
 
+function safeText(value: unknown, limit = 4000) {
+  return text(value).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").slice(0, limit);
+}
 function urlFrom(value: unknown) {
   if (!value || typeof value !== "object") return "";
   return text((value as Record<string, unknown>).url);
@@ -800,11 +804,18 @@ export default function DiscordEmbedEditor({
   defaultMessageLink = "",
   selectedRoleIds = [],
   authorSuggestions = [],
+  defaultAuthorName = "",
   returnTo,
 }: DiscordEmbedEditorProps) {
   const initialEmbed = useMemo(() => parseInitialEmbed(defaultEmbedJson), [defaultEmbedJson]);
   const author = objectFrom(initialEmbed.author);
   const footer = objectFrom(initialEmbed.footer);
+  const fallbackAuthorName = useMemo(() => {
+    const explicit = safeText(defaultAuthorName, DISCORD_LIMITS.authorName).trim();
+    if (explicit) return explicit;
+    const suggested = authorSuggestions.map((item) => safeText(item?.value, DISCORD_LIMITS.authorName).trim()).find(Boolean);
+    return suggested || "Mistblossom Vanguard";
+  }, [defaultAuthorName, authorSuggestions]);
 
   const [content, setContent] = useState(defaultContent);
   const [channelId, setChannelId] = useState(suggestedChannelId || channels[0]?.id || "");
@@ -814,7 +825,7 @@ export default function DiscordEmbedEditor({
   const [urlValue, setUrlValue] = useState(text(initialEmbed.url));
   const [descriptionValue, setDescriptionValue] = useState(text(initialEmbed.description));
   const [colorHex, setColorHex] = useState(colorNumberToHex(initialEmbed.color));
-  const [authorName, setAuthorName] = useState(text(author.name));
+  const [authorName, setAuthorName] = useState(safeText(author.name, DISCORD_LIMITS.authorName) || fallbackAuthorName);
   const [authorUrl, setAuthorUrl] = useState(text(author.url));
   const [authorIconUrl, setAuthorIconUrl] = useState(text(author.icon_url));
   const [thumbnailUrl, setThumbnailUrl] = useState(urlFrom(initialEmbed.thumbnail));
@@ -847,7 +858,7 @@ export default function DiscordEmbedEditor({
     setUrlValue(text(nextEmbed.url));
     setDescriptionValue(text(nextEmbed.description));
     setColorHex(colorNumberToHex(nextEmbed.color));
-    setAuthorName(text(nextAuthor.name));
+    setAuthorName(safeText(nextAuthor.name, DISCORD_LIMITS.authorName) || fallbackAuthorName);
     setAuthorUrl(text(nextAuthor.url));
     setAuthorIconUrl(text(nextAuthor.icon_url));
     setThumbnailUrl(urlFrom(nextEmbed.thumbnail));
@@ -861,7 +872,7 @@ export default function DiscordEmbedEditor({
     setLoadedMessageLink(normalizedDefaultMessageLink);
     setMessageLoadState("idle");
     setMessageLoadText("");
-  }, [defaultEmbedJson, defaultContent, defaultMessageLink, suggestedChannelId, channelsKey, selectedRoleIdsKey]);
+  }, [defaultEmbedJson, defaultContent, defaultMessageLink, suggestedChannelId, channelsKey, selectedRoleIdsKey, fallbackAuthorName]);
 
   function applyEmbedToEditor(nextEmbed: EmbedObject) {
     const nextAuthor = objectFrom(nextEmbed.author);
@@ -870,7 +881,7 @@ export default function DiscordEmbedEditor({
     setUrlValue(text(nextEmbed.url));
     setDescriptionValue(text(nextEmbed.description));
     setColorHex(colorNumberToHex(nextEmbed.color));
-    setAuthorName(text(nextAuthor.name));
+    setAuthorName(safeText(nextAuthor.name, DISCORD_LIMITS.authorName) || fallbackAuthorName);
     setAuthorUrl(text(nextAuthor.url));
     setAuthorIconUrl(text(nextAuthor.icon_url));
     setThumbnailUrl(urlFrom(nextEmbed.thumbnail));

@@ -45,11 +45,8 @@ export default async function AdminOverviewPage() {
 
         <AdminTabs active="overview" />
 
-        <section className="admin-system-status-panel" aria-label="Стан системи">
-          <IntegrationStatusPanel compact />
-        </section>
-
-        <section className="admin-overview-grid" aria-label="Швидкі переходи">
+        <section className="admin-overview-grid" aria-label="Швидкі переходи й стан системи">
+          <IntegrationStatusPanel compact className="admin-overview-status-card" />
           <a className="panel admin-overview-card" href="/admin/groups">
             <span aria-hidden="true">🧩</span>
             <strong>Групи та права доступу</strong>

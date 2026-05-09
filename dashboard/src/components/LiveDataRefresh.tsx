@@ -81,6 +81,13 @@ function routePolicy(pathname: string): RefreshPolicy {
     return { ...DEFAULT_POLICY, intervalMs: 0, minSpacingMs: 15_000, label: "редактор", skipWhenEditing: true };
   }
 
+  if (pathname.startsWith("/admin")) {
+    // Admin tools have many long-running forms and diagnostics. Do not run
+    // background RSC refresh here: it can interrupt client state and make
+    // browser-only errors look like random Application errors.
+    return { ...DEFAULT_POLICY, enabled: false, intervalMs: 0, label: "адмін-панель", focusRefresh: false };
+  }
+
   return DEFAULT_POLICY;
 }
 

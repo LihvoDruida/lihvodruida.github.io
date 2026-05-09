@@ -110,6 +110,7 @@ export default async function GeneralDiscordEmbedPage({ searchParams }: { search
             defaultMessageLink={messageLink}
             selectedRoleIds={selectedRoleIds}
             authorSuggestions={authorIdentity.suggestions}
+            defaultAuthorName={authorIdentity.primaryName}
             returnTo="/discord/embed"
           />
         </>

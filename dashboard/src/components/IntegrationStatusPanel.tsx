@@ -31,7 +31,7 @@ function statusText(state: IntegrationState) {
   return "помилка";
 }
 
-export default function IntegrationStatusPanel({ compact = false }: { compact?: boolean }) {
+export default function IntegrationStatusPanel({ compact = false, className = "" }: { compact?: boolean; className?: string }) {
   const [summary, setSummary] = useState<IntegrationStatusSummary | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -70,7 +70,7 @@ export default function IntegrationStatusPanel({ compact = false }: { compact?: 
   const hasProblem = useMemo(() => items.some((item) => item.state === "error" || item.state === "warning" || item.state === "unconfigured"), [items]);
 
   return (
-    <section className={`integration-status-panel panel${compact ? " integration-status-panel--compact" : ""}`} data-problem={hasProblem ? "true" : "false"} aria-label="Стан інтеграцій">
+    <section className={`integration-status-panel panel${compact ? " integration-status-panel--compact" : ""}${className ? ` ${className}` : ""}`} data-problem={hasProblem ? "true" : "false"} aria-label="Стан інтеграцій">
       <div className="integration-status-head">
         <div>
           <strong>Стан системи</strong>

@@ -25240,3 +25240,66 @@ main.container {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Admin overview + resilient client error states */
+.admin-overview-status-card {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.admin-overview-status-card.integration-status-panel {
+  min-height: auto;
+}
+
+.error-shell {
+  min-height: min(72vh, 720px);
+  display: grid;
+  place-items: center;
+}
+
+.app-error-panel {
+  max-width: 720px;
+  width: 100%;
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+
+.app-error-panel h1 {
+  margin: 0;
+}
+
+.app-error-panel p,
+.app-error-panel small {
+  margin: 0;
+  color: var(--text-muted, rgba(245, 235, 215, .72));
+}
+
+button[aria-busy="true"],
+.btn-working {
+  position: relative;
+  pointer-events: none;
+  opacity: .82;
+}
+
+button[aria-busy="true"]::after,
+.btn-working::after {
+  content: "";
+  width: .85em;
+  height: .85em;
+  margin-left: .55em;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  display: inline-block;
+  vertical-align: -0.12em;
+  animation: dashboard-button-spin .75s linear infinite;
+}
+
+.btn-waiting {
+  opacity: .58;
+}
+
+@keyframes dashboard-button-spin {
+  to { transform: rotate(360deg); }
+}

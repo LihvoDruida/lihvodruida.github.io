@@ -109,6 +109,7 @@ export default async function EditDiscordRulesPage({ searchParams }: { searchPar
             defaultMessageLink={messageLink}
             selectedRoleIds={selectedRoleIds}
             authorSuggestions={authorIdentity.suggestions}
+            defaultAuthorName={authorIdentity.primaryName}
             returnTo="/discord/rules"
           />
         </>
