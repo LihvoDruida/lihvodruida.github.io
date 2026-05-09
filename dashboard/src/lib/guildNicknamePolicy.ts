@@ -4,7 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { DashboardSession } from "@/lib/auth";
 
-export const DEFAULT_NICKNAME_TEMPLATE = "{name} [{characters}]";
+export const DEFAULT_NICKNAME_TEMPLATE = "{name} [{main}, {alt}, {alt}]";
 export const DEFAULT_ROLE_REMOVE_CONCURRENCY = 0;
 export const DEFAULT_ROLE_REMOVE_MAX_CONCURRENCY = 5;
 export const DEFAULT_NICKNAME_CLEANUP_CONCURRENCY = 0;
@@ -12,7 +12,7 @@ export const DEFAULT_NICKNAME_CLEANUP_MAX_CONCURRENCY = 4;
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const POLICY_DOC_ID = "discordNicknamePolicy";
-const TOKEN_PATTERN = /\{(name|main|alts|characters)\}/gi;
+const TOKEN_PATTERN = /\{(name|main|alt)\}/gi;
 
 export type GuildNicknamePolicy = {
   template: string;
@@ -48,6 +48,19 @@ function cleanTemplateText(value: unknown) {
     .slice(0, 96);
 }
 
+function isSupportedNicknameTemplate(template: string) {
+  if (!template || !/\{name\}/i.test(template) || !/\{main\}/i.test(template)) return false;
+  const unknownTokens = Array.from(template.matchAll(/\{([^}]+)\}/g))
+    .map((match) => match[1]?.toLowerCase())
+    .filter((token) => token && !["name", "main", "alt"].includes(token));
+  return unknownTokens.length === 0;
+}
+
+function normalizeStoredTemplate(value: unknown, fallbackTemplate = DEFAULT_NICKNAME_TEMPLATE) {
+  const template = cleanTemplateText(value);
+  return isSupportedNicknameTemplate(template) ? template : fallbackTemplate;
+}
+
 function cleanIntegerSetting(value: unknown, fallback: number, min: number, max: number) {
   if (value === null || value === undefined || value === "") return fallback;
   const number = Number(value);
@@ -57,7 +70,7 @@ function cleanIntegerSetting(value: unknown, fallback: number, min: number, max:
 
 function normalizePolicyData(data: Record<string, unknown> | null | undefined, fallbackTemplate = DEFAULT_NICKNAME_TEMPLATE): GuildNicknamePolicy {
   return {
-    template: cleanTemplateText(data?.template) || fallbackTemplate,
+    template: normalizeStoredTemplate(data?.template, fallbackTemplate),
     roleRemoveConcurrency: cleanIntegerSetting(data?.roleRemoveConcurrency, DEFAULT_ROLE_REMOVE_CONCURRENCY, 0, 5),
     roleRemoveMaxConcurrency: cleanIntegerSetting(data?.roleRemoveMaxConcurrency, DEFAULT_ROLE_REMOVE_MAX_CONCURRENCY, 1, 5),
     nicknameCleanupConcurrency: cleanIntegerSetting(data?.nicknameCleanupConcurrency, DEFAULT_NICKNAME_CLEANUP_CONCURRENCY, 0, 4),
@@ -72,20 +85,20 @@ export function cleanNicknameTemplate(value: unknown) {
   if (!/\{name\}/i.test(template)) {
     throw new Error("Шаблон ніку має містити {name}.");
   }
-  if (!/(\{main\}|\{characters\})/i.test(template)) {
-    throw new Error("Шаблон ніку має містити {main} або {characters}, щоб було видно мейна.");
+  if (!/\{main\}/i.test(template)) {
+    throw new Error("Шаблон ніку має містити {main}, щоб було видно мейна.");
   }
   const unknownTokens = Array.from(template.matchAll(/\{([^}]+)\}/g))
     .map((match) => match[1]?.toLowerCase())
-    .filter((token) => token && !["name", "main", "alts", "characters"].includes(token));
+    .filter((token) => token && !["name", "main", "alt"].includes(token));
   if (unknownTokens.length) {
-    throw new Error(`Невідомі змінні шаблону: ${Array.from(new Set(unknownTokens)).join(", ")}. Доступні: {name}, {main}, {alts}, {characters}.`);
+    throw new Error(`Невідомі змінні шаблону: ${Array.from(new Set(unknownTokens)).join(", ")}. Доступні: {name}, {main}, {alt}.`);
   }
   return template;
 }
 
 export function nicknameTemplateExample(templateInput: unknown = DEFAULT_NICKNAME_TEMPLATE) {
-  const template = cleanTemplateText(templateInput) || DEFAULT_NICKNAME_TEMPLATE;
+  const template = normalizeStoredTemplate(templateInput);
   return renderNicknameFromTemplate(template, {
     name: "Дмитро",
     characters: ["Khayen", "Krouli", "Sebas"],
@@ -161,24 +174,37 @@ function normalizeCharacterNames(values: unknown) {
   return result;
 }
 
-function applyTemplate(template: string, parts: { name: string; main: string; alts: string[]; characters: string[] }) {
-  const replacements: Record<string, string> = {
-    name: parts.name,
-    main: parts.main,
-    alts: parts.alts.join(", "),
-    characters: parts.characters.join(", "),
-  };
+function applyTemplate(template: string, parts: { name: string; main: string; alts: string[] }) {
+  let altIndex = 0;
+  const rendered = template.replace(TOKEN_PATTERN, (_, key: string) => {
+    const token = key.toLowerCase();
+    if (token === "name") return parts.name;
+    if (token === "main") return parts.main;
+    if (token === "alt") {
+      const value = parts.alts[altIndex] || "";
+      altIndex += 1;
+      return value;
+    }
+    return "";
+  });
 
-  return template.replace(TOKEN_PATTERN, (_, key: string) => replacements[key.toLowerCase()] || "")
+  return rendered
+    .replace(/,\s*(?=,|\]|\))/g, "")
+    .replace(/\[\s*,\s*/g, "[")
+    .replace(/\(\s*,\s*/g, "(")
     .replace(/,\s*\]/g, "]")
+    .replace(/,\s*\)/g, ")")
     .replace(/\[\s*\]/g, "")
     .replace(/\(\s*\)/g, "")
+    .replace(/\s+,/g, ",")
     .replace(/\s+/g, " ")
+    .replace(/\[\s+/g, "[")
+    .replace(/\s+\]/g, "]")
     .trim();
 }
 
 export function renderNicknameFromTemplate(templateInput: unknown, input: { name: string; characters: string[]; maxLength?: number }) {
-  const template = cleanTemplateText(templateInput) || DEFAULT_NICKNAME_TEMPLATE;
+  const template = normalizeStoredTemplate(templateInput);
   const maxLength = Math.max(16, Math.min(32, Math.floor(Number(input.maxLength || 32))));
   const baseName = cleanNicknamePart(input.name, 32) || "Учасник";
   const allCharacters = normalizeCharacterNames(input.characters);
@@ -187,12 +213,11 @@ export function renderNicknameFromTemplate(templateInput: unknown, input: { name
 
   for (let count = alts.length; count >= 0; count -= 1) {
     const currentAlts = alts.slice(0, count);
-    const characters = [main, ...currentAlts].filter(Boolean);
-    const candidate = applyTemplate(template, { name: baseName, main, alts: currentAlts, characters });
+    const candidate = applyTemplate(template, { name: baseName, main, alts: currentAlts });
     if (candidate && codePointLength(candidate) <= maxLength) return candidate;
   }
 
-  const minimal = applyTemplate(template, { name: baseName, main, alts: [], characters: main ? [main] : [] });
+  const minimal = applyTemplate(template, { name: baseName, main, alts: [] });
   if (minimal && codePointLength(minimal) <= maxLength) return minimal;
   return sliceCodePoints(baseName, maxLength).trim() || "Учасник";
 }
@@ -202,21 +227,24 @@ function escapeRegex(value: string) {
 }
 
 export function nicknameTemplateToRegex(templateInput: unknown) {
-  const template = cleanTemplateText(templateInput) || DEFAULT_NICKNAME_TEMPLATE;
+  const template = normalizeStoredTemplate(templateInput);
   let output = "";
   let lastIndex = 0;
-  const pattern = /\{(name|main|alts|characters)\}/gi;
+  const pattern = /\{(name|main|alt)\}/gi;
   for (const match of template.matchAll(pattern)) {
-    output += escapeRegex(template.slice(lastIndex, match.index));
     const token = match[1].toLowerCase();
-    if (token === "name") output += "[^\\[\\]\\n]{2,32}";
-    if (token === "main") output += "[^\\[\\],\\n]{2,16}";
-    if (token === "alts") output += "(?:[^\\[\\],\\n]{2,16}(?:,\\s*[^\\[\\],\\n]{2,16}){0,1})?";
-    if (token === "characters") output += "[^\\[\\]\\n]{2,80}";
+    const literal = template.slice(lastIndex, match.index);
+    if (token === "alt") {
+      output += `(?:${escapeRegex(literal)}[^\\[\\],\\n]{2,16})?`;
+    } else {
+      output += escapeRegex(literal);
+      if (token === "name") output += "[^\\[\\]\\n]{2,32}";
+      if (token === "main") output += "[^\\[\\],\\n]{2,16}";
+    }
     lastIndex = (match.index || 0) + match[0].length;
   }
   output += escapeRegex(template.slice(lastIndex));
-  return new RegExp(`^\\s*${output}\\s*$`, "iu");
+  return new RegExp(`^\s*${output}\s*$`, "iu");
 }
 
 export function nicknameMatchesTemplate(nicknameInput: unknown, templateInput: unknown) {

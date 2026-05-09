@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
     return adminDiscordJson({
       ok: true,
       tone: result.dryRun ? "info" : result.failed ? "warning" : "success",
-      title: result.dryRun ? "Попередній перегляд готовий" : "Масову дію виконано",
+      title: result.dryRun ? "Попередній перегляд готовий" : "Ролі знято за неправильний нік",
       message: result.dryRun
         ? `Знайдено ${result.matchedTargets} учасників із неправильним ніком. Реальні ролі ще не змінювались.`
-        : `Змінено ${result.changed}. Помилок: ${result.failed}.`,
+        : `Знято вибрані ролі у ${result.changed} учасників із неправильним ніком. Помилок: ${result.failed}.`,
       data: { result },
     });
   } catch (error) {

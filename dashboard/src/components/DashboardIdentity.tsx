@@ -28,7 +28,7 @@ export default async function DashboardIdentity({
 }) {
   const [guild, nicknamePolicy] = await Promise.all([
     getGuildBranding(),
-    getGuildNicknamePolicy().catch(() => ({ template: "{name} [{characters}]" })),
+    getGuildNicknamePolicy().catch(() => ({ template: "{name} [{main}, {alt}, {alt}]" })),
   ]);
   const profile = user?.profileId ? await getProfileById(user.profileId).catch(() => null) : null;
   const displayName = profile ? getProfilePublicName(profile, nicknamePolicy.template) : (user?.name || user?.login || "Користувач");

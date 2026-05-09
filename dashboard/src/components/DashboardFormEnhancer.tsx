@@ -46,7 +46,7 @@ function actionText(action: string) {
   if (action.includes("/api/admin/discord/roles/add")) return { label: "Видаємо...", title: "Видаємо ролі в Discord", message: "Надсилаємо роль учаснику та перевіряємо, що вона зʼявилась." };
   if (action.includes("/api/admin/discord/roles/remove")) return { label: "Знімаємо...", title: "Знімаємо ролі в Discord", message: "Знімаємо вибрані ролі та перевіряємо результат." };
   if (action.includes("/api/admin/discord/nicknames/inspect")) return { label: "Перевіряємо...", title: "Перевіряємо ніки Discord", message: "Звіряємо серверні ніки з глобальним шаблоном." };
-  if (action.includes("/api/admin/discord/nicknames/cleanup")) return { label: "Запускаємо...", title: "Перевіряємо ніки та ролі", message: "Готуємо попередній перегляд або виконуємо підтверджене зняття ролей." };
+  if (action.includes("/api/admin/discord/nicknames/cleanup")) return { label: "Знімаємо...", title: "Знімаємо ролі за неправильний нік", message: "Перевіряємо ніки за шаблоном і знімаємо вибрані ролі з невідповідних учасників." };
   if (action.includes("/discord/embeds")) return { label: "Виконуємо...", title: "Дія в Discord виконується", message: "Передаємо зміни в Discord." };
   if (action.includes("/api/raids/publish")) return { label: "Публікуємо...", title: "Публікуємо рейд", message: "Оновлюємо Discord-оголошення та кнопки запису." };
   if (action.includes("/api/raids")) return { label: "Зберігаємо...", title: "Зберігаємо рейд", message: "Зберігаємо зміни в панелі." };
