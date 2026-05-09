@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     const nicknameSkipped = (result.skippedMissingNickname || result.skippedInvalidNickname)
       ? ` Пропущено через серверний нік: без ніку ${result.skippedMissingNickname || 0}, не за шаблоном ${result.skippedInvalidNickname || 0}.`
       : "";
-    const summary = `Перевірено профілів ${result.checkedProfiles}; знайдено офіцерських профілів ${result.officerProfiles}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${nicknameSkipped}`;
+    const roleHint = result.selectedRoleName ? ` Роль: ${result.selectedRoleName}.` : "";
+    const ignoredHint = result.ignoredLowerRoleIds?.length ? ` Нижчі вибрані ролі проігноровано: ${result.ignoredLowerRoleIds.length}.` : "";
+    const summary = `Перевірено профілів ${result.checkedProfiles}; знайдено офіцерських профілів ${result.officerProfiles}; роль видано ${result.changed} учасникам; видано ролей ${result.addedRolesTotal}; уже мали роль ${result.alreadyHad}; пропущено ${result.skipped}; помилок ${result.failed}.${roleHint}${ignoredHint}${nicknameSkipped}`;
     const hasWarnings = Boolean(result.failed || result.skippedMissingNickname || result.skippedInvalidNickname);
 
     await auditDiscordAdmin("discord.member.roles.sync_bnet_officers", guard.session, {
@@ -39,6 +41,11 @@ export async function POST(request: NextRequest) {
       nicknameTemplate: result.nicknameTemplate,
       checkedField: result.checkedField,
       roleIds: result.roleIds,
+      selectedRoleId: result.selectedRoleId,
+      selectedRoleName: result.selectedRoleName,
+      selectedRolePosition: result.selectedRolePosition,
+      requestedRoleIds: result.requestedRoleIds,
+      ignoredLowerRoleIds: result.ignoredLowerRoleIds,
       changedItems: result.changedItems,
       changedItemsTotal: result.changedItemsTotal,
       skippedItems: result.skippedItems,

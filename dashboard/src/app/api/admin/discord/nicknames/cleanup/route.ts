@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const missingNick = result.missingServerNicknameTotal ? ` Без серверного ніку: ${result.missingServerNicknameTotal}.` : "";
     const summary = result.dryRun
       ? `Перевірено серверні ніки ${result.checked} учасників; невідповідних загалом ${result.invalidTotal || result.matchedTargets}; цілей для вибраних ролей: ${result.matchedTargets}.${missingNick} Зміни не застосовувались.`
-      : `Перевірено серверні ніки ${result.checked} учасників; цілей ${result.matchedTargets}; ролі змінено у ${result.changed} учасників; знято ролей ${result.removedRolesTotal || 0}; видано ролей ${result.addedRolesTotal || 0}; без змін ${result.unchanged || 0}; помилок ${result.failed}.${missingNick}`;
+      : `Перевірено серверні ніки ${result.checked} учасників; цілей ${result.matchedTargets}; ролі змінено у ${result.changed} учасників; знято ролей ${result.removedRolesTotal || 0}; видано ролей ${result.addedRolesTotal || 0}; без змін ${result.unchanged || 0}; пропущено перед зміною ${result.skippedBeforeChange || 0}; помилок ${result.failed}.${missingNick}`;
 
     await auditDiscordAdmin("discord.member.roles.apply_invalid_nickname", guard.session, {
       status: result.dryRun ? "info" : result.failed ? "warning" : "success",
@@ -44,6 +44,10 @@ export async function POST(request: NextRequest) {
       removeRoleIds: result.removeRoleIds || [],
       addRoleIds: result.addRoleIds || [],
       unchanged: result.unchanged || 0,
+      skippedBeforeChange: result.skippedBeforeChange || 0,
+      skippedFreshValid: result.skippedFreshValid || 0,
+      skippedItems: result.skippedItems || [],
+      skippedItemsTotal: result.skippedItemsTotal || 0,
       stillPresent: result.stillPresentTotal || 0,
       stillMissing: result.stillMissingTotal || 0,
       failed: result.failed,

@@ -4,6 +4,7 @@ import { mapConcurrentSettled } from "@/lib/concurrency";
 import {
   addGuildMemberRoles,
   assertDiscordRolesManageable,
+  fetchDiscordRoleControlSnapshot,
   fetchDiscordGuildMemberSnapshot,
   fetchDiscordGuildMembers,
   fetchDiscordGuildSnapshot,
@@ -14,7 +15,7 @@ import {
   type DiscordGuildMemberModerationItem,
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
-import { fetchBattleNetGuildRankMap, guildStatusFromRank } from "@/lib/battlenet";
+import { fetchBattleNetGuildRankMap, type BattleNetGuildRankInfo } from "@/lib/battlenet";
 import { listDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { buildBattleNetCharacterKey } from "@/lib/wowCharacters";
 
@@ -30,6 +31,67 @@ function cleanNickname(value: unknown) {
 function cleanRoleIds(values: unknown) {
   const items = Array.isArray(values) ? values : String(values || "").split(/[\s,;]+/g);
   return Array.from(new Set(items.map(snowflake).filter(Boolean))).slice(0, 10);
+}
+
+type ManageableRoleForSelection = {
+  id: string;
+  name: string;
+  position: number;
+  manageable: boolean;
+  blockedReason?: string | null;
+};
+
+function compareDiscordRolesDesc(a: Pick<ManageableRoleForSelection, "id" | "name" | "position">, b: Pick<ManageableRoleForSelection, "id" | "name" | "position">) {
+  const byPosition = Number(b.position || 0) - Number(a.position || 0);
+  if (byPosition !== 0) return byPosition;
+  try {
+    const aId = BigInt(a.id);
+    const bId = BigInt(b.id);
+    if (bId > aId) return 1;
+    if (bId < aId) return -1;
+  } catch {
+    // fall back to name sorting below
+  }
+  return String(a.name || "").localeCompare(String(b.name || ""), "uk");
+}
+
+async function resolveHighestManageableDiscordRole(roleIdsInput: unknown) {
+  const requestedRoleIds = cleanRoleIds(roleIdsInput);
+  if (!requestedRoleIds.length) throw new Error("Вибери Discord-роль для синхронізації.");
+
+  const snapshot = await fetchDiscordRoleControlSnapshot();
+  if (snapshot.error) throw new Error(snapshot.error);
+
+  const roleMap = new Map(snapshot.roles.map((role) => [role.id, role]));
+  const requestedRoles = requestedRoleIds.map((roleId) => {
+    const role = roleMap.get(roleId);
+    if (role) return role;
+    const fallbackRole: ManageableRoleForSelection = {
+      id: roleId,
+      name: roleId,
+      position: 0,
+      manageable: false,
+      blockedReason: "Роль не знайдено на сервері.",
+    };
+    return fallbackRole;
+  });
+  const blocked = requestedRoles.filter((role) => !role.manageable);
+  if (blocked.length) {
+    throw new Error(blocked.map((role) => `${role.name}: ${role.blockedReason || "роль недоступна для керування."}`).join(" "));
+  }
+
+  const highestRole = requestedRoles.sort(compareDiscordRolesDesc)[0];
+  if (!highestRole) throw new Error("Не вдалося визначити найвищу Discord-роль для синхронізації.");
+
+  return {
+    roleIds: [highestRole.id],
+    roleId: highestRole.id,
+    roleName: highestRole.name,
+    rolePosition: highestRole.position,
+    requestedRoleIds,
+    requestedRoleNames: requestedRoles.map((role) => role.name),
+    ignoredLowerRoleIds: requestedRoleIds.filter((roleId) => roleId !== highestRole.id),
+  };
 }
 
 function displayName(member: DiscordGuildMemberModerationItem) {
@@ -433,6 +495,10 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
       removedRolesTotal: 0,
       addedRolesTotal: 0,
       unchanged: 0,
+      skippedBeforeChange: 0,
+      skippedFreshValid: 0,
+      skippedItems: [],
+      skippedItemsTotal: 0,
       stillPresentTotal: 0,
       stillMissingTotal: 0,
       failed: 0,
@@ -452,7 +518,48 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     targets,
     async (member) => {
       const fresh = await memberSnapshot(member.userId);
-      const currentRoleIds = fresh?.roleIds || member.roleIds;
+      if (!fresh) {
+        return {
+          userId: member.userId,
+          name: displayName(member),
+          serverNickname: serverNickname(member) || null,
+          skipped: true,
+          skipReason: "Discord-учасника не вдалося повторно прочитати перед зміною ролей.",
+          requested: [] as string[],
+          requestedRemove: [] as string[],
+          requestedAdd: [] as string[],
+          removed: [] as string[],
+          added: [] as string[],
+          stillPresent: [] as string[],
+          stillMissing: [] as string[],
+          beforeRoleIds: member.roleIds,
+          afterRoleIds: member.roleIds,
+          usedPatchFallback: false,
+        };
+      }
+
+      const freshNicknameCheck = serverNicknameValidation(fresh, policy.template);
+      if (freshNicknameCheck.ok) {
+        return {
+          userId: member.userId,
+          name: fresh.displayName || displayName(member),
+          serverNickname: freshNicknameCheck.nickname,
+          skipped: true,
+          skipReason: "Серверний нік уже відповідає шаблону; ролі не змінювались.",
+          requested: [] as string[],
+          requestedRemove: [] as string[],
+          requestedAdd: [] as string[],
+          removed: [] as string[],
+          added: [] as string[],
+          stillPresent: [] as string[],
+          stillMissing: [] as string[],
+          beforeRoleIds: fresh.roleIds,
+          afterRoleIds: fresh.roleIds,
+          usedPatchFallback: false,
+        };
+      }
+
+      const currentRoleIds = fresh.roleIds;
       const removableRoleIds = manageableRemoveRoleIds.filter((roleId) => currentRoleIds.includes(roleId));
       const addableRoleIds = manageableAddRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
 
@@ -475,8 +582,10 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
 
       return {
         userId: member.userId,
-        name: fresh?.displayName || displayName(member),
-        serverNickname: serverNickname(member) || null,
+        name: fresh.displayName || displayName(member),
+        serverNickname: freshNicknameCheck.nickname,
+        skipped: false,
+        skipReason: "",
         requested: removableRoleIds,
         requestedRemove: removableRoleIds,
         requestedAdd: addableRoleIds,
@@ -499,7 +608,9 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
 
   const okItems = results.filter((result) => result.ok);
   const failedItems = results.filter((result) => !result.ok);
-  const changedItems = okItems.filter((result) => result.value.removed.length > 0 || result.value.added.length > 0);
+  const changedItems = okItems.filter((result) => !result.value.skipped && (result.value.removed.length > 0 || result.value.added.length > 0));
+  const skippedItems = okItems.filter((result) => result.value.skipped);
+  const skippedFreshValidItems = skippedItems.filter((result) => /відповідає шаблону/i.test(result.value.skipReason || ""));
   const removedRolesTotal = changedItems.reduce((sum, result) => sum + result.value.removed.length, 0);
   const addedRolesTotal = changedItems.reduce((sum, result) => sum + result.value.added.length, 0);
   const stillPresentTotal = okItems.reduce((sum, result) => sum + result.value.stillPresent.length, 0);
@@ -513,7 +624,11 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
     changed: changedItems.length,
     removedRolesTotal,
     addedRolesTotal,
-    unchanged: okItems.length - changedItems.length,
+    unchanged: okItems.length - changedItems.length - skippedItems.length,
+    skippedBeforeChange: skippedItems.length,
+    skippedFreshValid: skippedFreshValidItems.length,
+    skippedItems: skippedItems.slice(0, 100).map((item) => item.value),
+    skippedItemsTotal: skippedItems.length,
     stillPresentTotal,
     stillMissingTotal,
     failed: failedItems.length,
@@ -543,18 +658,57 @@ function profileDiscordId(profile: DashboardProfile) {
   return direct || "";
 }
 
-function profileCharacterRankLookupKey(character: ProfileCharacter) {
-  return buildBattleNetCharacterKey(character.region || "eu", character.realmSlug || character.realmName, character.normalizedName || character.name);
+function profileCharacterRankLookupKeys(character: ProfileCharacter) {
+  const keys = new Set<string>();
+  const storedKey = String(character.key || "").trim().toLowerCase();
+  if (storedKey) keys.add(storedKey);
+
+  const region = character.region || "eu";
+  const realms = [character.realmSlug, character.realmName].filter(Boolean);
+  const names = [character.normalizedName, character.name].filter(Boolean);
+  for (const realm of realms) {
+    for (const name of names) {
+      const key = buildBattleNetCharacterKey(region, realm, name);
+      if (key) keys.add(key);
+    }
+  }
+
+  return Array.from(keys);
 }
 
-function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, { rank: number | null; status: string | null; label: string | null }>) {
-  return profile.characters.filter((character) => {
-    if (!character.verifiedGuild) return false;
-    const key = profileCharacterRankLookupKey(character);
-    const rankInfo = (key && rankMap.get(key)) || guildStatusFromRank(character.guildRank);
-    const status = rankInfo.status || character.guildStatus || null;
-    return status === "guild_master" || status === "officer";
-  });
+function profileCharacterLiveRankInfo(character: ProfileCharacter, rankMap: Map<string, BattleNetGuildRankInfo>) {
+  for (const key of profileCharacterRankLookupKeys(character)) {
+    const rankInfo = rankMap.get(key);
+    if (rankInfo) return rankInfo;
+  }
+  return null;
+}
+
+function guildRankPriority(rankInfo: BattleNetGuildRankInfo | null) {
+  if (rankInfo?.status === "guild_master") return 0;
+  if (rankInfo?.status === "officer") return 1;
+  if (rankInfo?.status === "member") return 2;
+  return 99;
+}
+
+type OfficerCharacterMatch = {
+  character: ProfileCharacter;
+  rankInfo: BattleNetGuildRankInfo;
+};
+
+function guildOfficerCharacters(profile: DashboardProfile, rankMap: Map<string, BattleNetGuildRankInfo>): OfficerCharacterMatch[] {
+  return profile.characters
+    .map((character) => {
+      const rankInfo = profileCharacterLiveRankInfo(character, rankMap);
+      return rankInfo ? { character, rankInfo } : null;
+    })
+    .filter((item): item is OfficerCharacterMatch => Boolean(item && (item.rankInfo.status === "guild_master" || item.rankInfo.status === "officer")))
+    .sort((a, b) => guildRankPriority(a.rankInfo) - guildRankPriority(b.rankInfo) || String(a.character.name || "").localeCompare(String(b.character.name || ""), "uk"));
+}
+
+function formatOfficerCharacter(match: OfficerCharacterMatch) {
+  const label = match.rankInfo.label || (match.rankInfo.status === "guild_master" ? "Глава" : match.rankInfo.status === "officer" ? "Офіцер" : "");
+  return `${match.character.name}${label ? ` (${label})` : ""}`;
 }
 
 export async function syncDiscordOfficerRolesFromProfiles(input: {
@@ -565,16 +719,19 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
   const guildId = getDiscordGuildId();
   if (!guildId) throw new Error("Discord-сервер не підключений.");
 
-  const roleIds = cleanRoleIds(input.roleIds);
-  if (!roleIds.length) throw new Error("Вибери Discord-роль, яку потрібно видати офіцерам.");
-  const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
+  const officerRole = await resolveHighestManageableDiscordRole(input.roleIds);
+  const manageableRoleIds = officerRole.roleIds;
   const limit = Math.max(10, Math.min(1000, Math.floor(Number(input.limit) || 1000)));
 
   const [profiles, rankMap, policy] = await Promise.all([
     listDashboardProfilesForDiscordSync(limit),
-    fetchBattleNetGuildRankMap().catch(() => new Map<string, { rank: number | null; status: string | null; label: string | null }>()),
+    fetchBattleNetGuildRankMap(),
     getGuildNicknamePolicy(),
   ]);
+
+  if (!rankMap.size) {
+    throw new Error("Battle.net roster не повернув жодного персонажа гільдії. Офіцерські ролі не змінено, щоб не видати їх не тим учасникам.");
+  }
 
   const candidates = profiles.map((profile) => {
     const discordId = profileDiscordId(profile);
@@ -591,7 +748,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
           profileId: candidate.profile.profileId,
           userId: candidate.discordId,
           name: getProfilePublicName(candidate.profile),
-          officerCharacters: candidate.officers.map((character) => character.name),
+          officerCharacters: candidate.officers.map(formatOfficerCharacter),
           skipped: true,
           skipReason: "Discord-учасника не знайдено на сервері.",
           serverNickname: null as string | null,
@@ -607,7 +764,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
           profileId: candidate.profile.profileId,
           userId: candidate.discordId,
           name: snapshot.displayName || getProfilePublicName(candidate.profile),
-          officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
+          officerCharacters: candidate.officers.map(formatOfficerCharacter),
           skipped: true,
           skipReason: nicknameCheck.reason,
           serverNickname: nicknameCheck.nickname,
@@ -638,7 +795,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
         profileId: candidate.profile.profileId,
         userId: candidate.discordId,
         name: delta.after.displayName || getProfilePublicName(candidate.profile),
-        officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
+        officerCharacters: candidate.officers.map(formatOfficerCharacter),
         skipped: false,
         skipReason: "",
         serverNickname: serverNicknameValidation(delta.after || snapshot, policy.template).nickname,
@@ -673,6 +830,12 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
     skippedInvalidNickname,
     failed: failedItems.length,
     roleIds: manageableRoleIds,
+    selectedRoleId: officerRole.roleId,
+    selectedRoleName: officerRole.roleName,
+    selectedRolePosition: officerRole.rolePosition,
+    requestedRoleIds: officerRole.requestedRoleIds,
+    requestedRoleNames: officerRole.requestedRoleNames,
+    ignoredLowerRoleIds: officerRole.ignoredLowerRoleIds,
     nicknameTemplate: policy.template,
     checkedField: "server_nick",
     concurrency: meta.concurrency,
@@ -687,7 +850,7 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
       profileId: item.item.profile.profileId,
       userId: item.item.discordId,
       name: getProfilePublicName(item.item.profile),
-      officerCharacters: item.item.officers.map((character) => character.name),
+      officerCharacters: item.item.officers.map(formatOfficerCharacter),
       error: item.error instanceof Error ? item.error.message : String(item.error || "Помилка Discord API"),
     })),
     errorsTotal: failedItems.length,

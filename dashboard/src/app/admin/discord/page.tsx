@@ -17,7 +17,17 @@ export const metadata = buildPageMetadata({
   keywords: ["Discord", "ролі", "ніки", "керування"],
 });
 
-function RoleCheckboxes({ roles, fieldName = "roleIds", emptyText = "Discord-ролі не завантажились. Перевір bot token, guild ID і право “Керувати ролями”." }: { roles: DiscordManageableRoleOption[]; fieldName?: string; emptyText?: string }) {
+function RoleCheckboxes({
+  roles,
+  fieldName = "roleIds",
+  emptyText = "Discord-ролі не завантажились. Перевір bot token, guild ID і право “Керувати ролями”.",
+  inputType = "checkbox",
+}: {
+  roles: DiscordManageableRoleOption[];
+  fieldName?: string;
+  emptyText?: string;
+  inputType?: "checkbox" | "radio";
+}) {
   if (!roles.length) {
     return <div className="discord-role-checkboxes discord-role-checkboxes--empty">{emptyText}</div>;
   }
@@ -25,9 +35,9 @@ function RoleCheckboxes({ roles, fieldName = "roleIds", emptyText = "Discord-р�
     <div className="discord-role-checkboxes">
       {roles.map((role) => (
         <label key={`${fieldName}-${role.id}`} className={!role.manageable ? "is-disabled" : ""} title={role.blockedReason || role.name}>
-          <input type="checkbox" name={fieldName} value={role.id} disabled={!role.manageable} />
+          <input type={inputType} name={fieldName} value={role.id} disabled={!role.manageable} />
           <span>{role.name}</span>
-          <small>{role.manageable ? `ID ${role.id}` : role.blockedReason || "Недоступна для керування"}</small>
+          <small>{role.manageable ? `Позиція ${role.position} • ID ${role.id}` : role.blockedReason || "Недоступна для керування"}</small>
         </label>
       ))}
     </div>
@@ -189,20 +199,20 @@ export default async function AdminDiscordPage() {
 
           <form className="panel discord-management-card" action="/api/admin/discord/officers/sync" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Battle.net</span><h2>Видати роль офіцерам гільдії</h2></div>
-            <p className="profile-card-lead">Перевіряє профілі сайту, шукає гільдійних персонажів зі статусом <strong>Глава</strong> або <strong>Офіцер</strong> у Battle.net roster, знаходить привʼязаний Discord-акаунт і видає вибрану Discord-роль, якщо людина є учасником сервера.</p>
+            <p className="profile-card-lead">Перевіряє профілі сайту тільки проти живого Battle.net roster: роль видається лише тоді, коли хоча б один персонаж профілю реально має статус <strong>Глава</strong> або <strong>Офіцер</strong> у гільдії. Серверний нік перевіряється саме через Discord <code>member.nick</code>, не через глобальне імʼя.</p>
             <input type="hidden" name="limit" value="1000" />
-            <RoleCheckboxes roles={roles} fieldName="officerRoleIds" emptyText="Немає доступних ролей для видачі офіцерам. Перевір роль бота та право “Керувати ролями”." />
+            <RoleCheckboxes roles={roles} fieldName="officerRoleIds" inputType="radio" emptyText="Немає доступних ролей для видачі офіцерам. Перевір роль бота та право “Керувати ролями”." />
             <div className="discord-officer-sync-summary" aria-label="Що перевіряється">
-              <span><strong>Battle.net</strong><small>Ранг 0 = глава, ранг 1 = офіцер</small></span>
-              <span><strong>Профілі</strong><small>Тільки акаунти з Discord ID</small></span>
-              <span><strong>Discord</strong><small>Видає роль лише учасникам сервера</small></span>
+              <span><strong>Battle.net</strong><small>Тільки живий roster: ранг 0/1</small></span>
+              <span><strong>Профілі</strong><small>Враховує всіх персонажів профілю</small></span>
+              <span><strong>Discord</strong><small>Серверний нік member.nick</small></span>
             </div>
-            <button className="btn primary" type="submit" disabled={!hasManageableRoles} data-confirm-message="Видати вибрану Discord-роль усім профілям, де є гільдійний персонаж зі статусом Глава або Офіцер?">Синхронізувати офіцерську роль</button>
+            <button className="btn primary" type="submit" disabled={!hasManageableRoles} data-confirm-message="Видати вибрану Discord-роль тільки профілям, де персонаж підтверджений у живому Battle.net roster як Глава або Офіцер?">Синхронізувати офіцерську роль</button>
           </form>
 
           <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/nicknames/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head"><span className="eyebrow">Автоперевірка</span><h2>Ролі за неправильний серверний нік</h2></div>
-            <p className="profile-card-lead">Перевіряє саме серверні ніки Discord (<code>member.nick</code>) за глобальним шаблоном. Якщо серверний нік не встановлено або не відповідає шаблону — учасник потрапляє в невідповідності. Кнопка перевірки лише показує результат, а червона кнопка реально знімає вибрані ролі та може видати окремо вибрані ролі тим самим учасникам сервера. Для списку учасників бот має мати доступ до Guild Members.</p>
+            <p className="profile-card-lead">Перевіряє тільки серверні ніки Discord (<code>member.nick</code>), не глобальні імена. Перед реальною зміною кожен учасник перечитується з Discord ще раз: якщо нік уже правильний, ролі не чіпаються. Цей блок не призначений для офіцерських ролей — офіцерські права видавай через синхронізацію Battle.net вище.</p>
             <input type="hidden" name="apply" value="1" />
             <label className="field-label">Скільки учасників перевірити<input className="input" name="limit" type="number" min="1" max="5000" defaultValue="5000" /><small>5000 = пройти весь сервер у межах технічного ліміту панелі. Для Mistblossom цього достатньо, щоб перевірити всіх учасників.</small></label>
             <div className="discord-cleanup-role-grid" aria-label="Ролі для масової дії за серверним ніком">
@@ -213,13 +223,13 @@ export default async function AdminDiscordPage() {
               </section>
               <section className="discord-cleanup-role-column">
                 <div className="profile-card-head profile-card-head--inline"><div><span className="eyebrow">Видати</span><h3>Ролі, які додати</h3></div></div>
-                <p className="profile-card-lead">Ці ролі буде видано тим самим невідповідним учасникам. Залиш порожнім, якщо потрібно тільки знімати.</p>
+                <p className="profile-card-lead">Опційно: видати тільки службову/санкційну роль тим самим невідповідним учасникам. Офіцерські ролі тут не використовуй.</p>
                 <RoleCheckboxes roles={roles} fieldName="addRoleIds" />
               </section>
             </div>
             <div className="form-actions">
               <button className="btn subtle" formAction="/api/admin/discord/nicknames/inspect" formMethod="post" type="submit">Тільки перевірити серверні ніки</button>
-              <button className="btn danger" name="mode" value="apply" type="submit" disabled={!hasManageableRoles} data-confirm-message="Ця дія масово змінить ролі учасників сервера, чиї серверні ніки не відповідають шаблону: зніме вибрані ролі та видасть вибрані ролі з правого списку. Продовжити?">Застосувати ролі за неправильний серверний нік</button>
+              <button className="btn danger" name="mode" value="apply" type="submit" disabled={!hasManageableRoles} data-confirm-message="Ця дія перечитає кожного учасника з Discord і змінить ролі тільки тим, у кого серверний нік member.nick досі не відповідає шаблону. Офіцерські ролі тут не використовуй. Продовжити?">Застосувати ролі за неправильний серверний нік</button>
             </div>
           </form>
         </section>
