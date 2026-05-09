@@ -9,6 +9,7 @@ import {
   fetchDiscordGuildSnapshot,
   getDiscordGuildId,
   removeGuildMemberRoles,
+  replaceGuildMemberRoles,
   updateGuildMemberNickname,
   type DiscordGuildMemberModerationItem,
 } from "@/lib/discordAdmin";
@@ -86,6 +87,128 @@ async function memberSnapshot(userId: string) {
   return fetchDiscordGuildMemberSnapshot(userId).catch(() => null);
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function roleListWithout(roleIds: string[], removeIds: string[]) {
+  const removeSet = new Set(removeIds);
+  return roleIds.filter((roleId) => !removeSet.has(roleId));
+}
+
+function roleListWith(roleIds: string[], addIds: string[]) {
+  return Array.from(new Set([...roleIds, ...addIds].filter(Boolean)));
+}
+
+async function waitForMemberRoles(userId: string, predicate: (roleIds: string[]) => boolean, attempts = 6) {
+  let snapshot = await memberSnapshot(userId);
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (snapshot && predicate(snapshot.roleIds)) return snapshot;
+    await sleep(350 + attempt * 180);
+    snapshot = await memberSnapshot(userId);
+  }
+  return snapshot;
+}
+
+async function applyDiscordRoleDelta(params: {
+  guildId: string;
+  userId: string;
+  addRoleIds?: string[];
+  removeRoleIds?: string[];
+  reason?: string;
+  actionLabel?: string;
+}) {
+  const before = await memberSnapshot(params.userId);
+  if (!before) throw new Error("Discord-учасника не знайдено на сервері або бот не може його прочитати.");
+
+  const requestedAdd = Array.from(new Set((params.addRoleIds || []).filter(Boolean)));
+  const requestedRemove = Array.from(new Set((params.removeRoleIds || []).filter(Boolean)));
+  const addSet = new Set(requestedAdd);
+  const removeSet = new Set(requestedRemove);
+
+  const addableRoleIds = requestedAdd.filter((roleId) => !before.roleIds.includes(roleId));
+  const removableRoleIds = requestedRemove.filter((roleId) => before.roleIds.includes(roleId));
+  const alreadyHadRoleIds = requestedAdd.filter((roleId) => before.roleIds.includes(roleId));
+  const alreadyMissingRoleIds = requestedRemove.filter((roleId) => !before.roleIds.includes(roleId));
+
+  if (removableRoleIds.length) {
+    await removeGuildMemberRoles({
+      guildId: params.guildId,
+      userId: params.userId,
+      roleIds: removableRoleIds,
+      reason: params.reason,
+      concurrency: 1,
+      maxConcurrency: 1,
+    });
+  }
+
+  if (addableRoleIds.length) {
+    await addGuildMemberRoles({
+      guildId: params.guildId,
+      userId: params.userId,
+      roleIds: addableRoleIds,
+      reason: params.reason,
+      concurrency: 1,
+      maxConcurrency: 1,
+    });
+  }
+
+  let after = await waitForMemberRoles(params.userId, (roleIds) => {
+    const removeOk = removableRoleIds.every((roleId) => !roleIds.includes(roleId));
+    const addOk = addableRoleIds.every((roleId) => roleIds.includes(roleId));
+    return removeOk && addOk;
+  });
+
+  let stillPresentRoleIds = removableRoleIds.filter((roleId) => after?.roleIds.includes(roleId));
+  let stillMissingRoleIds = addableRoleIds.filter((roleId) => !after?.roleIds.includes(roleId));
+  let usedPatchFallback = false;
+
+  if ((stillPresentRoleIds.length || stillMissingRoleIds.length) && after) {
+    usedPatchFallback = true;
+    const desiredRoles = roleListWith(roleListWithout(after.roleIds, stillPresentRoleIds), stillMissingRoleIds);
+    await replaceGuildMemberRoles({
+      guildId: params.guildId,
+      userId: params.userId,
+      roleIds: desiredRoles,
+      reason: `${params.reason || params.actionLabel || "Mistblossom role update"} (fallback role set)`,
+    });
+    after = await waitForMemberRoles(params.userId, (roleIds) => {
+      const removeOk = removableRoleIds.every((roleId) => !roleIds.includes(roleId));
+      const addOk = addableRoleIds.every((roleId) => roleIds.includes(roleId));
+      return removeOk && addOk;
+    });
+    stillPresentRoleIds = removableRoleIds.filter((roleId) => after?.roleIds.includes(roleId));
+    stillMissingRoleIds = addableRoleIds.filter((roleId) => !after?.roleIds.includes(roleId));
+  }
+
+  if (!after) throw new Error("Discord прийняв запит, але не вдалося повторно прочитати учасника для перевірки результату.");
+
+  const removedRoleIds = removableRoleIds.filter((roleId) => !after.roleIds.includes(roleId));
+  const addedRoleIds = addableRoleIds.filter((roleId) => after.roleIds.includes(roleId));
+
+  return {
+    before,
+    after,
+    requestedAddRoleIds: requestedAdd,
+    requestedRemoveRoleIds: requestedRemove,
+    addableRoleIds,
+    removableRoleIds,
+    alreadyHadRoleIds,
+    alreadyMissingRoleIds,
+    addedRoleIds,
+    removedRoleIds,
+    stillMissingRoleIds,
+    stillPresentRoleIds,
+    usedPatchFallback,
+    changed: addedRoleIds.length + removedRoleIds.length,
+    expectedChangeTotal: addableRoleIds.length + removableRoleIds.length,
+    unchangedBecauseAlreadyCorrect: alreadyHadRoleIds.length + alreadyMissingRoleIds.length,
+    hasRequestedRole(roleId: string) {
+      return addSet.has(roleId) || removeSet.has(roleId);
+    },
+  };
+}
+
 export async function updateDiscordMemberNickname(input: { userId: unknown; nickname: unknown; reason?: string }) {
   const guildId = getDiscordGuildId();
   const userId = snowflake(input.userId);
@@ -138,39 +261,37 @@ export async function addDiscordMemberRoles(input: { userId: unknown; roleIds: u
   }
 
   const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
-  const before = await memberSnapshot(userId);
-  if (!before) throw new Error("Discord-учасника не знайдено на сервері або бот не може його прочитати.");
 
-  const roleIdsToAdd = manageableRoleIds.filter((roleId) => !before.roleIds.includes(roleId));
-  const alreadyHadRoleIds = manageableRoleIds.filter((roleId) => before.roleIds.includes(roleId));
-
-  if (roleIdsToAdd.length) {
-    try {
-      await addGuildMemberRoles({ guildId, userId, roleIds: roleIdsToAdd, reason: input.reason || "Mistblossom manual role add", concurrency: 1, maxConcurrency: 1 });
-    } catch (error) {
-      throw new Error(explainDiscordModerationError(error, "Видача ролі"));
-    }
+  let delta: Awaited<ReturnType<typeof applyDiscordRoleDelta>>;
+  try {
+    delta = await applyDiscordRoleDelta({
+      guildId,
+      userId,
+      addRoleIds: manageableRoleIds,
+      reason: input.reason || "Mistblossom manual role add",
+      actionLabel: "Видача ролі",
+    });
+  } catch (error) {
+    throw new Error(explainDiscordModerationError(error, "Видача ролі"));
   }
 
-  const after = await memberSnapshot(userId);
-  if (!after) throw new Error("Ролі відправлено в Discord, але не вдалося повторно прочитати учасника для перевірки результату.");
-
-  const missingRoleIds = roleIdsToAdd.filter((roleId) => !after.roleIds.includes(roleId));
-  const addedRoleIds = roleIdsToAdd.filter((roleId) => !missingRoleIds.includes(roleId));
-  if (missingRoleIds.length) {
-    throw new Error(`Discord прийняв запит, але ролі не зʼявилися в учасника: ${missingRoleIds.join(", ")}. Перевір ієрархію ролей бота.`);
+  if (delta.stillMissingRoleIds.length) {
+    throw new Error(`Discord прийняв запит, але ролі не зʼявилися в учасника: ${delta.stillMissingRoleIds.join(", ")}. Перевір ієрархію ролей бота.`);
   }
 
   return {
     userId,
     roleIds: manageableRoleIds,
     requestedRoleIds: roleIds,
-    addedRoleIds,
-    alreadyHadRoleIds,
-    beforeRoleIds: before.roleIds,
-    afterRoleIds: after.roleIds,
-    changed: addedRoleIds.length,
-    displayName: after.displayName || before.displayName || userId,
+    addedRoleIds: delta.addedRoleIds,
+    alreadyHadRoleIds: delta.alreadyHadRoleIds,
+    stillMissingRoleIds: delta.stillMissingRoleIds,
+    beforeRoleIds: delta.before.roleIds,
+    afterRoleIds: delta.after.roleIds,
+    changed: delta.addedRoleIds.length,
+    expectedChangeTotal: delta.expectedChangeTotal,
+    usedPatchFallback: delta.usedPatchFallback,
+    displayName: delta.after.displayName || delta.before.displayName || userId,
     verified: true,
   };
 }
@@ -189,47 +310,37 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
   }
 
   const manageableRoleIds = await assertDiscordRolesManageable(roleIds);
-  const before = await memberSnapshot(userId);
-  if (!before) throw new Error("Discord-учасника не знайдено на сервері або бот не може його прочитати.");
 
-  const roleIdsToRemove = manageableRoleIds.filter((roleId) => before.roleIds.includes(roleId));
-  const alreadyMissingRoleIds = manageableRoleIds.filter((roleId) => !before.roleIds.includes(roleId));
-  const policy = await getGuildNicknamePolicy();
-
-  if (roleIdsToRemove.length) {
-    try {
-      await removeGuildMemberRoles({
-        guildId,
-        userId,
-        roleIds: roleIdsToRemove,
-        reason: input.reason || "Mistblossom manual role remove",
-        concurrency: Math.min(1, Math.max(1, Number(policy.roleRemoveConcurrency || 1))),
-        maxConcurrency: 1,
-      });
-    } catch (error) {
-      throw new Error(explainDiscordModerationError(error, "Зняття ролі"));
-    }
+  let delta: Awaited<ReturnType<typeof applyDiscordRoleDelta>>;
+  try {
+    delta = await applyDiscordRoleDelta({
+      guildId,
+      userId,
+      removeRoleIds: manageableRoleIds,
+      reason: input.reason || "Mistblossom manual role remove",
+      actionLabel: "Зняття ролі",
+    });
+  } catch (error) {
+    throw new Error(explainDiscordModerationError(error, "Зняття ролі"));
   }
 
-  const after = await memberSnapshot(userId);
-  if (!after) throw new Error("Ролі знято в Discord, але не вдалося повторно прочитати учасника для перевірки результату.");
-
-  const stillPresentRoleIds = roleIdsToRemove.filter((roleId) => after.roleIds.includes(roleId));
-  const removedRoleIds = roleIdsToRemove.filter((roleId) => !stillPresentRoleIds.includes(roleId));
-  if (stillPresentRoleIds.length) {
-    throw new Error(`Discord прийняв запит, але ролі досі є в учасника: ${stillPresentRoleIds.join(", ")}. Перевір ієрархію ролей бота.`);
+  if (delta.stillPresentRoleIds.length) {
+    throw new Error(`Discord прийняв запит, але ролі досі є в учасника: ${delta.stillPresentRoleIds.join(", ")}. Перевір ієрархію ролей бота.`);
   }
 
   return {
     userId,
     roleIds: manageableRoleIds,
     requestedRoleIds: roleIds,
-    removedRoleIds,
-    alreadyMissingRoleIds,
-    beforeRoleIds: before.roleIds,
-    afterRoleIds: after.roleIds,
-    changed: removedRoleIds.length,
-    displayName: after.displayName || before.displayName || userId,
+    removedRoleIds: delta.removedRoleIds,
+    alreadyMissingRoleIds: delta.alreadyMissingRoleIds,
+    stillPresentRoleIds: delta.stillPresentRoleIds,
+    beforeRoleIds: delta.before.roleIds,
+    afterRoleIds: delta.after.roleIds,
+    changed: delta.removedRoleIds.length,
+    expectedChangeTotal: delta.expectedChangeTotal,
+    usedPatchFallback: delta.usedPatchFallback,
+    displayName: delta.after.displayName || delta.before.displayName || userId,
     verified: true,
   };
 }
@@ -312,57 +423,42 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   const { results, meta } = await mapConcurrentSettled(
     targets,
     async (member) => {
-      const removableRoleIds = manageableRemoveRoleIds.filter((roleId) => member.roleIds.includes(roleId));
-      const addableRoleIds = manageableAddRoleIds.filter((roleId) => !member.roleIds.includes(roleId));
+      const fresh = await memberSnapshot(member.userId);
+      const currentRoleIds = fresh?.roleIds || member.roleIds;
+      const removableRoleIds = manageableRemoveRoleIds.filter((roleId) => currentRoleIds.includes(roleId));
+      const addableRoleIds = manageableAddRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
 
-      if (removableRoleIds.length) {
-        await removeGuildMemberRoles({
-          guildId,
-          userId: member.userId,
-          roleIds: removableRoleIds,
-          reason: input.reason || `Nickname does not match template: ${policy.template}`,
-          concurrency: 1,
-          maxConcurrency: 1,
-        });
+      const delta = await applyDiscordRoleDelta({
+        guildId,
+        userId: member.userId,
+        removeRoleIds: removableRoleIds,
+        addRoleIds: addableRoleIds,
+        reason: input.reason || `Nickname does not match template: ${policy.template}`,
+        actionLabel: "Ролі за неправильний серверний нік",
+      });
+
+      if (delta.stillPresentRoleIds.length) {
+        throw new Error(`Discord прийняв запит, але ролі не знялися: ${delta.stillPresentRoleIds.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
       }
 
-      if (addableRoleIds.length) {
-        await addGuildMemberRoles({
-          guildId,
-          userId: member.userId,
-          roleIds: addableRoleIds,
-          reason: input.reason || `Nickname does not match template: ${policy.template}`,
-          concurrency: 1,
-          maxConcurrency: 1,
-        });
-      }
-
-      const snapshot = await memberSnapshot(member.userId);
-      const currentRoleIds = snapshot?.roleIds || [];
-      const stillPresent = removableRoleIds.filter((roleId) => currentRoleIds.includes(roleId));
-      const removed = removableRoleIds.filter((roleId) => !stillPresent.includes(roleId));
-      const stillMissing = addableRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
-      const added = addableRoleIds.filter((roleId) => !stillMissing.includes(roleId));
-
-      if (removableRoleIds.length && stillPresent.length === removableRoleIds.length && !added.length) {
-        throw new Error(`Discord прийняв запит, але ролі не знялися: ${stillPresent.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
-      }
-
-      if (addableRoleIds.length && stillMissing.length === addableRoleIds.length && !removed.length) {
-        throw new Error(`Discord прийняв запит, але ролі не видались: ${stillMissing.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
+      if (delta.stillMissingRoleIds.length) {
+        throw new Error(`Discord прийняв запит, але ролі не видались: ${delta.stillMissingRoleIds.join(", ")}. Перевір ієрархію ролей або чи це власник сервера.`);
       }
 
       return {
         userId: member.userId,
-        name: displayName(member),
+        name: fresh?.displayName || displayName(member),
         serverNickname: serverNickname(member) || null,
         requested: removableRoleIds,
         requestedRemove: removableRoleIds,
         requestedAdd: addableRoleIds,
-        removed,
-        added,
-        stillPresent,
-        stillMissing,
+        removed: delta.removedRoleIds,
+        added: delta.addedRoleIds,
+        stillPresent: delta.stillPresentRoleIds,
+        stillMissing: delta.stillMissingRoleIds,
+        beforeRoleIds: delta.before.roleIds,
+        afterRoleIds: delta.after.roleIds,
+        usedPatchFallback: delta.usedPatchFallback,
       };
     },
     {
@@ -493,40 +589,37 @@ export async function syncDiscordOfficerRolesFromProfiles(input: {
         };
       }
 
-      const addableRoleIds = manageableRoleIds.filter((roleId) => !snapshot.roleIds.includes(roleId));
-      const alreadyHad = manageableRoleIds.filter((roleId) => snapshot.roleIds.includes(roleId));
-
-      if (addableRoleIds.length) {
-        await addGuildMemberRoles({
+      let delta: Awaited<ReturnType<typeof applyDiscordRoleDelta>>;
+      try {
+        delta = await applyDiscordRoleDelta({
           guildId,
           userId: candidate.discordId,
-          roleIds: addableRoleIds,
+          addRoleIds: manageableRoleIds,
           reason: input.reason || "Mistblossom Battle.net officer sync",
-          concurrency: 1,
-          maxConcurrency: 1,
+          actionLabel: "Синхронізація офіцерської ролі",
         });
+      } catch (error) {
+        throw new Error(explainDiscordModerationError(error, "Синхронізація офіцерської ролі"));
       }
 
-      const after = await memberSnapshot(candidate.discordId);
-      const currentRoleIds = after?.roleIds || [];
-      const stillMissing = addableRoleIds.filter((roleId) => !currentRoleIds.includes(roleId));
-      const added = addableRoleIds.filter((roleId) => !stillMissing.includes(roleId));
-
-      if (addableRoleIds.length && stillMissing.length === addableRoleIds.length) {
-        throw new Error(`Discord прийняв запит, але офіцерська роль не зʼявилась: ${stillMissing.join(", ")}. Перевір ієрархію ролей бота.`);
+      if (delta.stillMissingRoleIds.length) {
+        throw new Error(`Discord прийняв запит, але офіцерська роль не зʼявилась: ${delta.stillMissingRoleIds.join(", ")}. Перевір ієрархію ролей бота.`);
       }
 
       return {
         profileId: candidate.profile.profileId,
         userId: candidate.discordId,
-        name: after?.displayName || getProfilePublicName(candidate.profile),
+        name: delta.after.displayName || getProfilePublicName(candidate.profile),
         officerCharacters: candidate.officers.map((character) => `${character.name}${character.guildStatusLabel ? ` (${character.guildStatusLabel})` : ""}`),
         skipped: false,
         skipReason: "",
-        serverNickname: serverNicknameValidation(after || snapshot, policy.template).nickname,
-        added,
-        alreadyHad,
-        stillMissing,
+        serverNickname: serverNicknameValidation(delta.after || snapshot, policy.template).nickname,
+        added: delta.addedRoleIds,
+        alreadyHad: delta.alreadyHadRoleIds,
+        stillMissing: delta.stillMissingRoleIds,
+        beforeRoleIds: delta.before.roleIds,
+        afterRoleIds: delta.after.roleIds,
+        usedPatchFallback: delta.usedPatchFallback,
       };
     },
     { profile: "external-api", concurrency: 1, min: 1, max: 1 },

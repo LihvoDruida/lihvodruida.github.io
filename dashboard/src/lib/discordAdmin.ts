@@ -1506,6 +1506,26 @@ export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guild
   };
 }
 
+
+export async function replaceGuildMemberRoles(params: {
+  guildId: string;
+  userId: string;
+  roleIds: string[];
+  reason?: string;
+}) {
+  const guildId = snowflake(params.guildId);
+  const userId = snowflake(params.userId);
+  const roleIds = Array.from(new Set(params.roleIds.map(snowflake).filter(Boolean))).slice(0, 100);
+
+  if (!guildId || !userId) throw new Error("Не вистачає guild/user ID для оновлення ролей.");
+
+  await discordApi<void>(`/guilds/${guildId}/members/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ roles: roleIds }),
+    auditReason: params.reason,
+  });
+}
+
 export async function updateGuildMemberNickname(params: {
   guildId: string;
   userId: string;
