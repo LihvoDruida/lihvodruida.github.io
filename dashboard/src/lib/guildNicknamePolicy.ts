@@ -5,12 +5,21 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import type { DashboardSession } from "@/lib/auth";
 
 export const DEFAULT_NICKNAME_TEMPLATE = "{name} [{characters}]";
+export const DEFAULT_ROLE_REMOVE_CONCURRENCY = 0;
+export const DEFAULT_ROLE_REMOVE_MAX_CONCURRENCY = 5;
+export const DEFAULT_NICKNAME_CLEANUP_CONCURRENCY = 0;
+export const DEFAULT_NICKNAME_CLEANUP_MAX_CONCURRENCY = 4;
+
 const SETTINGS_COLLECTION = "dashboardSettings";
 const POLICY_DOC_ID = "discordNicknamePolicy";
 const TOKEN_PATTERN = /\{(name|main|alts|characters)\}/gi;
 
 export type GuildNicknamePolicy = {
   template: string;
+  roleRemoveConcurrency: number;
+  roleRemoveMaxConcurrency: number;
+  nicknameCleanupConcurrency: number;
+  nicknameCleanupMaxConcurrency: number;
   updatedAt?: string | null;
   updatedBy?: string | null;
 };
@@ -39,6 +48,25 @@ function cleanTemplateText(value: unknown) {
     .slice(0, 96);
 }
 
+function cleanIntegerSetting(value: unknown, fallback: number, min: number, max: number) {
+  if (value === null || value === undefined || value === "") return fallback;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(number)));
+}
+
+function normalizePolicyData(data: Record<string, unknown> | null | undefined, fallbackTemplate = DEFAULT_NICKNAME_TEMPLATE): GuildNicknamePolicy {
+  return {
+    template: cleanTemplateText(data?.template) || fallbackTemplate,
+    roleRemoveConcurrency: cleanIntegerSetting(data?.roleRemoveConcurrency, DEFAULT_ROLE_REMOVE_CONCURRENCY, 0, 5),
+    roleRemoveMaxConcurrency: cleanIntegerSetting(data?.roleRemoveMaxConcurrency, DEFAULT_ROLE_REMOVE_MAX_CONCURRENCY, 1, 5),
+    nicknameCleanupConcurrency: cleanIntegerSetting(data?.nicknameCleanupConcurrency, DEFAULT_NICKNAME_CLEANUP_CONCURRENCY, 0, 4),
+    nicknameCleanupMaxConcurrency: cleanIntegerSetting(data?.nicknameCleanupMaxConcurrency, DEFAULT_NICKNAME_CLEANUP_MAX_CONCURRENCY, 1, 4),
+    updatedAt: timestampToIso(data?.updatedAt),
+    updatedBy: typeof data?.updatedBy === "string" ? data.updatedBy : null,
+  };
+}
+
 export function cleanNicknameTemplate(value: unknown) {
   const template = cleanTemplateText(value) || DEFAULT_NICKNAME_TEMPLATE;
   if (!/\{name\}/i.test(template)) {
@@ -65,20 +93,11 @@ export function nicknameTemplateExample(templateInput: unknown = DEFAULT_NICKNAM
 }
 
 export async function getGuildNicknamePolicy(): Promise<GuildNicknamePolicy> {
-  const envTemplate = process.env.DISCORD_NICKNAME_TEMPLATE || process.env.NEXT_PUBLIC_DISCORD_NICKNAME_TEMPLATE || "";
-  const fallback = cleanTemplateText(envTemplate) || DEFAULT_NICKNAME_TEMPLATE;
-
-  if (!hasFirebaseProfileConfig()) return { template: fallback, updatedAt: null, updatedBy: null };
+  if (!hasFirebaseProfileConfig()) return normalizePolicyData(null);
 
   const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).get().catch(() => null);
-  if (!snapshot?.exists) return { template: fallback, updatedAt: null, updatedBy: null };
-  const data = snapshot.data() || {};
-  const template = cleanTemplateText(data.template) || fallback;
-  return {
-    template,
-    updatedAt: timestampToIso(data.updatedAt),
-    updatedBy: typeof data.updatedBy === "string" ? data.updatedBy : null,
-  };
+  if (!snapshot?.exists) return normalizePolicyData(null);
+  return normalizePolicyData(snapshot.data() || null);
 }
 
 export async function setGuildNicknamePolicy(templateInput: unknown, actor?: DashboardSession | null) {
@@ -89,7 +108,34 @@ export async function setGuildNicknamePolicy(templateInput: unknown, actor?: Das
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   }, { merge: true });
-  return { template } satisfies GuildNicknamePolicy;
+  return getGuildNicknamePolicy();
+}
+
+export async function setGuildDiscordManagementSettings(input: {
+  template?: unknown;
+  roleRemoveConcurrency?: unknown;
+  roleRemoveMaxConcurrency?: unknown;
+  nicknameCleanupConcurrency?: unknown;
+  nicknameCleanupMaxConcurrency?: unknown;
+}, actor?: DashboardSession | null) {
+  const template = cleanNicknameTemplate(input.template);
+  const roleRemoveMaxConcurrency = cleanIntegerSetting(input.roleRemoveMaxConcurrency, DEFAULT_ROLE_REMOVE_MAX_CONCURRENCY, 1, 5);
+  const nicknameCleanupMaxConcurrency = cleanIntegerSetting(input.nicknameCleanupMaxConcurrency, DEFAULT_NICKNAME_CLEANUP_MAX_CONCURRENCY, 1, 4);
+  const roleRemoveConcurrency = cleanIntegerSetting(input.roleRemoveConcurrency, DEFAULT_ROLE_REMOVE_CONCURRENCY, 0, roleRemoveMaxConcurrency);
+  const nicknameCleanupConcurrency = cleanIntegerSetting(input.nicknameCleanupConcurrency, DEFAULT_NICKNAME_CLEANUP_CONCURRENCY, 0, nicknameCleanupMaxConcurrency);
+
+  if (!hasFirebaseProfileConfig()) throw new Error("Firebase не налаштований для збереження Discord-налаштувань.");
+  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).set({
+    template,
+    roleRemoveConcurrency,
+    roleRemoveMaxConcurrency,
+    nicknameCleanupConcurrency,
+    nicknameCleanupMaxConcurrency,
+    updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+  }, { merge: true });
+
+  return getGuildNicknamePolicy();
 }
 
 function cleanNicknamePart(value: unknown, maxLength: number) {

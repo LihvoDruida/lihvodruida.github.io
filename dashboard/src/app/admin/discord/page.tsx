@@ -8,7 +8,7 @@ import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers } from "@/lib/permissions";
 import { fetchDiscordRoles } from "@/lib/discordAdmin";
 import { recordAdminAudit } from "@/lib/accessGroups";
-import { getGuildNicknamePolicy, nicknameTemplateExample, setGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
+import { getGuildNicknamePolicy, nicknameTemplateExample, setGuildDiscordManagementSettings } from "@/lib/guildNicknamePolicy";
 import {
   addDiscordMemberRoles,
   inspectDiscordNicknameTemplate,
@@ -32,18 +32,31 @@ async function setActionToast(tone: "success" | "info" | "warning" | "error", ti
   store.set("dashboard_toast", JSON.stringify({ tone, title, message }), { path: "/", maxAge: 45, sameSite: "lax" });
 }
 
-async function saveNicknameTemplateAction(formData: FormData) {
+async function saveDiscordSettingsAction(formData: FormData) {
   "use server";
   const user = await getSession();
   if (!user || !canManageDiscordMembers(user)) { redirect("/login"); throw new Error("Access denied"); }
   try {
-    const policy = await setGuildNicknamePolicy(formData.get("template"), user);
-    await recordAdminAudit("discord.nickname_policy.update", user, { template: policy.template });
+    const policy = await setGuildDiscordManagementSettings({
+      template: formData.get("template"),
+      roleRemoveConcurrency: formData.get("roleRemoveConcurrency"),
+      roleRemoveMaxConcurrency: formData.get("roleRemoveMaxConcurrency"),
+      nicknameCleanupConcurrency: formData.get("nicknameCleanupConcurrency"),
+      nicknameCleanupMaxConcurrency: formData.get("nicknameCleanupMaxConcurrency"),
+    }, user);
+    await recordAdminAudit("discord.management_settings.update", user, {
+      template: policy.template,
+      roleRemoveConcurrency: policy.roleRemoveConcurrency,
+      roleRemoveMaxConcurrency: policy.roleRemoveMaxConcurrency,
+      nicknameCleanupConcurrency: policy.nicknameCleanupConcurrency,
+      nicknameCleanupMaxConcurrency: policy.nicknameCleanupMaxConcurrency,
+    });
     revalidatePath("/admin/discord");
     revalidatePath("/profile/[profileId]", "page");
-    await setActionToast("success", "Шаблон ніку оновлено", `Новий шаблон: ${policy.template}`);
+    revalidatePath("/rules/accept");
+    await setActionToast("success", "Discord-налаштування оновлено", `Шаблон: ${policy.template}. Паралельність тепер береться з цієї сторінки.`);
   } catch (error) {
-    await setActionToast("error", "Шаблон не збережено", error instanceof Error ? error.message : "Перевір змінні шаблону.");
+    await setActionToast("error", "Налаштування не збережено", error instanceof Error ? error.message : "Перевір шаблон і числові значення.");
   }
   redirect("/admin/discord");
 }
@@ -177,13 +190,40 @@ export default async function AdminDiscordPage() {
             </div>
             <span className="profile-count-pill">{roles.length} ролей</span>
           </div>
-          <p className="profile-card-lead">Цей шаблон використовується для реєстрації за правилами, профільної синхронізації ніку та перевірки учасників сервера.</p>
-          <form className="discord-management-form" action={saveNicknameTemplateAction}>
-            <label className="field-label">Шаблон ніку
+          <p className="profile-card-lead">Цей блок є джерелом правди для шаблону ніку та швидкості масових Discord-дій. `.env` більше не потрібен для цих значень; після збереження вони беруться з панелі.</p>
+          <form className="discord-management-form discord-management-form--settings" action={saveDiscordSettingsAction}>
+            <label className="field-label discord-management-form__wide">Шаблон ніку
               <input className="input" name="template" defaultValue={policy.template} placeholder="{name} [{characters}]" required />
               <small>Доступні змінні: <code>{"{name}"}</code>, <code>{"{main}"}</code>, <code>{"{alts}"}</code>, <code>{"{characters}"}</code>. Приклад: {nicknameTemplateExample(policy.template)}</small>
             </label>
-            <button className="btn primary" type="submit">Зберегти шаблон</button>
+
+            <div className="discord-settings-grid" aria-label="Паралельність Discord-дій">
+              <label className="field-label">Зняття ролей: паралельність
+                <input className="input" name="roleRemoveConcurrency" type="number" min="0" max={policy.roleRemoveMaxConcurrency} defaultValue={policy.roleRemoveConcurrency} />
+                <small>0 = автоматично. Використовується при ручному й масовому знятті ролей.</small>
+              </label>
+              <label className="field-label">Зняття ролей: максимум
+                <input className="input" name="roleRemoveMaxConcurrency" type="number" min="1" max="5" defaultValue={policy.roleRemoveMaxConcurrency} />
+                <small>Обмеження безпеки для Discord API. Рекомендовано 3–5.</small>
+              </label>
+              <label className="field-label">Перевірка ніків: паралельність
+                <input className="input" name="nicknameCleanupConcurrency" type="number" min="0" max={policy.nicknameCleanupMaxConcurrency} defaultValue={policy.nicknameCleanupConcurrency} />
+                <small>0 = автоматично. Використовується для масового проходу по учасниках.</small>
+              </label>
+              <label className="field-label">Перевірка ніків: максимум
+                <input className="input" name="nicknameCleanupMaxConcurrency" type="number" min="1" max="4" defaultValue={policy.nicknameCleanupMaxConcurrency} />
+                <small>Жорсткий верхній ліміт для cleanup-операцій.</small>
+              </label>
+            </div>
+
+            <div className="discord-settings-summary" aria-label="Поточна конфігурація Discord-дій">
+              <span><strong>{policy.roleRemoveConcurrency || "Авто"}</strong><small>Зняття ролей</small></span>
+              <span><strong>{policy.roleRemoveMaxConcurrency}</strong><small>Макс. зняття ролей</small></span>
+              <span><strong>{policy.nicknameCleanupConcurrency || "Авто"}</strong><small>Перевірка ніків</small></span>
+              <span><strong>{policy.nicknameCleanupMaxConcurrency}</strong><small>Макс. перевірка</small></span>
+            </div>
+
+            <button className="btn primary" type="submit">Зберегти Discord-налаштування</button>
           </form>
         </section>
 

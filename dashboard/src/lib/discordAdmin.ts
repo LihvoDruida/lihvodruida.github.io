@@ -1415,6 +1415,8 @@ export async function removeGuildMemberRoles(params: {
   userId: string;
   roleIds: string[];
   reason?: string;
+  concurrency?: number;
+  maxConcurrency?: number;
 }) {
   const guildId = snowflake(params.guildId);
   const userId = snowflake(params.userId);
@@ -1432,10 +1434,9 @@ export async function removeGuildMemberRoles(params: {
     },
     {
       profile: "external-api",
-      envKey: "DISCORD_ROLE_REMOVE_CONCURRENCY",
-      maxEnvKey: "DISCORD_ROLE_REMOVE_MAX_CONCURRENCY",
+      concurrency: Number(params.concurrency || 0) > 0 ? Number(params.concurrency) : undefined,
       min: 1,
-      max: 5,
+      max: Math.max(1, Math.min(5, Math.floor(Number(params.maxConcurrency || 5)))),
     },
   );
 }

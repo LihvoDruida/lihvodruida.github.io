@@ -58,7 +58,15 @@ export async function removeDiscordMemberRoles(input: { userId: unknown; roleIds
   if (!guildId) throw new Error("Discord-сервер не підключений.");
   if (!userId) throw new Error("Вкажи коректний Discord user ID.");
   if (!roleIds.length) throw new Error("Вибери хоча б одну Discord-роль.");
-  await removeGuildMemberRoles({ guildId, userId, roleIds, reason: input.reason || "Mistblossom manual role remove" });
+  const policy = await getGuildNicknamePolicy();
+  await removeGuildMemberRoles({
+    guildId,
+    userId,
+    roleIds,
+    reason: input.reason || "Mistblossom manual role remove",
+    concurrency: policy.roleRemoveConcurrency,
+    maxConcurrency: policy.roleRemoveMaxConcurrency,
+  });
   return { userId, roleIds };
 }
 
@@ -113,15 +121,16 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
         userId: member.userId,
         roleIds: removableRoleIds,
         reason: input.reason || `Nickname does not match template: ${policy.template}`,
+        concurrency: policy.roleRemoveConcurrency,
+        maxConcurrency: policy.roleRemoveMaxConcurrency,
       });
       return { userId: member.userId, removed: removableRoleIds };
     },
     {
       profile: "external-api",
-      envKey: "DISCORD_NICKNAME_CLEANUP_CONCURRENCY",
-      maxEnvKey: "DISCORD_NICKNAME_CLEANUP_MAX_CONCURRENCY",
+      concurrency: policy.nicknameCleanupConcurrency > 0 ? policy.nicknameCleanupConcurrency : undefined,
       min: 1,
-      max: 4,
+      max: policy.nicknameCleanupMaxConcurrency,
     },
   );
 
