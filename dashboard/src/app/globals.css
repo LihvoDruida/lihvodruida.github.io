@@ -3413,7 +3413,7 @@ textarea:disabled {
     text-align: left;
   }
 }
-/* Discord dashboard polish: compact,
+/* Final Discord dashboard polish: compact,
 site-aligned,
 safer mobile layout */
 .discord-editor-header,
@@ -4278,7 +4278,7 @@ body {
   max-width: 780px;
 }
 
-/* Mobile pass: embed editor split, touch-safe controls and cleaner copy */
+/* Final mobile pass: embed editor split, touch-safe controls and cleaner copy */
 .discord-visual-section--send {
   border-color: rgba(114, 183, 255, 0.18);
   background:
@@ -4598,7 +4598,7 @@ body {
   }
 }
 
-/* Discord embed editor — send layout and preview fidelity fixes */
+/* Discord embed editor — final send layout and preview fidelity fixes */
 .discord-send-layout {
   display: grid;
   gap: 14px;
@@ -4935,7 +4935,7 @@ body {
   }
 }
 
-/* Discord preview fidelity and send alignment */
+/* Discord preview fidelity + send alignment overrides */
 .discord-chat-preview {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
@@ -5571,7 +5571,7 @@ body {
   }
 }
 
-/* Send controls alignment: split controls into two desktop rows and keep timestamp readable */
+/* Final send controls alignment fix: split controls into two desktop rows and keep timestamp readable */
 .discord-builder-shell--site .discord-send-controls {
   grid-template-columns: minmax(220px, 1.3fr) minmax(210px, 1fr);
   grid-template-areas:
@@ -5927,7 +5927,7 @@ body {
   }
 }
 
-/* Rules page: separated guild/raid data, cleaner layout and safer mobile rendering. */
+/* Rules page v2: separated guild/raid data, cleaner layout and safer mobile rendering. */
 .discord-rules-data-overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6224,7 +6224,7 @@ body {
   }
 }
 
-/* Responsive polish: rules dashboard alignment and shared mobile controls. */
+/* Final responsive polish: rules dashboard alignment + shared mobile controls. */
 .discord-rules-data-overview,
 .discord-rules-library-split {
   align-items: stretch;
@@ -7118,7 +7118,7 @@ body {
   }
 }
 
-/* Raid list: cleaner cards and member-safe toast flow */
+/* Raid fixes v5: cleaner list cards and member-safe toast flow */
 .raid-list-page-panel {
   padding: clamp(16px, 2vw, 24px);
 }
@@ -7218,7 +7218,7 @@ body {
   white-space: nowrap;
 }
 
-/* Raid management: separated actions, closed state and compact list */
+/* Raid v8: separated management, closed state, compact list */
 .btn.danger,
 button.btn.danger {
   color: #ffe0dc;
@@ -7443,7 +7443,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Raid module: fuller list page, cleaner editor and raid-card reference layout. */
+/* Raid module v9: fuller list page, cleaner editor, closer to WoW raid-card reference. */
 .raid-page {
   max-width: 1480px;
 }
@@ -7611,7 +7611,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Raid layout: decoupled management actions and tighter list layout */
+/* Raid v11: decoupled management actions and tighter list layout */
 .raid-form-stack {
   display: grid;
   gap: 12px;
@@ -7762,7 +7762,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Raid list layout polish: wide fixed manager block with compact cards. */
+/* Raid list final layout polish: wide fixed manager block with compact cards. */
 .raid-list-page-panel {
   width: min(100%, 1040px);
   max-width: 1040px;
@@ -7798,7 +7798,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Raid editor: separated save/publish actions, full manager list and safe deletion. */
+/* Raid v13: separated save/publish actions, full manager list, safe deletion. */
 .btn.warning {
   border-color: rgba(255, 186, 73, .34);
   color: #fff0c6;
@@ -8744,6 +8744,347 @@ button.btn.danger:hover {
   }
 }
 
+/* v31: global responsive rhythm, spacing and mobile polish */
+:root {
+  --ui-page-gutter: clamp(14px, 2.4vw, 28px);
+  --ui-section-gap: clamp(10px, 1.6vw, 16px);
+  --ui-card-gap: clamp(10px, 1.5vw, 16px);
+  --ui-card-padding: clamp(12px, 1.8vw, 18px);
+  --ui-card-radius: clamp(16px, 2vw, 22px);
+  --ui-control-height: clamp(40px, 4.8vw, 44px);
+  --ui-control-radius: clamp(12px, 1.6vw, 15px);
+  --ui-text-xs: clamp(11px, 1.35vw, 12px);
+  --ui-text-sm: clamp(12px, 1.45vw, 13px);
+  --ui-text-base: clamp(13px, 1.55vw, 14px);
+  --ui-title-sm: clamp(18px, 3.2vw, 24px);
+  --ui-title-md: clamp(22px, 4.4vw, 34px);
+  --ui-title-lg: clamp(32px, 7vw, 60px);
+}
+
+body {
+  font-size: var(--ui-text-base);
+  line-height: 1.55;
+}
+
+:where(main, section, article, aside, header, footer, nav, div, form, label, fieldset, .panel, .card) {
+  min-width: 0;
+}
+
+:where(h1, h2, h3, h4, p, span, strong, small, a, button, label, input, select, textarea, code, pre, .btn, .action-button) {
+  overflow-wrap: anywhere;
+}
+
+:where(.panel, .card, .stat, .toolbar, .notice, .empty, .content-empty) {
+  border-radius: var(--ui-card-radius);
+}
+
+.container {
+  width: min(calc(100% - var(--ui-page-gutter) * 2), 1280px);
+  padding-top: calc(clamp(12px, 2.2vw, 20px) + var(--safe-top));
+  padding-bottom: calc(clamp(24px, 4vw, 38px) + var(--safe-bottom));
+}
+
+.btn,
+.action-button,
+.input,
+.select,
+.textarea,
+.status-select,
+.modern-select,
+button[type="submit"] {
+  min-height: var(--ui-control-height);
+  border-radius: var(--ui-control-radius);
+  font-size: var(--ui-text-sm);
+}
+
+.btn,
+.action-button,
+button[type="submit"] {
+  padding-inline: clamp(12px, 2vw, 16px);
+}
+
+.input,
+.select,
+.textarea,
+.modern-select {
+  padding-inline: clamp(11px, 2vw, 14px);
+}
+
+.markdown-area,
+.discord-builder-textarea,
+.discord-description-area,
+.raid-description-textarea {
+  font-size: var(--ui-text-sm);
+  line-height: 1.55;
+}
+
+@media (max-width: 1180px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+  }
+
+  .dashboard-nav {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .dashboard-nav a {
+    flex: 0 0 auto;
+  }
+
+  .toolbar {
+    grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(140px, 180px));
+  }
+
+  .toolbar .btn,
+  .toolbar button[type="submit"] {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 980px) {
+  .container {
+    width: min(calc(100% - 22px), 1040px);
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .actions-panel,
+  .action-panel,
+  .raid-preview-manage-actions,
+  .raid-manage-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --ui-page-gutter: 8px;
+    --ui-section-gap: 10px;
+    --ui-card-gap: 10px;
+    --ui-card-padding: 12px;
+    --ui-card-radius: 17px;
+    --ui-control-height: 44px;
+    --ui-title-lg: clamp(27px, 9vw, 40px);
+    --ui-title-md: clamp(20px, 6vw, 28px);
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(90, 61, 166, 0.20), transparent 24rem),
+      linear-gradient(135deg, #040712 0%, #08111d 55%, #100b0f 100%);
+  }
+
+  body::before {
+    opacity: 0.24;
+    background-size: 42px 42px, 42px 42px, 210px 210px;
+  }
+
+  .container {
+    width: calc(100% - 16px);
+    padding-top: calc(10px + var(--safe-top));
+    padding-bottom: calc(26px + var(--safe-bottom));
+  }
+
+  .dashboard-topbar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 18px;
+  }
+
+  .dashboard-brand,
+  .dashboard-user,
+  .dashboard-user__profile-link {
+    width: 100%;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-user strong {
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .dashboard-brand span,
+  .dashboard-user span {
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .dashboard-user {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dashboard-nav {
+    padding: 4px;
+    gap: 4px;
+    border-radius: 14px;
+  }
+
+  .dashboard-nav a {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .hero-emblem,
+  .content-hero-emblem,
+  .discord-hero-emblem,
+  .raid-preview-accent {
+    display: none !important;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .lead {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .toolbar .btn,
+  .toolbar button[type="submit"] {
+    grid-column: auto;
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .btn,
+  .action-button,
+  button[type="submit"] {
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .markdown-area,
+  .discord-builder-textarea,
+  .discord-description-area,
+  .raid-description-textarea {
+    min-height: 160px;
+  }
+
+  .content-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .global-toast-stack {
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + var(--safe-bottom));
+    width: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --ui-card-padding: 10px;
+    --ui-card-radius: 15px;
+    --ui-title-lg: clamp(24px, 9vw, 34px);
+  }
+
+  .container {
+    width: calc(100% - 12px);
+    padding-top: calc(8px + var(--safe-top));
+  }
+
+  .stat {
+    min-height: 76px;
+  }
+
+  .stat strong {
+    font-size: clamp(24px, 10vw, 34px);
+  }
+
+  .guild-mark,
+  .discord-avatar,
+  .discord-avatar-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .dashboard-user__logout button {
+    min-height: 36px;
+    padding-inline: 10px;
+  }
+
+  .input,
+  .select,
+  .textarea,
+  .modern-select {
+    font-size: 16px;
+  }
+
+  .select {
+    padding-right: 38px;
+    background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+  }
+
+  .discord-preview-canvas {
+    padding: 10px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .container {
+    width: calc(100% - 10px);
+  }
+
+  .dashboard-nav a {
+    padding-inline: 10px;
+    font-size: 11px;
+  }
+
+  .btn,
+  .action-button,
+  button[type="submit"] {
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:where(.btn, .action-button, button[type="submit"], .raid-action)[disabled],
+:where(.btn, .action-button, button[type="submit"], .raid-action)[aria-disabled="true"] {
+  cursor: not-allowed;
+  transform: none !important;
+  filter: saturate(0.82);
+}
+
+@media (max-width: 520px) {
+  :where(.panel, .card, .hero, .toolbar, .content-form-section, .discord-visual-section, .raid-form-panel) {
+    max-width: 100%;
+  }
+
+  :where(.btn, .action-button, button[type="submit"], .raid-action) {
+    min-height: 42px;
+  }
+}
+
 /* Raid action prerequisites: clear guidance before blocked signup actions. */
 .raid-attendance-stack {
   display: grid;
@@ -8821,7 +9162,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Raid archive: current list and persistent closed archive */
+/* Raid v35: current list + persistent closed archive */
 .raid-list-page-panel--archive {
   margin-top: 22px;
   border-color: rgba(237, 66, 69, .22);
@@ -8862,6 +9203,1281 @@ button.btn.danger:hover {
 
   .raid-list-archive-note {
     min-height: 42px;
+  }
+}
+
+/* Typography v36: WoW-inspired open fonts, PC/mobile scale and profile readability. */
+:root {
+  --font-ui: var(--font-mist-ui), "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-mist-display), "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+  --type-xxs: clamp(0.66rem, 0.63rem + 0.10vw, 0.72rem);
+  --type-xs: clamp(0.72rem, 0.68rem + 0.12vw, 0.80rem);
+  --type-sm: clamp(0.82rem, 0.78rem + 0.14vw, 0.92rem);
+  --type-md: clamp(0.94rem, 0.88rem + 0.18vw, 1.03rem);
+  --type-lg: clamp(1.08rem, 0.98rem + 0.34vw, 1.25rem);
+  --type-xl: clamp(1.42rem, 1.12rem + 1.08vw, 2.05rem);
+  --type-hero: clamp(2.45rem, 5.2vw, 4.85rem);
+  --type-card-title: clamp(1.45rem, 1.08rem + 1.18vw, 2.18rem);
+  --type-character-name: clamp(1.95rem, 2.15vw, 2.55rem);
+}
+
+html {
+  font-size: clamp(15px, 0.18vw + 14.45px, 16.5px);
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--type-sm);
+  line-height: 1.58;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+
+.dashboard-brand strong,
+.dashboard-user strong {
+  font-size: var(--type-sm);
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+}
+
+.dashboard-brand span,
+.dashboard-user span {
+  font-size: var(--type-xs);
+  line-height: 1.35;
+}
+
+.dashboard-nav a {
+  font-size: var(--type-xs);
+  letter-spacing: 0.01em;
+}
+
+.input,
+.select,
+.textarea {
+  font-size: var(--type-sm);
+  line-height: 1.35;
+}
+
+.global-toast__body strong {
+  font-size: var(--type-sm);
+}
+
+.global-toast__body small {
+  font-size: var(--type-xs);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --type-hero: clamp(2.05rem, 8vw, 3.25rem);
+    --type-card-title: clamp(1.38rem, 5.2vw, 2rem);
+    --type-character-name: clamp(1.72rem, 7.2vw, 2.35rem);
+  }
+
+  .dashboard-topbar {
+    gap: 0.65rem;
+  }
+
+  .dashboard-nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dashboard-nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    font-size: 0.9rem;
+    line-height: 1.52;
+  }
+
+  .container {
+    width: min(100% - 16px, 1280px);
+  }
+
+  .dashboard-brand strong,
+  .dashboard-user strong {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-brand span,
+  .dashboard-user span {
+    font-size: 0.76rem;
+  }
+
+  .dashboard-nav a {
+    min-height: 2.45rem;
+    padding-inline: 0.78rem;
+    font-size: 0.78rem;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --type-hero: clamp(1.95rem, 10.5vw, 2.65rem);
+    --type-card-title: clamp(1.28rem, 7.5vw, 1.82rem);
+  }
+
+  .container {
+    width: min(100% - 12px, 1280px);
+  }
+}
+
+/* Typography v37: compact scale pass for WoW-inspired fonts.
+   Cormorant has tall display proportions, so titles are intentionally reduced
+   while body text keeps enough size for Ukrainian readability. */
+:root {
+  --type-xxs: clamp(0.62rem, 0.60rem + 0.08vw, 0.68rem);
+  --type-xs: clamp(0.68rem, 0.65rem + 0.10vw, 0.76rem);
+  --type-sm: clamp(0.78rem, 0.75rem + 0.10vw, 0.87rem);
+  --type-md: clamp(0.88rem, 0.84rem + 0.13vw, 0.98rem);
+  --type-lg: clamp(1.0rem, 0.94rem + 0.22vw, 1.14rem);
+  --type-xl: clamp(1.22rem, 1.02rem + 0.76vw, 1.72rem);
+  --type-hero: clamp(2.12rem, 4.35vw, 4.08rem);
+  --type-card-title: clamp(1.24rem, 0.98rem + 0.84vw, 1.82rem);
+  --type-character-name: clamp(1.55rem, 1.58vw, 2.08rem);
+}
+
+html {
+  font-size: clamp(14.5px, 0.14vw + 14.25px, 15.75px);
+}
+
+body {
+  font-size: var(--type-sm);
+  line-height: 1.52;
+  font-weight: 500;
+}
+
+.global-toast__body strong {
+  font-size: var(--type-sm) !important;
+}
+
+.global-toast__body small {
+  font-size: var(--type-xs) !important;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --type-hero: clamp(1.95rem, 7.2vw, 2.86rem);
+    --type-card-title: clamp(1.18rem, 4.7vw, 1.68rem);
+    --type-character-name: clamp(1.52rem, 6.2vw, 1.98rem);
+  }
+}
+
+@media (max-width: 760px) {
+  html {
+    font-size: 14.5px;
+  }
+
+  body {
+    font-size: 0.86rem;
+    line-height: 1.48;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --type-hero: clamp(1.78rem, 9.4vw, 2.36rem);
+    --type-card-title: clamp(1.1rem, 6.6vw, 1.5rem);
+    --type-character-name: clamp(1.42rem, 8.1vw, 1.72rem);
+  }
+
+  .container {
+    width: min(100% - 10px, 1280px);
+  }
+}
+
+/* Mobile v38: readable typography and two-column metric cards.
+   Desktop rules are untouched; this block only overrides compact mobile layouts. */
+@media (max-width: 760px) {
+  :root {
+    --ui-text-xs: 12px;
+    --ui-text-sm: 13.5px;
+    --ui-text-base: 15px;
+    --type-xxs: 0.74rem;
+    --type-xs: 0.82rem;
+    --type-sm: 0.92rem;
+    --type-md: 1rem;
+    --type-lg: 1.12rem;
+    --type-card-title: clamp(1.28rem, 5.6vw, 1.78rem);
+    --type-hero: clamp(2rem, 9.6vw, 2.75rem);
+    --type-character-name: clamp(1.62rem, 7.6vw, 2.08rem);
+  }
+
+  html {
+    font-size: 15.5px;
+  }
+
+  body {
+    font-size: 0.94rem !important;
+    line-height: 1.56;
+  }
+
+  .container {
+    width: calc(100% - 16px) !important;
+  }
+:where(.panel, .card, .stat, .toolbar, .notice, .empty, .content-empty, .content-form-section, .discord-visual-section, .raid-form-panel){
+    border-radius: 17px !important;
+  }
+
+  .dashboard-topbar {
+    gap: 9px;
+    padding: 9px;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-user strong {
+    font-size: 0.96rem !important;
+    line-height: 1.18;
+  }
+
+  .dashboard-brand span,
+  .dashboard-user span {
+    font-size: 0.82rem !important;
+    line-height: 1.3;
+  }
+
+  .dashboard-nav {
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .dashboard-nav a {
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: 0.84rem !important;
+    line-height: 1.1;
+  }
+.hero,
+.dashboard-hero,
+.content-dashboard-hero,
+.discord-dashboard-hero,
+.raid-dashboard-hero{
+    padding: 16px !important;
+  }
+.hero h1,
+.dashboard-hero h1,
+.content-dashboard-hero h1,
+.discord-dashboard-hero h1,
+.raid-dashboard-hero h1,
+.login-hero h1{
+    font-size: var(--type-hero) !important;
+    line-height: 1.04;
+  }
+.lead,
+.raid-form-hint,
+.notice,
+.empty,
+.content-empty,
+.discord-notice,
+.raid-auto-composition-note,
+.raid-notice{
+    font-size: 0.9rem !important;
+    line-height: 1.54;
+  }
+
+  .eyebrow,
+  .section-title {
+    font-size: 0.76rem !important;
+  }
+.btn,
+.action-button,
+button[type="submit"],
+.raid-action,
+.raid-preview-buttons button{
+    min-height: 44px;
+    font-size: 0.88rem !important;
+    line-height: 1.18;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea,
+  .modern-select,
+  .status-select {
+    min-height: 44px;
+    font-size: 16px !important;
+    line-height: 1.35;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .stat {
+    min-height: 86px !important;
+    padding: 13px !important;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .stat strong {
+    font-size: clamp(1.85rem, 8.6vw, 2.22rem) !important;
+    line-height: 0.95;
+  }
+
+  .stat span {
+    margin-top: 0.48rem;
+    font-size: 0.76rem !important;
+    line-height: 1.16;
+    letter-spacing: 0.065em;
+  }
+.metric-grid,
+.discord-rules-metric-grid,
+.raid-list-facts,
+.raid-preview-meta{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+.mini-metric,
+.discord-rules-metric,
+.raid-list-facts span,
+.raid-preview-meta span{
+    min-height: 72px;
+    padding: 10px 11px !important;
+    border-radius: 14px !important;
+  }
+.mini-metric strong,
+.discord-rules-metric strong,
+.raid-list-facts strong,
+.raid-preview-meta strong{
+    font-size: clamp(1rem, 4.8vw, 1.25rem) !important;
+    line-height: 1.08;
+  }
+.mini-metric small,
+.discord-rules-metric span,
+.discord-rules-metric small,
+.raid-list-facts small,
+.raid-preview-meta small{
+    font-size: 0.72rem !important;
+    line-height: 1.24;
+    letter-spacing: 0.055em;
+  }
+.toolbar,
+.details-grid{
+    grid-template-columns: 1fr !important;
+  }
+
+  .toolbar {
+    gap: 10px;
+    padding: 12px !important;
+  }
+.content-row,
+.discord-rules-row,
+.raid-roster-member,
+.raid-party-member-copy{
+    gap: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --type-hero: clamp(1.92rem, 10vw, 2.45rem);
+    --type-card-title: clamp(1.2rem, 7vw, 1.6rem);
+  }
+
+  html {
+    font-size: 15.25px;
+  }
+
+  .container {
+    width: calc(100% - 12px) !important;
+  }
+
+  .stat {
+    min-height: 80px !important;
+    padding: 11px !important;
+  }
+
+  .stat strong {
+    font-size: clamp(1.68rem, 8.8vw, 2rem) !important;
+  }
+
+  .stat span {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.055em;
+  }
+
+  .dashboard-nav a {
+    min-height: 38px;
+    font-size: 0.8rem !important;
+    padding-inline: 10px;
+  }
+}
+
+/* Mobile v39: safer touch layout, readable toast, wider screen gutters.
+   Desktop is intentionally untouched: every rule is mobile-only. */
+@media (max-width: 760px) {
+  :root {
+    --mobile-screen-gutter: max(14px, env(safe-area-inset-left));
+    --ui-text-xs: 12.5px;
+    --ui-text-sm: 14px;
+    --ui-text-base: 15.5px;
+    --type-xxs: 0.78rem;
+    --type-xs: 0.86rem;
+    --type-sm: 0.96rem;
+    --type-md: 1.05rem;
+    --type-lg: 1.16rem;
+    --type-card-title: clamp(1.34rem, 5.9vw, 1.86rem);
+    --type-hero: clamp(2.08rem, 9.8vw, 2.82rem);
+    --type-character-name: clamp(1.68rem, 7.8vw, 2.12rem);
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    font-size: 0.97rem !important;
+    line-height: 1.58;
+  }
+
+  .container {
+    width: calc(100% - 28px) !important;
+  }
+.dashboard-topbar,
+.hero,
+.dashboard-hero,
+.content-dashboard-hero,
+.discord-dashboard-hero,
+.raid-dashboard-hero,
+.card,
+.stat,
+.toolbar,
+.notice,
+.empty,
+.content-empty,
+.content-form-section,
+.discord-visual-section,
+.raid-form-panel{
+    padding-inline: 14px !important;
+  }
+
+  .dashboard-topbar {
+    padding-block: 12px !important;
+    gap: 10px;
+  }
+.dashboard-brand strong,
+.dashboard-user strong{
+    font-size: 1rem !important;
+    line-height: 1.2;
+  }
+.dashboard-brand span,
+.dashboard-user span{
+    font-size: 0.86rem !important;
+    line-height: 1.42;
+  }
+
+  .dashboard-nav a {
+    min-height: 42px;
+    padding-inline: 13px;
+    font-size: 0.88rem !important;
+    line-height: 1.12;
+  }
+.lead,
+.raid-form-hint,
+.notice,
+.empty,
+.content-empty,
+.discord-notice,
+.raid-auto-composition-note,
+.raid-notice,
+.hero-secure-note{
+    font-size: 0.94rem !important;
+    line-height: 1.58;
+  }
+.btn,
+.action-button,
+button[type="submit"],
+.raid-action,
+.raid-preview-buttons button{
+    min-height: 46px;
+    padding-inline: 14px;
+    font-size: 0.92rem !important;
+    line-height: 1.2;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea,
+  .modern-select,
+  .status-select {
+    min-height: 46px;
+    font-size: 16px !important;
+    line-height: 1.38;
+  }
+
+  .stat {
+    min-height: 88px !important;
+    padding-block: 14px !important;
+  }
+
+  .stat strong {
+    font-size: clamp(1.9rem, 8.8vw, 2.28rem) !important;
+  }
+
+  .stat span {
+    font-size: 0.79rem !important;
+    line-height: 1.18;
+    letter-spacing: 0.06em;
+  }
+.mini-metric strong,
+.discord-rules-metric strong,
+.raid-list-facts strong,
+.raid-preview-meta strong{
+    font-size: clamp(1.05rem, 5vw, 1.32rem) !important;
+  }
+.mini-metric small,
+.discord-rules-metric span,
+.discord-rules-metric small,
+.raid-list-facts small,
+.raid-preview-meta small{
+    font-size: 0.78rem !important;
+    line-height: 1.25;
+  }
+
+  .global-toast-stack {
+    left: max(14px, env(safe-area-inset-left)) !important;
+    right: max(14px, env(safe-area-inset-right)) !important;
+    bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    max-width: none;
+    gap: 10px;
+  }
+
+  .global-toast {
+    grid-template-columns: 36px minmax(0, 1fr) 34px;
+    align-items: flex-start;
+    gap: 11px;
+    min-height: 64px;
+    padding: 14px 13px 14px 14px;
+    border-radius: 18px;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .global-toast::before {
+    width: 4px;
+  }
+
+  .global-toast__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .global-toast__body {
+    gap: 4px;
+    padding-top: 1px;
+  }
+
+  .global-toast__body strong {
+    font-size: 0.95rem !important;
+    line-height: 1.24;
+  }
+
+  .global-toast__body small {
+    font-size: 0.84rem !important;
+    line-height: 1.43;
+  }
+
+  .global-toast__close {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --mobile-screen-gutter: max(12px, env(safe-area-inset-left));
+    --type-hero: clamp(1.98rem, 10vw, 2.5rem);
+    --type-card-title: clamp(1.26rem, 7.2vw, 1.64rem);
+  }
+
+  .container {
+    width: calc(100% - 24px) !important;
+  }
+
+  .dashboard-nav a {
+    min-height: 40px;
+    padding-inline: 11px;
+    font-size: 0.86rem !important;
+  }
+
+  .stat {
+    min-height: 84px !important;
+  }
+
+  .stat span {
+    font-size: 0.76rem !important;
+  }
+
+  .global-toast-stack {
+    left: max(12px, env(safe-area-inset-left)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .global-toast {
+    grid-template-columns: 34px minmax(0, 1fr) 32px;
+    gap: 10px;
+    padding: 13px 12px 13px 13px;
+    border-radius: 17px;
+  }
+
+  .global-toast__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+  }
+
+  .global-toast__close {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@keyframes profileButtonSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile profile identity polish v2: centered avatar, cleaner blocks, slightly smaller mobile type.
+   Desktop is intentionally untouched. */
+@media (max-width: 760px) {
+  :root {
+    --type-hero: clamp(1.9rem, 8.8vw, 2.42rem);
+    --type-card-title: clamp(1.18rem, 6.2vw, 1.5rem);
+    --type-character-name: clamp(1.42rem, 6.8vw, 1.82rem);
+  }
+
+  body {
+    font-size: 0.94rem !important;
+    line-height: 1.52;
+  }
+.dashboard-brand strong,
+.dashboard-user strong{
+    font-size: 0.94rem !important;
+  }
+.dashboard-brand span,
+.dashboard-user span{
+    font-size: 0.8rem !important;
+    line-height: 1.36;
+  }
+.lead,
+.raid-form-hint,
+.notice,
+.empty,
+.content-empty,
+.discord-notice,
+.raid-auto-composition-note,
+.raid-notice,
+.hero-secure-note{
+    font-size: 0.88rem !important;
+    line-height: 1.5;
+  }
+
+  .dashboard-nav a {
+    font-size: 0.83rem !important;
+  }
+.btn,
+.action-button,
+button[type="submit"],
+.raid-action,
+.raid-preview-buttons button{
+    font-size: 0.86rem !important;
+  }
+
+  input,
+  select,
+  textarea,
+  .input,
+  .select,
+  .textarea,
+  .modern-select,
+  .status-select {
+    font-size: 16px !important;
+  }
+
+  .stat strong {
+    font-size: clamp(1.72rem, 8vw, 2.08rem) !important;
+  }
+.stat span,
+.mini-metric small,
+.discord-rules-metric span,
+.discord-rules-metric small,
+.raid-list-facts small,
+.raid-preview-meta small{
+    font-size: 0.72rem !important;
+  }
+.mini-metric strong,
+.discord-rules-metric strong,
+.raid-list-facts strong,
+.raid-preview-meta strong{
+    font-size: clamp(0.98rem, 4.4vw, 1.2rem) !important;
+  }
+}
+
+@media (max-width: 420px) {
+  body {
+    font-size: 0.92rem !important;
+  }
+}
+
+
+/* UI standardization v42: unified typography and mobile layout rhythm. */
+:root {
+  --font-ui: var(--font-mist-ui), "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-mist-display), "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --page-max: 1280px;
+  --page-x: 16px;
+  --page-y: 22px;
+  --section-gap: 16px;
+  --card-gap: 12px;
+
+  --text-caption: 0.76rem;
+  --text-small: 0.84rem;
+  --text-body: 0.94rem;
+  --text-ui: 0.86rem;
+  --text-lead: 0.96rem;
+  --title-card: clamp(1.28rem, 0.95rem + 0.9vw, 1.84rem);
+  --title-page: clamp(2.18rem, 4.8vw, 4.1rem);
+  --line-body: 1.55;
+}
+
+html {
+  font-size: clamp(15.5px, 0.12vw + 15px, 16.25px);
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: var(--line-body);
+  letter-spacing: -0.004em;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+
+.container {
+  width: min(calc(100% - (var(--page-x) * 2)), var(--page-max));
+  padding-top: calc(var(--page-y) + var(--safe-top));
+  padding-bottom: calc(34px + var(--safe-bottom));
+}
+
+/* Mobile standardization: consistent edges, readable text and touch-friendly blocks. */
+@media (max-width: 900px) {
+  :root {
+    --page-x: 18px;
+    --page-y: 18px;
+    --section-gap: 14px;
+    --card-gap: 10px;
+    --text-caption: 0.78rem;
+    --text-small: 0.86rem;
+    --text-body: 0.96rem;
+    --text-ui: 0.9rem;
+    --text-lead: 0.96rem;
+    --title-card: clamp(1.34rem, 4.9vw, 1.9rem);
+    --title-page: clamp(2rem, 8vw, 3.15rem);
+  }
+
+  html {
+    font-size: 15.75px;
+  }
+
+  body {
+    font-size: var(--text-body) !important;
+    line-height: 1.55;
+  }
+
+  .container {
+    width: min(calc(100% - (var(--page-x) * 2)), var(--page-max)) !important;
+    padding-top: calc(var(--page-y) + var(--safe-top)) !important;
+  }
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .discord-editor-header){
+    padding: 1rem !important;
+    border-radius: 20px !important;
+  }
+:where(.panel, .raid-list-page-panel, .content-list, .discord-hub-card, .discord-rules-data-panel, .discord-raid-signups-panel, .discord-rules-list-panel, .notice, .empty, .content-empty){
+    border-radius: 18px !important;
+  }
+:where(.raid-list-page-panel, .content-list, .discord-rules-data-panel, .discord-raid-signups-panel, .discord-rules-list-panel, .notice, .empty, .content-empty){
+    padding: 0.95rem !important;
+  }
+:where(.dashboard-shell, .content-shell, .discord-shell, .content-page-stack, .discord-hub-grid, .grid){
+    gap: var(--section-gap) !important;
+  }
+:where(.dashboard-topbar, .toolbar, .raid-list-page-head, .content-hero-actions, .hero-secure-note){
+    border-radius: 18px !important;
+  }
+:where(.dashboard-nav a, .btn, .action-button, .raid-action, .raid-preview-buttons button){
+    min-height: 2.75rem;
+    padding-inline: 0.92rem;
+    line-height: 1.15;
+  }
+
+  :where(input, select, textarea, .input, .select, .textarea) {
+    min-height: 2.85rem;
+    font-size: 16px !important;
+    line-height: 1.35;
+  }
+:where(.content-section-head, .raid-list-page-head){
+    gap: 0.72rem !important;
+  }
+:where(.notice, .empty, .content-empty, .raid-form-hint){
+    max-width: 72ch;
+  }
+
+  :where(.stats, .metric-grid, .discord-rules-metric-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.72rem !important;
+  }
+:where(.stat, .discord-rules-metric){
+    min-height: 5.1rem;
+    padding: 0.82rem !important;
+  }
+:where(.stat strong, .discord-rules-metric strong){
+    font-size: clamp(1.45rem, 8vw, 2.05rem) !important;
+    line-height: 0.95;
+  }
+:where(.stat span, .discord-rules-metric span){
+    font-size: var(--text-small) !important;
+    line-height: 1.22;
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --page-x: 16px;
+    --section-gap: 12px;
+    --card-gap: 9px;
+    --text-caption: 0.77rem;
+    --text-small: 0.85rem;
+    --text-body: 0.95rem;
+    --text-ui: 0.88rem;
+    --title-page: clamp(1.88rem, 9vw, 2.6rem);
+    --title-card: clamp(1.28rem, 6.2vw, 1.72rem);
+  }
+
+  .container {
+    width: min(calc(100% - (var(--page-x) * 2)), var(--page-max)) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --page-x: 14px;
+  }
+
+  :where(.stats, .metric-grid, .discord-rules-metric-grid) {
+    gap: 0.58rem !important;
+  }
+}
+
+/* v40: dynamic dashboard pass — live raid status, mobile nav, calmer text scale and consistent app spacing. */
+:root {
+  --app-gutter: clamp(14px, 2.2vw, 28px);
+  --app-mobile-gutter: 14px;
+  --app-card-pad: clamp(12px, 1.55vw, 18px);
+  --app-touch: 42px;
+  --app-text: clamp(0.84rem, 0.79rem + 0.14vw, 0.94rem);
+  --app-text-small: clamp(0.76rem, 0.72rem + 0.10vw, 0.84rem);
+  --app-title: clamp(1.18rem, 1.03rem + 0.55vw, 1.55rem);
+}
+
+body {
+  font-size: var(--app-text);
+}
+
+.container {
+  width: min(calc(100% - var(--app-gutter) * 2), 1280px);
+}
+
+:where(.btn, .action-button, .raid-action, button[type="submit"]) {
+  min-height: var(--app-touch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.dashboard-mobile-nav-shell {
+  display: none;
+}
+
+.dashboard-mobile-nav {
+  display: none;
+}
+
+.raid-live-sync {
+  width: fit-content;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px 11px;
+  border: 1px solid rgba(214, 168, 79, 0.22);
+  border-radius: 999px;
+  background: rgba(5, 9, 16, 0.72);
+  color: rgba(246, 239, 226, 0.88);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.06);
+  font-size: var(--app-text-small);
+  font-weight: 800;
+}
+
+.raid-live-sync strong {
+  color: var(--gold-bright);
+  font-size: 0.92em;
+}
+
+.raid-live-sync__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--emerald);
+  box-shadow: 0 0 0 4px rgba(89, 214, 141, 0.12), 0 0 18px rgba(89, 214, 141, 0.34);
+}
+.raid-live-sync--checking .raid-live-sync__dot{
+  background: var(--gold-bright);
+  animation: raidLivePulse 1s ease-in-out infinite;
+}
+.raid-live-sync--updated .raid-live-sync__dot{
+  background: var(--blue);
+  box-shadow: 0 0 0 4px rgba(114, 183, 255, 0.12), 0 0 18px rgba(114, 183, 255, 0.34);
+}
+.raid-live-sync--offline .raid-live-sync__dot{
+  background: var(--red);
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.12), 0 0 18px rgba(255, 107, 107, 0.28);
+}
+
+@keyframes raidLivePulse {
+  0%, 100% { transform: scale(1); opacity: 0.82; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+.app-loading-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.app-loading-card {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.app-loading-mark {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 217, 139, 0.35);
+  background: linear-gradient(135deg, rgba(214, 168, 79, 0.34), rgba(119, 101, 255, 0.18));
+  animation: raidLivePulse 1.2s ease-in-out infinite;
+}
+
+.app-loading-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.app-loading-copy strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  color: var(--gold-bright);
+}
+
+.app-loading-copy span {
+  color: var(--muted);
+  font-size: var(--app-text-small);
+}
+
+.app-loading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.app-loading-grid > div {
+  min-height: 140px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--ui-card-radius, 18px);
+  background: linear-gradient(100deg, rgba(255,255,255,0.04), rgba(255,255,255,0.075), rgba(255,255,255,0.035));
+  background-size: 220% 100%;
+  animation: appSkeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes appSkeleton {
+  0% { background-position: 160% 0; }
+  100% { background-position: -60% 0; }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --app-gutter: var(--app-mobile-gutter);
+    --app-card-pad: 13px;
+    --app-touch: 44px;
+    --app-text: 0.91rem;
+    --app-text-small: 0.82rem;
+    --app-title: clamp(1.08rem, 5.6vw, 1.42rem);
+  }
+
+  html {
+    font-size: 15.5px;
+  }
+
+  body {
+    padding-bottom: calc(74px + var(--safe-bottom));
+  }
+
+  .container {
+    width: calc(100% - var(--app-gutter) * 2) !important;
+    padding-top: calc(10px + var(--safe-top));
+    padding-bottom: calc(22px + var(--safe-bottom));
+  }
+
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .dashboard-brand {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .dashboard-nav {
+    display: none !important;
+  }
+
+  .dashboard-user {
+    width: 100%;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed;
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(8px + var(--safe-bottom));
+    z-index: 80;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding: 7px;
+    border: 1px solid rgba(214, 168, 79, 0.26);
+    border-radius: 22px;
+    background: rgba(5, 8, 15, 0.92);
+    box-shadow: 0 18px 45px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(18px);
+  }
+
+  .dashboard-mobile-nav a {
+    min-width: 0;
+    min-height: 52px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    padding: 7px 5px;
+    border-radius: 16px;
+    color: rgba(246, 239, 226, 0.72);
+    font-size: 0.71rem;
+    font-weight: 850;
+    line-height: 1.1;
+  }
+
+  .dashboard-mobile-nav a span {
+    display: block;
+    font-size: 1.04rem;
+    line-height: 1;
+  }
+
+  .dashboard-mobile-nav a strong {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-mobile-nav a.is-active {
+    color: var(--text);
+    background: linear-gradient(135deg, rgba(214,168,79,0.22), rgba(119,101,255,0.15));
+    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.16);
+  }
+
+  .raid-live-sync {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 8px;
+    padding: 9px 10px;
+    font-size: 0.8rem;
+  }
+
+  .raid-preview-buttons,
+  .raid-preview-buttons--interactive {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .raid-action,
+  .raid-preview-buttons--interactive .raid-action {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .app-loading-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-loading-card {
+    min-height: 104px;
+    align-items: center;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --app-mobile-gutter: 12px;
+    --app-card-pad: 12px;
+    --app-text: 0.89rem;
+    --app-text-small: 0.8rem;
+  }
+
+  .dashboard-mobile-nav {
+    left: 8px;
+    right: 8px;
+    padding: 6px;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: 50px;
+    font-size: 0.67rem;
+  }
+}
+
+/* v41: admin-safe mobile nav keeps every allowed section reachable without squeezing. */
+@media (max-width: 760px) {
+  .dashboard-mobile-nav {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 min(76px, 23vw);
+    scroll-snap-align: center;
+  }
+}
+
+.raid-member-roster-note {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(198, 163, 90, 0.2);
+  border-radius: 18px;
+  background: rgba(13, 17, 25, 0.45);
+  color: rgba(245, 231, 203, 0.88);
+}
+
+.raid-member-roster-note strong {
+  color: #f3d48a;
+  font-size: 0.98rem;
+}
+
+.raid-member-roster-note span {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(245, 231, 203, 0.72);
+}
+
+@media (max-width: 760px) {
+  .raid-member-roster-note {
+    margin-top: 0.85rem;
+    padding: 0.85rem;
+    border-radius: 16px;
+  }
+
+  .raid-member-roster-note strong {
+    font-size: 0.95rem;
+  }
+
+  .raid-member-roster-note span {
+    font-size: 0.88rem;
   }
 }
 
@@ -9172,7 +10788,1305 @@ button.btn.danger:hover {
   }
 }
 
-/* Mobile raid/application layout polish. */
+/* v43: mobile bottom navigation should behave like a real bottom panel and never cover final content. */
+@media (max-width: 760px) {
+  :root {
+    --mobile-bottom-nav-height: 76px;
+    --mobile-bottom-nav-gap: 12px;
+    --mobile-bottom-nav-reserved: calc(var(--mobile-bottom-nav-height) + var(--mobile-bottom-nav-gap) + var(--safe-bottom));
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 18px);
+  }
+
+  body {
+    padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 18px) !important;
+  }
+
+  body::after {
+    content: "";
+    display: block;
+    height: calc(var(--mobile-bottom-nav-reserved) + 18px);
+    pointer-events: none;
+  }
+:where(.container, .dashboard-shell, .content-shell, .discord-shell, .raid-shell){
+    padding-bottom: calc(var(--mobile-bottom-nav-reserved) + 22px) !important;
+  }
+
+  .dashboard-topbar {
+    padding-bottom: 10px !important;
+    overflow: visible;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-inline: max(10px, env(safe-area-inset-left, 0px)) max(10px, env(safe-area-inset-right, 0px));
+    top: auto !important;
+    bottom: calc(10px + var(--safe-bottom)) !important;
+    min-height: var(--mobile-bottom-nav-height);
+    max-height: calc(var(--mobile-bottom-nav-height) + 6px);
+    z-index: 220;
+    align-items: stretch;
+    overscroll-behavior-x: contain;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: 58px;
+    min-width: 68px;
+    height: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --mobile-bottom-nav-height: 72px;
+    --mobile-bottom-nav-gap: 10px;
+  }
+
+  .dashboard-mobile-nav {
+    left: 9px !important;
+    right: 9px !important;
+    bottom: calc(8px + var(--safe-bottom)) !important;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: 54px;
+    min-width: 64px;
+  }
+}
+
+/* v44: fixed mobile bottom nav outside topbar, without profile/rules shortcuts. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-height: 66px;
+    --dashboard-mobile-nav-offset: calc(8px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-offset) + 22px);
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 16px) !important;
+  }
+
+  body {
+    padding-bottom: var(--dashboard-mobile-nav-reserve) !important;
+  }
+
+  body::after {
+    display: none !important;
+    content: none !important;
+  }
+:where(.container, .dashboard-shell, .content-shell, .discord-shell, .raid-shell, .content-page-stack){
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 16px) !important;
+  }
+
+  .dashboard-topbar {
+    overflow: visible !important;
+    padding-bottom: 10px !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-block-start: auto !important;
+    top: auto !important;
+    bottom: var(--dashboard-mobile-nav-offset) !important;
+    left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    right: max(10px, env(safe-area-inset-right, 0px)) !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: calc(var(--dashboard-mobile-nav-height) + 4px) !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    padding: 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid rgba(214, 168, 79, 0.28) !important;
+    border-radius: 22px !important;
+    background: rgba(5, 8, 15, 0.94) !important;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(18px);
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-mobile-nav:empty {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 clamp(76px, 24vw, 98px) !important;
+    min-width: 76px !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 3px !important;
+    padding: 6px 8px !important;
+    border-radius: 16px !important;
+    line-height: 1.05 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --dashboard-mobile-nav-height: 62px;
+    --dashboard-mobile-nav-offset: calc(7px + var(--safe-bottom));
+  }
+
+  .dashboard-mobile-nav {
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-offset) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex-basis: clamp(70px, 25vw, 88px) !important;
+    min-width: 70px !important;
+    min-height: 50px !important;
+    height: 50px !important;
+  }
+}
+
+/* v45: final fixed bottom mobile nav with compact dynamic safe area. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-height: 58px;
+    --dashboard-mobile-nav-bottom-offset: calc(6px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 8px);
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 8px) !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  body::after {
+    display: none !important;
+    content: none !important;
+    height: 0 !important;
+  }
+
+  .container {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 8px) !important;
+  }
+:where(.dashboard-shell, .content-shell, .discord-shell, .raid-shell, .content-page-stack){
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    inset-block-start: auto !important;
+    top: auto !important;
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 3), minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: 5px !important;
+    padding: 5px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(214, 168, 79, 0.3) !important;
+    border-radius: 20px !important;
+    background: rgba(5, 8, 15, 0.95) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(18px);
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  .dashboard-mobile-nav a {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: initial !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    gap: 2px !important;
+    padding: 5px 3px !important;
+    border-radius: 15px !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.98rem !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: clamp(0.58rem, 2.15vw, 0.69rem) !important;
+    letter-spacing: -0.015em !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --dashboard-mobile-nav-height: 56px;
+    --dashboard-mobile-nav-bottom-offset: calc(5px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 7px);
+  }
+
+  .dashboard-mobile-nav {
+    left: max(7px, env(safe-area-inset-left, 0px)) !important;
+    right: max(7px, env(safe-area-inset-right, 0px)) !important;
+    gap: 4px !important;
+    padding: 5px !important;
+    border-radius: 18px !important;
+  }
+
+  .dashboard-mobile-nav a {
+    padding-inline: 2px !important;
+    border-radius: 14px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.9rem !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.54rem, 2.35vw, 0.64rem) !important;
+  }
+}
+
+/* v46: resilient dynamic fixed mobile nav — viewport bound, no clipping, adaptive item sizing. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-edge: clamp(7px, 2.4vw, 12px);
+    --dashboard-mobile-nav-gap: clamp(3px, 1.2vw, 6px);
+    --dashboard-mobile-nav-pad: clamp(4px, 1.4vw, 7px);
+    --dashboard-mobile-nav-height: clamp(54px, 13.5vw, 64px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(6px, 1.8vw, 10px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + clamp(10px, 2.6vw, 16px));
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 10px) !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+    overflow-x: hidden;
+  }
+
+  .container {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 10px) !important;
+  }
+:where(.dashboard-shell, .content-shell, .discord-shell, .raid-shell, .content-page-stack){
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    min-width: 0 !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    top: auto !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    left: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
+    right: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
+    z-index: 99999 !important;
+    box-sizing: border-box !important;
+    width: auto !important;
+    max-width: calc(100svw - (var(--dashboard-mobile-nav-edge) * 2)) !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 3), minmax(0, 1fr)) !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: var(--dashboard-mobile-nav-pad) !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(214, 168, 79, 0.32) !important;
+    border-radius: clamp(17px, 5vw, 22px) !important;
+    background: rgba(5, 8, 15, 0.96) !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transform: translate3d(0, 0, 0);
+    isolation: isolate;
+    contain: layout paint;
+  }
+
+  .dashboard-mobile-nav:empty {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    place-items: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    gap: clamp(1px, 0.65vw, 3px) !important;
+    padding: clamp(4px, 1.25vw, 7px) clamp(1px, 0.9vw, 4px) !important;
+    overflow: hidden !important;
+    border-radius: clamp(13px, 4vw, 17px) !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    touch-action: manipulation;
+  }
+
+  .dashboard-mobile-nav a span {
+    display: block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    font-size: clamp(0.8rem, 4.15vw, 1.02rem) !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    font-size: clamp(0.54rem, 2.28vw, 0.7rem) !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.05 !important;
+  }
+
+  .dashboard-mobile-nav[data-items="4"] a strong {
+    font-size: clamp(0.52rem, 2.08vw, 0.66rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] {
+    --dashboard-mobile-nav-gap: clamp(2px, 0.9vw, 4px);
+    --dashboard-mobile-nav-pad: clamp(4px, 1.1vw, 6px);
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a {
+    padding-inline: 1px !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a span {
+    font-size: clamp(0.76rem, 3.5vw, 0.94rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.49rem, 1.92vw, 0.6rem) !important;
+    letter-spacing: -0.035em !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --dashboard-mobile-nav-edge: 6px;
+    --dashboard-mobile-nav-gap: 2px;
+    --dashboard-mobile-nav-pad: 4px;
+    --dashboard-mobile-nav-height: 52px;
+    --dashboard-mobile-nav-bottom-offset: calc(5px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 8px);
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.78rem !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.5rem !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.46rem !important;
+  }
+}
+
+/* v47: mobile raid list logo/card polish and larger adaptive bottom nav. */
+@media (max-width: 760px) {
+  .raid-manager-list .raid-list-item {
+    gap: clamp(12px, 3.2vw, 16px) !important;
+    padding: clamp(12px, 3.5vw, 16px) !important;
+    overflow: hidden !important;
+  }
+
+  .raid-manager-list .raid-list-main-link {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: flex-start !important;
+    gap: clamp(9px, 2.8vw, 13px) !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+.raid-manager-list .raid-list-main-link > img,
+.raid-manager-list .raid-list-fallback{
+    width: clamp(98px, 29vw, 124px) !important;
+    height: clamp(98px, 29vw, 124px) !important;
+    margin: 0 auto !important;
+    border-radius: 18px !important;
+    justify-self: center !important;
+    align-self: center !important;
+    object-fit: cover !important;
+  }
+
+  .raid-manager-list .raid-list-copy,
+  .raid-list-copy {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: grid !important;
+    gap: clamp(7px, 2vw, 10px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .raid-list-title-row {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: center !important;
+    gap: 7px !important;
+    text-align: center !important;
+  }
+
+  .raid-list-title-row strong {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    text-align: center !important;
+    font-size: clamp(1rem, 4.4vw, 1.18rem) !important;
+    line-height: 1.16 !important;
+  }
+
+  .raid-list-title-row .raid-state {
+    justify-self: center !important;
+    align-self: center !important;
+    min-width: min(100%, 138px) !important;
+    text-align: center !important;
+  }
+
+  .raid-list-facts {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 5px !important;
+    padding: 0 !important;
+  }
+
+  .raid-list-facts small {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    line-height: 1.28 !important;
+    font-size: clamp(0.82rem, 3.35vw, 0.94rem) !important;
+  }
+
+  .raid-list-progress {
+    width: 100% !important;
+    height: clamp(8px, 2.35vw, 10px) !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(214, 168, 79, 0.26) !important;
+    background: rgba(4, 8, 15, 0.62) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.42) !important;
+  }
+
+  .raid-list-progress span {
+    min-width: 5px !important;
+    height: 100% !important;
+    display: block !important;
+    border-radius: inherit !important;
+    background: linear-gradient(90deg, rgba(72, 210, 128, 0.96), rgba(214, 168, 79, 0.96)) !important;
+    box-shadow: 0 0 12px rgba(72, 210, 128, 0.24) !important;
+  }
+
+  .raid-manager-list .raid-list-actions {
+    margin-top: 2px !important;
+  }
+
+  :root {
+    --dashboard-mobile-nav-edge: clamp(8px, 2.6vw, 13px);
+    --dashboard-mobile-nav-gap: clamp(4px, 1.35vw, 7px);
+    --dashboard-mobile-nav-pad: clamp(6px, 1.65vw, 8px);
+    --dashboard-mobile-nav-height: clamp(64px, 16vw, 74px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(6px, 1.8vw, 10px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + clamp(10px, 2.4vw, 16px));
+  }
+
+  .dashboard-mobile-nav {
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    padding: var(--dashboard-mobile-nav-pad) !important;
+    border-radius: clamp(19px, 5vw, 24px) !important;
+  }
+
+  .dashboard-mobile-nav a {
+    gap: clamp(2px, 0.85vw, 4px) !important;
+    padding: clamp(6px, 1.55vw, 8px) clamp(2px, 1vw, 5px) !important;
+    border-radius: clamp(15px, 4.2vw, 19px) !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(0.98rem, 4.7vw, 1.18rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.64rem, 2.65vw, 0.78rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.018em !important;
+  }
+
+  .dashboard-mobile-nav[data-items="4"] a strong {
+    font-size: clamp(0.6rem, 2.35vw, 0.73rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a span {
+    font-size: clamp(0.9rem, 4.05vw, 1.08rem) !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.54rem, 2.12vw, 0.66rem) !important;
+    letter-spacing: -0.035em !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --dashboard-mobile-nav-edge: 6px;
+    --dashboard-mobile-nav-gap: 3px;
+    --dashboard-mobile-nav-pad: 5px;
+    --dashboard-mobile-nav-height: 60px;
+    --dashboard-mobile-nav-bottom-offset: calc(5px + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 8px);
+  }
+.raid-manager-list .raid-list-main-link > img,
+.raid-manager-list .raid-list-fallback{
+    width: 94px !important;
+    height: 94px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 0.92rem !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.59rem !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.52rem !important;
+  }
+}
+
+/* v50: final responsive UX stabilization: mobile nav, cards, text flow, raid list. */
+:root {
+  --ui-radius-card: 22px;
+  --ui-radius-control: 14px;
+  --ui-touch-min: 42px;
+  --ui-page-x: clamp(18px, 3vw, 32px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+:where(.btn, .button, .action-button, .dashboard-action, button) {
+  min-height: var(--ui-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-align: center;
+  line-height: 1.15;
+}
+
+:where(.btn, .button, .action-button, .dashboard-action, button) > :where(svg, img, span) {
+  flex: 0 0 auto;
+}
+
+:where(input, select, textarea) {
+  max-width: 100%;
+}
+
+@media (min-width: 761px) {
+  .dashboard-topbar {
+    gap: clamp(14px, 1.6vw, 24px) !important;
+  }
+
+  .dashboard-nav {
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+    row-gap: 8px !important;
+  }
+
+  .dashboard-user {
+    min-width: 0 !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+    max-width: min(360px, 32vw) !important;
+  }
+
+  .dashboard-user__profile-link div:last-child,
+  .dashboard-user__profile-link strong,
+  .dashboard-user__profile-link span {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --mobile-edge: clamp(14px, 4vw, 20px);
+    --mobile-card-pad: clamp(14px, 4vw, 19px);
+    --mobile-card-radius: clamp(17px, 4.8vw, 23px);
+    --mobile-nav-edge: clamp(8px, 2.6vw, 12px);
+    --mobile-nav-bottom: calc(clamp(7px, 2vw, 10px) + env(safe-area-inset-bottom, 0px));
+    --mobile-nav-height: clamp(68px, 16.5vw, 82px);
+    --mobile-page-bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + clamp(12px, 3vw, 20px));
+    --ui-touch-min: 44px;
+  }
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    scroll-padding-bottom: var(--mobile-page-bottom) !important;
+  }
+
+  body {
+    padding-bottom: var(--mobile-page-bottom) !important;
+    font-size: clamp(0.95rem, 3.55vw, 1rem) !important;
+    line-height: 1.5 !important;
+  }
+
+  :where(h1) {
+    font-size: clamp(1.58rem, 7vw, 2.05rem) !important;
+    line-height: 1.04 !important;
+  }
+
+  :where(h2) {
+    font-size: clamp(1.25rem, 5.6vw, 1.58rem) !important;
+    line-height: 1.08 !important;
+  }
+
+  :where(h3) {
+    font-size: clamp(1.05rem, 4.6vw, 1.28rem) !important;
+    line-height: 1.12 !important;
+  }
+
+  :where(input, select, textarea) {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+
+  :where(.btn, .button, .action-button, .dashboard-action, button, .raid-action) {
+    min-height: 44px !important;
+    max-width: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .dashboard-topbar {
+    position: relative !important;
+    z-index: 20 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 12px !important;
+    padding: clamp(12px, 3.5vw, 16px) var(--mobile-edge) !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-brand,
+  .dashboard-user,
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-brand span,
+  .dashboard-user strong,
+  .dashboard-user span {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    left: max(var(--mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
+    right: max(var(--mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--mobile-nav-bottom) !important;
+    z-index: 9999 !important;
+
+    width: auto !important;
+    max-width: calc(100vw - (var(--mobile-nav-edge) * 2)) !important;
+    min-width: 0 !important;
+    height: var(--mobile-nav-height) !important;
+    min-height: var(--mobile-nav-height) !important;
+    max-height: none !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 1), minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: clamp(4px, 1.25vw, 7px) !important;
+
+    padding: clamp(6px, 1.7vw, 9px) !important;
+    border-radius: clamp(19px, 5.6vw, 26px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: linear-gradient(180deg, rgba(18, 21, 29, 0.96), rgba(8, 10, 16, 0.96)) !important;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.54), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) saturate(1.12) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.12) !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+  }
+
+  .dashboard-mobile-nav:empty {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    place-items: center !important;
+    align-content: center !important;
+    justify-content: center !important;
+    gap: clamp(3px, 0.9vw, 5px) !important;
+    padding: clamp(5px, 1.3vw, 8px) clamp(2px, 0.9vw, 5px) !important;
+    border-radius: clamp(14px, 4vw, 19px) !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.05 !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: clamp(1.05rem, 5.1vw, 1.3rem) !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: clamp(0.66rem, 2.65vw, 0.8rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.02em !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.58rem, 2.22vw, 0.7rem) !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a span {
+    font-size: clamp(0.98rem, 4.5vw, 1.18rem) !important;
+  }
+
+  .raid-manager-list .raid-list-item {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: clamp(12px, 3.2vw, 16px) !important;
+    padding: clamp(14px, 4vw, 18px) !important;
+  }
+
+  .raid-manager-list .raid-list-main-link {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    gap: clamp(10px, 3vw, 14px) !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+.raid-manager-list .raid-list-main-link > img,
+.raid-manager-list .raid-list-fallback{
+    order: -2 !important;
+    width: clamp(112px, 33vw, 150px) !important;
+    height: clamp(112px, 33vw, 150px) !important;
+    margin: 0 auto !important;
+    justify-self: center !important;
+    object-fit: cover !important;
+    border-radius: clamp(17px, 5vw, 22px) !important;
+  }
+
+  .raid-manager-list .raid-list-copy,
+  .raid-list-copy {
+    order: -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    gap: clamp(7px, 2vw, 10px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .raid-list-title-row {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    gap: 7px !important;
+    text-align: center !important;
+  }
+
+  .raid-list-title-row strong {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: clamp(1.07rem, 4.8vw, 1.26rem) !important;
+    line-height: 1.13 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    text-align: center !important;
+  }
+
+  .raid-list-facts {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+    padding: 0 !important;
+  }
+
+  .raid-list-facts small,
+  .raid-list-facts span,
+  .raid-list-facts strong {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  .raid-list-progress {
+    width: 100% !important;
+    height: clamp(10px, 2.8vw, 12px) !important;
+    margin-top: 3px !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    background: rgba(4, 8, 15, 0.66) !important;
+    border: 1px solid rgba(214, 168, 79, 0.28) !important;
+  }
+
+  .raid-list-progress span {
+    display: block !important;
+    height: 100% !important;
+    min-width: 6px !important;
+    border-radius: inherit !important;
+  }
+
+  .raid-preview-buttons .raid-action,
+  .raid-form-actions .btn,
+  .raid-list-actions .btn,
+  .raid-list-actions button {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --mobile-edge: 12px;
+    --mobile-nav-edge: 6px;
+    --mobile-nav-height: 72px;
+  }
+
+  .dashboard-mobile-nav {
+    gap: 3px !important;
+    padding: 6px !important;
+  }
+
+  .dashboard-mobile-nav a {
+    padding-inline: 2px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: 1rem !important;
+  }
+
+  .dashboard-mobile-nav a strong,
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.56rem !important;
+    letter-spacing: -0.045em !important;
+  }
+.raid-manager-list .raid-list-main-link > img,
+.raid-manager-list .raid-list-fallback{
+    width: 108px !important;
+    height: 108px !important;
+  }
+}
+
+/* v60: final dashboard layout standardization for consistent page widths and mobile UX. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(18px, 3vw, 32px);
+  --dash-section-gap: clamp(14px, 2vw, 22px);
+  --dash-card-pad: clamp(16px, 1.2rem + 0.45vw, 24px);
+  --dash-card-radius: clamp(18px, 1.6vw, 28px);
+}
+
+.container {
+  width: min(calc(100% - (var(--dash-page-gutter) * 2)), var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+}
+
+.dashboard-topbar {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+}
+
+@media (min-width: 761px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(230px, 1fr) auto minmax(250px, auto) !important;
+    align-items: center !important;
+    gap: clamp(10px, 1vw, 16px) !important;
+    padding: clamp(10px, 1vw, 14px) !important;
+  }
+
+  .dashboard-nav {
+    max-width: min(52vw, 720px) !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+
+  .dashboard-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .dashboard-nav a {
+    white-space: nowrap !important;
+  }
+
+  .dashboard-user {
+    min-width: 0 !important;
+    max-width: min(34vw, 390px) !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+  }
+
+  .dashboard-user__profile-link > div:last-child {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(14px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.4vw, 16px);
+    --dash-card-pad: clamp(14px, 4vw, 18px);
+    --dash-card-radius: clamp(18px, 5vw, 22px);
+    --dash-mobile-nav-height: clamp(72px, 17vw, 84px);
+    --dash-mobile-nav-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    --dash-mobile-nav-reserve: calc(var(--dash-mobile-nav-height) + var(--dash-mobile-nav-bottom) + 18px);
+  }
+
+  html {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    scroll-padding-bottom: calc(var(--dash-mobile-nav-reserve) + 14px) !important;
+  }
+
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    padding-bottom: var(--dash-mobile-nav-reserve) !important;
+  }
+
+  body::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    padding-top: calc(clamp(12px, 3.4vw, 18px) + var(--safe-top)) !important;
+    padding-bottom: calc(var(--dash-mobile-nav-reserve) + 16px) !important;
+    margin-inline: auto !important;
+  }
+
+  .dashboard-topbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: clamp(12px, 3.4vw, 16px) !important;
+    border-radius: var(--dash-card-radius) !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-brand {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .dashboard-brand > div,
+  .dashboard-user__profile-link > div:last-child {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-brand span,
+  .dashboard-user strong,
+  .dashboard-user span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-nav {
+    display: none !important;
+  }
+
+  .dashboard-user {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+  }
+
+  :where(h1, h2, h3, p, span, strong, small, label, a, button) {
+    max-width: 100% !important;
+  }
+
+  :where(button, .btn, .button, .action-button, .dashboard-action, .raid-action, input, select, textarea) {
+    max-width: 100% !important;
+  }
+
+  .dashboard-mobile-nav {
+    position: fixed !important;
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dash-mobile-nav-bottom) !important;
+    top: auto !important;
+    z-index: 9999 !important;
+    width: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    min-width: 0 !important;
+    height: var(--dash-mobile-nav-height) !important;
+    min-height: var(--dash-mobile-nav-height) !important;
+    max-height: var(--dash-mobile-nav-height) !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--dashboard-mobile-nav-items, 1), minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    gap: clamp(4px, 1.5vw, 8px) !important;
+    padding: clamp(7px, 2vw, 10px) !important;
+    border-radius: clamp(20px, 6vw, 26px) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav a {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 3px !important;
+    padding: clamp(5px, 1.5vw, 8px) 2px !important;
+    border-radius: clamp(14px, 4vw, 18px) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(1rem, 4.4vw, 1.22rem) !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: clamp(0.62rem, 2.45vw, 0.76rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.03em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+  }
+
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: clamp(0.57rem, 2.18vw, 0.68rem) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 12px;
+    --dash-mobile-nav-height: 70px;
+  }
+
+  .dashboard-mobile-nav {
+    left: 6px !important;
+    right: 6px !important;
+    max-width: calc(100vw - 12px) !important;
+    gap: 3px !important;
+    padding: 6px !important;
+  }
+
+  .dashboard-mobile-nav a strong,
+  .dashboard-mobile-nav[data-items="5"] a strong {
+    font-size: 0.54rem !important;
+    letter-spacing: -0.045em !important;
+  }
+}
+
+/* v61: mobile page stack spacing standardization.
+   Keeps bottom spacing of dashboard/content shells and top spacing of following blocks identical across pages. */
+:root {
+  --dash-page-stack-gap: var(--dash-section-gap, clamp(14px, 2vw, 22px));
+}
+
+main.container {
+  display: grid !important;
+  align-content: start !important;
+  gap: var(--dash-page-stack-gap) !important;
+}
+
+main.container > * {
+  margin-block: 0 !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-stack-gap: clamp(12px, 3.4vw, 16px);
+    --dash-section-gap: var(--dash-page-stack-gap);
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: var(--dash-page-stack-gap) !important;
+    padding-inline: var(--dash-page-gutter, var(--mobile-edge, clamp(14px, 4vw, 18px))) !important;
+  }
+}
+
+/* v52: mobile raid/application layout polish. */
 @media (max-width: 760px) {
   .raid-roster-member {
     display: grid !important;
@@ -9386,7 +12300,7 @@ button.btn.danger:hover {
 }
 
 
-/* Raid mobile list title: clean stack, centered status, full-width title. */
+/* Raid mobile list title v33: clean mobile stack, centered status, full-width title. */
 @media (max-width: 760px) {
   .raid-list-item,
   .raid-manager-list .raid-list-item {
@@ -10771,7 +13685,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Guild roster: compact mobile stats and clear spacing above bottom nav. */
+/* v62: compact guild roster mobile stats — prevents oversized stat cards and keeps content clear above bottom nav. */
 @media (max-width: 760px) {
   main.container.guild-page {
     padding-inline: var(--dash-page-gutter, clamp(14px, 4vw, 18px)) !important;
@@ -10911,6 +13825,37 @@ button.btn.danger:hover {
 
   .guild-page .guild-stat-legend__item {
     padding: 8px !important;
+  }
+}
+
+/* v63: dynamic mobile bottom safe area based on the real fixed nav size. */
+@media (max-width: 760px) {
+  :root {
+    --dash-mobile-nav-actual-height: var(--dash-mobile-nav-height, 72px);
+    --dash-mobile-nav-actual-bottom: var(--dash-mobile-nav-bottom, max(8px, env(safe-area-inset-bottom, 0px)));
+    --dash-mobile-nav-clearance: clamp(12px, 3vw, 20px);
+    --dash-mobile-nav-dynamic-reserve: calc(
+      var(--dash-mobile-nav-actual-height) +
+      var(--dash-mobile-nav-actual-bottom) +
+      var(--dash-mobile-nav-clearance)
+    );
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dash-mobile-nav-dynamic-reserve) + 8px) !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  .container,
+  main.container {
+    padding-bottom: var(--dash-mobile-nav-dynamic-reserve) !important;
+  }
+:where(.dashboard-shell, .content-shell, .discord-shell, .raid-shell, .content-page-stack, .raid-page, .applications-page){
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
   }
 }
 
@@ -11259,6 +14204,1304 @@ button.btn.danger:hover {
   .access-form-actions .btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* v63: smaller global gutters, access groups polish, and unified action feedback. */
+:root {
+  --dash-page-gutter: clamp(12px, 2vw, 24px);
+  --dash-section-gap: clamp(12px, 1.6vw, 18px);
+  --dash-card-pad: clamp(14px, 1rem + 0.35vw, 20px);
+}
+
+.container {
+  width: min(calc(100% - (var(--dash-page-gutter) * 2)), var(--dash-page-max, 1280px)) !important;
+}
+
+main.container {
+  gap: var(--dash-section-gap) !important;
+}
+
+.access-groups-page {
+  --access-panel-gap: var(--dash-section-gap, 14px);
+}
+
+.access-groups-hero {
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-groups-list,
+.access-group-card {
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-group-tab.btn {
+  min-height: 0 !important;
+  padding: 10px 11px !important;
+  transition: transform 150ms ease, filter 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease !important;
+}
+
+.access-group-tab.btn:active,
+.access-groups-page .btn:active,
+.global-toast__action:active {
+  transform: translateY(0) scale(0.985) !important;
+}
+
+.access-group-tab strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.access-group-tab__icon,
+.access-group-title-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.75em;
+  height: 1.75em;
+  border: 1px solid rgba(214, 168, 79, 0.24);
+  border-radius: 0.72em;
+  background: rgba(214, 168, 79, 0.10);
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+.access-group-card__head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px !important;
+}
+
+.access-group-title-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+}
+
+.access-form-grid label > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.access-form-grid label > span em {
+  color: var(--muted);
+  font-size: var(--text-caption, .76rem);
+  font-style: normal;
+  font-weight: 750;
+}
+
+.access-form-grid .input,
+.access-form-grid .select {
+  min-height: 2.6rem !important;
+  border-radius: 13px !important;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease !important;
+}
+
+.access-form-grid .input:focus,
+.access-form-grid .select:focus {
+  border-color: rgba(255, 217, 139, 0.56) !important;
+  box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+.access-groups-page form.is-submitting .access-form-grid,
+.access-groups-page form.is-submitting .permissions-grid {
+  opacity: 0.78;
+}
+
+.access-groups-page .btn[aria-busy="true"],
+.access-groups-page .btn-working {
+  box-shadow: 0 14px 34px rgba(214,168,79,0.16), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.global-toast-stack--persistent {
+  pointer-events: none;
+}
+
+.global-toast--persistent {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  border-color: rgba(250, 204, 21, 0.48);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.16), transparent 55%),
+    rgba(24, 20, 10, 0.96);
+}
+
+.global-toast--persistent form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: max-content;
+}
+
+.global-toast__action.btn {
+  min-height: 2.25rem;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(10px, 3vw, 14px);
+    --dash-section-gap: clamp(10px, 3vw, 14px);
+    --dash-card-pad: clamp(12px, 3.4vw, 16px);
+  }
+
+  .container,
+  main.container {
+    padding-inline: var(--dash-page-gutter) !important;
+  }
+
+  .access-groups-layout {
+    gap: var(--dash-section-gap) !important;
+  }
+
+  .access-group-card__head h2 {
+    align-items: flex-start;
+  }
+
+  .global-toast--persistent {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .global-toast--persistent form {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .global-toast__action.btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 9px;
+  }
+}
+
+.global-toast-stack--persistent {
+  bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 84px)) !important;
+}
+
+@media (max-width: 760px) {
+  .global-toast-stack--persistent {
+    bottom: max(132px, calc(env(safe-area-inset-bottom, 0px) + 132px)) !important;
+  }
+}
+
+/* v64: keep /admin/groups on the same container/section skeleton as other dashboard pages and normalize edge gutters. */
+:root {
+  --dash-page-gutter: clamp(10px, 1.55vw, 20px);
+  --dash-section-gap: clamp(12px, 1.6vw, 18px);
+  --dash-card-pad: clamp(14px, 1rem + 0.35vw, 20px);
+}
+
+.container {
+  box-sizing: border-box !important;
+  width: min(100%, var(--dash-page-max, 1280px)) !important;
+  max-width: var(--dash-page-max, 1280px) !important;
+  padding-inline: var(--dash-page-gutter) !important;
+}
+
+.access-groups-container {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  row-gap: var(--dash-section-gap) !important;
+}
+
+.access-groups-container > .access-groups-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.access-groups-page {
+  --access-panel-gap: var(--dash-section-gap);
+}
+
+.access-groups-hero > div {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(12px, 3.6vw, 16px);
+    --dash-section-gap: clamp(11px, 3.2vw, 15px);
+    --dash-card-pad: clamp(12px, 3.4vw, 16px);
+  }
+
+  .container,
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 12px;
+  }
+}
+
+/* v65: shared dashboard page skeleton and final gutter normalization. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(8px, 1.25vw, 18px);
+  --dash-section-gap: clamp(12px, 1.55vw, 18px);
+  --dash-card-pad: clamp(14px, 0.95rem + 0.32vw, 20px);
+}
+
+main.container {
+  width: min(100%, var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+  padding-inline: var(--dash-page-gutter) !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: var(--dash-section-gap) !important;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(14px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.2vw, 16px);
+    --dash-card-pad: clamp(13px, 3.7vw, 17px);
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    gap: var(--dash-section-gap) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  :root {
+    --dash-page-gutter: 13px;
+  }
+}
+
+/* v50: navigation overflow fix — keep desktop nav in one row and make mobile bottom nav usable with many items. */
+.dashboard-topbar {
+  grid-template-columns: minmax(190px, 0.82fr) minmax(280px, 1.4fr) minmax(220px, auto) !important;
+  min-width: 0 !important;
+}
+
+.dashboard-brand,
+.dashboard-user {
+  min-width: 0 !important;
+}
+
+.dashboard-nav {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+}
+
+.dashboard-nav::-webkit-scrollbar {
+  display: none !important;
+}
+
+.dashboard-nav a {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1101px) {
+  .dashboard-nav[data-items="7"] a {
+    padding-inline: 12px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) !important;
+  }
+
+  .dashboard-nav {
+    order: 3;
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-user {
+    justify-self: end;
+    max-width: min(100%, 420px);
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-nav {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav {
+    --dashboard-mobile-nav-height: clamp(64px, 15vw, 72px);
+    --dashboard-mobile-nav-edge: clamp(10px, 3.2vw, 14px);
+    --dashboard-mobile-nav-gap: 7px;
+    --dashboard-mobile-nav-pad: 7px;
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(7px, 2vw, 11px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 14px);
+    left: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
+    right: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    padding: var(--dashboard-mobile-nav-pad) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none !important;
+    border-radius: 22px !important;
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 clamp(76px, 22vw, 96px) !important;
+    width: clamp(76px, 22vw, 96px) !important;
+    min-width: clamp(76px, 22vw, 96px) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    scroll-snap-align: start;
+    padding: 7px 6px !important;
+    gap: 4px !important;
+    border-radius: 16px !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(1rem, 4.4vw, 1.16rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.67rem, 2.55vw, 0.78rem) !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  .container {
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve) + 12px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .dashboard-mobile-nav {
+    --dashboard-mobile-nav-height: 62px;
+    --dashboard-mobile-nav-gap: 6px;
+    --dashboard-mobile-nav-pad: 6px;
+  }
+
+  .dashboard-mobile-nav a {
+    flex-basis: 74px !important;
+    width: 74px !important;
+    min-width: 74px !important;
+  }
+}
+
+/* v55: professional desktop navigation — no desktop horizontal scroll, overflow goes into a native "more" menu. */
+@media (min-width: 761px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(168px, 0.72fr) minmax(0, 1fr) minmax(210px, auto) !important;
+    align-items: center !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-brand,
+  .dashboard-user,
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+  }
+
+  .dashboard-brand > div,
+  .dashboard-user__profile-link > div:not(.dashboard-user__avatar-wrap) {
+    min-width: 0 !important;
+  }
+
+  .dashboard-brand strong,
+  .dashboard-brand span,
+  .dashboard-user__profile-link strong,
+  .dashboard-user__profile-link span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-nav {
+    position: relative !important;
+    order: initial !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    overflow: visible !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    scroll-snap-type: none !important;
+  }
+
+  .dashboard-nav > a,
+  .dashboard-nav-more > summary {
+    min-height: 40px !important;
+    flex: 0 1 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-nav-more {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    z-index: 35 !important;
+  }
+
+  .dashboard-nav-more > summary {
+    gap: 7px !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(214, 168, 79, 0.18) !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: rgba(245, 231, 203, 0.78) !important;
+    font-weight: 850 !important;
+    font-size: 0.92rem !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    list-style: none !important;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease !important;
+    user-select: none !important;
+  }
+
+  .dashboard-nav-more > summary::-webkit-details-marker {
+    display: none !important;
+  }
+
+  .dashboard-nav-more > summary::after {
+    content: "⌄";
+    font-size: 0.78rem;
+    line-height: 1;
+    opacity: 0.78;
+    transform: translateY(-1px);
+  }
+
+  .dashboard-nav-more[open] > summary::after {
+    transform: rotate(180deg) translateY(1px);
+  }
+
+  .dashboard-nav-more > summary:hover,
+  .dashboard-nav-more[open] > summary,
+  .dashboard-nav-more > summary.is-active {
+    color: var(--text) !important;
+    border-color: rgba(255, 217, 139, 0.34) !important;
+    background: linear-gradient(135deg, rgba(214, 168, 79, 0.18), rgba(119, 101, 255, 0.12)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.1) !important;
+  }
+
+  .dashboard-nav-more__menu {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    min-width: 210px !important;
+    display: grid !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    border: 1px solid rgba(214, 168, 79, 0.24) !important;
+    border-radius: 18px !important;
+    background: rgba(7, 11, 19, 0.96) !important;
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    backdrop-filter: blur(18px) !important;
+  }
+
+  .dashboard-nav-more__menu::before {
+    content: "";
+    position: absolute;
+    inset: -10px 0 auto 0;
+    height: 10px;
+  }
+
+  .dashboard-nav-more__menu a {
+    min-height: 42px !important;
+    display: grid !important;
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 10px 11px !important;
+    border-radius: 13px !important;
+    color: rgba(245, 231, 203, 0.78) !important;
+    font-weight: 850 !important;
+    text-decoration: none !important;
+  }
+
+  .dashboard-nav-more__menu a span {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.055) !important;
+  }
+
+  .dashboard-nav-more__menu a strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 0.92rem !important;
+  }
+
+  .dashboard-nav-more__menu a:hover,
+  .dashboard-nav-more__menu a.is-active {
+    color: var(--text) !important;
+    background: linear-gradient(135deg, rgba(214, 168, 79, 0.18), rgba(119, 101, 255, 0.12)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.13) !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(150px, 0.58fr) minmax(0, 1fr) minmax(190px, auto) !important;
+  }
+
+  .dashboard-nav {
+    order: initial !important;
+    grid-column: auto !important;
+  }
+
+  .dashboard-user {
+    justify-self: end !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-nav > a,
+  .dashboard-nav-more > summary {
+    padding-inline: 10px !important;
+    font-size: 0.86rem !important;
+  }
+}
+
+/* v48: professional mobile bottom navigation with scrollable chips, opaque shell and edge continuation hints. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-edge: clamp(8px, 2.8vw, 14px);
+    --dashboard-mobile-nav-shell-pad: clamp(5px, 1.5vw, 7px);
+    --dashboard-mobile-nav-gap: clamp(6px, 1.8vw, 9px);
+    --dashboard-mobile-nav-item-width: clamp(74px, 23vw, 92px);
+    --dashboard-mobile-nav-height: clamp(62px, 15.2vw, 70px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(8px, 2.1vw, 12px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 14px);
+  }
+
+  .dashboard-mobile-nav-shell {
+    position: fixed !important;
+    left: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
+    right: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
+    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
+    z-index: 99999 !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    padding: var(--dashboard-mobile-nav-shell-pad) !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(214, 168, 79, 0.28) !important;
+    border-radius: clamp(18px, 5vw, 22px) !important;
+    background: linear-gradient(180deg, rgba(10, 14, 24, 0.98), rgba(5, 8, 15, 0.99)) !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.44), 0 3px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    isolation: isolate;
+  }
+
+  .dashboard-mobile-nav-shell::before,
+  .dashboard-mobile-nav-shell::after {
+    content: "";
+    position: absolute;
+    top: var(--dashboard-mobile-nav-shell-pad);
+    bottom: var(--dashboard-mobile-nav-shell-pad);
+    width: 24px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+
+  .dashboard-mobile-nav-shell.is-scrollable::before,
+  .dashboard-mobile-nav-shell.is-scrollable::after {
+    opacity: 1;
+  }
+
+  .dashboard-mobile-nav-shell.is-scrollable::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(8, 11, 18, 0.98) 15%, rgba(8, 11, 18, 0.86) 50%, rgba(8, 11, 18, 0));
+  }
+
+  .dashboard-mobile-nav-shell.is-scrollable::after {
+    right: 0;
+    background: linear-gradient(270deg, rgba(8, 11, 18, 0.98) 15%, rgba(8, 11, 18, 0.86) 50%, rgba(8, 11, 18, 0));
+  }
+
+  .dashboard-mobile-nav {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    z-index: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: var(--dashboard-mobile-nav-gap) !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 2px;
+  }
+
+  .dashboard-mobile-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .dashboard-mobile-nav a {
+    flex: 0 0 var(--dashboard-mobile-nav-item-width) !important;
+    width: var(--dashboard-mobile-nav-item-width) !important;
+    min-width: var(--dashboard-mobile-nav-item-width) !important;
+    max-width: var(--dashboard-mobile-nav-item-width) !important;
+    min-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    align-content: center !important;
+    justify-items: center !important;
+    gap: 3px !important;
+    padding: 8px 8px 7px !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    text-decoration: none !important;
+  }
+
+  .dashboard-mobile-nav a:first-child {
+    margin-left: 1px;
+  }
+
+  .dashboard-mobile-nav a:last-child {
+    margin-right: 1px;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(0.9rem, 3.8vw, 1.02rem) !important;
+    line-height: 1 !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: clamp(0.62rem, 2.55vw, 0.72rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  .dashboard-mobile-nav a:hover,
+  .dashboard-mobile-nav a.is-active {
+    color: var(--text) !important;
+    border-color: rgba(214, 168, 79, 0.18) !important;
+    background: linear-gradient(135deg, rgba(214, 168, 79, 0.22), rgba(119, 101, 255, 0.12)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.12), 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --dashboard-mobile-nav-item-width: 72px;
+    --dashboard-mobile-nav-height: 60px;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.6rem !important;
+  }
+}
+
+/* v49: mobile bottom navigation functional overflow states and stable height. */
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-edge: clamp(10px, 3vw, 15px);
+    --dashboard-mobile-nav-shell-pad: clamp(6px, 1.8vw, 8px);
+    --dashboard-mobile-nav-gap: clamp(7px, 2vw, 10px);
+    --dashboard-mobile-nav-item-width: clamp(78px, 24vw, 96px);
+    --dashboard-mobile-nav-height: clamp(70px, 17vw, 78px);
+    --dashboard-mobile-nav-bottom-offset: calc(clamp(8px, 2.2vw, 12px) + var(--safe-bottom));
+    --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 16px);
+  }
+
+  .dashboard-mobile-nav-shell {
+    height: var(--dashboard-mobile-nav-height) !important;
+    min-height: var(--dashboard-mobile-nav-height) !important;
+    max-height: var(--dashboard-mobile-nav-height) !important;
+    padding: var(--dashboard-mobile-nav-shell-pad) !important;
+    overflow: hidden !important;
+  }
+
+  .dashboard-mobile-nav-shell::before,
+  .dashboard-mobile-nav-shell::after {
+    width: clamp(18px, 6vw, 28px) !important;
+    opacity: 0 !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-left::before,
+  .dashboard-mobile-nav-shell.can-scroll-right::after {
+    opacity: 1 !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-left::before {
+    left: 0 !important;
+    background: linear-gradient(90deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
+  }
+
+  .dashboard-mobile-nav-shell.can-scroll-right::after {
+    right: 0 !important;
+    background: linear-gradient(270deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
+  }
+
+  .dashboard-mobile-nav {
+    height: 100% !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-mobile-nav a {
+    min-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    max-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
+    align-content: center !important;
+    padding-block: clamp(8px, 2.2vw, 10px) clamp(7px, 2vw, 9px) !important;
+  }
+
+  .dashboard-mobile-nav a span {
+    font-size: clamp(0.98rem, 4vw, 1.12rem) !important;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: clamp(0.64rem, 2.5vw, 0.74rem) !important;
+    line-height: 1.08 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --dashboard-mobile-nav-height: 66px;
+    --dashboard-mobile-nav-item-width: 76px;
+    --dashboard-mobile-nav-shell-pad: 6px;
+  }
+
+  .dashboard-mobile-nav a strong {
+    font-size: 0.62rem !important;
+  }
+}
+
+/* v57: desktop dashboard nav polish — stable topbar, real dropdown layer, no scroll/overlap. */
+@media (min-width: 761px) {
+main.container,
+main.container > :where(.dashboard-shell, .content-shell, .discord-shell, .raid-shell, .applications-page, .access-groups-page),
+.dashboard-shell,
+.content-shell,
+.discord-shell,
+.raid-shell{
+    overflow: visible !important;
+  }
+
+  .dashboard-topbar {
+    position: relative !important;
+    z-index: 1200 !important;
+    grid-template-columns: minmax(170px, 0.74fr) minmax(360px, 1.15fr) minmax(210px, auto) !important;
+    gap: clamp(10px, 1.2vw, 14px) !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+  }
+
+  .dashboard-brand,
+  .dashboard-user {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .dashboard-nav {
+    position: relative !important;
+    z-index: 20 !important;
+    display: inline-flex !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    justify-self: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 5px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(214, 168, 79, 0.16) !important;
+    border-radius: 18px !important;
+    background: linear-gradient(180deg, rgba(13, 18, 29, 0.94), rgba(7, 11, 19, 0.9)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 24px rgba(0,0,0,0.18) !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
+  .dashboard-nav > a,
+  .dashboard-nav-more > summary {
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    border-radius: 13px !important;
+    line-height: 1 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .dashboard-nav-more {
+    position: relative !important;
+    z-index: 40 !important;
+  }
+
+  .dashboard-nav-more[open] {
+    z-index: 3000 !important;
+  }
+
+  .dashboard-nav-more > summary {
+    min-width: 72px !important;
+    padding-inline: 15px !important;
+    border-radius: 999px !important;
+    outline: none !important;
+  }
+
+  .dashboard-nav-more > summary:focus-visible {
+    box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.22), inset 0 0 0 1px rgba(255, 217, 139, 0.16) !important;
+  }
+
+  .dashboard-nav-more__menu {
+    position: absolute !important;
+    top: calc(100% + 14px) !important;
+    right: 0 !important;
+    z-index: 4000 !important;
+    width: max-content !important;
+    min-width: 236px !important;
+    max-width: min(320px, calc(100vw - 28px)) !important;
+    padding: 9px !important;
+    gap: 7px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(214, 168, 79, 0.28) !important;
+    border-radius: 20px !important;
+    background: linear-gradient(180deg, rgba(13, 18, 29, 0.985), rgba(5, 8, 15, 0.985)) !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 6px 18px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+  }
+
+  .dashboard-nav-more__menu::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -8px !important;
+    right: 22px !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-left: 1px solid rgba(214, 168, 79, 0.24) !important;
+    border-top: 1px solid rgba(214, 168, 79, 0.24) !important;
+    border-radius: 3px 0 0 0 !important;
+    background: rgba(13, 18, 29, 0.985) !important;
+    transform: rotate(45deg) !important;
+  }
+
+  .dashboard-nav-more__menu a {
+    position: relative !important;
+    z-index: 1 !important;
+    min-height: 44px !important;
+    border: 1px solid transparent !important;
+    background: rgba(255,255,255,0.025) !important;
+  }
+
+  .dashboard-nav-more__menu a:hover,
+  .dashboard-nav-more__menu a.is-active {
+    border-color: rgba(214, 168, 79, 0.18) !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1240px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(150px, 0.62fr) minmax(310px, 1fr) minmax(190px, auto) !important;
+  }
+
+  .dashboard-nav > a,
+  .dashboard-nav-more > summary {
+    padding-inline: 11px !important;
+    font-size: 0.86rem !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1040px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) !important;
+  }
+
+  .dashboard-nav {
+    order: 3 !important;
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+  }
+}
+
+.raid-roster-member.is-undergeared {
+  border-color: rgba(255, 190, 88, 0.45);
+  background: rgba(122, 77, 18, 0.16);
+}
+
+.raid-signup-avatar,
+.raid-signup-avatar--empty {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #f1dfbe;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.raid-signup-avatar {
+  object-fit: cover;
+}
+
+.raid-party-row {
+  grid-template-columns: 24px 40px 32px minmax(0, 1fr);
+  align-items: flex-start;
+}
+
+.raid-party-member-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.raid-party-member-copy strong,
+.raid-party-member-copy small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.raid-roster-member {
+  grid-template-columns: 22px 32px minmax(0, 1fr);
+  grid-template-areas:
+    "icon avatar name"
+    "icon avatar meta1"
+    "icon avatar meta2";
+  align-items: center;
+}
+
+.raid-roster-member > span:first-child {
+  grid-area: icon;
+}
+
+.raid-roster-member > .raid-signup-avatar,
+.raid-roster-member > .raid-signup-avatar--empty {
+  grid-area: avatar;
+}
+
+.raid-roster-member > strong {
+  grid-area: name;
+  min-width: 0;
+}
+
+.raid-roster-member > small:nth-of-type(1) {
+  grid-area: meta1;
+}
+
+.raid-roster-member > small:nth-of-type(2) {
+  grid-area: meta2;
+}
+
+@media (max-width: 760px) {
+  .raid-party-row {
+    grid-template-columns: 24px 40px 30px minmax(0, 1fr) !important;
+  }
+
+  .raid-signup-avatar,
+  .raid-signup-avatar--empty {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 9px;
+  }
+
+  .raid-roster-member {
+    grid-template-columns: 24px 30px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "icon avatar name"
+      "icon avatar meta1"
+      "icon avatar meta2" !important;
+    row-gap: 2px !important;
+  }
+
+  .raid-roster-member > span:first-child {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    grid-area: icon !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    height: 24px !important;
+  }
+
+  .raid-roster-member > strong {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    grid-area: name !important;
+  }
+
+  .raid-roster-member > small:nth-of-type(1) {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    grid-area: meta1 !important;
+  }
+
+  .raid-roster-member > small:nth-of-type(2) {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    grid-area: meta2 !important;
+  }
+}
+
+
+/* vNext: global layout/access polish pass — final override layer.
+   Keeps spacing predictable, prevents cards from merging, and makes access groups readable. */
+:root {
+  --dash-page-max: 1280px;
+  --dash-page-gutter: clamp(18px, 3vw, 34px);
+  --dash-section-gap: clamp(14px, 2vw, 22px);
+  --dash-card-pad: clamp(15px, 1rem + 0.55vw, 24px);
+  --dash-card-radius: clamp(18px, 1.6vw, 26px);
+  --dash-inner-gap: clamp(10px, 1.15vw, 16px);
+  --dash-border-soft: rgba(214, 168, 79, 0.22);
+  --dash-panel-bg: linear-gradient(180deg, rgba(17, 20, 25, 0.94), rgba(8, 11, 16, 0.90));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+main.container {
+  width: min(100%, var(--dash-page-max)) !important;
+  max-width: var(--dash-page-max) !important;
+  margin-inline: auto !important;
+  padding-inline: var(--dash-page-gutter) !important;
+}
+
+.raid-party-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)) !important;
+}
+
+.raid-party-card {
+  padding: clamp(12px, 1vw, 16px) !important;
+  overflow: hidden !important;
+}
+
+.raid-party-row {
+  grid-template-columns: 24px 42px 32px minmax(0, 1fr) !important;
+  gap: 7px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  min-height: 40px !important;
+}
+
+.raid-role-label {
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.raid-party-member-copy {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.raid-party-member-copy small,
+.raid-roster-member small {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.raid-roster-member {
+  grid-template-columns: 22px 32px minmax(0, 1fr) !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  align-items: center !important;
+}
+
+.access-groups-layout {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr) !important;
+}
+
+.access-groups-list {
+  position: sticky !important;
+  top: 14px !important;
+  align-self: start !important;
+  display: grid !important;
+  gap: 8px !important;
+  padding: var(--dash-card-pad) !important;
+}
+
+.access-group-tab {
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-content: start !important;
+  text-align: left !important;
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.access-group-tab strong,
+.access-group-tab span,
+.access-group-card__head p,
+.permission-check small {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+
+.access-group-card {
+  padding: var(--dash-card-pad) !important;
+  display: grid !important;
+  gap: var(--dash-section-gap) !important;
+}
+
+.access-form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)) !important;
+}
+
+.permissions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+  align-items: flex-start !important;
+}
+
+.permissions-grid fieldset {
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.permission-check {
+  min-width: 0 !important;
+  align-items: flex-start !important;
+}
+
+.permission-check input:disabled + span {
+  opacity: 0.72;
+}
+
+:where(.input, .select, .textarea, button, .btn, .raid-action) {
+  max-width: 100% !important;
+}
+
+@media (max-width: 1100px) {
+  .access-groups-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .access-groups-list {
+    position: static !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dash-page-gutter: clamp(13px, 4vw, 18px);
+    --dash-section-gap: clamp(12px, 3.2vw, 16px);
+    --dash-card-pad: clamp(13px, 3.7vw, 17px);
+    --dash-inner-gap: 10px;
+  }
+
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline: var(--dash-page-gutter) !important;
+    padding-bottom: calc(var(--dashboard-mobile-nav-reserve, 90px) + 18px) !important;
+  }
+
+  .raid-party-row {
+    grid-template-columns: 24px 38px 30px minmax(0, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .raid-party-member-copy strong,
+  .raid-party-member-copy small,
+  .raid-roster-member strong,
+  .raid-roster-member small {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.22 !important;
   }
 }
 
@@ -11684,7 +15927,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Admin Discord: full management layout, spacing, buttons and live-action feedback */
+/* Admin Discord v2: full management layout, spacing, buttons and live-action feedback */
 .discord-management-page {
   display: grid;
   gap: clamp(14px, 2vw, 20px);
@@ -11868,7 +16111,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Discord admin role hierarchy diagnostics */
+/* vNext: Discord admin role hierarchy diagnostics */
 .discord-management-card--notice {
   border-color: rgba(92, 153, 255, .28);
   background: linear-gradient(180deg, rgba(18, 24, 35, .9), rgba(8, 11, 17, .84));
@@ -12089,7 +16332,7 @@ button.btn.danger:hover {
   }
 }
 
-/* Admin logs: structured Discord action highlights */
+/* Admin logs v2: structured Discord action highlights */
 .admin-log-highlight {
   display: grid;
   gap: 4px;
@@ -12228,7 +16471,7 @@ button[aria-busy="true"]::after,
   }
 }
 
-/* Button action states keep text stable; only the left icon indicates progress. */
+/* vNext: button action states keep text stable; only the left icon indicates progress. */
 :where(.btn, .action-button, button[type="submit"], .raid-action).btn-working,
 :where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"] {
   position: relative;
@@ -12289,7 +16532,7 @@ button[aria-busy="true"]::after,
   }
 }
 
-/* Button progress: no right-side loading indicators; progress is left-only. */
+/* vNext override: no right-side loading indicators anywhere; progress is left-only. */
 :where(button[aria-busy="true"], .btn-working)::after {
   content: none !important;
   display: none !important;
@@ -12300,7 +16543,7 @@ button[aria-busy="true"]::after,
   font-size: inherit;
 }
 
-/* Profile setup gate, loading screen and mobile footer spacing */
+/* v58: profile setup gate + dynamic mobile nav/footer spacing cleanup */
 .profile-setup-callout {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -12513,1095 +16756,3 @@ button[aria-busy="true"]::after,
     width: 100%;
   }
 }
-
-/* Shared responsive layout normalization.
-   This is the single active layer for global spacing, card sizing, typography scale and dashboard navigation. */
-:root {
-  --dash-page-max: 1280px;
-  --dash-page-gutter: clamp(14px, 2.4vw, 30px);
-  --dash-section-gap: clamp(14px, 1.8vw, 22px);
-  --dash-inner-gap: clamp(10px, 1.2vw, 16px);
-  --dash-card-pad: clamp(14px, 0.95rem + 0.45vw, 22px);
-  --dash-card-radius: clamp(18px, 1.5vw, 26px);
-  --dash-control-height: 42px;
-  --dash-text-xs: clamp(0.72rem, 0.68rem + 0.12vw, 0.78rem);
-  --dash-text-sm: clamp(0.78rem, 0.74rem + 0.16vw, 0.88rem);
-  --dash-text-base: clamp(0.88rem, 0.84rem + 0.18vw, 0.98rem);
-  --dash-title-sm: clamp(1.08rem, 0.98rem + 0.45vw, 1.32rem);
-  --dash-title-md: clamp(1.35rem, 1.14rem + 0.9vw, 1.9rem);
-  --dash-title-lg: clamp(2.1rem, 1.45rem + 2.2vw, 3.25rem);
-  --dashboard-mobile-nav-edge: clamp(10px, 3vw, 15px);
-  --dashboard-mobile-nav-shell-pad: clamp(6px, 1.8vw, 8px);
-  --dashboard-mobile-nav-gap: clamp(7px, 2vw, 10px);
-  --dashboard-mobile-nav-item-width: clamp(78px, 24vw, 98px);
-  --dashboard-mobile-nav-height: clamp(70px, 17vw, 80px);
-  --dashboard-mobile-nav-bottom-offset: calc(clamp(8px, 2.2vw, 12px) + var(--safe-bottom));
-  --dashboard-mobile-nav-reserve: calc(var(--dashboard-mobile-nav-height) + var(--dashboard-mobile-nav-bottom-offset) + 16px);
-}
-
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  font-size: var(--dash-text-base);
-  line-height: 1.55;
-}
-
-main.container {
-  box-sizing: border-box !important;
-  width: min(100%, var(--dash-page-max)) !important;
-  max-width: var(--dash-page-max) !important;
-  margin-inline: auto !important;
-  padding-inline: var(--dash-page-gutter) !important;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) !important;
-  align-content: start !important;
-  gap: var(--dash-section-gap) !important;
-}
-
-main.container > * {
-  min-width: 0 !important;
-  margin-block: 0 !important;
-}
-
-.dashboard-shell,
-.content-shell,
-.discord-shell,
-.raid-shell,
-.content-page-stack,
-.applications-page,
-.access-groups-page,
-.profile-shell,
-.profile-directory-shell {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-
-.dashboard-shell,
-.content-shell,
-.content-page-stack,
-.discord-shell,
-.raid-shell,
-.access-groups-container,
-.access-groups-page,
-.discord-management-page {
-  display: grid !important;
-  align-content: start !important;
-  gap: var(--dash-section-gap) !important;
-  margin-bottom: 0 !important;
-}
-
-:where(section, article, aside, header, footer, nav, form, fieldset, .panel, .card, .stat, .toolbar, .notice, .content-empty, .content-form-section, .raid-form-panel, .raid-list-item, .profile-card, .profile-character-card, .profile-directory-card) {
-  min-width: 0;
-}
-
-:where(.panel, .card, .stat, .toolbar, .notice, .content-empty, .content-form-section, .raid-form-panel, .raid-list-item, .profile-card, .profile-character-card, .profile-directory-card) {
-  border-radius: var(--dash-card-radius);
-}
-
-:where(h1, h2, h3, h4, p, span, strong, small, a, button, label, input, select, textarea, code, pre) {
-  max-width: 100%;
-}
-
-:where(p, span, strong, small, a, button, label, code, pre) {
-  overflow-wrap: break-word;
-}
-
-:where(.btn, .button, .action-button, .dashboard-action, .raid-action, button[type="submit"], input, select, textarea, .input, .select, .textarea) {
-  max-width: 100% !important;
-  min-height: var(--dash-control-height);
-}
-
-:where(.btn, .button, .action-button, .dashboard-action, .raid-action, button[type="submit"]) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  text-align: center;
-  line-height: 1.15;
-}
-
-:where(h1) { font-size: var(--dash-title-lg); }
-:where(h2) { font-size: var(--dash-title-md); }
-:where(h3) { font-size: var(--dash-title-sm); }
-:where(small, .muted, .status-pill, .profile-role-chip, .profile-main-badge) { font-size: var(--dash-text-xs); }
-
-.stats,
-.metric-grid,
-.discord-rules-metric-grid,
-.guild-stat-grid,
-.admin-overview-grid,
-.discord-management-grid,
-.discord-settings-grid,
-.discord-settings-summary,
-.raid-party-grid,
-.profile-account-overview,
-.profile-directory-grid {
-  align-items: start;
-}
-
-.grid,
-.profile-directory-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 320px)) !important;
-  justify-content: start !important;
-}
-
-.profile-character-list,
-.profile-character-list--single-flow {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 340px)) !important;
-  justify-content: start !important;
-  align-items: start !important;
-}
-
-.profile-character-card,
-.profile-directory-card,
-.guild-member-card,
-.raid-list-item,
-.admin-overview-card,
-.discord-management-card {
-  align-self: start !important;
-  height: auto !important;
-}
-
-.profile-character-artwork {
-  min-height: clamp(220px, 20vw, 252px) !important;
-}
-
-.profile-character-artwork img {
-  height: clamp(252px, 22vw, 292px) !important;
-  object-fit: contain !important;
-  object-position: center bottom !important;
-  transform: scale(1.2) translateY(10px) !important;
-  transform-origin: bottom center !important;
-}
-
-.raid-list-item,
-.raid-manager-list .raid-list-item {
-  overflow: hidden !important;
-}
-
-.raid-list-main-link,
-.raid-manager-list .raid-list-main-link {
-  min-width: 0 !important;
-}
-
-.raid-list-copy,
-.raid-list-title-row,
-.raid-list-facts {
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-.raid-list-title-row strong,
-.raid-list-facts span,
-.raid-list-facts small,
-.raid-list-facts strong {
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-.raid-list-progress {
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
-.dashboard-mobile-nav-shell,
-.dashboard-mobile-nav {
-  display: none;
-}
-
-.raid-live-sync {
-  width: fit-content;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 10px;
-  padding: 8px 11px;
-  border: 1px solid rgba(214, 168, 79, 0.22);
-  border-radius: 999px;
-  background: rgba(5, 9, 16, 0.72);
-  color: rgba(246, 239, 226, 0.88);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.06);
-  font-size: var(--dash-text-sm);
-  font-weight: 800;
-}
-
-.raid-live-sync strong {
-  color: var(--gold-bright);
-  font-size: 0.92em;
-}
-
-.raid-live-sync__dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--emerald);
-  box-shadow: 0 0 0 4px rgba(89, 214, 141, 0.12), 0 0 18px rgba(89, 214, 141, 0.34);
-}
-
-.raid-live-sync--checking .raid-live-sync__dot {
-  background: var(--gold-bright);
-  animation: raidLivePulse 1s ease-in-out infinite;
-}
-
-.raid-live-sync--updated .raid-live-sync__dot {
-  background: var(--blue);
-  box-shadow: 0 0 0 4px rgba(114, 183, 255, 0.12), 0 0 18px rgba(114, 183, 255, 0.34);
-}
-
-.raid-live-sync--offline .raid-live-sync__dot {
-  background: var(--red);
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.12), 0 0 18px rgba(255, 107, 107, 0.28);
-}
-
-@keyframes raidLivePulse {
-  0%, 100% { transform: scale(1); opacity: 0.82; }
-  50% { transform: scale(1.4); opacity: 1; }
-}
-
-.app-loading-shell {
-  display: grid;
-  gap: clamp(12px, 2vw, 18px);
-}
-
-.app-loading-card {
-  min-height: clamp(116px, 18vw, 158px);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  overflow: hidden;
-}
-
-.app-loading-mark {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 auto;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 217, 139, 0.35);
-  background: linear-gradient(135deg, rgba(214, 168, 79, 0.34), rgba(119, 101, 255, 0.18));
-  animation: raidLivePulse 1.2s ease-in-out infinite;
-}
-
-.app-loading-copy {
-  display: grid;
-  gap: 3px;
-}
-
-.app-loading-copy strong {
-  font-family: var(--font-display, var(--font-mist-display));
-  font-size: clamp(1.25rem, 3vw, 2rem);
-  color: var(--gold-bright);
-}
-
-.app-loading-copy span {
-  color: var(--muted);
-  font-size: var(--dash-text-sm);
-}
-
-.app-loading-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--dash-section-gap);
-}
-
-.app-loading-grid > div {
-  min-height: 140px;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--dash-card-radius);
-  background: linear-gradient(100deg, rgba(255,255,255,0.04), rgba(255,255,255,0.075), rgba(255,255,255,0.035));
-  background-size: 220% 100%;
-  animation: appSkeleton 1.4s ease-in-out infinite;
-}
-
-@keyframes appSkeleton {
-  0% { background-position: 160% 0; }
-  100% { background-position: -60% 0; }
-}
-
-@media (min-width: 761px) {
-  main.container,
-  main.container > :where(.dashboard-shell, .content-shell, .discord-shell, .raid-shell, .applications-page, .access-groups-page),
-  .dashboard-shell,
-  .content-shell,
-  .discord-shell,
-  .raid-shell {
-    overflow: visible !important;
-  }
-
-  .dashboard-topbar {
-    position: relative !important;
-    z-index: 1200 !important;
-    grid-template-columns: minmax(170px, 0.76fr) minmax(320px, 1fr) minmax(210px, auto) !important;
-    align-items: center !important;
-    gap: clamp(10px, 1.2vw, 14px) !important;
-    overflow: visible !important;
-    isolation: isolate !important;
-  }
-
-  .dashboard-brand,
-  .dashboard-user,
-  .dashboard-user__profile-link {
-    min-width: 0 !important;
-  }
-
-  .dashboard-brand > div,
-  .dashboard-user__profile-link > div:not(.dashboard-user__avatar-wrap) {
-    min-width: 0 !important;
-  }
-
-  .dashboard-brand strong,
-  .dashboard-brand span,
-  .dashboard-user__profile-link strong,
-  .dashboard-user__profile-link span {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  .dashboard-nav {
-    position: relative !important;
-    z-index: 20 !important;
-    width: fit-content !important;
-    max-width: 100% !important;
-    justify-self: center !important;
-    display: inline-flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    padding: 5px !important;
-    overflow: visible !important;
-    border: 1px solid rgba(214, 168, 79, 0.16) !important;
-    border-radius: 18px !important;
-    background: linear-gradient(180deg, rgba(13, 18, 29, 0.94), rgba(7, 11, 19, 0.9)) !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 24px rgba(0,0,0,0.18) !important;
-    mask-image: none !important;
-    -webkit-mask-image: none !important;
-  }
-
-  .dashboard-nav > a,
-  .dashboard-nav-more > summary {
-    min-height: 40px !important;
-    padding: 0 13px !important;
-    border-radius: 13px !important;
-    line-height: 1 !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-  }
-
-  .dashboard-nav-more {
-    position: relative !important;
-    z-index: 40 !important;
-    flex: 0 0 auto !important;
-  }
-
-  .dashboard-nav-more[open] {
-    z-index: 3000 !important;
-  }
-
-  .dashboard-nav-more > summary {
-    min-width: 72px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 7px !important;
-    padding-inline: 14px !important;
-    border: 1px solid rgba(214, 168, 79, 0.18) !important;
-    border-radius: 999px !important;
-    background: rgba(255,255,255,0.04) !important;
-    color: rgba(245,231,203,0.78) !important;
-    font-weight: 850 !important;
-    font-size: 0.9rem !important;
-    cursor: pointer !important;
-    list-style: none !important;
-    outline: none !important;
-  }
-
-  .dashboard-nav-more > summary::-webkit-details-marker {
-    display: none !important;
-  }
-
-  .dashboard-nav-more > summary::after {
-    content: "⌄";
-    font-size: 0.78rem;
-    line-height: 1;
-    opacity: 0.78;
-    transform: translateY(-1px);
-  }
-
-  .dashboard-nav-more[open] > summary::after {
-    transform: rotate(180deg) translateY(1px);
-  }
-
-  .dashboard-nav-more > summary:hover,
-  .dashboard-nav-more[open] > summary,
-  .dashboard-nav-more > summary.is-active {
-    color: var(--text) !important;
-    border-color: rgba(255, 217, 139, 0.34) !important;
-    background: linear-gradient(135deg, rgba(214, 168, 79, 0.18), rgba(119, 101, 255, 0.12)) !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.10) !important;
-  }
-
-  .dashboard-nav-more > summary:focus-visible {
-    box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.22), inset 0 0 0 1px rgba(255, 217, 139, 0.16) !important;
-  }
-
-  .dashboard-nav-more__menu {
-    position: absolute !important;
-    top: calc(100% + 14px) !important;
-    right: 0 !important;
-    z-index: 4000 !important;
-    width: max-content !important;
-    min-width: 236px !important;
-    max-width: min(320px, calc(100vw - 28px)) !important;
-    display: grid !important;
-    gap: 7px !important;
-    padding: 9px !important;
-    overflow: visible !important;
-    border: 1px solid rgba(214, 168, 79, 0.28) !important;
-    border-radius: 20px !important;
-    background: linear-gradient(180deg, rgba(13, 18, 29, 0.985), rgba(5, 8, 15, 0.985)) !important;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-  }
-
-  .dashboard-nav-more__menu::before {
-    content: "" !important;
-    position: absolute !important;
-    top: -8px !important;
-    right: 22px !important;
-    width: 14px !important;
-    height: 14px !important;
-    border-left: 1px solid rgba(214, 168, 79, 0.24) !important;
-    border-top: 1px solid rgba(214, 168, 79, 0.24) !important;
-    border-radius: 3px 0 0 0 !important;
-    background: rgba(13, 18, 29, 0.985) !important;
-    transform: rotate(45deg) !important;
-  }
-
-  .dashboard-nav-more__menu a {
-    position: relative !important;
-    z-index: 1 !important;
-    min-height: 44px !important;
-    display: grid !important;
-    grid-template-columns: 24px minmax(0, 1fr) !important;
-    align-items: center !important;
-    gap: 9px !important;
-    padding: 10px 11px !important;
-    border: 1px solid transparent !important;
-    border-radius: 13px !important;
-    color: rgba(245, 231, 203, 0.78) !important;
-    background: rgba(255,255,255,0.025) !important;
-    font-weight: 850 !important;
-    text-decoration: none !important;
-  }
-
-  .dashboard-nav-more__menu a span {
-    display: inline-grid !important;
-    place-items: center !important;
-    width: 24px !important;
-    height: 24px !important;
-    border-radius: 9px !important;
-    background: rgba(255,255,255,0.055) !important;
-  }
-
-  .dashboard-nav-more__menu a strong {
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    font-size: 0.9rem !important;
-  }
-
-  .dashboard-nav-more__menu a:hover,
-  .dashboard-nav-more__menu a.is-active {
-    color: var(--text) !important;
-    border-color: rgba(214, 168, 79, 0.18) !important;
-    background: linear-gradient(135deg, rgba(214, 168, 79, 0.18), rgba(119, 101, 255, 0.12)) !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 217, 139, 0.13) !important;
-  }
-}
-
-@media (min-width: 761px) and (max-width: 1240px) {
-  .dashboard-topbar {
-    grid-template-columns: minmax(150px, 0.62fr) minmax(300px, 1fr) minmax(190px, auto) !important;
-  }
-
-  .dashboard-nav > a,
-  .dashboard-nav-more > summary {
-    padding-inline: 10px !important;
-    font-size: 0.86rem !important;
-  }
-}
-
-@media (min-width: 761px) and (max-width: 1040px) {
-  .dashboard-topbar {
-    grid-template-columns: minmax(0, 1fr) minmax(0, auto) !important;
-  }
-
-  .dashboard-nav {
-    order: 3 !important;
-    grid-column: 1 / -1 !important;
-    justify-self: center !important;
-  }
-}
-
-.raid-roster-member.is-undergeared {
-  border-color: rgba(255, 190, 88, 0.45);
-  background: rgba(122, 77, 18, 0.16);
-}
-
-.raid-signup-avatar,
-.raid-signup-avatar--empty {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.08);
-  color: #f1dfbe;
-  font-size: .8rem;
-  font-weight: 800;
-}
-
-.raid-signup-avatar {
-  object-fit: cover;
-}
-
-.raid-party-row {
-  grid-template-columns: 24px 40px 32px minmax(0, 1fr) !important;
-  align-items: flex-start;
-}
-
-.raid-party-member-copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.raid-party-member-copy strong,
-.raid-party-member-copy small {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.raid-roster-member {
-  grid-template-columns: 22px 32px minmax(0, 1fr) !important;
-  grid-template-areas:
-    "icon avatar name"
-    "icon avatar meta1"
-    "icon avatar meta2" !important;
-  align-items: center;
-}
-
-.raid-roster-member > span:first-child {
-  grid-area: icon;
-}
-
-.raid-roster-member > .raid-signup-avatar,
-.raid-roster-member > .raid-signup-avatar--empty {
-  grid-area: avatar;
-}
-
-.raid-roster-member > strong {
-  grid-area: name;
-  min-width: 0;
-}
-
-.raid-roster-member > small:nth-of-type(1) {
-  grid-area: meta1;
-}
-
-.raid-roster-member > small:nth-of-type(2) {
-  grid-area: meta2;
-}
-
-.access-groups-container {
-  grid-template-columns: minmax(0, 1fr) !important;
-}
-
-.access-groups-page {
-  --access-panel-gap: var(--dash-section-gap);
-}
-
-.access-groups-hero,
-.access-groups-list,
-.access-group-card {
-  padding: var(--dash-card-pad) !important;
-}
-
-.access-group-tab.btn {
-  min-height: 0 !important;
-  padding: 10px 11px !important;
-  transition: transform 150ms ease, filter 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease !important;
-}
-
-.access-group-tab.btn:active,
-.access-groups-page .btn:active,
-.global-toast__action:active {
-  transform: translateY(0) scale(0.985) !important;
-}
-
-.access-group-tab strong,
-.access-group-card__head h2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.access-group-tab__icon,
-.access-group-title-icon {
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 1.75em;
-  height: 1.75em;
-  border: 1px solid rgba(214, 168, 79, 0.24);
-  border-radius: 0.72em;
-  background: rgba(214, 168, 79, 0.10);
-  font-size: 0.9em;
-  line-height: 1;
-}
-
-.access-group-title-icon {
-  width: 2rem;
-  height: 2rem;
-  font-size: 1rem;
-}
-
-.global-toast-stack--persistent {
-  pointer-events: none;
-  bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 84px)) !important;
-}
-
-.global-toast--persistent {
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  border-color: rgba(250, 204, 21, 0.48);
-  background:
-    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.16), transparent 55%),
-    rgba(24, 20, 10, 0.96);
-}
-
-.global-toast--persistent form {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: max-content;
-}
-
-.global-toast__action.btn {
-  min-height: 2.25rem;
-  padding: 0 12px;
-  border-radius: 999px;
-}
-
-@media (max-width: 760px) {
-  :root {
-    --dash-page-gutter: clamp(14px, 4vw, 18px);
-    --dash-section-gap: clamp(12px, 3.2vw, 16px);
-    --dash-inner-gap: 10px;
-    --dash-card-pad: clamp(13px, 3.7vw, 17px);
-    --dash-control-height: 44px;
-    --dash-title-lg: clamp(1.58rem, 7vw, 2.05rem);
-    --dash-title-md: clamp(1.25rem, 5.6vw, 1.58rem);
-    --dash-title-sm: clamp(1.05rem, 4.6vw, 1.28rem);
-  }
-
-  body {
-    padding-bottom: 0 !important;
-    font-size: clamp(0.95rem, 3.55vw, 1rem) !important;
-    line-height: 1.5 !important;
-  }
-
-  main.container {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding-inline: var(--dash-page-gutter) !important;
-    padding-top: calc(clamp(12px, 3.4vw, 18px) + var(--safe-top)) !important;
-    padding-bottom: clamp(18px, 4.8vw, 26px) !important;
-    gap: var(--dash-section-gap) !important;
-  }
-
-  body:has(.dashboard-mobile-nav-shell) main.container {
-    padding-bottom: clamp(18px, 4.8vw, 26px) !important;
-  }
-
-  html {
-    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve-runtime, var(--dashboard-mobile-nav-reserve)) + 14px) !important;
-  }
-
-  h1 { line-height: 1.04 !important; }
-  h2 { line-height: 1.08 !important; }
-  h3 { line-height: 1.12 !important; }
-
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-
-  :where(.btn, .button, .action-button, .dashboard-action, .raid-action, button[type="submit"]) {
-    min-height: 44px !important;
-    width: auto;
-    white-space: normal !important;
-  }
-
-  .dashboard-topbar {
-    position: relative !important;
-    z-index: 20 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 10px !important;
-    padding: clamp(12px, 3.4vw, 16px) !important;
-    border-radius: var(--dash-card-radius) !important;
-    overflow: visible !important;
-  }
-
-  .dashboard-brand {
-    width: 100% !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  .dashboard-user {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    align-items: center !important;
-    gap: 10px !important;
-  }
-
-  .dashboard-user__profile-link {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    display: grid !important;
-    grid-template-columns: auto minmax(0, 1fr) !important;
-    align-items: center !important;
-  }
-
-  .dashboard-brand > div,
-  .dashboard-user__profile-link > div:last-child,
-  .dashboard-user__profile-link strong,
-  .dashboard-user__profile-link span,
-  .dashboard-brand strong,
-  .dashboard-brand span {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  .dashboard-nav {
-    display: none !important;
-  }
-
-  .dashboard-mobile-nav-shell {
-    position: fixed !important;
-    left: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-left, 0px)) !important;
-    right: max(var(--dashboard-mobile-nav-edge), env(safe-area-inset-right, 0px)) !important;
-    bottom: var(--dashboard-mobile-nav-bottom-offset) !important;
-    z-index: 99999 !important;
-    display: block !important;
-    box-sizing: border-box !important;
-    height: var(--dashboard-mobile-nav-height) !important;
-    min-height: var(--dashboard-mobile-nav-height) !important;
-    max-height: var(--dashboard-mobile-nav-height) !important;
-    padding: var(--dashboard-mobile-nav-shell-pad) !important;
-    overflow: hidden !important;
-    border: 1px solid rgba(214, 168, 79, 0.28) !important;
-    border-radius: clamp(20px, 6vw, 26px) !important;
-    background: linear-gradient(180deg, rgba(10, 14, 24, 0.98), rgba(5, 8, 15, 0.99)) !important;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.44), 0 3px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    isolation: isolate;
-    transform: translateZ(0);
-  }
-
-  .dashboard-mobile-nav-shell::before,
-  .dashboard-mobile-nav-shell::after {
-    content: "";
-    position: absolute;
-    top: var(--dashboard-mobile-nav-shell-pad);
-    bottom: var(--dashboard-mobile-nav-shell-pad);
-    width: clamp(18px, 6vw, 28px);
-    pointer-events: none;
-    z-index: 2;
-    opacity: 0;
-    transition: opacity 160ms ease;
-  }
-
-  .dashboard-mobile-nav-shell.can-scroll-left::before,
-  .dashboard-mobile-nav-shell.can-scroll-right::after {
-    opacity: 1 !important;
-  }
-
-  .dashboard-mobile-nav-shell.can-scroll-left::before {
-    left: 0 !important;
-    background: linear-gradient(90deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
-  }
-
-  .dashboard-mobile-nav-shell.can-scroll-right::after {
-    right: 0 !important;
-    background: linear-gradient(270deg, rgba(5, 8, 15, 0.99) 8%, rgba(5, 8, 15, 0.86) 54%, rgba(5, 8, 15, 0)) !important;
-  }
-
-  .dashboard-mobile-nav {
-    position: relative !important;
-    top: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    z-index: auto !important;
-    width: 100% !important;
-    max-width: none !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    display: flex !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    gap: var(--dashboard-mobile-nav-gap) !important;
-    padding: 0 !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: 2px;
-  }
-
-  .dashboard-mobile-nav::-webkit-scrollbar {
-    display: none !important;
-  }
-
-  .dashboard-mobile-nav a {
-    flex: 0 0 var(--dashboard-mobile-nav-item-width) !important;
-    width: var(--dashboard-mobile-nav-item-width) !important;
-    min-width: var(--dashboard-mobile-nav-item-width) !important;
-    max-width: var(--dashboard-mobile-nav-item-width) !important;
-    min-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
-    height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
-    max-height: calc(var(--dashboard-mobile-nav-height) - (var(--dashboard-mobile-nav-shell-pad) * 2)) !important;
-    display: grid !important;
-    grid-template-rows: auto auto !important;
-    align-content: center !important;
-    justify-items: center !important;
-    gap: 3px !important;
-    padding: clamp(8px, 2.2vw, 10px) 8px clamp(7px, 2vw, 9px) !important;
-    border-radius: 14px !important;
-    border: 1px solid rgba(255,255,255,0.04) !important;
-    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02)) !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
-    color: rgba(246,239,226,0.72) !important;
-    text-align: center !important;
-    text-decoration: none !important;
-    line-height: 1.08 !important;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-
-  .dashboard-mobile-nav a:first-child {
-    margin-left: 1px;
-  }
-
-  .dashboard-mobile-nav a:last-child {
-    margin-right: 1px;
-  }
-
-  .dashboard-mobile-nav a span {
-    display: block !important;
-    font-size: clamp(0.98rem, 4vw, 1.12rem) !important;
-    line-height: 1 !important;
-  }
-
-  .dashboard-mobile-nav a strong {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    font-size: clamp(0.64rem, 2.5vw, 0.74rem) !important;
-    line-height: 1.08 !important;
-    letter-spacing: -0.02em !important;
-  }
-
-  .dashboard-mobile-nav a.is-active {
-    color: var(--text) !important;
-    border-color: rgba(255, 217, 139, 0.20) !important;
-    background: linear-gradient(135deg, rgba(214,168,79,0.22), rgba(119,101,255,0.15)) !important;
-    box-shadow: inset 0 0 0 1px rgba(255,217,139,0.16), 0 10px 22px rgba(0,0,0,0.20) !important;
-  }
-
-  body:has(.dashboard-mobile-nav-shell) .app-footer {
-    margin-bottom: calc(var(--dashboard-mobile-nav-reserve-runtime, var(--dashboard-mobile-nav-reserve)) + 8px) !important;
-  }
-
-  body:not(:has(.dashboard-mobile-nav-shell)) .app-footer {
-    margin-bottom: max(22px, env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  .global-toast-stack--persistent {
-    bottom: max(132px, calc(env(safe-area-inset-bottom, 0px) + 132px)) !important;
-  }
-
-  .global-toast--persistent {
-    grid-template-columns: 30px minmax(0, 1fr);
-  }
-
-  .global-toast--persistent form {
-    grid-column: 1 / -1;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .global-toast__action.btn {
-    width: 100%;
-  }
-
-  .stats,
-  .metric-grid,
-  .discord-rules-metric-grid,
-  .guild-stat-grid,
-  .profile-account-overview,
-  .profile-directory-grid,
-  .admin-overview-grid,
-  .discord-management-grid,
-  .discord-settings-grid,
-  .discord-settings-summary,
-  .app-loading-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .grid,
-  .profile-directory-grid,
-  .profile-character-list,
-  .profile-character-list--single-flow {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-
-  .profile-character-artwork {
-    min-height: clamp(214px, 58vw, 236px) !important;
-  }
-
-  .profile-character-artwork img {
-    height: clamp(244px, 70vw, 270px) !important;
-    transform: scale(1.24) translateY(12px) !important;
-  }
-
-  .raid-live-sync {
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 8px;
-    padding: 9px 10px;
-    font-size: 0.8rem;
-  }
-
-  .raid-preview-buttons,
-  .raid-preview-buttons--interactive,
-  .raid-form-actions,
-  .raid-list-actions,
-  .application-filter-actions {
-    grid-template-columns: 1fr !important;
-  }
-
-  .raid-preview-buttons .raid-action,
-  .raid-form-actions .btn,
-  .raid-list-actions .btn,
-  .raid-list-actions button,
-  .application-filter-actions .btn,
-  .application-filter-actions button {
-    width: 100% !important;
-  }
-
-  .raid-party-row {
-    grid-template-columns: 24px 40px 30px minmax(0, 1fr) !important;
-  }
-
-  .raid-signup-avatar,
-  .raid-signup-avatar--empty {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
-    border-radius: 9px;
-  }
-
-  .raid-roster-member {
-    grid-template-columns: 24px 30px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "icon avatar name"
-      "icon avatar meta1"
-      "icon avatar meta2" !important;
-    row-gap: 2px !important;
-  }
-
-  .raid-roster-member > span:first-child {
-    grid-column: auto !important;
-    grid-row: auto !important;
-    grid-area: icon !important;
-    width: 24px !important;
-    min-width: 24px !important;
-    height: 24px !important;
-  }
-
-  .raid-roster-member > strong {
-    grid-column: auto !important;
-    grid-row: auto !important;
-    grid-area: name !important;
-  }
-
-  .raid-roster-member > small:nth-of-type(1) {
-    grid-column: auto !important;
-    grid-row: auto !important;
-    grid-area: meta1 !important;
-  }
-
-  .raid-roster-member > small:nth-of-type(2) {
-    grid-column: auto !important;
-    grid-row: auto !important;
-    grid-area: meta2 !important;
-  }
-
-  .app-loading-card {
-    min-height: 104px;
-    align-items: center;
-    padding: 14px;
-  }
-}
-
-@media (max-width: 380px) {
-  :root {
-    --dash-page-gutter: 13px;
-    --dashboard-mobile-nav-height: 66px;
-    --dashboard-mobile-nav-item-width: 76px;
-    --dashboard-mobile-nav-shell-pad: 6px;
-  }
-
-  .dashboard-mobile-nav a strong {
-    font-size: 0.62rem !important;
-  }
-}
-
