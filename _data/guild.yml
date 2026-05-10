@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 20:46:02'
+  updated_at: '2026-05-10 03:26:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13745
-      region: 6127
+      world: 13757
+      region: 6129
       realm: 55
     heroic:
-      world: 13268
-      region: 5689
+      world: 13308
+      region: 5694
       realm: 46
     mythic:
-      world: 7477
+      world: 7500
       region: 3189
       realm: 25
   blackrock-depths:
@@ -713,8 +713,8 @@ members:
     item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 1594.1
-        color: '#90ff74'
+        score: 1914.8
+        color: '#69ff4d'
       dps:
         score: 995.6
         color: '#c7ffb2'
@@ -722,11 +722,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1227.4
-        color: '#b2ff99'
+        score: 1548.2
+        color: '#95ff7a'
       spec_0:
-        score: 1227.4
-        color: '#b2ff99'
+        score: 1548.2
+        color: '#95ff7a'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2117,10 +2117,10 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2758.5
+        score: 2769.9
         color: '#5698b3'
       dps:
-        score: 2758.5
+        score: 2769.9
         color: '#5698b3'
       healer:
         score: 0
@@ -2129,7 +2129,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2752.2
+        score: 2763.6
         color: '#5698b3'
       spec_1:
         score: 447.1
@@ -5192,7 +5192,7 @@ members:
   character:
     name: Kaijuro
     id: 225023935
-    level: 88
+    level: 89
     realm:
       id: 549
       slug: silvermoon
@@ -5210,7 +5210,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-    item_level_equipped: 124
+    item_level_equipped: 160
     mythic_plus_scores:
       all:
         score: 0
@@ -5262,7 +5262,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/82/225144146-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Misselles
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3186.1
@@ -5409,20 +5409,20 @@ members:
       name: Death Knight
     playable_race:
       id: 1
-      name: Night Elf
+      name: Human
     faction:
       type: ALLIANCE
     gender: male
     active_spec:
       name: Blood
       role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Базрог
     item_level_equipped: 270
     mythic_plus_scores:
       all:
-        score: 2496.3
-        color: '#5dcb79'
+        score: 2643.1
+        color: '#5faf9a'
       dps:
         score: 242
         color: '#fdfffd'
@@ -5430,11 +5430,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2496.3
-        color: '#5dcb79'
+        score: 2643.1
+        color: '#5faf9a'
       spec_0:
-        score: 2496.3
-        color: '#5dcb79'
+        score: 2643.1
+        color: '#5faf9a'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6357,11 +6357,11 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3065.3
-        color: '#4769e0'
+        score: 3094.6
+        color: '#5764e2'
       dps:
-        score: 3065.3
-        color: '#4769e0'
+        score: 3094.6
+        color: '#5764e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -6372,8 +6372,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3065.3
-        color: '#4769e0'
+        score: 3094.6
+        color: '#5764e2'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6406,7 +6406,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3313.5
@@ -6645,11 +6645,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2432.3
-        color: '#56d966'
+        score: 2600.2
+        color: '#5fb88f'
       dps:
-        score: 2432.3
-        color: '#56d966'
+        score: 2600.2
+        color: '#5fb88f'
       healer:
         score: 0
         color: '#ffffff'
@@ -6660,11 +6660,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2432.3
-        color: '#56d966'
+        score: 2561.7
+        color: '#5fbd8a'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 317.8
+        color: '#f8fff5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6749,11 +6749,11 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2661.4
-        color: '#5eaa9f'
+        score: 2700.3
+        color: '#5ca6a4'
       dps:
-        score: 2661.4
-        color: '#5eaa9f'
+        score: 2700.3
+        color: '#5ca6a4'
       healer:
         score: 0
         color: '#ffffff'
@@ -6767,8 +6767,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2661.4
-        color: '#5eaa9f'
+        score: 2700.3
+        color: '#5ca6a4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6853,8 +6853,8 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2890.2
-        color: '#3f82ca'
+        score: 2945
+        color: '#2d79d4'
       dps:
         score: 0
         color: '#ffffff'
@@ -6862,8 +6862,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2890.2
-        color: '#3f82ca'
+        score: 2945
+        color: '#2d79d4'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6871,8 +6871,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2890.2
-        color: '#3f82ca'
+        score: 2945
+        color: '#2d79d4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6957,10 +6957,10 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2515.4
+        score: 2518.8
         color: '#5ec67f'
       dps:
-        score: 2515.4
+        score: 2518.8
         color: '#5ec67f'
       healer:
         score: 0
@@ -6975,7 +6975,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2515.4
+        score: 2518.8
         color: '#5ec67f'
       spec_3:
         score: 0
@@ -7040,7 +7040,7 @@ members:
   character:
     name: Рокталл
     id: 251108849
-    level: 81
+    level: 83
     realm:
       id: 1604
       slug: soulflayer

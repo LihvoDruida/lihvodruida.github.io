@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-09 20:46:02'
+  updated_at: '2026-05-10 03:26:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6499,19 +6499,7 @@ characters:
   realm_slug: gordunni
   profile_url: https://raider.io/characters/eu/gordunni/Медведдич
   professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Cataclysm Enchanting
-        learned_points: 1
-        max_points: 75
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 32
-        max_points: 100
+    primaries: []
     secondaries: []
 - name: Альянсс
   region: eu
@@ -6658,7 +6646,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 22
+        learned_points: 26
         max_points: 100
     - name: Mining
       id: 186
@@ -6667,7 +6655,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 35
+        learned_points: 39
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6810,7 +6798,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 39
+        learned_points: 64
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -6902,7 +6890,7 @@ characters:
         learned_points: 50
         max_points: 150
       - name: Midnight Herbalism
-        learned_points: 4
+        learned_points: 8
         max_points: 100
     - name: Mining
       id: 186
@@ -6913,6 +6901,9 @@ characters:
       - name: Shadowlands Mining
         learned_points: 61
         max_points: 150
+      - name: Midnight Mining
+        learned_points: 3
+        max_points: 100
     secondaries:
     - name: Archaeology
       id: 794
