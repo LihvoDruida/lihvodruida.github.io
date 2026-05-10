@@ -1,0 +1,403 @@
+import DashboardIdentity from "@/components/DashboardIdentity";
+import ProfileNameControls from "@/components/ProfileNameControls";
+import { buildPageMetadata } from "@/lib/seo";
+import { getSession } from "@/lib/auth";
+import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
+import { wowRoleLabel, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
+import { guildStatusLabel } from "@/lib/permissions";
+import {
+  buildProfileDiscordNickname,
+  buildProfileDiscordNicknamePlan,
+  getMainCharacter,
+  getProfileById,
+  getProfilePublicName,
+  getProfileRaidRole,
+  getProfileServerStyleName,
+  profileGenderLabel,
+  profileFromSession,
+  upsertProfileFromSession,
+  type DashboardProfile,
+  type ProfileCharacter,
+} from "@/lib/profiles";
+import { notFound, redirect } from "next/navigation";
+
+export const metadata = buildPageMetadata({
+  title: "Налаштування профілю",
+  description: "Налаштування імені профілю, Discord nickname, альтів для шаблону та ролі у рейдах.",
+  path: "/profile/settings",
+  keywords: ["налаштування профілю", "Discord nickname", "Battle.net альти", "рейдова роль"],
+});
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+function formatCompactDate(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
+}
+
+function characterAutoRaidRole(character?: ProfileCharacter | null): WowCharacterRole {
+  return character ? resolveWowCharacterRole({
+    className: character.className,
+    activeSpecName: character.activeSpecName,
+    activeSpecId: character.activeSpecId,
+    activeSpecRole: character.activeSpecRole,
+  }) : "dps";
+}
+
+const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint: string }[] = [
+  { value: "auto", label: "Авто", hint: "Брати роль зі спеки мейна" },
+  { value: "tank", label: "Танк", hint: "Записувати як танка" },
+  { value: "healer", label: "Хіл", hint: "Записувати як хіла" },
+  { value: "dps", label: "ДД", hint: "Записувати як ДД" },
+];
+
+function ProfileGenderForm({ gender }: { gender: DashboardProfile["grammaticalGender"] }) {
+  return (
+    <div className="profile-gender-box" aria-label="Стать і звертання в повідомленнях">
+      <div className="profile-gender-box__head">
+        <span className="profile-gender-box__icon" aria-hidden="true">✦</span>
+        <span>
+          <strong>Стать / звертання</strong>
+          <small>Для особистих повідомлень сайту та Discord</small>
+        </span>
+        <span className="profile-gender-pill">{profileGenderLabel(gender)}</span>
+      </div>
+
+      <form className="profile-gender-form" action="/api/profile/gender" method="post">
+        {([
+          ["unspecified", "Не вибрано", "дефолт: нейтральні безособові форми множини"],
+          ["neutral", "Нейтральне звертання", "тебе записали, підписали"],
+          ["nonbinary", "Небінарна особа", "нейтрально: тебе записали, підписали"],
+          ["male", "Чоловіча", "ти записаний, підписаний"],
+          ["female", "Жіноча", "ти записана, підписана"],
+        ] as const).map(([value, label, hint]) => (
+          <label className={`profile-gender-option${gender === value ? " is-selected" : ""}`} key={value}>
+            <input type="radio" name="grammaticalGender" value={value} defaultChecked={gender === value} />
+            <span>
+              <strong>{label}</strong>
+              <small>{hint}</small>
+            </span>
+          </label>
+        ))}
+        <button className="btn btn-primary btn-sm" type="submit">Зберегти звертання</button>
+      </form>
+    </div>
+  );
+}
+
+function RaidRolePreferenceForm({
+  mainCharacter,
+  manualRole,
+  selectedRole,
+}: {
+  mainCharacter?: ProfileCharacter | null;
+  manualRole?: WowCharacterRole | null;
+  selectedRole: WowCharacterRole;
+}) {
+  const autoRole = characterAutoRaidRole(mainCharacter);
+  const sourceLabel = manualRole ? "Вибрано вручну" : "Авто з мейна";
+  const mainLabel = mainCharacter
+    ? `${mainCharacter.name}${mainCharacter.realmName || mainCharacter.realmSlug ? ` • ${mainCharacter.realmName || mainCharacter.realmSlug}` : ""}`
+    : "Мейн не вибрано";
+
+  return (
+    <div className="profile-raid-role-box" aria-label="Роль для запису на рейди">
+      <div className="profile-raid-role-box__head">
+        <span className="profile-raid-role-box__icon" aria-hidden="true">⚔</span>
+        <span>
+          <strong>Роль у рейді</strong>
+          <small>{mainLabel}</small>
+        </span>
+        <span className={`profile-raid-role-pill profile-raid-role-pill--${selectedRole}`}>
+          {wowRoleLabel(selectedRole)}
+        </span>
+      </div>
+
+      <p className="profile-raid-role-box__note">
+        {sourceLabel}: {manualRole ? wowRoleLabel(manualRole) : `${wowRoleLabel(autoRole)} зі спеки мейна`}. Це дефолтна роль саме для мейна; якщо для рейду вибрано іншого персонажа, система бере роль з його спеки.
+      </p>
+
+      {mainCharacter ? (
+        <form className="profile-raid-role-form" action="/api/profile/raid-role" method="post">
+          {RAID_ROLE_OPTIONS.map((option) => {
+            const checked = option.value === "auto" ? !manualRole : manualRole === option.value;
+            const hint = option.value === "auto" ? `${option.hint}: ${wowRoleLabel(autoRole)}` : option.hint;
+            return (
+              <label className={`profile-raid-role-option${checked ? " is-selected" : ""}`} key={option.value}>
+                <input type="radio" name="raidRole" value={option.value} defaultChecked={checked} />
+                <span>
+                  <strong>{option.label}</strong>
+                  <small>{hint}</small>
+                </span>
+              </label>
+            );
+          })}
+          <button className="btn btn-primary btn-sm" type="submit">Зберегти роль</button>
+        </form>
+      ) : (
+        <div className="profile-empty-characters profile-empty-characters--compact">
+          <strong>Спочатку вибери мейна</strong>
+          <span>Після цього можна буде вказати роль для рейдів.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NicknameCharactersForm({ profile, nicknameTemplate }: { profile: DashboardProfile; nicknameTemplate: string }) {
+  const main = getMainCharacter(profile);
+  const selected = new Set((profile.nicknameCharacterKeys || []).filter((key) => key !== main?.key));
+  const altCandidates = profile.characters
+    .filter((character) => character.key !== main?.key)
+    .sort((a, b) => {
+      if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
+      return a.name.localeCompare(b.name, "uk");
+    });
+  const plan = buildProfileDiscordNicknamePlan(profile, nicknameTemplate);
+  const previewCharacters = plan.requestedCharacterNames.length ? plan.requestedCharacterNames.join(", ") : "—";
+
+  return (
+    <section className="profile-discord-standard profile-nickname-character-box" aria-label="Персонажі для Discord nickname">
+      <div className="profile-discord-standard__head profile-discord-standard__head--modern">
+        <div className="profile-discord-standard__identity">
+          <span className="profile-name-panel__label">Персонажі у Discord-ніку</span>
+          <strong>{plan.value || "Спочатку вкажи імʼя"}</strong>
+          <small>Формат береться з адмін-панелі: {nicknameTemplate}</small>
+        </div>
+        <span className="profile-count-pill">{Math.min(2, selected.size)} / 2 альти</span>
+      </div>
+
+      <div className="profile-nickname-preview is-synced">
+        <span>Порядок у шаблоні</span>
+        <strong>{previewCharacters}</strong>
+        <small>Першим завжди іде мейн. Нижче можна вибрати до двох альтів.</small>
+      </div>
+
+      {altCandidates.length ? (
+        <form className="profile-nickname-character-form" action="/api/profile/nickname-characters" method="post">
+          <div className="profile-nickname-character-list">
+            {altCandidates.map((character) => {
+              const checked = selected.has(character.key);
+              return (
+                <label className={`profile-nickname-character-option${checked ? " is-selected" : ""}`} key={character.key}>
+                  <input type="checkbox" name="nicknameCharacterKeys" value={character.key} defaultChecked={checked} />
+                  <span>
+                    <strong>{character.name}</strong>
+                    <small>{[character.realmName || character.realmSlug, character.activeSpecName, character.className, character.verifiedGuild ? "Гільдійний" : "Інший"].filter(Boolean).join(" • ")}</small>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <p className="profile-nickname-hint">Сервер перевіряє ліміт: буде збережено максимум 2 альти, мейн сюди не потрапляє.</p>
+          <button className="btn btn-primary btn-sm" type="submit">Зберегти альтів для ніку</button>
+        </form>
+      ) : (
+        <div className="profile-empty-characters profile-empty-characters--compact">
+          <strong>Немає альтів для вибору</strong>
+          <span>Додай персонажів у профілі, після цього вони зʼявляться тут.</span>
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default async function ProfileSettingsPage({
+  params,
+}: {
+  params: Promise<{ profileId: string }>;
+}) {
+  const session = await getSession();
+  const nicknamePolicy = await getGuildNicknamePolicy();
+  if (!session) {
+    redirect("/login");
+    throw new Error("Unauthorized");
+  }
+
+  const { profileId } = await params;
+  const isOwnProfile = Boolean(session.profileId && session.profileId === profileId);
+  if (!isOwnProfile) notFound();
+
+  let profile = await getProfileById(profileId);
+  let storageWarning = "";
+
+  if (!profile) {
+    const result = await upsertProfileFromSession(session).catch(() => null);
+    profile = result?.profile || { ...profileFromSession(session), profileId };
+    if (!result?.stored) {
+      storageWarning = "Профіль тимчасово показано з поточної сесії. Частина даних може оновитися після повторного входу.";
+    }
+  }
+
+  if (!profile) notFound();
+
+  const mainCharacter = getMainCharacter(profile);
+  const raidRolePreference = profile.raidRolePreference || null;
+  const manualRaidRole = raidRolePreference && mainCharacter && raidRolePreference.characterKey === mainCharacter.key
+    ? raidRolePreference.role
+    : null;
+  const selectedRaidRole = getProfileRaidRole(profile);
+  const publicNamePreview = getProfilePublicName(profile, nicknamePolicy.template);
+  const serverStyleNamePreview = getProfileServerStyleName(profile, 80, nicknamePolicy.template);
+  const discordNicknamePreview = buildProfileDiscordNickname(profile, nicknamePolicy.template);
+  const discordMemberReadable = profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId) && hasDiscordEmbedConfig();
+  const canSyncDiscordNickname = discordMemberReadable;
+  let discordOwnerLocked = false;
+  let currentServerNickname: string | null = null;
+  let liveDiscordMember: Awaited<ReturnType<typeof fetchDiscordGuildMemberSnapshot>> | null = null;
+
+  if (discordMemberReadable) {
+    const [guild, member] = await Promise.all([
+      fetchDiscordGuildSnapshot().catch(() => null),
+      fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
+    ]);
+    liveDiscordMember = member;
+    discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
+    currentServerNickname = member?.nick || null;
+  }
+
+  const guildStatus = guildStatusLabel(profile.role);
+  const accountStatusLabel = guildStatus;
+  const savedCharacterCount = profile.characters.length;
+
+  return (
+    <main className="container">
+      <section className="dashboard-shell content-shell profile-shell profile-account-page" aria-label="Налаштування профілю Mistblossom Vanguard">
+        <DashboardIdentity user={session} activeSection="profile" />
+        <div className="profile-account-layout">
+          <aside className="panel profile-account-sidebar" aria-label="Коротка навігація профілю">
+            <div className="profile-account-sidebar__identity">
+              {profile.avatarUrl ? (
+                <img
+                  className="profile-account-sidebar__avatar"
+                  src={profile.avatarUrl}
+                  alt=""
+                  width={84}
+                  height={84}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="profile-account-sidebar__avatar profile-account-sidebar__avatar--fallback" aria-hidden="true">
+                  {(publicNamePreview || profile.displayName || "A").charAt(0)}
+                </span>
+              )}
+              <strong>{publicNamePreview}</strong>
+              <span>{accountStatusLabel}</span>
+              <div className="profile-account-sidebar__pills" aria-label="Стан профілю">
+                <span>☘ {savedCharacterCount} перс.</span>
+                <span>⚔ {wowRoleLabel(selectedRaidRole)}</span>
+              </div>
+            </div>
+            <nav className="profile-account-sidebar__nav" aria-label="Розділи профілю">
+              <a href={`/profile/${encodeURIComponent(profile.profileId)}`}><span aria-hidden="true">✦</span> Профіль</a>
+              <a href={`/profile/${encodeURIComponent(profile.profileId)}/settings`} aria-current="page"><span aria-hidden="true">⚙</span> Налаштування</a>
+              <a href="#profile-name-settings"><span aria-hidden="true">#</span> Імʼя</a>
+              <a href="#profile-nickname-settings"><span aria-hidden="true">◆</span> Discord-нік</a>
+              <a href="#profile-role-settings"><span aria-hidden="true">⚔</span> Роль</a>
+            </nav>
+          </aside>
+
+          <div className="profile-account-main">
+            <header className="profile-account-header" id="profile-settings-overview">
+              <div>
+                <span className="eyebrow">Mistblossom Vanguard • Налаштування</span>
+                <h1>Налаштування профілю</h1>
+                <p>Тут керується те, як профіль виглядає в панелі й Discord: імʼя, формат відображення, серверний nickname, два альти для шаблону та роль для рейдів.</p>
+              </div>
+              <span className="profile-account-header__badge">{guildStatus}</span>
+            </header>
+
+            <section className="profile-account-overview profile-account-overview--clean" aria-label="Короткий стан налаштувань">
+              <div className="profile-account-overview-card profile-account-overview-card--primary">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">#</span>
+                <span>
+                  <small>Публічно</small>
+                  <strong>{publicNamePreview}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">⌁</span>
+                <span>
+                  <small>Discord-нік</small>
+                  <strong>{discordNicknamePreview || "—"}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">⚔</span>
+                <span>
+                  <small>Роль у рейді</small>
+                  <strong>{wowRoleLabel(selectedRaidRole)}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card profile-account-overview-card--success">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">✦</span>
+                <span>
+                  <small>Оновлено</small>
+                  <strong>{formatCompactDate(profile.updatedAt || profile.lastLoginAt) || "—"}</strong>
+                </span>
+              </div>
+            </section>
+
+            {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+
+            <section className="profile-grid profile-grid--settings" aria-label="Налаштування профілю">
+              <article id="profile-name-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
+                <div className="profile-card-head">
+                  <span className="eyebrow">Профіль</span>
+                  <h2>Імʼя та відображення</h2>
+                </div>
+
+                <ProfileNameControls
+                  preferredName={profile.preferredName}
+                  publicNameMode={profile.publicNameMode}
+                  discordName={profile.displayName}
+                  publicNamePreview={publicNamePreview}
+                  serverStyleNamePreview={serverStyleNamePreview}
+                  nicknamePreview={discordNicknamePreview}
+                  lastSyncedNickname={profile.discordNickname?.value}
+                  lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
+                  currentServerNickname={currentServerNickname}
+                  serverNicknameChecked={Boolean(discordMemberReadable && liveDiscordMember)}
+                  canManage={true}
+                  canSyncDiscord={canSyncDiscordNickname}
+                  discordOwnerLocked={discordOwnerLocked}
+                />
+              </article>
+
+              <article id="profile-nickname-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
+                <div className="profile-card-head">
+                  <span className="eyebrow">Discord</span>
+                  <h2>Шаблон ніку</h2>
+                  <p className="profile-card-lead">Мейн береться автоматично. Нижче вибираються тільки два альти, які підставляються в шаблон з адмін-панелі.</p>
+                </div>
+                <div className="profile-name-panel">
+                  <NicknameCharactersForm profile={profile} nicknameTemplate={nicknamePolicy.template} />
+                </div>
+              </article>
+
+              <article id="profile-role-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
+                <div className="profile-card-head">
+                  <span className="eyebrow">Рейди</span>
+                  <h2>Роль і звертання</h2>
+                </div>
+                <div className="profile-name-panel">
+                  <RaidRolePreferenceForm
+                    mainCharacter={mainCharacter}
+                    manualRole={manualRaidRole}
+                    selectedRole={selectedRaidRole}
+                  />
+                  <ProfileGenderForm gender={profile.grammaticalGender} />
+                </div>
+              </article>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

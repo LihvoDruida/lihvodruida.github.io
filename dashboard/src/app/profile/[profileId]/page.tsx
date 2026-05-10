@@ -1,6 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
-import ProfileNameControls from "@/components/ProfileNameControls";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
@@ -12,59 +11,34 @@ import {
   type ProfileRaidSignup,
 } from "@/lib/raids";
 import { buildPageMetadata } from "@/lib/seo";
-import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
-import { resolveWowCharacterRole, wowRoleLabel, type WowCharacterRole } from "@/lib/wowRoles";
+import { wowRoleLabel } from "@/lib/wowRoles";
 import { getSession, type DashboardSession } from "@/lib/auth";
-import { resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
-import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot, fetchDiscordRoles, hasDiscordEmbedConfig, type DiscordRoleOption } from "@/lib/discordAdmin";
+import { canViewProfileAccessDetails, dashboardRoleLabel, guildStatusLabel } from "@/lib/permissions";
 import {
-  canViewProfileAccessDetails,
-  configuredRoleIdsForDashboardRole,
-  dashboardCapabilities,
-  dashboardRoleLabel,
-  guildStatusLabel,
-  siteStatusDescription,
-} from "@/lib/permissions";
-import {
-  buildProfileDiscordNickname,
   canViewProfile,
-  profileGenderLabel,
   profileGenderedText,
   getMainCharacter,
   getProfilePublicName,
   getProfileRaidRole,
-  getProfileServerStyleName,
   getProfileById,
   profileFromSession,
   upsertProfileFromSession,
   type DashboardProfile,
   type ProfileCharacter,
 } from "@/lib/profiles";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 export const metadata = buildPageMetadata({
   title: "Профіль учасника",
-  description: "Особиста сторінка учасника Mistblossom Vanguard з Discord-імʼям, мейн-персонажем, рейдовою роллю та записами на рейди.",
+  description: "Профіль учасника Mistblossom Vanguard з Battle.net-персонажами, мейном і записами на рейди.",
   path: "/profile",
   keywords: ["профіль учасника", "мейн персонаж", "Battle.net", "рейдова роль"],
 });
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function providerLabel(provider: string) {
-  if (provider === "discord") return "Discord";
-  if (provider === "github") return "GitHub";
-  return "Резервний ключ";
-}
-
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
-}
 
 function formatCompactDate(value?: string | null) {
   if (!value) return "—";
@@ -85,7 +59,7 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
     return {
       eyebrow: "Battle.net підключено",
       title: "Оновити список",
-      hint: "Потрібно тільки для додавання нових персонажів",
+      hint: "Потрібно для нових або оновлених персонажів",
     };
   }
   return {
@@ -95,99 +69,10 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
   };
 }
 
-function CapabilityRow({ title, description, enabled }: { title: string; description: string; enabled: boolean }) {
-  return (
-    <li className={`profile-capability ${enabled ? "is-enabled" : "is-disabled"}`}>
-      <span className="profile-capability__state" aria-hidden="true">{enabled ? "✓" : "—"}</span>
-      <span>
-        <strong>{title}</strong>
-        <small>{description}</small>
-      </span>
-    </li>
-  );
-}
-
-function profileAsSession(profile: DashboardProfile): DashboardSession {
-  return {
-    provider: profile.provider,
-    id: profile.providerUserId,
-    profileId: profile.profileId,
-    name: profile.displayName,
-    login: profile.login || undefined,
-    role: profile.role,
-    avatar: profile.avatarUrl || null,
-    avatar_url: profile.avatarUrl || null,
-    discordRoleIds: profile.discordRoleIds,
-  };
-}
-
-function ProfileGenderForm({ gender, canManage }: { gender: DashboardProfile["grammaticalGender"]; canManage: boolean }) {
-  return (
-    <div className="profile-gender-box" aria-label="Стать і звертання в повідомленнях">
-      <div className="profile-gender-box__head">
-        <span className="profile-gender-box__icon" aria-hidden="true">✦</span>
-        <span>
-          <strong>Стать / звертання</strong>
-          <small>Для особистих повідомлень сайту та Discord</small>
-        </span>
-        <span className="profile-gender-pill">{profileGenderLabel(gender)}</span>
-      </div>
-
-      {canManage ? (
-        <form className="profile-gender-form" action="/api/profile/gender" method="post">
-          {([
-            ["unspecified", "Не вибрано", "дефолт: нейтральні безособові форми множини"],
-            ["neutral", "Нейтральне звертання", "тебе записали, підписали"],
-            ["nonbinary", "Небінарна особа", "нейтрально: тебе записали, підписали"],
-            ["male", "Чоловіча", "ти записаний, підписаний"],
-            ["female", "Жіноча", "ти записана, підписана"],
-          ] as const).map(([value, label, hint]) => (
-            <label className={`profile-gender-option${gender === value ? " is-selected" : ""}`} key={value}>
-              <input type="radio" name="grammaticalGender" value={value} defaultChecked={gender === value} />
-              <span>
-                <strong>{label}</strong>
-                <small>{hint}</small>
-              </span>
-            </label>
-          ))}
-          <button className="btn btn-primary btn-sm" type="submit">Зберегти звертання</button>
-        </form>
-      ) : (
-        <p className="profile-card-lead profile-card-lead--compact">Впливає тільки на персональні фрази в інтерфейсі та Discord-відповідях.</p>
-      )}
-    </div>
-  );
-}
-
-type ProfileRoleChip = {
-  id: string;
-  label: string;
-  position: number;
-  muted?: boolean;
-};
-
-function buildRoleChips(roleIds: string[], roles: DiscordRoleOption[]): ProfileRoleChip[] {
-  const roleMap = new Map(roles.map((role) => [role.id, role]));
-  return Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter(Boolean)))
-    .map((roleId) => {
-      const role = roleMap.get(roleId);
-      return {
-        id: roleId,
-        label: role?.name || `Discord роль ${roleId.slice(-6)}`,
-        position: role?.position ?? 0,
-      } satisfies ProfileRoleChip;
-    })
-    .sort((a, b) => b.position - a.position || a.label.localeCompare(b.label, "uk"));
-}
-
 function numberOrNull(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : null;
-}
-
-function statValue(value: number | null | undefined) {
-  return typeof value === "number" ? value : "—";
 }
 
 function characterVisualUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
@@ -217,83 +102,6 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
   }
 
   return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
-}
-
-const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint: string }[] = [
-  { value: "auto", label: "Авто", hint: "Брати роль зі спеки мейна" },
-  { value: "tank", label: "Танк", hint: "Записувати як танка" },
-  { value: "healer", label: "Хіл", hint: "Записувати як хіла" },
-  { value: "dps", label: "ДД", hint: "Записувати як ДД" },
-];
-
-function characterAutoRaidRole(character?: ProfileCharacter | null): WowCharacterRole {
-  return character ? resolveWowCharacterRole({
-    className: character.className,
-    activeSpecName: character.activeSpecName,
-    activeSpecId: character.activeSpecId,
-    activeSpecRole: character.activeSpecRole,
-  }) : "dps";
-}
-
-function RaidRolePreferenceForm({
-  mainCharacter,
-  manualRole,
-  selectedRole,
-  canManage,
-}: {
-  mainCharacter?: ProfileCharacter | null;
-  manualRole?: WowCharacterRole | null;
-  selectedRole: WowCharacterRole;
-  canManage: boolean;
-}) {
-  const autoRole = characterAutoRaidRole(mainCharacter);
-  const sourceLabel = manualRole ? "Вибрано вручну" : "Авто з мейна";
-  const mainLabel = mainCharacter
-    ? `${mainCharacter.name}${mainCharacter.realmName || mainCharacter.realmSlug ? ` • ${mainCharacter.realmName || mainCharacter.realmSlug}` : ""}`
-    : "Мейн не вибрано";
-
-  return (
-    <div className="profile-raid-role-box" aria-label="Роль для запису на рейди">
-      <div className="profile-raid-role-box__head">
-        <span className="profile-raid-role-box__icon" aria-hidden="true">⚔</span>
-        <span>
-          <strong>Роль у рейді</strong>
-          <small>{mainLabel}</small>
-        </span>
-        <span className={`profile-raid-role-pill profile-raid-role-pill--${selectedRole}`}>
-          {wowRoleLabel(selectedRole)}
-        </span>
-      </div>
-
-      <p className="profile-raid-role-box__note">
-        {sourceLabel}: {manualRole ? wowRoleLabel(manualRole) : `${wowRoleLabel(autoRole)} зі спеки мейна`}. Це дефолтна роль саме для мейна; якщо для рейду вибрано іншого персонажа, система бере роль з його спеки.
-      </p>
-
-      {canManage && mainCharacter ? (
-        <form className="profile-raid-role-form" action="/api/profile/raid-role" method="post">
-          {RAID_ROLE_OPTIONS.map((option) => {
-            const checked = option.value === "auto" ? !manualRole : manualRole === option.value;
-            const hint = option.value === "auto" ? `${option.hint}: ${wowRoleLabel(autoRole)}` : option.hint;
-            return (
-              <label className={`profile-raid-role-option${checked ? " is-selected" : ""}`} key={option.value}>
-                <input type="radio" name="raidRole" value={option.value} defaultChecked={checked} />
-                <span>
-                  <strong>{option.label}</strong>
-                  <small>{hint}</small>
-                </span>
-              </label>
-            );
-          })}
-          <button className="btn btn-primary btn-sm" type="submit">Зберегти роль</button>
-        </form>
-      ) : canManage ? (
-        <div className="profile-empty-characters profile-empty-characters--compact">
-          <strong>Спочатку вибери мейна</strong>
-          <span>Після цього можна буде вказати роль для рейдів.</span>
-        </div>
-      ) : null}
-    </div>
-  );
 }
 
 function CharacterCard({ character, canManage, showMainBadge }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean }) {
@@ -511,30 +319,11 @@ export default async function ProfilePage({
     notFound();
   }
 
-  let roles: DiscordRoleOption[] = [];
-  let roleLoadError = "";
-  const showAccessDetails = canViewProfileAccessDetails(viewer);
-  const discordMemberReadable = profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId) && hasDiscordEmbedConfig();
-  const shouldLoadRoles = hasDiscordEmbedConfig() && showAccessDetails;
-
-  if (shouldLoadRoles) {
-    try {
-      roles = await fetchDiscordRoles();
-    } catch (error) {
-      roleLoadError = error instanceof Error ? error.message : String(error || "Discord API error");
-    }
-  }
-
   const mainCharacter = getMainCharacter(profile);
-  const raidRolePreference = profile.raidRolePreference || null;
-  const manualRaidRole = raidRolePreference && mainCharacter && raidRolePreference.characterKey === mainCharacter.key
-    ? raidRolePreference.role
-    : null;
   const selectedRaidRole = getProfileRaidRole(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
   const canManageCharacters = isOwnProfile;
-  const canInspectOtherProfile = !isOwnProfile && showAccessDetails;
-  const canViewPrivateProfileBlocks = isOwnProfile || showAccessDetails;
+  const canViewPrivateProfileBlocks = isOwnProfile || canViewProfileAccessDetails(viewer);
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
@@ -548,82 +337,12 @@ export default async function ProfilePage({
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
   const savedCharacterCount = profile.characters.length;
-  const discordNicknamePreview = buildProfileDiscordNickname(profile, nicknamePolicy.template);
   const publicNamePreview = getProfilePublicName(profile, nicknamePolicy.template);
-  const serverStyleNamePreview = getProfileServerStyleName(profile, 80, nicknamePolicy.template);
-  const canSyncDiscordNickname = isOwnProfile && discordMemberReadable;
-  let discordOwnerLocked = false;
-  let currentServerNickname: string | null = null;
-  let liveDiscordMember: Awaited<ReturnType<typeof fetchDiscordGuildMemberSnapshot>> | null = null;
-
-  if (discordMemberReadable && (showAccessDetails || canSyncDiscordNickname)) {
-    const [guild, member] = await Promise.all([
-      canSyncDiscordNickname ? fetchDiscordGuildSnapshot().catch(() => null) : Promise.resolve(null),
-      fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
-    ]);
-    liveDiscordMember = member;
-    discordOwnerLocked = Boolean(guild?.ownerId && guild.ownerId === profile.providerUserId);
-    currentServerNickname = member?.nick || null;
-  }
-
-  const liveRoleIds = Array.from(new Set((liveDiscordMember?.roleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean)));
-  const liveAccessChecked = Boolean(discordMemberReadable && liveDiscordMember);
-  const liveAccessGroup = liveAccessChecked
-    ? await resolveAccessGroupFromDiscord(liveRoleIds, profile.providerUserId, discordOwnerLocked ? profile.providerUserId : null).catch(() => null)
-    : null;
-  const liveDashboardRole = liveAccessGroup?.group.role || null;
-  const effectiveProfileRole = liveDashboardRole || profile.role;
-  const liveAccessState = liveAccessChecked
-    ? liveAccessGroup
-      ? "synced"
-      : "no-access"
-    : discordMemberReadable
-      ? "unavailable"
-      : "not-discord";
-  const liveAccessDescription = liveAccessState === "synced"
-    ? liveRoleIds.length
-      ? "Ролі й доступ оновлені напряму з Discord-сервера."
-      : "Discord-сервер підтвердив профіль без привʼязаних ролей доступу; показано базову групу учасника."
-    : liveAccessState === "no-access"
-      ? "Discord-сервер не підтвердив жодної групи доступу для цього профілю."
-      : liveAccessState === "unavailable"
-        ? "Discord-ролі тимчасово недоступні, показано останні збережені дані профілю."
-        : "Профіль не привʼязаний до Discord-акаунта.";
-  const profileSession: DashboardSession = {
-    ...profileAsSession(profile),
-    role: effectiveProfileRole,
-    discordRoleIds: liveRoleIds.length ? liveRoleIds : profile.discordRoleIds,
-    groupId: liveAccessGroup?.group.id || profile.groupId || undefined,
-    groupName: liveAccessGroup?.group.name || profile.groupName || undefined,
-    groupRank: liveAccessGroup?.group.rank ?? profile.groupRank ?? undefined,
-    permissions: liveAccessGroup?.group.permissions,
-    isServerOwner: Boolean(liveAccessGroup?.isServerOwner),
-  };
-  const capabilities = dashboardCapabilities(effectiveProfileRole, profileSession.permissions);
-  const visibleCapabilities = showAccessDetails ? capabilities : capabilities.filter((item) => item.enabled && (item.key === "profile" || item.key === "raid-signup"));
-  const enabledCount = visibleCapabilities.filter((item) => item.enabled).length;
-  const guildStatus = guildStatusLabel(effectiveProfileRole);
+  const guildStatus = guildStatusLabel(profile.role);
   const eligibleGuildCharacters = numberOrNull(profile.battlenet?.guildCharacters) ?? profileGuildCharacters.length;
   const eligibleOtherCharacters = numberOrNull(profile.battlenet?.otherCharacters) ?? profileOtherCharacters.length;
-  const roleIdsFromSession: string[] = Array.from(
-    new Set<string>((profileSession.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))
-  );
-  const configuredAccessRoleIds = new Set(liveAccessGroup?.group.discordRoleIds?.length ? liveAccessGroup.group.discordRoleIds : configuredRoleIdsForDashboardRole(effectiveProfileRole));
-  const accessRoleIds = configuredAccessRoleIds.size ? roleIdsFromSession.filter((roleId) => configuredAccessRoleIds.has(roleId)) : roleIdsFromSession;
-  const accessRoleChips: ProfileRoleChip[] = profileSession.provider === "token"
-    ? [{ id: "token", label: "Резервний ключ адміністратора", position: 9999 }]
-    : buildRoleChips(accessRoleIds, roles);
-  const fallbackAccessChip = !accessRoleChips.length
-    ? ({
-        id: "access-fallback",
-        label: effectiveProfileRole === "member" ? "Доступ через участь на Discord-сервері" : `${dashboardRoleLabel(effectiveProfileRole)}`,
-        position: -1,
-        muted: true,
-      } satisfies ProfileRoleChip)
-    : null;
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
-  const serverNicknameLabel = currentServerNickname || "Не встановлено";
-  const accountStatusLabel = showAccessDetails ? dashboardRoleLabel(effectiveProfileRole) : guildStatus;
+  const accountStatusLabel = dashboardRoleLabel(profile.role);
   const profileUpdatedLabel = formatCompactDate(profile.battlenet?.lastSyncAt || profile.updatedAt || profile.lastLoginAt || mainCharacter?.lastSeenAt);
   const visibleCharacters = [...profile.characters].sort((a, b) => {
     if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
@@ -633,7 +352,7 @@ export default async function ProfilePage({
 
   return (
     <main className="container">
-      <section className="dashboard-shell content-shell profile-shell profile-account-page" aria-label="Персональна сторінка панелі Mistblossom Vanguard">
+      <section className="dashboard-shell content-shell profile-shell profile-account-page" aria-label="Профіль Mistblossom Vanguard">
         <DashboardIdentity user={viewer} activeSection="profile" />
         <div className="profile-account-layout">
           <aside className="panel profile-account-sidebar" aria-label="Коротка навігація профілю">
@@ -661,11 +380,10 @@ export default async function ProfilePage({
               </div>
             </div>
             <nav className="profile-account-sidebar__nav" aria-label="Розділи профілю">
-              <a href="#profile-overview" aria-current="page"><span aria-hidden="true">✦</span> Огляд</a>
-              <a href="#profile-settings"><span aria-hidden="true">👤</span> Профіль</a>
+              <a href={`/profile/${encodeURIComponent(profile.profileId)}`} aria-current="page"><span aria-hidden="true">✦</span> Профіль</a>
+              {isOwnProfile ? <a href={`/profile/${encodeURIComponent(profile.profileId)}/settings`}><span aria-hidden="true">⚙</span> Налаштування</a> : null}
               <a href="#profile-characters"><span aria-hidden="true">⚔</span> Персонажі</a>
               {canViewPrivateProfileBlocks ? <a href="#profile-raids"><span aria-hidden="true">◆</span> Рейди</a> : null}
-              {showAccessDetails ? <a href="#profile-discord-access"><span aria-hidden="true">🛡</span> Доступ</a> : null}
             </nav>
           </aside>
 
@@ -673,8 +391,8 @@ export default async function ProfilePage({
             <header className="profile-account-header" id="profile-overview">
               <div>
                 <span className="eyebrow">Mistblossom Vanguard • Профіль</span>
-                <h1>{isOwnProfile ? "Огляд акаунта" : "Огляд профілю"}</h1>
-                <p>{showAccessDetails ? "Імʼя, серверний Discord-нік, персонажі та рейдові записи без зайвих дублювань." : canViewPrivateProfileBlocks ? "Серверний нік, мейн, рейдова роль і привʼязані персонажі." : "Публічна картка учасника та персонажі гільдії."}</p>
+                <h1>{isOwnProfile ? "Мій профіль" : "Профіль учасника"}</h1>
+                <p>Тут лише перегляд профілю, Battle.net-звʼязок і керування персонажами. Імʼя, Discord-нік, альти для шаблону та інші параметри винесені в налаштування.</p>
               </div>
               <span className="profile-account-header__badge">{guildStatus}</span>
             </header>
@@ -683,8 +401,8 @@ export default async function ProfilePage({
               <div className="profile-account-overview-card profile-account-overview-card--primary">
                 <span className="profile-account-overview-card__icon" aria-hidden="true">#</span>
                 <span>
-                  <small>Серверний нік</small>
-                  <strong>{serverNicknameLabel}</strong>
+                  <small>Імʼя профілю</small>
+                  <strong>{publicNamePreview}</strong>
                 </span>
               </div>
               <div className="profile-account-overview-card">
@@ -711,168 +429,79 @@ export default async function ProfilePage({
             </section>
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
-            {canInspectOtherProfile ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
+            {!isOwnProfile && canViewPrivateProfileBlocks ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
 
-            <section className="profile-grid" aria-label="Дані доступу">
-        <article id="profile-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
-          <div className="profile-card-head">
-            <span className="eyebrow">Профіль</span>
-            <h2>Імʼя та Discord</h2>
-          </div>
-
-          <ProfileNameControls
-            preferredName={profile.preferredName}
-            publicNameMode={profile.publicNameMode}
-            discordName={profile.displayName}
-            publicNamePreview={publicNamePreview}
-            serverStyleNamePreview={serverStyleNamePreview}
-            nicknamePreview={discordNicknamePreview}
-            lastSyncedNickname={profile.discordNickname?.value}
-            lastSyncedAt={profile.discordNickname?.syncedAt ? formatCompactDate(profile.discordNickname.syncedAt) : null}
-            currentServerNickname={currentServerNickname}
-            serverNicknameChecked={Boolean(discordMemberReadable && liveDiscordMember)}
-            canManage={isOwnProfile}
-            canSyncDiscord={canSyncDiscordNickname}
-            discordOwnerLocked={discordOwnerLocked}
-          />
-
-          {(isOwnProfile || showAccessDetails) ? (
-            <details className="profile-compact-details profile-compact-details--settings">
-              <summary>
-                <span>Додаткові налаштування</span>
-                <strong>{profileGenderLabel(profile.grammaticalGender)}</strong>
-              </summary>
-              {isOwnProfile ? <ProfileGenderForm gender={profile.grammaticalGender} canManage={isOwnProfile} /> : null}
-              {showAccessDetails ? (
-                <dl className="profile-facts profile-facts--compact profile-facts--technical">
+            <section className="profile-grid profile-grid--single" aria-label="Персонажі профілю">
+              <article id="profile-characters" className="panel profile-card profile-card--characters">
+                <div className="profile-card-head profile-card-head--inline">
                   <div>
-                    <dt>Вхід</dt>
-                    <dd>{providerLabel(profile.provider)}</dd>
+                    <span className="eyebrow">Battle.net</span>
+                    <h2>Персонажі Battle.net</h2>
                   </div>
-                  <div>
-                    <dt>Оновлено</dt>
-                    <dd>{formatDate(profile.updatedAt || profile.lastLoginAt)}</dd>
-                  </div>
-                  <div>
-                    <dt>Останній вхід</dt>
-                    <dd>{formatDate(profile.lastLoginAt)}</dd>
-                  </div>
-                  <div>
-                    <dt>ID</dt>
-                    <dd>{profile.profileId}</dd>
-                  </div>
-                </dl>
-              ) : null}
-            </details>
-          ) : null}
-        </article>
-
-        {showAccessDetails ? <article id="profile-discord-access" className="panel profile-card profile-card--roles profile-card--access-clean">
-          <div className="profile-card-head profile-card-head--inline">
-            <div>
-              <span className="eyebrow">Discord</span>
-              <h2>Доступ</h2>
-            </div>
-            <span className="profile-count-pill">{dashboardRoleLabel(effectiveProfileRole)}</span>
-          </div>
-
-          <small className={`profile-warning profile-warning--${liveAccessState}`}>{liveAccessDescription}</small>
-
-          <div className="profile-role-stack profile-role-stack--compact" aria-label="Ролі, які надали найвищий доступ">
-            {[...accessRoleChips, ...(fallbackAccessChip ? [fallbackAccessChip] : [])].map((role) => (
-              <span className={`profile-role-chip${role.muted ? " profile-role-chip--muted" : ""}`} key={role.id}>{role.label}</span>
-            ))}
-          </div>
-
-          {roleIdsFromSession.length && !roles.length && !roleLoadError ? <small className="profile-warning">Назви ролей тимчасово недоступні.</small> : null}
-          {roleLoadError ? <small className="profile-warning">Назви Discord-ролей тимчасово недоступні.</small> : null}
-        </article> : null}
-
-        <article id="profile-characters" className="panel profile-card profile-card--characters">
-          <div className="profile-card-head profile-card-head--inline">
-            <div>
-              <span className="eyebrow">Battle.net</span>
-              <h2>Персонажі Battle.net</h2>
-            </div>
-            {canManageCharacters ? (
-              <div className="profile-bnet-region-actions" aria-label="Підключити або оновити Battle.net">
-                <a className="profile-bnet-cta" href={`/api/auth/battlenet/start?region=${primaryBattleNetRegion}`}>
-                  <span className="profile-bnet-cta__eyebrow">{battleNetAction.eyebrow}</span>
-                  <strong>{battleNetAction.title}</strong>
-                  <small>{battleNetAction.hint}</small>
-                </a>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="profile-card-toolbar profile-card-toolbar--compact" aria-label="Стан персонажів">
-            <span><strong>{profileGuildCharacters.length}</strong><small>Гільдійні</small></span>
-            <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span>
-            <span><strong>{profileUpdatedLabel}</strong><small>Оновлено</small></span>
-          </div>
-
-          {canViewPrivateProfileBlocks ? (
-            <details className="profile-compact-details profile-compact-details--raid-role">
-              <summary>
-                <span>Роль для рейдів</span>
-                <strong>{wowRoleLabel(selectedRaidRole)}</strong>
-              </summary>
-              <RaidRolePreferenceForm
-                mainCharacter={mainCharacter}
-                manualRole={manualRaidRole}
-                selectedRole={selectedRaidRole}
-                canManage={canManageCharacters}
-              />
-            </details>
-          ) : null}
-
-          {profile.characters.length ? (
-            <div className="profile-character-list profile-character-list--single-flow">
-              {visibleCharacters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} />)}
-            </div>
-          ) : (
-            <div className="profile-empty-characters">
-              <strong>Персонажів ще немає</strong>
-              <span>{canManageCharacters ? "Підключи Battle.net і додай мейна для рейдів." : "Учасник ще не додав персонажів."}</span>
-            </div>
-          )}
-
-          {canManageCharacters && hasFreshBattleNetSession ? (
-            <div className="profile-candidates-box">
-              <div className="profile-card-head profile-card-head--inline">
-                <div>
-                  <span className="eyebrow">Battle.net</span>
-                  <h3>Можна додати</h3>
-                  <small className="profile-card-note">Вибери гільдійних або інших персонажів, які мають бути в профілі.</small>
+                  {canManageCharacters ? (
+                    <div className="profile-bnet-region-actions" aria-label="Підключити або оновити Battle.net">
+                      <a className="profile-bnet-cta" href={`/api/auth/battlenet/start?region=${primaryBattleNetRegion}`}>
+                        <span className="profile-bnet-cta__eyebrow">{battleNetAction.eyebrow}</span>
+                        <strong>{battleNetAction.title}</strong>
+                        <small>{battleNetAction.hint}</small>
+                      </a>
+                    </div>
+                  ) : null}
                 </div>
-                <span className="profile-count-pill">{availableCandidates.length}</span>
-              </div>
-              <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post" />
-              <ProfileCandidateBulkActions formId={bulkFormId} count={availableCandidates.length} />
-              <div className="profile-candidate-groups">
-                {availableGuildCandidates.length ? (
-                  <section className="profile-candidate-group" aria-label="Кандидати гільдії">
-                    <div className="profile-subsection-head profile-subsection-head--compact"><strong>Гільдійні</strong><small>{availableGuildCandidates.length}</small></div>
-                    <ul className="profile-character-candidates">
-                      {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
-                    </ul>
-                  </section>
-                ) : null}
-                {availableOtherCandidates.length ? (
-                  <section className="profile-candidate-group" aria-label="Інші кандидати">
-                    <div className="profile-subsection-head profile-subsection-head--compact"><strong>Інші</strong><small>{availableOtherCandidates.length}</small></div>
-                    <ul className="profile-character-candidates">
-                      {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
-                    </ul>
-                  </section>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-        </article>
 
-        {canViewPrivateProfileBlocks ? <ProfileRaidSignups items={raidSignups} /> : null}
+                <div className="profile-card-toolbar profile-card-toolbar--compact" aria-label="Стан персонажів">
+                  <span><strong>{profileGuildCharacters.length}</strong><small>Гільдійні</small></span>
+                  <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span>
+                  <span><strong>{eligibleGuildCharacters + eligibleOtherCharacters}</strong><small>Доступні</small></span>
+                  <span><strong>{profileUpdatedLabel}</strong><small>Оновлено</small></span>
+                </div>
 
+                {profile.characters.length ? (
+                  <div className="profile-character-list profile-character-list--single-flow">
+                    {visibleCharacters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} />)}
+                  </div>
+                ) : (
+                  <div className="profile-empty-characters">
+                    <strong>Персонажів ще немає</strong>
+                    <span>{canManageCharacters ? "Підключи Battle.net і додай мейна для рейдів." : "Учасник ще не додав персонажів."}</span>
+                  </div>
+                )}
+
+                {canManageCharacters && hasFreshBattleNetSession ? (
+                  <div className="profile-candidates-box">
+                    <div className="profile-card-head profile-card-head--inline">
+                      <div>
+                        <span className="eyebrow">Battle.net</span>
+                        <h3>Можна додати</h3>
+                        <small className="profile-card-note">Вибери гільдійних або інших персонажів, які мають бути в профілі.</small>
+                      </div>
+                      <span className="profile-count-pill">{availableCandidates.length}</span>
+                    </div>
+                    <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post" />
+                    <ProfileCandidateBulkActions formId={bulkFormId} count={availableCandidates.length} />
+                    <div className="profile-candidate-groups">
+                      {availableGuildCandidates.length ? (
+                        <section className="profile-candidate-group" aria-label="Кандидати гільдії">
+                          <div className="profile-subsection-head profile-subsection-head--compact"><strong>Гільдійні</strong><small>{availableGuildCandidates.length}</small></div>
+                          <ul className="profile-character-candidates">
+                            {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
+                          </ul>
+                        </section>
+                      ) : null}
+                      {availableOtherCandidates.length ? (
+                        <section className="profile-candidate-group" aria-label="Інші кандидати">
+                          <div className="profile-subsection-head profile-subsection-head--compact"><strong>Інші</strong><small>{availableOtherCandidates.length}</small></div>
+                          <ul className="profile-character-candidates">
+                            {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
+                          </ul>
+                        </section>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </article>
+
+              {canViewPrivateProfileBlocks ? <ProfileRaidSignups items={raidSignups} /> : null}
             </section>
           </div>
         </div>

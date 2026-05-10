@@ -48,8 +48,9 @@ function actionText(action: string) {
   if (action.includes("/profile/characters/bulk-add")) return { label: "Додаємо...", title: "Додаємо персонажів", message: "Додаємо вибраних персонажів однією дією." };
   if (action.includes("/profile/characters/add")) return { label: "Додаємо...", title: "Додаємо персонажа", message: "Перевіряємо Battle.net і додаємо персонажа до профілю." };
   if (action.includes("/profile/characters/remove")) return { label: "Видаляємо...", title: "Видаляємо персонажа", message: "Оновлюємо список персонажів і мейна." };
-  if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для сайту й Discord." };
+  if (action.includes("/profile/characters/main")) return { label: "Оновлюємо...", title: "Оновлюємо мейна", message: "Зберігаємо основного персонажа для профілю, рейдів і Discord-шаблону." };
   if (action.includes("/profile/raid-role")) return { label: "Зберігаємо...", title: "Зберігаємо роль у рейді", message: "Оновлюємо пріоритет ролі для запису на рейди." };
+  if (action.includes("/profile/nickname-characters")) return { label: "Зберігаємо...", title: "Зберігаємо альтів для ніку", message: "Оновлюємо персонажів, які підставляються в Discord nickname." };
   if (action.includes("/profile/name-mode")) return { label: "Зберігаємо...", title: "Зберігаємо формат імені", message: "Оновлюємо, як імʼя показується в панелі, рейдах і авторах." };
   if (action.includes("/profile/name")) return { label: "Зберігаємо...", title: "Зберігаємо імʼя", message: "Оновлюємо імʼя в профілі." };
   if (action.includes("/profile/discord-nickname")) return { label: "Синхронізуємо...", title: "Оновлюємо Discord імʼя", message: "Змінюємо серверний nickname у Discord за профільним стандартом." };

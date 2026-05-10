@@ -263,6 +263,18 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Профіль не вдалося оновити. Онови сторінку і повтори дію.",
     ttl: 8600,
   },
+  profile_nickname_characters_saved: {
+    tone: "success",
+    title: "Альти для ніку збережено",
+    message: "Discord nickname тепер братиме мейна і вибрані два альти за шаблоном з адмін-панелі.",
+    ttl: 6200,
+  },
+  profile_nickname_characters_failed: {
+    tone: "error",
+    title: "Альти не збережено",
+    message: "Не вдалося оновити персонажів для Discord nickname. Онови сторінку і повтори дію.",
+    ttl: 8600,
+  },
   profile_name_invalid: {
     tone: "warning",
     title: "Імʼя не збережено",
@@ -278,7 +290,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   discord_nick_synced: {
     tone: "success",
     title: "Discord імʼя оновлено",
-    message: "Серверний nickname змінено за стандартом профілю: імʼя і до трьох персонажів, де перший — мейн.",
+    message: "Серверний nickname змінено за стандартом профілю: імʼя, мейн і до двох вибраних альтів.",
     ttl: 7200,
   },
   discord_nick_synced_short: {

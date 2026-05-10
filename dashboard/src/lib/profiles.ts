@@ -38,6 +38,7 @@ export type DashboardProfile = {
   discordRoleIds: string[];
   characters: ProfileCharacter[];
   mainCharacterKey?: string | null;
+  nicknameCharacterKeys?: string[];
   raidRolePreference?: {
     characterKey: string;
     role: WowCharacterRole | null;
@@ -132,6 +133,23 @@ function cleanCharacterKey(value: unknown) {
 
 function cleanProfilePublicNameMode(value: unknown): ProfilePublicNameMode {
   return value === "server_nickname" ? "server_nickname" : "name";
+}
+
+function cleanNicknameCharacterKeys(value: unknown, mainCharacterKey?: string | null) {
+  if (!Array.isArray(value)) return [];
+  const mainKey = cleanCharacterKey(mainCharacterKey);
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const raw of value) {
+    const key = cleanCharacterKey(raw);
+    if (!key || key === mainKey || seen.has(key)) continue;
+    seen.add(key);
+    result.push(key);
+    if (result.length >= 2) break;
+  }
+
+  return result;
 }
 
 export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammaticalGender {
@@ -318,6 +336,7 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       : [],
     characters: normalizeCharacters(data.characters, mainCharacterKey),
     mainCharacterKey,
+    nicknameCharacterKeys: cleanNicknameCharacterKeys(data.nicknameCharacterKeys || data.discordNicknameCharacterKeys, mainCharacterKey),
     raidRolePreference: normalizeRaidRolePreference(data.raidRolePreference, mainCharacterKey),
     discordNickname: discordNicknameRaw ? {
       value: cleanDiscordNicknamePart(discordNicknameRaw.value, 32) || null,
@@ -400,6 +419,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
     characters: [],
     mainCharacterKey: null,
+    nicknameCharacterKeys: [],
     raidRolePreference: null,
     discordNickname: null,
     battlenet: null,
@@ -426,7 +446,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     discordRoleIds: profile.discordRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
     lastLoginAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, raidRolePreference: null, publicNameMode: "name", grammaticalGender: "unspecified" }),
+    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, nicknameCharacterKeys: [], raidRolePreference: null, publicNameMode: "name", grammaticalGender: "unspecified" }),
   }, { merge: true });
 
   return { profile, stored: true };
@@ -673,6 +693,7 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     discordRoleIds: session.discordRoleIds || [],
     characters: [],
     mainCharacterKey: null,
+    nicknameCharacterKeys: [],
     raidRolePreference: null,
     discordNickname: null,
     battlenet: null,
@@ -956,6 +977,7 @@ export async function removeProfileCharacter(profileId: string, characterKey: st
     const updatePayload: Record<string, unknown> = {
       characters: nextCharacters,
       mainCharacterKey: nextMain,
+      nicknameCharacterKeys: (profile.nicknameCharacterKeys || []).filter((key) => key !== cleanKey && nextCharacters.some((item) => item.key === key && item.key !== nextMain)).slice(0, 2),
       updatedAt: FieldValue.serverTimestamp(),
     };
     if (profile.raidRolePreference?.characterKey === cleanKey || (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)) {
@@ -983,6 +1005,7 @@ export async function setMainProfileCharacter(profileId: string, characterKey: s
 
     const updatePayload: Record<string, unknown> = {
       mainCharacterKey: cleanKey,
+      nicknameCharacterKeys: (profile.nicknameCharacterKeys || []).filter((key) => key !== cleanKey).slice(0, 2),
       updatedAt: FieldValue.serverTimestamp(),
     };
     if (profile.mainCharacterKey && profile.mainCharacterKey !== cleanKey) {
@@ -1056,9 +1079,15 @@ export function buildAuthorNameSuggestions(params: {
 
 function orderedCharactersForNickname(profile: DashboardProfile) {
   const main = getMainCharacter(profile);
+  const characterByKey = new Map(profile.characters.map((character) => [character.key, character]));
+  const selectedAlts = cleanNicknameCharacterKeys(profile.nicknameCharacterKeys, main?.key)
+    .map((key) => characterByKey.get(key))
+    .filter((character): character is ProfileCharacter => Boolean(character));
+  const fallbackAlts = profile.characters.filter((item) => item.key !== main?.key && !selectedAlts.some((alt) => alt.key === item.key));
   const ordered = [
     ...(main ? [main] : []),
-    ...profile.characters.filter((item) => item.key !== main?.key),
+    ...selectedAlts,
+    ...fallbackAlts,
   ];
   const seen = new Set<string>();
   const result: string[] = [];
@@ -1228,6 +1257,33 @@ export async function markProfileDiscordNicknameSynced(
     },
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
+}
+
+export async function setProfileNicknameCharacters(profileId: string, characterKeysInput: unknown) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+
+  const requestedKeys = cleanNicknameCharacterKeys(characterKeysInput);
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+
+  return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    const mainKey = getMainCharacter(profile)?.key || profile.mainCharacterKey || null;
+    const characterKeys = new Set(profile.characters.map((item) => item.key));
+    const selected = requestedKeys
+      .filter((key) => key !== mainKey && characterKeys.has(key))
+      .slice(0, 2);
+
+    transaction.set(ref, {
+      nicknameCharacterKeys: selected,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    return selected;
+  });
 }
 
 export async function setProfileRaidRolePreference(profileId: string, roleInput: unknown) {

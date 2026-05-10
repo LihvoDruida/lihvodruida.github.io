@@ -5,7 +5,7 @@ import { normalizeWowRole } from "@/lib/wowRoles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
+  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
   return response;
 }
