@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-10 13:22:20'
+  updated_at: '2026-05-10 16:58:31'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 133
+  member_count: 134
 characters:
 - name: Бреинор
   region: eu
@@ -6834,4 +6834,30 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
   professions:
     primaries: []
+    secondaries: []
+- name: Rolemodel
+  region: eu
+  realm: burning-legion
+  realm_slug: burning-legion
+  profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
+  professions:
+    primaries:
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 85
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 77
+        max_points: 100
     secondaries: []
