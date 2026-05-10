@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-10 03:26:52'
+  updated_at: '2026-05-10 06:34:36'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 135
+  member_count: 134
   achievement_points: 495
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13757
+      world: 13759
       region: 6129
       realm: 55
     heroic:
-      world: 13308
+      world: 13318
       region: 5694
       realm: 46
     mythic:
-      world: 7500
+      world: 7511
       region: 3189
       realm: 25
   blackrock-depths:
@@ -970,14 +970,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2121.1
-        color: '#46ff2c'
+        score: 2250.4
+        color: '#2dfa21'
       dps:
-        score: 2121.1
-        color: '#46ff2c'
+        score: 2250.4
+        color: '#2dfa21'
       healer:
         score: 0
         color: '#ffffff'
@@ -985,8 +985,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2008.4
-        color: '#59ff3e'
+        score: 2137.7
+        color: '#40ff27'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1160,7 +1160,7 @@ members:
   character:
     name: Umbramind
     id: 185040389
-    level: 80
+    level: 81
     realm:
       id: 1415
       slug: terokkar
@@ -1212,7 +1212,7 @@ members:
   character:
     name: Nebatur
     id: 185042794
-    level: 86
+    level: 87
     realm:
       id: 1415
       slug: terokkar
@@ -3962,14 +3962,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 274
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2767.8
-        color: '#5698b3'
+        score: 2805.4
+        color: '#4f8fbc'
       dps:
-        score: 2767.8
-        color: '#5698b3'
+        score: 2805.4
+        color: '#4f8fbc'
       healer:
         score: 0
         color: '#ffffff'
@@ -3983,8 +3983,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2767.8
-        color: '#5698b3'
+        score: 2805.4
+        color: '#4f8fbc'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5317,11 +5317,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2568.8
-        color: '#5fbd8a'
+        score: 2601.9
+        color: '#5fb88f'
       dps:
-        score: 2568.8
-        color: '#5fbd8a'
+        score: 2601.9
+        color: '#5fb88f'
       healer:
         score: 0
         color: '#ffffff'
@@ -5329,8 +5329,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2551.3
-        color: '#5fc184'
+        score: 2584.3
+        color: '#5fbd8a'
       spec_1:
         score: 2049.8
         color: '#55ff3a'
@@ -5447,6 +5447,34 @@ members:
     sources:
       roster: blizzard
       enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Рокталл
+    id: 251108849
+    level: 83
+    realm:
+      id: 1604
+      slug: soulflayer
+    playable_class:
+      id: 1
+      name: null
+    playable_race:
+      id: 2
+      name: null
+    faction:
+      type: HORDE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -5785,20 +5813,20 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2739.6
-        color: '#589dae'
+        score: 2798.3
+        color: '#5393b7'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2739.6
-        color: '#589dae'
+        score: 2798.3
+        color: '#5393b7'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2739.6
-        color: '#589dae'
+        score: 2798.3
+        color: '#5393b7'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6377,58 +6405,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 3
-  character:
-    name: Медведдич
-    id: 265656423
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Guardian
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/103/265656423-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Медведдич
-    item_level_equipped: 281
-    mythic_plus_scores:
-      all:
-        score: 3313.5
-        color: '#ae39e2'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 3313.5
-        color: '#ae39e2'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3313.5
-        color: '#ae39e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7035,32 +7011,4 @@ members:
     sources:
       roster: blizzard
       enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Рокталл
-    id: 251108849
-    level: 83
-    realm:
-      id: 1604
-      slug: soulflayer
-    playable_class:
-      id: 1
-      name: null
-    playable_race:
-      id: 2
-      name: null
-    faction:
-      type: HORDE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
       professions: blizzard
