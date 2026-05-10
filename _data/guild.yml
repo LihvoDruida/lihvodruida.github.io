@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-10 06:34:36'
+  updated_at: '2026-05-10 09:40:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6129
       realm: 55
     heroic:
-      world: 13318
-      region: 5694
+      world: 13321
+      region: 5697
       realm: 46
     mythic:
-      world: 7511
+      world: 7513
       region: 3189
       realm: 25
   blackrock-depths:
@@ -1022,7 +1022,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 170
@@ -5317,11 +5317,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2601.9
-        color: '#5fb88f'
+        score: 2646.9
+        color: '#5faf9a'
       dps:
-        score: 2601.9
-        color: '#5fb88f'
+        score: 2646.9
+        color: '#5faf9a'
       healer:
         score: 0
         color: '#ffffff'
@@ -5329,8 +5329,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2584.3
-        color: '#5fbd8a'
+        score: 2629.3
+        color: '#5fb395'
       spec_1:
         score: 2049.8
         color: '#55ff3a'
@@ -6982,7 +6982,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/205/266050253-avatar.jpg?alt=/wow/static/images/2d/avatar/30-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
-    item_level_equipped: 106
+    item_level_equipped: 115
     mythic_plus_scores:
       all:
         score: 0
