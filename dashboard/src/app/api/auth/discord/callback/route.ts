@@ -6,7 +6,7 @@ import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE, createStableProfileId, p
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
-import { upsertProfileFromSession } from "@/lib/profiles";
+import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 
@@ -161,12 +161,22 @@ export async function GET(request: NextRequest) {
       logDashboardEvent("error", "auth.discord.profile_upsert_failed", request, { userId: user.id, role, message: error instanceof Error ? error.message : String(error) });
       return { stored: false, reason: "write-failed" };
     });
+    const currentProfile = await getProfileById(session.profileId || "").catch(() => null);
+    const setupProfile = currentProfile || profileFromSession(session);
+    const setupRedirectPath = profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(session.profileId || setupProfile.profileId) : "";
 
-    logDashboardEvent("info", "auth.discord.callback.success", request, { userId: user.id, profileId: session.profileId, role, profileStored: profileWrite.stored });
+    logDashboardEvent("info", "auth.discord.callback.success", request, {
+      userId: user.id,
+      profileId: session.profileId,
+      role,
+      profileStored: profileWrite.stored,
+      setupRequired: Boolean(setupRedirectPath),
+    });
 
     await setSession(session);
 
-    const redirectPath = nextPath || (role === "member" ? `/profile/${session.profileId}` : "/");
+    const keepsExplicitOnboarding = /^\/rules\/accept(?:[/?#]|$)/.test(nextPath);
+    const redirectPath = keepsExplicitOnboarding ? nextPath : setupRedirectPath || nextPath || (role === "member" ? `/profile/${session.profileId}` : "/");
     const response = NextResponse.redirect(`${getDashboardUrl()}${redirectPath}`, 303);
     for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
     rememberRemainingOAuthNonces(response, remainingNonces);

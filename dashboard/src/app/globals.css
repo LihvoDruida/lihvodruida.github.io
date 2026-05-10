@@ -1,5 +1,7 @@
 :root {
   color-scheme: dark;
+  --font-mist-ui: "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-mist-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --bg: #05070d;
   --bg-deep: #02040a;
   --panel: rgba(11, 18, 31, 0.84);
@@ -2454,7 +2456,7 @@ textarea:disabled {
   display: grid;
   grid-template-columns: minmax(420px, 1.08fr) minmax(360px, 0.92fr);
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
   margin-bottom: 44px;
 }
 
@@ -3448,7 +3450,7 @@ safer mobile layout */
 }
 
 .discord-builder-shell--site {
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-builder-shell--site .discord-builder-panel,
@@ -4138,7 +4140,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   justify-content: start;
-  align-items: start;
+  align-items: flex-start;
   gap: 3px;
   margin-bottom: 8px;
 }
@@ -4608,7 +4610,7 @@ body {
   grid-template-areas:
     "channel picker code"
     "timestamp timestamp timestamp";
-  align-items: end;
+  align-items: flex-end;
   gap: 12px;
 }
 
@@ -4938,7 +4940,7 @@ body {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
   gap: 12px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-chat-preview__avatar {
@@ -5000,7 +5002,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-message-preview__main {
@@ -5044,7 +5046,7 @@ body {
 .discord-preview-list {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
+  align-items: flex-start;
   gap: 6px;
 }
 
@@ -5343,7 +5345,7 @@ body {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.45rem;
-  align-items: start;
+  align-items: flex-start;
   padding-left: 0.5rem;
 }
 
@@ -5503,7 +5505,7 @@ body {
 
 .discord-send-controls {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-  align-items: end;
+  align-items: flex-end;
   gap: 12px;
 }
 
@@ -5575,7 +5577,7 @@ body {
   grid-template-areas:
     "channel picker"
     "code timestamp";
-  align-items: end;
+  align-items: flex-end;
   column-gap: 12px;
   row-gap: 10px;
 }
@@ -5654,7 +5656,7 @@ body {
   grid-template-areas:
     "channel channel channel"
     "picker code timestamp";
-  align-items: end;
+  align-items: flex-end;
   column-gap: 12px;
   row-gap: 10px;
 }
@@ -5758,7 +5760,7 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) 28px;
-  align-items: start;
+  align-items: flex-start;
   gap: 10px;
   padding: 12px 12px 12px 13px;
   border: 1px solid rgba(255, 255, 255, 0.10);
@@ -6259,7 +6261,7 @@ body {
 .discord-rules-list-panel .discord-rules-section-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-raid-signups-panel .content-toolbar-actions,
@@ -6703,7 +6705,7 @@ body {
   display: grid;
   grid-template-columns: 78px 1fr;
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
   padding-left: 8px;
 }
 .raid-preview-head img{
@@ -6781,7 +6783,7 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .raid-preview-roster-head strong {
@@ -6962,7 +6964,7 @@ body {
   display: grid;
   grid-template-columns: minmax(520px, 1fr) minmax(260px, 360px);
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
   margin: 18px 0 36px;
 }
 
@@ -7044,7 +7046,7 @@ body {
   display: grid;
   grid-template-columns: minmax(320px, 460px) minmax(520px, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
   margin: 18px 0 36px;
 }
 
@@ -7512,7 +7514,7 @@ button.btn.danger:hover {
   width: 100%;
   max-width: none;
   grid-template-columns: minmax(380px, 520px) minmax(0, 1fr);
-  align-items: start;
+  align-items: flex-start;
 }
 
 .raid-form-panel--modern {
@@ -8075,7 +8077,7 @@ button.btn.danger:hover {
 }
 
 .raid-description-markdown .discord-preview-list {
-  align-items: start;
+  align-items: flex-start;
   margin: 0;
 }
 
@@ -8473,7 +8475,7 @@ button.btn.danger:hover {
   .raid-preview-roster-head {
     display: grid;
     gap: 8px;
-    align-items: start;
+    align-items: flex-start;
     margin: 10px 0 12px 4px;
   }
 
@@ -9784,7 +9786,7 @@ button[type="submit"],
 
   .global-toast {
     grid-template-columns: 36px minmax(0, 1fr) 34px;
-    align-items: start;
+    align-items: flex-start;
     gap: 11px;
     min-height: 64px;
     padding: 14px 13px 14px 14px;
@@ -10483,7 +10485,7 @@ body {
 .applications-live-filters {
   display: grid;
   grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(150px, .75fr)) auto;
-  align-items: end;
+  align-items: flex-end;
   gap: 12px;
   transition: opacity .18s ease, transform .18s ease;
 }
@@ -11248,7 +11250,7 @@ body {
     display: grid !important;
     grid-template-columns: 1fr !important;
     justify-items: center !important;
-    align-items: start !important;
+    align-items: flex-start !important;
     gap: clamp(9px, 2.8vw, 13px) !important;
     padding: 0 !important;
     border-radius: 0 !important;
@@ -12143,7 +12145,7 @@ main.container > * {
   .character-head {
     grid-template-columns: 58px minmax(0, 1fr) !important;
     gap: 12px !important;
-    align-items: start !important;
+    align-items: flex-start !important;
   }
 
   .character-avatar,
@@ -12225,7 +12227,7 @@ main.container > * {
     display: grid !important;
     grid-template-columns: 1fr !important;
     justify-items: center !important;
-    align-items: start !important;
+    align-items: flex-start !important;
     text-align: center !important;
     gap: 9px !important;
   }
@@ -12315,7 +12317,7 @@ main.container > * {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
     justify-items: center !important;
-    align-items: start !important;
+    align-items: flex-start !important;
     row-gap: 10px !important;
     column-gap: 0 !important;
     text-align: center !important;
@@ -12477,7 +12479,7 @@ main.container > * {
 .discord-footer-grid {
   display: grid;
   gap: clamp(10px, 1.5vw, 14px);
-  align-items: start;
+  align-items: flex-start;
   min-width: 0;
 }
 
@@ -12866,7 +12868,7 @@ main.container > * {
   display: grid;
   grid-template-columns: 310px minmax(0, 1fr);
   gap: 14px;
-  align-items: start;
+  align-items: flex-start;
   margin-top: 16px;
 }
 
@@ -13198,7 +13200,7 @@ main.container > * {
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr) minmax(220px, auto);
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
   min-height: 136px;
   padding: 16px 18px;
   overflow: hidden;
@@ -13932,7 +13934,7 @@ main.container > * {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
   gap: var(--access-panel-gap);
-  align-items: start;
+  align-items: flex-start;
   margin-top: 0;
 }
 
@@ -14127,7 +14129,7 @@ main.container > * {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 10px;
-  align-items: start;
+  align-items: flex-start;
   padding: 8px 0;
 }
 
@@ -15225,7 +15227,7 @@ main.container > :where(.dashboard-shell, .content-shell, .discord-shell, .raid-
 
 .raid-party-row {
   grid-template-columns: 24px 40px 32px minmax(0, 1fr);
-  align-items: start;
+  align-items: flex-start;
 }
 
 .raid-party-member-copy {
@@ -15440,7 +15442,7 @@ main.container {
 .permissions-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
-  align-items: start !important;
+  align-items: flex-start !important;
 }
 
 .permissions-grid fieldset {
@@ -15450,7 +15452,7 @@ main.container {
 
 .permission-check {
   min-width: 0 !important;
-  align-items: start !important;
+  align-items: flex-start !important;
 }
 
 .permission-check input:disabled + span {
@@ -15831,7 +15833,7 @@ main.container {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .discord-role-checkboxes {
@@ -16026,7 +16028,7 @@ main.container {
 }
 
 .discord-management-grid {
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-management-grid > .discord-management-card:not(.discord-management-card--wide) {
@@ -16198,7 +16200,7 @@ main.container {
   display: grid;
   grid-template-columns: minmax(220px, 360px) auto;
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .admin-log-list {
@@ -16452,7 +16454,7 @@ button[aria-busy="true"]::after,
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .discord-cleanup-role-column {
@@ -16539,4 +16541,218 @@ button[aria-busy="true"]::after,
 :where(.btn, .action-button, button[type="submit"], .raid-action).btn-working,
 :where(.btn, .action-button, button[type="submit"], .raid-action)[aria-busy="true"] {
   font-size: inherit;
+}
+
+/* v58: profile setup gate + dynamic mobile nav/footer spacing cleanup */
+.profile-setup-callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 190, 88, 0.32);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(122, 77, 18, 0.18), rgba(255, 255, 255, 0.035));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.profile-setup-callout.is-complete {
+  border-color: rgba(89, 214, 141, 0.32);
+  background: linear-gradient(135deg, rgba(47, 125, 79, 0.18), rgba(255, 255, 255, 0.035));
+}
+
+.profile-setup-callout__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.24);
+  color: var(--gold-bright);
+  font-weight: 900;
+}
+
+.profile-setup-callout.is-complete .profile-setup-callout__icon {
+  color: var(--emerald);
+}
+
+.profile-setup-callout span:not(.profile-setup-callout__icon) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.profile-setup-callout strong {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.profile-setup-callout small {
+  color: rgba(246, 239, 226, 0.7);
+  overflow-wrap: anywhere;
+}
+
+.app-loading-page {
+  min-height: min(100svh, 900px);
+}
+
+.app-loading-shell {
+  gap: clamp(12px, 2vw, 18px);
+}
+
+.app-loading-topbar {
+  pointer-events: none;
+}
+
+.app-loading-brand-skeleton,
+.app-loading-user-skeleton,
+.app-loading-nav-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-loading-brand-skeleton span:last-child,
+.app-loading-user-skeleton {
+  display: grid;
+  gap: 7px;
+}
+
+.app-loading-brand-skeleton i,
+.app-loading-brand-skeleton b,
+.app-loading-user-skeleton i,
+.app-loading-user-skeleton span,
+.app-loading-nav-skeleton i,
+.app-loading-grid > div {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-loading-brand-skeleton i,
+.app-loading-user-skeleton i {
+  width: clamp(110px, 16vw, 180px);
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.09);
+}
+
+.app-loading-brand-skeleton b {
+  width: clamp(80px, 12vw, 128px);
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.055);
+}
+
+.app-loading-avatar-skeleton,
+.app-loading-user-skeleton span {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: rgba(214, 168, 79, 0.16);
+  border: 1px solid rgba(255, 217, 139, 0.18);
+}
+
+.app-loading-nav-skeleton {
+  justify-self: center;
+  padding: 6px;
+  border: 1px solid rgba(214, 168, 79, 0.14);
+  border-radius: 18px;
+  background: rgba(5, 8, 15, 0.34);
+}
+
+.app-loading-nav-skeleton i {
+  width: clamp(52px, 7vw, 82px);
+  height: 32px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.065);
+}
+
+.app-loading-card {
+  min-height: clamp(116px, 18vw, 158px);
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dashboard-mobile-nav-reserve-runtime: calc(
+      var(--dash-mobile-nav-actual-height, var(--dashboard-mobile-nav-height, 70px)) +
+      var(--dash-mobile-nav-actual-bottom, var(--dashboard-mobile-nav-bottom-offset, calc(8px + var(--safe-bottom)))) +
+      clamp(12px, 3.2vw, 18px)
+    );
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  body:has(.dashboard-mobile-nav-shell) {
+    padding-bottom: 0 !important;
+  }
+
+  body:has(.dashboard-mobile-nav-shell) .container {
+    padding-bottom: clamp(18px, 4.8vw, 26px) !important;
+  }
+
+  body:has(.dashboard-mobile-nav-shell) .app-footer {
+    margin-bottom: calc(var(--dashboard-mobile-nav-reserve-runtime) + 8px) !important;
+  }
+
+  body:not(:has(.dashboard-mobile-nav-shell)) .app-footer {
+    margin-bottom: max(22px, env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html {
+    scroll-padding-bottom: calc(var(--dashboard-mobile-nav-reserve-runtime, 0px) + 14px) !important;
+  }
+
+  .dashboard-mobile-nav-shell {
+    transform: translateZ(0);
+  }
+
+  .dashboard-shell,
+  .content-shell {
+    gap: clamp(12px, 3.4vw, 16px) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .app-loading-page {
+    min-height: calc(100svh - var(--safe-top) - var(--safe-bottom));
+  }
+
+  .app-loading-shell {
+    min-height: calc(100svh - var(--safe-top) - var(--safe-bottom) - 34px);
+    align-content: start;
+  }
+
+  .app-loading-topbar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .app-loading-nav-skeleton,
+  .app-loading-user-skeleton {
+    display: none;
+  }
+
+  .app-loading-card {
+    align-items: center;
+    padding: 14px;
+  }
+
+  .app-loading-grid {
+    gap: 10px;
+  }
+
+  .app-loading-grid > div {
+    min-height: 112px;
+  }
+
+  .profile-setup-callout {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .profile-setup-callout .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }

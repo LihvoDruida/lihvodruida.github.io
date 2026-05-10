@@ -16,6 +16,7 @@ import {
   getProfileServerStyleName,
   profileGenderLabel,
   profileFromSession,
+  profileSettingsSetupStatus,
   upsertProfileFromSession,
   type DashboardProfile,
   type ProfileCharacter,
@@ -208,11 +209,16 @@ function NicknameCharactersForm({ profile, nicknameTemplate }: { profile: Dashbo
 
 export default async function ProfileSettingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ profileId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await getSession();
-  const nicknamePolicy = await getGuildNicknamePolicy();
+  const [nicknamePolicy, query] = await Promise.all([
+    getGuildNicknamePolicy(),
+    searchParams,
+  ]);
   if (!session) {
     redirect("/login");
     throw new Error("Unauthorized");
@@ -260,6 +266,8 @@ export default async function ProfileSettingsPage({
     currentServerNickname = member?.nick || null;
   }
 
+  const setupStatus = profileSettingsSetupStatus(profile);
+  const isSetupEntry = String(Array.isArray(query.setup) ? query.setup[0] : query.setup || "") === "1" || setupStatus.missing.length > 0;
   const guildStatus = guildStatusLabel(profile.role);
   const accountStatusLabel = guildStatus;
   const savedCharacterCount = profile.characters.length;
@@ -344,6 +352,16 @@ export default async function ProfileSettingsPage({
             </section>
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+            {isSetupEntry ? (
+              <div className={`profile-setup-callout${setupStatus.complete ? " is-complete" : " is-warning"}`} role="status">
+                <span className="profile-setup-callout__icon" aria-hidden="true">{setupStatus.complete ? "✓" : "!"}</span>
+                <span>
+                  <strong>{setupStatus.complete ? "Базові налаштування профілю заповнені" : "Потрібно завершити базові налаштування"}</strong>
+                  <small>{setupStatus.complete ? "Тепер можна перейти до профілю, Battle.net і персонажів." : `Не вистачає: ${setupStatus.missing.map((step) => step.title).join(", ")}. Старі профілі спочатку відкриваються тут, щоб привести дані до нового стандарту.`}</small>
+                </span>
+                {setupStatus.complete ? <a className="btn btn-ghost btn-sm" href={`/profile/${encodeURIComponent(profile.profileId)}`}>Перейти в профіль</a> : null}
+              </div>
+            ) : null}
 
             <section className="profile-grid profile-grid--settings" aria-label="Налаштування профілю">
               <article id="profile-name-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">

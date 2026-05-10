@@ -27,6 +27,7 @@ function syncOverflowState(nav: HTMLElement | null, shell: HTMLElement | null) {
   const canScrollRight = nav.scrollLeft < maxScrollLeft - 2;
 
   shell.classList.toggle("has-overflow", hasOverflow);
+  shell.classList.toggle("is-scrollable", hasOverflow);
   shell.classList.toggle("can-scroll-left", hasOverflow && canScrollLeft);
   shell.classList.toggle("can-scroll-right", hasOverflow && canScrollRight);
 }
@@ -54,13 +55,18 @@ export default function MobileNavSafeAreaSync() {
     let observedShell: HTMLElement | null = null;
     let didInitialActiveScroll = false;
 
+    const onNavScroll = () => scheduleUpdate();
+
     const observe = (nav: HTMLElement | null, shell: HTMLElement | null) => {
       if (nav === observedNav && shell === observedShell) return;
 
       resizeObserver?.disconnect();
       resizeObserver = null;
+      observedNav?.removeEventListener("scroll", onNavScroll);
       observedNav = nav;
       observedShell = shell;
+
+      nav?.addEventListener("scroll", onNavScroll, { passive: true });
 
       if (!("ResizeObserver" in window)) return;
 
@@ -83,7 +89,7 @@ export default function MobileNavSafeAreaSync() {
       if (!measured || measured.offsetParent === null) {
         clearRootVars();
         if (shell) {
-          shell.classList.remove("has-overflow", "can-scroll-left", "can-scroll-right");
+          shell.classList.remove("has-overflow", "is-scrollable", "can-scroll-left", "can-scroll-right");
         }
         return;
       }
@@ -106,8 +112,6 @@ export default function MobileNavSafeAreaSync() {
       frame = window.requestAnimationFrame(update);
     }
 
-    const onNavScroll = () => scheduleUpdate();
-
     const mutationObserver = new MutationObserver(() => {
       didInitialActiveScroll = false;
       scheduleUpdate();
@@ -126,9 +130,6 @@ export default function MobileNavSafeAreaSync() {
     window.visualViewport?.addEventListener("scroll", scheduleUpdate);
     document.addEventListener("scroll", scheduleUpdate, true);
 
-    const nav = document.querySelector<HTMLElement>(MOBILE_NAV_SELECTOR);
-    nav?.addEventListener("scroll", onNavScroll, { passive: true });
-
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       resizeObserver?.disconnect();
@@ -139,7 +140,7 @@ export default function MobileNavSafeAreaSync() {
       window.visualViewport?.removeEventListener("scroll", scheduleUpdate);
       document.removeEventListener("scroll", scheduleUpdate, true);
       observedNav?.removeEventListener("scroll", onNavScroll);
-      observedShell?.classList.remove("has-overflow", "can-scroll-left", "can-scroll-right");
+      observedShell?.classList.remove("has-overflow", "is-scrollable", "can-scroll-left", "can-scroll-right");
       clearRootVars();
     };
   }, []);

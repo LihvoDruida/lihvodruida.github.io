@@ -177,6 +177,70 @@ export function profileGenderedText(value: unknown, maleText: string, femaleText
   return neutralText;
 }
 
+
+export type ProfileSettingsSetupStepKey = "profile_name" | "profile_gender" | "profile_display_mode";
+
+export type ProfileSettingsSetupStep = {
+  key: ProfileSettingsSetupStepKey;
+  title: string;
+  description: string;
+  complete: boolean;
+  href?: string;
+};
+
+function isProfileNameReady(profile: Pick<DashboardProfile, "preferredName" | "displayName" | "login"> | null | undefined) {
+  return codePointLength(cleanProfileName(profile?.preferredName || "", 32)) >= 2;
+}
+
+export function profileSettingsSetupStatus(profile: DashboardProfile | null | undefined) {
+  const profileId = profile?.profileId || "";
+  const settingsHref = profileId ? `/profile/${profileId}/settings?setup=1` : "/profile";
+  const publicMode = cleanProfilePublicNameMode(profile?.publicNameMode);
+  const hasName = isProfileNameReady(profile);
+  const hasGender = Boolean(profile && cleanProfileGrammaticalGender(profile.grammaticalGender) !== "unspecified");
+  const hasDisplayMode = Boolean(profile && (publicMode === "name" || publicMode === "server_nickname"));
+
+  const steps: ProfileSettingsSetupStep[] = [
+    {
+      key: "profile_name",
+      title: "Імʼя профілю",
+      description: hasName ? `Вказано: ${profile?.preferredName}` : "Вкажи коротке імʼя, з якого будується профіль і серверний Discord-нік.",
+      complete: hasName,
+      href: settingsHref,
+    },
+    {
+      key: "profile_gender",
+      title: "Стать / звертання",
+      description: hasGender ? "Звертання вибрано." : "Вибери звертання для особистих повідомлень сайту та Discord.",
+      complete: hasGender,
+      href: settingsHref,
+    },
+    {
+      key: "profile_display_mode",
+      title: "Формат відображення",
+      description: hasDisplayMode ? "Формат імені профілю валідний." : "Потрібно вибрати, що показувати публічно: імʼя профілю або серверний формат.",
+      complete: hasDisplayMode,
+      href: settingsHref,
+    },
+  ];
+
+  return {
+    complete: steps.every((step) => step.complete),
+    steps,
+    missing: steps.filter((step) => !step.complete),
+    settingsHref,
+  };
+}
+
+export function profileNeedsSettingsSetup(profile: DashboardProfile | null | undefined) {
+  return !profileSettingsSetupStatus(profile).complete;
+}
+
+export function profileSettingsSetupPath(profileId: string) {
+  const cleanProfileId = String(profileId || "").trim();
+  return /^id[a-f0-9]{16,40}$/.test(cleanProfileId) ? `/profile/${cleanProfileId}/settings?setup=1` : "/profile";
+}
+
 function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
@@ -368,6 +432,10 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
 
 export async function getOwnProfilePath(session: DashboardSession) {
   const profileId = session.profileId || (await createStableProfileId(session.provider, session.id));
+  const profile = await getProfileById(profileId).catch(() => null);
+  if (profileNeedsSettingsSetup(profile || profileFromSession({ ...session, profileId }))) {
+    return profileSettingsSetupPath(profileId);
+  }
   return `/profile/${profileId}`;
 }
 

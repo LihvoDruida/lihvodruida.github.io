@@ -1,5 +1,4 @@
 import { Suspense, type ReactNode } from "react";
-import { Cormorant_Garamond, Noto_Sans } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./profile.css";
@@ -11,22 +10,6 @@ import AppFooter from "@/components/AppFooter";
 import ClientErrorReporter from "@/components/ClientErrorReporter";
 import { getSession } from "@/lib/auth";
 import { DASHBOARD_TITLE, DEFAULT_SEO_DESCRIPTION, dashboardBaseUrl, privateRobots } from "@/lib/seo";
-
-const mistUiFont = Noto_Sans({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-mist-ui",
-  display: "swap",
-  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
-});
-
-const mistDisplayFont = Cormorant_Garamond({
-  subsets: ["latin", "cyrillic"],
-  weight: ["500", "600", "700"],
-  variable: "--font-mist-display",
-  display: "swap",
-  fallback: ["Georgia", "Times New Roman", "serif"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -108,7 +91,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const session = await getSession().catch(() => null);
   return (
-    <html lang="uk" className={`${mistUiFont.variable} ${mistDisplayFont.variable}`}>
+    <html lang="uk">
       <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}<AppFooter /></body>
     </html>
   );

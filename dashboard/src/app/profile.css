@@ -17,7 +17,7 @@
 .profile-account-layout {
   display: grid;
   grid-template-columns: minmax(210px, 244px) minmax(0, 1fr);
-  align-items: start;
+  align-items: flex-start;
   gap: clamp(16px, 2vw, 24px);
 }
 
@@ -144,7 +144,7 @@
 
 .profile-account-header {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
@@ -253,7 +253,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
   gap: clamp(14px, 1.6vw, 20px);
-  align-items: start;
+  align-items: flex-start;
 }
 
 .profile-card {
@@ -616,7 +616,7 @@
 }
 
 .profile-discord-standard__head--modern {
-  align-items: start;
+  align-items: flex-start;
 }
 
 .profile-discord-nick-form {
@@ -745,7 +745,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
   gap: 14px;
-  align-items: start;
+  align-items: flex-start;
   justify-content: start;
   padding-bottom: clamp(18px, 2vw, 24px);
 }
@@ -1251,7 +1251,7 @@
   .profile-card-head,
   .profile-card-head--inline {
     display: grid;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .profile-bnet-region-actions,
@@ -1348,7 +1348,7 @@
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
   gap: 10px;
-  align-items: start;
+  align-items: flex-start;
   min-height: 64px;
   padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);

@@ -1,7 +1,8 @@
-import { isAuthenticated } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/seo";
+import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath } from "@/lib/profiles";
 
 export const metadata = buildPageMetadata({
   title: "Вхід до панелі",
@@ -57,7 +58,15 @@ export default async function LoginPage({
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
   const forceFreshLogin = isEnabled(params.force) || isEnabled(params.switch) || isEnabled(params.reauth);
-  if (!forceFreshLogin && await isAuthenticated()) redirect(nextPath || "/");
+  const session = forceFreshLogin ? null : await getSession();
+  if (session) {
+    const profileId = session.profileId || "";
+    const profile = profileId ? await getProfileById(profileId).catch(() => null) : null;
+    const setupProfile = profile || (profileId ? profileFromSession({ ...session, profileId }) : null);
+    const setupPath = setupProfile && profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(setupProfile.profileId) : "";
+    const keepsExplicitOnboarding = /^\/rules\/accept(?:[/?#]|$)/.test(nextPath);
+    redirect(keepsExplicitOnboarding ? nextPath : setupPath || nextPath || "/");
+  }
 
   const guild = await getGuildBranding();
   const error = errorText(params.error);

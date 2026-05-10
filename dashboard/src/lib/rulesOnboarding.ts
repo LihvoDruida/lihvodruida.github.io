@@ -104,6 +104,7 @@ export function rulesLoginUrl(roleIds: string[]) {
 
 export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined, nicknameTemplate?: string) {
   const profileHref = profile?.profileId ? `/profile/${profile.profileId}` : "/profile";
+  const settingsHref = profile?.profileId ? `/profile/${profile.profileId}/settings?setup=1` : "/profile";
   const main = profile ? getMainCharacter(profile) : null;
   const hasName = Boolean(profile?.preferredName && profile.preferredName.trim().length >= 2);
   const hasGender = Boolean(profile && cleanProfileGrammaticalGender(profile.grammaticalGender) !== "unspecified");
@@ -119,14 +120,14 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
       title: "Імʼя",
       description: hasName ? `Вказано: ${profile?.preferredName}` : "Вкажи імʼя, яке буде основою серверного ніку.",
       complete: hasName,
-      href: profileHref,
+      href: settingsHref,
     },
     {
       key: "profile_gender",
       title: "Стать / звертання",
       description: hasGender ? "Звертання вибрано." : "Вибери, як система має формувати персональні повідомлення.",
       complete: hasGender,
-      href: profileHref,
+      href: settingsHref,
     },
     {
       key: "battlenet_characters",
@@ -147,7 +148,7 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
       title: "Роль у рейді для мейна",
       description: hasRaidRole ? "Роль у рейді вибрано вручну." : "Вибери роль у рейді для мейна: танк, хіл або ДД.",
       complete: hasRaidRole,
-      href: profileHref,
+      href: settingsHref,
     },
     {
       key: "discord_nickname",
@@ -156,7 +157,7 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
         ? `Буде встановлено: ${nicknamePlan.value}`
         : "Після завершення система автоматично поставить нік за глобальним шаблоном із налаштувань керування.",
       complete: hasNicknameTemplate,
-      href: profileHref,
+      href: settingsHref,
     },
   ];
 

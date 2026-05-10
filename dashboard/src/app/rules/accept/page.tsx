@@ -22,6 +22,12 @@ function roleName(roleId: string, roles: Array<{ id: string; name: string }>) {
   return roles.find((role) => role.id === roleId)?.name || `Discord роль ${roleId.slice(-6)}`;
 }
 
+
+function appendRulesReturnParams(href: string, token: string) {
+  const separator = href.includes("?") ? "&" : "?";
+  return `${href}${separator}from=rules&rt=${encodeURIComponent(token)}`;
+}
+
 function statusNotice(status?: string | null) {
   if (status === "completed") return { tone: "ok", text: "✅ Реєстрацію завершено. Discord-роль видано, серверний нік оновлено." };
   if (status === "completed_owner_nickname_manual") return { tone: "warning", text: "✅ Discord-роль видано. Ти власник сервера, тому Discord не дозволяє боту змінити твій нік — зміни його вручну за шаблоном у профілі." };
@@ -45,7 +51,7 @@ function StepList({ profile, token, nicknameTemplate }: { profile: DashboardProf
             <strong>{step.title}</strong>
             <small>{step.description}</small>
           </span>
-          {!step.complete && step.href ? <a className="btn btn-ghost btn-sm" href={`${step.href}?from=rules&rt=${encodeURIComponent(token)}`}>Заповнити</a> : null}
+          {!step.complete && step.href ? <a className="btn btn-ghost btn-sm" href={appendRulesReturnParams(step.href, token)}>Заповнити</a> : null}
         </article>
       ))}
     </div>

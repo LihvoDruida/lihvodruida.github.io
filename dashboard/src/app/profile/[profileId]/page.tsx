@@ -21,6 +21,8 @@ import {
   getProfilePublicName,
   getProfileRaidRole,
   getProfileById,
+  profileNeedsSettingsSetup,
+  profileSettingsSetupPath,
   profileFromSession,
   upsertProfileFromSession,
   type DashboardProfile,
@@ -317,6 +319,10 @@ export default async function ProfilePage({
 
   if (!profile) {
     notFound();
+  }
+
+  if (isOwnProfile && profileNeedsSettingsSetup(profile)) {
+    redirect(profileSettingsSetupPath(profile.profileId));
   }
 
   const mainCharacter = getMainCharacter(profile);
