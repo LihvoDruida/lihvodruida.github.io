@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-10 20:51:41'
+  updated_at: '2026-05-11 03:38:28'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 135
+  member_count: 134
 characters:
 - name: Бреинор
   region: eu
@@ -709,7 +709,7 @@ characters:
         learned_points: 5
         max_points: 75
       - name: Classic Fishing
-        learned_points: 66
+        learned_points: 76
         max_points: 300
       - name: Shadowlands Fishing
         learned_points: 8
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 85
+        learned_points: 89
         max_points: 100
     - name: Alchemy
       id: 171
@@ -949,7 +949,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 56
+        learned_points: 62
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -996,7 +996,7 @@ characters:
         learned_points: 45
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 65
+        learned_points: 71
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2299,6 +2299,9 @@ characters:
       - name: Classic Jewelcrafting
         learned_points: 1
         max_points: 300
+      - name: Dragon Isles Jewelcrafting
+        learned_points: 1
+        max_points: 100
       - name: Midnight Jewelcrafting
         learned_points: 76
         max_points: 100
@@ -2577,7 +2580,7 @@ characters:
         learned_points: 1
         max_points: 75
       - name: Northrend Tailoring
-        learned_points: 19
+        learned_points: 73
         max_points: 75
       - name: Classic Tailoring
         learned_points: 51
@@ -2596,7 +2599,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 1
+        learned_points: 83
         max_points: 100
     - name: Fishing
       id: 356
@@ -3242,41 +3245,6 @@ characters:
         learned_points: 97
         max_points: 100
     secondaries: []
-- name: Umbrak
-  region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-  professions:
-    primaries: []
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Kul Tiran Cooking
-        learned_points: 1
-        max_points: 175
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Khaz Algar Cooking
-        learned_points: 1
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Fishing
-        learned_points: 2
-        max_points: 300
 - name: Yokuha
   region: eu
   realm: terokkar
@@ -5385,7 +5353,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/soulflayer/Рокталл
   professions:
     primaries:
     - name: Herbalism
@@ -6567,7 +6535,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 40
+        learned_points: 41
         max_points: 100
     secondaries:
     - name: Fishing
