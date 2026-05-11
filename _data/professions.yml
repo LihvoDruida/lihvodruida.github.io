@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-11 17:56:18'
+  updated_at: '2026-05-11 21:19:12'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 134
+  member_count: 133
 characters:
 - name: Бреинор
   region: eu
@@ -1962,7 +1962,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Mining
-        learned_points: 47
+        learned_points: 50
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2580,10 +2580,10 @@ characters:
         learned_points: 1
         max_points: 75
       - name: Northrend Tailoring
-        learned_points: 73
+        learned_points: 75
         max_points: 75
       - name: Classic Tailoring
-        learned_points: 51
+        learned_points: 245
         max_points: 300
       - name: Khaz Algar Tailoring
         learned_points: 55
@@ -3998,26 +3998,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 146
         max_points: 300
-- name: Артизан
-  region: eu
-  realm: howling-fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Артизан
-  professions:
-    primaries:
-    - name: Inscription
-      id: 773
-      tiers:
-      - name: Classic Inscription
-        learned_points: 1
-        max_points: 300
-    - name: Alchemy
-      id: 171
-      tiers:
-      - name: Classic Alchemy
-        learned_points: 1
-        max_points: 300
-    secondaries: []
 - name: Пандашоманко
   region: eu
   realm: eversong
@@ -5930,6 +5910,9 @@ characters:
       - name: Khaz Algar Cooking
         learned_points: 100
         max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -6802,7 +6785,7 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 76
+        learned_points: 78
         max_points: 100
     secondaries: []
 - name: Кхаарн
