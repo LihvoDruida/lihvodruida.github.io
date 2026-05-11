@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-11 07:43:27'
+  updated_at: '2026-05-11 11:24:17'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-11T03:37:26.000Z'
+  raider_io_last_crawled_at: '2026-05-11T09:42:53.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13787
+      world: 13789
       region: 6140
       realm: 55
     heroic:
-      world: 12418
-      region: 5561
+      world: 12428
+      region: 5563
       realm: 43
     mythic:
-      world: 7591
+      world: 7596
       region: 3244
       realm: 25
   blackrock-depths:
@@ -2692,6 +2692,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Rolemodel
+    id: 188623721
+    level: 90
+    realm:
+      id: 524
+      slug: burning-legion
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 37
+      name: Mechagnome
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/105/188623721-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
+    profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
+    item_level_equipped: 267
+    mythic_plus_scores:
+      all:
+        score: 2495.3
+        color: '#5cce75'
+      dps:
+        score: 2495.3
+        color: '#5cce75'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2495.3
+        color: '#5cce75'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Ragnarøøk
@@ -4589,8 +4641,8 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3222.5
-        color: '#9246eb'
+        score: 3263.1
+        color: '#9b3eec'
       dps:
         score: 1147.4
         color: '#bbffa5'
@@ -4598,11 +4650,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3181
-        color: '#8053e8'
+        score: 3221.5
+        color: '#9246eb'
       spec_0:
-        score: 3181
-        color: '#8053e8'
+        score: 3221.5
+        color: '#9246eb'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5188,6 +5240,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Medvedich
+    id: 225334575
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Guardian
+      role: tank
+    avatar: https://eu.battle.net/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
+    item_level_equipped: 281
+    mythic_plus_scores:
+      all:
+        score: 853.6
+        color: '#d1ffc0'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 853.6
+        color: '#d1ffc0'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 853.6
+        color: '#d1ffc0'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Нежнаяпулька
@@ -5656,6 +5760,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Моннал
+    id: 261329003
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 11
+      name: Druid
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Моннал
+    item_level_equipped: 280
+    mythic_plus_scores:
+      all:
+        score: 3165.4
+        color: '#8053e8'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 3165.4
+        color: '#8053e8'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3165.4
+        color: '#8053e8'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Булкрит
@@ -5681,11 +5837,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3222.5
-        color: '#9246eb'
+        score: 3263.1
+        color: '#9b3eec'
       dps:
-        score: 3222.5
-        color: '#9246eb'
+        score: 3263.1
+        color: '#9b3eec'
       healer:
         score: 0
         color: '#ffffff'
@@ -5699,8 +5855,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3222.5
-        color: '#9246eb'
+        score: 3263.1
+        color: '#9b3eec'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6094,14 +6250,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2715.8
-        color: '#5ba3a7'
+        score: 2867
+        color: '#4687c5'
       dps:
-        score: 2715.8
-        color: '#5ba3a7'
+        score: 2867
+        color: '#4687c5'
       healer:
         score: 0
         color: '#ffffff'
@@ -6115,8 +6271,8 @@ members:
         score: 331.8
         color: '#f7fff3'
       spec_2:
-        score: 2711.1
-        color: '#5ba3a7'
+        score: 2862.3
+        color: '#4687c5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6873,162 +7029,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Rolemodel
-    id: 188623721
-    level: 90
-    realm:
-      id: 524
-      slug: burning-legion
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 37
-      name: Mechagnome
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Marksmanship
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/105/188623721-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
-    profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
-    item_level_equipped: 267
-    mythic_plus_scores:
-      all:
-        score: 2495.3
-        color: '#5cce75'
-      dps:
-        score: 2495.3
-        color: '#5cce75'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 2495.3
-        color: '#5cce75'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Medvedich
-    id: 225334575
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 4
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Guardian
-      role: tank
-    avatar: https://eu.battle.net/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 281
-    mythic_plus_scores:
-      all:
-        score: 853.6
-        color: '#d1ffc0'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 853.6
-        color: '#d1ffc0'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 853.6
-        color: '#d1ffc0'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Моннал
-    id: 261329003
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Guardian
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 280
-    mythic_plus_scores:
-      all:
-        score: 3165.4
-        color: '#8053e8'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 3165.4
-        color: '#8053e8'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3165.4
-        color: '#8053e8'
       spec_3:
         score: 0
         color: '#ffffff'
