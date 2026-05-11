@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-11 14:56:35'
+  updated_at: '2026-05-11 17:56:18'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13791
-      region: 6140
+      world: 13792
+      region: 6141
       realm: 55
     heroic:
-      world: 12431
-      region: 5564
+      world: 12440
+      region: 5569
       realm: 43
     mythic:
-      world: 7600
-      region: 3245
+      world: 7606
+      region: 3249
       realm: 25
   blackrock-depths:
     normal:
@@ -1750,7 +1750,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 240
+    item_level_equipped: 249
     mythic_plus_scores:
       all:
         score: 283.2
@@ -1842,23 +1842,47 @@ members:
       slug: draenor
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Ionax
+    item_level_equipped: 254
+    mythic_plus_scores:
+      all:
+        score: 329.3
+        color: '#f7fff3'
+      dps:
+        score: 329.3
+        color: '#f7fff3'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 329.3
+        color: '#f7fff3'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -2626,23 +2650,47 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 30
-      name: null
+      name: Lightforged Draenei
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/60/188602428-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+    item_level_equipped: 102
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -3449,10 +3497,10 @@ members:
     item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       dps:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       healer:
         score: 0
@@ -3467,7 +3515,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       spec_3:
         score: 0
@@ -3501,7 +3549,7 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       dps:
         score: 0
@@ -3510,13 +3558,13 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2309.5
+        score: 2313
         color: '#38f532'
       spec_2:
         score: 0
@@ -5737,8 +5785,8 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3165.4
-        color: '#8053e8'
+        score: 3196.1
+        color: '#8a4de9'
       dps:
         score: 0
         color: '#ffffff'
@@ -5746,8 +5794,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3165.4
-        color: '#8053e8'
+        score: 3196.1
+        color: '#8a4de9'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5755,8 +5803,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3165.4
-        color: '#8053e8'
+        score: 3196.1
+        color: '#8a4de9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6361,11 +6409,11 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3180.2
-        color: '#8053e8'
+        score: 3208.5
+        color: '#8a4de9'
       dps:
-        score: 3180.2
-        color: '#8053e8'
+        score: 3208.5
+        color: '#8a4de9'
       healer:
         score: 0
         color: '#ffffff'
@@ -6376,8 +6424,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3180.2
-        color: '#8053e8'
+        score: 3208.5
+        color: '#8a4de9'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6906,7 +6954,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2542.4

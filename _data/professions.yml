@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-11 14:56:35'
+  updated_at: '2026-05-11 17:56:18'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -709,7 +709,7 @@ characters:
         learned_points: 5
         max_points: 75
       - name: Classic Fishing
-        learned_points: 76
+        learned_points: 79
         max_points: 300
       - name: Shadowlands Fishing
         learned_points: 8
@@ -2034,7 +2034,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/draenor/Ionax
   professions:
     primaries: []
     secondaries: []
@@ -2798,7 +2798,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
   professions:
     primaries: []
     secondaries: []
