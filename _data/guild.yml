@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-11 03:38:28'
+  updated_at: '2026-05-11 07:43:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-08T02:58:50.000Z'
+  raider_io_last_crawled_at: '2026-05-11T03:37:26.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6140
       realm: 55
     heroic:
-      world: 12408
-      region: 5558
+      world: 12418
+      region: 5561
       realm: 43
     mythic:
-      world: 7588
+      world: 7591
       region: 3244
       realm: 25
   blackrock-depths:
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -866,7 +866,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/128/183464576-avatar.jpg?alt=/wow/static/images/2d/avatar/6-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Bylik
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 3159
@@ -973,11 +973,11 @@ members:
     item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2250.4
-        color: '#1eff00'
+        score: 2279.5
+        color: '#2efa22'
       dps:
-        score: 2250.4
-        color: '#1eff00'
+        score: 2279.5
+        color: '#2efa22'
       healer:
         score: 0
         color: '#ffffff'
@@ -985,8 +985,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2137.7
-        color: '#45ff2c'
+        score: 2166.8
+        color: '#3fff27'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1230,7 +1230,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/106/185042794-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Nebatur
-    item_level_equipped: 151
+    item_level_equipped: 156
     mythic_plus_scores:
       all:
         score: 0
@@ -1750,7 +1750,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 235
+    item_level_equipped: 240
     mythic_plus_scores:
       all:
         score: 283.2
@@ -2918,11 +2918,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Mistweaver
-      role: HEALING
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Athang
-    item_level_equipped: 264
+    item_level_equipped: 263
     mythic_plus_scores:
       all:
         score: 2187.8
@@ -4066,7 +4066,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/177/216426673-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Sonechco
-    item_level_equipped: 280
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3132.3
@@ -5362,11 +5362,11 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: https://eu.battle.net/wow/static/images/2d/avatar/2-0.jpg
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/241/251108849-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/soulflayer/Рокталл
-    item_level_equipped: 0
+    item_level_equipped: 139
     mythic_plus_scores:
       all:
         score: 0
