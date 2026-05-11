@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-11 11:24:17'
+  updated_at: '2026-05-11 14:56:35'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1151,7 +1151,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 87
+        learned_points: 90
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1230,7 +1230,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 151
+        learned_points: 155
         max_points: 300
 - name: Elderwizard
   region: eu
@@ -2034,7 +2034,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Ionax
+  profile_url: null
   professions:
     primaries: []
     secondaries: []
@@ -2115,8 +2115,68 @@ characters:
   realm_slug: tarren-mill
   profile_url: https://raider.io/characters/eu/tarren-mill/Odeskiy
   professions:
-    primaries: []
-    secondaries: []
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Blacksmithing
+        learned_points: 1
+        max_points: 100
+    - name: Inscription
+      id: 773
+      tiers:
+      - name: Legion Inscription
+        learned_points: 1
+        max_points: 100
+      - name: Classic Inscription
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Inscription
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Zandalari Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 42
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
 - name: Arthasright
   region: eu
   realm: tarren-mill
@@ -2738,7 +2798,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Azuriel
+  profile_url: null
   professions:
     primaries: []
     secondaries: []
