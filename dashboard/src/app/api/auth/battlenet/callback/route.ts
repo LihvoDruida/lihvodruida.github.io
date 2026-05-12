@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { getDashboardUrl } from "@/lib/oauth";
 import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, fetchBattleNetUserInfo, normalizeBattleNetRegion } from "@/lib/battlenet";
-import { clearBattleNetCandidatesCookie, setBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
+import { clearBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
 import { saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
@@ -95,17 +95,7 @@ export async function GET(request: NextRequest) {
     });
 
     const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters", getNextPathFromOAuthState(state));
-    try {
-      if (scan.characters.length) {
-        setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
-      } else {
-        clearBattleNetCandidatesCookie(response);
-      }
-    } catch (cookieError) {
-      // Cookie is only a small fallback now; the full candidate list is stored in the profile.
-      clearBattleNetCandidatesCookie(response);
-      logDashboardEvent("warn", "auth.battlenet.callback.cookie_fallback_failed", request, { profileId: session.profileId, message: safeErrorMessage(cookieError) });
-    }
+    clearBattleNetCandidatesCookie(response);
     return response;
   } catch (error) {
     logDashboardEvent("error", "auth.battlenet.callback.failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });

@@ -1417,3 +1417,34 @@
     grid-template-columns: 1fr;
   }
 }
+
+.profile-candidate-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-candidate-expiry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 190, 93, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 190, 93, 0.11);
+  color: #ffdca8;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.profile-candidate-expiry.is-expired {
+  border-color: rgba(255, 116, 116, 0.34);
+  background: rgba(255, 116, 116, 0.12);
+  color: #ffc0b8;
+}

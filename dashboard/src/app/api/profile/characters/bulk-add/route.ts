@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
-import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCandidatesFromCookie } from "@/lib/battlenetCandidates";
 import { addProfileCharacters, getProfileBattleNetCandidates, removeProfileBattleNetCandidates } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
@@ -37,14 +35,12 @@ export async function POST(request: NextRequest) {
   const limit = checkRateLimit(`profile-character-bulk-add:${session.profileId}:${ip}`, 20, 10 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
-  const [form, store] = await Promise.all([request.formData(), cookies()]);
+  const form = await request.formData();
   const mode = String(form.get("mode") || "selected");
   const selectedKeys = cleanKeys(form.getAll("characterKeys"));
-  const candidateCookie = store.get(BNET_CANDIDATES_COOKIE)?.value || "";
-  const candidateSession = parseBattleNetCandidatesCookieValue(candidateCookie, session.profileId);
   const storedCandidates = await getProfileBattleNetCandidates(session.profileId).catch(() => []);
-  const candidatesByKey = new Map<string, NonNullable<typeof candidateSession>["characters"][number]>();
-  for (const candidate of [...storedCandidates, ...(candidateSession?.characters || [])]) {
+  const candidatesByKey = new Map<string, (typeof storedCandidates)[number]>();
+  for (const candidate of storedCandidates) {
     const key = normalizeCharacterKey(candidate.key);
     if (key && !candidatesByKey.has(key)) candidatesByKey.set(key, candidate);
   }
@@ -85,7 +81,6 @@ export async function POST(request: NextRequest) {
     await removeProfileBattleNetCandidates(session.profileId, result.addedKeys).catch((cleanupError) => {
       logDashboardEvent("warn", "profile.character.bulk_candidate_cleanup_failed", request, { profileId: session.profileId, added: result.addedKeys.length, message: safeErrorMessage(cleanupError) });
     });
-    removeCandidatesFromCookie(response, candidateCookie, session.profileId, result.addedKeys);
     return response;
   } catch (error) {
     const status = characterAddStatusFromError(error);

@@ -100,15 +100,38 @@ function readBoundedIntegerEnv(names: string[], fallback: number, min: number, m
 }
 
 function getBattleNetCandidateTtlMs() {
-  const minutes = readBoundedIntegerEnv(["BATTLENET_CANDIDATE_TTL_MINUTES"], 60, 5, 1440);
+  const minutes = readBoundedIntegerEnv(["BATTLENET_CANDIDATE_TTL_MINUTES"], 3, 1, 1440);
   return minutes * 60 * 1000;
 }
 
-function isFutureTimestamp(value: unknown) {
+function timestampMillis(value: unknown) {
   const iso = timestampToIso(value) || optionalString(value);
-  if (!iso) return false;
+  if (!iso) return null;
   const time = new Date(iso).getTime();
-  return Number.isFinite(time) && time > Date.now();
+  return Number.isFinite(time) ? time : null;
+}
+
+function isFutureTimestamp(value: unknown) {
+  const time = timestampMillis(value);
+  return typeof time === "number" && time > Date.now();
+}
+
+function candidateExpiryIso(value: unknown) {
+  return isFutureTimestamp(value) ? timestampToIso(value) || optionalString(value) : null;
+}
+
+function hasCandidateStorage(battlenetRaw: Record<string, unknown> | null) {
+  if (!battlenetRaw) return false;
+  return Array.isArray(battlenetRaw.candidateCharacters)
+    || battlenetRaw.candidateSavedAt !== undefined
+    || battlenetRaw.candidateExpiresAt !== undefined;
+}
+
+function stripCandidateStorageFromData(data: Record<string, unknown>) {
+  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  if (!battlenetRaw) return data;
+  const { candidateCharacters, candidateSavedAt, candidateExpiresAt, ...restBattlenet } = battlenetRaw;
+  return { ...data, battlenet: restBattlenet };
 }
 
 function cleanString(value: unknown, maxLength = 240) {
@@ -457,8 +480,8 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       guildCharacters: Number.isFinite(Number(battlenetRaw.guildCharacters)) ? Number(battlenetRaw.guildCharacters) : undefined,
       otherCharacters: Number.isFinite(Number(battlenetRaw.otherCharacters)) ? Number(battlenetRaw.otherCharacters) : undefined,
       candidateCharacters: normalizeBattleNetCandidateCharacters(battlenetRaw),
-      candidateSavedAt: timestampToIso(battlenetRaw.candidateSavedAt),
-      candidateExpiresAt: timestampToIso(battlenetRaw.candidateExpiresAt),
+      candidateSavedAt: candidateExpiryIso(battlenetRaw.candidateExpiresAt) ? timestampToIso(battlenetRaw.candidateSavedAt) : null,
+      candidateExpiresAt: candidateExpiryIso(battlenetRaw.candidateExpiresAt),
     } : null,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
@@ -560,9 +583,23 @@ export async function getProfileById(profileId: string) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return null;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).get();
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const snapshot = await ref.get();
   if (!snapshot.exists) return null;
-  return resolveProfileAccessForCurrentGroups(normalizeProfile(profileId, snapshot.data() || {}));
+
+  let data = snapshot.data() || {};
+  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  if (hasCandidateStorage(battlenetRaw) && !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) {
+    data = stripCandidateStorageFromData(data);
+    await ref.update({
+      "battlenet.candidateCharacters": FieldValue.delete(),
+      "battlenet.candidateSavedAt": FieldValue.delete(),
+      "battlenet.candidateExpiresAt": FieldValue.delete(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }).catch(() => undefined);
+  }
+
+  return resolveProfileAccessForCurrentGroups(normalizeProfile(profileId, data));
 }
 
 export async function getProfileByDiscordUserId(discordUserId: string) {
@@ -885,6 +922,30 @@ export async function getProfileBattleNetCandidates(profileId: string) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return [];
   const profile = await getProfileById(profileId).catch(() => null);
   return profile?.battlenet?.candidateCharacters || [];
+}
+
+export async function clearProfileBattleNetCandidates(profileId: string, expectedExpiresAt?: string | null) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig()) return false;
+
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) return false;
+
+  const data = snapshot.data() || {};
+  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  if (!hasCandidateStorage(battlenetRaw)) return false;
+
+  const currentExpiresAt = timestampToIso(battlenetRaw?.candidateExpiresAt) || optionalString(battlenetRaw?.candidateExpiresAt);
+  if (expectedExpiresAt && currentExpiresAt !== expectedExpiresAt) return false;
+  if (isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) return false;
+
+  await ref.update({
+    "battlenet.candidateCharacters": FieldValue.delete(),
+    "battlenet.candidateSavedAt": FieldValue.delete(),
+    "battlenet.candidateExpiresAt": FieldValue.delete(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+  return true;
 }
 
 export async function removeProfileBattleNetCandidates(profileId: string, characterKeys: string[]) {

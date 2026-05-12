@@ -123,7 +123,7 @@
 | `BATTLENET_REQUEST_TIMEOUT_MS` | optional | Timeout Battle.net API. |
 | `BATTLENET_SCAN_CONCURRENCY` | optional | Concurrency сканування, `0` — adaptive. |
 | `BATTLENET_SCAN_MAX_CONCURRENCY` | optional | Max concurrency сканування. |
-| `BATTLENET_CANDIDATE_TTL_MINUTES` | optional | Час життя тимчасового списку Battle.net кандидатів після OAuth. |
+| `BATTLENET_CANDIDATE_TTL_MINUTES` | optional | Час життя тимчасового списку Battle.net кандидатів після OAuth. Типово `3` хвилини. |
 | `BATTLENET_SIGNUP_REFRESH_CONCURRENCY` | optional | Concurrency автооновлення перед рейдом. |
 | `BATTLENET_SIGNUP_REFRESH_REST_LIMIT` | optional | Скільки альтів оновлювати після мейна перед рейдом. |
 | `BATTLENET_CANDIDATE_SECRET` | optional secret | Fallback secret для Battle.net candidates cookie. |

@@ -1,7 +1,7 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
+import ProfileCandidateExpiryTimer from "@/components/ProfileCandidateExpiryTimer";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
-import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue } from "@/lib/battlenetCandidates";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   listProfileRaidSignups,
@@ -30,7 +30,6 @@ import {
 } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { notFound, redirect } from "next/navigation";
-import { cookies } from "next/headers";
 
 export const metadata = buildPageMetadata({
   title: "Профіль учасника",
@@ -284,10 +283,7 @@ export default async function ProfilePage({
   const viewer: DashboardSession = session;
 
   const { profileId } = await params;
-  const [initialProfile, cookieStore] = await Promise.all([
-    getProfileById(profileId),
-    cookies(),
-  ]);
+  const initialProfile = await getProfileById(profileId);
 
   const isOwnProfile = Boolean(viewer.profileId && viewer.profileId === profileId);
   if (initialProfile && !canViewProfile(viewer, profileId, initialProfile)) {
@@ -322,10 +318,8 @@ export default async function ProfilePage({
   const canManageCharacters = isOwnProfile;
   const canViewPrivateProfileBlocks = isOwnProfile || canViewProfileAccessDetails(viewer);
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
-  const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
-  const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
   const candidateByKey = new Map<string, ProfileCharacter>();
-  for (const candidate of [...(profile.battlenet?.candidateCharacters || []), ...(candidateSession?.characters || [])]) {
+  for (const candidate of profile.battlenet?.candidateCharacters || []) {
     const key = normalizeCharacterKey(candidate.key);
     if (key && !candidateByKey.has(key)) candidateByKey.set(key, candidate);
   }
@@ -438,7 +432,7 @@ export default async function ProfilePage({
                 <div className="profile-card-toolbar profile-card-toolbar--compact" aria-label="Стан персонажів">
                   <span><strong>{profileGuildCharacters.length}</strong><small>Гільдійні</small></span>
                   <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span>
-                  <span><strong>{availableCandidates.length}</strong><small>Можна додати</small></span>
+                  <span data-profile-candidate-summary="true"><strong data-profile-candidate-count="true">{availableCandidates.length}</strong><small>Можна додати</small></span>
                   <span><strong>{profileUpdatedLabel}</strong><small>Оновлено</small></span>
                 </div>
 
@@ -454,14 +448,17 @@ export default async function ProfilePage({
                 )}
 
                 {canManageCharacters && hasFreshBattleNetSession ? (
-                  <div className="profile-candidates-box">
+                  <div className="profile-candidates-box" data-profile-candidates-box="true">
                     <div className="profile-card-head profile-card-head--inline">
                       <div>
                         <span className="eyebrow">Battle.net</span>
                         <h3>Можна додати</h3>
                         <small className="profile-card-note">Вибери гільдійних або інших персонажів, які мають бути в профілі.</small>
                       </div>
-                      <span className="profile-count-pill">{availableCandidates.length}</span>
+                      <div className="profile-candidate-counter" aria-label="Скільки ще доступний список Battle.net">
+                        <span className="profile-count-pill" data-profile-candidate-count="true">{availableCandidates.length}</span>
+                        {profile.battlenet?.candidateExpiresAt ? <ProfileCandidateExpiryTimer expiresAt={profile.battlenet.candidateExpiresAt} /> : null}
+                      </div>
                     </div>
                     <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post" />
                     <ProfileCandidateBulkActions formId={bulkFormId} count={availableCandidates.length} />
