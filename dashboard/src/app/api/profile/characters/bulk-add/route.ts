@@ -28,7 +28,7 @@ function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>)
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
-  const tooLarge = assertRequestBodySize(request, 64 * 1024);
+  const tooLarge = assertRequestBodySize(request, 128 * 1024);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();

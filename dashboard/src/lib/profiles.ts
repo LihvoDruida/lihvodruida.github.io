@@ -100,11 +100,11 @@ function readBoundedIntegerEnv(names: string[], fallback: number, min: number, m
 }
 
 export function getProfileCharacterLimit() {
-  return readBoundedIntegerEnv(["PROFILE_MAX_CHARACTERS", "PROFILE_CHARACTER_LIMIT"], 120, 1, 250);
+  return readBoundedIntegerEnv(["PROFILE_MAX_CHARACTERS", "PROFILE_CHARACTER_LIMIT"], 250, 1, 500);
 }
 
 export function getBattleNetCandidateLimit() {
-  return readBoundedIntegerEnv(["BATTLENET_CANDIDATE_MAX_CHARACTERS", "BATTLENET_SCAN_MAX_CHARACTERS", "PROFILE_MAX_CHARACTERS"], 180, 1, 300);
+  return readBoundedIntegerEnv(["BATTLENET_CANDIDATE_MAX_CHARACTERS", "BATTLENET_SCAN_MAX_CHARACTERS", "PROFILE_MAX_CHARACTERS"], 500, 1, 1000);
 }
 
 function getBattleNetCandidateTtlMs() {

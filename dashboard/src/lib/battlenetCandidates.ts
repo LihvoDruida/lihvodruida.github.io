@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { deflateRawSync, inflateRawSync } from "zlib";
 import type { NextResponse } from "next/server";
 import type { BattleNetCharacterCandidate, BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -52,11 +53,19 @@ type CandidateCookiePayloadV2 = {
 type CandidateCookiePayload = CandidateCookiePayloadV1 | CandidateCookiePayloadV2;
 
 function base64UrlEncode(value: string) {
-  return Buffer.from(value, "utf8").toString("base64url");
+  // Cookie is only a fallback, but without compression large Battle.net accounts
+  // lose most candidates before the profile page can render them.
+  return deflateRawSync(Buffer.from(value, "utf8"), { level: 9 }).toString("base64url");
 }
 
 function base64UrlDecode(value: string) {
-  return Buffer.from(value, "base64url").toString("utf8");
+  const buffer = Buffer.from(value, "base64url");
+  try {
+    return inflateRawSync(buffer).toString("utf8");
+  } catch {
+    // Backward compatibility for older uncompressed candidate cookies.
+    return buffer.toString("utf8");
+  }
 }
 
 function getCandidateSecret() {
@@ -299,14 +308,14 @@ export function parseBattleNetCandidatesCookieValue(value: string | undefined | 
     if (parsed.v === 2) {
       if (parsed.p !== profileId || Date.now() > Number(parsed.e || 0)) return null;
       const characters = Array.isArray(parsed.c)
-        ? parsed.c.map((item) => tupleToCandidate(item, parsed.r)).filter(Boolean).slice(0, 50) as BattleNetCharacterCandidate[]
+        ? parsed.c.map((item) => tupleToCandidate(item, parsed.r)).filter(Boolean) as BattleNetCharacterCandidate[]
         : [];
       return { profileId: parsed.p, region: parsed.r, expiresAt: parsed.e, characters };
     }
 
     if (parsed.v !== 1 || parsed.profileId !== profileId || Date.now() > Number(parsed.expiresAt || 0)) return null;
     const characters = Array.isArray(parsed.characters)
-      ? parsed.characters.map((item) => compactCandidate(item)).filter(Boolean).slice(0, 50) as BattleNetCharacterCandidate[]
+      ? parsed.characters.map((item) => compactCandidate(item)).filter(Boolean) as BattleNetCharacterCandidate[]
       : [];
     return { ...parsed, characters };
   } catch {

@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
       otherCharacters: scan.otherCharacters,
       concurrency: scan.concurrency,
       failedCharacters: scan.failedCharacters,
+      fallbackCharacters: scan.fallbackCharacters,
       durationMs: scan.durationMs,
     });
 

@@ -74,6 +74,7 @@ export type BattleNetCharacterCandidate = {
 
 export const BNET_OAUTH_STATE_COOKIE = "__Host-mistblossom_bnet_state";
 const DEFAULT_GUILD_NAME = "Mistblossom Vanguard";
+const DEFAULT_GUILD_REALM = "terokkar";
 const DEFAULT_LOCALE_BY_REGION: Record<BattleNetRegion, string> = {
   us: "en_US",
   eu: "en_GB",
@@ -101,13 +102,29 @@ function getBattleNetRequestTimeoutMs() {
   return readIntegerEnv("BATTLENET_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
 }
 
+function getBattleNetRetryCount() {
+  return readIntegerEnv("BATTLENET_REQUEST_RETRIES", 2, 0, 5);
+}
+
+function getBattleNetRetryDelayMs(attempt: number, retryAfterHeader?: string | null) {
+  const retryAfter = Number(retryAfterHeader || 0);
+  if (Number.isFinite(retryAfter) && retryAfter > 0) {
+    return Math.min(15_000, Math.max(500, retryAfter * 1000));
+  }
+  return Math.min(8_000, 450 * Math.pow(2, Math.max(0, attempt)));
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function getBattleNetScanConcurrency(total: number) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
     envKey: "BATTLENET_SCAN_CONCURRENCY",
     maxEnvKey: "BATTLENET_SCAN_MAX_CONCURRENCY",
     min: 2,
-    max: 24,
+    max: 12,
   });
 }
 
@@ -375,7 +392,7 @@ function guildSlug(value: unknown) {
 function guildRosterConfig(regionInput?: string | null) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const guildName = cleanText(process.env.GUILD_ROSTER_NAME || process.env.WOW_GUILD_NAME || process.env.BATTLENET_ALLOWED_GUILD_NAME || DEFAULT_GUILD_NAME, 140) || DEFAULT_GUILD_NAME;
-  const realmSlug = normalizeBattleNetRealmSlug(process.env.GUILD_ROSTER_REALM || process.env.WOW_REALM || process.env.WOW_GUILD_REALM || process.env.BATTLENET_ALLOWED_GUILD_REALM || "terokkar") || "terokkar";
+  const realmSlug = normalizeBattleNetRealmSlug(process.env.GUILD_ROSTER_REALM || process.env.WOW_REALM || process.env.WOW_GUILD_REALM || process.env.BATTLENET_ALLOWED_GUILD_REALM || DEFAULT_GUILD_REALM) || DEFAULT_GUILD_REALM;
   return { region, guildName, guildSlug: guildSlug(guildName) || guildSlug(DEFAULT_GUILD_NAME), realmSlug };
 }
 
@@ -466,49 +483,135 @@ function flattenUserCharacters(profile: any) {
   return characters;
 }
 
+function getBattleNetScanCharacterLimit() {
+  // This is not a UI display limit. It is only a safety guard for very large accounts
+  // so one OAuth callback cannot accidentally fan out into thousands of API calls.
+  return readIntegerEnv("BATTLENET_SCAN_MAX_CHARACTERS", 500, 1, 1000);
+}
+
+function numberOrNull(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Number(number) : null;
+}
+
+function normalizeAccountCharacter(character: any, region: BattleNetRegion) {
+  const name = cleanText(character?.name, 80);
+  const normalizedName = normalizeBattleNetNameSlug(name);
+  const realmSlug = normalizeBattleNetRealmSlug(character?.realm?.slug || character?.realm?.name || character?.realm?.id || "");
+  const key = buildBattleNetCharacterKey(region, realmSlug, normalizedName);
+  if (!name || !normalizedName || !realmSlug || !key) return null;
+  return { ...character, name, normalizedName, realmSlug, key };
+}
+
+function dedupeUserCharacters(profile: any, region: BattleNetRegion) {
+  const byKey = new Map<string, any>();
+  for (const character of flattenUserCharacters(profile)) {
+    const normalized = normalizeAccountCharacter(character, region);
+    if (!normalized || byKey.has(normalized.key)) continue;
+    byKey.set(normalized.key, normalized);
+  }
+  return Array.from(byKey.values());
+}
+
+function candidateFromAccountSummary(
+  character: any,
+  region: BattleNetRegion,
+  guildRankMap: Map<string, BattleNetGuildRankInfo>,
+  lastSeenAt: string,
+): BattleNetCharacterCandidate | null {
+  const normalized = normalizeAccountCharacter(character, region);
+  if (!normalized) return null;
+
+  const activeSpecName = pickLocalizedName(character?.active_spec || character?.active_specialization);
+  const activeSpecId = pickActiveSpecId(character?.active_spec || character?.active_specialization);
+  const className = pickLocalizedName(character?.character_class || character?.playable_class);
+  const rankInfo = guildRankMap.get(normalized.key) || guildStatusFromRank(null);
+  const guild = character?.guild || null;
+  const summaryGuildName = cleanText(guild?.name || guild?.guild?.name || "", 120) || null;
+  const summaryGuildRealmSlug = normalizeBattleNetRealmSlug(guild?.realm?.slug || guild?.realm?.name || "") || null;
+  const verifiedGuild = Boolean(rankInfo.status) || isMistblossomGuild(character);
+
+  return {
+    key: normalized.key,
+    source: "battlenet" as const,
+    region,
+    name: normalized.name,
+    normalizedName: normalized.normalizedName,
+    realmSlug: normalized.realmSlug,
+    realmName: cleanText(character?.realm?.name || character?.realm?.slug || normalized.realmSlug, 120),
+    level: numberOrNull(character?.level),
+    faction: pickLocalizedName(character?.faction),
+    className,
+    activeSpecName,
+    activeSpecId,
+    activeSpecRole: resolveWowCharacterRole({ activeSpecName, activeSpecId, className }),
+    raceName: pickLocalizedName(character?.race || character?.playable_race),
+    genderName: pickLocalizedName(character?.gender),
+    guildName: verifiedGuild ? (summaryGuildName || DEFAULT_GUILD_NAME) : summaryGuildName,
+    guildRealmSlug: verifiedGuild ? (summaryGuildRealmSlug || normalized.realmSlug) : summaryGuildRealmSlug,
+    guildRank: rankInfo.rank,
+    guildStatus: rankInfo.status,
+    guildStatusLabel: rankInfo.label,
+    profileUrl: characterProfileUrl(region, normalized.realmSlug, normalized.normalizedName),
+    avatarUrl: null,
+    renderUrl: null,
+    mediaUrl: null,
+    verifiedGuild,
+    itemLevel: null,
+    lastSeenAt,
+  } satisfies BattleNetCharacterCandidate;
+}
+
+function compareBattleNetCandidates(a: BattleNetCharacterCandidate, b: BattleNetCharacterCandidate) {
+  if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
+  const levelDelta = (b.level || 0) - (a.level || 0);
+  if (levelDelta) return levelDelta;
+  const realmDelta = a.realmName.localeCompare(b.realmName, "uk");
+  if (realmDelta) return realmDelta;
+  return a.name.localeCompare(b.name, "uk");
+}
+
 export async function fetchBattleNetGuildCharacters(accessToken: string, regionInput?: string | null) {
   const startedAt = Date.now();
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const profile = await bnetFetch(accessToken, "/profile/user/wow", undefined, region);
-  const allCharacters = flattenUserCharacters(profile)
-    .map((character) => {
-      const name = cleanText(character?.name, 80);
-      const realmSlug = normalizeBattleNetRealmSlug(character?.realm?.slug || character?.realm?.id || "");
-      if (!name || !realmSlug) return null;
-      return { ...character, name, realmSlug };
-    })
-    .filter(Boolean) as any[];
+  const allCharacters = dedupeUserCharacters(profile, region);
 
-  const maxCharacters = readIntegerEnv("BATTLENET_SCAN_MAX_CHARACTERS", 180, 1, 250);
+  const maxCharacters = getBattleNetScanCharacterLimit();
   const limitedCharacters = allCharacters.slice(0, maxCharacters);
   const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
   const guildRankMap = await fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>());
+  const onlyGuildCharacters = envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false);
+  let fallbackCharacters = 0;
 
   const { results: candidates, meta } = await mapConcurrent(limitedCharacters, async (character) => {
+    const fallback = candidateFromAccountSummary(character, region, guildRankMap, new Date().toISOString());
+    if (!fallback) return null;
+
     const nameSlug = normalizeBattleNetNameSlug(character.name);
     const realmSlug = character.realmSlug;
 
     try {
-      const [details, media] = await Promise.all([
-        bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region),
-        bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
-      ]);
+      const details = await bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region);
+      const media = await bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null);
 
-      const verifiedGuild = isMistblossomGuild(details);
-      if (!verifiedGuild && envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false)) return null;
+      const normalizedName = normalizeBattleNetNameSlug(details?.name || character.name);
+      const cleanRealmSlug = normalizeBattleNetRealmSlug(details?.realm?.slug || realmSlug);
+      const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
+      if (!characterKey) return onlyGuildCharacters && !fallback.verifiedGuild ? null : fallback;
+
+      const rankInfoFromRoster = guildRankMap.get(characterKey) || null;
+      const verifiedGuild = isMistblossomGuild(details) || Boolean(rankInfoFromRoster);
+      if (!verifiedGuild && onlyGuildCharacters) return null;
 
       const avatarUrl = mediaAssetUrl(media, ["avatar", "inset"]);
       const renderUrl = mediaAssetUrl(media, ["main-raw", "main"]);
-      const guildName = cleanText(details?.guild?.name || "", 120) || null;
-      const guildRealmSlug = cleanText(details?.guild?.realm?.slug || details?.guild?.realm?.name || "", 120).toLowerCase() || null;
-      const normalizedName = normalizeBattleNetNameSlug(details?.name || character.name);
-      const cleanRealmSlug = normalizeBattleNetRealmSlug(details?.realm?.slug || realmSlug);
+      const guildName = cleanText(details?.guild?.name || "", 120) || (verifiedGuild ? DEFAULT_GUILD_NAME : null);
+      const guildRealmSlug = cleanText(details?.guild?.realm?.slug || details?.guild?.realm?.name || "", 120).toLowerCase() || (verifiedGuild ? cleanRealmSlug : null);
       const activeSpecName = pickLocalizedName(details?.active_spec || details?.active_specialization || character?.active_spec);
       const activeSpecId = pickActiveSpecId(details?.active_spec || details?.active_specialization || character?.active_spec);
       const className = pickLocalizedName(details?.character_class || details?.playable_class || character?.playable_class);
-      const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
-      if (!characterKey) return null;
-      const guildRankInfo = verifiedGuild ? guildRankMap.get(characterKey) || guildStatusFromRank(null) : guildStatusFromRank(null);
+      const guildRankInfo = verifiedGuild ? rankInfoFromRoster || guildStatusFromRank(null) : guildStatusFromRank(null);
 
       return {
         key: characterKey,
@@ -518,7 +621,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         normalizedName,
         realmSlug: cleanRealmSlug,
         realmName: cleanText(details?.realm?.name || character?.realm?.name || realmSlug, 120),
-        level: Number.isFinite(Number(details?.level || character?.level)) ? Number(details?.level || character?.level) : null,
+        level: numberOrNull(details?.level ?? character?.level),
         faction: pickLocalizedName(details?.faction || character?.faction),
         className,
         activeSpecName,
@@ -536,11 +639,13 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
         renderUrl,
         mediaUrl: media?._links?.self?.href || null,
         verifiedGuild,
-        itemLevel: Number.isFinite(Number(details?.equipped_item_level || details?.average_item_level)) ? Number(details?.equipped_item_level || details?.average_item_level) : null,
+        itemLevel: numberOrNull(details?.equipped_item_level ?? details?.average_item_level),
         lastSeenAt: new Date().toISOString(),
       } satisfies BattleNetCharacterCandidate;
     } catch {
-      return null;
+      fallbackCharacters += 1;
+      if (!fallback.verifiedGuild && onlyGuildCharacters) return null;
+      return fallback;
     }
   }, {
     profile: "external-api",
@@ -559,8 +664,9 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
     otherCharacters: Math.max(0, filtered.length - guildCharacters),
     concurrency: meta.concurrency,
     failedCharacters: meta.failed,
+    fallbackCharacters,
     durationMs: Date.now() - startedAt,
-    characters: filtered.sort((a, b) => Number(b.verifiedGuild) - Number(a.verifiedGuild) || a.name.localeCompare(b.name, "uk")),
+    characters: filtered.sort(compareBattleNetCandidates),
   };
 }
 
