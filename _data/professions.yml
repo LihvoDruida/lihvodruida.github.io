@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-11 21:19:12'
+  updated_at: '2026-05-12 03:25:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-11T09:42:53.000Z'
+  raider_io_last_crawled_at: '2026-05-11T21:57:15.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -2583,7 +2583,7 @@ characters:
         learned_points: 75
         max_points: 75
       - name: Classic Tailoring
-        learned_points: 245
+        learned_points: 300
         max_points: 300
       - name: Khaz Algar Tailoring
         learned_points: 55
@@ -4078,7 +4078,7 @@ characters:
         learned_points: 82
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 89
+        learned_points: 91
         max_points: 100
     secondaries:
     - name: Cooking
@@ -6659,7 +6659,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 41
+        learned_points: 42
         max_points: 100
     secondaries:
     - name: Fishing
