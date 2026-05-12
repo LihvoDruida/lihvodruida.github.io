@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-12 18:00:58'
+  updated_at: '2026-05-12 21:22:10'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 133
+  member_count: 134
   achievement_points: 495
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13817
-      region: 6155
+      world: 13823
+      region: 6158
       realm: 56
     heroic:
-      world: 12572
-      region: 5641
+      world: 12593
+      region: 5657
       realm: 44
     mythic:
-      world: 7655
-      region: 3283
+      world: 7663
+      region: 3289
       realm: 26
   blackrock-depths:
     normal:
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1389,11 +1389,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3198
-        color: '#8a4de9'
+        score: 3245.5
+        color: '#9b3eec'
       dps:
-        score: 3198
-        color: '#8a4de9'
+        score: 3245.5
+        color: '#9b3eec'
       healer:
         score: 326.1
         color: '#f7fff3'
@@ -1401,8 +1401,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3198
-        color: '#8a4de9'
+        score: 3245.5
+        color: '#9b3eec'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3442,7 +3442,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2760.2
@@ -4170,7 +4170,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/237/216613101-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Juzø
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3423.9
@@ -5005,11 +5005,11 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2616.8
-        color: '#5fb692'
+        score: 2691.8
+        color: '#5da8a2'
       dps:
-        score: 2616.8
-        color: '#5fb692'
+        score: 2691.8
+        color: '#5da8a2'
       healer:
         score: 0
         color: '#ffffff'
@@ -5020,8 +5020,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2616.8
-        color: '#5fb692'
+        score: 2691.8
+        color: '#5da8a2'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6146,7 +6146,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 282
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -6357,10 +6357,10 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3225.6
+        score: 3237.8
         color: '#9246eb'
       dps:
-        score: 3225.6
+        score: 3237.8
         color: '#9246eb'
       healer:
         score: 0
@@ -6372,7 +6372,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3225.6
+        score: 3237.8
         color: '#9246eb'
       spec_2:
         score: 0
@@ -6902,7 +6902,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2594.1
@@ -6977,6 +6977,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Nanyy
+    id: 216286404
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 11
+      name: Draenei
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
+    item_level_equipped: 235
+    mythic_plus_scores:
+      all:
+        score: 1087
+        color: '#bfffaa'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 1087
+        color: '#bfffaa'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1087
+        color: '#bfffaa'
       spec_3:
         score: 0
         color: '#ffffff'
