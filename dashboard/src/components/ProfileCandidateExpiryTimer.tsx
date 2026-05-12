@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   expiresAt: string;
@@ -20,17 +20,22 @@ function formatRemaining(ms: number) {
 }
 
 export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
-  const [leftMs, setLeftMs] = useState(() => remainingMs(expiresAt));
-  const [expired, setExpired] = useState(() => remainingMs(expiresAt) <= 0);
-  const initialLabel = useMemo(() => formatRemaining(leftMs), [leftMs]);
+  const cleanupStartedRef = useRef(false);
+  const [leftMs, setLeftMs] = useState<number | null>(null);
+  const expired = leftMs !== null && leftMs <= 0;
+  const label = useMemo(() => {
+    if (leftMs === null) return "—:—";
+    return expired ? "час вийшов" : formatRemaining(leftMs);
+  }, [expired, leftMs]);
 
   useEffect(() => {
-    let cleared = false;
+    cleanupStartedRef.current = false;
+    let cancelled = false;
 
     async function expireCandidates() {
-      if (cleared) return;
-      cleared = true;
-      setExpired(true);
+      if (cleanupStartedRef.current) return;
+      cleanupStartedRef.current = true;
+      setLeftMs(0);
       document.querySelector<HTMLElement>('[data-profile-candidates-box="true"]')?.setAttribute("hidden", "true");
       document.querySelectorAll<HTMLElement>('[data-profile-candidate-count="true"]').forEach((item) => {
         item.textContent = "0";
@@ -48,6 +53,7 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
     }
 
     const tick = () => {
+      if (cancelled) return;
       const next = remainingMs(expiresAt);
       setLeftMs(next);
       if (next <= 0) void expireCandidates();
@@ -55,13 +61,16 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
 
     tick();
     const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
   }, [expiresAt]);
 
   return (
     <span className={`profile-candidate-expiry${expired ? " is-expired" : ""}`} title="Час доступності тимчасового списку Battle.net">
       <span aria-hidden="true">⏳</span>
-      <span>{expired ? "час вийшов" : initialLabel}</span>
+      <span suppressHydrationWarning>{label}</span>
     </span>
   );
 }
