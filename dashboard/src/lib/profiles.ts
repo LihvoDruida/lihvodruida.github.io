@@ -99,14 +99,6 @@ function readBoundedIntegerEnv(names: string[], fallback: number, min: number, m
   return Math.max(min, Math.min(Math.floor(fallback), max));
 }
 
-export function getProfileCharacterLimit() {
-  return readBoundedIntegerEnv(["PROFILE_MAX_CHARACTERS", "PROFILE_CHARACTER_LIMIT"], 250, 1, 500);
-}
-
-export function getBattleNetCandidateLimit() {
-  return readBoundedIntegerEnv(["BATTLENET_CANDIDATE_MAX_CHARACTERS", "BATTLENET_SCAN_MAX_CHARACTERS", "PROFILE_MAX_CHARACTERS"], 500, 1, 1000);
-}
-
 function getBattleNetCandidateTtlMs() {
   const minutes = readBoundedIntegerEnv(["BATTLENET_CANDIDATE_TTL_MINUTES"], 60, 5, 1440);
   return minutes * 60 * 1000;
@@ -327,29 +319,27 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   };
 }
 
-function normalizeCharacterList(value: unknown, mainCharacterKey?: string | null, limit = getProfileCharacterLimit()) {
+function normalizeCharacterList(value: unknown, mainCharacterKey?: string | null) {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
   const characters: ProfileCharacter[] = [];
-  const safeLimit = Math.max(1, Math.floor(limit));
   for (const raw of value) {
     const character = normalizeCharacter(raw, mainCharacterKey);
     if (!character || seen.has(character.key)) continue;
     seen.add(character.key);
     characters.push(character);
-    if (characters.length >= safeLimit) break;
   }
   return characters;
 }
 
 function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
-  return normalizeCharacterList(value, mainCharacterKey, getProfileCharacterLimit());
+  return normalizeCharacterList(value, mainCharacterKey);
 }
 
 function normalizeBattleNetCandidateCharacters(battlenetRaw: Record<string, unknown> | null) {
   if (!battlenetRaw) return [];
   if (!isFutureTimestamp(battlenetRaw.candidateExpiresAt)) return [];
-  return normalizeCharacterList(battlenetRaw.candidateCharacters, null, getBattleNetCandidateLimit());
+  return normalizeCharacterList(battlenetRaw.candidateCharacters, null);
 }
 
 function cleanGroupId(value: unknown) {
@@ -835,7 +825,7 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
     if (candidate?.key) freshByKey.set(candidate.key, candidate);
   }
 
-  const candidateCharacters = Array.from(freshByKey.values()).slice(0, getBattleNetCandidateLimit());
+  const candidateCharacters = Array.from(freshByKey.values());
   const candidateExpiresAt = Timestamp.fromDate(new Date(Date.now() + getBattleNetCandidateTtlMs()));
   const guildCharacters = Number.isFinite(Number(scan.guildCharacters))
     ? Math.max(0, Math.floor(Number(scan.guildCharacters)))
@@ -1037,10 +1027,6 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
     if (current.some((item) => item.key === cleanKey)) {
       return { added: false, reason: "duplicate" as const, key: cleanKey };
     }
-    if (current.length >= getProfileCharacterLimit()) {
-      return { added: false, reason: "limit" as const, key: cleanKey };
-    }
-
     const now = new Date().toISOString();
     const nextCharacter: ProfileCharacter = { ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now };
     const nextCharacters = [...current, nextCharacter];
@@ -1075,7 +1061,7 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
 
   const addedKeys: string[] = [];
   const skippedKeys: string[] = [];
-  const skippedReasons: Record<string, "duplicate" | "limit"> = {};
+  const skippedReasons: Record<string, "duplicate"> = {};
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
 
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
@@ -1094,12 +1080,6 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
         skippedReasons[key] = "duplicate";
         continue;
       }
-      if (nextCharacters.length >= getProfileCharacterLimit()) {
-        skippedKeys.push(key);
-        skippedReasons[key] = "limit";
-        continue;
-      }
-
       nextCharacters.push({ ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now });
       currentKeys.add(key);
       addedKeys.push(key);

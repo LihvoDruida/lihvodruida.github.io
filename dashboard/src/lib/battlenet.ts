@@ -483,11 +483,10 @@ function flattenUserCharacters(profile: any) {
   return characters;
 }
 
-function getBattleNetScanCharacterLimit() {
-  // This is not a UI display limit. It is only a safety guard for very large accounts
-  // so one OAuth callback cannot accidentally fan out into thousands of API calls.
-  return readIntegerEnv("BATTLENET_SCAN_MAX_CHARACTERS", 500, 1, 1000);
-}
+// Do not cap Battle.net account characters by count. Some users legitimately have
+// dozens or hundreds of characters across WoW accounts, and a hard scan cap silently
+// hides valid characters from the profile UI. Stability is controlled by request
+// concurrency, timeout and retry settings instead.
 
 function numberOrNull(value: unknown) {
   const number = Number(value);
@@ -577,14 +576,13 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   const profile = await bnetFetch(accessToken, "/profile/user/wow", undefined, region);
   const allCharacters = dedupeUserCharacters(profile, region);
 
-  const maxCharacters = getBattleNetScanCharacterLimit();
-  const limitedCharacters = allCharacters.slice(0, maxCharacters);
-  const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
+  const charactersToScan = allCharacters;
+  const concurrency = getBattleNetScanConcurrency(charactersToScan.length);
   const guildRankMap = await fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>());
   const onlyGuildCharacters = envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false);
   let fallbackCharacters = 0;
 
-  const { results: candidates, meta } = await mapConcurrent(limitedCharacters, async (character) => {
+  const { results: candidates, meta } = await mapConcurrent(charactersToScan, async (character) => {
     const fallback = candidateFromAccountSummary(character, region, guildRankMap, new Date().toISOString());
     if (!fallback) return null;
 
@@ -658,7 +656,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   return {
     region,
     totalCharacters: allCharacters.length,
-    scannedCharacters: limitedCharacters.length,
+    scannedCharacters: charactersToScan.length,
     eligibleCharacters: filtered.length,
     guildCharacters,
     otherCharacters: Math.max(0, filtered.length - guildCharacters),

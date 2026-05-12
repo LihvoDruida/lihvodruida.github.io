@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCandidatesFromCookie } from "@/lib/battlenetCandidates";
-import { addProfileCharacters, getBattleNetCandidateLimit, getProfileBattleNetCandidates, removeProfileBattleNetCandidates } from "@/lib/profiles";
+import { addProfileCharacters, getProfileBattleNetCandidates, removeProfileBattleNetCandidates } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -14,14 +14,13 @@ function redirectToProfile(request: NextRequest, profileId: string, status: stri
 }
 
 function cleanKeys(values: FormDataEntryValue[]) {
-  return Array.from(new Set(values.map((value) => normalizeCharacterKey(value)).filter(Boolean))).slice(0, getBattleNetCandidateLimit());
+  return Array.from(new Set(values.map((value) => normalizeCharacterKey(value)).filter(Boolean)));
 }
 
 function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>) {
   const reasons = Object.values(result.skippedReasons || {});
   if (!result.validRequested) return "characters_bulk_no_verified";
   if (reasons.length && reasons.every((reason) => reason === "duplicate")) return "characters_bulk_all_duplicates";
-  if (reasons.some((reason) => reason === "limit")) return "characters_bulk_limit_reached";
   return "characters_bulk_noop";
 }
 

@@ -1,7 +1,6 @@
 export type ProfileCharacterStatus =
   | "character_add_failed"
   | "character_add_duplicate"
-  | "character_add_limit"
   | "character_add_invalid"
   | "character_add_not_guild"
   | "character_add_profile_missing"
@@ -9,7 +8,6 @@ export type ProfileCharacterStatus =
   | "character_add_firebase_failed"
   | "characters_bulk_no_verified"
   | "characters_bulk_all_duplicates"
-  | "characters_bulk_limit_reached"
   | "character_remove_failed"
   | "character_remove_invalid"
   | "character_remove_profile_missing"
@@ -31,7 +29,6 @@ export function characterAddStatusFromError(error: unknown): ProfileCharacterSta
   if (message.includes("некорект") || message.includes("invalid")) return "character_add_invalid";
   if (message.includes("не підтвердж") || message.includes("mistblossom") || message.includes("немає підтверджених")) return "character_add_not_guild";
   if (message.includes("already") || message.includes("вже дод")) return "character_add_duplicate";
-  if (message.includes("limit") || message.includes("ліміт") || message.includes("50")) return "character_add_limit";
   if (message.includes("firestore") || message.includes("firebase") || message.includes("permission")) return "character_add_firebase_failed";
   return "character_add_failed";
 }

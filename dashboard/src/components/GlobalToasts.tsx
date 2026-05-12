@@ -84,12 +84,6 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Ці персонажі вже є у профілі. Повторно вони не додаються — це захист від дублікатів.",
     ttl: 7600,
   },
-  characters_bulk_limit_reached: {
-    tone: "warning",
-    title: "Досягнуто ліміт персонажів",
-    message: "Профіль уже має максимальну кількість збережених персонажів. Видали зайві записи або не додавай весь Battle.net список одразу.",
-    ttl: 8200,
-  },
   character_add_failed: {
     tone: "error",
     title: "Персонажа не додано",
@@ -101,12 +95,6 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     title: "Персонаж уже є в профілі",
     message: "Повторний запис не створюється. Якщо хочеш оновити список, спочатку пройди Battle.net реавторизацію або видали старий запис.",
     ttl: 7000,
-  },
-  character_add_limit: {
-    tone: "warning",
-    title: "Ліміт персонажів у профілі",
-    message: "Новий запис не додано, бо профіль уже заповнений. Видали непотрібних персонажів і повтори додавання.",
-    ttl: 7800,
   },
   character_add_invalid: {
     tone: "error",

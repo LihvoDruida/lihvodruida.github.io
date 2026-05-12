@@ -47,9 +47,8 @@ export async function POST(request: NextRequest) {
   try {
     const result = await addProfileCharacter(session.profileId, candidate);
     if (!result.added) {
-      const status = result.reason === "duplicate" ? "character_add_duplicate" : "character_add_limit";
       logDashboardEvent("warn", "profile.character.add_skipped", request, { profileId: session.profileId, characterKey, reason: result.reason });
-      return redirectToProfile(request, session.profileId, status);
+      return redirectToProfile(request, session.profileId, "character_add_duplicate");
     }
 
     logDashboardEvent("info", "profile.character.added", request, { profileId: session.profileId, characterKey });

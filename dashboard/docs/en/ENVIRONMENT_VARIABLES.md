@@ -123,10 +123,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `BATTLENET_REQUEST_TIMEOUT_MS` | optional | Battle.net API timeout. |
 | `BATTLENET_SCAN_CONCURRENCY` | optional | Scan concurrency, `0` means adaptive. |
 | `BATTLENET_SCAN_MAX_CONCURRENCY` | optional | Max scan concurrency. |
-| `BATTLENET_SCAN_MAX_CHARACTERS` | optional | Max characters to scan. |
-| `BATTLENET_CANDIDATE_MAX_CHARACTERS` | optional | Max temporary Battle.net candidates kept server-side after OAuth. |
 | `BATTLENET_CANDIDATE_TTL_MINUTES` | optional | Temporary Battle.net candidate lifetime after OAuth. |
-| `PROFILE_MAX_CHARACTERS` | optional | Max characters saved in one profile. |
 | `BATTLENET_SIGNUP_REFRESH_CONCURRENCY` | optional | Auto refresh concurrency before raid signup. |
 | `BATTLENET_SIGNUP_REFRESH_REST_LIMIT` | optional | How many alts to refresh after the main before raid signup. |
 | `BATTLENET_CANDIDATE_SECRET` | optional secret | Fallback secret for Battle.net candidates cookie. |
