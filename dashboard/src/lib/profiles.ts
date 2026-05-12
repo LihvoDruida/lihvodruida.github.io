@@ -935,8 +935,15 @@ export async function clearProfileBattleNetCandidates(profileId: string, expecte
   const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
   if (!hasCandidateStorage(battlenetRaw)) return false;
 
-  const currentExpiresAt = timestampToIso(battlenetRaw?.candidateExpiresAt) || optionalString(battlenetRaw?.candidateExpiresAt);
-  if (expectedExpiresAt && currentExpiresAt !== expectedExpiresAt) return false;
+  const currentExpiresMs = timestampMillis(battlenetRaw?.candidateExpiresAt);
+  const expectedExpiresMs = expectedExpiresAt ? timestampMillis(expectedExpiresAt) : null;
+
+  // A stale tab must not clear a freshly refreshed candidate list.
+  // But once the stored list is already expired, clear it even if string formatting
+  // differs between Firestore Timestamp and ISO sent by the client.
+  if (expectedExpiresMs !== null && currentExpiresMs !== null && currentExpiresMs > expectedExpiresMs + 1000 && isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) {
+    return false;
+  }
   if (isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) return false;
 
   await ref.update({

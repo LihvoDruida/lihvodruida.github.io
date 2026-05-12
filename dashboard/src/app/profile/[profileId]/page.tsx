@@ -328,7 +328,8 @@ export default async function ProfilePage({
   const availableOtherCandidates = availableCandidates.filter((item) => !item.verifiedGuild);
   const profileGuildCharacters = profile.characters.filter((item) => item.verifiedGuild);
   const profileOtherCharacters = profile.characters.filter((item) => !item.verifiedGuild);
-  const hasFreshBattleNetSession = Boolean(availableCandidates.length);
+  const hasAvailableBattleNetCandidates = Boolean(availableCandidates.length && profile.battlenet?.candidateExpiresAt);
+  const hasFreshBattleNetSession = hasAvailableBattleNetCandidates;
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
@@ -447,7 +448,7 @@ export default async function ProfilePage({
                   </div>
                 )}
 
-                {canManageCharacters && hasFreshBattleNetSession ? (
+                {canManageCharacters && hasAvailableBattleNetCandidates ? (
                   <div className="profile-candidates-box" data-profile-candidates-box="true">
                     <div className="profile-card-head profile-card-head--inline">
                       <div>

@@ -946,6 +946,11 @@
   margin-bottom: clamp(18px, 2vw, 24px);
 }
 
+.profile-candidates-box[hidden],
+.profile-candidates-box[data-expired="true"] {
+  display: none !important;
+}
+
 .profile-candidate-bulk-actions,
 .profile-candidate-bulk-buttons {
   display: flex;

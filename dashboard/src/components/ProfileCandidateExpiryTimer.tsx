@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   expiresAt: string;
@@ -20,7 +21,9 @@ function formatRemaining(ms: number) {
 }
 
 export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
+  const router = useRouter();
   const cleanupStartedRef = useRef(false);
+  const refreshStartedRef = useRef(false);
   const [leftMs, setLeftMs] = useState<number | null>(null);
   const expired = leftMs !== null && leftMs <= 0;
   const label = useMemo(() => {
@@ -30,25 +33,54 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
 
   useEffect(() => {
     cleanupStartedRef.current = false;
+    refreshStartedRef.current = false;
     let cancelled = false;
+    let intervalId: number | null = null;
+
+    function hideCandidateUi() {
+      const roots = document.querySelectorAll<HTMLElement>('[data-profile-candidates-box="true"]');
+      roots.forEach((root) => {
+        root.dataset.expired = "true";
+        root.hidden = true;
+        root.style.display = "none";
+        root.setAttribute("aria-hidden", "true");
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-profile-candidate-count="true"]').forEach((item) => {
+        item.textContent = "0";
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-profile-candidates-box="true"] button').forEach((button) => {
+        button.disabled = true;
+      });
+      document.querySelectorAll<HTMLInputElement>('[data-profile-candidates-box="true"] input').forEach((input) => {
+        input.disabled = true;
+      });
+    }
 
     async function expireCandidates() {
       if (cleanupStartedRef.current) return;
       cleanupStartedRef.current = true;
       setLeftMs(0);
-      document.querySelector<HTMLElement>('[data-profile-candidates-box="true"]')?.setAttribute("hidden", "true");
-      document.querySelectorAll<HTMLElement>('[data-profile-candidate-count="true"]').forEach((item) => {
-        item.textContent = "0";
-      });
+      hideCandidateUi();
+      if (intervalId !== null) window.clearInterval(intervalId);
+
       try {
         await fetch("/api/profile/battlenet/candidates/expire", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ expiresAt }),
           cache: "no-store",
+          credentials: "same-origin",
+          keepalive: true,
         });
       } catch {
         // The next server render also prunes expired candidates, so a network error is non-fatal.
+      } finally {
+        if (!cancelled && !refreshStartedRef.current) {
+          refreshStartedRef.current = true;
+          window.setTimeout(() => router.refresh(), 120);
+        }
       }
     }
 
@@ -60,12 +92,12 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
     };
 
     tick();
-    const id = window.setInterval(tick, 1000);
+    intervalId = window.setInterval(tick, 1000);
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      if (intervalId !== null) window.clearInterval(intervalId);
     };
-  }, [expiresAt]);
+  }, [expiresAt, router]);
 
   return (
     <span className={`profile-candidate-expiry${expired ? " is-expired" : ""}`} title="Час доступності тимчасового списку Battle.net">
