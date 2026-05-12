@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-12 06:39:32'
+  updated_at: '2026-05-12 10:33:20'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,17 +52,17 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13811
-      region: 6153
+      world: 13813
+      region: 6154
       realm: 56
     heroic:
-      world: 12546
-      region: 5632
+      world: 12556
+      region: 5635
       realm: 44
     mythic:
-      world: 7643
-      region: 3276
-      realm: 25
+      world: 7646
+      region: 3277
+      realm: 26
   blackrock-depths:
     normal:
       world: 0
@@ -502,7 +502,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
-    item_level_equipped: 255
+    item_level_equipped: 245
     mythic_plus_scores:
       all:
         score: 170
@@ -2013,11 +2013,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3358.2
-        color: '#b43bdc'
+        score: 3374.2
+        color: '#b83dd6'
       dps:
-        score: 3358.2
-        color: '#b43bdc'
+        score: 3374.2
+        color: '#b83dd6'
       healer:
         score: 2579.4
         color: '#5fbf87'
@@ -2031,8 +2031,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3358.2
-        color: '#b43bdc'
+        score: 3374.2
+        color: '#b83dd6'
       spec_3:
         score: 0
         color: '#ffffff'

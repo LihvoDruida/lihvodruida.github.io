@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-12 06:39:32'
+  updated_at: '2026-05-12 10:33:20'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -481,7 +481,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Engineering
-        learned_points: 84
+        learned_points: 87
         max_points: 100
     - name: Mining
       id: 186
@@ -4784,7 +4784,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 61
+        learned_points: 64
         max_points: 100
     - name: Jewelcrafting
       id: 755
