@@ -178,7 +178,7 @@
 
 .profile-account-overview {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -207,6 +207,19 @@
   background:
     radial-gradient(circle at 0 0, rgba(72, 207, 138, 0.13), transparent 42%),
     var(--profile-card-bg);
+}
+
+.profile-account-overview-card--main-role {
+  border-color: rgba(236, 202, 126, 0.28);
+  background:
+    radial-gradient(circle at 0 0, rgba(236, 202, 126, 0.10), transparent 42%),
+    var(--profile-card-bg);
+}
+
+.profile-account-overview-card .profile-account-overview-card__meta {
+  margin-top: 6px;
+  color: rgba(244, 234, 215, 0.78);
+  letter-spacing: 0.04em;
 }
 
 .profile-account-overview-card__icon,

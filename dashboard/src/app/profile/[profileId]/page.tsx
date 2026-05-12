@@ -71,12 +71,6 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
   };
 }
 
-function numberOrNull(value: unknown) {
-  if (value === null || value === undefined || value === "") return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : null;
-}
-
 function characterVisualUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
   if (!character) return null;
   return character.renderUrl || pickWowAvatarImageUrl(character.avatarUrl, character.mediaUrl);
@@ -87,13 +81,11 @@ function characterAvatarUrl(character?: Pick<ProfileCharacter, "renderUrl" | "av
   return pickWowAvatarImageUrl(character.avatarUrl, character.renderUrl, character.mediaUrl);
 }
 
-function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction" | "guildName" | "guildStatusLabel" | "guildRank">) {
+function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName" | "faction">) {
   return [
     typeof character.level === "number" ? `Lvl ${character.level}` : null,
     character.raceName || null,
     character.faction || null,
-    character.guildStatusLabel ? `${character.guildStatusLabel}${typeof character.guildRank === "number" ? ` • ранг ${character.guildRank}` : ""}` : null,
-    character.guildName || null,
   ].filter(Boolean);
 }
 
@@ -130,7 +122,6 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
             <p>{realmLabel}</p>
           </div>
           <span className={`profile-character-kind profile-character-kind--${guildBadge.className}`}>{guildBadge.icon} {guildBadge.label}</span>
-          {character.guildStatusLabel ? <span className={`profile-character-guild-status profile-character-guild-status--${character.guildStatus || "member"}`}>{character.guildStatusLabel}</span> : null}
         </div>
 
         <div className="profile-character-meta">
@@ -268,7 +259,7 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
       </span>
       <span className="profile-character-candidate__body">
         <strong>{character.name} <em className="profile-character-candidate__kind">{kindLabel}</em></strong>
-        <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}{character.guildStatusLabel ? ` • ${character.guildStatusLabel}` : ""}</small>
+        <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}</small>
         {extraMeta.length ? <small>{extraMeta.join(" • ")}</small> : null}
       </span>
       <form action="/api/profile/characters/add" method="post">
@@ -347,11 +338,8 @@ export default async function ProfilePage({
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";
-  const savedCharacterCount = profile.characters.length;
   const publicNamePreview = getProfilePublicName(profile, nicknamePolicy.template);
   const guildStatus = guildStatusLabel(profile.role);
-  const eligibleGuildCharacters = numberOrNull(profile.battlenet?.guildCharacters) ?? profileGuildCharacters.length;
-  const eligibleOtherCharacters = numberOrNull(profile.battlenet?.otherCharacters) ?? profileOtherCharacters.length;
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
   const accountStatusLabel = dashboardRoleLabel(profile.role);
   const profileUpdatedLabel = formatCompactDate(profile.battlenet?.lastSyncAt || profile.updatedAt || profile.lastLoginAt || mainCharacter?.lastSeenAt);
@@ -416,25 +404,12 @@ export default async function ProfilePage({
                   <strong>{publicNamePreview}</strong>
                 </span>
               </div>
-              <div className="profile-account-overview-card">
+              <div className="profile-account-overview-card profile-account-overview-card--main-role">
                 <span className="profile-account-overview-card__icon" aria-hidden="true">⚔</span>
                 <span>
-                  <small>Мейн</small>
+                  <small>Мейн / роль у рейді</small>
                   <strong>{mainCharacter?.name || "—"}</strong>
-                </span>
-              </div>
-              <div className="profile-account-overview-card">
-                <span className="profile-account-overview-card__icon" aria-hidden="true">✦</span>
-                <span>
-                  <small>Роль у рейді</small>
-                  <strong>{wowRoleLabel(selectedRaidRole)}</strong>
-                </span>
-              </div>
-              <div className="profile-account-overview-card profile-account-overview-card--success">
-                <span className="profile-account-overview-card__icon" aria-hidden="true">☘</span>
-                <span>
-                  <small>Персонажі</small>
-                  <strong>{savedCharacterCount}</strong>
+                  <small className="profile-account-overview-card__meta">{wowRoleLabel(selectedRaidRole)}</small>
                 </span>
               </div>
             </section>
@@ -463,7 +438,7 @@ export default async function ProfilePage({
                 <div className="profile-card-toolbar profile-card-toolbar--compact" aria-label="Стан персонажів">
                   <span><strong>{profileGuildCharacters.length}</strong><small>Гільдійні</small></span>
                   <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span>
-                  <span><strong>{eligibleGuildCharacters + eligibleOtherCharacters}</strong><small>Доступні</small></span>
+                  <span><strong>{availableCandidates.length}</strong><small>Можна додати</small></span>
                   <span><strong>{profileUpdatedLabel}</strong><small>Оновлено</small></span>
                 </div>
 
