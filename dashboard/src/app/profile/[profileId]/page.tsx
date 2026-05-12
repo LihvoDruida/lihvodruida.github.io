@@ -333,12 +333,17 @@ export default async function ProfilePage({
   const addedKeys = new Set(profile.characters.map((item) => normalizeCharacterKey(item.key)).filter(Boolean));
   const candidateCookie = isOwnProfile ? cookieStore.get(BNET_CANDIDATES_COOKIE)?.value : undefined;
   const candidateSession = isOwnProfile ? parseBattleNetCandidatesCookieValue(candidateCookie, profile.profileId) : null;
-  const availableCandidates = (candidateSession?.characters || []).filter((item) => !addedKeys.has(normalizeCharacterKey(item.key)));
+  const candidateByKey = new Map<string, ProfileCharacter>();
+  for (const candidate of [...(profile.battlenet?.candidateCharacters || []), ...(candidateSession?.characters || [])]) {
+    const key = normalizeCharacterKey(candidate.key);
+    if (key && !candidateByKey.has(key)) candidateByKey.set(key, candidate);
+  }
+  const availableCandidates = Array.from(candidateByKey.values()).filter((item) => !addedKeys.has(normalizeCharacterKey(item.key)));
   const availableGuildCandidates = availableCandidates.filter((item) => item.verifiedGuild);
   const availableOtherCandidates = availableCandidates.filter((item) => !item.verifiedGuild);
   const profileGuildCharacters = profile.characters.filter((item) => item.verifiedGuild);
   const profileOtherCharacters = profile.characters.filter((item) => !item.verifiedGuild);
-  const hasFreshBattleNetSession = Boolean(candidateSession && availableCandidates.length);
+  const hasFreshBattleNetSession = Boolean(availableCandidates.length);
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
   const battleNetAction = battleNetActionCopy(profile, hasFreshBattleNetSession);
   const bulkFormId = "profile-candidate-bulk-add";

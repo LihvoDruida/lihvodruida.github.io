@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { BNET_CANDIDATES_COOKIE, findCandidateByKey, removeCandidateFromCookie } from "@/lib/battlenetCandidates";
-import { addProfileCharacter } from "@/lib/profiles";
+import { addProfileCharacter, getProfileBattleNetCandidates, removeProfileBattleNetCandidates } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
 
   const store = await cookies();
   const candidateCookie = store.get(BNET_CANDIDATES_COOKIE)?.value || "";
-  const candidate = findCandidateByKey(candidateCookie, session.profileId, characterKey);
+  const storedCandidates = await getProfileBattleNetCandidates(session.profileId).catch(() => []);
+  const candidate = storedCandidates.find((item) => normalizeCharacterKey(item.key) === characterKey)
+    || findCandidateByKey(candidateCookie, session.profileId, characterKey);
 
   if (!candidate) {
     logDashboardEvent("warn", "profile.character.add_missing_reauth", request, { profileId: session.profileId, characterKey });
@@ -52,6 +54,9 @@ export async function POST(request: NextRequest) {
 
     logDashboardEvent("info", "profile.character.added", request, { profileId: session.profileId, characterKey });
     const response = redirectToProfile(request, session.profileId, "character_added");
+    await removeProfileBattleNetCandidates(session.profileId, [characterKey]).catch((cleanupError) => {
+      logDashboardEvent("warn", "profile.character.candidate_cleanup_failed", request, { profileId: session.profileId, characterKey, message: safeErrorMessage(cleanupError) });
+    });
     removeCandidateFromCookie(response, candidateCookie, session.profileId, characterKey);
     return response;
   } catch (error) {

@@ -1,4 +1,4 @@
-import { FieldPath, FieldValue } from "firebase-admin/firestore";
+import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
@@ -63,6 +63,8 @@ export type DashboardProfile = {
     guildCharacters?: number;
     otherCharacters?: number;
     candidateCharacters?: ProfileCharacter[];
+    candidateSavedAt?: string | null;
+    candidateExpiresAt?: string | null;
   } | null;
   createdAt?: string | null;
   updatedAt?: string | null;
@@ -85,6 +87,36 @@ function cleanRole(value: unknown): DashboardRole {
 
 function optionalString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.slice(0, 500) : null;
+}
+
+function readBoundedIntegerEnv(names: string[], fallback: number, min: number, max: number) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    const value = Number(raw);
+    if (Number.isFinite(value)) return Math.max(min, Math.min(Math.floor(value), max));
+  }
+  return Math.max(min, Math.min(Math.floor(fallback), max));
+}
+
+export function getProfileCharacterLimit() {
+  return readBoundedIntegerEnv(["PROFILE_MAX_CHARACTERS", "PROFILE_CHARACTER_LIMIT"], 120, 1, 250);
+}
+
+export function getBattleNetCandidateLimit() {
+  return readBoundedIntegerEnv(["BATTLENET_CANDIDATE_MAX_CHARACTERS", "BATTLENET_SCAN_MAX_CHARACTERS", "PROFILE_MAX_CHARACTERS"], 180, 1, 300);
+}
+
+function getBattleNetCandidateTtlMs() {
+  const minutes = readBoundedIntegerEnv(["BATTLENET_CANDIDATE_TTL_MINUTES"], 60, 5, 1440);
+  return minutes * 60 * 1000;
+}
+
+function isFutureTimestamp(value: unknown) {
+  const iso = timestampToIso(value) || optionalString(value);
+  if (!iso) return false;
+  const time = new Date(iso).getTime();
+  return Number.isFinite(time) && time > Date.now();
 }
 
 function cleanString(value: unknown, maxLength = 240) {
@@ -295,17 +327,29 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   };
 }
 
-function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
+function normalizeCharacterList(value: unknown, mainCharacterKey?: string | null, limit = getProfileCharacterLimit()) {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
   const characters: ProfileCharacter[] = [];
+  const safeLimit = Math.max(1, Math.floor(limit));
   for (const raw of value) {
     const character = normalizeCharacter(raw, mainCharacterKey);
     if (!character || seen.has(character.key)) continue;
     seen.add(character.key);
     characters.push(character);
+    if (characters.length >= safeLimit) break;
   }
-  return characters.slice(0, 50);
+  return characters;
+}
+
+function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
+  return normalizeCharacterList(value, mainCharacterKey, getProfileCharacterLimit());
+}
+
+function normalizeBattleNetCandidateCharacters(battlenetRaw: Record<string, unknown> | null) {
+  if (!battlenetRaw) return [];
+  if (!isFutureTimestamp(battlenetRaw.candidateExpiresAt)) return [];
+  return normalizeCharacterList(battlenetRaw.candidateCharacters, null, getBattleNetCandidateLimit());
 }
 
 function cleanGroupId(value: unknown) {
@@ -422,7 +466,9 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       eligibleCharacters: Number.isFinite(Number(battlenetRaw.eligibleCharacters)) ? Number(battlenetRaw.eligibleCharacters) : undefined,
       guildCharacters: Number.isFinite(Number(battlenetRaw.guildCharacters)) ? Number(battlenetRaw.guildCharacters) : undefined,
       otherCharacters: Number.isFinite(Number(battlenetRaw.otherCharacters)) ? Number(battlenetRaw.otherCharacters) : undefined,
-      candidateCharacters: [],
+      candidateCharacters: normalizeBattleNetCandidateCharacters(battlenetRaw),
+      candidateSavedAt: timestampToIso(battlenetRaw.candidateSavedAt),
+      candidateExpiresAt: timestampToIso(battlenetRaw.candidateExpiresAt),
     } : null,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
@@ -782,6 +828,19 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
 
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   const snapshot = await ref.get();
+  const freshByKey = new Map<string, ProfileCharacter>();
+
+  for (const candidateInput of scan.characters || []) {
+    const candidate = normalizeCharacter(candidateInput, null);
+    if (candidate?.key) freshByKey.set(candidate.key, candidate);
+  }
+
+  const candidateCharacters = Array.from(freshByKey.values()).slice(0, getBattleNetCandidateLimit());
+  const candidateExpiresAt = Timestamp.fromDate(new Date(Date.now() + getBattleNetCandidateTtlMs()));
+  const guildCharacters = Number.isFinite(Number(scan.guildCharacters))
+    ? Math.max(0, Math.floor(Number(scan.guildCharacters)))
+    : candidateCharacters.filter((character) => Boolean(character.verifiedGuild)).length;
+
   const payload: Record<string, unknown> = {
     battlenet: {
       linked: true,
@@ -793,25 +852,29 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
       totalCharacters: scan.totalCharacters,
       scannedCharacters: scan.scannedCharacters,
       eligibleCharacters: scan.eligibleCharacters,
-      guildCharacters: Number.isFinite(Number(scan.guildCharacters))
-        ? Math.max(0, Math.floor(Number(scan.guildCharacters)))
-        : (scan.characters || []).filter((character) => Boolean(character.verifiedGuild)).length,
+      guildCharacters,
       otherCharacters: Number.isFinite(Number(scan.otherCharacters))
         ? Math.max(0, Math.floor(Number(scan.otherCharacters)))
-        : Math.max(0, scan.eligibleCharacters - (scan.characters || []).filter((character) => Boolean(character.verifiedGuild)).length),
+        : Math.max(0, candidateCharacters.length - guildCharacters),
+      candidateCharacters,
+      candidateSavedAt: FieldValue.serverTimestamp(),
+      candidateExpiresAt,
     },
     updatedAt: FieldValue.serverTimestamp(),
   };
 
-  if (snapshot.exists && Array.isArray(scan.characters) && scan.characters.length) {
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const freshByKey = new Map<string, ProfileCharacter>();
-    for (const candidateInput of scan.characters) {
-      const candidate = normalizeCharacter(candidateInput, null);
-      if (candidate?.key) freshByKey.set(candidate.key, candidate);
-    }
+  if (!candidateCharacters.length) {
+    payload.battlenet = {
+      ...(payload.battlenet as Record<string, unknown>),
+      candidateCharacters: FieldValue.delete(),
+      candidateSavedAt: FieldValue.delete(),
+      candidateExpiresAt: FieldValue.delete(),
+    };
+  }
 
-    if (freshByKey.size && profile.characters.length) {
+  if (snapshot.exists && freshByKey.size) {
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    if (profile.characters.length) {
       payload.characters = profile.characters.map((current) => {
         const fresh = freshByKey.get(current.key);
         if (!fresh) return current;
@@ -826,7 +889,42 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   }
 
   await ref.set(payload, { merge: true });
-  await ref.update({ "battlenet.candidateCharacters": FieldValue.delete() }).catch(() => null);
+}
+
+export async function getProfileBattleNetCandidates(profileId: string) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return [];
+  const profile = await getProfileById(profileId).catch(() => null);
+  return profile?.battlenet?.candidateCharacters || [];
+}
+
+export async function removeProfileBattleNetCandidates(profileId: string, characterKeys: string[]) {
+  const removeKeys = new Set((characterKeys || []).map((key) => cleanCharacterKey(key)).filter(Boolean));
+  if (!removeKeys.size || !/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig()) return;
+
+  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) return;
+
+    const profile = normalizeProfile(profileId, snapshot.data() || {});
+    const remaining = (profile.battlenet?.candidateCharacters || []).filter((candidate) => !removeKeys.has(candidate.key));
+    if (!remaining.length) {
+      transaction.update(ref, {
+        "battlenet.candidateCharacters": FieldValue.delete(),
+        "battlenet.candidateSavedAt": FieldValue.delete(),
+        "battlenet.candidateExpiresAt": FieldValue.delete(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      return;
+    }
+
+    transaction.set(ref, {
+      battlenet: {
+        candidateCharacters: remaining,
+      },
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+  });
 }
 
 function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter): ProfileCharacter {
@@ -939,7 +1037,7 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
     if (current.some((item) => item.key === cleanKey)) {
       return { added: false, reason: "duplicate" as const, key: cleanKey };
     }
-    if (current.length >= 50) {
+    if (current.length >= getProfileCharacterLimit()) {
       return { added: false, reason: "limit" as const, key: cleanKey };
     }
 
@@ -996,7 +1094,7 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
         skippedReasons[key] = "duplicate";
         continue;
       }
-      if (nextCharacters.length >= 50) {
+      if (nextCharacters.length >= getProfileCharacterLimit()) {
         skippedKeys.push(key);
         skippedReasons[key] = "limit";
         continue;

@@ -94,10 +94,16 @@ export async function GET(request: NextRequest) {
     });
 
     const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters", getNextPathFromOAuthState(state));
-    if (scan.characters.length) {
-      setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
-    } else {
+    try {
+      if (scan.characters.length) {
+        setBattleNetCandidatesCookie(response, session.profileId, scan.region, scan.characters);
+      } else {
+        clearBattleNetCandidatesCookie(response);
+      }
+    } catch (cookieError) {
+      // Cookie is only a small fallback now; the full candidate list is stored in the profile.
       clearBattleNetCandidatesCookie(response);
+      logDashboardEvent("warn", "auth.battlenet.callback.cookie_fallback_failed", request, { profileId: session.profileId, message: safeErrorMessage(cookieError) });
     }
     return response;
   } catch (error) {

@@ -479,7 +479,7 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
     })
     .filter(Boolean) as any[];
 
-  const maxCharacters = Math.max(1, Math.min(Number(process.env.BATTLENET_SCAN_MAX_CHARACTERS || 80) || 80, 120));
+  const maxCharacters = readIntegerEnv("BATTLENET_SCAN_MAX_CHARACTERS", 180, 1, 250);
   const limitedCharacters = allCharacters.slice(0, maxCharacters);
   const concurrency = getBattleNetScanConcurrency(limitedCharacters.length);
   const guildRankMap = await fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>());

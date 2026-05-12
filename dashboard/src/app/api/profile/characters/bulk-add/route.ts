@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { BNET_CANDIDATES_COOKIE, parseBattleNetCandidatesCookieValue, removeCandidatesFromCookie } from "@/lib/battlenetCandidates";
-import { addProfileCharacters } from "@/lib/profiles";
+import { addProfileCharacters, getBattleNetCandidateLimit, getProfileBattleNetCandidates, removeProfileBattleNetCandidates } from "@/lib/profiles";
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -14,7 +14,7 @@ function redirectToProfile(request: NextRequest, profileId: string, status: stri
 }
 
 function cleanKeys(values: FormDataEntryValue[]) {
-  return Array.from(new Set(values.map((value) => normalizeCharacterKey(value)).filter(Boolean))).slice(0, 50);
+  return Array.from(new Set(values.map((value) => normalizeCharacterKey(value)).filter(Boolean))).slice(0, getBattleNetCandidateLimit());
 }
 
 function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>) {
@@ -28,7 +28,7 @@ function statusForNoop(result: Awaited<ReturnType<typeof addProfileCharacters>>)
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
-  const tooLarge = assertRequestBodySize(request, 16 * 1024);
+  const tooLarge = assertRequestBodySize(request, 64 * 1024);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
@@ -43,16 +43,23 @@ export async function POST(request: NextRequest) {
   const selectedKeys = cleanKeys(form.getAll("characterKeys"));
   const candidateCookie = store.get(BNET_CANDIDATES_COOKIE)?.value || "";
   const candidateSession = parseBattleNetCandidatesCookieValue(candidateCookie, session.profileId);
+  const storedCandidates = await getProfileBattleNetCandidates(session.profileId).catch(() => []);
+  const candidatesByKey = new Map<string, NonNullable<typeof candidateSession>["characters"][number]>();
+  for (const candidate of [...storedCandidates, ...(candidateSession?.characters || [])]) {
+    const key = normalizeCharacterKey(candidate.key);
+    if (key && !candidatesByKey.has(key)) candidatesByKey.set(key, candidate);
+  }
+  const availableCandidateCharacters = Array.from(candidatesByKey.values());
 
-  if (!candidateSession?.characters.length) {
+  if (!availableCandidateCharacters.length) {
     logDashboardEvent("warn", "profile.character.bulk_missing_reauth", request, { profileId: session.profileId, mode });
     return redirectToProfile(request, session.profileId, "character_reauth_required");
   }
 
   const selectedSet = new Set(selectedKeys);
   const candidates = mode === "all"
-    ? candidateSession.characters
-    : candidateSession.characters.filter((candidate) => selectedSet.has(normalizeCharacterKey(candidate.key)));
+    ? availableCandidateCharacters
+    : availableCandidateCharacters.filter((candidate) => selectedSet.has(normalizeCharacterKey(candidate.key)));
 
   if (!candidates.length) {
     logDashboardEvent("warn", "profile.character.bulk_empty", request, { profileId: session.profileId, mode, selected: selectedKeys.length });
@@ -76,6 +83,9 @@ export async function POST(request: NextRequest) {
     }
 
     const response = redirectToProfile(request, session.profileId, result.skipped > 0 ? "characters_added_partial" : result.added > 1 ? "characters_added" : "character_added");
+    await removeProfileBattleNetCandidates(session.profileId, result.addedKeys).catch((cleanupError) => {
+      logDashboardEvent("warn", "profile.character.bulk_candidate_cleanup_failed", request, { profileId: session.profileId, added: result.addedKeys.length, message: safeErrorMessage(cleanupError) });
+    });
     removeCandidatesFromCookie(response, candidateCookie, session.profileId, result.addedKeys);
     return response;
   } catch (error) {
