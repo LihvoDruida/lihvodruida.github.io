@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-12 10:33:20'
+  updated_at: '2026-05-12 14:29:03'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-11T21:57:15.000Z'
+  raider_io_last_crawled_at: '2026-05-12T12:16:04.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -5663,7 +5663,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 188
+        learned_points: 189
         max_points: 300
 - name: Кеенди
   region: eu

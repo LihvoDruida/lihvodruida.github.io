@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-12 10:33:20'
+  updated_at: '2026-05-12 14:29:03'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-11T21:57:15.000Z'
+  raider_io_last_crawled_at: '2026-05-12T12:16:04.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13813
-      region: 6154
+      world: 13816
+      region: 6155
       realm: 56
     heroic:
-      world: 12556
-      region: 5635
+      world: 12565
+      region: 5638
       realm: 44
     mythic:
-      world: 7646
-      region: 3277
+      world: 7650
+      region: 3279
       realm: 26
   blackrock-depths:
     normal:
@@ -2013,10 +2013,10 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3374.2
+        score: 3390.9
         color: '#b83dd6'
       dps:
-        score: 3374.2
+        score: 3390.9
         color: '#b83dd6'
       healer:
         score: 2579.4
@@ -2031,7 +2031,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3374.2
+        score: 3390.9
         color: '#b83dd6'
       spec_3:
         score: 0
@@ -2322,7 +2322,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/26/187984922-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Thérion
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2125.1
@@ -3234,7 +3234,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/121/189163897-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Blackberry
-    item_level_equipped: 158
+    item_level_equipped: 162
     mythic_plus_scores:
       all:
         score: 0
@@ -5158,7 +5158,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-    item_level_equipped: 174
+    item_level_equipped: 182
     mythic_plus_scores:
       all:
         score: 0
@@ -6146,7 +6146,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 280
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -6486,7 +6486,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
-    item_level_equipped: 273
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2462.3
