@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-12 03:25:44'
+  updated_at: '2026-05-12 06:39:32'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,12 +52,12 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13807
-      region: 6152
+      world: 13811
+      region: 6153
       realm: 56
     heroic:
-      world: 12539
-      region: 5630
+      world: 12546
+      region: 5632
       realm: 44
     mythic:
       world: 7643
@@ -6593,10 +6593,10 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2706.7
+        score: 2717.8
         color: '#5ba3a7'
       dps:
-        score: 2706.7
+        score: 2717.8
         color: '#5ba3a7'
       healer:
         score: 0
@@ -6608,8 +6608,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2668.2
-        color: '#5eac9d'
+        score: 2717.8
+        color: '#5ba3a7'
       spec_2:
         score: 317.8
         color: '#f8fff5'
@@ -6694,14 +6694,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2826.3
-        color: '#4b8bc0'
+        score: 2870.2
+        color: '#4687c5'
       dps:
-        score: 2826.3
-        color: '#4b8bc0'
+        score: 2870.2
+        color: '#4687c5'
       healer:
         score: 0
         color: '#ffffff'
@@ -6715,8 +6715,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2826.3
-        color: '#4b8bc0'
+        score: 2870.2
+        color: '#4687c5'
       spec_3:
         score: 0
         color: '#ffffff'
