@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type RaidImageAsset = {
   name: string;
@@ -29,30 +29,75 @@ function sameUrl(a?: string | null, b?: string | null) {
   return String(a || "").trim() === String(b || "").trim();
 }
 
+function normalizeAsset(value: unknown): RaidImageAsset | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Partial<RaidImageAsset>;
+  const name = String(item.name || "").trim();
+  const path = String(item.path || name).trim();
+  const url = String(item.url || "").trim();
+  if (!name || !path || !/^https?:\/\//i.test(url)) return null;
+  return {
+    name,
+    path,
+    url,
+    size: typeof item.size === "number" && Number.isFinite(item.size) ? item.size : null,
+  };
+}
+
+function normalizeAssets(values: unknown) {
+  const seen = new Set<string>();
+  const result: RaidImageAsset[] = [];
+  for (const raw of Array.isArray(values) ? values : []) {
+    const asset = normalizeAsset(raw);
+    if (!asset) continue;
+    const key = asset.url.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(asset);
+  }
+  return result;
+}
+
 export default function RaidImagePicker({ defaultValue = "" }: { defaultValue?: string | null }) {
   const [value, setValue] = useState(String(defaultValue || ""));
   const [images, setImages] = useState<RaidImageAsset[]>([]);
   const [state, setState] = useState<LoadState>("idle");
   const [error, setError] = useState("");
+  const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    setValue(String(defaultValue || ""));
+  }, [defaultValue]);
 
   const selected = useMemo(() => images.find((image) => sameUrl(image.url, value)), [images, value]);
+  const isLoading = state === "loading";
 
-  const loadImages = useCallback(async () => {
+  const loadImages = useCallback(async (signal?: AbortSignal) => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
     setState("loading");
     setError("");
+
     try {
       const response = await fetch("/api/raids/images", {
         method: "GET",
         headers: { Accept: "application/json" },
         cache: "no-store",
+        signal,
       });
-      const data = await response.json().catch(() => ({})) as RaidImagesResponse;
+      const contentType = response.headers.get("content-type") || "";
+      const data = (contentType.includes("application/json")
+        ? await response.json().catch(() => ({}))
+        : {}) as RaidImagesResponse;
+
       if (!response.ok || !data.ok) {
         throw new Error(data.error || "Не вдалося отримати список зображень.");
       }
-      setImages(Array.isArray(data.images) ? data.images : []);
+      if (requestIdRef.current !== requestId || signal?.aborted) return;
+      setImages(normalizeAssets(data.images));
       setState("ready");
     } catch (loadError) {
+      if (signal?.aborted || requestIdRef.current !== requestId) return;
       setImages([]);
       setError(loadError instanceof Error ? loadError.message : "Не вдалося отримати список зображень.");
       setState("error");
@@ -60,11 +105,13 @@ export default function RaidImagePicker({ defaultValue = "" }: { defaultValue?: 
   }, []);
 
   useEffect(() => {
-    void loadImages();
+    const controller = new AbortController();
+    void loadImages(controller.signal);
+    return () => controller.abort();
   }, [loadImages]);
 
   return (
-    <div className="raid-image-picker field-label">
+    <div className="raid-image-picker field-label" data-state={state} aria-busy={isLoading ? "true" : undefined}>
       <span>Зображення оголошення</span>
       <div className="raid-image-picker__input-row">
         <input
@@ -73,9 +120,11 @@ export default function RaidImagePicker({ defaultValue = "" }: { defaultValue?: 
           placeholder="https://..."
           value={value}
           onChange={(event) => setValue(event.currentTarget.value)}
+          autoComplete="off"
+          inputMode="url"
         />
-        <button className="btn subtle raid-image-picker__refresh" type="button" onClick={() => void loadImages()} disabled={state === "loading"}>
-          {state === "loading" ? "Оновлення…" : "Оновити"}
+        <button className="btn subtle raid-image-picker__refresh" type="button" onClick={() => void loadImages()} disabled={isLoading}>
+          {isLoading ? "Оновлення…" : "Оновити"}
         </button>
       </div>
       <small>Можна вставити URL вручну або вибрати картинку з репозиторію.</small>
@@ -87,7 +136,7 @@ export default function RaidImagePicker({ defaultValue = "" }: { defaultValue?: 
             const active = sameUrl(image.url, value);
             return (
               <button
-                key={image.path}
+                key={image.path || image.url}
                 type="button"
                 className={`raid-image-picker__item${active ? " is-selected" : ""}`}
                 onClick={() => setValue(image.url)}

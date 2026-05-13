@@ -16761,6 +16761,7 @@ button[aria-busy="true"]::after,
 .raid-image-picker {
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .raid-image-picker__input-row {
@@ -16777,24 +16778,26 @@ button[aria-busy="true"]::after,
 
 .raid-image-picker__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
   gap: 10px;
-  max-height: 360px;
+  max-height: 320px;
   overflow: auto;
   padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(4, 9, 15, 0.24);
+  scrollbar-gutter: stable;
 }
 
 .raid-image-picker__item {
   display: grid;
   gap: 8px;
+  min-width: 0;
   padding: 8px;
   color: inherit;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(8, 13, 20, 0.62);
   cursor: pointer;
   transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
@@ -16811,13 +16814,14 @@ button[aria-busy="true"]::after,
 .raid-image-picker__item.is-selected {
   border-color: rgba(143, 230, 166, 0.72);
   background: rgba(29, 68, 43, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(143, 230, 166, 0.22);
 }
 
 .raid-image-picker__preview {
   display: block;
   position: relative;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 11px;
   background: rgba(255, 255, 255, 0.05);
   aspect-ratio: 16 / 9;
 }
@@ -16839,7 +16843,8 @@ button[aria-busy="true"]::after,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
 }
 
 .raid-image-picker__meta em,
@@ -16856,13 +16861,84 @@ button[aria-busy="true"]::after,
   color: var(--muted);
 }
 
-@media (max-width: 640px) {
-  .raid-image-picker__input-row {
+/* Raid editor polish: final layout authority for raid creation/edit pages. */
+.raid-editor-layout {
+  grid-template-columns: minmax(360px, 500px) minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 22px);
+  align-items: start;
+}
+
+.raid-editor-layout > .raid-form-stack,
+.raid-preview-column {
+  min-width: 0;
+}
+
+.raid-form-panel--modern,
+.raid-form-danger-zone--separate {
+  overflow: hidden;
+}
+
+.raid-form-heading,
+.raid-form-section,
+.raid-form-panel--modern .raid-form-actions,
+.raid-form-panel--modern .raid-form-links,
+.raid-form-danger-zone--separate {
+  padding-inline: clamp(14px, 2vw, 20px);
+}
+
+.raid-form-section {
+  gap: 12px;
+}
+
+.raid-form-section--two,
+.raid-form-row {
+  gap: 10px;
+}
+
+.raid-form-panel--modern .input,
+.raid-form-panel--modern .select,
+.raid-form-panel--modern .textarea {
+  min-width: 0;
+}
+
+.raid-preview-column {
+  align-content: start;
+  gap: 14px;
+}
+
+@media (max-width: 1180px) {
+  .raid-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .raid-image-picker__input-row,
+  .raid-form-section--two,
+  .raid-form-row,
+  .raid-form-panel--modern .raid-form-actions {
     grid-template-columns: 1fr;
   }
 
   .raid-image-picker__grid {
-    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-    max-height: 300px;
+    grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+    max-height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .raid-image-picker__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .raid-image-picker__item {
+    padding: 6px;
+    border-radius: 12px;
+  }
+
+  .raid-image-picker__meta strong {
+    font-size: 0.76rem;
   }
 }

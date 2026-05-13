@@ -44,8 +44,12 @@ function routePolicy(pathname: string): RefreshPolicy {
     return { ...DEFAULT_POLICY, intervalMs: 25_000, minSpacingMs: 8_000, label: "рейди" };
   }
 
-  if (pathname === "/raids/new") {
-    return { ...DEFAULT_POLICY, intervalMs: 90_000, minSpacingMs: 15_000, label: "чернетка рейду" };
+  if (pathname === "/raids/new" || /^\/raids\/[^/]+\/edit$/.test(pathname)) {
+    // Raid editors contain long uncontrolled forms, local image-picker state and
+    // Discord preview blocks. Any background RSC refresh here can replace the
+    // server payload while a user is typing, so editor pages refresh only after
+    // explicit Save / Publish actions.
+    return { ...DEFAULT_POLICY, enabled: false, intervalMs: 0, label: "редактор рейду", focusRefresh: false, skipWhenEditing: true };
   }
 
   if (/^\/raids\/[^/]+$/.test(pathname)) {
