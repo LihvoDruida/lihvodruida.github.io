@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-13 06:50:08'
+  updated_at: '2026-05-13 10:30:06'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-12T12:16:04.000Z'
+  raider_io_last_crawled_at: '2026-05-13T07:23:51.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13836
-      region: 6158
+      world: 13839
+      region: 6159
       realm: 56
     heroic:
-      world: 12661
+      world: 12667
       region: 5663
       realm: 44
     mythic:
-      world: 7709
-      region: 3290
+      world: 7715
+      region: 3291
       realm: 26
   blackrock-depths:
     normal:
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -658,7 +658,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Shennái
-    item_level_equipped: 271
+    item_level_equipped: 235
     mythic_plus_scores:
       all:
         score: 2328
@@ -1334,7 +1334,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3027.5
@@ -3022,8 +3022,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 280
@@ -3445,11 +3445,11 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2760.2
-        color: '#5799b1'
+        score: 2853.5
+        color: '#4687c5'
       dps:
-        score: 2760.2
-        color: '#5799b1'
+        score: 2853.5
+        color: '#4687c5'
       healer:
         score: 0
         color: '#ffffff'
@@ -3463,8 +3463,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2760.2
-        color: '#5799b1'
+        score: 2853.5
+        color: '#4687c5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3494,7 +3494,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/188/190326716-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Клеосса
-    item_level_equipped: 273
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2313
@@ -4037,6 +4037,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Nanyy
+    id: 216286404
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 11
+      name: Draenei
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
+    item_level_equipped: 235
+    mythic_plus_scores:
+      all:
+        score: 1355.1
+        color: '#a8ff8e'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 1355.1
+        color: '#a8ff8e'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1355.1
+        color: '#a8ff8e'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4901,11 +4953,11 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2774.7
-        color: '#5799b1'
+        score: 2829.2
+        color: '#4b8bc0'
       dps:
-        score: 2774.7
-        color: '#5799b1'
+        score: 2829.2
+        color: '#4b8bc0'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -4913,8 +4965,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2772.8
-        color: '#5799b1'
+        score: 2827.3
+        color: '#4b8bc0'
       spec_1:
         score: 1025.6
         color: '#c3ffae'
@@ -5158,7 +5210,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/191/225023935-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kaijuro
-    item_level_equipped: 182
+    item_level_equipped: 197
     mythic_plus_scores:
       all:
         score: 0
@@ -5210,7 +5262,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 281
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3370.6
@@ -5574,7 +5626,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 283
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3062.4
@@ -5730,7 +5782,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3196.1
@@ -6354,7 +6406,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3237.8
@@ -6902,7 +6954,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2595.3
@@ -6977,58 +7029,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Nanyy
-    id: 216286404
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 7
-      name: Shaman
-    playable_race:
-      id: 11
-      name: Draenei
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Restoration
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
-    item_level_equipped: 235
-    mythic_plus_scores:
-      all:
-        score: 1355.1
-        color: '#a8ff8e'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 1355.1
-        color: '#a8ff8e'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 1355.1
-        color: '#a8ff8e'
       spec_3:
         score: 0
         color: '#ffffff'

@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-13 06:50:08'
+  updated_at: '2026-05-13 10:30:06'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-12T12:16:04.000Z'
+  raider_io_last_crawled_at: '2026-05-13T07:23:51.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -4246,6 +4246,47 @@ characters:
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
+- name: Nanyy
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
+  professions:
+    primaries:
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Alchemy
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Alchemy
+        learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Jewelcrafting
+        learned_points: 82
+        max_points: 105
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
 - name: Sonechco
   region: eu
   realm: silvermoon
@@ -6877,44 +6918,3 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Nanyy
-  region: eu
-  realm: silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
-  professions:
-    primaries:
-    - name: Alchemy
-      id: 171
-      tiers:
-      - name: Classic Alchemy
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Alchemy
-        learned_points: 100
-        max_points: 100
-      - name: Midnight Alchemy
-        learned_points: 100
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 6
-        max_points: 305
-      - name: Midnight Jewelcrafting
-        learned_points: 82
-        max_points: 105
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300
