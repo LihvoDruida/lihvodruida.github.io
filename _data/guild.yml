@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-13 14:37:58'
+  updated_at: '2026-05-13 18:03:13'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13844
-      region: 6164
+      world: 13848
+      region: 6167
       realm: 56
     heroic:
-      world: 12676
-      region: 5669
+      world: 12684
+      region: 5673
       realm: 44
     mythic:
-      world: 7721
-      region: 3294
+      world: 7728
+      region: 3301
       realm: 26
   blackrock-depths:
     normal:
@@ -3216,7 +3216,7 @@ members:
   character:
     name: Blackberry
     id: 189163897
-    level: 87
+    level: 88
     realm:
       id: 1415
       slug: terokkar
@@ -5782,7 +5782,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 283
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3196.1
@@ -6406,7 +6406,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3237.8
@@ -6801,11 +6801,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2738.7
-        color: '#599eac'
+        score: 2788
+        color: '#5395b6'
       dps:
-        score: 2738.7
-        color: '#599eac'
+        score: 2788
+        color: '#5395b6'
       healer:
         score: 0
         color: '#ffffff'
@@ -6819,8 +6819,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2738.7
-        color: '#599eac'
+        score: 2788
+        color: '#5395b6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6954,7 +6954,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 276
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2595.3
