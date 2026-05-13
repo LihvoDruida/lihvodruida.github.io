@@ -100,7 +100,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `FIREBASE_PROJECT_ID` | required | Firebase project id. |
 | `FIREBASE_CLIENT_EMAIL` | required secret | Service account email. |
 | `FIREBASE_PRIVATE_KEY` | required secret | Service account private key, usually with `\\n`. |
-| `PROFILE_ID_SECRET` | optional secret | Secret for stable profile ids and cookies, falls back to `SESSION_SECRET`. |
+| `PROFILE_ID_SECRET` | optional secret | Secret for stable profile ids, falls back to `SESSION_SECRET`. |
 
 ### Battle.net / WoW
 

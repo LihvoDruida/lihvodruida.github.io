@@ -4,7 +4,6 @@ import { getSession } from "@/lib/auth";
 import { getDashboardUrl } from "@/lib/oauth";
 import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, fetchBattleNetUserInfo, normalizeBattleNetRegion } from "@/lib/battlenet";
 import { recordSystemAudit } from "@/lib/accessGroups";
-import { clearBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
 import { findProfileCharacterConflicts, saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
@@ -113,9 +112,7 @@ export async function GET(request: NextRequest) {
         totalCharacters: scan.totalCharacters,
         conflicts: conflictAuditSummary(conflicts),
       }).catch(() => false);
-      const response = redirectToProfile(session.profileId, "bnet_duplicate_account", getNextPathFromOAuthState(state));
-      clearBattleNetCandidatesCookie(response);
-      return response;
+      return redirectToProfile(session.profileId, "bnet_duplicate_account", getNextPathFromOAuthState(state));
     }
 
     await saveBattleNetSyncState(session.profileId, scan, account);
@@ -134,9 +131,7 @@ export async function GET(request: NextRequest) {
       durationMs: scan.durationMs,
     });
 
-    const response = redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters", getNextPathFromOAuthState(state));
-    clearBattleNetCandidatesCookie(response);
-    return response;
+    return redirectToProfile(session.profileId, scan.characters.length ? "bnet_connected" : "bnet_no_characters", getNextPathFromOAuthState(state));
   } catch (error) {
     logDashboardEvent("error", "auth.battlenet.callback.failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });
     return redirectToProfile(session.profileId, "bnet_failed", getNextPathFromOAuthState(state));

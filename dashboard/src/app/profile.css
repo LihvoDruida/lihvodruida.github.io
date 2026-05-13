@@ -86,7 +86,6 @@
 .profile-role-chip,
 .profile-main-badge,
 .profile-character-kind,
-.profile-character-guild-status,
 .profile-raid-role-pill,
 .profile-gender-pill,
 .profile-name-status-pill {
@@ -844,8 +843,7 @@
   font-weight: 850;
 }
 
-.profile-character-kind,
-.profile-character-guild-status {
+.profile-character-kind {
   font-size: 0.68rem;
 }
 
@@ -855,21 +853,18 @@
   color: rgba(221, 233, 255, 0.82);
 }
 
-.profile-character-guild-status--guild_master,
 .guild-status-tag--guild_master {
   border-color: rgba(236, 202, 126, 0.48);
   background: rgba(236, 202, 126, 0.14);
   color: #ffe4a5;
 }
 
-.profile-character-guild-status--officer,
 .guild-status-tag--officer {
   border-color: rgba(105, 211, 145, 0.44);
   background: rgba(105, 211, 145, 0.13);
   color: #c9f9d0;
 }
 
-.profile-character-guild-status--member,
 .guild-status-tag--member {
   border-color: rgba(155, 181, 213, 0.26);
   background: rgba(155, 181, 213, 0.08);

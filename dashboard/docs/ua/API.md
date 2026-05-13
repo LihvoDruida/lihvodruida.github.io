@@ -276,7 +276,7 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 ### `POST /api/profile/characters/add`
 
-Додає одного персонажа з Battle.net candidates cookie у профіль.
+Додає одного персонажа з тимчасового списку Battle.net-кандидатів у Firebase-профілі.
 
 **Доступ:** власник профілю.
 
@@ -290,7 +290,7 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 ### `POST /api/profile/characters/bulk-add`
 
-Додає кілька персонажів із Battle.net candidates cookie.
+Додає кілька персонажів із тимчасового списку Battle.net-кандидатів у Firebase-профілі.
 
 **Доступ:** власник профілю.
 

@@ -6,7 +6,8 @@ import { LEGACY_OAUTH_STATE_COOKIE, LEGACY_SESSION_COOKIE, OAUTH_STATE_COOKIE, S
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
-import { deleteDashboardProfilesByDiscordUserId, findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
+import { findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
+import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 

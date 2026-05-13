@@ -100,7 +100,7 @@
 | `FIREBASE_PROJECT_ID` | required | Firebase project id. |
 | `FIREBASE_CLIENT_EMAIL` | required secret | Service account email. |
 | `FIREBASE_PRIVATE_KEY` | required secret | Service account private key, зазвичай з `\\n`. |
-| `PROFILE_ID_SECRET` | optional secret | Секрет для stable profile id і cookies, fallback на `SESSION_SECRET`. |
+| `PROFILE_ID_SECRET` | optional secret | Секрет для stable profile id, fallback на `SESSION_SECRET`. |
 
 ### Battle.net / WoW
 

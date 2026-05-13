@@ -1,6 +1,6 @@
 import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
-import { createStableProfileId } from "@/lib/auth";
+import { createStableProfileId } from "@/lib/profileIds";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -9,6 +9,8 @@ import { DEFAULT_NICKNAME_TEMPLATE, renderNicknameFromTemplate } from "@/lib/gui
 import { canManageApplications, canViewAllProfiles, canViewProfiles, canViewProfilesInOwnGroupOrBelow, dashboardRoleRank } from "@/lib/permissions";
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
+
+export { deleteDashboardProfileById, deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   guildRank?: number | null;
@@ -125,6 +127,14 @@ function hasCandidateStorage(battlenetRaw: Record<string, unknown> | null) {
   return Array.isArray(battlenetRaw.candidateCharacters)
     || battlenetRaw.candidateSavedAt !== undefined
     || battlenetRaw.candidateExpiresAt !== undefined;
+}
+
+function candidateStorageDeleteUpdate() {
+  return {
+    "battlenet.candidateCharacters": FieldValue.delete(),
+    "battlenet.candidateSavedAt": FieldValue.delete(),
+    "battlenet.candidateExpiresAt": FieldValue.delete(),
+  };
 }
 
 function stripCandidateStorageFromData(data: Record<string, unknown>) {
@@ -592,9 +602,7 @@ export async function getProfileById(profileId: string) {
   if (hasCandidateStorage(battlenetRaw) && !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) {
     data = stripCandidateStorageFromData(data);
     await ref.update({
-      "battlenet.candidateCharacters": FieldValue.delete(),
-      "battlenet.candidateSavedAt": FieldValue.delete(),
-      "battlenet.candidateExpiresAt": FieldValue.delete(),
+      ...candidateStorageDeleteUpdate(),
       updatedAt: FieldValue.serverTimestamp(),
     }).catch(() => undefined);
   }
@@ -645,64 +653,6 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   return null;
 }
 
-
-export async function deleteDashboardProfileById(profileId: string) {
-  const cleanProfileId = String(profileId || "").trim();
-  if (!/^id[a-f0-9]{16,40}$/.test(cleanProfileId)) return false;
-  if (!hasFirebaseProfileConfig()) return false;
-
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).delete();
-  clearCharacterProfileLinksCache();
-  return true;
-}
-
-export async function deleteDashboardProfilesByDiscordUserId(discordUserId: string) {
-  const cleanDiscordId = String(discordUserId || "").trim();
-  if (!/^\d{16,25}$/.test(cleanDiscordId)) {
-    return { deleted: 0, profileIds: [] as string[], reason: "invalid-discord-id" as const };
-  }
-  if (!hasFirebaseProfileConfig()) {
-    return { deleted: 0, profileIds: [] as string[], reason: "firebase-not-configured" as const };
-  }
-
-  const db = getFirebaseAdminDb();
-  const refs = new Map<string, any>();
-
-  const stableProfileId = await createStableProfileId("discord", cleanDiscordId);
-  const stableRef = db.collection("dashboardProfiles").doc(stableProfileId);
-  const stableSnapshot = await stableRef.get().catch(() => null);
-  if (stableSnapshot?.exists) refs.set(stableProfileId, stableRef);
-
-  const byProviderUserId = await db.collection("dashboardProfiles")
-    .where("providerUserId", "==", cleanDiscordId)
-    .limit(50)
-    .get()
-    .catch(() => null);
-
-  for (const doc of byProviderUserId?.docs || []) {
-    const raw = doc.data() || {};
-    if (raw.provider && raw.provider !== "discord") continue;
-    refs.set(doc.id, doc.ref);
-  }
-
-  for (const field of ["discordId", "discordUserId"]) {
-    const snapshot = await db.collection("dashboardProfiles")
-      .where(field, "==", cleanDiscordId)
-      .limit(20)
-      .get()
-      .catch(() => null);
-    for (const doc of snapshot?.docs || []) refs.set(doc.id, doc.ref);
-  }
-
-  if (!refs.size) return { deleted: 0, profileIds: [] as string[], reason: "not-found" as const };
-
-  const batch = db.batch();
-  for (const ref of refs.values()) batch.delete(ref);
-  await batch.commit();
-  clearCharacterProfileLinksCache();
-
-  return { deleted: refs.size, profileIds: Array.from(refs.keys()), reason: "deleted" as const };
-}
 
 
 export async function listDashboardProfiles(params: {
@@ -1112,9 +1062,7 @@ export async function clearProfileBattleNetCandidates(profileId: string, expecte
   if (isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) return false;
 
   await ref.update({
-    "battlenet.candidateCharacters": FieldValue.delete(),
-    "battlenet.candidateSavedAt": FieldValue.delete(),
-    "battlenet.candidateExpiresAt": FieldValue.delete(),
+    ...candidateStorageDeleteUpdate(),
     updatedAt: FieldValue.serverTimestamp(),
   });
   return true;
@@ -1133,9 +1081,7 @@ export async function removeProfileBattleNetCandidates(profileId: string, charac
     const remaining = (profile.battlenet?.candidateCharacters || []).filter((candidate) => !removeKeys.has(candidate.key));
     if (!remaining.length) {
       transaction.update(ref, {
-        "battlenet.candidateCharacters": FieldValue.delete(),
-        "battlenet.candidateSavedAt": FieldValue.delete(),
-        "battlenet.candidateExpiresAt": FieldValue.delete(),
+        ...candidateStorageDeleteUpdate(),
         updatedAt: FieldValue.serverTimestamp(),
       });
       return;

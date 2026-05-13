@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot } from "@/lib/discordAdmin";
-import { applyAccessGroupToSession, hasPermission, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
+import { applyAccessGroupToSession, hasPermission, recordSystemAudit, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
+import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
+import { createStableProfileId } from "@/lib/profileIds";
+import { logDashboardEvent } from "@/lib/security";
 
 export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
 
@@ -83,6 +86,34 @@ function downgradeToSafeMemberSession(session: DashboardSession): DashboardSessi
   };
 }
 
+async function deleteProfileAfterDiscordMembershipLoss(session: DashboardSession, message: string) {
+  const profileId = session.profileId || "";
+  const deleted = await deleteDashboardProfilesByDiscordUserId(session.id).catch((error) => ({
+    deleted: 0,
+    profileIds: [] as string[],
+    reason: error instanceof Error ? error.message : String(error || "delete-failed"),
+  }));
+
+  logDashboardEvent("warn", "auth.discord.live.profile_deleted_not_member", undefined, {
+    userId: session.id,
+    profileId,
+    deletedProfiles: deleted.deleted,
+    deletedProfileIds: deleted.profileIds,
+    reason: deleted.reason,
+    message,
+  });
+
+  await recordSystemAudit("auth.discord.live.profile_deleted_not_member", {
+    status: "warning",
+    summary: "Профіль видалено під час live-перевірки: Discord-акаунта вже немає на сервері.",
+    userId: session.id,
+    profileId,
+    deletedProfiles: deleted.deleted,
+    deletedProfileIds: deleted.profileIds,
+    reason: deleted.reason,
+  }).catch(() => false);
+}
+
 async function refreshDiscordAccess(session: DashboardSession | null): Promise<DashboardSession | null> {
   if (!canRefreshDiscordAccess(session)) return session;
 
@@ -113,6 +144,13 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error || "");
     if (/^Discord API 404:/.test(message)) {
+      await deleteProfileAfterDiscordMembershipLoss(session, message).catch((cleanupError) => {
+        logDashboardEvent("error", "auth.discord.live.profile_delete_failed", undefined, {
+          userId: session.id,
+          profileId: session.profileId,
+          message: cleanupError instanceof Error ? cleanupError.message : String(cleanupError || "unknown"),
+        });
+      });
       cache.set(cacheKey, { checkedAt: Date.now(), session: null });
       return null;
     }
@@ -240,26 +278,7 @@ async function sha256Base64Url(value: string) {
   return base64UrlEncode(new Uint8Array(digest));
 }
 
-function bytesToHex(bytes: Uint8Array) {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-export async function createStableProfileId(provider: string, providerUserId: string) {
-  const cleanProvider = String(provider || "discord").toLowerCase().replace(/[^a-z0-9_-]/g, "") || "discord";
-  const cleanUserId = String(providerUserId || "").trim();
-  if (!cleanUserId) throw new Error("Cannot create profile id without user id.");
-
-  const secret = process.env.PROFILE_ID_SECRET || getSecret();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${cleanProvider}:${cleanUserId}`));
-  return `id${bytesToHex(new Uint8Array(signature)).slice(0, 24)}`;
-}
+export { createStableProfileId };
 
 function normalizeSessionPayload(parsed: any): DashboardSession | null {
   if (!parsed || parsed.aud !== SESSION_AUDIENCE) return null;

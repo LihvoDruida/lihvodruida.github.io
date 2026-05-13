@@ -153,7 +153,7 @@ Battle.net OAuth is used to fetch the user's characters.
 3. The callback exchanges the code for a token.
 4. The system scans the account's characters.
 5. Characters are filtered by `WOW_GUILD_NAME`.
-6. Candidates are stored temporarily in a signed cookie.
+6. Candidates are stored temporarily on the Firebase profile with the `BATTLENET_CANDIDATE_TTL_MINUTES` TTL.
 7. The member selects which characters to save in the profile.
 
 ### Saved character fields

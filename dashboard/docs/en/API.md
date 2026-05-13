@@ -276,7 +276,7 @@ Saves a manual raid role or returns the profile to Auto mode.
 
 ### `POST /api/profile/characters/add`
 
-Adds one character from the Battle.net candidates cookie to the profile.
+Adds one character from the temporary Battle.net candidate list stored on the Firebase profile.
 
 **Access:** profile owner.
 
@@ -290,7 +290,7 @@ Adds one character from the Battle.net candidates cookie to the profile.
 
 ### `POST /api/profile/characters/bulk-add`
 
-Adds several characters from the Battle.net candidates cookie.
+Adds several characters from the temporary Battle.net candidate list stored on the Firebase profile.
 
 **Access:** profile owner.
 
