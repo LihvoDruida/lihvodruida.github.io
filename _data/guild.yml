@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-13 10:30:06'
+  updated_at: '2026-05-13 14:37:58'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13839
-      region: 6159
+      world: 13844
+      region: 6164
       realm: 56
     heroic:
-      world: 12667
-      region: 5663
+      world: 12676
+      region: 5669
       realm: 44
     mythic:
-      world: 7715
-      region: 3291
+      world: 7721
+      region: 3294
       realm: 26
   blackrock-depths:
     normal:
@@ -2010,7 +2010,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 283
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3390.9
@@ -3442,7 +3442,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2853.5
@@ -5057,11 +5057,11 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2807.1
-        color: '#5090bb'
+        score: 2842.2
+        color: '#4b8bc0'
       dps:
-        score: 2807.1
-        color: '#5090bb'
+        score: 2842.2
+        color: '#4b8bc0'
       healer:
         score: 0
         color: '#ffffff'
@@ -5072,8 +5072,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2807.1
-        color: '#5090bb'
+        score: 2842.2
+        color: '#4b8bc0'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5317,11 +5317,11 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2703.8
-        color: '#5da8a2'
+        score: 2748.6
+        color: '#599eac'
       dps:
-        score: 2703.8
-        color: '#5da8a2'
+        score: 2748.6
+        color: '#599eac'
       healer:
         score: 0
         color: '#ffffff'
@@ -5329,8 +5329,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2703.8
-        color: '#5da8a2'
+        score: 2748.6
+        color: '#599eac'
       spec_1:
         score: 2049.8
         color: '#58ff3e'
@@ -5366,7 +5366,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/245/242983925-avatar.jpg?alt=/wow/static/images/2d/avatar/7-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежныйлок
-    item_level_equipped: 241
+    item_level_equipped: 243
     mythic_plus_scores:
       all:
         score: 0
@@ -5626,7 +5626,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3062.4
@@ -5782,7 +5782,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3196.1
