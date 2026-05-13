@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-13 18:03:13'
+  updated_at: '2026-05-13 21:27:42'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2816,7 +2816,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 85
+        learned_points: 91
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3371,7 +3371,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -4436,7 +4436,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 87
+        learned_points: 88
         max_points: 100
     secondaries:
     - name: Fishing
