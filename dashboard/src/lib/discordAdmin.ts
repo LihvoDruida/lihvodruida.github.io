@@ -405,6 +405,13 @@ export type DiscordGuildMemberSnapshot = {
   roleIds: string[];
 };
 
+export type DiscordGuildBanSnapshot = {
+  userId: string;
+  reason: string | null;
+  username: string | null;
+  globalName: string | null;
+};
+
 type DiscordRolesCacheEntry = {
   checkedAt: number;
   roles: DiscordRoleOption[];
@@ -1537,6 +1544,43 @@ export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guild
     globalName,
     displayName: nick || globalName || username || "Discord",
     roleIds,
+  };
+}
+
+export async function fetchDiscordGuildBanSnapshot(userIdInput: string, guildIdInput = getDiscordGuildId()): Promise<DiscordGuildBanSnapshot | null> {
+  const guildId = snowflake(guildIdInput);
+  const userId = snowflake(userIdInput);
+  const token = getBotToken();
+  if (!guildId || !userId) throw new Error("Не вистачає guild/user ID для перевірки Discord-бану.");
+  if (!token) throw new Error("Discord bot token не налаштований. Перевірка бану неможлива.");
+
+  const response = await fetch(`${DISCORD_API_BASE}/guilds/${guildId}/bans/${userId}`, {
+    headers: { Authorization: `Bot ${token}` },
+    cache: "no-store",
+  });
+
+  if (response.status === 404) return null;
+
+  const raw = await response.text().catch(() => "");
+  const ban = raw ? tryParseJson(raw) : null;
+
+  if (!response.ok || !ban || typeof ban !== "object") {
+    const detail = typeof ban?.message === "string" ? ban.message : raw;
+    logDashboardEvent("warn", "discord.ban_check_failed", undefined, {
+      guildId,
+      userId,
+      status: response.status,
+      detail: String(detail || "невідома помилка").slice(0, 220),
+    });
+    throw new Error(`Discord API ${response.status}: ${String(detail || "ban lookup failed").slice(0, 220)}`);
+  }
+
+  const user = ban.user && typeof ban.user === "object" ? ban.user : {};
+  return {
+    userId,
+    reason: cleanText(ban.reason, 240) || null,
+    username: cleanText(user.username, 80) || null,
+    globalName: cleanText(user.global_name, 80) || null,
   };
 }
 

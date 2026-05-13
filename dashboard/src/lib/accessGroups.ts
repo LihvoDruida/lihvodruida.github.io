@@ -521,3 +521,62 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     return false;
   }
 }
+
+export async function recordSystemAudit(action: string, details: Record<string, unknown> = {}) {
+  const status = auditStatus(details.status);
+  const createdAtIso = new Date().toISOString();
+  const fallbackItem: AdminAuditLogItem = normalizeAuditLog(
+    `system-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
+    {
+      action,
+      actorId: "system",
+      actorName: "System",
+      actorGroupId: null,
+      isServerOwner: false,
+      status,
+      details: { ...details, status, auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory" },
+      createdAtIso,
+    },
+  );
+
+  const payload = {
+    action,
+    actorId: "system",
+    actorName: "System",
+    actorGroupId: null,
+    isServerOwner: false,
+    status,
+    details: { ...details, status },
+    createdAt: FieldValue.serverTimestamp(),
+    createdAtIso,
+  };
+
+  if (!hasFirebaseProfileConfig()) {
+    pushFallbackAdminAudit(fallbackItem);
+    logDashboardEvent("warn", "admin.audit.system_unconfigured", undefined, { action, status });
+    return false;
+  }
+
+  try {
+    await auditCollectionRef().add(payload);
+    void pruneAdminAuditLogs(100);
+    logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
+    return true;
+  } catch (error) {
+    pushFallbackAdminAudit({
+      ...fallbackItem,
+      details: {
+        ...fallbackItem.details,
+        auditStorage: "memory_after_firestore_failure",
+        auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
+      },
+    });
+    logDashboardEvent("error", "admin.audit.system_write_failed", undefined, {
+      action,
+      status,
+      error: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return false;
+  }
+}
+

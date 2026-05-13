@@ -646,6 +646,65 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
 }
 
 
+export async function deleteDashboardProfileById(profileId: string) {
+  const cleanProfileId = String(profileId || "").trim();
+  if (!/^id[a-f0-9]{16,40}$/.test(cleanProfileId)) return false;
+  if (!hasFirebaseProfileConfig()) return false;
+
+  await getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).delete();
+  clearCharacterProfileLinksCache();
+  return true;
+}
+
+export async function deleteDashboardProfilesByDiscordUserId(discordUserId: string) {
+  const cleanDiscordId = String(discordUserId || "").trim();
+  if (!/^\d{16,25}$/.test(cleanDiscordId)) {
+    return { deleted: 0, profileIds: [] as string[], reason: "invalid-discord-id" as const };
+  }
+  if (!hasFirebaseProfileConfig()) {
+    return { deleted: 0, profileIds: [] as string[], reason: "firebase-not-configured" as const };
+  }
+
+  const db = getFirebaseAdminDb();
+  const refs = new Map<string, any>();
+
+  const stableProfileId = await createStableProfileId("discord", cleanDiscordId);
+  const stableRef = db.collection("dashboardProfiles").doc(stableProfileId);
+  const stableSnapshot = await stableRef.get().catch(() => null);
+  if (stableSnapshot?.exists) refs.set(stableProfileId, stableRef);
+
+  const byProviderUserId = await db.collection("dashboardProfiles")
+    .where("providerUserId", "==", cleanDiscordId)
+    .limit(50)
+    .get()
+    .catch(() => null);
+
+  for (const doc of byProviderUserId?.docs || []) {
+    const raw = doc.data() || {};
+    if (raw.provider && raw.provider !== "discord") continue;
+    refs.set(doc.id, doc.ref);
+  }
+
+  for (const field of ["discordId", "discordUserId"]) {
+    const snapshot = await db.collection("dashboardProfiles")
+      .where(field, "==", cleanDiscordId)
+      .limit(20)
+      .get()
+      .catch(() => null);
+    for (const doc of snapshot?.docs || []) refs.set(doc.id, doc.ref);
+  }
+
+  if (!refs.size) return { deleted: 0, profileIds: [] as string[], reason: "not-found" as const };
+
+  const batch = db.batch();
+  for (const ref of refs.values()) batch.delete(ref);
+  await batch.commit();
+  clearCharacterProfileLinksCache();
+
+  return { deleted: refs.size, profileIds: Array.from(refs.keys()), reason: "deleted" as const };
+}
+
+
 export async function listDashboardProfiles(params: {
   viewer: DashboardSession;
   query?: string;
@@ -815,6 +874,112 @@ export async function listCharacterProfileLinks() {
   globalThis.__mistblossomCharacterProfileLinksCache = { checkedAt: Date.now(), links: new Map(links) };
   return links;
 }
+
+export type ProfileCharacterConflict = {
+  profileId: string;
+  displayName: string;
+  characterKey: string;
+  characterName: string;
+  realmName: string | null;
+  requestedKey: string;
+};
+
+export class ProfileCharacterConflictError extends Error {
+  conflicts: ProfileCharacterConflict[];
+
+  constructor(conflicts: ProfileCharacterConflict[]) {
+    const first = conflicts[0];
+    const character = first ? `${first.characterName}${first.realmName ? `-${first.realmName}` : ""}` : "персонаж";
+    super(`${character} уже привʼязаний до іншого профілю.`);
+    this.name = "ProfileCharacterConflictError";
+    this.conflicts = conflicts;
+  }
+}
+
+function normalizedConflictCharacters(inputs: unknown[]) {
+  const byKey = new Map<string, ProfileCharacter>();
+  for (const input of inputs || []) {
+    const character = normalizeCharacter(input, null);
+    if (!character?.key) continue;
+    for (const key of characterProfileLinkKeys(character)) {
+      if (!byKey.has(key)) byKey.set(key, character);
+    }
+  }
+  return byKey;
+}
+
+export async function findProfileCharacterConflicts(
+  profileId: string,
+  characterInputs: unknown[],
+  options: { maxProfiles?: number; maxConflicts?: number; excludeProviderUserId?: string | null } = {},
+): Promise<ProfileCharacterConflict[]> {
+  const requestedByKey = normalizedConflictCharacters(characterInputs);
+  const cleanProfileId = String(profileId || "").trim();
+  if (!requestedByKey.size || !hasFirebaseProfileConfig()) return [];
+
+  const maxProfiles = Math.max(100, Math.min(50_000, Math.floor(Number(options.maxProfiles) || 50_000)));
+  const maxConflicts = Math.max(1, Math.min(100, Math.floor(Number(options.maxConflicts) || 25)));
+  const excludedProviderUserId = String(options.excludeProviderUserId || "").trim();
+  const pageSize = 500;
+  const db = getFirebaseAdminDb();
+  const baseQuery = db.collection("dashboardProfiles").orderBy(FieldPath.documentId());
+  const conflicts: ProfileCharacterConflict[] = [];
+  const seen = new Set<string>();
+  let cursor: any = null;
+  let checked = 0;
+
+  while (checked < maxProfiles && conflicts.length < maxConflicts) {
+    let query: any = baseQuery.limit(Math.min(pageSize, maxProfiles - checked));
+    if (cursor) query = baseQuery.startAfter(cursor).limit(Math.min(pageSize, maxProfiles - checked));
+
+    const snapshot = await query.get();
+    if (snapshot.empty) break;
+    checked += snapshot.docs.length;
+    cursor = snapshot.docs[snapshot.docs.length - 1];
+
+    for (const doc of snapshot.docs) {
+      if (doc.id === cleanProfileId) continue;
+      const profile = normalizeProfile(doc.id, doc.data() || {});
+      if (excludedProviderUserId && profile.providerUserId === excludedProviderUserId) continue;
+      if (!profile.characters.length) continue;
+
+      for (const character of profile.characters) {
+        for (const linkKey of characterProfileLinkKeys(character)) {
+          const requested = requestedByKey.get(linkKey);
+          if (!requested) continue;
+          const conflictId = `${profile.profileId}:${character.key}:${requested.key}`;
+          if (seen.has(conflictId)) continue;
+          seen.add(conflictId);
+          conflicts.push({
+            profileId: profile.profileId,
+            displayName: getProfilePublicName(profile),
+            characterKey: character.key,
+            characterName: character.name,
+            realmName: character.realmName || character.realmSlug || null,
+            requestedKey: requested.key,
+          });
+          if (conflicts.length >= maxConflicts) return conflicts;
+        }
+      }
+    }
+
+    if (snapshot.docs.length < pageSize) break;
+  }
+
+  return conflicts;
+}
+
+export async function assertNoProfileCharacterConflicts(profileId: string, characterInputs: unknown[]) {
+  let excludeProviderUserId = "";
+  if (/^id[a-f0-9]{16,40}$/.test(String(profileId || "")) && hasFirebaseProfileConfig()) {
+    const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).get().catch(() => null);
+    excludeProviderUserId = String(snapshot?.data()?.providerUserId || "").trim();
+  }
+  const conflicts = await findProfileCharacterConflicts(profileId, characterInputs, { excludeProviderUserId });
+  if (conflicts.length) throw new ProfileCharacterConflictError(conflicts);
+  return true;
+}
+
 
 export function profileFromSession(session: DashboardSession): DashboardProfile {
   return {
@@ -1086,6 +1251,8 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
   }
   if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
 
+  await assertNoProfileCharacterConflicts(profileId, [candidate]);
+
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
   return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
@@ -1126,6 +1293,8 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
     throw new Error("Немає підтверджених Battle.net персонажів для додавання.");
   }
   if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+
+  await assertNoProfileCharacterConflicts(profileId, Array.from(normalized.values()));
 
   const addedKeys: string[] = [];
   const skippedKeys: string[] = [];

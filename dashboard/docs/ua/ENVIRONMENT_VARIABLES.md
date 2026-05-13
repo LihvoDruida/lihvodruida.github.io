@@ -64,7 +64,7 @@
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Інтервал live-перевірки Discord-ролей для авторизованих користувачів. Потребує `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Підвищені сесії знижуються до member, якщо Discord тимчасово недоступний. За замовчуванням: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | TTL кешу назв Discord-ролей для превʼю доступу в профілі. За замовчуванням: `300`. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | Якщо true і member ролі не задані, пускає будь-якого учасника сервера. |
-| `DISCORD_BOT_TOKEN` | required для Discord actions | Bot token для Discord REST. |
+| `DISCORD_BOT_TOKEN` | required для Discord actions | Bot token для Discord REST. Потрібен також для перевірки банів/членства під час авторизації; бот має мати доступ до читання банів сервера. |
 | `DISCORD_CHANNEL_ID` | optional | Default канал для старих/default publish flows. |
 | `DISCORD_PUBLIC_KEY` | required для interactions | Discord application public key. |
 | `DISCORD_INTERACTIONS_ENDPOINT` | required якщо є Worker | Base URL Worker interactions. |
@@ -126,7 +126,6 @@
 | `BATTLENET_CANDIDATE_TTL_MINUTES` | optional | Час життя тимчасового списку Battle.net кандидатів після OAuth. Типово `3` хвилини. |
 | `BATTLENET_SIGNUP_REFRESH_CONCURRENCY` | optional | Concurrency автооновлення перед рейдом. |
 | `BATTLENET_SIGNUP_REFRESH_REST_LIMIT` | optional | Скільки альтів оновлювати після мейна перед рейдом. |
-| `BATTLENET_CANDIDATE_SECRET` | optional secret | Fallback secret для Battle.net candidates cookie. |
 | `WOW_GUILD_NAME` | required | Назва гільдії для фільтрації персонажів. |
 | `WOW_GUILD_REALM` | optional | Строгий realm filter. |
 | `BATTLENET_ALLOWED_GUILD_NAME` | alias | Legacy alias для `WOW_GUILD_NAME`. |

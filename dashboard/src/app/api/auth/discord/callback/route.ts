@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { applyAccessGroupToSession, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
-import { fetchDiscordGuildSnapshot } from "@/lib/discordAdmin";
-import { LEGACY_OAUTH_STATE_COOKIE, OAUTH_STATE_COOKIE, createStableProfileId, parseOAuthStateToken } from "@/lib/auth";
+import { applyAccessGroupToSession, recordSystemAudit, resolveAccessGroupFromDiscord } from "@/lib/accessGroups";
+import { fetchDiscordGuildBanSnapshot, fetchDiscordGuildSnapshot } from "@/lib/discordAdmin";
+import { LEGACY_OAUTH_STATE_COOKIE, LEGACY_SESSION_COOKIE, OAUTH_STATE_COOKIE, SESSION_COOKIE, createStableProfileId, parseOAuthStateToken } from "@/lib/auth";
 import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
-import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
+import { deleteDashboardProfilesByDiscordUserId, findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 
@@ -72,6 +72,26 @@ function rememberRemainingOAuthNonces(response: NextResponse, nonces: string[]) 
   expireOAuthCookie(response, LOGIN_NEXT_COOKIE, true);
 }
 
+function expireSessionCookies(response: NextResponse) {
+  response.cookies.set(SESSION_COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
+  response.cookies.set(LEGACY_SESSION_COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
+}
+
+function isDiscordOAuthMemberMissing(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /Discord guild member (?:403|404):/i.test(message) || /Unknown Guild Member|Missing Access|access_denied/i.test(message);
+}
+
+function conflictAuditSummary(conflicts: Awaited<ReturnType<typeof findProfileCharacterConflicts>>) {
+  return conflicts.slice(0, 5).map((item) => ({
+    profileId: item.profileId,
+    displayName: item.displayName,
+    characterKey: item.characterKey,
+    characterName: item.characterName,
+    realmName: item.realmName,
+  }));
+}
+
 function safeNextPath(value: string | null | undefined) {
   const path = String(value || "").trim();
   if (!path || path.length > 1500) return "";
@@ -126,10 +146,101 @@ export async function GET(request: NextRequest) {
 
   try {
     const token = await exchangeDiscordCode(code);
-    const [user, member] = await Promise.all([
-      fetchDiscordUser(token.access_token),
-      fetchDiscordGuildMember(token.access_token),
-    ]);
+    const user = await fetchDiscordUser(token.access_token);
+    const userId = String(user.id || "");
+    const profileId = await createStableProfileId("discord", userId);
+
+    const ban = await fetchDiscordGuildBanSnapshot(userId).catch((error) => {
+      logDashboardEvent("error", "auth.discord.callback.ban_check_failed", request, { userId, message: error instanceof Error ? error.message : String(error) });
+      throw error;
+    });
+
+    if (ban) {
+      const deleted = await deleteDashboardProfilesByDiscordUserId(userId).catch((error) => ({
+        deleted: 0,
+        profileIds: [] as string[],
+        reason: error instanceof Error ? error.message : String(error || "delete-failed"),
+      }));
+      logDashboardEvent("warn", "auth.discord.callback.blocked_banned", request, {
+        userId,
+        profileId,
+        deletedProfiles: deleted.deleted,
+        deletedProfileIds: deleted.profileIds,
+        banReason: ban.reason,
+      });
+      await recordSystemAudit("auth.discord.blocked_banned", {
+        status: "warning",
+        summary: "Discord-вхід заблоковано: акаунт у бані сервера.",
+        userId,
+        profileId,
+        deletedProfiles: deleted.deleted,
+        deletedProfileIds: deleted.profileIds,
+        banReason: ban.reason,
+      }).catch(() => false);
+      const response = loginRedirect("discord_banned");
+      expireSessionCookies(response);
+      rememberRemainingOAuthNonces(response, remainingNonces);
+      return response;
+    }
+
+    let member: Awaited<ReturnType<typeof fetchDiscordGuildMember>>;
+    try {
+      member = await fetchDiscordGuildMember(token.access_token);
+    } catch (error) {
+      if (isDiscordOAuthMemberMissing(error)) {
+        const deleted = await deleteDashboardProfilesByDiscordUserId(userId).catch((deleteError) => ({
+          deleted: 0,
+          profileIds: [] as string[],
+          reason: deleteError instanceof Error ? deleteError.message : String(deleteError || "delete-failed"),
+        }));
+        logDashboardEvent("warn", "auth.discord.callback.profile_deleted_not_member", request, {
+          userId,
+          profileId,
+          deletedProfiles: deleted.deleted,
+          deletedProfileIds: deleted.profileIds,
+          message: error instanceof Error ? error.message : String(error),
+        });
+        await recordSystemAudit("auth.discord.profile_deleted_not_member", {
+          status: "warning",
+          summary: "Профіль видалено: Discord-акаунта вже немає на сервері.",
+          userId,
+          profileId,
+          deletedProfiles: deleted.deleted,
+          deletedProfileIds: deleted.profileIds,
+        }).catch(() => false);
+        const response = loginRedirect("not_guild_member");
+        expireSessionCookies(response);
+        rememberRemainingOAuthNonces(response, remainingNonces);
+        return response;
+      }
+      throw error;
+    }
+
+    const existingProfile = await getProfileById(profileId).catch(() => null);
+    if (existingProfile?.characters?.length) {
+      const conflicts = await findProfileCharacterConflicts(profileId, existingProfile.characters, { excludeProviderUserId: userId }).catch((error) => {
+        logDashboardEvent("error", "auth.discord.callback.character_conflict_check_failed", request, { userId, profileId, message: error instanceof Error ? error.message : String(error) });
+        throw error;
+      });
+      if (conflicts.length) {
+        logDashboardEvent("warn", "auth.discord.callback.blocked_duplicate_characters", request, {
+          userId,
+          profileId,
+          conflicts: conflictAuditSummary(conflicts),
+        });
+        await recordSystemAudit("auth.discord.blocked_duplicate_characters", {
+          status: "error",
+          summary: "Discord-вхід заблоковано: персонажі вже привʼязані до іншого профілю.",
+          userId,
+          profileId,
+          conflicts: conflictAuditSummary(conflicts),
+        }).catch(() => false);
+        const response = loginRedirect("duplicate_characters");
+        expireSessionCookies(response);
+        rememberRemainingOAuthNonces(response, remainingNonces);
+        return response;
+      }
+    }
 
     const avatarUrl = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
@@ -148,7 +259,7 @@ export async function GET(request: NextRequest) {
     const session = applyAccessGroupToSession({
       provider: "discord" as const,
       id: String(user.id),
-      profileId: await createStableProfileId("discord", String(user.id)),
+      profileId,
       name: user.global_name || user.username || String(user.id),
       role: resolved.group.role,
       avatar: avatarUrl,
@@ -182,8 +293,10 @@ export async function GET(request: NextRequest) {
     rememberRemainingOAuthNonces(response, remainingNonces);
     return response;
   } catch (error) {
-    logDashboardEvent("error", "auth.discord.callback.failed", request, { message: error instanceof Error ? error.message : String(error) });
-    const response = loginRedirect("discord_oauth");
+    const message = error instanceof Error ? error.message : String(error);
+    const securityCheckFailed = /^Discord API (?:401|403|429|5\d\d):/i.test(message) || message.includes("Discord bot token") || message.includes("Discord-сервер");
+    logDashboardEvent("error", "auth.discord.callback.failed", request, { message, securityCheckFailed });
+    const response = loginRedirect(securityCheckFailed ? "security_check_failed" : "discord_oauth");
     rememberRemainingOAuthNonces(response, remainingNonces);
     return response;
   }

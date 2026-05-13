@@ -3,8 +3,9 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { getDashboardUrl } from "@/lib/oauth";
 import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildCharacters, fetchBattleNetUserInfo, normalizeBattleNetRegion } from "@/lib/battlenet";
+import { recordSystemAudit } from "@/lib/accessGroups";
 import { clearBattleNetCandidatesCookie } from "@/lib/battlenetCandidates";
-import { saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
+import { findProfileCharacterConflicts, saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 
@@ -45,6 +46,16 @@ function redirectToProfile(profileId: string, status: string, nextPath = "") {
   return response;
 }
 
+function conflictAuditSummary(conflicts: Awaited<ReturnType<typeof findProfileCharacterConflicts>>) {
+  return conflicts.slice(0, 5).map((item) => ({
+    profileId: item.profileId,
+    displayName: item.displayName,
+    characterKey: item.characterKey,
+    characterName: item.characterName,
+    realmName: item.realmName,
+  }));
+}
+
 export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session?.profileId) {
@@ -78,6 +89,35 @@ export async function GET(request: NextRequest) {
       fetchBattleNetGuildCharacters(token.access_token, region),
       fetchBattleNetUserInfo(token.access_token, region).catch(() => null),
     ]);
+
+    const conflicts = await findProfileCharacterConflicts(session.profileId, scan.characters || [], { excludeProviderUserId: session.id }).catch((error) => {
+      logDashboardEvent("error", "auth.battlenet.callback.character_conflict_check_failed", request, {
+        profileId: session.profileId,
+        message: safeErrorMessage(error),
+      });
+      throw error;
+    });
+
+    if (conflicts.length) {
+      logDashboardEvent("warn", "auth.battlenet.callback.blocked_duplicate_characters", request, {
+        profileId: session.profileId,
+        region: scan.region,
+        totalCharacters: scan.totalCharacters,
+        conflicts: conflictAuditSummary(conflicts),
+      });
+      await recordSystemAudit("auth.battlenet.blocked_duplicate_characters", {
+        status: "error",
+        summary: "Battle.net привʼязку заблоковано: персонажі вже є в іншому профілі.",
+        profileId: session.profileId,
+        region: scan.region,
+        totalCharacters: scan.totalCharacters,
+        conflicts: conflictAuditSummary(conflicts),
+      }).catch(() => false);
+      const response = redirectToProfile(session.profileId, "bnet_duplicate_account", getNextPathFromOAuthState(state));
+      clearBattleNetCandidatesCookie(response);
+      return response;
+    }
+
     await saveBattleNetSyncState(session.profileId, scan, account);
 
     logDashboardEvent("info", "auth.battlenet.callback.success", request, {

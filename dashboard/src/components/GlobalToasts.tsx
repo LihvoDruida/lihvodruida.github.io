@@ -38,6 +38,12 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Battle.net не повернув список персонажів. Спробуй повторити вхід через Battle.net.",
     ttl: 9000,
   },
+  bnet_duplicate_account: {
+    tone: "error",
+    title: "Battle.net заблоковано",
+    message: "У цьому Battle.net списку є персонаж, який уже привʼязаний до іншого профілю. Тимчасовий список не збережено.",
+    ttl: 9800,
+  },
   bnet_state: {
     tone: "warning",
     title: "Battle.net авторизацію відхилено",
@@ -58,7 +64,7 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
   characters_added_partial: {
     tone: "warning",
     title: "Додано не всіх персонажів",
-    message: "Частина персонажів збережена, а частина пропущена: зазвичай це дублікати або ліміт профілю. Перевір список збережених персонажів нижче.",
+    message: "Частина персонажів збережена, а частина пропущена: зазвичай це дублікати або застарілий тимчасовий список. Перевір список збережених персонажів нижче.",
     ttl: 8200,
   },
   characters_bulk_empty: {
@@ -95,6 +101,12 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     title: "Персонаж уже є в профілі",
     message: "Повторний запис не створюється. Якщо хочеш оновити список, спочатку пройди Battle.net реавторизацію або видали старий запис.",
     ttl: 7000,
+  },
+  character_add_conflict: {
+    tone: "error",
+    title: "Персонаж уже привʼязаний",
+    message: "Цей персонаж уже є в іншому профілі. Додавання заблоковано, щоб не створювати дублікати акаунтів.",
+    ttl: 9800,
   },
   character_add_invalid: {
     tone: "error",
@@ -337,6 +349,10 @@ const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   oauth_state: { tone: "warning", title: "Вхід Discord не завершився", message: "Спробуй авторизуватися ще раз. Паралельні входи з різних вкладок тепер не мають блокувати один одного." },
   oauth_failed: { tone: "error", title: "Авторизація не вдалася", message: "Спробуй повторити вхід через Discord. Якщо помилка лишиться — звернись до гільдмайстра." },
   access_denied: { tone: "error", title: "Доступ заборонено", message: "У цього акаунта немає потрібної ролі." },
+  discord_banned: { tone: "error", title: "Вхід заблоковано", message: "Цей Discord-акаунт знаходиться в бані на сервері. Профіль не активовано." },
+  not_guild_member: { tone: "error", title: "Профіль видалено", message: "Цього Discord-акаунта вже немає серед учасників сервера, тому його профіль видалено." },
+  duplicate_characters: { tone: "error", title: "Вхід заблоковано", message: "У профілі знайдено персонажів, які вже привʼязані до іншого акаунта. Потрібна перевірка офіцером." },
+  security_check_failed: { tone: "error", title: "Вхід не перевірено", message: "Не вдалося виконати серверну перевірку бану або членства в Discord. Спробуй пізніше або звернись до гільдмайстра." },
 };
 
 const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error", "published", "updated", "deleted", "created", "saved", "warning", "attendance"];

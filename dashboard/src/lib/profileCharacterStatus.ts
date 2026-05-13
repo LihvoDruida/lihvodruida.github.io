@@ -3,6 +3,7 @@ export type ProfileCharacterStatus =
   | "character_add_duplicate"
   | "character_add_invalid"
   | "character_add_not_guild"
+  | "character_add_conflict"
   | "character_add_profile_missing"
   | "character_add_firebase_unconfigured"
   | "character_add_firebase_failed"
@@ -28,6 +29,7 @@ export function characterAddStatusFromError(error: unknown): ProfileCharacterSta
   if (message.includes("профіль не знайдено")) return "character_add_profile_missing";
   if (message.includes("некорект") || message.includes("invalid")) return "character_add_invalid";
   if (message.includes("не підтвердж") || message.includes("mistblossom") || message.includes("немає підтверджених")) return "character_add_not_guild";
+  if (message.includes("іншого профілю") || message.includes("іншому профілі") || message.includes("another profile")) return "character_add_conflict";
   if (message.includes("already") || message.includes("вже дод")) return "character_add_duplicate";
   if (message.includes("firestore") || message.includes("firebase") || message.includes("permission")) return "character_add_firebase_failed";
   return "character_add_failed";

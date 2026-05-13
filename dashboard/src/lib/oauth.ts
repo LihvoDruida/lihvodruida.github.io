@@ -93,7 +93,8 @@ export async function fetchDiscordGuildMember(accessToken: string) {
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const body = await response.text().catch(() => "");
+    throw new Error(`Discord guild member ${response.status}: ${body || "member lookup failed"}`);
   }
 
   return response.json();

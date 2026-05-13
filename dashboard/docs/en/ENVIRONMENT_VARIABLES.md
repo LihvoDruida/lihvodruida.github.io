@@ -64,7 +64,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_LIVE_ACCESS_SYNC_SECONDS` | optional | Live Discord role refresh interval for signed-in users. Requires `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID`. Elevated sessions downgrade to member if Discord is temporarily unavailable. Default: `90`. |
 | `DISCORD_ROLES_CACHE_SECONDS` | optional | Cache TTL for Discord role-name lookups used in profile access previews. Default: `300`. |
 | `DISCORD_ALLOW_GUILD_MEMBERS` | optional | If true and no member roles are set, any guild member can get member access. |
-| `DISCORD_BOT_TOKEN` | required for Discord actions | Bot token for Discord REST. |
+| `DISCORD_BOT_TOKEN` | required for Discord actions | Bot token for Discord REST. Also used for auth ban/member checks; the bot must be able to read guild bans. |
 | `DISCORD_CHANNEL_ID` | optional | Default channel for older/default publish flows. |
 | `DISCORD_PUBLIC_KEY` | required for interactions | Discord application public key. |
 | `DISCORD_INTERACTIONS_ENDPOINT` | required when using Worker | Worker interactions base URL. |
@@ -126,7 +126,6 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `BATTLENET_CANDIDATE_TTL_MINUTES` | optional | Temporary Battle.net candidate lifetime after OAuth. Defaults to `3` minutes. |
 | `BATTLENET_SIGNUP_REFRESH_CONCURRENCY` | optional | Auto refresh concurrency before raid signup. |
 | `BATTLENET_SIGNUP_REFRESH_REST_LIMIT` | optional | How many alts to refresh after the main before raid signup. |
-| `BATTLENET_CANDIDATE_SECRET` | optional secret | Fallback secret for Battle.net candidates cookie. |
 | `WOW_GUILD_NAME` | required | Guild name used to filter characters. |
 | `WOW_GUILD_REALM` | optional | Strict realm filter. |
 | `BATTLENET_ALLOWED_GUILD_NAME` | alias | Legacy alias for `WOW_GUILD_NAME`. |
