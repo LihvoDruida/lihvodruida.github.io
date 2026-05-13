@@ -15,3 +15,12 @@ This repository contains bilingual documentation for the Mistblossom Vanguard da
 - [API documentation](en/API.md)
 - [Environment variables](en/ENVIRONMENT_VARIABLES.md)
 - [Deployment guide](en/DEPLOYMENT.md)
+
+
+Raid image picker env:
+
+```env
+RAID_IMAGES_BRANCH=live
+RAID_IMAGES_DIRECTORY=assets/img/raids-img
+RAID_IMAGES_PUBLIC_BASE_URL=https://lihvodruida.pp.ua
+```

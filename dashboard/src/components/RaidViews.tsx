@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import RaidAttendanceClient, { type RaidSignupCharacterOption } from "@/components/RaidAttendanceClient";
 import RaidRoleMentionPicker from "@/components/RaidRoleMentionPicker";
+import RaidImagePicker from "@/components/RaidImagePicker";
 import type { DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import type { DashboardSession } from "@/lib/auth";
@@ -513,7 +514,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
           <label className="field-label">Опис<textarea className="input textarea markdown-area raid-description-textarea" name="description" rows={8} defaultValue={raid?.description || "Глибоко в серці темної цитаделі нас чекають давні таємниці та смертельні вороги.\n\nБудьте готові до суворого випробування!"} /></label>
           <p className="raid-form-hint">Підтримується Markdown для Discord: жирний текст, курсив, списки, заголовки, цитати, посилання й код.</p>
           <label className="field-label">Мініатюра / іконка<input className="input" name="thumbnailUrl" placeholder="https://..." defaultValue={raid?.thumbnailUrl || resolveRaidThumbnailUrl({ difficulty: raid?.difficulty || "heroic" })} /><small>Якщо поле не змінювати, система автоматично використає мініатюру за типом рейду.</small></label>
-          <label className="field-label">Зображення оголошення<input className="input" name="imageUrl" placeholder="https://..." defaultValue={raid?.imageUrl || ""} /></label>
+          <RaidImagePicker defaultValue={raid?.imageUrl || ""} />
         </div>
 
         <div className="raid-form-actions">
