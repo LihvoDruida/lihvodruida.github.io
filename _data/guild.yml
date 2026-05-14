@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-13 21:27:42'
+  updated_at: '2026-05-14 03:33:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13851
-      region: 6170
+      world: 13858
+      region: 6171
       realm: 56
     heroic:
-      world: 12722
-      region: 5709
+      world: 12757
+      region: 5714
       realm: 44
     mythic:
-      world: 7767
-      region: 3338
+      world: 7793
+      region: 3339
       realm: 27
   blackrock-depths:
     normal:
@@ -2050,47 +2050,23 @@ members:
       slug: terokkar
     playable_class:
       id: 10
-      name: Monk
+      name: null
     playable_race:
       id: 4
-      name: Night Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Mistweaver
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Monkania
-    item_level_equipped: 272
-    mythic_plus_scores:
-      all:
-        score: 2694.8
-        color: '#5da8a2'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 2694.8
-        color: '#5da8a2'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 2694.8
-        color: '#5da8a2'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 2
   character:
@@ -2922,14 +2898,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 2984.6
-        color: '#2075d8'
+        score: 3007.2
+        color: '#0070dd'
       dps:
-        score: 2984.6
-        color: '#2075d8'
+        score: 3007.2
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -2937,8 +2913,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2984.6
-        color: '#2075d8'
+        score: 3007.2
+        color: '#0070dd'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3378,26 +3354,54 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 3
+  character:
+    name: Straponeero
+    id: 189792012
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 84
+      name: Earthen
+    faction:
+      type: HORDE
     gender: male
     active_spec:
       name: Retribution
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/182/189323702-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
-    item_level_equipped: 248
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 2853.5
+        color: '#4687c5'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 2853.5
+        color: '#4687c5'
       healer:
         score: 0
         color: '#ffffff'
@@ -3411,42 +3415,14 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 2853.5
+        color: '#4687c5'
       spec_3:
         score: 0
         color: '#ffffff'
     sources:
       roster: blizzard
       enrichment: raider.io
-      professions: blizzard
-- rank: 3
-  character:
-    name: Straponeero
-    id: 189792012
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 2
-      name: null
-    playable_race:
-      id: 84
-      name: null
-    faction:
-      type: HORDE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4202,7 +4178,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3423.9
-        color: '#c141ca'
+        color: '#c141cb'
       dps:
         score: 0
         color: '#ffffff'
@@ -4211,10 +4187,10 @@ members:
         color: '#ffffff'
       tank:
         score: 3423.9
-        color: '#c141ca'
+        color: '#c141cb'
       spec_0:
         score: 3423.9
-        color: '#c141ca'
+        color: '#c141cb'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4614,10 +4590,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 279
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3284.7
+        score: 3297.7
         color: '#a335ee'
       dps:
         score: 1147.4
@@ -4626,10 +4602,10 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3243.1
+        score: 3256.1
         color: '#9b3eec'
       spec_0:
-        score: 3243.1
+        score: 3256.1
         color: '#9b3eec'
       spec_1:
         score: 0
@@ -4822,13 +4798,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 282
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3071.9
+        score: 3086.3
         color: '#5366e2'
       dps:
-        score: 3071.9
+        score: 3086.3
         color: '#5366e2'
       healer:
         score: 0
@@ -4843,7 +4819,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3071.9
+        score: 3086.3
         color: '#5366e2'
       spec_3:
         score: 0
@@ -5030,7 +5006,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 277
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2842.2
@@ -5602,14 +5578,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 283
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3062.4
-        color: '#4369e0'
+        score: 3074.7
+        color: '#5366e2'
       dps:
-        score: 3062.4
-        color: '#4369e0'
+        score: 3074.7
+        color: '#5366e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -5620,8 +5596,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3062.4
-        color: '#4369e0'
+        score: 3074.7
+        color: '#5366e2'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5813,10 +5789,10 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3284.7
+        score: 3297.7
         color: '#a335ee'
       dps:
-        score: 3284.7
+        score: 3297.7
         color: '#a335ee'
       healer:
         score: 0
@@ -5831,7 +5807,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3284.7
+        score: 3297.7
         color: '#a335ee'
       spec_3:
         score: 0
@@ -6722,14 +6698,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 279
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2951.4
-        color: '#2075d8'
+        score: 3003.7
+        color: '#0070dd'
       dps:
-        score: 2951.4
-        color: '#2075d8'
+        score: 3003.7
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -6743,8 +6719,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2951.4
-        color: '#2075d8'
+        score: 3003.7
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6933,11 +6909,11 @@ members:
     item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2595.3
-        color: '#5fbb8c'
+        score: 2758.1
+        color: '#5799b1'
       dps:
-        score: 2595.3
-        color: '#5fbb8c'
+        score: 2758.1
+        color: '#5799b1'
       healer:
         score: 0
         color: '#ffffff'
@@ -6951,8 +6927,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2595.3
-        color: '#5fbb8c'
+        score: 2758.1
+        color: '#5799b1'
       spec_3:
         score: 0
         color: '#ffffff'

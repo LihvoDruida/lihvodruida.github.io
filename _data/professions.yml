@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-13 21:27:42'
+  updated_at: '2026-05-14 03:33:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2249,7 +2249,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Monkania
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -3345,7 +3345,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -3371,7 +3371,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
   professions:
     primaries:
     - name: Skinning
@@ -6691,7 +6691,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 31
+        learned_points: 33
         max_points: 100
     - name: Mining
       id: 186
