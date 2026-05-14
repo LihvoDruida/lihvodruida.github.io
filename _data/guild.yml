@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-14 10:19:41'
+  updated_at: '2026-05-14 14:15:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 134
+  member_count: 135
   achievement_points: 495
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13860
-      region: 6171
+      world: 13861
+      region: 6172
       realm: 56
     heroic:
-      world: 12774
-      region: 5721
+      world: 12785
+      region: 5723
       realm: 44
     mythic:
-      world: 7800
-      region: 3339
+      world: 7803
+      region: 3340
       realm: 27
   blackrock-depths:
     normal:
@@ -1334,14 +1334,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3027.5
-        color: '#2e6ddf'
+        score: 3094
+        color: '#5366e2'
       dps:
-        score: 3027.5
-        color: '#2e6ddf'
+        score: 3094
+        color: '#5366e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -1355,8 +1355,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3027.5
-        color: '#2e6ddf'
+        score: 3094
+        color: '#5366e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2010,7 +2010,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3390.9
@@ -3216,7 +3216,7 @@ members:
   character:
     name: Blackberry
     id: 189163897
-    level: 89
+    level: 90
     realm:
       id: 1415
       slug: terokkar
@@ -4846,14 +4846,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 285
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3086.3
-        color: '#5366e2'
+        score: 3194
+        color: '#8a4de9'
       dps:
-        score: 3086.3
-        color: '#5366e2'
+        score: 3194
+        color: '#8a4de9'
       healer:
         score: 0
         color: '#ffffff'
@@ -4867,8 +4867,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3086.3
-        color: '#5366e2'
+        score: 3194
+        color: '#8a4de9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5054,14 +5054,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2842.2
-        color: '#4c8cbf'
+        score: 2903.7
+        color: '#397ece'
       dps:
-        score: 2842.2
-        color: '#4c8cbf'
+        score: 2903.7
+        color: '#397ece'
       healer:
         score: 0
         color: '#ffffff'
@@ -5072,8 +5072,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2842.2
-        color: '#4c8cbf'
+        score: 2903.7
+        color: '#397ece'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5629,11 +5629,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3074.7
-        color: '#5366e2'
+        score: 3105.7
+        color: '#6062e3'
       dps:
-        score: 3074.7
-        color: '#5366e2'
+        score: 3105.7
+        color: '#6062e3'
       healer:
         score: 0
         color: '#ffffff'
@@ -5644,8 +5644,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3074.7
-        color: '#5366e2'
+        score: 3105.7
+        color: '#6062e3'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6590,7 +6590,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 2883.8
@@ -6853,8 +6853,8 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3010.8
-        color: '#0070dd'
+        score: 3062.3
+        color: '#4369e0'
       dps:
         score: 0
         color: '#ffffff'
@@ -6862,8 +6862,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3010.8
-        color: '#0070dd'
+        score: 3062.3
+        color: '#4369e0'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6871,8 +6871,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3010.8
-        color: '#0070dd'
+        score: 3062.3
+        color: '#4369e0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7029,6 +7029,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Freddiedredd
+    id: 224651580
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
+    item_level_equipped: 284
+    mythic_plus_scores:
+      all:
+        score: 3189.8
+        color: '#8053e8'
+      dps:
+        score: 3189.8
+        color: '#8053e8'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 275
+        color: '#fafff8'
+      spec_0:
+        score: 275
+        color: '#fafff8'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3189.8
+        color: '#8053e8'
       spec_3:
         score: 0
         color: '#ffffff'
