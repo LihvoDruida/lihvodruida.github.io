@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-14 17:52:11'
+  updated_at: '2026-05-14 21:12:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13864
-      region: 6174
+      world: 13868
+      region: 6178
       realm: 56
     heroic:
-      world: 12797
-      region: 5730
+      world: 12826
+      region: 5759
       realm: 44
     mythic:
-      world: 7807
-      region: 3344
+      world: 7835
+      region: 3369
       realm: 27
   blackrock-depths:
     normal:
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3088.8
-        color: '#4f67e1'
+        score: 3122.9
+        color: '#675fe4'
       dps:
-        score: 3088.8
-        color: '#4f67e1'
+        score: 3122.9
+        color: '#675fe4'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3088.8
-        color: '#4f67e1'
+        score: 3122.9
+        color: '#675fe4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -606,7 +606,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -2818,7 +2818,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2701.5
@@ -2870,7 +2870,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/149/188815253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Lightass
-    item_level_equipped: 281
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3071.8
@@ -2922,14 +2922,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3007.2
-        color: '#0070dd'
+        score: 3027.7
+        color: '#2c6dde'
       dps:
-        score: 3007.2
-        color: '#0070dd'
+        score: 3027.7
+        color: '#2c6dde'
       healer:
         score: 0
         color: '#ffffff'
@@ -2937,8 +2937,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3007.2
-        color: '#0070dd'
+        score: 3027.7
+        color: '#2c6dde'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3029,14 +3029,14 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2637.1
-        color: '#5fb395'
+        score: 2669
+        color: '#5eae9a'
       dps:
         score: 1971.8
         color: '#68ff4c'
       healer:
-        score: 2592.8
-        color: '#5fbd89'
+        score: 2624.6
+        color: '#5fb88f'
       tank:
         score: 0
         color: '#ffffff'
@@ -3050,8 +3050,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2592.8
-        color: '#5fbd89'
+        score: 2624.6
+        color: '#5fb88f'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -6645,11 +6645,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2795.6
-        color: '#5496b5'
+        score: 2838.2
+        color: '#4c8cbf'
       dps:
-        score: 2795.6
-        color: '#5496b5'
+        score: 2838.2
+        color: '#4c8cbf'
       healer:
         score: 0
         color: '#ffffff'
@@ -6660,8 +6660,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2795.6
-        color: '#5496b5'
+        score: 2838.2
+        color: '#4c8cbf'
       spec_2:
         score: 317.8
         color: '#f8fff5'
@@ -6801,10 +6801,10 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2788
+        score: 2789.5
         color: '#5496b5'
       dps:
-        score: 2788
+        score: 2789.5
         color: '#5496b5'
       healer:
         score: 0
@@ -6819,7 +6819,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2788
+        score: 2789.5
         color: '#5496b5'
       spec_3:
         score: 0
@@ -6850,14 +6850,14 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 283
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3062.3
         color: '#406ae0'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 329.1
+        color: '#f7fff3'
       healer:
         score: 0
         color: '#ffffff'
@@ -6865,8 +6865,8 @@ members:
         score: 3062.3
         color: '#406ae0'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 329.1
+        color: '#f7fff3'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6954,14 +6954,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2903.5
-        color: '#397ece'
+        score: 2963.1
+        color: '#2075d8'
       dps:
-        score: 2903.5
-        color: '#397ece'
+        score: 2963.1
+        color: '#2075d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -6975,8 +6975,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2903.5
-        color: '#397ece'
+        score: 2963.1
+        color: '#2075d8'
       spec_3:
         score: 0
         color: '#ffffff'
