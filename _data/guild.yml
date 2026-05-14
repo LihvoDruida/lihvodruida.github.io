@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-14 14:15:01'
+  updated_at: '2026-05-14 17:52:11'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13861
-      region: 6172
+      world: 13864
+      region: 6174
       realm: 56
     heroic:
-      world: 12785
-      region: 5723
+      world: 12797
+      region: 5730
       realm: 44
     mythic:
-      world: 7803
-      region: 3340
+      world: 7807
+      region: 3344
       realm: 27
   blackrock-depths:
     normal:
@@ -194,10 +194,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3088.8
-        color: '#5366e2'
+        color: '#4f67e1'
       dps:
         score: 3088.8
-        color: '#5366e2'
+        color: '#4f67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -212,7 +212,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3088.8
-        color: '#5366e2'
+        color: '#4f67e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -558,13 +558,13 @@ members:
     mythic_plus_scores:
       all:
         score: 3040.1
-        color: '#2e6ddf'
+        color: '#2c6dde'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 3040.1
-        color: '#2e6ddf'
+        color: '#2c6dde'
       tank:
         score: 0
         color: '#ffffff'
@@ -573,7 +573,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 3040.1
-        color: '#2e6ddf'
+        color: '#2c6dde'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -610,10 +610,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3160.2
-        color: '#7658e6'
+        color: '#715be5'
       dps:
         score: 3160.2
-        color: '#7658e6'
+        color: '#715be5'
       healer:
         score: 0
         color: '#ffffff'
@@ -628,7 +628,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3160.2
-        color: '#7658e6'
+        color: '#715be5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -658,7 +658,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Shennái
-    item_level_equipped: 235
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2328
@@ -870,10 +870,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3159
-        color: '#7658e6'
+        color: '#715be5'
       dps:
         score: 3159
-        color: '#7658e6'
+        color: '#715be5'
       healer:
         score: 0
         color: '#ffffff'
@@ -888,7 +888,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3159
-        color: '#7658e6'
+        color: '#715be5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1286,10 +1286,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3027.8
-        color: '#2e6ddf'
+        color: '#2c6dde'
       dps:
         score: 3027.8
-        color: '#2e6ddf'
+        color: '#2c6dde'
       healer:
         score: 0
         color: '#ffffff'
@@ -1298,7 +1298,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 3027.8
-        color: '#2e6ddf'
+        color: '#2c6dde'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1338,10 +1338,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3094
-        color: '#5366e2'
+        color: '#4f67e1'
       dps:
         score: 3094
-        color: '#5366e2'
+        color: '#4f67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -1356,7 +1356,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3094
-        color: '#5366e2'
+        color: '#4f67e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1390,10 +1390,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3255
-        color: '#9b3eec'
+        color: '#9445eb'
       dps:
         score: 3255
-        color: '#9b3eec'
+        color: '#9445eb'
       healer:
         score: 326.1
         color: '#f7fff3'
@@ -1402,7 +1402,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 3255
-        color: '#9b3eec'
+        color: '#9445eb'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2014,10 +2014,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3390.9
-        color: '#b83dd6'
+        color: '#b43bdc'
       dps:
         score: 3390.9
-        color: '#b83dd6'
+        color: '#b43bdc'
       healer:
         score: 2579.4
         color: '#5fc283'
@@ -2032,7 +2032,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3390.9
-        color: '#b83dd6'
+        color: '#b43bdc'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2874,19 +2874,19 @@ members:
     mythic_plus_scores:
       all:
         score: 3071.8
-        color: '#5366e2'
+        color: '#4f67e1'
       dps:
         score: 0
         color: '#ffffff'
       healer:
         score: 3071.8
-        color: '#5366e2'
+        color: '#4f67e1'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 3071.8
-        color: '#5366e2'
+        color: '#4f67e1'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4122,7 +4122,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3132.3
-        color: '#6c5de5'
+        color: '#675fe4'
       dps:
         score: 0
         color: '#ffffff'
@@ -4131,7 +4131,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3132.3
-        color: '#6c5de5'
+        color: '#675fe4'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4140,7 +4140,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3132.3
-        color: '#6c5de5'
+        color: '#675fe4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4174,19 +4174,19 @@ members:
     mythic_plus_scores:
       all:
         score: 3123.1
-        color: '#6c5de5'
+        color: '#675fe4'
       dps:
         score: 994.8
         color: '#c8ffb4'
       healer:
         score: 3123.1
-        color: '#6c5de5'
+        color: '#675fe4'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
         score: 3123.1
-        color: '#6c5de5'
+        color: '#675fe4'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4226,7 +4226,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3423.9
-        color: '#c141cb'
+        color: '#bd3fd0'
       dps:
         score: 0
         color: '#ffffff'
@@ -4235,10 +4235,10 @@ members:
         color: '#ffffff'
       tank:
         score: 3423.9
-        color: '#c141cb'
+        color: '#bd3fd0'
       spec_0:
         score: 3423.9
-        color: '#c141cb'
+        color: '#bd3fd0'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4642,7 +4642,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3297.7
-        color: '#a335ee'
+        color: '#9c3eed'
       dps:
         score: 1147.4
         color: '#bcffa6'
@@ -4651,10 +4651,10 @@ members:
         color: '#ffffff'
       tank:
         score: 3256.1
-        color: '#9b3eec'
+        color: '#9445eb'
       spec_0:
         score: 3256.1
-        color: '#9b3eec'
+        color: '#9445eb'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4694,10 +4694,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3266.7
-        color: '#9b3eec'
+        color: '#9c3eed'
       dps:
         score: 3266.7
-        color: '#9b3eec'
+        color: '#9c3eed'
       healer:
         score: 0
         color: '#ffffff'
@@ -4712,7 +4712,7 @@ members:
         color: '#f7fff3'
       spec_2:
         score: 3266.7
-        color: '#9b3eec'
+        color: '#9c3eed'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4798,22 +4798,22 @@ members:
     mythic_plus_scores:
       all:
         score: 3072.5
-        color: '#5366e2'
+        color: '#4f67e1'
       dps:
         score: 295.9
         color: '#fafff8'
       healer:
         score: 3027.1
-        color: '#2e6ddf'
+        color: '#2c6dde'
       tank:
         score: 3036.9
-        color: '#2e6ddf'
+        color: '#2c6dde'
       spec_0:
         score: 3036.9
-        color: '#2e6ddf'
+        color: '#2c6dde'
       spec_1:
         score: 3027.1
-        color: '#2e6ddf'
+        color: '#2c6dde'
       spec_2:
         score: 295.9
         color: '#fafff8'
@@ -4850,10 +4850,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3194
-        color: '#8a4de9'
+        color: '#8351e8'
       dps:
         score: 3194
-        color: '#8a4de9'
+        color: '#8351e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -4868,7 +4868,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3194
-        color: '#8a4de9'
+        color: '#8351e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5266,7 +5266,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3370.6
-        color: '#b83dd6'
+        color: '#b43bdc'
       dps:
         score: 0
         color: '#ffffff'
@@ -5275,7 +5275,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3370.6
-        color: '#b83dd6'
+        color: '#b43bdc'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5284,7 +5284,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3370.6
-        color: '#b83dd6'
+        color: '#b43bdc'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5630,10 +5630,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3105.7
-        color: '#6062e3'
+        color: '#5c63e3'
       dps:
         score: 3105.7
-        color: '#6062e3'
+        color: '#5c63e3'
       healer:
         score: 0
         color: '#ffffff'
@@ -5645,7 +5645,7 @@ members:
         color: '#ffffff'
       spec_1:
         score: 3105.7
-        color: '#6062e3'
+        color: '#5c63e3'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5786,7 +5786,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3196.1
-        color: '#8a4de9'
+        color: '#8351e8'
       dps:
         score: 0
         color: '#ffffff'
@@ -5795,7 +5795,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3196.1
-        color: '#8a4de9'
+        color: '#8351e8'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5804,7 +5804,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3196.1
-        color: '#8a4de9'
+        color: '#8351e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5838,10 +5838,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3297.7
-        color: '#a335ee'
+        color: '#9c3eed'
       dps:
         score: 3297.7
-        color: '#a335ee'
+        color: '#9c3eed'
       healer:
         score: 0
         color: '#ffffff'
@@ -5856,7 +5856,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3297.7
-        color: '#a335ee'
+        color: '#9c3eed'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6250,14 +6250,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 280
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2990
-        color: '#2075d8'
+        score: 3021.2
+        color: '#0070dd'
       dps:
-        score: 2990
-        color: '#2075d8'
+        score: 3021.2
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -6268,8 +6268,8 @@ members:
         score: 221.5
         color: '#ffffff'
       spec_1:
-        score: 331.8
-        color: '#f7fff3'
+        score: 698
+        color: '#dfffd1'
       spec_2:
         score: 2990
         color: '#2075d8'
@@ -6409,11 +6409,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3237.8
-        color: '#9246eb'
+        score: 3252.7
+        color: '#9445eb'
       dps:
-        score: 3237.8
-        color: '#9246eb'
+        score: 3252.7
+        color: '#9445eb'
       healer:
         score: 0
         color: '#ffffff'
@@ -6424,8 +6424,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3237.8
-        color: '#9246eb'
+        score: 3252.7
+        color: '#9445eb'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6593,14 +6593,14 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2883.8
-        color: '#4183c9'
+        score: 2939.1
+        color: '#2f79d3'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2883.8
-        color: '#4183c9'
+        score: 2939.1
+        color: '#2f79d3'
       tank:
         score: 0
         color: '#ffffff'
@@ -6614,8 +6614,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2883.8
-        color: '#4183c9'
+        score: 2939.1
+        color: '#2f79d3'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -6854,7 +6854,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3062.3
-        color: '#4369e0'
+        color: '#406ae0'
       dps:
         score: 0
         color: '#ffffff'
@@ -6863,7 +6863,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3062.3
-        color: '#4369e0'
+        color: '#406ae0'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6872,7 +6872,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3062.3
-        color: '#4369e0'
+        color: '#406ae0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6954,14 +6954,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 278
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2859.5
-        color: '#4788c4'
+        score: 2903.5
+        color: '#397ece'
       dps:
-        score: 2859.5
-        color: '#4788c4'
+        score: 2903.5
+        color: '#397ece'
       healer:
         score: 0
         color: '#ffffff'
@@ -6975,8 +6975,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2859.5
-        color: '#4788c4'
+        score: 2903.5
+        color: '#397ece'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7062,10 +7062,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3189.8
-        color: '#8053e8'
+        color: '#7b56e7'
       dps:
         score: 3189.8
-        color: '#8053e8'
+        color: '#7b56e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -7080,7 +7080,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3189.8
-        color: '#8053e8'
+        color: '#7b56e7'
       spec_3:
         score: 0
         color: '#ffffff'
