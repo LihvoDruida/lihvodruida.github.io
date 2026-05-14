@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-14 03:33:14'
+  updated_at: '2026-05-14 06:48:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13858
+      world: 13860
       region: 6171
       realm: 56
     heroic:
-      world: 12757
-      region: 5714
+      world: 12769
+      region: 5719
       realm: 44
     mythic:
-      world: 7793
+      world: 7800
       region: 3339
       realm: 27
   blackrock-depths:
@@ -2050,23 +2050,47 @@ members:
       slug: terokkar
     playable_class:
       id: 10
-      name: null
+      name: Monk
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/92/187502940-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Monkania
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 2694.8
+        color: '#5da8a2'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2694.8
+        color: '#5da8a2'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2694.8
+        color: '#5da8a2'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 2
   character:
@@ -3354,23 +3378,47 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/182/189323702-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+    item_level_equipped: 248
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
