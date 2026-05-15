@@ -1,4 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
 import { canViewProfiles, guildStatusLabel } from "@/lib/permissions";
 import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
@@ -74,12 +75,24 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
       <section className="dashboard-shell content-shell profile-directory-shell" aria-label="Профілі учасників Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="profiles" />
         <header className="hero panel dashboard-hero content-dashboard-hero profile-directory-hero">
-          <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy">
+          <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Профілі</div>
             <h1>Профілі учасників</h1>
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">Перегляд профілів, Discord-ролей, мейн-персонажів і Battle.net-стану. Нижчі ролі не бачать профілі з вищим доступом.</p>
           </div>
+          <HeroSidePanel
+            ariaLabel="Огляд профілів"
+            summary={[
+              { label: "ДОСТУП", value: user.groupName || guildStatusLabel(user.role), note: "Фільтр за правами поточного користувача" },
+              { label: "ПОШУК", value: query || "Усі доступні", note: query ? "Активний фільтр" : "Без фільтра" },
+            ]}
+            stats={[
+              { label: "ПРОФІЛІ", value: profiles.length.toLocaleString("uk-UA") },
+              { label: "ЛІМІТ", value: "200" },
+              { label: "B.NET", value: profiles.filter((profile) => profile.battlenet?.linked).length.toLocaleString("uk-UA") },
+            ]}
+          />
         </header>
       <form className="toolbar panel profile-directory-toolbar">
         <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />

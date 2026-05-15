@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import AdminTabs from "@/components/AdminTabs";
 import IntegrationStatusPanel from "@/components/IntegrationStatusPanel";
 import { buildPageMetadata } from "@/lib/seo";
@@ -32,15 +33,24 @@ export default async function AdminOverviewPage() {
       <section className="dashboard-shell content-shell admin-page" aria-label="Керування Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="admin" />
         <header className="hero panel admin-hero">
-          <div>
-            <span className="eyebrow">Адміністрування</span>
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
+            <span className="eyebrow">Mistblossom Vanguard • Адміністрування</span>
             <h1>Керування</h1>
-            <p>Один центр для прав доступу, Discord-ролей, серверних ніків і глобального шаблону імен.</p>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">Один центр для прав доступу, Discord-ролей, серверних ніків і глобального шаблону імен.</p>
           </div>
-          <div className="hero-actions">
-            <span className="status-pill">Група: {user.groupName || user.role}</span>
-            {user.isServerOwner ? <span className="status-pill good">Власник сервера</span> : null}
-          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд адміністрування"
+            summary={[
+              { label: "ГРУПА", value: user.groupName || user.role, note: user.isServerOwner ? "Власник сервера" : "Права з поточної сесії" },
+              { label: "ШАБЛОН", value: policy.template, note: nicknameTemplateExample(policy.template) },
+            ]}
+            stats={[
+              { label: "ГРУПИ", value: canManageGroups(user) ? "ON" : "—" },
+              { label: "DISCORD", value: canManageDiscordMembers(user) ? "ON" : "—" },
+              { label: "ЛОГИ", value: canViewAdminLogs(user) ? "ON" : "—" },
+            ]}
+          />
         </header>
 
         <AdminTabs active="overview" />

@@ -2,6 +2,7 @@ import ApplicationStatusActions from "@/components/ApplicationStatusActions";
 import ApplicationFilters from "@/components/ApplicationFilters";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { buildPageMetadata } from "@/lib/seo";
 export const metadata = buildPageMetadata({
   title: "Заявки до гільдії",
@@ -168,18 +169,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
         </div>
 
-        <div className="hero-emblem" aria-hidden="true">
-          <div className="hero-emblem__rings" />
-          <div className="hero-flower">
-            <span className="hero-flower__petal hero-flower__petal--top" />
-            <span className="hero-flower__petal hero-flower__petal--left" />
-            <span className="hero-flower__petal hero-flower__petal--right" />
-            <span className="hero-flower__petal hero-flower__petal--low-left" />
-            <span className="hero-flower__petal hero-flower__petal--low-right" />
-            <span className="hero-flower__core" />
-          </div>
-          <div className="hero-platform" />
-        </div>
+        <HeroSidePanel
+          ariaLabel="Огляд заявок"
+          summary={[
+            { label: "ЗАЯВКИ", value: `${counts.all} всього`, note: "Живий список кандидатів" },
+            { label: "ДОСТУП", value: mayManageApplications ? "Модерація" : "Перегляд", note: mayManageApplications ? "Можна змінювати статуси" : "BattleTag приховано" },
+          ]}
+          stats={[
+            { label: "НА РОЗГЛЯДІ", value: counts.review.toLocaleString("uk-UA") },
+            { label: "ПРИЙНЯТО", value: counts.accepted.toLocaleString("uk-UA") },
+            { label: "ВІДХИЛЕНО", value: counts.declined.toLocaleString("uk-UA") },
+          ]}
+        />
         </header>
       <section className="stats">
         <div className="stat panel"><strong>{counts.all}</strong><span>Всього</span></div>

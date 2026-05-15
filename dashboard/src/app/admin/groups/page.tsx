@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import AccessGroupsManager from "@/components/AccessGroupsManager";
 import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
@@ -103,15 +104,24 @@ export default async function AdminGroupsPage() {
       <section className="dashboard-shell content-shell access-groups-page" aria-label="Керування групами та правами доступу Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="admin" />
         <header className="hero panel admin-hero access-groups-hero">
-        <div>
-          <span className="eyebrow">Адміністрування</span>
-          <h1>Групи та права доступу</h1>
-          <p>Права зберігаються у Firebase. Кожна група має одну Discord-роль, ранг і набір дозволів. Env використовується лише для підключень.</p>
-        </div>
-        <div className="hero-actions">
-          <span className="status-pill">Поточна група: {user.groupName || user.role}</span>
-          {user.isServerOwner ? <span className="status-pill good">Власник сервера</span> : null}
-        </div>
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
+            <span className="eyebrow">Mistblossom Vanguard • Права</span>
+            <h1>Групи та права доступу</h1>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">Права зберігаються у Firebase. Кожна група має одну Discord-роль, ранг і набір дозволів. Env використовується лише для підключень.</p>
+          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд груп доступу"
+            summary={[
+              { label: "ПОТОЧНА ГРУПА", value: user.groupName || user.role, note: user.isServerOwner ? "Власник сервера" : "Активна сесія" },
+              { label: "СХОВИЩЕ", value: "Firebase", note: "Env тільки для підключень" },
+            ]}
+            stats={[
+              { label: "ГРУП", value: groups.length.toLocaleString("uk-UA") },
+              { label: "РАНГ ADMIN", value: "1" },
+              { label: "РАНГ USER", value: "99" },
+            ]}
+          />
         </header>
         <AdminTabs active="groups" />
         <AccessGroupsManager

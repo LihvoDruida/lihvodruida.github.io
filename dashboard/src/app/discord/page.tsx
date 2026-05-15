@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
@@ -67,18 +68,18 @@ export default async function DiscordHubPage({ searchParams }: { searchParams: P
             </div>
           </div>
 
-          <div className="hero-emblem content-hero-emblem discord-hero-emblem" aria-hidden="true">
-            <div className="hero-emblem__rings" />
-            <div className="hero-flower">
-              <span className="hero-flower__petal hero-flower__petal--top" />
-              <span className="hero-flower__petal hero-flower__petal--left" />
-              <span className="hero-flower__petal hero-flower__petal--right" />
-              <span className="hero-flower__petal hero-flower__petal--low-left" />
-              <span className="hero-flower__petal hero-flower__petal--low-right" />
-              <span className="hero-flower__core" />
-            </div>
-            <div className="hero-platform" />
-          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд Discord-повідомлень"
+            summary={[
+              { label: "ДОСТУП", value: hierarchyTitle(user.role), note: "Дії залежать від ролі" },
+              { label: "РОЗДІЛ", value: canViewRules ? "Правила + повідомлення" : "Повідомлення", note: hasDiscordEmbedConfig() ? "Discord API налаштовано" : "Discord API недоступний" },
+            ]}
+            stats={[
+              { label: "EMBEDS", value: canUseGeneralEmbeds ? "ON" : "—" },
+              { label: "RULES", value: canEditRules ? "EDIT" : canViewRules ? "VIEW" : "—" },
+              { label: "CONFIG", value: hasDiscordEmbedConfig() ? "OK" : "ERR" },
+            ]}
+          />
         </header>
       <StatusNotice params={params} />
       {!canUseGeneralEmbeds ? (

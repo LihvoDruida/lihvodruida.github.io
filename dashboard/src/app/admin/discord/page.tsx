@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
@@ -66,16 +67,25 @@ export default async function AdminDiscordPage() {
     <main className="container admin-container">
       <section className="dashboard-shell content-shell admin-page discord-management-page" aria-label="Керування Discord-учасниками">
         <DashboardIdentity user={user} activeSection="admin" />
-        <header className="hero panel admin-hero">
-          <div>
-            <span className="eyebrow">Адміністрування • Discord</span>
+        <header className="hero panel admin-hero discord-admin-hero">
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
+            <span className="eyebrow">Mistblossom Vanguard • Discord</span>
             <h1>Discord-учасники</h1>
-            <p>Видача та зняття ролей, ручне перейменування на сервері й контроль глобального шаблону ніку.</p>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">Видача та зняття ролей, ручне перейменування на сервері й контроль глобального шаблону ніку.</p>
           </div>
-          <div className="hero-actions">
-            <span className="status-pill">Доступ: {user.groupName || user.role}</span>
-            <span className={`status-pill ${guild ? "good" : "warning"}`}>{guild ? guild.name : guildId ? "Discord API недоступний" : "Discord не підключено"}</span>
-          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд Discord-керування"
+            summary={[
+              { label: "ДОСТУП", value: user.groupName || user.role, note: "Права поточного користувача" },
+              { label: "СЕРВЕР", value: guild ? guild.name : "Недоступно", note: guildId ? guildId : "Discord не підключено" },
+            ]}
+            stats={[
+              { label: "РОЛЕЙ", value: roles.length.toLocaleString("uk-UA") },
+              { label: "ДОСТУПНО", value: manageableRoles.length.toLocaleString("uk-UA") },
+              { label: "BOT", value: control.botCanManageRoles ? "OK" : "ERR" },
+            ]}
+          />
         </header>
 
         <AdminTabs active="discord" />

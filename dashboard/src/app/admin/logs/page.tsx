@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import AdminTabs from "@/components/AdminTabs";
 import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
@@ -88,17 +89,25 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
     <main className="container admin-container">
       <section className="dashboard-shell content-shell admin-page admin-logs-page" aria-label="Журнал адміністративних дій">
         <DashboardIdentity user={user} activeSection="admin" />
-        <header className="hero panel admin-hero">
-          <div>
-            <span className="eyebrow">Адміністрування</span>
+        <header className="hero panel admin-hero admin-logs-hero">
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
+            <span className="eyebrow">Mistblossom Vanguard • Журнал</span>
             <h1>Журнал дій</h1>
-            <p>Останні адміністративні дії, Discord-операції, результати та помилки. Зберігаються останні 100 записів.</p>
+            <span className="hero-accent" aria-hidden="true" />
+            <p className="lead">Останні адміністративні дії, Discord-операції, результати та помилки. Зберігаються останні 100 записів.</p>
           </div>
-          <div className="hero-actions">
-            <span className="status-pill">Записів: {logs.length}</span>
-            {warnings ? <span className="status-pill warning">Попереджень: {warnings}</span> : null}
-            {failed ? <span className="status-pill danger">Помилок: {failed}</span> : null}
-          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд журналу дій"
+            summary={[
+              { label: "ЗАПИСИ", value: logs.length.toLocaleString("uk-UA"), note: `Показано останні ${limit}` },
+              { label: "СТАН", value: failed ? "Є помилки" : warnings ? "Є попередження" : "Чисто", note: "Адміністративні операції" },
+            ]}
+            stats={[
+              { label: "WARNING", value: warnings.toLocaleString("uk-UA") },
+              { label: "ERROR", value: failed.toLocaleString("uk-UA") },
+              { label: "LIMIT", value: limit.toLocaleString("uk-UA") },
+            ]}
+          />
         </header>
 
         <AdminTabs active="logs" />

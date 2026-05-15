@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
 import {
   fetchDiscordRaidRulesSignups,
@@ -384,6 +385,8 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
     }
   }
 
+  const raidSignedCount = raidStats.configured ? Math.max(raidStats.signed, raidSignups.total, raidSignups.signups.length) : 0;
+
   return (
     <main className="container">
       <section className="dashboard-shell content-shell discord-shell" aria-label="Список Discord правил Mistblossom Vanguard">
@@ -408,6 +411,18 @@ export default async function DiscordRulesPage({ searchParams }: { searchParams:
               </div>
             </div>
           </div>
+          <HeroSidePanel
+            ariaLabel="Огляд правил Discord"
+            summary={[
+              { label: "КАНАЛ", value: rulesChannelName, note: canEditRules ? "Керування й статистика" : "Перегляд статистики" },
+              { label: "ДОСТУП", value: canEditRules ? "Редагування" : "Перегляд", note: hasDiscordEmbedConfig() ? "Discord API налаштовано" : "Discord API недоступний" },
+            ]}
+            stats={[
+              { label: "ПРИЙНЯЛИ", value: stats.configured ? stats.accepted.toLocaleString("uk-UA") : "—" },
+              { label: "РЕЙД", value: raidSignedCount.toLocaleString("uk-UA") },
+              { label: "MSG", value: messages.length.toLocaleString("uk-UA") },
+            ]}
+          />
         </header>
       <StatusNotice params={params} />
 

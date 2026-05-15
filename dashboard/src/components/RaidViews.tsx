@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import RaidAttendanceClient, { type RaidSignupCharacterOption } from "@/components/RaidAttendanceClient";
 import RaidRoleMentionPicker from "@/components/RaidRoleMentionPicker";
 import RaidImagePicker from "@/components/RaidImagePicker";
@@ -553,7 +554,7 @@ export function RaidPageShell({ user, title, description, children }: { user?: D
       <section className="dashboard-shell content-shell raid-shell" aria-label="Панель рейдів Mistblossom Vanguard">
         {user ? <DashboardIdentity user={user} activeSection="raids" /> : null}
         <header className="hero panel dashboard-hero raid-dashboard-hero">
-          <div className="hero-copy dashboard-hero__copy">
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Рейди</div>
             <div className="content-hero-status-row">
               <span className="content-mode-pill content-mode-pill--library">{user ? hierarchyTitle(user.role) : "Учасник"}</span>
@@ -563,6 +564,18 @@ export function RaidPageShell({ user, title, description, children }: { user?: D
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">{description}</p>
           </div>
+          <HeroSidePanel
+            ariaLabel="Огляд рейдів"
+            summary={[
+              { label: "РОЗДІЛ", value: "Рейди", note: "Запис, склад і публікація" },
+              { label: "ДОСТУП", value: user ? hierarchyTitle(user.role) : "Учасник", note: user ? "Права з Discord/Firebase" : "Публічний перегляд" },
+            ]}
+            stats={[
+              { label: "DISCORD", value: "SYNC" },
+              { label: "ПАТІ", value: "AUTO" },
+              { label: "LIVE", value: "ON" },
+            ]}
+          />
         </header>
         {children}
       </section>

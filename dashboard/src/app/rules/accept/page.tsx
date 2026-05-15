@@ -1,4 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { fetchDiscordRoles } from "@/lib/discordAdmin";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
@@ -90,12 +91,24 @@ export default async function RulesAcceptPage({ searchParams }: { searchParams: 
       <section className="dashboard-shell content-shell rules-onboarding-shell" aria-label="Прийняття правил Mistblossom Vanguard">
         {session ? <DashboardIdentity user={session as DashboardSession} activeSection="profile" /> : null}
         <header className="hero panel dashboard-hero rules-onboarding-hero">
-          <div className="hero-copy dashboard-hero__copy">
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Правила</div>
             <h1>Завершення реєстрації</h1>
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">Кнопка в Discord більше не видає роль одразу. Спочатку потрібно увійти, заповнити профіль, підключити персонажів і підтвердити серверний нік.</p>
           </div>
+          <HeroSidePanel
+            ariaLabel="Огляд завершення реєстрації"
+            summary={[
+              { label: "СТАН", value: status.complete ? "Готово" : "Потрібно доповнити", note: session ? "Discord-профіль знайдено" : "Потрібен вхід через Discord" },
+              { label: "РОЛЬ", value: roleIds.length ? roleName(roleIds[0], roles) : "Не задано", note: roleIds.length > 1 ? `+${roleIds.length - 1} ролей` : `Регіон Battle.net: ${primaryRegion.toUpperCase()}` },
+            ]}
+            stats={[
+              { label: "КРОКИ", value: `${status.steps.filter((step) => step.complete).length}/${status.steps.length}` },
+              { label: "РОЛІ", value: roleIds.length.toLocaleString("uk-UA") },
+              { label: "B.NET", value: profile?.battlenet?.linked ? "OK" : "—" },
+            ]}
+          />
         </header>
 
         <section className="panel rules-onboarding-card" aria-label="Стан реєстрації">

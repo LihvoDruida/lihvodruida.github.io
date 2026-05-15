@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import ContentImageField from "@/components/ContentImageField";
 import DashboardIdentity from "@/components/DashboardIdentity";
+import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
 import { getOwnProfilePath, type AuthorNameSuggestion } from "@/lib/profiles";
 import { resolveAuthorIdentity } from "@/lib/authorIdentity";
@@ -385,18 +386,18 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
             </div>
           </div>
 
-          <div className="hero-emblem content-hero-emblem" aria-hidden="true">
-            <div className="hero-emblem__rings" />
-            <div className="hero-flower">
-              <span className="hero-flower__petal hero-flower__petal--top" />
-              <span className="hero-flower__petal hero-flower__petal--left" />
-              <span className="hero-flower__petal hero-flower__petal--right" />
-              <span className="hero-flower__petal hero-flower__petal--low-left" />
-              <span className="hero-flower__petal hero-flower__petal--low-right" />
-              <span className="hero-flower__core" />
-            </div>
-            <div className="hero-platform" />
-          </div>
+          <HeroSidePanel
+            ariaLabel="Огляд матеріалів сайту"
+            summary={[
+              { label: "РЕЖИМ", value: isCreateMode ? "Створення" : selectedItem ? "Редагування" : "Бібліотека", note: heroPath },
+              { label: "АВТОР", value: authorName, note: selectedItem?.date || "Поточний профіль" },
+            ]}
+            stats={[
+              { label: "УСЬОГО", value: items.length.toLocaleString("uk-UA") },
+              { label: "НОВИН", value: newsItems.length.toLocaleString("uk-UA") },
+              { label: "ГАЙДІВ", value: guideItems.length.toLocaleString("uk-UA") },
+            ]}
+          />
         </header>
       {params.published ? <div className="notice panel success">Опубліковано матеріал: <strong>{params.published}</strong></div> : null}
       {params.updated ? <div className="notice panel success">Оновлено матеріал: <strong>{params.updated}</strong></div> : null}

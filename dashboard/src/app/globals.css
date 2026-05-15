@@ -17085,3 +17085,278 @@ button[aria-busy="true"]::after,
     font-size: 0.76rem;
   }
 }
+
+/* Unified HERO map panels: keeps every dashboard hero aligned with the guild roster reference. */
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) {
+  position: relative !important;
+  isolation: isolate;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr) !important;
+  align-items: stretch !important;
+  gap: clamp(18px, 3vw, 30px) !important;
+  min-height: clamp(224px, 24vw, 292px) !important;
+  padding: clamp(22px, 3vw, 34px) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 26px !important;
+  background:
+    linear-gradient(90deg, rgba(7, 10, 14, 0.88) 0%, rgba(8, 12, 18, 0.76) 36%, rgba(7, 10, 14, 0.82) 100%),
+    radial-gradient(circle at 54% 48%, rgba(255, 255, 255, 0.045), transparent 42%),
+    url("/assets/img/ui/guild-hero-bg.png") center center / cover no-repeat !important;
+  box-shadow:
+    0 20px 70px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero)::before,
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero)::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 18%, transparent 80%, rgba(255, 255, 255, 0.04));
+  opacity: 0.68;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero)::after {
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(214, 168, 79, 0.46), transparent);
+  opacity: 0.78;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero) :where(.hero-copy, .dashboard-hero__copy, .content-dashboard-hero__copy),
+.guild-hero :where(.hero-copy, .dashboard-hero__copy, .guild-hero__copy),
+:where(.hero-map-side, .guild-hero-side) {
+  position: relative;
+  z-index: 1;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero) :where(.hero-copy, .dashboard-hero__copy, .content-dashboard-hero__copy),
+.guild-hero__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: clamp(4px, 1vw, 12px);
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) .eyebrow {
+  margin-bottom: 12px;
+  color: rgba(255, 216, 161, 0.94) !important;
+  letter-spacing: 0.12em;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) h1 {
+  max-width: 15ch;
+  color: #fffaf0 !important;
+  font-size: clamp(2.24rem, 4.8vw, 4.65rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.05em !important;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.62), 0 0 30px rgba(214, 168, 79, 0.18) !important;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) .lead {
+  max-width: 62ch;
+  color: rgba(237, 240, 249, 0.88) !important;
+  font-size: clamp(0.94rem, 1.22vw, 1.02rem) !important;
+  line-height: 1.62 !important;
+}
+
+:where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) small {
+  color: rgba(241, 227, 209, 0.76);
+}
+
+.hero-accent {
+  width: min(128px, 42%) !important;
+  height: 3px !important;
+  margin-top: 16px !important;
+  background: linear-gradient(90deg, rgba(255, 202, 78, 0.96), rgba(143, 230, 166, 0.82), transparent) !important;
+}
+
+:where(.hero-map-side, .guild-hero-side) {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 14px;
+}
+
+:where(.hero-map-summary, .guild-hero-summary) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, rgba(10, 14, 22, 0.68), rgba(10, 14, 22, 0.56)) !important;
+  backdrop-filter: blur(8px);
+}
+
+:where(.hero-map-summary__block, .guild-hero-summary__block) {
+  display: flex;
+  min-width: 0;
+  min-height: 118px !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: clamp(16px, 2vw, 22px) !important;
+}
+
+:where(.hero-map-summary__block, .guild-hero-summary__block) + :where(.hero-map-summary__block, .guild-hero-summary__block) {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:where(.hero-map-summary__label, .guild-hero-summary__label) {
+  color: rgba(255, 216, 161, 0.82) !important;
+  font-size: 0.72rem !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+:where(.hero-map-summary__block, .guild-hero-summary__block) strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #fff !important;
+  font-size: clamp(1.2rem, 2.3vw, 2rem) !important;
+  line-height: 1.06 !important;
+  letter-spacing: -0.035em;
+}
+
+:where(.hero-map-summary__block, .guild-hero-summary__block) p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: rgba(241, 227, 209, 0.8) !important;
+  font-size: clamp(0.82rem, 1.15vw, 0.96rem) !important;
+  line-height: 1.4 !important;
+}
+
+:where(.hero-map-stats, .guild-hero-stats) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px;
+}
+
+.hero-map-stats--1 { grid-template-columns: 1fr !important; }
+.hero-map-stats--2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.hero-map-stats--4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+:where(.hero-map-stat-card, .guild-hero-stat-card) {
+  display: flex;
+  min-width: 0;
+  min-height: 82px !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: clamp(13px, 1.6vw, 18px) !important;
+  border: 1px solid rgba(214, 168, 79, 0.22) !important;
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, rgba(17, 22, 34, 0.78), rgba(13, 17, 28, 0.72)) !important;
+  backdrop-filter: blur(6px);
+}
+
+:where(.hero-map-stat-card, .guild-hero-stat-card) span {
+  color: rgba(223, 225, 234, 0.74) !important;
+  font-size: 0.68rem !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+:where(.hero-map-stat-card, .guild-hero-stat-card) strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--gold-bright) !important;
+  font-size: clamp(1.34rem, 2.4vw, 2.25rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -0.045em;
+}
+
+:where(.hero-map-actions, .guild-hero-actions) {
+  display: flex;
+  justify-content: flex-end;
+}
+
+:where(.hero-secure-note, .content-hero-actions) {
+  background: rgba(10, 14, 22, 0.42) !important;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 1080px) {
+  :where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) {
+    grid-template-columns: 1fr !important;
+    min-height: unset !important;
+  }
+
+  :where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) :where(.hero-copy, .dashboard-hero__copy, .content-dashboard-hero__copy),
+  .guild-hero__copy {
+    padding-right: 0;
+  }
+
+  :where(.hero-map-side, .guild-hero-side) {
+    align-content: stretch;
+  }
+
+  :where(.hero-map-actions, .guild-hero-actions) {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  :where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .access-groups-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) {
+    gap: 14px !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+    background-position: center center !important;
+  }
+
+  :where(.hero, .dashboard-hero, .content-dashboard-hero, .discord-dashboard-hero, .raid-dashboard-hero, .admin-hero, .legal-hero, .rules-onboarding-hero, .profile-directory-hero, .guild-hero) h1 {
+    max-width: 100%;
+    font-size: clamp(1.9rem, 10vw, 2.72rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  :where(.hero-map-summary, .guild-hero-summary) {
+    grid-template-columns: 1fr !important;
+    border-radius: 20px !important;
+  }
+
+  :where(.hero-map-summary__block, .guild-hero-summary__block) {
+    min-height: 96px !important;
+    padding: 15px 16px !important;
+  }
+
+  :where(.hero-map-summary__block, .guild-hero-summary__block) + :where(.hero-map-summary__block, .guild-hero-summary__block) {
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  :where(.hero-map-stats, .guild-hero-stats),
+  .hero-map-stats--2,
+  .hero-map-stats--3,
+  .hero-map-stats--4 {
+    grid-template-columns: repeat(auto-fit, minmax(94px, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  :where(.hero-map-stat-card, .guild-hero-stat-card) {
+    min-height: 76px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-width: 460px) {
+  :where(.hero-map-stats, .guild-hero-stats),
+  .hero-map-stats--2,
+  .hero-map-stats--3,
+  .hero-map-stats--4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
