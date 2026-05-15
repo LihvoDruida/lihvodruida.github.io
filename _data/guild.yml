@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 10:26:13'
+  updated_at: '2026-05-15 14:09:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13883
-      region: 6180
+      world: 13886
+      region: 6182
       realm: 56
     heroic:
-      world: 12910
-      region: 5769
+      world: 12922
+      region: 5772
       realm: 44
     mythic:
-      world: 7895
+      world: 7898
       region: 3373
       realm: 27
   blackrock-depths:
@@ -2952,6 +2952,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Otito
+    id: 188974647
+    level: 90
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Otito
+    item_level_equipped: 258
+    mythic_plus_scores:
+      all:
+        score: 1817
+        color: '#7bff5f'
+      dps:
+        score: 1817
+        color: '#7bff5f'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1817
+        color: '#7bff5f'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Athang
@@ -5084,6 +5136,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Freddiedredd
+    id: 224651580
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 34
+      name: Dark Iron Dwarf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
+    item_level_equipped: 285
+    mythic_plus_scores:
+      all:
+        score: 3189.8
+        color: '#7b56e7'
+      dps:
+        score: 3189.8
+        color: '#7b56e7'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 275
+        color: '#fafff8'
+      spec_0:
+        score: 275
+        color: '#fafff8'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3189.8
+        color: '#7b56e7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Kokosik
@@ -7029,110 +7133,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Freddiedredd
-    id: 224651580
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 6
-      name: Death Knight
-    playable_race:
-      id: 34
-      name: Dark Iron Dwarf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Blood
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 285
-    mythic_plus_scores:
-      all:
-        score: 3189.8
-        color: '#7b56e7'
-      dps:
-        score: 3189.8
-        color: '#7b56e7'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 275
-        color: '#fafff8'
-      spec_0:
-        score: 275
-        color: '#fafff8'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3189.8
-        color: '#7b56e7'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Otito
-    id: 188974647
-    level: 90
-    realm:
-      id: 506
-      slug: draenor
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 258
-    mythic_plus_scores:
-      all:
-        score: 1817
-        color: '#7bff5f'
-      dps:
-        score: 1817
-        color: '#7bff5f'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 1817
-        color: '#7bff5f'
       spec_3:
         score: 0
         color: '#ffffff'
