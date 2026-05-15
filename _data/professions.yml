@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 17:29:30'
+  updated_at: '2026-05-15 21:03:15'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -949,7 +949,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 62
+        learned_points: 63
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2828,7 +2828,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 88
+        learned_points: 91
         max_points: 100
     secondaries: []
 - name: Ragnarøøk
