@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-14 21:12:29'
+  updated_at: '2026-05-15 03:37:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-13T07:23:51.000Z'
+  raider_io_last_crawled_at: '2026-05-15T00:45:02.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 135
+  member_count: 136
 characters:
 - name: Бреинор
   region: eu
@@ -6691,7 +6691,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 33
+        learned_points: 34
         max_points: 100
     - name: Mining
       id: 186
@@ -6699,8 +6699,11 @@ characters:
       - name: Classic Mining
         learned_points: 1
         max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 1
+        max_points: 100
       - name: Midnight Mining
-        learned_points: 45
+        learned_points: 48
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6959,6 +6962,26 @@ characters:
       - name: Classic Fishing
         learned_points: 1
         max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
+- name: Otito
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Otito
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 4
+        max_points: 100
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
