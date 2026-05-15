@@ -49,38 +49,51 @@ export default async function GuildRosterPage() {
       <section className="dashboard-shell content-shell" aria-label="Панель Mistblossom Vanguard">
         <DashboardIdentity user={user} activeSection="guild" />
         <header className="hero panel guild-hero">
-          <div className="hero-copy dashboard-hero__copy">
+          <div className="hero-copy dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Склад гільдії</div>
             <h1>Склад гільдії</h1>
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">
               Живий список персонажів гільдії з Raider.IO, item level, ролями, класами, спеками та фракціями.
             </p>
-            <div className="guild-hero-meta">
-              <span>{roster.stats.guildName}</span>
-              <span>{roster.stats.guildRealm}</span>
-              <span>{roster.stats.memberCount} персонажів</span>
-              <span>Оновлено: {formatDate(roster.stats.updatedAt)}</span>
-            </div>
-            <GuildRosterRefreshButton />
           </div>
 
-          <div className="guild-hero-score" aria-label="Коротка статистика складу">
-            <div>
-              <span>СЕР. RIO</span>
-              <strong>{Math.round(roster.stats.averageRioAll || 0).toLocaleString("uk-UA")}</strong>
+          <div className="guild-hero-side" aria-label="Огляд складу гільдії">
+            <div className="guild-hero-summary">
+              <section className="guild-hero-summary__block">
+                <span className="guild-hero-summary__label">ГІЛЬДІЯ</span>
+                <strong>{roster.stats.guildName}</strong>
+                <p>{roster.stats.guildRealm}</p>
+              </section>
+
+              <section className="guild-hero-summary__block">
+                <span className="guild-hero-summary__label">СКЛАД</span>
+                <strong>{roster.stats.memberCount.toLocaleString("uk-UA")} персонажів</strong>
+                <p>Оновлено: {formatDate(roster.stats.updatedAt)}</p>
+              </section>
             </div>
-            <div>
-              <span>СЕР. ILVL</span>
-              <strong>{Math.round(roster.stats.averageItemLevel || 0).toLocaleString("uk-UA")}</strong>
+
+            <div className="guild-hero-stats" aria-label="Коротка статистика складу">
+              <div className="guild-hero-stat-card">
+                <span>СЕР. RIO</span>
+                <strong>{Math.round(roster.stats.averageRioAll || 0).toLocaleString("uk-UA")}</strong>
+              </div>
+              <div className="guild-hero-stat-card">
+                <span>СЕР. ILVL</span>
+                <strong>{Math.round(roster.stats.averageItemLevel || 0).toLocaleString("uk-UA")}</strong>
+              </div>
+              <div className="guild-hero-stat-card">
+                <span>МАКС. RIO</span>
+                <strong>{Math.round(roster.stats.maxRioAll || 0).toLocaleString("uk-UA")}</strong>
+              </div>
             </div>
-            <div>
-              <span>МАКС. RIO</span>
-              <strong>{Math.round(roster.stats.maxRioAll || 0).toLocaleString("uk-UA")}</strong>
+
+            <div className="guild-hero-actions">
+              <GuildRosterRefreshButton />
             </div>
           </div>
         </header>
-      <GuildRosterExplorer members={members} stats={roster.stats} source={roster.source} error={roster.error} />
+        <GuildRosterExplorer members={members} stats={roster.stats} source={roster.source} error={roster.error} />
       </section>
     </main>
   );
