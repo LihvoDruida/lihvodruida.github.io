@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 03:37:14'
+  updated_at: '2026-05-15 06:57:42'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13876
+      world: 13879
       region: 6180
       realm: 56
     heroic:
-      world: 12896
-      region: 5768
+      world: 12908
+      region: 5769
       realm: 44
     mythic:
-      world: 7885
-      region: 3372
+      world: 7893
+      region: 3373
       realm: 27
   blackrock-depths:
     normal:
@@ -658,14 +658,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/198/176944582-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Shennái
-    item_level_equipped: 271
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2353.3
-        color: '#41f03f'
+        score: 2408.1
+        color: '#4de553'
       dps:
-        score: 2353.3
-        color: '#41f03f'
+        score: 2408.1
+        color: '#4de553'
       healer:
         score: 0
         color: '#ffffff'
@@ -679,8 +679,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2353.3
-        color: '#41f03f'
+        score: 2408.1
+        color: '#4de553'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2714,7 +2714,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/105/188623721-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
     profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
-    item_level_equipped: 267
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 2495.3
@@ -7110,14 +7110,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 248
+    item_level_equipped: 258
     mythic_plus_scores:
       all:
-        score: 1229.7
-        color: '#b4ff9c'
+        score: 1817
+        color: '#7bff5f'
       dps:
-        score: 1229.7
-        color: '#b4ff9c'
+        score: 1817
+        color: '#7bff5f'
       healer:
         score: 0
         color: '#ffffff'
@@ -7131,8 +7131,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1229.7
-        color: '#b4ff9c'
+        score: 1817
+        color: '#7bff5f'
       spec_3:
         score: 0
         color: '#ffffff'
