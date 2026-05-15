@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 14:09:59'
+  updated_at: '2026-05-15 17:29:30'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -958,6 +958,9 @@ characters:
     - name: Cooking
       id: 185
       tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
@@ -2816,7 +2819,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -2825,7 +2828,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 86
+        learned_points: 88
         max_points: 100
     secondaries: []
 - name: Ragnarøøk

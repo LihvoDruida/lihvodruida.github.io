@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 14:09:59'
+  updated_at: '2026-05-15 17:29:30'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13886
-      region: 6182
+      world: 13887
+      region: 6183
       realm: 56
     heroic:
-      world: 12922
-      region: 5772
+      world: 12929
+      region: 5775
       realm: 44
     mythic:
-      world: 7898
-      region: 3373
+      world: 7902
+      region: 3374
       realm: 27
   blackrock-depths:
     normal:
@@ -1750,7 +1750,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 252
+    item_level_equipped: 255
     mythic_plus_scores:
       all:
         score: 1261.3
@@ -2114,7 +2114,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-    item_level_equipped: 275
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2769.9
@@ -3390,7 +3390,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2702.9
@@ -4846,7 +4846,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3072.5
@@ -6513,11 +6513,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3252.7
-        color: '#9445eb'
+        score: 3268.2
+        color: '#9c3eed'
       dps:
-        score: 3252.7
-        color: '#9445eb'
+        score: 3268.2
+        color: '#9c3eed'
       healer:
         score: 0
         color: '#ffffff'
@@ -6528,8 +6528,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3252.7
-        color: '#9445eb'
+        score: 3268.2
+        color: '#9c3eed'
       spec_2:
         score: 0
         color: '#ffffff'
