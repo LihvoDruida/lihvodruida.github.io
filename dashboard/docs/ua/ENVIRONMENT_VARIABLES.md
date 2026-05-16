@@ -4,7 +4,7 @@
 
 ## Мінімальний production-набір
 
-Для повного production потрібні: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
+Для повного production потрібні: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_APPLICATIONS_COLLECTION`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
 
 ## Спільні з Cloudflare Worker
 
@@ -20,10 +20,10 @@
 | `INTERNAL_PROFILE_LOOKUP_TOKEN` | required для lookup | Worker викликає `/api/profile/discord-lookup` або raid action endpoint. | Так, має збігатися. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Concurrency видачі ролей. | Якщо Worker видає ролі. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max concurrency видачі ролей. | Якщо Worker видає ролі. |
-| `GITHUB_OWNER` | conditional | GitHub owner для заявок. | Тільки якщо Worker модерує GitHub Issues. |
-| `GITHUB_REPO` | conditional | GitHub repo для заявок. | Тільки якщо Worker модерує GitHub Issues. |
-| `GITHUB_TOKEN` | conditional secret | GitHub Issues/Contents token. | Тільки якщо Worker модерує GitHub Issues. |
-| `GUILD_APPLICATIONS_LABEL` | conditional | Label заявок. | Тільки якщо Worker модерує GitHub Issues. |
+| `FIREBASE_PROJECT_ID` | required для заявок | Firebase project id. | Так, якщо Worker створює/модерує заявки. |
+| `FIREBASE_CLIENT_EMAIL` | required secret | Service account email. | Так, якщо Worker створює/модерує заявки. |
+| `FIREBASE_PRIVATE_KEY` | required secret | Service account private key. | Так, якщо Worker створює/модерує заявки. |
+| `FIREBASE_APPLICATIONS_COLLECTION` | optional | Firestore-колекція заявок, default `guildApplications`. | Так, якщо потрібно відрізнити колекцію. |
 | `RAID_RULES_URL` | conditional | Посилання на правила рейдів у відповідях. | Якщо Worker відповідає на raid buttons. |
 | `RAID_TIME_ZONE` | conditional | Timezone рейдів. | Якщо Worker формує Discord timestamps. |
 | `DASHBOARD_URL` | conditional | Посилання назад у dashboard. | Якщо Worker показує dashboard links. |
@@ -77,14 +77,14 @@
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Concurrency видачі Discord ролей. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max concurrency видачі Discord ролей. |
 
-### GitHub, заявки, контент
+### GitHub-контент і Firebase-заявки
 
 | Variable | Обов’язковість | Опис |
 |---|---|---|
 | `GITHUB_OWNER` | required | GitHub owner/org. |
 | `GITHUB_REPO` | required | GitHub repository. |
-| `GITHUB_TOKEN` | required secret | Token із доступом до Issues і Contents. |
-| `GUILD_APPLICATIONS_LABEL` | required | Label GitHub Issues для заявок. |
+| `GITHUB_TOKEN` | required secret | Token для керування контентом GitHub Pages. |
+| `FIREBASE_APPLICATIONS_COLLECTION` | optional | Firestore-колекція нових заявок, default `guildApplications`. |
 | `GITHUB_CONTENT_BRANCH` | required для контенту | Гілка для news/guides/images. |
 | `GITHUB_BRANCH` | alias | Fallback alias для content branch. |
 | `NEXT_PUBLIC_SITE_BASE_URL` | required для preview | Публічний URL сайту. |
@@ -93,7 +93,7 @@
 | `APPLICATION_BULK_STATUS_CONCURRENCY` | optional | Concurrency масової модерації заявок. |
 | `APPLICATION_BULK_STATUS_MAX_CONCURRENCY` | optional | Max concurrency масової модерації. |
 
-### Firebase profiles/raids
+### Firebase profiles/raids/applications
 
 | Variable | Обов’язковість | Опис |
 |---|---|---|

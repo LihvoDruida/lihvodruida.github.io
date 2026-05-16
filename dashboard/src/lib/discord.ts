@@ -48,7 +48,7 @@ function buildFallbackEmbed(params: {
       `**Статус:** ${statusEmoji(params.status)} **${statusText(params.status)}**`,
       `**Джерело:** ${params.source === "dashboard" ? "Панель" : "Discord"}`,
       `**Модератор:** ${cleanText(params.moderator, 80)}`,
-      params.issueUrl ? `**Issue:** ${params.issueUrl}` : "",
+      params.issueUrl ? `**Заявка:** ${params.issueUrl}` : "",
     ].filter(Boolean).join("\n"),
     color: statusColor(params.status),
     footer: { text: "Mistblossom Vanguard • Applications" },
@@ -69,7 +69,7 @@ export async function editDiscordApplicationMessage(params: {
     return { ok: false, skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
   }
 
-  const ref = extractDiscordMessageRef(String(params.issue?.body || ""));
+  const ref = params.issue?.discord_message_ref || params.issue?.discord_ref || extractDiscordMessageRef(String(params.issue?.body || ""));
 
   if (!ref) {
     return { ok: false, skipped: true, reason: "Discord message marker is missing" };

@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const [rawItems, filterOptions] = await Promise.all([listApplications(url.searchParams), listApplicationFilterOptions()]);
-    const canSeeBattleTag = canViewApplicationBattleTag(session);
-    const items = canSeeBattleTag ? rawItems : sanitizeApplicationsForMentorViewer(rawItems);
+    const canSeeSensitiveFields = canViewApplicationBattleTag(session);
+    const items = canSeeSensitiveFields ? rawItems : sanitizeApplicationsForMentorViewer(rawItems);
     const counts = {
       all: items.length,
       review: items.filter((item) => item.status_key === "review").length,
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     };
 
     logDashboardEvent("debug", "applications.list.success", request, { count: items.length, userId: session?.id });
-    return NextResponse.json({ items, counts, classOptions: filterOptions.classes, access: { role: session?.role || null, canManageApplications: canManageApplications(session), canViewBattleTag: canSeeBattleTag } }, { headers: noStoreHeaders() });
+    return NextResponse.json({ items, counts, classOptions: filterOptions.classes, access: { role: session?.role || null, canManageApplications: canManageApplications(session), canViewBattleTag: canSeeSensitiveFields, canViewSensitiveFields: canSeeSensitiveFields } }, { headers: noStoreHeaders() });
   } catch (error) {
     logDashboardEvent("error", "applications.list.failed", request, { message: safeErrorMessage(error) });
     return NextResponse.json(

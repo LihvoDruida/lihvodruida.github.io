@@ -52,7 +52,7 @@ extra_js:
 
         <div class="hero-chip-row">
           <span class="application-chip">Retail</span>
-          <span class="application-chip">Будь який сервер/регіон</span>
+          <span class="application-chip">EU регіон</span>
           <span class="application-chip">Alliance/Horde</span>
           {% if guild_info.member_count %}<span class="application-chip">{{ guild_info.member_count }} учасників</span>{% endif %}
           <span class="application-chip">Рейди та Mythic+</span>
@@ -118,7 +118,7 @@ extra_js:
       <div class="application-panel__header">
         <span class="section-tag">Форма заявки</span>
         <h2>Швидка анкета для вступу</h2>
-        <p>Лише основна інформація: персонаж, регіон, реалм, фракція, клас і контакти. Без перевантаження та зайвих кроків.</p>
+        <p>Лише основна інформація: персонаж, реалм, фракція, клас і контакти. Регіон фіксований: EU.</p>
       </div>
 
       <form id="guild-application-form" class="guild-application-form" novalidate>
@@ -136,25 +136,9 @@ extra_js:
           </label>
         </div>
 
-        <div class="form-grid form-grid--two form-grid--selectors">
-          <div class="form-field">
-            <span class="field-label">Регіон <span class="field-required-note">Обов’язково</span></span>
-            <div class="custom-select" data-name="region" data-placeholder="Обери регіон">
-              <input type="hidden" name="region" value="">
-              <button type="button" class="custom-select__trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="custom-select__value">Обери регіон</span>
-                <span class="custom-select__icon" aria-hidden="true">⌄</span>
-              </button>
-              <div class="custom-select__menu" role="listbox" tabindex="-1">
-                <button type="button" class="custom-select__option" role="option" data-value="us">us</button>
-                <button type="button" class="custom-select__option" role="option" data-value="eu">eu</button>
-                <button type="button" class="custom-select__option" role="option" data-value="tw">tw</button>
-                <button type="button" class="custom-select__option" role="option" data-value="kr">kr</button>
-                <button type="button" class="custom-select__option" role="option" data-value="cn">cn</button>
-              </div>
-            </div>
-          </div>
+        <input type="hidden" name="region" value="eu">
 
+        <div class="form-grid form-grid--two form-grid--selectors">
           <div class="form-field">
             <span class="field-label">Фракція <span class="field-required-note">Обов’язково</span></span>
             <div class="custom-select" data-name="faction" data-placeholder="Обери фракцію">
@@ -263,7 +247,7 @@ extra_js:
           <div class="privacy-note__icon" aria-hidden="true">🔒</div>
           <div class="privacy-note__content">
             <strong class="privacy-note__title">Безпека персональних даних</strong>
-            <p>Починаючи з <strong>19.04.2026</strong>, приватні контактні дані із заявок <strong>не публікуються відкрито</strong>. Discord, BattleTag та інші персональні контакти використовуються лише для внутрішнього розгляду заявки й не відображаються публічно у списку заявок або в GitHub Issue.</p>
+            <p>Починаючи з <strong>19.04.2026</strong>, приватні контактні дані із заявок <strong>не публікуються відкрито</strong>. Discord, BattleTag та інші персональні контакти використовуються лише для внутрішнього розгляду заявки й не відображаються публічно у списку заявок. У dashboard їх бачать лише офіцери та адміни.</p>
           </div>
         </div>
 

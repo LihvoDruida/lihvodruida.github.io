@@ -24,7 +24,7 @@ extra_js:
         <div class="hero-chip-row">
           <span class="application-chip">Живий список</span>
           <span class="application-chip">Пошук за ніком</span>
-          <span class="application-chip">GitHub заявки</span>
+          <span class="application-chip">Firebase заявки</span>
         </div>
       </div>
 

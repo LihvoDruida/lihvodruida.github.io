@@ -5,7 +5,7 @@
 Mistblossom Vanguard Dashboard is a private guild administration panel. It handles:
 
 - Discord login and role-based access;
-- GitHub Issues applications;
+- Firebase Firestore applications;
 - member profiles;
 - Battle.net characters;
 - Discord server nickname format;
@@ -88,7 +88,7 @@ WOW_GUILD_NAME=Mistblossom Vanguard
 
 You need a token with:
 
-- Issues read/write;
+- Firestore application collection read/write;
 - Contents read/write if content admin is used.
 
 Variables:
@@ -199,7 +199,7 @@ WORKER_STATS_TOKEN=...
 INTERNAL_PROFILE_LOOKUP_TOKEN=...
 ```
 
-If Worker moderates GitHub Issues, also add:
+For Firebase application moderation, also add:
 
 ```env
 GITHUB_OWNER=...

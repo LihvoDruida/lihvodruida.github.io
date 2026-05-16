@@ -4,7 +4,7 @@
 
 The Dashboard is a private administration panel for the **Mistblossom Vanguard** guild. It combines member profiles, Battle.net characters, Discord server names, guild applications, raid announcements, Discord embeds, rules, and website content management.
 
-The project uses **Next.js App Router** as a server-side application. Profiles and raids are stored in **Firebase Firestore**, guild applications are read and moderated through **GitHub Issues**, and Discord actions are performed through Discord Bot API or a Cloudflare Worker.
+The project uses **Next.js App Router** as a server-side application. Profiles and raids are stored in **Firebase Firestore**, guild applications are read and moderated through **Firebase Firestore**, and Discord actions are performed through Discord Bot API or a Cloudflare Worker.
 
 ## 2. Roles
 
@@ -281,7 +281,7 @@ The raid page has live sync:
 
 ## 8. Guild applications
 
-Applications are read from GitHub Issues.
+Applications are read from Firebase Firestore.
 
 ### Supported features
 
@@ -292,12 +292,12 @@ Applications are read from GitHub Issues.
 - debounced search;
 - query params in the URL;
 - bulk status updates;
-- moderation comment in GitHub Issue;
+- moderation event in Firestore;
 - synchronized status labels.
 
 ### Data source
 
-GitHub Issues must have the `GUILD_APPLICATIONS_LABEL` label. The default is `guild-application`.
+Firebase applications are stored in the `FIREBASE_APPLICATIONS_COLLECTION` collection. The default is `guildApplications`.
 
 Statuses are stored as labels:
 
@@ -357,7 +357,7 @@ It checks:
 
 - Discord;
 - Battle.net;
-- GitHub Issues;
+- Firebase Firestore;
 - Firebase.
 
 Status can be refreshed manually and is also refreshed automatically about once per minute.

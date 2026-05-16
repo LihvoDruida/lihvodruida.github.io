@@ -123,7 +123,7 @@ Does not log out. Returns `405`, because logout must be `POST`.
 
 ### `GET /api/applications`
 
-Returns the GitHub Issues application list.
+Returns the Firebase Firestore application list.
 
 **Access:** officer/admin for full data and actions, including BattleTag; newcomer mentor for read-only data with BattleTag and source links removed.
 
@@ -167,7 +167,7 @@ Changes the status of one application.
 
 **Behavior:**
 
-- updates GitHub Issue status labels;
+- updates Firebase application status fields;
 - removes old/legacy status labels;
 - adds a moderation comment;
 - may close the issue depending on moderation module behavior.

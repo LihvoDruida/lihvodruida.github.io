@@ -5,7 +5,7 @@
 Mistblossom Vanguard Dashboard — приватна панель керування гільдією. Вона відповідає за:
 
 - Discord login і рольовий доступ;
-- заявки з GitHub Issues;
+- заявки з Firebase Firestore;
 - профілі учасників;
 - Battle.net персонажів;
 - Discord server nickname format;
@@ -88,7 +88,7 @@ WOW_GUILD_NAME=Mistblossom Vanguard
 
 Потрібен token із доступом:
 
-- Issues read/write;
+- доступ читання/запису до Firestore-колекції заявок;
 - Contents read/write, якщо використовується контент-адмінка.
 
 Змінні:
@@ -199,7 +199,7 @@ WORKER_STATS_TOKEN=...
 INTERNAL_PROFILE_LOOKUP_TOKEN=...
 ```
 
-Якщо Worker модерує GitHub Issues, додай також:
+Для Firebase-модерації заявок додай також:
 
 ```env
 GITHUB_OWNER=...

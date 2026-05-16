@@ -4,7 +4,7 @@ All secrets must remain server-side. Values with `NEXT_PUBLIC_*` are exposed to 
 
 ## Minimal production set
 
-A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `GUILD_APPLICATIONS_LABEL`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
+A full production deployment usually needs: `SESSION_SECRET`, `DASHBOARD_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `DASHBOARD_ALLOWED_HOSTS`, `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_APPLICATIONS_COLLECTION`, `BATTLENET_CLIENT_ID`, `BATTLENET_CLIENT_SECRET`, `WOW_GUILD_NAME`, `RAID_RULES_URL`, `RAID_TIME_ZONE`, `NEXT_PUBLIC_RAID_TIME_ZONE`.
 
 ## Shared with Cloudflare Worker
 
@@ -20,10 +20,10 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `INTERNAL_PROFILE_LOOKUP_TOKEN` | required for lookup | Worker calls `/api/profile/discord-lookup` or raid action endpoint. | Yes, must match. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Role assignment concurrency. | If Worker assigns roles. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max role assignment concurrency. | If Worker assigns roles. |
-| `GITHUB_OWNER` | conditional | GitHub owner for applications. | Only if Worker moderates GitHub Issues. |
-| `GITHUB_REPO` | conditional | GitHub repository for applications. | Only if Worker moderates GitHub Issues. |
-| `GITHUB_TOKEN` | conditional secret | GitHub Issues/Contents token. | Only if Worker moderates GitHub Issues. |
-| `GUILD_APPLICATIONS_LABEL` | conditional | Application label. | Only if Worker moderates GitHub Issues. |
+| `FIREBASE_PROJECT_ID` | required for applications | Firebase project id. | Yes, if Worker creates/moderates applications. |
+| `FIREBASE_CLIENT_EMAIL` | required secret | Service account email. | Yes, if Worker creates/moderates applications. |
+| `FIREBASE_PRIVATE_KEY` | required secret | Service account private key. | Yes, if Worker creates/moderates applications. |
+| `FIREBASE_APPLICATIONS_COLLECTION` | optional | Firestore application collection, default `guildApplications`. | Yes, if you need a custom collection. |
 | `RAID_RULES_URL` | conditional | Raid rules link in responses. | If Worker responds to raid buttons. |
 | `RAID_TIME_ZONE` | conditional | Raid timezone. | If Worker builds Discord timestamps. |
 | `DASHBOARD_URL` | conditional | Links back to the dashboard. | If Worker shows dashboard links. |
@@ -77,14 +77,14 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Discord role assignment concurrency. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max Discord role assignment concurrency. |
 
-### GitHub, applications, content
+### GitHub content and Firebase applications
 
 | Variable | Requirement | Description |
 |---|---|---|
 | `GITHUB_OWNER` | required | GitHub owner/org. |
 | `GITHUB_REPO` | required | GitHub repository. |
-| `GITHUB_TOKEN` | required secret | Token with Issues and Contents access. |
-| `GUILD_APPLICATIONS_LABEL` | required | GitHub Issues label for applications. |
+| `GITHUB_TOKEN` | required secret | Token for GitHub Pages content management. |
+| `FIREBASE_APPLICATIONS_COLLECTION` | optional | Firestore collection for new applications, default `guildApplications`. |
 | `GITHUB_CONTENT_BRANCH` | required for content | Branch for news/guides/images. |
 | `GITHUB_BRANCH` | alias | Fallback alias for content branch. |
 | `NEXT_PUBLIC_SITE_BASE_URL` | required for previews | Public website URL. |
@@ -93,7 +93,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `APPLICATION_BULK_STATUS_CONCURRENCY` | optional | Bulk application moderation concurrency. |
 | `APPLICATION_BULK_STATUS_MAX_CONCURRENCY` | optional | Max bulk moderation concurrency. |
 
-### Firebase profiles/raids
+### Firebase profiles/raids/applications
 
 | Variable | Requirement | Description |
 |---|---|---|

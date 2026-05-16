@@ -4,7 +4,7 @@
 
 Dashboard — це приватна адмін-панель для гільдії **Mistblossom Vanguard**. Вона об’єднує профілі учасників, Battle.net персонажів, Discord-імена, заявки до гільдії, рейди, Discord-embed повідомлення, правила та контент сайту.
 
-Проєкт побудований на **Next.js App Router**, працює як серверний застосунок і зберігає профілі/рейди у **Firebase Firestore**, заявки — у **GitHub Issues**, а Discord-дії виконує через Discord Bot API або через Cloudflare Worker.
+Проєкт побудований на **Next.js App Router**, працює як серверний застосунок і зберігає профілі/рейди у **Firebase Firestore**, заявки — у **Firebase Firestore**, а Discord-дії виконує через Discord Bot API або через Cloudflare Worker.
 
 ## 2. Основні ролі
 
@@ -281,7 +281,7 @@ Battle.net OAuth використовується для отримання пе
 
 ## 8. Заявки до гільдії
 
-Заявки читаються з GitHub Issues.
+Заявки читаються з Firebase Firestore.
 
 ### Що підтримується
 
@@ -292,12 +292,12 @@ Battle.net OAuth використовується для отримання пе
 - debounce пошуку;
 - query params у URL;
 - масова зміна статусів;
-- модераційний коментар у GitHub Issue;
+- модераційну подію в Firestore;
 - синхронізація статусних labels.
 
 ### Джерело даних
 
-GitHub Issues повинні мати label `GUILD_APPLICATIONS_LABEL`, за замовчуванням `guild-application`.
+Firebase-заявки зберігаються у колекції `FIREBASE_APPLICATIONS_COLLECTION`, за замовчуванням `guildApplications`.
 
 Статуси зберігаються через labels:
 
@@ -357,7 +357,7 @@ GitHub Issues повинні мати label `GUILD_APPLICATIONS_LABEL`, за з�
 
 - Discord;
 - Battle.net;
-- GitHub Issues;
+- Firebase Firestore;
 - Firebase.
 
 Статус оновлюється вручну або автоматично приблизно раз на хвилину.

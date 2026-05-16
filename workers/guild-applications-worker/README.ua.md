@@ -1,11 +1,11 @@
 # Guild Applications Worker
 
-Cloudflare Worker для **Mistblossom Vanguard**: заявки до гільдії, збереження заявок у GitHub Issues, Discord-кнопки модерації, кнопки правил, підпис на правила рейду, проксі для кнопок рейдових оголошень і статистика для адмін-панелі.
+Cloudflare Worker для **Mistblossom Vanguard**: заявки до гільдії, збереження заявок у Firebase Firestore, Discord-кнопки модерації, кнопки правил, підпис на правила рейду, проксі для кнопок рейдових оголошень і статистика для адмін-панелі.
 
 Worker з’єднує між собою:
 
 - публічний сайт гільдії, який надсилає заявки;
-- GitHub Issues, які використовуються як база заявок;
+- Firebase Firestore, який використовується як база заявок;
 - Discord, який використовується для повідомлень, кнопок модерації, правил, ролей і рейдів;
 - admin dashboard, який перевіряє профілі, main-персонажа, рейдові дії та читає статистику;
 - Cloudflare KV, який зберігає статистику правил і підписантів правил рейду.
@@ -24,10 +24,10 @@ English documentation is available in [`README.md`](README.md) and [`docs/en`](d
 
 | Route | Method | Призначення |
 |---|---:|---|
-| `/` | `GET` | Список заявок із GitHub Issues. |
+| `/` | `GET` | Список заявок із Firebase Firestore. |
 | `/` | `POST` | Створення заявки. |
-| `/api/guild-applications` | `GET` | Список заявок із GitHub Issues. |
-| `/api/guild-applications` | `POST` | Створення заявки, GitHub Issue і Discord-повідомлення. |
+| `/api/guild-applications` | `GET` | Список заявок із Firebase Firestore. |
+| `/api/guild-applications` | `POST` | Валідація і створення Firebase-заявки та Discord-повідомлення. |
 | `/api/discord-interactions` | `POST` | Discord interaction endpoint для кнопок заявок, правил, raid-rules signup і рейдових кнопок. |
 | `/api/discord-rules-stats` | `GET` | Статистика прийняття/відмови звичайних правил. Також може читати raid stats через `type=raid`. |
 | `/api/discord-raid-rules-stats` | `GET` | Статистика підписів під правилами рейду. |
@@ -80,7 +80,7 @@ wrangler deploy
 
 Для нормальної роботи потрібні:
 
-- `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` для GitHub Issues;
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_APPLICATIONS_COLLECTION` для Firestore-заявок;
 - `ALLOWED_ORIGINS` з origin публічного сайту й dashboard;
 - `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_GUILD_ID` для Discord bot/interactions;
 - `DISCORD_CHANNEL_ID`, якщо заявки мають публікуватися в Discord;

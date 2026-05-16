@@ -1,4 +1,6 @@
+import { FieldValue } from "firebase-admin/firestore";
 import { mapConcurrent } from "@/lib/concurrency";
+import { getFirebaseAdminDb } from "@/lib/firebaseAdmin";
 
 export const STATUS_LABELS = [
   "status:review",
@@ -59,6 +61,7 @@ export type RaiderIoApplicationData = {
 
 export type ApplicationItem = {
   [key: string]: unknown;
+  id?: string;
   number: number;
   title: string;
   state: string;
@@ -75,6 +78,7 @@ export type ApplicationItem = {
   class_name?: string;
   source?: string;
   availability?: string;
+  discord?: string | null;
   battle_tag?: string | null;
   avatar_url?: string | null;
   profile_url?: string | null;
@@ -239,10 +243,6 @@ export async function ensureApplicationLabels() {
     ensureGitHubLabel("status:accepted"),
     ensureGitHubLabel("status:declined"),
   ]);
-}
-
-export async function getIssue(issueNumber: number) {
-  return githubFetch(`/issues/${issueNumber}`);
 }
 
 export function getIssueStatusFromLabels(labels: Array<{ name?: string } | string>): ApplicationStatus {
@@ -577,7 +577,7 @@ export async function listIssues() {
 }
 
 
-const SENSITIVE_APPLICATION_FIELD_RE = /battle[_-]?tag|battletag|bnet[_-]?tag|discord[_-]?ref|discord[_-]?message[_-]?ref/i;
+const SENSITIVE_APPLICATION_FIELD_RE = /battle[_-]?tag|battletag|bnet[_-]?tag|^discord$|discord[_-]?id|discord[_-]?tag|discord[_-]?ref|discord[_-]?message[_-]?ref/i;
 const BATTLE_TAG_TEXT_RE = /(^|[^\p{L}\p{N}_-])([\p{L}\p{N}_-]{2,32}#\d{3,6})(?=$|[^\p{L}\p{N}_-])/gu;
 
 function redactApplicationText(value: string) {
@@ -603,6 +603,7 @@ export function sanitizeApplicationForMentorViewer(item: ApplicationItem): Appli
   return {
     ...sanitized,
     html_url: "",
+    discord: null,
     battle_tag: null,
     discord_ref: null,
     discord_message_ref: null,
@@ -621,9 +622,121 @@ export function sanitizeApplicationsForMentorViewer(items: ApplicationItem[]): A
 export const sanitizeApplicationForReadOnlyViewer = sanitizeApplicationForMentorViewer;
 export const sanitizeApplicationsForReadOnlyViewer = sanitizeApplicationsForMentorViewer;
 
+
+function applicationsCollectionName() {
+  return process.env.FIREBASE_APPLICATIONS_COLLECTION || process.env.GUILD_APPLICATIONS_FIREBASE_COLLECTION || "guildApplications";
+}
+
+function normalizeTimestamp(value: any): string | undefined {
+  if (!value) return undefined;
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return new Date(value).toISOString();
+  if (typeof value?.toDate === "function") return value.toDate().toISOString();
+  if (typeof value?._seconds === "number") return new Date(value._seconds * 1000).toISOString();
+  return undefined;
+}
+
+function normalizeApplicationNumber(value: unknown, fallback: string) {
+  const number = Number(value);
+  if (Number.isInteger(number) && number > 0) return number;
+  const fromId = Number(String(fallback || "").replace(/\D/g, ""));
+  return Number.isInteger(fromId) && fromId > 0 ? fromId : Date.now();
+}
+
+function labelsForFirebaseStatus(status: ApplicationStatus) {
+  return [process.env.GUILD_APPLICATIONS_LABEL || "guild-application", statusLabel(status)];
+}
+
+function buildFirebaseApplicationBody(item: ApplicationItem) {
+  return [
+    "### Персонаж",
+    `- Регіон: ${item.region || "eu"}`,
+    `- Ім’я персонажа: ${item.character_name || ""}`,
+    `- Фракція: ${item.faction || ""}`,
+    `- Реалм: ${item.realm || ""}`,
+    `- Клас: ${item.class_name || "Не вказано"}`,
+    "",
+    "### Контакти",
+    `- Discord: ${item.discord || "Приховано"}`,
+    `- BattleTag: ${item.battle_tag || "Приховано"}`,
+    `- Звідки дізнався: ${item.source || "Не вказано"}`,
+    "",
+    "### Коли зазвичай грає",
+    item.availability || "Не вказано",
+    item.discord_message_ref?.channel_id && item.discord_message_ref?.message_id
+      ? `\n<!-- mistblossom:discord ${JSON.stringify({ channel_id: item.discord_message_ref.channel_id, message_id: item.discord_message_ref.message_id })} -->`
+      : "",
+  ].filter(Boolean).join("\n");
+}
+
+function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
+  const data = (doc.data() || {}) as Record<string, any>;
+  const status = normalizeStatus(String(data.status_key || data.status || "review"));
+  const number = normalizeApplicationNumber(data.number, doc.id);
+  const createdAt = normalizeTimestamp(data.created_at || data.createdAt || data.submitted_at || data.submittedAt) || new Date(0).toISOString();
+  const updatedAt = normalizeTimestamp(data.updated_at || data.updatedAt) || createdAt;
+  const closedAt = normalizeTimestamp(data.closed_at || data.closedAt) || null;
+  const discordMessageRef = data.discord_message_ref || data.discordMessageRef || null;
+
+  const item: ApplicationItem = {
+    id: doc.id,
+    number,
+    title: String(data.title || `Заявка до гільдії: ${data.character_name || data.characterName || "Персонаж"}`),
+    state: String(data.state || (status === "review" ? "open" : "closed")),
+    html_url: String(data.html_url || data.htmlUrl || ""),
+    created_at: createdAt,
+    updated_at: updatedAt,
+    closed_at: closedAt,
+    status_key: status,
+    status_text: statusText(status),
+    character_name: String(data.character_name || data.characterName || ""),
+    realm: String(data.realm || ""),
+    region: String(data.region || "eu"),
+    faction: String(data.faction || ""),
+    class_name: String(data.class_name || data.className || ""),
+    source: String(data.source || ""),
+    availability: String(data.availability || ""),
+    discord: data.discord ? String(data.discord) : null,
+    battle_tag: data.battle_tag || data.battleTag ? String(data.battle_tag || data.battleTag) : null,
+    avatar_url: String(data.avatar_url || data.avatarUrl || data.raider_io?.thumbnail_url || data.raiderIo?.thumbnail_url || "") || null,
+    profile_url: String(data.profile_url || data.profileUrl || data.raider_io?.profile_url || data.raiderIo?.profile_url || "") || null,
+    raider_io: (data.raider_io || data.raiderIo || null) as RaiderIoApplicationData | null,
+    raider_io_error: data.raider_io_error || data.raiderIoError || data.verification?.raider_io?.error || null,
+    discord_ref: discordMessageRef,
+    discord_message_ref: discordMessageRef,
+    labels: Array.isArray(data.labels) ? data.labels.map((label: unknown) => String(label)) : labelsForFirebaseStatus(status),
+  };
+
+  if (!item.raider_io && data.verification?.raider_io?.data) item.raider_io = data.verification.raider_io.data;
+  if (!item.avatar_url && item.raider_io?.thumbnail_url) item.avatar_url = item.raider_io.thumbnail_url;
+  if (!item.profile_url && item.raider_io?.profile_url) item.profile_url = item.raider_io.profile_url;
+  return item;
+}
+
+async function listFirebaseApplicationsBase() {
+  const db = getFirebaseAdminDb();
+  const collection = db.collection(applicationsCollectionName());
+  const limit = Math.max(1, Math.min(Number(process.env.FIREBASE_APPLICATIONS_LIST_LIMIT || 300), 1000));
+  const snapshot = await collection.orderBy("createdAtMs", "desc").limit(limit).get().catch(async (error) => {
+    if (String(error?.message || "").toLowerCase().includes("createdatms")) {
+      return collection.limit(limit).get();
+    }
+    throw error;
+  });
+  return snapshot.docs.map(mapFirebaseApplicationDoc);
+}
+
+async function findFirebaseApplicationDoc(issueNumber: number) {
+  const db = getFirebaseAdminDb();
+  const collection = db.collection(applicationsCollectionName());
+  const snapshot = await collection.where("number", "==", Number(issueNumber)).limit(1).get();
+  if (!snapshot.empty) return snapshot.docs[0];
+  const fallback = await collection.doc(`application-${issueNumber}`).get();
+  return fallback.exists ? fallback : null;
+}
+
 export async function listApplicationFilterOptions() {
-  const issues = await listIssues();
-  const items = issues.map(mapApplicationIssue);
+  const items = await listFirebaseApplicationsBase();
   return {
     classes: Array.from(new Set(items.map((item) => String(item.class_name || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "uk")),
     total: items.length,
@@ -637,8 +750,7 @@ function timestampForApplicationSort(item: ApplicationItem, key: "created" | "up
 }
 
 export async function listApplications(params?: URLSearchParams) {
-  const issues = await listIssues();
-  let items = issues.map(mapApplicationIssue);
+  let items = await listFirebaseApplicationsBase();
 
   const status = params?.get("status") || "";
   const query = (params?.get("q") || "").trim().toLowerCase();
@@ -673,11 +785,12 @@ export async function listApplications(params?: URLSearchParams) {
   const { results } = await mapConcurrent(
     items,
     async (item) => {
+      if (item.raider_io || item.raider_io_error) return item;
       const rio = await fetchRaiderIoForApplication(item);
       return {
         ...item,
-        avatar_url: rio.data?.thumbnail_url || null,
-        profile_url: rio.data?.profile_url || null,
+        avatar_url: rio.data?.thumbnail_url || item.avatar_url || null,
+        profile_url: rio.data?.profile_url || item.profile_url || null,
         raider_io: rio.data,
         raider_io_error: rio.error,
       };
@@ -695,6 +808,18 @@ export async function listApplications(params?: URLSearchParams) {
   return results;
 }
 
+export async function getIssue(issueNumber: number) {
+  const doc = await findFirebaseApplicationDoc(issueNumber);
+  if (!doc) throw new Error("Заявку не знайдено у Firebase.");
+  const item = mapFirebaseApplicationDoc(doc);
+  return {
+    ...item,
+    body: buildFirebaseApplicationBody(item),
+    html_url: item.html_url || "",
+    labels: item.labels.map((name) => ({ name })),
+  };
+}
+
 export async function setIssueStatus(params: {
   issueNumber: number;
   status: ApplicationStatus;
@@ -703,53 +828,29 @@ export async function setIssueStatus(params: {
 }) {
   const issueNumber = Number(params.issueNumber);
   if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
-    throw new Error("Invalid issue number");
+    throw new Error("Invalid application number");
   }
 
   const status = normalizeStatus(params.status);
-  await ensureApplicationLabels();
+  const doc = await findFirebaseApplicationDoc(issueNumber);
+  if (!doc) throw new Error("Заявку не знайдено у Firebase.");
 
   const nextLabel = statusLabel(status);
-
-  await mapConcurrent(
-    STATUS_LABELS.filter((label) => label !== nextLabel),
-    async (label) => {
-      await githubFetch(`/issues/${issueNumber}/labels/${encodeURIComponent(label)}`, {
-        method: "DELETE",
-      }).catch((error) => {
-        if (
-          !String(error?.message || "").toLowerCase().includes("not found") &&
-          !isMissingLabelError(error)
-        ) {
-          throw error;
-        }
-      });
-    },
-    { profile: "write", envKey: "GITHUB_STATUS_CLEANUP_CONCURRENCY", max: 6 },
-  );
-
-  await githubFetch(`/issues/${issueNumber}/labels`, {
-    method: "POST",
-    body: JSON.stringify({ labels: [nextLabel] }),
-  });
-
-  if (status === "accepted" || status === "declined") {
-    await githubFetch(`/issues/${issueNumber}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        state: "closed",
-        state_reason: "completed",
-      }),
-    });
-  }
-
-  await githubFetch(`/issues/${issueNumber}/comments`, {
-    method: "POST",
-    body: JSON.stringify({
-      body: [
-        `${statusEmoji(status)} Статус заявки змінено на **${statusText(status)}** через ${params.source}.`,
-        `Модератор: ${params.moderator}`,
-      ].join("\n"),
+  const now = new Date().toISOString();
+  await doc.ref.update({
+    status,
+    status_key: status,
+    status_text: statusText(status),
+    state: status === "review" ? "open" : "closed",
+    closed_at: status === "review" ? null : now,
+    updated_at: now,
+    updatedAtMs: Date.now(),
+    labels: labelsForFirebaseStatus(status),
+    moderation_events: FieldValue.arrayUnion({
+      status,
+      moderator: params.moderator,
+      source: params.source,
+      at: now,
     }),
   });
 

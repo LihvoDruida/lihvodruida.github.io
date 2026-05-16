@@ -11,7 +11,7 @@ Private dashboard panel for the **Mistblossom Vanguard** guild: applications, pr
 - Character data auto-refresh before raid signup.
 - Raid announcements with Discord signup buttons.
 - Live raid page updates without manual refresh.
-- Guild applications through GitHub Issues.
+- Guild applications through Firebase Firestore.
 - Dynamic application filters without full page reload.
 - Discord embed/rules editor with live preview, limits, and mobile/desktop preview.
 - Content admin for website news and guides.

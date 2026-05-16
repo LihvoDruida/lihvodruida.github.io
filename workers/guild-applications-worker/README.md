@@ -1,11 +1,11 @@
 # Guild Applications Worker
 
-Cloudflare Worker for **Mistblossom Vanguard** guild applications, GitHub Issue storage, Discord application moderation buttons, Discord rules buttons, raid-rules signups, raid announcement button proxying, and dashboard-facing statistics.
+Cloudflare Worker for **Mistblossom Vanguard** guild applications, Firebase Firestore application storage, Discord application moderation buttons, Discord rules buttons, raid-rules signups, raid announcement button proxying, and dashboard-facing statistics.
 
 This Worker is designed to sit between:
 
 - the public guild site that submits applications;
-- GitHub Issues, used as the application database;
+- Firebase Firestore, used as the application database;
 - Discord, used for notifications, moderation buttons, rules buttons, role assignment and raid buttons;
 - the admin dashboard, used for profile checks, raid actions and statistics;
 - Cloudflare KV, used for rules statistics and raid-rules signup records.
@@ -24,10 +24,10 @@ Ukrainian documentation is available in [`README.ua.md`](README.ua.md) and [`doc
 
 | Route | Method | Purpose |
 |---|---:|---|
-| `/` | `GET` | List guild applications from GitHub Issues. |
+| `/` | `GET` | List guild applications from Firebase Firestore. |
 | `/` | `POST` | Create a guild application. |
-| `/api/guild-applications` | `GET` | List guild applications from GitHub Issues. |
-| `/api/guild-applications` | `POST` | Create a guild application, GitHub Issue and Discord notification. |
+| `/api/guild-applications` | `GET` | List guild applications from Firebase Firestore. |
+| `/api/guild-applications` | `POST` | Validate and create a Firebase guild application plus Discord notification. |
 | `/api/discord-interactions` | `POST` | Discord interaction endpoint for application buttons, rules buttons, raid-rules signup and raid attendance buttons. |
 | `/api/discord-rules-stats` | `GET` | Read normal guild rules accept/decline statistics. Can also proxy raid stats with `type=raid`. |
 | `/api/discord-raid-rules-stats` | `GET` | Read raid-rules signup statistics. |
@@ -80,7 +80,7 @@ wrangler deploy
 
 At minimum, production needs:
 
-- `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` for GitHub Issues;
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_APPLICATIONS_COLLECTION` for Firestore applications;
 - `ALLOWED_ORIGINS` with the public site and admin dashboard origins;
 - `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_GUILD_ID` for Discord bot/interactions;
 - `DISCORD_CHANNEL_ID` if application notifications must be posted to Discord;

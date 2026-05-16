@@ -123,7 +123,7 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 ### `GET /api/applications`
 
-Повертає список заявок із GitHub Issues.
+Повертає список заявок із Firebase Firestore.
 
 **Доступ:** officer/admin для повних даних і дій, включно з BattleTag; наставник новачків для read-only перегляду без BattleTag і посилань на джерело заявки.
 
@@ -167,7 +167,7 @@ Emergency login через `ADMIN_DASHBOARD_TOKEN`.
 
 **Що робить:**
 
-- оновлює status labels у GitHub Issue;
+- оновлює статус заявки у Firebase Firestore;
 - прибирає старі/legacy status labels;
 - додає модераційний коментар;
 - може закрити issue залежно від логіки moderation module.

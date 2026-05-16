@@ -3,6 +3,8 @@ const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
 const DEFAULT_FILTERED_LIST_PAGES = 3;
 const MAX_GITHUB_LIST_PAGES = 5;
+let firebaseAuthCache = { accessToken: "", expiresAt: 0 };
+let battleNetAuthCache = { accessToken: "", expiresAt: 0, region: "" };
 
 
 const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels"]);
@@ -118,6 +120,12 @@ function envDiagnostics(env) {
     github_token: Boolean(env.GITHUB_TOKEN),
     github_owner: Boolean(env.GITHUB_OWNER),
     github_repo: Boolean(env.GITHUB_REPO),
+    firebase_project_id: Boolean(env.FIREBASE_PROJECT_ID),
+    firebase_client_email: Boolean(env.FIREBASE_CLIENT_EMAIL),
+    firebase_private_key: Boolean(env.FIREBASE_PRIVATE_KEY),
+    firebase_applications_collection: firebaseApplicationsCollection(env),
+    battlenet_client_id: Boolean(env.BATTLENET_CLIENT_ID || env.BATTLE_NET_CLIENT_ID || env.BLIZZARD_CLIENT_ID),
+    battlenet_client_secret: Boolean(env.BATTLENET_CLIENT_SECRET || env.BATTLE_NET_CLIENT_SECRET || env.BLIZZARD_CLIENT_SECRET),
     guild_applications_label: env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL,
     discord_bot_token: Boolean(env.DISCORD_BOT_TOKEN),
     discord_channel_id: Boolean(env.DISCORD_CHANNEL_ID),
@@ -1040,7 +1048,7 @@ function composeSourceValue(sourceCreator, sourcePlatform, sourceOther, sourceFa
 
 function sanitizePayload(payload) {
   return {
-    region: cleanText(payload.region, 8).toLowerCase(),
+    region: "eu",
     characterName: cleanText(payload.characterName, 60),
     faction: cleanText(payload.faction, 24),
     realm: cleanText(payload.realm, 60),
@@ -1062,7 +1070,6 @@ function sanitizePayload(payload) {
 
 function validateApplication(payload) {
   if (
-    !payload.region ||
     !payload.characterName ||
     !payload.faction ||
     !payload.realm ||
@@ -1083,8 +1090,13 @@ function validateApplication(payload) {
     }
   }
 
+  const battleTagFormat = /^[\p{L}\p{N}_-]{2,32}#\d{3,6}$/u;
   if (payload.faction.toLowerCase() === "horde" && !payload.battleTag) {
     return "Для фракції Horde поле BattleTag є обов’язковим.";
+  }
+
+  if (payload.battleTag && !battleTagFormat.test(payload.battleTag)) {
+    return "BattleTag має бути у форматі Rebell#2802 або порожнім, якщо це не Horde.";
   }
 
   return null;
@@ -1359,6 +1371,98 @@ async function fetchRaiderIoProfile(payload) {
   }
 }
 
+
+function battleNetClient(env) {
+  const clientId = String(env.BATTLENET_CLIENT_ID || env.BATTLE_NET_CLIENT_ID || env.BLIZZARD_CLIENT_ID || "").trim();
+  const clientSecret = String(env.BATTLENET_CLIENT_SECRET || env.BATTLE_NET_CLIENT_SECRET || env.BLIZZARD_CLIENT_SECRET || "").trim();
+  return { clientId, clientSecret, ok: Boolean(clientId && clientSecret) };
+}
+
+function battleNetSlug(value) {
+  return String(value || "")
+    .normalize("NFC")
+    .trim()
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^\p{L}\p{N}-]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function getBattleNetAccessToken(env, region = "eu") {
+  const { clientId, clientSecret, ok } = battleNetClient(env);
+  if (!ok) return { ok: false, error: "Battle.net API не налаштовано." };
+  const normalizedRegion = cleanText(region, 8).toLowerCase() || "eu";
+  if (battleNetAuthCache.accessToken && battleNetAuthCache.region === normalizedRegion && battleNetAuthCache.expiresAt > Date.now() + 60_000) {
+    return { ok: true, accessToken: battleNetAuthCache.accessToken };
+  }
+  const response = await fetch(`https://${normalizedRegion}.battle.net/oauth/token`, {
+    method: "POST",
+    headers: {
+      authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+      "content-type": "application/x-www-form-urlencoded",
+      accept: "application/json",
+    },
+    body: new URLSearchParams({ grant_type: "client_credentials" }),
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok || !data?.access_token) {
+    return { ok: false, error: data?.error_description || data?.error || `Battle.net auth HTTP ${response.status}` };
+  }
+  battleNetAuthCache = {
+    accessToken: data.access_token,
+    region: normalizedRegion,
+    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 3600) - 60) * 1000,
+  };
+  return { ok: true, accessToken: battleNetAuthCache.accessToken };
+}
+
+async function fetchBattleNetCharacterProfile(env, payload) {
+  const startedAt = nowMs();
+  const region = cleanText(payload.region || "eu", 8).toLowerCase() || "eu";
+  const realmSlug = battleNetSlug(payload.realm);
+  const characterSlug = battleNetSlug(payload.characterName);
+  if (!realmSlug || !characterSlug) {
+    return { ok: false, error: "Не вистачає імені персонажа або реалму для Battle.net." };
+  }
+  const token = await getBattleNetAccessToken(env, region);
+  if (!token.ok) return token;
+  const locale = cleanText(env.BATTLENET_LOCALE || env.BATTLE_NET_LOCALE || env.BLIZZARD_LOCALE || "en_GB", 16) || "en_GB";
+  const url = `https://${region}.api.blizzard.com/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(characterSlug)}?namespace=profile-${region}&locale=${encodeURIComponent(locale)}`;
+  try {
+    const response = await fetch(url, {
+      headers: { authorization: `Bearer ${token.accessToken}`, accept: "application/json" },
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      const message = cleanText(data?.detail || data?.message || data?.reason || "", 160) || `HTTP ${response.status}`;
+      logWorkerEvent("warn", "battlenet.character.failed", { status: response.status, message, region, realmSlug, characterSlug, ms: elapsedMs(startedAt) });
+      return { ok: false, error: `Battle.net: ${message}.` };
+    }
+    logWorkerEvent("info", "battlenet.character.ok", { region, realmSlug, characterSlug, ms: elapsedMs(startedAt) });
+    return { ok: true, data: { id: data?.id || null, name: data?.name || payload.characterName, realm: data?.realm?.slug || realmSlug, level: data?.level || null } };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? `Battle.net: ${error.message}` : "Battle.net не відповів." };
+  }
+}
+
+async function verifyApplicationCharacter(env, payload) {
+  const [raiderIo, battlenet] = await Promise.all([
+    fetchRaiderIoProfile(payload),
+    fetchBattleNetCharacterProfile(env, payload),
+  ]);
+  if (raiderIo.ok || battlenet.ok) {
+    return { ok: true, raider_io: raiderIo, battlenet };
+  }
+  const errors = [raiderIo.error, battlenet.error].filter(Boolean).join(" ");
+  return {
+    ok: false,
+    raider_io: raiderIo,
+    battlenet,
+    error: `Персонажа ${payload.characterName}-${payload.realm} в EU не підтверджено через Raider.IO або Battle.net. ${errors}`.trim(),
+  };
+}
+
 function buildRaiderIoEmbedFields(raiderIoResult) {
   if (!raiderIoResult?.ok) {
     const errorText = limitText(
@@ -1432,7 +1536,7 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
 
   const description = [
     `**Статус:** ${escapeDiscordMarkdown(statusText)}`,
-    issueUrl ? `**Issue:** ${issueUrl}` : "",
+    issueUrl ? `**Заявка:** ${issueUrl}` : "",
   ]
     .filter(Boolean)
     .join("\n")
@@ -1460,13 +1564,7 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
         },
         {
           name: "Контакти",
-          value: limitText(
-            [
-              `**Discord:** ${formatCopyableValue(payload.discord)}`,
-              `**BattleTag:** ${formatCopyableValue(payload.battleTag)}`,
-            ].join("\n"),
-            1024
-          ),
+          value: "Discord і BattleTag приховані у Discord-повідомленні. Їх видно тільки офіцерам та адмінам у dashboard.",
           inline: false,
         },
         {
@@ -1594,7 +1692,7 @@ function buildStatusUpdateContent(issueNumber, statusKey, moderator) {
     `📋 **Заявка #${issueNumber} оновлена**`,
     `> Статус: ${icon} **${status.label}**`,
     `> Модератор: 👤 **${moderatorLabel}**`,
-    `> GitHub Issue: 🔒 **закрито**`,
+    `> Firebase-заявка: 🔒 **закрито**`,
   ].join("\n");
 }
 
@@ -1932,10 +2030,6 @@ const APPLICATION_STATUS_LABELS = [
   "status:review",
   "status:accepted",
   "status:declined",
-  "status:approved",
-  "status:rejected",
-
-  // Legacy broken labels from older builds.
   "statusreview",
   "statusaccepted",
   "statusdeclined",
@@ -1963,69 +2057,273 @@ function getStatusComment(status, moderator) {
   return `🔎 Заявку повернуто на розгляд через Discord. Модератор: ${moderatorLabel}`;
 }
 
-async function removeIssueLabelIfExists(env, issueNumber, label) {
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
-    { method: "DELETE" }
-  );
-
-  if (response.ok || response.status === 404) return;
-
-  const { raw, data } = await parseJsonResponse(response);
-  throw new Error(data?.message || raw || `Не вдалося прибрати label ${label}.`);
+function firebaseApplicationsCollection(env) {
+  return String(env.FIREBASE_APPLICATIONS_COLLECTION || env.GUILD_APPLICATIONS_FIREBASE_COLLECTION || "guildApplications").trim() || "guildApplications";
 }
 
+function firebaseProjectId(env) {
+  return String(env.FIREBASE_PROJECT_ID || "").trim();
+}
 
-async function fetchGithubIssue(env, issueNumber) {
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}`
-  );
+function normalizeFirebasePrivateKey(value) {
+  return String(value || "").replace(/\\n/g, "\n").replace(/^"|"$/g, "").trim();
+}
 
-  const { raw, data } = await parseJsonResponse(response);
-
-  if (!response.ok) {
-    throw new Error(data?.message || raw || "Не вдалося отримати заявку з GitHub.");
+function requireFirebaseConfig(env) {
+  const projectId = firebaseProjectId(env);
+  const clientEmail = String(env.FIREBASE_CLIENT_EMAIL || "").trim();
+  const privateKey = normalizeFirebasePrivateKey(env.FIREBASE_PRIVATE_KEY);
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error("Firebase для заявок не налаштовано.");
   }
+  return { projectId, clientEmail, privateKey };
+}
 
+function base64UrlEncodeBytes(bytes) {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64UrlEncodeString(value) {
+  return base64UrlEncodeBytes(new TextEncoder().encode(value));
+}
+
+function pemToArrayBuffer(pem) {
+  const body = String(pem || "")
+    .replace(/-----BEGIN PRIVATE KEY-----/g, "")
+    .replace(/-----END PRIVATE KEY-----/g, "")
+    .replace(/\s+/g, "");
+  const binary = atob(body);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+async function createFirebaseJwt(env) {
+  const { clientEmail, privateKey } = requireFirebaseConfig(env);
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "RS256", typ: "JWT" };
+  const payload = {
+    iss: clientEmail,
+    scope: "https://www.googleapis.com/auth/datastore",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  };
+  const signingInput = `${base64UrlEncodeString(JSON.stringify(header))}.${base64UrlEncodeString(JSON.stringify(payload))}`;
+  const key = await crypto.subtle.importKey(
+    "pkcs8",
+    pemToArrayBuffer(privateKey),
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(signingInput));
+  return `${signingInput}.${base64UrlEncodeBytes(new Uint8Array(signature))}`;
+}
+
+async function getFirebaseAccessToken(env) {
+  if (firebaseAuthCache.accessToken && firebaseAuthCache.expiresAt > Date.now() + 60_000) {
+    return firebaseAuthCache.accessToken;
+  }
+  const assertion = await createFirebaseJwt(env);
+  const body = new URLSearchParams({
+    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    assertion,
+  });
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok || !data?.access_token) {
+    throw new Error(data?.error_description || data?.error || `Firebase auth HTTP ${response.status}`);
+  }
+  firebaseAuthCache = {
+    accessToken: data.access_token,
+    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 3600) - 60) * 1000,
+  };
+  return firebaseAuthCache.accessToken;
+}
+
+function firestoreBaseUrl(env) {
+  const { projectId } = requireFirebaseConfig(env);
+  return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents`;
+}
+
+function firestoreDocumentUrl(env, docId) {
+  return `${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}/${encodeURIComponent(docId)}`;
+}
+
+function firestoreValue(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return { nullValue: "NULL_VALUE" };
+  if (typeof value === "boolean") return { booleanValue: value };
+  if (typeof value === "number") {
+    if (Number.isInteger(value)) return { integerValue: String(value) };
+    return { doubleValue: value };
+  }
+  if (typeof value === "string") return { stringValue: value };
+  if (Array.isArray(value)) {
+    return { arrayValue: { values: value.map(firestoreValue).filter(Boolean) } };
+  }
+  if (typeof value === "object") {
+    return { mapValue: { fields: firestoreFields(value) } };
+  }
+  return { stringValue: String(value) };
+}
+
+function firestoreFields(object) {
+  return Object.fromEntries(
+    Object.entries(object || {})
+      .map(([key, value]) => [key, firestoreValue(value)])
+      .filter(([, value]) => Boolean(value))
+  );
+}
+
+function parseFirestoreValue(value) {
+  if (!value || typeof value !== "object") return null;
+  if ("stringValue" in value) return value.stringValue;
+  if ("integerValue" in value) return Number(value.integerValue);
+  if ("doubleValue" in value) return Number(value.doubleValue);
+  if ("booleanValue" in value) return Boolean(value.booleanValue);
+  if ("timestampValue" in value) return value.timestampValue;
+  if ("nullValue" in value) return null;
+  if ("arrayValue" in value) return (value.arrayValue.values || []).map(parseFirestoreValue);
+  if ("mapValue" in value) return parseFirestoreFields(value.mapValue.fields || {});
+  return null;
+}
+
+function parseFirestoreFields(fields) {
+  return Object.fromEntries(Object.entries(fields || {}).map(([key, value]) => [key, parseFirestoreValue(value)]));
+}
+
+function parseFirestoreDocument(document) {
+  const name = String(document?.name || "");
+  const id = name.split("/").pop() || "";
+  return { id, ...parseFirestoreFields(document?.fields || {}) };
+}
+
+async function firebaseFetch(env, url, init = {}) {
+  const token = await getFirebaseAccessToken(env);
+  const response = await fetch(url, {
+    ...init,
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json; charset=utf-8",
+      accept: "application/json",
+      ...(init.headers || {}),
+    },
+  });
+  const raw = await response.text().catch(() => "");
+  let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+  if (!response.ok) {
+    throw new Error(data?.error?.message || raw || `Firebase HTTP ${response.status}`);
+  }
   return data;
 }
 
-async function closeGithubIssue(env, issueNumber, status) {
-  if (![STATUS.ACCEPTED.key, STATUS.DECLINED.key].includes(status)) return;
+function nextApplicationNumber() {
+  const random = Math.floor(100 + Math.random() * 900);
+  return Number(`${Date.now()}${random}`);
+}
 
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        state: "closed",
-        state_reason: status === STATUS.ACCEPTED.key ? "completed" : "not_planned",
-      }),
-    }
-  );
+function labelsForApplicationStatus(status) {
+  return [DEFAULT_LABEL, getTargetStatusLabel(status)];
+}
 
-  if (!response.ok) {
-    const { raw, data } = await parseJsonResponse(response);
-    throw new Error(data?.message || raw || "Статус змінено, але issue не закрито.");
+async function createFirebaseApplication(env, payload, verification) {
+  const number = nextApplicationNumber();
+  const docId = `application-${number}`;
+  const now = new Date().toISOString();
+  const rioData = verification?.raider_io?.ok ? verification.raider_io.data : null;
+  const data = {
+    number,
+    title: `Заявка до гільдії: ${payload.characterName}`,
+    status: STATUS.REVIEW.key,
+    status_key: STATUS.REVIEW.key,
+    status_text: STATUS.REVIEW.label,
+    state: "open",
+    labels: labelsForApplicationStatus(STATUS.REVIEW.key),
+    region: "eu",
+    character_name: payload.characterName,
+    realm: payload.realm,
+    faction: payload.faction,
+    class_name: payload.className || "",
+    discord: payload.discord || "",
+    battle_tag: payload.battleTag || "",
+    source: payload.source || "",
+    availability: payload.availability || "",
+    avatar_url: rioData?.thumbnail_url || "",
+    profile_url: rioData?.profile_url || "",
+    raider_io: rioData || null,
+    raider_io_error: verification?.raider_io?.ok ? null : verification?.raider_io?.error || null,
+    verification: {
+      raider_io: verification?.raider_io || null,
+      battlenet: verification?.battlenet || null,
+    },
+    created_at: now,
+    updated_at: now,
+    closed_at: null,
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now(),
+  };
+
+  const document = await firebaseFetch(env, firestoreDocumentUrl(env, docId), {
+    method: "PATCH",
+    body: JSON.stringify({ fields: firestoreFields(data) }),
+  });
+
+  return {
+    id: docId,
+    ...data,
+    body: buildIssueBody(payload),
+    html_url: "",
+    created_at: now,
+    updated_at: now,
+    closed_at: null,
+    number,
+    labels: data.labels.map((name) => ({ name })),
+    firestore: parseFirestoreDocument(document),
+  };
+}
+
+async function getFirebaseApplication(env, applicationNumber) {
+  const cleanNumber = Number(applicationNumber);
+  if (!Number.isInteger(cleanNumber) || cleanNumber <= 0) throw new Error("Некоректний номер заявки.");
+  try {
+    const document = await firebaseFetch(env, firestoreDocumentUrl(env, `application-${cleanNumber}`));
+    return parseFirestoreDocument(document);
+  } catch (error) {
+    throw new Error("Заявку не знайдено у Firebase.");
   }
 }
-async function createStatusComment(env, issueNumber, status, moderator) {
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issueNumber}/comments`,
-    {
-      method: "POST",
-      body: JSON.stringify({ body: getStatusComment(status, moderator) }),
-    }
-  );
 
-  if (!response.ok) {
-    const { raw, data } = await parseJsonResponse(response);
-    throw new Error(data?.message || raw || "Статус змінено, але коментар не створено.");
-  }
+async function patchFirebaseApplication(env, applicationNumber, patch) {
+  const cleanNumber = Number(applicationNumber);
+  if (!Number.isInteger(cleanNumber) || cleanNumber <= 0) throw new Error("Некоректний номер заявки.");
+  const url = new URL(firestoreDocumentUrl(env, `application-${cleanNumber}`));
+  for (const field of Object.keys(patch)) url.searchParams.append("updateMask.fieldPaths", field);
+  return firebaseFetch(env, url.toString(), {
+    method: "PATCH",
+    body: JSON.stringify({ fields: firestoreFields(patch) }),
+  });
+}
+
+async function storeFirebaseDiscordMessageRef(env, issue, discord) {
+  const channelId = cleanText(discord?.channel_id, 80);
+  const messageId = cleanText(discord?.message_id, 80);
+  const number = Number(issue?.number);
+  if (!channelId || !messageId || !Number.isInteger(number)) return { skipped: true };
+  await patchFirebaseApplication(env, number, {
+    discord_message_ref: { channel_id: channelId, message_id: messageId },
+    updated_at: new Date().toISOString(),
+    updatedAtMs: Date.now(),
+  });
+  return { ok: true };
 }
 
 async function updateApplicationIssueStatus(env, issueNumber, status, moderator) {
@@ -2034,63 +2332,31 @@ async function updateApplicationIssueStatus(env, issueNumber, status, moderator)
   if (!Number.isInteger(cleanIssueNumber) || cleanIssueNumber <= 0) {
     throw new Error("Некоректний номер заявки.");
   }
-
-  const targetLabel = getTargetStatusLabel(status);
-  const issue = await retryAsync(() => fetchGithubIssue(env, cleanIssueNumber));
-  const currentStatus = getIssueStatusKey(issue);
-
-  logWorkerEvent("info", "application.status.current", {
-    issueNumber: cleanIssueNumber,
-    currentStatus,
-    targetStatus: status,
-    state: issue?.state,
-    labels: Array.isArray(issue?.labels) ? issue.labels.map((label) => label?.name).filter(Boolean) : [],
-  });
-
-  if (currentStatus === status && issue?.state === "closed") {
-    logWorkerEvent("info", "application.status.unchanged", { issueNumber: cleanIssueNumber, status, ms: elapsedMs(startedAt) });
-    return { ok: true, label: targetLabel, unchanged: true, alreadyClosed: true };
-  }
-
-  if (currentStatus === status) {
-    await retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status));
-    logWorkerEvent("info", "application.status.closed_existing", { issueNumber: cleanIssueNumber, status, ms: elapsedMs(startedAt) });
-    return { ok: true, label: targetLabel, unchanged: true, closed: true };
-  }
-
-  await Promise.all(
-    APPLICATION_STATUS_LABELS
-      .filter((label) => label !== targetLabel)
-      .map((label) => retryAsync(() => removeIssueLabelIfExists(env, cleanIssueNumber, label)))
-  );
-
-  const addResponse = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${cleanIssueNumber}/labels`,
-    {
-      method: "POST",
-      body: JSON.stringify({ labels: [targetLabel] }),
-    }
-  );
-
-  if (!addResponse.ok) {
-    const { raw, data } = await parseJsonResponse(addResponse);
-    throw new Error(data?.message || raw || `Не вдалося додати label ${targetLabel}.`);
-  }
-
-  await Promise.all([
-    retryAsync(() => closeGithubIssue(env, cleanIssueNumber, status)),
-    retryAsync(() => createStatusComment(env, cleanIssueNumber, status, moderator)),
-  ]);
-
+  const current = await getFirebaseApplication(env, cleanIssueNumber);
+  const currentStatus = resolveStatusFilter(current.status_key || current.status || "review") || STATUS.REVIEW.key;
+  const targetStatus = resolveStatusFilter(status);
+  if (!targetStatus || targetStatus === "all") throw new Error("Некоректний статус заявки.");
+  const now = new Date().toISOString();
+  const patch = {
+    status: targetStatus,
+    status_key: targetStatus,
+    status_text: getStatusByKey(targetStatus).label,
+    state: targetStatus === STATUS.REVIEW.key ? "open" : "closed",
+    closed_at: targetStatus === STATUS.REVIEW.key ? null : now,
+    updated_at: now,
+    updatedAtMs: Date.now(),
+    labels: labelsForApplicationStatus(targetStatus),
+    last_moderation_comment: getStatusComment(targetStatus, moderator),
+  };
+  await patchFirebaseApplication(env, cleanIssueNumber, patch);
   logWorkerEvent("info", "application.status.updated", {
     issueNumber: cleanIssueNumber,
-    status,
-    label: targetLabel,
+    currentStatus,
+    status: targetStatus,
+    label: getTargetStatusLabel(targetStatus),
     ms: elapsedMs(startedAt),
   });
-
-  return { ok: true, label: targetLabel, closed: true };
+  return { ok: true, label: getTargetStatusLabel(targetStatus), closed: targetStatus !== STATUS.REVIEW.key };
 }
 
 function ephemeral(content, components = []) {
@@ -2647,216 +2913,34 @@ async function handleDiscordInteraction(request, env, ctx) {
   return ephemeral("Невідома або застаріла кнопка Mistblossom Vanguard.");
 }
 
-async function githubFetch(env, path, init = {}) {
-  const startedAt = nowMs();
-  const method = init.method || "GET";
-
-  const response = await fetch(`https://api.github.com${path}`, {
-    ...init,
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": env.GITHUB_USER_AGENT || "guild-applications-worker",
-      "Content-Type": "application/json; charset=utf-8",
-      ...(init.headers || {}),
-    },
-  });
-
-  if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
-    logWorkerEvent(response.ok ? "info" : "warn", "github.fetch", {
-      method,
-      path: sanitizeApiPathForLog(path),
-      status: response.status,
-      ok: response.ok,
-      rate_limit_remaining: response.headers.get("X-RateLimit-Remaining"),
-      rate_limit_reset: response.headers.get("X-RateLimit-Reset"),
-      ms: elapsedMs(startedAt),
-    });
-  }
-
-  return response;
+async function listFirebaseApplicationDocuments(env, limit) {
+  const url = new URL(`${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}`);
+  url.searchParams.set("pageSize", String(limit));
+  url.searchParams.set("orderBy", "createdAtMs desc");
+  const data = await firebaseFetch(env, url.toString());
+  return Array.isArray(data?.documents) ? data.documents.map(parseFirestoreDocument) : [];
 }
 
-async function parseJsonResponse(response) {
-  const raw = await response.text();
-  let data = null;
-
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = null;
-  }
-
-  return { raw, data };
-}
-
-function buildDiscordMessageRefComment(discord) {
-  const channelId = cleanText(discord?.channel_id, 80);
-  const messageId = cleanText(discord?.message_id, 80);
-
-  if (!channelId || !messageId) return "";
-
-  return `\n\n<!-- mistblossom:discord ${JSON.stringify({
-    channel_id: channelId,
-    message_id: messageId,
-  })} -->`;
-}
-
-async function storeDiscordMessageRef(env, issue, discord) {
-  const marker = buildDiscordMessageRefComment(discord);
-  if (!marker || !issue?.number) return { skipped: true };
-
-  const body = String(issue.body || "");
-  if (body.includes("mistblossom:discord")) return { skipped: true, reason: "already stored" };
-
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${issue.number}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({ body: body + marker }),
-    }
-  );
-
-  if (!response.ok) {
-    const { raw, data } = await parseJsonResponse(response);
-    return { ok: false, error: data?.message || raw || "Не вдалося зберегти Discord message ref." };
-  }
-
-  return { ok: true };
-}
-
-async function createGithubIssue(env, payload) {
-  const response = await githubFetch(
-    env,
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        title: `Заявка до гільдії: ${payload.characterName}`,
-        body: buildIssueBody(payload),
-        labels: [env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL, DEFAULT_REVIEW_LABEL],
-      }),
-    }
-  );
-
-  const { raw, data } = await parseJsonResponse(response);
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        raw ||
-        "Не вдалося створити заявку. Спробуй ще раз трохи пізніше."
-    );
-  }
-
-  return data;
-}
-
-async function sendDiscordNotification(env, payload, issue) {
-  const botToken = String(env.DISCORD_BOT_TOKEN || "").trim();
-  const channelId = String(env.DISCORD_CHANNEL_ID || "").trim();
-
-  if (!botToken || !channelId) {
-    return { skipped: true, reason: "DISCORD_BOT_TOKEN or DISCORD_CHANNEL_ID is missing" };
-  }
-
-  const raiderIoResult = await fetchRaiderIoProfile(payload);
-  const response = await discordApiFetch(env, `/channels/${channelId}/messages`, {
-    method: "POST",
-    body: JSON.stringify({
-      allowed_mentions: { parse: [] },
-      embeds: buildDiscordEmbeds(payload, issue, env, raiderIoResult),
-      components: buildApplicationButtons(issue.number),
-    }),
-  });
-
-  const raw = await response.text().catch(() => "");
-  let data = null;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(data?.message || raw || `Discord Application message error ${response.status}`);
-  }
-
+function mapFirebaseListItem(item) {
+  const statusKey = resolveStatusFilter(item.status_key || item.status || "review") || STATUS.REVIEW.key;
   return {
-    ok: true,
-    message_id: data?.id || null,
-    channel_id: data?.channel_id || channelId,
-    raider_io: raiderIoResult.ok
-      ? { ok: true }
-      : { ok: false, error: raiderIoResult.error || "Не вдалося отримати дані Raider.IO." },
-  };
-}
-
-function mapIssueListItem(issue) {
-  const details = extractApplicationDetails(issue.body);
-  const statusKey = getIssueStatusKey(issue);
-
-  return {
-    number: issue.number,
-    title: issue.title,
-    state: issue.state,
+    number: Number(item.number) || 0,
+    title: String(item.title || `Заявка до гільдії: ${item.character_name || item.characterName || "Персонаж"}`),
+    state: String(item.state || (statusKey === STATUS.REVIEW.key ? "open" : "closed")),
     status_key: statusKey,
-    status_text: getIssueStatus(issue),
-    html_url: issue.html_url,
-    created_at: issue.created_at,
-    updated_at: issue.updated_at,
-    closed_at: issue.closed_at,
-    summary: extractSummary(issue.body),
-    character_name: details.character,
-    realm: details.realm,
-    region: details.region,
-    faction: details.faction,
-    class_name: details.class_name,
-    labels: Array.isArray(issue.labels) ? issue.labels.map((label) => label.name) : [],
+    status_text: getStatusByKey(statusKey).label,
+    html_url: "",
+    created_at: String(item.created_at || item.createdAt || ""),
+    updated_at: String(item.updated_at || item.updatedAt || item.created_at || ""),
+    closed_at: item.closed_at || null,
+    summary: [item.character_name || item.characterName, item.realm, item.region || "eu", item.faction, item.class_name || item.className].filter(Boolean).join(" • "),
+    character_name: String(item.character_name || item.characterName || ""),
+    realm: String(item.realm || ""),
+    region: String(item.region || "eu"),
+    faction: String(item.faction || ""),
+    class_name: String(item.class_name || item.className || ""),
+    labels: Array.isArray(item.labels) ? item.labels : labelsForApplicationStatus(statusKey),
   };
-}
-
-function resolveStatusFilter(rawStatus) {
-  const text = String(rawStatus || "").trim().toLowerCase();
-  if (!text || text === "all") return "all";
-  return STATUS_ALIASES[text] || (STATUS_KEYS.has(text) ? text : null);
-}
-
-function buildGithubIssuesListPath(env, { limit, sort, direction, label, page }) {
-  return `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues?state=all&per_page=${limit}&sort=${sort}&direction=${direction}&labels=${label}&page=${page}`;
-}
-
-async function fetchApplicationIssuePage(env, options) {
-  const startedAt = nowMs();
-  const response = await githubFetch(env, buildGithubIssuesListPath(env, options));
-  const { raw, data } = await parseJsonResponse(response);
-
-  return {
-    page: options.page,
-    ok: response.ok,
-    status: response.status,
-    ms: elapsedMs(startedAt),
-    raw: raw || "",
-    data: Array.isArray(data) ? data : [],
-    rate_limit_remaining: response.headers.get("X-RateLimit-Remaining"),
-    rate_limit_reset: response.headers.get("X-RateLimit-Reset"),
-  };
-}
-
-function dedupeIssuesByNumber(issues) {
-  const seen = new Set();
-  const result = [];
-
-  for (const issue of issues) {
-    const number = Number(issue?.number);
-    if (!Number.isInteger(number) || seen.has(number)) continue;
-    seen.add(number);
-    result.push(issue);
-  }
-
-  return result;
 }
 
 async function listApplications(request, env) {
@@ -2867,27 +2951,18 @@ async function listApplications(request, env) {
     Math.max(parseInt(url.searchParams.get("limit") || String(DEFAULT_LIST_LIMIT), 10), 1),
     MAX_LIST_LIMIT
   );
-  const sort = ["created", "updated"].includes(url.searchParams.get("sort"))
-    ? url.searchParams.get("sort")
-    : "created";
-  const direction = url.searchParams.get("direction") === "asc" ? "asc" : "desc";
-  const labelName = env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL;
-  const label = encodeURIComponent(labelName);
   const rawStatus = cleanText(url.searchParams.get("status"), 24).toLowerCase();
   const status = resolveStatusFilter(rawStatus);
   const className = cleanText(url.searchParams.get("class"), 60).toLowerCase();
   const query = cleanText(url.searchParams.get("q"), 120).toLowerCase();
-  const defaultPages = rawStatus && rawStatus !== "all" ? DEFAULT_FILTERED_LIST_PAGES : 1;
-  const pages = parsePositiveInt(url.searchParams.get("pages"), defaultPages, 1, MAX_GITHUB_LIST_PAGES);
   const debug = isDebugResponseEnabled(request, env);
 
   if (rawStatus && rawStatus !== "all" && !status) {
-    logWorkerEvent("warn", "applications.list.invalid_status", { rawStatus, label: labelName });
     return json(
       {
         error: "Некоректний фільтр статусу.",
         allowed_statuses: ["all", ...Array.from(STATUS_KEYS)],
-        diagnostics: debug ? { rawStatus, label: labelName, env: envDiagnostics(env) } : undefined,
+        diagnostics: debug ? { rawStatus, env: envDiagnostics(env) } : undefined,
       },
       400,
       origin
@@ -2895,65 +2970,32 @@ async function listApplications(request, env) {
   }
 
   logWorkerEvent("info", "applications.list.start", {
-    label: labelName,
+    storage: "firebase",
+    collection: firebaseApplicationsCollection(env),
     limit,
-    pages,
-    sort,
-    direction,
-    status: status || "invalid",
+    status: status || "all",
     className: className || "all",
     hasQuery: Boolean(query),
   });
 
-  const pageNumbers = Array.from({ length: pages }, (_, index) => index + 1);
-  const pageResults = await Promise.all(
-    pageNumbers.map((page) => fetchApplicationIssuePage(env, { limit, sort, direction, label, page }))
-  );
-
-  const failedPage = pageResults.find((page) => !page.ok);
-  if (failedPage) {
-    logWorkerEvent("error", "applications.list.github_failed", {
-      label: labelName,
-      page: failedPage.page,
-      status: failedPage.status,
-      github_response: failedPage.raw.slice(0, 700),
-      ms: elapsedMs(startedAt),
-    });
-
+  let mappedItems;
+  try {
+    mappedItems = (await listFirebaseApplicationDocuments(env, limit)).map(mapFirebaseListItem);
+  } catch (error) {
+    logWorkerEvent("error", "applications.list.firebase_failed", { message: error?.message, ms: elapsedMs(startedAt) });
     return json(
       {
         error: "Список заявок тимчасово недоступний.",
-        github_status: failedPage.status,
-        github_response: failedPage.raw || null,
-        diagnostics: debug
-          ? {
-              label: labelName,
-              pages_requested: pages,
-              failed_page: failedPage.page,
-              page_statuses: pageResults.map((page) => ({ page: page.page, ok: page.ok, status: page.status, ms: page.ms })),
-              env: envDiagnostics(env),
-            }
-          : undefined,
+        diagnostics: debug ? { env: envDiagnostics(env), message: error?.message } : undefined,
       },
       502,
       origin
     );
   }
 
-  const rawIssues = dedupeIssuesByNumber(pageResults.flatMap((page) => page.data));
-  const mappedItems = rawIssues
-    .filter((issue) => !issue.pull_request)
-    .map(mapIssueListItem);
-  const beforeFilterSummary = summarizeApplicationItems(mappedItems);
-
   let items = mappedItems;
-
-  if (status && status !== "all") {
-    items = items.filter((item) => item.status_key === status);
-  }
-  if (className && className !== "all") {
-    items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
-  }
+  if (status && status !== "all") items = items.filter((item) => item.status_key === status);
+  if (className && className !== "all") items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
   if (query) {
     items = items.filter((item) =>
       [item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
@@ -2963,31 +3005,15 @@ async function listApplications(request, env) {
 
   const afterFilterSummary = summarizeApplicationItems(items);
   const diagnostics = {
-    label: labelName,
-    repo: `${env.GITHUB_OWNER}/${env.GITHUB_REPO}`,
+    storage: "firebase",
+    collection: firebaseApplicationsCollection(env),
     limit,
-    pages_requested: pages,
-    pages: pageResults.map((page) => ({
-      page: page.page,
-      status: page.status,
-      ok: page.ok,
-      ms: page.ms,
-      count: page.data.length,
-      rate_limit_remaining: page.rate_limit_remaining,
-      rate_limit_reset: page.rate_limit_reset,
-    })),
-    filters: {
-      status: status || null,
-      raw_status: rawStatus || "all",
-      class: className || "all",
-      query: query || null,
-    },
-    before_filters: beforeFilterSummary,
+    filters: { status: status || null, raw_status: rawStatus || "all", class: className || "all", query: query || null },
+    before_filters: summarizeApplicationItems(mappedItems),
     after_filters: afterFilterSummary,
     env: envDiagnostics(env),
     ms: elapsedMs(startedAt),
   };
-
   logWorkerEvent("info", "applications.list.done", diagnostics);
 
   return json(
@@ -3014,7 +3040,7 @@ async function completeDiscordNotification(env, cleanPayload, issue) {
     const discord = await sendDiscordNotification(env, cleanPayload, issue);
 
     if (discord?.ok) {
-      discord.issue_ref = await storeDiscordMessageRef(env, issue, discord);
+      discord.issue_ref = await storeFirebaseDiscordMessageRef(env, issue, discord);
     }
 
     logWorkerEvent("info", "application.discord.done", {
@@ -3110,10 +3136,30 @@ async function createApplication(request, env, ctx) {
   }
 
   try {
-    const issue = await runMeasured(
-      "application.github.create",
+    const verification = await runMeasured(
+      "application.character.verify",
       { characterName: cleanPayload.characterName, realm: cleanPayload.realm, region: cleanPayload.region },
-      () => createGithubIssue(env, cleanPayload)
+      () => verifyApplicationCharacter(env, cleanPayload)
+    );
+
+    if (!verification.ok) {
+      logWorkerEvent("warn", "application.create.character_invalid", {
+        characterName: cleanPayload.characterName,
+        realm: cleanPayload.realm,
+        region: cleanPayload.region,
+        raider_io: verification.raider_io?.ok || false,
+        battlenet: verification.battlenet?.ok || false,
+        ms: elapsedMs(startedAt),
+      });
+      return json({ error: verification.error || "Невірно введені дані персонажа." }, 400, origin);
+    }
+
+    cleanPayload._verification = verification;
+
+    const issue = await runMeasured(
+      "application.firebase.create",
+      { characterName: cleanPayload.characterName, realm: cleanPayload.realm, region: cleanPayload.region },
+      () => createFirebaseApplication(env, cleanPayload, verification)
     );
 
     const useAsyncDiscord =
@@ -3131,6 +3177,7 @@ async function createApplication(request, env, ctx) {
     }
 
     logWorkerEvent("info", "application.create.done", {
+      storage: "firebase",
       issueNumber: issue.number,
       discord_async: useAsyncDiscord,
       ms: elapsedMs(startedAt),
@@ -3140,10 +3187,13 @@ async function createApplication(request, env, ctx) {
       {
         ok: true,
         number: issue.number,
-        html_url: issue.html_url,
         state: issue.state,
-        status_text: getIssueStatus(issue),
+        status_text: STATUS.REVIEW.label,
         title: issue.title,
+        verification: {
+          raider_io: Boolean(verification.raider_io?.ok),
+          battlenet: Boolean(verification.battlenet?.ok),
+        },
         discord,
       },
       201,

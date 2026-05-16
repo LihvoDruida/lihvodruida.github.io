@@ -165,7 +165,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <p className="lead">Переглядай заявки, оцінюй персонажів і швидко приймай рішення без зайвих переходів.</p>
           <div className="hero-secure-note">
             <span className="hero-lock" aria-hidden="true">🔒</span>
-            <span>{mayManageApplications ? "Доступ відкрито ролям модерації." : "Доступ відкрито в режимі перегляду без BattleTag."}</span>
+            <span>{mayManageApplications ? "Доступ відкрито ролям модерації." : "Доступ відкрито в режимі перегляду без Discord і BattleTag."}</span>
           </div>
         </div>
 
@@ -173,7 +173,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           ariaLabel="Огляд заявок"
           summary={[
             { label: "ЗАЯВКИ", value: `${counts.all} всього`, note: "Живий список кандидатів" },
-            { label: "ДОСТУП", value: mayManageApplications ? "Модерація" : "Перегляд", note: mayManageApplications ? "Можна змінювати статуси" : "BattleTag приховано" },
+            { label: "ДОСТУП", value: mayManageApplications ? "Модерація" : "Перегляд", note: mayManageApplications ? "Можна змінювати статуси" : "Discord і BattleTag приховано" },
           ]}
           stats={[
             { label: "НА РОЗГЛЯДІ", value: counts.review.toLocaleString("uk-UA") },
@@ -197,7 +197,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         classOptions={classOptions}
       />
 
-      {!mayManageApplications ? <div className="notice panel">Режим наставника: заявки можна переглядати, але BattleTag приховано, а рішення по кандидатах недоступні.</div> : null}
+      {!mayManageApplications ? <div className="notice panel">Режим наставника: заявки можна переглядати, але Discord і BattleTag приховано, а рішення по кандидатах недоступні.</div> : null}
 
       <section className="grid">
         {items.length ? items.map((item) => (
@@ -220,6 +220,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
               <div className="details-grid">
                 <div className="detail-box"><span>Звідки дізнався</span><strong>{item.source || "Не вказано"}</strong></div>
+                {mayViewSensitiveApplications ? <div className="detail-box"><span>Discord</span><strong>{item.discord || "Не вказано"}</strong></div> : null}
                 {mayViewSensitiveApplications ? <div className="detail-box"><span>BattleTag</span><strong>{item.battle_tag || "Не вказано"}</strong></div> : null}
                 <div className="detail-box"><span>Коли грає</span><strong>{item.availability || "Не вказано"}</strong></div>
               </div>

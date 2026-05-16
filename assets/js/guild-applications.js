@@ -219,7 +219,6 @@
     const refreshButton = document.getElementById('guild-application-refresh');
     const submitButton = form ? form.querySelector('button[type="submit"]') : null;
     const customSelects = form ? Array.from(form.querySelectorAll('.custom-select')) : [];
-    const regionInput = form ? form.querySelector('input[name="region"]') : null;
     const factionInput = form ? form.querySelector('input[name="faction"]') : null;
     const battleTagInput = form ? form.querySelector('input[name="battleTag"]') : null;
     const battleTagRequiredBadge = document.getElementById('battleTagRequiredBadge');
@@ -381,7 +380,7 @@
         const payload = {
           characterName: (formData.get('characterName') || '').toString().trim(),
           realm: (formData.get('realm') || '').toString().trim(),
-          region: (formData.get('region') || '').toString().trim(),
+          region: 'eu',
           faction: (formData.get('faction') || '').toString().trim(),
           className: (formData.get('className') || '').toString().trim(),
           discord: (formData.get('discord') || '').toString().trim(),
@@ -393,11 +392,6 @@
           availability: (formData.get('availability') || '').toString().trim(),
           website: (formData.get('website') || '').toString().trim()
         };
-
-        if (!payload.region) {
-          setFeedback('error', 'Будь ласка, обери регіон.');
-          return;
-        }
 
         if (!payload.faction) {
           setFeedback('error', 'Будь ласка, обери фракцію.');
@@ -431,6 +425,16 @@
           return;
         }
 
+        if (payload.battleTag && !/^[\p{L}\p{N}_-]{2,32}#\d{3,6}$/u.test(payload.battleTag)) {
+          if (battleTagInput) {
+            battleTagInput.focus();
+            battleTagInput.setCustomValidity('BattleTag має бути у форматі Rebell#2802.');
+            battleTagInput.reportValidity();
+          }
+          setFeedback('error', 'BattleTag має бути у форматі Rebell#2802 або порожнім, якщо це не Horde.');
+          return;
+        }
+
         if (submitButton) submitButton.disabled = true;
 
         try {
@@ -456,8 +460,9 @@
           });
           syncBattleTagRequirement();
           syncSourceRequirement();
-          setFeedback('success', 'Заявку надіслано. ' +
-            (result.html_url ? 'Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.' : ''));
+          setFeedback('success', result.html_url
+            ? 'Заявку надіслано. Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.'
+            : 'Заявку надіслано. Дані перевірено й заявку створено.');
           loadRecent();
         } catch (error) {
           setFeedback('error', escapeHtml(error.message || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.'));
