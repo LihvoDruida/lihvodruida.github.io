@@ -17360,3 +17360,94 @@ button[aria-busy="true"]::after,
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+/* Geo access controls on /admin */
+.geo-access-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.geo-access-card > span:first-child {
+  grid-row: 1 / span 3;
+}
+
+.geo-access-card__copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.geo-access-form {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.geo-access-toggle,
+.geo-access-countries {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(188, 141, 72, .18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.geo-access-toggle {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.geo-access-toggle input {
+  margin-top: 3px;
+}
+
+.geo-access-toggle span,
+.geo-access-countries span {
+  color: #f4e8d4;
+  font-weight: 800;
+}
+
+.geo-access-toggle small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(232, 220, 202, .58);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.geo-access-toggle--muted {
+  border-color: rgba(255, 255, 255, .1);
+}
+
+.geo-access-countries input {
+  width: 100%;
+  min-width: 0;
+}
+
+.geo-access-form .btn {
+  align-self: stretch;
+  min-height: 44px;
+}
+
+.geo-access-note {
+  grid-column: 2;
+  color: rgba(232, 220, 202, .62);
+}
+
+@media (max-width: 760px) {
+  .geo-access-card,
+  .geo-access-form {
+    grid-template-columns: 1fr;
+  }
+
+  .geo-access-card > span:first-child,
+  .geo-access-form,
+  .geo-access-note {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

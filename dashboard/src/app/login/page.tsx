@@ -33,6 +33,7 @@ function errorText(error?: string) {
     discord_only: "GitHub вхід вимкнено. Використай Discord.",
     token: "Резервний ключ неправильний.",
     rate_limit: "Забагато спроб. Зачекай кілька хвилин.",
+    geo_blocked: "Доступ із цієї країни зараз обмежено правилами спільноти.",
   };
 
   return map[error] || "Не вдалося увійти. Перевір доступ у Discord.";

@@ -59,6 +59,7 @@ function actionText(action: string) {
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
   if (action.includes("/api/admin/discord/settings")) return { label: "Зберігаємо...", title: "Зберігаємо Discord-налаштування", message: "Оновлюємо шаблон ніку та ліміти масових Discord-дій." };
+  if (action.includes("/api/admin/security/geo-access")) return { label: "Зберігаємо...", title: "Зберігаємо геообмеження", message: "Оновлюємо правила доступу для заявок і авторизації." };
   if (action.includes("/api/admin/discord/nickname")) return { label: "Змінюємо...", title: "Змінюємо нік у Discord", message: "Надсилаємо PATCH-запит до Discord і перевіряємо результат." };
   if (action.includes("/api/admin/discord/roles/add")) return { label: "Видаємо...", title: "Видаємо ролі в Discord", message: "Надсилаємо роль учаснику та перевіряємо, що вона зʼявилась." };
   if (action.includes("/api/admin/discord/roles/remove")) return { label: "Знімаємо...", title: "Знімаємо ролі в Discord", message: "Знімаємо вибрані ролі та перевіряємо результат." };

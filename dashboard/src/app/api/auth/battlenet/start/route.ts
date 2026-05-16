@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { randomState } from "@/lib/oauth";
 import { BNET_OAUTH_STATE_COOKIE, buildBattleNetOAuthUrl, getEnabledBattleNetRegions, normalizeBattleNetRegion } from "@/lib/battlenet";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
+import { checkGeoAccess } from "@/lib/geoAccessPolicy";
 
 
 function safeNextPath(value: string | null) {
@@ -29,6 +30,12 @@ export async function GET(request: NextRequest) {
   if (!session) return redirectWithNoStore(new URL("/login", request.url).toString());
 
   logDashboardEvent("info", "auth.battlenet.start", request, { profileId: session.profileId, role: session.role });
+
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) {
+    logDashboardEvent("warn", "auth.battlenet.start.geo_blocked", request, { country: geoDecision.country || null, reason: geoDecision.reason });
+    return redirectWithNoStore(new URL(`/profile/${session.profileId || ""}?characterStatus=geo_blocked`, request.url).toString());
+  }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`battlenet-oauth-start:${session.profileId || session.id}:${ip}`, 12, 10 * 60 * 1000);

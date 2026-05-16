@@ -7,6 +7,7 @@ import { buildPageMetadata } from "@/lib/seo";
 import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers, canManageGroups, canViewAdminLogs } from "@/lib/permissions";
 import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
+import { getGeoAccessPolicy } from "@/lib/geoAccessPolicy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,6 +28,8 @@ export default async function AdminOverviewPage() {
   }
 
   const policy = await getGuildNicknamePolicy();
+  const geoPolicy = await getGeoAccessPolicy();
+  const canEditGeoPolicy = canManageGroups(user);
 
   return (
     <main className="container admin-container">
@@ -49,6 +52,7 @@ export default async function AdminOverviewPage() {
               { label: "ГРУПИ", value: canManageGroups(user) ? "ON" : "—" },
               { label: "DISCORD", value: canManageDiscordMembers(user) ? "ON" : "—" },
               { label: "ЛОГИ", value: canViewAdminLogs(user) ? "ON" : "—" },
+              { label: "ГЕО", value: geoPolicy.enabled ? "ON" : "OFF" },
             ]}
           />
         </header>
@@ -77,6 +81,38 @@ export default async function AdminOverviewPage() {
             <strong>Поточний шаблон ніку</strong>
             <small><code>{policy.template}</code></small>
             <small>Приклад: {nicknameTemplateExample(policy.template)}</small>
+          </article>
+
+          <article className="panel admin-overview-card admin-overview-card--wide geo-access-card">
+            <span aria-hidden="true">🛡</span>
+            <div className="geo-access-card__copy">
+              <strong>Геообмеження доступу</strong>
+              <small>Блокує подання заявок і старт авторизації для вибраних ISO-кодів країн. Перевірка працює по edge-сигналу Cloudflare/Vercel без зовнішніх IP-баз.</small>
+            </div>
+            <form className="geo-access-form" action="/api/admin/security/geo-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+              <label className="geo-access-toggle">
+                <input type="checkbox" name="enabled" defaultChecked={geoPolicy.enabled} disabled={!canEditGeoPolicy} />
+                <span>Увімкнути геообмеження</span>
+              </label>
+              <label className="geo-access-toggle">
+                <input type="checkbox" name="blockApplications" defaultChecked={geoPolicy.blockApplications} disabled={!canEditGeoPolicy} />
+                <span>Забороняти подання заявок</span>
+              </label>
+              <label className="geo-access-toggle">
+                <input type="checkbox" name="blockAuth" defaultChecked={geoPolicy.blockAuth} disabled={!canEditGeoPolicy} />
+                <span>Забороняти авторизацію</span>
+              </label>
+              <label className="geo-access-toggle geo-access-toggle--muted">
+                <input type="checkbox" name="blockUnknownCountries" defaultChecked={geoPolicy.blockUnknownCountries} disabled={!canEditGeoPolicy} />
+                <span>Блокувати невідому країну <small>Обережно: може зачепити VPN, privacy relay або погано проксовані запити.</small></span>
+              </label>
+              <label className="geo-access-countries">
+                <span>Коди країн</span>
+                <input name="blockedCountries" defaultValue={geoPolicy.blockedCountries.join(", ")} placeholder="RU, BY" disabled={!canEditGeoPolicy} />
+              </label>
+              <button className="btn primary" type="submit" disabled={!canEditGeoPolicy}>Зберегти геообмеження</button>
+            </form>
+            <small className="geo-access-note">Поточний стан: {geoPolicy.enabled ? "увімкнено" : "вимкнено"}; заявки: {geoPolicy.blockApplications ? "блокуються" : "не блокуються"}; авторизація: {geoPolicy.blockAuth ? "блокується" : "не блокується"}.</small>
           </article>
         </section>
       </section>

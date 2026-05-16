@@ -50,6 +50,12 @@ const CHARACTER_STATUS_MESSAGES: Record<string, Omit<Toast, "id">> = {
     message: "Сесія Battle.net застаріла або перевірка не пройшла. Запусти підключення Battle.net ще раз із цієї ж вкладки.",
     ttl: 7600,
   },
+  geo_blocked: {
+    tone: "error",
+    title: "Доступ обмежено",
+    message: "Авторизація або підключення Battle.net з цієї країни зараз недоступні правилами спільноти.",
+    ttl: 9000,
+  },
   character_added: {
     tone: "success",
     title: "Персонажа додано",
@@ -353,6 +359,7 @@ const LOGIN_ERROR_MESSAGES: Record<string, Omit<Toast, "id">> = {
   not_guild_member: { tone: "error", title: "Профіль видалено", message: "Цього Discord-акаунта вже немає серед учасників сервера, тому його профіль видалено." },
   duplicate_characters: { tone: "error", title: "Вхід заблоковано", message: "У профілі знайдено персонажів, які вже привʼязані до іншого акаунта. Потрібна перевірка офіцером." },
   security_check_failed: { tone: "error", title: "Вхід не перевірено", message: "Не вдалося виконати серверну перевірку бану або членства в Discord. Спробуй пізніше або звернись до гільдмайстра." },
+  geo_blocked: { tone: "error", title: "Доступ обмежено", message: "Авторизація з цієї країни зараз недоступна правилами спільноти." },
 };
 
 const TOAST_QUERY_KEYS = ["characterStatus", "toast", "notice", "success", "error", "published", "updated", "deleted", "created", "saved", "warning", "attendance"];

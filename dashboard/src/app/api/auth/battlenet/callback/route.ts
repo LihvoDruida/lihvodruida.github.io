@@ -6,6 +6,7 @@ import { BNET_OAUTH_STATE_COOKIE, exchangeBattleNetCode, fetchBattleNetGuildChar
 import { recordSystemAudit } from "@/lib/accessGroups";
 import { findProfileCharacterConflicts, saveBattleNetSyncState, upsertProfileFromSession } from "@/lib/profiles";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { checkGeoAccess } from "@/lib/geoAccessPolicy";
 
 
 function getOAuthStateParts(state: string) {
@@ -62,6 +63,12 @@ export async function GET(request: NextRequest) {
   }
 
   logDashboardEvent("info", "auth.battlenet.callback", request, { profileId: session.profileId });
+
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) {
+    logDashboardEvent("warn", "auth.battlenet.callback.geo_blocked", request, { country: geoDecision.country || null, reason: geoDecision.reason });
+    return redirectToProfile(session.profileId, "geo_blocked");
+  }
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`battlenet-oauth-callback:${session.profileId}:${ip}`, 20, 10 * 60 * 1000);

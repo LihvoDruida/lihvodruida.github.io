@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { setSession, verifyToken } from "@/lib/auth";
+import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
 import {
   assertRequestBodySize,
   checkRateLimit,
@@ -17,6 +18,9 @@ function redirectTo(request: NextRequest, path: string) {
 }
 
 export async function POST(request: NextRequest) {
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) return geoAccessDeniedResponse(request, geoDecision);
+
   if (!verifyTrustedOrigin(request)) {
     return forbiddenResponse("Недовірене джерело входу.");
   }

@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth";
 import { buildDiscordOAuthUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
+import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 const OAUTH_NONCE_COOKIE_MAX_AGE = 60 * 10;
@@ -76,6 +77,9 @@ function clearLocalSessionOnResponse(response: NextResponse) {
 
 export async function GET(request: NextRequest) {
   logDashboardEvent("info", "auth.discord.start", request);
+
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) return geoAccessDeniedResponse(request, geoDecision);
 
   const ip = getClientIp(request);
   const limit = checkRateLimit(`discord-oauth-start:${ip}`, 30, 10 * 60 * 1000);

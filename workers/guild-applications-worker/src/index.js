@@ -5,6 +5,7 @@ const DEFAULT_FILTERED_LIST_PAGES = 3;
 const MAX_GITHUB_LIST_PAGES = 5;
 let firebaseAuthCache = { accessToken: "", expiresAt: 0 };
 let battleNetAuthCache = { accessToken: "", expiresAt: 0, region: "" };
+let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 
 
 const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels"]);
@@ -137,6 +138,8 @@ function envDiagnostics(env) {
     firebase_client_email: Boolean(env.FIREBASE_CLIENT_EMAIL),
     firebase_private_key: Boolean(env.FIREBASE_PRIVATE_KEY),
     firebase_applications_collection: firebaseApplicationsCollection(env),
+    geo_access_block_enabled: geoAccessDefaultPolicy(env).enabled,
+    geo_access_blocked_countries: geoAccessDefaultPolicy(env).blockedCountries,
     battlenet_client_id: Boolean(env.BATTLENET_CLIENT_ID || env.BATTLE_NET_CLIENT_ID || env.BLIZZARD_CLIENT_ID),
     battlenet_client_secret: Boolean(env.BATTLENET_CLIENT_SECRET || env.BATTLE_NET_CLIENT_SECRET || env.BLIZZARD_CLIENT_SECRET),
     guild_applications_label: env.GUILD_APPLICATIONS_LABEL || DEFAULT_LABEL,
@@ -2194,6 +2197,90 @@ function firestoreDocumentUrl(env, docId) {
   return `${firestoreCollectionUrl(env)}/${encodeURIComponent(docId)}`;
 }
 
+function firestoreSettingsDocumentUrl(env, docId) {
+  return `${firestoreBaseUrl(env)}/${encodeURIComponent("dashboardSettings")}/${encodeURIComponent(docId)}`;
+}
+
+function envFlag(env, name, fallback = false) {
+  const raw = env[name];
+  if (raw === undefined || raw === null || raw === "") return fallback;
+  return /^(1|true|yes|on)$/i.test(String(raw || "").trim());
+}
+
+function normalizeCountryCode(value) {
+  const code = String(value || "").trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
+  return /^[A-Z]{2}$/.test(code) ? code : "";
+}
+
+function parseBlockedCountries(value, fallback = ["RU", "BY"]) {
+  const items = Array.isArray(value) ? value : String(value || "").split(/[\s,;]+/g);
+  const normalized = Array.from(new Set(items.map(normalizeCountryCode).filter(Boolean)));
+  return normalized.length ? normalized.slice(0, 64) : [...fallback];
+}
+
+function geoAccessDefaultPolicy(env) {
+  return {
+    enabled: envFlag(env, "GEO_ACCESS_BLOCK_ENABLED", true),
+    blockApplications: envFlag(env, "GEO_ACCESS_BLOCK_APPLICATIONS", true),
+    blockAuth: envFlag(env, "GEO_ACCESS_BLOCK_AUTH", true),
+    blockUnknownCountries: envFlag(env, "GEO_ACCESS_BLOCK_UNKNOWN_COUNTRIES", false),
+    blockedCountries: parseBlockedCountries(env.GEO_ACCESS_BLOCKED_COUNTRIES || env.BLOCKED_COUNTRIES, ["RU", "BY"]),
+  };
+}
+
+function normalizeGeoAccessPolicy(data, env) {
+  const fallback = geoAccessDefaultPolicy(env);
+  return {
+    enabled: typeof data?.enabled === "boolean" ? data.enabled : fallback.enabled,
+    blockApplications: typeof data?.blockApplications === "boolean" ? data.blockApplications : fallback.blockApplications,
+    blockAuth: typeof data?.blockAuth === "boolean" ? data.blockAuth : fallback.blockAuth,
+    blockUnknownCountries: typeof data?.blockUnknownCountries === "boolean" ? data.blockUnknownCountries : fallback.blockUnknownCountries,
+    blockedCountries: parseBlockedCountries(data?.blockedCountries, fallback.blockedCountries),
+  };
+}
+
+async function getGeoAccessPolicy(env) {
+  if (geoAccessPolicyCache.policy && geoAccessPolicyCache.expiresAt > Date.now()) {
+    return geoAccessPolicyCache.policy;
+  }
+
+  let policy = geoAccessDefaultPolicy(env);
+  try {
+    const document = await firebaseFetch(env, firestoreSettingsDocumentUrl(env, "geoAccessPolicy"));
+    policy = normalizeGeoAccessPolicy(parseFirestoreDocument(document), env);
+  } catch (error) {
+    if (!/not found|NOT_FOUND|404/i.test(String(error?.message || error || ""))) {
+      logWorkerEvent("warn", "geo_access.policy_read_failed", { message: error?.message });
+    }
+  }
+
+  const ttlSeconds = Math.max(10, Math.min(600, Math.floor(Number(env.GEO_ACCESS_POLICY_CACHE_SECONDS || 60))));
+  geoAccessPolicyCache = { policy, expiresAt: Date.now() + ttlSeconds * 1000 };
+  return policy;
+}
+
+function getRequestCountryCode(request) {
+  const cfCountry = request?.cf?.country;
+  const headerCountry = request.headers.get("cf-ipcountry") || request.headers.get("x-vercel-ip-country") || request.headers.get("cloudfront-viewer-country") || "";
+  const country = normalizeCountryCode(cfCountry || headerCountry);
+  if (country && country !== "XX" && country !== "T1") return country;
+  return "";
+}
+
+function evaluateGeoAccess(policy, country, target) {
+  if (!policy.enabled) return { blocked: false, reason: "disabled", country };
+  if (target === "applications" && !policy.blockApplications) return { blocked: false, reason: "target_disabled", country };
+  if (!country) return { blocked: Boolean(policy.blockUnknownCountries), reason: policy.blockUnknownCountries ? "unknown_country" : "allowed", country: "" };
+  const blocked = new Set(policy.blockedCountries.map(normalizeCountryCode).filter(Boolean)).has(normalizeCountryCode(country));
+  return { blocked, reason: blocked ? "blocked_country" : "allowed", country };
+}
+
+async function checkApplicationGeoAccess(request, env) {
+  const policy = await getGeoAccessPolicy(env);
+  const country = getRequestCountryCode(request);
+  return { ...evaluateGeoAccess(policy, country, "applications"), policy };
+}
+
 function firestoreValue(value) {
   if (value === undefined) return undefined;
   if (value === null) return { nullValue: "NULL_VALUE" };
@@ -3336,6 +3423,17 @@ async function createApplication(request, env, ctx) {
       allowed_origins_configured: Boolean(String(env.ALLOWED_ORIGINS || "").trim()),
     });
     return json({ error: "Надсилання заявок зараз недоступне." }, 403, "null");
+  }
+
+  const geoDecision = await checkApplicationGeoAccess(request, env);
+  if (geoDecision.blocked) {
+    logWorkerEvent("warn", "application.create.geo_blocked", {
+      country: geoDecision.country || null,
+      reason: geoDecision.reason,
+      blockedCountries: geoDecision.policy.blockedCountries,
+      ms: elapsedMs(startedAt),
+    });
+    return json({ error: "Подання заявки з цієї країни зараз недоступне." }, 403, origin);
   }
 
   const body = await readJsonBody(request);
