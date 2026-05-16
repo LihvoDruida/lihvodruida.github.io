@@ -1336,7 +1336,7 @@ async function fetchRaiderIoProfile(payload) {
   url.searchParams.set("name", characterSlug);
   url.searchParams.set(
     "fields",
-    "mythic_plus_scores_by_season:current:previous,raid_progression"
+    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
   );
 
   try {
@@ -2429,6 +2429,7 @@ async function createFirebaseApplication(env, payload, verification) {
       profile_url: rioData?.profile_url || "",
       raider_io: rioData || null,
       raider_io_raw: rioRawData || null,
+      raid_progression: rioRawData?.raid_progression || rioData?.raid_progression || null,
       raider_io_error: verification?.raider_io?.ok ? null : verification?.raider_io?.error || null,
       verification: {
         raider_io: verification?.raider_io || null,

@@ -464,7 +464,7 @@ export async function fetchRaiderIoForApplication(item: ApplicationItem): Promis
   url.searchParams.set("name", name);
   url.searchParams.set(
     "fields",
-    "mythic_plus_scores_by_season:current:previous,raid_progression"
+    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
   );
 
   try {
@@ -734,6 +734,12 @@ function normalizeRaiderIoApplicationData(value: any): RaiderIoApplicationData |
   if (!value || typeof value !== "object") return null;
 
   if (value.mythic_plus || value.raids) {
+    const raidProgressionGroups = splitRaiderIoRaidProgression(value.raid_progression || value.raidProgression);
+    const storedCurrentRaids = Array.isArray(value.raids?.current) ? value.raids.current.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [];
+    const storedPreviousRaids = Array.isArray(value.raids?.previous) ? value.raids.previous.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [];
+    const fallbackCurrentRaids = raidProgressionGroups.current.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[];
+    const fallbackPreviousRaids = raidProgressionGroups.previous.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[];
+
     return {
       profile_url: value.profile_url || null,
       thumbnail_url: value.thumbnail_url || null,
@@ -743,8 +749,8 @@ function normalizeRaiderIoApplicationData(value: any): RaiderIoApplicationData |
         previous: normalizeRaiderIoScoreBlock(value.mythic_plus?.previous),
       },
       raids: {
-        current: Array.isArray(value.raids?.current) ? value.raids.current.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [],
-        previous: Array.isArray(value.raids?.previous) ? value.raids.previous.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [],
+        current: storedCurrentRaids.length ? storedCurrentRaids : fallbackCurrentRaids,
+        previous: storedPreviousRaids.length ? storedPreviousRaids : fallbackPreviousRaids,
       },
     };
   }
@@ -831,7 +837,7 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   const closedAt = normalizeTimestamp(data.closed_at || data.closedAt) || null;
   const discordMessageRef = data.discord_message_ref || data.discordMessageRef || null;
   const storedRaiderIo = data.raider_io || data.raiderIo || null;
-  const rawRaiderIo = data.raider_io_raw || data.raiderIoRaw || data.verification?.raider_io?.data || null;
+  const rawRaiderIo = data.raider_io_raw || data.raiderIoRaw || data.verification?.raider_io?.data || (data.raid_progression ? { raid_progression: data.raid_progression } : null);
   const normalizedRaiderIo = mergeRaiderIoApplicationData(
     normalizeRaiderIoApplicationData(storedRaiderIo),
     normalizeRaiderIoApplicationData(rawRaiderIo),
@@ -955,14 +961,18 @@ export async function listApplications(params?: URLSearchParams) {
   const { results } = await mapConcurrent(
     items,
     async (item) => {
-      if (item.raider_io || item.raider_io_error) return item;
+      if (item.raider_io_error) return item;
+      if (item.raider_io && hasRaiderIoRaidRows(item.raider_io)) return item;
+
       const rio = await fetchRaiderIoForApplication(item);
+      const mergedRaiderIo = mergeRaiderIoApplicationData(item.raider_io ?? null, rio.data);
+
       return {
         ...item,
         avatar_url: rio.data?.thumbnail_url || item.avatar_url || null,
         profile_url: rio.data?.profile_url || item.profile_url || null,
-        raider_io: rio.data,
-        raider_io_error: rio.error,
+        raider_io: mergedRaiderIo,
+        raider_io_error: item.raider_io ? null : rio.error,
       };
     },
     {
