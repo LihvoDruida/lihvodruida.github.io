@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 09:42:20'
+  updated_at: '2026-05-16 13:25:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 137
+  member_count: 138
   achievement_points: 495
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6155
       realm: 56
     heroic:
-      world: 13020
-      region: 5812
+      world: 13026
+      region: 5813
       realm: 44
     mythic:
-      world: 7931
+      world: 7935
       region: 3384
       realm: 27
   blackrock-depths:
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3176.3
-        color: '#7658e6'
+        score: 3207.7
+        color: '#8053e8'
       dps:
-        score: 3176.3
-        color: '#7658e6'
+        score: 3207.7
+        color: '#8053e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3176.3
-        color: '#7658e6'
+        score: 3207.7
+        color: '#8053e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2560,6 +2560,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Frrtiix
+    id: 188280211
+    level: 90
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 91
+      name: Haranir
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Beast Mastery
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/147/188280211-avatar.jpg?alt=/wow/static/images/2d/avatar/91-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Frrtiix
+    item_level_equipped: 258
+    mythic_plus_scores:
+      all:
+        score: 1394.2
+        color: '#a7ff8d'
+      dps:
+        score: 1394.2
+        color: '#a7ff8d'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1394.2
+        color: '#a7ff8d'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Lishiystabb
@@ -4690,11 +4742,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3297.7
-        color: '#9b3eec'
+        score: 3327.3
+        color: '#a937e8'
       dps:
         score: 1147.4
         color: '#bcffa6'
@@ -4702,11 +4754,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3281.5
-        color: '#9b3eec'
+        score: 3325.4
+        color: '#a937e8'
       spec_0:
-        score: 3281.5
-        color: '#9b3eec'
+        score: 3325.4
+        color: '#a937e8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4817,6 +4869,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Gaplik
+    id: 223885513
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 30
+      name: Lightforged Draenei
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/223885513-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
+    item_level_equipped: 247
+    mythic_plus_scores:
+      all:
+        score: 430
+        color: '#f0ffe9'
+      dps:
+        score: 430
+        color: '#f0ffe9'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 430
+        color: '#f0ffe9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5730,7 +5834,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3105.7
@@ -5938,14 +6042,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3297.7
-        color: '#9b3eec'
+        score: 3327.3
+        color: '#a937e8'
       dps:
-        score: 3297.7
-        color: '#9b3eec'
+        score: 3327.3
+        color: '#a937e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -5959,8 +6063,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3297.7
-        color: '#9b3eec'
+        score: 3327.3
+        color: '#a937e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6354,14 +6458,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3142.4
-        color: '#6062e3'
+        score: 3225
+        color: '#8a4de9'
       dps:
-        score: 3142.4
-        color: '#6062e3'
+        score: 3225
+        color: '#8a4de9'
       healer:
         score: 0
         color: '#ffffff'
@@ -6375,8 +6479,8 @@ members:
         score: 698
         color: '#dfffd1'
       spec_2:
-        score: 3142.4
-        color: '#6062e3'
+        score: 3225
+        color: '#8a4de9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6742,7 +6846,7 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Destruction
+      name: Demonology
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/121/265783673-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шпаргат
@@ -6801,14 +6905,14 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2789.7
-        color: '#5799b1'
+        score: 2885.6
+        color: '#4687c5'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2789.7
-        color: '#5799b1'
+        score: 2885.6
+        color: '#4687c5'
       tank:
         score: 0
         color: '#ffffff'
@@ -6822,8 +6926,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2789.7
-        color: '#5799b1'
+        score: 2885.6
+        color: '#4687c5'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -6911,14 +7015,14 @@ members:
         score: 2884.7
         color: '#4687c5'
       healer:
-        score: 0
-        color: '#ffffff'
+        score: 669.2
+        color: '#e0ffd4'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 669.2
+        color: '#e0ffd4'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6954,7 +7058,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3062.3
@@ -7092,7 +7196,7 @@ members:
   character:
     name: Товстопуз
     id: 266050253
-    level: 85
+    level: 87
     realm:
       id: 1602
       slug: gordunni
@@ -7127,58 +7231,6 @@ members:
       spec_0:
         score: 0
         color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Frrtiix
-    id: 188280211
-    level: 90
-    realm:
-      id: 506
-      slug: draenor
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 91
-      name: Haranir
-    faction:
-      type: HORDE
-    gender: female
-    active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/147/188280211-avatar.jpg?alt=/wow/static/images/2d/avatar/91-1.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Frrtiix
-    item_level_equipped: 258
-    mythic_plus_scores:
-      all:
-        score: 1394.2
-        color: '#a7ff8d'
-      dps:
-        score: 1394.2
-        color: '#a7ff8d'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 1394.2
-        color: '#a7ff8d'
       spec_1:
         score: 0
         color: '#ffffff'

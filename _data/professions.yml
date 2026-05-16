@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 09:42:20'
+  updated_at: '2026-05-16 13:25:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 137
+  member_count: 138
 characters:
 - name: Бреинор
   region: eu
@@ -2745,6 +2745,32 @@ characters:
         learned_points: 100
         max_points: 100
     secondaries: []
+- name: Frrtiix
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Frrtiix
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 82
+        max_points: 100
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Herbalism
+        learned_points: 6
+        max_points: 105
+    secondaries: []
 - name: Lishiystabb
   region: eu
   realm: terokkar
@@ -2828,7 +2854,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     secondaries: []
 - name: Ragnarøøk
@@ -4834,6 +4860,59 @@ characters:
   professions:
     primaries: []
     secondaries: []
+- name: Gaplik
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 6
+        max_points: 305
+      - name: Khaz Algar Blacksmithing
+        learned_points: 6
+        max_points: 105
+      - name: Midnight Blacksmithing
+        learned_points: 37
+        max_points: 105
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 52
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 26
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 18
+        max_points: 300
 - name: Vertyxa
   region: eu
   realm: silvermoon
@@ -6987,30 +7066,4 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
   professions:
     primaries: []
-    secondaries: []
-- name: Frrtiix
-  region: eu
-  realm: draenor
-  realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Frrtiix
-  professions:
-    primaries:
-    - name: Skinning
-      id: 393
-      tiers:
-      - name: Classic Skinning
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Skinning
-        learned_points: 82
-        max_points: 100
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 6
-        max_points: 305
-      - name: Midnight Herbalism
-        learned_points: 6
-        max_points: 105
     secondaries: []
