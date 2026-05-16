@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 17:00:45'
+  updated_at: '2026-05-16 20:51:22'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 139
+  member_count: 140
 characters:
 - name: Бреинор
   region: eu
@@ -471,7 +471,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
   professions:
     primaries:
     - name: Engineering
@@ -527,7 +527,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Cooking
-        learned_points: 51
+        learned_points: 54
         max_points: 100
     - name: Fishing
       id: 356
@@ -566,7 +566,7 @@ characters:
         learned_points: 56
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 58
+        learned_points: 60
         max_points: 300
 - name: Shennái
   region: eu
@@ -3085,6 +3085,9 @@ characters:
     - name: Cooking
       id: 185
       tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
@@ -4393,7 +4396,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
   professions:
     primaries:
     - name: Herbalism
@@ -7105,3 +7108,11 @@ characters:
       - name: Midnight Fishing
         learned_points: 12
         max_points: 300
+- name: Иаллидан
+  region: eu
+  realm: soulflayer
+  realm_slug: soulflayer
+  profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
