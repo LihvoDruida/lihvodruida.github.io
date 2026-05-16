@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-15 21:03:15'
+  updated_at: '2026-05-16 02:59:40'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 136
+  member_count: 137
 characters:
 - name: Бреинор
   region: eu
@@ -2294,7 +2294,7 @@ characters:
         learned_points: 5
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -2611,7 +2611,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 136
         max_points: 300
 - name: Kashin
   region: eu
@@ -3022,7 +3022,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Athang
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -6761,7 +6761,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Mining
-        learned_points: 48
+        learned_points: 49
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6987,4 +6987,30 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
   professions:
     primaries: []
+    secondaries: []
+- name: Frrtiix
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Frrtiix
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 80
+        max_points: 100
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 39
+        max_points: 100
     secondaries: []
