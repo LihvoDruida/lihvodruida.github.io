@@ -17,11 +17,22 @@ export const metadata = buildPageMetadata({
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
+function parseDate(value?: string | null) {
+  if (!value) return null;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDate(value?: string | null) {
+  const date = parseDate(value);
+  if (!date) return "—";
   return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+function formatCompactDate(value?: string | null) {
+  const date = parseDate(value);
+  if (!date) return "—";
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "2-digit" }).format(date);
 }
 
 function profileDirectoryAvatarUrl(profile: DashboardProfile) {
@@ -35,27 +46,42 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const avatar = profileDirectoryAvatarUrl(profile);
   const guildStatus = profile.groupName || guildStatusLabel(profile.role);
   const href = `/profile/${profile.profileId}`;
+  const activityDate = profile.lastLoginAt || profile.updatedAt;
+  const mainLabel = main ? `${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : "мейн не вибрано";
 
   return (
     <a className="panel profile-directory-card profile-directory-card--clickable" href={href} aria-label={`Відкрити профіль: ${displayName}`}>
       <div className="profile-directory-card__main">
         {avatar ? (
-          <img className="profile-directory-card__avatar" src={avatar} alt="" width={56} height={56} loading="lazy" referrerPolicy="no-referrer" />
+          <img className="profile-directory-card__avatar" src={avatar} alt="" width={64} height={64} loading="lazy" referrerPolicy="no-referrer" />
         ) : (
           <span className="profile-directory-card__avatar profile-directory-card__avatar--fallback" aria-hidden="true">
             {(displayName || "?").charAt(0)}
           </span>
         )}
-        <div>
-          <h2>{displayName}</h2>
-          <p>{guildStatus}{main ? ` • ${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : " • мейн не вибрано"}</p>
+        <div className="profile-directory-card__content">
+          <h2 title={displayName}>{displayName}</h2>
+          <p className="profile-directory-card__meta" title={`${guildStatus} • ${mainLabel}`}>
+            <span>{guildStatus}</span>
+            <span aria-hidden="true">•</span>
+            <span>{mainLabel}</span>
+          </p>
         </div>
       </div>
 
       <div className="profile-directory-card__stats" aria-label="Короткі дані профілю">
-        <span><strong>{profile.characters.length}</strong><small>персонажів</small></span>
-        <span><strong>{profile.battlenet?.linked ? "Так" : "Ні"}</strong><small>Battle.net</small></span>
-        <span><strong>{formatDate(profile.lastLoginAt || profile.updatedAt)}</strong><small>активність</small></span>
+        <span>
+          <small>Персонажі</small>
+          <strong>{profile.characters.length}</strong>
+        </span>
+        <span>
+          <small>Battle.net</small>
+          <strong>{profile.battlenet?.linked ? "Так" : "Ні"}</strong>
+        </span>
+        <span className="profile-directory-card__stat--date" title={formatDate(activityDate)}>
+          <small>Активність</small>
+          <strong>{formatCompactDate(activityDate)}</strong>
+        </span>
       </div>
     </a>
   );
