@@ -80,7 +80,7 @@ extra_js:
     <div class="applications-filter-shell applications-filter-shell--advanced">
       <label class="applications-search-field" for="applications-search-input">
         <span>Пошук</span>
-        <input id="applications-search-input" type="search" placeholder="Нік, реалм або короткий опис" autocomplete="off">
+        <input id="applications-search-input" type="search" placeholder="Номер заявки, нік, реалм або короткий опис" autocomplete="off">
       </label>
 
       <label class="applications-search-field applications-select-field" for="applications-status-filter">

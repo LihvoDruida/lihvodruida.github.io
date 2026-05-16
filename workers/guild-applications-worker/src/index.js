@@ -1143,7 +1143,7 @@ function extractSummary(body) {
 
 function normalizeLabels(issue) {
   return Array.isArray(issue?.labels)
-    ? issue.labels.map((label) => String(label?.name || "").toLowerCase())
+    ? issue.labels.map((label) => String(typeof label === "string" ? label : label?.name || "").toLowerCase())
     : [];
 }
 
@@ -1534,7 +1534,9 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
   const characterTag =
     buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName;
 
+  const applicationNumber = issue?.tracking_number || issue?.number || "";
   const description = [
+    applicationNumber ? `**Номер відстеження:** #${escapeDiscordMarkdown(applicationNumber)}` : "",
     `**Статус:** ${escapeDiscordMarkdown(statusText)}`,
     issueUrl ? `**Заявка:** ${issueUrl}` : "",
   ]
@@ -1544,7 +1546,7 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
 
   return [
     {
-      title: limitText(`Нова заявка • ${characterTag}`, 256, "Нова заявка до гільдії"),
+      title: limitText(`Нова заявка #${applicationNumber || "—"} • ${characterTag}`, 256, "Нова заявка до гільдії"),
       description,
       color: resolveDiscordColor(statusText),
       fields: [
@@ -2226,22 +2228,86 @@ async function firebaseFetch(env, url, init = {}) {
   return data;
 }
 
-function nextApplicationNumber() {
-  const random = Math.floor(100 + Math.random() * 900);
-  return Number(`${Date.now()}${random}`);
+function encodeApplicationDateForNumber(date, env) {
+  const safeDate = date instanceof Date && Number.isFinite(date.getTime()) ? date : new Date();
+  const year = safeDate.getUTCFullYear() % 100;
+  const month = safeDate.getUTCMonth() + 1;
+  const day = safeDate.getUTCDate();
+  const ymd = year * 10000 + month * 100 + day;
+  const salt = Math.abs(Number(env.APPLICATION_NUMBER_DATE_SALT || env.APPLICATION_TRACKING_DATE_SALT || 730201)) % 1000000;
+  return String((ymd * 97 + salt) % 1000000).padStart(6, "0");
+}
+
+function nextApplicationNumber(env, now = new Date()) {
+  const safeDate = now instanceof Date && Number.isFinite(now.getTime()) ? now : new Date();
+  const encodedDate = encodeApplicationDateForNumber(safeDate, env);
+  const secondsInDay = safeDate.getUTCHours() * 3600 + safeDate.getUTCMinutes() * 60 + safeDate.getUTCSeconds();
+  const sequence = String(secondsInDay).padStart(5, "0");
+  const millis = String(safeDate.getUTCMilliseconds()).padStart(3, "0");
+  const random = String(Math.floor(Math.random() * 10));
+  return Number(`${encodedDate}${sequence}${millis}${random}`);
 }
 
 function labelsForApplicationStatus(status) {
   return [DEFAULT_LABEL, getTargetStatusLabel(status)];
 }
 
+function compactRaiderIoScoreBlock(seasonData) {
+  const scores = seasonData && typeof seasonData === "object" ? seasonData.scores || {} : {};
+  return {
+    all: Number.isFinite(Number(scores.all)) ? Number(scores.all) : null,
+    dps: Number.isFinite(Number(scores.dps)) ? Number(scores.dps) : null,
+    healer: Number.isFinite(Number(scores.healer)) ? Number(scores.healer) : null,
+    tank: Number.isFinite(Number(scores.tank)) ? Number(scores.tank) : null,
+  };
+}
+
+function compactRaiderIoRaid(raid) {
+  if (!raid || typeof raid !== "object") return null;
+  return {
+    key: cleanText(raid.key, 80),
+    name: cleanText(raid.name || prettifyRaidKey(raid.key), 120),
+    summary: cleanText(raid.summary, 120),
+    total_bosses: Number(raid.total_bosses || 0) || null,
+    normal_bosses_killed: Number(raid.normal_bosses_killed || 0) || 0,
+    heroic_bosses_killed: Number(raid.heroic_bosses_killed || 0) || 0,
+    mythic_bosses_killed: Number(raid.mythic_bosses_killed || 0) || 0,
+  };
+}
+
+function normalizeRaiderIoForApplicationStorage(rawData) {
+  if (!rawData || typeof rawData !== "object") return null;
+  if (rawData.mythic_plus || rawData.raids) return rawData;
+
+  const seasons = Array.isArray(rawData.mythic_plus_scores_by_season) ? rawData.mythic_plus_scores_by_season : [];
+  const raidGroups = splitRaidProgressionByExpansion(rawData.raid_progression);
+
+  return {
+    profile_url: cleanText(rawData.profile_url, 300, ""),
+    thumbnail_url: cleanText(rawData.thumbnail_url, 300, ""),
+    profile_banner: cleanText(rawData.profile_banner, 300, ""),
+    mythic_plus: {
+      current: compactRaiderIoScoreBlock(seasons[0]),
+      previous: compactRaiderIoScoreBlock(seasons[1]),
+    },
+    raids: {
+      current: (raidGroups.current || []).map(compactRaiderIoRaid).filter(Boolean).slice(0, 8),
+      previous: (raidGroups.previous || []).map(compactRaiderIoRaid).filter(Boolean).slice(0, 8),
+    },
+  };
+}
+
 async function createFirebaseApplication(env, payload, verification) {
-  const number = nextApplicationNumber();
-  const docId = `application-${number}`;
-  const now = new Date().toISOString();
-  const rioData = verification?.raider_io?.ok ? verification.raider_io.data : null;
+  const createdAtDate = new Date();
+  const number = nextApplicationNumber(env, createdAtDate);
+  const trackingNumber = String(number);
+  const docId = `application-${trackingNumber}`;
+  const now = createdAtDate.toISOString();
+  const rioRawData = verification?.raider_io?.ok ? verification.raider_io.data : null;
+  const rioData = normalizeRaiderIoForApplicationStorage(rioRawData);
   const data = {
     number,
+    tracking_number: trackingNumber,
     title: `Заявка до гільдії: ${payload.characterName}`,
     status: STATUS.REVIEW.key,
     status_key: STATUS.REVIEW.key,
@@ -2287,6 +2353,7 @@ async function createFirebaseApplication(env, payload, verification) {
     closed_at: null,
     number,
     labels: data.labels.map((name) => ({ name })),
+    tracking_number: trackingNumber,
     firestore: parseFirestoreDocument(document),
   };
 }
@@ -2914,17 +2981,30 @@ async function handleDiscordInteraction(request, env, ctx) {
 }
 
 async function listFirebaseApplicationDocuments(env, limit) {
-  const url = new URL(`${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}`);
+  const baseUrl = `${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}`;
+  const url = new URL(baseUrl);
   url.searchParams.set("pageSize", String(limit));
   url.searchParams.set("orderBy", "createdAtMs desc");
-  const data = await firebaseFetch(env, url.toString());
-  return Array.isArray(data?.documents) ? data.documents.map(parseFirestoreDocument) : [];
+
+  try {
+    const data = await firebaseFetch(env, url.toString());
+    return Array.isArray(data?.documents) ? data.documents.map(parseFirestoreDocument) : [];
+  } catch (error) {
+    const fallbackUrl = new URL(baseUrl);
+    fallbackUrl.searchParams.set("pageSize", String(limit));
+    const data = await firebaseFetch(env, fallbackUrl.toString());
+    const items = Array.isArray(data?.documents) ? data.documents.map(parseFirestoreDocument) : [];
+    return items.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
+  }
 }
 
 function mapFirebaseListItem(item) {
   const statusKey = resolveStatusFilter(item.status_key || item.status || "review") || STATUS.REVIEW.key;
+  const number = Number(item.number || item.tracking_number || item.trackingNumber) || 0;
+  const trackingNumber = String(item.tracking_number || item.trackingNumber || number || "");
   return {
-    number: Number(item.number) || 0,
+    number,
+    tracking_number: trackingNumber,
     title: String(item.title || `Заявка до гільдії: ${item.character_name || item.characterName || "Персонаж"}`),
     state: String(item.state || (statusKey === STATUS.REVIEW.key ? "open" : "closed")),
     status_key: statusKey,
@@ -2933,7 +3013,7 @@ function mapFirebaseListItem(item) {
     created_at: String(item.created_at || item.createdAt || ""),
     updated_at: String(item.updated_at || item.updatedAt || item.created_at || ""),
     closed_at: item.closed_at || null,
-    summary: [item.character_name || item.characterName, item.realm, item.region || "eu", item.faction, item.class_name || item.className].filter(Boolean).join(" • "),
+    summary: [trackingNumber ? `№${trackingNumber}` : "", item.character_name || item.characterName, item.realm, item.region || "eu", item.faction, item.class_name || item.className].filter(Boolean).join(" • "),
     character_name: String(item.character_name || item.characterName || ""),
     realm: String(item.realm || ""),
     region: String(item.region || "eu"),
@@ -2998,7 +3078,7 @@ async function listApplications(request, env) {
   if (className && className !== "all") items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
   if (query) {
     items = items.filter((item) =>
-      [item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
+      [item.number, item.tracking_number, item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
         .some((value) => String(value || "").toLowerCase().includes(query))
     );
   }
@@ -3031,6 +3111,44 @@ async function listApplications(request, env) {
     200,
     origin
   );
+}
+
+async function sendDiscordNotification(env, cleanPayload, issue) {
+  const channelId = snowflake(env.DISCORD_CHANNEL_ID || env.GUILD_APPLICATIONS_DISCORD_CHANNEL_ID || env.DISCORD_APPLICATIONS_CHANNEL_ID);
+  if (!env.DISCORD_BOT_TOKEN) return { skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
+  if (!channelId) return { skipped: true, reason: "DISCORD_CHANNEL_ID is missing" };
+
+  const verification = cleanPayload?._verification || {};
+  const issueNumber = issue?.tracking_number || issue?.number || "";
+  const content = issueNumber
+    ? `📨 **Нова заявка #${issueNumber}**`
+    : "📨 **Нова заявка до гільдії**";
+
+  const response = await discordApiFetch(env, `/channels/${channelId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({
+      content,
+      embeds: buildDiscordEmbeds(cleanPayload, issue, env, verification.raider_io).slice(0, 10),
+      components: issue?.number ? buildApplicationButtons(issue.number) : [],
+      allowed_mentions: { parse: [] },
+    }),
+  });
+
+  const raw = await response.text().catch(() => "");
+  let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+
+  if (!response.ok || !data?.id) {
+    throw new Error(data?.message || raw || `Discord API ${response.status}`);
+  }
+
+  return {
+    ok: true,
+    channel_id: channelId,
+    message_id: String(data.id),
+    raider_io: Boolean(verification.raider_io?.ok),
+    battlenet: Boolean(verification.battlenet?.ok),
+  };
 }
 
 async function completeDiscordNotification(env, cleanPayload, issue) {
@@ -3187,6 +3305,7 @@ async function createApplication(request, env, ctx) {
       {
         ok: true,
         number: issue.number,
+        tracking_number: issue.tracking_number || String(issue.number),
         state: issue.state,
         status_text: STATUS.REVIEW.label,
         title: issue.title,

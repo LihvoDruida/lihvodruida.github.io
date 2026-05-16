@@ -71,48 +71,6 @@ extra_js:
     </div>
   </section>
 
-  <section class="featured-article featured-article--applications guild-apply-guide">
-    <div class="featured-image guild-apply-guide__image">
-      <div class="guild-apply-guide__image-frame">
-        <img src="{{ '/assets/img/guild-finder-apply.png' | relative_url }}" alt="Пошук гільдії Mistblossom Vanguard у World of Warcraft" loading="eager" decoding="async">
-      </div>
-      <div class="guild-apply-guide__image-caption">
-        <span class="guild-apply-guide__image-kicker">Guild Finder</span>
-        <strong class="guild-apply-guide__image-title">Саме так виглядає пошук Mistblossom Vanguard у грі</strong>
-      </div>
-    </div>
-
-    <div class="featured-content guild-apply-guide__content">
-      <div class="featured-meta">
-        <span class="category-badge category-badge--guild">У грі</span>
-        <span class="date">Перший крок</span>
-      </div>
-
-      <h2>Знайди Mistblossom Vanguard у Guild Finder та переходь до заявки</h2>
-      <p>Відкрий <strong>Guild &amp; Communities</strong>, введи <strong>Mistblossom Vanguard</strong> і після цього одразу заповни заявку на сайті. Так легше звірити твого персонажа, клас, реалм і контакти без зайвого листування.</p>
-
-      <div class="finder-steps-grid finder-steps-grid--newslike">
-        <article class="finder-step-card">
-          <span class="finder-step-card__num">1</span>
-          <h3>Відкрий Guild Finder</h3>
-          <p>Перейди до <strong>Guild &amp; Communities</strong> у World of Warcraft і відкрий пошук гільдій.</p>
-        </article>
-
-        <article class="finder-step-card">
-          <span class="finder-step-card__num">2</span>
-          <h3>Знайди Mistblossom Vanguard</h3>
-          <p>Введи <strong>Mistblossom Vanguard</strong> у пошуку та переконайся, що це потрібна гільдія на <strong>Terokkar</strong>.</p>
-        </article>
-
-        <article class="finder-step-card">
-          <span class="finder-step-card__num">3</span>
-          <h3>Заповни форму на сайті</h3>
-          <p>Після цього залиш коротку заявку тут — так простіше перевірити статус і швидше зв’язатися з тобою.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
   <section class="application-main-grid">
     <div class="application-panel application-panel--form">
       <div class="application-panel__header">

@@ -59,6 +59,8 @@
 
   function getApplicationSearchText(item) {
     return [
+      item && item.number,
+      item && item.tracking_number,
       item && item.title,
       item && item.summary,
       item && item.character_name,
@@ -75,7 +77,8 @@
     var statusKey = normalizeStatus(item);
     var stateClass = (STATUS[statusKey] && STATUS[statusKey].className) || 'review';
     var meta = [];
-    if (item.number) meta.push('№' + item.number);
+    var trackingNumber = item.tracking_number || item.number || '';
+    if (trackingNumber) meta.push('№' + trackingNumber);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
     if (item.class_name) meta.push(item.class_name);
     if (item.realm) meta.push(item.realm);
@@ -460,9 +463,13 @@
           });
           syncBattleTagRequirement();
           syncSourceRequirement();
+          var resultNumber = result.tracking_number || result.number || '';
+          var numberHtml = resultNumber
+            ? '<br><strong>Номер відстеження заявки: №' + escapeHtml(resultNumber) + '</strong><br>Збережи цей номер — за ним можна буде швидко знайти заявку в пошуку.'
+            : '';
           setFeedback('success', result.html_url
-            ? 'Заявку надіслано. Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.'
-            : 'Заявку надіслано. Дані перевірено й заявку створено.');
+            ? 'Заявку надіслано. Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.' + numberHtml
+            : 'Заявку надіслано. Дані перевірено й заявку створено.' + numberHtml);
           loadRecent();
         } catch (error) {
           setFeedback('error', escapeHtml(error.message || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.'));

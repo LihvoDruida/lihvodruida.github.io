@@ -63,6 +63,7 @@ export type ApplicationItem = {
   [key: string]: unknown;
   id?: string;
   number: number;
+  tracking_number?: string;
   title: string;
   state: string;
   html_url: string;
@@ -647,8 +648,102 @@ function labelsForFirebaseStatus(status: ApplicationStatus) {
   return [process.env.GUILD_APPLICATIONS_LABEL || "guild-application", statusLabel(status)];
 }
 
+function normalizeRaiderIoScoreBlock(seasonData: any): RaiderIoScoreBlock {
+  const scores = seasonData && typeof seasonData === "object" ? seasonData.scores || seasonData : {};
+  const pick = (value: unknown) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  };
+  return {
+    all: pick(scores.all),
+    dps: pick(scores.dps),
+    healer: pick(scores.healer),
+    tank: pick(scores.tank),
+  };
+}
+
+function prettifyRaiderIoRaidKey(key: unknown) {
+  return String(key || "")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normalizeRaiderIoRaidBlock(raid: any): RaiderIoRaidBlock | null {
+  if (!raid || typeof raid !== "object") return null;
+  return {
+    key: raid.key ? String(raid.key) : undefined,
+    name: raid.name ? String(raid.name) : prettifyRaiderIoRaidKey(raid.key),
+    summary: raid.summary ? String(raid.summary) : undefined,
+    total_bosses: Number(raid.total_bosses || 0) || undefined,
+    normal_bosses_killed: Number(raid.normal_bosses_killed || 0) || 0,
+    heroic_bosses_killed: Number(raid.heroic_bosses_killed || 0) || 0,
+    mythic_bosses_killed: Number(raid.mythic_bosses_killed || 0) || 0,
+  };
+}
+
+function splitRaiderIoRaidProgression(raidProgression: any) {
+  const entries = Object.entries(raidProgression || {})
+    .map(([key, value]) => ({ key, ...((value || {}) as Record<string, unknown>) }))
+    .filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+
+  const grouped = new Map<number, any[]>();
+  for (const raid of entries) {
+    const expansionId = Number((raid as any).expansion_id);
+    if (!grouped.has(expansionId)) grouped.set(expansionId, []);
+    grouped.get(expansionId)?.push(raid);
+  }
+
+  const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+  return {
+    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
+  };
+}
+
+function normalizeRaiderIoApplicationData(value: any): RaiderIoApplicationData | null {
+  if (!value || typeof value !== "object") return null;
+
+  if (value.mythic_plus || value.raids) {
+    return {
+      profile_url: value.profile_url || null,
+      thumbnail_url: value.thumbnail_url || null,
+      profile_banner: value.profile_banner || null,
+      mythic_plus: {
+        current: normalizeRaiderIoScoreBlock(value.mythic_plus?.current),
+        previous: normalizeRaiderIoScoreBlock(value.mythic_plus?.previous),
+      },
+      raids: {
+        current: Array.isArray(value.raids?.current) ? value.raids.current.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [],
+        previous: Array.isArray(value.raids?.previous) ? value.raids.previous.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[] : [],
+      },
+    };
+  }
+
+  const seasons = Array.isArray(value.mythic_plus_scores_by_season) ? value.mythic_plus_scores_by_season : [];
+  const raidGroups = splitRaiderIoRaidProgression(value.raid_progression);
+
+  return {
+    profile_url: value.profile_url || null,
+    thumbnail_url: value.thumbnail_url || null,
+    profile_banner: value.profile_banner || null,
+    mythic_plus: {
+      current: normalizeRaiderIoScoreBlock(seasons[0]),
+      previous: normalizeRaiderIoScoreBlock(seasons[1]),
+    },
+    raids: {
+      current: raidGroups.current.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[],
+      previous: raidGroups.previous.map(normalizeRaiderIoRaidBlock).filter(Boolean) as RaiderIoRaidBlock[],
+    },
+  };
+}
+
 function buildFirebaseApplicationBody(item: ApplicationItem) {
   return [
+    "### Заявка",
+    `- Номер відстеження: ${item.tracking_number || item.number}`,
+    "",
     "### Персонаж",
     `- Регіон: ${item.region || "eu"}`,
     `- Ім’я персонажа: ${item.character_name || ""}`,
@@ -672,15 +767,19 @@ function buildFirebaseApplicationBody(item: ApplicationItem) {
 function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   const data = (doc.data() || {}) as Record<string, any>;
   const status = normalizeStatus(String(data.status_key || data.status || "review"));
-  const number = normalizeApplicationNumber(data.number, doc.id);
+  const number = normalizeApplicationNumber(data.number || data.tracking_number || data.trackingNumber, doc.id);
+  const trackingNumber = String(data.tracking_number || data.trackingNumber || number || "");
   const createdAt = normalizeTimestamp(data.created_at || data.createdAt || data.submitted_at || data.submittedAt) || new Date(0).toISOString();
   const updatedAt = normalizeTimestamp(data.updated_at || data.updatedAt) || createdAt;
   const closedAt = normalizeTimestamp(data.closed_at || data.closedAt) || null;
   const discordMessageRef = data.discord_message_ref || data.discordMessageRef || null;
+  const rawRaiderIo = data.raider_io || data.raiderIo || data.verification?.raider_io?.data || null;
+  const normalizedRaiderIo = normalizeRaiderIoApplicationData(rawRaiderIo);
 
   const item: ApplicationItem = {
     id: doc.id,
     number,
+    tracking_number: trackingNumber,
     title: String(data.title || `Заявка до гільдії: ${data.character_name || data.characterName || "Персонаж"}`),
     state: String(data.state || (status === "review" ? "open" : "closed")),
     html_url: String(data.html_url || data.htmlUrl || ""),
@@ -698,16 +797,16 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
     availability: String(data.availability || ""),
     discord: data.discord ? String(data.discord) : null,
     battle_tag: data.battle_tag || data.battleTag ? String(data.battle_tag || data.battleTag) : null,
-    avatar_url: String(data.avatar_url || data.avatarUrl || data.raider_io?.thumbnail_url || data.raiderIo?.thumbnail_url || "") || null,
-    profile_url: String(data.profile_url || data.profileUrl || data.raider_io?.profile_url || data.raiderIo?.profile_url || "") || null,
-    raider_io: (data.raider_io || data.raiderIo || null) as RaiderIoApplicationData | null,
+    avatar_url: String(data.avatar_url || data.avatarUrl || normalizedRaiderIo?.thumbnail_url || "") || null,
+    profile_url: String(data.profile_url || data.profileUrl || normalizedRaiderIo?.profile_url || "") || null,
+    raider_io: normalizedRaiderIo,
     raider_io_error: data.raider_io_error || data.raiderIoError || data.verification?.raider_io?.error || null,
     discord_ref: discordMessageRef,
     discord_message_ref: discordMessageRef,
     labels: Array.isArray(data.labels) ? data.labels.map((label: unknown) => String(label)) : labelsForFirebaseStatus(status),
   };
 
-  if (!item.raider_io && data.verification?.raider_io?.data) item.raider_io = data.verification.raider_io.data;
+  if (!item.raider_io && data.verification?.raider_io?.data) item.raider_io = normalizeRaiderIoApplicationData(data.verification.raider_io.data);
   if (!item.avatar_url && item.raider_io?.thumbnail_url) item.avatar_url = item.raider_io.thumbnail_url;
   if (!item.profile_url && item.raider_io?.profile_url) item.profile_url = item.raider_io.profile_url;
   return item;
@@ -768,6 +867,8 @@ export async function listApplications(params?: URLSearchParams) {
   if (query) {
     items = items.filter((item) =>
       [
+        item.number,
+        item.tracking_number,
         item.title,
         item.character_name,
         item.realm,

@@ -206,7 +206,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               <div className="character-head">
                 <CharacterAvatar item={item} />
                 <div>
-                  <h2>#{item.number} • {item.character_name || item.title}</h2>
+                  <h2>#{item.tracking_number || item.number} • {item.character_name || item.title}</h2>
                   <div className="meta">
                     <span>{item.region || "Region?"}</span>
                     <span>{item.realm || "Realm не вказано"}</span>

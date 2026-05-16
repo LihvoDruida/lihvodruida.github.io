@@ -81,9 +81,10 @@ wrangler deploy
 Для нормальної роботи потрібні:
 
 - `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_APPLICATIONS_COLLECTION` для Firestore-заявок;
+- `APPLICATION_NUMBER_DATE_SALT` — стабільна цифрова сіль для номера відстеження заявки з кодованою датою;
 - `ALLOWED_ORIGINS` з origin публічного сайту й dashboard;
 - `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_GUILD_ID` для Discord bot/interactions;
-- `DISCORD_CHANNEL_ID`, якщо заявки мають публікуватися в Discord;
+- `DISCORD_CHANNEL_ID` / `GUILD_APPLICATIONS_DISCORD_CHANNEL_ID`, якщо заявки мають публікуватися в Discord;
 - `RULES_STATS` KV binding, якщо потрібна статистика правил і raid-rules;
 - `INTERNAL_PROFILE_LOOKUP_TOKEN` і `ADMIN_DASHBOARD_URL` для перевірки профілю/main-персонажа;
 - `DISCORD_RULES_STATS_TOKEN`, спільний із dashboard, для захисту stats/message endpoints.
