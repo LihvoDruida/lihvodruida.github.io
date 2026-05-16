@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 02:59:40'
+  updated_at: '2026-05-16 06:23:13'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6155
       realm: 56
     heroic:
-      world: 12993
-      region: 5807
+      world: 13013
+      region: 5809
       realm: 44
     mythic:
-      world: 7926
+      world: 7929
       region: 3384
       realm: 27
   blackrock-depths:
@@ -3014,23 +3014,47 @@ members:
       slug: terokkar
     playable_class:
       id: 10
-      name: null
+      name: Monk
     playable_race:
       id: 86
-      name: null
+      name: Haranir
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Athang
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2201
+        color: '#39ff20'
+      dps:
+        score: 706.8
+        color: '#ddffcf'
+      healer:
+        score: 717
+        color: '#ddffcf'
+      tank:
+        score: 2201
+        color: '#39ff20'
+      spec_0:
+        score: 2201
+        color: '#39ff20'
+      spec_1:
+        score: 717
+        color: '#ddffcf'
+      spec_2:
+        score: 706.8
+        color: '#ddffcf'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 0
   character:

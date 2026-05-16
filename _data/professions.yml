@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 02:59:40'
+  updated_at: '2026-05-16 06:23:13'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3022,7 +3022,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Athang
   professions:
     primaries:
     - name: Herbalism
