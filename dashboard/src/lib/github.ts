@@ -43,6 +43,7 @@ export type RaiderIoRaidBlock = {
   normal_bosses_killed?: number;
   heroic_bosses_killed?: number;
   mythic_bosses_killed?: number;
+  expansion_id?: number | null;
 };
 
 export type RaiderIoApplicationData = {
@@ -393,15 +394,19 @@ function hasRaidProgressData(raid: any) {
   );
 }
 
-function normalizeRaidBlock(key: string, raid: any): RaiderIoRaidBlock {
+function normalizeRaidBlock(key: string, raid: any): RaiderIoRaidBlock | null {
+  if (!hasRaidProgressData(raid)) return null;
+  const expansionId = Number(raid?.expansion_id);
+
   return {
     key,
-    name: prettifyRaidKey(key),
+    name: String(raid?.name || "").trim() || prettifyRaidKey(key),
     summary: String(raid?.summary || "").trim() || undefined,
     total_bosses: Number(raid?.total_bosses || 0) || undefined,
-    normal_bosses_killed: Number(raid?.normal_bosses_killed || 0) || undefined,
-    heroic_bosses_killed: Number(raid?.heroic_bosses_killed || 0) || undefined,
-    mythic_bosses_killed: Number(raid?.mythic_bosses_killed || 0) || undefined,
+    normal_bosses_killed: Number(raid?.normal_bosses_killed || 0) || 0,
+    heroic_bosses_killed: Number(raid?.heroic_bosses_killed || 0) || 0,
+    mythic_bosses_killed: Number(raid?.mythic_bosses_killed || 0) || 0,
+    expansion_id: Number.isFinite(expansionId) ? expansionId : null,
   };
 }
 
@@ -502,11 +507,13 @@ export async function fetchRaiderIoForApplication(item: ApplicationItem): Promis
           current: raidGroups.current
             .filter(hasRaidProgressData)
             .slice(0, 8)
-            .map((raid: any) => normalizeRaidBlock(raid.key, raid)),
+            .map((raid: any) => normalizeRaidBlock(raid.key, raid))
+            .filter(Boolean) as RaiderIoRaidBlock[],
           previous: raidGroups.previous
             .filter(hasRaidProgressData)
             .slice(0, 8)
-            .map((raid: any) => normalizeRaidBlock(raid.key, raid)),
+            .map((raid: any) => normalizeRaidBlock(raid.key, raid))
+            .filter(Boolean) as RaiderIoRaidBlock[],
         },
       },
       error: null,
@@ -681,7 +688,9 @@ function prettifyRaiderIoRaidKey(key: unknown) {
 }
 
 function normalizeRaiderIoRaidBlock(raid: any): RaiderIoRaidBlock | null {
-  if (!raid || typeof raid !== "object") return null;
+  if (!hasRaidProgressData(raid)) return null;
+  const expansionId = Number(raid.expansion_id);
+
   return {
     key: raid.key ? String(raid.key) : undefined,
     name: raid.name ? String(raid.name) : prettifyRaiderIoRaidKey(raid.key),
@@ -690,6 +699,7 @@ function normalizeRaiderIoRaidBlock(raid: any): RaiderIoRaidBlock | null {
     normal_bosses_killed: Number(raid.normal_bosses_killed || 0) || 0,
     heroic_bosses_killed: Number(raid.heroic_bosses_killed || 0) || 0,
     mythic_bosses_killed: Number(raid.mythic_bosses_killed || 0) || 0,
+    expansion_id: Number.isFinite(expansionId) ? expansionId : null,
   };
 }
 
@@ -757,6 +767,34 @@ function normalizeRaiderIoApplicationData(value: any): RaiderIoApplicationData |
   };
 }
 
+function hasRaiderIoRaidRows(value: RaiderIoApplicationData | null | undefined) {
+  return Boolean((value?.raids?.current?.length || 0) + (value?.raids?.previous?.length || 0));
+}
+
+function mergeRaiderIoApplicationData(
+  primary: RaiderIoApplicationData | null,
+  fallback: RaiderIoApplicationData | null,
+): RaiderIoApplicationData | null {
+  if (!primary) return fallback;
+  if (!fallback) return primary;
+
+  return {
+    profile_url: primary.profile_url || fallback.profile_url || null,
+    thumbnail_url: primary.thumbnail_url || fallback.thumbnail_url || null,
+    profile_banner: primary.profile_banner || fallback.profile_banner || null,
+    mythic_plus: {
+      current: primary.mythic_plus?.current || fallback.mythic_plus?.current,
+      previous: primary.mythic_plus?.previous || fallback.mythic_plus?.previous,
+    },
+    raids: hasRaiderIoRaidRows(primary)
+      ? primary.raids
+      : {
+          current: fallback.raids?.current || [],
+          previous: fallback.raids?.previous || [],
+        },
+  };
+}
+
 function buildFirebaseApplicationBody(item: ApplicationItem) {
   return [
     "### Заявка",
@@ -792,8 +830,12 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   const updatedAt = normalizeTimestamp(data.updated_at || data.updatedAt) || createdAt;
   const closedAt = normalizeTimestamp(data.closed_at || data.closedAt) || null;
   const discordMessageRef = data.discord_message_ref || data.discordMessageRef || null;
-  const rawRaiderIo = data.raider_io || data.raiderIo || data.verification?.raider_io?.data || null;
-  const normalizedRaiderIo = normalizeRaiderIoApplicationData(rawRaiderIo);
+  const storedRaiderIo = data.raider_io || data.raiderIo || null;
+  const rawRaiderIo = data.raider_io_raw || data.raiderIoRaw || data.verification?.raider_io?.data || null;
+  const normalizedRaiderIo = mergeRaiderIoApplicationData(
+    normalizeRaiderIoApplicationData(storedRaiderIo),
+    normalizeRaiderIoApplicationData(rawRaiderIo),
+  );
 
   const item: ApplicationItem = {
     id: doc.id,
@@ -826,7 +868,7 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
     labels: Array.isArray(data.labels) ? data.labels.map((label: unknown) => String(label)) : labelsForFirebaseStatus(status),
   };
 
-  if (!item.raider_io && data.verification?.raider_io?.data) item.raider_io = normalizeRaiderIoApplicationData(data.verification.raider_io.data);
+  if (!item.raider_io && rawRaiderIo) item.raider_io = normalizeRaiderIoApplicationData(rawRaiderIo);
   if (!item.avatar_url && item.raider_io?.thumbnail_url) item.avatar_url = item.raider_io.thumbnail_url;
   if (!item.profile_url && item.raider_io?.profile_url) item.profile_url = item.raider_io.profile_url;
   return item;

@@ -2353,15 +2353,20 @@ function compactRaiderIoScoreBlock(seasonData) {
 }
 
 function compactRaiderIoRaid(raid) {
-  if (!raid || typeof raid !== "object") return null;
+  if (!hasRaidProgressData(raid)) return null;
+
+  const totalBosses = Number(raid.total_bosses || 0);
+  const expansionId = Number(raid.expansion_id);
+
   return {
     key: cleanText(raid.key, 80),
     name: cleanText(raid.name || prettifyRaidKey(raid.key), 120),
     summary: cleanText(raid.summary, 120),
-    total_bosses: Number(raid.total_bosses || 0) || null,
+    total_bosses: Number.isFinite(totalBosses) && totalBosses > 0 ? totalBosses : null,
     normal_bosses_killed: Number(raid.normal_bosses_killed || 0) || 0,
     heroic_bosses_killed: Number(raid.heroic_bosses_killed || 0) || 0,
     mythic_bosses_killed: Number(raid.mythic_bosses_killed || 0) || 0,
+    expansion_id: Number.isFinite(expansionId) ? expansionId : null,
   };
 }
 
@@ -2384,6 +2389,7 @@ function normalizeRaiderIoForApplicationStorage(rawData) {
       current: (raidGroups.current || []).map(compactRaiderIoRaid).filter(Boolean).slice(0, 8),
       previous: (raidGroups.previous || []).map(compactRaiderIoRaid).filter(Boolean).slice(0, 8),
     },
+    raid_progression: rawData.raid_progression || null,
   };
 }
 

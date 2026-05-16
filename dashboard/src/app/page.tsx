@@ -36,8 +36,11 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
   return <span className="mini-metric"><strong>{value}</strong><small>{label}</small></span>;
 }
 
-function formatRaidName(raid: unknown): string {
-  if (typeof raid === "string") return raid;
+function formatRaidName(raid: unknown): string | null {
+  if (typeof raid === "string") {
+    const value = raid.trim();
+    return value || null;
+  }
 
   if (raid && typeof raid === "object") {
     const item = raid as {
@@ -51,19 +54,25 @@ function formatRaidName(raid: unknown): string {
     };
 
     const baseName = item.name || item.key || "Raid";
-    if (item.summary) return `${baseName}: ${item.summary}`;
+    if (item.summary && item.summary.trim()) return `${baseName}: ${item.summary.trim()}`;
 
-    const total = item.total_bosses || "?";
+    const total = Number(item.total_bosses || 0) > 0 ? item.total_bosses : "?";
     const progress = [
-      item.mythic_bosses_killed ? `${item.mythic_bosses_killed}/${total} M` : "",
-      item.heroic_bosses_killed ? `${item.heroic_bosses_killed}/${total} H` : "",
-      item.normal_bosses_killed ? `${item.normal_bosses_killed}/${total} N` : "",
+      Number(item.mythic_bosses_killed || 0) > 0 ? `${item.mythic_bosses_killed}/${total} M` : "",
+      Number(item.heroic_bosses_killed || 0) > 0 ? `${item.heroic_bosses_killed}/${total} H` : "",
+      Number(item.normal_bosses_killed || 0) > 0 ? `${item.normal_bosses_killed}/${total} N` : "",
     ].filter(Boolean).join(" • ");
 
-    return progress ? `${baseName}: ${progress}` : baseName;
+    return progress ? `${baseName}: ${progress}` : null;
   }
 
-  return "Raid";
+  return null;
+}
+
+function getRaidLines(raids: unknown[] | undefined): string[] {
+  return (Array.isArray(raids) ? raids : [])
+    .map(formatRaidName)
+    .filter((value): value is string => Boolean(value));
 }
 
 function raidKey(raid: unknown, index: number): string {
@@ -103,8 +112,8 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   const rio = item.raider_io ?? null;
   const current = rio?.mythic_plus?.current || {};
   const previous = rio?.mythic_plus?.previous || {};
-  const currentRaids = rio?.raids?.current || [];
-  const previousRaids = rio?.raids?.previous || [];
+  const currentRaids = getRaidLines(rio?.raids?.current);
+  const previousRaids = getRaidLines(rio?.raids?.previous);
 
   return (
     <div className="rio-panel">
@@ -120,11 +129,11 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
       <div className="raid-grid">
         <div>
           <strong>Рейди зараз</strong>
-          {currentRaids.length ? currentRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
+          {currentRaids.length ? currentRaids.map((raid, index) => <span key={raidKey(raid, index)}>{raid}</span>) : <span>Дані відсутні</span>}
         </div>
         <div>
           <strong>Рейди раніше</strong>
-          {previousRaids.length ? previousRaids.map((raid, index) => <span key={raidKey(raid, index)}>{formatRaidName(raid)}</span>) : <span>Дані відсутні</span>}
+          {previousRaids.length ? previousRaids.map((raid, index) => <span key={raidKey(raid, index)}>{raid}</span>) : <span>Дані відсутні</span>}
         </div>
       </div>
       {rio?.profile_url ? <a className="rio-link" href={rio.profile_url} target="_blank" rel="noreferrer">Відкрити Raider.IO</a> : null}
