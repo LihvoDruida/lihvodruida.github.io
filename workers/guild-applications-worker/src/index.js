@@ -31,6 +31,19 @@ function normalizeStatusKey(value) {
   return STATUS_ALIASES[String(value || "").trim().toLowerCase()] || STATUS.REVIEW.key;
 }
 
+function resolveStatusFilter(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw || raw === "all") return raw === "all" ? "all" : null;
+  const normalized = raw.replace(/\s+/g, "").replace(/_/g, "").replace(/-/g, "").replace(/:/g, "");
+  const alias = STATUS_ALIASES[raw] || STATUS_ALIASES[normalized];
+  if (alias) return alias;
+  if (normalized === "statusreview") return STATUS.REVIEW.key;
+  if (normalized === "statusaccepted" || normalized === "statusapproved") return STATUS.ACCEPTED.key;
+  if (normalized === "statusdeclined" || normalized === "statusrejected") return STATUS.DECLINED.key;
+  if (STATUS_KEYS.has(raw)) return raw;
+  return null;
+}
+
 const INTERACTION_COOLDOWN_MS = 2500;
 const interactionCooldowns = new Map();
 const RULES_CUSTOM_ID_PREFIX = "mbv1";
@@ -1112,8 +1125,8 @@ function buildIssueBody(payload) {
     `- Клас: ${payload.className || "Не вказано"}`,
     "",
     "### Контакти",
-    "- Discord: Приховано",
-    "- BattleTag: Приховано",
+    `- Discord: ${payload.discord || "Не вказано"}`,
+    `- BattleTag: ${payload.battleTag || "Не вказано"}`,
     `- Звідки дізнався: ${payload.source || "Не вказано"}`,
     "",
     "### Коли зазвичай грає",
@@ -1252,16 +1265,24 @@ function formatRaidSummary(raid) {
 }
 
 function splitRaidProgressionByExpansion(raidProgression) {
-  const entries = Object.entries(raidProgression || {})
-    .map(([key, value]) => ({
-      key,
-      ...(value || {}),
-    }))
-    .filter((item) => Number.isFinite(Number(item.expansion_id)));
+  const entries = Object.entries(raidProgression || {}).map(([key, value]) => ({
+    key,
+    ...(value || {}),
+  }));
+
+  const withExpansion = entries.filter((item) => Number.isFinite(Number(item.expansion_id)));
+  const withoutExpansion = entries.filter((item) => !Number.isFinite(Number(item.expansion_id)));
+
+  if (!withExpansion.length) {
+    return {
+      current: entries,
+      previous: [],
+    };
+  }
 
   const grouped = new Map();
 
-  for (const raid of entries) {
+  for (const raid of withExpansion) {
     const expansionId = Number(raid.expansion_id);
     if (!grouped.has(expansionId)) {
       grouped.set(expansionId, []);
@@ -1270,9 +1291,10 @@ function splitRaidProgressionByExpansion(raidProgression) {
   }
 
   const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+  const current = expansionIds.length ? [...(grouped.get(expansionIds[0]) || []), ...withoutExpansion] : withoutExpansion;
 
   return {
-    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    current,
     previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
   };
 }
@@ -1314,7 +1336,7 @@ async function fetchRaiderIoProfile(payload) {
   url.searchParams.set("name", characterSlug);
   url.searchParams.set(
     "fields",
-    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
+    "mythic_plus_scores_by_season:current:previous,raid_progression"
   );
 
   try {
@@ -1534,9 +1556,11 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
   const characterTag =
     buildCharacterRealmTag(payload.characterName, payload.realm) || payload.characterName;
 
-  const applicationNumber = issue?.tracking_number || issue?.number || "";
+  const applicationNumber = issue?.number || issue?.application_number || "";
+  const trackingNumber = issue?.tracking_number || "";
   const description = [
-    applicationNumber ? `**Номер відстеження:** #${escapeDiscordMarkdown(applicationNumber)}` : "",
+    applicationNumber ? `**Заявка:** #${escapeDiscordMarkdown(applicationNumber)}` : "",
+    trackingNumber ? `**Номер відстеження:** ${escapeDiscordMarkdown(trackingNumber)}` : "",
     `**Статус:** ${escapeDiscordMarkdown(statusText)}`,
     issueUrl ? `**Заявка:** ${issueUrl}` : "",
   ]
@@ -1566,7 +1590,13 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
         },
         {
           name: "Контакти",
-          value: "Discord і BattleTag приховані у Discord-повідомленні. Їх видно тільки офіцерам та адмінам у dashboard.",
+          value: limitText(
+            [
+              `**Discord:** ${formatCopyableValue(payload.discord)}`,
+              `**BattleTag:** ${formatCopyableValue(payload.battleTag)}`,
+            ].join("\n"),
+            1024
+          ),
           inline: false,
         },
         {
@@ -1594,6 +1624,7 @@ function buildDiscordEmbeds(payload, issue, env, raiderIoResult) {
     },
   ];
 }
+
 
 function hexToBytes(hex) {
   const clean = String(hex || "").trim();
@@ -2155,8 +2186,12 @@ function firestoreBaseUrl(env) {
   return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents`;
 }
 
+function firestoreCollectionUrl(env) {
+  return `${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}`;
+}
+
 function firestoreDocumentUrl(env, docId) {
-  return `${firestoreBaseUrl(env)}/${encodeURIComponent(firebaseApplicationsCollection(env))}/${encodeURIComponent(docId)}`;
+  return `${firestoreCollectionUrl(env)}/${encodeURIComponent(docId)}`;
 }
 
 function firestoreValue(value) {
@@ -2238,14 +2273,69 @@ function encodeApplicationDateForNumber(date, env) {
   return String((ymd * 97 + salt) % 1000000).padStart(6, "0");
 }
 
-function nextApplicationNumber(env, now = new Date()) {
+function generateApplicationTrackingNumber(env, now = new Date()) {
   const safeDate = now instanceof Date && Number.isFinite(now.getTime()) ? now : new Date();
   const encodedDate = encodeApplicationDateForNumber(safeDate, env);
   const secondsInDay = safeDate.getUTCHours() * 3600 + safeDate.getUTCMinutes() * 60 + safeDate.getUTCSeconds();
   const sequence = String(secondsInDay).padStart(5, "0");
   const millis = String(safeDate.getUTCMilliseconds()).padStart(3, "0");
-  const random = String(Math.floor(Math.random() * 10));
-  return Number(`${encodedDate}${sequence}${millis}${random}`);
+  const random = String(Math.floor(Math.random() * 100)).padStart(2, "0");
+  return `${encodedDate}${sequence}${millis}${random}`;
+}
+
+async function readMaxFirebaseApplicationNumber(env) {
+  const queryUrl = `${firestoreBaseUrl(env)}:runQuery`;
+  try {
+    const rows = await firebaseFetch(env, queryUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: firebaseApplicationsCollection(env) }],
+          orderBy: [{ field: { fieldPath: "number" }, direction: "DESCENDING" }],
+          limit: 1,
+        },
+      }),
+    });
+    const document = Array.isArray(rows) ? rows.find((row) => row?.document)?.document : null;
+    const item = document ? parseFirestoreDocument(document) : null;
+    const number = Number(item?.application_number || item?.number || 0);
+    if (isSequentialApplicationNumber(number)) return number;
+  } catch (error) {
+    logWorkerEvent("warn", "applications.sequence.query_failed", { message: error?.message });
+  }
+
+  try {
+    const items = await listFirebaseApplicationDocuments(env, 1000);
+    return items.reduce((max, item) => {
+      const number = Number(item.application_number || item.number || 0);
+      return isSequentialApplicationNumber(number) && number > max ? number : max;
+    }, 0);
+  } catch (error) {
+    logWorkerEvent("warn", "applications.sequence.fallback_failed", { message: error?.message });
+    return 0;
+  }
+}
+
+async function allocateSequentialApplicationNumber(env) {
+  return (await readMaxFirebaseApplicationNumber(env)) + 1;
+}
+
+async function createFirestoreApplicationDocument(env, docId, data) {
+  const url = new URL(firestoreCollectionUrl(env));
+  url.searchParams.set("documentId", docId);
+  return firebaseFetch(env, url.toString(), {
+    method: "POST",
+    body: JSON.stringify({ fields: firestoreFields(data) }),
+  });
+}
+
+function isFirestoreAlreadyExistsError(error) {
+  return /already exists|already_exists|409|ALREADY_EXISTS/i.test(String(error?.message || error || ""));
+}
+
+function isSequentialApplicationNumber(value) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 && number < 1000000;
 }
 
 function labelsForApplicationStatus(status) {
@@ -2299,64 +2389,81 @@ function normalizeRaiderIoForApplicationStorage(rawData) {
 
 async function createFirebaseApplication(env, payload, verification) {
   const createdAtDate = new Date();
-  const number = nextApplicationNumber(env, createdAtDate);
-  const trackingNumber = String(number);
-  const docId = `application-${trackingNumber}`;
+  const trackingNumber = generateApplicationTrackingNumber(env, createdAtDate);
   const now = createdAtDate.toISOString();
+  const createdAtMs = createdAtDate.getTime();
   const rioRawData = verification?.raider_io?.ok ? verification.raider_io.data : null;
   const rioData = normalizeRaiderIoForApplicationStorage(rioRawData);
-  const data = {
-    number,
-    tracking_number: trackingNumber,
-    title: `Заявка до гільдії: ${payload.characterName}`,
-    status: STATUS.REVIEW.key,
-    status_key: STATUS.REVIEW.key,
-    status_text: STATUS.REVIEW.label,
-    state: "open",
-    labels: labelsForApplicationStatus(STATUS.REVIEW.key),
-    region: "eu",
-    character_name: payload.characterName,
-    realm: payload.realm,
-    faction: payload.faction,
-    class_name: payload.className || "",
-    discord: payload.discord || "",
-    battle_tag: payload.battleTag || "",
-    source: payload.source || "",
-    availability: payload.availability || "",
-    avatar_url: rioData?.thumbnail_url || "",
-    profile_url: rioData?.profile_url || "",
-    raider_io: rioData || null,
-    raider_io_error: verification?.raider_io?.ok ? null : verification?.raider_io?.error || null,
-    verification: {
-      raider_io: verification?.raider_io || null,
-      battlenet: verification?.battlenet || null,
-    },
-    created_at: now,
-    updated_at: now,
-    closed_at: null,
-    createdAtMs: Date.now(),
-    updatedAtMs: Date.now(),
-  };
+  let lastError = null;
 
-  const document = await firebaseFetch(env, firestoreDocumentUrl(env, docId), {
-    method: "PATCH",
-    body: JSON.stringify({ fields: firestoreFields(data) }),
-  });
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const number = await allocateSequentialApplicationNumber(env);
+    const docId = `application-${number}`;
+    const data = {
+      id: docId,
+      number,
+      application_number: number,
+      tracking_number: trackingNumber,
+      title: `Заявка #${number} до гільдії: ${payload.characterName}`,
+      status: STATUS.REVIEW.key,
+      status_key: STATUS.REVIEW.key,
+      status_text: STATUS.REVIEW.label,
+      state: "open",
+      labels: labelsForApplicationStatus(STATUS.REVIEW.key),
+      region: "eu",
+      character_name: payload.characterName,
+      realm: payload.realm,
+      faction: payload.faction,
+      class_name: payload.className || "",
+      discord: payload.discord || "",
+      battle_tag: payload.battleTag || "",
+      source: payload.source || "",
+      availability: payload.availability || "",
+      avatar_url: rioData?.thumbnail_url || "",
+      profile_url: rioData?.profile_url || "",
+      raider_io: rioData || null,
+      raider_io_raw: rioRawData || null,
+      raider_io_error: verification?.raider_io?.ok ? null : verification?.raider_io?.error || null,
+      verification: {
+        raider_io: verification?.raider_io || null,
+        battlenet: verification?.battlenet || null,
+      },
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+      createdAtMs,
+      updatedAtMs: createdAtMs,
+    };
 
-  return {
-    id: docId,
-    ...data,
-    body: buildIssueBody(payload),
-    html_url: "",
-    created_at: now,
-    updated_at: now,
-    closed_at: null,
-    number,
-    labels: data.labels.map((name) => ({ name })),
-    tracking_number: trackingNumber,
-    firestore: parseFirestoreDocument(document),
-  };
+    try {
+      const document = await createFirestoreApplicationDocument(env, docId, data);
+      return {
+        id: docId,
+        ...data,
+        body: buildIssueBody(payload),
+        html_url: "",
+        created_at: now,
+        updated_at: now,
+        closed_at: null,
+        number,
+        application_number: number,
+        labels: data.labels.map((name) => ({ name })),
+        tracking_number: trackingNumber,
+        firestore: parseFirestoreDocument(document),
+      };
+    } catch (error) {
+      lastError = error;
+      if (isFirestoreAlreadyExistsError(error)) {
+        logWorkerEvent("warn", "application.sequence.conflict", { number, attempt: attempt + 1 });
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw new Error(lastError?.message || "Не вдалося виділити порядковий номер заявки.");
 }
+
 
 async function getFirebaseApplication(env, applicationNumber) {
   const cleanNumber = Number(applicationNumber);
@@ -3000,12 +3107,14 @@ async function listFirebaseApplicationDocuments(env, limit) {
 
 function mapFirebaseListItem(item) {
   const statusKey = resolveStatusFilter(item.status_key || item.status || "review") || STATUS.REVIEW.key;
-  const number = Number(item.number || item.tracking_number || item.trackingNumber) || 0;
-  const trackingNumber = String(item.tracking_number || item.trackingNumber || number || "");
+  const rawNumber = Number(item.application_number || item.number) || 0;
+  const number = isSequentialApplicationNumber(rawNumber) ? rawNumber : 0;
+  const trackingNumber = String(item.tracking_number || item.trackingNumber || "");
   return {
     number,
+    application_number: number,
     tracking_number: trackingNumber,
-    title: String(item.title || `Заявка до гільдії: ${item.character_name || item.characterName || "Персонаж"}`),
+    title: String(item.title || `Заявка #${number || "—"} до гільдії: ${item.character_name || item.characterName || "Персонаж"}`),
     state: String(item.state || (statusKey === STATUS.REVIEW.key ? "open" : "closed")),
     status_key: statusKey,
     status_text: getStatusByKey(statusKey).label,
@@ -3013,12 +3122,14 @@ function mapFirebaseListItem(item) {
     created_at: String(item.created_at || item.createdAt || ""),
     updated_at: String(item.updated_at || item.updatedAt || item.created_at || ""),
     closed_at: item.closed_at || null,
-    summary: [trackingNumber ? `№${trackingNumber}` : "", item.character_name || item.characterName, item.realm, item.region || "eu", item.faction, item.class_name || item.className].filter(Boolean).join(" • "),
+    summary: [`Заявка #${number || "—"}`, trackingNumber ? `відстеження ${trackingNumber}` : "", item.character_name || item.characterName, item.realm, item.region || "eu", item.faction, item.class_name || item.className].filter(Boolean).join(" • "),
     character_name: String(item.character_name || item.characterName || ""),
     realm: String(item.realm || ""),
     region: String(item.region || "eu"),
     faction: String(item.faction || ""),
     class_name: String(item.class_name || item.className || ""),
+    avatar_url: String(item.avatar_url || item.avatarUrl || item.raider_io?.thumbnail_url || item.raiderIo?.thumbnail_url || ""),
+    profile_url: String(item.profile_url || item.profileUrl || item.raider_io?.profile_url || item.raiderIo?.profile_url || ""),
     labels: Array.isArray(item.labels) ? item.labels : labelsForApplicationStatus(statusKey),
   };
 }
@@ -3078,7 +3189,7 @@ async function listApplications(request, env) {
   if (className && className !== "all") items = items.filter((item) => String(item.class_name || "").toLowerCase() === className);
   if (query) {
     items = items.filter((item) =>
-      [item.number, item.tracking_number, item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
+      [item.number, item.application_number, item.tracking_number, item.title, item.summary, item.character_name, item.realm, item.region, item.faction, item.class_name]
         .some((value) => String(value || "").toLowerCase().includes(query))
     );
   }
@@ -3119,9 +3230,10 @@ async function sendDiscordNotification(env, cleanPayload, issue) {
   if (!channelId) return { skipped: true, reason: "DISCORD_CHANNEL_ID is missing" };
 
   const verification = cleanPayload?._verification || {};
-  const issueNumber = issue?.tracking_number || issue?.number || "";
+  const issueNumber = issue?.number || issue?.application_number || "";
+  const trackingNumber = issue?.tracking_number || "";
   const content = issueNumber
-    ? `📨 **Нова заявка #${issueNumber}**`
+    ? `📨 **Нова заявка #${issueNumber}**${trackingNumber ? ` • відстеження ${trackingNumber}` : ""}`
     : "📨 **Нова заявка до гільдії**";
 
   const response = await discordApiFetch(env, `/channels/${channelId}/messages`, {
@@ -3305,7 +3417,8 @@ async function createApplication(request, env, ctx) {
       {
         ok: true,
         number: issue.number,
-        tracking_number: issue.tracking_number || String(issue.number),
+        application_number: issue.application_number || issue.number,
+        tracking_number: issue.tracking_number || "",
         state: issue.state,
         status_text: STATUS.REVIEW.label,
         title: issue.title,
@@ -3407,10 +3520,13 @@ export default {
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
-      if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO) {
+      try {
+        requireFirebaseConfig(env);
+      } catch (error) {
         logWorkerEvent("error", "request.env_missing", {
           requestId,
           path: url.pathname,
+          message: error?.message,
           env: envDiagnostics(env),
         });
         response = json({ error: "Прийом заявок тимчасово недоступний.", diagnostics: isDebugResponseEnabled(request, env) ? envDiagnostics(env) : undefined }, 500, allowedOrigin(request, env) || "null");

@@ -63,6 +63,7 @@ export type ApplicationItem = {
   [key: string]: unknown;
   id?: string;
   number: number;
+  application_number?: number;
   tracking_number?: string;
   title: string;
   state: string;
@@ -405,25 +406,34 @@ function normalizeRaidBlock(key: string, raid: any): RaiderIoRaidBlock {
 }
 
 function splitRaidProgressionByExpansion(raidProgression: any) {
-  const entries = Object.entries(raidProgression || {})
-    .map(([key, value]: [string, any]) => ({
-      key,
-      ...(value || {}),
-    }))
-    .filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+  const entries = Object.entries(raidProgression || {}).map(([key, value]: [string, any]) => ({
+    key,
+    ...(value || {}),
+  }));
+
+  const withExpansion = entries.filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+  const withoutExpansion = entries.filter((item: any) => !Number.isFinite(Number(item.expansion_id)));
+
+  if (!withExpansion.length) {
+    return {
+      current: entries,
+      previous: [],
+    };
+  }
 
   const grouped = new Map<number, any[]>();
 
-  for (const raid of entries) {
+  for (const raid of withExpansion) {
     const expansionId = Number(raid.expansion_id);
     if (!grouped.has(expansionId)) grouped.set(expansionId, []);
     grouped.get(expansionId)!.push(raid);
   }
 
   const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+  const current = expansionIds.length ? [...(grouped.get(expansionIds[0]) || []), ...withoutExpansion] : withoutExpansion;
 
   return {
-    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    current,
     previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
   };
 }
@@ -449,7 +459,7 @@ export async function fetchRaiderIoForApplication(item: ApplicationItem): Promis
   url.searchParams.set("name", name);
   url.searchParams.set(
     "fields",
-    "mythic_plus_scores_by_season:current:previous,raid_progression:current-expansion:previous-expansion"
+    "mythic_plus_scores_by_season:current:previous,raid_progression"
   );
 
   try {
@@ -639,9 +649,9 @@ function normalizeTimestamp(value: any): string | undefined {
 
 function normalizeApplicationNumber(value: unknown, fallback: string) {
   const number = Number(value);
-  if (Number.isInteger(number) && number > 0) return number;
-  const fromId = Number(String(fallback || "").replace(/\D/g, ""));
-  return Number.isInteger(fromId) && fromId > 0 ? fromId : Date.now();
+  if (Number.isInteger(number) && number > 0 && number < 1000000) return number;
+  const fromId = Number(String(fallback || "").replace(/^application-/i, "").replace(/\D/g, ""));
+  return Number.isInteger(fromId) && fromId > 0 && fromId < 1000000 ? fromId : 0;
 }
 
 function labelsForFirebaseStatus(status: ApplicationStatus) {
@@ -684,20 +694,28 @@ function normalizeRaiderIoRaidBlock(raid: any): RaiderIoRaidBlock | null {
 }
 
 function splitRaiderIoRaidProgression(raidProgression: any) {
-  const entries = Object.entries(raidProgression || {})
-    .map(([key, value]) => ({ key, ...((value || {}) as Record<string, unknown>) }))
-    .filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+  const entries = Object.entries(raidProgression || {}).map(([key, value]) => ({ key, ...((value || {}) as Record<string, unknown>) }));
+  const withExpansion = entries.filter((item: any) => Number.isFinite(Number(item.expansion_id)));
+  const withoutExpansion = entries.filter((item: any) => !Number.isFinite(Number(item.expansion_id)));
+
+  if (!withExpansion.length) {
+    return {
+      current: entries,
+      previous: [],
+    };
+  }
 
   const grouped = new Map<number, any[]>();
-  for (const raid of entries) {
+  for (const raid of withExpansion) {
     const expansionId = Number((raid as any).expansion_id);
     if (!grouped.has(expansionId)) grouped.set(expansionId, []);
     grouped.get(expansionId)?.push(raid);
   }
 
   const expansionIds = Array.from(grouped.keys()).sort((a, b) => b - a);
+  const current = expansionIds.length ? [...(grouped.get(expansionIds[0]) || []), ...withoutExpansion] : withoutExpansion;
   return {
-    current: expansionIds.length ? grouped.get(expansionIds[0]) || [] : [],
+    current,
     previous: expansionIds.length > 1 ? grouped.get(expansionIds[1]) || [] : [],
   };
 }
@@ -742,7 +760,8 @@ function normalizeRaiderIoApplicationData(value: any): RaiderIoApplicationData |
 function buildFirebaseApplicationBody(item: ApplicationItem) {
   return [
     "### Заявка",
-    `- Номер відстеження: ${item.tracking_number || item.number}`,
+    `- Номер заявки: #${item.number}`,
+    `- Номер відстеження: ${item.tracking_number || "Не вказано"}`,
     "",
     "### Персонаж",
     `- Регіон: ${item.region || "eu"}`,
@@ -767,8 +786,8 @@ function buildFirebaseApplicationBody(item: ApplicationItem) {
 function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   const data = (doc.data() || {}) as Record<string, any>;
   const status = normalizeStatus(String(data.status_key || data.status || "review"));
-  const number = normalizeApplicationNumber(data.number || data.tracking_number || data.trackingNumber, doc.id);
-  const trackingNumber = String(data.tracking_number || data.trackingNumber || number || "");
+  const number = normalizeApplicationNumber(data.application_number || data.applicationNumber || data.number, doc.id);
+  const trackingNumber = String(data.tracking_number || data.trackingNumber || "");
   const createdAt = normalizeTimestamp(data.created_at || data.createdAt || data.submitted_at || data.submittedAt) || new Date(0).toISOString();
   const updatedAt = normalizeTimestamp(data.updated_at || data.updatedAt) || createdAt;
   const closedAt = normalizeTimestamp(data.closed_at || data.closedAt) || null;
@@ -779,6 +798,7 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   const item: ApplicationItem = {
     id: doc.id,
     number,
+    application_number: number,
     tracking_number: trackingNumber,
     title: String(data.title || `Заявка до гільдії: ${data.character_name || data.characterName || "Персонаж"}`),
     state: String(data.state || (status === "review" ? "open" : "closed")),
@@ -828,10 +848,16 @@ async function listFirebaseApplicationsBase() {
 async function findFirebaseApplicationDoc(issueNumber: number) {
   const db = getFirebaseAdminDb();
   const collection = db.collection(applicationsCollectionName());
-  const snapshot = await collection.where("number", "==", Number(issueNumber)).limit(1).get();
-  if (!snapshot.empty) return snapshot.docs[0];
-  const fallback = await collection.doc(`application-${issueNumber}`).get();
-  return fallback.exists ? fallback : null;
+  const direct = await collection.doc(`application-${issueNumber}`).get();
+  if (direct.exists) return direct;
+
+  const byApplicationNumber = await collection.where("application_number", "==", Number(issueNumber)).limit(1).get();
+  if (!byApplicationNumber.empty) return byApplicationNumber.docs[0];
+
+  const byNumber = await collection.where("number", "==", Number(issueNumber)).limit(1).get();
+  if (!byNumber.empty) return byNumber.docs[0];
+
+  return null;
 }
 
 export async function listApplicationFilterOptions() {
@@ -868,6 +894,7 @@ export async function listApplications(params?: URLSearchParams) {
     items = items.filter((item) =>
       [
         item.number,
+        item.application_number,
         item.tracking_number,
         item.title,
         item.character_name,

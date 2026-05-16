@@ -60,6 +60,7 @@
   function getApplicationSearchText(item) {
     return [
       item && item.number,
+      item && item.application_number,
       item && item.tracking_number,
       item && item.title,
       item && item.summary,
@@ -77,8 +78,10 @@
     var statusKey = normalizeStatus(item);
     var stateClass = (STATUS[statusKey] && STATUS[statusKey].className) || 'review';
     var meta = [];
-    var trackingNumber = item.tracking_number || item.number || '';
-    if (trackingNumber) meta.push('№' + trackingNumber);
+    var applicationNumber = item.number || item.application_number || '';
+    var trackingNumber = item.tracking_number || '';
+    if (applicationNumber) meta.push('Заявка №' + applicationNumber);
+    if (trackingNumber) meta.push('Відстеження ' + trackingNumber);
     if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
     if (item.class_name) meta.push(item.class_name);
     if (item.realm) meta.push(item.realm);
@@ -94,7 +97,7 @@
           '<span class="application-status-item__eyebrow">Заявка до гільдії</span>' +
           '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
         '</div>' +
-        '<h3 class="application-status-item__title">' + escapeHtml(title) + '</h3>' +
+        '<h3 class="application-status-item__title">' + (applicationNumber ? '<span class="application-status-item__number">#' + escapeHtml(applicationNumber) + '</span> ' : '') + escapeHtml(title) + '</h3>' +
         '<div class="application-status-item__meta">' + metaHtml + '</div>' +
       '</div>' +
       '<p class="application-status-item__desc">' + escapeHtml(description) + '</p>' +
@@ -463,10 +466,18 @@
           });
           syncBattleTagRequirement();
           syncSourceRequirement();
-          var resultNumber = result.tracking_number || result.number || '';
-          var numberHtml = resultNumber
-            ? '<br><strong>Номер відстеження заявки: №' + escapeHtml(resultNumber) + '</strong><br>Збережи цей номер — за ним можна буде швидко знайти заявку в пошуку.'
-            : '';
+          var applicationNumber = result.application_number || result.number || '';
+          var trackingNumber = result.tracking_number || '';
+          var numberHtml = '';
+          if (applicationNumber || trackingNumber) {
+            numberHtml = '<br>';
+            if (applicationNumber) {
+              numberHtml += '<strong>Номер заявки: #' + escapeHtml(applicationNumber) + '</strong><br>';
+            }
+            if (trackingNumber) {
+              numberHtml += '<strong>Номер відстеження: №' + escapeHtml(trackingNumber) + '</strong><br>Збережи цей номер — за ним можна буде швидко знайти заявку в пошуку.';
+            }
+          }
           setFeedback('success', result.html_url
             ? 'Заявку надіслано. Можна одразу <a href="' + escapeHtml(result.html_url) + '" target="_blank" rel="noopener noreferrer">відкрити її</a>.' + numberHtml
             : 'Заявку надіслано. Дані перевірено й заявку створено.' + numberHtml);

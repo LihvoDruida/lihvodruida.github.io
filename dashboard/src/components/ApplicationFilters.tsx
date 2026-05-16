@@ -116,7 +116,7 @@ export default function ApplicationFilters({
           className="input"
           name="q"
           type="search"
-          placeholder="Номер заявки, нік, realm, клас..."
+          placeholder="Номер заявки, номер відстеження, нік, realm, клас..."
           value={query}
           autoComplete="off"
           onChange={(event) => setQuery(event.currentTarget.value)}

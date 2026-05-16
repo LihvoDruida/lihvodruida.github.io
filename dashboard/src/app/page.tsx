@@ -201,12 +201,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       <section className="grid">
         {items.length ? items.map((item) => (
-          <article className={`card panel ${item.status_key}`} key={item.number}>
+          <article className={`card panel ${item.status_key}`} key={String(item.id || item.tracking_number || item.number)}>
             <div className="card-main">
               <div className="character-head">
                 <CharacterAvatar item={item} />
                 <div>
-                  <h2>#{item.tracking_number || item.number} • {item.character_name || item.title}</h2>
+                  <h2>Заявка #{item.number || "—"} • {item.character_name || item.title}</h2>
                   <div className="meta">
                     <span>{item.region || "Region?"}</span>
                     <span>{item.realm || "Realm не вказано"}</span>
@@ -219,6 +219,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               </div>
 
               <div className="details-grid">
+                <div className="detail-box"><span>Номер відстеження</span><strong>{item.tracking_number || "Не вказано"}</strong></div>
                 <div className="detail-box"><span>Звідки дізнався</span><strong>{item.source || "Не вказано"}</strong></div>
                 {mayViewSensitiveApplications ? <div className="detail-box"><span>Discord</span><strong>{item.discord || "Не вказано"}</strong></div> : null}
                 {mayViewSensitiveApplications ? <div className="detail-box"><span>BattleTag</span><strong>{item.battle_tag || "Не вказано"}</strong></div> : null}
