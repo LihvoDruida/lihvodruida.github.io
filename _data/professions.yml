@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 06:23:13'
+  updated_at: '2026-05-16 09:42:20'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7002,15 +7002,15 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 80
+        learned_points: 82
         max_points: 100
-    - name: Blacksmithing
-      id: 164
+    - name: Herbalism
+      id: 182
       tiers:
-      - name: Classic Blacksmithing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Blacksmithing
-        learned_points: 39
-        max_points: 100
+      - name: Classic Herbalism
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Herbalism
+        learned_points: 6
+        max_points: 105
     secondaries: []
