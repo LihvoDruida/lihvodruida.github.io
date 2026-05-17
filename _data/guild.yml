@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 06:46:44'
+  updated_at: '2026-05-17 09:49:21'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6155
       realm: 56
     heroic:
-      world: 13029
-      region: 5805
+      world: 13033
+      region: 5807
       realm: 44
     mythic:
-      world: 7977
+      world: 7979
       region: 3395
       realm: 27
   blackrock-depths:
@@ -190,7 +190,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3240.5
@@ -3794,47 +3794,23 @@ members:
       slug: ragnaros
     playable_class:
       id: 9
-      name: Warlock
+      name: null
     playable_race:
       id: 2
-      name: Orc
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Affliction
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-    profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
-    item_level_equipped: 266
-    mythic_plus_scores:
-      all:
-        score: 2073.1
-        color: '#58ff3d'
-      dps:
-        score: 2073.1
-        color: '#58ff3d'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2032.7
-        color: '#5cff41'
-      spec_1:
-        score: 541.7
-        color: '#e9ffe0'
-      spec_2:
-        score: 352.4
-        color: '#f5fff1'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -3965,14 +3941,14 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 2759.9
-        color: '#599eac'
+        score: 2808.1
+        color: '#5395b6'
       dps:
         score: 310.9
         color: '#f8fff5'
       healer:
-        score: 2759.9
-        color: '#599eac'
+        score: 2808.1
+        color: '#5395b6'
       tank:
         score: 0
         color: '#ffffff'
@@ -3983,8 +3959,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2759.9
-        color: '#599eac'
+        score: 2808.1
+        color: '#5395b6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4730,47 +4706,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: Monk
+      name: null
     playable_race:
       id: 34
-      name: Dark Iron Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 282
-    mythic_plus_scores:
-      all:
-        score: 3327.3
-        color: '#a937e8'
-      dps:
-        score: 1147.4
-        color: '#bcffa6'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 3325.4
-        color: '#a937e8'
-      spec_0:
-        score: 3325.4
-        color: '#a937e8'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 1147.4
-        color: '#bcffa6'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -5470,7 +5422,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3443.6
@@ -6406,7 +6358,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -6890,23 +6842,47 @@ members:
       slug: gordunni
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
+    item_level_equipped: 282
+    mythic_plus_scores:
+      all:
+        score: 2885.6
+        color: '#4687c5'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2885.6
+        color: '#4687c5'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2885.6
+        color: '#4687c5'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
