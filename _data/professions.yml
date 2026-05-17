@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 13:24:14'
+  updated_at: '2026-05-17 16:58:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 142
+  member_count: 143
 characters:
 - name: Бреинор
   region: eu
@@ -2997,7 +2997,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 71
+        learned_points: 72
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -7084,7 +7084,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 93
+        learned_points: 97
         max_points: 100
     - name: Alchemy
       id: 171
@@ -7194,4 +7194,81 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 1
+        max_points: 300
+- name: Mercury
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Mercury
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 2
+        max_points: 300
+      - name: Dragon Isles Herbalism
+        learned_points: 54
+        max_points: 100
+      - name: Khaz Algar Herbalism
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 100
+        max_points: 100
+    - name: Inscription
+      id: 773
+      tiers:
+      - name: Zandalari Inscription
+        learned_points: 1
+        max_points: 175
+      - name: Classic Inscription
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Inscription
+        learned_points: 29
+        max_points: 100
+      - name: Khaz Algar Inscription
+        learned_points: 53
+        max_points: 100
+      - name: Midnight Inscription
+        learned_points: 59
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 82
         max_points: 300
