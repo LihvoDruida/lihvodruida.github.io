@@ -38,7 +38,7 @@
   summary: A lightweight and modular chat enhancement addon. Features include chat
     history, URL copying, spam filtering, visual customization, and sound alerts.
   downloads: 22399
-  updated_at: '2026-05-16T06:58:20.477Z'
+  updated_at: '2026-05-17T20:26:57.143Z'
   link: https://www.curseforge.com/wow/addons/chatify-chat-enhancer
   logo: https://media.forgecdn.net/avatars/thumbnails/1669/900/256/256/639062343636465468.png
   categories:
@@ -53,7 +53,7 @@
   - 3.4.5
   - 2.5.5
   - 1.15.8
-  version: v1.3
+  version: v1.3.1
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
