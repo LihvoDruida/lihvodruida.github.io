@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-16 20:51:22'
+  updated_at: '2026-05-17 03:34:08'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -4094,7 +4094,7 @@ characters:
         learned_points: 82
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 80
+        learned_points: 81
         max_points: 100
     - name: Tailoring
       id: 197
@@ -6643,16 +6643,7 @@ characters:
   realm_slug: eversong
   profile_url: https://raider.io/characters/eu/eversong/Галазард
   professions:
-    primaries:
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 16
-        max_points: 100
+    primaries: []
     secondaries: []
 - name: Корукк
   region: eu
