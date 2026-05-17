@@ -2207,15 +2207,53 @@ function envFlag(env, name, fallback = false) {
   return /^(1|true|yes|on)$/i.test(String(raw || "").trim());
 }
 
+const COUNTRY_CODE_ALIASES = {
+  RU: "RU",
+  RUS: "RU",
+  "643": "RU",
+  RUSSIA: "RU",
+  RUSSIANFEDERATION: "RU",
+  "РОСІЯ": "RU",
+  "РОССИЯ": "RU",
+  "РФ": "RU",
+  BY: "BY",
+  BLR: "BY",
+  "112": "BY",
+  BELARUS: "BY",
+  BELARUSREPUBLIC: "BY",
+  "БІЛОРУСЬ": "BY",
+  "БЕЛАРУСЬ": "BY",
+  UA: "UA",
+  UKR: "UA",
+  "804": "UA",
+  UKRAINE: "UA",
+  "УКРАЇНА": "UA",
+  "УКРАИНА": "UA",
+};
+
+function splitCountryTokens(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean);
+  return String(value || "").split(/[\s,;|]+/g).map((item) => item.trim()).filter(Boolean);
+}
+
 function normalizeCountryCode(value) {
-  const code = String(value || "").trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
-  return /^[A-Z]{2}$/.test(code) ? code : "";
+  const raw = String(value || "").trim().toUpperCase();
+  if (!raw) return "";
+  const compact = raw.replace(/[._-]+/g, "").replace(/\s+/g, "");
+  if (COUNTRY_CODE_ALIASES[compact]) return COUNTRY_CODE_ALIASES[compact];
+  const digits = compact.replace(/\D/g, "");
+  if (digits && COUNTRY_CODE_ALIASES[digits]) return COUNTRY_CODE_ALIASES[digits];
+  const letters = compact.replace(/[^A-Z]/g, "");
+  if (COUNTRY_CODE_ALIASES[letters]) return COUNTRY_CODE_ALIASES[letters];
+  if (/^[A-Z]{2}$/.test(letters)) return letters;
+  return "";
 }
 
 function parseBlockedCountries(value, fallback = ["RU", "BY"]) {
-  const items = Array.isArray(value) ? value : String(value || "").split(/[\s,;]+/g);
-  const normalized = Array.from(new Set(items.map(normalizeCountryCode).filter(Boolean)));
-  return normalized.length ? normalized.slice(0, 64) : [...fallback];
+  const hasExplicitValue = Array.isArray(value) || (value !== undefined && value !== null && String(value).trim() !== "");
+  const normalized = Array.from(new Set(splitCountryTokens(value).map(normalizeCountryCode).filter(Boolean)));
+  if (normalized.length) return normalized.slice(0, 64);
+  return hasExplicitValue ? [] : [...fallback];
 }
 
 function geoAccessDefaultPolicy(env) {

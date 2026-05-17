@@ -121,7 +121,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-toggle admin-policy-toggle--danger">
                   <input type="checkbox" name="allowEmergencyTokenLogin" defaultChecked={authPolicy.allowEmergencyTokenLogin} disabled={!canEditAuthPolicy} />
-                  <span><strong>Дозволити резервний token-вхід</strong><small><code>AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false</code>. Token-вхід не обходить Discord-перевірку.</small></span>
+                  <span><strong>Дозволити резервний token-вхід</strong><small><code>AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false</code>. Вмикати тільки як аварійний доступ: token-вхід не має Discord membership/role перевірки.</small></span>
                 </label>
               </fieldset>
 
@@ -191,17 +191,25 @@ export default async function AdminOverviewPage() {
                 <legend>Країни</legend>
                 <label className="admin-policy-input">
                   <span>ISO-коди країн</span>
-                  <input name="blockedCountries" defaultValue={geoPolicy.blockedCountries.join(", ")} placeholder="RU, BY" disabled={!canEditGeoPolicy} />
+                  <small>Зберігаються як ISO 3166 Alpha-2. Можна вводити <code>RU</code>, <code>BY</code>, а також aliases <code>RUS/643</code>, <code>BLR/112</code> — вони автоматично стануть <code>RU/BY</code>.</small>
+                  <input name="blockedCountries" defaultValue={geoPolicy.blockedCountries.join(", ")} placeholder="RU, BY" disabled={!canEditGeoPolicy} autoCapitalize="characters" spellCheck={false} />
                 </label>
-                <div className="admin-policy-hint">
+                <div className="geo-country-chip-list" aria-label="Заблоковані країни">
+                  {geoPolicy.blockedCountries.length ? geoPolicy.blockedCountries.map((country) => (
+                    <span className="geo-country-chip" key={country}>{country}</span>
+                  )) : <span className="geo-country-chip geo-country-chip--muted">країни не задані</span>}
+                </div>
+                <div className="admin-policy-hint admin-policy-hint--split">
                   <strong>Поточний стан</strong>
                   <small>Заявки: {geoPolicy.blockApplications ? "блокуються" : "не блокуються"}</small>
                   <small>Авторизація: {geoPolicy.blockAuth ? "блокується" : "не блокується"}</small>
+                  <small>Невідома країна: {geoPolicy.blockUnknownCountries ? "блокується" : "дозволяється"}</small>
+                  <small>Сигнали: <code>CF-IPCountry</code>, <code>request.cf.country</code>, <code>X-Vercel-IP-Country</code>.</small>
                 </div>
               </fieldset>
 
               <footer className="admin-policy-footer">
-                <small>Коди зберігаються у Firebase і використовуються dashboard та Worker. Невідома країна: {geoPolicy.blockUnknownCountries ? "блокується" : "дозволяється"}.</small>
+                <small>Dashboard і Worker читають одну політику з Firebase. Cloudflare/Vercel передають країну як Alpha-2; Alpha-3 і цифрові ISO-коди лише нормалізуються перед збереженням.</small>
                 <button className="btn primary" type="submit" disabled={!canEditGeoPolicy}>Зберегти геообмеження</button>
               </footer>
             </form>

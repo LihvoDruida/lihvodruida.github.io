@@ -4,6 +4,7 @@ import { addGuildMemberRoles, fetchDiscordGuildSnapshot, getDiscordGuildId, upda
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
 import { markRulesOnboardingCompleted, parseRulesRoleToken, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
+import { checkGeoAccess } from "@/lib/geoAccessPolicy";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 function redirectToToken(request: NextRequest, token: string, status: string) {
@@ -20,6 +21,15 @@ export async function POST(request: NextRequest) {
   const tooLarge = assertRequestBodySize(request, 4096);
   if (tooLarge) return tooLarge;
 
+  const form = await request.formData();
+  const token = String(form.get("rt") || "").trim();
+
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) {
+    logDashboardEvent("warn", "rules.onboarding.geo_blocked", request, { country: geoDecision.country || null, reason: geoDecision.reason });
+    return redirectToToken(request, token, "geo_blocked");
+  }
+
   const session = await getSession();
   if (!session?.profileId) return NextResponse.redirect(new URL("/login?error=session_required", request.url), 303);
 
@@ -27,8 +37,6 @@ export async function POST(request: NextRequest) {
   const limit = checkRateLimit(`rules-accept-complete:${session.profileId}:${ip}`, 10, 10 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
-  const form = await request.formData();
-  const token = String(form.get("rt") || "").trim();
   const roleIds = parseRulesRoleToken(token);
   if (!roleIds.length) return redirectToToken(request, token, "missing_role_token");
 

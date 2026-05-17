@@ -37,6 +37,7 @@ function statusNotice(status?: string | null) {
   if (status === "missing_role_token") return { tone: "warning", text: "Посилання не містить підтвердженої ролі. Натисни актуальну кнопку правил у Discord." };
   if (status === "not_discord_profile") return { tone: "warning", text: "Реєстрацію правил можна завершити тільки через Discord-вхід." };
   if (status === "discord_not_configured") return { tone: "error", text: "Discord-видача ролей тимчасово не налаштована. Звернись до офіцера." };
+  if (status === "geo_blocked") return { tone: "error", text: "Завершення реєстрації з цієї країни зараз обмежено правилами спільноти." };
   if (status === "failed") return { tone: "error", text: "Не вдалося завершити реєстрацію. Спробуй ще раз або звернись до офіцера." };
   return null;
 }

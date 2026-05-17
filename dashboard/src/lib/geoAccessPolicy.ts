@@ -10,6 +10,30 @@ const SETTINGS_COLLECTION = "dashboardSettings";
 const GEO_ACCESS_DOC_ID = "geoAccessPolicy";
 const DEFAULT_BLOCKED_COUNTRIES = ["RU", "BY"];
 
+const COUNTRY_CODE_ALIASES: Record<string, string> = {
+  RU: "RU",
+  RUS: "RU",
+  "643": "RU",
+  RUSSIA: "RU",
+  RUSSIANFEDERATION: "RU",
+  "РОСІЯ": "RU",
+  "РОССИЯ": "RU",
+  "РФ": "RU",
+  BY: "BY",
+  BLR: "BY",
+  "112": "BY",
+  BELARUS: "BY",
+  BELARUSREPUBLIC: "BY",
+  "БІЛОРУСЬ": "BY",
+  "БЕЛАРУСЬ": "BY",
+  UA: "UA",
+  UKR: "UA",
+  "804": "UA",
+  UKRAINE: "UA",
+  "УКРАЇНА": "UA",
+  "УКРАИНА": "UA",
+};
+
 export type GeoAccessTarget = "applications" | "auth";
 
 export type GeoAccessPolicy = {
@@ -44,15 +68,38 @@ function timestampToIso(value: unknown) {
   return null;
 }
 
+function splitCountryTokens(value: unknown) {
+  if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean);
+  return String(value || "").split(/[\s,;|]+/g).map((item) => item.trim()).filter(Boolean);
+}
+
 export function normalizeCountryCode(value: unknown) {
-  const code = String(value || "").trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
-  return /^[A-Z]{2}$/.test(code) ? code : "";
+  const raw = String(value || "").trim().toUpperCase();
+  if (!raw) return "";
+
+  const compact = raw.replace(/[._-]+/g, "").replace(/\s+/g, "");
+  if (COUNTRY_CODE_ALIASES[compact]) return COUNTRY_CODE_ALIASES[compact];
+
+  const digits = compact.replace(/\D/g, "");
+  if (digits && COUNTRY_CODE_ALIASES[digits]) return COUNTRY_CODE_ALIASES[digits];
+
+  const letters = compact.replace(/[^A-Z]/g, "");
+  if (COUNTRY_CODE_ALIASES[letters]) return COUNTRY_CODE_ALIASES[letters];
+  if (/^[A-Z]{2}$/.test(letters)) return letters;
+
+  return "";
+}
+
+export function invalidCountryCodeTokens(value: unknown) {
+  return splitCountryTokens(value).filter((token) => !normalizeCountryCode(token)).slice(0, 12);
 }
 
 export function parseBlockedCountries(value: unknown, fallback = DEFAULT_BLOCKED_COUNTRIES) {
-  const items = Array.isArray(value) ? value : String(value || "").split(/[\s,;]+/g);
+  const hasExplicitValue = Array.isArray(value) || (value !== undefined && value !== null && String(value).trim() !== "");
+  const items = splitCountryTokens(value);
   const normalized = Array.from(new Set(items.map(normalizeCountryCode).filter(Boolean)));
-  return normalized.length ? normalized.slice(0, 64) : [...fallback];
+  if (normalized.length) return normalized.slice(0, 64);
+  return hasExplicitValue ? [] : [...fallback];
 }
 
 function defaultGeoAccessPolicy(): GeoAccessPolicy {
@@ -99,12 +146,17 @@ export async function setGeoAccessPolicy(input: {
 }, actor?: DashboardSession | null) {
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase не налаштований для збереження геообмежень.");
 
+  const invalidCountries = invalidCountryCodeTokens(input.blockedCountries);
+  if (invalidCountries.length) {
+    throw new Error(`Некоректні ISO-коди країн: ${invalidCountries.join(", ")}. Використовуй Alpha-2 на кшталт RU, BY або підтримані aliases: RUS/643, BLR/112.`);
+  }
+
   const nextPolicy = normalizePolicyData({
     enabled: input.enabled === "on" || input.enabled === "1" || input.enabled === true,
     blockApplications: input.blockApplications === "on" || input.blockApplications === "1" || input.blockApplications === true,
     blockAuth: input.blockAuth === "on" || input.blockAuth === "1" || input.blockAuth === true,
     blockUnknownCountries: input.blockUnknownCountries === "on" || input.blockUnknownCountries === "1" || input.blockUnknownCountries === true,
-    blockedCountries: parseBlockedCountries(input.blockedCountries, DEFAULT_BLOCKED_COUNTRIES),
+    blockedCountries: parseBlockedCountries(input.blockedCountries, []),
   });
 
   await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(GEO_ACCESS_DOC_ID).set({
@@ -132,8 +184,14 @@ export function getRequestCountryCode(request: Request | NextRequest) {
 }
 
 export function countryLabel(country: string) {
-  if (!country) return "невідома країна";
-  return country;
+  const normalized = normalizeCountryCode(country);
+  if (!normalized) return "невідома країна";
+  const labels: Record<string, string> = {
+    RU: "RU · Росія",
+    BY: "BY · Білорусь",
+    UA: "UA · Україна",
+  };
+  return labels[normalized] || normalized;
 }
 
 export function evaluateGeoAccess(policy: GeoAccessPolicy, country: string, target: GeoAccessTarget): GeoAccessDecision {
