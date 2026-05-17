@@ -12,6 +12,7 @@ export type AuthAccessPolicy = {
   enabled: boolean;
   requireConfiguredRole: boolean;
   allowServerOwner: boolean;
+  allowEmergencyTokenLogin: boolean;
   requiredRoleIds: string[];
   updatedAt?: string | null;
   updatedBy?: string | null;
@@ -59,8 +60,9 @@ function defaultAuthAccessPolicy(): AuthAccessPolicy {
 
   return {
     enabled: envFlag("AUTH_ACCESS_RESTRICTIONS_ENABLED", true),
-    requireConfiguredRole: envFlag("AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE", false),
+    requireConfiguredRole: envFlag("AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE", true),
     allowServerOwner: envFlag("AUTH_ACCESS_ALLOW_SERVER_OWNER", true),
+    allowEmergencyTokenLogin: envFlag("AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN", false),
     requiredRoleIds,
     updatedAt: null,
     updatedBy: null,
@@ -69,13 +71,14 @@ function defaultAuthAccessPolicy(): AuthAccessPolicy {
 
 function normalizePolicyData(data?: Record<string, unknown> | null): AuthAccessPolicy {
   const fallback = defaultAuthAccessPolicy();
+  const hasStoredRoleIds = Boolean(data && Object.prototype.hasOwnProperty.call(data, "requiredRoleIds"));
+
   return {
     enabled: typeof data?.enabled === "boolean" ? data.enabled : fallback.enabled,
     requireConfiguredRole: typeof data?.requireConfiguredRole === "boolean" ? data.requireConfiguredRole : fallback.requireConfiguredRole,
     allowServerOwner: typeof data?.allowServerOwner === "boolean" ? data.allowServerOwner : fallback.allowServerOwner,
-    requiredRoleIds: cleanDiscordRoleIds(data?.requiredRoleIds).length
-      ? cleanDiscordRoleIds(data?.requiredRoleIds)
-      : fallback.requiredRoleIds,
+    allowEmergencyTokenLogin: typeof data?.allowEmergencyTokenLogin === "boolean" ? data.allowEmergencyTokenLogin : fallback.allowEmergencyTokenLogin,
+    requiredRoleIds: hasStoredRoleIds ? cleanDiscordRoleIds(data?.requiredRoleIds) : fallback.requiredRoleIds,
     updatedAt: timestampToIso(data?.updatedAt),
     updatedBy: typeof data?.updatedBy === "string" ? data.updatedBy : null,
   };
@@ -95,6 +98,7 @@ export async function setAuthAccessPolicy(input: {
   enabled?: unknown;
   requireConfiguredRole?: unknown;
   allowServerOwner?: unknown;
+  allowEmergencyTokenLogin?: unknown;
   requiredRoleIds?: unknown;
   requiredRoleIdsText?: unknown;
 }, actor?: DashboardSession | null) {
@@ -108,6 +112,7 @@ export async function setAuthAccessPolicy(input: {
     enabled: input.enabled === "on" || input.enabled === "1" || input.enabled === true,
     requireConfiguredRole: input.requireConfiguredRole === "on" || input.requireConfiguredRole === "1" || input.requireConfiguredRole === true,
     allowServerOwner: input.allowServerOwner === "on" || input.allowServerOwner === "1" || input.allowServerOwner === true,
+    allowEmergencyTokenLogin: input.allowEmergencyTokenLogin === "on" || input.allowEmergencyTokenLogin === "1" || input.allowEmergencyTokenLogin === true,
     requiredRoleIds: selectedRoleIds,
   });
 
@@ -115,6 +120,7 @@ export async function setAuthAccessPolicy(input: {
     enabled: nextPolicy.enabled,
     requireConfiguredRole: nextPolicy.requireConfiguredRole,
     allowServerOwner: nextPolicy.allowServerOwner,
+    allowEmergencyTokenLogin: nextPolicy.allowEmergencyTokenLogin,
     requiredRoleIds: nextPolicy.requiredRoleIds,
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,

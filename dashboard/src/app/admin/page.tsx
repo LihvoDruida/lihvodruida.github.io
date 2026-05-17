@@ -75,53 +75,54 @@ export default async function AdminOverviewPage() {
 
         <AdminTabs active="overview" />
 
-        <section className="admin-overview-grid" aria-label="Швидкі переходи й стан системи">
+        <section className="admin-overview-grid admin-overview-grid--security" aria-label="Стан системи та правила доступу">
           <IntegrationStatusPanel compact className="admin-overview-status-card" />
-          <a className="panel admin-overview-card" href="/admin/groups">
-            <span aria-hidden="true">🧩</span>
-            <strong>Групи та права доступу</strong>
-            <small>Групи, Discord role ID, ранги та точні дозволи в панелі.</small>
-          </a>
-          <a className="panel admin-overview-card" href="/admin/discord">
-            <span aria-hidden="true">◆</span>
-            <strong>Discord-учасники</strong>
-            <small>Видача/зняття ролей, перейменування та контроль шаблону ніку.</small>
-          </a>
-          <a className="panel admin-overview-card" href="/admin/logs">
-            <span aria-hidden="true">▦</span>
-            <strong>Журнал дій</strong>
-            <small>Останні дії, результати Discord API, помилки та статистика.</small>
-          </a>
-          <article className="panel admin-overview-card admin-overview-card--wide">
+
+          <article className="panel admin-overview-card admin-overview-card--wide admin-system-summary-card">
             <span aria-hidden="true">✦</span>
-            <strong>Поточний шаблон ніку</strong>
-            <small><code>{policy.template}</code></small>
-            <small>Приклад: {nicknameTemplateExample(policy.template)}</small>
+            <div>
+              <strong>Поточний шаблон ніку</strong>
+              <small><code>{policy.template}</code></small>
+              <small>Приклад: {nicknameTemplateExample(policy.template)}</small>
+            </div>
           </article>
 
+          <article className="panel admin-overview-card admin-overview-card--wide admin-policy-card auth-access-card">
+            <header className="admin-policy-card__header">
+              <span className="admin-policy-card__icon" aria-hidden="true">🔐</span>
+              <div className="admin-policy-card__title">
+                <strong>Авторизація та реєстрація</strong>
+                <small>Серверна перевірка Discord-входу: користувач має бути на сервері й мати одну з дозволених ролей.</small>
+              </div>
+              <div className="admin-policy-status" aria-label="Поточний стан авторизації">
+                <span className={authPolicy.enabled ? "is-on" : "is-off"}>{authPolicy.enabled ? "Увімкнено" : "Вимкнено"}</span>
+                <span>{authPolicy.requiredRoleIds.length ? `${authPolicy.requiredRoleIds.length} рол.` : "роль не вибрана"}</span>
+              </div>
+            </header>
 
-          <article className="panel admin-overview-card admin-overview-card--wide geo-access-card auth-access-card">
-            <span aria-hidden="true">🔐</span>
-            <div className="geo-access-card__copy">
-              <strong>Авторизація та реєстрація</strong>
-              <small>Обмежує Discord-вхід і завершення реєстрації правилами. Користувач має бути учасником сервера і мати одну з вибраних ролей. Власник сервера може проходити перевірку окремо.</small>
-            </div>
-            <form className="geo-access-form auth-access-form" action="/api/admin/security/auth-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-              <label className="geo-access-toggle">
-                <input type="checkbox" name="enabled" defaultChecked={authPolicy.enabled} disabled={!canEditAuthPolicy} />
-                <span>Увімкнути обмеження входу за Discord-роллю</span>
-              </label>
-              <label className="geo-access-toggle">
-                <input type="checkbox" name="requireConfiguredRole" defaultChecked={authPolicy.requireConfiguredRole} disabled={!canEditAuthPolicy} />
-                <span>Вимагати вибрану роль <small>Якщо роль не вибрана, не-власники сервера не зможуть увійти.</small></span>
-              </label>
-              <label className="geo-access-toggle geo-access-toggle--muted">
-                <input type="checkbox" name="allowServerOwner" defaultChecked={authPolicy.allowServerOwner} disabled={!canEditAuthPolicy} />
-                <span>Дозволити власнику Discord-сервера вхід без цієї ролі</span>
-              </label>
+            <form className="admin-policy-form auth-access-form" action="/api/admin/security/auth-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+              <fieldset className="admin-policy-fieldset">
+                <legend>Режим входу</legend>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="enabled" defaultChecked={authPolicy.enabled} disabled={!canEditAuthPolicy} />
+                  <span><strong>Обмежити вхід Discord-роллю</strong><small>Перевіряється під час OAuth callback і live-перевірки сесії.</small></span>
+                </label>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="requireConfiguredRole" defaultChecked={authPolicy.requireConfiguredRole} disabled={!canEditAuthPolicy} />
+                  <span><strong>Блокувати, якщо роль не вибрана</strong><small>Без цього порожній список ролей працює як “дозволити за старими правилами”.</small></span>
+                </label>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="allowServerOwner" defaultChecked={authPolicy.allowServerOwner} disabled={!canEditAuthPolicy} />
+                  <span><strong>Дозволити власнику сервера обхід ролі</strong><small>Корисно, якщо Discord не дозволяє видати власнику звичайну роль.</small></span>
+                </label>
+                <label className="admin-policy-toggle admin-policy-toggle--danger">
+                  <input type="checkbox" name="allowEmergencyTokenLogin" defaultChecked={authPolicy.allowEmergencyTokenLogin} disabled={!canEditAuthPolicy} />
+                  <span><strong>Дозволити резервний token-вхід</strong><small>Вимкнено за замовчуванням, бо цей шлях не підтверджує Discord-сервер і роль.</small></span>
+                </label>
+              </fieldset>
 
-              <div className="auth-access-roles" aria-label="Discord ролі для входу">
-                <span>Роль, потрібна для авторизації / реєстрації</span>
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--roles">
+                <legend>Роль, потрібна для авторизації / реєстрації</legend>
                 {authRolesError ? <small className="error-note">Не вдалося завантажити ролі Discord. Можна вставити role ID вручну нижче.</small> : null}
                 {discordRoles.length ? (
                   <div className="auth-access-role-list">
@@ -133,48 +134,72 @@ export default async function AdminOverviewPage() {
                       </label>
                     ))}
                   </div>
-                ) : <small>Список ролей недоступний або порожній.</small>}
-              </div>
+                ) : <small className="admin-policy-empty">Список ролей недоступний або порожній.</small>}
+                <label className="admin-policy-input">
+                  <span>Role ID вручну</span>
+                  <input name="requiredRoleIdsText" defaultValue={authPolicy.requiredRoleIds.join(", ")} placeholder="123456789012345678, 234567890123456789" disabled={!canEditAuthPolicy} />
+                </label>
+              </fieldset>
 
-              <label className="geo-access-countries">
-                <span>Role ID вручну</span>
-                <input name="requiredRoleIdsText" defaultValue={authPolicy.requiredRoleIds.join(", ")} placeholder="123456789012345678, 234567890123456789" disabled={!canEditAuthPolicy} />
-              </label>
-              <button className="btn primary" type="submit" disabled={!canEditAuthPolicy}>Зберегти правила входу</button>
+              <footer className="admin-policy-footer">
+                <small>Поточний стан: {authPolicy.enabled ? "обмеження увімкнені" : "обмеження вимкнені"}; без вибраної ролі: {authPolicy.requireConfiguredRole ? "блокувати" : "дозволяти за старими правилами"}; резервний token-вхід: {authPolicy.allowEmergencyTokenLogin ? "дозволено" : "заборонено"}.</small>
+                <button className="btn primary" type="submit" disabled={!canEditAuthPolicy}>Зберегти правила входу</button>
+              </footer>
             </form>
-            <small className="geo-access-note">Поточний стан: {authPolicy.enabled ? "увімкнено" : "вимкнено"}; ролей для входу: {authPolicy.requiredRoleIds.length}; режим без ролі: {authPolicy.requireConfiguredRole ? "блокувати" : "дозволяти за старими правилами"}.</small>
           </article>
 
-          <article className="panel admin-overview-card admin-overview-card--wide geo-access-card">
-            <span aria-hidden="true">🛡</span>
-            <div className="geo-access-card__copy">
-              <strong>Геообмеження доступу</strong>
-              <small>Блокує подання заявок і старт авторизації для вибраних ISO-кодів країн. Перевірка працює по edge-сигналу Cloudflare/Vercel без зовнішніх IP-баз.</small>
-            </div>
-            <form className="geo-access-form" action="/api/admin/security/geo-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-              <label className="geo-access-toggle">
-                <input type="checkbox" name="enabled" defaultChecked={geoPolicy.enabled} disabled={!canEditGeoPolicy} />
-                <span>Увімкнути геообмеження</span>
-              </label>
-              <label className="geo-access-toggle">
-                <input type="checkbox" name="blockApplications" defaultChecked={geoPolicy.blockApplications} disabled={!canEditGeoPolicy} />
-                <span>Забороняти подання заявок</span>
-              </label>
-              <label className="geo-access-toggle">
-                <input type="checkbox" name="blockAuth" defaultChecked={geoPolicy.blockAuth} disabled={!canEditGeoPolicy} />
-                <span>Забороняти авторизацію</span>
-              </label>
-              <label className="geo-access-toggle geo-access-toggle--muted">
-                <input type="checkbox" name="blockUnknownCountries" defaultChecked={geoPolicy.blockUnknownCountries} disabled={!canEditGeoPolicy} />
-                <span>Блокувати невідому країну <small>Обережно: може зачепити VPN, privacy relay або погано проксовані запити.</small></span>
-              </label>
-              <label className="geo-access-countries">
-                <span>Коди країн</span>
-                <input name="blockedCountries" defaultValue={geoPolicy.blockedCountries.join(", ")} placeholder="RU, BY" disabled={!canEditGeoPolicy} />
-              </label>
-              <button className="btn primary" type="submit" disabled={!canEditGeoPolicy}>Зберегти геообмеження</button>
+          <article className="panel admin-overview-card admin-overview-card--wide admin-policy-card geo-access-card">
+            <header className="admin-policy-card__header">
+              <span className="admin-policy-card__icon" aria-hidden="true">🛡</span>
+              <div className="admin-policy-card__title">
+                <strong>Геообмеження доступу</strong>
+                <small>Блокує подання заявок і старт авторизації за edge-сигналом Cloudflare/Vercel без зовнішніх IP-баз.</small>
+              </div>
+              <div className="admin-policy-status" aria-label="Поточний стан геообмежень">
+                <span className={geoPolicy.enabled ? "is-on" : "is-off"}>{geoPolicy.enabled ? "Увімкнено" : "Вимкнено"}</span>
+                <span>{geoPolicy.blockedCountries.join(", ") || "країни не задані"}</span>
+              </div>
+            </header>
+
+            <form className="admin-policy-form" action="/api/admin/security/geo-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+              <fieldset className="admin-policy-fieldset">
+                <legend>Що блокувати</legend>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="enabled" defaultChecked={geoPolicy.enabled} disabled={!canEditGeoPolicy} />
+                  <span><strong>Увімкнути геообмеження</strong><small>Глобальний перемикач для цієї політики.</small></span>
+                </label>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="blockApplications" defaultChecked={geoPolicy.blockApplications} disabled={!canEditGeoPolicy} />
+                  <span><strong>Забороняти подання заявок</strong><small>Перевірка виконується у Worker перед створенням заявки.</small></span>
+                </label>
+                <label className="admin-policy-toggle">
+                  <input type="checkbox" name="blockAuth" defaultChecked={geoPolicy.blockAuth} disabled={!canEditGeoPolicy} />
+                  <span><strong>Забороняти авторизацію</strong><small>Старт OAuth і callback блокуються до створення сесії.</small></span>
+                </label>
+                <label className="admin-policy-toggle admin-policy-toggle--danger">
+                  <input type="checkbox" name="blockUnknownCountries" defaultChecked={geoPolicy.blockUnknownCountries} disabled={!canEditGeoPolicy} />
+                  <span><strong>Блокувати невідому країну</strong><small>Обережно: може зачепити VPN, privacy relay або погано проксовані запити.</small></span>
+                </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Країни</legend>
+                <label className="admin-policy-input">
+                  <span>ISO-коди країн</span>
+                  <input name="blockedCountries" defaultValue={geoPolicy.blockedCountries.join(", ")} placeholder="RU, BY" disabled={!canEditGeoPolicy} />
+                </label>
+                <div className="admin-policy-hint">
+                  <strong>Поточний стан</strong>
+                  <small>Заявки: {geoPolicy.blockApplications ? "блокуються" : "не блокуються"}</small>
+                  <small>Авторизація: {geoPolicy.blockAuth ? "блокується" : "не блокується"}</small>
+                </div>
+              </fieldset>
+
+              <footer className="admin-policy-footer">
+                <small>Коди зберігаються у Firebase і використовуються dashboard та Worker. Невідома країна: {geoPolicy.blockUnknownCountries ? "блокується" : "дозволяється"}.</small>
+                <button className="btn primary" type="submit" disabled={!canEditGeoPolicy}>Зберегти геообмеження</button>
+              </footer>
             </form>
-            <small className="geo-access-note">Поточний стан: {geoPolicy.enabled ? "увімкнено" : "вимкнено"}; заявки: {geoPolicy.blockApplications ? "блокуються" : "не блокуються"}; авторизація: {geoPolicy.blockAuth ? "блокується" : "не блокується"}.</small>
           </article>
         </section>
       </section>

@@ -17361,156 +17361,342 @@ button[aria-busy="true"]::after,
   }
 }
 
-/* Geo access controls on /admin */
-.geo-access-card {
-  grid-template-columns: auto minmax(0, 1fr);
+/* Admin security controls on /admin */
+.admin-overview-grid--security {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   align-items: start;
 }
 
-.geo-access-card > span:first-child {
-  grid-row: 1 / span 3;
+.admin-overview-grid--security .admin-overview-status-card,
+.admin-system-summary-card {
+  min-height: 100%;
 }
 
-.geo-access-card__copy {
+.admin-system-summary-card {
+  grid-column: auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.admin-system-summary-card > div {
   display: grid;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 }
 
-.geo-access-form {
-  grid-column: 2;
+.admin-system-summary-card code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.admin-policy-card {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
+  gap: 18px;
+  padding: clamp(18px, 2vw, 24px);
+  border-color: rgba(248, 218, 135, 0.2);
+  background:
+    radial-gradient(circle at top left, rgba(248, 218, 135, 0.08), transparent 34%),
+    linear-gradient(135deg, rgba(20, 25, 35, 0.92), rgba(12, 15, 22, 0.9));
+}
+
+.admin-policy-card__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+
+.admin-policy-card__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(248, 218, 135, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.admin-policy-card__title {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.admin-policy-card__title strong {
+  color: #f4e8d4;
+  font-size: clamp(1.08rem, 1.7vw, 1.28rem);
+  line-height: 1.15;
+}
+
+.admin-policy-card__title small {
+  max-width: 72ch;
+  color: rgba(232, 220, 202, 0.68);
+  line-height: 1.45;
+}
+
+.admin-policy-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: min(240px, 100%);
+}
+
+.admin-policy-status span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border: 1px solid rgba(248, 218, 135, 0.18);
+  border-radius: 999px;
+  color: rgba(244, 232, 212, 0.82);
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 0.75rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.admin-policy-status .is-on {
+  border-color: rgba(84, 214, 139, 0.35);
+  color: #bff4cf;
+  background: rgba(84, 214, 139, 0.12);
+}
+
+.admin-policy-status .is-off {
+  border-color: rgba(255, 135, 101, 0.28);
+  color: #ffc6b5;
+  background: rgba(255, 135, 101, 0.1);
+}
+
+.admin-policy-form {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.admin-policy-fieldset {
+  display: grid;
   gap: 10px;
   min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(248, 218, 135, 0.16);
+  border-radius: 18px;
+  background: rgba(5, 9, 16, 0.28);
 }
 
-.geo-access-toggle,
-.geo-access-countries {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(188, 141, 72, .18);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .035);
-}
-
-.geo-access-toggle {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-}
-
-.geo-access-toggle input {
-  margin-top: 3px;
-}
-
-.geo-access-toggle span,
-.geo-access-countries span {
-  color: #f4e8d4;
-  font-weight: 800;
-}
-
-.geo-access-toggle small {
-  display: block;
-  margin-top: 2px;
-  color: rgba(232, 220, 202, .58);
-  font-weight: 650;
-  line-height: 1.35;
-}
-
-.geo-access-toggle--muted {
-  border-color: rgba(255, 255, 255, .1);
-}
-
-.geo-access-countries input {
-  width: 100%;
-  min-width: 0;
-}
-
-.geo-access-form .btn {
-  align-self: stretch;
-  min-height: 44px;
-}
-
-.geo-access-note {
-  grid-column: 2;
-  color: rgba(232, 220, 202, .62);
-}
-
-@media (max-width: 760px) {
-  .geo-access-card,
-  .geo-access-form {
-    grid-template-columns: 1fr;
-  }
-
-  .geo-access-card > span:first-child,
-  .geo-access-form,
-  .geo-access-note {
-    grid-column: auto;
-    grid-row: auto;
-  }
-}
-
-.auth-access-card {
-  align-items: start;
-}
-
-.auth-access-roles {
-  display: grid;
-  gap: 0.65rem;
-  border: 1px solid rgba(248, 218, 135, 0.15);
-  border-radius: 1rem;
-  padding: 0.85rem;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.auth-access-roles > span {
+.admin-policy-fieldset legend {
+  padding: 0 8px;
   color: var(--muted-gold, #f0d98b);
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 0.74rem;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+.admin-policy-fieldset--roles {
+  min-height: 0;
+}
+
+.admin-policy-fieldset--compact {
+  align-content: start;
+}
+
+.admin-policy-toggle,
+.admin-policy-input,
+.admin-policy-hint {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.admin-policy-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.admin-policy-toggle:hover,
+.auth-access-role-option:hover,
+.admin-policy-input:focus-within {
+  border-color: rgba(248, 218, 135, 0.3);
+  background: rgba(248, 218, 135, 0.055);
+}
+
+.admin-policy-toggle--danger {
+  border-color: rgba(255, 143, 102, 0.18);
+}
+
+.admin-policy-toggle input,
+.auth-access-role-option input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: #d6a33d;
+}
+
+.admin-policy-toggle span,
+.admin-policy-input,
+.admin-policy-hint {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-policy-toggle strong,
+.admin-policy-input span,
+.admin-policy-hint strong {
+  color: #f4e8d4;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.admin-policy-toggle small,
+.admin-policy-input small,
+.admin-policy-hint small,
+.admin-policy-empty {
+  color: rgba(232, 220, 202, 0.62);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.admin-policy-input input {
+  width: 100%;
+  min-width: 0;
+}
+
 .auth-access-role-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.5rem;
-  max-height: 260px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 9px;
+  max-height: 328px;
   overflow: auto;
-  padding-right: 0.2rem;
+  padding: 2px 6px 2px 2px;
+  scrollbar-gutter: stable;
 }
 
 .auth-access-role-option {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.35rem 0.55rem;
+  gap: 4px 10px;
   align-items: start;
   min-width: 0;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.85rem;
-  padding: 0.65rem 0.7rem;
-  background: rgba(8, 12, 20, 0.35);
-}
-
-.auth-access-role-option input {
-  margin-top: 0.2rem;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 14px;
+  background: rgba(7, 11, 18, 0.46);
 }
 
 .auth-access-role-option span,
 .auth-access-role-option small {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .auth-access-role-option span {
   color: var(--text-primary, #f4efe4);
-  font-weight: 800;
+  font-weight: 850;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .auth-access-role-option small {
   grid-column: 2;
   color: var(--text-muted, #a8a092);
   font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.admin-policy-footer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+  gap: 14px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.admin-policy-footer small {
+  color: rgba(232, 220, 202, 0.64);
+  line-height: 1.45;
+}
+
+.admin-policy-footer .btn {
+  min-height: 48px;
+  width: 100%;
+}
+
+.geo-access-card,
+.auth-access-card {
+  align-items: stretch;
+}
+
+.geo-access-card > span:first-child {
+  grid-row: auto;
+}
+
+.geo-access-form,
+.auth-access-form,
+.geo-access-note,
+.geo-access-card__copy {
+  grid-column: auto;
+}
+
+@media (max-width: 1020px) {
+  .admin-overview-grid--security,
+  .admin-policy-form,
+  .admin-policy-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-policy-card__header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .admin-policy-status {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-policy-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .admin-policy-card__header {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-policy-card__icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .admin-policy-fieldset {
+    padding: 12px;
+  }
+
+  .admin-policy-toggle,
+  .admin-policy-input,
+  .admin-policy-hint,
+  .auth-access-role-option {
+    padding: 10px;
+  }
+
+  .auth-access-role-list {
+    grid-template-columns: 1fr;
+    max-height: 300px;
+  }
 }

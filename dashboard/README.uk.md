@@ -156,9 +156,10 @@ Fallback через env:
 
 ```env
 AUTH_ACCESS_RESTRICTIONS_ENABLED=true
-AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=false
+AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true
 AUTH_ACCESS_ALLOW_SERVER_OWNER=true
+AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false
 AUTH_ACCESS_REQUIRED_ROLE_IDS=
 ```
 
-Для суворого режиму постав `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true` або увімкни цей прапорець у панелі. Якщо роль не вибрана, не-власники сервера не пройдуть Discord OAuth.
+Безпечний режим увімкнений за замовчуванням: `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true`. Якщо роль не вибрана, не-власники сервера не пройдуть Discord OAuth. `AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false` не дає резервному token-входу обходити перевірку Discord-сервера і ролей.

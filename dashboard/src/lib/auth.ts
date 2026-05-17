@@ -192,6 +192,24 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
   }
 }
 
+async function enforceNonDiscordSessionPolicy(session: DashboardSession | null): Promise<DashboardSession | null> {
+  if (!session || session.provider === "discord" || session.impersonatedBy) return session;
+
+  const policy = await getAuthAccessPolicy();
+  if (!policy.enabled) return session;
+
+  if (session.provider === "token" && policy.allowEmergencyTokenLogin) {
+    return session;
+  }
+
+  logDashboardEvent("warn", "auth.non_discord_session_blocked", undefined, {
+    provider: session.provider,
+    userId: session.id,
+    role: session.role,
+  });
+  return null;
+}
+
 function getSecret() {
   const secret = process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || "";
   if (secret.length < 32) {
@@ -396,7 +414,8 @@ export async function getSession(): Promise<DashboardSession | null> {
   const token = store.get(SESSION_COOKIE)?.value || store.get(LEGACY_SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);
   if (session?.impersonatedBy) return session;
-  return refreshDiscordAccess(session);
+  const gatedSession = await enforceNonDiscordSessionPolicy(session);
+  return refreshDiscordAccess(gatedSession);
 }
 
 export async function setSession(session: DashboardSession) {

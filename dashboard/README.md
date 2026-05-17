@@ -156,9 +156,10 @@ Env fallback:
 
 ```env
 AUTH_ACCESS_RESTRICTIONS_ENABLED=true
-AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=false
+AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true
 AUTH_ACCESS_ALLOW_SERVER_OWNER=true
+AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false
 AUTH_ACCESS_REQUIRED_ROLE_IDS=
 ```
 
-Use strict mode with `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true` or the admin toggle. If no role is selected in strict mode, only the Discord server owner can pass OAuth.
+The safe default is strict mode: `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true`. If no role is selected, only the Discord server owner can pass OAuth when owner bypass is enabled. `AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false` keeps the legacy token login from bypassing Discord membership and role checks.

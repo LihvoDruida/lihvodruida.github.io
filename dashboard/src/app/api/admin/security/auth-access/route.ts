@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
       enabled: form.get("enabled"),
       requireConfiguredRole: form.get("requireConfiguredRole"),
       allowServerOwner: form.get("allowServerOwner"),
+      allowEmergencyTokenLogin: form.get("allowEmergencyTokenLogin"),
       requiredRoleIds: form.getAll("requiredRoleIds"),
       requiredRoleIdsText: form.get("requiredRoleIdsText"),
     }, session);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { setSession, verifyToken } from "@/lib/auth";
+import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
 import {
   assertRequestBodySize,
@@ -35,6 +36,12 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) {
     logDashboardEvent("warn", "auth.token_login.rate_limited", request, { resetAt: limit.resetAt });
     return redirectTo(request, "/login?error=rate_limit");
+  }
+
+  const authPolicy = await getAuthAccessPolicy();
+  if (authPolicy.enabled && !authPolicy.allowEmergencyTokenLogin) {
+    logDashboardEvent("warn", "auth.token_login.disabled_by_policy", request);
+    return redirectTo(request, "/login?error=token_disabled");
   }
 
   const form = await request.formData();

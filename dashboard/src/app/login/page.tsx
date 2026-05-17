@@ -3,6 +3,7 @@ import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/seo";
 import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath } from "@/lib/profiles";
+import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 
 export const metadata = buildPageMetadata({
   title: "Вхід до панелі",
@@ -39,6 +40,7 @@ function errorText(error?: string) {
     not_guild_member: "Доступ закрито: Discord-акаунт не є учасником сервера гільдії.",
     discord_banned: "Доступ закрито: Discord-акаунт заблокований на сервері.",
     security_check_failed: "Не вдалося безпечно перевірити Discord-сервер або ролі. Спробуй пізніше.",
+    token_disabled: "Резервний вхід вимкнено правилами безпеки. Використай Discord.",
   };
 
   return map[error] || "Не вдалося увійти. Перевір доступ у Discord.";
@@ -75,9 +77,10 @@ export default async function LoginPage({
   }
 
   const guild = await getGuildBranding();
+  const authPolicy = await getAuthAccessPolicy();
   const error = errorText(params.error);
   const hasDiscord = Boolean(process.env.DISCORD_OAUTH_CLIENT_ID);
-  const hasTokenFallback = Boolean(process.env.ADMIN_DASHBOARD_TOKEN);
+  const hasTokenFallback = Boolean(process.env.ADMIN_DASHBOARD_TOKEN) && (!authPolicy.enabled || authPolicy.allowEmergencyTokenLogin);
 
   return (
     <main className="login-screen">
