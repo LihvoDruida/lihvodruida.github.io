@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { ApplicationStatus, normalizeStatus } from "@/lib/github";
 import { moderateApplications } from "@/lib/moderation";
@@ -110,9 +111,31 @@ export async function POST(request: NextRequest) {
       durationMs: result.durationMs,
     });
 
+    await recordAdminAudit("applications.bulk_status.update", session, {
+      status: result.failed ? "warning" : "success",
+      summary: `Масово оновлено заявки: успішно ${result.succeeded}/${result.total}, помилок ${result.failed}.`,
+      total: result.total,
+      changed: result.succeeded,
+      failed: result.failed,
+      concurrency: result.concurrency,
+      durationMs: result.durationMs,
+      items: items.slice(0, 50),
+      issueNumbers: items.map((item) => item.issueNumber),
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "applications.bulk_status.audit_failed", request, { message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
+
     return NextResponse.json(result, { headers: noStoreHeaders() });
   } catch (error) {
-    logDashboardEvent("error", "applications.bulk_status.failed", request, { userId: session.id, message: safeErrorMessage(error) });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "applications.bulk_status.failed", request, { userId: session.id, message });
+    await recordAdminAudit("applications.bulk_status.update_failed", session, {
+      status: "error",
+      summary: `Масову зміну статусів не виконано: ${message}`,
+      error: error instanceof Error ? error.message : String(error || ""),
+      itemCount: items.length,
+      issueNumbers: items.map((item) => item.issueNumber),
+    }).catch(() => false);
     return NextResponse.json(
       { error: safeErrorMessage(error, "Масову зміну статусів не виконано.") },
       { status: 500, headers: noStoreHeaders() },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids } from "@/lib/permissions";
 import { deleteRaid } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
@@ -37,6 +38,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     logDashboardEvent("info", "raids.delete.start", request, { raidId, actorId: user.id, actorRole: user.role });
     const result = await deleteRaid(raidId);
     logDashboardEvent("info", "raids.delete.done", request, { raidId: result.id, actorId: user.id, actorRole: user.role });
+    await recordAdminAudit("raids.delete", user, {
+      status: result.discordDeleteFailed ? "warning" : "success",
+      summary: result.discordDeleteFailed ? `Рейд видалено з панелі, але Discord-повідомлення не видалилось: ${result.title || result.id}.` : `Рейд видалено: ${result.title || result.id}.`,
+      raidId: result.id,
+      title: result.title || null,
+      raidStatus: result.status,
+      discordDeleted: Boolean(result.discordDeleted),
+      discordDeleteFailed: Boolean(result.discordDeleteFailed),
+      channelId: result.channelId || null,
+      messageId: result.messageId || null,
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "raids.delete.audit_failed", request, { raidId: result.id, message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
     return redirectWithToast("/raids", {
       tone: result.discordDeleteFailed ? "warning" : "success",
       title: result.status === "draft" ? "Чернетку видалено" : "Рейд видалено",
@@ -48,7 +62,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       ttl: result.discordDeleteFailed ? 9800 : 6200,
     });
   } catch (error) {
-    logDashboardEvent("error", "raids.delete.failed", request, { raidId, actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "raids.delete.failed", request, { raidId, actorId: user.id, actorRole: user.role, message });
+    await recordAdminAudit("raids.delete_failed", user, {
+      status: "error",
+      summary: `Рейд не видалено: ${message}`,
+      raidId,
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => false);
     return redirectWithToast("/raids", {
       tone: "error",
       title: "Дію з рейдом не виконано",

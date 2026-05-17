@@ -32,7 +32,7 @@ async function saveGroupAction(formData: FormData) {
   const isUpdate = Boolean(formData.get("currentId"));
   let targetUrl = `/admin/groups?${isUpdate ? "updated" : "created"}=${encodeURIComponent("Групу доступу збережено у Firebase.")}`;
   try {
-    await upsertAccessGroup({
+    const savedGroup = await upsertAccessGroup({
       currentId: formData.get("currentId"),
       id: formData.get("id"),
       name: formData.get("name"),
@@ -42,8 +42,17 @@ async function saveGroupAction(formData: FormData) {
       icon: formData.get("icon"),
       permissions: formData.getAll("permissions"),
     }, user);
-    const groupId = String(formData.get("id") || formData.get("currentId") || "");
-    await recordAdminAudit("access_group.upsert", user, { groupId });
+    const groupId = savedGroup.id;
+    await recordAdminAudit("access_group.upsert", user, {
+      status: "success",
+      summary: `${isUpdate ? "Оновлено" : "Створено"} групу доступу: ${savedGroup.name} (${savedGroup.id}).`,
+      groupId,
+      groupName: savedGroup.name,
+      role: savedGroup.role,
+      rank: savedGroup.rank,
+      permissionCount: savedGroup.permissions.length,
+      discordRoleIds: savedGroup.discordRoleIds,
+    });
     revalidatePath("/admin/groups");
     await setActionToast("success", isUpdate ? "Групу оновлено" : "Групу створено", "Права, Discord role ID та іконку збережено у Firebase.");
   } catch (error) {
@@ -62,7 +71,12 @@ async function deleteGroupAction(formData: FormData) {
   let targetUrl = `/admin/groups?deleted=${encodeURIComponent("Групу доступу видалено.")}`;
   try {
     await deleteAccessGroup(groupId, user);
-    await recordAdminAudit("access_group.delete", user, { groupId });
+    await recordAdminAudit("access_group.delete", user, {
+      status: "success",
+      summary: `Групу доступу видалено: ${groupId}.`,
+      groupId,
+      changed: 1,
+    });
     revalidatePath("/admin/groups");
     await setActionToast("success", "Групу видалено", "Список груп доступу оновлено.");
   } catch (error) {
@@ -82,7 +96,14 @@ async function impersonateAction(formData: FormData) {
     const group = await getAccessGroup(String(formData.get("groupId") || ""));
     if (!group) throw new Error("Групу для перегляду не знайдено.");
     await setSession(applyAccessGroupToSession({ ...user, impersonatedBy: user.id }, group, false));
-    await recordAdminAudit("access_group.impersonate", user, { groupId: group.id, groupName: group.name });
+    await recordAdminAudit("access_group.impersonate", user, {
+      status: "info",
+      summary: `Увімкнено перегляд як група: ${group.name}.`,
+      groupId: group.id,
+      groupName: group.name,
+      role: group.role,
+      rank: group.rank,
+    });
     await setActionToast("info", `Перегляд як: ${group.name}`, "Реальні права акаунта не змінені. Завершити режим можна через постійне повідомлення внизу.");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Режим перегляду не вдалося увімкнути.";

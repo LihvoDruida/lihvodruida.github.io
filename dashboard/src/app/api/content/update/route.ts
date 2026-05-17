@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageSiteContent } from "@/lib/permissions";
 import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { isContentKind, updateSiteContent } from "@/lib/content";
@@ -75,10 +76,27 @@ export async function POST(request: NextRequest) {
     });
 
     logDashboardEvent("info", "content.update.success", request, { path: result.path, userId: session.id });
+    await recordAdminAudit("content.update", session, {
+      status: "success",
+      summary: `Контент оновлено: ${result.path}.`,
+      path: result.path,
+      kind,
+      title: String(form.get("title") || "").slice(0, 140),
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "content.update.audit_failed", request, { path: result.path, message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
     return redirectTo(request, `/content?updated=${encodeURIComponent(result.path)}`);
   } catch (error) {
     const message = safeErrorMessage(error, "Не вдалося оновити матеріал.");
     logDashboardEvent("error", "content.update.failed", request, { message });
+    await recordAdminAudit("content.update_failed", session, {
+      status: "error",
+      summary: `Контент не оновлено: ${message}`,
+      kind,
+      path: String(form.get("path") || ""),
+      title: String(form.get("title") || "").slice(0, 140),
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => false);
     return redirectTo(request, `/content?error=${encodeURIComponent(message)}`);
   }
 }

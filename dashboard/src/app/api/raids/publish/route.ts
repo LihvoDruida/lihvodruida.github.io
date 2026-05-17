@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
 import { saveAndMaybePublishRaid } from "@/lib/raids";
@@ -62,6 +63,20 @@ export async function POST(request: NextRequest) {
       messageId: result.raid.messageId || "",
     });
 
+    await recordAdminAudit("raids.discord.publish", user, {
+      status: "success",
+      summary: `${result.discordAction === "updated" ? "Discord-оголошення рейду оновлено" : "Discord-оголошення рейду опубліковано"}: ${result.raid.title || result.raid.id}.`,
+      raidId: result.raid.id,
+      raidStatus: result.raid.status,
+      discordAction: result.discordAction,
+      title: result.raid.title || null,
+      channelId: result.raid.channelId || null,
+      messageId: result.raid.messageId || null,
+      messageUrl: result.published || null,
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "raids.discord.publish.audit_failed", request, { raidId: result.raid.id, message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
+
     return redirectWithToast(`/raids/${encodeURIComponent(result.raid.id)}/edit`, {
       tone: "success",
       title: toastTitle,
@@ -69,7 +84,13 @@ export async function POST(request: NextRequest) {
       ttl: 7600,
     });
   } catch (error) {
-    logDashboardEvent("error", "raids.discord.publish.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "raids.discord.publish.failed", request, { actorId: user.id, actorRole: user.role, message });
+    await recordAdminAudit("raids.discord.publish_failed", user, {
+      status: "error",
+      summary: `Discord-публікацію рейду не виконано: ${message}`,
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => false);
     return redirectWithToast(failurePath, {
       tone: "error",
       title: "Discord-публікацію не виконано",

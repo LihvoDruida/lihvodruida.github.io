@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
 import { saveRaidFromForm } from "@/lib/raids";
@@ -67,6 +68,17 @@ export async function POST(request: NextRequest) {
       channelId: raid.channelId || "",
       messageId: raid.messageId || "",
     });
+    await recordAdminAudit("raids.save", user, {
+      status: "success",
+      summary: `${raid.status === "draft" ? "Чернетку рейду" : "Рейд"} збережено: ${raid.title || raid.id}.`,
+      raidId: raid.id,
+      raidStatus: raid.status,
+      title: raid.title || null,
+      channelId: raid.channelId || null,
+      messageId: raid.messageId || null,
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "raids.save.audit_failed", request, { raidId: raid.id, message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
     return redirectWithToast(`/raids/${encodeURIComponent(raid.id)}/edit`, {
       tone: "success",
       title: raid.status === "draft" ? "Чернетку збережено" : "Зміни збережено",
@@ -74,7 +86,13 @@ export async function POST(request: NextRequest) {
       ttl: 6200,
     });
   } catch (error) {
-    logDashboardEvent("error", "raids.action.failed", request, { actorId: user.id, actorRole: user.role, message: safeErrorMessage(error) });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "raids.action.failed", request, { actorId: user.id, actorRole: user.role, message });
+    await recordAdminAudit("raids.save_failed", user, {
+      status: "error",
+      summary: `Рейд не збережено: ${message}`,
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => false);
     return redirectWithToast(failurePath, {
       tone: "error",
       title: "Дію з рейдом не виконано",

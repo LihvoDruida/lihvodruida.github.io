@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
+import { publishAdminAuditToDiscord, type AdminAuditNotificationInput } from "@/lib/adminAuditNotifications";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import {
   DASHBOARD_PERMISSION_KEYS,
@@ -381,7 +382,34 @@ function fallbackAuditLogs() {
 function pushFallbackAdminAudit(item: AdminAuditLogItem) {
   const logs = fallbackAuditLogs();
   logs.unshift(item);
-  if (logs.length > 120) logs.splice(120);
+  if (logs.length > 520) logs.splice(520);
+}
+
+async function mirrorAuditLogToDiscord(item: AdminAuditLogItem) {
+  const payload: AdminAuditNotificationInput = {
+    id: item.id,
+    action: item.action,
+    actorId: item.actorId,
+    actorName: item.actorName,
+    actorGroupId: item.actorGroupId,
+    isServerOwner: item.isServerOwner,
+    status: item.status,
+    summary: item.summary,
+    details: item.details || {},
+    createdAt: item.createdAt || new Date().toISOString(),
+  };
+  const result = await publishAdminAuditToDiscord(payload).catch((error) => ({
+    ok: false,
+    error: error instanceof Error ? error.message : String(error || "unknown"),
+  }));
+  if (result && typeof result === "object" && "ok" in result && result.ok === false) {
+    logDashboardEvent("warn", "admin.audit.discord_mirror_failed", undefined, {
+      action: item.action,
+      actorId: item.actorId,
+      status: item.status,
+      error: "error" in result ? result.error : "Discord mirror failed",
+    });
+  }
 }
 
 function auditCollectionRef() {
@@ -433,10 +461,10 @@ function normalizeAuditLog(id: string, raw: Record<string, unknown>): AdminAudit
   };
 }
 
-async function pruneAdminAuditLogs(max = 100) {
+async function pruneAdminAuditLogs(max = 500) {
   if (!hasFirebaseProfileConfig()) return;
-  const safeMax = Math.max(20, Math.min(100, Math.floor(Number(max) || 100)));
-  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(safeMax + 40).get().catch(() => null);
+  const safeMax = Math.max(50, Math.min(500, Math.floor(Number(max) || 500)));
+  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(safeMax + 80).get().catch(() => null);
   if (!snapshot || snapshot.docs.length <= safeMax) return;
   const batch = getFirebaseAdminDb().batch();
   for (const doc of snapshot.docs.slice(safeMax)) batch.delete(doc.ref);
@@ -444,7 +472,7 @@ async function pruneAdminAuditLogs(max = 100) {
 }
 
 export async function listAdminAuditLogs(limitInput: unknown = 100) {
-  const limit = Math.max(10, Math.min(100, Math.floor(Number(limitInput) || 50)));
+  const limit = Math.max(10, Math.min(250, Math.floor(Number(limitInput) || 50)));
   const fallback = fallbackAuditLogs().slice(0, limit);
   if (!hasFirebaseProfileConfig()) return fallback;
 
@@ -494,24 +522,29 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
 
   if (!hasFirebaseProfileConfig()) {
     pushFallbackAdminAudit(fallbackItem);
+    await mirrorAuditLogToDiscord(fallbackItem);
     logDashboardEvent("warn", "admin.audit.unconfigured", undefined, { action, actorId: viewer.id, status });
     return false;
   }
 
   try {
-    await auditCollectionRef().add(payload);
-    void pruneAdminAuditLogs(100);
+    const ref = await auditCollectionRef().add(payload);
+    const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+    await mirrorAuditLogToDiscord(storedItem);
+    void pruneAdminAuditLogs(500);
     logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
     return true;
   } catch (error) {
-    pushFallbackAdminAudit({
+    const memoryItem = {
       ...fallbackItem,
       details: {
         ...fallbackItem.details,
         auditStorage: "memory_after_firestore_failure",
         auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
       },
-    });
+    };
+    pushFallbackAdminAudit(memoryItem);
+    await mirrorAuditLogToDiscord(memoryItem);
     logDashboardEvent("error", "admin.audit.write_failed", undefined, {
       action,
       actorId: viewer.id,
@@ -553,24 +586,29 @@ export async function recordSystemAudit(action: string, details: Record<string, 
 
   if (!hasFirebaseProfileConfig()) {
     pushFallbackAdminAudit(fallbackItem);
+    await mirrorAuditLogToDiscord(fallbackItem);
     logDashboardEvent("warn", "admin.audit.system_unconfigured", undefined, { action, status });
     return false;
   }
 
   try {
-    await auditCollectionRef().add(payload);
-    void pruneAdminAuditLogs(100);
+    const ref = await auditCollectionRef().add(payload);
+    const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+    await mirrorAuditLogToDiscord(storedItem);
+    void pruneAdminAuditLogs(500);
     logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
     return true;
   } catch (error) {
-    pushFallbackAdminAudit({
+    const memoryItem = {
       ...fallbackItem,
       details: {
         ...fallbackItem.details,
         auditStorage: "memory_after_firestore_failure",
         auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
       },
-    });
+    };
+    pushFallbackAdminAudit(memoryItem);
+    await mirrorAuditLogToDiscord(memoryItem);
     logDashboardEvent("error", "admin.audit.system_write_failed", undefined, {
       action,
       status,

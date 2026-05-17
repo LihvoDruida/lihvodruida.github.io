@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/accessGroups";
 import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { ApplicationStatus } from "@/lib/github";
 import { moderateApplication } from "@/lib/moderation";
@@ -72,10 +73,33 @@ export async function POST(
       source: "dashboard",
     });
 
+    const resultRecord = result as Record<string, unknown>;
+    const discordResult = resultRecord.discord && typeof resultRecord.discord === "object" && !Array.isArray(resultRecord.discord)
+      ? resultRecord.discord as Record<string, unknown>
+      : null;
+
     logDashboardEvent("info", "applications.status.success", request, { issueNumber, status, userId: session.id });
+    await recordAdminAudit("applications.status.update", session, {
+      status: "success",
+      summary: `Заявка #${issueNumber}: статус змінено на ${status}.`,
+      issueNumber,
+      applicationStatus: status,
+      source: "dashboard",
+      discordUpdated: Boolean(resultRecord.discordUpdated || discordResult?.ok),
+    }).catch((auditError) => {
+      logDashboardEvent("warn", "applications.status.audit_failed", request, { issueNumber, status, message: auditError instanceof Error ? auditError.message : String(auditError || "unknown") });
+    });
     return NextResponse.json(result, { headers: noStoreHeaders() });
   } catch (error) {
-    logDashboardEvent("error", "applications.status.failed", request, { issueNumber, status, message: safeErrorMessage(error) });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "applications.status.failed", request, { issueNumber, status, message });
+    await recordAdminAudit("applications.status.update_failed", session, {
+      status: "error",
+      summary: `Заявка #${issueNumber}: статус не змінено. ${message}`,
+      issueNumber,
+      applicationStatus: status,
+      error: error instanceof Error ? error.message : String(error || ""),
+    }).catch(() => false);
     return NextResponse.json(
       { error: safeErrorMessage(error, "Не вдалося змінити статус заявки.") },
       { status: 500, headers: noStoreHeaders() }

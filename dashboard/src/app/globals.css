@@ -18089,3 +18089,90 @@ button[aria-busy="true"]::after,
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
+
+/* Admin logs v3: Discord mirror settings */
+.admin-log-toolbar--settings {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-log-discord-form {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(188, 141, 72, .16);
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+}
+
+.admin-log-discord-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, .8fr) minmax(220px, 1fr) minmax(220px, 1fr) minmax(180px, .8fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-log-toggle-row {
+  min-height: 44px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.045);
+}
+
+.admin-log-discord-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-log-discord-summary span {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+}
+
+.admin-log-discord-summary strong {
+  color: #f4e8d4;
+  font-size: .92rem;
+}
+
+.admin-log-discord-summary small,
+.muted-note {
+  color: rgba(232, 220, 202, .64);
+  line-height: 1.35;
+}
+
+.status-pill.success {
+  color: #c8ffd5;
+  border-color: rgba(95, 211, 128, .42);
+  background: rgba(95, 211, 128, .12);
+}
+
+.status-pill.neutral {
+  color: rgba(232, 220, 202, .76);
+  border-color: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+}
+
+@media (max-width: 980px) {
+  .admin-log-discord-grid,
+  .admin-log-discord-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-log-discord-grid,
+  .admin-log-discord-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-log-discord-form {
+    padding: 12px;
+  }
+}
