@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 16:58:48'
+  updated_at: '2026-05-17 20:54:34'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3410,7 +3410,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 98
+        learned_points: 99
         max_points: 100
     secondaries:
     - name: Cooking
