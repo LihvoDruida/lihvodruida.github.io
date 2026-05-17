@@ -1,5 +1,5 @@
 import { mapConcurrent } from "@/lib/concurrency";
-import { rulesLoginUrl } from "@/lib/rulesOnboarding";
+import { parseRulesRoleIdsFromUrl, rulesLoginUrl } from "@/lib/rulesOnboarding";
 import { logDashboardEvent } from "@/lib/security";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
@@ -1404,6 +1404,23 @@ function readComponentCustomIds(components: unknown): string[] {
   return ids;
 }
 
+function readComponentUrls(components: unknown): string[] {
+  if (!Array.isArray(components)) return [];
+  const urls: string[] = [];
+
+  const walk = (items: unknown[]) => {
+    for (const item of items) {
+      if (!item || typeof item !== "object") continue;
+      const component = item as Record<string, unknown>;
+      if (typeof component.url === "string") urls.push(component.url);
+      if (Array.isArray(component.components)) walk(component.components);
+    }
+  };
+
+  walk(components);
+  return urls;
+}
+
 export function extractRulesRoleIdsFromMessage(message: Record<string, unknown>) {
   const roleIds: string[] = [];
 
@@ -1412,6 +1429,12 @@ export function extractRulesRoleIdsFromMessage(message: Record<string, unknown>)
     if (decoded?.type === "guild" && (decoded.action === "accept" || decoded.action === "confirm_accept")) {
       roleIds.push(...decoded.roleIds);
     }
+  }
+
+  // Новий потік правил використовує URL-кнопку, щоб одразу вести на сайт.
+  // Тому роль потрібно діставати не тільки з custom_id, а й з підписаного rt-токена в URL.
+  for (const url of readComponentUrls(message.components)) {
+    roleIds.push(...parseRulesRoleIdsFromUrl(url));
   }
 
   return Array.from(new Set(roleIds));

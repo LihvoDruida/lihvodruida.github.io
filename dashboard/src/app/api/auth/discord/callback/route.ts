@@ -7,6 +7,7 @@ import { setSession } from "@/lib/session";
 import { exchangeDiscordCode, fetchDiscordGuildMember, fetchDiscordUser, getDashboardUrl } from "@/lib/oauth";
 import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
 import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
+import { evaluateAuthAccessPolicy, getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 import { findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 
@@ -253,6 +254,36 @@ export async function GET(request: NextRequest) {
 
     const discordRoleIds = Array.isArray(member.roles) ? member.roles.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean) : [];
     const guild = await fetchDiscordGuildSnapshot().catch(() => null);
+    const authPolicy = await getAuthAccessPolicy();
+    const authDecision = evaluateAuthAccessPolicy(authPolicy, {
+      userId: String(user.id),
+      ownerId: guild?.ownerId || null,
+      roleIds: discordRoleIds,
+    });
+    if (!authDecision.allowed) {
+      logDashboardEvent("warn", "auth.discord.callback.required_role_missing", request, {
+        userId: user.id,
+        profileId,
+        reason: authDecision.reason,
+        requiredRoles: authDecision.requiredRoleIds.length,
+        memberRoles: discordRoleIds.length,
+      });
+      await recordSystemAudit("auth.discord.required_role_missing", {
+        status: "warning",
+        summary: authDecision.reason === "no_required_role_configured"
+          ? "Discord-вхід заблоковано: обовʼязкова роль для входу не налаштована."
+          : "Discord-вхід заблоковано: у користувача немає обовʼязкової ролі сервера.",
+        userId: String(user.id),
+        profileId,
+        reason: authDecision.reason,
+        requiredRoleIds: authDecision.requiredRoleIds,
+      }).catch(() => false);
+      const response = loginRedirect(authDecision.reason === "no_required_role_configured" ? "auth_role_not_configured" : "required_discord_role");
+      expireSessionCookies(response);
+      rememberRemainingOAuthNonces(response, remainingNonces);
+      return response;
+    }
+
     const resolved = await resolveAccessGroupFromDiscord(discordRoleIds, String(user.id), guild?.ownerId || null);
     if (!resolved.group.permissions.includes("dashboard.view")) {
       logDashboardEvent("warn", "auth.discord.callback.access_denied", request, { userId: user.id });

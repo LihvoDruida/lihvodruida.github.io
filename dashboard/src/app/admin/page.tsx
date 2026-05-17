@@ -8,6 +8,8 @@ import { getSession } from "@/lib/auth";
 import { canManageDiscordMembers, canManageGroups, canViewAdminLogs } from "@/lib/permissions";
 import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
 import { getGeoAccessPolicy } from "@/lib/geoAccessPolicy";
+import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
+import { fetchDiscordRoles } from "@/lib/discordAdmin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -29,7 +31,20 @@ export default async function AdminOverviewPage() {
 
   const policy = await getGuildNicknamePolicy();
   const geoPolicy = await getGeoAccessPolicy();
+  const authPolicy = await getAuthAccessPolicy();
   const canEditGeoPolicy = canManageGroups(user);
+  const canEditAuthPolicy = canManageGroups(user);
+  let discordRoles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
+  let authRolesError = "";
+
+  if (canEditAuthPolicy) {
+    try {
+      discordRoles = await fetchDiscordRoles();
+    } catch (error) {
+      authRolesError = error instanceof Error ? error.message : String(error || "Discord API error");
+    }
+  }
+  const selectedAuthRoleIds = new Set(authPolicy.requiredRoleIds);
 
   return (
     <main className="container admin-container">
@@ -53,6 +68,7 @@ export default async function AdminOverviewPage() {
               { label: "DISCORD", value: canManageDiscordMembers(user) ? "ON" : "—" },
               { label: "ЛОГИ", value: canViewAdminLogs(user) ? "ON" : "—" },
               { label: "ГЕО", value: geoPolicy.enabled ? "ON" : "OFF" },
+              { label: "ВХІД", value: authPolicy.enabled ? "ON" : "OFF" },
             ]}
           />
         </header>
@@ -81,6 +97,52 @@ export default async function AdminOverviewPage() {
             <strong>Поточний шаблон ніку</strong>
             <small><code>{policy.template}</code></small>
             <small>Приклад: {nicknameTemplateExample(policy.template)}</small>
+          </article>
+
+
+          <article className="panel admin-overview-card admin-overview-card--wide geo-access-card auth-access-card">
+            <span aria-hidden="true">🔐</span>
+            <div className="geo-access-card__copy">
+              <strong>Авторизація та реєстрація</strong>
+              <small>Обмежує Discord-вхід і завершення реєстрації правилами. Користувач має бути учасником сервера і мати одну з вибраних ролей. Власник сервера може проходити перевірку окремо.</small>
+            </div>
+            <form className="geo-access-form auth-access-form" action="/api/admin/security/auth-access" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+              <label className="geo-access-toggle">
+                <input type="checkbox" name="enabled" defaultChecked={authPolicy.enabled} disabled={!canEditAuthPolicy} />
+                <span>Увімкнути обмеження входу за Discord-роллю</span>
+              </label>
+              <label className="geo-access-toggle">
+                <input type="checkbox" name="requireConfiguredRole" defaultChecked={authPolicy.requireConfiguredRole} disabled={!canEditAuthPolicy} />
+                <span>Вимагати вибрану роль <small>Якщо роль не вибрана, не-власники сервера не зможуть увійти.</small></span>
+              </label>
+              <label className="geo-access-toggle geo-access-toggle--muted">
+                <input type="checkbox" name="allowServerOwner" defaultChecked={authPolicy.allowServerOwner} disabled={!canEditAuthPolicy} />
+                <span>Дозволити власнику Discord-сервера вхід без цієї ролі</span>
+              </label>
+
+              <div className="auth-access-roles" aria-label="Discord ролі для входу">
+                <span>Роль, потрібна для авторизації / реєстрації</span>
+                {authRolesError ? <small className="error-note">Не вдалося завантажити ролі Discord. Можна вставити role ID вручну нижче.</small> : null}
+                {discordRoles.length ? (
+                  <div className="auth-access-role-list">
+                    {discordRoles.map((role) => (
+                      <label className="auth-access-role-option" key={role.id}>
+                        <input type="checkbox" name="requiredRoleIds" value={role.id} defaultChecked={selectedAuthRoleIds.has(role.id)} disabled={!canEditAuthPolicy} />
+                        <span>{role.name}</span>
+                        <small>{role.id}</small>
+                      </label>
+                    ))}
+                  </div>
+                ) : <small>Список ролей недоступний або порожній.</small>}
+              </div>
+
+              <label className="geo-access-countries">
+                <span>Role ID вручну</span>
+                <input name="requiredRoleIdsText" defaultValue={authPolicy.requiredRoleIds.join(", ")} placeholder="123456789012345678, 234567890123456789" disabled={!canEditAuthPolicy} />
+              </label>
+              <button className="btn primary" type="submit" disabled={!canEditAuthPolicy}>Зберегти правила входу</button>
+            </form>
+            <small className="geo-access-note">Поточний стан: {authPolicy.enabled ? "увімкнено" : "вимкнено"}; ролей для входу: {authPolicy.requiredRoleIds.length}; режим без ролі: {authPolicy.requireConfiguredRole ? "блокувати" : "дозволяти за старими правилами"}.</small>
           </article>
 
           <article className="panel admin-overview-card admin-overview-card--wide geo-access-card">

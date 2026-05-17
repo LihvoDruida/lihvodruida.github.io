@@ -141,3 +141,24 @@ RAIDERIO_ACCESS_KEY=
 ```
 
 `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` або `BATTLENET_CLIENT_ID` / `BATTLENET_CLIENT_SECRET` потрібні для Battle.net application token. Кнопка “Оновити склад” викликає `/api/guild/refresh` і примусово перезбирає кеш з Battle.net + Raider.IO.
+
+## Обмеження авторизації за Discord-роллю
+
+У `/admin` → `Керування` є блок **Авторизація та реєстрація**. Там можна вибрати Discord-роль, без якої користувач не зможе увійти в dashboard або пройти реєстрацію через кнопку правил.
+
+Значення зберігаються у Firebase:
+
+```text
+/dashboardSettings/authAccessPolicy
+```
+
+Fallback через env:
+
+```env
+AUTH_ACCESS_RESTRICTIONS_ENABLED=true
+AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=false
+AUTH_ACCESS_ALLOW_SERVER_OWNER=true
+AUTH_ACCESS_REQUIRED_ROLE_IDS=
+```
+
+Для суворого режиму постав `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true` або увімкни цей прапорець у панелі. Якщо роль не вибрана, не-власники сервера не пройдуть Discord OAuth.

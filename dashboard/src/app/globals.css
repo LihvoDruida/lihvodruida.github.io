@@ -17451,3 +17451,66 @@ button[aria-busy="true"]::after,
     grid-row: auto;
   }
 }
+
+.auth-access-card {
+  align-items: start;
+}
+
+.auth-access-roles {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px solid rgba(248, 218, 135, 0.15);
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.auth-access-roles > span {
+  color: var(--muted-gold, #f0d98b);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-access-role-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.auth-access-role-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.35rem 0.55rem;
+  align-items: start;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.7rem;
+  background: rgba(8, 12, 20, 0.35);
+}
+
+.auth-access-role-option input {
+  margin-top: 0.2rem;
+}
+
+.auth-access-role-option span,
+.auth-access-role-option small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.auth-access-role-option span {
+  color: var(--text-primary, #f4efe4);
+  font-weight: 800;
+}
+
+.auth-access-role-option small {
+  grid-column: 2;
+  color: var(--text-muted, #a8a092);
+  font-size: 0.72rem;
+}

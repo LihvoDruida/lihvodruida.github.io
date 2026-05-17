@@ -141,3 +141,24 @@ RAIDERIO_ACCESS_KEY=
 ```
 
 `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` or `BATTLENET_CLIENT_ID` / `BATTLENET_CLIENT_SECRET` are required for the Battle.net application token. The “Refresh roster” button calls `/api/guild/refresh` and rebuilds the cache from Battle.net + Raider.IO.
+
+## Discord role gate for auth and rules registration
+
+`/admin` → `Management` has an **Authorization and registration** card. Select the Discord role required to sign in to the dashboard or complete rules registration.
+
+The policy is stored in Firebase:
+
+```text
+/dashboardSettings/authAccessPolicy
+```
+
+Env fallback:
+
+```env
+AUTH_ACCESS_RESTRICTIONS_ENABLED=true
+AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=false
+AUTH_ACCESS_ALLOW_SERVER_OWNER=true
+AUTH_ACCESS_REQUIRED_ROLE_IDS=
+```
+
+Use strict mode with `AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true` or the admin toggle. If no role is selected in strict mode, only the Discord server owner can pass OAuth.

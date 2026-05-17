@@ -4,6 +4,7 @@ import { applyAccessGroupToSession, hasPermission, recordSystemAudit, resolveAcc
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 import { createStableProfileId } from "@/lib/profileIds";
 import { logDashboardEvent } from "@/lib/security";
+import { evaluateAuthAccessPolicy, getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 
 export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
 
@@ -125,10 +126,38 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
   if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.session;
 
   try {
-    const [member, guild] = await Promise.all([
+    const [member, guild, authPolicy] = await Promise.all([
       fetchDiscordGuildMemberSnapshot(session.id),
       fetchDiscordGuildSnapshot().catch(() => null),
+      getAuthAccessPolicy(),
     ]);
+    const authDecision = evaluateAuthAccessPolicy(authPolicy, {
+      userId: session.id,
+      ownerId: guild?.ownerId || null,
+      roleIds: member.roleIds || [],
+    });
+    if (!authDecision.allowed) {
+      logDashboardEvent("warn", "auth.discord.live.required_role_missing", undefined, {
+        userId: session.id,
+        profileId: session.profileId,
+        reason: authDecision.reason,
+        requiredRoles: authDecision.requiredRoleIds.length,
+        memberRoles: member.roleIds?.length || 0,
+      });
+      await recordSystemAudit("auth.discord.live.required_role_missing", {
+        status: "warning",
+        summary: authDecision.reason === "no_required_role_configured"
+          ? "Сесію Discord заблоковано: обовʼязкова роль для входу не налаштована."
+          : "Сесію Discord заблоковано: у користувача немає обовʼязкової ролі сервера.",
+        userId: session.id,
+        profileId: session.profileId,
+        reason: authDecision.reason,
+        requiredRoleIds: authDecision.requiredRoleIds,
+      }).catch(() => false);
+      cache.set(cacheKey, { checkedAt: Date.now(), session: null });
+      return null;
+    }
+
     const resolved = await resolveAccessGroupFromDiscord(member.roleIds || [], session.id, guild?.ownerId || null);
     const liveSession: DashboardSession | null = resolved.group.permissions.includes("dashboard.view")
       ? applyAccessGroupToSession({

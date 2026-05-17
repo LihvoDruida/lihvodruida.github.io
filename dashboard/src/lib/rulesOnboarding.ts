@@ -102,6 +102,28 @@ export function rulesLoginUrl(roleIds: string[]) {
   return `${getDashboardUrl()}${rulesLoginPath(token)}`;
 }
 
+export function parseRulesRoleIdsFromUrl(urlInput: unknown) {
+  const raw = String(urlInput || "").trim();
+  if (!raw) return [] as string[];
+
+  function roleIdsFromMaybeUrl(value: string) {
+    try {
+      const url = new URL(value, getDashboardUrl());
+      const directToken = url.searchParams.get("rt");
+      if (directToken) return parseRulesRoleToken(directToken);
+      const next = url.searchParams.get("next");
+      if (!next) return [] as string[];
+      const nested = new URL(next, getDashboardUrl());
+      return parseRulesRoleToken(nested.searchParams.get("rt"));
+    } catch {
+      return [] as string[];
+    }
+  }
+
+  return roleIdsFromMaybeUrl(raw);
+}
+
+
 export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined, nicknameTemplate?: string) {
   const profileHref = profile?.profileId ? `/profile/${profile.profileId}` : "/profile";
   const settingsHref = profile?.profileId ? `/profile/${profile.profileId}/settings?setup=1` : "/profile";
