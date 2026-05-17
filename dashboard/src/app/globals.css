@@ -16112,16 +16112,27 @@ main.container {
 }
 
 .discord-management-sidebar,
-.discord-management-main,
-.discord-action-grid {
+.discord-management-main {
   display: grid;
   gap: 16px;
   min-width: 0;
 }
 
+.discord-management-main {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.discord-management-main > .discord-management-card {
+  width: 100%;
+}
+
 .discord-action-grid {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   align-items: start;
+  min-width: 0;
 }
 
 .discord-management-card {
@@ -16134,6 +16145,10 @@ main.container {
   background:
     radial-gradient(circle at 0 0, rgba(255, 190, 88, .11), transparent 34%),
     linear-gradient(180deg, rgba(24, 22, 17, .94), rgba(11, 10, 8, .86));
+}
+
+.discord-management-card--action {
+  border-color: rgba(188, 141, 72, .24);
 }
 
 .discord-management-card .profile-card-head {
