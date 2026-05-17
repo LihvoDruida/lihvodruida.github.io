@@ -50,10 +50,10 @@ function characterAutoRaidRole(character?: ProfileCharacter | null): WowCharacte
 }
 
 const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint: string }[] = [
-  { value: "auto", label: "Авто", hint: "Брати роль зі спеки мейна" },
-  { value: "tank", label: "Танк", hint: "Записувати як танка" },
-  { value: "healer", label: "Хіл", hint: "Записувати як хіла" },
-  { value: "dps", label: "ДД", hint: "Записувати як ДД" },
+  { value: "auto", label: "Авто зі спеки", hint: "Ручний вибір не потрібен, якщо спек визначено правильно" },
+  { value: "tank", label: "Танк", hint: "Примусово записувати мейна як танка" },
+  { value: "healer", label: "Хіл", hint: "Примусово записувати мейна як хіла" },
+  { value: "dps", label: "ДД", hint: "Примусово записувати мейна як ДД" },
 ];
 
 function ProfileGenderForm({ gender }: { gender: DashboardProfile["grammaticalGender"] }) {
@@ -119,19 +119,20 @@ function RaidRolePreferenceForm({
       </div>
 
       <p className="profile-raid-role-box__note">
-        {sourceLabel}: {manualRole ? wowRoleLabel(manualRole) : `${wowRoleLabel(autoRole)} зі спеки мейна`}. Це дефолтна роль саме для мейна; якщо для рейду вибрано іншого персонажа, система бере роль з його спеки.
+        {sourceLabel}: {manualRole ? wowRoleLabel(manualRole) : `${wowRoleLabel(autoRole)} зі спеки мейна`}. Авто — нормальний завершений стан для реєстрації; ручний вибір потрібен лише якщо спек або роль визначились неправильно. Для іншого персонажа на рейді система бере роль уже з його спеки.
       </p>
 
       {mainCharacter ? (
         <form className="profile-raid-role-form" action="/api/profile/raid-role" method="post">
           {RAID_ROLE_OPTIONS.map((option) => {
             const checked = option.value === "auto" ? !manualRole : manualRole === option.value;
-            const hint = option.value === "auto" ? `${option.hint}: ${wowRoleLabel(autoRole)}` : option.hint;
+            const label = option.value === "auto" ? `Авто: ${wowRoleLabel(autoRole)}` : option.label;
+            const hint = option.value === "auto" ? option.hint : option.hint;
             return (
               <label className={`profile-raid-role-option${checked ? " is-selected" : ""}`} key={option.value}>
                 <input type="radio" name="raidRole" value={option.value} defaultChecked={checked} />
                 <span>
-                  <strong>{option.label}</strong>
+                  <strong>{label}</strong>
                   <small>{hint}</small>
                 </span>
               </label>

@@ -3,7 +3,7 @@ import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { fetchDiscordRoles } from "@/lib/discordAdmin";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
-import { getProfileById, profileGenderLabel, type DashboardProfile } from "@/lib/profiles";
+import { getProfileById, getProfileRaidRole, profileGenderLabel, type DashboardProfile } from "@/lib/profiles";
 import { parseRulesRoleToken, rulesLoginPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import { buildPageMetadata } from "@/lib/seo";
@@ -63,13 +63,14 @@ function StepList({ profile, token, nicknameTemplate }: { profile: DashboardProf
 function ProfileSummary({ profile, nicknameTemplate }: { profile: DashboardProfile; nicknameTemplate: string }) {
   const status = rulesOnboardingStatus(profile, nicknameTemplate);
   const main = status.mainCharacter;
-  const role = profile.raidRolePreference?.characterKey === main?.key ? profile.raidRolePreference?.role : null;
+  const manualRole = profile.raidRolePreference?.characterKey === main?.key ? profile.raidRolePreference?.role : null;
+  const role = getProfileRaidRole(profile);
   return (
     <div className="rules-onboarding-summary" aria-label="Підсумок профілю">
       <span><strong>{profile.preferredName || "—"}</strong><small>Імʼя</small></span>
       <span><strong>{profileGenderLabel(profile.grammaticalGender)}</strong><small>Звертання</small></span>
       <span><strong>{main?.name || "—"}</strong><small>Мейн</small></span>
-      <span><strong>{role ? wowRoleLabel(role) : "—"}</strong><small>Роль у рейді</small></span>
+      <span><strong>{wowRoleLabel(role)}</strong><small>{manualRole ? "Роль у рейді" : "Авто зі спеки"}</small></span>
       <span><strong>{status.nicknamePlan.value || "—"}</strong><small>Новий Discord-нік</small></span>
     </div>
   );

@@ -10,6 +10,7 @@ import {
   getMainCharacter,
   type DashboardProfile,
 } from "@/lib/profiles";
+import { resolveWowCharacterRole, wowRoleLabel } from "@/lib/wowRoles";
 
 export type RulesOnboardingStepKey =
   | "profile_name"
@@ -132,7 +133,16 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
   const hasGender = Boolean(profile && cleanProfileGrammaticalGender(profile.grammaticalGender) !== "unspecified");
   const hasCharacters = Boolean(profile?.characters?.length);
   const hasMain = Boolean(main?.key && profile?.mainCharacterKey);
-  const hasRaidRole = Boolean(profile?.raidRolePreference?.characterKey && profile.raidRolePreference.characterKey === main?.key && profile.raidRolePreference.role);
+  const manualRaidRole = profile?.raidRolePreference?.characterKey === main?.key ? profile?.raidRolePreference?.role : null;
+  const autoRaidRole = main ? resolveWowCharacterRole({
+    className: main.className,
+    activeSpecName: main.activeSpecName,
+    activeSpecId: main.activeSpecId,
+    activeSpecRole: main.activeSpecRole,
+  }) : null;
+  // Auto is a valid choice: once the main exists, the default raid role can be
+  // derived from the main character spec. A manual override is optional.
+  const hasRaidRole = Boolean(hasMain && (manualRaidRole || autoRaidRole));
   const nicknamePlan = buildProfileDiscordNicknamePlan(profile, nicknameTemplate);
   const hasNicknameTemplate = Boolean(nicknamePlan.value && nicknamePlan.hasRequiredName && hasMain);
 
@@ -168,7 +178,11 @@ export function rulesOnboardingStatus(profile: DashboardProfile | null | undefin
     {
       key: "raid_role",
       title: "Роль у рейді для мейна",
-      description: hasRaidRole ? "Роль у рейді вибрано вручну." : "Вибери роль у рейді для мейна: танк, хіл або ДД.",
+      description: hasRaidRole
+        ? manualRaidRole
+          ? `Вручну: ${wowRoleLabel(manualRaidRole)}.`
+          : `Авто зі спеки мейна: ${wowRoleLabel(autoRaidRole)}.`
+        : "Вибери мейна або роль у рейді для мейна: авто, танк, хіл або ДД.",
       complete: hasRaidRole,
       href: settingsHref,
     },

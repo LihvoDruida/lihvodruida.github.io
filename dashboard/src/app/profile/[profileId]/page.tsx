@@ -2,6 +2,7 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
 import ProfileCandidateExpiryTimer from "@/components/ProfileCandidateExpiryTimer";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
+import { fetchDiscordGuildMemberSnapshot, fetchDiscordRoles } from "@/lib/discordAdmin";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   listProfileRaidSignups,
@@ -86,6 +87,55 @@ function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName"
     character.raceName || null,
     character.faction || null,
   ].filter(Boolean);
+}
+
+function compactId(value?: string | null) {
+  const text = String(value || "").trim();
+  if (!text) return "—";
+  if (text.length <= 22) return text;
+  return `${text.slice(0, 10)}…${text.slice(-8)}`;
+}
+
+function discordRoleNames(roleIds: string[], roles: Array<{ id: string; name: string }>) {
+  const roleMap = new Map(roles.map((role) => [role.id, role.name]));
+  return Array.from(new Set(roleIds))
+    .map((roleId) => ({ id: roleId, name: roleMap.get(roleId) || `ID ${roleId.slice(-6)}` }))
+    .sort((a, b) => a.name.localeCompare(b.name, "uk"));
+}
+
+function ProfileTechnicalInfo({
+  profile,
+  discordRoleItems,
+  liveDiscordChecked,
+}: {
+  profile: DashboardProfile;
+  discordRoleItems: Array<{ id: string; name: string }>;
+  liveDiscordChecked: boolean;
+}) {
+  const discordId = profile.provider === "discord" ? profile.providerUserId : null;
+
+  return (
+    <section className="profile-info-panel" aria-label="Технічні дані профілю">
+      <div className="profile-info-item">
+        <small>ID профілю</small>
+        <strong title={profile.profileId}>{compactId(profile.profileId)}</strong>
+      </div>
+      <div className="profile-info-item">
+        <small>ID користувача Discord</small>
+        <strong title={discordId || undefined}>{compactId(discordId)}</strong>
+      </div>
+      <div className="profile-info-item profile-info-item--wide">
+        <small>Ролі Discord {liveDiscordChecked ? "на сервері" : "із профілю"}</small>
+        {discordRoleItems.length ? (
+          <div className="profile-discord-role-list">
+            {discordRoleItems.map((role) => <span key={role.id} title={role.id}>{role.name}</span>)}
+          </div>
+        ) : (
+          <strong>—</strong>
+        )}
+      </div>
+    </section>
+  );
 }
 
 function CharacterArtwork({ character }: { character: ProfileCharacter }) {
@@ -343,6 +393,15 @@ export default async function ProfilePage({
     if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
     return a.name.localeCompare(b.name, "uk");
   });
+  const canReadLiveDiscord = canViewPrivateProfileBlocks && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
+  const [liveDiscordMember, discordRoles] = canReadLiveDiscord
+    ? await Promise.all([
+        fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
+        fetchDiscordRoles().catch(() => []),
+      ])
+    : [null, [] as Array<{ id: string; name: string }>];
+  const effectiveDiscordRoleIds = liveDiscordMember?.roleIds?.length ? liveDiscordMember.roleIds : profile.discordRoleIds;
+  const discordRoleItems = discordRoleNames(effectiveDiscordRoleIds, discordRoles);
 
   return (
     <main className="container">
@@ -408,6 +467,14 @@ export default async function ProfilePage({
                 </span>
               </div>
             </section>
+
+            {canViewPrivateProfileBlocks ? (
+              <ProfileTechnicalInfo
+                profile={profile}
+                discordRoleItems={discordRoleItems}
+                liveDiscordChecked={Boolean(liveDiscordMember)}
+              />
+            ) : null}
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {!isOwnProfile && canViewPrivateProfileBlocks ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
