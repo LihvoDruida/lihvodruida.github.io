@@ -45,6 +45,10 @@ export default async function AdminOverviewPage() {
     }
   }
   const selectedAuthRoleIds = new Set(authPolicy.requiredRoleIds);
+  const loadedAuthRoleIds = new Set(discordRoles.map((role) => role.id));
+  const manualAuthRoleIds = discordRoles.length
+    ? authPolicy.requiredRoleIds.filter((roleId) => !loadedAuthRoleIds.has(roleId))
+    : authPolicy.requiredRoleIds;
 
   return (
     <main className="container admin-container">
@@ -109,7 +113,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-toggle">
                   <input type="checkbox" name="requireConfiguredRole" defaultChecked={authPolicy.requireConfiguredRole} disabled={!canEditAuthPolicy} />
-                  <span><strong>Блокувати, якщо роль не вибрана</strong><small>Без цього порожній список ролей працює як “дозволити за старими правилами”.</small></span>
+                  <span><strong>Блокувати, якщо роль не вибрана</strong><small><code>AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true</code>. Якщо роль не вибрана — вхід блокується.</small></span>
                 </label>
                 <label className="admin-policy-toggle">
                   <input type="checkbox" name="allowServerOwner" defaultChecked={authPolicy.allowServerOwner} disabled={!canEditAuthPolicy} />
@@ -117,7 +121,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-toggle admin-policy-toggle--danger">
                   <input type="checkbox" name="allowEmergencyTokenLogin" defaultChecked={authPolicy.allowEmergencyTokenLogin} disabled={!canEditAuthPolicy} />
-                  <span><strong>Дозволити резервний token-вхід</strong><small>Вимкнено за замовчуванням, бо цей шлях не підтверджує Discord-сервер і роль.</small></span>
+                  <span><strong>Дозволити резервний token-вхід</strong><small><code>AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false</code>. Token-вхід не обходить Discord-перевірку.</small></span>
                 </label>
               </fieldset>
 
@@ -137,12 +141,13 @@ export default async function AdminOverviewPage() {
                 ) : <small className="admin-policy-empty">Список ролей недоступний або порожній.</small>}
                 <label className="admin-policy-input">
                   <span>Role ID вручну</span>
-                  <input name="requiredRoleIdsText" defaultValue={authPolicy.requiredRoleIds.join(", ")} placeholder="123456789012345678, 234567890123456789" disabled={!canEditAuthPolicy} />
+                  <small>Сюди потрапляють тільки ролі, яких немає у списку вище. Інакше зняті чекбокси знову додавалися б через це поле.</small>
+                  <input name="requiredRoleIdsText" defaultValue={manualAuthRoleIds.join(", ")} placeholder="123456789012345678, 234567890123456789" disabled={!canEditAuthPolicy} />
                 </label>
               </fieldset>
 
               <footer className="admin-policy-footer">
-                <small>Поточний стан: {authPolicy.enabled ? "обмеження увімкнені" : "обмеження вимкнені"}; без вибраної ролі: {authPolicy.requireConfiguredRole ? "блокувати" : "дозволяти за старими правилами"}; резервний token-вхід: {authPolicy.allowEmergencyTokenLogin ? "дозволено" : "заборонено"}.</small>
+                <small>Поточний стан: {authPolicy.enabled ? "обмеження увімкнені" : "обмеження вимкнені"}; без вибраної ролі: {authPolicy.requireConfiguredRole ? "блокувати" : "дозволяти за старими правилами"}; резервний token-вхід: {authPolicy.allowEmergencyTokenLogin ? "дозволено" : "заборонено"}. Безпечний дефолт: <code>AUTH_ACCESS_REQUIRE_CONFIGURED_ROLE=true</code>, <code>AUTH_ACCESS_ALLOW_EMERGENCY_TOKEN_LOGIN=false</code>.</small>
                 <button className="btn primary" type="submit" disabled={!canEditAuthPolicy}>Зберегти правила входу</button>
               </footer>
             </form>

@@ -17700,3 +17700,35 @@ button[aria-busy="true"]::after,
     max-height: 300px;
   }
 }
+
+/* Login/auth stability fixes */
+.login-alert {
+  min-height: 40px;
+  opacity: 1;
+  transition: none;
+}
+
+.admin-policy-toggle code,
+.admin-policy-footer code,
+.admin-policy-input code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 5px;
+  border: 1px solid rgba(248, 218, 135, 0.18);
+  border-radius: 7px;
+  background: rgba(248, 218, 135, 0.07);
+  color: #f8da87;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.auth-access-role-option:has(input:checked) {
+  border-color: rgba(248, 218, 135, 0.38);
+  background: linear-gradient(135deg, rgba(248, 218, 135, 0.12), rgba(255, 255, 255, 0.045));
+}
+
+.admin-policy-input small + input {
+  margin-top: 4px;
+}

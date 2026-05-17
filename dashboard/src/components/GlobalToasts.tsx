@@ -426,14 +426,15 @@ function clearToastCookie() {
   document.cookie = FLASH_TOAST_COOKIE + "=; Path=/; Max-Age=0; SameSite=Lax";
 }
 
-function toastFromSearchParams(params: URLSearchParams): Toast[] {
+function toastFromSearchParams(params: URLSearchParams, options: { includeError?: boolean } = {}): Toast[] {
   const result: Toast[] = [];
+  const includeError = options.includeError !== false;
   const characterStatus = cleanMessage(params.get("characterStatus"));
   if (characterStatus && CHARACTER_STATUS_MESSAGES[characterStatus]) {
     result.push({ id: createId("character"), ...CHARACTER_STATUS_MESSAGES[characterStatus] });
   }
 
-  const rawError = cleanMessage(params.get("error"));
+  const rawError = includeError ? cleanMessage(params.get("error")) : "";
   if (rawError) {
     result.push({
       id: createId("error"),
@@ -534,7 +535,7 @@ export default function GlobalToasts() {
   useEffect(() => {
     const next = [
       ...toastFromCookie(),
-      ...toastFromSearchParams(new URLSearchParams(searchKey)),
+      ...toastFromSearchParams(new URLSearchParams(searchKey), { includeError: pathname !== "/login" }),
     ];
     if (!next.length) return;
 
@@ -543,7 +544,8 @@ export default function GlobalToasts() {
 
     const cleaned = new URLSearchParams(searchKey);
     let changed = false;
-    TOAST_QUERY_KEYS.forEach((key) => {
+    const toastQueryKeys = pathname === "/login" ? TOAST_QUERY_KEYS.filter((key) => key !== "error") : TOAST_QUERY_KEYS;
+    toastQueryKeys.forEach((key) => {
       if (cleaned.has(key)) {
         cleaned.delete(key);
         changed = true;
