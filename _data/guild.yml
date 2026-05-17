@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 09:49:21'
+  updated_at: '2026-05-17 13:24:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 140
+  member_count: 142
   achievement_points: 515
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6155
       realm: 56
     heroic:
-      world: 13033
-      region: 5807
+      world: 13040
+      region: 5808
       realm: 44
     mythic:
-      world: 7979
+      world: 7982
       region: 3395
       realm: 27
   blackrock-depths:
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3240.5
-        color: '#9246eb'
+        score: 3280.5
+        color: '#9b3eec'
       dps:
-        score: 3240.5
-        color: '#9246eb'
+        score: 3280.5
+        color: '#9b3eec'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3240.5
-        color: '#9246eb'
+        score: 3280.5
+        color: '#9b3eec'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -918,13 +918,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 276
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2733.6
+        score: 2737.1
         color: '#5ba3a7'
       dps:
-        score: 2733.6
+        score: 2737.1
         color: '#5ba3a7'
       healer:
         score: 0
@@ -939,7 +939,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2733.6
+        score: 2737.1
         color: '#5ba3a7'
       spec_3:
         score: 0
@@ -3268,7 +3268,7 @@ members:
   character:
     name: Darkleaf
     id: 189160430
-    level: 81
+    level: 83
     realm:
       id: 1392
       slug: burning-steppes
@@ -3339,6 +3339,58 @@ members:
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/121/189163897-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Blackberry
     item_level_equipped: 198
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Umbrak
+    id: 189215394
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 4
+      name: Rogue
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Umbrak
+    item_level_equipped: 209
     mythic_plus_scores:
       all:
         score: 0
@@ -3794,23 +3846,47 @@ members:
       slug: ragnaros
     playable_class:
       id: 9
-      name: null
+      name: Warlock
     playable_race:
       id: 2
-      name: null
+      name: Orc
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ragnaros/91/194811483-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
+    item_level_equipped: 266
+    mythic_plus_scores:
+      all:
+        score: 2073.1
+        color: '#58ff3d'
+      dps:
+        score: 2073.1
+        color: '#58ff3d'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2032.7
+        color: '#5cff41'
+      spec_1:
+        score: 541.7
+        color: '#e9ffe0'
+      spec_2:
+        score: 352.4
+        color: '#f5fff1'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -3990,7 +4066,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 276
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2847.8
@@ -4706,23 +4782,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 10
-      name: null
+      name: Monk
     playable_race:
       id: 34
-      name: null
+      name: Dark Iron Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Brewmaster
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Forchun
+    item_level_equipped: 282
+    mythic_plus_scores:
+      all:
+        score: 3338.1
+        color: '#a937e8'
+      dps:
+        score: 1147.4
+        color: '#bcffa6'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 3336.1
+        color: '#a937e8'
+      spec_0:
+        score: 3336.1
+        color: '#a937e8'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1147.4
+        color: '#bcffa6'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -4957,10 +5057,10 @@ members:
     item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3194
+        score: 3207.3
         color: '#8053e8'
       dps:
-        score: 3194
+        score: 3207.3
         color: '#8053e8'
       healer:
         score: 0
@@ -4975,7 +5075,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3194
+        score: 3207.3
         color: '#8053e8'
       spec_3:
         score: 0
@@ -5610,6 +5710,34 @@ members:
       professions: blizzard
 - rank: 4
   character:
+    name: Иаллидан
+    id: 251021921
+    level: 88
+    realm:
+      id: 1604
+      slug: soulflayer
+    playable_class:
+      id: 12
+      name: null
+    playable_race:
+      id: 10
+      name: null
+    faction:
+      type: HORDE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 4
+  character:
     name: Рокталл
     id: 251108849
     level: 83
@@ -5997,10 +6125,10 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3327.3
+        score: 3338.1
         color: '#a937e8'
       dps:
-        score: 3327.3
+        score: 3338.1
         color: '#a937e8'
       healer:
         score: 0
@@ -6015,7 +6143,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3327.3
+        score: 3338.1
         color: '#a937e8'
       spec_3:
         score: 0
@@ -7094,6 +7222,58 @@ members:
       professions: blizzard
 - rank: 4
   character:
+    name: Аквавитикс
+    id: 265958908
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 25
+      name: Pandaren
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
+    item_level_equipped: 271
+    mythic_plus_scores:
+      all:
+        score: 2033.1
+        color: '#5cff41'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2033.1
+        color: '#5cff41'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2033.1
+        color: '#5cff41'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
     name: Душа
     id: 266007559
     level: 90
@@ -7198,81 +7378,53 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Аквавитикс
-    id: 265958908
+    name: Teasick
+    id: 217713189
     level: 90
     realm:
-      id: 1925
-      slug: eversong
+      id: 1305
+      slug: kazzak
     playable_class:
-      id: 10
-      name: Monk
+      id: 7
+      name: Shaman
     playable_race:
-      id: 25
-      name: Pandaren
+      id: 35
+      name: Vulpera
     faction:
-      type: ALLIANCE
-    gender: male
+      type: HORDE
+    gender: female
     active_spec:
-      name: Mistweaver
+      name: Restoration
       role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-0.jpg
-    profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 271
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Teasick
+    item_level_equipped: 262
     mythic_plus_scores:
       all:
-        score: 2033.1
-        color: '#5cff41'
+        score: 2532.7
+        color: '#5cce75'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 335
+        color: '#f7fff3'
       healer:
-        score: 2033.1
-        color: '#5cff41'
+        score: 2197.7
+        color: '#3fff26'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 335
+        color: '#f7fff3'
       spec_1:
-        score: 2033.1
-        color: '#5cff41'
-      spec_2:
         score: 0
         color: '#ffffff'
+      spec_2:
+        score: 2197.7
+        color: '#3fff26'
       spec_3:
         score: 0
         color: '#ffffff'
     sources:
       roster: blizzard
       enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Иаллидан
-    id: 251021921
-    level: 88
-    realm:
-      id: 1604
-      slug: soulflayer
-    playable_class:
-      id: 12
-      name: null
-    playable_race:
-      id: 10
-      name: null
-    faction:
-      type: HORDE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
       professions: blizzard

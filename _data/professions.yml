@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 09:49:21'
+  updated_at: '2026-05-17 13:24:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 140
+  member_count: 142
 characters:
 - name: Бреинор
   region: eu
@@ -2857,7 +2857,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 92
+        learned_points: 100
         max_points: 100
     secondaries: []
 - name: Ragnarøøk
@@ -3297,7 +3297,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 25
+        learned_points: 37
         max_points: 100
     secondaries: []
 - name: Blackberry
@@ -3326,6 +3326,41 @@ characters:
         learned_points: 97
         max_points: 100
     secondaries: []
+- name: Umbrak
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Umbrak
+  professions:
+    primaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Fishing
+        learned_points: 2
+        max_points: 300
 - name: Yokuha
   region: eu
   realm: terokkar
@@ -3913,7 +3948,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
   professions:
     primaries:
     - name: Enchanting
@@ -4762,7 +4797,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Forchun
   professions:
     primaries:
     - name: Engineering
@@ -5559,6 +5594,14 @@ characters:
       - name: Khaz Algar Fishing
         learned_points: 51
         max_points: 300
+- name: Иаллидан
+  region: eu
+  realm: soulflayer
+  realm_slug: soulflayer
+  profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
 - name: Рокталл
   region: eu
   realm: soulflayer
@@ -7027,6 +7070,41 @@ characters:
         learned_points: 25
         max_points: 100
     secondaries: []
+- name: Аквавитикс
+  region: eu
+  realm: eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 93
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Alchemy
+        learned_points: 2
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 12
+        max_points: 300
 - name: Душа
   region: eu
   realm: blackscar
@@ -7073,11 +7151,11 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Аквавитикс
+- name: Teasick
   region: eu
-  realm: eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
+  realm: kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Teasick
   professions:
     primaries:
     - name: Herbalism
@@ -7086,8 +7164,11 @@ characters:
       - name: Classic Herbalism
         learned_points: 1
         max_points: 300
+      - name: Khaz Algar Herbalism
+        learned_points: 40
+        max_points: 100
       - name: Midnight Herbalism
-        learned_points: 93
+        learned_points: 17
         max_points: 100
     - name: Alchemy
       id: 171
@@ -7095,9 +7176,9 @@ characters:
       - name: Classic Alchemy
         learned_points: 1
         max_points: 300
-      - name: Midnight Alchemy
-        learned_points: 2
-        max_points: 100
+      - name: Shadowlands Alchemy
+        learned_points: 26
+        max_points: 175
     secondaries:
     - name: Fishing
       id: 356
@@ -7105,14 +7186,12 @@ characters:
       - name: Classic Fishing
         learned_points: 1
         max_points: 300
-      - name: Midnight Fishing
-        learned_points: 12
+      - name: Dragon Isles Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 1
         max_points: 300
-- name: Иаллидан
-  region: eu
-  realm: soulflayer
-  realm_slug: soulflayer
-  profile_url: null
-  professions:
-    primaries: []
-    secondaries: []
+      - name: Midnight Fishing
+        learned_points: 1
+        max_points: 300
