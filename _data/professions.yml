@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 03:34:08'
+  updated_at: '2026-05-17 06:46:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6643,7 +6643,16 @@ characters:
   realm_slug: eversong
   profile_url: https://raider.io/characters/eu/eversong/Галазард
   professions:
-    primaries: []
+    primaries:
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 16
+        max_points: 100
     secondaries: []
 - name: Корукк
   region: eu
@@ -6856,7 +6865,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -7078,7 +7087,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 91
+        learned_points: 93
         max_points: 100
     - name: Alchemy
       id: 171

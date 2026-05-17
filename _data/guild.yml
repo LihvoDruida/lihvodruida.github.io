@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 03:34:08'
+  updated_at: '2026-05-17 06:46:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6155
       realm: 56
     heroic:
-      world: 13021
-      region: 5804
+      world: 13029
+      region: 5805
       realm: 44
     mythic:
-      world: 7971
+      world: 7977
       region: 3395
       realm: 27
   blackrock-depths:
@@ -6890,47 +6890,23 @@ members:
       slug: gordunni
     playable_class:
       id: 11
-      name: Druid
+      name: null
     playable_race:
       id: 4
-      name: Night Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Restoration
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 282
-    mythic_plus_scores:
-      all:
-        score: 2885.6
-        color: '#4687c5'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 2885.6
-        color: '#4687c5'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 2885.6
-        color: '#4687c5'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
