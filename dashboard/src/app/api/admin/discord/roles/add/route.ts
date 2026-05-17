@@ -1,49 +1,19 @@
 import { NextRequest } from "next/server";
 
-import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
-import { addDiscordMemberRoles } from "@/lib/discordMemberManagement";
+import { adminDiscordResponse, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const guard = await requireDiscordAdmin(request, "roles-add");
+  const guard = await requireDiscordAdmin(request, "roles-add-disabled");
   if ("error" in guard) return guard.error;
 
-  try {
-    const form = await request.formData();
-    const result = await addDiscordMemberRoles({
-      userId: form.get("userId"),
-      roleIds: form.getAll("roleIds"),
-      reason: `Mistblossom manual role add by ${guard.session.name || guard.session.id}`,
-    });
-    if (result.expectedChangeTotal > 0 && result.changed < result.expectedChangeTotal) {
-      throw new Error(`Discord не підтвердив видачу всіх вибраних ролей. Очікувалось змін: ${result.expectedChangeTotal}, підтверджено: ${result.changed}.`);
-    }
-    const status = result.changed > 0 ? "success" : "info";
-    const summary = result.changed > 0
-      ? `${result.displayName}: видано ролей ${result.addedRoleIds.length}; уже були ${result.alreadyHadRoleIds.length}.`
-      : `${result.displayName}: вибрані ролі вже були в учасника.`;
-    await auditDiscordAdmin("discord.member.roles.add", guard.session, {
-      ...result,
-      status,
-      summary,
-      changed: result.changed,
-      addedRoles: result.addedRoleIds.length,
-      alreadyHadRoles: result.alreadyHadRoleIds.length,
-      roleIds: result.roleIds,
-      changedItems: result.addedRoleIds.length ? [{ userId: result.userId, name: result.displayName, added: result.addedRoleIds }] : [],
-      changedItemsTotal: result.addedRoleIds.length ? 1 : 0,
-      changedNames: result.addedRoleIds.length ? [result.displayName] : [],
-    });
-    return adminDiscordResponse(request, {
-      ok: true,
-      tone: result.changed > 0 ? "success" : "info",
-      title: result.changed > 0 ? "Ролі видано в Discord" : "Ролі вже були видані",
-      message: summary,
-      data: { ...result, refresh: true },
-    });
-  } catch (error) {
-    return await discordAdminError(request, "admin.discord.roles_add_failed", error, "Discord не видав ролі.", guard.session);
-  }
+  return adminDiscordResponse(request, {
+    ok: false,
+    tone: "warning",
+    title: "Ручну видачу ролей вимкнено",
+    message: "У /admin/discord більше не використовується ручне додавання ролей. Замість цього запусти перевірку Discord-стану профілів або окрему синхронізацію офіцерських ролей.",
+    status: 410,
+  });
 }

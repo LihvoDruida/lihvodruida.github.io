@@ -1607,6 +1607,43 @@ export async function fetchDiscordGuildBanSnapshot(userIdInput: string, guildIdI
   };
 }
 
+export async function fetchDiscordGuildBans(limitInput: unknown = 50_000): Promise<DiscordGuildBanSnapshot[]> {
+  const guildId = snowflake(getDiscordGuildId());
+  if (!guildId) throw new Error("Discord-сервер не підключений до панелі.");
+
+  const parsedLimit = Number(limitInput);
+  const safeLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+    ? Math.min(50_000, Math.floor(parsedLimit))
+    : 50_000;
+  const result: DiscordGuildBanSnapshot[] = [];
+  let after = "0";
+
+  while (result.length < safeLimit) {
+    const batchSize = Math.min(1000, safeLimit - result.length);
+    const bans = await discordApi<any[]>(`/guilds/${guildId}/bans?limit=${batchSize}&after=${after}`);
+    if (!Array.isArray(bans) || bans.length === 0) break;
+
+    for (const ban of bans) {
+      const user = ban?.user && typeof ban.user === "object" ? ban.user : {};
+      const userId = snowflake(user.id || ban?.user_id || ban?.id);
+      if (!userId) continue;
+      result.push({
+        userId,
+        reason: cleanText(ban?.reason, 240) || null,
+        username: cleanText(user.username, 80) || null,
+        globalName: cleanText(user.global_name, 80) || null,
+      });
+      if (result.length >= safeLimit) break;
+    }
+
+    const lastUserId = bans[bans.length - 1]?.user?.id;
+    if (!lastUserId || String(lastUserId) === after || bans.length < batchSize) break;
+    after = String(lastUserId);
+  }
+
+  return result;
+}
+
 
 export async function replaceGuildMemberRoles(params: {
   guildId: string;

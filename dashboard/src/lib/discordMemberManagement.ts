@@ -5,6 +5,8 @@ import {
   addGuildMemberRoles,
   assertDiscordRolesManageable,
   fetchDiscordRoleControlSnapshot,
+  fetchDiscordGuildBanSnapshot,
+  fetchDiscordGuildBans,
   fetchDiscordGuildMemberSnapshot,
   fetchDiscordGuildMembers,
   fetchDiscordGuildSnapshot,
@@ -17,7 +19,7 @@ import {
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
 import { loadStoredGuildRosterData, type GuildRosterMember } from "@/lib/guildRoster";
-import { listAllDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { deleteDashboardProfilesByDiscordUserId, listAllDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 
 function snowflake(value: unknown) {
@@ -667,6 +669,301 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
   };
 }
 
+
+
+type DiscordProfileMembershipCleanupStatus = "member" | "not_member" | "banned";
+
+type DiscordProfileMembershipPreview = {
+  profileId: string;
+  userId: string;
+  name: string;
+  status: Exclude<DiscordProfileMembershipCleanupStatus, "member">;
+  reason: string;
+  banReason?: string | null;
+  characters: number;
+  lastLoginAt?: string | null;
+  updatedAt?: string | null;
+};
+
+function isDiscordApiNotFound(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /^Discord API 404:/i.test(message) || /Unknown Member|Unknown Ban/i.test(message);
+}
+
+function safeErrorText(error: unknown, fallback = "невідома помилка") {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return (message || fallback).slice(0, 300);
+}
+
+function profileCleanupDisplayName(profile: DashboardProfile) {
+  return getProfilePublicName(profile) || profile.displayName || profile.login || profile.profileId;
+}
+
+function discordProfileCleanupPreview(profile: DashboardProfile, status: Exclude<DiscordProfileMembershipCleanupStatus, "member">, reason: string, banReason?: string | null): DiscordProfileMembershipPreview {
+  return {
+    profileId: profile.profileId,
+    userId: profileDiscordId(profile),
+    name: profileCleanupDisplayName(profile),
+    status,
+    reason,
+    banReason: banReason || null,
+    characters: Array.isArray(profile.characters) ? profile.characters.length : 0,
+    lastLoginAt: profile.lastLoginAt || null,
+    updatedAt: profile.updatedAt || null,
+  };
+}
+
+async function resolveFreshDiscordProfileMembershipStatus(userId: string): Promise<{
+  status: DiscordProfileMembershipCleanupStatus;
+  member: DiscordGuildMemberSnapshot | null;
+  ban: Awaited<ReturnType<typeof fetchDiscordGuildBanSnapshot>> | null;
+  reason: string;
+  banCheckError?: string | null;
+}> {
+  try {
+    const member = await fetchDiscordGuildMemberSnapshot(userId);
+    return {
+      status: "member",
+      member,
+      ban: null,
+      reason: "Discord-акаунт зараз є учасником сервера.",
+    };
+  } catch (error) {
+    if (!isDiscordApiNotFound(error)) {
+      throw new Error(explainDiscordModerationError(error, "Перевірка Discord-учасника"));
+    }
+  }
+
+  try {
+    const ban = await fetchDiscordGuildBanSnapshot(userId);
+    if (ban) {
+      return {
+        status: "banned",
+        member: null,
+        ban,
+        reason: ban.reason ? `Discord-акаунт у бані сервера: ${ban.reason}` : "Discord-акаунт у бані сервера.",
+      };
+    }
+  } catch (error) {
+    return {
+      status: "not_member",
+      member: null,
+      ban: null,
+      reason: "Discord-акаунта немає серед учасників сервера. Перевірку бану не вдалося виконати, але відсутність на сервері підтверджена.",
+      banCheckError: safeErrorText(error),
+    };
+  }
+
+  return {
+    status: "not_member",
+    member: null,
+    ban: null,
+    reason: "Discord-акаунта немає серед учасників сервера.",
+  };
+}
+
+export async function inspectDashboardProfilesDiscordMembership(limit: unknown = 0) {
+  const parsedLimit = Number(limit);
+  const profileLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+    ? Math.min(50_000, Math.floor(parsedLimit))
+    : 50_000;
+
+  const [profiles, discordMembers] = await Promise.all([
+    listAllDashboardProfilesForDiscordSync(profileLimit),
+    fetchDiscordGuildMembers(0),
+  ]);
+
+  let bans: Awaited<ReturnType<typeof fetchDiscordGuildBans>> = [];
+  let banCheckError: string | null = null;
+  try {
+    bans = await fetchDiscordGuildBans(0);
+  } catch (error) {
+    banCheckError = safeErrorText(error, "Перевірка банів Discord недоступна.");
+  }
+
+  const discordMemberMap = new Map(discordMembers.map((member) => [member.userId, member]));
+  const discordMemberIds = new Set(discordMemberMap.keys());
+  const banMap = new Map(bans.map((ban) => [ban.userId, ban]));
+  const discordProfiles = profiles.filter((profile) => profile.provider === "discord" || Boolean(profileDiscordId(profile)));
+  const activeMembers: Array<{ profileId: string; userId: string; name: string; serverNickname: string | null }> = [];
+  const invalidProfiles: Array<{ profileId: string; name: string; provider: string; providerUserId: string }> = [];
+  const targets: DiscordProfileMembershipPreview[] = [];
+
+  for (const profile of discordProfiles) {
+    const userId = profileDiscordId(profile);
+    if (!userId) {
+      invalidProfiles.push({
+        profileId: profile.profileId,
+        name: profileCleanupDisplayName(profile),
+        provider: String(profile.provider || ""),
+        providerUserId: String(profile.providerUserId || ""),
+      });
+      continue;
+    }
+
+    const ban = banMap.get(userId);
+    if (ban) {
+      targets.push(discordProfileCleanupPreview(
+        profile,
+        "banned",
+        ban.reason ? `Discord-акаунт у бані сервера: ${ban.reason}` : "Discord-акаунт у бані сервера.",
+        ban.reason,
+      ));
+      continue;
+    }
+
+    const member = discordMemberMap.get(userId) || null;
+    if (!member) {
+      targets.push(discordProfileCleanupPreview(
+        profile,
+        "not_member",
+        banCheckError
+          ? "Discord-акаунта немає серед учасників сервера. Бан-лист не вдалося прочитати, тому статус бану не уточнено."
+          : "Discord-акаунта немає серед учасників сервера.",
+        null,
+      ));
+      continue;
+    }
+
+    activeMembers.push({
+      profileId: profile.profileId,
+      userId,
+      name: profileCleanupDisplayName(profile),
+      serverNickname: member?.nick || null,
+    });
+  }
+
+  const bannedTotal = targets.filter((item) => item.status === "banned").length;
+  const missingMemberTotal = targets.filter((item) => item.status === "not_member").length;
+  return {
+    checkedProfiles: profiles.length,
+    checkedDiscordProfiles: discordProfiles.length,
+    checkedDiscordMembers: discordMembers.length,
+    checkedBans: bans.length,
+    banCheckError,
+    activeMemberTotal: activeMembers.length,
+    invalidDiscordProfileTotal: invalidProfiles.length,
+    invalidProfiles: invalidProfiles.slice(0, 100),
+    targetProfilesTotal: targets.length,
+    targetDiscordUsersTotal: new Set(targets.map((item) => item.userId)).size,
+    bannedTotal,
+    missingMemberTotal,
+    targets,
+    preview: targets.slice(0, 200),
+    activePreview: activeMembers.slice(0, 50),
+  };
+}
+
+export async function cleanupDashboardProfilesDiscordMembership(input: {
+  limit?: unknown;
+  dryRun?: boolean;
+  reason?: string;
+}) {
+  const inspection = await inspectDashboardProfilesDiscordMembership(input.limit || 0);
+  if (input.dryRun) {
+    return {
+      dryRun: true,
+      ...inspection,
+      changed: 0,
+      deletedProfilesTotal: 0,
+      deletedDiscordUsersTotal: 0,
+      skippedFreshMember: 0,
+      skippedNotFound: 0,
+      failed: 0,
+      changedItems: [],
+      changedItemsTotal: 0,
+      skippedItems: [],
+      skippedItemsTotal: 0,
+      errors: [],
+      errorsTotal: 0,
+    };
+  }
+
+  const byDiscordUser = new Map<string, DiscordProfileMembershipPreview[]>();
+  for (const target of inspection.targets) {
+    if (!target.userId) continue;
+    const bucket = byDiscordUser.get(target.userId) || [];
+    bucket.push(target);
+    byDiscordUser.set(target.userId, bucket);
+  }
+
+  const policy = await getGuildNicknamePolicy();
+  const { results, meta } = await mapConcurrentSettled(
+    Array.from(byDiscordUser.entries()).map(([userId, profilesForUser]) => ({ userId, profilesForUser })),
+    async (target) => {
+      const fresh = await resolveFreshDiscordProfileMembershipStatus(target.userId);
+      const firstProfile = target.profilesForUser[0];
+      if (fresh.status === "member") {
+        return {
+          userId: target.userId,
+          name: fresh.member?.displayName || firstProfile?.name || target.userId,
+          status: fresh.status,
+          skipped: true,
+          skipReason: "Перед видаленням акаунт повторно знайдено на Discord-сервері; профіль не чіпали.",
+          profileIds: target.profilesForUser.map((item) => item.profileId),
+          deletedProfileIds: [] as string[],
+          deletedProfiles: 0,
+          banReason: null as string | null,
+          banCheckError: null as string | null,
+        };
+      }
+
+      const deleted = await deleteDashboardProfilesByDiscordUserId(target.userId);
+      const skipped = deleted.deleted <= 0;
+      return {
+        userId: target.userId,
+        name: fresh.member?.displayName || fresh.ban?.globalName || fresh.ban?.username || firstProfile?.name || target.userId,
+        status: fresh.status,
+        skipped,
+        skipReason: skipped ? `Профіль уже відсутній у Firebase або не знайдений: ${deleted.reason}.` : "",
+        profileIds: target.profilesForUser.map((item) => item.profileId),
+        deletedProfileIds: deleted.profileIds,
+        deletedProfiles: deleted.deleted,
+        banReason: fresh.ban?.reason || null,
+        banCheckError: fresh.banCheckError || null,
+        reason: fresh.reason,
+      };
+    },
+    {
+      profile: "external-api",
+      concurrency: policy.nicknameCleanupConcurrency || undefined,
+      min: 1,
+      max: policy.nicknameCleanupMaxConcurrency || 1,
+    },
+  );
+
+  const okItems = results.filter((item) => item.ok);
+  const failedItems = results.filter((item) => !item.ok);
+  const changedItems = okItems.filter((item) => !item.value.skipped && item.value.deletedProfiles > 0).map((item) => item.value);
+  const skippedItems = okItems.filter((item) => item.value.skipped).map((item) => item.value);
+  const deletedProfilesTotal = changedItems.reduce((sum, item) => sum + item.deletedProfiles, 0);
+  const skippedFreshMember = skippedItems.filter((item) => item.status === "member").length;
+  const skippedNotFound = skippedItems.filter((item) => item.status !== "member").length;
+
+  return {
+    dryRun: false,
+    ...inspection,
+    changed: changedItems.length,
+    deletedProfilesTotal,
+    deletedDiscordUsersTotal: changedItems.length,
+    skippedFreshMember,
+    skippedNotFound,
+    skippedItems: skippedItems.slice(0, 100),
+    skippedItemsTotal: skippedItems.length,
+    failed: failedItems.length,
+    concurrency: meta.concurrency,
+    durationMs: meta.durationMs,
+    changedItems: changedItems.slice(0, 200),
+    changedItemsTotal: changedItems.length,
+    errors: failedItems.slice(0, 100).map((item) => ({
+      userId: item.item.userId,
+      name: item.item.profilesForUser[0]?.name || item.item.userId,
+      profileIds: item.item.profilesForUser.map((profile) => profile.profileId),
+      error: item.error instanceof Error ? item.error.message : String(item.error || "Помилка перевірки Discord-профілю"),
+    })),
+    errorsTotal: failedItems.length,
+  };
+}
 
 
 function profileDiscordId(profile: DashboardProfile) {

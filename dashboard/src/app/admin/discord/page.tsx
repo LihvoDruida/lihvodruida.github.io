@@ -13,7 +13,7 @@ export const revalidate = 0;
 
 export const metadata = buildPageMetadata({
   title: "Discord-учасники",
-  description: "Керування Discord-ролями, серверними ніками та глобальним шаблоном ніку Mistblossom Vanguard.",
+  description: "Перевірка Discord-профілів, очищення Firebase-профілів, серверні ніки та глобальний шаблон ніку Mistblossom Vanguard.",
   path: "/admin/discord",
   keywords: ["Discord", "ролі", "ніки", "керування"],
 });
@@ -72,7 +72,7 @@ export default async function AdminDiscordPage() {
             <span className="eyebrow">Mistblossom Vanguard • Discord</span>
             <h1>Discord-учасники</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Видача та зняття ролей, ручне перейменування на сервері й контроль глобального шаблону ніку.</p>
+            <p className="lead">Перевірка профілів Discord, очищення Firebase від неактуальних акаунтів, ручне перейменування на сервері й контроль глобального шаблону ніку.</p>
           </div>
           <HeroSidePanel
             ariaLabel="Огляд Discord-керування"
@@ -158,7 +158,7 @@ export default async function AdminDiscordPage() {
             <div className="discord-settings-grid" aria-label="Паралельність Discord-дій">
               <label className="field-label">Зняття ролей: паралельність
                 <input className="input" name="roleRemoveConcurrency" type="number" min="0" max={policy.roleRemoveMaxConcurrency} defaultValue={policy.roleRemoveConcurrency} />
-                <small>0 = автоматично. Використовується при ручному й масовому знятті ролей.</small>
+                <small>0 = автоматично. Використовується для масових Discord-дій, де потрібно знімати ролі.</small>
               </label>
               <label className="field-label">Зняття ролей: максимум
                 <input className="input" name="roleRemoveMaxConcurrency" type="number" min="1" max="5" defaultValue={policy.roleRemoveMaxConcurrency} />
@@ -193,18 +193,29 @@ export default async function AdminDiscordPage() {
             <button className="btn primary" type="submit">Змінити нік</button>
           </form>
 
-          <form className="panel discord-management-card" action="/api/admin/discord/roles/add" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-            <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Додати роль учаснику</h2></div>
-            <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
-            <RoleCheckboxes roles={roles} />
-            <button className="btn primary" type="submit" disabled={!hasManageableRoles}>Додати вибрані ролі</button>
-          </form>
-
-          <form className="panel discord-management-card" action="/api/admin/discord/roles/remove" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
-            <div className="profile-card-head"><span className="eyebrow">Ролі</span><h2>Зняти роль з учасника</h2></div>
-            <label className="field-label">Discord user ID<input className="input" name="userId" inputMode="numeric" pattern="[0-9]{16,25}" required /></label>
-            <RoleCheckboxes roles={roles} />
-            <button className="btn danger" type="submit" disabled={!hasManageableRoles} data-confirm-message="Зняти вибрані ролі з цього учасника?">Зняти вибрані ролі</button>
+          <form className="panel discord-management-card discord-management-card--wide" action="/api/admin/discord/profiles/cleanup" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+            <div className="profile-card-head profile-card-head--inline">
+              <div>
+                <span className="eyebrow">Firebase-профілі</span>
+                <h2>Перевірити Discord-стан профілів</h2>
+              </div>
+              <span className="status-pill warning">Без ручної видачі ролей</span>
+            </div>
+            <p className="profile-card-lead">Замість ручного “додати/зняти роль” цей блок проходить профілі з Firebase, звіряє Discord ID зі списком учасників сервера та бан-листом. Видаляються тільки ті Firebase-профілі, де Discord-акаунт уже не є учасником сервера або перебуває в бані. Перед видаленням кожен кандидат перечитується з Discord ще раз.</p>
+            <label className="field-label">Скільки профілів перевірити
+              <input className="input" name="limit" type="number" min="0" max="50000" defaultValue="0" />
+              <small>0 = пройти всі профілі Firebase посторінково. Це не обмежується першими 5/10 записами.</small>
+            </label>
+            <div className="discord-officer-sync-summary" aria-label="Що перевіряється перед очищенням профілів">
+              <span><strong>Firebase</strong><small>Усі dashboardProfiles</small></span>
+              <span><strong>Discord</strong><small>Учасники сервера</small></span>
+              <span><strong>Бани</strong><small>Guild bans, якщо доступно</small></span>
+              <span><strong>Повторна перевірка</strong><small>Перед delete</small></span>
+            </div>
+            <div className="form-actions">
+              <button className="btn subtle" name="mode" value="inspect" type="submit">Тільки перевірити профілі</button>
+              <button className="btn danger" name="mode" value="apply" type="submit" data-confirm-message="Ця дія повторно перевірить кожного кандидата через Discord і видалить з Firebase профілі, де акаунт не є учасником сервера або перебуває в бані. Профілі активних учасників не чіпаються. Продовжити?">Видалити неактуальні профілі з Firebase</button>
+            </div>
           </form>
 
           <form className="panel discord-management-card" action="/api/admin/discord/officers/sync" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
