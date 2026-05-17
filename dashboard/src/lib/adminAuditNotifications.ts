@@ -19,7 +19,7 @@ export type AdminAuditDiscordPolicy = {
   includeSystemLogs: boolean;
   updatedAt?: string | null;
   updatedBy?: string | null;
-  source: "firestore" | "env" | "defaults";
+  source: "firestore" | "defaults";
 };
 
 export type AdminAuditNotificationInput = {
@@ -34,19 +34,6 @@ export type AdminAuditNotificationInput = {
   details: Record<string, unknown>;
   createdAt: string | null;
 };
-
-function splitCsv(value?: string | null) {
-  return String(value || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function envFlag(name: string, fallback = false) {
-  const raw = process.env[name];
-  if (raw === undefined || raw === null || raw === "") return fallback;
-  return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
-}
 
 function cleanChannelId(value: unknown) {
   const text = String(value || "").trim();
@@ -67,29 +54,22 @@ function timestampToIso(value: unknown) {
   return null;
 }
 
-function envPolicy(): AdminAuditDiscordPolicy {
-  const channelId = cleanChannelId(
-    process.env.ADMIN_LOGS_DISCORD_CHANNEL_ID ||
-      process.env.DISCORD_ADMIN_LOGS_CHANNEL_ID ||
-      process.env.DASHBOARD_LOGS_DISCORD_CHANNEL_ID ||
-      "",
-  );
-  const enabledByEnv = envFlag("ADMIN_LOGS_DISCORD_ENABLED", false) || envFlag("DISCORD_ADMIN_LOGS_ENABLED", false);
+function defaultPolicy(): AdminAuditDiscordPolicy {
   return {
-    enabled: Boolean(enabledByEnv && channelId),
-    channelId,
-    minStatus: cleanMinStatus(process.env.ADMIN_LOGS_DISCORD_MIN_STATUS || process.env.DISCORD_ADMIN_LOGS_MIN_STATUS || "warning"),
-    includeSystemLogs: envFlag("ADMIN_LOGS_DISCORD_INCLUDE_SYSTEM", true),
+    enabled: false,
+    channelId: "",
+    minStatus: "warning",
+    includeSystemLogs: true,
     updatedAt: null,
     updatedBy: null,
-    source: channelId || enabledByEnv ? "env" : "defaults",
+    source: "defaults",
   };
 }
 
 function normalizePolicy(raw: Record<string, unknown> | null | undefined): AdminAuditDiscordPolicy {
-  const fallback = envPolicy();
+  const fallback = defaultPolicy();
   if (!raw) return fallback;
-  const channelId = cleanChannelId(raw.channelId) || fallback.channelId;
+  const channelId = cleanChannelId(raw.channelId);
   return {
     enabled: Boolean(raw.enabled) && Boolean(channelId),
     channelId,
@@ -102,7 +82,7 @@ function normalizePolicy(raw: Record<string, unknown> | null | undefined): Admin
 }
 
 export async function getAdminAuditDiscordPolicy(): Promise<AdminAuditDiscordPolicy> {
-  if (!hasFirebaseProfileConfig()) return envPolicy();
+  if (!hasFirebaseProfileConfig()) return defaultPolicy();
   const snapshot = await getFirebaseAdminDb()
     .collection(SETTINGS_COLLECTION)
     .doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID)
@@ -113,7 +93,7 @@ export async function getAdminAuditDiscordPolicy(): Promise<AdminAuditDiscordPol
       });
       return null;
     });
-  if (!snapshot?.exists) return envPolicy();
+  if (!snapshot?.exists) return defaultPolicy();
   return normalizePolicy(snapshot.data() || null);
 }
 
@@ -331,10 +311,10 @@ export async function publishAdminAuditToDiscord(item: AdminAuditNotificationInp
 }
 
 export function summarizeAdminAuditDiscordPolicy(policy: AdminAuditDiscordPolicy) {
-  if (!policy.enabled) return "Discord-дублювання журналу вимкнено.";
+  if (!policy.enabled) return "Discord-дублювання журналу вимкнено. Налаштування зберігаються напряму з /admin/logs у Firebase.";
   const statusText = policy.minStatus === "info" ? "усі записи" : policy.minStatus === "warning" ? "warning/error" : "тільки error";
   const systemText = policy.includeSystemLogs ? "системні записи увімкнені" : "системні записи вимкнені";
-  return `Discord-дублювання увімкнено: канал ${policy.channelId}, ${statusText}, ${systemText}.`;
+  return `Discord-дублювання увімкнено через /admin/logs: канал ${policy.channelId}, ${statusText}, ${systemText}.`;
 }
 
 export function statusOptions() {

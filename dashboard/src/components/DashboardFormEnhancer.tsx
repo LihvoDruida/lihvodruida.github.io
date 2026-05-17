@@ -58,6 +58,7 @@ function actionText(action: string) {
   if (action.includes("/delete")) return { label: "Видаляємо...", title: "Видаляємо", message: "Обробляємо запит і оновлюємо дані." };
   if (action.includes("/logout")) return { label: "Виходимо...", title: "Вихід", message: "Завершуємо поточну сесію." };
   if (action.includes("/auth/login")) return { label: "Перевіряємо...", title: "Перевіряємо доступ", message: "Перевіряємо доступ і відкриваємо панель." };
+  if (action.includes("/api/admin/logs/settings")) return { label: "Зберігаємо...", title: "Зберігаємо логування", message: "Оновлюємо Discord-канал і правила дублювання audit-log у Firebase." };
   if (action.includes("/api/admin/discord/settings")) return { label: "Зберігаємо...", title: "Зберігаємо Discord-налаштування", message: "Оновлюємо шаблон ніку та ліміти масових Discord-дій." };
   if (action.includes("/api/admin/security/auth-access")) return { label: "Зберігаємо...", title: "Зберігаємо правила входу", message: "Оновлюємо серверну перевірку Discord-ролей і резервного входу." };
   if (action.includes("/api/admin/security/geo-access")) return { label: "Зберігаємо...", title: "Зберігаємо геообмеження", message: "Оновлюємо правила доступу для заявок і авторизації." };

@@ -40,6 +40,11 @@ function formatDate(value?: string | null) {
   }
 }
 
+function discordPolicySourceLabel(source: string) {
+  if (source === "firestore") return "Збережено у Firebase";
+  return "Не налаштовано";
+}
+
 function statusLabel(status: string) {
   if (status === "success") return "Успішно";
   if (status === "warning") return "Попередження";
@@ -136,7 +141,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               </div>
               <span className={`status-pill ${discordPolicy.enabled ? "success" : "neutral"}`}>{discordPolicy.enabled ? "Увімкнено" : "Вимкнено"}</span>
             </div>
-            <p className="profile-card-lead">Кожен запис із /admin/logs може дублюватися в окремий Discord-канал як markdown embed. Токени, cookie, email і приватні поля обрізаються перед відправкою.</p>
+            <p className="profile-card-lead">Кожен запис із /admin/logs може дублюватися в окремий Discord-канал як markdown embed. Ці параметри зберігаються напряму з цієї сторінки у Firebase, без ADMIN_LOGS_DISCORD_* env. Токени, cookie, email і приватні поля обрізаються перед відправкою.</p>
             <div className="admin-log-discord-grid">
               <label className="toggle-row admin-log-toggle-row">
                 <input type="checkbox" name="enabled" value="1" defaultChecked={discordPolicy.enabled} disabled={!canEditLogSettings} />
@@ -144,7 +149,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               </label>
               <label className="field-label">Discord channel ID
                 <input className="input" name="channelId" inputMode="numeric" pattern="[0-9]{16,25}" defaultValue={discordPolicy.channelId} placeholder="123456789012345678" disabled={!canEditLogSettings} />
-                <small>Бот має бачити канал і мати право Send Messages + Embed Links.</small>
+                <small>Бот має бачити канал і мати право Send Messages + Embed Links. Змінні ADMIN_LOGS_DISCORD_* більше не потрібні.</small>
               </label>
               <label className="field-label">Які записи дублювати
                 <select className="select" name="minStatus" defaultValue={discordPolicy.minStatus} disabled={!canEditLogSettings}>
@@ -158,7 +163,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               </label>
             </div>
             <div className="admin-log-discord-summary" aria-label="Поточний стан дублювання журналу">
-              <span><strong>{discordPolicy.source}</strong><small>Джерело налаштувань</small></span>
+              <span><strong>{discordPolicySourceLabel(discordPolicy.source)}</strong><small>Джерело налаштувань</small></span>
               <span><strong>{discordPolicy.minStatus}</strong><small>Мінімальний рівень</small></span>
               <span><strong>{discordPolicy.includeSystemLogs ? "Так" : "Ні"}</strong><small>System logs</small></span>
             </div>
