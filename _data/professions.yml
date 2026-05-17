@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 06:46:44'
+  updated_at: '2026-05-17 09:49:21'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3913,7 +3913,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: https://raider.io/characters/eu/ragnaros/Lishiyburn
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -4762,7 +4762,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Forchun
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
@@ -6865,7 +6865,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
   professions:
     primaries:
     - name: Herbalism
