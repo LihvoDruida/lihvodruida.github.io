@@ -1,39 +1,24 @@
 export default function Loading() {
   return (
     <main className="container app-loading-page" aria-busy="true" aria-live="polite">
-      <section className="dashboard-shell content-shell app-loading-shell">
-        <header className="dashboard-topbar app-loading-topbar" aria-hidden="true">
-          <div className="app-loading-brand-skeleton">
-            <span className="app-loading-avatar-skeleton" />
-            <span>
-              <i />
-              <b />
-            </span>
-          </div>
-          <div className="app-loading-nav-skeleton">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="app-loading-user-skeleton">
-            <span />
-            <i />
-          </div>
-        </header>
+      <section className="app-loading-shell" role="status" aria-label="Завантаження панелі">
+        <div className="app-loading-card">
+          <span className="app-loading-mark" aria-hidden="true" />
 
-        <section className="panel app-loading-card">
-          <div className="app-loading-mark" aria-hidden="true" />
           <div className="app-loading-copy">
-            <strong>Завантажуємо панель</strong>
-            <span>Підтягуємо актуальні дані гільдії, профілю та Discord.</span>
+            <span className="app-loading-eyebrow">Панель гільдії</span>
+            <h1>Завантажуємо панель</h1>
+            <p>Підтягуємо профіль, права доступу та Discord.</p>
           </div>
-        </section>
+        </div>
 
-        <section className="app-loading-grid" aria-hidden="true">
-          <div />
-          <div />
-          <div />
-        </section>
+        <div className="app-loading-progress" aria-hidden="true" />
+
+        <ol className="app-loading-steps" aria-label="Етапи завантаження">
+          <li className="is-ready">Профіль</li>
+          <li>Права доступу</li>
+          <li>Discord</li>
+        </ol>
       </section>
     </main>
   );
