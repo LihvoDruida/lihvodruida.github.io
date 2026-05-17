@@ -116,15 +116,17 @@ function ProfileTechnicalInfo({
 
   return (
     <section className="profile-info-panel" aria-label="Технічні дані профілю">
-      <div className="profile-info-item">
-        <small>ID профілю</small>
-        <strong title={profile.profileId}>{compactId(profile.profileId)}</strong>
+      <div className="profile-info-stack" aria-label="Ідентифікатори профілю">
+        <div className="profile-info-item">
+          <small>ID профілю</small>
+          <strong title={profile.profileId}>{compactId(profile.profileId)}</strong>
+        </div>
+        <div className="profile-info-item">
+          <small>ID користувача Discord</small>
+          <strong title={discordId || undefined}>{compactId(discordId)}</strong>
+        </div>
       </div>
-      <div className="profile-info-item">
-        <small>ID користувача Discord</small>
-        <strong title={discordId || undefined}>{compactId(discordId)}</strong>
-      </div>
-      <div className="profile-info-item profile-info-item--wide">
+      <div className="profile-info-item profile-info-item--roles">
         <small>Ролі Discord {liveDiscordChecked ? "на сервері" : "із профілю"}</small>
         {discordRoleItems.length ? (
           <div className="profile-discord-role-list">
