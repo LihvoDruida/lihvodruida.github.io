@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-18 18:02:46'
+  updated_at: '2026-05-18 21:14:34'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 147
+  member_count: 146
 characters:
 - name: Бреинор
   region: eu
@@ -1154,7 +1154,7 @@ characters:
         learned_points: 100
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 96
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -4130,41 +4130,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 6
         max_points: 300
-- name: Жмуякможу
-  region: eu
-  realm: howling-fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Жмуякможу
-  professions:
-    primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 2
-        max_points: 300
-      - name: Midnight Herbalism
-        learned_points: 98
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 97
-        max_points: 100
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 146
-        max_points: 300
 - name: Пандашоманко
   region: eu
   realm: eversong
@@ -4611,7 +4576,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 88
+        learned_points: 89
         max_points: 100
     secondaries:
     - name: Fishing
