@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-18 03:49:59'
+  updated_at: '2026-05-18 08:06:28'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-15T00:45:02.000Z'
+  raider_io_last_crawled_at: '2026-05-18T03:47:53.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -2752,7 +2752,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/draenor/Frrtiix
   professions:
     primaries:
     - name: Skinning
@@ -3051,7 +3051,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Athang
   professions:
     primaries:
     - name: Herbalism
@@ -3663,7 +3663,7 @@ characters:
   region: eu
   realm: eversong
   realm_slug: eversong
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/eversong/Дедика
   professions:
     primaries:
     - name: Mining
