@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-17 20:54:34'
+  updated_at: '2026-05-18 03:49:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 143
+  member_count: 144
 characters:
 - name: Бреинор
   region: eu
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     - name: Alchemy
       id: 171
@@ -2752,7 +2752,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Frrtiix
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -2762,7 +2762,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Skinning
-        learned_points: 82
+        learned_points: 100
         max_points: 100
     - name: Herbalism
       id: 182
@@ -2771,7 +2771,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 6
+        learned_points: 16
         max_points: 105
     secondaries: []
 - name: Lishiystabb
@@ -3051,7 +3051,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Athang
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -3202,7 +3202,7 @@ characters:
         learned_points: 1
         max_points: 200
       - name: Midnight Fishing
-        learned_points: 33
+        learned_points: 36
         max_points: 300
 - name: Travka
   region: eu
@@ -3663,7 +3663,7 @@ characters:
   region: eu
   realm: eversong
   realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Дедика
+  profile_url: null
   professions:
     primaries:
     - name: Mining
@@ -5598,7 +5598,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
   professions:
     primaries: []
     secondaries: []
@@ -7084,7 +7084,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 97
+        learned_points: 99
         max_points: 100
     - name: Alchemy
       id: 171
@@ -7093,7 +7093,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 2
+        learned_points: 34
         max_points: 100
     secondaries:
     - name: Fishing
@@ -7272,3 +7272,11 @@ characters:
       - name: Midnight Fishing
         learned_points: 82
         max_points: 300
+- name: Slávásálu
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Slávásálu
+  professions:
+    primaries: []
+    secondaries: []
