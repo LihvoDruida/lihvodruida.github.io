@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-18 15:36:53'
+  updated_at: '2026-05-18 18:02:46'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 145
+  member_count: 147
 characters:
 - name: Бреинор
   region: eu
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 92
+        learned_points: 93
         max_points: 100
     - name: Alchemy
       id: 171
@@ -949,7 +949,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 63
+        learned_points: 65
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -3951,7 +3951,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
   professions:
     primaries:
     - name: Herbalism
@@ -6019,7 +6019,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 198
+        learned_points: 204
         max_points: 300
 - name: Кеенди
   region: eu
@@ -7332,4 +7332,38 @@ characters:
         max_points: 100
       - name: Midnight Fishing
         learned_points: 7
+        max_points: 300
+- name: Sandora
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Sandora
+  professions:
+    primaries: []
+    secondaries: []
+- name: Riney
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Riney
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Engineering
+        learned_points: 40
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
