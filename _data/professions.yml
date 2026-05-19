@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-19 15:26:44'
+  updated_at: '2026-05-19 18:08:42'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -261,7 +261,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -471,7 +471,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
@@ -2758,7 +2758,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Kashin
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -6089,7 +6089,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 204
+        learned_points: 205
         max_points: 300
 - name: Кеенди
   region: eu
