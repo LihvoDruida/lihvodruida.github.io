@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-19 03:40:42'
+  updated_at: '2026-05-19 07:48:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12745
-      region: 5639
+      world: 12760
+      region: 5644
       realm: 45
     mythic:
-      world: 8080
-      region: 3455
+      world: 8085
+      region: 3456
       realm: 27
   blackrock-depths:
     normal:
@@ -1790,23 +1790,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 28
-      name: null
+      name: Highmountain Tauren
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 2723.4
+        color: '#5da9a0'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2723.4
+        color: '#5da9a0'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2723.4
+        color: '#5da9a0'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
