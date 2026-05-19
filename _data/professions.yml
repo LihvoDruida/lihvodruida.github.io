@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-19 18:08:42'
+  updated_at: '2026-05-19 21:21:19'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 146
+  member_count: 148
 characters:
 - name: Бреинор
   region: eu
@@ -261,7 +261,7 @@ characters:
   region: eu
   realm: howling-fjord
   realm_slug: howling-fjord
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
   professions:
     primaries:
     - name: Skinning
@@ -471,7 +471,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
   professions:
     primaries:
     - name: Engineering
@@ -2758,7 +2758,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Kashin
   professions:
     primaries:
     - name: Skinning
@@ -2934,7 +2934,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 34
+        learned_points: 35
         max_points: 100
     - name: Alchemy
       id: 171
@@ -7349,4 +7349,56 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Товстопуз
   professions:
     primaries: []
+    secondaries: []
+- name: Коксбульдог
+  region: eu
+  realm: howling-fjord
+  realm_slug: howling-fjord
+  profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 100
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 60
+        max_points: 100
+    secondaries: []
+- name: Brovastadupa
+  region: eu
+  realm: kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 3
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 8
+        max_points: 305
+      - name: Midnight Enchanting
+        learned_points: 35
+        max_points: 105
     secondaries: []
