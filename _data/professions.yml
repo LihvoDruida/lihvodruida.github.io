@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-18 21:14:34'
+  updated_at: '2026-05-19 03:40:42'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -934,7 +934,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 93
+        learned_points: 94
         max_points: 100
     - name: Alchemy
       id: 171
@@ -980,7 +980,7 @@ characters:
         learned_points: 34
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 11
+        learned_points: 12
         max_points: 300
 - name: Hopeblood
   region: eu
@@ -1485,7 +1485,7 @@ characters:
         learned_points: 71
         max_points: 100
       - name: Midnight Leatherworking
-        learned_points: 14
+        learned_points: 18
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -1993,7 +1993,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -2682,7 +2682,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 83
+        learned_points: 94
         max_points: 100
     - name: Fishing
       id: 356
@@ -2691,7 +2691,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 136
+        learned_points: 139
         max_points: 300
 - name: Kashin
   region: eu
@@ -2848,7 +2848,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 16
+        learned_points: 18
         max_points: 105
     secondaries: []
 - name: Lishiystabb
@@ -3074,7 +3074,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 72
+        learned_points: 74
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -4384,7 +4384,25 @@ characters:
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Slávásálu
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 5
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 45
+        max_points: 100
     secondaries: []
 - name: Nanyy
   region: eu
@@ -6971,7 +6989,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 34
+        learned_points: 35
         max_points: 100
     - name: Mining
       id: 186
