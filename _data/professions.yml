@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 07:45:12'
+  updated_at: '2026-05-20 10:52:29'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5156,7 +5156,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -5852,7 +5852,10 @@ characters:
   profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
   professions:
     primaries: []
-    secondaries: []
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
 - name: Рокталл
   region: eu
   realm: soulflayer

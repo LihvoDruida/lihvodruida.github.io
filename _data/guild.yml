@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 07:45:12'
+  updated_at: '2026-05-20 10:52:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12845
-      region: 5676
-      realm: 45
+      world: 12852
+      region: 5678
+      realm: 46
     mythic:
-      world: 8153
+      world: 8155
       region: 3466
       realm: 27
   blackrock-depths:
@@ -3341,14 +3341,14 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 2871
-        color: '#4c8cbf'
+        score: 2915.8
+        color: '#4183c9'
       dps:
         score: 1971.8
         color: '#6aff4f'
       healer:
-        score: 2871
-        color: '#4c8cbf'
+        score: 2915.8
+        color: '#4183c9'
       tank:
         score: 0
         color: '#ffffff'
@@ -3362,8 +3362,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2871
-        color: '#4c8cbf'
+        score: 2915.8
+        color: '#4183c9'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -3702,7 +3702,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2927.3
@@ -4898,7 +4898,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 262
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
         score: 2647.4
@@ -5302,47 +5302,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 30
-      name: Lightforged Draenei
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/223885513-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
-    item_level_equipped: 249
-    mythic_plus_scores:
-      all:
-        score: 430
-        color: '#f0ffea'
-      dps:
-        score: 430
-        color: '#f0ffea'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 430
-        color: '#f0ffea'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -7266,17 +7242,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 2939.1
-        color: '#397ece'
+        score: 2968.7
+        color: '#2f79d3'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2939.1
-        color: '#397ece'
+        score: 2968.7
+        color: '#2f79d3'
       tank:
         score: 0
         color: '#ffffff'
@@ -7290,8 +7266,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2939.1
-        color: '#397ece'
+        score: 2968.7
+        color: '#2f79d3'
     sources:
       roster: blizzard
       enrichment: raider.io
