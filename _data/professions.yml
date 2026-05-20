@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 18:20:17'
+  updated_at: '2026-05-20 21:56:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 150
+  member_count: 152
 characters:
 - name: Бреинор
   region: eu
@@ -2460,7 +2460,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     - name: Fishing
       id: 356
@@ -7430,3 +7430,208 @@ characters:
   professions:
     primaries: []
     secondaries: []
+- name: Inika
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Inika
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Kul Tiran Engineering
+        learned_points: 175
+        max_points: 175
+      - name: Legion Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Outland Engineering
+        learned_points: 75
+        max_points: 75
+      - name: Classic Engineering
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Dragon Isles Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Engineering
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Engineering
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Kul Tiran Enchanting
+        learned_points: 175
+        max_points: 175
+      - name: Legion Enchanting
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Enchanting
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Enchanting
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Enchanting
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Enchanting
+        learned_points: 75
+        max_points: 75
+      - name: Outland Enchanting
+        learned_points: 75
+        max_points: 75
+      - name: Classic Enchanting
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Enchanting
+        learned_points: 115
+        max_points: 115
+      - name: Dragon Isles Enchanting
+        learned_points: 100
+        max_points: 100
+      - name: Khaz Algar Enchanting
+        learned_points: 100
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 175
+        max_points: 175
+      - name: Legion Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Draenor Cooking
+        learned_points: 100
+        max_points: 100
+      - name: Pandaria Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Cataclysm Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Northrend Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Outland Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 75
+        max_points: 75
+      - name: Dragon Isles Cooking
+        learned_points: 90
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 88
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 56
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 21
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 75
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 300
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 59
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 3
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 9
+        max_points: 300
+- name: Hlorygole
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 87
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Cataclysm Jewelcrafting
+        learned_points: 1
+        max_points: 75
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
