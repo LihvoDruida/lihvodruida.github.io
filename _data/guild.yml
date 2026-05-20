@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-19 21:21:19'
+  updated_at: '2026-05-20 03:40:40'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13834
+      world: 13835
       region: 6159
       realm: 56
     heroic:
-      world: 12798
-      region: 5670
+      world: 12832
+      region: 5675
       realm: 45
     mythic:
-      world: 8103
-      region: 3464
+      world: 8149
+      region: 3465
       realm: 27
   blackrock-depths:
     normal:
@@ -290,11 +290,11 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: Havoc
+      name: Devourer
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
-    item_level_equipped: 246
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 0
@@ -918,7 +918,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 280
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2834
@@ -2273,11 +2273,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2796.5
-        color: '#579bb0'
+        score: 2828.6
+        color: '#5191ba'
       dps:
-        score: 2796.5
-        color: '#579bb0'
+        score: 2828.6
+        color: '#5191ba'
       healer:
         score: 0
         color: '#ffffff'
@@ -2285,8 +2285,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2790.2
-        color: '#579bb0'
+        score: 2825.7
+        color: '#5191ba'
       spec_1:
         score: 447.1
         color: '#f0ffea'
@@ -5054,7 +5054,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3338.1
@@ -5418,7 +5418,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 2996.5
@@ -5436,8 +5436,8 @@ members:
         score: 2996.5
         color: '#2075d8'
       spec_1:
-        score: 1356.2
-        color: '#aaff91'
+        score: 1688.8
+        color: '#8bff6f'
       spec_2:
         score: 165.8
         color: '#ffffff'
@@ -7318,7 +7318,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 280
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3052.4
@@ -7529,14 +7529,14 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2235.1
-        color: '#38ff20'
+        score: 2360.4
+        color: '#39f533'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2235.1
-        color: '#38ff20'
+        score: 2360.4
+        color: '#39f533'
       tank:
         score: 0
         color: '#ffffff'
@@ -7544,8 +7544,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2235.1
-        color: '#38ff20'
+        score: 2360.4
+        color: '#39f533'
       spec_2:
         score: 0
         color: '#ffffff'

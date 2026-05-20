@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-19 21:21:19'
+  updated_at: '2026-05-20 03:40:40'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6823,7 +6823,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 60
+        learned_points: 69
         max_points: 100
     - name: Enchanting
       id: 333
@@ -7292,7 +7292,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 46
+        learned_points: 56
         max_points: 100
     secondaries:
     - name: Fishing
