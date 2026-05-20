@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 03:40:40'
+  updated_at: '2026-05-20 07:45:12'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 148
+  member_count: 151
 characters:
 - name: Бреинор
   region: eu
@@ -4217,6 +4217,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 6
         max_points: 300
+- name: Коксбульдог
+  region: eu
+  realm: howling-fjord
+  realm_slug: howling-fjord
+  profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 100
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 60
+        max_points: 100
+    secondaries: []
 - name: Пандашоманко
   region: eu
   realm: eversong
@@ -5066,6 +5092,32 @@ characters:
       - name: Midnight Fishing
         learned_points: 13
         max_points: 300
+- name: Brovastadupa
+  region: eu
+  realm: kazzak
+  realm_slug: kazzak
+  profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 3
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 8
+        max_points: 305
+      - name: Midnight Enchanting
+        learned_points: 35
+        max_points: 105
+    secondaries: []
 - name: Vîøn
   region: eu
   realm: silvermoon
@@ -5725,7 +5777,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 58
+        learned_points: 60
         max_points: 100
     - name: Tailoring
       id: 197
@@ -7350,11 +7402,11 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Коксбульдог
+- name: Мистип
   region: eu
-  realm: howling-fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Мистип
   professions:
     primaries:
     - name: Enchanting
@@ -7364,41 +7416,40 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 100
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 60
+        learned_points: 12
         max_points: 100
     secondaries: []
-- name: Brovastadupa
+- name: Рейла
   region: eu
-  realm: kazzak
-  realm_slug: kazzak
-  profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
+- name: Regin
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Regin
   professions:
     primaries:
-    - name: Skinning
-      id: 393
+    - name: Mining
+      id: 186
       tiers:
-      - name: Classic Skinning
-        learned_points: 3
+      - name: Classic Mining
+        learned_points: 1
         max_points: 300
-      - name: Midnight Skinning
-        learned_points: 100
+      - name: Midnight Mining
+        learned_points: 97
         max_points: 100
-    - name: Enchanting
-      id: 333
+    secondaries:
+    - name: Fishing
+      id: 356
       tiers:
-      - name: Classic Enchanting
-        learned_points: 8
-        max_points: 305
-      - name: Midnight Enchanting
-        learned_points: 35
-        max_points: 105
-    secondaries: []
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 7
+        max_points: 100

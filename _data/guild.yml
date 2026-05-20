@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 03:40:40'
+  updated_at: '2026-05-20 07:45:12'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 148
+  member_count: 151
   achievement_points: 515
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12832
-      region: 5675
+      world: 12845
+      region: 5676
       realm: 45
     mythic:
-      world: 8149
-      region: 3465
+      world: 8153
+      region: 3466
       realm: 27
   blackrock-depths:
     normal:
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3350.2
-        color: '#a937e8'
+        score: 3377.1
+        color: '#ae39e2'
       dps:
-        score: 3350.2
-        color: '#a937e8'
+        score: 3377.1
+        color: '#ae39e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3350.2
-        color: '#a937e8'
+        score: 3377.1
+        color: '#ae39e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -970,7 +970,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
-    item_level_equipped: 273
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2279.5
@@ -985,8 +985,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2166.8
-        color: '#4aff30'
+        score: 2258
+        color: '#31ff18'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4148,6 +4148,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Коксбульдог
+    id: 196008407
+    level: 90
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
+    item_level_equipped: 283
+    mythic_plus_scores:
+      all:
+        score: 3031.7
+        color: '#0070dd'
+      dps:
+        score: 3031.7
+        color: '#0070dd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3031.7
+        color: '#0070dd'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Пандашоманко
@@ -5077,6 +5129,58 @@ members:
       spec_2:
         score: 1147.4
         color: '#bdffa7'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Brovastadupa
+    id: 222895731
+    level: 90
+    realm:
+      id: 1305
+      slug: kazzak
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Windwalker
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
+    item_level_equipped: 281
+    mythic_plus_scores:
+      all:
+        score: 2860.7
+        color: '#4c8cbf'
+      dps:
+        score: 2860.7
+        color: '#4c8cbf'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2860.7
+        color: '#4c8cbf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7662,49 +7766,49 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Коксбульдог
-    id: 196008407
+    name: Мистип
+    id: 266083356
     level: 90
     realm:
-      id: 1615
-      slug: howling-fjord
+      id: 1602
+      slug: gordunni
     playable_class:
-      id: 2
-      name: Paladin
+      id: 12
+      name: Demon Hunter
     playable_race:
-      id: 1
-      name: Human
+      id: 4
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: male
+    gender: female
     active_spec:
-      name: Retribution
+      name: Devourer
       role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-    item_level_equipped: 283
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мистип
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
-        score: 3031.7
-        color: '#0070dd'
+        score: 1597.9
+        color: '#95ff7a'
       dps:
-        score: 3031.7
-        color: '#0070dd'
+        score: 1354.6
+        color: '#aaff91'
       healer:
         score: 0
         color: '#ffffff'
       tank:
-        score: 0
-        color: '#ffffff'
+        score: 243.3
+        color: '#fdfffd'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 0
-        color: '#ffffff'
+        score: 243.3
+        color: '#fdfffd'
       spec_2:
-        score: 3031.7
-        color: '#0070dd'
+        score: 1354.6
+        color: '#aaff91'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7714,34 +7818,62 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Brovastadupa
-    id: 222895731
+    name: Рейла
+    id: 266162439
+    level: 20
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 7
+      name: null
+    playable_race:
+      id: 86
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
+- rank: 4
+  character:
+    name: Regin
+    id: 184963280
     level: 90
     realm:
-      id: 1305
-      slug: kazzak
+      id: 505
+      slug: doomhammer
     playable_class:
-      id: 10
-      name: Monk
+      id: 1
+      name: Warrior
     playable_race:
-      id: 10
-      name: Blood Elf
+      id: 29
+      name: Void Elf
     faction:
-      type: HORDE
-    gender: male
+      type: ALLIANCE
+    gender: female
     active_spec:
-      name: Brewmaster
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-    item_level_equipped: 279
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Regin
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 0
+        color: '#ffffff'
       dps:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 0
+        color: '#ffffff'
       healer:
         score: 0
         color: '#ffffff'
@@ -7755,8 +7887,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
