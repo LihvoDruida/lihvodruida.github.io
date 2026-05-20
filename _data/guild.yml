@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 10:52:29'
+  updated_at: '2026-05-20 15:24:03'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 151
+  member_count: 150
   achievement_points: 515
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13835
+      world: 13836
       region: 6159
       realm: 56
     heroic:
-      world: 12852
-      region: 5678
+      world: 12858
+      region: 5682
       realm: 46
     mythic:
-      world: 8155
-      region: 3466
+      world: 8162
+      region: 3468
       realm: 27
   blackrock-depths:
     normal:
@@ -1906,7 +1906,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2723.4
@@ -5302,23 +5302,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 30
-      name: null
+      name: Lightforged Draenei
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/223885513-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
+    item_level_equipped: 249
+    mythic_plus_scores:
+      all:
+        score: 430
+        color: '#f0ffea'
+      dps:
+        score: 430
+        color: '#f0ffea'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 430
+        color: '#f0ffea'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -5345,8 +5369,8 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3113.5
-        color: '#4f67e1'
+        score: 3131.3
+        color: '#5c63e3'
       dps:
         score: 295.9
         color: '#fafff8'
@@ -5354,11 +5378,11 @@ members:
         score: 3027.1
         color: '#0070dd'
       tank:
-        score: 3083.1
-        color: '#406ae0'
+        score: 3116.3
+        color: '#4f67e1'
       spec_0:
-        score: 3083.1
-        color: '#406ae0'
+        score: 3116.3
+        color: '#4f67e1'
       spec_1:
         score: 3027.1
         color: '#0070dd'
@@ -5602,14 +5626,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 281
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2951.2
-        color: '#2f79d3'
+        score: 3003.1
+        color: '#2075d8'
       dps:
-        score: 2951.2
-        color: '#2f79d3'
+        score: 3003.1
+        color: '#2075d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -5620,8 +5644,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2951.2
-        color: '#2f79d3'
+        score: 3003.1
+        color: '#2075d8'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6070,7 +6094,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/97/251021921-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
-    item_level_equipped: 223
+    item_level_equipped: 232
     mythic_plus_scores:
       all:
         score: 0
@@ -6278,7 +6302,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3171.4
@@ -6850,7 +6874,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -6902,7 +6926,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3225
@@ -7238,11 +7262,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Guardian
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 2968.7
@@ -7446,8 +7470,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Discipline
-      role: HEALING
+      name: Shadow
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
     item_level_equipped: 282
@@ -7502,7 +7526,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3079.2
@@ -7606,17 +7630,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2360.4
-        color: '#39f533'
+        score: 2429.8
+        color: '#4de553'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2360.4
-        color: '#39f533'
+        score: 2429.8
+        color: '#4de553'
       tank:
         score: 0
         color: '#ffffff'
@@ -7624,8 +7648,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2360.4
-        color: '#39f533'
+        score: 2429.8
+        color: '#4de553'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7819,56 +7843,4 @@ members:
     sources:
       roster: blizzard
       enrichment: null
-      professions: blizzard
-- rank: 4
-  character:
-    name: Regin
-    id: 184963280
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Arms
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Regin
-    item_level_equipped: 269
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
       professions: blizzard
