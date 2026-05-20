@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 15:24:03'
+  updated_at: '2026-05-20 18:20:17'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2444,7 +2444,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Jewelcrafting
-        learned_points: 76
+        learned_points: 79
         max_points: 100
     secondaries:
     - name: Cooking
@@ -3180,7 +3180,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 92
+        learned_points: 100
         max_points: 100
     - name: Fishing
       id: 356
@@ -6144,7 +6144,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 205
+        learned_points: 216
         max_points: 300
 - name: Кеенди
   region: eu
