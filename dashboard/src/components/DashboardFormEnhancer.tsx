@@ -661,7 +661,9 @@ export default function DashboardFormEnhancer() {
         event.target instanceof HTMLSelectElement
           ? event.target
           : null;
-      const form = field?.form || null;
+      if (!field) return;
+
+      const form = field.form;
       if (
         !form ||
         !formUsesApi(form) ||
