@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 07:56:02'
+  updated_at: '2026-05-21 11:28:47'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12952
-      region: 5725
+      world: 12959
+      region: 5728
       realm: 46
     mythic:
-      world: 8232
+      world: 8236
       region: 3504
       realm: 28
   blackrock-depths:
@@ -1386,7 +1386,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3094
@@ -3482,47 +3482,23 @@ members:
       slug: burning-steppes
     playable_class:
       id: 9
-      name: Warlock
+      name: null
     playable_race:
       id: 27
-      name: Nightborne
+      name: null
     faction:
       type: HORDE
-    gender: female
+    gender: null
     active_spec:
-      name: Destruction
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/burning-steppes/238/189160430-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
-    profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
-    item_level_equipped: 133
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4297,6 +4273,58 @@ members:
       spec_2:
         score: 2847.8
         color: '#5191ba'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Inika
+    id: 211631253
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 2
+      name: Paladin
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/149/211631253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Inika
+    item_level_equipped: 282
+    mythic_plus_scores:
+      all:
+        score: 2795.3
+        color: '#579bb0'
+      dps:
+        score: 2795.3
+        color: '#579bb0'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2795.3
+        color: '#579bb0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5106,11 +5134,11 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 281
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3338.1
-        color: '#a335ee'
+        score: 3355.8
+        color: '#a937e8'
       dps:
         score: 1147.4
         color: '#bdffa7'
@@ -5118,11 +5146,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3336.1
-        color: '#a335ee'
+        score: 3353.8
+        color: '#a937e8'
       spec_0:
-        score: 3336.1
-        color: '#a335ee'
+        score: 3353.8
+        color: '#a937e8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5441,6 +5469,58 @@ members:
       spec_2:
         score: 3324.4
         color: '#9c3eed'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Hlorygole
+    id: 224350672
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 9
+      name: Warlock
+    playable_race:
+      id: 1
+      name: Human
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/208/224350672-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
+    item_level_equipped: 286
+    mythic_plus_scores:
+      all:
+        score: 2851.8
+        color: '#4c8cbf'
+      dps:
+        score: 2851.8
+        color: '#4c8cbf'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1830.6
+        color: '#7aff5e'
+      spec_1:
+        score: 2685.4
+        color: '#5eae9a'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5886,7 +5966,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3537.5
@@ -6042,7 +6122,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Базрог
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2647.6
@@ -6513,11 +6593,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3352.6
-        color: '#a937e8'
+        score: 3370.3
+        color: '#ae39e2'
       dps:
-        score: 3352.6
-        color: '#a937e8'
+        score: 3370.3
+        color: '#ae39e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -6531,8 +6611,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3352.6
-        color: '#a937e8'
+        score: 3370.3
+        color: '#ae39e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7843,108 +7923,4 @@ members:
     sources:
       roster: blizzard
       enrichment: null
-      professions: blizzard
-- rank: 4
-  character:
-    name: Inika
-    id: 211631253
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 2
-      name: Paladin
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/149/211631253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Inika
-    item_level_equipped: 282
-    mythic_plus_scores:
-      all:
-        score: 2795.3
-        color: '#579bb0'
-      dps:
-        score: 2795.3
-        color: '#579bb0'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2795.3
-        color: '#579bb0'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Hlorygole
-    id: 224350672
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 9
-      name: Warlock
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Affliction
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/208/224350672-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
-    item_level_equipped: 286
-    mythic_plus_scores:
-      all:
-        score: 2851.8
-        color: '#4c8cbf'
-      dps:
-        score: 2851.8
-        color: '#4c8cbf'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 1830.6
-        color: '#7aff5e'
-      spec_1:
-        score: 2685.4
-        color: '#5eae9a'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
       professions: blizzard
