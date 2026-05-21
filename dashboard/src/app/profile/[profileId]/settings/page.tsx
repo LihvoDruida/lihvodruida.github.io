@@ -56,7 +56,7 @@ const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint
   { value: "dps", label: "ДД", hint: "Примусово записувати мейна як ДД" },
 ];
 
-function ProfileGenderForm({ gender }: { gender: DashboardProfile["grammaticalGender"] }) {
+function ProfileGenderForm({ gender, returnTo = "" }: { gender: DashboardProfile["grammaticalGender"]; returnTo?: string }) {
   return (
     <div className="profile-gender-box" aria-label="Стать і звертання в повідомленнях">
       <div className="profile-gender-box__head">
@@ -69,6 +69,7 @@ function ProfileGenderForm({ gender }: { gender: DashboardProfile["grammaticalGe
       </div>
 
       <form className="profile-gender-form" action="/api/profile/gender" method="post">
+        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         {([
           ["unspecified", "Не вибрано", "дефолт: нейтральні безособові форми множини"],
           ["neutral", "Нейтральне звертання", "тебе записали, підписали"],
@@ -94,10 +95,12 @@ function RaidRolePreferenceForm({
   mainCharacter,
   manualRole,
   selectedRole,
+  returnTo = "",
 }: {
   mainCharacter?: ProfileCharacter | null;
   manualRole?: WowCharacterRole | null;
   selectedRole: WowCharacterRole;
+  returnTo?: string;
 }) {
   const autoRole = characterAutoRaidRole(mainCharacter);
   const sourceLabel = manualRole ? "Вибрано вручну" : "Авто з мейна";
@@ -124,6 +127,7 @@ function RaidRolePreferenceForm({
 
       {mainCharacter ? (
         <form className="profile-raid-role-form" action="/api/profile/raid-role" method="post">
+          {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
           {RAID_ROLE_OPTIONS.map((option) => {
             const checked = option.value === "auto" ? !manualRole : manualRole === option.value;
             const label = option.value === "auto" ? `Авто: ${wowRoleLabel(autoRole)}` : option.label;
@@ -150,7 +154,7 @@ function RaidRolePreferenceForm({
   );
 }
 
-function NicknameCharactersForm({ profile, nicknameTemplate }: { profile: DashboardProfile; nicknameTemplate: string }) {
+function NicknameCharactersForm({ profile, nicknameTemplate, returnTo = "" }: { profile: DashboardProfile; nicknameTemplate: string; returnTo?: string }) {
   const main = getMainCharacter(profile);
   const selected = new Set((profile.nicknameCharacterKeys || []).filter((key) => key !== main?.key));
   const altCandidates = profile.characters
@@ -181,6 +185,7 @@ function NicknameCharactersForm({ profile, nicknameTemplate }: { profile: Dashbo
 
       {altCandidates.length ? (
         <form className="profile-nickname-character-form" action="/api/profile/nickname-characters" method="post">
+          {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
           <div className="profile-nickname-character-list">
             {altCandidates.map((character) => {
               const checked = selected.has(character.key);
@@ -226,6 +231,11 @@ export default async function ProfileSettingsPage({
   }
 
   const { profileId } = await params;
+  const rulesReturnToken = String(Array.isArray(query.rt) ? query.rt[0] : query.rt || "").trim();
+  const isRulesReturn = String(Array.isArray(query.from) ? query.from[0] : query.from || "") === "rules" && Boolean(rulesReturnToken);
+  const settingsRulesReturnPath = isRulesReturn ? `/profile/${profileId}/settings?setup=1&from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : "";
+  const profileRulesReturnPath = isRulesReturn ? `/profile/${profileId}?from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : "";
+  const rulesReviewPath = isRulesReturn ? `/rules/accept?rt=${encodeURIComponent(rulesReturnToken)}&status=incomplete` : "";
   const isOwnProfile = Boolean(session.profileId && session.profileId === profileId);
   if (!isOwnProfile) notFound();
 
@@ -303,8 +313,8 @@ export default async function ProfileSettingsPage({
               </div>
             </div>
             <nav className="profile-account-sidebar__nav" aria-label="Розділи профілю">
-              <a href={`/profile/${encodeURIComponent(profile.profileId)}`}><span aria-hidden="true">✦</span> Профіль</a>
-              <a href={`/profile/${encodeURIComponent(profile.profileId)}/settings`} aria-current="page"><span aria-hidden="true">⚙</span> Налаштування</a>
+              <a href={profileRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}`}><span aria-hidden="true">✦</span> Профіль</a>
+              <a href={settingsRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}/settings`} aria-current="page"><span aria-hidden="true">⚙</span> Налаштування</a>
               <a href="#profile-name-settings"><span aria-hidden="true">#</span> Імʼя</a>
               <a href="#profile-nickname-settings"><span aria-hidden="true">◆</span> Discord-нік</a>
               <a href="#profile-role-settings"><span aria-hidden="true">⚔</span> Роль</a>
@@ -353,6 +363,13 @@ export default async function ProfileSettingsPage({
             </section>
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+            {rulesReviewPath ? (
+              <div className="profile-rules-return-callout" role="status">
+                <span aria-hidden="true">🌿</span>
+                <span><strong>Ти завершуєш реєстрацію через правила Discord.</strong><small>Заповни обовʼязкові поля, потім повернись до перевірки правил.</small></span>
+                <a className="btn btn-ghost btn-sm" href={rulesReviewPath}>Повернутись до правил</a>
+              </div>
+            ) : null}
             {isSetupEntry ? (
               <div className={`profile-setup-callout${setupStatus.complete ? " is-complete" : " is-warning"}`} role="status">
                 <span className="profile-setup-callout__icon" aria-hidden="true">{setupStatus.complete ? "✓" : "!"}</span>
@@ -360,7 +377,7 @@ export default async function ProfileSettingsPage({
                   <strong>{setupStatus.complete ? "Базові налаштування профілю заповнені" : "Потрібно завершити базові налаштування"}</strong>
                   <small>{setupStatus.complete ? "Тепер можна перейти до профілю, Battle.net і персонажів." : `Не вистачає: ${setupStatus.missing.map((step) => step.title).join(", ")}. Старі профілі спочатку відкриваються тут, щоб привести дані до нового стандарту.`}</small>
                 </span>
-                {setupStatus.complete ? <a className="btn btn-ghost btn-sm" href={`/profile/${encodeURIComponent(profile.profileId)}`}>Перейти в профіль</a> : null}
+                {setupStatus.complete ? <a className="btn btn-ghost btn-sm" href={profileRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}`}>Перейти в профіль</a> : null}
               </div>
             ) : null}
 
@@ -385,6 +402,7 @@ export default async function ProfileSettingsPage({
                   canManage={true}
                   canSyncDiscord={canSyncDiscordNickname}
                   discordOwnerLocked={discordOwnerLocked}
+                  returnTo={settingsRulesReturnPath}
                 />
               </article>
 
@@ -395,7 +413,7 @@ export default async function ProfileSettingsPage({
                   <p className="profile-card-lead">Мейн береться автоматично. Нижче вибираються тільки два альти, які підставляються в шаблон з адмін-панелі.</p>
                 </div>
                 <div className="profile-name-panel">
-                  <NicknameCharactersForm profile={profile} nicknameTemplate={nicknamePolicy.template} />
+                  <NicknameCharactersForm profile={profile} nicknameTemplate={nicknamePolicy.template} returnTo={settingsRulesReturnPath} />
                 </div>
               </article>
 
@@ -409,8 +427,9 @@ export default async function ProfileSettingsPage({
                     mainCharacter={mainCharacter}
                     manualRole={manualRaidRole}
                     selectedRole={selectedRaidRole}
+                    returnTo={settingsRulesReturnPath}
                   />
-                  <ProfileGenderForm gender={profile.grammaticalGender} />
+                  <ProfileGenderForm gender={profile.grammaticalGender} returnTo={settingsRulesReturnPath} />
                 </div>
               </article>
             </section>

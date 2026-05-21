@@ -4,11 +4,10 @@ import { addProfileCharacters, getProfileBattleNetCandidates, removeProfileBattl
 import { characterAddStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}`);
 }
 
 function cleanKeys(values: FormDataEntryValue[]) {
@@ -36,6 +35,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}`);
   const mode = String(form.get("mode") || "selected");
   const selectedKeys = cleanKeys(form.getAll("characterKeys"));
   const storedCandidates = await getProfileBattleNetCandidates(session.profileId).catch(() => []);
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
   if (!availableCandidateCharacters.length) {
     logDashboardEvent("warn", "profile.character.bulk_missing_reauth", request, { profileId: session.profileId, mode });
-    return redirectToProfile(request, session.profileId, "character_reauth_required");
+    return redirectToProfile(request, session.profileId, "character_reauth_required", returnTo);
   }
 
   const selectedSet = new Set(selectedKeys);
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   if (!candidates.length) {
     logDashboardEvent("warn", "profile.character.bulk_empty", request, { profileId: session.profileId, mode, selected: selectedKeys.length });
-    return redirectToProfile(request, session.profileId, "characters_bulk_empty");
+    return redirectToProfile(request, session.profileId, "characters_bulk_empty", returnTo);
   }
 
   try {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       return redirectToProfile(request, session.profileId, statusForNoop(result));
     }
 
-    const response = redirectToProfile(request, session.profileId, result.skipped > 0 ? "characters_added_partial" : result.added > 1 ? "characters_added" : "character_added");
+    const response = redirectToProfile(request, session.profileId, result.skipped > 0 ? "characters_added_partial" : result.added > 1 ? "characters_added" : "character_added", returnTo);
     await removeProfileBattleNetCandidates(session.profileId, result.addedKeys).catch((cleanupError) => {
       logDashboardEvent("warn", "profile.character.bulk_candidate_cleanup_failed", request, { profileId: session.profileId, added: result.addedKeys.length, message: safeErrorMessage(cleanupError) });
     });
@@ -85,6 +85,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const status = characterAddStatusFromError(error);
     logDashboardEvent("warn", "profile.character.bulk_failed", request, { profileId: session.profileId, mode, status, message: safeErrorMessage(error) });
-    return redirectToProfile(request, session.profileId, status === "character_add_not_guild" ? "characters_bulk_no_verified" : status);
+    return redirectToProfile(request, session.profileId, status === "character_add_not_guild" ? "characters_bulk_no_verified" : status, returnTo);
   }
 }

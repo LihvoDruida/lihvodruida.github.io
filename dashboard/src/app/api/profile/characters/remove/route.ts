@@ -4,11 +4,10 @@ import { removeProfileCharacter } from "@/lib/profiles";
 import { characterRemoveStatusFromError } from "@/lib/profileCharacterStatus";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}`);
 }
 
 export async function POST(request: NextRequest) {
@@ -25,15 +24,16 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}`);
   const characterKey = normalizeCharacterKey(form.get("characterKey"));
 
   try {
     await removeProfileCharacter(session.profileId, characterKey);
     logDashboardEvent("info", "profile.character.removed", request, { profileId: session.profileId, characterKey });
-    return redirectToProfile(request, session.profileId, "character_removed");
+    return redirectToProfile(request, session.profileId, "character_removed", returnTo);
   } catch (error) {
     const status = characterRemoveStatusFromError(error);
     logDashboardEvent("warn", "profile.character.remove_failed", request, { profileId: session.profileId, characterKey, status, message: safeErrorMessage(error) });
-    return redirectToProfile(request, session.profileId, status);
+    return redirectToProfile(request, session.profileId, status, returnTo);
   }
 }

@@ -4,11 +4,10 @@ import { fetchDiscordGuildSnapshot, getDiscordGuildId, updateGuildMemberNickname
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }
 
 export async function POST(request: NextRequest) {
@@ -24,25 +23,28 @@ export async function POST(request: NextRequest) {
   const limit = checkRateLimit(`profile-discord-nickname:${session.profileId}:${ip}`, 10, 10 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
+  const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}/settings`);
+
   try {
     const profile = await getProfileById(session.profileId);
-    if (!profile) return redirectToProfile(request, session.profileId, "discord_nick_profile_missing");
+    if (!profile) return redirectToProfile(request, session.profileId, "discord_nick_profile_missing", returnTo);
     if (profile.provider !== "discord" || !/^\d{16,25}$/.test(profile.providerUserId)) {
-      return redirectToProfile(request, session.profileId, "discord_nick_not_discord");
+      return redirectToProfile(request, session.profileId, "discord_nick_not_discord", returnTo);
     }
 
     const guildId = getDiscordGuildId();
-    if (!guildId) return redirectToProfile(request, session.profileId, "discord_nick_failed");
+    if (!guildId) return redirectToProfile(request, session.profileId, "discord_nick_failed", returnTo);
 
     const guild = await fetchDiscordGuildSnapshot().catch(() => null);
     if (guild?.ownerId && guild.ownerId === profile.providerUserId) {
-      return redirectToProfile(request, session.profileId, "discord_nick_owner");
+      return redirectToProfile(request, session.profileId, "discord_nick_owner", returnTo);
     }
 
     const nicknamePolicy = await getGuildNicknamePolicy();
     const nicknamePlan = buildProfileDiscordNicknamePlan(profile, nicknamePolicy.template);
     const nickname = nicknamePlan.value;
-    if (!nickname) return redirectToProfile(request, session.profileId, "discord_nick_name_missing");
+    if (!nickname) return redirectToProfile(request, session.profileId, "discord_nick_name_missing", returnTo);
 
     await updateGuildMemberNickname({
       guildId,
@@ -58,13 +60,13 @@ export async function POST(request: NextRequest) {
       characters: nicknamePlan.characterNames,
       truncated: nicknamePlan.truncated,
     });
-    return redirectToProfile(request, session.profileId, nicknamePlan.truncated ? "discord_nick_synced_short" : "discord_nick_synced");
+    return redirectToProfile(request, session.profileId, nicknamePlan.truncated ? "discord_nick_synced_short" : "discord_nick_synced", returnTo);
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("warn", "profile.discord_nickname.failed", request, { profileId: session.profileId, message });
     if (/Discord API\s+403|Missing Permissions|50013/i.test(message)) {
-      return redirectToProfile(request, session.profileId, "discord_nick_hierarchy");
+      return redirectToProfile(request, session.profileId, "discord_nick_hierarchy", returnTo);
     }
-    return redirectToProfile(request, session.profileId, "discord_nick_failed");
+    return redirectToProfile(request, session.profileId, "discord_nick_failed", returnTo);
   }
 }

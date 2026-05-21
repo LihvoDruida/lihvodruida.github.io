@@ -3,11 +3,10 @@ import { getSession } from "@/lib/auth";
 import { setProfileNicknameCharacters } from "@/lib/profiles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToSettings(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToSettings(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }
 
 function cleanKeys(values: FormDataEntryValue[]) {
@@ -28,14 +27,15 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}/settings`);
   const selectedKeys = cleanKeys(form.getAll("nicknameCharacterKeys"));
 
   try {
     const savedKeys = await setProfileNicknameCharacters(session.profileId, selectedKeys);
     logDashboardEvent("info", "profile.nickname_characters.saved", request, { profileId: session.profileId, savedKeys });
-    return redirectToSettings(request, session.profileId, "profile_nickname_characters_saved");
+    return redirectToSettings(request, session.profileId, "profile_nickname_characters_saved", returnTo);
   } catch (error) {
     logDashboardEvent("warn", "profile.nickname_characters.failed", request, { profileId: session.profileId, message: safeErrorMessage(error) });
-    return redirectToSettings(request, session.profileId, "profile_nickname_characters_failed");
+    return redirectToSettings(request, session.profileId, "profile_nickname_characters_failed", returnTo);
   }
 }

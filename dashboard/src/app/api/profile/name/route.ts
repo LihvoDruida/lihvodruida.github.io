@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { setProfilePreferredName } from "@/lib/profiles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }
 
 export async function POST(request: NextRequest) {
@@ -23,17 +22,18 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}/settings`);
   const preferredName = String(form.get("preferredName") || "").trim();
 
   try {
     const savedName = await setProfilePreferredName(session.profileId, preferredName);
     logDashboardEvent("info", "profile.name.saved", request, { profileId: session.profileId, preferredName: savedName });
-    return redirectToProfile(request, session.profileId, "profile_name_saved");
+    return redirectToProfile(request, session.profileId, "profile_name_saved", returnTo);
   } catch (error) {
     const message = safeErrorMessage(error);
     const lowered = message.toLowerCase();
     const status = lowered.includes("символ") || lowered.includes("ім") ? "profile_name_invalid" : "profile_name_failed";
     logDashboardEvent("warn", "profile.name.failed", request, { profileId: session.profileId, message, status });
-    return redirectToProfile(request, session.profileId, status);
+    return redirectToProfile(request, session.profileId, status, returnTo);
   }
 }

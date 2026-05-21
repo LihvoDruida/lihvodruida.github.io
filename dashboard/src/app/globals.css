@@ -16747,6 +16747,44 @@ button[aria-busy="true"]::after,
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
+
+.profile-rules-return-callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(116, 214, 159, 0.28);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(28, 116, 78, 0.18), rgba(255, 255, 255, 0.035));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.profile-rules-return-callout > span:first-child {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.24);
+}
+
+.profile-rules-return-callout > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.profile-rules-return-callout strong {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.profile-rules-return-callout small {
+  color: rgba(246, 239, 226, 0.72);
+  overflow-wrap: anywhere;
+}
+
 .profile-setup-callout.is-complete {
   border-color: rgba(89, 214, 141, 0.32);
   background: linear-gradient(135deg, rgba(47, 125, 79, 0.18), rgba(255, 255, 255, 0.035));
@@ -16845,11 +16883,13 @@ button[aria-busy="true"]::after,
 
 
 
-  .profile-setup-callout {
+  .profile-setup-callout,
+  .profile-rules-return-callout {
     grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .profile-setup-callout .btn {
+  .profile-setup-callout .btn,
+  .profile-rules-return-callout .btn {
     grid-column: 1 / -1;
     width: 100%;
   }

@@ -10,7 +10,7 @@ import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
 import { evaluateAuthAccessPolicy, getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 import { findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
-import { normalizeRulesAcceptPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
+import { normalizeRulesAcceptPath, parseRulesRoleIdsFromUrl, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
@@ -135,6 +135,9 @@ export async function GET(request: NextRequest) {
   const legacyStateMatches = Boolean(state && rememberedNonces.includes(state));
   const nonceMatches = Boolean(parsedState?.nonce && rememberedNonces.includes(parsedState.nonce));
   const nextPath = safeNextPath(parsedState?.nextPath || store.get(LOGIN_NEXT_COOKIE)?.value);
+  const rulesNextPath = normalizeRulesAcceptPath(nextPath);
+  const rulesRoleIds = parseRulesRoleIdsFromUrl(rulesNextPath);
+  const hasRulesOnboardingRoleToken = Boolean(rulesNextPath && rulesRoleIds.length);
   const remainingNonces = parsedState?.nonce
     ? rememberedNonces.filter((item) => item !== parsedState.nonce && item !== state)
     : rememberedNonces.filter((item) => item !== state);
@@ -262,7 +265,7 @@ export async function GET(request: NextRequest) {
       ownerId: guild?.ownerId || null,
       roleIds: discordRoleIds,
     });
-    if (!authDecision.allowed) {
+    if (!authDecision.allowed && !hasRulesOnboardingRoleToken) {
       logDashboardEvent("warn", "auth.discord.callback.required_role_missing", request, {
         userId: user.id,
         profileId,
@@ -284,6 +287,24 @@ export async function GET(request: NextRequest) {
       expireSessionCookies(response);
       rememberRemainingOAuthNonces(response, remainingNonces);
       return response;
+    }
+
+    if (!authDecision.allowed && hasRulesOnboardingRoleToken) {
+      logDashboardEvent("info", "auth.discord.callback.rules_onboarding_role_gate_deferred", request, {
+        userId: user.id,
+        profileId,
+        reason: authDecision.reason,
+        requestedRuleRoles: rulesRoleIds.length,
+        memberRoles: discordRoleIds.length,
+      });
+      await recordSystemAudit("auth.discord.rules_onboarding_role_gate_deferred", {
+        status: "info",
+        summary: "Discord-вхід продовжено для завершення правил: роль буде видана тільки після повного профілю.",
+        userId: String(user.id),
+        profileId,
+        reason: authDecision.reason,
+        requestedRoleIds: rulesRoleIds,
+      }).catch(() => false);
     }
 
     const resolved = await resolveAccessGroupFromDiscord(discordRoleIds, String(user.id), guild?.ownerId || null);
@@ -313,7 +334,6 @@ export async function GET(request: NextRequest) {
     const currentProfile = await getProfileById(session.profileId || "").catch(() => null);
     const setupProfile = currentProfile || profileFromSession(session);
     const setupRedirectPath = profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(session.profileId || setupProfile.profileId) : "";
-    const rulesNextPath = normalizeRulesAcceptPath(nextPath);
     const nicknamePolicy = rulesNextPath ? await getGuildNicknamePolicy() : null;
     const rulesStatus = rulesNextPath ? rulesOnboardingStatus(setupProfile, nicknamePolicy?.template) : null;
     const rulesRedirectPath = rulesNextPath && !rulesStatus?.complete ? normalizeRulesAcceptPath(rulesNextPath, "incomplete") : rulesNextPath;

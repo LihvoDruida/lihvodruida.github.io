@@ -251,7 +251,13 @@ export default function DashboardFormEnhancer() {
 
     function onSubmit(event: SubmitEvent) {
       const form = event.target instanceof HTMLFormElement ? event.target : null;
-      if (!form || !formUsesApi(form) || form.dataset.submitting === "true") return;
+      if (!form || !formUsesApi(form)) return;
+      if (form.dataset.submitting === "true") {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+        return;
+      }
 
       const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
       const confirmText = deleteConfirmText(form, submitter);

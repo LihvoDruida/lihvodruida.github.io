@@ -3,11 +3,10 @@ import { getSession } from "@/lib/auth";
 import { setProfileRaidRolePreference } from "@/lib/profiles";
 import { normalizeWowRole } from "@/lib/wowRoles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }
 
 export async function POST(request: NextRequest) {
@@ -24,24 +23,25 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}/settings`);
   const rawRole = String(form.get("raidRole") || "auto").trim().toLowerCase();
   const isAuto = rawRole === "auto" || rawRole === "default" || rawRole === "main";
   const role = isAuto ? null : normalizeWowRole(rawRole);
 
   if (!isAuto && !role) {
     logDashboardEvent("warn", "profile.raid_role.invalid", request, { profileId: session.profileId, rawRole });
-    return redirectToProfile(request, session.profileId, "raid_role_invalid");
+    return redirectToProfile(request, session.profileId, "raid_role_invalid", returnTo);
   }
 
   try {
     await setProfileRaidRolePreference(session.profileId, role);
     logDashboardEvent("info", "profile.raid_role.saved", request, { profileId: session.profileId, role: role || "auto" });
-    return redirectToProfile(request, session.profileId, role ? "raid_role_set" : "raid_role_auto");
+    return redirectToProfile(request, session.profileId, role ? "raid_role_set" : "raid_role_auto", returnTo);
   } catch (error) {
     const message = safeErrorMessage(error);
     const lowered = message.toLowerCase();
     const status = lowered.includes("мейна") || lowered.includes("main") ? "raid_role_main_missing" : "raid_role_failed";
     logDashboardEvent("warn", "profile.raid_role.failed", request, { profileId: session.profileId, role: role || "auto", status, message });
-    return redirectToProfile(request, session.profileId, status);
+    return redirectToProfile(request, session.profileId, status, returnTo);
   }
 }

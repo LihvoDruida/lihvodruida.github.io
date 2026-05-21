@@ -74,6 +74,7 @@ type Props = {
   canManage: boolean;
   canSyncDiscord: boolean;
   discordOwnerLocked?: boolean;
+  returnTo?: string;
 };
 
 export default function ProfileNameControls({
@@ -90,6 +91,7 @@ export default function ProfileNameControls({
   canManage,
   canSyncDiscord,
   discordOwnerLocked = false,
+  returnTo = "",
 }: Props) {
   const inputId = useId();
   const [editing, setEditing] = useState(false);
@@ -157,6 +159,7 @@ export default function ProfileNameControls({
 
         {canManage && editing ? (
           <form className="profile-name-edit-form is-editing" action="/api/profile/name" method="post">
+            {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
             <label className="sr-only" htmlFor={inputId}>Імʼя в профілі</label>
             <input
               ref={inputRef}
@@ -214,6 +217,7 @@ export default function ProfileNameControls({
         {canManage ? (
           <div className="profile-display-mode-form" role="group" aria-label="Вибір формату імені">
             <form className="profile-display-mode-action" action="/api/profile/name-mode" method="post">
+              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
               <input type="hidden" name="publicNameMode" value="name" />
               <button
                 className={`profile-display-mode-option${publicNameMode !== "server_nickname" ? " is-selected" : ""}`}
@@ -229,6 +233,7 @@ export default function ProfileNameControls({
               </button>
             </form>
             <form className="profile-display-mode-action" action="/api/profile/name-mode" method="post">
+              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
               <input type="hidden" name="publicNameMode" value="server_nickname" />
               <button
                 className={`profile-display-mode-option${publicNameMode === "server_nickname" ? " is-selected" : ""}`}
@@ -269,6 +274,7 @@ export default function ProfileNameControls({
               </button>
             ) : (
               <form className="profile-discord-nick-form" action="/api/profile/discord-nickname" method="post">
+                {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
                 <button
                   className={`profile-nick-sync-button${synced ? " is-synced" : ""}`}
                   type="submit"

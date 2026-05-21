@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { setProfilePublicNameMode } from "@/lib/profiles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
-function redirectToProfile(request: NextRequest, profileId: string, status: string) {
-  const response = NextResponse.redirect(new URL(`/profile/${profileId}/settings?characterStatus=${encodeURIComponent(status)}`, request.url), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
-  return response;
+function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
+  return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }
 
 export async function POST(request: NextRequest) {
@@ -23,15 +22,16 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const form = await request.formData();
+  const returnTo = profileActionReturnTo(form, session.profileId, `/profile/${session.profileId}/settings`);
   const publicNameMode = String(form.get("publicNameMode") || "name").trim();
 
   try {
     const savedMode = await setProfilePublicNameMode(session.profileId, publicNameMode);
     logDashboardEvent("info", "profile.name_mode.saved", request, { profileId: session.profileId, publicNameMode: savedMode });
-    return redirectToProfile(request, session.profileId, "profile_name_mode_saved");
+    return redirectToProfile(request, session.profileId, "profile_name_mode_saved", returnTo);
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("warn", "profile.name_mode.failed", request, { profileId: session.profileId, message });
-    return redirectToProfile(request, session.profileId, "profile_name_failed");
+    return redirectToProfile(request, session.profileId, "profile_name_failed", returnTo);
   }
 }

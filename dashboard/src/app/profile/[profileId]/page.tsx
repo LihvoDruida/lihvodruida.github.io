@@ -149,7 +149,7 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
   return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
 }
 
-function CharacterCard({ character, canManage, showMainBadge }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean }) {
+function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean; returnTo?: string }) {
   const classLabel = character.className || "Клас невідомий";
   const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
   const roleLabel = wowRoleLabel(character.activeSpecRole);
@@ -201,12 +201,14 @@ function CharacterCard({ character, canManage, showMainBadge }: { character: Pro
           {canManage && !character.isMain ? (
             <form action="/api/profile/characters/main" method="post">
               <input type="hidden" name="characterKey" value={character.key} />
+              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
               <button className="btn btn-ghost btn-sm" type="submit">Зробити мейном</button>
             </form>
           ) : null}
           {canManage ? (
             <form action="/api/profile/characters/remove" method="post">
               <input type="hidden" name="characterKey" value={character.key} />
+              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
               <button className="btn btn-danger btn-sm" type="submit">Видалити</button>
             </form>
           ) : null}
@@ -287,7 +289,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
   );
 }
 
-function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
+function CandidateRow({ character, bulkFormId, returnTo = "" }: { character: ProfileCharacter; bulkFormId: string; returnTo?: string }) {
   const kindLabel = character.verifiedGuild ? "🌿 Гільдійний" : "🤝 Інший";
   const image = characterAvatarUrl(character);
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
@@ -315,6 +317,7 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
       </span>
       <form action="/api/profile/characters/add" method="post">
         <input type="hidden" name="characterKey" value={character.key} />
+        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         <button className="btn btn-primary btn-sm" type="submit">Додати</button>
       </form>
     </li>
@@ -323,8 +326,10 @@ function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; 
 
 export default async function ProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ profileId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await getSession();
   const nicknamePolicy = await getGuildNicknamePolicy();
@@ -334,7 +339,12 @@ export default async function ProfilePage({
   }
   const viewer: DashboardSession = session;
 
-  const { profileId } = await params;
+  const [{ profileId }, query] = await Promise.all([params, searchParams]);
+  const rulesReturnToken = String(Array.isArray(query.rt) ? query.rt[0] : query.rt || "").trim();
+  const isRulesReturn = String(Array.isArray(query.from) ? query.from[0] : query.from || "") === "rules" && Boolean(rulesReturnToken);
+  const profileRulesReturnPath = isRulesReturn ? `/profile/${profileId}?from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : "";
+  const settingsRulesReturnPath = isRulesReturn ? `/profile/${profileId}/settings?setup=1&from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : "";
+  const rulesReviewPath = isRulesReturn ? `/rules/accept?rt=${encodeURIComponent(rulesReturnToken)}&status=incomplete` : "";
   const initialProfile = await getProfileById(profileId);
 
   const isOwnProfile = Boolean(viewer.profileId && viewer.profileId === profileId);
@@ -361,7 +371,8 @@ export default async function ProfilePage({
   }
 
   if (isOwnProfile && profileNeedsSettingsSetup(profile)) {
-    redirect(profileSettingsSetupPath(profile.profileId));
+    const setupPath = profileSettingsSetupPath(profile.profileId);
+    redirect(isRulesReturn ? `${setupPath}&from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : setupPath);
   }
 
   const mainCharacter = getMainCharacter(profile);
@@ -436,7 +447,7 @@ export default async function ProfilePage({
             </div>
             <nav className="profile-account-sidebar__nav" aria-label="Розділи профілю">
               <a href={`/profile/${encodeURIComponent(profile.profileId)}`} aria-current="page"><span aria-hidden="true">✦</span> Профіль</a>
-              {isOwnProfile ? <a href={`/profile/${encodeURIComponent(profile.profileId)}/settings`}><span aria-hidden="true">⚙</span> Налаштування</a> : null}
+              {isOwnProfile ? <a href={settingsRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}/settings`}><span aria-hidden="true">⚙</span> Налаштування</a> : null}
               <a href="#profile-characters"><span aria-hidden="true">⚔</span> Персонажі</a>
               {canViewPrivateProfileBlocks ? <a href="#profile-raids"><span aria-hidden="true">◆</span> Рейди</a> : null}
             </nav>
@@ -479,6 +490,13 @@ export default async function ProfilePage({
             ) : null}
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
+            {rulesReviewPath ? (
+              <div className="profile-rules-return-callout" role="status">
+                <span aria-hidden="true">🌿</span>
+                <span><strong>Ти завершуєш реєстрацію через правила Discord.</strong><small>Перевір персонажів і мейна, потім повернись до перевірки правил.</small></span>
+                <a className="btn btn-ghost btn-sm" href={rulesReviewPath}>Повернутись до правил</a>
+              </div>
+            ) : null}
             {!isOwnProfile && canViewPrivateProfileBlocks ? <div className="login-alert profile-storage-warning" role="status">Ти можеш переглядати цей профіль, але змінювати персонажів може тільки власник.</div> : null}
 
             <section className="profile-grid profile-grid--single" aria-label="Персонажі профілю">
@@ -490,7 +508,7 @@ export default async function ProfilePage({
                   </div>
                   {canManageCharacters ? (
                     <div className="profile-bnet-region-actions" aria-label="Підключити або оновити Battle.net">
-                      <a className="profile-bnet-cta" href={`/api/auth/battlenet/start?region=${primaryBattleNetRegion}`}>
+                      <a className="profile-bnet-cta" href={`/api/auth/battlenet/start?region=${primaryBattleNetRegion}${profileRulesReturnPath ? `&next=${encodeURIComponent(profileRulesReturnPath)}` : ""}`}>
                         <span className="profile-bnet-cta__eyebrow">{battleNetAction.eyebrow}</span>
                         <strong>{battleNetAction.title}</strong>
                         <small>{battleNetAction.hint}</small>
@@ -508,7 +526,7 @@ export default async function ProfilePage({
 
                 {profile.characters.length ? (
                   <div className="profile-character-list profile-character-list--single-flow">
-                    {visibleCharacters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} />)}
+                    {visibleCharacters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} returnTo={profileRulesReturnPath} />)}
                   </div>
                 ) : (
                   <div className="profile-empty-characters">
@@ -530,14 +548,16 @@ export default async function ProfilePage({
                         {profile.battlenet?.candidateExpiresAt ? <ProfileCandidateExpiryTimer expiresAt={profile.battlenet.candidateExpiresAt} /> : null}
                       </div>
                     </div>
-                    <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post" />
+                    <form id={bulkFormId} className="profile-candidate-bulk-form" action="/api/profile/characters/bulk-add" method="post">
+                      {profileRulesReturnPath ? <input type="hidden" name="returnTo" value={profileRulesReturnPath} /> : null}
+                    </form>
                     <ProfileCandidateBulkActions formId={bulkFormId} count={availableCandidates.length} />
                     <div className="profile-candidate-groups">
                       {availableGuildCandidates.length ? (
                         <section className="profile-candidate-group" aria-label="Кандидати гільдії">
                           <div className="profile-subsection-head profile-subsection-head--compact"><strong>Гільдійні</strong><small>{availableGuildCandidates.length}</small></div>
                           <ul className="profile-character-candidates">
-                            {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
+                            {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} returnTo={profileRulesReturnPath} />)}
                           </ul>
                         </section>
                       ) : null}
@@ -545,7 +565,7 @@ export default async function ProfilePage({
                         <section className="profile-candidate-group" aria-label="Інші кандидати">
                           <div className="profile-subsection-head profile-subsection-head--compact"><strong>Інші</strong><small>{availableOtherCandidates.length}</small></div>
                           <ul className="profile-character-candidates">
-                            {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
+                            {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} returnTo={profileRulesReturnPath} />)}
                           </ul>
                         </section>
                       ) : null}
