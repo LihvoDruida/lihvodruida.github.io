@@ -8,20 +8,18 @@ import {
   createOAuthStateToken,
 } from "@/lib/auth";
 import { buildDiscordOAuthUrl } from "@/lib/oauth";
-import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "@/lib/security";
+import {
+  checkRateLimit,
+  getClientIp,
+  logDashboardEvent,
+  noStoreHeaders,
+} from "@/lib/security";
 import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
+import { safeDashboardReturnPath } from "@/lib/dashboardRedirects";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 const OAUTH_NONCE_COOKIE_MAX_AGE = 60 * 10;
 const MAX_PARALLEL_OAUTH_FLOWS = 8;
-
-function safeNextPath(value: string | null) {
-  const path = String(value || "").trim();
-  if (!path || path.length > 1500) return "";
-  if (!path.startsWith("/") || path.startsWith("//")) return "";
-  if (path === "/" || /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
-  return "";
-}
 
 function isEnabled(value: string | null) {
   return /^(1|true|yes|force|switch)$/i.test(String(value || "").trim());
@@ -32,8 +30,8 @@ function normalizeOAuthNonces(values: unknown[]): string[] {
     new Set(
       values
         .map((item) => String(item || "").trim())
-        .filter((item): item is string => Boolean(item))
-    )
+        .filter((item): item is string => Boolean(item)),
+    ),
   ).slice(-MAX_PARALLEL_OAUTH_FLOWS);
 }
 
@@ -45,7 +43,9 @@ function parseRememberedOAuthNonces(value?: string | null): string[] {
     const parsed = JSON.parse(raw) as unknown;
     const list = Array.isArray(parsed)
       ? parsed
-      : parsed && typeof parsed === "object" && Array.isArray((parsed as { nonces?: unknown }).nonces)
+      : parsed &&
+          typeof parsed === "object" &&
+          Array.isArray((parsed as { nonces?: unknown }).nonces)
         ? (parsed as { nonces: unknown[] }).nonces
         : [];
     return normalizeOAuthNonces(list);
@@ -85,30 +85,53 @@ export async function GET(request: NextRequest) {
   const limit = checkRateLimit(`discord-oauth-start:${ip}`, 30, 10 * 60 * 1000);
 
   if (!limit.ok) {
-    logDashboardEvent("warn", "auth.discord.start.rate_limited", request, { resetAt: limit.resetAt });
-    const response = NextResponse.redirect(new URL("/login?error=rate_limit", request.url), 303);
-    for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
+    logDashboardEvent("warn", "auth.discord.start.rate_limited", request, {
+      resetAt: limit.resetAt,
+    });
+    const response = NextResponse.redirect(
+      new URL("/login?error=rate_limit", request.url),
+      303,
+    );
+    for (const [key, value] of Object.entries(noStoreHeaders()))
+      response.headers.set(key, value);
     return response;
   }
 
   const url = new URL(request.url);
-  const nextPath = safeNextPath(url.searchParams.get("next"));
-  const forceFreshLogin = isEnabled(url.searchParams.get("force")) || isEnabled(url.searchParams.get("switch")) || isEnabled(url.searchParams.get("reauth"));
+  const nextPath = safeDashboardReturnPath(url.searchParams.get("next"), {
+    scope: "discord-auth",
+    fallback: "",
+  });
+  const forceFreshLogin =
+    isEnabled(url.searchParams.get("force")) ||
+    isEnabled(url.searchParams.get("switch")) ||
+    isEnabled(url.searchParams.get("reauth"));
   const state = await createOAuthStateToken(nextPath);
   const store = await cookies();
-  const remembered = parseRememberedOAuthNonces(store.get(OAUTH_STATE_COOKIE)?.value || store.get(LEGACY_OAUTH_STATE_COOKIE)?.value);
+  const remembered = parseRememberedOAuthNonces(
+    store.get(OAUTH_STATE_COOKIE)?.value ||
+      store.get(LEGACY_OAUTH_STATE_COOKIE)?.value,
+  );
   const nonces = [...remembered, state.nonce].slice(-MAX_PARALLEL_OAUTH_FLOWS);
 
-  const response = NextResponse.redirect(buildDiscordOAuthUrl(state.token), 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
+  const response = NextResponse.redirect(
+    buildDiscordOAuthUrl(state.token),
+    303,
+  );
+  for (const [key, value] of Object.entries(noStoreHeaders()))
+    response.headers.set(key, value);
 
-  response.cookies.set(OAUTH_STATE_COOKIE, serializeRememberedOAuthNonces(nonces), {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: OAUTH_NONCE_COOKIE_MAX_AGE,
-  });
+  response.cookies.set(
+    OAUTH_STATE_COOKIE,
+    serializeRememberedOAuthNonces(nonces),
+    {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: OAUTH_NONCE_COOKIE_MAX_AGE,
+    },
+  );
   expireCookie(response, LEGACY_OAUTH_STATE_COOKIE, false);
   expireCookie(response, LOGIN_NEXT_COOKIE, true);
 
