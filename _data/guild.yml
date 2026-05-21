@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 11:28:47'
+  updated_at: '2026-05-21 15:31:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12959
-      region: 5728
+      world: 12967
+      region: 5732
       realm: 46
     mythic:
-      world: 8236
+      world: 8241
       region: 3504
       realm: 28
   blackrock-depths:
@@ -190,14 +190,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3390.9
-        color: '#ae39e2'
+        score: 3415.6
+        color: '#b33add'
       dps:
-        score: 3390.9
-        color: '#ae39e2'
+        score: 3415.6
+        color: '#b33add'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3390.9
-        color: '#ae39e2'
+        score: 3415.6
+        color: '#b33add'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -918,14 +918,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2834
-        color: '#5191ba'
+        score: 2865.9
+        color: '#4c8cbf'
       dps:
-        score: 2834
-        color: '#5191ba'
+        score: 2865.9
+        color: '#4c8cbf'
       healer:
         score: 0
         color: '#ffffff'
@@ -939,8 +939,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2834
-        color: '#5191ba'
+        score: 2865.9
+        color: '#4c8cbf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3482,23 +3482,47 @@ members:
       slug: burning-steppes
     playable_class:
       id: 9
-      name: null
+      name: Warlock
     playable_race:
       id: 27
-      name: null
+      name: Nightborne
     faction:
       type: HORDE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Destruction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/burning-steppes/238/189160430-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
+    profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
+    item_level_equipped: 133
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -7866,7 +7890,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 271
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2144.3
@@ -7900,7 +7924,7 @@ members:
   character:
     name: Рейла
     id: 266162439
-    level: 20
+    level: 28
     realm:
       id: 1602
       slug: gordunni

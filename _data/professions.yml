@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 11:28:47'
+  updated_at: '2026-05-21 15:31:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3442,7 +3442,7 @@ characters:
   region: eu
   realm: burning-steppes
   realm_slug: burning-steppes
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/burning-steppes/Darkleaf
   professions:
     primaries:
     - name: Enchanting
@@ -4672,7 +4672,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 5
+        learned_points: 17
         max_points: 100
     - name: Tailoring
       id: 197
@@ -7642,7 +7642,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 14
+        learned_points: 15
         max_points: 100
     secondaries: []
 - name: Рейла
