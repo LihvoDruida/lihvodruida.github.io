@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 18:01:11'
+  updated_at: '2026-05-21 21:28:38'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -16,7 +16,7 @@ guild:
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
   member_count: 152
-  achievement_points: 515
+  achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12975
-      region: 5734
+      world: 12997
+      region: 5751
       realm: 46
     mythic:
-      world: 8249
-      region: 3511
+      world: 8271
+      region: 3532
       realm: 28
   blackrock-depths:
     normal:
@@ -2270,14 +2270,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-    item_level_equipped: 281
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2905.6
-        color: '#4183c9'
+        score: 2955.9
+        color: '#2f79d3'
       dps:
-        score: 2905.6
-        color: '#4183c9'
+        score: 2955.9
+        color: '#2f79d3'
       healer:
         score: 0
         color: '#ffffff'
@@ -2285,8 +2285,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2902.7
-        color: '#4183c9'
+        score: 2952.9
+        color: '#2f79d3'
       spec_1:
         score: 447.1
         color: '#f0ffea'
@@ -2821,20 +2821,20 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2903.3
-        color: '#4183c9'
+        score: 2955.6
+        color: '#2f79d3'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2903.3
-        color: '#4183c9'
+        score: 2955.6
+        color: '#2f79d3'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2903.3
-        color: '#4183c9'
+        score: 2955.6
+        color: '#2f79d3'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3237,11 +3237,11 @@ members:
     item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2583.6
-        color: '#5ec77d'
+        score: 2667.4
+        color: '#5fb395'
       dps:
-        score: 2583.6
-        color: '#5ec77d'
+        score: 2667.4
+        color: '#5fb395'
       healer:
         score: 0
         color: '#ffffff'
@@ -3255,8 +3255,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2583.6
-        color: '#5ec77d'
+        score: 2667.4
+        color: '#5fb395'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4950,7 +4950,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 271
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
         score: 2653.1
@@ -5418,10 +5418,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3151.5
+        score: 3165.1
         color: '#675fe4'
       dps:
         score: 295.9
@@ -5430,10 +5430,10 @@ members:
         score: 3027.1
         color: '#0070dd'
       tank:
-        score: 3151.5
+        score: 3165.1
         color: '#675fe4'
       spec_0:
-        score: 3151.5
+        score: 3165.1
         color: '#675fe4'
       spec_1:
         score: 3027.1
@@ -5626,7 +5626,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2997
@@ -7529,11 +7529,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3052.4
-        color: '#2c6dde'
+        score: 3077.4
+        color: '#406ae0'
       dps:
-        score: 3052.4
-        color: '#2c6dde'
+        score: 3077.4
+        color: '#406ae0'
       healer:
         score: 0
         color: '#ffffff'
@@ -7547,8 +7547,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3052.4
-        color: '#2c6dde'
+        score: 3077.4
+        color: '#406ae0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7734,17 +7734,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 2569.1
-        color: '#5ec77d'
+        score: 2715.5
+        color: '#5da9a0'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2569.1
-        color: '#5ec77d'
+        score: 2715.5
+        color: '#5da9a0'
       tank:
         score: 0
         color: '#ffffff'
@@ -7752,8 +7752,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2569.1
-        color: '#5ec77d'
+        score: 2715.5
+        color: '#5da9a0'
       spec_2:
         score: 0
         color: '#ffffff'
