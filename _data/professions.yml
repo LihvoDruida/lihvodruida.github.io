@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-20 21:56:02'
+  updated_at: '2026-05-21 03:53:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2444,7 +2444,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Jewelcrafting
-        learned_points: 79
+        learned_points: 81
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2758,7 +2758,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Kashin
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -5802,7 +5802,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Базрог
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -5851,7 +5851,25 @@ characters:
   realm_slug: soulflayer
   profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Enchanting
+        learned_points: 11
+        max_points: 105
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 1
+        max_points: 100
     secondaries:
     - name: Archaeology
       id: 794
@@ -6407,7 +6425,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 138
+        learned_points: 141
         max_points: 300
 - name: Лилая
   region: eu
@@ -7347,7 +7365,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 56
+        learned_points: 80
         max_points: 100
     secondaries:
     - name: Fishing
