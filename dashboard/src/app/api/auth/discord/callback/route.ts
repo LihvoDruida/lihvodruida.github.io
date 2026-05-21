@@ -9,6 +9,8 @@ import { checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders } from "
 import { checkGeoAccess, geoAccessDeniedResponse } from "@/lib/geoAccessPolicy";
 import { evaluateAuthAccessPolicy, getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 import { findProfileCharacterConflicts, getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath, upsertProfileFromSession } from "@/lib/profiles";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
+import { normalizeRulesAcceptPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
@@ -311,6 +313,10 @@ export async function GET(request: NextRequest) {
     const currentProfile = await getProfileById(session.profileId || "").catch(() => null);
     const setupProfile = currentProfile || profileFromSession(session);
     const setupRedirectPath = profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(session.profileId || setupProfile.profileId) : "";
+    const rulesNextPath = normalizeRulesAcceptPath(nextPath);
+    const nicknamePolicy = rulesNextPath ? await getGuildNicknamePolicy() : null;
+    const rulesStatus = rulesNextPath ? rulesOnboardingStatus(setupProfile, nicknamePolicy?.template) : null;
+    const rulesRedirectPath = rulesNextPath && !rulesStatus?.complete ? normalizeRulesAcceptPath(rulesNextPath, "incomplete") : rulesNextPath;
 
     logDashboardEvent("info", "auth.discord.callback.success", request, {
       userId: user.id,
@@ -318,12 +324,13 @@ export async function GET(request: NextRequest) {
       role,
       profileStored: profileWrite.stored,
       setupRequired: Boolean(setupRedirectPath),
+      rulesOnboardingRequired: Boolean(rulesRedirectPath && !rulesStatus?.complete),
+      rulesOnboardingMissing: rulesStatus?.missing.map((step) => step.key) || [],
     });
 
     await setSession(session);
 
-    const keepsExplicitOnboarding = /^\/rules\/accept(?:[/?#]|$)/.test(nextPath);
-    const redirectPath = keepsExplicitOnboarding ? nextPath : setupRedirectPath || nextPath || (role === "member" ? `/profile/${session.profileId}` : "/");
+    const redirectPath = rulesRedirectPath || setupRedirectPath || nextPath || (role === "member" ? `/profile/${session.profileId}` : "/");
     const response = NextResponse.redirect(`${getDashboardUrl()}${redirectPath}`, 303);
     for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
     rememberRemainingOAuthNonces(response, remainingNonces);

@@ -124,6 +124,25 @@ export function parseRulesRoleIdsFromUrl(urlInput: unknown) {
   return roleIdsFromMaybeUrl(raw);
 }
 
+export function isRulesAcceptPath(value: unknown) {
+  const path = String(value || "").trim();
+  return /^\/rules\/accept(?:[/?#]|$)/.test(path);
+}
+
+export function normalizeRulesAcceptPath(value: unknown, status?: "incomplete" | "completed" | "completed_owner_nickname_manual" | "completed_nickname_manual") {
+  const path = String(value || "").trim();
+  if (!isRulesAcceptPath(path)) return "";
+
+  try {
+    const url = new URL(path, getDashboardUrl());
+    if (url.pathname !== "/rules/accept") return "";
+    if (status) url.searchParams.set("status", status);
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return status ? `/rules/accept?status=${encodeURIComponent(status)}` : "/rules/accept";
+  }
+}
+
 
 export function rulesOnboardingStatus(profile: DashboardProfile | null | undefined, nicknameTemplate?: string) {
   const profileHref = profile?.profileId ? `/profile/${profile.profileId}` : "/profile";

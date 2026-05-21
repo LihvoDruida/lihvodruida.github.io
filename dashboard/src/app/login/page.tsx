@@ -3,6 +3,8 @@ import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/seo";
 import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath } from "@/lib/profiles";
+import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
+import { normalizeRulesAcceptPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
 import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 
 export const metadata = buildPageMetadata({
@@ -72,8 +74,11 @@ export default async function LoginPage({
     const profile = profileId ? await getProfileById(profileId).catch(() => null) : null;
     const setupProfile = profile || (profileId ? profileFromSession({ ...session, profileId }) : null);
     const setupPath = setupProfile && profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(setupProfile.profileId) : "";
-    const keepsExplicitOnboarding = /^\/rules\/accept(?:[/?#]|$)/.test(nextPath);
-    redirect(keepsExplicitOnboarding ? nextPath : setupPath || nextPath || "/");
+    const rulesNextPath = normalizeRulesAcceptPath(nextPath);
+    const nicknamePolicy = rulesNextPath ? await getGuildNicknamePolicy() : null;
+    const rulesStatus = setupProfile && rulesNextPath ? rulesOnboardingStatus(setupProfile, nicknamePolicy?.template) : null;
+    const rulesRedirectPath = rulesNextPath && !rulesStatus?.complete ? normalizeRulesAcceptPath(rulesNextPath, "incomplete") : rulesNextPath;
+    redirect(rulesRedirectPath || setupPath || nextPath || "/");
   }
 
   const guild = await getGuildBranding();
