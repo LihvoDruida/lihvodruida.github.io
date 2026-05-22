@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 21:28:38'
+  updated_at: '2026-05-22 03:46:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3197,7 +3197,16 @@ characters:
   realm_slug: draenor
   profile_url: https://raider.io/characters/eu/draenor/Otito
   professions:
-    primaries: []
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 70
+        max_points: 100
     secondaries:
     - name: Fishing
       id: 356
@@ -7570,7 +7579,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 80
+        learned_points: 88
         max_points: 100
     secondaries:
     - name: Fishing

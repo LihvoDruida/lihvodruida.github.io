@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-21 21:28:38'
+  updated_at: '2026-05-22 03:46:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 12997
-      region: 5751
+      world: 13043
+      region: 5756
       realm: 46
     mythic:
-      world: 8271
-      region: 3532
+      world: 8300
+      region: 3533
       realm: 28
   blackrock-depths:
     normal:
@@ -190,14 +190,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3415.6
-        color: '#b33add'
+        score: 3439
+        color: '#b73cd7'
       dps:
-        score: 3415.6
-        color: '#b33add'
+        score: 3439
+        color: '#b73cd7'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3415.6
-        color: '#b33add'
+        score: 3439
+        color: '#b73cd7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4534,17 +4534,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
-    item_level_equipped: 235
+    item_level_equipped: 238
     mythic_plus_scores:
       all:
-        score: 1549.5
-        color: '#9aff7f'
+        score: 1639.1
+        color: '#90ff74'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1549.5
-        color: '#9aff7f'
+        score: 1639.1
+        color: '#90ff74'
       tank:
         score: 0
         color: '#ffffff'
@@ -4555,8 +4555,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1549.5
-        color: '#9aff7f'
+        score: 1639.1
+        color: '#90ff74'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5210,14 +5210,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 2876.3
+        color: '#4788c4'
       dps:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 2876.3
+        color: '#4788c4'
       healer:
         score: 0
         color: '#ffffff'
@@ -5231,8 +5231,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2860.7
-        color: '#4c8cbf'
+        score: 2876.3
+        color: '#4788c4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5421,8 +5421,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3165.1
-        color: '#675fe4'
+        score: 3182.1
+        color: '#715be5'
       dps:
         score: 295.9
         color: '#fafff8'
@@ -5430,11 +5430,11 @@ members:
         score: 3027.1
         color: '#0070dd'
       tank:
-        score: 3165.1
-        color: '#675fe4'
+        score: 3182.1
+        color: '#715be5'
       spec_0:
-        score: 3165.1
-        color: '#675fe4'
+        score: 3182.1
+        color: '#715be5'
       spec_1:
         score: 3027.1
         color: '#0070dd'
@@ -5470,7 +5470,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/110/224350574-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Oxydenis
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3324.4
@@ -5622,11 +5622,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 286
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2997
@@ -7526,14 +7526,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3077.4
-        color: '#406ae0'
+        score: 3098.7
+        color: '#4f67e1'
       dps:
-        score: 3077.4
-        color: '#406ae0'
+        score: 3098.7
+        color: '#4f67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -7547,8 +7547,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3077.4
-        color: '#406ae0'
+        score: 3098.7
+        color: '#4f67e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7734,7 +7734,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 2715.5
