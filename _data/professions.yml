@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 03:46:44'
+  updated_at: '2026-05-22 07:47:03'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -363,7 +363,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Blacksmithing
-        learned_points: 72
+        learned_points: 73
         max_points: 105
     - name: Jewelcrafting
       id: 755
@@ -372,7 +372,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 82
+        learned_points: 84
         max_points: 100
     secondaries: []
 - name: Nwlck
@@ -6000,7 +6000,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 94
+        learned_points: 95
         max_points: 100
     secondaries:
     - name: Fishing
