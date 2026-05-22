@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 10:53:03'
+  updated_at: '2026-05-22 14:42:32'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13836
+      world: 13837
       region: 6159
       realm: 56
     heroic:
-      world: 13057
-      region: 5757
+      world: 13061
+      region: 5758
       realm: 46
     mythic:
-      world: 8304
+      world: 8306
       region: 3533
       realm: 28
   blackrock-depths:
@@ -3338,7 +3338,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2946.5

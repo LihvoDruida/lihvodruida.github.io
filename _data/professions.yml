@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 10:53:03'
+  updated_at: '2026-05-22 14:42:32'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1233,7 +1233,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 161
+        learned_points: 162
         max_points: 300
 - name: Elderwizard
   region: eu
@@ -5032,7 +5032,7 @@ characters:
         learned_points: 40
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 17
+        learned_points: 18
         max_points: 100
     - name: Alchemy
       id: 171
@@ -5395,7 +5395,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 66
+        learned_points: 69
         max_points: 100
     - name: Jewelcrafting
       id: 755
