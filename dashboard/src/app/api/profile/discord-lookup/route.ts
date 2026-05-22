@@ -1,32 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProfileByDiscordUserId, getMainCharacter, getProfilePublicName } from "@/lib/profiles";
 import { hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import {
+  assertRequestBodySize,
+  checkRateLimit,
+  getClientIp,
+  logDashboardEvent,
+  noStoreHeaders,
+  safeErrorMessage,
+  verifyInternalBearerToken,
+} from "@/lib/security";
 
-async function sha256Hex(value: string) {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-function constantTimeEqual(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let index = 0; index < a.length; index += 1) diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
-  return diff === 0;
-}
-
-async function authorized(request: NextRequest) {
-  const expected = String(process.env.INTERNAL_PROFILE_LOOKUP_TOKEN || "").trim();
-  if (!expected || expected.length < 24) return false;
-  const header = request.headers.get("authorization") || "";
-  const provided = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  if (!provided) return false;
-  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected)]);
-  return constantTimeEqual(left, right);
-}
+const INTERNAL_LOOKUP_TOKENS = ["INTERNAL_PROFILE_LOOKUP_TOKEN"];
 
 export async function GET(request: NextRequest) {
-  if (!(await authorized(request))) {
+  const tooLarge = assertRequestBodySize(request, 4 * 1024);
+  if (tooLarge) return tooLarge;
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`profile-discord-lookup:${ip}`, 120, 10 * 60 * 1000);
+  if (!limit.ok) {
+    return NextResponse.json({ found: false, error: "Rate limited", reason: "rate-limited" }, { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))) }) });
+  }
+
+  const auth = await verifyInternalBearerToken(request, INTERNAL_LOOKUP_TOKENS, { minLength: 24 });
+  if (!auth.ok) {
+    logDashboardEvent("warn", "profile.discord_lookup.forbidden", request, { reason: auth.reason });
     return NextResponse.json({ found: false, error: "Forbidden", reason: "forbidden" }, { status: 403, headers: noStoreHeaders() });
   }
 

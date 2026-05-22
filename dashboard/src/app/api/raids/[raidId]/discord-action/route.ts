@@ -1,47 +1,81 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleRaidDiscordAction, type RaidSignupStatus } from "@/lib/raids";
-import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import {
+  assertRequestBodySize,
+  checkRateLimit,
+  getClientIp,
+  logDashboardEvent,
+  noStoreHeaders,
+  safeErrorMessage,
+  verifyInternalBearerToken,
+} from "@/lib/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function bearerToken(request: NextRequest) {
-  const authorization = request.headers.get("authorization") || "";
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
-  return match?.[1]?.trim() || request.headers.get("x-worker-stats-token") || "";
-}
-
-function isAllowed(request: NextRequest) {
-  const expected = String(process.env.INTERNAL_PROFILE_LOOKUP_TOKEN || process.env.DISCORD_RULES_STATS_TOKEN || process.env.WORKER_STATS_TOKEN || "").trim();
-  const provided = bearerToken(request);
-  return Boolean(expected && provided && expected === provided);
-}
+const INTERNAL_RAID_ACTION_TOKENS = [
+  "DISCORD_RULES_STATS_TOKEN",
+  "WORKER_STATS_TOKEN",
+  "INTERNAL_PROFILE_LOOKUP_TOKEN",
+];
 
 function cleanAction(value: unknown): RaidSignupStatus {
   return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
 }
 
+function cleanDiscordId(value: unknown) {
+  const id = String(value || "").trim();
+  return /^\d{16,25}$/.test(id) ? id : "";
+}
+
+function cleanDiscordMessageId(value: unknown) {
+  const id = String(value || "").trim();
+  return /^\d{16,25}$/.test(id) ? id : "";
+}
+
 export async function POST(request: NextRequest, context: { params: Promise<{ raidId: string }> }) {
-  if (!isAllowed(request)) {
+  const tooLarge = assertRequestBodySize(request, 16 * 1024);
+  if (tooLarge) return tooLarge;
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`raid-discord-action:${ip}`, 90, 10 * 60 * 1000);
+  if (!limit.ok) {
+    logDashboardEvent("warn", "raids.discord_action.rate_limited", request, { resetAt: limit.resetAt });
+    return NextResponse.json({ ok: false, content: "Rate limited" }, { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))) }) });
+  }
+
+  const auth = await verifyInternalBearerToken(request, INTERNAL_RAID_ACTION_TOKENS, { minLength: 24 });
+  if (!auth.ok) {
+    logDashboardEvent("warn", "raids.discord_action.forbidden", request, { reason: auth.reason });
     return NextResponse.json({ ok: false, content: "Forbidden" }, { status: 403, headers: noStoreHeaders() });
   }
 
   const { raidId } = await context.params;
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const userId = cleanDiscordId(body?.userId || body?.user_id);
+    const channelId = cleanDiscordMessageId(body?.channelId || body?.channel_id);
+    const messageId = cleanDiscordMessageId(body?.messageId || body?.message_id);
+
+    if (!userId) {
+      return NextResponse.json({ ok: false, content: "Invalid Discord user id" }, { status: 400, headers: noStoreHeaders() });
+    }
+
     const result = await handleRaidDiscordAction({
       raidId,
       action: cleanAction(body?.action),
-      userId: String(body?.userId || body?.user_id || ""),
-      userName: String(body?.userName || body?.user_name || "Discord user"),
-      characterKey: String(body?.characterKey || body?.character_key || "").trim() || null,
+      userId,
+      userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
+      characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
       messageRef: {
-        channelId: String(body?.channelId || body?.channel_id || ""),
-        messageId: String(body?.messageId || body?.message_id || ""),
+        channelId,
+        messageId,
       },
     });
     return NextResponse.json(result, { headers: noStoreHeaders() });
   } catch (error) {
-    return NextResponse.json({ ok: false, content: safeErrorMessage(error) }, { status: 500, headers: noStoreHeaders() });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "raids.discord_action.failed", request, { raidId, message });
+    return NextResponse.json({ ok: false, content: message }, { status: 500, headers: noStoreHeaders() });
   }
 }

@@ -1,6 +1,6 @@
 const hstsValue =
   process.env.SECURITY_HSTS_HEADER ||
-  "max-age=15552000; includeSubDomains";
+  "max-age=31536000; includeSubDomains";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

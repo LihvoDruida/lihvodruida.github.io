@@ -4,7 +4,7 @@ import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids } from "@/lib/permissions";
 import { getProfileById } from "@/lib/profiles";
 import { saveAndMaybePublishRaid } from "@/lib/raids";
-import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { assertRequestBodySize, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export const runtime = "nodejs";
@@ -24,6 +24,9 @@ function redirectWithToast(path: string, toast?: ToastInput) {
 }
 
 export async function POST(request: NextRequest) {
+  const tooLarge = assertRequestBodySize(request, 64 * 1024);
+  if (tooLarge) return tooLarge;
+
   const user = await getSession();
   if (!user || !canManageRaids(user)) {
     return redirectWithToast("/raids", {

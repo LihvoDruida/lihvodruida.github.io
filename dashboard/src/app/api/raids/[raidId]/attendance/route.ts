@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { handleRaidSessionAction, raidLiveRevision, type RaidSignupStatus } from "@/lib/raids";
-import { noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { assertRequestBodySize, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
 export const runtime = "nodejs";
@@ -58,6 +58,9 @@ async function readAttendanceInput(request: NextRequest): Promise<{ action: Raid
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ raidId: string }> }) {
+  const tooLarge = assertRequestBodySize(request, 64 * 1024);
+  if (tooLarge) return tooLarge;
+
   const { raidId } = await context.params;
   const user = await getSession();
 

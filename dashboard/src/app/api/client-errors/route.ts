@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
-import { assertRequestBodySize, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 function clean(value: unknown, limit = 500) {
   return String(value || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, limit);
@@ -18,6 +18,20 @@ function isIgnorableClientErrorMessage(message: string) {
 export async function POST(request: NextRequest) {
   const tooLarge = assertRequestBodySize(request, 12 * 1024);
   if (tooLarge) return tooLarge;
+
+  const ip = getClientIp(request);
+  const limit = checkRateLimit(`client-errors:${ip}`, 30, 10 * 60 * 1000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Rate limited." },
+      {
+        status: 429,
+        headers: noStoreHeaders({
+          "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
+        }),
+      },
+    );
+  }
 
   try {
     const data = await request.json().catch(() => ({}));
@@ -36,7 +50,7 @@ export async function POST(request: NextRequest) {
       pathname: clean(data?.pathname, 240),
       userAgent: clean(data?.userAgent, 240),
       stack: cleanStack(data?.stack),
-      ip: getClientIp(request),
+      ip,
     };
 
     logDashboardEvent("error", "client.exception", request, details);

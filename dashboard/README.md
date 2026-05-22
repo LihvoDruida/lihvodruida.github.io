@@ -46,9 +46,12 @@ http://localhost:3000
 ## Production
 
 ```bash
+npm run verify
 npm run build
 npm run start
 ```
+
+`npm run verify` runs TypeScript typecheck and ESLint through the modern ESLint CLI.
 
 For Vercel, use the standard Next.js deployment. Do not set a manual output directory.
 

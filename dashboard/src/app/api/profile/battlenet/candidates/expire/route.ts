@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { clearProfileBattleNetCandidates } from "@/lib/profiles";
-import { checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
 export async function POST(request: NextRequest) {
+  const tooLarge = assertRequestBodySize(request, 8 * 1024);
+  if (tooLarge) return tooLarge;
+
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
   const session = await getSession();

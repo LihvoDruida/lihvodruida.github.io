@@ -6,6 +6,60 @@ const inMemoryBuckets = new Map<string, { count: number; resetAt: number }>();
 
 type LogLevel = "debug" | "info" | "warn" | "error";
 
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export function constantTimeEqual(a: string, b: string) {
+  if (!a || !b || a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) {
+    diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
+  }
+  return diff === 0;
+}
+
+export function bearerTokenFromRequest(request: Request | NextRequest) {
+  const authorization = request.headers.get("authorization") || "";
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  return match?.[1]?.trim() || request.headers.get("x-worker-stats-token")?.trim() || "";
+}
+
+function configuredSecretFromEnv(names: string[]) {
+  for (const name of names) {
+    const value = String(process.env[name] || "").trim();
+    if (value) return { name, value };
+  }
+  return null;
+}
+
+export async function verifyInternalBearerToken(
+  request: Request | NextRequest,
+  envNames: string[],
+  options: { minLength?: number } = {},
+) {
+  const minLength = options.minLength ?? 24;
+  const expected = configuredSecretFromEnv(envNames);
+  if (!expected || expected.value.length < minLength) {
+    return { ok: false, reason: "server_token_not_configured" as const };
+  }
+
+  const provided = bearerTokenFromRequest(request);
+  if (!provided || provided.length < minLength) {
+    return { ok: false, reason: "missing_or_short_token" as const };
+  }
+
+  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected.value)]);
+  const ok = constantTimeEqual(left, right);
+
+  return {
+    ok,
+    reason: ok ? "ok" as const : "token_mismatch" as const,
+    envName: expected.name,
+  };
+}
+
 function redactLogValue(value: unknown, depth = 0): unknown {
   if (value === null || value === undefined) return value;
   if (depth > 4) return "[max-depth]";
