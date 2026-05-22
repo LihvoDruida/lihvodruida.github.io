@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 14:42:32'
+  updated_at: '2026-05-22 17:53:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 152
+  member_count: 150
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13061
-      region: 5758
+      world: 13067
+      region: 5759
       realm: 46
     mythic:
-      world: 8306
-      region: 3533
+      world: 8310
+      region: 3537
       realm: 28
   blackrock-depths:
     normal:
@@ -2248,58 +2248,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 2
-  character:
-    name: Aimsniper
-    id: 187847156
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 2
-      name: Orc
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Beast Mastery
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/244/187847156-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Aimsniper
-    item_level_equipped: 283
-    mythic_plus_scores:
-      all:
-        score: 2955.9
-        color: '#2f79d3'
-      dps:
-        score: 2955.9
-        color: '#2f79d3'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2952.9
-        color: '#2f79d3'
-      spec_1:
-        score: 447.1
-        color: '#f0ffea'
-      spec_2:
-        score: 831.3
-        color: '#d4ffc4'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 4
   character:
     name: Daslight
@@ -3185,10 +3133,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3099.3
+        score: 3110.7
         color: '#4c67e1'
       dps:
-        score: 3099.3
+        score: 3110.7
         color: '#4c67e1'
       healer:
         score: 0
@@ -3197,7 +3145,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3099.3
+        score: 3110.7
         color: '#4c67e1'
       spec_1:
         score: 0
@@ -3264,58 +3212,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 1
-  character:
-    name: Athang
-    id: 189022885
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 86
-      name: Haranir
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Windwalker
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/165/189022885-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Athang
-    item_level_equipped: 264
-    mythic_plus_scores:
-      all:
-        score: 2201
-        color: '#3fff26'
-      dps:
-        score: 706.8
-        color: '#ddffd0'
-      healer:
-        score: 717
-        color: '#ddffd0'
-      tank:
-        score: 2201
-        color: '#3fff26'
-      spec_0:
-        score: 2201
-        color: '#3fff26'
-      spec_1:
-        score: 717
-        color: '#ddffd0'
-      spec_2:
-        score: 706.8
-        color: '#ddffd0'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 0
   character:
     name: Khayen
@@ -3338,16 +3234,16 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 2946.5
+        score: 2949.8
         color: '#2f79d3'
       dps:
         score: 1971.8
         color: '#6aff4f'
       healer:
-        score: 2946.5
+        score: 2949.8
         color: '#2f79d3'
       tank:
         score: 0
@@ -3362,7 +3258,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2946.5
+        score: 2949.8
         color: '#2f79d3'
     sources:
       roster: blizzard
@@ -4589,8 +4485,8 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3213.4
-        color: '#7659e6'
+        score: 3224.2
+        color: '#7e54e7'
       dps:
         score: 0
         color: '#ffffff'
@@ -4598,8 +4494,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3213.4
-        color: '#7659e6'
+        score: 3224.2
+        color: '#7e54e7'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4607,8 +4503,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3213.4
-        color: '#7659e6'
+        score: 3224.2
+        color: '#7e54e7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4638,22 +4534,22 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3172.8
+        score: 3183.7
         color: '#6d5de5'
       dps:
         score: 994.8
         color: '#c9ffb5'
       healer:
-        score: 3172.8
+        score: 3183.7
         color: '#6d5de5'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3172.8
+        score: 3183.7
         color: '#6d5de5'
       spec_1:
         score: 0
@@ -4742,7 +4638,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 240
+    item_level_equipped: 245
     mythic_plus_scores:
       all:
         score: 0
@@ -5421,8 +5317,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3182.1
-        color: '#6d5de5'
+        score: 3193.2
+        color: '#7659e6'
       dps:
         score: 295.9
         color: '#fafff8'
@@ -5430,11 +5326,11 @@ members:
         score: 3027.1
         color: '#0070dd'
       tank:
-        score: 3182.1
-        color: '#6d5de5'
+        score: 3193.2
+        color: '#7659e6'
       spec_0:
-        score: 3182.1
-        color: '#6d5de5'
+        score: 3193.2
+        color: '#7659e6'
       spec_1:
         score: 3027.1
         color: '#0070dd'
