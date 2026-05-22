@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 17:53:59'
+  updated_at: '2026-05-22 21:12:23'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2076,7 +2076,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 56
+        learned_points: 57
         max_points: 100
     secondaries:
     - name: Cooking
@@ -7272,7 +7272,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism

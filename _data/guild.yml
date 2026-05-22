@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 17:53:59'
+  updated_at: '2026-05-22 21:12:23'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13067
-      region: 5759
+      world: 13087
+      region: 5775
       realm: 46
     mythic:
-      world: 8310
-      region: 3537
+      world: 8315
+      region: 3540
       realm: 28
   blackrock-depths:
     normal:
@@ -194,10 +194,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3439
-        color: '#b33bdc'
+        color: '#b33add'
       dps:
         score: 3439
-        color: '#b33bdc'
+        color: '#b33add'
       healer:
         score: 0
         color: '#ffffff'
@@ -212,7 +212,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3439
-        color: '#b33bdc'
+        color: '#b33add'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -290,11 +290,11 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: Devourer
+      name: Havoc
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/50/175295794-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Скяльди
-    item_level_equipped: 247
+    item_level_equipped: 246
     mythic_plus_scores:
       all:
         score: 0
@@ -1022,7 +1022,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/209/183981777-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Kavunchyk
-    item_level_equipped: 272
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 170
@@ -4590,7 +4590,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3423.9
-        color: '#b33bdc'
+        color: '#b33add'
       dps:
         score: 0
         color: '#ffffff'
@@ -4599,10 +4599,10 @@ members:
         color: '#ffffff'
       tank:
         score: 3423.9
-        color: '#b33bdc'
+        color: '#b33add'
       spec_0:
         score: 3423.9
-        color: '#b33bdc'
+        color: '#b33add'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5106,13 +5106,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 2876.3
+        score: 2876.4
         color: '#4788c4'
       dps:
-        score: 2876.3
+        score: 2876.4
         color: '#4788c4'
       healer:
         score: 0
@@ -5127,7 +5127,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2876.3
+        score: 2876.4
         color: '#4788c4'
       spec_3:
         score: 0
@@ -5890,7 +5890,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3537.5
-        color: '#c443c5'
+        color: '#c442c6'
       dps:
         score: 0
         color: '#ffffff'
@@ -5899,7 +5899,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3537.5
-        color: '#c443c5'
+        color: '#c442c6'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5908,7 +5908,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3537.5
-        color: '#c443c5'
+        color: '#c442c6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6094,14 +6094,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/97/251021921-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
-    item_level_equipped: 247
+    item_level_equipped: 250
     mythic_plus_scores:
       all:
-        score: 1821.1
-        color: '#7dff61'
+        score: 2019.2
+        color: '#63ff48'
       dps:
-        score: 1821.1
-        color: '#7dff61'
+        score: 2019.2
+        color: '#63ff48'
       healer:
         score: 0
         color: '#ffffff'
@@ -6115,8 +6115,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1821.1
-        color: '#7dff61'
+        score: 2019.2
+        color: '#63ff48'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7410,47 +7410,23 @@ members:
       slug: gordunni
     playable_class:
       id: 12
-      name: Demon Hunter
+      name: null
     playable_race:
       id: 4
-      name: Night Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 284
-    mythic_plus_scores:
-      all:
-        score: 3098.7
-        color: '#4c67e1'
-      dps:
-        score: 3098.7
-        color: '#4c67e1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3098.7
-        color: '#4c67e1'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -7522,11 +7498,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Arms
-      role: DPS
+      name: Protection
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 285
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3079.2
