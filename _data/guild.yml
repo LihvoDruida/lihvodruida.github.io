@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 13:28:17'
+  updated_at: '2026-05-23 17:01:33'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13141
-      region: 5788
+      world: 13146
+      region: 5790
       realm: 47
     mythic:
-      world: 8342
-      region: 3544
+      world: 8346
+      region: 3545
       realm: 28
   blackrock-depths:
     normal:
@@ -4485,8 +4485,8 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3224.2
-        color: '#7e54e7'
+        score: 3257.3
+        color: '#864fe9'
       dps:
         score: 0
         color: '#ffffff'
@@ -4494,8 +4494,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3224.2
-        color: '#7e54e7'
+        score: 3257.3
+        color: '#864fe9'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4503,8 +4503,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3224.2
-        color: '#7e54e7'
+        score: 3257.3
+        color: '#864fe9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4846,7 +4846,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 270
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2653.1
@@ -5889,8 +5889,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3537.5
-        color: '#c442c6'
+        score: 3569
+        color: '#cb47bb'
       dps:
         score: 0
         color: '#ffffff'
@@ -5898,8 +5898,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3537.5
-        color: '#c442c6'
+        score: 3569
+        color: '#cb47bb'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -5907,8 +5907,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3537.5
-        color: '#c442c6'
+        score: 3569
+        color: '#cb47bb'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6094,13 +6094,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/97/251021921-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
-    item_level_equipped: 254
+    item_level_equipped: 256
     mythic_plus_scores:
       all:
-        score: 2302
+        score: 2319.3
         color: '#1eff00'
       dps:
-        score: 2302
+        score: 2319.3
         color: '#1eff00'
       healer:
         score: 0
@@ -6115,7 +6115,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2302
+        score: 2319.3
         color: '#1eff00'
       spec_3:
         score: 0
