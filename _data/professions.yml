@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 03:24:25'
+  updated_at: '2026-05-23 06:34:34'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5903,7 +5903,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
   professions:
     primaries:
     - name: Enchanting
@@ -7234,7 +7234,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
   professions:
     primaries:
     - name: Herbalism
@@ -7383,7 +7383,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Мавпита
   professions:
     primaries:
     - name: Enchanting

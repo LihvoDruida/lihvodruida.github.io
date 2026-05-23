@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 03:24:25'
+  updated_at: '2026-05-23 06:34:34'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13118
-      region: 5781
+      world: 13125
+      region: 5782
       realm: 46
     mythic:
-      world: 8331
-      region: 3541
+      world: 8334
+      region: 3542
       realm: 28
   blackrock-depths:
     normal:
@@ -190,7 +190,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3439
@@ -4118,7 +4118,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
-    item_level_equipped: 275
+    item_level_equipped: 274
     mythic_plus_scores:
       all:
         score: 2808.1
@@ -6082,23 +6082,47 @@ members:
       slug: soulflayer
     playable_class:
       id: 12
-      name: null
+      name: Demon Hunter
     playable_race:
       id: 10
-      name: null
+      name: Blood Elf
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/soulflayer/97/251021921-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
+    item_level_equipped: 254
+    mythic_plus_scores:
+      all:
+        score: 2302
+        color: '#1eff00'
+      dps:
+        score: 2302
+        color: '#1eff00'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2302
+        color: '#1eff00'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -7334,23 +7358,47 @@ members:
       slug: gordunni
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
+    item_level_equipped: 283
+    mythic_plus_scores:
+      all:
+        score: 2885.6
+        color: '#4788c4'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2885.6
+        color: '#4788c4'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2885.6
+        color: '#4788c4'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -7518,23 +7566,47 @@ members:
       slug: gordunni
     playable_class:
       id: 13
-      name: null
+      name: Evoker
     playable_race:
       id: 52
-      name: null
+      name: Dracthyr
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Augmentation
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/67/265908803-avatar.jpg?alt=/wow/static/images/2d/avatar/52-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мавпита
+    item_level_equipped: 277
+    mythic_plus_scores:
+      all:
+        score: 2705.2
+        color: '#5da9a0'
+      dps:
+        score: 2705.2
+        color: '#5da9a0'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2705.2
+        color: '#5da9a0'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
