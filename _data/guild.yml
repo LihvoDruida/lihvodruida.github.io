@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 06:34:34'
+  updated_at: '2026-05-23 09:56:13'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,8 +56,8 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13125
-      region: 5782
+      world: 13129
+      region: 5783
       realm: 46
     mythic:
       world: 8334
@@ -190,14 +190,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3439
-        color: '#b33add'
+        score: 3461.1
+        color: '#b73cd7'
       dps:
-        score: 3439
-        color: '#b33add'
+        score: 3461.1
+        color: '#b73cd7'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3439
-        color: '#b33add'
+        score: 3461.1
+        color: '#b73cd7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -750,47 +750,23 @@ members:
       slug: goldrinn
     playable_class:
       id: 8
-      name: Mage
+      name: null
     playable_race:
       id: 4
-      name: Night Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Arcane
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/goldrinn/150/181764502-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/goldrinn/Алак
-    item_level_equipped: 182
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -921,11 +897,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2973
-        color: '#2075d8'
+        score: 3026.1
+        color: '#0070dd'
       dps:
-        score: 2973
-        color: '#2075d8'
+        score: 3026.1
+        color: '#0070dd'
       healer:
         score: 0
         color: '#ffffff'
@@ -939,8 +915,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2973
-        color: '#2075d8'
+        score: 3026.1
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2686,7 +2662,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/147/188280211-avatar.jpg?alt=/wow/static/images/2d/avatar/91-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Frrtiix
-    item_level_equipped: 258
+    item_level_equipped: 260
     mythic_plus_scores:
       all:
         score: 1394.2

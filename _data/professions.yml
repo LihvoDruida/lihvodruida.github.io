@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 06:34:34'
+  updated_at: '2026-05-23 09:56:13'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -753,7 +753,7 @@ characters:
   region: eu
   realm: goldrinn
   realm_slug: goldrinn
-  profile_url: https://raider.io/characters/eu/goldrinn/Алак
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -2829,7 +2829,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 18
+        learned_points: 26
         max_points: 105
     secondaries: []
 - name: Lishiystabb
@@ -5831,7 +5831,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 60
+        learned_points: 64
         max_points: 100
     - name: Tailoring
       id: 197
