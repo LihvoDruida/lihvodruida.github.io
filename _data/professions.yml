@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-22 21:12:23'
+  updated_at: '2026-05-23 03:24:25'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 150
+  member_count: 151
 characters:
 - name: Бреинор
   region: eu
@@ -2663,7 +2663,7 @@ characters:
         learned_points: 2
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 94
+        learned_points: 96
         max_points: 100
     - name: Fishing
       id: 356
@@ -4622,7 +4622,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 21
         max_points: 300
 - name: Plaguenjoyer
   region: eu
@@ -5903,7 +5903,7 @@ characters:
   region: eu
   realm: soulflayer
   realm_slug: soulflayer
-  profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -5913,7 +5913,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Enchanting
-        learned_points: 11
+        learned_points: 19
         max_points: 105
     - name: Tailoring
       id: 197
@@ -7234,7 +7234,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -7272,7 +7272,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
   professions:
     primaries:
     - name: Herbalism
@@ -7383,7 +7383,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Мавпита
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -7419,7 +7419,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 88
+        learned_points: 98
         max_points: 100
     secondaries:
     - name: Fishing
@@ -7508,6 +7508,14 @@ characters:
   realm: gordunni
   realm_slug: gordunni
   profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
+- name: Бабайяй
+  region: eu
+  realm: eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Бабайяй
   professions:
     primaries: []
     secondaries: []
