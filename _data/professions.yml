@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 17:01:33'
+  updated_at: '2026-05-23 20:54:53'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -4521,7 +4521,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 18
+        learned_points: 19
         max_points: 100
     - name: Tailoring
       id: 197

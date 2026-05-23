@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 17:01:33'
+  updated_at: '2026-05-23 20:54:53'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13146
-      region: 5790
+      world: 13169
+      region: 5806
       realm: 47
     mythic:
-      world: 8346
-      region: 3545
+      world: 8354
+      region: 3551
       realm: 28
   blackrock-depths:
     normal:
@@ -4066,7 +4066,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3031.7
@@ -4430,7 +4430,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
-    item_level_equipped: 238
+    item_level_equipped: 240
     mythic_plus_scores:
       all:
         score: 1639.1
@@ -5057,8 +5057,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3366.8
-        color: '#a335ee'
+        score: 3382.5
+        color: '#a937e8'
       dps:
         score: 1147.4
         color: '#bdffa7'
@@ -5066,11 +5066,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3364.8
-        color: '#a335ee'
+        score: 3380.5
+        color: '#a937e8'
       spec_0:
-        score: 3364.8
-        color: '#a335ee'
+        score: 3380.5
+        color: '#a937e8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5317,8 +5317,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3193.2
-        color: '#7659e6'
+        score: 3224.5
+        color: '#7e54e7'
       dps:
         score: 295.9
         color: '#fafff8'
@@ -5326,11 +5326,11 @@ members:
         score: 3027.1
         color: '#0070dd'
       tank:
-        score: 3193.2
-        color: '#7659e6'
+        score: 3224.5
+        color: '#7e54e7'
       spec_0:
-        score: 3193.2
-        color: '#7659e6'
+        score: 3224.5
+        color: '#7e54e7'
       spec_1:
         score: 3027.1
         color: '#0070dd'
@@ -5886,10 +5886,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3569
+        score: 3585.5
         color: '#cb47bb'
       dps:
         score: 0
@@ -5898,7 +5898,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3569
+        score: 3585.5
         color: '#cb47bb'
       spec_0:
         score: 0
@@ -5907,7 +5907,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3569
+        score: 3585.5
         color: '#cb47bb'
       spec_3:
         score: 0
@@ -6458,7 +6458,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 286
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3288.1
@@ -6513,11 +6513,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3381.3
-        color: '#a937e8'
+        score: 3397
+        color: '#ae39e2'
       dps:
-        score: 3381.3
-        color: '#a937e8'
+        score: 3397
+        color: '#ae39e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -6531,8 +6531,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3381.3
-        color: '#a937e8'
+        score: 3397
+        color: '#ae39e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7266,7 +7266,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3022.6
@@ -7633,14 +7633,14 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2715.5
-        color: '#5da9a0'
+        score: 2859.2
+        color: '#4c8cbf'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2715.5
-        color: '#5da9a0'
+        score: 2859.2
+        color: '#4c8cbf'
       tank:
         score: 0
         color: '#ffffff'
@@ -7648,8 +7648,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2715.5
-        color: '#5da9a0'
+        score: 2859.2
+        color: '#4c8cbf'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7848,7 +7848,7 @@ members:
   character:
     name: Бабайяй
     id: 266173528
-    level: 84
+    level: 89
     realm:
       id: 1925
       slug: eversong
@@ -7866,14 +7866,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 67
+    item_level_equipped: 225
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 331.1
+        color: '#f7fff3'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 331.1
+        color: '#f7fff3'
       healer:
         score: 0
         color: '#ffffff'
@@ -7887,8 +7887,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 331.1
+        color: '#f7fff3'
       spec_3:
         score: 0
         color: '#ffffff'
