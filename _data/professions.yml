@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 13:29:27'
+  updated_at: '2026-05-24 17:04:37'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3301,7 +3301,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Blacksmithing
-        learned_points: 46
+        learned_points: 52
         max_points: 100
     secondaries:
     - name: Cooking
@@ -5978,29 +5978,8 @@ characters:
   realm_slug: soulflayer
   profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
   professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 6
-        max_points: 305
-      - name: Midnight Enchanting
-        learned_points: 21
-        max_points: 105
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 1
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
+    primaries: []
+    secondaries: []
 - name: Рокталл
   region: eu
   realm: soulflayer
@@ -6289,7 +6268,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 219
+        learned_points: 234
         max_points: 300
 - name: Кеенди
   region: eu
@@ -7479,6 +7458,9 @@ characters:
     - name: Herbalism
       id: 182
       tiers:
+      - name: Draenor Herbalism
+        learned_points: 1
+        max_points: 100
       - name: Classic Herbalism
         learned_points: 1
         max_points: 300
@@ -7502,7 +7484,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 101
+        learned_points: 300
         max_points: 300
 - name: Душа
   region: eu

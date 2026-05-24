@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 13:29:27'
+  updated_at: '2026-05-24 17:04:37'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13222
-      region: 5813
+      world: 13231
+      region: 5817
       realm: 47
     mythic:
-      world: 8385
+      world: 8386
       region: 3552
       realm: 28
   blackrock-depths:
@@ -190,14 +190,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3479.8
-        color: '#bc3ed1'
+        score: 3502.6
+        color: '#c040cc'
       dps:
-        score: 3479.8
-        color: '#bc3ed1'
+        score: 3502.6
+        color: '#c040cc'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3479.8
-        color: '#bc3ed1'
+        score: 3502.6
+        color: '#c040cc'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1438,14 +1438,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3094
-        color: '#2c6dde'
+        score: 3109.1
+        color: '#406ae0'
       dps:
-        score: 3094
-        color: '#2c6dde'
+        score: 3109.1
+        color: '#406ae0'
       healer:
         score: 0
         color: '#ffffff'
@@ -1459,8 +1459,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3094
-        color: '#2c6dde'
+        score: 3109.1
+        color: '#406ae0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1490,7 +1490,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/185900766-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3407.2
@@ -1961,14 +1961,14 @@ members:
     item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
       tank:
         score: 0
         color: '#ffffff'
@@ -1982,8 +1982,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -2530,14 +2530,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
       dps:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
       healer:
         score: 0
         color: '#ffffff'
@@ -2551,8 +2551,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2723.4
-        color: '#5eae9a'
+        score: 2809.3
+        color: '#579bb0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2922,7 +2922,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/105/188623721-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
     profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
-    item_level_equipped: 270
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2543
@@ -3372,7 +3372,7 @@ members:
   character:
     name: Shatnyideath
     id: 189140058
-    level: 87
+    level: 89
     realm:
       id: 1415
       slug: terokkar
@@ -4277,11 +4277,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2847.8
-        color: '#5496b5'
+        score: 2890.4
+        color: '#4c8cbf'
       dps:
-        score: 2847.8
-        color: '#5496b5'
+        score: 2890.4
+        color: '#4c8cbf'
       healer:
         score: 0
         color: '#ffffff'
@@ -4295,8 +4295,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2847.8
-        color: '#5496b5'
+        score: 2890.4
+        color: '#4c8cbf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4641,19 +4641,19 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3183.7
+        score: 3185
         color: '#675fe4'
       dps:
         score: 994.8
         color: '#caffb6'
       healer:
-        score: 3183.7
+        score: 3185
         color: '#675fe4'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3183.7
+        score: 3185
         color: '#675fe4'
       spec_1:
         score: 0
@@ -5622,11 +5622,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 286
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 2997
@@ -5834,14 +5834,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/5/224923909-avatar.jpg?alt=/wow/static/images/2d/avatar/7-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Kokosik
-    item_level_equipped: 272
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2649.5
-        color: '#5fbd89'
+        score: 2712.3
+        color: '#5eae9a'
       dps:
-        score: 2649.5
-        color: '#5fbd89'
+        score: 2712.3
+        color: '#5eae9a'
       healer:
         score: 0
         color: '#ffffff'
@@ -5855,8 +5855,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2649.5
-        color: '#5fbd89'
+        score: 2712.3
+        color: '#5eae9a'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7581,11 +7581,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2973.1
-        color: '#2f79d3'
+        score: 3012.6
+        color: '#2075d8'
       dps:
-        score: 2926.6
-        color: '#4183c9'
+        score: 2966.1
+        color: '#397ece'
       healer:
         score: 1689.7
         color: '#8dff71'
@@ -7599,8 +7599,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2926.6
-        color: '#4183c9'
+        score: 2966.1
+        color: '#397ece'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7737,14 +7737,14 @@ members:
     item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 2859.2
-        color: '#5191ba'
+        score: 2888.7
+        color: '#4c8cbf'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2859.2
-        color: '#5191ba'
+        score: 2888.7
+        color: '#4c8cbf'
       tank:
         score: 0
         color: '#ffffff'
@@ -7752,8 +7752,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2859.2
-        color: '#5191ba'
+        score: 2888.7
+        color: '#4c8cbf'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7924,7 +7924,7 @@ members:
   character:
     name: Рейла
     id: 266162439
-    level: 45
+    level: 47
     realm:
       id: 1602
       slug: gordunni
@@ -8022,7 +8022,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/229/188176101-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Mavika
-    item_level_equipped: 249
+    item_level_equipped: 255
     mythic_plus_scores:
       all:
         score: 0
