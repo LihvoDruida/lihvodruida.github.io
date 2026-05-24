@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 17:04:37'
+  updated_at: '2026-05-24 20:58:36'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 155
+  member_count: 154
 characters:
 - name: Бреинор
   region: eu
@@ -133,6 +133,23 @@ characters:
       - name: Midnight Fishing
         learned_points: 6
         max_points: 300
+- name: Auroliana
+  region: eu
+  realm: ravencrest
+  realm_slug: ravencrest
+  profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 17
+        max_points: 100
+    secondaries: []
 - name: Silpo
   region: eu
   realm: ravencrest
@@ -2672,6 +2689,9 @@ characters:
     - name: Tailoring
       id: 197
       tiers:
+      - name: Pandaria Tailoring
+        learned_points: 10
+        max_points: 75
       - name: Cataclysm Tailoring
         learned_points: 1
         max_points: 75
@@ -2814,6 +2834,35 @@ characters:
         max_points: 200
       - name: Midnight Fishing
         learned_points: 1
+        max_points: 300
+- name: Mavika
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Mavika
+  professions:
+    primaries: []
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 4
+        max_points: 100
+      - name: Midnight Fishing
+        learned_points: 8
         max_points: 300
 - name: Duszi
   region: eu
@@ -3285,7 +3334,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 5
+        learned_points: 91
         max_points: 300
 - name: Shatnyideath
   region: eu
@@ -5972,14 +6021,6 @@ characters:
       - name: Khaz Algar Fishing
         learned_points: 51
         max_points: 300
-- name: Иаллидан
-  region: eu
-  realm: soulflayer
-  realm_slug: soulflayer
-  profile_url: https://raider.io/characters/eu/soulflayer/Иаллидан
-  professions:
-    primaries: []
-    secondaries: []
 - name: Рокталл
   region: eu
   realm: soulflayer
@@ -7079,7 +7120,7 @@ characters:
   region: eu
   realm: eversong
   realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Корукк
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -7573,50 +7614,4 @@ characters:
   profile_url: https://raider.io/characters/eu/eversong/Бабайяй
   professions:
     primaries: []
-    secondaries: []
-- name: Mavika
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Mavika
-  professions:
-    primaries: []
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 1
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Fishing
-        learned_points: 4
-        max_points: 100
-      - name: Midnight Fishing
-        learned_points: 8
-        max_points: 300
-- name: Auroliana
-  region: eu
-  realm: ravencrest
-  realm_slug: ravencrest
-  profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Enchanting
-        learned_points: 17
-        max_points: 100
     secondaries: []
