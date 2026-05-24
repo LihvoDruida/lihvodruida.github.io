@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 09:56:29'
+  updated_at: '2026-05-24 13:29:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 153
+  member_count: 155
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13217
-      region: 5812
+      world: 13222
+      region: 5813
       realm: 47
     mythic:
-      world: 8381
+      world: 8385
       region: 3552
       realm: 28
   blackrock-depths:
@@ -190,7 +190,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3479.8
@@ -792,6 +792,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Shatnyi
+    id: 182559489
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Vengeance
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/1/182559489-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Shatnyi
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2297.7
+        color: '#31ff18'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2297.7
+        color: '#31ff18'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2297.7
+        color: '#31ff18'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 1
   character:
     name: Characternuk
@@ -1160,7 +1212,7 @@ members:
   character:
     name: Umbramind
     id: 185040389
-    level: 81
+    level: 82
     realm:
       id: 1415
       slug: terokkar
@@ -3316,6 +3368,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Shatnyideath
+    id: 189140058
+    level: 87
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 6
+      name: Death Knight
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/90/189140058-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
+    item_level_equipped: 169
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 2
   character:
     name: Mólfár
@@ -4170,7 +4274,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
         score: 2847.8
@@ -7786,14 +7890,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 276
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
-        score: 2479.2
-        color: '#51e05b'
+        score: 2816.6
+        color: '#579bb0'
       dps:
-        score: 2479.2
-        color: '#51e05b'
+        score: 2816.6
+        color: '#579bb0'
       healer:
         score: 0
         color: '#ffffff'
@@ -7807,8 +7911,8 @@ members:
         score: 243.3
         color: '#fdfffd'
       spec_2:
-        score: 2479.2
-        color: '#51e05b'
+        score: 2816.6
+        color: '#579bb0'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7820,7 +7924,7 @@ members:
   character:
     name: Рейла
     id: 266162439
-    level: 39
+    level: 45
     realm:
       id: 1602
       slug: gordunni
@@ -7866,7 +7970,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 225
+    item_level_equipped: 226
     mythic_plus_scores:
       all:
         score: 331.1
@@ -7898,83 +8002,31 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Shatnyideath
-    id: 189140058
-    level: 87
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 6
-      name: Death Knight
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Unholy
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/90/189140058-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
-    item_level_equipped: 169
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Shatnyi
-    id: 182559489
+    name: Mavika
+    id: 188176101
     level: 90
     realm:
-      id: 1415
-      slug: terokkar
+      id: 505
+      slug: doomhammer
     playable_class:
-      id: 12
-      name: Demon Hunter
+      id: 7
+      name: Shaman
     playable_race:
-      id: 10
-      name: Blood Elf
+      id: 86
+      name: Haranir
     faction:
-      type: HORDE
-    gender: male
+      type: ALLIANCE
+    gender: female
     active_spec:
-      name: Vengeance
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/1/182559489-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Shatnyi
-    item_level_equipped: 273
+      name: Enhancement
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/229/188176101-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Mavika
+    item_level_equipped: 249
     mythic_plus_scores:
       all:
-        score: 2297.7
-        color: '#31ff18'
+        score: 0
+        color: '#ffffff'
       dps:
         score: 0
         color: '#ffffff'
@@ -7982,17 +8034,69 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2297.7
-        color: '#31ff18'
+        score: 0
+        color: '#ffffff'
       spec_0:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2297.7
-        color: '#31ff18'
+        score: 0
+        color: '#ffffff'
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Auroliana
+    id: 172225796
+    level: 90
+    realm:
+      id: 554
+      slug: ravencrest
+    playable_class:
+      id: 13
+      name: Evoker
+    playable_race:
+      id: 52
+      name: Dracthyr
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Augmentation
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
+    profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
+    item_level_equipped: 284
+    mythic_plus_scores:
+      all:
+        score: 3111.9
+        color: '#406ae0'
+      dps:
+        score: 3111.9
+        color: '#406ae0'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3111.9
+        color: '#406ae0'
       spec_3:
         score: 0
         color: '#ffffff'

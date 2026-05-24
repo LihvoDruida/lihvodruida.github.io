@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 09:56:29'
+  updated_at: '2026-05-24 13:29:27'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 153
+  member_count: 155
 characters:
 - name: Бреинор
   region: eu
@@ -852,6 +852,41 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 27
+        max_points: 300
+- name: Shatnyi
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Shatnyi
+  professions:
+    primaries:
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 7
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 100
+        max_points: 100
+    - name: Alchemy
+      id: 171
+      tiers:
+      - name: Classic Alchemy
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Alchemy
+        learned_points: 93
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Characternuk
   region: eu
@@ -2899,14 +2934,14 @@ characters:
   profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
   professions:
     primaries:
-    - name: Tailoring
-      id: 197
+    - name: Blacksmithing
+      id: 164
       tiers:
-      - name: Classic Tailoring
+      - name: Classic Blacksmithing
         learned_points: 1
         max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 92
+      - name: Midnight Blacksmithing
+        learned_points: 1
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -3251,6 +3286,44 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 5
+        max_points: 300
+- name: Shatnyideath
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 46
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 1
         max_points: 300
 - name: Mólfár
   region: eu
@@ -5210,7 +5283,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 26
+        learned_points: 28
         max_points: 100
     - name: Fishing
       id: 356
@@ -7429,7 +7502,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 51
+        learned_points: 101
         max_points: 300
 - name: Душа
   region: eu
@@ -7500,7 +7573,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 15
+        learned_points: 18
         max_points: 100
     secondaries: []
 - name: Рейла
@@ -7519,67 +7592,49 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Shatnyideath
+- name: Mavika
   region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Mavika
   professions:
     primaries: []
     secondaries:
     - name: Cooking
       id: 185
       tiers:
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Cataclysm Cooking
-        learned_points: 1
-        max_points: 75
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
       - name: Classic Fishing
         learned_points: 1
         max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 4
+        max_points: 100
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 8
         max_points: 300
-- name: Shatnyi
+- name: Auroliana
   region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Shatnyi
+  realm: ravencrest
+  realm_slug: ravencrest
+  profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
   professions:
     primaries:
-    - name: Herbalism
-      id: 182
+    - name: Enchanting
+      id: 333
       tiers:
-      - name: Classic Herbalism
-        learned_points: 7
+      - name: Classic Enchanting
+        learned_points: 1
         max_points: 300
-      - name: Midnight Herbalism
-        learned_points: 100
+      - name: Khaz Algar Enchanting
+        learned_points: 17
         max_points: 100
-    - name: Alchemy
-      id: 171
-      tiers:
-      - name: Classic Alchemy
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Alchemy
-        learned_points: 93
-        max_points: 100
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300
+    secondaries: []
