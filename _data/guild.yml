@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-24 07:22:43'
+  updated_at: '2026-05-24 09:56:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-21T04:41:41.000Z'
+  raider_io_last_crawled_at: '2026-05-24T07:21:45.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13211
-      region: 5811
+      world: 13217
+      region: 5812
       realm: 47
     mythic:
-      world: 8375
+      world: 8381
       region: 3552
       realm: 28
   blackrock-depths:
@@ -498,11 +498,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/81/176023633-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Berkinzee
-    item_level_equipped: 255
+    item_level_equipped: 256
     mythic_plus_scores:
       all:
         score: 170
@@ -710,7 +710,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/217/180729561-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimon
-    item_level_equipped: 271
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 1914.8
@@ -918,7 +918,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3026.1
@@ -1594,7 +1594,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/222/186212830-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 251
+    item_level_equipped: 255
     mythic_plus_scores:
       all:
         score: 168.4
@@ -2478,7 +2478,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 273
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2723.4
@@ -5886,7 +5886,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3585.5
@@ -7786,14 +7786,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2144.3
-        color: '#53ff39'
+        score: 2479.2
+        color: '#51e05b'
       dps:
-        score: 2144.3
-        color: '#53ff39'
+        score: 2479.2
+        color: '#51e05b'
       healer:
         score: 0
         color: '#ffffff'
@@ -7807,8 +7807,8 @@ members:
         score: 243.3
         color: '#fdfffd'
       spec_2:
-        score: 2144.3
-        color: '#53ff39'
+        score: 2479.2
+        color: '#51e05b'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7914,11 +7914,11 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: https://eu.battle.net/wow/static/images/2d/avatar/10-0.jpg
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/90/189140058-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
-    item_level_equipped: 0
+    item_level_equipped: 169
     mythic_plus_scores:
       all:
         score: 0
