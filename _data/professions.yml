@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-23 20:54:53'
+  updated_at: '2026-05-24 03:42:34'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5172,7 +5172,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -5913,7 +5913,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Enchanting
-        learned_points: 19
+        learned_points: 21
         max_points: 105
     - name: Tailoring
       id: 197
