@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 03:57:06'
+  updated_at: '2026-05-25 08:24:31'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2916,7 +2916,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 26
+        learned_points: 29
         max_points: 105
     secondaries: []
 - name: Lishiystabb
@@ -4848,7 +4848,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 91
+        learned_points: 92
         max_points: 100
     secondaries:
     - name: Fishing
@@ -5413,38 +5413,8 @@ characters:
   realm_slug: silvermoon
   profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
   professions:
-    primaries:
-    - name: Herbalism
-      id: 182
-      tiers:
-      - name: Classic Herbalism
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Herbalism
-        learned_points: 87
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Cataclysm Jewelcrafting
-        learned_points: 1
-        max_points: 75
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Kul Tiran Cooking
-        learned_points: 1
-        max_points: 175
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
+    primaries: []
+    secondaries: []
 - name: Bierdestroer
   region: eu
   realm: silvermoon

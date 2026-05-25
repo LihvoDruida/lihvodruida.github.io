@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 03:57:06'
+  updated_at: '2026-05-25 08:24:31'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13282
+      world: 13290
       region: 5838
       realm: 47
     mythic:
-      world: 7823
+      world: 7829
       region: 3324
       realm: 25
   blackrock-depths:
@@ -242,13 +242,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3550.4
+        score: 3564.6
         color: '#c443c5'
       dps:
-        score: 3550.4
+        score: 3564.6
         color: '#c443c5'
       healer:
         score: 0
@@ -263,7 +263,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3550.4
+        score: 3564.6
         color: '#c443c5'
       spec_3:
         score: 0
