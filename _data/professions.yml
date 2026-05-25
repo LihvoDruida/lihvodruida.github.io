@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 20:58:36'
+  updated_at: '2026-05-25 03:57:06'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 154
+  member_count: 155
 characters:
 - name: Бреинор
   region: eu
@@ -2671,6 +2671,9 @@ characters:
     - name: Enchanting
       id: 333
       tiers:
+      - name: Pandaria Enchanting
+        learned_points: 75
+        max_points: 75
       - name: Cataclysm Enchanting
         learned_points: 20
         max_points: 75
@@ -2690,7 +2693,7 @@ characters:
       id: 197
       tiers:
       - name: Pandaria Tailoring
-        learned_points: 10
+        learned_points: 75
         max_points: 75
       - name: Cataclysm Tailoring
         learned_points: 1
@@ -7120,7 +7123,7 @@ characters:
   region: eu
   realm: eversong
   realm_slug: eversong
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/eversong/Корукк
   professions:
     primaries:
     - name: Herbalism
@@ -7508,16 +7511,25 @@ characters:
       - name: Midnight Herbalism
         learned_points: 100
         max_points: 100
-    - name: Alchemy
-      id: 171
+    - name: Mining
+      id: 186
       tiers:
-      - name: Classic Alchemy
+      - name: Classic Mining
         learned_points: 1
         max_points: 300
-      - name: Midnight Alchemy
-        learned_points: 98
+      - name: Midnight Mining
+        learned_points: 9
         max_points: 100
     secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Cooking
+        learned_points: 6
+        max_points: 105
     - name: Fishing
       id: 356
       tiers:
@@ -7615,3 +7627,32 @@ characters:
   professions:
     primaries: []
     secondaries: []
+- name: Мизериель
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Мизериель
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 19
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 1
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []

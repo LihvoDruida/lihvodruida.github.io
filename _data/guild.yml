@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-24 20:58:36'
+  updated_at: '2026-05-25 03:57:06'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 154
+  member_count: 155
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13838
+      world: 13839
       region: 6159
       realm: 56
     heroic:
-      world: 13257
+      world: 13282
       region: 5838
       realm: 47
     mythic:
-      world: 7818
-      region: 3321
+      world: 7823
+      region: 3324
       realm: 25
   blackrock-depths:
     normal:
@@ -4274,7 +4274,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3031.7
@@ -4381,11 +4381,11 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2959.7
-        color: '#397ece'
+        score: 3032
+        color: '#2075d8'
       dps:
-        score: 2959.7
-        color: '#397ece'
+        score: 3032
+        color: '#2075d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -4399,8 +4399,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2959.7
-        color: '#397ece'
+        score: 3032
+        color: '#2075d8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5265,8 +5265,8 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3396.8
-        color: '#a335ee'
+        score: 3412.2
+        color: '#a937e8'
       dps:
         score: 1147.4
         color: '#beffa8'
@@ -5274,11 +5274,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3394.8
-        color: '#a335ee'
+        score: 3412.2
+        color: '#a937e8'
       spec_0:
-        score: 3394.8
-        color: '#a335ee'
+        score: 3412.2
+        color: '#a937e8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6094,7 +6094,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3585.5
@@ -7226,23 +7226,47 @@ members:
       slug: eversong
     playable_class:
       id: 3
-      name: null
+      name: Hunter
     playable_race:
       id: 91
-      name: null
+      name: Haranir
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Корукк
+    item_level_equipped: 285
+    mythic_plus_scores:
+      all:
+        score: 3309.5
+        color: '#8e4aea'
+      dps:
+        score: 3309.5
+        color: '#8e4aea'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 3309.5
+        color: '#8e4aea'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -7498,8 +7522,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
     item_level_equipped: 283
@@ -7554,7 +7578,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3098.7
@@ -7762,7 +7786,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 283
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3034.8
@@ -7998,14 +8022,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 226
+    item_level_equipped: 241
     mythic_plus_scores:
       all:
-        score: 331.1
-        color: '#f7fff3'
+        score: 596
+        color: '#e6ffdc'
       dps:
-        score: 331.1
-        color: '#f7fff3'
+        score: 596
+        color: '#e6ffdc'
       healer:
         score: 0
         color: '#ffffff'
@@ -8019,8 +8043,60 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 331.1
-        color: '#f7fff3'
+        score: 596
+        color: '#e6ffdc'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Мизериель
+    id: 266189033
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/233/266189033-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мизериель
+    item_level_equipped: 264
+    mythic_plus_scores:
+      all:
+        score: 2421.6
+        color: '#47eb4a'
+      dps:
+        score: 2421.6
+        color: '#47eb4a'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2421.6
+        color: '#47eb4a'
       spec_3:
         score: 0
         color: '#ffffff'
