@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 17:45:45'
+  updated_at: '2026-05-25 21:10:00'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13840
-      region: 6159
+      world: 13841
+      region: 6160
       realm: 56
     heroic:
-      world: 13298
-      region: 5841
+      world: 13322
+      region: 5862
       realm: 47
     mythic:
-      world: 7836
-      region: 3326
+      world: 7852
+      region: 3341
       realm: 25
   blackrock-depths:
     normal:
@@ -242,14 +242,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3578.4
-        color: '#c845bf'
+        score: 3593.6
+        color: '#cc47b9'
       dps:
-        score: 3578.4
-        color: '#c845bf'
+        score: 3593.6
+        color: '#cc47b9'
       healer:
         score: 0
         color: '#ffffff'
@@ -263,8 +263,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3578.4
-        color: '#c845bf'
+        score: 3593.6
+        color: '#cc47b9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2114,14 +2114,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Krouli
-    item_level_equipped: 226
+    item_level_equipped: 240
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 995.6
+        color: '#caffb6'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 995.6
+        color: '#caffb6'
       healer:
         score: 0
         color: '#ffffff'
@@ -2135,8 +2135,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 995.6
+        color: '#caffb6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2842,7 +2842,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/147/188280211-avatar.jpg?alt=/wow/static/images/2d/avatar/91-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Frrtiix
-    item_level_equipped: 262
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 1394.2
@@ -3289,11 +3289,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3129.1
-        color: '#4c67e1'
+        score: 3182.4
+        color: '#6361e4'
       dps:
-        score: 3129.1
-        color: '#4c67e1'
+        score: 3182.4
+        color: '#6361e4'
       healer:
         score: 0
         color: '#ffffff'
@@ -3301,8 +3301,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3129.1
-        color: '#4c67e1'
+        score: 3182.4
+        color: '#6361e4'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5292,58 +5292,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
-  character:
-    name: Brovastadupa
-    id: 222895731
-    level: 90
-    realm:
-      id: 1305
-      slug: kazzak
-    playable_class:
-      id: 10
-      name: Monk
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Windwalker
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
-    profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-    item_level_equipped: 285
-    mythic_plus_scores:
-      all:
-        score: 2910.8
-        color: '#4788c4'
-      dps:
-        score: 2910.8
-        color: '#4788c4'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2910.8
-        color: '#4788c4'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 3
   character:
     name: Vîøn
@@ -5726,11 +5674,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Enhancement
+      name: Elemental
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2997
@@ -6461,11 +6409,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3171.4
-        color: '#6361e4'
+        score: 3213.2
+        color: '#6d5de5'
       dps:
-        score: 3171.4
-        color: '#6361e4'
+        score: 3213.2
+        color: '#6d5de5'
       healer:
         score: 0
         color: '#ffffff'
@@ -6476,8 +6424,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3171.4
-        color: '#6361e4'
+        score: 3213.2
+        color: '#6d5de5'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6614,11 +6562,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3318.4
-        color: '#9544eb'
+        score: 3336.3
+        color: '#9c3ded'
       dps:
         score: 0
         color: '#ffffff'
@@ -6626,8 +6574,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3318.4
-        color: '#9544eb'
+        score: 3336.3
+        color: '#9c3ded'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6635,8 +6583,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3318.4
-        color: '#9544eb'
+        score: 3336.3
+        color: '#9c3ded'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7578,7 +7526,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/167/265786535-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Адвокатправа
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3098.7
@@ -7838,14 +7786,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 2963.1
-        color: '#397ece'
+        score: 2982.7
+        color: '#2f79d3'
       dps:
-        score: 2963.1
-        color: '#397ece'
+        score: 2982.7
+        color: '#2f79d3'
       healer:
         score: 0
         color: '#ffffff'
@@ -7859,8 +7807,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2963.1
-        color: '#397ece'
+        score: 2982.7
+        color: '#2f79d3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7942,7 +7890,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 278
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2816.6
@@ -8025,11 +7973,11 @@ members:
     item_level_equipped: 246
     mythic_plus_scores:
       all:
-        score: 660.9
-        color: '#e1ffd5'
+        score: 1003.9
+        color: '#c8ffb4'
       dps:
-        score: 660.9
-        color: '#e1ffd5'
+        score: 1003.9
+        color: '#c8ffb4'
       healer:
         score: 0
         color: '#ffffff'
@@ -8043,8 +7991,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 660.9
-        color: '#e1ffd5'
+        score: 1003.9
+        color: '#c8ffb4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8097,6 +8045,58 @@ members:
       spec_2:
         score: 2524.4
         color: '#58d66a'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Шриладо
+    id: 266055181
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/13/266055181-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Шриладо
+    item_level_equipped: 261
+    mythic_plus_scores:
+      all:
+        score: 2264.8
+        color: '#38ff20'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2264.8
+        color: '#38ff20'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2264.8
+        color: '#38ff20'
       spec_3:
         score: 0
         color: '#ffffff'

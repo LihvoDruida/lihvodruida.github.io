@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 17:45:45'
+  updated_at: '2026-05-25 21:10:00'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -763,7 +763,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 70
+        learned_points: 73
         max_points: 100
     secondaries: []
 - name: Алак
@@ -3340,7 +3340,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 91
+        learned_points: 125
         max_points: 300
 - name: Shatnyideath
   region: eu
@@ -5236,32 +5236,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 13
         max_points: 300
-- name: Brovastadupa
-  region: eu
-  realm: kazzak
-  realm_slug: kazzak
-  profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-  professions:
-    primaries:
-    - name: Skinning
-      id: 393
-      tiers:
-      - name: Classic Skinning
-        learned_points: 3
-        max_points: 300
-      - name: Midnight Skinning
-        learned_points: 100
-        max_points: 100
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 8
-        max_points: 305
-      - name: Midnight Enchanting
-        learned_points: 35
-        max_points: 105
-    secondaries: []
 - name: Vîøn
   region: eu
   realm: silvermoon
@@ -7365,7 +7339,7 @@ characters:
         learned_points: 35
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 4
+        learned_points: 21
         max_points: 300
 - name: Адвокатправа
   region: eu
@@ -7521,7 +7495,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 9
+        learned_points: 20
         max_points: 100
     secondaries:
     - name: Cooking
@@ -7659,3 +7633,35 @@ characters:
     - name: Archaeology
       id: 794
       tiers: []
+- name: Шриладо
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Шриладо
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 25
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 44
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
