@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 08:24:31'
+  updated_at: '2026-05-25 14:56:48'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6159
       realm: 56
     heroic:
-      world: 13290
-      region: 5838
+      world: 13297
+      region: 5841
       realm: 47
     mythic:
-      world: 7829
-      region: 3324
+      world: 7834
+      region: 3326
       realm: 25
   blackrock-depths:
     normal:
@@ -245,11 +245,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3564.6
-        color: '#c443c5'
+        score: 3578.4
+        color: '#c845bf'
       dps:
-        score: 3564.6
-        color: '#c443c5'
+        score: 3578.4
+        color: '#c845bf'
       healer:
         score: 0
         color: '#ffffff'
@@ -263,8 +263,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3564.6
-        color: '#c443c5'
+        score: 3578.4
+        color: '#c845bf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4381,10 +4381,10 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3032
+        score: 3043.7
         color: '#2075d8'
       dps:
-        score: 3032
+        score: 3043.7
         color: '#2075d8'
       healer:
         score: 0
@@ -4399,7 +4399,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3032
+        score: 3043.7
         color: '#2075d8'
       spec_3:
         score: 0
@@ -6758,47 +6758,23 @@ members:
       slug: lich-king
     playable_class:
       id: 4
-      name: Rogue
+      name: null
     playable_race:
       id: 32
-      name: Kul Tiran
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Subtlety
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
-    profile_url: https://raider.io/characters/eu/lich-king/Севатар
-    item_level_equipped: 278
-    mythic_plus_scores:
-      all:
-        score: 2674.9
-        color: '#5fb88f'
-      dps:
-        score: 2674.9
-        color: '#5fb88f'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 254.5
-        color: '#fcfffa'
-      spec_2:
-        score: 2674.9
-        color: '#5fb88f'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -7532,8 +7508,8 @@ members:
         score: 2885.6
         color: '#4c8cbf'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 327.7
+        color: '#f7fff3'
       healer:
         score: 2885.6
         color: '#4c8cbf'
@@ -7541,8 +7517,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 0
-        color: '#ffffff'
+        score: 327.7
+        color: '#f7fff3'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -7976,7 +7952,7 @@ members:
   character:
     name: Рейла
     id: 266162439
-    level: 50
+    level: 76
     realm:
       id: 1602
       slug: gordunni
@@ -8022,7 +7998,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 241
+    item_level_equipped: 243
     mythic_plus_scores:
       all:
         score: 596
@@ -8077,11 +8053,11 @@ members:
     item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 2421.6
-        color: '#47eb4a'
+        score: 2524.4
+        color: '#58d66a'
       dps:
-        score: 2421.6
-        color: '#47eb4a'
+        score: 2524.4
+        color: '#58d66a'
       healer:
         score: 0
         color: '#ffffff'
@@ -8095,8 +8071,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2421.6
-        color: '#47eb4a'
+        score: 2524.4
+        color: '#58d66a'
       spec_3:
         score: 0
         color: '#ffffff'
