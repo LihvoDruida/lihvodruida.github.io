@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 14:56:48'
+  updated_at: '2026-05-25 17:45:45'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2128,7 +2128,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 57
+        learned_points: 61
         max_points: 100
     secondaries:
     - name: Cooking
@@ -2137,6 +2137,9 @@ characters:
       - name: Classic Cooking
         learned_points: 4
         max_points: 300
+      - name: Midnight Cooking
+        learned_points: 87
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -6646,7 +6649,7 @@ characters:
   region: eu
   realm: lich-king
   realm_slug: lich-king
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/lich-king/Севатар
   professions:
     primaries:
     - name: Engineering

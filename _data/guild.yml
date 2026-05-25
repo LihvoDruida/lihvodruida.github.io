@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 14:56:48'
+  updated_at: '2026-05-25 17:45:45'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,15 +52,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13839
+      world: 13840
       region: 6159
       realm: 56
     heroic:
-      world: 13297
+      world: 13298
       region: 5841
       realm: 47
     mythic:
-      world: 7834
+      world: 7836
       region: 3326
       realm: 25
   blackrock-depths:
@@ -190,7 +190,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3111.9
@@ -1542,7 +1542,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/185900766-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3407.2
@@ -2010,17 +2010,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 274
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
       tank:
         score: 0
         color: '#ffffff'
@@ -2034,8 +2034,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -2585,11 +2585,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
       dps:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
       healer:
         score: 0
         color: '#ffffff'
@@ -2603,8 +2603,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2809.3
-        color: '#579bb0'
+        score: 2944.3
+        color: '#4183c9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3289,11 +3289,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3110.7
-        color: '#3e6ae0'
+        score: 3129.1
+        color: '#4c67e1'
       dps:
-        score: 3110.7
-        color: '#3e6ae0'
+        score: 3129.1
+        color: '#4c67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -3301,8 +3301,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3110.7
-        color: '#3e6ae0'
+        score: 3129.1
+        color: '#4c67e1'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -4693,8 +4693,8 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3257.3
-        color: '#7e54e7'
+        score: 3278.3
+        color: '#864fe9'
       dps:
         score: 0
         color: '#ffffff'
@@ -4702,8 +4702,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3257.3
-        color: '#7e54e7'
+        score: 3278.3
+        color: '#864fe9'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -4711,8 +4711,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3257.3
-        color: '#7e54e7'
+        score: 3278.3
+        color: '#864fe9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5314,14 +5314,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/115/222895731-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Brovastadupa
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 2879.6
-        color: '#4c8cbf'
+        score: 2910.8
+        color: '#4788c4'
       dps:
-        score: 2879.6
-        color: '#4c8cbf'
+        score: 2910.8
+        color: '#4788c4'
       healer:
         score: 0
         color: '#ffffff'
@@ -5335,8 +5335,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2879.6
-        color: '#4c8cbf'
+        score: 2910.8
+        color: '#4788c4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6758,23 +6758,47 @@ members:
       slug: lich-king
     playable_class:
       id: 4
-      name: null
+      name: Rogue
     playable_race:
       id: 32
-      name: null
+      name: Kul Tiran
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/lich-king/39/263422759-avatar.jpg?alt=/wow/static/images/2d/avatar/32-0.jpg
+    profile_url: https://raider.io/characters/eu/lich-king/Севатар
+    item_level_equipped: 278
+    mythic_plus_scores:
+      all:
+        score: 2674.9
+        color: '#5fb88f'
+      dps:
+        score: 2674.9
+        color: '#5fb88f'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 254.5
+        color: '#fcfffa'
+      spec_2:
+        score: 2674.9
+        color: '#5fb88f'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -7814,7 +7838,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2963.1
@@ -7998,14 +8022,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 243
+    item_level_equipped: 246
     mythic_plus_scores:
       all:
-        score: 596
-        color: '#e6ffdc'
+        score: 660.9
+        color: '#e1ffd5'
       dps:
-        score: 596
-        color: '#e6ffdc'
+        score: 660.9
+        color: '#e1ffd5'
       healer:
         score: 0
         color: '#ffffff'
@@ -8019,8 +8043,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 596
-        color: '#e6ffdc'
+        score: 660.9
+        color: '#e1ffd5'
       spec_3:
         score: 0
         color: '#ffffff'
