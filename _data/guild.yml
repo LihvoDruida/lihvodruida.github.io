@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-26 15:33:34'
+  updated_at: '2026-05-26 18:28:05'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13348
-      region: 5868
+      world: 13351
+      region: 5870
       realm: 47
     mythic:
-      world: 7858
-      region: 3342
+      world: 7860
+      region: 3343
       realm: 25
   blackrock-depths:
     normal:
@@ -242,7 +242,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3593.6
@@ -5054,17 +5054,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2653.1
-        color: '#5fbd89'
+        score: 2663.5
+        color: '#5fb88f'
       dps:
         score: 335
         color: '#f7fff3'
       healer:
-        score: 2318.1
-        color: '#29ff0f'
+        score: 2328.5
+        color: '#1eff00'
       tank:
         score: 0
         color: '#ffffff'
@@ -5075,8 +5075,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2318.1
-        color: '#29ff0f'
+        score: 2328.5
+        color: '#1eff00'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5592,7 +5592,7 @@ members:
         score: 1830.6
         color: '#7dff60'
       spec_1:
-        score: 2685.4
+        score: 2696.7
         color: '#5fb395'
       spec_2:
         score: 0
@@ -6042,7 +6042,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3616.5
@@ -6987,8 +6987,8 @@ members:
         score: 3007.8
         color: '#2075d8'
       healer:
-        score: 0
-        color: '#ffffff'
+        score: 331.3
+        color: '#f7fff3'
       tank:
         score: 0
         color: '#ffffff'
@@ -7002,8 +7002,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 0
-        color: '#ffffff'
+        score: 331.3
+        color: '#f7fff3'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -8077,11 +8077,11 @@ members:
     item_level_equipped: 263
     mythic_plus_scores:
       all:
-        score: 2568.8
-        color: '#5ccc77'
+        score: 2594.5
+        color: '#5ec77d'
       dps:
-        score: 2568.8
-        color: '#5ccc77'
+        score: 2594.5
+        color: '#5ec77d'
       healer:
         score: 0
         color: '#ffffff'
@@ -8095,8 +8095,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2568.8
-        color: '#5ccc77'
+        score: 2594.5
+        color: '#5ec77d'
       spec_3:
         score: 0
         color: '#ffffff'
