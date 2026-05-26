@@ -2,6 +2,8 @@ import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/profileIds";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
+import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import { fetchRaiderIoCharacterProfile, stripRaiderIoRaw, type RaiderIoCharacterSnapshot } from "@/lib/raiderIo";
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
@@ -18,6 +20,7 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
   guildStatusLabel?: string | null;
   addedAt?: string | null;
   isMain?: boolean;
+  raiderIo?: RaiderIoCharacterSnapshot | null;
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
@@ -59,6 +62,14 @@ export type DashboardProfile = {
     accountIdHash?: string | null;
     lastConnectedAt?: string | null;
     lastSyncAt?: string | null;
+    lastCharacterRefreshAt?: string | null;
+    lastProfileViewRefreshAt?: string | null;
+    lastProfileViewRefresh?: {
+      refreshed?: number;
+      failed?: number;
+      skipped?: number;
+      updatedAt?: string | null;
+    } | null;
     totalCharacters?: number;
     scannedCharacters?: number;
     eligibleCharacters?: number;
@@ -298,6 +309,39 @@ export function profileSettingsSetupPath(profileId: string) {
   return /^id[a-f0-9]{16,40}$/.test(cleanProfileId) ? `/profile/${cleanProfileId}/settings?setup=1` : "/profile";
 }
 
+function normalizeRaiderIoScoreSegment(value: unknown) {
+  const item = value && typeof value === "object" ? value as Record<string, unknown> : null;
+  const score = item ? Number(item.score) : Number(value);
+  const color = cleanString(item?.color, 16);
+  return {
+    score: Number.isFinite(score) && score >= 0 ? score : null,
+    color: /^#[0-9a-f]{6}$/i.test(color) ? color : null,
+  };
+}
+
+function normalizeRaiderIoSnapshot(value: unknown): RaiderIoCharacterSnapshot | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  const rawScores = item.currentScores && typeof item.currentScores === "object" ? item.currentScores as Record<string, unknown> : {};
+  const currentScores: RaiderIoCharacterSnapshot["currentScores"] = {
+    all: normalizeRaiderIoScoreSegment(rawScores.all),
+    dps: normalizeRaiderIoScoreSegment(rawScores.dps),
+    healer: normalizeRaiderIoScoreSegment(rawScores.healer),
+    tank: normalizeRaiderIoScoreSegment(rawScores.tank),
+  };
+  const currentScore = Number(item.currentScore ?? currentScores.all.score);
+  const itemLevelEquipped = Number(item.itemLevelEquipped);
+
+  return {
+    profileUrl: optionalString(item.profileUrl),
+    thumbnailUrl: optionalString(item.thumbnailUrl),
+    itemLevelEquipped: Number.isFinite(itemLevelEquipped) && itemLevelEquipped > 0 ? itemLevelEquipped : null,
+    currentScore: Number.isFinite(currentScore) && currentScore >= 0 ? currentScore : currentScores.all.score,
+    currentScores,
+    updatedAt: timestampToIso(item.updatedAt) || optionalString(item.updatedAt) || new Date(0).toISOString(),
+  };
+}
+
 function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
@@ -346,6 +390,7 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     mediaUrl: optionalString(item.mediaUrl),
     verifiedGuild: typeof item.verifiedGuild === "boolean" ? item.verifiedGuild : Boolean(item.guildName),
     itemLevel: Number.isFinite(Number(item.itemLevel)) ? Number(item.itemLevel) : null,
+    raiderIo: normalizeRaiderIoSnapshot(item.raiderIo || item.raider_io),
     lastSeenAt: timestampToIso(item.lastSeenAt) || optionalString(item.lastSeenAt) || null || new Date(0).toISOString(),
     addedAt: timestampToIso(item.addedAt) || optionalString(item.addedAt),
     isMain: Boolean(mainCharacterKey && key === mainCharacterKey),
@@ -484,6 +529,14 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
       accountIdHash: optionalString(battlenetRaw.accountIdHash),
       lastConnectedAt: timestampToIso(battlenetRaw.lastConnectedAt),
       lastSyncAt: timestampToIso(battlenetRaw.lastSyncAt),
+      lastCharacterRefreshAt: timestampToIso(battlenetRaw.lastCharacterRefreshAt),
+      lastProfileViewRefreshAt: timestampToIso(battlenetRaw.lastProfileViewRefreshAt),
+      lastProfileViewRefresh: battlenetRaw.lastProfileViewRefresh && typeof battlenetRaw.lastProfileViewRefresh === "object" ? {
+        refreshed: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).refreshed)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).refreshed) : undefined,
+        failed: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).failed)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).failed) : undefined,
+        skipped: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).skipped)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).skipped) : undefined,
+        updatedAt: timestampToIso((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).updatedAt),
+      } : null,
       totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters)) ? Number(battlenetRaw.totalCharacters) : undefined,
       scannedCharacters: Number.isFinite(Number(battlenetRaw.scannedCharacters)) ? Number(battlenetRaw.scannedCharacters) : undefined,
       eligibleCharacters: Number.isFinite(Number(battlenetRaw.eligibleCharacters)) ? Number(battlenetRaw.eligibleCharacters) : undefined,
@@ -1096,6 +1149,81 @@ export async function removeProfileBattleNetCandidates(profileId: string, charac
   });
 }
 
+type ProfileExternalRefreshReason = "profile_view" | "raid_signup" | "manual" | "cron";
+
+type ProfileExternalRefreshOptions = {
+  reason?: ProfileExternalRefreshReason;
+  maxCharacters?: number;
+  minSpacingSeconds?: number;
+  force?: boolean;
+};
+
+type ProfileExternalRefreshResult = {
+  profile: DashboardProfile | null;
+  refreshed: number;
+  failed: number;
+  skipped: number;
+  locked: boolean;
+};
+
+type ProfileRefreshLock = {
+  checkedAt: number;
+  promise: Promise<ProfileExternalRefreshResult>;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomProfileExternalRefreshLocks: Map<string, ProfileRefreshLock> | undefined;
+}
+
+function profileRefreshLocks() {
+  if (!globalThis.__mistblossomProfileExternalRefreshLocks) {
+    globalThis.__mistblossomProfileExternalRefreshLocks = new Map<string, ProfileRefreshLock>();
+  }
+  return globalThis.__mistblossomProfileExternalRefreshLocks;
+}
+
+function profileRefreshConcurrency(total: number) {
+  return getAdaptiveConcurrency(total, {
+    profile: "external-api",
+    envKey: "PROFILE_CHARACTER_REFRESH_CONCURRENCY",
+    maxEnvKey: "PROFILE_CHARACTER_REFRESH_MAX_CONCURRENCY",
+    min: 1,
+    max: 8,
+  });
+}
+
+function profileViewRefreshMinSpacingSeconds() {
+  return readIntegerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", 30, 0, 3600);
+}
+
+function profileCronRefreshLimit() {
+  return readIntegerEnv("PROFILE_EXTERNAL_REFRESH_BATCH_LIMIT", 50, 1, 500);
+}
+
+function profileCronRefreshConcurrency(total: number) {
+  return getAdaptiveConcurrency(total, {
+    profile: "external-api",
+    envKey: "PROFILE_EXTERNAL_REFRESH_CONCURRENCY",
+    maxEnvKey: "PROFILE_EXTERNAL_REFRESH_MAX_CONCURRENCY",
+    min: 1,
+    max: 6,
+  });
+}
+
+function lastProfileRefreshMillis(profile: DashboardProfile | null | undefined, reason: ProfileExternalRefreshReason) {
+  const candidate = reason === "profile_view"
+    ? profile?.battlenet?.lastProfileViewRefreshAt || profile?.battlenet?.lastCharacterRefreshAt || profile?.battlenet?.lastSyncAt
+    : profile?.battlenet?.lastCharacterRefreshAt || profile?.battlenet?.lastSyncAt;
+  return timestampMillis(candidate);
+}
+
+function isProfileRefreshFresh(profile: DashboardProfile | null | undefined, reason: ProfileExternalRefreshReason, minSpacingSeconds: number) {
+  if (minSpacingSeconds <= 0) return false;
+  const last = lastProfileRefreshMillis(profile, reason);
+  return typeof last === "number" && Date.now() - last < minSpacingSeconds * 1000;
+}
+
 function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter): ProfileCharacter {
   return {
     ...current,
@@ -1104,89 +1232,247 @@ function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter)
     addedAt: current.addedAt || fresh.addedAt || null,
     isMain: current.isMain,
     verifiedGuild: fresh.verifiedGuild,
+    raiderIo: fresh.raiderIo ?? current.raiderIo ?? null,
     lastSeenAt: fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
   };
 }
 
 async function refreshCharacterSnapshot(current: ProfileCharacter) {
-  const fresh = await fetchBattleNetCharacterSnapshot(current);
-  if (!fresh) return null;
-  const normalized = normalizeCharacter({ ...fresh, key: current.key }, current.isMain ? current.key : null);
+  const [battleNetSnapshot, raiderIoSnapshot] = await Promise.all([
+    fetchBattleNetCharacterSnapshot(current).catch(() => null),
+    fetchRaiderIoCharacterProfile({
+      region: current.region || "eu",
+      realmSlug: current.realmSlug,
+      name: current.normalizedName || current.name,
+    }).catch(() => null),
+  ]);
+
+  if (!battleNetSnapshot && !raiderIoSnapshot) return null;
+
+  const source = battleNetSnapshot || current;
+  const normalized = normalizeCharacter({
+    ...source,
+    key: current.key,
+    isMain: current.isMain,
+    raiderIo: stripRaiderIoRaw(raiderIoSnapshot) || current.raiderIo || null,
+    itemLevel: battleNetSnapshot?.itemLevel ?? raiderIoSnapshot?.itemLevelEquipped ?? current.itemLevel ?? null,
+    avatarUrl: battleNetSnapshot?.avatarUrl || current.avatarUrl || raiderIoSnapshot?.thumbnailUrl || null,
+    profileUrl: battleNetSnapshot?.profileUrl || current.profileUrl || raiderIoSnapshot?.profileUrl || "#",
+    lastSeenAt: battleNetSnapshot?.lastSeenAt || raiderIoSnapshot?.updatedAt || current.lastSeenAt || new Date().toISOString(),
+  }, current.isMain ? current.key : null);
+
   return normalized;
 }
 
-export async function refreshProfileCharactersForRaidSignup(profile: DashboardProfile | null | undefined) {
-  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) return profile || null;
+async function refreshProfileExternalDataInternal(profile: DashboardProfile, options: Required<ProfileExternalRefreshOptions>): Promise<ProfileExternalRefreshResult> {
+  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) {
+    return { profile: profile || null, refreshed: 0, failed: 0, skipped: 0, locked: false };
+  }
 
-  const mainKey = profile.mainCharacterKey || profile.characters[0]?.key || "";
-  const main = profile.characters.find((item) => item.key === mainKey) || profile.characters[0] || null;
-  if (!main) return profile;
+  if (!options.force && isProfileRefreshFresh(profile, options.reason, options.minSpacingSeconds)) {
+    return { profile, refreshed: 0, failed: 0, skipped: profile.characters.length, locked: false };
+  }
+
+  const characters = (() => {
+    const mainKey = profile.mainCharacterKey || profile.characters[0]?.key || "";
+    const main = profile.characters.find((item) => item.key === mainKey) || profile.characters[0] || null;
+    const rest = profile.characters.filter((item) => item.key !== main?.key);
+    const ordered = main ? [main, ...rest] : rest;
+    return ordered.slice(0, Math.max(0, Math.min(options.maxCharacters, ordered.length)));
+  })();
+
+  if (!characters.length) {
+    return { profile, refreshed: 0, failed: 0, skipped: 0, locked: false };
+  }
+
+  const concurrency = profileRefreshConcurrency(characters.length);
+  const { results } = await mapConcurrent(characters, async (character) => {
+    const fresh = await refreshCharacterSnapshot(character);
+    return fresh ? { key: character.key, fresh } : null;
+  }, {
+    profile: "external-api",
+    concurrency,
+    failFast: false,
+  });
 
   const freshByKey = new Map<string, ProfileCharacter>();
-  let refreshed = 0;
   let failed = 0;
-
-  try {
-    const freshMain = await refreshCharacterSnapshot(main);
-    if (freshMain?.key) {
-      freshByKey.set(main.key, freshMain);
-      refreshed += 1;
-    }
-  } catch {
-    failed += 1;
-  }
-
-  const rest = profile.characters.filter((item) => item.key !== main.key);
-  const restLimit = Math.max(0, Math.min(Number(process.env.BATTLENET_SIGNUP_REFRESH_REST_LIMIT || rest.length) || rest.length, rest.length));
-  const restToRefresh = rest.slice(0, restLimit);
-  const concurrency = Math.max(1, Math.min(Number(process.env.BATTLENET_SIGNUP_REFRESH_CONCURRENCY || 4) || 4, 8));
-
-  for (let index = 0; index < restToRefresh.length; index += concurrency) {
-    const batch = restToRefresh.slice(index, index + concurrency);
-    const results = await Promise.all(batch.map(async (character) => {
-      try {
-        const fresh = await refreshCharacterSnapshot(character);
-        return fresh ? { character, fresh } : null;
-      } catch {
-        failed += 1;
-        return null;
-      }
-    }));
-
-    for (const result of results) {
-      if (!result?.fresh?.key) continue;
-      freshByKey.set(result.character.key, result.fresh);
-      refreshed += 1;
+  for (const result of results) {
+    if (result?.fresh?.key) {
+      freshByKey.set(result.key, result.fresh);
+    } else {
+      failed += 1;
     }
   }
 
-  if (!freshByKey.size) return profile;
+  const refreshed = freshByKey.size;
+  const skipped = Math.max(0, profile.characters.length - refreshed - failed);
+  if (!freshByKey.size) {
+    return { profile, refreshed: 0, failed, skipped, locked: false };
+  }
 
   const nextCharacters = profile.characters.map((current) => {
     const fresh = freshByKey.get(current.key);
     return fresh ? mergeFreshCharacter(current, fresh) : current;
   });
 
+  const firstCharacter = nextCharacters[0] || null;
   const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profile.profileId);
+  const battlenetPayload: Record<string, unknown> = {
+    linked: profile.battlenet?.linked ?? true,
+    region: profile.battlenet?.region || firstCharacter?.region || "eu",
+    lastSyncAt: FieldValue.serverTimestamp(),
+    lastCharacterRefreshAt: FieldValue.serverTimestamp(),
+  };
+
+  if (options.reason === "profile_view") {
+    battlenetPayload.lastProfileViewRefreshAt = FieldValue.serverTimestamp();
+    battlenetPayload.lastProfileViewRefresh = {
+      refreshed,
+      failed,
+      skipped,
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+  }
+
+  if (options.reason === "raid_signup") {
+    battlenetPayload.lastSignupRefresh = {
+      refreshed,
+      failed,
+      skipped,
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+  }
+
+  if (options.reason === "manual" || options.reason === "cron") {
+    battlenetPayload.lastAutomatedRefresh = {
+      reason: options.reason,
+      refreshed,
+      failed,
+      skipped,
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+  }
+
   await ref.set({
     characters: nextCharacters,
-    battlenet: {
-      linked: profile.battlenet?.linked ?? true,
-      region: profile.battlenet?.region || main.region || "eu",
-      lastSyncAt: FieldValue.serverTimestamp(),
-      lastCharacterRefreshAt: FieldValue.serverTimestamp(),
-      lastSignupRefresh: {
-        refreshed,
-        failed,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-    },
+    battlenet: battlenetPayload,
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
   clearCharacterProfileLinksCache();
 
   const snapshot = await ref.get().catch(() => null);
-  return snapshot?.exists ? normalizeProfile(profile.profileId, snapshot.data() || {}) : { ...profile, characters: nextCharacters };
+  return {
+    profile: snapshot?.exists ? normalizeProfile(profile.profileId, snapshot.data() || {}) : { ...profile, characters: nextCharacters },
+    refreshed,
+    failed,
+    skipped,
+    locked: false,
+  };
+}
+
+export async function refreshProfileExternalData(
+  profile: DashboardProfile | null | undefined,
+  options: ProfileExternalRefreshOptions = {},
+): Promise<ProfileExternalRefreshResult> {
+  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) {
+    return { profile: profile || null, refreshed: 0, failed: 0, skipped: 0, locked: false };
+  }
+
+  const resolved: Required<ProfileExternalRefreshOptions> = {
+    reason: options.reason || "manual",
+    maxCharacters: Math.max(1, Math.min(Number(options.maxCharacters || profile.characters.length) || profile.characters.length, profile.characters.length)),
+    minSpacingSeconds: Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? 0) || 0)),
+    force: Boolean(options.force),
+  };
+
+  const lockKey = `${profile.profileId}:${resolved.reason}`;
+  const locks = profileRefreshLocks();
+  const existing = locks.get(lockKey);
+  if (existing && Date.now() - existing.checkedAt < 90_000) {
+    const result = await existing.promise.catch(() => ({ profile, refreshed: 0, failed: 1, skipped: 0, locked: true }));
+    return { ...result, locked: true };
+  }
+
+  const promise = refreshProfileExternalDataInternal(profile, resolved)
+    .finally(() => locks.delete(lockKey));
+  locks.set(lockKey, { checkedAt: Date.now(), promise });
+  return promise;
+}
+
+export async function refreshProfileExternalDataOnView(profile: DashboardProfile | null | undefined) {
+  return refreshProfileExternalData(profile, {
+    reason: "profile_view",
+    minSpacingSeconds: profileViewRefreshMinSpacingSeconds(),
+    maxCharacters: profile?.characters.length || 0,
+  });
+}
+
+export async function refreshProfileCharactersForRaidSignup(profile: DashboardProfile | null | undefined) {
+  const restLimitRaw = Number(process.env.BATTLENET_SIGNUP_REFRESH_REST_LIMIT);
+  const maxCharacters = profile?.characters.length
+    ? Number.isFinite(restLimitRaw) && restLimitRaw >= 0
+      ? Math.min(profile.characters.length, 1 + Math.floor(restLimitRaw))
+      : profile.characters.length
+    : 0;
+  const result = await refreshProfileExternalData(profile, {
+    reason: "raid_signup",
+    maxCharacters,
+    minSpacingSeconds: 0,
+    force: true,
+  });
+  return result.profile;
+}
+
+export async function refreshAllProfilesExternalData(options: {
+  limit?: number;
+  minSpacingSeconds?: number;
+  force?: boolean;
+  reason?: "manual" | "cron";
+} = {}) {
+  if (!hasFirebaseProfileConfig()) {
+    return { checked: 0, refreshedProfiles: 0, refreshedCharacters: 0, failedProfiles: 0, skippedProfiles: 0 };
+  }
+
+  const limit = Math.max(1, Math.min(Math.floor(Number(options.limit || profileCronRefreshLimit()) || profileCronRefreshLimit()), 500));
+  const minSpacingSeconds = Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? Number(process.env.PROFILE_EXTERNAL_REFRESH_MIN_SECONDS || 1800)) || 0));
+  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(limit).get();
+  const profiles: DashboardProfile[] = snapshot.docs
+    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+    .filter((profile: DashboardProfile) => profile.characters.length);
+
+  let refreshedProfiles = 0;
+  let refreshedCharacters = 0;
+  let failedProfiles = 0;
+  let skippedProfiles = 0;
+
+  const concurrency = profileCronRefreshConcurrency(profiles.length);
+  await mapConcurrent(profiles, async (profile) => {
+    try {
+      const result = await refreshProfileExternalData(profile, {
+        reason: options.reason || "cron",
+        minSpacingSeconds,
+        force: Boolean(options.force),
+      });
+      if (result.refreshed > 0) refreshedProfiles += 1;
+      refreshedCharacters += result.refreshed;
+      if (result.skipped > 0 && result.refreshed === 0) skippedProfiles += 1;
+    } catch {
+      failedProfiles += 1;
+    }
+  }, {
+    profile: "external-api",
+    concurrency,
+    failFast: false,
+  });
+
+  return {
+    checked: profiles.length,
+    refreshedProfiles,
+    refreshedCharacters,
+    failedProfiles,
+    skippedProfiles,
+  };
 }
 
 export async function addProfileCharacter(profileId: string, candidateInput: BattleNetCharacterCandidate) {

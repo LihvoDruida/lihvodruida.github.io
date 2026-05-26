@@ -26,6 +26,7 @@ import {
   profileSettingsSetupPath,
   profileFromSession,
   upsertProfileFromSession,
+  refreshProfileExternalDataOnView,
   type DashboardProfile,
   type ProfileCharacter,
 } from "@/lib/profiles";
@@ -154,6 +155,8 @@ function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: {
   const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
   const roleLabel = wowRoleLabel(character.activeSpecRole);
   const itemLevel = typeof character.itemLevel === "number" ? character.itemLevel : null;
+  const rioScore = typeof character.raiderIo?.currentScore === "number" ? Math.round(character.raiderIo.currentScore) : null;
+  const rioUrl = character.raiderIo?.profileUrl || null;
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
   const extraMeta = characterAuxMeta(character);
   const guildBadge = character.verifiedGuild
@@ -192,12 +195,17 @@ function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: {
             <strong>{typeof character.level === "number" ? character.level : "—"}</strong>
           </div>
           <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
+            <small>RIO</small>
+            <strong>{rioScore ?? "—"}</strong>
+          </div>
+          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
             <small>Оновлено</small>
             <strong>{formatCompactDate(character.lastSeenAt)}</strong>
           </div>
         </div>
 
         <div className="profile-character-actions">
+          {rioUrl ? <a className="btn btn-ghost btn-sm" href={rioUrl} target="_blank" rel="noreferrer">Raider.IO</a> : null}
           {canManage && !character.isMain ? (
             <form action="/api/profile/characters/main" method="post">
               <input type="hidden" name="characterKey" value={character.key} />
@@ -374,6 +382,9 @@ export default async function ProfilePage({
     const setupPath = profileSettingsSetupPath(profile.profileId);
     redirect(isRulesReturn ? `${setupPath}&from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : setupPath);
   }
+
+  const viewRefresh = await refreshProfileExternalDataOnView(profile).catch(() => null);
+  if (viewRefresh?.profile) profile = viewRefresh.profile;
 
   const mainCharacter = getMainCharacter(profile);
   const selectedRaidRole = getProfileRaidRole(profile);
