@@ -1,6 +1,7 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
 import ProfileCandidateExpiryTimer from "@/components/ProfileCandidateExpiryTimer";
+import ProfileCharactersLiveSection from "@/components/ProfileCharactersLiveSection";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { fetchDiscordGuildMemberSnapshot, fetchDiscordRoles } from "@/lib/discordAdmin";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
@@ -26,7 +27,6 @@ import {
   profileSettingsSetupPath,
   profileFromSession,
   upsertProfileFromSession,
-  refreshProfileExternalDataOnView,
   type DashboardProfile,
   type ProfileCharacter,
 } from "@/lib/profiles";
@@ -42,13 +42,6 @@ export const metadata = buildPageMetadata({
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function formatCompactDate(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
-}
 
 function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession: boolean) {
   if (hasFreshBattleNetSession) {
@@ -70,11 +63,6 @@ function battleNetActionCopy(profile: DashboardProfile, hasFreshBattleNetSession
     title: "Підключити Battle.net",
     hint: "Знайде гільдійних та інших персонажів Battle.net",
   };
-}
-
-function characterVisualUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
-  if (!character) return null;
-  return character.renderUrl || pickWowAvatarImageUrl(character.avatarUrl, character.mediaUrl);
 }
 
 function characterAvatarUrl(character?: Pick<ProfileCharacter, "renderUrl" | "avatarUrl" | "mediaUrl"> | null) {
@@ -138,91 +126,6 @@ function ProfileTechnicalInfo({
         )}
       </div>
     </section>
-  );
-}
-
-function CharacterArtwork({ character }: { character: ProfileCharacter }) {
-  const image = characterVisualUrl(character);
-  if (image) {
-    return <img src={image} alt="" loading="lazy" referrerPolicy="no-referrer" />;
-  }
-
-  return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
-}
-
-function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean; returnTo?: string }) {
-  const classLabel = character.className || "Клас невідомий";
-  const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
-  const roleLabel = wowRoleLabel(character.activeSpecRole);
-  const itemLevel = typeof character.itemLevel === "number" ? character.itemLevel : null;
-  const rioScore = typeof character.raiderIo?.currentScore === "number" ? Math.round(character.raiderIo.currentScore) : null;
-  const rioUrl = character.raiderIo?.profileUrl || null;
-  const realmLabel = character.realmName || character.realmSlug || "Реалм —";
-  const extraMeta = characterAuxMeta(character);
-  const guildBadge = character.verifiedGuild
-    ? { label: "Гільдійний", icon: "🌿", className: "is-guild" }
-    : { label: "Інший", icon: "🤝", className: "is-other" };
-
-  return (
-    <article className={`profile-character-card${showMainBadge && character.isMain ? " is-main" : ""} ${guildBadge.className}`} aria-label={`${showMainBadge && character.isMain ? "Основний персонаж" : "Персонаж"}: ${character.name}`}>
-      <div className="profile-character-artwork">
-        <CharacterArtwork character={character} />
-        {showMainBadge && character.isMain ? <span className="profile-main-badge profile-main-badge--art">Мейн</span> : null}
-      </div>
-      <div className="profile-character-body">
-        <div className="profile-character-title-row profile-character-title-row--stacked">
-          <div>
-            <h3>{character.name}</h3>
-            <p>{realmLabel}</p>
-          </div>
-          <span className={`profile-character-kind profile-character-kind--${guildBadge.className}`}>{guildBadge.icon} {guildBadge.label}</span>
-        </div>
-
-        <div className="profile-character-meta">
-          <span>{specLabel}</span>
-          <span>{roleLabel}</span>
-          <span>{realmLabel}</span>
-          {extraMeta.map((value) => <span key={value}>{value}</span>)}
-        </div>
-
-        <div className="profile-character-showcase">
-          <div className="profile-character-showcase__stat">
-            <small>ilvl</small>
-            <strong>{itemLevel ?? "—"}</strong>
-          </div>
-          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
-            <small>Рівень</small>
-            <strong>{typeof character.level === "number" ? character.level : "—"}</strong>
-          </div>
-          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
-            <small>RIO</small>
-            <strong>{rioScore ?? "—"}</strong>
-          </div>
-          <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
-            <small>Оновлено</small>
-            <strong>{formatCompactDate(character.lastSeenAt)}</strong>
-          </div>
-        </div>
-
-        <div className="profile-character-actions">
-          {rioUrl ? <a className="btn btn-ghost btn-sm" href={rioUrl} target="_blank" rel="noreferrer">Raider.IO</a> : null}
-          {canManage && !character.isMain ? (
-            <form action="/api/profile/characters/main" method="post">
-              <input type="hidden" name="characterKey" value={character.key} />
-              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
-              <button className="btn btn-ghost btn-sm" type="submit">Зробити мейном</button>
-            </form>
-          ) : null}
-          {canManage ? (
-            <form action="/api/profile/characters/remove" method="post">
-              <input type="hidden" name="characterKey" value={character.key} />
-              {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
-              <button className="btn btn-danger btn-sm" type="submit">Видалити</button>
-            </form>
-          ) : null}
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -383,9 +286,6 @@ export default async function ProfilePage({
     redirect(isRulesReturn ? `${setupPath}&from=rules&rt=${encodeURIComponent(rulesReturnToken)}` : setupPath);
   }
 
-  const viewRefresh = await refreshProfileExternalDataOnView(profile).catch(() => null);
-  if (viewRefresh?.profile) profile = viewRefresh.profile;
-
   const mainCharacter = getMainCharacter(profile);
   const selectedRaidRole = getProfileRaidRole(profile);
   const enabledBattleNetRegions = getEnabledBattleNetRegions();
@@ -400,8 +300,7 @@ export default async function ProfilePage({
   const availableCandidates = Array.from(candidateByKey.values()).filter((item) => !addedKeys.has(normalizeCharacterKey(item.key)));
   const availableGuildCandidates = availableCandidates.filter((item) => item.verifiedGuild);
   const availableOtherCandidates = availableCandidates.filter((item) => !item.verifiedGuild);
-  const profileGuildCharacters = profile.characters.filter((item) => item.verifiedGuild);
-  const profileOtherCharacters = profile.characters.filter((item) => !item.verifiedGuild);
+  const profileGuildCharacterCount = profile.characters.filter((item) => item.verifiedGuild).length;
   const hasAvailableBattleNetCandidates = Boolean(availableCandidates.length && profile.battlenet?.candidateExpiresAt);
   const hasFreshBattleNetSession = hasAvailableBattleNetCandidates;
   const primaryBattleNetRegion = enabledBattleNetRegions[0] || "eu";
@@ -411,7 +310,6 @@ export default async function ProfilePage({
   const guildStatus = guildStatusLabel(profile.role);
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
   const accountStatusLabel = dashboardRoleLabel(profile.role);
-  const profileUpdatedLabel = formatCompactDate(profile.battlenet?.lastSyncAt || profile.updatedAt || profile.lastLoginAt || mainCharacter?.lastSeenAt);
   const visibleCharacters = [...profile.characters].sort((a, b) => {
     if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
     if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
@@ -452,7 +350,7 @@ export default async function ProfilePage({
               <strong>{publicNamePreview}</strong>
               <span>{accountStatusLabel}</span>
               <div className="profile-account-sidebar__pills" aria-label="Стан профілю">
-                <span>☘ {profileGuildCharacters.length} гільд.</span>
+                <span>☘ {profileGuildCharacterCount} гільд.</span>
                 <span>⚔ {wowRoleLabel(selectedRaidRole)}</span>
               </div>
             </div>
@@ -528,23 +426,16 @@ export default async function ProfilePage({
                   ) : null}
                 </div>
 
-                <div className="profile-card-toolbar profile-card-toolbar--compact" aria-label="Стан персонажів">
-                  <span><strong>{profileGuildCharacters.length}</strong><small>Гільдійні</small></span>
-                  <span><strong>{profileOtherCharacters.length}</strong><small>Інші</small></span>
-                  <span data-profile-candidate-summary="true"><strong data-profile-candidate-count="true">{availableCandidates.length}</strong><small>Можна додати</small></span>
-                  <span><strong>{profileUpdatedLabel}</strong><small>Оновлено</small></span>
-                </div>
-
-                {profile.characters.length ? (
-                  <div className="profile-character-list profile-character-list--single-flow">
-                    {visibleCharacters.map((character) => <CharacterCard key={character.key} character={character} canManage={canManageCharacters} showMainBadge={canViewPrivateProfileBlocks} returnTo={profileRulesReturnPath} />)}
-                  </div>
-                ) : (
-                  <div className="profile-empty-characters">
-                    <strong>Персонажів ще немає</strong>
-                    <span>{canManageCharacters ? "Підключи Battle.net і додай мейна для рейдів." : "Учасник ще не додав персонажів."}</span>
-                  </div>
-                )}
+                <ProfileCharactersLiveSection
+                  profileId={profile.profileId}
+                  initialCharacters={visibleCharacters}
+                  initialUpdatedAt={profile.battlenet?.lastProfileViewRefreshAt || profile.battlenet?.lastCharacterRefreshAt || profile.battlenet?.lastSyncAt || profile.updatedAt || profile.lastLoginAt || mainCharacter?.lastSeenAt || null}
+                  canManage={canManageCharacters}
+                  showMainBadge={canViewPrivateProfileBlocks}
+                  returnTo={profileRulesReturnPath}
+                  candidateCount={availableCandidates.length}
+                  emptyMessage={canManageCharacters ? "Підключи Battle.net і додай мейна для рейдів." : "Учасник ще не додав персонажів."}
+                />
 
                 {canManageCharacters && hasAvailableBattleNetCandidates ? (
                   <div className="profile-candidates-box" data-profile-candidates-box="true">

@@ -1194,7 +1194,7 @@ function profileRefreshConcurrency(total: number) {
 }
 
 function profileViewRefreshMinSpacingSeconds() {
-  return readIntegerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", 30, 0, 3600);
+  return readIntegerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", 600, 600, 86_400);
 }
 
 function profileCronRefreshLimit() {
