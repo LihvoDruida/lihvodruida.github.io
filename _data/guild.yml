@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-26 07:51:24'
+  updated_at: '2026-05-26 15:33:34'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13341
-      region: 5866
+      world: 13348
+      region: 5868
       realm: 47
     mythic:
-      world: 7856
+      world: 7858
       region: 3342
       realm: 25
   blackrock-depths:
@@ -2050,23 +2050,47 @@ members:
       slug: draenor
     playable_class:
       id: 8
-      name: null
+      name: Mage
     playable_race:
       id: 4
-      name: null
+      name: Night Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/81/187313489-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Ionax
+    item_level_equipped: 255
+    mythic_plus_scores:
+      all:
+        score: 329.3
+        color: '#f7fff3'
+      dps:
+        score: 329.3
+        color: '#f7fff3'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 329.3
+        color: '#f7fff3'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -2246,7 +2270,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3390.9
@@ -7106,8 +7130,8 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: Blood
-      role: TANK
+      name: Unholy
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/116/265562740-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Галазард
     item_level_equipped: 278
@@ -7165,11 +7189,11 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3309.5
-        color: '#8e4aea'
+        score: 3318.2
+        color: '#9544eb'
       dps:
-        score: 3309.5
-        color: '#8e4aea'
+        score: 3318.2
+        color: '#9544eb'
       healer:
         score: 0
         color: '#ffffff'
@@ -7180,8 +7204,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3309.5
-        color: '#8e4aea'
+        score: 3318.2
+        color: '#9544eb'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7740,7 +7764,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 3
   character:
     name: Душа
     id: 266007559
@@ -7844,7 +7868,59 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 1
+  character:
+    name: Шриладо
+    id: 266055181
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 2
+      name: Orc
+    faction:
+      type: HORDE
+    gender: male
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/13/266055181-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Шриладо
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2329.5
+        color: '#1eff00'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2329.5
+        color: '#1eff00'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2329.5
+        color: '#1eff00'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 1
   character:
     name: Мистип
     id: 266083356
@@ -8021,58 +8097,6 @@ members:
       spec_2:
         score: 2568.8
         color: '#5ccc77'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Шриладо
-    id: 266055181
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 7
-      name: Shaman
-    playable_race:
-      id: 2
-      name: Orc
-    faction:
-      type: HORDE
-    gender: male
-    active_spec:
-      name: Elemental
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/13/266055181-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 265
-    mythic_plus_scores:
-      all:
-        score: 2329.5
-        color: '#1eff00'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 2329.5
-        color: '#1eff00'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2329.5
-        color: '#1eff00'
       spec_3:
         score: 0
         color: '#ffffff'
