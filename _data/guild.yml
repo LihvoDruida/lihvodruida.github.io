@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 21:10:00'
+  updated_at: '2026-05-26 03:40:26'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13322
-      region: 5862
+      world: 13337
+      region: 5865
       realm: 47
     mythic:
-      world: 7852
-      region: 3341
+      world: 7855
+      region: 3342
       realm: 25
   blackrock-depths:
     normal:
@@ -2842,14 +2842,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/147/188280211-avatar.jpg?alt=/wow/static/images/2d/avatar/91-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Frrtiix
-    item_level_equipped: 266
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1394.2
-        color: '#a9ff8f'
+        score: 1729.2
+        color: '#88ff6b'
       dps:
-        score: 1394.2
-        color: '#a9ff8f'
+        score: 1729.2
+        color: '#88ff6b'
       healer:
         score: 0
         color: '#ffffff'
@@ -2857,8 +2857,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1394.2
-        color: '#a9ff8f'
+        score: 1729.2
+        color: '#88ff6b'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3338,7 +3338,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 259
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2667.4
@@ -6042,11 +6042,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3585.5
-        color: '#c845bf'
+        score: 3616.5
+        color: '#cf49b3'
       dps:
         score: 0
         color: '#ffffff'
@@ -6054,8 +6054,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3585.5
-        color: '#c845bf'
+        score: 3616.5
+        color: '#cf49b3'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6063,8 +6063,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3585.5
-        color: '#c845bf'
+        score: 3616.5
+        color: '#cf49b3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7474,7 +7474,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2885.6
@@ -7924,7 +7924,7 @@ members:
   character:
     name: Рейла
     id: 266162439
-    level: 76
+    level: 80
     realm:
       id: 1602
       slug: gordunni
@@ -7973,11 +7973,11 @@ members:
     item_level_equipped: 246
     mythic_plus_scores:
       all:
-        score: 1003.9
-        color: '#c8ffb4'
+        score: 1301.4
+        color: '#b0ff97'
       dps:
-        score: 1003.9
-        color: '#c8ffb4'
+        score: 1301.4
+        color: '#b0ff97'
       healer:
         score: 0
         color: '#ffffff'
@@ -7991,8 +7991,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1003.9
-        color: '#c8ffb4'
+        score: 1301.4
+        color: '#b0ff97'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8022,14 +8022,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/233/266189033-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мизериель
-    item_level_equipped: 264
+    item_level_equipped: 263
     mythic_plus_scores:
       all:
-        score: 2524.4
-        color: '#58d66a'
+        score: 2568.8
+        color: '#5ccc77'
       dps:
-        score: 2524.4
-        color: '#58d66a'
+        score: 2568.8
+        color: '#5ccc77'
       healer:
         score: 0
         color: '#ffffff'
@@ -8043,8 +8043,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2524.4
-        color: '#58d66a'
+        score: 2568.8
+        color: '#5ccc77'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8074,17 +8074,17 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/13/266055181-avatar.jpg?alt=/wow/static/images/2d/avatar/2-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 261
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 2264.8
-        color: '#38ff20'
+        score: 2329.5
+        color: '#1eff00'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2264.8
-        color: '#38ff20'
+        score: 2329.5
+        color: '#1eff00'
       tank:
         score: 0
         color: '#ffffff'
@@ -8095,8 +8095,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2264.8
-        color: '#38ff20'
+        score: 2329.5
+        color: '#1eff00'
       spec_3:
         score: 0
         color: '#ffffff'

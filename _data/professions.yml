@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-25 21:10:00'
+  updated_at: '2026-05-26 03:40:26'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1001,7 +1001,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 70
+        learned_points: 71
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -2919,7 +2919,7 @@ characters:
         learned_points: 6
         max_points: 305
       - name: Midnight Herbalism
-        learned_points: 29
+        learned_points: 31
         max_points: 105
     secondaries: []
 - name: Lishiystabb
