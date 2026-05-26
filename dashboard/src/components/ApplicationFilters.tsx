@@ -75,7 +75,6 @@ export default function ApplicationFilters({
     const nextUrl = buildNextUrl(safePathname, searchParams, updates);
     startTransition(() => {
       router.replace(nextUrl, { scroll: false });
-      router.refresh();
     });
   }, [pathname, router, searchParams, startTransition]);
 

@@ -1,118 +1,111 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
+import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
 
-type LiveState = "idle" | "checking" | "updated" | "offline";
+type LiveState = "idle" | "checking" | "updated" | "offline" | "error" | "skipped";
 
 type RaidSnapshot = {
   ok?: boolean;
+  id?: string;
+  title?: string;
+  status?: string;
+  closed?: boolean;
   revision?: string;
+  updatedAt?: string | null;
   roster?: number;
   capacity?: number;
+  late?: number;
+  skipped?: number;
 };
 
 type RaidUpdatedEvent = CustomEvent<{ raidId?: string; revision?: string; source?: "site" | "discord" | string }>;
 
 export default function RaidLiveSync({ raidId, initialRevision }: { raidId: string; initialRevision: string }) {
-  const router = useRouter();
   const revisionRef = useRef(initialRevision);
-  const [state, setState] = useState<LiveState>("idle");
+  const toastRevisionRef = useRef(initialRevision);
   const [rosterLabel, setRosterLabel] = useState("");
+
+  const resource = useDashboardApiResource<RaidSnapshot | null>({
+    key: `raid:${raidId}:snapshot`,
+    scope: "raids",
+    initialData: null,
+    refreshOnMount: true,
+    request: () => ({
+      url: "/api/background/refresh",
+      method: "POST",
+      headers: { "X-Dashboard-Action": "background-raid-snapshot" },
+      json: { resources: [{ key: `raid:${raidId}:snapshot`, kind: "raid-snapshot", raidId }] },
+      select: (payload) => {
+        const first = payload && typeof payload === "object" && "resources" in payload
+          ? (payload as { resources?: Array<{ ok?: boolean; data?: RaidSnapshot; error?: string }> }).resources?.[0]
+          : null;
+        if (!first?.ok || !first.data?.ok) throw new Error(first?.error || "snapshot_failed");
+        return first.data;
+      },
+    }),
+  });
 
   useEffect(() => {
     revisionRef.current = initialRevision;
+    toastRevisionRef.current = initialRevision;
   }, [initialRevision]);
 
   useEffect(() => {
-    let cancelled = false;
-    let timer: number | null = null;
+    const data = resource.data;
+    if (!data?.ok) return;
 
-    function schedule(delay = 7000) {
-      if (!cancelled) timer = window.setTimeout(check, delay);
+    if (typeof data.roster === "number" && typeof data.capacity === "number") {
+      setRosterLabel(`${data.roster}/${data.capacity}`);
     }
 
-    async function check(showToast = true) {
-      if (cancelled) return;
-      if (document.visibilityState === "hidden") {
-        schedule(12000);
-        return;
-      }
-
-      setState("checking");
-      try {
-        const response = await fetch(`/api/raids/${encodeURIComponent(raidId)}/snapshot`, {
-          cache: "no-store",
-          headers: { Accept: "application/json" },
+    if (data.revision && data.revision !== revisionRef.current) {
+      revisionRef.current = data.revision;
+      if (toastRevisionRef.current !== data.revision) {
+        toastRevisionRef.current = data.revision;
+        dispatchDashboardToast({
+          tone: "info",
+          title: "Рейд оновлено",
+          message: "Склад або статус рейду оновлено у фоні без перезавантаження сторінки.",
+          ttl: 3600,
         });
-        const data = (await response.json().catch(() => null)) as RaidSnapshot | null;
-        if (!response.ok || !data?.ok || !data.revision) throw new Error("snapshot_failed");
-
-        if (typeof data.roster === "number" && typeof data.capacity === "number") {
-          setRosterLabel(`${data.roster}/${data.capacity}`);
-        }
-
-        if (data.revision !== revisionRef.current) {
-          revisionRef.current = data.revision;
-          setState("updated");
-          router.refresh();
-          if (showToast) {
-            dispatchDashboardToast({
-              tone: "info",
-              title: "Рейд оновлено",
-              message: "Склад або статус рейду змінився. Дані на сторінці оновлюються автоматично.",
-              ttl: 3600,
-            });
-          }
-        } else {
-          setState("idle");
-        }
-      } catch {
-        setState("offline");
-      } finally {
-        schedule();
       }
     }
+  }, [resource.data]);
 
-    function checkSoon() {
-      if (timer) window.clearTimeout(timer);
-      schedule(250);
-    }
+  const refreshRaid = resource.refresh;
 
+  useEffect(() => {
     function onRaidUpdated(event: Event) {
       const detail = (event as RaidUpdatedEvent).detail || {};
       if (detail.raidId && detail.raidId !== raidId) return;
       if (detail.revision) revisionRef.current = detail.revision;
-      setState("updated");
-      router.refresh();
-      checkSoon();
+      void refreshRaid("raid-updated", { force: true });
     }
 
-    function onVisibilityChange() {
-      if (document.visibilityState === "visible") checkSoon();
+    function onVisible() {
+      if (document.visibilityState === "visible") void refreshRaid("visible");
     }
 
-    schedule(1800);
     window.addEventListener("dashboard:raid-updated", onRaidUpdated);
-    window.addEventListener("focus", checkSoon);
-    document.addEventListener("visibilitychange", onVisibilityChange);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
-      cancelled = true;
-      if (timer) window.clearTimeout(timer);
       window.removeEventListener("dashboard:raid-updated", onRaidUpdated);
-      window.removeEventListener("focus", checkSoon);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [raidId, router]);
+  }, [raidId, refreshRaid]);
 
+  const state = resource.status as LiveState;
   const label = state === "checking"
     ? "Перевіряємо зміни"
     : state === "updated"
       ? "Оновлено"
       : state === "offline"
         ? "Автооновлення призупинено"
-        : "Автооновлення активне";
+        : state === "error"
+          ? "Оновлення не вдалося"
+          : "Автооновлення активне";
 
   return (
     <div className={`raid-live-sync raid-live-sync--${state}`} role="status" aria-live="polite">

@@ -483,14 +483,12 @@ export default function DashboardFormEnhancer() {
         const isJson = contentType.toLowerCase().includes("application/json");
         const data = isJson ? await response.json().catch(() => null) : null;
         if (!isJson) {
-          keepLocked = true;
           dispatchDashboardToast({
             tone: "error",
             title: "Сервер не повернув результат дії",
-            message: `Запит пішов не в JSON API (${response.status}). Сторінку буде оновлено, щоб показати справжній стан.`,
+            message: `Запит пішов не в JSON API (${response.status}). Автооновлення сторінки вимкнено; дія має повертати JSON для живого UI.`,
             ttl: 7600,
           });
-          window.setTimeout(() => window.location.reload(), 850);
           return;
         }
 
@@ -525,9 +523,12 @@ export default function DashboardFormEnhancer() {
             (data as { refresh?: unknown }).refresh,
           );
           if (shouldRefresh) {
-            keepLocked = true;
-            window.setTimeout(() => window.location.reload(), 650);
-            return;
+            dispatchDashboardToast({
+              tone: "info",
+              title: "Дані оновлюються у фоні",
+              message: "Сторінка не перезавантажується — потрібні блоки отримають свіжі дані через фоновий API.",
+              ttl: 3600,
+            });
           }
         }
       } catch {

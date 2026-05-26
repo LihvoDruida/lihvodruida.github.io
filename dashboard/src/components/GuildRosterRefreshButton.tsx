@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { dashboardApiJson } from "@/lib/dashboardApiClient";
 import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 type RefreshState = "idle" | "loading" | "done" | "error";
@@ -15,12 +16,11 @@ export default function GuildRosterRefreshButton() {
     setMessage("Оновлюю склад…");
 
     try {
-      const response = await fetch("/api/guild/refresh", {
+      const payload = await dashboardApiJson<{ ok?: boolean; error?: string; memberCount?: number }>("/api/guild/refresh", {
         method: "POST",
-        headers: { Accept: "application/json" },
+        headers: { "X-Dashboard-Action": "guild-roster-refresh" },
       });
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
+      if (payload?.ok === false) {
         throw new Error(payload?.error || "Оновлення не виконалось.");
       }
 

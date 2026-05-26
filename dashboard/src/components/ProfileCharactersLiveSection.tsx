@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
 import type { DashboardProfile, ProfileCharacter } from "@/lib/profiles";
 import { wowRoleLabel } from "@/lib/wowRoles";
 
@@ -34,21 +35,6 @@ type Props = {
   refreshMinMs?: number;
 };
 
-type InFlightRefresh = Promise<ProfileRefreshPayload | null>;
-
-const DEFAULT_REFRESH_MIN_MS = 10 * 60 * 1000;
-const LAST_REFRESH_PREFIX = "mistblossom.profile.externalRefresh";
-const inFlightRefreshes = new Map<string, InFlightRefresh>();
-
-function readNumber(value: unknown) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
-
-function storageKey(profileId: string) {
-  return `${LAST_REFRESH_PREFIX}:${profileId}`;
-}
-
 function dateMillis(value?: string | null) {
   if (!value) return null;
   const time = new Date(value).getTime();
@@ -61,28 +47,6 @@ function newestMillis(...values: Array<string | null | undefined>) {
     if (time === null) return latest;
     return latest === null ? time : Math.max(latest, time);
   }, null);
-}
-
-function readStoredRefreshAt(profileId: string) {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(storageKey(profileId));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { checkedAt?: unknown } | null;
-    const checkedAt = readNumber(parsed?.checkedAt);
-    return checkedAt && checkedAt > 0 ? checkedAt : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredRefreshAt(profileId: string, checkedAt = Date.now()) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(storageKey(profileId), JSON.stringify({ checkedAt }));
-  } catch {
-    // Storage can be blocked in private mode. Server-side throttling still protects APIs.
-  }
 }
 
 function formatCompactDate(value?: string | null) {
@@ -218,38 +182,6 @@ function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: {
   );
 }
 
-function shouldRefresh(profileId: string, initialUpdatedAt: string | null | undefined, refreshMinMs: number) {
-  const storedAt = readStoredRefreshAt(profileId);
-  const serverAt = dateMillis(initialUpdatedAt || null);
-  const lastKnown = Math.max(storedAt || 0, serverAt || 0);
-  return !lastKnown || Date.now() - lastKnown >= refreshMinMs;
-}
-
-async function fetchProfileRefresh(profileId: string, refreshMinMs: number, signal: AbortSignal) {
-  const inFlight = inFlightRefreshes.get(profileId);
-  if (inFlight) return inFlight;
-
-  const promise = fetch(`/api/profile/${encodeURIComponent(profileId)}/refresh-external-data`, {
-    method: "POST",
-    cache: "no-store",
-    signal,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "X-Dashboard-Action": "profile-external-refresh",
-    },
-    body: JSON.stringify({ minSpacingSeconds: Math.ceil(refreshMinMs / 1000) }),
-  })
-    .then(async (response) => {
-      const data = await response.json().catch(() => null) as ProfileRefreshPayload | null;
-      if (!response.ok || !data?.ok) throw new Error("profile_refresh_failed");
-      return data;
-    })
-    .finally(() => inFlightRefreshes.delete(profileId));
-
-  inFlightRefreshes.set(profileId, promise);
-  return promise;
-}
 
 export default function ProfileCharactersLiveSection({
   profileId,
@@ -264,104 +196,62 @@ export default function ProfileCharactersLiveSection({
 }: Props) {
   const [characters, setCharacters] = useState(() => visibleCharacters(initialCharacters));
   const [updatedAt, setUpdatedAt] = useState<string | null>(initialUpdatedAt || null);
-  const [state, setState] = useState<RefreshState>("idle");
   const refreshMinMsRef = useRef(Math.max(DEFAULT_REFRESH_MIN_MS, refreshMinMs));
-  const initialUpdatedAtRef = useRef(initialUpdatedAt || null);
-  const mountedRef = useRef(false);
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  const resource = useDashboardApiResource<ProfileRefreshPayload | null>({
+    key: `profile:${profileId}:external-data`,
+    scope: ["profile", "profiles", "guild", "raids"],
+    initialData: null,
+    minIntervalMs: refreshMinMsRef.current,
+    refreshOnMount: true,
+    request: () => ({
+      url: "/api/background/refresh",
+      method: "POST",
+      headers: { "X-Dashboard-Action": "background-profile-external-refresh" },
+      json: {
+        resources: [{
+          key: `profile:${profileId}:external-data`,
+          kind: "profile-external",
+          profileId,
+          minSpacingSeconds: Math.ceil(refreshMinMsRef.current / 1000),
+        }],
+      },
+      select: (payload) => {
+        const first = payload && typeof payload === "object" && "resources" in payload
+          ? (payload as { resources?: Array<{ ok?: boolean; data?: ProfileRefreshPayload; error?: string }> }).resources?.[0]
+          : null;
+        if (!first?.ok || !first.data?.ok) throw new Error(first?.error || "profile_refresh_failed");
+        return first.data;
+      },
+    }),
+  });
 
   useEffect(() => {
     setCharacters(visibleCharacters(initialCharacters));
     setUpdatedAt(initialUpdatedAt || null);
-    initialUpdatedAtRef.current = initialUpdatedAt || null;
   }, [initialCharacters, initialUpdatedAt]);
 
-  const runRefresh = useCallback(async (reason: "mount" | "focus" | "visible" | "online") => {
-    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      if (mountedRef.current) setState("offline");
-      return;
-    }
-    if (!shouldRefresh(profileId, initialUpdatedAtRef.current, refreshMinMsRef.current)) {
-      if (mountedRef.current) setState("skipped");
-      return;
-    }
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 45_000);
-    if (mountedRef.current) setState("checking");
-
-    try {
-      const data = await fetchProfileRefresh(profileId, refreshMinMsRef.current, controller.signal);
-      const refreshedCharacters = Array.isArray(data?.profile?.characters) ? data.profile.characters : [];
-      if (mountedRef.current && refreshedCharacters.length) setCharacters(visibleCharacters(refreshedCharacters));
-
-      const nextUpdatedAt = data?.profile?.battlenet?.lastProfileViewRefreshAt
-        || data?.profile?.battlenet?.lastCharacterRefreshAt
-        || data?.profile?.battlenet?.lastSyncAt
-        || data?.profile?.updatedAt
-        || data?.checkedAt
-        || new Date().toISOString();
-      if (mountedRef.current) setUpdatedAt(nextUpdatedAt);
-      initialUpdatedAtRef.current = nextUpdatedAt;
-      writeStoredRefreshAt(profileId);
-      if (mountedRef.current) setState(data?.throttled || data?.refreshed === 0 ? "skipped" : "updated");
-    } catch (error) {
-      if ((error as Error)?.name === "AbortError") return;
-      if (mountedRef.current) setState("error");
-    } finally {
-      window.clearTimeout(timeout);
-      void reason;
-    }
-  }, [profileId]);
-
   useEffect(() => {
-    const idleWindow = window as typeof window & {
-      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-    let cancelled = false;
-    const runWhenReady = () => {
-      if (!cancelled) void runRefresh("mount");
-    };
-    const idleHandle = idleWindow.requestIdleCallback
-      ? idleWindow.requestIdleCallback(runWhenReady, { timeout: 2500 })
-      : window.setTimeout(runWhenReady, 1200);
+    const data = resource.data;
+    if (!data?.profile) return;
 
-    function refreshOnFocus() {
-      void runRefresh("focus");
-    }
+    const refreshedCharacters = Array.isArray(data.profile.characters) ? data.profile.characters : [];
+    if (refreshedCharacters.length) setCharacters(visibleCharacters(refreshedCharacters));
 
-    function refreshOnVisible() {
-      if (document.visibilityState === "visible") void runRefresh("visible");
-    }
+    const nextUpdatedAt = data.profile.battlenet?.lastProfileViewRefreshAt
+      || data.profile.battlenet?.lastCharacterRefreshAt
+      || data.profile.battlenet?.lastSyncAt
+      || data.profile.updatedAt
+      || data.checkedAt
+      || new Date().toISOString();
+    setUpdatedAt(nextUpdatedAt);
+  }, [resource.data]);
 
-    function refreshOnOnline() {
-      void runRefresh("online");
-    }
-
-    window.addEventListener("focus", refreshOnFocus);
-    window.addEventListener("online", refreshOnOnline);
-    document.addEventListener("visibilitychange", refreshOnVisible);
-
-    return () => {
-      cancelled = true;
-      if (idleWindow.cancelIdleCallback && typeof idleHandle === "number") {
-        idleWindow.cancelIdleCallback(idleHandle);
-      } else {
-        window.clearTimeout(idleHandle);
-      }
-      window.removeEventListener("focus", refreshOnFocus);
-      window.removeEventListener("online", refreshOnOnline);
-      document.removeEventListener("visibilitychange", refreshOnVisible);
-    };
-  }, [runRefresh]);
+  const state: RefreshState = resource.status === "checking"
+    ? "checking"
+    : resource.status === "updated" && resource.data?.throttled
+      ? "skipped"
+      : resource.status;
 
   const guildCount = useMemo(() => characters.filter((item) => item.verifiedGuild).length, [characters]);
   const otherCount = Math.max(0, characters.length - guildCount);

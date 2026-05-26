@@ -1,4 +1,5 @@
 import { readIntegerEnv } from "@/lib/concurrency";
+import { apiFetchJson } from "@/lib/apiHttp";
 import type { BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
 
@@ -52,70 +53,12 @@ function raiderIoRetryCount() {
   return readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4);
 }
 
-function raiderIoRetryDelayMs(attempt: number, retryAfterHeader?: string | null) {
-  const retryAfter = Number(retryAfterHeader || 0);
-  if (Number.isFinite(retryAfter) && retryAfter > 0) {
-    return Math.min(15_000, Math.max(500, retryAfter * 1000));
-  }
-  return Math.min(6_000, 400 * Math.pow(2, Math.max(0, attempt)));
-}
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function raiderIoAccessKey() {
   return cleanText(process.env.RAIDERIO_ACCESS_KEY, 240);
 }
 
-function shouldRetryStatus(status: number) {
-  return status === 408 || status === 425 || status === 429 || status >= 500;
-}
-
-async function fetchJsonWithTimeout(url: URL, label: string) {
-  const retries = raiderIoRetryCount();
-  let lastError: unknown = null;
-
-  for (let attempt = 0; attempt <= retries; attempt += 1) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), raiderIoTimeoutMs());
-
-    try {
-      const response = await fetch(url.toString(), {
-        headers: { Accept: "application/json", "User-Agent": "mistblossom-dashboard" },
-        cache: "no-store",
-        signal: controller.signal,
-      });
-
-      const raw = await response.text();
-      let data: any = null;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        data = null;
-      }
-
-      if (response.ok) return data;
-
-      const message = data?.message || data?.error || raw || `${label} returned ${response.status}`;
-      lastError = new Error(message);
-
-      if (!shouldRetryStatus(response.status) || attempt >= retries) throw lastError;
-      await sleep(raiderIoRetryDelayMs(attempt, response.headers.get("retry-after")));
-    } catch (error) {
-      const normalized = (error as Error)?.name === "AbortError"
-        ? new Error(`${label} timeout after ${raiderIoTimeoutMs()}ms`)
-        : error;
-      lastError = normalized;
-      if (attempt >= retries) throw normalized;
-      await sleep(raiderIoRetryDelayMs(attempt));
-    } finally {
-      clearTimeout(timeout);
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error(`${label} failed`);
-}
 
 function scoreSegmentFromValue(value: any): RaiderIoScoreSegment {
   if (value && typeof value === "object") {

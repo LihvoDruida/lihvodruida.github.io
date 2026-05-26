@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 type Props = {
   expiresAt: string;
@@ -21,7 +21,6 @@ function formatRemaining(ms: number) {
 }
 
 export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
-  const router = useRouter();
   const cleanupStartedRef = useRef(false);
   const refreshStartedRef = useRef(false);
   const [leftMs, setLeftMs] = useState<number | null>(null);
@@ -79,7 +78,7 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
       } finally {
         if (!cancelled && !refreshStartedRef.current) {
           refreshStartedRef.current = true;
-          window.setTimeout(() => router.refresh(), 120);
+          window.setTimeout(() => notifyDashboardDataChanged({ scope: "profile", source: "candidate-expiry", action: "expire" }), 120);
         }
       }
     }
@@ -97,7 +96,7 @@ export default function ProfileCandidateExpiryTimer({ expiresAt }: Props) {
       cancelled = true;
       if (intervalId !== null) window.clearInterval(intervalId);
     };
-  }, [expiresAt, router]);
+  }, [expiresAt]);
 
   return (
     <span className={`profile-candidate-expiry${expired ? " is-expired" : ""}`} title="Час доступності тимчасового списку Battle.net">

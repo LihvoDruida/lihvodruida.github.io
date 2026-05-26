@@ -1,4 +1,5 @@
 import { FieldValue } from "firebase-admin/firestore";
+import { apiFetchJson } from "@/lib/apiHttp";
 import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, guildStatusFromRank, normalizeBattleNetRegion, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
@@ -228,36 +229,13 @@ function raiderIoAccessKey() {
 }
 
 async function fetchJsonWithTimeout(url: URL, label: string) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), raiderIoTimeoutMs());
-
-  let response: Response;
-  try {
-    response = await fetch(url.toString(), {
-      headers: { Accept: "application/json", "User-Agent": "mistblossom-dashboard" },
-      cache: "no-store",
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if ((error as Error)?.name === "AbortError") throw new Error(`${label} timeout after ${raiderIoTimeoutMs()}ms`);
-    throw error;
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  const raw = await response.text();
-  let data: any = null;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(data?.message || data?.error || raw || `${label} returned ${response.status}`);
-  }
-
-  return data;
+  return apiFetchJson<any>(url, {
+    label,
+    timeoutMs: raiderIoTimeoutMs(),
+    retries: readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4),
+    cache: "no-store",
+    userAgent: "mistblossom-dashboard",
+  });
 }
 
 async function fetchRaiderGuild(region: BattleNetRegion, realmSlug: string, guildName: string) {

@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { apiFetchJson } from "@/lib/apiHttp";
 import { getDashboardUrl } from "@/lib/oauth";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
@@ -320,38 +321,13 @@ async function bnetFetch(accessToken: string, path: string, params?: Record<stri
     url.searchParams.set(key, value);
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), getBattleNetRequestTimeoutMs());
-
-  let response: Response;
-  try {
-    response = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-      cache: "no-store",
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if ((error as Error)?.name === "AbortError") {
-      throw new Error(`Battle.net API timeout after ${getBattleNetRequestTimeoutMs()}ms`);
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  const raw = await response.text();
-  let data: any = null;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(data?.detail || data?.message || raw || `Battle.net API error ${response.status}`);
-  }
-
-  return data;
+  return apiFetchJson<any>(url, {
+    label: "Battle.net API",
+    timeoutMs: getBattleNetRequestTimeoutMs(),
+    retries: getBattleNetRetryCount(),
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    cache: "no-store",
+  });
 }
 
 export async function fetchBattleNetApplicationData(path: string, params?: Record<string, string>, regionInput?: string | null) {
