@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-26 18:28:05'
+  updated_at: '2026-05-26 21:50:38'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 155
+  member_count: 154
 characters:
 - name: Бреинор
   region: eu
@@ -3340,7 +3340,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 125
+        learned_points: 190
         max_points: 300
 - name: Shatnyideath
   region: eu
@@ -6289,7 +6289,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 234
+        learned_points: 235
         max_points: 300
 - name: Кеенди
   region: eu
@@ -7571,38 +7571,6 @@ characters:
   professions:
     primaries: []
     secondaries: []
-- name: Шриладо
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 25
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 44
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
 - name: Мистип
   region: eu
   realm: gordunni
