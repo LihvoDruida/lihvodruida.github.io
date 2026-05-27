@@ -35,8 +35,38 @@ function isIgnorableExtensionMessage(reason: unknown) {
   return /Could not establish connection\. Receiving end does not exist|Extension context invalidated/i.test(message);
 }
 
-export default function DashboardBackgroundApiRefresh() {
+type Props = {
+  refreshMinMs?: number;
+};
+
+function normalizeRefreshMinMs(value?: number) {
+  const number = Number(value);
+  const clean = Number.isFinite(number) ? Math.floor(number) : DASHBOARD_BACKGROUND_REFRESH_MIN_MS;
+  return Math.max(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, clean);
+}
+
+export const DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT = "dashboard:background-api-settings-updated";
+
+type BackgroundApiSettingsUpdatedEvent = CustomEvent<{ backgroundRefreshMinSeconds?: number }>;
+
+export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMinMsInput }: Props) {
   const [state, setState] = useState<RefreshState>("idle");
+  const [refreshMinMs, setRefreshMinMs] = useState(() => normalizeRefreshMinMs(refreshMinMsInput));
+
+  useEffect(() => {
+    setRefreshMinMs(normalizeRefreshMinMs(refreshMinMsInput));
+  }, [refreshMinMsInput]);
+
+  useEffect(() => {
+    function onBackgroundApiSettingsUpdated(event: Event) {
+      const detail = (event as BackgroundApiSettingsUpdatedEvent).detail || {};
+      const nextSeconds = Number(detail.backgroundRefreshMinSeconds);
+      if (Number.isFinite(nextSeconds)) setRefreshMinMs(normalizeRefreshMinMs(nextSeconds * 1000));
+    }
+
+    window.addEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
+    return () => window.removeEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
+  }, []);
 
   useEffect(() => {
     function onUnhandledRejection(event: PromiseRejectionEvent) {
@@ -58,7 +88,7 @@ export default function DashboardBackgroundApiRefresh() {
       }
     }
 
-    function schedule(delay = DASHBOARD_BACKGROUND_REFRESH_MIN_MS, reason = "interval") {
+    function schedule(delay = refreshMinMs, reason = "interval") {
       clearTimer();
       if (cancelled) return;
       timer = window.setTimeout(() => void refresh(reason), Math.max(5_000, delay));
@@ -69,13 +99,13 @@ export default function DashboardBackgroundApiRefresh() {
 
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
         setState("offline");
-        schedule(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, reason);
+        schedule(refreshMinMs, reason);
         return;
       }
 
       if (!options.force && document.visibilityState === "hidden") {
         setState("paused");
-        schedule(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, reason);
+        schedule(refreshMinMs, reason);
         return;
       }
 
@@ -88,7 +118,7 @@ export default function DashboardBackgroundApiRefresh() {
       setState("checking");
       await refreshDashboardApiResources({ reason, force: options.force, scope: options.scope });
       if (!cancelled) setState("idle");
-      schedule(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, "interval");
+      schedule(refreshMinMs, "interval");
     }
 
     function onVisibilityChange() {
@@ -123,7 +153,7 @@ export default function DashboardBackgroundApiRefresh() {
     window.addEventListener("online", onOnline);
     window.addEventListener(DASHBOARD_DATA_MUTATED_EVENT, onDataMutated);
     window.addEventListener("storage", onStorage);
-    schedule(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, "interval");
+    schedule(refreshMinMs, "interval");
 
     return () => {
       cancelled = true;
@@ -134,7 +164,7 @@ export default function DashboardBackgroundApiRefresh() {
       window.removeEventListener(DASHBOARD_DATA_MUTATED_EVENT, onDataMutated);
       window.removeEventListener("storage", onStorage);
     };
-  }, []);
+  }, [refreshMinMs]);
 
   return (
     <span className="live-data-refresh-status sr-only" aria-live="polite" data-state={state}>

@@ -9,6 +9,7 @@ import { canManageDiscordMembers, canManageGroups, canViewAdminLogs } from "@/li
 import { getGuildNicknamePolicy, nicknameTemplateExample } from "@/lib/guildNicknamePolicy";
 import { getGeoAccessPolicy } from "@/lib/geoAccessPolicy";
 import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { fetchDiscordRoles } from "@/lib/discordAdmin";
 
 export const dynamic = "force-dynamic";
@@ -32,8 +33,10 @@ export default async function AdminOverviewPage() {
   const policy = await getGuildNicknamePolicy();
   const geoPolicy = await getGeoAccessPolicy();
   const authPolicy = await getAuthAccessPolicy();
+  const apiSettings = await getDashboardApiSettings();
   const canEditGeoPolicy = canManageGroups(user);
   const canEditAuthPolicy = canManageGroups(user);
+  const canEditApiSettings = canManageGroups(user);
   let discordRoles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
   let authRolesError = "";
 
@@ -73,6 +76,7 @@ export default async function AdminOverviewPage() {
               { label: "ЛОГИ", value: canViewAdminLogs(user) ? "ON" : "—" },
               { label: "ГЕО", value: geoPolicy.enabled ? "ON" : "OFF" },
               { label: "ВХІД", value: authPolicy.enabled ? "ON" : "OFF" },
+              { label: "API", value: `${Math.round(apiSettings.backgroundRefreshMinSeconds / 60)}хв` },
             ]}
           />
         </header>
@@ -89,6 +93,76 @@ export default async function AdminOverviewPage() {
               <small><code>{policy.template}</code></small>
               <small>Приклад: {nicknameTemplateExample(policy.template)}</small>
             </div>
+          </article>
+
+
+          <article id="background-api-settings" className="panel admin-overview-card admin-overview-card--wide admin-policy-card background-api-card">
+            <header className="admin-policy-card__header">
+              <span className="admin-policy-card__icon" aria-hidden="true">🔄</span>
+              <div className="admin-policy-card__title">
+                <strong>Фоновий API та автооновлення</strong>
+                <small>Керує частотою live-refresh у React state, Battle.net/Raider.IO refresh і batch-оновленням профілів без перезавантаження сторінки.</small>
+              </div>
+              <div className="admin-policy-status" aria-label="Поточний стан фонового API">
+                <span className="is-on">{Math.round(apiSettings.backgroundRefreshMinSeconds / 60)} хв</span>
+                <span>{apiSettings.source === "firestore" ? "панель" : "env/default"}</span>
+              </div>
+            </header>
+
+            <form className="admin-policy-form" action="/api/admin/background-api/settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Інтервали оновлення</legend>
+                <label className="admin-policy-input">
+                  <span>Глобальний фоновий refresh, секунд</span>
+                  <small>Мінімум 600 секунд. Це замінює client-side <code>DEFAULT_REFRESH_MIN_MS</code> для глобального live-refresh.</small>
+                  <input type="number" name="backgroundRefreshMinSeconds" min={600} max={86400} step={60} defaultValue={apiSettings.backgroundRefreshMinSeconds} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Профіль / Battle.net + Raider.IO, секунд</span>
+                  <small>Мінімум 600 секунд. Застосовується до відкриття профілю та фонового profile-external resource.</small>
+                  <input type="number" name="profileViewRefreshMinSeconds" min={600} max={86400} step={60} defaultValue={apiSettings.profileViewRefreshMinSeconds} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Batch-refresh усіх профілів, секунд</span>
+                  <small>Мінімальний інтервал для cron/manual оновлення всіх профілів.</small>
+                  <input type="number" name="profileExternalRefreshMinSeconds" min={600} max={86400} step={300} defaultValue={apiSettings.profileExternalRefreshMinSeconds} disabled={!canEditApiSettings} />
+                </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Ліміти та паралельність</legend>
+                <label className="admin-policy-input">
+                  <span>Batch limit профілів</span>
+                  <small>Скільки профілів брати за один server-to-server refresh.</small>
+                  <input type="number" name="profileExternalRefreshBatchLimit" min={1} max={500} step={1} defaultValue={apiSettings.profileExternalRefreshBatchLimit} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Паралельність персонажів</span>
+                  <small><code>0</code> = адаптивно. Більше не означає краще: Battle.net/RIO можуть відповідати rate limit.</small>
+                  <input type="number" name="profileCharacterRefreshConcurrency" min={0} max={8} step={1} defaultValue={apiSettings.profileCharacterRefreshConcurrency} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Макс. паралельність персонажів</span>
+                  <small>Жорстка верхня межа для одного профілю.</small>
+                  <input type="number" name="profileCharacterRefreshMaxConcurrency" min={1} max={8} step={1} defaultValue={apiSettings.profileCharacterRefreshMaxConcurrency} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Паралельність batch-профілів</span>
+                  <small><code>0</code> = адаптивно для фонового refresh усіх профілів.</small>
+                  <input type="number" name="profileExternalRefreshConcurrency" min={0} max={6} step={1} defaultValue={apiSettings.profileExternalRefreshConcurrency} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Макс. batch-паралельність</span>
+                  <small>Верхня межа одночасних профілів у batch-refresh.</small>
+                  <input type="number" name="profileExternalRefreshMaxConcurrency" min={1} max={6} step={1} defaultValue={apiSettings.profileExternalRefreshMaxConcurrency} disabled={!canEditApiSettings} />
+                </label>
+              </fieldset>
+
+              <footer className="admin-policy-footer">
+                <small>Секрети й токени не зберігаються в панелі: <code>PROFILE_REFRESH_SECRET</code>, OAuth і API keys мають лишатися в env. Панель керує тільки безпечними runtime-лімітами.</small>
+                <button className="btn primary" type="submit" disabled={!canEditApiSettings}>Зберегти фоновий API</button>
+              </footer>
+            </form>
           </article>
 
           <article className="panel admin-overview-card admin-overview-card--wide admin-policy-card auth-access-card">

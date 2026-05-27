@@ -202,6 +202,12 @@ function actionText(action: string) {
       title: "Зберігаємо геообмеження",
       message: "Оновлюємо правила доступу для заявок і авторизації.",
     };
+  if (action.includes("/api/admin/background-api/settings"))
+    return {
+      label: "Зберігаємо...",
+      title: "Зберігаємо фоновий API",
+      message: "Оновлюємо інтервали, batch-ліміти та паралельність API-оновлень.",
+    };
   if (action.includes("/api/admin/discord/nickname"))
     return {
       label: "Змінюємо...",
@@ -411,6 +417,7 @@ function resetWorking(form: HTMLFormElement, buttons: HTMLButtonElement[]) {
 }
 
 function mutationScopeFromAction(action: string): DashboardDataScope {
+  if (action.includes("/api/admin/background-api/settings")) return "integrations";
   if (action.includes("/applications/")) return "applications";
   if (action.includes("/content/")) return "content";
   if (action.includes("/discord/")) return "discord";
@@ -511,6 +518,12 @@ export default function DashboardFormEnhancer() {
         }
 
         if (response.ok) {
+          if (action.includes("/api/admin/background-api/settings") && data && typeof data === "object" && "settings" in data) {
+            const settings = (data as { settings?: { backgroundRefreshMinSeconds?: unknown } }).settings;
+            window.dispatchEvent(new CustomEvent("dashboard:background-api-settings-updated", {
+              detail: { backgroundRefreshMinSeconds: Number(settings?.backgroundRefreshMinSeconds) },
+            }));
+          }
           notifyDashboardDataChanged({
             scope: mutationScopeFromAction(action),
             action,

@@ -3,6 +3,7 @@ import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/profileIds";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { fetchRaiderIoCharacterProfile, stripRaiderIoRaw, type RaiderIoCharacterSnapshot } from "@/lib/raiderIo";
 import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
@@ -1183,31 +1184,30 @@ function profileRefreshLocks() {
   return globalThis.__mistblossomProfileExternalRefreshLocks;
 }
 
-function profileRefreshConcurrency(total: number) {
+function profileRefreshConcurrency(total: number, configuredConcurrency = 0, configuredMaxConcurrency = 8) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
-    envKey: "PROFILE_CHARACTER_REFRESH_CONCURRENCY",
-    maxEnvKey: "PROFILE_CHARACTER_REFRESH_MAX_CONCURRENCY",
+    concurrency: configuredConcurrency > 0 ? configuredConcurrency : undefined,
     min: 1,
-    max: 8,
+    max: Math.max(1, Math.min(configuredMaxConcurrency || 8, 8)),
   });
 }
 
-function profileViewRefreshMinSpacingSeconds() {
-  return readIntegerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", 600, 600, 86_400);
+async function profileViewRefreshMinSpacingSeconds() {
+  const settings = await getDashboardApiSettings();
+  return settings.profileViewRefreshMinSeconds;
 }
 
 function profileCronRefreshLimit() {
   return readIntegerEnv("PROFILE_EXTERNAL_REFRESH_BATCH_LIMIT", 50, 1, 500);
 }
 
-function profileCronRefreshConcurrency(total: number) {
+function profileCronRefreshConcurrency(total: number, configuredConcurrency = 0, configuredMaxConcurrency = 6) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
-    envKey: "PROFILE_EXTERNAL_REFRESH_CONCURRENCY",
-    maxEnvKey: "PROFILE_EXTERNAL_REFRESH_MAX_CONCURRENCY",
+    concurrency: configuredConcurrency > 0 ? configuredConcurrency : undefined,
     min: 1,
-    max: 6,
+    max: Math.max(1, Math.min(configuredMaxConcurrency || 6, 6)),
   });
 }
 
@@ -1285,7 +1285,8 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
     return { profile, refreshed: 0, failed: 0, skipped: 0, locked: false };
   }
 
-  const concurrency = profileRefreshConcurrency(characters.length);
+  const apiSettings = await getDashboardApiSettings();
+  const concurrency = profileRefreshConcurrency(characters.length, apiSettings.profileCharacterRefreshConcurrency, apiSettings.profileCharacterRefreshMaxConcurrency);
   const { results } = await mapConcurrent(characters, async (character) => {
     const fresh = await refreshCharacterSnapshot(character);
     return fresh ? { key: character.key, fresh } : null;
@@ -1403,7 +1404,7 @@ export async function refreshProfileExternalData(
 export async function refreshProfileExternalDataOnView(profile: DashboardProfile | null | undefined) {
   return refreshProfileExternalData(profile, {
     reason: "profile_view",
-    minSpacingSeconds: profileViewRefreshMinSpacingSeconds(),
+    minSpacingSeconds: await profileViewRefreshMinSpacingSeconds(),
     maxCharacters: profile?.characters.length || 0,
   });
 }
@@ -1434,8 +1435,10 @@ export async function refreshAllProfilesExternalData(options: {
     return { checked: 0, refreshedProfiles: 0, refreshedCharacters: 0, failedProfiles: 0, skippedProfiles: 0 };
   }
 
-  const limit = Math.max(1, Math.min(Math.floor(Number(options.limit || profileCronRefreshLimit()) || profileCronRefreshLimit()), 500));
-  const minSpacingSeconds = Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? Number(process.env.PROFILE_EXTERNAL_REFRESH_MIN_SECONDS || 1800)) || 0));
+  const apiSettings = await getDashboardApiSettings();
+  const defaultLimit = apiSettings.profileExternalRefreshBatchLimit || profileCronRefreshLimit();
+  const limit = Math.max(1, Math.min(Math.floor(Number(options.limit || defaultLimit) || defaultLimit), 500));
+  const minSpacingSeconds = Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? apiSettings.profileExternalRefreshMinSeconds) || 0));
   const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(limit).get();
   const profiles: DashboardProfile[] = snapshot.docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
@@ -1446,7 +1449,7 @@ export async function refreshAllProfilesExternalData(options: {
   let failedProfiles = 0;
   let skippedProfiles = 0;
 
-  const concurrency = profileCronRefreshConcurrency(profiles.length);
+  const concurrency = profileCronRefreshConcurrency(profiles.length, apiSettings.profileExternalRefreshConcurrency, apiSettings.profileExternalRefreshMaxConcurrency);
   await mapConcurrent(profiles, async (profile) => {
     try {
       const result = await refreshProfileExternalData(profile, {

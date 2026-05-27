@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { isDashboardAdmin } from "@/lib/permissions";
 import { refreshAllProfilesExternalData } from "@/lib/profiles";
 import {
@@ -28,8 +29,9 @@ function integerParam(value: string | null, fallback: number, min: number, max: 
 
 async function runRefresh(request: NextRequest, reason: "manual" | "cron") {
   const url = new URL(request.url);
-  const limit = integerParam(url.searchParams.get("limit"), 50, 1, 500);
-  const minSpacingSeconds = integerParam(url.searchParams.get("minSpacingSeconds"), reason === "cron" ? 1800 : 0, 0, 86_400);
+  const settings = await getDashboardApiSettings();
+  const limit = integerParam(url.searchParams.get("limit"), settings.profileExternalRefreshBatchLimit, 1, 500);
+  const minSpacingSeconds = integerParam(url.searchParams.get("minSpacingSeconds"), settings.profileExternalRefreshMinSeconds, 0, 86_400);
   const force = url.searchParams.get("force") === "1" || url.searchParams.get("force") === "true";
 
   const result = await refreshAllProfilesExternalData({

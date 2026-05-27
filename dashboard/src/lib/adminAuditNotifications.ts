@@ -170,6 +170,8 @@ function actionTitle(action: string) {
     "discord.member.roles.manual_remove_blocked": "Discord: ручне зняття ролі заблоковано",
     "admin.logs.discord_settings.update": "Журнал: Discord-дублювання оновлено",
     "admin.logs.discord_settings.update_failed": "Журнал: помилка Discord-дублювання",
+    "admin.background_api.settings.update": "API: фонові налаштування оновлено",
+    "admin.background_api.settings.update_failed": "API: помилка фонових налаштувань",
   };
   return map[action] || action.replace(/[._-]+/g, " ").trim();
 }

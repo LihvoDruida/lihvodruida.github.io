@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { canViewProfile, getProfileById, refreshProfileExternalData } from "@/lib/profiles";
 import {
   assertRequestBodySize,
@@ -17,16 +18,15 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const revalidate = 0;
 
-const PROFILE_VIEW_REFRESH_MIN_SECONDS = 10 * 60;
-
 function cleanProfileId(value: unknown) {
   return String(value || "").trim().slice(0, 160);
 }
 
-function requestedSpacingSeconds(value: unknown) {
+function requestedSpacingSeconds(value: unknown, fallbackSeconds: number) {
+  const minSeconds = Math.max(10 * 60, Math.floor(fallbackSeconds));
   const number = Number(value);
-  if (!Number.isFinite(number)) return PROFILE_VIEW_REFRESH_MIN_SECONDS;
-  return Math.max(PROFILE_VIEW_REFRESH_MIN_SECONDS, Math.min(Math.floor(number), 24 * 60 * 60));
+  if (!Number.isFinite(number)) return minSeconds;
+  return Math.max(minSeconds, Math.min(Math.floor(number), 24 * 60 * 60));
 }
 
 function publicProfilePayload(profile: Awaited<ReturnType<typeof getProfileById>>) {
@@ -68,8 +68,9 @@ export async function POST(
       return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404, headers: noStoreHeaders() });
     }
 
+    const settings = await getDashboardApiSettings();
     const body = await request.json().catch(() => null) as { minSpacingSeconds?: unknown } | null;
-    const minSpacingSeconds = requestedSpacingSeconds(body?.minSpacingSeconds);
+    const minSpacingSeconds = requestedSpacingSeconds(body?.minSpacingSeconds, settings.profileViewRefreshMinSeconds);
     const result = await refreshProfileExternalData(profile, {
       reason: "profile_view",
       minSpacingSeconds,

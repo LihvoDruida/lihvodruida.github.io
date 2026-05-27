@@ -1,7 +1,7 @@
-"use client";
-
 import DashboardBackgroundApiRefresh from "@/components/DashboardBackgroundApiRefresh";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 
-export default function LiveDataRefresh() {
-  return <DashboardBackgroundApiRefresh />;
+export default async function LiveDataRefresh() {
+  const settings = await getDashboardApiSettings();
+  return <DashboardBackgroundApiRefresh refreshMinMs={settings.backgroundRefreshMinSeconds * 1000} />;
 }

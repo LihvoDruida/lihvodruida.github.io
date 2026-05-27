@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
+import { DASHBOARD_BACKGROUND_REFRESH_MIN_MS, useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
 import type { DashboardProfile, ProfileCharacter } from "@/lib/profiles";
 import { wowRoleLabel } from "@/lib/wowRoles";
+
+const DEFAULT_REFRESH_MIN_MS = DASHBOARD_BACKGROUND_REFRESH_MIN_MS;
 
 type RefreshState = "idle" | "checking" | "updated" | "skipped" | "offline" | "error";
 

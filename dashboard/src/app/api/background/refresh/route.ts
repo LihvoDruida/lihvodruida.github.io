@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getIntegrationStatusSummary } from "@/lib/integrationStatus";
+import { getDashboardApiSettings, type DashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { loadGuildRosterData } from "@/lib/guildRoster";
 import { canManageRaids, canViewGuildRoster, isDashboardStaff } from "@/lib/permissions";
 import { canViewProfile, getProfileById, refreshProfileExternalData } from "@/lib/profiles";
@@ -45,10 +46,11 @@ function cleanKind(value: unknown): BackgroundResourceKind | null {
   return null;
 }
 
-function requestedSpacingSeconds(value: unknown) {
+function requestedSpacingSeconds(value: unknown, fallbackSeconds = MIN_BACKGROUND_REFRESH_SECONDS, minSeconds = MIN_BACKGROUND_REFRESH_SECONDS) {
   const number = Number(value);
-  if (!Number.isFinite(number)) return MIN_BACKGROUND_REFRESH_SECONDS;
-  return Math.max(MIN_BACKGROUND_REFRESH_SECONDS, Math.min(Math.floor(number), 24 * 60 * 60));
+  const fallback = Math.max(minSeconds, Math.min(Math.floor(fallbackSeconds), 24 * 60 * 60));
+  if (!Number.isFinite(number)) return fallback;
+  return Math.max(minSeconds, Math.min(Math.floor(number), 24 * 60 * 60));
 }
 
 function resourceKey(resource: BackgroundResourceRequest, index: number) {
@@ -104,7 +106,7 @@ async function resolveRaidSnapshot(resource: BackgroundResourceRequest, session:
   };
 }
 
-async function resolveProfileExternal(resource: BackgroundResourceRequest, session: NonNullable<Awaited<ReturnType<typeof getSession>>>) {
+async function resolveProfileExternal(resource: BackgroundResourceRequest, session: NonNullable<Awaited<ReturnType<typeof getSession>>>, settings: DashboardApiSettings) {
   const profileId = cleanText(resource.profileId || resource.id, 160);
   if (!profileId) return { ok: false, error: "profile_id_required" };
 
@@ -113,7 +115,7 @@ async function resolveProfileExternal(resource: BackgroundResourceRequest, sessi
     return { ok: false, error: "profile_not_found" };
   }
 
-  const minSpacingSeconds = requestedSpacingSeconds(resource.minSpacingSeconds);
+  const minSpacingSeconds = requestedSpacingSeconds(resource.minSpacingSeconds, settings.profileViewRefreshMinSeconds, settings.profileViewRefreshMinSeconds);
   const result = await refreshProfileExternalData(profile, {
     reason: "background_api",
     minSpacingSeconds,
@@ -136,7 +138,7 @@ async function resolveProfileExternal(resource: BackgroundResourceRequest, sessi
   };
 }
 
-async function resolveResource(resource: BackgroundResourceRequest, session: NonNullable<Awaited<ReturnType<typeof getSession>>>) {
+async function resolveResource(resource: BackgroundResourceRequest, session: NonNullable<Awaited<ReturnType<typeof getSession>>>, settings: DashboardApiSettings) {
   const kind = cleanKind(resource.kind);
   if (!kind) return { ok: false, error: "unsupported_resource" };
 
@@ -155,7 +157,7 @@ async function resolveResource(resource: BackgroundResourceRequest, session: Non
   }
 
   if (kind === "profile-external") {
-    return { ok: true, data: await resolveProfileExternal(resource, session) };
+    return { ok: true, data: await resolveProfileExternal(resource, session, settings) };
   }
 
   return { ok: false, error: "unsupported_resource" };
@@ -174,6 +176,7 @@ export async function POST(request: NextRequest) {
   const limit = checkRateLimit(`background-api:${session.profileId || session.id}:${ip}`, 60, 10 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
+  const settings = await getDashboardApiSettings();
   const body = await request.json().catch(() => null) as { resources?: BackgroundResourceRequest[]; resource?: BackgroundResourceRequest } | null;
   const requested = Array.isArray(body?.resources) ? body.resources : body?.resource ? [body.resource] : [];
   const resources = requested.slice(0, MAX_RESOURCES_PER_REQUEST);
@@ -186,7 +189,7 @@ export async function POST(request: NextRequest) {
   const results = await Promise.all(resources.map(async (resource, index) => {
     const key = resourceKey(resource, index);
     try {
-      const result = await resolveResource(resource, session);
+      const result = await resolveResource(resource, session, settings);
       return { key, ...result };
     } catch (error) {
       return { key, ok: false, error: error instanceof Error ? error.message : "resource_failed" };

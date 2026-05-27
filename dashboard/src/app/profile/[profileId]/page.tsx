@@ -13,6 +13,7 @@ import {
   type ProfileRaidSignup,
 } from "@/lib/raids";
 import { buildPageMetadata } from "@/lib/seo";
+import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { canViewProfileAccessDetails, dashboardRoleLabel, guildStatusLabel } from "@/lib/permissions";
@@ -308,6 +309,7 @@ export default async function ProfilePage({
   const bulkFormId = "profile-candidate-bulk-add";
   const publicNamePreview = getProfilePublicName(profile, nicknamePolicy.template);
   const guildStatus = guildStatusLabel(profile.role);
+  const apiSettings = await getDashboardApiSettings();
   const raidSignups = canViewPrivateProfileBlocks ? await listProfileRaidSignups(profile).catch(() => []) : [];
   const accountStatusLabel = dashboardRoleLabel(profile.role);
   const visibleCharacters = [...profile.characters].sort((a, b) => {
@@ -435,6 +437,7 @@ export default async function ProfilePage({
                   returnTo={profileRulesReturnPath}
                   candidateCount={availableCandidates.length}
                   emptyMessage={canManageCharacters ? "Підключи Battle.net і додай мейна для рейдів." : "Учасник ще не додав персонажів."}
+                  refreshMinMs={apiSettings.profileViewRefreshMinSeconds * 1000}
                 />
 
                 {canManageCharacters && hasAvailableBattleNetCandidates ? (
