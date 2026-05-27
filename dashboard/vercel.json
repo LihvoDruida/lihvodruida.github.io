@@ -1,5 +1,5 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install --include=dev",
+  "installCommand": "npm ci --include=dev --no-audit --no-fund",
   "framework": "nextjs"
 }
