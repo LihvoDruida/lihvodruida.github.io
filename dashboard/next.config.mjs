@@ -6,6 +6,10 @@ const hstsValue =
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    cpus: 2,
+    workerThreads: false,
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.discordapp.com" },

@@ -45,6 +45,14 @@ function positiveNumberOrNull(value: unknown) {
   return Number.isFinite(number) && number > 0 ? number : null;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function getRecordValue(record: Record<string, unknown> | null, key: string): unknown {
+  return record ? record[key] : undefined;
+}
+
 function raiderIoTimeoutMs() {
   return readIntegerEnv("RAIDERIO_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
 }
@@ -60,11 +68,12 @@ function raiderIoAccessKey() {
 }
 
 
-function scoreSegmentFromValue(value: any): RaiderIoScoreSegment {
-  if (value && typeof value === "object") {
-    const color = cleanText(value.color, 16);
+function scoreSegmentFromValue(value: unknown): RaiderIoScoreSegment {
+  const record = asRecord(value);
+  if (record) {
+    const color = cleanText(record.color, 16);
     return {
-      score: numberOrNull(value.score),
+      score: numberOrNull(record.score),
       color: /^#[0-9a-f]{6}$/i.test(color) ? color : null,
     };
   }
@@ -72,33 +81,36 @@ function scoreSegmentFromValue(value: any): RaiderIoScoreSegment {
   return { score: numberOrNull(value), color: null };
 }
 
-function currentSeasonSegments(payload: any) {
-  const seasons = Array.isArray(payload?.mythic_plus_scores_by_season) ? payload.mythic_plus_scores_by_season : [];
-  return seasons[0]?.segments && typeof seasons[0].segments === "object" ? seasons[0].segments : {};
+function currentSeasonSegments(payload: Record<string, unknown>) {
+  const seasons = Array.isArray(payload.mythic_plus_scores_by_season) ? payload.mythic_plus_scores_by_season : [];
+  const season = asRecord(seasons[0]);
+  return asRecord(season?.segments) || {};
 }
 
-function normalizeCurrentScores(payload: any): Record<RaiderIoScoreSegmentKey, RaiderIoScoreSegment> {
+function normalizeCurrentScores(payload: Record<string, unknown>): Record<RaiderIoScoreSegmentKey, RaiderIoScoreSegment> {
   const segments = currentSeasonSegments(payload);
   return SCORE_SEGMENTS.reduce((acc, segment) => {
-    acc[segment] = scoreSegmentFromValue(segments?.[segment] || segments?.[segment.toUpperCase()]);
+    acc[segment] = scoreSegmentFromValue(getRecordValue(segments, segment) || getRecordValue(segments, segment.toUpperCase()));
     return acc;
   }, {} as Record<RaiderIoScoreSegmentKey, RaiderIoScoreSegment>);
 }
 
-function normalizeRaiderIoCharacterPayload(payload: any): RaiderIoCharacterProfile | null {
-  if (!payload || typeof payload !== "object") return null;
-  const currentScores = normalizeCurrentScores(payload);
-  const equipped = positiveNumberOrNull(payload?.gear?.item_level_equipped);
-  const fallback = positiveNumberOrNull(payload?.gear?.item_level_total);
+function normalizeRaiderIoCharacterPayload(payload: unknown): RaiderIoCharacterProfile | null {
+  const record = asRecord(payload);
+  if (!record) return null;
+  const currentScores = normalizeCurrentScores(record);
+  const gear = asRecord(record.gear);
+  const equipped = positiveNumberOrNull(gear?.item_level_equipped);
+  const fallback = positiveNumberOrNull(gear?.item_level_total);
 
   return {
-    profileUrl: cleanText(payload.profile_url, 500) || null,
-    thumbnailUrl: cleanText(payload.thumbnail_url || payload.avatar_url, 500) || null,
+    profileUrl: cleanText(record.profile_url, 500) || null,
+    thumbnailUrl: cleanText(record.thumbnail_url || record.avatar_url, 500) || null,
     itemLevelEquipped: equipped ?? fallback,
     currentScore: currentScores.all.score,
     currentScores,
     updatedAt: new Date().toISOString(),
-    raw: payload,
+    raw: record,
   };
 }
 
@@ -142,6 +154,7 @@ export async function fetchRaiderIoCharacterProfile(input: {
 
 export function stripRaiderIoRaw(snapshot: RaiderIoCharacterProfile | RaiderIoCharacterSnapshot | null | undefined): RaiderIoCharacterSnapshot | null {
   if (!snapshot) return null;
-  const { raw: _raw, ...rest } = snapshot as RaiderIoCharacterProfile;
-  return rest;
+  const clean = { ...snapshot } as RaiderIoCharacterProfile;
+  delete clean.raw;
+  return clean;
 }
