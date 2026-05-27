@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-27 03:57:08'
+  updated_at: '2026-05-27 08:08:19'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13841
+      world: 13842
       region: 6160
       realm: 56
     heroic:
-      world: 13389
-      region: 5884
+      world: 13394
+      region: 5886
       realm: 47
     mythic:
-      world: 7897
-      region: 3350
+      world: 7901
+      region: 3351
       realm: 25
   blackrock-depths:
     normal:
@@ -5054,7 +5054,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 274
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2672.5
@@ -7970,7 +7970,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/266173528-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Бабайяй
-    item_level_equipped: 246
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
         score: 1301.4
