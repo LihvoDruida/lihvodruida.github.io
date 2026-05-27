@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-27 15:45:09'
+  updated_at: '2026-05-27 18:28:12'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 156
+  member_count: 157
 characters:
 - name: Бреинор
   region: eu
@@ -7681,4 +7681,30 @@ characters:
       - name: Midnight Enchanting
         learned_points: 61
         max_points: 105
+    secondaries: []
+- name: Marmozetroly
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 30
+        max_points: 100
+    - name: Herbalism
+      id: 182
+      tiers:
+      - name: Classic Herbalism
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Herbalism
+        learned_points: 100
+        max_points: 100
     secondaries: []
