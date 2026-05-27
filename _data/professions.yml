@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-27 08:08:19'
+  updated_at: '2026-05-27 15:45:09'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 155
+  member_count: 156
 characters:
 - name: Бреинор
   region: eu
@@ -3171,7 +3171,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 74
+        learned_points: 76
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -3340,7 +3340,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 190
+        learned_points: 293
         max_points: 300
 - name: Shatnyideath
   region: eu
@@ -3551,7 +3551,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Leatherworking
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Cooking
@@ -5337,7 +5337,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 69
+        learned_points: 71
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -6289,7 +6289,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 235
+        learned_points: 263
         max_points: 300
 - name: Кеенди
   region: eu
@@ -7665,3 +7665,20 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+- name: Cexylulu
+  region: eu
+  realm: draenor
+  realm_slug: draenor
+  profile_url: https://raider.io/characters/eu/draenor/Cexylulu
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Enchanting
+        learned_points: 61
+        max_points: 105
+    secondaries: []

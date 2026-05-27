@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-27 08:08:19'
+  updated_at: '2026-05-27 15:45:09'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 155
+  member_count: 156
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13394
-      region: 5886
+      world: 13404
+      region: 5890
       realm: 47
     mythic:
-      world: 7901
-      region: 3351
+      world: 7910
+      region: 3353
       realm: 25
   blackrock-depths:
     normal:
@@ -186,18 +186,18 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Augmentation
-      role: DPS
+      name: Preservation
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3111.9
-        color: '#3e6ae0'
+        score: 3142.5
+        color: '#4c67e1'
       dps:
-        score: 3111.9
-        color: '#3e6ae0'
+        score: 3142.5
+        color: '#4c67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3111.9
-        color: '#3e6ae0'
+        score: 3142.5
+        color: '#4c67e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1074,7 +1074,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2279.5
@@ -1694,11 +1694,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Frost
+      name: Arcane
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/222/186212830-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 255
+    item_level_equipped: 225
     mythic_plus_scores:
       all:
         score: 168.4
@@ -2738,7 +2738,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/229/188176101-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Mavika
-    item_level_equipped: 255
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 0
@@ -3289,11 +3289,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3205.2
-        color: '#6d5de5'
+        score: 3235.1
+        color: '#7659e6'
       dps:
-        score: 3205.2
-        color: '#6d5de5'
+        score: 3235.1
+        color: '#7659e6'
       healer:
         score: 0
         color: '#ffffff'
@@ -3301,8 +3301,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3205.2
-        color: '#6d5de5'
+        score: 3235.1
+        color: '#7659e6'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3494,7 +3494,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/90/189140058-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Shatnyideath
-    item_level_equipped: 169
+    item_level_equipped: 200
     mythic_plus_scores:
       all:
         score: 0
@@ -3702,7 +3702,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-    item_level_equipped: 226
+    item_level_equipped: 227
     mythic_plus_scores:
       all:
         score: 0
@@ -4378,7 +4378,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3043.7
@@ -5262,7 +5262,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3412.2
@@ -5418,7 +5418,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/201/223885513-avatar.jpg?alt=/wow/static/images/2d/avatar/30-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Gaplik
-    item_level_equipped: 249
+    item_level_equipped: 253
     mythic_plus_scores:
       all:
         score: 430
@@ -6094,7 +6094,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-    item_level_equipped: 276
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 2748.6
@@ -6146,7 +6146,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/245/242983925-avatar.jpg?alt=/wow/static/images/2d/avatar/7-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежныйлок
-    item_level_equipped: 244
+    item_level_equipped: 245
     mythic_plus_scores:
       all:
         score: 0
@@ -7630,7 +7630,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3079.2
@@ -7890,7 +7890,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2816.6
@@ -8052,7 +8052,7 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
+- rank: 2
   character:
     name: Шриладо
     id: 266200699
@@ -8074,7 +8074,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 271
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
         score: 2329.5
@@ -8097,6 +8097,58 @@ members:
       spec_2:
         score: 2329.5
         color: '#1eff00'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Cexylulu
+    id: 175404861
+    level: 90
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/61/175404861-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Cexylulu
+    item_level_equipped: 287
+    mythic_plus_scores:
+      all:
+        score: 3124.7
+        color: '#4c67e1'
+      dps:
+        score: 3124.7
+        color: '#4c67e1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3124.7
+        color: '#4c67e1'
       spec_3:
         score: 0
         color: '#ffffff'
