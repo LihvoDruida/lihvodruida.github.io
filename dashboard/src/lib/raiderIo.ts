@@ -127,7 +127,13 @@ export async function fetchRaiderIoCharacterProfile(input: {
   const url = buildRaiderIoCharacterUrl(input);
   if (!url) return null;
   try {
-    const payload = await fetchJsonWithTimeout(url, `Raider.IO character ${input.name}`);
+    const payload = await apiFetchJson(url, {
+      label: `Raider.IO character ${input.name}`,
+      timeoutMs: raiderIoTimeoutMs(),
+      retries: raiderIoRetryCount(),
+      retryMethods: ["GET", "HEAD"],
+      cache: "no-store",
+    });
     return normalizeRaiderIoCharacterPayload(payload);
   } catch {
     return null;

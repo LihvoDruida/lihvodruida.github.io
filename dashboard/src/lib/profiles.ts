@@ -1149,7 +1149,7 @@ export async function removeProfileBattleNetCandidates(profileId: string, charac
   });
 }
 
-type ProfileExternalRefreshReason = "profile_view" | "raid_signup" | "manual" | "cron";
+type ProfileExternalRefreshReason = "profile_view" | "raid_signup" | "manual" | "cron" | "background_api";
 
 type ProfileExternalRefreshOptions = {
   reason?: ProfileExternalRefreshReason;
@@ -1344,7 +1344,7 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
     };
   }
 
-  if (options.reason === "manual" || options.reason === "cron") {
+  if (options.reason === "manual" || options.reason === "cron" || options.reason === "background_api") {
     battlenetPayload.lastAutomatedRefresh = {
       reason: options.reason,
       refreshed,
