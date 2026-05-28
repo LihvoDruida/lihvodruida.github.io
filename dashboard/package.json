@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "verify": "npm run typecheck && npm run lint"
+    "verify": "npm run typecheck && npm run lint",
+    "prebuild": "node scripts/remove-legacy-middleware.cjs"
   },
   "dependencies": {
     "firebase-admin": "13.10.0",
