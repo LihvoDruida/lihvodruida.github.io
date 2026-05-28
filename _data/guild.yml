@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 18:41:45'
+  updated_at: '2026-05-28 21:56:04'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -52,16 +52,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13842
+      world: 13843
       region: 6160
       realm: 56
     heroic:
-      world: 13478
-      region: 5920
+      world: 13492
+      region: 5932
       realm: 48
     mythic:
-      world: 7549
-      region: 3226
+      world: 7483
+      region: 3193
       realm: 23
   blackrock-depths:
     normal:
@@ -242,7 +242,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3626.5
@@ -3393,11 +3393,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3235.1
-        color: '#715be5'
+        score: 3246.4
+        color: '#7957e7'
       dps:
-        score: 3235.1
-        color: '#715be5'
+        score: 3246.4
+        color: '#7957e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -3405,8 +3405,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3235.1
-        color: '#715be5'
+        score: 3246.4
+        color: '#7957e7'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3442,7 +3442,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2667.4
@@ -5158,17 +5158,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 278
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2804.9
-        color: '#5aa0aa'
+        score: 2894.6
+        color: '#4c8cbf'
       dps:
         score: 335
         color: '#f7fff3'
       healer:
-        score: 2804.9
-        color: '#5aa0aa'
+        score: 2894.6
+        color: '#4c8cbf'
       tank:
         score: 0
         color: '#ffffff'
@@ -5179,8 +5179,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2804.9
-        color: '#5aa0aa'
+        score: 2894.6
+        color: '#4c8cbf'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5938,7 +5938,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3200.7
@@ -7474,7 +7474,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 284
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3022.6
@@ -7834,30 +7834,30 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Windwalker
-      role: DPS
+      name: Mistweaver
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3050.3
-        color: '#0070dd'
+        score: 3102.9
+        color: '#3b6bdf'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3050.3
-        color: '#0070dd'
+        score: 3102.9
+        color: '#3b6bdf'
       tank:
-        score: 0
+        score: 169.6
         color: '#ffffff'
       spec_0:
-        score: 0
+        score: 169.6
         color: '#ffffff'
       spec_1:
-        score: 3050.3
-        color: '#0070dd'
+        score: 3102.9
+        color: '#3b6bdf'
       spec_2:
         score: 0
         color: '#ffffff'
