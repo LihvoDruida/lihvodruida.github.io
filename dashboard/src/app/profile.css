@@ -126,6 +126,7 @@
 .profile-main-badge,
 .profile-character-kind,
 .profile-raid-role-pill,
+.profile-gender-pill,
 .profile-name-status-pill,
 .profile-candidate-expiry {
   display: inline-flex;
@@ -247,6 +248,7 @@
 
 .profile-account-overview-card__icon,
 .profile-raid-role-box__icon,
+.profile-gender-box__icon,
 .profile-raid-card__icon {
   display: grid;
   place-items: center;
@@ -286,6 +288,18 @@
 .profile-account-overview-card__meta {
   margin-top: 6px;
   letter-spacing: 0.04em;
+}
+
+.profile-gender-pill.is-missing {
+  border-color: rgba(255, 190, 93, 0.34);
+  background: rgba(255, 190, 93, 0.11);
+  color: #ffdca3;
+}
+
+.profile-gender-pill.is-selected {
+  border-color: rgba(94, 215, 133, 0.38);
+  background: rgba(94, 215, 133, 0.13);
+  color: var(--profile-green);
 }
 
 .profile-storage-warning {
@@ -463,6 +477,7 @@
 .profile-display-mode-section,
 .profile-discord-standard,
 .profile-raid-role-box,
+.profile-gender-box,
 .profile-candidates-box {
   display: grid;
   gap: 14px;
@@ -476,6 +491,7 @@
 .profile-display-mode-section,
 .profile-discord-standard,
 .profile-raid-role-box,
+.profile-gender-box,
 .profile-candidates-box {
   padding: 15px;
   border: 1px solid rgba(214, 176, 92, 0.16);
@@ -485,7 +501,8 @@
 
 .profile-name-section__head,
 .profile-discord-standard__head,
-.profile-raid-role-box__head {
+.profile-raid-role-box__head,
+.profile-gender-box__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -494,7 +511,8 @@
 
 .profile-name-section__head > div,
 .profile-discord-standard__identity,
-.profile-raid-role-box__head > span:nth-child(2) {
+.profile-raid-role-box__head > span:nth-child(2),
+.profile-gender-box__head > span:nth-child(2) {
   min-width: 0;
   display: grid;
   gap: 3px;
@@ -503,9 +521,11 @@
 .profile-name-section__head small,
 .profile-discord-standard__identity small,
 .profile-raid-role-box__head small,
+.profile-gender-box__head small,
 .profile-nickname-character-option small,
 .profile-display-mode-option small,
-.profile-raid-role-option small {
+.profile-raid-role-option small,
+.profile-gender-option small {
   color: var(--profile-muted-soft);
   font-size: 0.78rem;
   line-height: 1.35;
@@ -537,7 +557,8 @@
 .profile-name-display-row__value strong,
 .profile-nickname-preview strong,
 .profile-server-nickname__body strong,
-.profile-discord-standard__identity strong {
+.profile-discord-standard__identity strong,
+.profile-gender-box__head strong {
   color: var(--profile-text);
   font-size: 1.08rem;
   font-weight: 950;
@@ -612,6 +633,7 @@
 
 .profile-display-mode-form,
 .profile-raid-role-form,
+.profile-gender-form,
 .profile-nickname-character-list {
   display: grid;
   gap: 10px;
@@ -621,7 +643,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.profile-raid-role-form {
+.profile-raid-role-form,
+.profile-gender-form {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -631,6 +654,7 @@
 
 .profile-display-mode-option,
 .profile-raid-role-option,
+.profile-gender-option,
 .profile-nickname-character-option {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
@@ -649,6 +673,7 @@
 
 .profile-display-mode-option.is-selected,
 .profile-raid-role-option.is-selected,
+.profile-gender-option.is-selected,
 .profile-nickname-character-option.is-selected {
   border-color: rgba(94, 215, 133, 0.44);
   background: rgba(55, 136, 87, 0.18);
@@ -658,6 +683,7 @@
 .profile-display-mode-option__radio,
 .profile-display-mode-option input,
 .profile-raid-role-option input,
+.profile-gender-option input,
 .profile-nickname-character-option input {
   align-self: start;
   width: 16px;
@@ -668,6 +694,7 @@
 
 .profile-display-mode-option strong,
 .profile-raid-role-option strong,
+.profile-gender-option strong,
 .profile-nickname-character-option strong {
   display: block;
   color: inherit;
@@ -678,9 +705,34 @@
 
 .profile-display-mode-option small,
 .profile-raid-role-option small,
+.profile-gender-option small,
 .profile-nickname-character-option small {
   display: block;
   margin-top: 3px;
+}
+
+.profile-gender-box__head {
+  align-items: center;
+}
+
+.profile-gender-form {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+}
+
+.profile-gender-form .btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  align-self: center;
+}
+
+.profile-gender-option em {
+  display: block;
+  margin-top: 6px;
+  color: rgba(189, 244, 200, 0.82);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1.25;
 }
 
 .profile-discord-nick-form {
@@ -1358,7 +1410,8 @@
   .profile-setup-callout,
   .profile-discord-standard__head,
   .profile-name-section__head,
-  .profile-raid-role-box__head {
+  .profile-raid-role-box__head,
+  .profile-gender-box__head {
     display: grid;
     align-items: flex-start;
   }
@@ -1382,6 +1435,7 @@
   .profile-account-overview,
   .profile-display-mode-form,
   .profile-raid-role-form,
+  .profile-gender-form,
   .profile-character-showcase,
   .profile-raid-card,
   .profile-raid-card__meta,

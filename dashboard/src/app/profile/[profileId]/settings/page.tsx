@@ -14,11 +14,13 @@ import {
   getProfilePublicName,
   getProfileRaidRole,
   getProfileServerStyleName,
+  profileGenderLabel,
   profileFromSession,
   profileSettingsSetupStatus,
   upsertProfileFromSession,
   type DashboardProfile,
   type ProfileCharacter,
+  type ProfileGrammaticalGender,
 } from "@/lib/profiles";
 import { notFound, redirect } from "next/navigation";
 
@@ -54,6 +56,58 @@ const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint
   { value: "healer", label: "Хіл", hint: "Примусово записувати мейна як хіла" },
   { value: "dps", label: "ДД", hint: "Примусово записувати мейна як ДД" },
 ];
+
+type SelectableProfileGender = Exclude<ProfileGrammaticalGender, "unspecified">;
+
+const PROFILE_GENDER_OPTIONS: { value: SelectableProfileGender; label: string; hint: string; example: string }[] = [
+  { value: "male", label: "Чоловіча форма", hint: "Для повідомлень, статусів і рейдових підписів у чоловічій формі.", example: "Підписаний" },
+  { value: "female", label: "Жіноча форма", hint: "Для повідомлень, статусів і рейдових підписів у жіночій формі.", example: "Підписана" },
+  { value: "neutral", label: "Нейтральне звертання", hint: "Без привʼязки до чоловічої або жіночої форми в текстах інтерфейсу.", example: "Підписали" },
+  { value: "nonbinary", label: "Небінарна особа", hint: "Для нейтральних форм у персональних повідомленнях сайту та Discord.", example: "Підписали" },
+];
+
+function ProfileGenderPreferenceForm({
+  value,
+  returnTo = "",
+}: {
+  value?: ProfileGrammaticalGender | null;
+  returnTo?: string;
+}) {
+  const selected = value && value !== "unspecified" ? value : null;
+
+  return (
+    <section className="profile-gender-box" aria-label="Стать або звертання профілю">
+      <div className="profile-gender-box__head">
+        <span className="profile-gender-box__icon" aria-hidden="true">✦</span>
+        <span>
+          <strong>Стать / звертання</strong>
+          <small>Це системне поле для правильних форм у профілі, рейдах, правилах і Discord-повідомленнях.</small>
+        </span>
+        <span className={`profile-gender-pill${selected ? " is-selected" : " is-missing"}`}>
+          {profileGenderLabel(selected || "unspecified")}
+        </span>
+      </div>
+
+      <form className="profile-gender-form" action="/api/profile/gender" method="post">
+        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
+        {PROFILE_GENDER_OPTIONS.map((option) => {
+          const checked = selected === option.value;
+          return (
+            <label className={`profile-gender-option${checked ? " is-selected" : ""}`} key={option.value}>
+              <input type="radio" name="grammaticalGender" value={option.value} defaultChecked={checked} required />
+              <span>
+                <strong>{option.label}</strong>
+                <small>{option.hint}</small>
+                <em>Приклад: {option.example}</em>
+              </span>
+            </label>
+          );
+        })}
+        <button className="btn btn-primary btn-sm" type="submit">Зберегти звертання</button>
+      </form>
+    </section>
+  );
+}
 
 function RaidRolePreferenceForm({
   mainCharacter,
@@ -280,6 +334,7 @@ export default async function ProfileSettingsPage({
               <a href={profileRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}`}><span aria-hidden="true">✦</span> Профіль</a>
               <a href={settingsRulesReturnPath || `/profile/${encodeURIComponent(profile.profileId)}/settings`} aria-current="page"><span aria-hidden="true">⚙</span> Налаштування</a>
               <a href="#profile-name-settings"><span aria-hidden="true">#</span> Імʼя</a>
+              <a href="#profile-gender-settings"><span aria-hidden="true">✦</span> Звертання</a>
               <a href="#profile-nickname-settings"><span aria-hidden="true">◆</span> Discord-нік</a>
               <a href="#profile-role-settings"><span aria-hidden="true">⚔</span> Роль</a>
             </nav>
@@ -308,6 +363,13 @@ export default async function ProfileSettingsPage({
                 <span>
                   <small>Discord-нік</small>
                   <strong>{discordNicknamePreview || "—"}</strong>
+                </span>
+              </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">✦</span>
+                <span>
+                  <small>Звертання</small>
+                  <strong>{profileGenderLabel(profile.grammaticalGender)}</strong>
                 </span>
               </div>
               <div className="profile-account-overview-card">
@@ -368,6 +430,17 @@ export default async function ProfileSettingsPage({
                   discordOwnerLocked={discordOwnerLocked}
                   returnTo={settingsRulesReturnPath}
                 />
+              </article>
+
+              <article id="profile-gender-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
+                <div className="profile-card-head">
+                  <span className="eyebrow">Система</span>
+                  <h2>Стать / звертання</h2>
+                  <p className="profile-card-lead">Цей блок не декоративний: від нього залежать персональні тексти, статуси записів на рейди та перевірка завершення профілю.</p>
+                </div>
+                <div className="profile-name-panel">
+                  <ProfileGenderPreferenceForm value={profile.grammaticalGender} returnTo={settingsRulesReturnPath} />
+                </div>
               </article>
 
               <article id="profile-nickname-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
