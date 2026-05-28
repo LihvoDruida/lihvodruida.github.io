@@ -19,6 +19,8 @@
   --profile-radius-xl: 24px;
   --profile-radius-lg: 20px;
   --profile-radius-md: 16px;
+  --profile-card-pad-x: clamp(16px, 1.8vw, 22px);
+  --profile-card-pad-y: clamp(16px, 1.8vw, 22px);
   --profile-gap: clamp(14px, 1.7vw, 22px);
   color: var(--profile-text);
 }
@@ -344,7 +346,7 @@
 .profile-card-head {
   display: grid;
   gap: 6px;
-  padding: clamp(16px, 1.8vw, 22px);
+  padding: var(--profile-card-pad-y) var(--profile-card-pad-x);
   border-bottom: 1px solid rgba(214, 176, 92, 0.14);
 }
 
@@ -368,6 +370,11 @@
   font-size: clamp(1.08rem, 1.45vw, 1.34rem);
 }
 
+.profile-card-head .profile-card-lead {
+  max-width: 72ch;
+  margin-top: 2px;
+}
+
 .profile-card-lead,
 .profile-card-note,
 .profile-warning,
@@ -380,11 +387,15 @@
 }
 
 .profile-card-lead {
-  padding: 0 clamp(16px, 1.8vw, 22px);
+  padding: 0;
+}
+
+.profile-card > .profile-card-lead {
+  padding: clamp(10px, 1.15vw, 14px) var(--profile-card-pad-x) 0;
 }
 
 .profile-card-toolbar {
-  padding: 0 clamp(16px, 1.8vw, 22px) clamp(16px, 1.8vw, 20px);
+  padding: 0 var(--profile-card-pad-x) clamp(16px, 1.8vw, 20px);
 }
 
 .profile-card-toolbar span {
@@ -458,7 +469,7 @@
 }
 
 .profile-name-panel {
-  padding: clamp(16px, 1.8vw, 22px);
+  padding: var(--profile-card-pad-x);
 }
 
 .profile-name-section,
@@ -684,6 +695,8 @@
 .profile-server-nickname {
   grid-template-columns: 36px minmax(0, 1fr);
   align-items: center;
+  column-gap: 12px;
+  padding-block: 12px;
 }
 
 .profile-server-nickname__icon {
@@ -694,6 +707,28 @@
   border-radius: 13px;
   background: rgba(100, 155, 230, 0.12);
   color: #9ccaff;
+}
+
+.profile-server-nickname__body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.profile-server-nickname__body small {
+  display: block;
+  color: var(--profile-muted-soft);
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.profile-server-nickname__body strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-nickname-preview.is-synced,
@@ -736,9 +771,8 @@
 .profile-card--characters > .profile-empty-characters,
 .profile-card--characters > .profile-candidates-box,
 .profile-card--raids > .profile-raid-list,
-.profile-card--raids > .profile-empty-characters,
-.profile-card--raids > .profile-card-lead {
-  margin-inline: clamp(16px, 1.8vw, 22px);
+.profile-card--raids > .profile-empty-characters {
+  margin-inline: var(--profile-card-pad-x);
 }
 
 .profile-character-list {
@@ -1039,15 +1073,15 @@
 .profile-raid-list {
   display: grid;
   gap: 10px;
-  padding-bottom: clamp(16px, 1.8vw, 22px);
+  padding: clamp(8px, 1vw, 12px) 0 var(--profile-card-pad-y);
 }
 
 .profile-raid-card {
   display: grid;
   grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
-  gap: 12px;
+  gap: clamp(10px, 1.2vw, 14px);
   align-items: center;
-  padding: 12px;
+  padding: clamp(10px, 1.2vw, 12px);
   border: 1px solid rgba(214, 176, 92, 0.16);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.035);
@@ -1085,7 +1119,7 @@
 
 .profile-raid-card__meta span {
   min-width: 0;
-  padding: 9px;
+  padding: 9px 10px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
 }
@@ -1307,6 +1341,11 @@
     width: 100%;
   }
 
+  .profile-account-page {
+    --profile-card-pad-x: 14px;
+    --profile-card-pad-y: 15px;
+  }
+
   .profile-account-layout,
   .profile-account-main,
   .profile-grid {
@@ -1437,8 +1476,7 @@
     grid-template-columns: 1fr;
   }
 
-  .profile-name-display-row--modern,
-  .profile-server-nickname {
+  .profile-name-display-row--modern {
     grid-template-columns: 1fr;
   }
 }
