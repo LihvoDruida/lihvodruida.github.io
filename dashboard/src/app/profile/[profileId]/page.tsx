@@ -3,7 +3,6 @@ import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkAction
 import ProfileCandidateExpiryTimer from "@/components/ProfileCandidateExpiryTimer";
 import ProfileCharactersLiveSection from "@/components/ProfileCharactersLiveSection";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
-import { fetchDiscordGuildMemberSnapshot, fetchDiscordRoles } from "@/lib/discordAdmin";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   listProfileRaidSignups,
@@ -79,57 +78,6 @@ function characterAuxMeta(character: Pick<ProfileCharacter, "level" | "raceName"
   ].filter(Boolean);
 }
 
-function compactId(value?: string | null) {
-  const text = String(value || "").trim();
-  if (!text) return "—";
-  if (text.length <= 22) return text;
-  return `${text.slice(0, 10)}…${text.slice(-8)}`;
-}
-
-function discordRoleNames(roleIds: string[], roles: Array<{ id: string; name: string }>) {
-  const roleMap = new Map(roles.map((role) => [role.id, role.name]));
-  return Array.from(new Set(roleIds))
-    .map((roleId) => ({ id: roleId, name: roleMap.get(roleId) || `ID ${roleId.slice(-6)}` }))
-    .sort((a, b) => a.name.localeCompare(b.name, "uk"));
-}
-
-function ProfileTechnicalInfo({
-  profile,
-  discordRoleItems,
-  liveDiscordChecked,
-}: {
-  profile: DashboardProfile;
-  discordRoleItems: Array<{ id: string; name: string }>;
-  liveDiscordChecked: boolean;
-}) {
-  const discordId = profile.provider === "discord" ? profile.providerUserId : null;
-
-  return (
-    <section className="profile-info-panel" aria-label="Технічні дані профілю">
-      <div className="profile-info-stack" aria-label="Ідентифікатори профілю">
-        <div className="profile-info-item">
-          <small>ID профілю</small>
-          <strong title={profile.profileId}>{compactId(profile.profileId)}</strong>
-        </div>
-        <div className="profile-info-item">
-          <small>ID користувача Discord</small>
-          <strong title={discordId || undefined}>{compactId(discordId)}</strong>
-        </div>
-      </div>
-      <div className="profile-info-item profile-info-item--roles">
-        <small>Ролі Discord {liveDiscordChecked ? "на сервері" : "із профілю"}</small>
-        {discordRoleItems.length ? (
-          <div className="profile-discord-role-list">
-            {discordRoleItems.map((role) => <span key={role.id} title={role.id}>{role.name}</span>)}
-          </div>
-        ) : (
-          <strong>—</strong>
-        )}
-      </div>
-    </section>
-  );
-}
-
 function raidSignupStatusLabel(status: string, gender?: DashboardProfile["grammaticalGender"] | null) {
   if (status === "going") return profileGenderedText(gender, "Підписаний", "Підписана", "Підписали");
   if (status === "late") return "Затримаюсь";
@@ -201,7 +149,7 @@ function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
   );
 }
 
-function CandidateRow({ character, bulkFormId, returnTo = "" }: { character: ProfileCharacter; bulkFormId: string; returnTo?: string }) {
+function CandidateRow({ character, bulkFormId }: { character: ProfileCharacter; bulkFormId: string }) {
   const kindLabel = character.verifiedGuild ? "🌿 Гільдійний" : "🤝 Інший";
   const image = characterAvatarUrl(character);
   const realmLabel = character.realmName || character.realmSlug || "Реалм —";
@@ -227,11 +175,6 @@ function CandidateRow({ character, bulkFormId, returnTo = "" }: { character: Pro
         <small>{realmLabel} • {character.activeSpecName ? `${character.activeSpecName} ` : ""}{character.className || "Клас невідомий"} • {wowRoleLabel(character.activeSpecRole)}{typeof character.itemLevel === "number" ? ` • ilvl ${character.itemLevel}` : ""}{typeof character.level === "number" ? ` • lvl ${character.level}` : ""}</small>
         {extraMeta.length ? <small>{extraMeta.join(" • ")}</small> : null}
       </span>
-      <form action="/api/profile/characters/add" method="post">
-        <input type="hidden" name="characterKey" value={character.key} />
-        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
-        <button className="btn btn-primary btn-sm" type="submit">Додати</button>
-      </form>
     </li>
   );
 }
@@ -317,16 +260,6 @@ export default async function ProfilePage({
     if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
     return a.name.localeCompare(b.name, "uk");
   });
-  const canReadLiveDiscord = canViewPrivateProfileBlocks && profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId);
-  const [liveDiscordMember, discordRoles] = canReadLiveDiscord
-    ? await Promise.all([
-        fetchDiscordGuildMemberSnapshot(profile.providerUserId).catch(() => null),
-        fetchDiscordRoles().catch(() => []),
-      ])
-    : [null, [] as Array<{ id: string; name: string }>];
-  const effectiveDiscordRoleIds = liveDiscordMember?.roleIds?.length ? liveDiscordMember.roleIds : profile.discordRoleIds;
-  const discordRoleItems = discordRoleNames(effectiveDiscordRoleIds, discordRoles);
-
   return (
     <main className="container">
       <section className="dashboard-shell content-shell profile-shell profile-account-page" aria-label="Профіль Mistblossom Vanguard">
@@ -390,15 +323,22 @@ export default async function ProfilePage({
                   <small className="profile-account-overview-card__meta">{wowRoleLabel(selectedRaidRole)}</small>
                 </span>
               </div>
+              <div className="profile-account-overview-card">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">☘</span>
+                <span>
+                  <small>Персонажі</small>
+                  <strong>{visibleCharacters.length}</strong>
+                  <small className="profile-account-overview-card__meta">{profileGuildCharacterCount} гільдійних</small>
+                </span>
+              </div>
+              <div className="profile-account-overview-card profile-account-overview-card--success">
+                <span className="profile-account-overview-card__icon" aria-hidden="true">⌁</span>
+                <span>
+                  <small>Battle.net</small>
+                  <strong>{profile.battlenet?.linked ? "Підключено" : "Не підключено"}</strong>
+                </span>
+              </div>
             </section>
-
-            {canViewPrivateProfileBlocks ? (
-              <ProfileTechnicalInfo
-                profile={profile}
-                discordRoleItems={discordRoleItems}
-                liveDiscordChecked={Boolean(liveDiscordMember)}
-              />
-            ) : null}
 
             {storageWarning ? <div className="login-alert profile-storage-warning" role="status">{storageWarning}</div> : null}
             {rulesReviewPath ? (
@@ -462,7 +402,7 @@ export default async function ProfilePage({
                         <section className="profile-candidate-group" aria-label="Кандидати гільдії">
                           <div className="profile-subsection-head profile-subsection-head--compact"><strong>Гільдійні</strong><small>{availableGuildCandidates.length}</small></div>
                           <ul className="profile-character-candidates">
-                            {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} returnTo={profileRulesReturnPath} />)}
+                            {availableGuildCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
                           </ul>
                         </section>
                       ) : null}
@@ -470,7 +410,7 @@ export default async function ProfilePage({
                         <section className="profile-candidate-group" aria-label="Інші кандидати">
                           <div className="profile-subsection-head profile-subsection-head--compact"><strong>Інші</strong><small>{availableOtherCandidates.length}</small></div>
                           <ul className="profile-character-candidates">
-                            {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} returnTo={profileRulesReturnPath} />)}
+                            {availableOtherCandidates.map((character) => <CandidateRow key={character.key} character={character} bulkFormId={bulkFormId} />)}
                           </ul>
                         </section>
                       ) : null}

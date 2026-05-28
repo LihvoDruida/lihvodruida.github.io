@@ -14,7 +14,6 @@ import {
   getProfilePublicName,
   getProfileRaidRole,
   getProfileServerStyleName,
-  profileGenderLabel,
   profileFromSession,
   profileSettingsSetupStatus,
   upsertProfileFromSession,
@@ -55,41 +54,6 @@ const RAID_ROLE_OPTIONS: { value: "auto" | WowCharacterRole; label: string; hint
   { value: "healer", label: "Хіл", hint: "Примусово записувати мейна як хіла" },
   { value: "dps", label: "ДД", hint: "Примусово записувати мейна як ДД" },
 ];
-
-function ProfileGenderForm({ gender, returnTo = "" }: { gender: DashboardProfile["grammaticalGender"]; returnTo?: string }) {
-  return (
-    <div className="profile-gender-box" aria-label="Стать і звертання в повідомленнях">
-      <div className="profile-gender-box__head">
-        <span className="profile-gender-box__icon" aria-hidden="true">✦</span>
-        <span>
-          <strong>Стать / звертання</strong>
-          <small>Для особистих повідомлень сайту та Discord</small>
-        </span>
-        <span className="profile-gender-pill">{profileGenderLabel(gender)}</span>
-      </div>
-
-      <form className="profile-gender-form" action="/api/profile/gender" method="post">
-        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
-        {([
-          ["unspecified", "Не вибрано", "дефолт: нейтральні безособові форми множини"],
-          ["neutral", "Нейтральне звертання", "тебе записали, підписали"],
-          ["nonbinary", "Небінарна особа", "нейтрально: тебе записали, підписали"],
-          ["male", "Чоловіча", "ти записаний, підписаний"],
-          ["female", "Жіноча", "ти записана, підписана"],
-        ] as const).map(([value, label, hint]) => (
-          <label className={`profile-gender-option${gender === value ? " is-selected" : ""}`} key={value}>
-            <input type="radio" name="grammaticalGender" value={value} defaultChecked={gender === value} />
-            <span>
-              <strong>{label}</strong>
-              <small>{hint}</small>
-            </span>
-          </label>
-        ))}
-        <button className="btn btn-primary btn-sm" type="submit">Зберегти звертання</button>
-      </form>
-    </div>
-  );
-}
 
 function RaidRolePreferenceForm({
   mainCharacter,
@@ -420,7 +384,7 @@ export default async function ProfileSettingsPage({
               <article id="profile-role-settings" className="panel profile-card profile-card--identity profile-card--clean-profile">
                 <div className="profile-card-head">
                   <span className="eyebrow">Рейди</span>
-                  <h2>Роль і звертання</h2>
+                  <h2>Роль у рейді</h2>
                 </div>
                 <div className="profile-name-panel">
                   <RaidRolePreferenceForm
@@ -429,7 +393,6 @@ export default async function ProfileSettingsPage({
                     selectedRole={selectedRaidRole}
                     returnTo={settingsRulesReturnPath}
                   />
-                  <ProfileGenderForm gender={profile.grammaticalGender} returnTo={settingsRulesReturnPath} />
                 </div>
               </article>
             </section>

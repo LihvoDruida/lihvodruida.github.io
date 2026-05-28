@@ -58,7 +58,7 @@ export default function ProfileCandidateBulkActions({ formId, count }: Props) {
       </label>
       <div className="profile-candidate-bulk-buttons">
         <button
-          className="btn btn-ghost btn-sm"
+          className="btn btn-primary btn-sm"
           type="submit"
           form={formId}
           name="mode"
@@ -66,9 +66,6 @@ export default function ProfileCandidateBulkActions({ formId, count }: Props) {
           disabled={mounted && selectedCount === 0}
         >
           Додати вибрані{selectedCount ? ` (${selectedCount})` : ""}
-        </button>
-        <button className="btn btn-primary btn-sm" type="submit" form={formId} name="mode" value="all">
-          Додати всі ({count})
         </button>
       </div>
     </div>
