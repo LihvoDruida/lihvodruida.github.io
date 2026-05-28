@@ -102,39 +102,40 @@ function statusNotice(status?: string | null) {
 
 function StepList({
   profile,
-  token,
   nicknameTemplate,
+  nextStepKey,
 }: {
   profile: DashboardProfile | null;
-  token: string;
   nicknameTemplate: string;
+  nextStepKey?: string | null;
 }) {
   const status = rulesOnboardingStatus(profile, nicknameTemplate);
   return (
     <div className="rules-onboarding-steps" role="list">
-      {status.steps.map((step) => (
-        <article
-          className={`rules-onboarding-step${step.complete ? " is-complete" : " is-missing"}`}
-          role="listitem"
-          key={step.key}
-        >
-          <span className="rules-onboarding-step__state" aria-hidden="true">
-            {step.complete ? "✓" : "!"}
-          </span>
-          <span className="rules-onboarding-step__body">
-            <strong>{step.title}</strong>
-            <small>{step.description}</small>
-          </span>
-          {!step.complete && step.href ? (
-            <a
-              className="btn btn-ghost btn-sm"
-              href={appendRulesReturnParams(step.href, token)}
-            >
-              Заповнити
-            </a>
-          ) : null}
-        </article>
-      ))}
+      {status.steps.map((step) => {
+        const isNext = !step.complete && step.key === nextStepKey;
+        return (
+          <article
+            className={[
+              "rules-onboarding-step",
+              step.complete ? "is-complete" : "is-missing",
+              isNext ? "is-next" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            role="listitem"
+            key={step.key}
+          >
+            <span className="rules-onboarding-step__state" aria-hidden="true">
+              {step.complete ? "✓" : isNext ? "→" : "!"}
+            </span>
+            <span className="rules-onboarding-step__body">
+              <strong>{step.title}</strong>
+              <small>{step.description}</small>
+            </span>
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -190,6 +191,12 @@ function ProgressBar({ complete, total }: { complete: number; total: number }) {
       className="rules-onboarding-progress"
       aria-label={`Заповнення профілю ${complete} з ${total}`}
     >
+      <div className="rules-onboarding-progress__meta">
+        <strong>{percentage}%</strong>
+        <small>
+          {complete} з {total} пунктів
+        </small>
+      </div>
       <div
         className="rules-onboarding-progress__bar"
         role="progressbar"
@@ -202,11 +209,26 @@ function ProgressBar({ complete, total }: { complete: number; total: number }) {
       </div>
       <small>
         {complete === total
-          ? "Усе готово — можна завершити реєстрацію."
+          ? "Усе готово до фінального підтвердження."
           : `Залишилось пунктів: ${Math.max(0, total - complete)}.`}
       </small>
     </div>
   );
+}
+
+function onboardingActionLabel(stepKey?: string | null) {
+  switch (stepKey) {
+    case "profile_name":
+    case "profile_gender":
+    case "raid_role":
+    case "discord_nickname":
+      return "Перейти до налаштувань профілю";
+    case "battlenet_characters":
+    case "main_character":
+      return "Перейти до персонажів";
+    default:
+      return "Продовжити заповнення";
+  }
 }
 
 export default async function RulesAcceptPage({
@@ -230,6 +252,11 @@ export default async function RulesAcceptPage({
     ? await getProfileById(session.profileId).catch(() => null)
     : null;
   const status = rulesOnboardingStatus(profile, nicknamePolicy.template);
+  const completedSteps = status.steps.filter((step) => step.complete).length;
+  const nextMissingStep = status.missing[0] || null;
+  const nextMissingHref = nextMissingStep?.href
+    ? appendRulesReturnParams(nextMissingStep.href, token)
+    : "";
   const roles = roleIds.length ? await fetchDiscordRoles().catch(() => []) : [];
   const primaryRegion = getEnabledBattleNetRegions()[0] || "eu";
 
@@ -280,7 +307,7 @@ export default async function RulesAcceptPage({
             stats={[
               {
                 label: "КРОКИ",
-                value: `${status.steps.filter((step) => step.complete).length}/${status.steps.length}`,
+                value: `${completedSteps}/${status.steps.length}`,
               },
               { label: "РОЛІ", value: roleIds.length.toLocaleString("uk-UA") },
               {
@@ -315,14 +342,10 @@ export default async function RulesAcceptPage({
             <span
               className={`profile-count-pill${status.complete ? " is-ok" : " is-warning"}`}
             >
-              {status.steps.filter((step) => step.complete).length}/
-              {status.steps.length}
+              {completedSteps}/{status.steps.length}
             </span>
           </div>
-          <ProgressBar
-            complete={status.steps.filter((step) => step.complete).length}
-            total={status.steps.length}
-          />
+          <ProgressBar complete={completedSteps} total={status.steps.length} />
 
           {!session ? (
             <div className="rules-onboarding-login">
@@ -348,8 +371,8 @@ export default async function RulesAcceptPage({
               />
               <StepList
                 profile={profile}
-                token={token}
                 nicknameTemplate={nicknamePolicy.template}
+                nextStepKey={nextMissingStep?.key}
               />
 
               <div className="rules-onboarding-role-box">
@@ -359,48 +382,57 @@ export default async function RulesAcceptPage({
                 </span>
                 <small>
                   <span id="rules-complete-help">
-                    Роль буде видано тільки після натискання “Завершити
-                    реєстрацію”. Нік формується за шаблоном:{" "}
-                    {nicknamePolicy.template}.
+                    Роль видається після одного фінального підтвердження. Нік
+                    формується за шаблоном: {nicknamePolicy.template}.
                   </span>
                 </small>
               </div>
 
-              <div className="rules-onboarding-actions">
-                <a
-                  className="btn subtle"
-                  href={`/profile/${profile.profileId}?from=rules&rt=${encodeURIComponent(token)}`}
-                >
-                  Відкрити профіль
-                </a>
-                <a
-                  className="btn subtle"
-                  href={`/api/auth/battlenet/start?region=${primaryRegion}&next=${encodeURIComponent(`/rules/accept?rt=${token}`)}`}
-                >
-                  Оновити Battle.net і повернутися
-                </a>
-                <form
-                  action="/api/rules/accept/complete"
-                  method="post"
-                  data-dashboard-action="/api/rules/accept/complete"
-                  aria-describedby="rules-complete-help"
-                >
-                  <input type="hidden" name="rt" value={token} />
-                  <button
-                    className="btn primary"
-                    type="submit"
-                    disabled={!status.complete}
-                    data-loading-label="Видаємо роль..."
-                    title={
-                      !status.complete
-                        ? "Спочатку заповни всі пункти профілю."
-                        : undefined
-                    }
+              <section
+                className={`rules-onboarding-final-action${status.complete ? " is-ready" : " is-pending"}`}
+                aria-label="Фінальна дія реєстрації"
+              >
+                <span className="rules-onboarding-final-action__copy">
+                  <strong>
+                    {status.complete
+                      ? "Можна підтверджувати"
+                      : nextMissingStep
+                        ? `Наступний крок: ${nextMissingStep.title}`
+                        : "Потрібно доповнити профіль"}
+                  </strong>
+                  <small>
+                    {status.complete
+                      ? "Знизу залишилась одна дія: підтвердити правила, видати Discord-роль і прийняти зміни профілю."
+                      : nextMissingStep?.description ||
+                        "Заповни обовʼязкові дані, після цього тут зʼявиться фінальне підтвердження."}
+                  </small>
+                </span>
+
+                {status.complete ? (
+                  <form
+                    action="/api/rules/accept/complete"
+                    method="post"
+                    data-dashboard-action="/api/rules/accept/complete"
+                    aria-describedby="rules-complete-help"
                   >
-                    Завершити реєстрацію й отримати роль
-                  </button>
-                </form>
-              </div>
+                    <input type="hidden" name="rt" value={token} />
+                    <button
+                      className="btn primary rules-onboarding-primary-action"
+                      type="submit"
+                      data-loading-label="Підтверджуємо..."
+                    >
+                      Підтвердити й прийняти зміни
+                    </button>
+                  </form>
+                ) : nextMissingHref ? (
+                  <a
+                    className="btn primary rules-onboarding-primary-action"
+                    href={nextMissingHref}
+                  >
+                    {onboardingActionLabel(nextMissingStep?.key)}
+                  </a>
+                ) : null}
+              </section>
             </>
           ) : (
             <div className="login-alert profile-storage-warning" role="status">
