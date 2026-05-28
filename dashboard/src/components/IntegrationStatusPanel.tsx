@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
+import { formatStableUtcTime } from "@/lib/stableUiText";
 
 type IntegrationState = "ok" | "warning" | "error" | "unconfigured";
 
@@ -19,10 +20,7 @@ type IntegrationStatusSummary = {
 };
 
 function formatCheckedAt(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { hour: "2-digit", minute: "2-digit" }).format(date);
+  return formatStableUtcTime(value);
 }
 
 function statusText(state: IntegrationState) {

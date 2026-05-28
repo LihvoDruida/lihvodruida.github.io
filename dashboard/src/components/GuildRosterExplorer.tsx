@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { GuildRosterMember, GuildRosterStats, GuildScoreSegment } from "@/lib/guildRoster";
+import { formatStableNumber, stableTextCompare } from "@/lib/stableUiText";
 
 type SortKey = "rio-desc" | "rio-asc" | "ilvl-desc" | "name-asc" | "rank-asc";
 
@@ -79,14 +80,11 @@ const ROLE_ORDER = ["tank", "healer", "dps", "unknown"];
 
 function formatNumber(value: number, digits = 0) {
   if (!Number.isFinite(value) || value <= 0) return "—";
-  return new Intl.NumberFormat("uk-UA", {
-    maximumFractionDigits: digits,
-    minimumFractionDigits: digits,
-  }).format(value);
+  return formatStableNumber(value, digits);
 }
 
 function uniqueSorted(values: string[]) {
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "uk"));
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).sort((a, b) => stableTextCompare(a, b));
 }
 
 function getArmorType(member: GuildRosterMember): ArmorType {
@@ -416,11 +414,11 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
           .includes(search);
       })
       .sort((a, b) => {
-        if (sort === "rio-asc") return (a.scores[segment] || 0) - (b.scores[segment] || 0) || a.name.localeCompare(b.name, "uk");
+        if (sort === "rio-asc") return (a.scores[segment] || 0) - (b.scores[segment] || 0) || stableTextCompare(a.name, b.name);
         if (sort === "ilvl-desc") return b.itemLevel - a.itemLevel || (b.scores[segment] || 0) - (a.scores[segment] || 0);
-        if (sort === "name-asc") return a.name.localeCompare(b.name, "uk");
-        if (sort === "rank-asc") return (a.rank ?? 999) - (b.rank ?? 999) || a.name.localeCompare(b.name, "uk");
-        return (b.scores[segment] || 0) - (a.scores[segment] || 0) || b.itemLevel - a.itemLevel || a.name.localeCompare(b.name, "uk");
+        if (sort === "name-asc") return stableTextCompare(a.name, b.name);
+        if (sort === "rank-asc") return (a.rank ?? 999) - (b.rank ?? 999) || stableTextCompare(a.name, b.name);
+        return (b.scores[segment] || 0) - (a.scores[segment] || 0) || b.itemLevel - a.itemLevel || stableTextCompare(a.name, b.name);
       });
   }, [members, segment, query, classFilter, specFilter, roleFilter, factionFilter, rioMin, rioMax, itemLevelMin, itemLevelMax, sort]);
 

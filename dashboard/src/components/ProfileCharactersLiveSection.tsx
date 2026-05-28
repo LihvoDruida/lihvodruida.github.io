@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DASHBOARD_BACKGROUND_REFRESH_MIN_MS, useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
+import { dateMillis, formatStableUkCompactDate, stableTextCompare } from "@/lib/stableUiText";
 import type { DashboardProfile, ProfileCharacter } from "@/lib/profiles";
 import { wowRoleLabel } from "@/lib/wowRoles";
 
@@ -37,25 +38,12 @@ type Props = {
   refreshMinMs?: number;
 };
 
-function dateMillis(value?: string | null) {
-  if (!value) return null;
-  const time = new Date(value).getTime();
-  return Number.isFinite(time) ? time : null;
-}
-
 function newestMillis(...values: Array<string | null | undefined>) {
   return values.reduce<number | null>((latest, value) => {
     const time = dateMillis(value);
     if (time === null) return latest;
     return latest === null ? time : Math.max(latest, time);
   }, null);
-}
-
-function formatCompactDate(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short" }).format(date);
 }
 
 function pickImageUrl(...values: Array<string | null | undefined>) {
@@ -96,7 +84,7 @@ function visibleCharacters(characters: ProfileCharacter[]) {
   return [...characters].sort((a, b) => {
     if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
     if (a.verifiedGuild !== b.verifiedGuild) return a.verifiedGuild ? -1 : 1;
-    return a.name.localeCompare(b.name, "uk");
+    return stableTextCompare(a.name, b.name);
   });
 }
 
@@ -158,7 +146,7 @@ function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: {
           </div>
           <div className="profile-character-showcase__stat profile-character-showcase__stat--secondary">
             <small>Оновлено</small>
-            <strong>{formatCompactDate(character.lastSeenAt)}</strong>
+            <strong>{formatStableUkCompactDate(character.lastSeenAt)}</strong>
           </div>
         </div>
 
@@ -283,7 +271,7 @@ export default function ProfileCharactersLiveSection({
         <span><strong>{guildCount}</strong><small>Гільдійні</small></span>
         <span><strong>{otherCount}</strong><small>Інші</small></span>
         <span data-profile-candidate-summary="true"><strong data-profile-candidate-count="true">{candidateCount}</strong><small>Можна додати</small></span>
-        <span><strong>{formatCompactDate(effectiveUpdatedAt)}</strong><small>Оновлено</small></span>
+        <span><strong>{formatStableUkCompactDate(effectiveUpdatedAt)}</strong><small>Оновлено</small></span>
       </div>
 
       <span className="sr-only" role="status" aria-live="polite" data-profile-refresh-state={state}>{statusLabel}</span>
