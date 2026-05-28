@@ -4,7 +4,8 @@ import { resolveAuthorIdentity } from "@/lib/authorIdentity";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { canManageRaids } from "@/lib/permissions";
 import { hasRaidStorage } from "@/lib/raids";
-import { makePreviewRaid, RaidAnnouncementPreview, RaidForm, RaidPageShell, RosterSideList, StatusNotice } from "@/components/RaidViews";
+import { makePreviewRaid, RaidForm, RaidPageShell, RosterSideList, StatusNotice } from "@/components/RaidViews";
+import RaidEditorLivePreview from "@/components/RaidEditorLivePreview";
 import { buildPageMetadata } from "@/lib/seo";
 import { getOwnProfilePath } from "@/lib/profiles";
 
@@ -51,7 +52,7 @@ export default async function NewRaidPage({ searchParams }: { searchParams: Prom
       <section className="raid-editor-layout">
         <RaidForm channels={channels} roles={roles} />
         <div className="raid-preview-column">
-          <RaidAnnouncementPreview raid={previewRaid} />
+          <RaidEditorLivePreview initialRaid={previewRaid} />
           <RosterSideList raid={previewRaid} />
         </div>
       </section>

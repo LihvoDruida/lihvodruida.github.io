@@ -435,7 +435,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
   const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
     <div className="raid-form-stack">
-      <form className="panel raid-form-panel raid-form-panel--modern" action="/api/raids" method="post">
+      <form className="panel raid-form-panel raid-form-panel--modern" action="/api/raids" method="post" data-raid-editor-form="true">
         <input type="hidden" name="raidId" value={raid?.id || ""} />
         <input type="hidden" name="composition" value={defaultComposition} />
         <div className="raid-form-heading">
