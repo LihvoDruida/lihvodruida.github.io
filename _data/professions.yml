@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 11:49:44'
+  updated_at: '2026-05-28 15:59:08'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1369,7 +1369,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Umbramind
   professions:
     primaries:
     - name: Herbalism
@@ -3619,7 +3619,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
   professions:
     primaries:
     - name: Blacksmithing
@@ -4014,7 +4014,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Котто
   professions:
     primaries:
     - name: Enchanting
@@ -5696,7 +5696,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
   professions:
     primaries:
     - name: Inscription

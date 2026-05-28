@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 11:49:44'
+  updated_at: '2026-05-28 15:59:08'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13472
-      region: 5916
+      world: 13474
+      region: 5917
       realm: 48
     mythic:
-      world: 7574
+      world: 7577
       region: 3240
       realm: 23
   blackrock-depths:
@@ -1322,23 +1322,47 @@ members:
       slug: terokkar
     playable_class:
       id: 5
-      name: null
+      name: Priest
     playable_race:
       id: 29
-      name: null
+      name: Void Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/5/185040389-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Umbramind
+    item_level_equipped: 131
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -3926,23 +3950,47 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Retribution
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/182/189323702-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+    item_level_equipped: 248
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -4110,23 +4158,47 @@ members:
       slug: gordunni
     playable_class:
       id: 4
-      name: null
+      name: Rogue
     playable_race:
       id: 29
-      name: null
+      name: Void Elf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Subtlety
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Котто
+    item_level_equipped: 239
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 1
   character:
@@ -4878,7 +4950,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 245
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 660.8
@@ -5502,7 +5574,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 286
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3224.5
@@ -5817,11 +5889,11 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3058.4
-        color: '#0070dd'
+        score: 3089.4
+        color: '#286dde'
       dps:
-        score: 3058.4
-        color: '#0070dd'
+        score: 3089.4
+        color: '#286dde'
       healer:
         score: 0
         color: '#ffffff'
@@ -5832,8 +5904,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3058.4
-        color: '#0070dd'
+        score: 3089.4
+        color: '#286dde'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5854,23 +5926,47 @@ members:
       slug: silvermoon
     playable_class:
       id: 6
-      name: null
+      name: Death Knight
     playable_race:
       id: 34
-      name: null
+      name: Dark Iron Dwarf
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Unholy
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
+    item_level_equipped: 288
+    mythic_plus_scores:
+      all:
+        score: 3200.7
+        color: '#695ee4'
+      dps:
+        score: 3200.7
+        color: '#695ee4'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 275
+        color: '#fafff8'
+      spec_0:
+        score: 275
+        color: '#fafff8'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3200.7
+        color: '#695ee4'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
