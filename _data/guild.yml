@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 03:43:55'
+  updated_at: '2026-05-28 08:00:48'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13460
-      region: 5915
+      world: 13469
+      region: 5916
       realm: 48
     mythic:
-      world: 7568
+      world: 7571
       region: 3240
       realm: 23
   blackrock-depths:
@@ -5054,7 +5054,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 279
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 2804.9
@@ -5470,7 +5470,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 284
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3224.5

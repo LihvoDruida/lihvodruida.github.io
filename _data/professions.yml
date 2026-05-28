@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 03:43:55'
+  updated_at: '2026-05-28 08:00:48'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5000,7 +5000,7 @@ characters:
         learned_points: 40
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 18
+        learned_points: 21
         max_points: 100
     - name: Alchemy
       id: 171
