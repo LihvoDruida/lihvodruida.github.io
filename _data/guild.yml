@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 15:59:08'
+  updated_at: '2026-05-28 18:41:45'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13474
-      region: 5917
+      world: 13478
+      region: 5920
       realm: 48
     mythic:
-      world: 7577
-      region: 3240
+      world: 7549
+      region: 3226
       realm: 23
   blackrock-depths:
     normal:
@@ -710,7 +710,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1074,7 +1074,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 3069.1
@@ -4433,14 +4433,14 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2969.8
-        color: '#397ece'
+        score: 3004.2
+        color: '#2075d8'
       dps:
         score: 310.9
         color: '#f9fff6'
       healer:
-        score: 2969.8
-        color: '#397ece'
+        score: 3004.2
+        color: '#2075d8'
       tank:
         score: 0
         color: '#ffffff'
@@ -4451,8 +4451,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2969.8
-        color: '#397ece'
+        score: 3004.2
+        color: '#2075d8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5362,11 +5362,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 284
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3412.2
@@ -5938,7 +5938,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3200.7
@@ -6513,11 +6513,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3254.4
-        color: '#7957e7'
+        score: 3271.1
+        color: '#8153e8'
       dps:
-        score: 3254.4
-        color: '#7957e7'
+        score: 3271.1
+        color: '#8153e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -6528,8 +6528,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3254.4
-        color: '#7957e7'
+        score: 3271.1
+        color: '#8153e8'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7734,7 +7734,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3079.2
