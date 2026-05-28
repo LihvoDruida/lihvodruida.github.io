@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 08:00:48'
+  updated_at: '2026-05-28 11:49:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13469
+      world: 13472
       region: 5916
       realm: 48
     mythic:
-      world: 7571
+      world: 7574
       region: 3240
       realm: 23
   blackrock-depths:
@@ -369,6 +369,58 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Cexylulu
+    id: 175404861
+    level: 90
+    realm:
+      id: 506
+      slug: draenor
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 10
+      name: Blood Elf
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Devourer
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/draenor/61/175404861-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
+    profile_url: https://raider.io/characters/eu/draenor/Cexylulu
+    item_level_equipped: 288
+    mythic_plus_scores:
+      all:
+        score: 3124.7
+        color: '#4968e1'
+      dps:
+        score: 3124.7
+        color: '#4968e1'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3124.7
+        color: '#4968e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1270,47 +1322,23 @@ members:
       slug: terokkar
     playable_class:
       id: 5
-      name: Priest
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Shadow
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/5/185040389-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Umbramind
-    item_level_equipped: 131
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -1981,6 +2009,58 @@ members:
       spec_2:
         score: 1594.5
         color: '#97ff7b'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Marmozetroly
+    id: 186824700
+    level: 90
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 7
+      name: Shaman
+    playable_race:
+      id: 11
+      name: Draenei
+    faction:
+      type: ALLIANCE
+    gender: male
+    active_spec:
+      name: Elemental
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
+    item_level_equipped: 289
+    mythic_plus_scores:
+      all:
+        score: 3423.5
+        color: '#a335ee'
+      dps:
+        score: 3423.5
+        color: '#a335ee'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 3423.5
+        color: '#a335ee'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3026,7 +3106,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/burning-legion/105/188623721-avatar.jpg?alt=/wow/static/images/2d/avatar/37-0.jpg
     profile_url: https://raider.io/characters/eu/burning-legion/Rolemodel
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
         score: 2543
@@ -3846,47 +3926,23 @@ members:
       slug: terokkar
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/182/189323702-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
-    item_level_equipped: 248
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -4054,47 +4110,23 @@ members:
       slug: gordunni
     playable_class:
       id: 4
-      name: Rogue
+      name: null
     playable_race:
       id: 29
-      name: Void Elf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Subtlety
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/191330183-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Котто
-    item_level_equipped: 239
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 1
   character:
@@ -5470,7 +5502,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/58/223896122-avatar.jpg?alt=/wow/static/images/2d/avatar/3-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Vertyxa
-    item_level_equipped: 283
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3224.5
@@ -5822,47 +5854,23 @@ members:
       slug: silvermoon
     playable_class:
       id: 6
-      name: Death Knight
+      name: null
     playable_race:
       id: 34
-      name: Dark Iron Dwarf
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Unholy
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 288
-    mythic_plus_scores:
-      all:
-        score: 3200.7
-        color: '#695ee4'
-      dps:
-        score: 3200.7
-        color: '#695ee4'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 275
-        color: '#fafff8'
-      spec_0:
-        score: 275
-        color: '#fafff8'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3200.7
-        color: '#695ee4'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -8074,7 +8082,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2329.5
@@ -8097,110 +8105,6 @@ members:
       spec_2:
         score: 2329.5
         color: '#1eff00'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Cexylulu
-    id: 175404861
-    level: 90
-    realm:
-      id: 506
-      slug: draenor
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: female
-    active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/61/175404861-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Cexylulu
-    item_level_equipped: 288
-    mythic_plus_scores:
-      all:
-        score: 3124.7
-        color: '#4968e1'
-      dps:
-        score: 3124.7
-        color: '#4968e1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3124.7
-        color: '#4968e1'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Marmozetroly
-    id: 186824700
-    level: 90
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 7
-      name: Shaman
-    playable_race:
-      id: 11
-      name: Draenei
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Elemental
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
-    item_level_equipped: 289
-    mythic_plus_scores:
-      all:
-        score: 3423.5
-        color: '#a335ee'
-      dps:
-        score: 3423.5
-        color: '#a335ee'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 3423.5
-        color: '#a335ee'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
