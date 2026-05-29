@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-29 07:59:16'
+  updated_at: '2026-05-29 11:37:08'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13539
-      region: 5937
+      world: 13542
+      region: 5938
       realm: 48
     mythic:
-      world: 7505
+      world: 7506
       region: 3197
       realm: 23
   blackrock-depths:
@@ -2010,11 +2010,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 255
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
-        score: 1922
-        color: '#74ff57'
+        score: 2627
+        color: '#5fc283'
       dps:
         score: 0
         color: '#ffffff'
@@ -2022,8 +2022,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1922
-        color: '#74ff57'
+        score: 2627
+        color: '#5fc283'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -2031,8 +2031,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1922
-        color: '#74ff57'
+        score: 2627
+        color: '#5fc283'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2062,14 +2062,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3423.5
-        color: '#a335ee'
+        score: 3448.7
+        color: '#ae39e2'
       dps:
-        score: 3423.5
-        color: '#a335ee'
+        score: 3448.7
+        color: '#ae39e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -2077,8 +2077,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3423.5
-        color: '#a335ee'
+        score: 3448.7
+        color: '#ae39e2'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3286,13 +3286,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 2785.1
+        score: 2803.3
         color: '#5aa0aa'
       dps:
-        score: 2785.1
+        score: 2803.3
         color: '#5aa0aa'
       healer:
         score: 0
@@ -3307,7 +3307,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2785.1
+        score: 2803.3
         color: '#5aa0aa'
       spec_3:
         score: 0
