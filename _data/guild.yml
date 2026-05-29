@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-29 18:35:00'
+  updated_at: '2026-05-29 19:21:35'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -20,11 +20,11 @@ guild:
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
-    summary: 1/9 M
+    summary: 2/9 M
     total_bosses: 9
     normal_bosses_killed: 9
     heroic_bosses_killed: 7
-    mythic_bosses_killed: 1
+    mythic_bosses_killed: 2
   blackrock-depths:
     summary: 0/8 N
     total_bosses: 8
@@ -56,13 +56,13 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13554
-      region: 5944
+      world: 13557
+      region: 5946
       realm: 48
     mythic:
-      world: 7511
-      region: 3200
-      realm: 23
+      world: 7067
+      region: 3075
+      realm: 22
   blackrock-depths:
     normal:
       world: 0
@@ -5366,7 +5366,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 283
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3412.2
@@ -5674,7 +5674,7 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Affliction
+      name: Demonology
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/208/224350672-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
@@ -5696,7 +5696,7 @@ members:
         score: 1830.6
         color: '#7fff62'
       spec_1:
-        score: 2696.7
+        score: 2708.2
         color: '#5fb692'
       spec_2:
         score: 0
