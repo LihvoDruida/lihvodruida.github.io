@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-29 19:21:35'
+  updated_at: '2026-05-29 21:53:19'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 158
+  member_count: 157
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13557
-      region: 5946
-      realm: 48
+      world: 13573
+      region: 5958
+      realm: 49
     mythic:
-      world: 7067
-      region: 3075
+      world: 7029
+      region: 3052
       realm: 22
   blackrock-depths:
     normal:
@@ -190,7 +190,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3142.5
@@ -369,58 +369,6 @@ members:
       spec_2:
         score: 0
         color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Cexylulu
-    id: 175404861
-    level: 90
-    realm:
-      id: 506
-      slug: draenor
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 10
-      name: Blood Elf
-    faction:
-      type: HORDE
-    gender: female
-    active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/draenor/61/175404861-avatar.jpg?alt=/wow/static/images/2d/avatar/10-1.jpg
-    profile_url: https://raider.io/characters/eu/draenor/Cexylulu
-    item_level_equipped: 288
-    mythic_plus_scores:
-      all:
-        score: 3124.7
-        color: '#4968e1'
-      dps:
-        score: 3124.7
-        color: '#4968e1'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3124.7
-        color: '#4968e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3442,14 +3390,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2667.4
-        color: '#5fbb8c'
+        score: 2754.8
+        color: '#5eac9d'
       dps:
-        score: 2667.4
-        color: '#5fbb8c'
+        score: 2754.8
+        color: '#5eac9d'
       healer:
         score: 0
         color: '#ffffff'
@@ -3463,8 +3411,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2667.4
-        color: '#5fbb8c'
+        score: 2754.8
+        color: '#5eac9d'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5161,13 +5109,13 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 3014.8
+        score: 3032.6
         color: '#2175d8'
       dps:
         score: 335
         color: '#f7fff3'
       healer:
-        score: 3014.8
+        score: 3032.6
         color: '#2175d8'
       tank:
         score: 0
@@ -5179,7 +5127,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3014.8
+        score: 3032.6
         color: '#2175d8'
       spec_3:
         score: 0
@@ -6146,7 +6094,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/47/225334575-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Medvedich
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3616.5
@@ -6198,14 +6146,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-    item_level_equipped: 271
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2748.6
-        color: '#5eac9d'
+        score: 2780.1
+        color: '#5ba1a8'
       dps:
-        score: 2748.6
-        color: '#5eac9d'
+        score: 2780.1
+        color: '#5ba1a8'
       healer:
         score: 0
         color: '#ffffff'
@@ -6213,8 +6161,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2748.6
-        color: '#5eac9d'
+        score: 2780.1
+        color: '#5ba1a8'
       spec_1:
         score: 2049.8
         color: '#66ff4a'
@@ -7091,8 +7039,8 @@ members:
         score: 3007.8
         color: '#2175d8'
       healer:
-        score: 1988.5
-        color: '#6dff51'
+        score: 2026.4
+        color: '#66ff4a'
       tank:
         score: 0
         color: '#ffffff'
@@ -7106,8 +7054,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 1988.5
-        color: '#6dff51'
+        score: 2026.4
+        color: '#66ff4a'
     sources:
       roster: blizzard
       enrichment: raider.io

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-29 19:21:35'
+  updated_at: '2026-05-29 21:53:19'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 158
+  member_count: 157
 characters:
 - name: Бреинор
   region: eu
@@ -366,23 +366,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 90
         max_points: 300
-- name: Cexylulu
-  region: eu
-  realm: draenor
-  realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Cexylulu
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 6
-        max_points: 305
-      - name: Midnight Enchanting
-        learned_points: 61
-        max_points: 105
-    secondaries: []
 - name: Senigør
   region: eu
   realm: ravencrest
@@ -1018,7 +1001,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 72
+        learned_points: 73
         max_points: 100
     secondaries:
     - name: Archaeology
@@ -5985,7 +5968,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 95
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Fishing
