@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 21:56:04'
+  updated_at: '2026-05-29 03:43:14'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13492
-      region: 5932
+      world: 13518
+      region: 5936
       realm: 48
     mythic:
-      world: 7483
-      region: 3193
+      world: 7501
+      region: 3196
       realm: 23
   blackrock-depths:
     normal:
@@ -3393,10 +3393,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3246.4
+        score: 3256
         color: '#7957e7'
       dps:
-        score: 3246.4
+        score: 3256
         color: '#7957e7'
       healer:
         score: 0
@@ -3405,7 +3405,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3246.4
+        score: 3256
         color: '#7957e7'
       spec_1:
         score: 0
@@ -4534,7 +4534,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/149/211631253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Inika
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 2795.3
@@ -4846,7 +4846,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/100/216474980-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Plaguenjoyer
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3185
@@ -7293,11 +7293,11 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3318.2
-        color: '#8f49ea'
+        score: 3337.7
+        color: '#9643ec'
       dps:
-        score: 3318.2
-        color: '#8f49ea'
+        score: 3337.7
+        color: '#9643ec'
       healer:
         score: 0
         color: '#ffffff'
@@ -7308,8 +7308,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3318.2
-        color: '#8f49ea'
+        score: 3337.7
+        color: '#9643ec'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7890,7 +7890,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2982.7

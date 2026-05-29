@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-28 21:56:04'
+  updated_at: '2026-05-29 03:43:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6332,7 +6332,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 263
+        learned_points: 266
         max_points: 300
 - name: Кеенди
   region: eu
