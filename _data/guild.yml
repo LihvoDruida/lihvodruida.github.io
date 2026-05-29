@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-29 03:43:14'
+  updated_at: '2026-05-29 07:59:16'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13518
-      region: 5936
+      world: 13539
+      region: 5937
       realm: 48
     mythic:
-      world: 7501
-      region: 3196
+      world: 7505
+      region: 3197
       realm: 23
   blackrock-depths:
     normal:
@@ -2013,8 +2013,8 @@ members:
     item_level_equipped: 255
     mythic_plus_scores:
       all:
-        score: 1594.5
-        color: '#97ff7b'
+        score: 1922
+        color: '#74ff57'
       dps:
         score: 0
         color: '#ffffff'
@@ -2022,8 +2022,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 1594.5
-        color: '#97ff7b'
+        score: 1922
+        color: '#74ff57'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -2031,8 +2031,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1594.5
-        color: '#97ff7b'
+        score: 1922
+        color: '#74ff57'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3549,8 +3549,8 @@ members:
     item_level_equipped: 273
     mythic_plus_scores:
       all:
-        score: 2531.3
-        color: '#58d66a'
+        score: 2633.8
+        color: '#5fc283'
       dps:
         score: 0
         color: '#ffffff'
@@ -3558,8 +3558,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2531.3
-        color: '#58d66a'
+        score: 2633.8
+        color: '#5fc283'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -3567,8 +3567,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2531.3
-        color: '#58d66a'
+        score: 2633.8
+        color: '#5fc283'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5161,14 +5161,14 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2894.6
-        color: '#4c8cbf'
+        score: 2935.9
+        color: '#4183c9'
       dps:
         score: 335
         color: '#f7fff3'
       healer:
-        score: 2894.6
-        color: '#4c8cbf'
+        score: 2935.9
+        color: '#4183c9'
       tank:
         score: 0
         color: '#ffffff'
@@ -5179,8 +5179,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2894.6
-        color: '#4c8cbf'
+        score: 2935.9
+        color: '#4183c9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7990,8 +7990,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Devourer
-      role: DPS
+      name: Vengeance
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
     item_level_equipped: 278
