@@ -829,15 +829,28 @@ function resolveReportFightRole(input: {
   damage: WarcraftLogsReportMeasure;
   healing: WarcraftLogsReportMeasure;
 }): WarcraftLogsReportRoleResolution {
-  const tableRole = input.damage.role || input.healing.role;
   const tableSpec = input.damage.spec || input.healing.spec;
-  if (tableRole) {
+  const specRole = concreteRoleFromSpec(tableSpec || input.actor.spec);
+  if (specRole) {
     return {
-      role: tableRole,
+      role: specRole,
+      spec: tableSpec || input.actor.spec,
+      source: tableSpec ? "table" : "actor",
+    };
+  }
+
+  const tableRoles = [input.damage.role, input.healing.role].filter(
+    (role): role is WarcraftLogsConcreteRoleKey => Boolean(role),
+  );
+  const uniqueTableRoles = [...new Set(tableRoles)];
+  if (uniqueTableRoles.length === 1) {
+    return {
+      role: uniqueTableRoles[0],
       spec: tableSpec || input.actor.spec,
       source: "table",
     };
   }
+
   if (input.actor.role) {
     return {
       role: input.actor.role,
@@ -845,6 +858,7 @@ function resolveReportFightRole(input: {
       source: "actor",
     };
   }
+
   return {
     role: null,
     spec: tableSpec || input.actor.spec,
@@ -883,9 +897,32 @@ function difficultyLabel(value: number | null | undefined) {
   return "Без складності";
 }
 
-function pickHighestDifficulty(pulls: WarcraftLogsBossPull[]) {
+function pullHasMetricData(
+  pull: WarcraftLogsBossPull,
+  metric?: WarcraftLogsMetricKey | null,
+) {
+  if (!isEligibleRaidBossPull(pull)) return false;
+  if (metric === "hps" || metric === "dps") {
+    return (
+      typeof pull.amount === "number" &&
+      Number.isFinite(pull.amount) &&
+      pull.amount > 0
+    );
+  }
+  return (
+    typeof pull.percentile === "number" &&
+    Number.isFinite(pull.percentile)
+  );
+}
+
+function pickHighestDifficulty(
+  pulls: WarcraftLogsBossPull[],
+  metric?: WarcraftLogsMetricKey | null,
+) {
   let selected: number | null = null;
-  for (const pull of pulls) {
+  const candidates = pulls.filter((pull) => pullHasMetricData(pull, metric));
+  const source = candidates.length ? candidates : pulls.filter(isEligibleRaidBossPull);
+  for (const pull of source) {
     if (pull.difficulty === null || pull.difficulty === undefined) continue;
     if (
       selected === null ||
@@ -901,8 +938,11 @@ function pullsForPrimaryDifficulty(
   pulls: WarcraftLogsBossPull[],
   primaryDifficulty: number | null,
 ) {
-  if (primaryDifficulty === null) return pulls;
-  return pulls.filter((pull) => pull.difficulty === primaryDifficulty);
+  if (primaryDifficulty === null) return pulls.filter(isEligibleRaidBossPull);
+  return pulls.filter(
+    (pull) =>
+      isEligibleRaidBossPull(pull) && pull.difficulty === primaryDifficulty,
+  );
 }
 
 function pullTimeMs(pull: WarcraftLogsBossPull) {
@@ -2007,15 +2047,19 @@ function difficultySummaries(
     );
 }
 
-function primaryDifficultyStats(pulls: WarcraftLogsBossPull[]) {
-  const primaryDifficulty = pickHighestDifficulty(pulls);
-  const primaryPulls = pullsForPrimaryDifficulty(pulls, primaryDifficulty);
+function primaryDifficultyStats(
+  pulls: WarcraftLogsBossPull[],
+  metric?: WarcraftLogsMetricKey | null,
+) {
+  const cleanPulls = pulls.filter(isEligibleRaidBossPull);
+  const primaryDifficulty = pickHighestDifficulty(cleanPulls, metric);
+  const primaryPulls = pullsForPrimaryDifficulty(cleanPulls, primaryDifficulty);
   return {
     primaryDifficulty,
     primaryDifficultyLabel:
       primaryDifficulty !== null ? difficultyLabel(primaryDifficulty) : null,
     primaryPulls,
-    difficultySummaries: difficultySummaries(pulls),
+    difficultySummaries: difficultySummaries(cleanPulls),
     recentStats: recentStats(primaryPulls),
   };
 }
@@ -2223,8 +2267,7 @@ function normalizeReportFightSeed(
   const fightSize = firstInteger(record, ["size", "groupSize", "raidSize"]);
   const knownRaidBoss = knownBosses.has(encounterId);
   const raidSizedFight = fightSize === null || fightSize >= 10;
-  if (knownBosses.size > 0 && !knownRaidBoss) return null;
-  if (knownBosses.size === 0 && !raidSizedFight) return null;
+  if (!knownRaidBoss && !raidSizedFight) return null;
 
   const durationMs = durationMsFromRecord(record);
   if (durationMs === null || durationMs <= 0) return null;
@@ -2599,19 +2642,18 @@ function reportFightTablesQuery(
 ) {
   const fields = fights
     .map((fight, index) => {
-      const start = Math.max(0, Math.floor(fight.startOffsetMs));
-      const end = Math.max(start + 1, Math.floor(fight.endOffsetMs));
+      const fightId = Math.max(0, Math.floor(fight.fightId));
       const baseFields = [
-        `    d${index}: table(dataType: DamageDone, startTime: ${start}, endTime: ${end}, viewBy: Source, sourceID: $sourceID)`,
-        `    h${index}: table(dataType: Healing, startTime: ${start}, endTime: ${end}, viewBy: Source, sourceID: $sourceID)`,
+        `    d${index}: table(dataType: DamageDone, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
+        `    h${index}: table(dataType: Healing, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
       ];
 
       if (!enhanced) return baseFields.join("\n");
 
       return [
         ...baseFields,
-        `    s${index}: table(dataType: Summary, startTime: ${start}, endTime: ${end}, viewBy: Source, sourceID: $sourceID)`,
-        `    x${index}: table(dataType: Deaths, startTime: ${start}, endTime: ${end}, viewBy: Source, sourceID: $sourceID)`,
+        `    s${index}: table(dataType: Summary, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
+        `    x${index}: table(dataType: Deaths, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
       ].join("\n");
     })
     .join("\n");
@@ -2792,7 +2834,6 @@ async function fetchRecentRaidBossPulls(input: {
   metricSummaries: WarcraftLogsMetricSummary[];
 }) {
   const knownBosses = knownRaidBossIds(input.metricSummaries);
-  if (!knownBosses.size) return emptyReportPullsResult();
 
   try {
     const reports = await fetchRecentReportRecords(input);
@@ -3263,7 +3304,7 @@ function normalizeBossSummaries(
       config,
       baseUrl,
     );
-    const primary = primaryDifficultyStats(pulls);
+    const primary = primaryDifficultyStats(pulls, config.metric);
     const rankingDifficultyMatches =
       primary.primaryDifficulty === null ||
       ranking.difficulty === primary.primaryDifficulty;
@@ -3320,7 +3361,7 @@ function normalizeMetricSummary(
     bossRankings.flatMap((boss) => boss.pulls),
     Number.MAX_SAFE_INTEGER,
   );
-  const primary = primaryDifficultyStats(pulls);
+  const primary = primaryDifficultyStats(pulls, config.metric);
   const rootBestAverage = firstNumber(root, [
     "bestPerformanceAverage",
     "bestPerfAvg",

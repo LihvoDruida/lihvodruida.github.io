@@ -394,8 +394,7 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
         <div><dt>Пули</dt><dd>{formatStableNumber(activeBoss.recentStats.pullCount, 0)}</dd></div>
         <div><dt>Кіли</dt><dd>{formatStableNumber(activeBoss.totalKills ?? killCount, 0)}</dd></div>
         <div><dt>Макс. {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)}</dd></div>
-        <div><dt>Зваж. avg</dt><dd>{formatAmount(activeBoss.recentStats.weightedAverageAmount ?? activeBoss.recentStats.averageAmount)}</dd></div>
-        <div><dt>Арифм. avg</dt><dd>{formatAmount(activeBoss.recentStats.arithmeticAverageAmount)}</dd></div>
+        <div><dt>Середній</dt><dd>{formatAmount(activeBoss.recentStats.averageAmount)}</dd></div>
         <div><dt>Медіана</dt><dd>{formatAmount(activeBoss.recentStats.medianAmount)}</dd></div>
         <div><dt>Смерті</dt><dd>{formatStableNumber(activeBoss.recentStats.deathCount, 0)}</dd></div>
         <div><dt>Best wipe</dt><dd>{formatProgress(activeBoss.recentStats.bestBossPercentage)}</dd></div>
@@ -453,7 +452,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <div>
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Чисті пули по рейдових босах</h3>
-          <p>Boss-pulls з WCL без трешу й ключів. Основні цифри беруться з найвищої доступної складності.</p>
+          <p>Boss-pulls з WCL без трешу й ключів. Основні цифри беруться з найвищої складності, де є дані.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -474,7 +473,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
             }}
           >
             <strong>{slice.title}</strong>
-            <span>{slice.primaryDifficultyLabel || "рейд"} • {formatPercent(slice.bestPerformanceAverage)} • avg≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.sampleSize} записів</span>
+            <span>{slice.primaryDifficultyLabel || "рейд"} • {formatPercent(slice.bestPerformanceAverage)} • середнє {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.sampleSize} записів</span>
           </button>
         ))}
       </div>
@@ -484,8 +483,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <MetricStat label="Найкращий середній parse" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
         <MetricStat label="Медіана parse" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
         <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
-        <MetricStat label={`Зважений ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.weightedAverageAmount ?? activeSlice.recentStats.averageAmount)} hint="total / час" />
-        <MetricStat label={`Арифм. ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.arithmeticAverageAmount)} hint="середнє пулів" />
+        <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="єдиний метод" />
         <MetricStat label={`Медіана ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.medianAmount)} hint="власний розрахунок" />
         <MetricStat label="Стабільність" value={formatPercent(activeSlice.recentStats.consistencyScore)} hint="розкид" />
         <MetricStat label="Пули / смерті" value={`${formatStableNumber(activeSlice.recentStats.pullCount, 0)} / ${formatStableNumber(activeSlice.recentStats.deathCount, 0)}`} hint={activeSlice.sourceLabel} />
@@ -525,7 +523,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
                 <MetricStat label="Складність" value={activeBoss.primaryDifficultyLabel || "—"} />
                 <MetricStat label="Найкращий parse" value={formatPercent(activeBoss.bestPercentile)} />
                 <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
-                <MetricStat label={`Зважений ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.weightedAverageAmount ?? activeBoss.recentStats.averageAmount)} hint="total / час" />
+                <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="єдиний метод" />
                 <MetricStat label={`Медіана ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.medianAmount)} />
                 <MetricStat label="Кіл / вайп" value={`${activeBoss.recentStats.killCount}/${activeBoss.recentStats.wipeCount}`} />
                 <MetricStat label="Кіли / швидкість" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />

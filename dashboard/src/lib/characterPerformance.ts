@@ -151,7 +151,7 @@ export function buildCharacterPerformanceEcosystem(input: {
       "raid",
       "Raid/WCL",
       formatScore(raidScore),
-      raidSlice ? `${raidSlice.title} ${raidSlice.primaryDifficultyLabel || ""}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, avg≤10 ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих рейдових пулів.",
+      raidSlice ? `${raidSlice.title} ${raidSlice.primaryDifficultyLabel || ""}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, середній parse ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих рейдових пулів.",
       raidScore !== null && raidScore >= 70 ? "good" : raidScore !== null && raidScore < 45 ? "warn" : "neutral",
     ),
     signal(
