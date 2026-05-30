@@ -145,7 +145,7 @@ function MetricStat({ label, value, hint }: { label: string; value: string; hint
 function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; index: number; activeSlice: WarcraftLogsMetricSummary }) {
   const row = (
     <>
-      <span><strong>{formatPercent(pull.percentile)}</strong><small>#{index + 1} • {formatStableUkCompactDate(pull.startTime)}</small></span>
+      <span><strong>{formatPercent(pull.percentile)}</strong><small>#{index + 1} • {formatStableUkCompactDate(pull.startTime)}{pull.killedWith ? ` • ${pull.killedWith}` : ""}</small></span>
       <span><strong>{formatAmount(pull.amount)}</strong><small>{metricLabel(activeSlice)}</small></span>
       <span><strong>{pull.itemLevel !== null ? formatStableNumber(pull.itemLevel, 0) : "—"}</strong><small>ilvl</small></span>
       <span><strong>{formatDuration(pull.durationMs)}</strong><small>duration</small></span>
@@ -194,7 +194,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
     return (
       <div className="profile-wcl-dynamic profile-wcl-dynamic--empty">
         <strong>Warcraft Logs поки не повернув role/metric rankings</strong>
-        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й останні 10 пулів.</span>
+        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й до 10 пулів пулів.</span>
       </div>
     );
   }
@@ -204,8 +204,8 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
       <div className="profile-wcl-dynamic__head">
         <div>
           <span className="eyebrow">Warcraft Logs</span>
-          <h3>Ролі, боси, останні 10 пулів</h3>
-          <p>Окремо HPS для хіла, DPS для ДД, DPS/HPS для танка. Без горизонтального скролу: все стискається у компактні картки.</p>
+          <h3>Рейдові боси, до 10 пулів ≥3 хв</h3>
+          <p>Тільки рейдові боси: треш і ключі відкидаються. У середнє входять доступні пули понад 3 хвилини, максимум 10 останніх.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -224,7 +224,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
             }}
           >
             <strong>{slice.title}</strong>
-            <span>{formatPercent(slice.bestPerformanceAverage)} • avg10 {formatAmount(slice.recentStats.averageAmount)}</span>
+            <span>{formatPercent(slice.bestPerformanceAverage)} • avg≤10 {formatAmount(slice.recentStats.averageAmount)}</span>
           </button>
         ))}
       </div>
@@ -232,8 +232,8 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
       <div className="profile-wcl-metric-grid" aria-label={`Підсумок ${activeSlice.title}`}>
         <MetricStat label="Best avg" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
         <MetricStat label="Median" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
-        <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
-        <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="останні 10" />
+        <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="до 10 пулів" />
+        <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="до 10 пулів" />
         <MetricStat label="Pulls" value={formatStableNumber(activeSlice.recentStats.pullCount, 0)} hint={activeSlice.sourceLabel} />
       </div>
 
@@ -259,18 +259,18 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
               <div className="profile-wcl-boss-summary">
                 <MetricStat label="Best parse" value={formatPercent(activeBoss.bestPercentile)} />
                 <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
-                <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="останні 10" />
+                <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="до 10 пулів" />
                 <MetricStat label="Kills / Fast" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />
               </div>
 
               {points.length ? <GraphSvg points={points} /> : (
                 <div className="profile-wcl-dynamic profile-wcl-dynamic--empty profile-wcl-dynamic--inline">
                   <strong>Немає точок для графіка</strong>
-                  <span>По цьому босу є ranking snapshot, але немає percentile-історії, з якої можна побудувати графік.</span>
+                  <span>По цьому босу є рейдові пули понад 3 хв, але без percentile-точок. Avg/Max HPS-DPS все одно рахуються по доступних пулах.</span>
                 </div>
               )}
 
-              <div className="profile-wcl-pulls" aria-label="Останні доступні пули по босу">
+              <div className="profile-wcl-pulls" aria-label="Доступні рейдові пули по босу понад 3 хв">
                 {activeBoss.pulls.map((pull, index) => (
                   <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.startTime || index}-${pull.percentile}`} pull={pull} index={index} activeSlice={activeSlice} />
                 ))}

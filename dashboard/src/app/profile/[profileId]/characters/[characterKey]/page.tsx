@@ -278,7 +278,7 @@ function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary 
           {summary.encounterRankings.map((ranking, index) => <EncounterRankingRow key={`${ranking.encounterName}-${ranking.metric || "metric"}-${index}`} ranking={ranking} />)}
         </div>
       ) : (
-        <EmptyBlock title="Encounter rankings не знайдено" text="Блок залишено готовим: щойно Warcraft Logs поверне zoneRankings для персонажа, тут зʼявляться боси, parse %, best amount, кількість kills і історія пулів." />
+        <EmptyBlock title="Encounter rankings не знайдено" text="Блок залишено готовим: щойно Warcraft Logs поверне raid boss zoneRankings і recentReports, тут зʼявляться лише рейдові боси, parse %, best amount, kills/wipes і пули понад 3 хвилини." />
       )}
     </article>
   );
