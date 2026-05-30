@@ -830,19 +830,14 @@ function resolveReportFightRole(input: {
   healing: WarcraftLogsReportMeasure;
 }): WarcraftLogsReportRoleResolution {
   const tableSpec = input.damage.spec || input.healing.spec;
-  const specRole = concreteRoleFromSpec(tableSpec || input.actor.spec);
-  if (specRole) {
-    return {
-      role: specRole,
-      spec: tableSpec || input.actor.spec,
-      source: tableSpec ? "table" : "actor",
-    };
-  }
-
   const tableRoles = [input.damage.role, input.healing.role].filter(
     (role): role is WarcraftLogsConcreteRoleKey => Boolean(role),
   );
   const uniqueTableRoles = [...new Set(tableRoles)];
+
+  // Prefer the role explicitly emitted by the WCL table. Spec names are only a
+  // fallback, because masterData.subType can be a class name rather than the
+  // spec used in that fight.
   if (uniqueTableRoles.length === 1) {
     return {
       role: uniqueTableRoles[0],
@@ -851,9 +846,27 @@ function resolveReportFightRole(input: {
     };
   }
 
+  const tableSpecRole = concreteRoleFromSpec(tableSpec);
+  if (tableSpecRole) {
+    return {
+      role: tableSpecRole,
+      spec: tableSpec,
+      source: "table",
+    };
+  }
+
   if (input.actor.role) {
     return {
       role: input.actor.role,
+      spec: tableSpec || input.actor.spec,
+      source: "actor",
+    };
+  }
+
+  const actorSpecRole = concreteRoleFromSpec(input.actor.spec);
+  if (actorSpecRole) {
+    return {
+      role: actorSpecRole,
       spec: tableSpec || input.actor.spec,
       source: "actor",
     };
@@ -893,7 +906,8 @@ function difficultyLabel(value: number | null | undefined) {
   if (value === 5) return "Міфік";
   if (value === 4) return "Героїк";
   if (value === 3) return "Нормал";
-  if (value === 2) return "LFR";
+  if (value === 2) return "Legacy/Flex";
+  if (value === 1) return "LFR";
   return "Без складності";
 }
 
@@ -971,8 +985,8 @@ function roundedDurationSeconds(value: number | null | undefined) {
 
 function normalizedKillState(value: unknown) {
   const normalized = normalizeRoleText(value);
-  if (normalized.includes("kill")) return "kill";
-  if (normalized.includes("wipe")) return "wipe";
+  if (normalized.includes("kill") || normalized === "true") return "kill";
+  if (normalized.includes("wipe") || normalized === "false") return "wipe";
   return normalized || "unknown";
 }
 
@@ -2011,10 +2025,10 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
     averageFightPercentage: average(fightPercentages),
     deathCount,
     killCount: recent.filter(
-      (pull) => normalizeRoleText(pull.killedWith) === "kill",
+      (pull) => normalizedKillState(pull.killedWith) === "kill",
     ).length,
     wipeCount: recent.filter(
-      (pull) => normalizeRoleText(pull.killedWith) === "wipe",
+      (pull) => normalizedKillState(pull.killedWith) === "wipe",
     ).length,
     lastPullAt: sorted.find((pull) => pull.startTime)?.startTime ?? null,
   };
@@ -2610,7 +2624,7 @@ function addReportPull(
 
 function recentReportsQuery(limit: number, enhanced = true) {
   const reportExtraFields = enhanced
-    ? `\n          archiveStatus\n          rankedCharacters { id name server { name slug } }`
+    ? `\n          archiveStatus\n          region { id name compactName }\n          rankedCharacters { id canonicalID name classID level }`
     : "";
   const fightExtraFields = enhanced
     ? `\n            bossPercentage\n            fightPercentage\n            averageItemLevel`
@@ -2654,24 +2668,42 @@ function recentReportsQuery(limit: number, enhanced = true) {
 }`;
 }
 
+type WarcraftLogsReportTableQueryMode = "fightIDs" | "timeRange";
+
+function reportTableArgs(
+  dataType: "DamageDone" | "Healing" | "Summary" | "Deaths",
+  fight: WarcraftLogsReportFightSeed,
+  mode: WarcraftLogsReportTableQueryMode,
+) {
+  const common = [`dataType: ${dataType}`, "viewBy: Source", "sourceID: $sourceID"];
+  if (mode === "fightIDs") {
+    const fightId = Math.max(0, Math.floor(fight.fightId));
+    return [...common, `fightIDs: [${fightId}]`].join(", ");
+  }
+
+  const startTime = Math.max(0, Math.floor(fight.startOffsetMs));
+  const endTime = Math.max(startTime + 1, Math.floor(fight.endOffsetMs));
+  return [...common, `startTime: ${startTime}`, `endTime: ${endTime}`].join(", ");
+}
+
 function reportFightTablesQuery(
   fights: WarcraftLogsReportFightSeed[],
   enhanced = true,
+  mode: WarcraftLogsReportTableQueryMode = "fightIDs",
 ) {
   const fields = fights
     .map((fight, index) => {
-      const fightId = Math.max(0, Math.floor(fight.fightId));
       const baseFields = [
-        `    d${index}: table(dataType: DamageDone, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
-        `    h${index}: table(dataType: Healing, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
+        `    d${index}: table(${reportTableArgs("DamageDone", fight, mode)})`,
+        `    h${index}: table(${reportTableArgs("Healing", fight, mode)})`,
       ];
 
       if (!enhanced) return baseFields.join("\n");
 
       return [
         ...baseFields,
-        `    s${index}: table(dataType: Summary, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
-        `    x${index}: table(dataType: Deaths, fightIDs: [${fightId}], viewBy: Source, sourceID: $sourceID)`,
+        `    s${index}: table(${reportTableArgs("Summary", fight, mode)})`,
+        `    x${index}: table(${reportTableArgs("Deaths", fight, mode)})`,
       ].join("\n");
     })
     .join("\n");
@@ -2776,46 +2808,85 @@ async function fetchReportFightTables(input: {
 }) {
   if (!input.fights.length) return null;
 
-  async function request(enhanced: boolean) {
-    return apiFetchJson<{
-      data?: {
-        reportData?: { report?: Record<string, unknown> | null } | null;
-      } | null;
-      errors?: Array<{ message?: string }>;
-    }>(`${input.credentials.baseUrl}/api/v2/client`, {
-      method: "POST",
-      label: `Warcraft Logs report boss tables ${input.reportCode}${enhanced ? " enhanced" : " basic"}`,
-      timeoutMs: warcraftLogsTimeoutMs(),
-      retries: warcraftLogsRetryCount(),
-      retryMethods: ["POST"],
-      headers: {
-        Authorization: `Bearer ${input.token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: reportFightTablesQuery(input.fights, enhanced),
-        variables: {
-          code: input.reportCode,
-          sourceID: input.sourceId,
+  type ReportTableAttempt = {
+    enhanced: boolean;
+    mode: WarcraftLogsReportTableQueryMode;
+  };
+  type ReportTableResponse = {
+    data?: {
+      reportData?: { report?: Record<string, unknown> | null } | null;
+    } | null;
+    errors?: Array<{ message?: string }>;
+  };
+
+  async function request(attempt: ReportTableAttempt) {
+    return apiFetchJson<ReportTableResponse>(
+      `${input.credentials.baseUrl}/api/v2/client`,
+      {
+        method: "POST",
+        label: `Warcraft Logs report boss tables ${input.reportCode} ${attempt.mode}${attempt.enhanced ? " enhanced" : " basic"}`,
+        timeoutMs: warcraftLogsTimeoutMs(),
+        retries: warcraftLogsRetryCount(),
+        retryMethods: ["POST"],
+        headers: {
+          Authorization: `Bearer ${input.token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-      }),
-      cache: "no-store",
+        body: JSON.stringify({
+          query: reportFightTablesQuery(
+            input.fights,
+            attempt.enhanced,
+            attempt.mode,
+          ),
+          variables: {
+            code: input.reportCode,
+            sourceID: input.sourceId,
+          },
+        }),
+        cache: "no-store",
+      },
+    );
+  }
+
+  const attempts: ReportTableAttempt[] = [
+    { enhanced: true, mode: "fightIDs" },
+    { enhanced: false, mode: "fightIDs" },
+    { enhanced: true, mode: "timeRange" },
+    { enhanced: false, mode: "timeRange" },
+  ];
+  const attemptErrors: Array<{ enhanced: boolean; mode: string; errors: string[] }> =
+    [];
+  let response: ReportTableResponse | null = null;
+  let selectedAttempt: ReportTableAttempt | null = null;
+
+  for (const attempt of attempts) {
+    const next = await request(attempt);
+    const errors =
+      next.errors?.map((item) => cleanText(item.message, 240)).filter(Boolean) ||
+      [];
+    if (!errors.length) {
+      response = next;
+      selectedAttempt = attempt;
+      break;
+    }
+    attemptErrors.push({
+      enhanced: attempt.enhanced,
+      mode: attempt.mode,
+      errors,
     });
+    response = next;
+    selectedAttempt = attempt;
   }
 
-  let enhanced = true;
-  let response = await request(true);
-  let fallbackUsed = false;
-  if (response.errors?.length) {
-    fallbackUsed = true;
-    enhanced = false;
-    response = await request(false);
-  }
-
-  const report = response.errors?.length
+  const report = response?.errors?.length
     ? null
-    : response.data?.reportData?.report || null;
+    : response?.data?.reportData?.report || null;
+  const enhanced = selectedAttempt?.enhanced ?? false;
+  const tableMode = selectedAttempt?.mode ?? "fightIDs";
+  const fallbackUsed =
+    selectedAttempt !== null &&
+    (selectedAttempt.mode !== "fightIDs" || !selectedAttempt.enhanced);
 
   warcraftLogsDebugAudit(
     input.credentials,
@@ -2826,21 +2897,23 @@ async function fetchReportFightTables(input: {
       sourceId: input.sourceId,
       fightCount: input.fights.length,
       enhanced,
+      tableMode,
       fallbackUsed,
+      attemptedFallbacks: attemptErrors,
       tableKeys: report
         ? Object.keys(report)
             .filter((key) => /^(d|h|s|x)\d+$/.test(key))
             .slice(0, 80)
         : [],
       errors:
-        response.errors
+        response?.errors
           ?.map((item) => cleanText(item.message, 240))
           .filter(Boolean) || [],
       responsePreview: compactForLog(response),
     },
   );
 
-  return { report, enhanced, fallbackUsed };
+  return { report, enhanced, fallbackUsed, tableMode };
 }
 
 async function fetchRecentRaidBossPulls(input: {
