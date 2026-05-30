@@ -11,8 +11,8 @@ import type {
 import { formatStableNumber, formatStableUkCompactDate } from "@/lib/stableUiText";
 
 type GraphPoint = WarcraftLogsBossPull & {
-  x: number;
-  y: number;
+  xPercent: number;
+  yPercent: number;
   label: string;
   bossKey: string;
   bossName: string;
@@ -20,8 +20,16 @@ type GraphPoint = WarcraftLogsBossPull & {
   sortTime: number;
 };
 
+type GraphTick = {
+  xPercent: number;
+  label: string;
+};
+
 const PERCENTILE_GUIDES = [99, 95, 75, 50, 25, 10] as const;
 const SLICE_ORDER = ["healer-hps", "dps-dps", "tank-dps", "tank-hps", "overall"];
+const VIEWBOX = { width: 1000, height: 360, left: 58, right: 18, top: 54, bottom: 44 };
+const PLOT_WIDTH = VIEWBOX.width - VIEWBOX.left - VIEWBOX.right;
+const PLOT_HEIGHT = VIEWBOX.height - VIEWBOX.top - VIEWBOX.bottom;
 
 function clampPercent(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
@@ -48,6 +56,14 @@ function formatDuration(value: number | null | undefined) {
   return `${minutes}:${rest}`;
 }
 
+function difficultyLabel(value: number | null | undefined) {
+  if (value === 5) return "MYTHIC";
+  if (value === 4) return "HEROIC";
+  if (value === 3) return "NORMAL";
+  if (value === 2) return "LFR";
+  return "RAID";
+}
+
 function pullDate(pull: WarcraftLogsBossPull) {
   return pull.startTime ? new Date(pull.startTime).getTime() : 0;
 }
@@ -64,6 +80,28 @@ function graphPointKey(point: GraphPoint, index: number) {
     point.startTime || index,
     point.percentile ?? "percentile",
   ].join(":");
+}
+
+function xCoord(percent: number) {
+  return VIEWBOX.left + (percent / 100) * PLOT_WIDTH;
+}
+
+function yCoord(percent: number) {
+  return VIEWBOX.top + ((100 - percent) / 100) * PLOT_HEIGHT;
+}
+
+function diamondPoints(cx: number, cy: number, radius: number) {
+  return `${cx},${cy - radius} ${cx + radius},${cy} ${cx},${cy + radius} ${cx - radius},${cy}`;
+}
+
+function percentileLabel(value: number) {
+  if (value === 99) return "99th Percentile";
+  if (value === 95) return "95th Percentile";
+  if (value === 75) return "75th Percentile";
+  if (value === 50) return "50th Percentile";
+  if (value === 25) return "25th Percentile";
+  if (value === 10) return "10th Percentile";
+  return `${value}th Percentile`;
 }
 
 function toCombinedGraphPoints(bosses: WarcraftLogsBossSummary[], activeBoss: WarcraftLogsBossSummary | null): GraphPoint[] {
@@ -95,16 +133,15 @@ function toCombinedGraphPoints(bosses: WarcraftLogsBossSummary[], activeBoss: Wa
   const range = lastTime > firstTime ? lastTime - firstTime : 0;
 
   return sorted.map((item, index) => {
-    const x = range > 0 && item.sortTime > 0
-      ? 7 + ((item.sortTime - firstTime) / range) * 88
+    const xPercent = range > 0 && item.sortTime > 0
+      ? ((item.sortTime - firstTime) / range) * 100
       : sorted.length <= 1
         ? 50
-        : 7 + (index / (sorted.length - 1)) * 88;
-    const y = 95 - item.percent * 0.86;
+        : (index / (sorted.length - 1)) * 100;
     return {
       ...item.pull,
-      x,
-      y,
+      xPercent: Math.max(0, Math.min(100, xPercent)),
+      yPercent: item.percent,
       bossKey: item.key,
       bossName: item.boss.encounterName,
       isActive: activeBossKey ? item.key === activeBossKey : true,
@@ -121,6 +158,26 @@ function toCombinedGraphPoints(bosses: WarcraftLogsBossSummary[], activeBoss: Wa
         .join(" • "),
     };
   });
+}
+
+function graphTicks(points: GraphPoint[]): GraphTick[] {
+  const timed = [...points].filter((point) => point.sortTime > 0).sort((left, right) => left.sortTime - right.sortTime);
+  if (!timed.length) return [];
+  if (timed.length === 1) return [{ xPercent: timed[0].xPercent, label: formatStableUkCompactDate(timed[0].startTime) }];
+
+  const target = Math.min(6, timed.length);
+  const used = new Set<number>();
+  return Array.from({ length: target }, (_, index) => {
+    const sourceIndex = Math.round((index / Math.max(1, target - 1)) * (timed.length - 1));
+    return timed[sourceIndex];
+  })
+    .filter((point) => {
+      const day = Math.floor(point.sortTime / 86_400_000);
+      if (used.has(day)) return false;
+      used.add(day);
+      return true;
+    })
+    .map((point) => ({ xPercent: point.xPercent, label: formatStableUkCompactDate(point.startTime) }));
 }
 
 function metricLabel(summary: Pick<WarcraftLogsMetricSummary, "metricLabel"> | null | undefined) {
@@ -149,61 +206,85 @@ function sortedMetricSummaries(summary: WarcraftLogsCharacterSummary) {
 function GraphSvg({ points, activeBossName }: { points: GraphPoint[]; activeBossName: string | null }) {
   const activePoints = points.filter((point) => point.isActive).sort((left, right) => left.sortTime - right.sortTime);
   const inactivePoints = points.filter((point) => !point.isActive);
-  const polyline = activePoints.map((point) => `${point.x},${point.y}`).join(" ");
-  const firstDate = points.find((point) => point.sortTime > 0)?.startTime ?? null;
-  const lastDate = [...points].reverse().find((point) => point.sortTime > 0)?.startTime ?? null;
+  const polyline = activePoints.map((point) => `${xCoord(point.xPercent)},${yCoord(point.yPercent)}`).join(" ");
+  const ticks = graphTicks(points);
 
   return (
     <div className="profile-wcl-graph" aria-label="Спільний графік parse по рейдових босах">
-      <div className="profile-wcl-graph__caption">
-        <strong>{activeBossName || "Усі боси"}</strong>
-        <span>Усі точки на графіку, активний бос підсвічений</span>
-      </div>
-      <svg viewBox="0 0 100 100" role="img" preserveAspectRatio="none">
+      <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="img" preserveAspectRatio="xMidYMid meet">
         <title>Динаміка parse по всіх рейдових босах</title>
+        <rect className="profile-wcl-plot-bg" x={VIEWBOX.left} y={VIEWBOX.top} width={PLOT_WIDTH} height={PLOT_HEIGHT} rx="2" />
+
+        <g className="profile-wcl-svg-legend" aria-hidden="true">
+          {PERCENTILE_GUIDES.map((percentile, index) => {
+            const x = VIEWBOX.left + index * 132;
+            return (
+              <g key={percentile} className={`profile-wcl-guide profile-wcl-guide--${percentile}`} transform={`translate(${x} 18)`}>
+                <line x1="0" x2="34" y1="0" y2="0" vectorEffect="non-scaling-stroke" />
+                <text x="41" y="4">{percentileLabel(percentile)}</text>
+              </g>
+            );
+          })}
+          <g className="profile-wcl-legend-pulls" transform={`translate(${VIEWBOX.left + PERCENTILE_GUIDES.length * 132} 18)`}>
+            <polygon points={diamondPoints(5, 0, 4)} />
+            <text x="16" y="4">{activeBossName || "Selected"} Parses</text>
+          </g>
+        </g>
+
         {PERCENTILE_GUIDES.map((percentile) => {
-          const y = 95 - percentile * 0.86;
+          const y = yCoord(percentile);
           return (
             <g key={percentile} className={`profile-wcl-guide profile-wcl-guide--${percentile}`}>
-              <line x1="5" x2="98" y1={y} y2={y} vectorEffect="non-scaling-stroke" />
+              <line x1={VIEWBOX.left} x2={VIEWBOX.left + PLOT_WIDTH} y1={y} y2={y} vectorEffect="non-scaling-stroke" />
+              <text className="profile-wcl-y-tick" x={VIEWBOX.left - 12} y={y + 4} textAnchor="end">{percentile}</text>
             </g>
           );
         })}
+
+        <line className="profile-wcl-axis" x1={VIEWBOX.left} x2={VIEWBOX.left} y1={VIEWBOX.top} y2={VIEWBOX.top + PLOT_HEIGHT} vectorEffect="non-scaling-stroke" />
+        <line className="profile-wcl-axis" x1={VIEWBOX.left} x2={VIEWBOX.left + PLOT_WIDTH} y1={VIEWBOX.top + PLOT_HEIGHT} y2={VIEWBOX.top + PLOT_HEIGHT} vectorEffect="non-scaling-stroke" />
+        <text className="profile-wcl-axis-title" transform={`translate(22 ${VIEWBOX.top + PLOT_HEIGHT / 2}) rotate(-90)`} textAnchor="middle">Historical %</text>
+
+        {ticks.map((tick) => {
+          const x = xCoord(tick.xPercent);
+          return (
+            <g key={`${tick.xPercent}-${tick.label}`} className="profile-wcl-x-tick">
+              <line x1={x} x2={x} y1={VIEWBOX.top} y2={VIEWBOX.top + PLOT_HEIGHT} vectorEffect="non-scaling-stroke" />
+              <text x={x} y={VIEWBOX.top + PLOT_HEIGHT + 25} textAnchor="middle">{tick.label}</text>
+            </g>
+          );
+        })}
+
         {polyline ? <polyline points={polyline} className="profile-wcl-line" vectorEffect="non-scaling-stroke" /> : null}
-        {inactivePoints.map((point, index) => (
-          <circle
-            key={graphPointKey(point, index)}
-            className="profile-wcl-point profile-wcl-point--muted"
-            cx={point.x}
-            cy={point.y}
-            r="1.15"
-            vectorEffect="non-scaling-stroke"
-          >
-            <title>{point.label}</title>
-          </circle>
-        ))}
-        {activePoints.map((point, index) => (
-          <circle
-            key={graphPointKey(point, index)}
-            className="profile-wcl-point profile-wcl-point--active"
-            cx={point.x}
-            cy={point.y}
-            r="2.05"
-            vectorEffect="non-scaling-stroke"
-          >
-            <title>{point.label}</title>
-          </circle>
-        ))}
+        {inactivePoints.map((point, index) => {
+          const x = xCoord(point.xPercent);
+          const y = yCoord(point.yPercent);
+          return (
+            <polygon
+              key={graphPointKey(point, index)}
+              className="profile-wcl-point profile-wcl-point--muted"
+              points={diamondPoints(x, y, 3.5)}
+              vectorEffect="non-scaling-stroke"
+            >
+              <title>{point.label}</title>
+            </polygon>
+          );
+        })}
+        {activePoints.map((point, index) => {
+          const x = xCoord(point.xPercent);
+          const y = yCoord(point.yPercent);
+          return (
+            <polygon
+              key={graphPointKey(point, index)}
+              className="profile-wcl-point profile-wcl-point--active"
+              points={diamondPoints(x, y, 5)}
+              vectorEffect="non-scaling-stroke"
+            >
+              <title>{point.label}</title>
+            </polygon>
+          );
+        })}
       </svg>
-      <div className="profile-wcl-graph__legend" aria-hidden="true">
-        {PERCENTILE_GUIDES.map((percentile) => <span key={percentile}>{percentile}</span>)}
-      </div>
-      {firstDate || lastDate ? (
-        <div className="profile-wcl-graph__xaxis" aria-hidden="true">
-          <span>{formatStableUkCompactDate(firstDate)}</span>
-          <span>{formatStableUkCompactDate(lastDate)}</span>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -249,8 +330,28 @@ function BossButton({ boss, active, onClick, label }: { boss: WarcraftLogsBossSu
       onClick={onClick}
     >
       <strong>{boss.encounterName}</strong>
-      <span>{formatPercent(boss.bestPercentile)} • {formatAmount(boss.recentStats.averageAmount)} {label}</span>
+      <span>{formatPercent(boss.bestPercentile)} • avg {formatAmount(boss.recentStats.averageAmount)} {label}</span>
     </button>
+  );
+}
+
+function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsBossSummary; activeSlice: WarcraftLogsMetricSummary }) {
+  const killCount = activeBoss.pulls.filter((pull) => pull.killedWith === "Kill").length;
+  return (
+    <aside className="profile-wcl-graph-side" aria-label="Підсумок вибраного боса">
+      <span className="profile-wcl-graph-side__difficulty">{difficultyLabel(activeBoss.difficulty)}</span>
+      <strong>{formatPercent(activeBoss.recentStats.averagePercentile ?? activeBoss.medianPercentile ?? activeBoss.bestPercentile)}</strong>
+      <small>Median / Avg parse</small>
+      <dl>
+        <div><dt>Avg %</dt><dd>{formatPercent(activeBoss.recentStats.averagePercentile)}</dd></div>
+        <div><dt>Pulls logged</dt><dd>{formatStableNumber(activeBoss.recentStats.pullCount, 0)}</dd></div>
+        <div><dt>Kills logged</dt><dd>{formatStableNumber(activeBoss.totalKills ?? killCount, 0)}</dd></div>
+        <div><dt>Best {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)}</dd></div>
+        <div><dt>Avg {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.averageAmount)}</dd></div>
+        <div><dt>Fastest Kill</dt><dd>{formatDuration(activeBoss.fastestKillMs)}</dd></div>
+        <div><dt>All Star Points</dt><dd>{activeBoss.allStarsPoints !== null ? formatStableNumber(activeBoss.allStarsPoints, 2) : "—"}</dd></div>
+      </dl>
+    </aside>
   );
 }
 
@@ -270,7 +371,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
     return (
       <div className="profile-wcl-dynamic profile-wcl-dynamic--empty">
         <strong>Warcraft Logs поки не повернув role/metric rankings</strong>
-        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й до 10 пулів пулів.</span>
+        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й до 10 пулів.</span>
       </div>
     );
   }
@@ -280,8 +381,8 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
       <div className="profile-wcl-dynamic__head">
         <div>
           <span className="eyebrow">Warcraft Logs</span>
-          <h3>Рейдові боси, до 10 пулів ≥3 хв</h3>
-          <p>Тільки рейдові боси: треш і ключі відкидаються. У середнє входять доступні пули понад 3 хвилини, максимум 10 останніх.</p>
+          <h3>Рейдові боси, до 10 останніх пулів</h3>
+          <p>Тільки рейдові боси: треш і ключі відкидаються. У середнє входять усі доступні boss-pulls, максимум 10 останніх на боса/метрику.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -339,14 +440,19 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
                 <MetricStat label="Kills / Fast" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />
               </div>
 
-              {graphPoints.length ? <GraphSvg points={graphPoints} activeBossName={activeBoss.encounterName} /> : (
+              {graphPoints.length ? (
+                <div className="profile-wcl-graph-layout">
+                  <GraphSvg points={graphPoints} activeBossName={activeBoss.encounterName} />
+                  <GraphSidePanel activeBoss={activeBoss} activeSlice={activeSlice} />
+                </div>
+              ) : (
                 <div className="profile-wcl-dynamic profile-wcl-dynamic--empty profile-wcl-dynamic--inline">
-                  <strong>Немає точок для графіка</strong>
-                  <span>Є рейдові пули понад 3 хв, але без percentile-точок. Avg/Max HPS-DPS все одно рахуються по доступних пулах.</span>
+                  <strong>Немає parse-точок для графіка</strong>
+                  <span>Є рейдові пули без percentile-точок. Avg/Max HPS-DPS все одно рахуються по доступних boss-pulls.</span>
                 </div>
               )}
 
-              <div className="profile-wcl-pulls" aria-label="Доступні рейдові пули по босу понад 3 хв">
+              <div className="profile-wcl-pulls" aria-label="Доступні рейдові пули по босу">
                 {activeBoss.pulls.map((pull, index) => (
                   <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.startTime || index}-${pull.percentile}`} pull={pull} index={index} activeSlice={activeSlice} />
                 ))}

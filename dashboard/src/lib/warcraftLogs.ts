@@ -1,7 +1,9 @@
 import { createHash } from "crypto";
 
 import { apiFetchJson } from "@/lib/apiHttp";
-import { readIntegerEnv } from "@/lib/concurrency";
+import { mapConcurrentSettled, readIntegerEnv } from "@/lib/concurrency";
+import { recordSystemAudit } from "@/lib/accessGroups";
+import { logDashboardEvent } from "@/lib/security";
 import type { BattleNetRegion } from "@/lib/battlenet";
 import {
   getWarcraftLogsApiCredentials,
@@ -140,7 +142,6 @@ type WarcraftLogsSliceConfig = {
 
 const ENCOUNTER_HISTORY_LIMIT = 10;
 const ENCOUNTER_HISTORY_BOSS_LIMIT = 10;
-const MIN_RAID_BOSS_PULL_DURATION_MS = 3 * 60 * 1000;
 const RECENT_REPORT_FIGHT_TABLE_LIMIT = 16;
 
 const WCL_SLICES: WarcraftLogsSliceConfig[] = [
@@ -305,6 +306,59 @@ function warcraftLogsRetryCount() {
 
 function warcraftLogsRecentReportLimit() {
   return readIntegerEnv("WARCRAFTLOGS_RECENT_REPORT_LIMIT", 8, 1, 20);
+}
+
+function warcraftLogsDebugAuditEnabled() {
+  return process.env.WARCRAFTLOGS_DEBUG_AUDIT_LOGS !== "0";
+}
+
+function compactForLog(value: unknown, depth = 0): unknown {
+  if (value === null || value === undefined) return value ?? null;
+  if (typeof value === "number" || typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    return value.length > 900 ? `${value.slice(0, 900)}…` : value;
+  }
+  if (depth >= 4) {
+    if (Array.isArray(value)) return `[array:${value.length}]`;
+    if (typeof value === "object") return "[object]";
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.slice(0, 8).map((item) => compactForLog(item, depth + 1));
+  }
+  const record = asRecord(value);
+  if (!record) return String(value);
+  const result: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(record).slice(0, 40)) {
+    if (/token|secret|authorization|clientSecret|access_token/i.test(key)) {
+      result[key] = "[redacted]";
+    } else {
+      result[key] = compactForLog(nested, depth + 1);
+    }
+  }
+  const extra = Object.keys(record).length - Object.keys(result).length;
+  if (extra > 0) result.__truncatedKeys = extra;
+  return result;
+}
+
+function warcraftLogsDebugAudit(action: string, details: Record<string, unknown>) {
+  if (!warcraftLogsDebugAuditEnabled()) return;
+
+  const compact = compactForLog(details) as Record<string, unknown>;
+  const payload = {
+    ...compact,
+    status: details.status || "info",
+    temporaryDebug: true,
+    summary: cleanText(details.summary || action, 220),
+  };
+
+  logDashboardEvent("info", action, undefined, payload);
+  void recordSystemAudit(action, payload).catch((error) => {
+    logDashboardEvent("warn", "warcraft_logs.debug_audit_failed", undefined, {
+      action,
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+  });
 }
 
 function envWarcraftLogsBaseUrl() {
@@ -474,9 +528,7 @@ function isRaidBossEncounterId(value: number | null | undefined): value is numbe
 
 function isEligibleRaidBossPull(pull: WarcraftLogsBossPull, encounterId?: number | null) {
   const id = pull.encounterId ?? encounterId ?? null;
-  if (!isRaidBossEncounterId(id)) return false;
-  if (pull.durationMs === null || pull.durationMs < MIN_RAID_BOSS_PULL_DURATION_MS) return false;
-  return true;
+  return isRaidBossEncounterId(id);
 }
 
 function preferNumber(primary: number | null, fallback: number | null) {
@@ -965,7 +1017,7 @@ function normalizeReportFightSeed(
   if (!knownBosses.has(encounterId)) return null;
 
   const durationMs = durationMsFromRecord(record);
-  if (durationMs === null || durationMs < MIN_RAID_BOSS_PULL_DURATION_MS) return null;
+  if (durationMs === null || durationMs <= 0) return null;
 
   const fightId = firstInteger(record, ["id", "fightID", "fightId"]);
   if (fightId === null) return null;
@@ -1173,11 +1225,24 @@ async function fetchRecentReportRecords(input: {
     },
   );
 
-  if (response.errors?.length) return [] as Record<string, unknown>[];
   const character = response.data?.characterData?.character || null;
-  return reportPaginationData(character)
-    .map((report) => asRecord(report))
-    .filter((report): report is Record<string, unknown> => Boolean(report));
+  const reports = response.errors?.length
+    ? []
+    : reportPaginationData(character)
+        .map((report) => asRecord(report))
+        .filter((report): report is Record<string, unknown> => Boolean(report));
+
+  warcraftLogsDebugAudit("warcraft_logs.api.recent_reports_response", {
+    summary: `WCL recent reports: ${input.name} — ${reports.length} reports`,
+    character: input.name,
+    realmSlug: input.realmSlug,
+    region: input.region,
+    reportCount: reports.length,
+    errors: response.errors?.map((item) => cleanText(item.message, 240)).filter(Boolean) || [],
+    responsePreview: compactForLog(response),
+  });
+
+  return reports;
 }
 
 async function fetchReportFightTables(input: {
@@ -1212,8 +1277,19 @@ async function fetchReportFightTables(input: {
     cache: "no-store",
   });
 
-  if (response.errors?.length) return null;
-  return response.data?.reportData?.report || null;
+  const report = response.errors?.length ? null : response.data?.reportData?.report || null;
+
+  warcraftLogsDebugAudit("warcraft_logs.api.report_tables_response", {
+    summary: `WCL report tables: ${input.reportCode} — ${input.fights.length} fights`,
+    reportCode: input.reportCode,
+    sourceId: input.sourceId,
+    fightCount: input.fights.length,
+    tableKeys: report ? Object.keys(report).filter((key) => /^(d|h)\d+$/.test(key)).slice(0, 40) : [],
+    errors: response.errors?.map((item) => cleanText(item.message, 240)).filter(Boolean) || [],
+    responsePreview: compactForLog(response),
+  });
+
+  return report;
 }
 
 async function fetchRecentRaidBossPulls(input: {
@@ -1229,41 +1305,130 @@ async function fetchRecentRaidBossPulls(input: {
 
   try {
     const reports = await fetchRecentReportRecords(input);
-    const result = emptyReportPullsBySlice();
+    const startedAt = Date.now();
 
-    for (const report of reports) {
-      const sourceId = findReportActorId(report, input.name, input.realmSlug);
-      if (sourceId === null) continue;
-
-      const fights = reportFightSeeds(report, knownBosses);
-      if (!fights.length) continue;
-
-      const reportCode = cleanText(report.code, 80);
-      if (!reportCode) continue;
-
-      const tables = await fetchReportFightTables({
-        credentials: input.credentials,
-        token: input.token,
-        reportCode,
-        sourceId,
-        fights,
-      });
-      if (!tables) continue;
-
-      for (const [index, fight] of fights.entries()) {
-        const damageAmount = amountFromReportTable(tables[`d${index}`], "dps", fight.durationMs);
-        const healingAmount = amountFromReportTable(tables[`h${index}`], "hps", fight.durationMs);
-
-        for (const config of WCL_SLICES) {
-          if (config.metric === "points") continue;
-          const amount = config.metric === "hps" ? healingAmount : damageAmount;
-          addReportPull(result, config, reportPullFromFight(fight, config, amount, input.credentials.baseUrl));
+    const mapped = await mapConcurrentSettled(
+      reports,
+      async (report) => {
+        const sourceId = findReportActorId(report, input.name, input.realmSlug);
+        if (sourceId === null) {
+          return {
+            reportCode: cleanText(report.code, 80) || null,
+            skipped: "actor_not_found",
+            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+          };
         }
+
+        const fights = reportFightSeeds(report, knownBosses);
+        if (!fights.length) {
+          return {
+            reportCode: cleanText(report.code, 80) || null,
+            skipped: "no_known_raid_boss_fights",
+            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+          };
+        }
+
+        const reportCode = cleanText(report.code, 80);
+        if (!reportCode) {
+          return {
+            reportCode: null,
+            skipped: "missing_report_code",
+            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+          };
+        }
+
+        const tables = await fetchReportFightTables({
+          credentials: input.credentials,
+          token: input.token,
+          reportCode,
+          sourceId,
+          fights,
+        });
+        if (!tables) {
+          return {
+            reportCode,
+            skipped: "table_response_empty",
+            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+          };
+        }
+
+        const pulls: Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }> = [];
+        for (const [index, fight] of fights.entries()) {
+          const damageAmount = amountFromReportTable(tables[`d${index}`], "dps", fight.durationMs);
+          const healingAmount = amountFromReportTable(tables[`h${index}`], "hps", fight.durationMs);
+
+          for (const config of WCL_SLICES) {
+            if (config.metric === "points") continue;
+            const amount = config.metric === "hps" ? healingAmount : damageAmount;
+            pulls.push({
+              config,
+              pull: reportPullFromFight(fight, config, amount, input.credentials.baseUrl),
+            });
+          }
+        }
+
+        return {
+          reportCode,
+          skipped: null,
+          fightCount: fights.length,
+          pulls,
+        };
+      },
+      {
+        profile: "external-api",
+        envKey: "WARCRAFTLOGS_REPORT_TABLE_CONCURRENCY",
+        maxEnvKey: "WARCRAFTLOGS_MAX_CONCURRENCY",
+        max: 4,
+        failFast: false,
+      },
+    );
+
+    const result = emptyReportPullsBySlice();
+    let producedPulls = 0;
+    for (const item of mapped.results) {
+      if (!item.ok) continue;
+      for (const entry of item.value.pulls) {
+        addReportPull(result, entry.config, entry.pull);
+        producedPulls += 1;
       }
     }
 
+    warcraftLogsDebugAudit("warcraft_logs.parser.recent_raid_boss_pulls", {
+      summary: `WCL parser: ${input.name} — ${producedPulls} report pull rows`,
+      character: input.name,
+      realmSlug: input.realmSlug,
+      region: input.region,
+      reportsChecked: reports.length,
+      knownBosses: knownBosses.size,
+      producedPullRows: producedPulls,
+      durationMs: Date.now() - startedAt,
+      concurrency: mapped.meta.concurrency,
+      failedReports: mapped.meta.failed,
+      reportResults: mapped.results.map((item) => item.ok
+        ? {
+            ok: true,
+            reportCode: item.value.reportCode,
+            skipped: item.value.skipped,
+            fightCount: item.value.fightCount || 0,
+            producedPulls: item.value.pulls.length,
+          }
+        : {
+            ok: false,
+            reportCode: cleanText(item.item.code, 80) || null,
+            error: item.error instanceof Error ? item.error.message : String(item.error || "unknown"),
+          }),
+    });
+
     return result;
-  } catch {
+  } catch (error) {
+    warcraftLogsDebugAudit("warcraft_logs.parser.recent_raid_boss_pulls_failed", {
+      status: "warning",
+      summary: `WCL parser failed: ${input.name}`,
+      character: input.name,
+      realmSlug: input.realmSlug,
+      region: input.region,
+      error: error instanceof Error ? error.message : String(error || "unknown"),
+    });
     return emptyReportPullsBySlice();
   }
 }
@@ -1488,17 +1653,30 @@ async function fetchEncounterHistory(input: {
       },
     );
 
-    if (response.errors?.length) return {} as Record<string, Record<string, unknown>>;
     const character = response.data?.characterData?.character || null;
-    if (!character) return {} as Record<string, Record<string, unknown>>;
+    const mapped = !response.errors?.length && character
+      ? built.jobs.reduce<Record<string, Record<string, unknown>>>((acc, job, index) => {
+          if (job.ranking.encounterId !== null) {
+            acc[job.config.key] ||= {};
+            acc[job.config.key][String(job.ranking.encounterId)] = character[`h${index}`];
+          }
+          return acc;
+        }, {})
+      : ({} as Record<string, Record<string, unknown>>);
 
-    return built.jobs.reduce<Record<string, Record<string, unknown>>>((acc, job, index) => {
-      if (job.ranking.encounterId !== null) {
-        acc[job.config.key] ||= {};
-        acc[job.config.key][String(job.ranking.encounterId)] = character[`h${index}`];
-      }
-      return acc;
-    }, {});
+    warcraftLogsDebugAudit("warcraft_logs.api.encounter_history_response", {
+      summary: `WCL encounter history: ${input.name} — ${built.jobs.length} boss queries`,
+      character: input.name,
+      realmSlug: input.realmSlug,
+      region: input.region,
+      requestedBossQueries: built.jobs.length,
+      mappedSlices: Object.keys(mapped).length,
+      mappedBosses: Object.values(mapped).reduce((sum, item) => sum + Object.keys(item).length, 0),
+      errors: response.errors?.map((item) => cleanText(item.message, 240)).filter(Boolean) || [],
+      responsePreview: compactForLog(response),
+    });
+
+    return mapped;
   } catch {
     return {} as Record<string, Record<string, unknown>>;
   }
@@ -1621,6 +1799,17 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
     const firstError = response.errors
       ?.map((item) => cleanText(item.message, 240))
       .find(Boolean);
+
+    warcraftLogsDebugAudit("warcraft_logs.api.zone_rankings_response", {
+      summary: `WCL zone rankings: ${input.name}`,
+      character: input.name,
+      realmSlug,
+      region,
+      configuredBaseUrl: credentials.baseUrl,
+      errors: response.errors?.map((item) => cleanText(item.message, 240)).filter(Boolean) || [],
+      responsePreview: compactForLog(response),
+    });
+
     if (firstError) throw new Error(firstError);
 
     const character = response.data?.characterData?.character || null;
@@ -1657,6 +1846,34 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       credentials.baseUrl,
     );
     const primary = primarySummary(metricSummaries);
+
+    warcraftLogsDebugAudit("warcraft_logs.parser.summary", {
+      summary: `WCL parser summary: ${input.name}`,
+      character: input.name,
+      realmSlug,
+      region,
+      primaryMetric: primary?.key || null,
+      metricCount: metricSummaries.length,
+      metrics: metricSummaries.map((metric) => ({
+        key: metric.key,
+        role: metric.role,
+        metric: metric.metric,
+        bestAverage: metric.bestPerformanceAverage,
+        medianAverage: metric.medianPerformanceAverage,
+        bosses: metric.bossRankings.length,
+        pulls: metric.recentStats.pullCount,
+        maxAmount: metric.recentStats.maxAmount,
+        avgAmount: metric.recentStats.averageAmount,
+        sampleBosses: metric.bossRankings.slice(0, 8).map((boss) => ({
+          encounterId: boss.encounterId,
+          name: boss.encounterName,
+          bestPercentile: boss.bestPercentile,
+          pulls: boss.pulls.length,
+          maxAmount: boss.recentStats.maxAmount,
+          avgAmount: boss.recentStats.averageAmount,
+        })),
+      })),
+    });
 
     return {
       status: "ready",

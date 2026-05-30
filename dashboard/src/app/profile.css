@@ -2517,3 +2517,212 @@
     display: none;
   }
 }
+
+/* WCL graph rebuild: one WarcraftLogs-like plot, active boss highlighted. */
+.profile-wcl-graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(142px, 188px);
+  gap: 10px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.profile-wcl-graph {
+  min-width: 0;
+  min-height: 248px;
+  border-color: rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  background: #030303;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.profile-wcl-graph svg {
+  width: 100%;
+  min-height: 248px;
+  display: block;
+  background: #030303;
+}
+
+.profile-wcl-plot-bg {
+  fill: #020202;
+}
+
+.profile-wcl-axis,
+.profile-wcl-x-tick line {
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 1;
+}
+
+.profile-wcl-x-tick line {
+  stroke-opacity: 0.12;
+}
+
+.profile-wcl-axis-title,
+.profile-wcl-y-tick,
+.profile-wcl-x-tick text,
+.profile-wcl-svg-legend text,
+.profile-wcl-legend-pulls text {
+  fill: rgba(255, 255, 255, 0.86);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.profile-wcl-y-tick,
+.profile-wcl-x-tick text {
+  fill: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+}
+
+.profile-wcl-guide line {
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+
+.profile-wcl-guide--99 line { stroke: #ff7ac7; }
+.profile-wcl-guide--95 line { stroke: #ff9f1a; }
+.profile-wcl-guide--75 line { stroke: #9f48ff; }
+.profile-wcl-guide--50 line { stroke: #248dff; }
+.profile-wcl-guide--25 line { stroke: #2de04d; }
+.profile-wcl-guide--10 line { stroke: #e5e5e5; }
+
+.profile-wcl-line {
+  fill: none;
+  stroke: rgba(134, 231, 231, 0.92);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(134, 231, 231, 0.28));
+}
+
+.profile-wcl-point {
+  stroke-width: 1.2;
+}
+
+.profile-wcl-point--muted {
+  fill: rgba(160, 170, 180, 0.34);
+  stroke: rgba(255, 255, 255, 0.22);
+  opacity: 0.38;
+  filter: none;
+}
+
+.profile-wcl-point--active,
+.profile-wcl-legend-pulls polygon {
+  fill: rgb(134, 231, 231);
+  stroke: rgba(255, 255, 255, 0.92);
+  opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(134, 231, 231, 0.55));
+}
+
+.profile-wcl-graph-side {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 7px;
+  padding: 14px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  background: #030303;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+}
+
+.profile-wcl-graph-side__difficulty {
+  color: rgba(210, 245, 255, 0.96);
+  font-size: 0.9rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+}
+
+.profile-wcl-graph-side > strong {
+  color: #ff8d1a;
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.profile-wcl-graph-side > small {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.profile-wcl-graph-side dl {
+  width: 100%;
+  display: grid;
+  gap: 5px;
+  margin: 7px 0 0;
+}
+
+.profile-wcl-graph-side div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.profile-wcl-graph-side dt,
+.profile-wcl-graph-side dd {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.profile-wcl-graph-side dt {
+  color: rgba(255, 255, 255, 0.72);
+  text-align: right;
+}
+
+.profile-wcl-graph-side dd {
+  color: #d7ff6b;
+  text-align: left;
+}
+
+@media (max-width: 880px) {
+  .profile-wcl-graph-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-wcl-graph-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: stretch;
+    text-align: left;
+  }
+
+  .profile-wcl-graph-side dl {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-wcl-graph-side div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .profile-wcl-graph-side dt,
+  .profile-wcl-graph-side dd {
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-wcl-graph,
+  .profile-wcl-graph svg {
+    min-height: 220px;
+  }
+
+  .profile-wcl-svg-legend text,
+  .profile-wcl-legend-pulls text,
+  .profile-wcl-y-tick,
+  .profile-wcl-x-tick text {
+    font-size: 10px;
+  }
+
+  .profile-wcl-graph-side,
+  .profile-wcl-graph-side dl {
+    grid-template-columns: 1fr;
+  }
+}
