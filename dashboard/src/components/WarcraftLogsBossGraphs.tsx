@@ -50,6 +50,12 @@ function formatPercent(value: number | null | undefined) {
   return `${formatStableNumber(percent, percent % 1 ? 1 : 0)}%`;
 }
 
+function formatProgress(value: number | null | undefined) {
+  const percent = clampPercent(value);
+  if (percent === null) return "—";
+  return `${formatStableNumber(percent, percent % 1 ? 1 : 0)}%`;
+}
+
 function formatAmount(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "—";
   if (value >= 1000) return `${formatStableNumber(value / 1000, value >= 100_000 ? 0 : 1)}k`;
@@ -213,6 +219,10 @@ function metricLabel(summary: Pick<WarcraftLogsMetricSummary, "metricLabel"> | n
   return summary?.metricLabel || "Показник";
 }
 
+function totalAmountLabel(summary: WarcraftLogsMetricSummary) {
+  return summary.metric === "hps" ? "Healing" : summary.metric === "dps" ? "Damage" : "Total";
+}
+
 function sliceHasUsefulData(summary: WarcraftLogsMetricSummary) {
   if (summary.role === "overall") return false;
   return Boolean(
@@ -330,13 +340,16 @@ function MetricStat({ label, value, hint }: { label: string; value: string; hint
 }
 
 function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; index: number; activeSlice: WarcraftLogsMetricSummary }) {
+  const total = pull.metric === "hps" ? pull.healingDone ?? pull.totalAmount : pull.metric === "dps" ? pull.damageDone ?? pull.totalAmount : pull.totalAmount;
+  const progress = pull.killedWith === "Wipe" ? pull.bossPercentage : pull.fightPercentage;
   const row = (
     <>
       <span><strong>{formatPercent(pull.percentile)}</strong><small>#{index + 1} • {formatStableUkCompactDate(pull.startTime)}{pull.killedWith ? ` • ${pull.killedWith}` : ""}</small></span>
       <span><strong>{formatAmount(pull.amount)}</strong><small>{metricLabel(activeSlice)}</small></span>
-      <span><strong>{pull.itemLevel !== null ? formatStableNumber(pull.itemLevel, 0) : "—"}</strong><small>ilvl</small></span>
-      <span><strong>{formatDuration(pull.durationMs)}</strong><small>{pull.fightSize ? `${pull.fightSize} гравців` : "тривалість"}</small></span>
-      <span><strong>{pull.totalParses ?? "—"}</strong><small>{pull.reportFightId !== null ? `fight ${pull.reportFightId}` : "записи"}</small></span>
+      <span><strong>{formatAmount(total)}</strong><small>{totalAmountLabel(activeSlice)}</small></span>
+      <span><strong>{pull.deathCount !== null ? formatStableNumber(pull.deathCount, 0) : "—"}</strong><small>смерті</small></span>
+      <span><strong>{progress !== null ? formatProgress(progress) : pull.itemLevel !== null ? formatStableNumber(pull.itemLevel, 0) : "—"}</strong><small>{progress !== null ? "прогрес" : "ilvl"}</small></span>
+      <span><strong>{formatDuration(pull.durationMs)}</strong><small>{pull.reportFightId !== null ? `fight ${pull.reportFightId}` : pull.fightSize ? `${pull.fightSize} гравців` : "тривалість"}</small></span>
     </>
   );
 
@@ -345,6 +358,7 @@ function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; ind
   }
   return <div className="profile-wcl-pull-row">{row}</div>;
 }
+
 
 function availableBosses(activeSlice: WarcraftLogsMetricSummary | null) {
   return (activeSlice?.bossRankings || []).filter((boss) =>
@@ -374,14 +388,17 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
     <aside className="profile-wcl-graph-side" aria-label="Підсумок вибраного боса">
       <span className="profile-wcl-graph-side__difficulty">{activeBoss.primaryDifficultyLabel || difficultyLabel(activeBoss.difficulty)}</span>
       <strong>{formatPercent(activeBoss.recentStats.averagePercentile ?? activeBoss.medianPercentile ?? activeBoss.bestPercentile)}</strong>
-      <small>Медіана / середній parse</small>
+      <small>Parse по головній складності</small>
       <dl>
-        <div><dt>Середній %</dt><dd>{formatPercent(activeBoss.recentStats.averagePercentile)}</dd></div>
+        <div><dt>Parse avg</dt><dd>{formatPercent(activeBoss.recentStats.averagePercentile)}</dd></div>
         <div><dt>Пули</dt><dd>{formatStableNumber(activeBoss.recentStats.pullCount, 0)}</dd></div>
         <div><dt>Кіли</dt><dd>{formatStableNumber(activeBoss.totalKills ?? killCount, 0)}</dd></div>
         <div><dt>Макс. {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)}</dd></div>
-        <div><dt>Середній {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.averageAmount)}</dd></div>
-        <div><dt>Медіана {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.medianAmount)}</dd></div>
+        <div><dt>Зваж. avg</dt><dd>{formatAmount(activeBoss.recentStats.weightedAverageAmount ?? activeBoss.recentStats.averageAmount)}</dd></div>
+        <div><dt>Арифм. avg</dt><dd>{formatAmount(activeBoss.recentStats.arithmeticAverageAmount)}</dd></div>
+        <div><dt>Медіана</dt><dd>{formatAmount(activeBoss.recentStats.medianAmount)}</dd></div>
+        <div><dt>Смерті</dt><dd>{formatStableNumber(activeBoss.recentStats.deathCount, 0)}</dd></div>
+        <div><dt>Best wipe</dt><dd>{formatProgress(activeBoss.recentStats.bestBossPercentage)}</dd></div>
         <div><dt>Стабільність</dt><dd>{formatPercent(activeBoss.recentStats.consistencyScore)}</dd></div>
         <div><dt>Найшвидший кіл</dt><dd>{formatDuration(activeBoss.fastestKillMs)}</dd></div>
         <div><dt>All Stars</dt><dd>{activeBoss.allStarsPoints !== null ? formatStableNumber(activeBoss.allStarsPoints, 2) : "—"}</dd></div>
@@ -390,6 +407,7 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
   );
 }
 
+
 function DataCoverageStrip({ summary }: { summary: WarcraftLogsCharacterSummary }) {
   const coverage = summary.sourceCoverage;
   return (
@@ -397,10 +415,16 @@ function DataCoverageStrip({ summary }: { summary: WarcraftLogsCharacterSummary 
       <span><strong>{formatStableNumber(coverage.reportsChecked, 0)}</strong><small>звіти</small></span>
       <span><strong>{formatStableNumber(coverage.reportBossFightsChecked, 0)}</strong><small>boss fights</small></span>
       <span><strong>{formatStableNumber(coverage.uniqueReportPullRows || coverage.reportPullRows, 0)}</strong><small>чисті пули</small></span>
-      <span><strong>{formatStableNumber(coverage.duplicatePullRows, 0)}</strong><small>дублі прибрано</small></span>
+      <span><strong>{formatStableNumber(coverage.duplicatePullRows, 0)}</strong><small>дублі</small></span>
+      <span><strong>{formatStableNumber(coverage.summaryTableRows, 0)}/{formatStableNumber(coverage.deathTableRows, 0)}</strong><small>summary/deaths</small></span>
+      <span><strong>{formatStableNumber(coverage.archivedReports, 0)}</strong><small>архівні</small></span>
+      {coverage.rateLimitLimitPerHour !== null ? (
+        <span><strong>{formatStableNumber(coverage.rateLimitPointsSpentThisHour ?? 0, 0)}/{formatStableNumber(coverage.rateLimitLimitPerHour, 0)}</strong><small>API points</small></span>
+      ) : null}
     </div>
   );
 }
+
 
 export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftLogsCharacterSummary }) {
   const slices = useMemo(() => sortedMetricSummaries(summary), [summary]);
@@ -429,7 +453,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <div>
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Чисті пули по рейдових босах</h3>
-          <p>Рейдові boss-pulls без трешу й ключів. Основна складність — найвища доступна, інші показані окремо.</p>
+          <p>Boss-pulls з WCL без трешу й ключів. Основні цифри беруться з найвищої доступної складності.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -450,7 +474,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
             }}
           >
             <strong>{slice.title}</strong>
-            <span>{slice.primaryDifficultyLabel || "рейд"} • {formatPercent(slice.bestPerformanceAverage)} • середнє≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.sampleSize} записів</span>
+            <span>{slice.primaryDifficultyLabel || "рейд"} • {formatPercent(slice.bestPerformanceAverage)} • avg≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.sampleSize} записів</span>
           </button>
         ))}
       </div>
@@ -460,10 +484,11 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <MetricStat label="Найкращий середній parse" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
         <MetricStat label="Медіана parse" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
         <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
-        <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="останні 10" />
+        <MetricStat label={`Зважений ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.weightedAverageAmount ?? activeSlice.recentStats.averageAmount)} hint="total / час" />
+        <MetricStat label={`Арифм. ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.arithmeticAverageAmount)} hint="середнє пулів" />
         <MetricStat label={`Медіана ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.medianAmount)} hint="власний розрахунок" />
         <MetricStat label="Стабільність" value={formatPercent(activeSlice.recentStats.consistencyScore)} hint="розкид" />
-        <MetricStat label="Записи" value={formatStableNumber(activeSlice.recentStats.sampleSize, 0)} hint={activeSlice.sourceLabel} />
+        <MetricStat label="Пули / смерті" value={`${formatStableNumber(activeSlice.recentStats.pullCount, 0)} / ${formatStableNumber(activeSlice.recentStats.deathCount, 0)}`} hint={activeSlice.sourceLabel} />
       </div>
 
       {activeSlice.difficultySummaries.length > 1 ? (
@@ -500,7 +525,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
                 <MetricStat label="Складність" value={activeBoss.primaryDifficultyLabel || "—"} />
                 <MetricStat label="Найкращий parse" value={formatPercent(activeBoss.bestPercentile)} />
                 <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
-                <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="останні 10" />
+                <MetricStat label={`Зважений ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.weightedAverageAmount ?? activeBoss.recentStats.averageAmount)} hint="total / час" />
                 <MetricStat label={`Медіана ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.medianAmount)} />
                 <MetricStat label="Кіл / вайп" value={`${activeBoss.recentStats.killCount}/${activeBoss.recentStats.wipeCount}`} />
                 <MetricStat label="Кіли / швидкість" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />
