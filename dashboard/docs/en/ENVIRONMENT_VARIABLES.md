@@ -151,6 +151,19 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `CONTENT_READ_CONCURRENCY` | optional | Content read concurrency. |
 | `CONTENT_READ_MAX_CONCURRENCY` | optional | Max content read concurrency. |
 
+
+### Warcraft Logs
+
+| Variable | Required | Description |
+|---|---|---|
+| `WARCRAFTLOGS_CLIENT_ID` | optional secret | Warcraft Logs OAuth client id for the public API v2. Used by per-character statistics pages. |
+| `WARCRAFTLOGS_CLIENT_SECRET` | optional secret | Warcraft Logs OAuth client secret. Store server-side only. |
+| `WCL_CLIENT_ID` | alias | Legacy alias for `WARCRAFTLOGS_CLIENT_ID`. |
+| `WCL_CLIENT_SECRET` | alias secret | Legacy alias for `WARCRAFTLOGS_CLIENT_SECRET`. |
+| `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Warcraft Logs request timeout, default `12000`. |
+| `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Warcraft Logs retry count, default `1`. |
+| `WARCRAFTLOGS_BASE_URL` | optional | API base URL. Keep empty or `https://www.warcraftlogs.com` for Retail. |
+
 ### Raids
 
 | Variable | Requirement | Description |

@@ -1534,3 +1534,351 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Character detail pages: Raider.IO + Warcraft Logs statistics. */
+.profile-character-detail-page {
+  --character-panel-min: minmax(min(100%, 360px), 1fr);
+}
+
+.profile-character-detail-layout {
+  align-items: flex-start;
+}
+
+.profile-character-detail-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 330px) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 24px);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--profile-line);
+  border-radius: var(--profile-radius-xl);
+  background:
+    radial-gradient(circle at 20% 8%, rgba(236, 202, 126, 0.18), transparent 34%),
+    radial-gradient(circle at 82% 20%, rgba(91, 198, 131, 0.16), transparent 32%),
+    linear-gradient(145deg, rgba(23, 27, 34, 0.98), rgba(7, 12, 19, 0.96));
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.profile-character-detail-hero__visual {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  min-height: clamp(260px, 30vw, 360px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(91, 198, 131, 0.18), transparent 32%),
+    rgba(0, 0, 0, 0.18);
+}
+
+.profile-character-detail-hero__visual::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 36%;
+  background: linear-gradient(180deg, transparent, rgba(5, 8, 12, 0.86));
+  pointer-events: none;
+}
+
+.profile-character-detail-hero__visual img {
+  width: 100%;
+  height: clamp(300px, 36vw, 430px);
+  object-fit: contain;
+  object-position: center bottom;
+  transform: scale(1.14) translateY(12px);
+  transform-origin: bottom center;
+  filter: saturate(1.08) contrast(1.05);
+}
+
+.profile-character-detail-hero__visual span {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 72px;
+  border: 1px solid rgba(236, 202, 126, 0.24);
+  border-radius: 32px;
+  background: rgba(236, 202, 126, 0.12);
+  color: var(--profile-gold);
+  font-size: 2.8rem;
+  font-weight: 950;
+}
+
+.profile-character-detail-hero__body {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: clamp(14px, 1.7vw, 20px);
+  padding: clamp(18px, 2.4vw, 30px);
+}
+
+.profile-character-detail-hero__crumbs,
+.profile-character-detail-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+
+.profile-character-detail-hero__crumbs {
+  color: var(--profile-muted-soft);
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.profile-character-detail-hero__crumbs a {
+  color: var(--profile-gold);
+  text-decoration: none;
+}
+
+.profile-character-detail-hero__title-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.profile-character-detail-hero__avatar {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(236, 202, 126, 0.36);
+  border-radius: 18px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-character-detail-hero h1 {
+  margin: 4px 0 0;
+  color: var(--profile-text);
+  font-family: var(--font-display, var(--font-mist-display, Georgia, serif));
+  font-size: clamp(2.1rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  overflow-wrap: anywhere;
+}
+
+.profile-character-detail-hero p {
+  margin: 8px 0 0;
+  color: var(--profile-muted);
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  font-weight: 850;
+}
+
+.profile-character-detail-stats,
+.profile-character-role-scores,
+.profile-character-detail-grid {
+  display: grid;
+  gap: var(--profile-gap);
+}
+
+.profile-character-detail-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.profile-character-role-scores {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 var(--profile-card-pad-x) var(--profile-card-pad-y);
+}
+
+.profile-character-role-scores--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-top: 0;
+}
+
+.profile-character-detail-grid {
+  grid-template-columns: repeat(2, var(--character-panel-min));
+  align-items: flex-start;
+}
+
+.profile-character-detail-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.profile-character-detail-panel--rio,
+.profile-character-detail-panel--wcl {
+  grid-column: 1 / -1;
+}
+
+.profile-character-stat-card {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: clamp(14px, 1.6vw, 18px);
+  border: 1px solid rgba(214, 176, 92, 0.18);
+  border-radius: var(--profile-radius-lg);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(236, 202, 126, 0.11), transparent 36%),
+    rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.profile-character-stat-card small,
+.profile-character-stat-card span {
+  color: var(--profile-muted-soft);
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.profile-character-stat-card strong {
+  min-width: 0;
+  color: var(--profile-text);
+  font-size: clamp(1.35rem, 2.1vw, 2rem);
+  font-weight: 950;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-character-run-list,
+.profile-character-raid-list,
+.profile-character-log-list {
+  display: grid;
+  gap: 9px;
+  padding: 0 var(--profile-card-pad-x) var(--profile-card-pad-y);
+}
+
+.profile-character-run,
+.profile-character-raid-progress,
+.profile-character-log-ranking {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(214, 176, 92, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  text-decoration: none;
+}
+
+.profile-character-run {
+  grid-template-columns: 58px minmax(0, 1fr) minmax(82px, auto);
+}
+
+.profile-character-run:hover,
+.profile-character-run:focus-visible {
+  border-color: rgba(236, 202, 126, 0.34);
+  background: rgba(236, 202, 126, 0.075);
+  outline: none;
+}
+
+.profile-character-run__level {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border-radius: 14px;
+  background: rgba(91, 198, 131, 0.13);
+  color: var(--profile-green);
+  font-weight: 950;
+}
+
+.profile-character-run__name,
+.profile-character-run__score,
+.profile-character-raid-progress span,
+.profile-character-log-ranking span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.profile-character-run__score {
+  text-align: right;
+}
+
+.profile-character-run strong,
+.profile-character-raid-progress strong,
+.profile-character-log-ranking strong {
+  min-width: 0;
+  color: var(--profile-text);
+  font-weight: 950;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-character-run small,
+.profile-character-raid-progress small,
+.profile-character-log-ranking small {
+  min-width: 0;
+  color: var(--profile-muted-soft);
+  font-size: 0.72rem;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-character-raid-progress,
+.profile-character-log-ranking {
+  grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(70px, 0.45fr));
+}
+
+.profile-character-raid-progress span:not(:first-child),
+.profile-character-log-ranking span:not(:first-child) {
+  text-align: right;
+}
+
+.profile-character-service-note {
+  margin: 0 var(--profile-card-pad-x) var(--profile-card-pad-y);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 190, 93, 0.30);
+  border-radius: 16px;
+  background: rgba(255, 190, 93, 0.10);
+  color: #ffe1ad;
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.profile-character-detail-empty {
+  margin: 0 var(--profile-card-pad-x) var(--profile-card-pad-y);
+}
+
+@media (max-width: 980px) {
+  .profile-character-detail-hero,
+  .profile-character-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-character-detail-hero__visual {
+    min-height: 260px;
+  }
+
+  .profile-character-detail-stats,
+  .profile-character-role-scores,
+  .profile-character-role-scores--three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-character-detail-hero__body {
+    padding: 16px;
+  }
+
+  .profile-character-detail-hero__title-row {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-character-detail-stats,
+  .profile-character-role-scores,
+  .profile-character-role-scores--three {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-character-run,
+  .profile-character-raid-progress,
+  .profile-character-log-ranking {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-character-run__score,
+  .profile-character-raid-progress span:not(:first-child),
+  .profile-character-log-ranking span:not(:first-child) {
+    text-align: left;
+  }
+}

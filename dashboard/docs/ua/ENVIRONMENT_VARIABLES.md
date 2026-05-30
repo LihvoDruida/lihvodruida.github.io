@@ -151,6 +151,19 @@
 | `CONTENT_READ_CONCURRENCY` | optional | Concurrency читання контенту. |
 | `CONTENT_READ_MAX_CONCURRENCY` | optional | Max concurrency читання контенту. |
 
+
+### Warcraft Logs
+
+| Variable | Обов’язковість | Опис |
+|---|---|---|
+| `WARCRAFTLOGS_CLIENT_ID` | optional secret | OAuth client id Warcraft Logs для публічного API v2. Потрібен для сторінок статистики персонажів. |
+| `WARCRAFTLOGS_CLIENT_SECRET` | optional secret | OAuth client secret Warcraft Logs. Зберігати тільки server-side. |
+| `WCL_CLIENT_ID` | alias | Legacy alias для `WARCRAFTLOGS_CLIENT_ID`. |
+| `WCL_CLIENT_SECRET` | alias secret | Legacy alias для `WARCRAFTLOGS_CLIENT_SECRET`. |
+| `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Timeout запитів Warcraft Logs, default `12000`. |
+| `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Кількість retry для Warcraft Logs, default `1`. |
+| `WARCRAFTLOGS_BASE_URL` | optional | Base URL API. Для Retail залишати порожнім або `https://www.warcraftlogs.com`. |
+
 ### Рейди
 
 | Variable | Обов’язковість | Опис |

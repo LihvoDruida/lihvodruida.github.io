@@ -96,7 +96,7 @@ function CharacterArtwork({ character }: { character: ProfileCharacter }) {
   return <span className="profile-character-artwork__fallback" aria-hidden="true">{character.name.charAt(0)}</span>;
 }
 
-function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: { character: ProfileCharacter; canManage: boolean; showMainBadge: boolean; returnTo?: string }) {
+function CharacterCard({ character, profileId, canManage, showMainBadge, returnTo = "" }: { character: ProfileCharacter; profileId: string; canManage: boolean; showMainBadge: boolean; returnTo?: string }) {
   const classLabel = character.className || "Клас невідомий";
   const specLabel = character.activeSpecName ? `${character.activeSpecName} • ${classLabel}` : classLabel;
   const roleLabel = wowRoleLabel(character.activeSpecRole);
@@ -151,6 +151,7 @@ function CharacterCard({ character, canManage, showMainBadge, returnTo = "" }: {
         </div>
 
         <div className="profile-character-actions">
+          <a className="btn btn-ghost btn-sm" href={`/profile/${encodeURIComponent(profileId)}/characters/${encodeURIComponent(character.key)}`}>Статистика</a>
           {rioUrl ? <a className="btn btn-ghost btn-sm" href={rioUrl} target="_blank" rel="noreferrer">Raider.IO</a> : null}
           {canManage && !character.isMain ? (
             <form action="/api/profile/characters/main" method="post">
@@ -282,6 +283,7 @@ export default function ProfileCharactersLiveSection({
             <CharacterCard
               key={character.key}
               character={character}
+              profileId={profileId}
               canManage={canManage}
               showMainBadge={showMainBadge}
               returnTo={returnTo}

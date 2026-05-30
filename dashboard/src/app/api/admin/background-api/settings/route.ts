@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
-import { dashboardApiSettingsSummary, setDashboardApiSettings } from "@/lib/dashboardApiSettings";
+import {
+  dashboardApiSettingsSummary,
+  setDashboardApiSettings,
+} from "@/lib/dashboardApiSettings";
 import { canManageGroups } from "@/lib/permissions";
 import {
   assertRequestBodySize,
@@ -29,7 +32,9 @@ type ResponseInput = {
 };
 
 function wantsJsonResponse(request: NextRequest) {
-  const dashboardAction = String(request.headers.get("x-dashboard-action") || "").toLowerCase();
+  const dashboardAction = String(
+    request.headers.get("x-dashboard-action") || "",
+  ).toLowerCase();
   const accept = String(request.headers.get("accept") || "").toLowerCase();
   return dashboardAction === "live" || accept.includes("application/json");
 }
@@ -63,7 +68,10 @@ function adminResponse(request: NextRequest, input: ResponseInput) {
   };
 
   if (wantsJsonResponse(request)) {
-    return NextResponse.json(payload, { status: input.status || (input.ok ? 200 : 400), headers: noStoreHeaders() });
+    return NextResponse.json(payload, {
+      status: input.status || (input.ok ? 200 : 400),
+      headers: noStoreHeaders(),
+    });
   }
 
   const response = NextResponse.redirect(safeAdminRedirectUrl(request), 303);
@@ -74,7 +82,13 @@ function adminResponse(request: NextRequest, input: ResponseInput) {
 
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) {
-    return adminResponse(request, { ok: false, tone: "error", title: "Дію заблоковано", message: "Недовірене джерело запиту.", status: 403 });
+    return adminResponse(request, {
+      ok: false,
+      tone: "error",
+      title: "Дію заблоковано",
+      message: "Недовірене джерело запиту.",
+      status: 403,
+    });
   }
 
   const tooLarge = assertRequestBodySize(request, 8 * 1024);
@@ -82,31 +96,76 @@ export async function POST(request: NextRequest) {
 
   const session = await getSession();
   if (!session) {
-    return adminResponse(request, { ok: false, tone: "warning", title: "Потрібен вхід", message: "Сесія застаріла. Увійди в панель ще раз.", status: 401, data: { loginUrl: "/login" } });
+    return adminResponse(request, {
+      ok: false,
+      tone: "warning",
+      title: "Потрібен вхід",
+      message: "Сесія застаріла. Увійди в панель ще раз.",
+      status: 401,
+      data: { loginUrl: "/login" },
+    });
   }
 
   if (!canManageGroups(session)) {
-    return adminResponse(request, { ok: false, tone: "error", title: "Немає доступу", message: "Параметри фонового API може змінювати тільки адміністратор із правом керування групами.", status: 403 });
+    return adminResponse(request, {
+      ok: false,
+      tone: "error",
+      title: "Немає доступу",
+      message:
+        "Параметри фонового API може змінювати тільки адміністратор із правом керування групами.",
+      status: 403,
+    });
   }
 
   const ip = getClientIp(request);
-  const limit = checkRateLimit(`admin-background-api-settings:${session.id}:${ip}`, 12, 10 * 60 * 1000);
+  const limit = checkRateLimit(
+    `admin-background-api-settings:${session.id}:${ip}`,
+    12,
+    10 * 60 * 1000,
+  );
   if (!limit.ok) {
-    return adminResponse(request, { ok: false, tone: "warning", title: "Забагато дій", message: "Зачекай кілька хвилин і повтори зміну.", status: 429 });
+    return adminResponse(request, {
+      ok: false,
+      tone: "warning",
+      title: "Забагато дій",
+      message: "Зачекай кілька хвилин і повтори зміну.",
+      status: 429,
+    });
   }
 
   try {
     const form = await request.formData();
-    const settings = await setDashboardApiSettings({
-      backgroundRefreshMinSeconds: form.get("backgroundRefreshMinSeconds"),
-      profileViewRefreshMinSeconds: form.get("profileViewRefreshMinSeconds"),
-      profileExternalRefreshMinSeconds: form.get("profileExternalRefreshMinSeconds"),
-      profileExternalRefreshBatchLimit: form.get("profileExternalRefreshBatchLimit"),
-      profileCharacterRefreshConcurrency: form.get("profileCharacterRefreshConcurrency"),
-      profileCharacterRefreshMaxConcurrency: form.get("profileCharacterRefreshMaxConcurrency"),
-      profileExternalRefreshConcurrency: form.get("profileExternalRefreshConcurrency"),
-      profileExternalRefreshMaxConcurrency: form.get("profileExternalRefreshMaxConcurrency"),
-    }, session);
+    const settings = await setDashboardApiSettings(
+      {
+        backgroundRefreshMinSeconds: form.get("backgroundRefreshMinSeconds"),
+        profileViewRefreshMinSeconds: form.get("profileViewRefreshMinSeconds"),
+        profileExternalRefreshMinSeconds: form.get(
+          "profileExternalRefreshMinSeconds",
+        ),
+        profileExternalRefreshBatchLimit: form.get(
+          "profileExternalRefreshBatchLimit",
+        ),
+        profileCharacterRefreshConcurrency: form.get(
+          "profileCharacterRefreshConcurrency",
+        ),
+        profileCharacterRefreshMaxConcurrency: form.get(
+          "profileCharacterRefreshMaxConcurrency",
+        ),
+        profileExternalRefreshConcurrency: form.get(
+          "profileExternalRefreshConcurrency",
+        ),
+        profileExternalRefreshMaxConcurrency: form.get(
+          "profileExternalRefreshMaxConcurrency",
+        ),
+        warcraftLogsClientId: form.get("warcraftLogsClientId"),
+        warcraftLogsClientSecret: form.get("warcraftLogsClientSecret"),
+        clearWarcraftLogsClientSecret: form.get(
+          "clearWarcraftLogsClientSecret",
+        ),
+        warcraftLogsBaseUrl: form.get("warcraftLogsBaseUrl"),
+      },
+      session,
+    );
     const summary = dashboardApiSettingsSummary(settings);
 
     await recordAdminAudit("admin.background_api.settings.update", session, {
@@ -114,7 +173,15 @@ export async function POST(request: NextRequest) {
       summary,
       settings,
     }).catch((error) => {
-      logDashboardEvent("warn", "admin.background_api.settings_audit_failed", request, { message: error instanceof Error ? error.message : String(error || "unknown") });
+      logDashboardEvent(
+        "warn",
+        "admin.background_api.settings_audit_failed",
+        request,
+        {
+          message:
+            error instanceof Error ? error.message : String(error || "unknown"),
+        },
+      );
     });
 
     return adminResponse(request, {
@@ -124,13 +191,27 @@ export async function POST(request: NextRequest) {
       data: { settings, refresh: true },
     });
   } catch (error) {
-    const message = safeErrorMessage(error, "Не вдалося зберегти налаштування фонового API.");
-    logDashboardEvent("warn", "admin.background_api.settings_failed", request, { message });
-    await recordAdminAudit("admin.background_api.settings.update_failed", session, {
-      status: "error",
-      summary: message,
-      error: error instanceof Error ? error.message : String(error || ""),
-    }).catch(() => false);
-    return adminResponse(request, { ok: false, title: "Дію не виконано", message, status: 400 });
+    const message = safeErrorMessage(
+      error,
+      "Не вдалося зберегти налаштування фонового API.",
+    );
+    logDashboardEvent("warn", "admin.background_api.settings_failed", request, {
+      message,
+    });
+    await recordAdminAudit(
+      "admin.background_api.settings.update_failed",
+      session,
+      {
+        status: "error",
+        summary: message,
+        error: error instanceof Error ? error.message : String(error || ""),
+      },
+    ).catch(() => false);
+    return adminResponse(request, {
+      ok: false,
+      title: "Дію не виконано",
+      message,
+      status: 400,
+    });
   }
 }
