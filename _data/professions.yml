@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-30 06:47:44'
+  updated_at: '2026-05-30 10:03:10'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 156
 characters:
 - name: Бреинор
   region: eu
@@ -1287,6 +1287,35 @@ characters:
       - name: Midnight Fishing
         learned_points: 162
         max_points: 300
+- name: Yokusir
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Yokusir
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 3
+        max_points: 300
+      - name: Khaz Algar Enchanting
+        learned_points: 15
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 75
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 63
+        max_points: 100
+    secondaries: []
 - name: Elderwizard
   region: eu
   realm: terokkar
@@ -1886,14 +1915,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 1
         max_points: 300
-- name: Sandora
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-  professions:
-    primaries: []
-    secondaries: []
 - name: Asasinas
   region: eu
   realm: terokkar
@@ -7521,7 +7542,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 21
+        learned_points: 33
         max_points: 100
     secondaries:
     - name: Cooking
@@ -7618,7 +7639,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Рейла
   professions:
     primaries: []
     secondaries: []
@@ -7691,32 +7712,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Yokusir
-  region: eu
-  realm: terokkar
-  realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Yokusir
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 3
-        max_points: 300
-      - name: Khaz Algar Enchanting
-        learned_points: 15
-        max_points: 100
-      - name: Midnight Enchanting
-        learned_points: 75
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 63
-        max_points: 100
-    secondaries: []

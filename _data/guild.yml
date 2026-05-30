@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-30 06:47:44'
+  updated_at: '2026-05-30 10:03:10'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 156
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,12 +56,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13603
+      world: 13608
       region: 5960
       realm: 49
     mythic:
-      world: 7040
-      region: 3052
+      world: 7041
+      region: 3053
       realm: 22
   blackrock-depths:
     normal:
@@ -1156,6 +1156,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Yokusir
+    id: 184033782
+    level: 90
+    realm:
+      id: 1415
+      slug: terokkar
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Marksmanship
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/246/184033782-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Yokusir
+    item_level_equipped: 272
+    mythic_plus_scores:
+      all:
+        score: 1747.8
+        color: '#8aff6d'
+      dps:
+        score: 1747.8
+        color: '#8aff6d'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 1747.8
+        color: '#8aff6d'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Elderwizard
@@ -1676,58 +1728,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
-  character:
-    name: Sandora
-    id: 186212830
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 8
-      name: Mage
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Arcane
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/222/186212830-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 225
-    mythic_plus_scores:
-      all:
-        score: 168.4
-        color: '#ffffff'
-      dps:
-        score: 168.4
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 168.4
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 3
   character:
     name: Asasinas
@@ -2010,7 +2010,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3448.7
@@ -2166,7 +2166,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/22/187314454-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Krouli
-    item_level_equipped: 240
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 995.6
@@ -4378,7 +4378,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/96/209581664-avatar.jpg?alt=/wow/static/images/2d/avatar/26-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Пандашоманко
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3004.2
@@ -4430,7 +4430,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3043.7
@@ -4690,7 +4690,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/196/216286404-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Nanyy
-    item_level_equipped: 240
+    item_level_equipped: 247
     mythic_plus_scores:
       all:
         score: 1639.1
@@ -4898,7 +4898,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 247
+    item_level_equipped: 1
     mythic_plus_scores:
       all:
         score: 660.8
@@ -5310,11 +5310,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Windwalker
-      role: DPS
+      name: Brewmaster
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3412.2
@@ -6146,7 +6146,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/27/241191707-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Нежнаяпулька
-    item_level_equipped: 277
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2821.8
@@ -6614,7 +6614,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3351.3
@@ -7026,8 +7026,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
     item_level_equipped: 286
@@ -7526,7 +7526,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2885.6
@@ -7982,23 +7982,47 @@ members:
       slug: gordunni
     playable_class:
       id: 7
-      name: null
+      name: Shaman
     playable_race:
       id: 86
-      name: null
+      name: Haranir
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
       name: null
       role: null
-    avatar: null
-    profile_url: null
+    avatar: https://eu.battle.net/wow/static/images/2d/avatar/86-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Рейла
     item_level_equipped: 0
-    mythic_plus_scores: {}
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -8077,11 +8101,11 @@ members:
     item_level_equipped: 269
     mythic_plus_scores:
       all:
-        score: 2731.3
-        color: '#5fb198'
+        score: 2737.1
+        color: '#5eac9d'
       dps:
-        score: 2731.3
-        color: '#5fb198'
+        score: 2737.1
+        color: '#5eac9d'
       healer:
         score: 0
         color: '#ffffff'
@@ -8095,8 +8119,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2731.3
-        color: '#5fb198'
+        score: 2737.1
+        color: '#5eac9d'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8149,58 +8173,6 @@ members:
       spec_2:
         score: 2329.5
         color: '#29ff0e'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Yokusir
-    id: 184033782
-    level: 90
-    realm:
-      id: 1415
-      slug: terokkar
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Marksmanship
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/246/184033782-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/terokkar/Yokusir
-    item_level_equipped: 272
-    mythic_plus_scores:
-      all:
-        score: 1747.8
-        color: '#8aff6d'
-      dps:
-        score: 1747.8
-        color: '#8aff6d'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 1747.8
-        color: '#8aff6d'
-      spec_2:
-        score: 0
-        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
