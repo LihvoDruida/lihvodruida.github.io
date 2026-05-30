@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-30 03:32:21'
+  updated_at: '2026-05-30 06:47:44'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13594
+      world: 13603
       region: 5960
       realm: 49
     mythic:
-      world: 7036
+      world: 7040
       region: 3052
       realm: 22
   blackrock-depths:
