@@ -1,4 +1,5 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
+import WarcraftLogsBossGraphs from "@/components/WarcraftLogsBossGraphs";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { canViewProfile, getProfileById, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
@@ -69,6 +70,13 @@ function formatMetricAmount(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "—";
   if (value >= 1000) return formatStableNumber(value / 1000, value >= 100_000 ? 0 : 1) + "k";
   return formatStableNumber(value, 0);
+}
+
+function formatDuration(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "—";
+  const seconds = Math.round(value > 10_000 ? value / 1000 : value);
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
 function newestDate(...values: Array<string | null | undefined>) {
@@ -225,7 +233,7 @@ function WarcraftLogsStatus({ summary }: { summary: WarcraftLogsCharacterSummary
   if (summary.status === "ready") return null;
 
   const message = summary.status === "not_configured"
-    ? "Warcraft Logs API ще не налаштований. Додай WARCRAFTLOGS_CLIENT_ID і WARCRAFTLOGS_CLIENT_SECRET у server env, після цього блок автоматично почне підтягувати публічні rankings."
+    ? "Warcraft Logs API ще не налаштований. Додай Client ID і Client Secret у панелі керування: /admin → Фоновий API та автооновлення → Warcraft Logs API."
     : summary.status === "not_found"
       ? "Warcraft Logs не знайшов цього персонажа за region/realm/name. Перевір realm slug або наявність публічних логів."
       : summary.error || "Warcraft Logs тимчасово не відповів.";
@@ -238,8 +246,8 @@ function EncounterRankingRow({ ranking }: { ranking: WarcraftLogsEncounterRankin
     <div className="profile-character-log-ranking">
       <span><strong>{ranking.encounterName}</strong><small>{[ranking.spec, ranking.metric?.toUpperCase(), ranking.startTime ? formatStableUkCompactDate(ranking.startTime) : null].filter(Boolean).join(" • ")}</small></span>
       <span><strong>{formatPercent(ranking.percentile)}</strong><small>Parse</small></span>
-      <span><strong>{formatMetricAmount(ranking.bestAmount)}</strong><small>Best</small></span>
-      <span><strong>{ranking.totalKills ?? "—"}</strong><small>Kills</small></span>
+      <span><strong>{formatMetricAmount(ranking.bestAmount)}</strong><small>{ranking.metric?.toUpperCase() || "Best"}</small></span>
+      <span><strong>{ranking.totalKills ?? "—"}</strong><small>{ranking.fastestKillMs ? `Fast ${formatDuration(ranking.fastestKillMs)}` : "Kills"}</small></span>
     </div>
   );
 }
@@ -260,15 +268,17 @@ function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary 
       <div className="profile-character-role-scores profile-character-role-scores--three">
         <StatCard label="Best avg" value={formatPercent(summary.bestPerformanceAverage)} hint="Середній best parse" />
         <StatCard label="Median avg" value={formatPercent(summary.medianPerformanceAverage)} hint="Медіана performance" />
-        <StatCard label="All Stars" value={roundNumber(summary.allStarsPoints)} hint="Публічний ranking" />
+        <StatCard label="All Stars" value={roundNumber(summary.allStarsPoints)} hint={summary.allStarsRank ? `Rank ${formatStableNumber(summary.allStarsRank)}` : "Публічний ranking"} />
       </div>
 
+      <WarcraftLogsBossGraphs bosses={summary.bossRankings} />
+
       {summary.encounterRankings.length ? (
-        <div className="profile-character-log-list">
+        <div className="profile-character-log-list profile-character-log-list--rankings">
           {summary.encounterRankings.map((ranking, index) => <EncounterRankingRow key={`${ranking.encounterName}-${ranking.metric || "metric"}-${index}`} ranking={ranking} />)}
         </div>
       ) : (
-        <EmptyBlock title="Encounter rankings не знайдено" text="Блок залишено готовим: щойно Warcraft Logs поверне zoneRankings для персонажа, тут зʼявляться боси, parse %, best amount і кількість kills." />
+        <EmptyBlock title="Encounter rankings не знайдено" text="Блок залишено готовим: щойно Warcraft Logs поверне zoneRankings для персонажа, тут зʼявляться боси, parse %, best amount, кількість kills і історія пулів." />
       )}
     </article>
   );
