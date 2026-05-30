@@ -2400,3 +2400,47 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* WCL final polish: denser top cards and mobile-safe boss/ranking data. */
+.profile-character-detail-panel--wcl .profile-character-role-scores--three {
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.profile-character-detail-panel--wcl .profile-character-stat-card {
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.profile-character-detail-panel--wcl .profile-character-stat-card strong {
+  font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+}
+
+.profile-character-detail-panel--wcl .profile-character-stat-card small,
+.profile-character-detail-panel--wcl .profile-character-stat-card span {
+  font-size: 0.66rem;
+  line-height: 1.15;
+}
+
+.profile-character-detail-panel--wcl .profile-character-log-list--rankings {
+  gap: 6px;
+}
+
+.profile-character-detail-panel--wcl .profile-character-log-ranking {
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(72px, 0.65fr));
+}
+
+@media (max-width: 760px) {
+  .profile-character-detail-panel--wcl .profile-character-log-ranking {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-character-detail-panel--wcl .profile-character-role-scores--three,
+  .profile-character-detail-panel--wcl .profile-character-log-ranking {
+    grid-template-columns: 1fr;
+  }
+}

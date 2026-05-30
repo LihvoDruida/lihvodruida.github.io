@@ -135,7 +135,7 @@ type WarcraftLogsSliceConfig = {
   description: string;
   sourceLabel: string;
   graphqlMetric?: "hps" | "dps";
-  graphqlRole?: "healer" | "dps" | "tank";
+  graphqlRole?: "Healer" | "DPS" | "Tank";
 };
 
 const ENCOUNTER_HISTORY_LIMIT = 10;
@@ -152,9 +152,9 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     metricLabel: "HPS",
     title: "Хіл HPS",
     description: "Healing ranking / HPS по healer-ролі, з fallback на HPS без role-фільтра.",
-    sourceLabel: "role=healer metric=hps",
+    sourceLabel: "metric=hps · role=Healer",
     graphqlMetric: "hps",
-    graphqlRole: "healer",
+    graphqlRole: "Healer",
   },
   {
     key: "dps-dps",
@@ -166,9 +166,9 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     metricLabel: "DPS",
     title: "ДД DPS",
     description: "Damage ranking / DPS по dps-ролі, з fallback на DPS без role-фільтра.",
-    sourceLabel: "role=dps metric=dps",
+    sourceLabel: "metric=dps · role=DPS",
     graphqlMetric: "dps",
-    graphqlRole: "dps",
+    graphqlRole: "DPS",
   },
   {
     key: "tank-dps",
@@ -180,9 +180,9 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     metricLabel: "DPS",
     title: "Танк DPS",
     description: "Damage ranking для tank-ролі.",
-    sourceLabel: "role=tank metric=dps",
+    sourceLabel: "metric=dps · role=Tank",
     graphqlMetric: "dps",
-    graphqlRole: "tank",
+    graphqlRole: "Tank",
   },
   {
     key: "tank-hps",
@@ -193,9 +193,9 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     metricLabel: "HPS",
     title: "Танк HPS",
     description: "Healing/self-sustain ranking для tank-ролі, якщо WCL має такі дані.",
-    sourceLabel: "role=tank metric=hps",
+    sourceLabel: "metric=hps · role=Tank",
     graphqlMetric: "hps",
-    graphqlRole: "tank",
+    graphqlRole: "Tank",
   },
   {
     key: "overall",
@@ -902,7 +902,7 @@ function normalizeMetricSummary(
 function zoneRankingsField(config: WarcraftLogsSliceConfig) {
   const args = [] as string[];
   if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
-  if (config.graphqlRole) args.push(`role: \"${config.graphqlRole}\"`);
+  if (config.graphqlRole) args.push(`role: ${config.graphqlRole}`);
   return `${config.zoneAlias}: zoneRankings${args.length ? `(${args.join(", ")})` : ""}`;
 }
 
@@ -911,7 +911,7 @@ function zoneRankingsQuery() {
     ...WCL_SLICES.map(zoneRankingsField),
     "hpsAnyRole: zoneRankings(metric: hps)",
     "dpsAnyRole: zoneRankings(metric: dps)",
-    "tankDamageAnyRoleFallback: zoneRankings(metric: dps, role: \"tank\")",
+    "tankDamageAnyRoleFallback: zoneRankings(metric: dps, role: Tank)",
   ]
     .map((field) => `      ${field}`)
     .join("\n");
@@ -936,7 +936,7 @@ function chooseZoneValue(
 function encounterRankingArgs(config: WarcraftLogsSliceConfig, encounterId: number) {
   const args = [`encounterID: ${encounterId}`];
   if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
-  if (config.graphqlRole) args.push(`role: \"${config.graphqlRole}\"`);
+  if (config.graphqlRole) args.push(`role: ${config.graphqlRole}`);
   return args.join(", ");
 }
 
