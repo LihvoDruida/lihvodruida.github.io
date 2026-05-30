@@ -162,6 +162,7 @@
 | `WCL_CLIENT_SECRET` | alias secret | Legacy alias для `WARCRAFTLOGS_CLIENT_SECRET`. |
 | `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Timeout запитів Warcraft Logs, default `12000`. |
 | `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Кількість retry для Warcraft Logs, default `1`. |
+| `WARCRAFTLOGS_DEBUG_AUDIT_LOGS` | fallback | Legacy/fallback перемикач debug audit logs. Основне керування перенесено в `/admin` → Warcraft Logs API. |
 | `WARCRAFTLOGS_BASE_URL` | optional | Base URL API. Для Retail залишати порожнім або `https://www.warcraftlogs.com`. |
 
 ### Рейди

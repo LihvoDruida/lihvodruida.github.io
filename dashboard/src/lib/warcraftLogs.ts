@@ -125,10 +125,33 @@ export type WarcraftLogsCharacterSummary = {
   error?: string | null;
 };
 
+type WarcraftLogsConcreteRoleKey = Exclude<WarcraftLogsRoleKey, "overall">;
+
+type WarcraftLogsReportActor = {
+  id: number;
+  name: string | null;
+  realmSlug: string | null;
+  role: WarcraftLogsConcreteRoleKey | null;
+  spec: string | null;
+  rawSubType: string | null;
+};
+
+type WarcraftLogsReportMeasure = {
+  amount: number | null;
+  role: WarcraftLogsConcreteRoleKey | null;
+  spec: string | null;
+  rowCount: number;
+};
+
+type WarcraftLogsReportRoleResolution = {
+  role: WarcraftLogsConcreteRoleKey | null;
+  spec: string | null;
+  source: "table" | "actor" | "unknown";
+};
+
 type WarcraftLogsSliceConfig = {
   key: string;
   zoneAlias: string;
-  fallbackZoneAlias?: string;
   role: WarcraftLogsRoleKey;
   roleLabel: string;
   metric: WarcraftLogsMetricKey;
@@ -148,13 +171,12 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
   {
     key: "healer-hps",
     zoneAlias: "healerHps",
-    fallbackZoneAlias: "hpsAnyRole",
     role: "healer",
     roleLabel: "Хіл",
     metric: "hps",
     metricLabel: "HPS",
     title: "Хіл HPS",
-    description: "Healing ranking / HPS по healer-ролі, з fallback на HPS без role-фільтра.",
+    description: "Healing ranking / HPS тільки по healer-ролі без змішування з DPS/Tank.",
     sourceLabel: "metric=hps · role=Healer",
     graphqlMetric: "hps",
     graphqlRole: "Healer",
@@ -162,13 +184,12 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
   {
     key: "dps-dps",
     zoneAlias: "dpsDamage",
-    fallbackZoneAlias: "dpsAnyRole",
     role: "dps",
     roleLabel: "ДД",
     metric: "dps",
     metricLabel: "DPS",
     title: "ДД DPS",
-    description: "Damage ranking / DPS по dps-ролі, з fallback на DPS без role-фільтра.",
+    description: "Damage ranking / DPS тільки по DPS-ролі без змішування з Healer/Tank.",
     sourceLabel: "metric=dps · role=DPS",
     graphqlMetric: "dps",
     graphqlRole: "DPS",
@@ -176,13 +197,12 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
   {
     key: "tank-dps",
     zoneAlias: "tankDamage",
-    fallbackZoneAlias: "tankDamageAnyRoleFallback",
     role: "tank",
     roleLabel: "Танк",
     metric: "dps",
     metricLabel: "DPS",
     title: "Танк DPS",
-    description: "Damage ranking для tank-ролі.",
+    description: "Damage ranking тільки для tank-ролі.",
     sourceLabel: "metric=dps · role=Tank",
     graphqlMetric: "dps",
     graphqlRole: "Tank",
@@ -195,7 +215,7 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     metric: "hps",
     metricLabel: "HPS",
     title: "Танк HPS",
-    description: "Healing/self-sustain ranking для tank-ролі, якщо WCL має такі дані.",
+    description: "Healing/self-sustain ranking тільки для tank-ролі, якщо WCL має такі дані.",
     sourceLabel: "metric=hps · role=Tank",
     graphqlMetric: "hps",
     graphqlRole: "Tank",
@@ -308,8 +328,10 @@ function warcraftLogsRecentReportLimit() {
   return readIntegerEnv("WARCRAFTLOGS_RECENT_REPORT_LIMIT", 8, 1, 20);
 }
 
-function warcraftLogsDebugAuditEnabled() {
-  return process.env.WARCRAFTLOGS_DEBUG_AUDIT_LOGS !== "0";
+function warcraftLogsDebugAuditEnabled(
+  credentials?: Pick<WarcraftLogsApiCredentials, "debugAuditLogs"> | null,
+) {
+  return Boolean(credentials?.debugAuditLogs);
 }
 
 function compactForLog(value: unknown, depth = 0): unknown {
@@ -341,8 +363,12 @@ function compactForLog(value: unknown, depth = 0): unknown {
   return result;
 }
 
-function warcraftLogsDebugAudit(action: string, details: Record<string, unknown>) {
-  if (!warcraftLogsDebugAuditEnabled()) return;
+function warcraftLogsDebugAudit(
+  credentials: Pick<WarcraftLogsApiCredentials, "debugAuditLogs"> | null | undefined,
+  action: string,
+  details: Record<string, unknown>,
+) {
+  if (!warcraftLogsDebugAuditEnabled(credentials)) return;
 
   const compact = compactForLog(details) as Record<string, unknown>;
   const payload = {
@@ -520,6 +546,137 @@ function normalizeNameKey(value: unknown) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9а-яіїєґё]+/gi, "");
+}
+
+
+const SPEC_ROLE_BY_KEY: Record<string, WarcraftLogsConcreteRoleKey> = {
+  discipline: "healer",
+  holy: "healer",
+  mistweaver: "healer",
+  preservation: "healer",
+  restoration: "healer",
+  blood: "tank",
+  brewmaster: "tank",
+  guardian: "tank",
+  protection: "tank",
+  vengeance: "tank",
+  affliction: "dps",
+  arcane: "dps",
+  arms: "dps",
+  assassination: "dps",
+  augmentation: "dps",
+  balance: "dps",
+  beastmastery: "dps",
+  demonology: "dps",
+  destruction: "dps",
+  devastation: "dps",
+  elemental: "dps",
+  enhancement: "dps",
+  feral: "dps",
+  fire: "dps",
+  frost: "dps",
+  fury: "dps",
+  havoc: "dps",
+  marksmanship: "dps",
+  outlaw: "dps",
+  retribution: "dps",
+  shadow: "dps",
+  subtlety: "dps",
+  survival: "dps",
+  unholy: "dps",
+  windwalker: "dps",
+};
+
+function normalizeRoleText(value: unknown) {
+  return cleanText(value, 120)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9а-яіїєґё]+/gi, "");
+}
+
+function concreteRoleFromValue(value: unknown): WarcraftLogsConcreteRoleKey | null {
+  const normalized = normalizeRoleText(value);
+  if (!normalized) return null;
+  if (["healer", "heal", "healing", "hps", "хіл", "хил", "лікар", "лекарь", "целитель"].some((token) => normalized.includes(token))) {
+    return "healer";
+  }
+  if (["tank", "tanking", "танк"].some((token) => normalized.includes(token))) return "tank";
+  if (["dps", "damage", "damager", "dd", "дд", "урон", "шкода"].some((token) => normalized.includes(token))) return "dps";
+  return null;
+}
+
+function concreteRoleFromSpec(value: unknown): WarcraftLogsConcreteRoleKey | null {
+  const normalized = normalizeRoleText(value);
+  if (!normalized) return null;
+  const direct = SPEC_ROLE_BY_KEY[normalized];
+  if (direct) return direct;
+  for (const [specKey, role] of Object.entries(SPEC_ROLE_BY_KEY)) {
+    if (normalized.includes(specKey)) return role;
+  }
+  return concreteRoleFromValue(value);
+}
+
+function specFromRecord(record: Record<string, unknown>) {
+  return (
+    cleanText(
+      firstValue(record, [
+        "spec",
+        "specName",
+        "spec_name",
+        "bestSpec",
+        "subType",
+        "subtype",
+        "icon",
+        "talentSpec",
+        "talent_spec",
+      ]),
+      80,
+    ) || null
+  );
+}
+
+function roleFromRecord(record: Record<string, unknown>): WarcraftLogsConcreteRoleKey | null {
+  const directRole = concreteRoleFromValue(
+    firstValue(record, ["role", "roleType", "role_type", "playerRole", "player_role"]),
+  );
+  if (directRole) return directRole;
+  return concreteRoleFromSpec(specFromRecord(record));
+}
+
+function isReportMetricSlice(config: WarcraftLogsSliceConfig): config is WarcraftLogsSliceConfig & {
+  role: WarcraftLogsConcreteRoleKey;
+  metric: "hps" | "dps";
+} {
+  return config.role !== "overall" && (config.metric === "hps" || config.metric === "dps");
+}
+
+function resolveReportFightRole(input: {
+  actor: WarcraftLogsReportActor;
+  damage: WarcraftLogsReportMeasure;
+  healing: WarcraftLogsReportMeasure;
+}): WarcraftLogsReportRoleResolution {
+  const tableRole = input.damage.role || input.healing.role;
+  const tableSpec = input.damage.spec || input.healing.spec;
+  if (tableRole) {
+    return {
+      role: tableRole,
+      spec: tableSpec || input.actor.spec,
+      source: "table",
+    };
+  }
+  if (input.actor.role) {
+    return {
+      role: input.actor.role,
+      spec: tableSpec || input.actor.spec,
+      source: "actor",
+    };
+  }
+  return {
+    role: null,
+    spec: tableSpec || input.actor.spec,
+    source: "unknown",
+  };
 }
 
 function isRaidBossEncounterId(value: number | null | undefined): value is number {
@@ -973,17 +1130,36 @@ function reportPaginationData(character: Record<string, unknown> | null) {
   return Array.isArray(data) ? data : [];
 }
 
+function actorRealmSlug(actor: Record<string, unknown>) {
+  return normalizeBattleNetRealmSlug(
+    cleanText(firstValue(actor, ["server", "serverSlug", "realm", "realmSlug"]), 120),
+  );
+}
+
 function actorMatchesRealm(actor: Record<string, unknown>, realmSlug: string) {
-  const server = normalizeBattleNetRealmSlug(cleanText(firstValue(actor, ["server", "serverSlug", "realm", "realmSlug"]), 120));
+  const server = actorRealmSlug(actor);
   return !server || !realmSlug || server === realmSlug;
 }
 
-function findReportActorId(report: Record<string, unknown>, characterName: string, realmSlug: string) {
+function reportActorFromRecord(actor: Record<string, unknown>, id: number): WarcraftLogsReportActor {
+  const spec = specFromRecord(actor);
+  const rawSubType = cleanText(firstValue(actor, ["subType", "subtype"]), 80) || null;
+  return {
+    id,
+    name: cleanText(firstValue(actor, ["name", "characterName"]), 120) || null,
+    realmSlug: actorRealmSlug(actor) || null,
+    role: roleFromRecord(actor),
+    spec,
+    rawSubType,
+  };
+}
+
+function findReportActor(report: Record<string, unknown>, characterName: string, realmSlug: string) {
   const masterData = asRecord(report.masterData);
   const actors = Array.isArray(masterData?.actors) ? masterData.actors : [];
   const characterKey = normalizeNameKey(characterName);
 
-  let fallback: number | null = null;
+  let fallback: WarcraftLogsReportActor | null = null;
   for (const item of actors) {
     const actor = asRecord(item);
     if (!actor) continue;
@@ -991,8 +1167,9 @@ function findReportActorId(report: Record<string, unknown>, characterName: strin
 
     const id = firstInteger(actor, ["id", "actorID", "sourceID"]);
     if (id === null) continue;
-    if (actorMatchesRealm(actor, realmSlug)) return id;
-    fallback = fallback ?? id;
+    const resolved = reportActorFromRecord(actor, id);
+    if (actorMatchesRealm(actor, realmSlug)) return resolved;
+    fallback = fallback ?? resolved;
   }
 
   return fallback;
@@ -1100,8 +1277,11 @@ function collectTableRows(value: unknown) {
   return rows;
 }
 
-function amountFromReportTable(value: unknown, metric: WarcraftLogsMetricKey, durationMs: number) {
-  const rows = collectTableRows(value);
+function amountFromTableRow(
+  row: Record<string, unknown>,
+  metric: WarcraftLogsMetricKey,
+  durationMs: number,
+) {
   const metricKeys =
     metric === "hps"
       ? ["hps", "HPS", "healingPerSecond", "healing_per_second", "perSecondAmount", "persecondamount"]
@@ -1111,39 +1291,75 @@ function amountFromReportTable(value: unknown, metric: WarcraftLogsMetricKey, du
       ? ["totalHealing", "healingTotal", "healing", "total", "amount"]
       : ["totalDamage", "damageTotal", "damage", "total", "amount"];
 
+  const direct = firstNumber(row, metricKeys);
+  if (direct !== null) return direct;
+
+  const total = firstNumber(row, totalKeys);
+  if (total === null) return null;
+
+  const activeTime = firstNumber(row, [
+    "activeTime",
+    "activeTimeMs",
+    "activeTimeMS",
+    "totalTime",
+    "time",
+    "duration",
+  ]);
+  const divisorMs =
+    activeTime !== null && activeTime > 0
+      ? activeTime > 10_000
+        ? activeTime
+        : activeTime * 1000
+      : durationMs;
+  return divisorMs > 0 ? total / (divisorMs / 1000) : null;
+}
+
+function measureFromReportTable(
+  value: unknown,
+  metric: "hps" | "dps",
+  durationMs: number,
+): WarcraftLogsReportMeasure {
+  const rows = collectTableRows(value);
+  let fallbackRole: WarcraftLogsConcreteRoleKey | null = null;
+  let fallbackSpec: string | null = null;
+
   for (const row of rows) {
-    const direct = firstNumber(row, metricKeys);
-    if (direct !== null) return direct;
+    const role = roleFromRecord(row);
+    const spec = specFromRecord(row);
+    fallbackRole = fallbackRole || role;
+    fallbackSpec = fallbackSpec || spec;
 
-    const total = firstNumber(row, totalKeys);
-    if (total === null) continue;
-
-    const activeTime = firstNumber(row, [
-      "activeTime",
-      "activeTimeMs",
-      "activeTimeMS",
-      "totalTime",
-      "time",
-      "duration",
-    ]);
-    const divisorMs = activeTime !== null && activeTime > 0 ? (activeTime > 10_000 ? activeTime : activeTime * 1000) : durationMs;
-    if (divisorMs > 0) return total / (divisorMs / 1000);
+    const amount = amountFromTableRow(row, metric, durationMs);
+    if (amount !== null) {
+      return {
+        amount,
+        role,
+        spec,
+        rowCount: rows.length,
+      };
+    }
   }
 
-  return null;
+  return {
+    amount: null,
+    role: fallbackRole,
+    spec: fallbackSpec,
+    rowCount: rows.length,
+  };
 }
 
 function reportPullFromFight(
   fight: WarcraftLogsReportFightSeed,
-  config: WarcraftLogsSliceConfig,
+  config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" },
   amount: number | null,
   baseUrl: string,
+  roleResolution: WarcraftLogsReportRoleResolution,
 ): WarcraftLogsBossPull {
   return {
     encounterId: fight.encounterId,
     encounterName: fight.encounterName,
     role: config.role,
-    spec: null,
+    spec: roleResolution.spec,
     metric: config.metric,
     difficulty: fight.difficulty,
     percentile: null,
@@ -1176,7 +1392,7 @@ function addReportPull(
 }
 
 function recentReportsQuery(limit: number) {
-  return `query CharacterRecentRaidReports($name: String!, $serverSlug: String!, $serverRegion: String!) {\n  characterData {\n    character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {\n      recentReports(limit: ${limit}) {\n        data {\n          code\n          title\n          startTime\n          endTime\n          zone { id name }\n          fights(killType: Encounters) {\n            id\n            encounterID\n            originalEncounterID\n            name\n            kill\n            startTime\n            endTime\n            difficulty\n            size\n          }\n          masterData(translate: true) {\n            actors(type: \"Player\") {\n              id\n              gameID\n              server\n              subType\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}`;
+  return `query CharacterRecentRaidReports($name: String!, $serverSlug: String!, $serverRegion: String!) {\n  characterData {\n    character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {\n      recentReports(limit: ${limit}) {\n        data {\n          code\n          title\n          startTime\n          endTime\n          zone { id name }\n          fights(killType: Encounters) {\n            id\n            encounterID\n            originalEncounterID\n            name\n            kill\n            startTime\n            endTime\n            difficulty\n            size\n          }\n          masterData(translate: false) {\n            actors(type: \"Player\") {\n              id\n              gameID\n              server\n              subType\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}`;
 }
 
 function reportFightTablesQuery(fights: WarcraftLogsReportFightSeed[]) {
@@ -1232,7 +1448,7 @@ async function fetchRecentReportRecords(input: {
         .map((report) => asRecord(report))
         .filter((report): report is Record<string, unknown> => Boolean(report));
 
-  warcraftLogsDebugAudit("warcraft_logs.api.recent_reports_response", {
+  warcraftLogsDebugAudit(input.credentials, "warcraft_logs.api.recent_reports_response", {
     summary: `WCL recent reports: ${input.name} — ${reports.length} reports`,
     character: input.name,
     realmSlug: input.realmSlug,
@@ -1279,7 +1495,7 @@ async function fetchReportFightTables(input: {
 
   const report = response.errors?.length ? null : response.data?.reportData?.report || null;
 
-  warcraftLogsDebugAudit("warcraft_logs.api.report_tables_response", {
+  warcraftLogsDebugAudit(input.credentials, "warcraft_logs.api.report_tables_response", {
     summary: `WCL report tables: ${input.reportCode} — ${input.fights.length} fights`,
     reportCode: input.reportCode,
     sourceId: input.sourceId,
@@ -1310,12 +1526,20 @@ async function fetchRecentRaidBossPulls(input: {
     const mapped = await mapConcurrentSettled(
       reports,
       async (report) => {
-        const sourceId = findReportActorId(report, input.name, input.realmSlug);
-        if (sourceId === null) {
+        const actor = findReportActor(report, input.name, input.realmSlug);
+        if (!actor) {
           return {
             reportCode: cleanText(report.code, 80) || null,
             skipped: "actor_not_found",
-            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+            actor: null as WarcraftLogsReportActor | null,
+            roleCounts: {} as Record<WarcraftLogsConcreteRoleKey, number>,
+            skippedUnknownRole: 0,
+            skippedMissingAmount: 0,
+            roleSamples: [] as Array<Record<string, unknown>>,
+            pulls: [] as Array<{
+              config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" };
+              pull: WarcraftLogsBossPull;
+            }>,
           };
         }
 
@@ -1324,7 +1548,15 @@ async function fetchRecentRaidBossPulls(input: {
           return {
             reportCode: cleanText(report.code, 80) || null,
             skipped: "no_known_raid_boss_fights",
-            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+            actor: actor ?? null,
+            roleCounts: {} as Record<WarcraftLogsConcreteRoleKey, number>,
+            skippedUnknownRole: 0,
+            skippedMissingAmount: 0,
+            roleSamples: [] as Array<Record<string, unknown>>,
+            pulls: [] as Array<{
+              config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" };
+              pull: WarcraftLogsBossPull;
+            }>,
           };
         }
 
@@ -1333,7 +1565,15 @@ async function fetchRecentRaidBossPulls(input: {
           return {
             reportCode: null,
             skipped: "missing_report_code",
-            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+            actor: actor ?? null,
+            roleCounts: {} as Record<WarcraftLogsConcreteRoleKey, number>,
+            skippedUnknownRole: 0,
+            skippedMissingAmount: 0,
+            roleSamples: [] as Array<Record<string, unknown>>,
+            pulls: [] as Array<{
+              config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" };
+              pull: WarcraftLogsBossPull;
+            }>,
           };
         }
 
@@ -1341,28 +1581,105 @@ async function fetchRecentRaidBossPulls(input: {
           credentials: input.credentials,
           token: input.token,
           reportCode,
-          sourceId,
+          sourceId: actor.id,
           fights,
         });
         if (!tables) {
           return {
             reportCode,
             skipped: "table_response_empty",
-            pulls: [] as Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }>,
+            actor: actor ?? null,
+            roleCounts: {} as Record<WarcraftLogsConcreteRoleKey, number>,
+            skippedUnknownRole: 0,
+            skippedMissingAmount: 0,
+            roleSamples: [] as Array<Record<string, unknown>>,
+            pulls: [] as Array<{
+              config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" };
+              pull: WarcraftLogsBossPull;
+            }>,
           };
         }
 
-        const pulls: Array<{ config: WarcraftLogsSliceConfig; pull: WarcraftLogsBossPull }> = [];
-        for (const [index, fight] of fights.entries()) {
-          const damageAmount = amountFromReportTable(tables[`d${index}`], "dps", fight.durationMs);
-          const healingAmount = amountFromReportTable(tables[`h${index}`], "hps", fight.durationMs);
+        const pulls: Array<{
+          config: WarcraftLogsSliceConfig & { role: WarcraftLogsConcreteRoleKey; metric: "hps" | "dps" };
+          pull: WarcraftLogsBossPull;
+        }> = [];
+        const roleCounts: Record<WarcraftLogsConcreteRoleKey, number> = { healer: 0, dps: 0, tank: 0 };
+        let skippedUnknownRole = 0;
+        let skippedMissingAmount = 0;
+        const roleSamples: Array<Record<string, unknown>> = [];
 
-          for (const config of WCL_SLICES) {
-            if (config.metric === "points") continue;
-            const amount = config.metric === "hps" ? healingAmount : damageAmount;
+        for (const [index, fight] of fights.entries()) {
+          const damage = measureFromReportTable(tables[`d${index}`], "dps", fight.durationMs);
+          const healing = measureFromReportTable(tables[`h${index}`], "hps", fight.durationMs);
+          const roleResolution = resolveReportFightRole({ actor, damage, healing });
+
+          if (roleResolution.role) {
+            roleCounts[roleResolution.role] += 1;
+          } else {
+            skippedUnknownRole += 1;
+            roleSamples.push({
+              reportCode,
+              fightId: fight.fightId,
+              encounterId: fight.encounterId,
+              encounterName: fight.encounterName,
+              reason: "unknown_role",
+              actorSpec: actor.spec,
+              actorRawSubType: actor.rawSubType,
+              damageRows: damage.rowCount,
+              healingRows: healing.rowCount,
+              damageRole: damage.role,
+              healingRole: healing.role,
+              damageSpec: damage.spec,
+              healingSpec: healing.spec,
+            });
+            continue;
+          }
+
+          const matchingConfigs = WCL_SLICES.filter(
+            (config): config is WarcraftLogsSliceConfig & {
+              role: WarcraftLogsConcreteRoleKey;
+              metric: "hps" | "dps";
+            } => isReportMetricSlice(config) && config.role === roleResolution.role,
+          );
+
+          for (const config of matchingConfigs) {
+            const measure = config.metric === "hps" ? healing : damage;
+            if (measure.amount === null) {
+              skippedMissingAmount += 1;
+              continue;
+            }
+
             pulls.push({
               config,
-              pull: reportPullFromFight(fight, config, amount, input.credentials.baseUrl),
+              pull: reportPullFromFight(
+                fight,
+                config,
+                measure.amount,
+                input.credentials.baseUrl,
+                roleResolution,
+              ),
+            });
+          }
+
+          if (roleSamples.length < 24) {
+            roleSamples.push({
+              reportCode,
+              fightId: fight.fightId,
+              encounterId: fight.encounterId,
+              encounterName: fight.encounterName,
+              role: roleResolution.role,
+              roleSource: roleResolution.source,
+              spec: roleResolution.spec,
+              emittedMetrics: matchingConfigs
+                .filter((config) => (config.metric === "hps" ? healing.amount : damage.amount) !== null)
+                .map((config) => config.key),
+              damageAmount: damage.amount,
+              healingAmount: healing.amount,
+              damageRole: damage.role,
+              healingRole: healing.role,
+              damageSpec: damage.spec,
+              healingSpec: healing.spec,
             });
           }
         }
@@ -1370,7 +1687,12 @@ async function fetchRecentRaidBossPulls(input: {
         return {
           reportCode,
           skipped: null,
+          actor,
           fightCount: fights.length,
+          roleCounts,
+          skippedUnknownRole,
+          skippedMissingAmount,
+          roleSamples,
           pulls,
         };
       },
@@ -1385,15 +1707,27 @@ async function fetchRecentRaidBossPulls(input: {
 
     const result = emptyReportPullsBySlice();
     let producedPulls = 0;
+    const roleTotals: Record<WarcraftLogsConcreteRoleKey, number> = { healer: 0, dps: 0, tank: 0 };
+    let skippedUnknownRole = 0;
+    let skippedMissingAmount = 0;
+    const roleSamples: Array<Record<string, unknown>> = [];
+
     for (const item of mapped.results) {
       if (!item.ok) continue;
+      roleTotals.healer += item.value.roleCounts.healer || 0;
+      roleTotals.dps += item.value.roleCounts.dps || 0;
+      roleTotals.tank += item.value.roleCounts.tank || 0;
+      skippedUnknownRole += item.value.skippedUnknownRole || 0;
+      skippedMissingAmount += item.value.skippedMissingAmount || 0;
+      roleSamples.push(...item.value.roleSamples.slice(0, Math.max(0, 30 - roleSamples.length)));
+
       for (const entry of item.value.pulls) {
         addReportPull(result, entry.config, entry.pull);
         producedPulls += 1;
       }
     }
 
-    warcraftLogsDebugAudit("warcraft_logs.parser.recent_raid_boss_pulls", {
+    warcraftLogsDebugAudit(input.credentials, "warcraft_logs.parser.recent_raid_boss_pulls", {
       summary: `WCL parser: ${input.name} — ${producedPulls} report pull rows`,
       character: input.name,
       realmSlug: input.realmSlug,
@@ -1401,6 +1735,10 @@ async function fetchRecentRaidBossPulls(input: {
       reportsChecked: reports.length,
       knownBosses: knownBosses.size,
       producedPullRows: producedPulls,
+      roleTotals,
+      skippedUnknownRole,
+      skippedMissingAmount,
+      roleSamples,
       durationMs: Date.now() - startedAt,
       concurrency: mapped.meta.concurrency,
       failedReports: mapped.meta.failed,
@@ -1409,7 +1747,20 @@ async function fetchRecentRaidBossPulls(input: {
             ok: true,
             reportCode: item.value.reportCode,
             skipped: item.value.skipped,
+            actor: item.value.actor
+              ? {
+                  id: item.value.actor.id,
+                  name: item.value.actor.name,
+                  realmSlug: item.value.actor.realmSlug,
+                  spec: item.value.actor.spec,
+                  role: item.value.actor.role,
+                  rawSubType: item.value.actor.rawSubType,
+                }
+              : null,
             fightCount: item.value.fightCount || 0,
+            roleCounts: item.value.roleCounts,
+            skippedUnknownRole: item.value.skippedUnknownRole,
+            skippedMissingAmount: item.value.skippedMissingAmount,
             producedPulls: item.value.pulls.length,
           }
         : {
@@ -1421,7 +1772,7 @@ async function fetchRecentRaidBossPulls(input: {
 
     return result;
   } catch (error) {
-    warcraftLogsDebugAudit("warcraft_logs.parser.recent_raid_boss_pulls_failed", {
+    warcraftLogsDebugAudit(input.credentials, "warcraft_logs.parser.recent_raid_boss_pulls_failed", {
       status: "warning",
       summary: `WCL parser failed: ${input.name}`,
       character: input.name,
@@ -1482,14 +1833,6 @@ function normalizeBossSummaries(
       pulls,
     };
   });
-}
-
-function hasZoneRankingData(value: unknown, config: WarcraftLogsSliceConfig, baseUrl: string) {
-  const root = parseMaybeJsonObject(value);
-  if (!root) return false;
-  if (firstNumber(root, ["bestPerformanceAverage", "bestPerfAvg", "bestAverage", "best"]) !== null) return true;
-  if (firstNumber(root, ["medianPerformanceAverage", "medianPerfAvg", "medianAverage", "median"]) !== null) return true;
-  return collectEncounterRankings(root, baseUrl, { role: config.role, metric: config.metric, limit: 1 }).length > 0;
 }
 
 function normalizeMetricSummary(
@@ -1559,9 +1902,6 @@ function zoneRankingsField(config: WarcraftLogsSliceConfig) {
 function zoneRankingsQuery() {
   const fields = [
     ...WCL_SLICES.map(zoneRankingsField),
-    "hpsAnyRole: zoneRankings(metric: hps)",
-    "dpsAnyRole: zoneRankings(metric: dps)",
-    "tankDamageAnyRoleFallback: zoneRankings(metric: dps, role: Tank)",
   ]
     .map((field) => `      ${field}`)
     .join("\n");
@@ -1572,15 +1912,9 @@ function zoneRankingsQuery() {
 function chooseZoneValue(
   character: Record<string, unknown>,
   config: WarcraftLogsSliceConfig,
-  baseUrl: string,
+  _baseUrl: string,
 ) {
-  const primary = character[config.zoneAlias];
-  if (hasZoneRankingData(primary, config, baseUrl)) return primary;
-  if (config.fallbackZoneAlias) {
-    const fallback = character[config.fallbackZoneAlias];
-    if (hasZoneRankingData(fallback, config, baseUrl)) return fallback;
-  }
-  return primary;
+  return character[config.zoneAlias];
 }
 
 function encounterRankingArgs(config: WarcraftLogsSliceConfig, encounterId: number) {
@@ -1664,7 +1998,7 @@ async function fetchEncounterHistory(input: {
         }, {})
       : ({} as Record<string, Record<string, unknown>>);
 
-    warcraftLogsDebugAudit("warcraft_logs.api.encounter_history_response", {
+    warcraftLogsDebugAudit(input.credentials, "warcraft_logs.api.encounter_history_response", {
       summary: `WCL encounter history: ${input.name} — ${built.jobs.length} boss queries`,
       character: input.name,
       realmSlug: input.realmSlug,
@@ -1800,7 +2134,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       ?.map((item) => cleanText(item.message, 240))
       .find(Boolean);
 
-    warcraftLogsDebugAudit("warcraft_logs.api.zone_rankings_response", {
+    warcraftLogsDebugAudit(credentials, "warcraft_logs.api.zone_rankings_response", {
       summary: `WCL zone rankings: ${input.name}`,
       character: input.name,
       realmSlug,
@@ -1847,7 +2181,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
     );
     const primary = primarySummary(metricSummaries);
 
-    warcraftLogsDebugAudit("warcraft_logs.parser.summary", {
+    warcraftLogsDebugAudit(credentials, "warcraft_logs.parser.summary", {
       summary: `WCL parser summary: ${input.name}`,
       character: input.name,
       realmSlug,

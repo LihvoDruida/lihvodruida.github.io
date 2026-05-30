@@ -162,6 +162,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `WCL_CLIENT_SECRET` | alias secret | Legacy alias for `WARCRAFTLOGS_CLIENT_SECRET`. |
 | `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Warcraft Logs request timeout, default `12000`. |
 | `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Warcraft Logs retry count, default `1`. |
+| `WARCRAFTLOGS_DEBUG_AUDIT_LOGS` | fallback | Legacy/fallback debug audit logs switch. Main control is now in `/admin` → Warcraft Logs API. |
 | `WARCRAFTLOGS_BASE_URL` | optional | API base URL. Keep empty or `https://www.warcraftlogs.com` for Retail. |
 
 ### Raids

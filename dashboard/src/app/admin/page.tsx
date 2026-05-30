@@ -135,6 +135,10 @@ export default async function AdminOverviewPage() {
                     : "ENV"
                   : "OFF",
               },
+              {
+                label: "WCL LOG",
+                value: apiSettings.warcraftLogsDebugAuditLogs ? "ON" : "OFF",
+              },
             ]}
           />
         </header>
@@ -394,6 +398,29 @@ export default async function AdminOverviewPage() {
                     spellCheck={false}
                   />
                 </label>
+                <input
+                  type="hidden"
+                  name="warcraftLogsDebugAuditLogs"
+                  value="0"
+                />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="warcraftLogsDebugAuditLogs"
+                    value="1"
+                    defaultChecked={apiSettings.warcraftLogsDebugAuditLogs}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Увімкнути тимчасовий WCL debug audit log</strong>
+                    <small>
+                      Записує в загальні логи відповідь Warcraft Logs API та
+                      проміжний результат парсера. Тримай вимкненим після
+                      перевірки, бо лог може бути великим.
+                    </small>
+                  </span>
+                </label>
+
                 <label className="admin-policy-toggle admin-policy-toggle--danger">
                   <input
                     type="checkbox"
@@ -430,14 +457,19 @@ export default async function AdminOverviewPage() {
                       ? "збережений / доступний"
                       : "відсутній"}
                   </small>
+                  <small>
+                    Debug audit log: {apiSettings.warcraftLogsDebugAuditLogs
+                      ? "увімкнено"
+                      : "вимкнено"}
+                  </small>
                 </div>
               </fieldset>
 
               <footer className="admin-policy-footer">
                 <small>
                   Warcraft Logs Client Secret зберігається server-side у
-                  Firebase і не рендериться назад у форму. Env лишається
-                  fallback для старого деплою.
+                  Firebase і не рендериться назад у форму. Debug audit log
+                  керується з панелі, env лишається тільки fallback.
                 </small>
                 <button
                   className="btn primary"

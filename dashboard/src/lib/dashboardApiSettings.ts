@@ -32,6 +32,7 @@ export type DashboardApiSettings = {
   warcraftLogsClientSecretConfigured: boolean;
   warcraftLogsCredentialsSource: WarcraftLogsCredentialsSource;
   warcraftLogsBaseUrl: string;
+  warcraftLogsDebugAuditLogs: boolean;
   updatedAt?: string | null;
   updatedBy?: string | null;
   source: DashboardApiSettingsSource;
@@ -42,6 +43,7 @@ export type WarcraftLogsApiCredentials = {
   clientSecret: string;
   baseUrl: string;
   source: WarcraftLogsCredentialsSource;
+  debugAuditLogs: boolean;
   configured: boolean;
 };
 
@@ -96,6 +98,18 @@ function envWarcraftLogsBaseUrl() {
   return configured || DEFAULT_WARCRAFT_LOGS_BASE_URL;
 }
 
+function envWarcraftLogsDebugAuditLogs() {
+  return truthyFormFlag(process.env.WARCRAFTLOGS_DEBUG_AUDIT_LOGS);
+}
+
+function booleanValue(value: unknown, fallback: boolean) {
+  if (typeof value === "boolean") return value;
+  const text = cleanText(value, 20).toLowerCase();
+  if (["1", "true", "yes", "on"].includes(text)) return true;
+  if (["0", "false", "no", "off"].includes(text)) return false;
+  return fallback;
+}
+
 function normalizeWarcraftLogsBaseUrl(
   value: unknown,
   fallback = envWarcraftLogsBaseUrl(),
@@ -127,6 +141,10 @@ function resolveWarcraftLogsCredentials(
     clientSecret,
     baseUrl: normalizeWarcraftLogsBaseUrl(data?.warcraftLogsBaseUrl),
     source,
+    debugAuditLogs: booleanValue(
+      data?.warcraftLogsDebugAuditLogs,
+      envWarcraftLogsDebugAuditLogs(),
+    ),
     configured: Boolean(clientId && clientSecret),
   };
 }
@@ -214,6 +232,7 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     warcraftLogsClientSecretConfigured: Boolean(envWarcraftLogsClientSecret()),
     warcraftLogsCredentialsSource: resolveWarcraftLogsCredentials(null).source,
     warcraftLogsBaseUrl: envWarcraftLogsBaseUrl(),
+    warcraftLogsDebugAuditLogs: envWarcraftLogsDebugAuditLogs(),
     updatedAt: null,
     updatedBy: null,
     source: "defaults",
@@ -285,6 +304,7 @@ function normalizeSettings(
     warcraftLogsClientSecretConfigured: credentials.configured,
     warcraftLogsCredentialsSource: credentials.source,
     warcraftLogsBaseUrl: credentials.baseUrl,
+    warcraftLogsDebugAuditLogs: credentials.debugAuditLogs,
     updatedAt: timestampToIso(data?.updatedAt),
     updatedBy: typeof data?.updatedBy === "string" ? data.updatedBy : null,
     source,
@@ -363,6 +383,7 @@ export async function setDashboardApiSettings(
       settings.warcraftLogsBaseUrl === DEFAULT_WARCRAFT_LOGS_BASE_URL
         ? FieldValue.delete()
         : settings.warcraftLogsBaseUrl,
+    warcraftLogsDebugAuditLogs: settings.warcraftLogsDebugAuditLogs,
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   };
@@ -415,7 +436,10 @@ export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wcl = settings.warcraftLogsClientSecretConfigured
     ? `WCL: ${settings.warcraftLogsCredentialsSource}`
     : "WCL: не налаштовано";
-  return `Фоновий API: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; профіль: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit} проф.; ${wcl}.`;
+  const wclDebug = settings.warcraftLogsDebugAuditLogs
+    ? "WCL debug: увімкнено"
+    : "WCL debug: вимкнено";
+  return `Фоновий API: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; профіль: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit} проф.; ${wcl}; ${wclDebug}.`;
 }
 
 export function dashboardApiSettingsMinBackgroundRefreshSeconds() {

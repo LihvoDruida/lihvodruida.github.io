@@ -370,8 +370,8 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
   if (!slices.length || !activeSlice) {
     return (
       <div className="profile-wcl-dynamic profile-wcl-dynamic--empty">
-        <strong>Warcraft Logs поки не повернув role/metric rankings</strong>
-        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й до 10 пулів.</span>
+        <strong>Warcraft Logs поки не повернув чисті role/metric rankings</strong>
+        <span>Блок готовий до окремих HPS/DPS/Tank даних. Пули з невизначеною роллю не змішуються в статистику.</span>
       </div>
     );
   }
@@ -382,7 +382,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <div>
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Рейдові боси, до 10 останніх пулів</h3>
-          <p>Тільки рейдові боси: треш і ключі відкидаються. У середнє входять усі доступні boss-pulls, максимум 10 останніх на боса/метрику.</p>
+          <p>Тільки рейдові боси: треш і ключі відкидаються. Дані не змішуються між ролями: якщо пул був як ДД — він іде лише в ДД DPS, хіл — лише в Хіл HPS, танк — лише в танкові метрики. У середнє входить максимум 10 останніх пулів.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>

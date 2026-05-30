@@ -163,6 +163,11 @@ export async function POST(request: NextRequest) {
           "clearWarcraftLogsClientSecret",
         ),
         warcraftLogsBaseUrl: form.get("warcraftLogsBaseUrl"),
+        warcraftLogsDebugAuditLogs: form
+          .getAll("warcraftLogsDebugAuditLogs")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
       },
       session,
     );
