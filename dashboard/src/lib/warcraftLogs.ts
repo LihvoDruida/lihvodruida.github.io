@@ -64,6 +64,8 @@ export type WarcraftLogsSourceCoverage = {
   reportsChecked: number;
   reportBossFightsChecked: number;
   reportPullRows: number;
+  duplicatePullRows: number;
+  uniqueReportPullRows: number;
   roleTotals: Record<WarcraftLogsConcreteRoleKey, number>;
   skippedUnknownRole: number;
   skippedMissingAmount: number;
@@ -85,6 +87,9 @@ export type WarcraftLogsBossPull = {
   durationMs: number | null;
   itemLevel: number | null;
   totalParses: number | null;
+  fightSize: number | null;
+  zoneName: string | null;
+  reportTitle: string | null;
   killedWith: string | null;
   reportCode: string | null;
   reportFightId: number | null;
@@ -830,6 +835,9 @@ function pullCompletenessScore(pull: WarcraftLogsBossPull) {
     pull.durationMs,
     pull.itemLevel,
     pull.totalParses,
+    pull.fightSize,
+    pull.zoneName,
+    pull.reportTitle,
     pull.reportCode,
     pull.reportFightId,
     pull.startTime,
@@ -852,14 +860,55 @@ function preferNewerDuplicate(left: WarcraftLogsBossPull, right: WarcraftLogsBos
     : mergePullData(left, right);
 }
 
-function dedupeEquivalentPulls(pulls: WarcraftLogsBossPull[]) {
-  const merged = new Map<string, WarcraftLogsBossPull>();
+function sameNonNullValue(left: string | number | null | undefined, right: string | number | null | undefined) {
+  return left !== null && left !== undefined && right !== null && right !== undefined && left === right;
+}
+
+function areDuplicatePulls(left: WarcraftLogsBossPull, right: WarcraftLogsBossPull) {
+  const leftReportFight = reportFightDuplicateKey(left);
+  const rightReportFight = reportFightDuplicateKey(right);
+  if (leftReportFight && rightReportFight && leftReportFight === rightReportFight) return true;
+
+  const leftFacts = factualDuplicateKey(left);
+  const rightFacts = factualDuplicateKey(right);
+  if (leftFacts && rightFacts && leftFacts === rightFacts) return true;
+
+  const sameMetric = (left.metric || null) === (right.metric || null);
+  const sameRole = (left.role || null) === (right.role || null);
+  const leftDuration = roundedDurationSeconds(left.durationMs);
+  const rightDuration = roundedDurationSeconds(right.durationMs);
+  const leftAmount = roundedMetricAmount(left.amount);
+  const rightAmount = roundedMetricAmount(right.amount);
+  const leftState = normalizedKillState(left.killedWith);
+  const rightState = normalizedKillState(right.killedWith);
+  const sameDuration = leftDuration !== "none" && leftDuration === rightDuration;
+  const sameAmount = leftAmount !== "none" && leftAmount === rightAmount;
+  const sameState = leftState !== "unknown" && leftState === rightState;
+  const leftTime = pullTimeSecondKey(left);
+  const rightTime = pullTimeSecondKey(right);
+  const sameTime = leftTime !== "no-time" && sameNonNullValue(leftTime, rightTime);
+  return sameMetric && sameRole && sameTime && sameDuration && sameAmount && sameState;
+}
+
+function dedupeEquivalentPullsWithStats(pulls: WarcraftLogsBossPull[]) {
+  const merged: WarcraftLogsBossPull[] = [];
+  let duplicatesMerged = 0;
+
   for (const pull of pulls) {
-    const signature = pullDuplicateSignature(pull);
-    const existing = merged.get(signature);
-    merged.set(signature, existing ? preferNewerDuplicate(existing, pull) : pull);
+    const index = merged.findIndex((candidate) => areDuplicatePulls(candidate, pull));
+    if (index >= 0) {
+      merged[index] = preferNewerDuplicate(merged[index], pull);
+      duplicatesMerged += 1;
+    } else {
+      merged.push(pull);
+    }
   }
-  return [...merged.values()];
+
+  return { pulls: merged, duplicatesMerged };
+}
+
+function dedupeEquivalentPulls(pulls: WarcraftLogsBossPull[]) {
+  return dedupeEquivalentPullsWithStats(pulls).pulls;
 }
 
 function preferNumber(primary: number | null, fallback: number | null) {
@@ -887,6 +936,9 @@ function mergePullData(left: WarcraftLogsBossPull, right: WarcraftLogsBossPull):
     durationMs: preferNumber(left.durationMs, right.durationMs),
     itemLevel: preferNumber(left.itemLevel, right.itemLevel),
     totalParses: preferNumber(left.totalParses, right.totalParses),
+    fightSize: preferNumber(left.fightSize, right.fightSize),
+    zoneName: preferText(left.zoneName, right.zoneName),
+    reportTitle: preferText(left.reportTitle, right.reportTitle),
     killedWith: preferText(left.killedWith, right.killedWith),
     reportCode: preferText(left.reportCode, right.reportCode),
     reportFightId: preferNumber(left.reportFightId, right.reportFightId),
@@ -896,16 +948,44 @@ function mergePullData(left: WarcraftLogsBossPull, right: WarcraftLogsBossPull):
   };
 }
 
+function reportInfoFromUrl(value: unknown) {
+  const text = cleanText(value, 700);
+  if (!text) return { reportCode: null as string | null, reportFightId: null as number | null };
+
+  try {
+    const url = new URL(text, envWarcraftLogsBaseUrl());
+    const parts = url.pathname.split("/").filter(Boolean);
+    const reportsIndex = parts.findIndex((part) => part.toLowerCase() === "reports");
+    const reportCode = reportsIndex >= 0 ? cleanText(parts[reportsIndex + 1], 80) || null : null;
+    const hashParams = new URLSearchParams(url.hash.startsWith("#") ? url.hash.slice(1) : url.hash);
+    const searchFight = url.searchParams.get("fight") || hashParams.get("fight");
+    const reportFightId = integerOrNull(searchFight);
+    return { reportCode, reportFightId };
+  } catch {
+    const reportMatch = text.match(/\/reports\/([A-Za-z0-9]+)/i);
+    const fightMatch = text.match(/[?#&]fight=(\d+)/i) || text.match(/#fight=(\d+)/i);
+    return {
+      reportCode: reportMatch ? cleanText(reportMatch[1], 80) || null : null,
+      reportFightId: fightMatch ? integerOrNull(fightMatch[1]) : null,
+    };
+  }
+}
+
 function reportInfoFromRecord(record: Record<string, unknown>) {
   const report = nestedRecord(record, ["report", "log"]);
+  const urlInfo = reportInfoFromUrl(
+    firstValue(record, ["reportUrl", "url", "link", "reportLink"]) ||
+      firstValue(report, ["url", "link", "reportUrl"]),
+  );
   const reportCode =
     cleanText(
       firstValue(record, ["reportCode", "reportID", "reportId", "code"]) ||
-        firstValue(report, ["code", "id", "reportCode"]),
+        firstValue(report, ["code", "id", "reportCode"]) ||
+        urlInfo.reportCode,
       80,
     ) || null;
   const reportFightId =
-    firstInteger(record, ["reportFightID", "reportFightId", "fightID", "fightId", "fight"]);
+    firstInteger(record, ["reportFightID", "reportFightId", "fightID", "fightId", "fight"]) ?? urlInfo.reportFightId;
   const startTime = timestampOrNull(
     firstValue(record, ["startTime", "start_time", "date", "timestamp"]) ||
       firstValue(report, ["startTime", "start_time", "date", "timestamp"]),
@@ -1027,6 +1107,9 @@ function normalizePull(
     durationMs,
     itemLevel: firstNumber(record, ["ilvl", "itemLevel", "itemLevelEquipped"]),
     totalParses: firstInteger(record, ["totalParses", "size", "parseCount", "parses"]),
+    fightSize: firstInteger(record, ["fightSize", "size", "groupSize", "raidSize"]),
+    zoneName: cleanText(firstValue(record, ["zoneName", "zone", "instanceName", "raidName"]), 140) || null,
+    reportTitle: cleanText(firstValue(record, ["reportTitle", "title", "reportName"]), 180) || null,
     killedWith:
       cleanText(firstValue(record, ["killedWith", "killDifficulty", "bracket"]), 80) ||
       null,
@@ -1171,28 +1254,59 @@ function collectEncounterRankings(
   return collected;
 }
 
+function reportFightDuplicateKey(pull: WarcraftLogsBossPull) {
+  if (!pull.reportCode || pull.reportFightId === null) return null;
+  return [
+    "report-fight",
+    pull.reportCode,
+    pull.reportFightId,
+    pull.role || "role",
+    pull.metric || "metric",
+  ].join("|");
+}
+
+function pullTimeSecondKey(pull: WarcraftLogsBossPull) {
+  const time = pullTimeMs(pull);
+  return time > 0 ? String(Math.round(time / 1000)) : "no-time";
+}
+
+function factualDuplicateKey(pull: WarcraftLogsBossPull) {
+  const time = pullTimeSecondKey(pull);
+  const amount = roundedMetricAmount(pull.amount);
+  const duration = roundedDurationSeconds(pull.durationMs);
+  const state = normalizedKillState(pull.killedWith);
+  if (time === "no-time" || amount === "none" || duration === "none" || state === "unknown") return null;
+  return [
+    "same-facts",
+    pull.role || "role",
+    pull.metric || "metric",
+    time,
+    duration,
+    amount,
+    state,
+  ].join("|");
+}
+
 function pullIdentity(pull: WarcraftLogsBossPull) {
-  const metric = pull.metric || "metric";
-  const role = pull.role || "role";
-  if (pull.reportCode && pull.reportFightId !== null) {
-    return `${pull.reportCode}:${pull.reportFightId}:${pull.encounterId ?? pull.encounterName}:${role}:${metric}`;
-  }
+  const reportFightKey = reportFightDuplicateKey(pull);
+  if (reportFightKey) return reportFightKey;
 
   return [
     pull.reportCode,
     pull.startTime,
     pull.encounterId ?? pull.encounterName,
     pull.durationMs,
-    role,
-    metric,
+    pull.role || "role",
+    pull.metric || "metric",
   ].join(":");
 }
 
 function sameLoggedFight(left: WarcraftLogsBossPull, right: WarcraftLogsBossPull) {
+  const leftKey = reportFightDuplicateKey(left);
+  const rightKey = reportFightDuplicateKey(right);
+  if (leftKey && rightKey) return leftKey === rightKey;
   if (left.reportCode && right.reportCode && left.reportCode === right.reportCode) {
-    return left.reportFightId !== null && right.reportFightId !== null
-      ? left.reportFightId === right.reportFightId
-      : left.startTime !== null && right.startTime !== null && left.startTime === right.startTime;
+    return left.startTime !== null && right.startTime !== null && left.startTime === right.startTime;
   }
   return false;
 }
@@ -1208,6 +1322,7 @@ function enrichReportPullsWithRankings(
       const rankingPull = encounterPulls.find((candidate) =>
         (
           sameLoggedFight(reportPull, candidate) ||
+          areDuplicatePulls(reportPull, candidate) ||
           pullDuplicateSignature(reportPull) === pullDuplicateSignature(candidate)
         ) &&
         (candidate.metric || null) === (reportPull.metric || null) &&
@@ -1237,8 +1352,8 @@ function mergePullList(pulls: WarcraftLogsBossPull[], limit = ENCOUNTER_HISTORY_
     byIdentity.set(key, existing ? mergePullData(existing, pull) : pull);
   }
 
-  const deduped = dedupeEquivalentPulls([...byIdentity.values()]);
-  return sortPullsByDate(deduped).slice(0, limit);
+  const deduped = dedupeEquivalentPullsWithStats([...byIdentity.values()]);
+  return sortPullsByDate(deduped.pulls).slice(0, limit);
 }
 
 function collectPulls(
@@ -1383,11 +1498,14 @@ function primaryDifficultyStats(pulls: WarcraftLogsBossPull[]) {
 
 type WarcraftLogsReportFightSeed = {
   reportCode: string;
+  reportTitle: string | null;
   reportStartMs: number;
+  zoneName: string | null;
   fightId: number;
   encounterId: number;
   encounterName: string;
   difficulty: number | null;
+  fightSize: number | null;
   durationMs: number;
   startOffsetMs: number;
   endOffsetMs: number;
@@ -1413,6 +1531,8 @@ function emptySourceCoverage(overrides: Partial<WarcraftLogsSourceCoverage> = {}
     reportsChecked: 0,
     reportBossFightsChecked: 0,
     reportPullRows: 0,
+    duplicatePullRows: 0,
+    uniqueReportPullRows: 0,
     roleTotals: { healer: 0, dps: 0, tank: 0 },
     skippedUnknownRole: 0,
     skippedMissingAmount: 0,
@@ -1503,7 +1623,12 @@ function normalizeReportFightSeed(
 
   const encounterId = firstInteger(record, ["encounterID", "encounterId", "originalEncounterID", "originalEncounterId"]);
   if (!isRaidBossEncounterId(encounterId)) return null;
-  if (!knownBosses.has(encounterId)) return null;
+
+  const fightSize = firstInteger(record, ["size", "groupSize", "raidSize"]);
+  const knownRaidBoss = knownBosses.has(encounterId);
+  const raidSizedFight = fightSize === null || fightSize >= 10;
+  if (knownBosses.size > 0 && !knownRaidBoss) return null;
+  if (knownBosses.size === 0 && !raidSizedFight) return null;
 
   const durationMs = durationMsFromRecord(record);
   if (durationMs === null || durationMs <= 0) return null;
@@ -1518,15 +1643,22 @@ function normalizeReportFightSeed(
   const encounterName = encounterNameFromRecord(record);
   if (!encounterName) return null;
 
+  const zone = asRecord(report.zone);
+  const zoneName = cleanText(firstValue(zone, ["name", "zoneName"]), 140) || null;
+  const reportTitle = cleanText(report.title, 180) || null;
+
   const kill = Boolean(record.kill || record.isKill || record.killed);
 
   return {
     reportCode,
+    reportTitle,
     reportStartMs,
+    zoneName,
     fightId,
     encounterId,
     encounterName,
     difficulty: difficultyFromRecord(record),
+    fightSize,
     durationMs,
     startOffsetMs,
     endOffsetMs,
@@ -1739,6 +1871,9 @@ function reportPullFromFight(
     durationMs: fight.durationMs,
     itemLevel: null,
     totalParses: null,
+    fightSize: fight.fightSize,
+    zoneName: fight.zoneName,
+    reportTitle: fight.reportTitle,
     killedWith: fight.killedWith,
     reportCode: fight.reportCode,
     reportFightId: fight.fightId,
@@ -1753,21 +1888,20 @@ function addReportPull(
   config: WarcraftLogsSliceConfig,
   pull: WarcraftLogsBossPull,
 ) {
-  if (!isEligibleRaidBossPull(pull)) return;
+  if (!isEligibleRaidBossPull(pull)) return { added: false, merged: false };
   const encounterKey = String(pull.encounterId);
   target[config.key] ||= {};
   target[config.key][encounterKey] ||= [];
-  const existingIndex = target[config.key][encounterKey].findIndex(
-    (item) => pullIdentity(item) === pullIdentity(pull),
+  const list = target[config.key][encounterKey];
+  const existingIndex = list.findIndex(
+    (item) => pullIdentity(item) === pullIdentity(pull) || areDuplicatePulls(item, pull),
   );
   if (existingIndex >= 0) {
-    target[config.key][encounterKey][existingIndex] = mergePullData(
-      target[config.key][encounterKey][existingIndex],
-      pull,
-    );
-    return;
+    list[existingIndex] = preferNewerDuplicate(list[existingIndex], pull);
+    return { added: false, merged: true };
   }
-  target[config.key][encounterKey].push(pull);
+  list.push(pull);
+  return { added: true, merged: false };
 }
 
 function recentReportsQuery(limit: number) {
@@ -2090,6 +2224,7 @@ async function fetchRecentRaidBossPulls(input: {
 
     const result = emptyReportPullsBySlice();
     let producedPulls = 0;
+    let duplicatePullRows = 0;
     let reportBossFightsChecked = 0;
     const roleTotals: Record<WarcraftLogsConcreteRoleKey, number> = { healer: 0, dps: 0, tank: 0 };
     let skippedUnknownRole = 0;
@@ -2107,8 +2242,9 @@ async function fetchRecentRaidBossPulls(input: {
       roleSamples.push(...item.value.roleSamples.slice(0, Math.max(0, 30 - roleSamples.length)));
 
       for (const entry of item.value.pulls) {
-        addReportPull(result, entry.config, entry.pull);
-        producedPulls += 1;
+        const outcome = addReportPull(result, entry.config, entry.pull);
+        if (outcome.added) producedPulls += 1;
+        if (outcome.merged) duplicatePullRows += 1;
       }
     }
 
@@ -2120,6 +2256,8 @@ async function fetchRecentRaidBossPulls(input: {
       reportsChecked: reports.length,
       knownBosses: knownBosses.size,
       producedPullRows: producedPulls,
+      duplicatePullRows,
+      uniqueReportPullRows: producedPulls,
       reportBossFightsChecked,
       roleTotals,
       skippedUnknownRole,
@@ -2162,6 +2300,8 @@ async function fetchRecentRaidBossPulls(input: {
         reportsChecked: reports.length,
         reportBossFightsChecked,
         reportPullRows: producedPulls,
+        duplicatePullRows,
+        uniqueReportPullRows: producedPulls,
         roleTotals,
         skippedUnknownRole,
         skippedMissingAmount,
@@ -2608,6 +2748,13 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       region,
       primaryMetric: primary?.key || null,
       metricCount: metricSummaries.length,
+      coverage: {
+        reportsChecked: reportPullsResult.coverage.reportsChecked,
+        reportBossFightsChecked: reportPullsResult.coverage.reportBossFightsChecked,
+        reportPullRows: reportPullsResult.coverage.reportPullRows,
+        duplicatePullRows: reportPullsResult.coverage.duplicatePullRows,
+        uniqueReportPullRows: reportPullsResult.coverage.uniqueReportPullRows,
+      },
       metrics: metricSummaries.map((metric) => ({
         key: metric.key,
         role: metric.role,

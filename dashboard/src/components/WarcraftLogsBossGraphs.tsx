@@ -335,8 +335,8 @@ function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; ind
       <span><strong>{formatPercent(pull.percentile)}</strong><small>#{index + 1} • {formatStableUkCompactDate(pull.startTime)}{pull.killedWith ? ` • ${pull.killedWith}` : ""}</small></span>
       <span><strong>{formatAmount(pull.amount)}</strong><small>{metricLabel(activeSlice)}</small></span>
       <span><strong>{pull.itemLevel !== null ? formatStableNumber(pull.itemLevel, 0) : "—"}</strong><small>ilvl</small></span>
-      <span><strong>{formatDuration(pull.durationMs)}</strong><small>тривалість</small></span>
-      <span><strong>{pull.totalParses ?? "—"}</strong><small>записи</small></span>
+      <span><strong>{formatDuration(pull.durationMs)}</strong><small>{pull.fightSize ? `${pull.fightSize} гравців` : "тривалість"}</small></span>
+      <span><strong>{pull.totalParses ?? "—"}</strong><small>{pull.reportFightId !== null ? `fight ${pull.reportFightId}` : "записи"}</small></span>
     </>
   );
 
@@ -390,6 +390,18 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
   );
 }
 
+function DataCoverageStrip({ summary }: { summary: WarcraftLogsCharacterSummary }) {
+  const coverage = summary.sourceCoverage;
+  return (
+    <div className="profile-wcl-data-strip" aria-label="Покриття Warcraft Logs">
+      <span><strong>{formatStableNumber(coverage.reportsChecked, 0)}</strong><small>звіти</small></span>
+      <span><strong>{formatStableNumber(coverage.reportBossFightsChecked, 0)}</strong><small>boss fights</small></span>
+      <span><strong>{formatStableNumber(coverage.uniqueReportPullRows || coverage.reportPullRows, 0)}</strong><small>чисті пули</small></span>
+      <span><strong>{formatStableNumber(coverage.duplicatePullRows, 0)}</strong><small>дублі прибрано</small></span>
+    </div>
+  );
+}
+
 export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftLogsCharacterSummary }) {
   const slices = useMemo(() => sortedMetricSummaries(summary), [summary]);
   const [selectedSliceKey, setSelectedSliceKey] = useState<string | null>(null);
@@ -417,10 +429,12 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <div>
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Чисті пули по рейдових босах</h3>
-          <p>Треш і ключі не враховуються. Ролі не змішуються. Основні цифри рахуються з найвищої доступної складності, інші складності лишаються для довідки.</p>
+          <p>Рейдові boss-pulls без трешу й ключів. Основна складність — найвища доступна, інші показані окремо.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
+
+      <DataCoverageStrip summary={summary} />
 
       <div className="profile-wcl-role-tabs" role="tablist" aria-label="Рольові метрики Warcraft Logs">
         {slices.map((slice) => (

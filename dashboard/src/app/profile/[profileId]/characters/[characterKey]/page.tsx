@@ -70,6 +70,11 @@ function formatRunUpgrades(value: number | null | undefined) {
   return `+${Math.round(value)} chest`;
 }
 
+function formatRate(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return `${formatStableNumber(value, value % 1 ? 1 : 0)}%`;
+}
+
 function formatMetricAmount(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "—";
   if (value >= 1000) return formatStableNumber(value / 1000, value >= 100_000 ? 0 : 1) + "k";
@@ -171,6 +176,36 @@ function RaiderIoOverview({ details, stored }: { details: RaiderIoCharacterDetai
           const segment = snapshot?.currentScores?.[key] || null;
           return <StatCard key={key} label={roleScoreLabel(key)} value={roundNumber(segment?.score)} hint={key === "all" ? "Поточний сезон" : "Рольовий score"} />;
         })}
+      </div>
+    </article>
+  );
+}
+
+function RaiderIoMPlusCompactPanel({ details }: { details: RaiderIoCharacterDetails }) {
+  const snapshot = details.snapshot;
+  const best = details.bestRunStats;
+  const recent = details.recentRunStats;
+  const highest = details.highestRunStats;
+
+  return (
+    <article className="panel profile-card profile-character-detail-panel profile-character-mplus-compact">
+      <div className="profile-card-head profile-card-head--inline">
+        <div>
+          <span className="eyebrow">Raider.IO</span>
+          <h2>Компактно по Mythic+</h2>
+        </div>
+        <span className="profile-count-pill">{best.runCount + recent.runCount} записів</span>
+      </div>
+
+      <div className="profile-mplus-compact-grid">
+        <StatCard label="Score" value={roundNumber(snapshot?.currentScore)} hint="поточний сезон" />
+        <StatCard label="Найвищий ключ" value={formatRunLevel(highest.bestLevel ?? best.bestLevel)} hint="з доступних забігів" />
+        <StatCard label="Середній ключ" value={roundNumber(best.averageLevel, 1)} hint="найкращі ключі" />
+        <StatCard label="Кращий run score" value={roundNumber(best.bestScore)} hint="Raider.IO" />
+        <StatCard label="Середній score" value={roundNumber(best.averageScore)} hint="найкращі ключі" />
+        <StatCard label="В таймер" value={formatRate(best.timedRate)} hint={`${best.timedRunCount}/${best.runCount || 0} ключів`} />
+        <StatCard label="Останні ключі" value={String(recent.runCount || 0)} hint={formatStableUkCompactDate(recent.lastCompletedAt)} />
+        <StatCard label="ilvl" value={roundNumber(snapshot?.itemLevelEquipped)} hint="Raider.IO gear" />
       </div>
     </article>
   );
@@ -426,6 +461,7 @@ export default async function CharacterProfilePage({
 
             <section id="character-rio" className="profile-character-detail-grid" aria-label="Raider.IO статистика">
               <RaiderIoOverview details={raiderIo} stored={character.raiderIo || null} />
+              <RaiderIoMPlusCompactPanel details={raiderIo} />
               <DungeonRunsPanel title="Найкращі ключі" eyebrow="Raider.IO" runs={raiderIo.bestRuns} emptyText="Поки немає списку найкращих ключів." />
               <DungeonRunsPanel title="Останні ключі" eyebrow="Raider.IO" runs={raiderIo.recentRuns} emptyText="Поки немає останніх ключів." />
               <DungeonRunsPanel title="Найвищі ключі" eyebrow="Raider.IO" runs={raiderIo.highestRuns} emptyText="Поки немає списку найвищих ключів." />
