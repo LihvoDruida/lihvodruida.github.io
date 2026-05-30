@@ -2143,3 +2143,260 @@
     min-height: 220px;
   }
 }
+
+/* Compact Warcraft Logs role metrics: no horizontal page scroll. */
+.profile-character-detail-panel--wcl {
+  overflow: hidden;
+}
+
+.profile-character-detail-panel--wcl .profile-card-head {
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.profile-character-detail-panel--wcl .profile-card-head h2 {
+  font-size: clamp(1.25rem, 1.8vw, 1.7rem);
+}
+
+.profile-wcl-dynamic {
+  gap: 10px;
+  padding: clamp(10px, 1.4vw, 14px);
+  border-radius: 18px;
+}
+
+.profile-wcl-dynamic__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.profile-wcl-dynamic__head h3 {
+  margin-top: 2px;
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  line-height: 1.05;
+}
+
+.profile-wcl-dynamic__head p {
+  max-width: 760px;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.profile-wcl-role-tabs,
+.profile-wcl-boss-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 7px;
+  overflow: visible;
+  padding-bottom: 0;
+}
+
+.profile-wcl-role-tabs button,
+.profile-wcl-boss-tabs button {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  gap: 2px;
+  padding: 8px 9px;
+  border: 1px solid rgba(214, 176, 92, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.032);
+  color: var(--profile-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.profile-wcl-role-tabs button:hover,
+.profile-wcl-role-tabs button:focus-visible,
+.profile-wcl-role-tabs button.is-active,
+.profile-wcl-boss-tabs button:hover,
+.profile-wcl-boss-tabs button:focus-visible,
+.profile-wcl-boss-tabs button.is-active {
+  border-color: rgba(236, 202, 126, 0.42);
+  background: rgba(236, 202, 126, 0.085);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.profile-wcl-role-tabs strong,
+.profile-wcl-boss-tabs strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-text);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-role-tabs span,
+.profile-wcl-boss-tabs span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-muted-soft);
+  font-size: 0.66rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-metric-grid,
+.profile-wcl-boss-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 7px;
+}
+
+.profile-wcl-mini-stat,
+.profile-wcl-boss-summary span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 8px 9px;
+  border: 1px solid rgba(214, 176, 92, 0.13);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.profile-wcl-mini-stat strong,
+.profile-wcl-boss-summary strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-text);
+  font-size: clamp(0.98rem, 1.35vw, 1.22rem);
+  font-weight: 950;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-mini-stat small,
+.profile-wcl-boss-summary small {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-muted-soft);
+  font-size: 0.64rem;
+  font-weight: 850;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-mini-stat em {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(236, 202, 126, 0.74);
+  font-size: 0.61rem;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-boss-panel {
+  gap: 10px;
+}
+
+.profile-wcl-graph {
+  min-height: 176px;
+  border-radius: 14px;
+}
+
+.profile-wcl-graph svg {
+  min-height: 176px;
+}
+
+.profile-wcl-line {
+  stroke-width: 2;
+}
+
+.profile-wcl-point {
+  stroke-width: 0.62;
+}
+
+.profile-wcl-graph__legend {
+  inset: 8px auto 8px 8px;
+  font-size: 0.58rem;
+}
+
+.profile-wcl-pulls {
+  gap: 6px;
+}
+
+.profile-wcl-pull-row {
+  grid-template-columns: minmax(0, 1.15fr) repeat(4, minmax(0, 0.72fr));
+  gap: 6px;
+  padding: 8px 9px;
+  border-radius: 12px;
+}
+
+.profile-wcl-pull-row strong {
+  font-size: 0.78rem;
+  line-height: 1.12;
+}
+
+.profile-wcl-pull-row small {
+  font-size: 0.6rem;
+  line-height: 1.15;
+}
+
+.profile-character-log-ranking {
+  gap: 7px;
+  padding: 9px 10px;
+}
+
+.profile-character-log-ranking strong {
+  font-size: 0.82rem;
+}
+
+.profile-character-log-ranking small {
+  font-size: 0.62rem;
+}
+
+@media (max-width: 920px) {
+  .profile-wcl-role-tabs,
+  .profile-wcl-boss-tabs {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+
+  .profile-wcl-pull-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-wcl-dynamic__head {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-wcl-role-tabs,
+  .profile-wcl-boss-tabs,
+  .profile-wcl-metric-grid,
+  .profile-wcl-boss-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-wcl-graph,
+  .profile-wcl-graph svg {
+    min-height: 156px;
+  }
+
+  .profile-wcl-pull-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-wcl-role-tabs,
+  .profile-wcl-boss-tabs,
+  .profile-wcl-metric-grid,
+  .profile-wcl-boss-summary {
+    grid-template-columns: 1fr;
+  }
+}

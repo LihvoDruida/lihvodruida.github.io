@@ -27,11 +27,23 @@ type WarcraftLogsGraphqlResponse = {
   errors?: Array<{ message?: string }>;
 };
 
+export type WarcraftLogsRoleKey = "overall" | "healer" | "dps" | "tank";
+export type WarcraftLogsMetricKey = "points" | "hps" | "dps";
+
+export type WarcraftLogsRecentStats = {
+  pullCount: number;
+  maxAmount: number | null;
+  averageAmount: number | null;
+  maxPercentile: number | null;
+  averagePercentile: number | null;
+};
+
 export type WarcraftLogsBossPull = {
   encounterId: number | null;
   encounterName: string;
+  role: WarcraftLogsRoleKey | null;
   spec: string | null;
-  metric: string | null;
+  metric: WarcraftLogsMetricKey | string | null;
   difficulty: number | null;
   percentile: number | null;
   historicalPercentile: number | null;
@@ -52,8 +64,9 @@ export type WarcraftLogsBossPull = {
 export type WarcraftLogsEncounterRanking = {
   encounterId: number | null;
   encounterName: string;
+  role: WarcraftLogsRoleKey | null;
   spec: string | null;
-  metric: string | null;
+  metric: WarcraftLogsMetricKey | string | null;
   difficulty: number | null;
   percentile: number | null;
   medianPercentile: number | null;
@@ -71,7 +84,26 @@ export type WarcraftLogsEncounterRanking = {
 export type WarcraftLogsBossSummary = WarcraftLogsEncounterRanking & {
   bestPercentile: number | null;
   todayPercentile: number | null;
+  recentStats: WarcraftLogsRecentStats;
   pulls: WarcraftLogsBossPull[];
+};
+
+export type WarcraftLogsMetricSummary = {
+  key: string;
+  role: WarcraftLogsRoleKey;
+  roleLabel: string;
+  metric: WarcraftLogsMetricKey;
+  metricLabel: string;
+  title: string;
+  description: string;
+  sourceLabel: string;
+  bestPerformanceAverage: number | null;
+  medianPerformanceAverage: number | null;
+  allStarsPoints: number | null;
+  allStarsRank: number | null;
+  recentStats: WarcraftLogsRecentStats;
+  encounterRankings: WarcraftLogsEncounterRanking[];
+  bossRankings: WarcraftLogsBossSummary[];
 };
 
 export type WarcraftLogsCharacterSummary = {
@@ -86,12 +118,97 @@ export type WarcraftLogsCharacterSummary = {
   allStarsRank: number | null;
   encounterRankings: WarcraftLogsEncounterRanking[];
   bossRankings: WarcraftLogsBossSummary[];
+  metricSummaries: WarcraftLogsMetricSummary[];
   updatedAt: string;
   error?: string | null;
 };
 
+type WarcraftLogsSliceConfig = {
+  key: string;
+  zoneAlias: string;
+  fallbackZoneAlias?: string;
+  role: WarcraftLogsRoleKey;
+  roleLabel: string;
+  metric: WarcraftLogsMetricKey;
+  metricLabel: string;
+  title: string;
+  description: string;
+  sourceLabel: string;
+  graphqlMetric?: "hps" | "dps";
+  graphqlRole?: "healer" | "dps" | "tank";
+};
+
 const ENCOUNTER_HISTORY_LIMIT = 10;
-const ENCOUNTER_HISTORY_BOSS_LIMIT = 12;
+const ENCOUNTER_HISTORY_BOSS_LIMIT = 10;
+
+const WCL_SLICES: WarcraftLogsSliceConfig[] = [
+  {
+    key: "healer-hps",
+    zoneAlias: "healerHps",
+    fallbackZoneAlias: "hpsAnyRole",
+    role: "healer",
+    roleLabel: "Хіл",
+    metric: "hps",
+    metricLabel: "HPS",
+    title: "Хіл HPS",
+    description: "Healing ranking / HPS по healer-ролі, з fallback на HPS без role-фільтра.",
+    sourceLabel: "role=healer metric=hps",
+    graphqlMetric: "hps",
+    graphqlRole: "healer",
+  },
+  {
+    key: "dps-dps",
+    zoneAlias: "dpsDamage",
+    fallbackZoneAlias: "dpsAnyRole",
+    role: "dps",
+    roleLabel: "ДД",
+    metric: "dps",
+    metricLabel: "DPS",
+    title: "ДД DPS",
+    description: "Damage ranking / DPS по dps-ролі, з fallback на DPS без role-фільтра.",
+    sourceLabel: "role=dps metric=dps",
+    graphqlMetric: "dps",
+    graphqlRole: "dps",
+  },
+  {
+    key: "tank-dps",
+    zoneAlias: "tankDamage",
+    fallbackZoneAlias: "tankDamageAnyRoleFallback",
+    role: "tank",
+    roleLabel: "Танк",
+    metric: "dps",
+    metricLabel: "DPS",
+    title: "Танк DPS",
+    description: "Damage ranking для tank-ролі.",
+    sourceLabel: "role=tank metric=dps",
+    graphqlMetric: "dps",
+    graphqlRole: "tank",
+  },
+  {
+    key: "tank-hps",
+    zoneAlias: "tankHealing",
+    role: "tank",
+    roleLabel: "Танк",
+    metric: "hps",
+    metricLabel: "HPS",
+    title: "Танк HPS",
+    description: "Healing/self-sustain ranking для tank-ролі, якщо WCL має такі дані.",
+    sourceLabel: "role=tank metric=hps",
+    graphqlMetric: "hps",
+    graphqlRole: "tank",
+  },
+  {
+    key: "overall",
+    zoneAlias: "overallRankings",
+    role: "overall",
+    roleLabel: "Загалом",
+    metric: "points",
+    metricLabel: "Parse",
+    title: "Загальний parse",
+    description: "Стандартний Warcraft Logs ranking без додаткового role/metric фільтра.",
+    sourceLabel: "default zoneRankings",
+  },
+];
 
 let tokenCache: WarcraftLogsTokenCache = null;
 
@@ -272,7 +389,7 @@ async function getWarcraftLogsToken(credentials: WarcraftLogsApiCredentials) {
   return token;
 }
 
-function metricFromRecord(record: Record<string, unknown>) {
+function metricFromRecord(record: Record<string, unknown>, fallback?: WarcraftLogsMetricKey) {
   const metric = cleanText(
     record.metric || record.type || record.bracket || record.rankingMetric,
     40,
@@ -280,7 +397,7 @@ function metricFromRecord(record: Record<string, unknown>) {
   if (metric) return metric;
   if (record.hps !== undefined || record.healing !== undefined) return "hps";
   if (record.dps !== undefined || record.damage !== undefined) return "dps";
-  return null;
+  return fallback ?? null;
 }
 
 function nestedRecord(record: Record<string, unknown>, keys: string[]) {
@@ -335,11 +452,52 @@ function reportInfoFromRecord(record: Record<string, unknown>) {
   return { reportCode, reportFightId, startTime };
 }
 
+function amountKeysForMetric(metric: WarcraftLogsMetricKey) {
+  if (metric === "hps") {
+    return [
+      "hps",
+      "healingPerSecond",
+      "healing_per_second",
+      "healing",
+      "amount",
+      "bestAmount",
+      "perSecondAmount",
+      "persecondamount",
+    ];
+  }
+  if (metric === "dps") {
+    return [
+      "dps",
+      "damagePerSecond",
+      "damage_per_second",
+      "damage",
+      "amount",
+      "bestAmount",
+      "perSecondAmount",
+      "persecondamount",
+    ];
+  }
+  return [
+    "amount",
+    "bestAmount",
+    "points",
+    "score",
+    "perSecondAmount",
+    "persecondamount",
+    "dps",
+    "hps",
+    "healing",
+    "damage",
+  ];
+}
+
 function normalizePull(
   value: unknown,
   options: {
     encounterId?: number | null;
     encounterName?: string | null;
+    role: WarcraftLogsRoleKey;
+    metric: WarcraftLogsMetricKey;
     baseUrl: string;
     source: "zone" | "encounter";
   },
@@ -358,16 +516,7 @@ function normalizePull(
     "historicalPercentile",
     "todayPercentile",
   ]);
-  const amount = firstNumber(record, [
-    "amount",
-    "bestAmount",
-    "perSecondAmount",
-    "persecondamount",
-    "hps",
-    "dps",
-    "healing",
-    "damage",
-  ]);
+  const amount = firstNumber(record, amountKeysForMetric(options.metric));
   const { reportCode, reportFightId, startTime } = reportInfoFromRecord(record);
   const hasPullSignal =
     percentile !== null ||
@@ -381,12 +530,13 @@ function normalizePull(
   return {
     encounterId: encounterIdFromRecord(record, options.encounterId ?? null),
     encounterName,
+    role: options.role,
     spec:
       cleanText(
         firstValue(record, ["spec", "specName", "spec_name", "bestSpec"]),
         80,
       ) || null,
-    metric: metricFromRecord(record),
+    metric: metricFromRecord(record, options.metric),
     difficulty: difficultyFromRecord(record),
     percentile,
     historicalPercentile: firstNumber(record, [
@@ -419,6 +569,7 @@ function normalizePull(
 function normalizeEncounterRanking(
   value: unknown,
   baseUrl: string,
+  options: Pick<WarcraftLogsSliceConfig, "role" | "metric">,
 ): WarcraftLogsEncounterRanking | null {
   const record = asRecord(value);
   if (!record) return null;
@@ -432,12 +583,13 @@ function normalizeEncounterRanking(
   return {
     encounterId: encounterIdFromRecord(record),
     encounterName,
+    role: options.role,
     spec:
       cleanText(
         firstValue(record, ["spec", "specName", "spec_name", "bestSpec"]),
         80,
       ) || null,
-    metric: metricFromRecord(record),
+    metric: metricFromRecord(record, options.metric),
     difficulty: difficultyFromRecord(record),
     percentile: firstNumber(record, [
       "percentile",
@@ -454,16 +606,7 @@ function normalizeEncounterRanking(
       "median",
     ]),
     rankPercent: firstNumber(record, ["rankPercent", "percentile"]),
-    bestAmount: firstNumber(record, [
-      "bestAmount",
-      "amount",
-      "perSecondAmount",
-      "persecondamount",
-      "dps",
-      "hps",
-      "healing",
-      "damage",
-    ]),
+    bestAmount: firstNumber(record, amountKeysForMetric(options.metric)),
     totalKills: firstInteger(record, ["totalKills", "kills", "killCount"]),
     fastestKillMs: firstNumber(record, [
       "fastestKill",
@@ -503,7 +646,7 @@ function rankingArrays(root: Record<string, unknown> | null) {
 function collectEncounterRankings(
   value: unknown,
   baseUrl: string,
-  limit = 24,
+  options: Pick<WarcraftLogsSliceConfig, "role" | "metric"> & { limit?: number },
 ): WarcraftLogsEncounterRanking[] {
   const root = parseMaybeJsonObject(value);
   const direct = rankingArrays(root);
@@ -512,15 +655,16 @@ function collectEncounterRankings(
   const stack: unknown[] = [...source];
   const seen = new Set<unknown>();
   const seenKeys = new Set<string>();
+  const limit = options.limit ?? 32;
 
   while (stack.length && collected.length < limit) {
     const current = stack.shift();
     if (!current || seen.has(current)) continue;
     seen.add(current);
 
-    const ranking = normalizeEncounterRanking(current, baseUrl);
+    const ranking = normalizeEncounterRanking(current, baseUrl, options);
     if (ranking) {
-      const key = `${ranking.encounterId ?? ranking.encounterName}:${ranking.metric ?? ""}:${ranking.difficulty ?? ""}`;
+      const key = `${ranking.encounterId ?? ranking.encounterName}:${ranking.metric ?? ""}:${ranking.difficulty ?? ""}:${ranking.role ?? ""}`;
       if (!seenKeys.has(key)) {
         collected.push(ranking);
         seenKeys.add(key);
@@ -557,6 +701,8 @@ function collectPulls(
   options: {
     encounterId?: number | null;
     encounterName?: string | null;
+    role: WarcraftLogsRoleKey;
+    metric: WarcraftLogsMetricKey;
     baseUrl: string;
     source: "zone" | "encounter";
     limit?: number;
@@ -568,7 +714,7 @@ function collectPulls(
   const seenKeys = new Set<string>();
   const limit = options.limit ?? ENCOUNTER_HISTORY_LIMIT;
 
-  while (stack.length && collected.length < limit * 6) {
+  while (stack.length && collected.length < limit * 8) {
     const current = stack.shift();
     if (!current || seen.has(current)) continue;
     seen.add(current);
@@ -582,6 +728,8 @@ function collectPulls(
         pull.percentile,
         pull.amount,
         pull.encounterId ?? pull.encounterName,
+        pull.role,
+        pull.metric,
       ].join(":");
       if (!seenKeys.has(key)) {
         collected.push(pull);
@@ -611,14 +759,41 @@ function collectPulls(
     .slice(0, limit);
 }
 
+function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
+  const recent = [...pulls]
+    .sort((left, right) => {
+      const leftTime = left.startTime ? new Date(left.startTime).getTime() : 0;
+      const rightTime = right.startTime ? new Date(right.startTime).getTime() : 0;
+      return rightTime - leftTime;
+    })
+    .slice(0, ENCOUNTER_HISTORY_LIMIT);
+  const amounts = recent
+    .map((pull) => pull.amount)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const percentiles = recent
+    .map((pull) => pull.percentile)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+
+  return {
+    pullCount: recent.length,
+    maxAmount: amounts.length ? Math.max(...amounts) : null,
+    averageAmount: amounts.length ? amounts.reduce((sum, value) => sum + value, 0) / amounts.length : null,
+    maxPercentile: percentiles.length ? Math.max(...percentiles) : null,
+    averagePercentile: percentiles.length ? percentiles.reduce((sum, value) => sum + value, 0) / percentiles.length : null,
+  };
+}
+
 function mergeBossPulls(
   ranking: WarcraftLogsEncounterRanking,
   encounterData: unknown,
+  config: WarcraftLogsSliceConfig,
   baseUrl: string,
 ) {
   const pulls = collectPulls(encounterData, {
     encounterId: ranking.encounterId,
     encounterName: ranking.encounterName,
+    role: config.role,
+    metric: config.metric,
     baseUrl,
     source: "encounter",
     limit: ENCOUNTER_HISTORY_LIMIT,
@@ -629,6 +804,8 @@ function mergeBossPulls(
   const fallback = normalizePull(ranking, {
     encounterId: ranking.encounterId,
     encounterName: ranking.encounterName,
+    role: config.role,
+    metric: config.metric,
     baseUrl,
     source: "zone",
   });
@@ -638,11 +815,12 @@ function mergeBossPulls(
 function normalizeBossSummaries(
   rankings: WarcraftLogsEncounterRanking[],
   encounterRankingsById: Record<string, unknown>,
+  config: WarcraftLogsSliceConfig,
   baseUrl: string,
 ): WarcraftLogsBossSummary[] {
   return rankings.map((ranking) => {
     const key = ranking.encounterId !== null ? String(ranking.encounterId) : "";
-    const pulls = mergeBossPulls(ranking, encounterRankingsById[key], baseUrl);
+    const pulls = mergeBossPulls(ranking, encounterRankingsById[key], config, baseUrl);
     const sortedByPercent = [...pulls].sort(
       (left, right) => (right.percentile ?? -1) - (left.percentile ?? -1),
     );
@@ -652,16 +830,26 @@ function normalizeBossSummaries(
       bestPercentile: bestPull?.percentile ?? ranking.percentile,
       todayPercentile:
         bestPull?.todayPercentile ?? ranking.rankPercent ?? ranking.percentile,
+      recentStats: recentStats(pulls),
       pulls,
     };
   });
 }
 
-function normalizeZoneRankings(
+function hasZoneRankingData(value: unknown, config: WarcraftLogsSliceConfig, baseUrl: string) {
+  const root = parseMaybeJsonObject(value);
+  if (!root) return false;
+  if (firstNumber(root, ["bestPerformanceAverage", "bestPerfAvg", "bestAverage", "best"]) !== null) return true;
+  if (firstNumber(root, ["medianPerformanceAverage", "medianPerfAvg", "medianAverage", "median"]) !== null) return true;
+  return collectEncounterRankings(root, baseUrl, { role: config.role, metric: config.metric, limit: 1 }).length > 0;
+}
+
+function normalizeMetricSummary(
   value: unknown,
   encounterRankingsById: Record<string, unknown>,
+  config: WarcraftLogsSliceConfig,
   baseUrl: string,
-) {
+): WarcraftLogsMetricSummary {
   const root = parseMaybeJsonObject(value);
   const allStars = asRecord(root?.allStars) || asRecord(root?.allstars);
   const rankings = collectEncounterRankings(
@@ -672,15 +860,25 @@ function normalizeZoneRankings(
       root ||
       [],
     baseUrl,
-    24,
+    { role: config.role, metric: config.metric, limit: 32 },
   );
   const bossRankings = normalizeBossSummaries(
     rankings,
     encounterRankingsById,
+    config,
     baseUrl,
   );
+  const pulls = bossRankings.flatMap((boss) => boss.pulls);
 
   return {
+    key: config.key,
+    role: config.role,
+    roleLabel: config.roleLabel,
+    metric: config.metric,
+    metricLabel: config.metricLabel,
+    title: config.title,
+    description: config.description,
+    sourceLabel: config.sourceLabel,
     bestPerformanceAverage: firstNumber(root, [
       "bestPerformanceAverage",
       "bestPerfAvg",
@@ -695,27 +893,74 @@ function normalizeZoneRankings(
     ]),
     allStarsPoints: firstNumber(allStars, ["points", "score", "amount", "rank"]),
     allStarsRank: firstInteger(allStars, ["rank", "worldRank", "regionRank"]),
+    recentStats: recentStats(pulls),
     encounterRankings: rankings,
     bossRankings,
   };
 }
 
-function bossHistoryQuery(rankings: WarcraftLogsEncounterRanking[]) {
-  const encounters = rankings
-    .filter((ranking) => ranking.encounterId !== null)
-    .slice(0, ENCOUNTER_HISTORY_BOSS_LIMIT);
+function zoneRankingsField(config: WarcraftLogsSliceConfig) {
+  const args = [] as string[];
+  if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
+  if (config.graphqlRole) args.push(`role: \"${config.graphqlRole}\"`);
+  return `${config.zoneAlias}: zoneRankings${args.length ? `(${args.join(", ")})` : ""}`;
+}
 
-  if (!encounters.length) return null;
+function zoneRankingsQuery() {
+  const fields = [
+    ...WCL_SLICES.map(zoneRankingsField),
+    "hpsAnyRole: zoneRankings(metric: hps)",
+    "dpsAnyRole: zoneRankings(metric: dps)",
+    "tankDamageAnyRoleFallback: zoneRankings(metric: dps, role: \"tank\")",
+  ]
+    .map((field) => `      ${field}`)
+    .join("\n");
 
-  const fields = encounters
+  return `query CharacterZoneRankings($name: String!, $serverSlug: String!, $serverRegion: String!) {\n  characterData {\n    character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {\n      id\n      canonicalID\n      name\n      classID\n${fields}\n    }\n  }\n}`;
+}
+
+function chooseZoneValue(
+  character: Record<string, unknown>,
+  config: WarcraftLogsSliceConfig,
+  baseUrl: string,
+) {
+  const primary = character[config.zoneAlias];
+  if (hasZoneRankingData(primary, config, baseUrl)) return primary;
+  if (config.fallbackZoneAlias) {
+    const fallback = character[config.fallbackZoneAlias];
+    if (hasZoneRankingData(fallback, config, baseUrl)) return fallback;
+  }
+  return primary;
+}
+
+function encounterRankingArgs(config: WarcraftLogsSliceConfig, encounterId: number) {
+  const args = [`encounterID: ${encounterId}`];
+  if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
+  if (config.graphqlRole) args.push(`role: \"${config.graphqlRole}\"`);
+  return args.join(", ");
+}
+
+function bossHistoryQuery(metricSummaries: WarcraftLogsMetricSummary[]) {
+  const jobs = metricSummaries.flatMap((summary) => {
+    const config = WCL_SLICES.find((slice) => slice.key === summary.key);
+    if (!config) return [];
+    return summary.encounterRankings
+      .filter((ranking) => ranking.encounterId !== null)
+      .slice(0, ENCOUNTER_HISTORY_BOSS_LIMIT)
+      .map((ranking) => ({ config, ranking }));
+  });
+
+  if (!jobs.length) return null;
+
+  const fields = jobs
     .map(
-      (ranking, index) =>
-        `    boss${index}: encounterRankings(encounterID: ${ranking.encounterId})`,
+      ({ config, ranking }, index) =>
+        `    h${index}: encounterRankings(${encounterRankingArgs(config, ranking.encounterId ?? 0)})`,
     )
     .join("\n");
 
   return {
-    encounters,
+    jobs,
     query: `query CharacterEncounterHistory($name: String!, $serverSlug: String!, $serverRegion: String!) {\n  characterData {\n    character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {\n${fields}\n    }\n  }\n}`,
   };
 }
@@ -726,10 +971,10 @@ async function fetchEncounterHistory(input: {
   name: string;
   realmSlug: string;
   region: string;
-  rankings: WarcraftLogsEncounterRanking[];
+  metricSummaries: WarcraftLogsMetricSummary[];
 }) {
-  const built = bossHistoryQuery(input.rankings);
-  if (!built) return {} as Record<string, unknown>;
+  const built = bossHistoryQuery(input.metricSummaries);
+  if (!built) return {} as Record<string, Record<string, unknown>>;
 
   try {
     const response = await apiFetchJson<WarcraftLogsGraphqlResponse>(
@@ -756,19 +1001,45 @@ async function fetchEncounterHistory(input: {
       },
     );
 
-    if (response.errors?.length) return {} as Record<string, unknown>;
+    if (response.errors?.length) return {} as Record<string, Record<string, unknown>>;
     const character = response.data?.characterData?.character || null;
-    if (!character) return {} as Record<string, unknown>;
+    if (!character) return {} as Record<string, Record<string, unknown>>;
 
-    return built.encounters.reduce<Record<string, unknown>>((acc, ranking, index) => {
-      if (ranking.encounterId !== null) {
-        acc[String(ranking.encounterId)] = character[`boss${index}`];
+    return built.jobs.reduce<Record<string, Record<string, unknown>>>((acc, job, index) => {
+      if (job.ranking.encounterId !== null) {
+        acc[job.config.key] ||= {};
+        acc[job.config.key][String(job.ranking.encounterId)] = character[`h${index}`];
       }
       return acc;
     }, {});
   } catch {
-    return {} as Record<string, unknown>;
+    return {} as Record<string, Record<string, unknown>>;
   }
+}
+
+function normalizeAllMetricSummaries(
+  character: Record<string, unknown>,
+  encounterHistory: Record<string, Record<string, unknown>>,
+  baseUrl: string,
+) {
+  return WCL_SLICES.map((config) =>
+    normalizeMetricSummary(
+      chooseZoneValue(character, config, baseUrl),
+      encounterHistory[config.key] || {},
+      config,
+      baseUrl,
+    ),
+  );
+}
+
+function primarySummary(metricSummaries: WarcraftLogsMetricSummary[]) {
+  return (
+    metricSummaries.find((summary) => summary.key === "healer-hps" && summary.encounterRankings.length) ||
+    metricSummaries.find((summary) => summary.key === "dps-dps" && summary.encounterRankings.length) ||
+    metricSummaries.find((summary) => summary.key === "tank-dps" && summary.encounterRankings.length) ||
+    metricSummaries.find((summary) => summary.key === "overall") ||
+    metricSummaries[0]
+  );
 }
 
 function emptySummary(input: {
@@ -789,6 +1060,7 @@ function emptySummary(input: {
     allStarsRank: null,
     encounterRankings: [],
     bossRankings: [],
+    metricSummaries: [],
     updatedAt: input.updatedAt,
     error: input.error ?? null,
   };
@@ -833,8 +1105,6 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
     const token = await getWarcraftLogsToken(credentials);
     if (!token) throw new Error("Warcraft Logs token is empty");
 
-    const query = `query CharacterZoneRankings($name: String!, $serverSlug: String!, $serverRegion: String!) {\n  characterData {\n    character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {\n      id\n      canonicalID\n      name\n      classID\n      zoneRankings\n    }\n  }\n}`;
-
     const response = await apiFetchJson<WarcraftLogsGraphqlResponse>(
       `${credentials.baseUrl}/api/v2/client`,
       {
@@ -848,7 +1118,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query,
+          query: zoneRankingsQuery(),
           variables: {
             name: input.name,
             serverSlug: realmSlug,
@@ -869,8 +1139,8 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       return emptySummary({ status: "not_found", profileUrl, updatedAt });
     }
 
-    const initialZone = normalizeZoneRankings(
-      character.zoneRankings,
+    const initialMetricSummaries = normalizeAllMetricSummaries(
+      character,
       {},
       credentials.baseUrl,
     );
@@ -880,13 +1150,14 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       name: input.name,
       realmSlug,
       region,
-      rankings: initialZone.encounterRankings,
+      metricSummaries: initialMetricSummaries,
     });
-    const zone = normalizeZoneRankings(
-      character.zoneRankings,
+    const metricSummaries = normalizeAllMetricSummaries(
+      character,
       encounterHistory,
       credentials.baseUrl,
     );
+    const primary = primarySummary(metricSummaries);
 
     return {
       status: "ready",
@@ -894,7 +1165,13 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       characterId: integerOrNull(character.id),
       canonicalId: integerOrNull(character.canonicalID),
       classId: integerOrNull(character.classID),
-      ...zone,
+      bestPerformanceAverage: primary?.bestPerformanceAverage ?? null,
+      medianPerformanceAverage: primary?.medianPerformanceAverage ?? null,
+      allStarsPoints: primary?.allStarsPoints ?? null,
+      allStarsRank: primary?.allStarsRank ?? null,
+      encounterRankings: primary?.encounterRankings ?? [],
+      bossRankings: primary?.bossRankings ?? [],
+      metricSummaries,
       updatedAt,
       error: null,
     };

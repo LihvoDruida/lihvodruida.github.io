@@ -271,7 +271,7 @@ function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary 
         <StatCard label="All Stars" value={roundNumber(summary.allStarsPoints)} hint={summary.allStarsRank ? `Rank ${formatStableNumber(summary.allStarsRank)}` : "Публічний ranking"} />
       </div>
 
-      <WarcraftLogsBossGraphs bosses={summary.bossRankings} />
+      <WarcraftLogsBossGraphs summary={summary} />
 
       {summary.encounterRankings.length ? (
         <div className="profile-character-log-list profile-character-log-list--rankings">

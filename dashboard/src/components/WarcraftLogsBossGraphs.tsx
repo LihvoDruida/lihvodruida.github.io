@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 
-import type { WarcraftLogsBossPull, WarcraftLogsBossSummary } from "@/lib/warcraftLogs";
+import type {
+  WarcraftLogsBossPull,
+  WarcraftLogsBossSummary,
+  WarcraftLogsCharacterSummary,
+  WarcraftLogsMetricSummary,
+} from "@/lib/warcraftLogs";
 import { formatStableNumber, formatStableUkCompactDate } from "@/lib/stableUiText";
 
 type GraphPoint = WarcraftLogsBossPull & {
@@ -12,6 +17,7 @@ type GraphPoint = WarcraftLogsBossPull & {
 };
 
 const PERCENTILE_GUIDES = [99, 95, 75, 50, 25, 10] as const;
+const SLICE_ORDER = ["healer-hps", "dps-dps", "tank-dps", "tank-hps", "overall"];
 
 function clampPercent(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
@@ -49,8 +55,8 @@ function toGraphPoints(pulls: WarcraftLogsBossPull[]): GraphPoint[] {
 
   return usable.map((pull, index) => {
     const percent = clampPercent(pull.percentile) ?? 0;
-    const x = usable.length <= 1 ? 50 : 6 + (index / (usable.length - 1)) * 88;
-    const y = 96 - percent * 0.88;
+    const x = usable.length <= 1 ? 50 : 7 + (index / (usable.length - 1)) * 88;
+    const y = 95 - percent * 0.86;
     return {
       ...pull,
       x,
@@ -58,13 +64,36 @@ function toGraphPoints(pulls: WarcraftLogsBossPull[]): GraphPoint[] {
       label: [
         formatStableUkCompactDate(pull.startTime),
         `Parse ${formatPercent(pull.percentile)}`,
-        pull.amount !== null ? `Amount ${formatAmount(pull.amount)}` : null,
+        pull.amount !== null ? `${(pull.metric || "amount").toString().toUpperCase()} ${formatAmount(pull.amount)}` : null,
         pull.itemLevel !== null ? `ilvl ${formatStableNumber(pull.itemLevel, 0)}` : null,
       ]
         .filter(Boolean)
         .join(" • "),
     };
   });
+}
+
+function metricLabel(summary: Pick<WarcraftLogsMetricSummary, "metricLabel"> | null | undefined) {
+  return summary?.metricLabel || "Amount";
+}
+
+function sliceHasUsefulData(summary: WarcraftLogsMetricSummary) {
+  return Boolean(
+    summary.encounterRankings.length ||
+      summary.bossRankings.some((boss) => boss.pulls.length) ||
+      summary.bestPerformanceAverage !== null ||
+      summary.recentStats.pullCount,
+  );
+}
+
+function sortedMetricSummaries(summary: WarcraftLogsCharacterSummary) {
+  return [...summary.metricSummaries]
+    .filter(sliceHasUsefulData)
+    .sort((left, right) => {
+      const leftIndex = SLICE_ORDER.indexOf(left.key);
+      const rightIndex = SLICE_ORDER.indexOf(right.key);
+      return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex);
+    });
 }
 
 function GraphSvg({ points }: { points: GraphPoint[] }) {
@@ -75,10 +104,10 @@ function GraphSvg({ points }: { points: GraphPoint[] }) {
       <svg viewBox="0 0 100 100" role="img" preserveAspectRatio="none">
         <title>Динаміка parse по босу</title>
         {PERCENTILE_GUIDES.map((percentile) => {
-          const y = 96 - percentile * 0.88;
+          const y = 95 - percentile * 0.86;
           return (
             <g key={percentile} className={`profile-wcl-guide profile-wcl-guide--${percentile}`}>
-              <line x1="4" x2="98" y1={y} y2={y} vectorEffect="non-scaling-stroke" />
+              <line x1="5" x2="98" y1={y} y2={y} vectorEffect="non-scaling-stroke" />
             </g>
           );
         })}
@@ -89,7 +118,7 @@ function GraphSvg({ points }: { points: GraphPoint[] }) {
             className="profile-wcl-point"
             cx={point.x}
             cy={point.y}
-            r="1.7"
+            r="1.85"
             vectorEffect="non-scaling-stroke"
           >
             <title>{point.label}</title>
@@ -103,14 +132,24 @@ function GraphSvg({ points }: { points: GraphPoint[] }) {
   );
 }
 
-function PullRow({ pull, index }: { pull: WarcraftLogsBossPull; index: number }) {
+function MetricStat({ label, value, hint }: { label: string; value: string; hint?: string | null }) {
+  return (
+    <span className="profile-wcl-mini-stat">
+      <strong>{value}</strong>
+      <small>{label}</small>
+      {hint ? <em>{hint}</em> : null}
+    </span>
+  );
+}
+
+function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; index: number; activeSlice: WarcraftLogsMetricSummary }) {
   const row = (
     <>
-      <span><strong>{formatPercent(pull.percentile)}</strong><small>Parse #{index + 1}</small></span>
-      <span><strong>{formatAmount(pull.amount)}</strong><small>{pull.metric?.toUpperCase() || "Amount"}</small></span>
+      <span><strong>{formatPercent(pull.percentile)}</strong><small>#{index + 1} • {formatStableUkCompactDate(pull.startTime)}</small></span>
+      <span><strong>{formatAmount(pull.amount)}</strong><small>{metricLabel(activeSlice)}</small></span>
       <span><strong>{pull.itemLevel !== null ? formatStableNumber(pull.itemLevel, 0) : "—"}</strong><small>ilvl</small></span>
-      <span><strong>{formatDuration(pull.durationMs)}</strong><small>{formatStableUkCompactDate(pull.startTime)}</small></span>
-      <span><strong>{pull.killedWith || "—"}</strong><small>{pull.source === "encounter" ? "Log pull" : "Best row"}</small></span>
+      <span><strong>{formatDuration(pull.durationMs)}</strong><small>duration</small></span>
+      <span><strong>{pull.totalParses ?? "—"}</strong><small>parses</small></span>
     </>
   );
 
@@ -120,77 +159,131 @@ function PullRow({ pull, index }: { pull: WarcraftLogsBossPull; index: number })
   return <div className="profile-wcl-pull-row">{row}</div>;
 }
 
-export default function WarcraftLogsBossGraphs({ bosses }: { bosses: WarcraftLogsBossSummary[] }) {
-  const availableBosses = useMemo(
-    () => bosses.filter((boss) => boss.encounterName && boss.pulls.length),
-    [bosses],
+function availableBosses(activeSlice: WarcraftLogsMetricSummary | null) {
+  return (activeSlice?.bossRankings || []).filter((boss) => boss.encounterName && (boss.pulls.length || boss.bestPercentile !== null));
+}
+
+function BossButton({ boss, active, onClick, label }: { boss: WarcraftLogsBossSummary; active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      className={active ? "is-active" : ""}
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+    >
+      <strong>{boss.encounterName}</strong>
+      <span>{formatPercent(boss.bestPercentile)} • {formatAmount(boss.recentStats.averageAmount)} {label}</span>
+    </button>
   );
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const activeBoss = availableBosses[selectedIndex] || availableBosses[0] || null;
+}
+
+export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftLogsCharacterSummary }) {
+  const slices = useMemo(() => sortedMetricSummaries(summary), [summary]);
+  const [selectedSliceKey, setSelectedSliceKey] = useState<string | null>(null);
+  const activeSlice = slices.find((slice) => slice.key === selectedSliceKey) || slices[0] || null;
+  const bosses = useMemo(() => availableBosses(activeSlice), [activeSlice]);
+  const [selectedBossKey, setSelectedBossKey] = useState<string | null>(null);
+  const activeBoss = bosses.find((boss) => `${boss.encounterId ?? boss.encounterName}` === selectedBossKey) || bosses[0] || null;
   const points = useMemo(
     () => toGraphPoints(activeBoss?.pulls || []),
     [activeBoss],
   );
 
-  if (!availableBosses.length) {
+  if (!slices.length || !activeSlice) {
     return (
       <div className="profile-wcl-dynamic profile-wcl-dynamic--empty">
-        <strong>Динаміка по босах недоступна</strong>
-        <span>Warcraft Logs повернув лише загальний snapshot без історії пулів. Коли API віддасть encounter history, тут зʼявиться графік до 10 останніх доступних пулів по кожному босу.</span>
+        <strong>Warcraft Logs поки не повернув role/metric rankings</strong>
+        <span>Блок готовий до HPS/DPS/Tank даних. Щойно в персонажа зʼявляться публічні логи або WCL API віддасть rankings, тут зʼявляться компактні графіки й останні 10 пулів.</span>
       </div>
     );
   }
 
   return (
-    <section className="profile-wcl-dynamic" aria-label="Динамічні графіки Warcraft Logs по босах">
+    <section className="profile-wcl-dynamic" aria-label="Динамічні графіки Warcraft Logs по ролях і босах">
       <div className="profile-wcl-dynamic__head">
         <div>
-          <span className="eyebrow">Boss history</span>
-          <h3>Динаміка по босах</h3>
-          <p>Перемикай босів — графік і таблиця змінюються без перезавантаження сторінки. Показуємо до 10 доступних пулів.</p>
+          <span className="eyebrow">Warcraft Logs</span>
+          <h3>Ролі, боси, останні 10 пулів</h3>
+          <p>Окремо HPS для хіла, DPS для ДД, DPS/HPS для танка. Без горизонтального скролу: все стискається у компактні картки.</p>
         </div>
-        <span className="profile-count-pill">{availableBosses.length} босів</span>
+        <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
 
-      <div className="profile-wcl-boss-tabs" role="tablist" aria-label="Боси Warcraft Logs">
-        {availableBosses.map((boss, index) => (
+      <div className="profile-wcl-role-tabs" role="tablist" aria-label="Warcraft Logs рольові метрики">
+        {slices.map((slice) => (
           <button
-            key={`${boss.encounterId ?? boss.encounterName}-${index}`}
+            key={slice.key}
             type="button"
-            className={index === selectedIndex ? "is-active" : ""}
+            className={slice.key === activeSlice.key ? "is-active" : ""}
             role="tab"
-            aria-selected={index === selectedIndex}
-            onClick={() => setSelectedIndex(index)}
+            aria-selected={slice.key === activeSlice.key}
+            onClick={() => {
+              setSelectedSliceKey(slice.key);
+              setSelectedBossKey(null);
+            }}
           >
-            <strong>{boss.encounterName}</strong>
-            <span>{formatPercent(boss.bestPercentile)} • {boss.pulls.length} pulls</span>
+            <strong>{slice.title}</strong>
+            <span>{formatPercent(slice.bestPerformanceAverage)} • avg10 {formatAmount(slice.recentStats.averageAmount)}</span>
           </button>
         ))}
       </div>
 
-      {activeBoss ? (
-        <div className="profile-wcl-boss-panel" role="tabpanel">
-          <div className="profile-wcl-boss-summary">
-            <span><strong>{formatPercent(activeBoss.bestPercentile)}</strong><small>Best</small></span>
-            <span><strong>{formatPercent(activeBoss.medianPercentile)}</strong><small>Median</small></span>
-            <span><strong>{formatAmount(activeBoss.bestAmount)}</strong><small>{activeBoss.metric?.toUpperCase() || "Amount"}</small></span>
-            <span><strong>{activeBoss.totalKills ?? "—"}</strong><small>Kills logged</small></span>
+      <div className="profile-wcl-metric-grid" aria-label={`Підсумок ${activeSlice.title}`}>
+        <MetricStat label="Best avg" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
+        <MetricStat label="Median" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
+        <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
+        <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="останні 10" />
+        <MetricStat label="Pulls" value={formatStableNumber(activeSlice.recentStats.pullCount, 0)} hint={activeSlice.sourceLabel} />
+      </div>
+
+      {bosses.length ? (
+        <>
+          <div className="profile-wcl-boss-tabs" role="tablist" aria-label="Боси Warcraft Logs">
+            {bosses.map((boss, index) => {
+              const key = `${boss.encounterId ?? boss.encounterName}`;
+              return (
+                <BossButton
+                  key={`${key}-${index}`}
+                  boss={boss}
+                  label={activeSlice.metricLabel}
+                  active={activeBoss ? `${activeBoss.encounterId ?? activeBoss.encounterName}` === key : index === 0}
+                  onClick={() => setSelectedBossKey(key)}
+                />
+              );
+            })}
           </div>
 
-          {points.length ? <GraphSvg points={points} /> : (
-            <div className="profile-wcl-dynamic profile-wcl-dynamic--empty profile-wcl-dynamic--inline">
-              <strong>Немає точок для графіка</strong>
-              <span>По цьому босу є рядок ranking, але немає percentile-історії, з якої можна побудувати графік.</span>
+          {activeBoss ? (
+            <div className="profile-wcl-boss-panel" role="tabpanel">
+              <div className="profile-wcl-boss-summary">
+                <MetricStat label="Best parse" value={formatPercent(activeBoss.bestPercentile)} />
+                <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
+                <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="останні 10" />
+                <MetricStat label="Kills / Fast" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />
+              </div>
+
+              {points.length ? <GraphSvg points={points} /> : (
+                <div className="profile-wcl-dynamic profile-wcl-dynamic--empty profile-wcl-dynamic--inline">
+                  <strong>Немає точок для графіка</strong>
+                  <span>По цьому босу є ranking snapshot, але немає percentile-історії, з якої можна побудувати графік.</span>
+                </div>
+              )}
+
+              <div className="profile-wcl-pulls" aria-label="Останні доступні пули по босу">
+                {activeBoss.pulls.map((pull, index) => (
+                  <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.startTime || index}-${pull.percentile}`} pull={pull} index={index} activeSlice={activeSlice} />
+                ))}
+              </div>
             </div>
-          )}
-
-          <div className="profile-wcl-pulls" aria-label="Останні доступні пули по босу">
-            {activeBoss.pulls.map((pull, index) => (
-              <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.startTime || index}-${pull.percentile}`} pull={pull} index={index} />
-            ))}
-          </div>
+          ) : null}
+        </>
+      ) : (
+        <div className="profile-wcl-dynamic profile-wcl-dynamic--empty profile-wcl-dynamic--inline">
+          <strong>Немає boss-level даних для {activeSlice.title}</strong>
+          <span>{activeSlice.description}</span>
         </div>
-      ) : null}
+      )}
     </section>
   );
 }
