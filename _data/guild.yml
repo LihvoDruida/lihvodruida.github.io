@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-30 10:03:10'
+  updated_at: '2026-05-30 13:41:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-24T07:21:45.000Z'
+  raider_io_last_crawled_at: '2026-05-30T10:01:20.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 156
+  member_count: 159
   achievement_points: 570
   created_timestamp: 1764795965000
 raid_progression:
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13608
-      region: 5960
+      world: 13612
+      region: 5961
       realm: 49
     mythic:
-      world: 7041
+      world: 7043
       region: 3053
       realm: 22
   blackrock-depths:
@@ -186,18 +186,18 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Preservation
-      role: HEALING
+      name: Augmentation
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3142.5
-        color: '#4968e1'
+        score: 3230.9
+        color: '#715be5'
       dps:
-        score: 3142.5
-        color: '#4968e1'
+        score: 3230.9
+        color: '#715be5'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3142.5
-        color: '#4968e1'
+        score: 3230.9
+        color: '#715be5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1022,7 +1022,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 282
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3069.1
@@ -1178,7 +1178,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/246/184033782-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokusir
-    item_level_equipped: 272
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
         score: 1747.8
@@ -1594,7 +1594,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/222/185900766-avatar.jpg?alt=/wow/static/images/2d/avatar/31-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Zanzithor
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3407.2
@@ -2322,7 +2322,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3390.9
@@ -3438,8 +3438,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 288
@@ -3754,7 +3754,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-    item_level_equipped: 227
+    item_level_equipped: 228
     mythic_plus_scores:
       all:
         score: 0
@@ -3962,7 +3962,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/12/189792012-avatar.jpg?alt=/wow/static/images/2d/avatar/84-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2858.4
@@ -5629,11 +5629,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 2851.8
-        color: '#5597b3'
+        score: 2899.9
+        color: '#4d8dbe'
       dps:
-        score: 2851.8
-        color: '#5597b3'
+        score: 2899.9
+        color: '#4d8dbe'
       healer:
         score: 0
         color: '#ffffff'
@@ -5644,8 +5644,8 @@ members:
         score: 1830.6
         color: '#7fff62'
       spec_1:
-        score: 2708.2
-        color: '#5fb692'
+        score: 2756.3
+        color: '#5da6a3'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7682,7 +7682,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3095.5
@@ -7782,8 +7782,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Mistweaver
-      role: HEALING
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/252/265958908-avatar.jpg?alt=/wow/static/images/2d/avatar/25-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Аквавитикс
     item_level_equipped: 284
@@ -7988,13 +7988,13 @@ members:
       name: Haranir
     faction:
       type: ALLIANCE
-    gender: male
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: https://eu.battle.net/wow/static/images/2d/avatar/86-0.jpg
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/7/266162439-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Рейла
-    item_level_equipped: 0
+    item_level_equipped: 76
     mythic_plus_scores:
       all:
         score: 0
@@ -8150,17 +8150,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 277
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2329.5
-        color: '#29ff0e'
+        score: 2704.4
+        color: '#5fb692'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2329.5
-        color: '#29ff0e'
+        score: 2704.4
+        color: '#5fb692'
       tank:
         score: 0
         color: '#ffffff'
@@ -8171,8 +8171,164 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2329.5
-        color: '#29ff0e'
+        score: 2704.4
+        color: '#5fb692'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Regin
+    id: 184963280
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Regin
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Rainsh
+    id: 223943927
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/247/223943927-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Rainsh
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 852
+        color: '#d3ffc3'
+      dps:
+        score: 852
+        color: '#d3ffc3'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 852
+        color: '#d3ffc3'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Twigsnapper
+    id: 189015501
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Survival
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
+    item_level_equipped: 256
+    mythic_plus_scores:
+      all:
+        score: 1558.6
+        color: '#9bff7f'
+      dps:
+        score: 1558.6
+        color: '#9bff7f'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1558.6
+        color: '#9bff7f'
       spec_3:
         score: 0
         color: '#ffffff'

@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-05-30 10:03:10'
+  updated_at: '2026-05-30 13:41:27'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-24T07:21:45.000Z'
+  raider_io_last_crawled_at: '2026-05-30T10:01:20.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 156
+  member_count: 159
 characters:
 - name: Бреинор
   region: eu
@@ -7542,7 +7542,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Mining
-        learned_points: 33
+        learned_points: 36
         max_points: 100
     secondaries:
     - name: Cooking
@@ -7710,5 +7710,98 @@ characters:
       id: 185
       tiers:
       - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+- name: Regin
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Regin
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 97
+        max_points: 100
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 7
+        max_points: 100
+- name: Rainsh
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: https://raider.io/characters/eu/silvermoon/Rainsh
+  professions:
+    primaries:
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Cataclysm Tailoring
+        learned_points: 1
+        max_points: 75
+      - name: Classic Tailoring
+        learned_points: 300
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 51
+        max_points: 100
+    - name: Inscription
+      id: 773
+      tiers:
+      - name: Cataclysm Inscription
+        learned_points: 1
+        max_points: 75
+      - name: Classic Inscription
+        learned_points: 1
+        max_points: 300
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 11
+        max_points: 300
+- name: Twigsnapper
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
         learned_points: 1
         max_points: 300
