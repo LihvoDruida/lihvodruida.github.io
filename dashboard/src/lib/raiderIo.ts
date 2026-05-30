@@ -1,4 +1,5 @@
 import { readIntegerEnv } from "@/lib/concurrency";
+import { getExternalCharacterDataSettings } from "@/lib/dashboardApiSettings";
 import { apiFetchJson } from "@/lib/apiHttp";
 import type { BattleNetRegion } from "@/lib/battlenet";
 import { normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
@@ -139,8 +140,12 @@ function raiderIoRetryCount() {
   return readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4);
 }
 
-function raiderIoCharacterCacheTtlMs() {
-  return readIntegerEnv("RAIDERIO_CHARACTER_CACHE_TTL_MS", 120_000, 0, 900_000);
+async function raiderIoCharacterCacheTtlMs() {
+  try {
+    return (await getExternalCharacterDataSettings()).raiderIoCharacterCacheTtlMs;
+  } catch {
+    return readIntegerEnv("RAIDERIO_CHARACTER_CACHE_TTL_MS", 120_000, 0, 900_000);
+  }
 }
 
 function raiderIoAccessKey() {
@@ -218,7 +223,7 @@ export async function fetchRaiderIoCharacterProfile(input: {
 }): Promise<RaiderIoCharacterProfile | null> {
   const url = buildRaiderIoCharacterUrl(input);
   if (!url) return null;
-  const cacheTtlMs = raiderIoCharacterCacheTtlMs();
+  const cacheTtlMs = await raiderIoCharacterCacheTtlMs();
   const cacheKey = url.toString();
   const cached = cacheTtlMs > 0 ? profileCache.get(cacheKey) : null;
   if (cached && cached.expiresAt > Date.now()) return cached.value;

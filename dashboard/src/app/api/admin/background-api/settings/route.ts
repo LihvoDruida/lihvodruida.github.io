@@ -168,6 +168,16 @@ export async function POST(request: NextRequest) {
           .some((value) => String(value) === "1")
           ? "1"
           : "0",
+        raiderIoCharacterCacheTtlMs: form.get("raiderIoCharacterCacheTtlMs"),
+        warcraftLogsCharacterCacheTtlMs: form.get(
+          "warcraftLogsCharacterCacheTtlMs",
+        ),
+        warcraftLogsRecentReportLimit: form.get(
+          "warcraftLogsRecentReportLimit",
+        ),
+        warcraftLogsReportFightTableLimit: form.get(
+          "warcraftLogsReportFightTableLimit",
+        ),
       },
       session,
     );

@@ -1541,7 +1541,13 @@
 }
 
 .profile-character-detail-layout {
+  grid-template-columns: minmax(0, 1fr);
   align-items: flex-start;
+}
+
+.profile-character-detail-main {
+  width: 100%;
+  max-width: none;
 }
 
 .profile-character-detail-hero {
@@ -2854,7 +2860,7 @@
 }
 
 .profile-wcl-pull-row {
-  grid-template-columns: 42px minmax(150px, 1.5fr) repeat(4, minmax(72px, 0.62fr));
+  grid-template-columns: minmax(150px, 1.5fr) repeat(4, minmax(72px, 0.62fr));
 }
 
 @media (max-width: 900px) {

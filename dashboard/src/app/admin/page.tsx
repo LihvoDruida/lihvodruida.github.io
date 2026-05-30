@@ -176,9 +176,7 @@ export default async function AdminOverviewPage() {
               <div className="admin-policy-card__title">
                 <strong>Фоновий API та автооновлення</strong>
                 <small>
-                  Керує частотою live-refresh у React state,
-                  Battle.net/Raider.IO refresh і batch-оновленням профілів без
-                  перезавантаження сторінки.
+                  Керує оновленням профілів, Raider.IO та Warcraft Logs.
                 </small>
               </div>
               <div
@@ -191,12 +189,12 @@ export default async function AdminOverviewPage() {
                 <span>
                   {apiSettings.source === "firestore"
                     ? "панель"
-                    : "env/default"}
+                    : "запасне"}
                 </span>
                 <span>
                   {apiSettings.warcraftLogsClientSecretConfigured
                     ? `WCL: ${apiSettings.warcraftLogsCredentialsSource}`
-                    : "WCL: off"}
+                    : "WCL: вимкнено"}
                 </span>
               </div>
             </header>
@@ -213,9 +211,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Глобальний фоновий refresh, секунд</span>
                   <small>
-                    Мінімум 600 секунд. Це замінює client-side{" "}
-                    <code>DEFAULT_REFRESH_MIN_MS</code> для глобального
-                    live-refresh.
+                    Як часто оновлювати загальні дані сторінок.
                   </small>
                   <input
                     type="number"
@@ -230,8 +226,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Профіль / Battle.net + Raider.IO, секунд</span>
                   <small>
-                    Мінімум 600 секунд. Застосовується до відкриття профілю та
-                    фонового profile-external resource.
+                    Як часто оновлювати дані персонажів у профілі.
                   </small>
                   <input
                     type="number"
@@ -246,8 +241,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Batch-refresh усіх профілів, секунд</span>
                   <small>
-                    Мінімальний інтервал для cron/manual оновлення всіх
-                    профілів.
+                    Як часто запускати оновлення всіх профілів.
                   </small>
                   <input
                     type="number"
@@ -266,7 +260,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Batch limit профілів</span>
                   <small>
-                    Скільки профілів брати за один server-to-server refresh.
+                    Скільки профілів обробляти за один запуск.
                   </small>
                   <input
                     type="number"
@@ -281,8 +275,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Паралельність персонажів</span>
                   <small>
-                    <code>0</code> = адаптивно. Більше не означає краще:
-                    Battle.net/RIO можуть відповідати rate limit.
+                    0 = автоматично. Вища паралельність може впиратися в ліміти API.
                   </small>
                   <input
                     type="number"
@@ -298,7 +291,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Макс. паралельність персонажів</span>
-                  <small>Жорстка верхня межа для одного профілю.</small>
+                  <small>Верхня межа одночасної обробки персонажів.</small>
                   <input
                     type="number"
                     name="profileCharacterRefreshMaxConcurrency"
@@ -314,8 +307,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Паралельність batch-профілів</span>
                   <small>
-                    <code>0</code> = адаптивно для фонового refresh усіх
-                    профілів.
+                    0 = автоматично для оновлення всіх профілів.
                   </small>
                   <input
                     type="number"
@@ -330,7 +322,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Макс. batch-паралельність</span>
                   <small>
-                    Верхня межа одночасних профілів у batch-refresh.
+                    Верхня межа одночасних профілів.
                   </small>
                   <input
                     type="number"
@@ -347,13 +339,67 @@ export default async function AdminOverviewPage() {
               </fieldset>
 
               <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Кеш та обсяг даних</legend>
+                <label className="admin-policy-input">
+                  <span>Кеш Raider.IO, мс</span>
+                  <small>Скільки тримати відповідь по персонажу в памʼяті сервера.</small>
+                  <input
+                    type="number"
+                    name="raiderIoCharacterCacheTtlMs"
+                    min={0}
+                    max={900000}
+                    step={30000}
+                    defaultValue={apiSettings.raiderIoCharacterCacheTtlMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Кеш Warcraft Logs, мс</span>
+                  <small>Скільки тримати зібрану WCL-статистику персонажа.</small>
+                  <input
+                    type="number"
+                    name="warcraftLogsCharacterCacheTtlMs"
+                    min={0}
+                    max={900000}
+                    step={30000}
+                    defaultValue={apiSettings.warcraftLogsCharacterCacheTtlMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL звітів</span>
+                  <small>Скільки останніх рейдових звітів переглядати для персонажа.</small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRecentReportLimit"
+                    min={1}
+                    max={30}
+                    step={1}
+                    defaultValue={apiSettings.warcraftLogsRecentReportLimit}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL боїв у звіті</span>
+                  <small>Скільки boss-pulls брати з одного звіту.</small>
+                  <input
+                    type="number"
+                    name="warcraftLogsReportFightTableLimit"
+                    min={4}
+                    max={60}
+                    step={1}
+                    defaultValue={apiSettings.warcraftLogsReportFightTableLimit}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
                 <legend>Warcraft Logs API</legend>
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Client ID</span>
                   <small>
-                    Можна зберігати в панелі. Якщо поле порожнє — буде fallback
-                    на <code>WARCRAFTLOGS_CLIENT_ID</code> /{" "}
-                    <code>WCL_CLIENT_ID</code>.
+                    Можна зберігати тут. Якщо поле порожнє, система використає запасне значення з деплою.
                   </small>
                   <input
                     name="warcraftLogsClientId"
@@ -367,8 +413,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Client Secret</span>
                   <small>
-                    Secret не показується повторно в HTML. Введи значення тільки
-                    коли треба встановити або замінити ключ.
+                    Секрет не показується повторно. Вводь його тільки для встановлення або заміни.
                   </small>
                   <input
                     type="password"
@@ -386,8 +431,7 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Base URL</span>
                   <small>
-                    Для Retail залиш дефолт. Змінюй тільки якщо справді потрібен
-                    інший endpoint.
+                    Залиш стандартну адресу, якщо немає окремої причини змінювати.
                   </small>
                   <input
                     name="warcraftLogsBaseUrl"
@@ -414,9 +458,7 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Увімкнути тимчасовий WCL debug audit log</strong>
                     <small>
-                      Записує в загальні логи відповідь Warcraft Logs API та
-                      проміжний результат парсера. Тримай вимкненим після
-                      перевірки, бо лог може бути великим.
+                      Тимчасово записує сирі відповіді та розбір даних у загальні логи. Після перевірки вимкни.
                     </small>
                   </span>
                 </label>
@@ -430,8 +472,7 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Очистити збережений Client Secret у панелі</strong>
                     <small>
-                      Очищає тільки secret із Firebase. Якщо env fallback існує,
-                      Warcraft Logs лишиться активним через env.
+                      Очищає секрет із панелі. Запасне значення з деплою не чіпається.
                     </small>
                   </span>
                 </label>
@@ -448,7 +489,7 @@ export default async function AdminOverviewPage() {
                     {apiSettings.warcraftLogsCredentialsSource === "panel"
                       ? "панель керування"
                       : apiSettings.warcraftLogsCredentialsSource === "env"
-                        ? "env fallback"
+                        ? "запасне значення"
                         : "немає"}
                   </small>
                   <small>
@@ -462,14 +503,15 @@ export default async function AdminOverviewPage() {
                       ? "увімкнено"
                       : "вимкнено"}
                   </small>
+                  <small>
+                    Обсяг: {apiSettings.warcraftLogsRecentReportLimit} звітів / {apiSettings.warcraftLogsReportFightTableLimit} боїв
+                  </small>
                 </div>
               </fieldset>
 
               <footer className="admin-policy-footer">
                 <small>
-                  Warcraft Logs Client Secret зберігається server-side у
-                  Firebase і не рендериться назад у форму. Debug audit log
-                  керується з панелі, env лишається тільки fallback.
+                  Секрет зберігається тільки на сервері. Логи перевірки вмикай тимчасово.
                 </small>
                 <button
                   className="btn primary"

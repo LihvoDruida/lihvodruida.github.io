@@ -14,6 +14,10 @@ const DEFAULT_WARCRAFT_LOGS_BASE_URL = "https://www.warcraftlogs.com";
 
 const MIN_BACKGROUND_REFRESH_SECONDS = 10 * 60;
 const MAX_REFRESH_SECONDS = 24 * 60 * 60;
+const DEFAULT_CHARACTER_CACHE_TTL_MS = 120_000;
+const MAX_CHARACTER_CACHE_TTL_MS = 900_000;
+const DEFAULT_WCL_RECENT_REPORT_LIMIT = 12;
+const DEFAULT_WCL_REPORT_FIGHT_TABLE_LIMIT = 24;
 
 export type DashboardApiSettingsSource = "firestore" | "defaults";
 
@@ -33,6 +37,10 @@ export type DashboardApiSettings = {
   warcraftLogsCredentialsSource: WarcraftLogsCredentialsSource;
   warcraftLogsBaseUrl: string;
   warcraftLogsDebugAuditLogs: boolean;
+  raiderIoCharacterCacheTtlMs: number;
+  warcraftLogsCharacterCacheTtlMs: number;
+  warcraftLogsRecentReportLimit: number;
+  warcraftLogsReportFightTableLimit: number;
   updatedAt?: string | null;
   updatedBy?: string | null;
   source: DashboardApiSettingsSource;
@@ -44,6 +52,9 @@ export type WarcraftLogsApiCredentials = {
   baseUrl: string;
   source: WarcraftLogsCredentialsSource;
   debugAuditLogs: boolean;
+  characterCacheTtlMs: number;
+  recentReportLimit: number;
+  reportFightTableLimit: number;
   configured: boolean;
 };
 
@@ -51,7 +62,11 @@ type DashboardApiSettingsInput = Partial<
   Record<
     | keyof DashboardApiSettings
     | "warcraftLogsClientSecret"
-    | "clearWarcraftLogsClientSecret",
+    | "clearWarcraftLogsClientSecret"
+    | "raiderIoCharacterCacheTtlMs"
+    | "warcraftLogsCharacterCacheTtlMs"
+    | "warcraftLogsRecentReportLimit"
+    | "warcraftLogsReportFightTableLimit",
     unknown
   >
 >;
@@ -102,6 +117,42 @@ function envWarcraftLogsDebugAuditLogs() {
   return truthyFormFlag(process.env.WARCRAFTLOGS_DEBUG_AUDIT_LOGS);
 }
 
+function envRaiderIoCharacterCacheTtlMs() {
+  return integerEnv(
+    "RAIDERIO_CHARACTER_CACHE_TTL_MS",
+    DEFAULT_CHARACTER_CACHE_TTL_MS,
+    0,
+    MAX_CHARACTER_CACHE_TTL_MS,
+  );
+}
+
+function envWarcraftLogsCharacterCacheTtlMs() {
+  return integerEnv(
+    "WARCRAFTLOGS_CHARACTER_CACHE_TTL_MS",
+    DEFAULT_CHARACTER_CACHE_TTL_MS,
+    0,
+    MAX_CHARACTER_CACHE_TTL_MS,
+  );
+}
+
+function envWarcraftLogsRecentReportLimit() {
+  return integerEnv(
+    "WARCRAFTLOGS_RECENT_REPORT_LIMIT",
+    DEFAULT_WCL_RECENT_REPORT_LIMIT,
+    1,
+    30,
+  );
+}
+
+function envWarcraftLogsReportFightTableLimit() {
+  return integerEnv(
+    "WARCRAFTLOGS_REPORT_FIGHT_TABLE_LIMIT",
+    DEFAULT_WCL_REPORT_FIGHT_TABLE_LIMIT,
+    4,
+    60,
+  );
+}
+
 function booleanValue(value: unknown, fallback: boolean) {
   if (typeof value === "boolean") return value;
   const text = cleanText(value, 20).toLowerCase();
@@ -144,6 +195,24 @@ function resolveWarcraftLogsCredentials(
     debugAuditLogs: booleanValue(
       data?.warcraftLogsDebugAuditLogs,
       envWarcraftLogsDebugAuditLogs(),
+    ),
+    characterCacheTtlMs: integerValue(
+      data?.warcraftLogsCharacterCacheTtlMs,
+      envWarcraftLogsCharacterCacheTtlMs(),
+      0,
+      MAX_CHARACTER_CACHE_TTL_MS,
+    ),
+    recentReportLimit: integerValue(
+      data?.warcraftLogsRecentReportLimit,
+      envWarcraftLogsRecentReportLimit(),
+      1,
+      30,
+    ),
+    reportFightTableLimit: integerValue(
+      data?.warcraftLogsReportFightTableLimit,
+      envWarcraftLogsReportFightTableLimit(),
+      4,
+      60,
     ),
     configured: Boolean(clientId && clientSecret),
   };
@@ -233,6 +302,10 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     warcraftLogsCredentialsSource: resolveWarcraftLogsCredentials(null).source,
     warcraftLogsBaseUrl: envWarcraftLogsBaseUrl(),
     warcraftLogsDebugAuditLogs: envWarcraftLogsDebugAuditLogs(),
+    raiderIoCharacterCacheTtlMs: envRaiderIoCharacterCacheTtlMs(),
+    warcraftLogsCharacterCacheTtlMs: envWarcraftLogsCharacterCacheTtlMs(),
+    warcraftLogsRecentReportLimit: envWarcraftLogsRecentReportLimit(),
+    warcraftLogsReportFightTableLimit: envWarcraftLogsReportFightTableLimit(),
     updatedAt: null,
     updatedBy: null,
     source: "defaults",
@@ -305,6 +378,15 @@ function normalizeSettings(
     warcraftLogsCredentialsSource: credentials.source,
     warcraftLogsBaseUrl: credentials.baseUrl,
     warcraftLogsDebugAuditLogs: credentials.debugAuditLogs,
+    raiderIoCharacterCacheTtlMs: integerValue(
+      data?.raiderIoCharacterCacheTtlMs,
+      fallback.raiderIoCharacterCacheTtlMs,
+      0,
+      MAX_CHARACTER_CACHE_TTL_MS,
+    ),
+    warcraftLogsCharacterCacheTtlMs: credentials.characterCacheTtlMs,
+    warcraftLogsRecentReportLimit: credentials.recentReportLimit,
+    warcraftLogsReportFightTableLimit: credentials.reportFightTableLimit,
     updatedAt: timestampToIso(data?.updatedAt),
     updatedBy: typeof data?.updatedBy === "string" ? data.updatedBy : null,
     source,
@@ -384,6 +466,10 @@ export async function setDashboardApiSettings(
         ? FieldValue.delete()
         : settings.warcraftLogsBaseUrl,
     warcraftLogsDebugAuditLogs: settings.warcraftLogsDebugAuditLogs,
+    raiderIoCharacterCacheTtlMs: settings.raiderIoCharacterCacheTtlMs,
+    warcraftLogsCharacterCacheTtlMs: settings.warcraftLogsCharacterCacheTtlMs,
+    warcraftLogsRecentReportLimit: settings.warcraftLogsRecentReportLimit,
+    warcraftLogsReportFightTableLimit: settings.warcraftLogsReportFightTableLimit,
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   };
@@ -432,6 +518,16 @@ export async function getWarcraftLogsApiCredentials(): Promise<WarcraftLogsApiCr
   );
 }
 
+export async function getExternalCharacterDataSettings() {
+  const settings = await getDashboardApiSettings();
+  return {
+    raiderIoCharacterCacheTtlMs: settings.raiderIoCharacterCacheTtlMs,
+    warcraftLogsCharacterCacheTtlMs: settings.warcraftLogsCharacterCacheTtlMs,
+    warcraftLogsRecentReportLimit: settings.warcraftLogsRecentReportLimit,
+    warcraftLogsReportFightTableLimit: settings.warcraftLogsReportFightTableLimit,
+  };
+}
+
 export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wcl = settings.warcraftLogsClientSecretConfigured
     ? `WCL: ${settings.warcraftLogsCredentialsSource}`
@@ -439,7 +535,7 @@ export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wclDebug = settings.warcraftLogsDebugAuditLogs
     ? "WCL debug: увімкнено"
     : "WCL debug: вимкнено";
-  return `Фоновий API: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; профіль: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit} проф.; ${wcl}; ${wclDebug}.`;
+  return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${wcl}; ${wclDebug}; WCL reports: ${settings.warcraftLogsRecentReportLimit}/${settings.warcraftLogsReportFightTableLimit}.`;
 }
 
 export function dashboardApiSettingsMinBackgroundRefreshSeconds() {

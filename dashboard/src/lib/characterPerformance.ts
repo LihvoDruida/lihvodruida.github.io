@@ -92,6 +92,7 @@ function normalizedRaidScore(summary: WarcraftLogsMetricSummary) {
 }
 
 function usefulMetric(summary: WarcraftLogsMetricSummary) {
+  if (summary.role === "overall") return false;
   return Boolean(
     summary.bossRankings.length ||
       summary.recentStats.pullCount ||
@@ -142,21 +143,21 @@ export function buildCharacterPerformanceEcosystem(input: {
       "overall",
       "Індекс ефективності",
       formatScore(overallScore),
-      "Власний індекс з WCL + Raider.IO + ilvl, не офіційний рейтинг.",
+      "Зведена оцінка з рейдів, ключів і ilvl.",
       overallScore !== null && overallScore >= 70 ? "good" : overallScore !== null && overallScore < 45 ? "warn" : "neutral",
     ),
     signal(
       "raid",
       "Raid/WCL",
       formatScore(raidScore),
-      raidSlice ? `${raidSlice.title}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, avg≤10 ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих WCL role-pulls.",
+      raidSlice ? `${raidSlice.title}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, avg≤10 ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих рейдових пулів.",
       raidScore !== null && raidScore >= 70 ? "good" : raidScore !== null && raidScore < 45 ? "warn" : "neutral",
     ),
     signal(
       "mplus",
       "M+ / Raider.IO",
       formatScore(mythicPlusScore),
-      `Score ${input.rio.snapshot?.currentScore ? Math.round(input.rio.snapshot.currentScore) : "—"}, best keys ${input.rio.bestRunStats.runCount}.`,
+      `Score ${input.rio.snapshot?.currentScore ? Math.round(input.rio.snapshot.currentScore) : "—"}, найкращі ключі ${input.rio.bestRunStats.runCount}.`,
       mythicPlusScore !== null && mythicPlusScore >= 70 ? "good" : mythicPlusScore !== null && mythicPlusScore < 35 ? "warn" : "neutral",
     ),
     signal(
@@ -186,10 +187,10 @@ export function buildCharacterPerformanceEcosystem(input: {
     }));
 
   const sampleSummary = [
-    `${input.rio.bestRunStats.runCount} best keys`,
-    `${input.rio.recentRunStats.runCount} recent keys`,
-    `${input.wcl.sourceCoverage.reportsChecked} WCL reports`,
-    `${roleTotals.healer} healer / ${roleTotals.dps} dps / ${roleTotals.tank} tank boss fights`,
+    `${input.rio.bestRunStats.runCount} найкращі ключі`,
+    `${input.rio.recentRunStats.runCount} останні ключі`,
+    `${input.wcl.sourceCoverage.reportsChecked} WCL звіти`,
+    `${roleTotals.healer} хіл / ${roleTotals.dps} дд / ${roleTotals.tank} танк боїв`,
   ].join(" • ");
 
   return {
