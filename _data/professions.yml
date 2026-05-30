@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-30 13:41:27'
+  updated_at: '2026-05-30 17:06:47'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7755,7 +7755,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 51
+        learned_points: 66
         max_points: 100
     - name: Inscription
       id: 773
@@ -7766,6 +7766,9 @@ characters:
       - name: Classic Inscription
         learned_points: 1
         max_points: 300
+      - name: Midnight Inscription
+        learned_points: 41
+        max_points: 100
     secondaries:
     - name: Archaeology
       id: 794
