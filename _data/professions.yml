@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-30 17:06:47'
+  updated_at: '2026-05-30 21:01:04'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1304,7 +1304,7 @@ characters:
         learned_points: 15
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 75
+        learned_points: 76
         max_points: 100
     - name: Tailoring
       id: 197
@@ -2185,7 +2185,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 87
+        learned_points: 88
         max_points: 100
     - name: Fishing
       id: 356
@@ -3019,7 +3019,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 4
         max_points: 300
 - name: Azuriel
   region: eu
@@ -3252,7 +3252,7 @@ characters:
   region: eu
   realm: draenor
   realm_slug: draenor
-  profile_url: https://raider.io/characters/eu/draenor/Otito
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
@@ -5213,7 +5213,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Forchun
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
@@ -7257,7 +7257,7 @@ characters:
   region: eu
   realm: blackscar
   realm_slug: blackscar
-  profile_url: https://raider.io/characters/eu/blackscar/Древесная
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
