@@ -348,6 +348,8 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
         <div><dt>Kills logged</dt><dd>{formatStableNumber(activeBoss.totalKills ?? killCount, 0)}</dd></div>
         <div><dt>Best {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)}</dd></div>
         <div><dt>Avg {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.averageAmount)}</dd></div>
+        <div><dt>Median {activeSlice.metricLabel}</dt><dd>{formatAmount(activeBoss.recentStats.medianAmount)}</dd></div>
+        <div><dt>Consistency</dt><dd>{formatPercent(activeBoss.recentStats.consistencyScore)}</dd></div>
         <div><dt>Fastest Kill</dt><dd>{formatDuration(activeBoss.fastestKillMs)}</dd></div>
         <div><dt>All Star Points</dt><dd>{activeBoss.allStarsPoints !== null ? formatStableNumber(activeBoss.allStarsPoints, 2) : "—"}</dd></div>
       </dl>
@@ -381,8 +383,8 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
       <div className="profile-wcl-dynamic__head">
         <div>
           <span className="eyebrow">Warcraft Logs</span>
-          <h3>Рейдові боси, до 10 останніх пулів</h3>
-          <p>Тільки рейдові боси: треш і ключі відкидаються. Дані не змішуються між ролями: якщо пул був як ДД — він іде лише в ДД DPS, хіл — лише в Хіл HPS, танк — лише в танкові метрики. У середнє входить максимум 10 останніх пулів.</p>
+          <h3>Чисті role-pulls по рейдових босах</h3>
+          <p>Треш і ключі відкидаються. Пули не змішуються між ролями: ДД → DPS, хіл → HPS, танк → tank metrics. Avg/median/max рахуються нашою системою по останніх 10 доступних boss-pulls.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -401,7 +403,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
             }}
           >
             <strong>{slice.title}</strong>
-            <span>{formatPercent(slice.bestPerformanceAverage)} • avg≤10 {formatAmount(slice.recentStats.averageAmount)}</span>
+            <span>{formatPercent(slice.bestPerformanceAverage)} • avg≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.pullCount} пулів</span>
           </button>
         ))}
       </div>
@@ -409,8 +411,10 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
       <div className="profile-wcl-metric-grid" aria-label={`Підсумок ${activeSlice.title}`}>
         <MetricStat label="Best avg" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
         <MetricStat label="Median" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
-        <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="до 10 пулів" />
-        <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="до 10 пулів" />
+        <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
+        <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="останні 10" />
+        <MetricStat label={`Median ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.medianAmount)} hint="наша формула" />
+        <MetricStat label="Стабільність" value={formatPercent(activeSlice.recentStats.consistencyScore)} hint="σ/avg" />
         <MetricStat label="Pulls" value={formatStableNumber(activeSlice.recentStats.pullCount, 0)} hint={activeSlice.sourceLabel} />
       </div>
 
@@ -436,7 +440,9 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
               <div className="profile-wcl-boss-summary">
                 <MetricStat label="Best parse" value={formatPercent(activeBoss.bestPercentile)} />
                 <MetricStat label={`Max ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
-                <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="до 10 пулів" />
+                <MetricStat label={`Avg ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="останні 10" />
+                <MetricStat label={`Median ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.medianAmount)} />
+                <MetricStat label="Kill/Wipe" value={`${activeBoss.recentStats.killCount}/${activeBoss.recentStats.wipeCount}`} />
                 <MetricStat label="Kills / Fast" value={`${activeBoss.totalKills ?? "—"} / ${formatDuration(activeBoss.fastestKillMs)}`} />
               </div>
 

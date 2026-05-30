@@ -34,10 +34,32 @@ export type WarcraftLogsMetricKey = "points" | "hps" | "dps";
 
 export type WarcraftLogsRecentStats = {
   pullCount: number;
+  sampleSize: number;
   maxAmount: number | null;
+  minAmount: number | null;
   averageAmount: number | null;
+  medianAmount: number | null;
+  standardDeviationAmount: number | null;
+  consistencyScore: number | null;
   maxPercentile: number | null;
   averagePercentile: number | null;
+  medianPercentile: number | null;
+  averageDurationMs: number | null;
+  killCount: number;
+  wipeCount: number;
+  lastPullAt: string | null;
+};
+
+export type WarcraftLogsSourceCoverage = {
+  zoneRankingSlices: number;
+  encounterRankingSlices: number;
+  reportsChecked: number;
+  reportBossFightsChecked: number;
+  reportPullRows: number;
+  roleTotals: Record<WarcraftLogsConcreteRoleKey, number>;
+  skippedUnknownRole: number;
+  skippedMissingAmount: number;
+  durationMs: number | null;
 };
 
 export type WarcraftLogsBossPull = {
@@ -121,6 +143,7 @@ export type WarcraftLogsCharacterSummary = {
   encounterRankings: WarcraftLogsEncounterRanking[];
   bossRankings: WarcraftLogsBossSummary[];
   metricSummaries: WarcraftLogsMetricSummary[];
+  sourceCoverage: WarcraftLogsSourceCoverage;
   updatedAt: string;
   error?: string | null;
 };
@@ -163,9 +186,16 @@ type WarcraftLogsSliceConfig = {
   graphqlRole?: "Healer" | "DPS" | "Tank";
 };
 
-const ENCOUNTER_HISTORY_LIMIT = 10;
-const ENCOUNTER_HISTORY_BOSS_LIMIT = 10;
-const RECENT_REPORT_FIGHT_TABLE_LIMIT = 16;
+const ENCOUNTER_HISTORY_LIMIT = 30;
+const RECENT_PULL_CALC_LIMIT = 10;
+const ENCOUNTER_HISTORY_BOSS_LIMIT = 12;
+
+type WarcraftLogsCharacterCacheEntry = {
+  expiresAt: number;
+  value: WarcraftLogsCharacterSummary;
+};
+
+const characterSummaryCache = new Map<string, WarcraftLogsCharacterCacheEntry>();
 
 const WCL_SLICES: WarcraftLogsSliceConfig[] = [
   {
@@ -325,7 +355,15 @@ function warcraftLogsRetryCount() {
 }
 
 function warcraftLogsRecentReportLimit() {
-  return readIntegerEnv("WARCRAFTLOGS_RECENT_REPORT_LIMIT", 8, 1, 20);
+  return readIntegerEnv("WARCRAFTLOGS_RECENT_REPORT_LIMIT", 12, 1, 30);
+}
+
+function warcraftLogsReportFightTableLimit() {
+  return readIntegerEnv("WARCRAFTLOGS_REPORT_FIGHT_TABLE_LIMIT", 24, 4, 60);
+}
+
+function warcraftLogsCharacterCacheTtlMs() {
+  return readIntegerEnv("WARCRAFTLOGS_CHARACTER_CACHE_TTL_MS", 120_000, 0, 900_000);
 }
 
 function warcraftLogsDebugAuditEnabled(
@@ -1069,27 +1107,65 @@ function collectPulls(
   return mergePullList(collected, limit);
 }
 
+function average(values: number[]) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+}
+
+function median(values: number[]) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function standardDeviation(values: number[]) {
+  const avg = average(values);
+  if (avg === null || values.length < 2) return null;
+  const variance = values.reduce((sum, value) => sum + Math.pow(value - avg, 2), 0) / values.length;
+  return Math.sqrt(variance);
+}
+
+function consistencyScore(values: number[]) {
+  const avg = average(values);
+  const deviation = standardDeviation(values);
+  if (avg === null || deviation === null || avg <= 0) return null;
+  const coefficient = deviation / avg;
+  return Math.max(0, Math.min(100, 100 - coefficient * 100));
+}
+
 function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
-  const recent = [...pulls]
-    .sort((left, right) => {
-      const leftTime = left.startTime ? new Date(left.startTime).getTime() : 0;
-      const rightTime = right.startTime ? new Date(right.startTime).getTime() : 0;
-      return rightTime - leftTime;
-    })
-    .slice(0, ENCOUNTER_HISTORY_LIMIT);
+  const sorted = [...pulls].sort((left, right) => {
+    const leftTime = left.startTime ? new Date(left.startTime).getTime() : 0;
+    const rightTime = right.startTime ? new Date(right.startTime).getTime() : 0;
+    return rightTime - leftTime;
+  });
+  const recent = sorted.slice(0, RECENT_PULL_CALC_LIMIT);
   const amounts = recent
     .map((pull) => pull.amount)
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
   const percentiles = recent
     .map((pull) => pull.percentile)
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const durations = recent
+    .map((pull) => pull.durationMs)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0);
 
   return {
     pullCount: recent.length,
+    sampleSize: amounts.length,
     maxAmount: amounts.length ? Math.max(...amounts) : null,
-    averageAmount: amounts.length ? amounts.reduce((sum, value) => sum + value, 0) / amounts.length : null,
+    minAmount: amounts.length ? Math.min(...amounts) : null,
+    averageAmount: average(amounts),
+    medianAmount: median(amounts),
+    standardDeviationAmount: standardDeviation(amounts),
+    consistencyScore: consistencyScore(amounts),
     maxPercentile: percentiles.length ? Math.max(...percentiles) : null,
-    averagePercentile: percentiles.length ? percentiles.reduce((sum, value) => sum + value, 0) / percentiles.length : null,
+    averagePercentile: average(percentiles),
+    medianPercentile: median(percentiles),
+    averageDurationMs: average(durations),
+    killCount: recent.filter((pull) => normalizeRoleText(pull.killedWith) === "kill").length,
+    wipeCount: recent.filter((pull) => normalizeRoleText(pull.killedWith) === "wipe").length,
+    lastPullAt: sorted.find((pull) => pull.startTime)?.startTime ?? null,
   };
 }
 
@@ -1109,8 +1185,32 @@ type WarcraftLogsReportFightSeed = {
 
 type WarcraftLogsReportPullsBySlice = Record<string, Record<string, WarcraftLogsBossPull[]>>;
 
+type WarcraftLogsReportPullsResult = {
+  pullsBySlice: WarcraftLogsReportPullsBySlice;
+  coverage: WarcraftLogsSourceCoverage;
+};
+
 function emptyReportPullsBySlice(): WarcraftLogsReportPullsBySlice {
   return {};
+}
+
+function emptySourceCoverage(overrides: Partial<WarcraftLogsSourceCoverage> = {}): WarcraftLogsSourceCoverage {
+  return {
+    zoneRankingSlices: 0,
+    encounterRankingSlices: 0,
+    reportsChecked: 0,
+    reportBossFightsChecked: 0,
+    reportPullRows: 0,
+    roleTotals: { healer: 0, dps: 0, tank: 0 },
+    skippedUnknownRole: 0,
+    skippedMissingAmount: 0,
+    durationMs: null,
+    ...overrides,
+  };
+}
+
+function emptyReportPullsResult(overrides: Partial<WarcraftLogsSourceCoverage> = {}): WarcraftLogsReportPullsResult {
+  return { pullsBySlice: emptyReportPullsBySlice(), coverage: emptySourceCoverage(overrides) };
 }
 
 function knownRaidBossIds(metricSummaries: WarcraftLogsMetricSummary[]) {
@@ -1229,7 +1329,7 @@ function reportFightSeeds(report: Record<string, unknown>, knownBosses: Set<numb
     .map((fight) => normalizeReportFightSeed(report, fight, knownBosses))
     .filter((fight): fight is WarcraftLogsReportFightSeed => Boolean(fight))
     .sort((left, right) => right.reportStartMs + right.startOffsetMs - (left.reportStartMs + left.startOffsetMs))
-    .slice(0, RECENT_REPORT_FIGHT_TABLE_LIMIT);
+    .slice(0, warcraftLogsReportFightTableLimit());
 }
 
 function collectTableRows(value: unknown) {
@@ -1517,7 +1617,7 @@ async function fetchRecentRaidBossPulls(input: {
   metricSummaries: WarcraftLogsMetricSummary[];
 }) {
   const knownBosses = knownRaidBossIds(input.metricSummaries);
-  if (!knownBosses.size) return emptyReportPullsBySlice();
+  if (!knownBosses.size) return emptyReportPullsResult();
 
   try {
     const reports = await fetchRecentReportRecords(input);
@@ -1707,6 +1807,7 @@ async function fetchRecentRaidBossPulls(input: {
 
     const result = emptyReportPullsBySlice();
     let producedPulls = 0;
+    let reportBossFightsChecked = 0;
     const roleTotals: Record<WarcraftLogsConcreteRoleKey, number> = { healer: 0, dps: 0, tank: 0 };
     let skippedUnknownRole = 0;
     let skippedMissingAmount = 0;
@@ -1719,6 +1820,7 @@ async function fetchRecentRaidBossPulls(input: {
       roleTotals.tank += item.value.roleCounts.tank || 0;
       skippedUnknownRole += item.value.skippedUnknownRole || 0;
       skippedMissingAmount += item.value.skippedMissingAmount || 0;
+      reportBossFightsChecked += item.value.fightCount || 0;
       roleSamples.push(...item.value.roleSamples.slice(0, Math.max(0, 30 - roleSamples.length)));
 
       for (const entry of item.value.pulls) {
@@ -1735,6 +1837,7 @@ async function fetchRecentRaidBossPulls(input: {
       reportsChecked: reports.length,
       knownBosses: knownBosses.size,
       producedPullRows: producedPulls,
+      reportBossFightsChecked,
       roleTotals,
       skippedUnknownRole,
       skippedMissingAmount,
@@ -1770,7 +1873,18 @@ async function fetchRecentRaidBossPulls(input: {
           }),
     });
 
-    return result;
+    return {
+      pullsBySlice: result,
+      coverage: emptySourceCoverage({
+        reportsChecked: reports.length,
+        reportBossFightsChecked,
+        reportPullRows: producedPulls,
+        roleTotals,
+        skippedUnknownRole,
+        skippedMissingAmount,
+        durationMs: Date.now() - startedAt,
+      }),
+    };
   } catch (error) {
     warcraftLogsDebugAudit(input.credentials, "warcraft_logs.parser.recent_raid_boss_pulls_failed", {
       status: "warning",
@@ -1780,7 +1894,7 @@ async function fetchRecentRaidBossPulls(input: {
       region: input.region,
       error: error instanceof Error ? error.message : String(error || "unknown"),
     });
-    return emptyReportPullsBySlice();
+    return emptyReportPullsResult();
   }
 }
 
@@ -2062,6 +2176,7 @@ function emptySummary(input: {
     encounterRankings: [],
     bossRankings: [],
     metricSummaries: [],
+    sourceCoverage: emptySourceCoverage(),
     updatedAt: input.updatedAt,
     error: input.error ?? null,
   };
@@ -2101,6 +2216,11 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       updatedAt,
     });
   }
+
+  const cacheTtlMs = warcraftLogsCharacterCacheTtlMs();
+  const cacheKey = `${credentialCacheKey(credentials)}:${region}:${realmSlug}:${name}`;
+  const cached = cacheTtlMs > 0 ? characterSummaryCache.get(cacheKey) : null;
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
 
   try {
     const token = await getWarcraftLogsToken(credentials);
@@ -2165,7 +2285,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       region,
       metricSummaries: initialMetricSummaries,
     });
-    const reportPulls = await fetchRecentRaidBossPulls({
+    const reportPullsResult = await fetchRecentRaidBossPulls({
       credentials,
       token,
       name: input.name,
@@ -2176,7 +2296,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
     const metricSummaries = normalizeAllMetricSummaries(
       character,
       encounterHistory,
-      reportPulls,
+      reportPullsResult.pullsBySlice,
       credentials.baseUrl,
     );
     const primary = primarySummary(metricSummaries);
@@ -2209,7 +2329,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       })),
     });
 
-    return {
+    const readySummary: WarcraftLogsCharacterSummary = {
       status: "ready",
       profileUrl,
       characterId: integerOrNull(character.id),
@@ -2222,9 +2342,25 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       encounterRankings: primary?.encounterRankings ?? [],
       bossRankings: primary?.bossRankings ?? [],
       metricSummaries,
+      sourceCoverage: emptySourceCoverage({
+        ...reportPullsResult.coverage,
+        zoneRankingSlices: metricSummaries.filter((metric) => metric.encounterRankings.length).length,
+        encounterRankingSlices: Object.values(encounterHistory).reduce((sum, item) => sum + Object.keys(item).length, 0),
+      }),
       updatedAt,
       error: null,
     };
+
+    if (cacheTtlMs > 0) {
+      characterSummaryCache.set(cacheKey, { expiresAt: Date.now() + cacheTtlMs, value: readySummary });
+      if (characterSummaryCache.size > 200) {
+        for (const [key, entry] of characterSummaryCache) {
+          if (entry.expiresAt <= Date.now()) characterSummaryCache.delete(key);
+        }
+      }
+    }
+
+    return readySummary;
   } catch (error) {
     return emptySummary({
       status: "error",

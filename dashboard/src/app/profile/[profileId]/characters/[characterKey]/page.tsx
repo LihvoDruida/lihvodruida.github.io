@@ -4,6 +4,11 @@ import { getSession, type DashboardSession } from "@/lib/auth";
 import { canViewProfile, getProfileById, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import { buildPageMetadata } from "@/lib/seo";
+import {
+  buildCharacterPerformanceEcosystem,
+  type CharacterPerformanceEcosystem,
+  type CharacterPerformanceRoleSummary,
+} from "@/lib/characterPerformance";
 import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import {
@@ -284,6 +289,63 @@ function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary 
   );
 }
 
+
+function ecosystemToneClass(tone: CharacterPerformanceEcosystem["signals"][number]["tone"]) {
+  if (tone === "good") return "profile-performance-signal--good";
+  if (tone === "warn") return "profile-performance-signal--warn";
+  return "profile-performance-signal--neutral";
+}
+
+function PerformanceRoleRow({ role }: { role: CharacterPerformanceRoleSummary }) {
+  return (
+    <div className="profile-performance-role-row">
+      <span><strong>{role.title}</strong><small>{role.bosses} босів • {role.pulls} пулів</small></span>
+      <span><strong>{formatPercent(role.bestAverage)}</strong><small>Best avg</small></span>
+      <span><strong>{formatMetricAmount(role.maxAmount)}</strong><small>Max {role.metric}</small></span>
+      <span><strong>{formatMetricAmount(role.averageAmount)}</strong><small>Avg≤10</small></span>
+      <span><strong>{formatPercent(role.consistencyScore)}</strong><small>Стабільність</small></span>
+    </div>
+  );
+}
+
+function CharacterPerformancePanel({ ecosystem }: { ecosystem: CharacterPerformanceEcosystem }) {
+  return (
+    <article className="panel profile-card profile-character-detail-panel profile-performance-panel">
+      <div className="profile-card-head profile-card-head--inline">
+        <div>
+          <span className="eyebrow">Власна екосистема</span>
+          <h2>Raider.IO × Warcraft Logs</h2>
+          <p>Зведена оцінка персонажа з окремих WCL role-pulls, Mythic+ runs, raid progress і локальних розрахунків середнього HPS/DPS.</p>
+        </div>
+        <span className="profile-count-pill">Довіра {roundNumber(ecosystem.dataConfidence)}%</span>
+      </div>
+
+      <div className="profile-performance-signals">
+        {ecosystem.signals.map((item) => (
+          <div key={item.key} className={`profile-performance-signal ${ecosystemToneClass(item.tone)}`}>
+            <small>{item.label}</small>
+            <strong>{item.value}</strong>
+            <span>{item.hint}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="profile-performance-sample">
+        <strong>Покриття даних</strong>
+        <span>{ecosystem.sampleSummary}</span>
+      </div>
+
+      {ecosystem.roles.length ? (
+        <div className="profile-performance-role-list" aria-label="Рольові підсумки Warcraft Logs">
+          {ecosystem.roles.map((role) => <PerformanceRoleRow key={role.key} role={role} />)}
+        </div>
+      ) : (
+        <EmptyBlock title="Рольові WCL-пули ще не зібрані" text="Коли WCL поверне чисті healer/dps/tank boss-pulls, тут зʼявляться окремі середні HPS/DPS, максимуми та стабільність по кожній ролі." />
+      )}
+    </article>
+  );
+}
+
 function EmptyBlock({ title, text }: { title: string; text: string }) {
   return (
     <div className="profile-empty-characters profile-empty-characters--compact profile-character-detail-empty">
@@ -332,6 +394,11 @@ export default async function CharacterProfilePage({
   const currentScore = snapshot?.currentScore ?? character.raiderIo?.currentScore ?? null;
   const itemLevel = character.itemLevel ?? snapshot?.itemLevelEquipped ?? null;
   const updatedAt = externalSnapshotDate(character, raiderIo, warcraftLogs);
+  const ecosystem = buildCharacterPerformanceEcosystem({
+    rio: raiderIo,
+    wcl: warcraftLogs,
+    itemLevel,
+  });
 
   return (
     <main className="container">
@@ -356,6 +423,7 @@ export default async function CharacterProfilePage({
             <nav className="profile-account-sidebar__nav" aria-label="Розділи статистики">
               <a href={`/profile/${encodeURIComponent(profile.profileId)}`}><span aria-hidden="true">←</span> Профіль</a>
               <a href="#character-overview" aria-current="page"><span aria-hidden="true">✦</span> Огляд</a>
+              <a href="#character-ecosystem"><span aria-hidden="true">✹</span> Екосистема</a>
               <a href="#character-rio"><span aria-hidden="true">◆</span> Raider.IO</a>
               <a href="#character-wcl"><span aria-hidden="true">☄</span> Warcraft Logs</a>
             </nav>
@@ -368,13 +436,21 @@ export default async function CharacterProfilePage({
               <StatCard label="Item level" value={roundNumber(itemLevel)} hint="Battle.net/RIO" />
               <StatCard label="Raider.IO" value={roundNumber(currentScore)} hint="Поточний сезон" />
               <StatCard label="WCL best avg" value={formatPercent(warcraftLogs.bestPerformanceAverage)} hint={warcraftLogs.status === "ready" ? "Warcraft Logs" : "Потребує WCL API"} />
+              <StatCard label="Ефективність" value={roundNumber(ecosystem.overallScore)} hint="Власний індекс" />
               <StatCard label="Оновлено" value={formatStableUkCompactDate(updatedAt)} hint="Зовнішні дані" />
+            </section>
+
+            <section id="character-ecosystem" aria-label="Зведена екосистема персонажа">
+              <CharacterPerformancePanel ecosystem={ecosystem} />
             </section>
 
             <section id="character-rio" className="profile-character-detail-grid" aria-label="Raider.IO статистика">
               <RaiderIoOverview details={raiderIo} stored={character.raiderIo || null} />
               <DungeonRunsPanel title="Найкращі ключі" eyebrow="Raider.IO" runs={raiderIo.bestRuns} emptyText="Raider.IO не повернув список best runs для цього персонажа." />
               <DungeonRunsPanel title="Останні ключі" eyebrow="Raider.IO" runs={raiderIo.recentRuns} emptyText="Raider.IO не повернув recent runs або персонаж давно не ходив ключі." />
+              <DungeonRunsPanel title="Найвищі ключі" eyebrow="Raider.IO" runs={raiderIo.highestRuns} emptyText="Raider.IO не повернув highest level runs." />
+              <DungeonRunsPanel title="Поточний тиждень" eyebrow="Raider.IO" runs={raiderIo.weeklyHighestRuns} emptyText="Немає weekly highest runs за поточний тиждень." />
+              <DungeonRunsPanel title="Минулий тиждень" eyebrow="Raider.IO" runs={raiderIo.previousWeekHighestRuns} emptyText="Немає previous weekly highest runs." />
               <RaidProgressPanel raids={raiderIo.raidProgression} />
             </section>
 

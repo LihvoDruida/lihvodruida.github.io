@@ -33,6 +33,17 @@ export type RaiderIoDungeonRun = {
   url: string | null;
 };
 
+export type RaiderIoDungeonRunStats = {
+  runCount: number;
+  bestLevel: number | null;
+  bestScore: number | null;
+  averageLevel: number | null;
+  averageScore: number | null;
+  timedRunCount: number;
+  timedRate: number | null;
+  lastCompletedAt: string | null;
+};
+
 export type RaiderIoRaidProgress = {
   slug: string;
   name: string;
@@ -48,12 +59,39 @@ export type RaiderIoCharacterDetails = {
   bestRuns: RaiderIoDungeonRun[];
   recentRuns: RaiderIoDungeonRun[];
   highestRuns: RaiderIoDungeonRun[];
+  weeklyHighestRuns: RaiderIoDungeonRun[];
+  previousWeekHighestRuns: RaiderIoDungeonRun[];
+  allBestRuns: RaiderIoDungeonRun[];
   raidProgression: RaiderIoRaidProgress[];
+  bestRunStats: RaiderIoDungeonRunStats;
+  recentRunStats: RaiderIoDungeonRunStats;
+  highestRunStats: RaiderIoDungeonRunStats;
 };
 
 const SCORE_SEGMENTS: RaiderIoScoreSegmentKey[] = ["all", "dps", "healer", "tank"];
 const DEFAULT_FIELDS = "gear,mythic_plus_scores_by_season:current";
-export const RAIDERIO_CHARACTER_DETAIL_FIELDS = "gear,mythic_plus_scores_by_season:current,mythic_plus_best_runs,mythic_plus_recent_runs,mythic_plus_highest_level_runs,raid_progression";
+
+type RaiderIoProfileCacheEntry = {
+  expiresAt: number;
+  value: RaiderIoCharacterProfile | null;
+};
+
+const profileCache = new Map<string, RaiderIoProfileCacheEntry>();
+export const RAIDERIO_CHARACTER_DETAIL_FIELDS = [
+  "gear",
+  "guild",
+  "mythic_plus_scores_by_season:current",
+  "mythic_plus_ranks",
+  "mythic_plus_best_runs",
+  "mythic_plus_recent_runs",
+  "mythic_plus_highest_level_runs",
+  "mythic_plus_weekly_highest_level_runs",
+  "mythic_plus_previous_weekly_highest_level_runs",
+  "mythic_plus_alternate_runs",
+  "raid_progression",
+  "raid_achievement_curve",
+  "raid_achievement_meta",
+].join(",");
 
 function cleanText(value: unknown, maxLength = 500) {
   return String(value || "")
@@ -101,7 +139,9 @@ function raiderIoRetryCount() {
   return readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4);
 }
 
-
+function raiderIoCharacterCacheTtlMs() {
+  return readIntegerEnv("RAIDERIO_CHARACTER_CACHE_TTL_MS", 120_000, 0, 900_000);
+}
 
 function raiderIoAccessKey() {
   return cleanText(process.env.RAIDERIO_ACCESS_KEY, 240);
@@ -178,6 +218,11 @@ export async function fetchRaiderIoCharacterProfile(input: {
 }): Promise<RaiderIoCharacterProfile | null> {
   const url = buildRaiderIoCharacterUrl(input);
   if (!url) return null;
+  const cacheTtlMs = raiderIoCharacterCacheTtlMs();
+  const cacheKey = url.toString();
+  const cached = cacheTtlMs > 0 ? profileCache.get(cacheKey) : null;
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+
   try {
     const payload = await apiFetchJson(url, {
       label: `Raider.IO character ${input.name}`,
@@ -186,7 +231,16 @@ export async function fetchRaiderIoCharacterProfile(input: {
       retryMethods: ["GET", "HEAD"],
       cache: "no-store",
     });
-    return normalizeRaiderIoCharacterPayload(payload);
+    const normalized = normalizeRaiderIoCharacterPayload(payload);
+    if (cacheTtlMs > 0) {
+      profileCache.set(cacheKey, { expiresAt: Date.now() + cacheTtlMs, value: normalized });
+      if (profileCache.size > 200) {
+        for (const [key, entry] of profileCache) {
+          if (entry.expiresAt <= Date.now()) profileCache.delete(key);
+        }
+      }
+    }
+    return normalized;
   } catch {
     return null;
   }
@@ -211,11 +265,38 @@ function normalizeDungeonRun(value: unknown): RaiderIoDungeonRun | null {
   };
 }
 
-function normalizeDungeonRuns(value: unknown, limit = 8) {
+function normalizeDungeonRuns(value: unknown, limit = 12) {
   return arrayFromValue(value)
     .map(normalizeDungeonRun)
     .filter((item): item is RaiderIoDungeonRun => Boolean(item))
     .slice(0, Math.max(0, limit));
+}
+
+function average(values: number[]) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+}
+
+function newestDate(...values: Array<string | null>) {
+  const timestamps = values
+    .map((value) => value ? new Date(value).getTime() : NaN)
+    .filter((value) => Number.isFinite(value));
+  return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
+}
+
+function dungeonRunStats(runs: RaiderIoDungeonRun[]): RaiderIoDungeonRunStats {
+  const levels = runs.map((run) => run.level).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const scores = runs.map((run) => run.score).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const timedRunCount = runs.filter((run) => typeof run.upgrades === "number" && run.upgrades >= 0).length;
+  return {
+    runCount: runs.length,
+    bestLevel: levels.length ? Math.max(...levels) : null,
+    bestScore: scores.length ? Math.max(...scores) : null,
+    averageLevel: average(levels),
+    averageScore: average(scores),
+    timedRunCount,
+    timedRate: runs.length ? (timedRunCount / runs.length) * 100 : null,
+    lastCompletedAt: newestDate(...runs.map((run) => run.completedAt)),
+  };
 }
 
 function normalizeRaidName(slug: string, value: Record<string, unknown>) {
@@ -248,12 +329,25 @@ function normalizeRaidProgression(value: unknown): RaiderIoRaidProgress[] {
 
 export function buildRaiderIoCharacterDetails(profile: RaiderIoCharacterProfile | RaiderIoCharacterSnapshot | null | undefined): RaiderIoCharacterDetails {
   const raw = asRecord((profile as RaiderIoCharacterProfile | null | undefined)?.raw);
+  const bestRuns = normalizeDungeonRuns(raw?.mythic_plus_best_runs, 12);
+  const recentRuns = normalizeDungeonRuns(raw?.mythic_plus_recent_runs, 12);
+  const highestRuns = normalizeDungeonRuns(raw?.mythic_plus_highest_level_runs, 12);
+  const weeklyHighestRuns = normalizeDungeonRuns(raw?.mythic_plus_weekly_highest_level_runs, 10);
+  const previousWeekHighestRuns = normalizeDungeonRuns(raw?.mythic_plus_previous_weekly_highest_level_runs, 10);
+  const allBestRuns = normalizeDungeonRuns(raw?.mythic_plus_alternate_runs, 16);
+
   return {
     snapshot: stripRaiderIoRaw(profile),
-    bestRuns: normalizeDungeonRuns(raw?.mythic_plus_best_runs, 8),
-    recentRuns: normalizeDungeonRuns(raw?.mythic_plus_recent_runs, 8),
-    highestRuns: normalizeDungeonRuns(raw?.mythic_plus_highest_level_runs, 8),
+    bestRuns,
+    recentRuns,
+    highestRuns,
+    weeklyHighestRuns,
+    previousWeekHighestRuns,
+    allBestRuns,
     raidProgression: normalizeRaidProgression(raw?.raid_progression),
+    bestRunStats: dungeonRunStats(bestRuns),
+    recentRunStats: dungeonRunStats(recentRuns),
+    highestRunStats: dungeonRunStats(highestRuns),
   };
 }
 
