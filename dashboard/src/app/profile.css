@@ -2444,3 +2444,76 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* WCL unified boss graph: all raid boss pulls stay visible, selected boss is highlighted. */
+.profile-wcl-graph__caption {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  gap: 1px;
+  max-width: min(260px, 52%);
+  text-align: right;
+  pointer-events: none;
+}
+
+.profile-wcl-graph__caption strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-text);
+  font-size: 0.74rem;
+  font-weight: 950;
+  line-height: 1.08;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-graph__caption span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--profile-muted-soft);
+  font-size: 0.58rem;
+  font-weight: 850;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-wcl-point--muted {
+  fill: rgba(190, 196, 202, 0.34);
+  stroke: rgba(255, 255, 255, 0.34);
+  opacity: 0.42;
+  filter: none;
+}
+
+.profile-wcl-point--active {
+  fill: var(--profile-green);
+  stroke: rgba(255, 255, 255, 0.92);
+  opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(91, 198, 131, 0.44));
+}
+
+.profile-wcl-graph__xaxis {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  left: 30px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  color: var(--profile-muted-soft);
+  font-size: 0.56rem;
+  font-weight: 850;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .profile-wcl-graph__caption {
+    max-width: 64%;
+  }
+
+  .profile-wcl-graph__caption span {
+    display: none;
+  }
+}

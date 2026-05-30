@@ -468,7 +468,7 @@ function normalizeNameKey(value: unknown) {
     .replace(/[^a-z0-9а-яіїєґё]+/gi, "");
 }
 
-function isRaidBossEncounterId(value: number | null | undefined) {
+function isRaidBossEncounterId(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
@@ -908,7 +908,8 @@ function knownRaidBossIds(metricSummaries: WarcraftLogsMetricSummary[]) {
   const ids = new Set<number>();
   for (const summary of metricSummaries) {
     for (const ranking of summary.encounterRankings) {
-      if (isRaidBossEncounterId(ranking.encounterId)) ids.add(ranking.encounterId);
+      const encounterId = ranking.encounterId;
+      if (isRaidBossEncounterId(encounterId)) ids.add(encounterId);
     }
   }
   return ids;
@@ -1429,7 +1430,9 @@ function bossHistoryQuery(metricSummaries: WarcraftLogsMetricSummary[]) {
     const config = WCL_SLICES.find((slice) => slice.key === summary.key);
     if (!config) return [];
     return summary.encounterRankings
-      .filter((ranking) => ranking.encounterId !== null)
+      .filter((ranking): ranking is WarcraftLogsEncounterRanking & { encounterId: number } =>
+        isRaidBossEncounterId(ranking.encounterId),
+      )
       .slice(0, ENCOUNTER_HISTORY_BOSS_LIMIT)
       .map((ranking) => ({ config, ranking }));
   });
@@ -1439,7 +1442,7 @@ function bossHistoryQuery(metricSummaries: WarcraftLogsMetricSummary[]) {
   const fields = jobs
     .map(
       ({ config, ranking }, index) =>
-        `    h${index}: encounterRankings(${encounterRankingArgs(config, ranking.encounterId ?? 0)})`,
+        `    h${index}: encounterRankings(${encounterRankingArgs(config, ranking.encounterId)})`,
     )
     .join("\n");
 
