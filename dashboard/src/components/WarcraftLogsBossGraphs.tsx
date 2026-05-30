@@ -118,16 +118,19 @@ function toCombinedGraphPoints(
   activeSlice: WarcraftLogsMetricSummary | null,
 ): GraphData {
   const activeBossKey = activeBoss ? bossKey(activeBoss) : null;
+  const primaryDifficulty = activeSlice?.primaryDifficulty ?? null;
   const source = bosses.flatMap((boss) => {
     const key = bossKey(boss);
-    return boss.pulls.map((pull) => ({
-      boss,
-      pull,
-      percent: clampPercent(pull.percentile),
-      amount: typeof pull.amount === "number" && Number.isFinite(pull.amount) ? pull.amount : null,
-      sortTime: pullDate(pull),
-      key,
-    }));
+    return boss.pulls
+      .filter((pull) => primaryDifficulty === null || pull.difficulty === primaryDifficulty)
+      .map((pull) => ({
+        boss,
+        pull,
+        percent: clampPercent(pull.percentile),
+        amount: typeof pull.amount === "number" && Number.isFinite(pull.amount) && pull.amount > 0 ? pull.amount : null,
+        sortTime: pullDate(pull),
+        key,
+      }));
   });
 
   const hasPercentiles = source.some((item) => item.percent !== null);
@@ -213,10 +216,9 @@ function metricLabel(summary: Pick<WarcraftLogsMetricSummary, "metricLabel"> | n
 function sliceHasUsefulData(summary: WarcraftLogsMetricSummary) {
   if (summary.role === "overall") return false;
   return Boolean(
-    summary.encounterRankings.length ||
-      summary.bossRankings.some((boss) => boss.pulls.length) ||
-      summary.bestPerformanceAverage !== null ||
-      summary.recentStats.pullCount,
+    summary.recentStats.sampleSize > 0 ||
+      summary.recentStats.averagePercentile !== null ||
+      summary.bossRankings.some((boss) => boss.recentStats.sampleSize > 0 || boss.bestPercentile !== null),
   );
 }
 
@@ -345,7 +347,10 @@ function PullRow({ pull, index, activeSlice }: { pull: WarcraftLogsBossPull; ind
 }
 
 function availableBosses(activeSlice: WarcraftLogsMetricSummary | null) {
-  return (activeSlice?.bossRankings || []).filter((boss) => boss.encounterName && (boss.pulls.length || boss.bestPercentile !== null));
+  return (activeSlice?.bossRankings || []).filter((boss) =>
+    boss.encounterName &&
+    (boss.recentStats.sampleSize > 0 || boss.bestPercentile !== null || boss.recentStats.averagePercentile !== null),
+  );
 }
 
 function BossButton({ boss, active, onClick, label }: { boss: WarcraftLogsBossSummary; active: boolean; onClick: () => void; label: string }) {
@@ -358,7 +363,7 @@ function BossButton({ boss, active, onClick, label }: { boss: WarcraftLogsBossSu
       onClick={onClick}
     >
       <strong>{boss.encounterName}</strong>
-      <span>{formatPercent(boss.bestPercentile)} • середнє {formatAmount(boss.recentStats.averageAmount)} {label}</span>
+      <span>{boss.primaryDifficultyLabel || difficultyLabel(boss.difficulty)} • {formatPercent(boss.bestPercentile)} • середнє {formatAmount(boss.recentStats.averageAmount)} {label}</span>
     </button>
   );
 }
@@ -367,7 +372,7 @@ function GraphSidePanel({ activeBoss, activeSlice }: { activeBoss: WarcraftLogsB
   const killCount = activeBoss.pulls.filter((pull) => pull.killedWith === "Kill").length;
   return (
     <aside className="profile-wcl-graph-side" aria-label="Підсумок вибраного боса">
-      <span className="profile-wcl-graph-side__difficulty">{difficultyLabel(activeBoss.difficulty)}</span>
+      <span className="profile-wcl-graph-side__difficulty">{activeBoss.primaryDifficultyLabel || difficultyLabel(activeBoss.difficulty)}</span>
       <strong>{formatPercent(activeBoss.recentStats.averagePercentile ?? activeBoss.medianPercentile ?? activeBoss.bestPercentile)}</strong>
       <small>Медіана / середній parse</small>
       <dl>
@@ -412,7 +417,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
         <div>
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Чисті пули по рейдових босах</h3>
-          <p>Треш і ключі не враховуються. ДД, хіл і танк рахуються окремо. Середнє, медіана й максимум беруться з останніх 10 доступних пулів.</p>
+          <p>Треш і ключі не враховуються. Ролі не змішуються. Основні цифри рахуються з найвищої доступної складності, інші складності лишаються для довідки.</p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
       </div>
@@ -431,20 +436,32 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
             }}
           >
             <strong>{slice.title}</strong>
-            <span>{formatPercent(slice.bestPerformanceAverage)} • середнє≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.pullCount} пулів</span>
+            <span>{slice.primaryDifficultyLabel || "рейд"} • {formatPercent(slice.bestPerformanceAverage)} • середнє≤10 {formatAmount(slice.recentStats.averageAmount)} • {slice.recentStats.sampleSize} записів</span>
           </button>
         ))}
       </div>
 
       <div className="profile-wcl-metric-grid" aria-label={`Підсумок ${activeSlice.title}`}>
+        <MetricStat label="Основна складність" value={activeSlice.primaryDifficultyLabel || "—"} hint="для головних розрахунків" />
         <MetricStat label="Найкращий середній parse" value={formatPercent(activeSlice.bestPerformanceAverage)} hint={activeSlice.roleLabel} />
         <MetricStat label="Медіана parse" value={formatPercent(activeSlice.medianPerformanceAverage)} hint={activeSlice.metricLabel} />
         <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.maxAmount)} hint="останні 10" />
         <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.averageAmount)} hint="останні 10" />
         <MetricStat label={`Медіана ${activeSlice.metricLabel}`} value={formatAmount(activeSlice.recentStats.medianAmount)} hint="власний розрахунок" />
         <MetricStat label="Стабільність" value={formatPercent(activeSlice.recentStats.consistencyScore)} hint="розкид" />
-        <MetricStat label="Пули" value={formatStableNumber(activeSlice.recentStats.pullCount, 0)} hint={activeSlice.sourceLabel} />
+        <MetricStat label="Записи" value={formatStableNumber(activeSlice.recentStats.sampleSize, 0)} hint={activeSlice.sourceLabel} />
       </div>
+
+      {activeSlice.difficultySummaries.length > 1 ? (
+        <div className="profile-wcl-difficulty-strip" aria-label="Дані по складностях">
+          {activeSlice.difficultySummaries.map((difficulty) => (
+            <span key={`${activeSlice.key}-${difficulty.difficulty ?? "unknown"}`} className={difficulty.difficulty === activeSlice.primaryDifficulty ? "is-primary" : ""}>
+              <strong>{difficulty.difficultyLabel}</strong>
+              <small>{formatAmount(difficulty.recentStats.averageAmount)} {activeSlice.metricLabel} • {difficulty.recentStats.sampleSize} записів</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {bosses.length ? (
         <>
@@ -466,6 +483,7 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
           {activeBoss ? (
             <div className="profile-wcl-boss-panel" role="tabpanel">
               <div className="profile-wcl-boss-summary">
+                <MetricStat label="Складність" value={activeBoss.primaryDifficultyLabel || "—"} />
                 <MetricStat label="Найкращий parse" value={formatPercent(activeBoss.bestPercentile)} />
                 <MetricStat label={`Макс. ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.maxAmount ?? activeBoss.bestAmount)} />
                 <MetricStat label={`Середній ${activeSlice.metricLabel}`} value={formatAmount(activeBoss.recentStats.averageAmount)} hint="останні 10" />
@@ -487,9 +505,11 @@ export default function WarcraftLogsBossGraphs({ summary }: { summary: WarcraftL
               )}
 
               <div className="profile-wcl-pulls" aria-label="Доступні рейдові пули по босу">
-                {activeBoss.pulls.map((pull, index) => (
-                  <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.startTime || index}-${pull.percentile}`} pull={pull} index={index} activeSlice={activeSlice} />
-                ))}
+                {activeBoss.pulls
+                  .filter((pull) => activeBoss.primaryDifficulty === null || pull.difficulty === activeBoss.primaryDifficulty)
+                  .map((pull, index) => (
+                    <PullRow key={`${pull.reportCode || activeBoss.encounterName}-${pull.reportFightId ?? pull.startTime ?? index}-${pull.amount ?? pull.percentile ?? index}`} pull={pull} index={index} activeSlice={activeSlice} />
+                  ))}
               </div>
             </div>
           ) : null}

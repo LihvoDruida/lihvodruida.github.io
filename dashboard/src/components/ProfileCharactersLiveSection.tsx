@@ -5,6 +5,7 @@ import { DASHBOARD_BACKGROUND_REFRESH_MIN_MS, useDashboardApiResource } from "@/
 import { dateMillis, formatStableUkCompactDate, stableTextCompare } from "@/lib/stableUiText";
 import type { DashboardProfile, ProfileCharacter } from "@/lib/profiles";
 import { wowRoleLabel } from "@/lib/wowRoles";
+import { buildCharacterProfileSlug } from "@/lib/wowCharacters";
 
 const DEFAULT_REFRESH_MIN_MS = DASHBOARD_BACKGROUND_REFRESH_MIN_MS;
 
@@ -151,7 +152,7 @@ function CharacterCard({ character, profileId, canManage, showMainBadge, returnT
         </div>
 
         <div className="profile-character-actions">
-          <a className="btn btn-ghost btn-sm" href={`/profile/${encodeURIComponent(profileId)}/characters/${encodeURIComponent(character.key)}`}>Статистика</a>
+          <a className="btn btn-ghost btn-sm" href={`/profile/${encodeURIComponent(profileId)}/characters/${encodeURIComponent(buildCharacterProfileSlug(character) || character.key)}`}>Статистика</a>
           {rioUrl ? <a className="btn btn-ghost btn-sm" href={rioUrl} target="_blank" rel="noreferrer">Raider.IO</a> : null}
           {canManage && !character.isMain ? (
             <form action="/api/profile/characters/main" method="post">

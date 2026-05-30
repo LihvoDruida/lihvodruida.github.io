@@ -23,6 +23,7 @@ export type CharacterPerformanceRoleSummary = {
   metric: string;
   bosses: number;
   pulls: number;
+  primaryDifficultyLabel: string | null;
   bestAverage: number | null;
   medianAverage: number | null;
   maxAmount: number | null;
@@ -94,8 +95,8 @@ function normalizedRaidScore(summary: WarcraftLogsMetricSummary) {
 function usefulMetric(summary: WarcraftLogsMetricSummary) {
   if (summary.role === "overall") return false;
   return Boolean(
-    summary.bossRankings.length ||
-      summary.recentStats.pullCount ||
+    summary.recentStats.sampleSize > 0 ||
+      summary.recentStats.averagePercentile !== null ||
       summary.bestPerformanceAverage !== null ||
       summary.medianPerformanceAverage !== null,
   );
@@ -150,7 +151,7 @@ export function buildCharacterPerformanceEcosystem(input: {
       "raid",
       "Raid/WCL",
       formatScore(raidScore),
-      raidSlice ? `${raidSlice.title}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, avg≤10 ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих рейдових пулів.",
+      raidSlice ? `${raidSlice.title} ${raidSlice.primaryDifficultyLabel || ""}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, avg≤10 ${formatPercent(raidSlice.recentStats.averagePercentile)}` : "Недостатньо чистих рейдових пулів.",
       raidScore !== null && raidScore >= 70 ? "good" : raidScore !== null && raidScore < 45 ? "warn" : "neutral",
     ),
     signal(
@@ -177,7 +178,8 @@ export function buildCharacterPerformanceEcosystem(input: {
       role: summary.role,
       metric: summary.metricLabel,
       bosses: summary.bossRankings.length,
-      pulls: summary.recentStats.pullCount,
+      pulls: summary.recentStats.sampleSize,
+      primaryDifficultyLabel: summary.primaryDifficultyLabel,
       bestAverage: summary.bestPerformanceAverage,
       medianAverage: summary.medianPerformanceAverage,
       maxAmount: summary.recentStats.maxAmount,

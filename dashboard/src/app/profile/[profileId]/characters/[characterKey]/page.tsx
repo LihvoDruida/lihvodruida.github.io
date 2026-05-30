@@ -8,7 +8,7 @@ import {
   type CharacterPerformanceEcosystem,
   type CharacterPerformanceRoleSummary,
 } from "@/lib/characterPerformance";
-import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
+import { buildCharacterProfileSlug, isCharacterProfileRouteMatch, normalizeCharacterProfileSlug, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import { wowRoleLabel } from "@/lib/wowRoles";
 import {
   buildRaiderIoCharacterDetails,
@@ -298,7 +298,7 @@ function ecosystemToneClass(tone: CharacterPerformanceEcosystem["signals"][numbe
 function PerformanceRoleRow({ role }: { role: CharacterPerformanceRoleSummary }) {
   return (
     <div className="profile-performance-role-row">
-      <span><strong>{role.title}</strong><small>{role.bosses} босів • {role.pulls} пулів</small></span>
+      <span><strong>{role.title}</strong><small>{role.primaryDifficultyLabel || "рейд"} • {role.bosses} босів • {role.pulls} записів</small></span>
       <span><strong>{formatPercent(role.bestAverage)}</strong><small>Кращий середній</small></span>
       <span><strong>{formatMetricAmount(role.maxAmount)}</strong><small>Макс. {role.metric}</small></span>
       <span><strong>{formatMetricAmount(role.averageAmount)}</strong><small>Середнє≤10</small></span>
@@ -369,9 +369,14 @@ export default async function CharacterProfilePage({
   const profile = await getProfileById(profileId);
   if (!profile || !canViewProfile(session, profileId, profile)) notFound();
 
-  const normalizedCharacterKey = normalizeCharacterKey(safeDecodePathSegment(characterKey));
-  const character = profile.characters.find((item) => normalizeCharacterKey(item.key) === normalizedCharacterKey);
+  const decodedCharacterSegment = safeDecodePathSegment(characterKey);
+  const character = profile.characters.find((item) => isCharacterProfileRouteMatch(item, decodedCharacterSegment));
   if (!character) notFound();
+
+  const canonicalCharacterSlug = buildCharacterProfileSlug(character);
+  if (canonicalCharacterSlug && normalizeCharacterProfileSlug(decodedCharacterSegment) !== normalizeCharacterProfileSlug(canonicalCharacterSlug)) {
+    redirect(`/profile/${encodeURIComponent(profileId)}/characters/${encodeURIComponent(canonicalCharacterSlug)}`);
+  }
 
   const [freshRaiderIo, warcraftLogs] = await Promise.all([
     fetchRaiderIoCharacterProfile({

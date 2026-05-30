@@ -50,6 +50,14 @@ export type WarcraftLogsRecentStats = {
   lastPullAt: string | null;
 };
 
+export type WarcraftLogsDifficultySummary = {
+  difficulty: number | null;
+  difficultyLabel: string;
+  bosses: number;
+  pulls: number;
+  recentStats: WarcraftLogsRecentStats;
+};
+
 export type WarcraftLogsSourceCoverage = {
   zoneRankingSlices: number;
   encounterRankingSlices: number;
@@ -108,6 +116,9 @@ export type WarcraftLogsEncounterRanking = {
 export type WarcraftLogsBossSummary = WarcraftLogsEncounterRanking & {
   bestPercentile: number | null;
   todayPercentile: number | null;
+  primaryDifficulty: number | null;
+  primaryDifficultyLabel: string | null;
+  difficultySummaries: WarcraftLogsDifficultySummary[];
   recentStats: WarcraftLogsRecentStats;
   pulls: WarcraftLogsBossPull[];
 };
@@ -125,6 +136,9 @@ export type WarcraftLogsMetricSummary = {
   medianPerformanceAverage: number | null;
   allStarsPoints: number | null;
   allStarsRank: number | null;
+  primaryDifficulty: number | null;
+  primaryDifficultyLabel: string | null;
+  difficultySummaries: WarcraftLogsDifficultySummary[];
   recentStats: WarcraftLogsRecentStats;
   encounterRankings: WarcraftLogsEncounterRanking[];
   bossRankings: WarcraftLogsBossSummary[];
@@ -732,6 +746,122 @@ function isEligibleRaidBossPull(pull: WarcraftLogsBossPull, encounterId?: number
   return isRaidBossEncounterId(id);
 }
 
+function difficultyRank(value: number | null | undefined) {
+  if (value === 5) return 50;
+  if (value === 4) return 40;
+  if (value === 3) return 30;
+  if (value === 2) return 20;
+  if (value === 1) return 10;
+  return 0;
+}
+
+function difficultyLabel(value: number | null | undefined) {
+  if (value === 5) return "Міфік";
+  if (value === 4) return "Героїк";
+  if (value === 3) return "Нормал";
+  if (value === 2) return "LFR";
+  return "Без складності";
+}
+
+function pickHighestDifficulty(pulls: WarcraftLogsBossPull[]) {
+  let selected: number | null = null;
+  for (const pull of pulls) {
+    if (pull.difficulty === null || pull.difficulty === undefined) continue;
+    if (selected === null || difficultyRank(pull.difficulty) > difficultyRank(selected)) {
+      selected = pull.difficulty;
+    }
+  }
+  return selected;
+}
+
+function pullsForPrimaryDifficulty(pulls: WarcraftLogsBossPull[], primaryDifficulty: number | null) {
+  if (primaryDifficulty === null) return pulls;
+  return pulls.filter((pull) => pull.difficulty === primaryDifficulty);
+}
+
+function pullTimeMs(pull: WarcraftLogsBossPull) {
+  if (!pull.startTime) return 0;
+  const time = new Date(pull.startTime).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function pullDayKey(pull: WarcraftLogsBossPull) {
+  const time = pullTimeMs(pull);
+  if (!time) return "no-date";
+  return new Date(time).toISOString().slice(0, 10);
+}
+
+function roundedMetricAmount(value: number | null | undefined) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.round(value * 10) / 10 : "none";
+}
+
+function roundedDurationSeconds(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "none";
+  return Math.round((value > 10_000 ? value : value * 1000) / 1000);
+}
+
+function normalizedKillState(value: unknown) {
+  const normalized = normalizeRoleText(value);
+  if (normalized.includes("kill")) return "kill";
+  if (normalized.includes("wipe")) return "wipe";
+  return normalized || "unknown";
+}
+
+function pullDuplicateSignature(pull: WarcraftLogsBossPull) {
+  return [
+    pull.encounterId ?? normalizeNameKey(pull.encounterName),
+    pull.role || "role",
+    pull.metric || "metric",
+    pull.difficulty ?? "difficulty",
+    pullDayKey(pull),
+    roundedDurationSeconds(pull.durationMs),
+    roundedMetricAmount(pull.amount),
+    normalizedKillState(pull.killedWith),
+  ].join("|");
+}
+
+function pullCompletenessScore(pull: WarcraftLogsBossPull) {
+  const values: unknown[] = [
+    pull.percentile,
+    pull.historicalPercentile,
+    pull.todayPercentile,
+    pull.rank,
+    pull.amount,
+    pull.durationMs,
+    pull.itemLevel,
+    pull.totalParses,
+    pull.reportCode,
+    pull.reportFightId,
+    pull.startTime,
+    pull.killedWith,
+  ];
+  return values.reduce<number>(
+    (score, value) => score + (value !== null && value !== undefined && value !== "" ? 1 : 0),
+    pull.source === "report" ? 3 : 0,
+  );
+}
+
+function preferNewerDuplicate(left: WarcraftLogsBossPull, right: WarcraftLogsBossPull) {
+  const leftTime = pullTimeMs(left);
+  const rightTime = pullTimeMs(right);
+  if (rightTime !== leftTime) {
+    return rightTime > leftTime ? mergePullData(right, left) : mergePullData(left, right);
+  }
+  return pullCompletenessScore(right) > pullCompletenessScore(left)
+    ? mergePullData(right, left)
+    : mergePullData(left, right);
+}
+
+function dedupeEquivalentPulls(pulls: WarcraftLogsBossPull[]) {
+  const merged = new Map<string, WarcraftLogsBossPull>();
+  for (const pull of pulls) {
+    const signature = pullDuplicateSignature(pull);
+    const existing = merged.get(signature);
+    merged.set(signature, existing ? preferNewerDuplicate(existing, pull) : pull);
+  }
+  return [...merged.values()];
+}
+
 function preferNumber(primary: number | null, fallback: number | null) {
   return typeof primary === "number" && Number.isFinite(primary) ? primary : fallback;
 }
@@ -852,7 +982,12 @@ function normalizePull(
     "historicalPercentile",
     "todayPercentile",
   ]);
-  const amount = firstNumber(record, amountKeysForMetric(options.metric));
+  const rawAmount = firstNumber(record, amountKeysForMetric(options.metric));
+  const amount = options.metric === "points"
+    ? rawAmount
+    : rawAmount !== null && rawAmount > 0
+      ? rawAmount
+      : null;
   const durationMs = durationMsFromRecord(record);
   const { reportCode, reportFightId, startTime } = reportInfoFromRecord(record);
   const hasPullSignal =
@@ -1071,7 +1206,10 @@ function enrichReportPullsWithRankings(
   return mergePullList(
     reportPulls.map((reportPull) => {
       const rankingPull = encounterPulls.find((candidate) =>
-        sameLoggedFight(reportPull, candidate) &&
+        (
+          sameLoggedFight(reportPull, candidate) ||
+          pullDuplicateSignature(reportPull) === pullDuplicateSignature(candidate)
+        ) &&
         (candidate.metric || null) === (reportPull.metric || null) &&
         (candidate.role || null) === (reportPull.role || null),
       );
@@ -1091,14 +1229,16 @@ function sortPullsByDate(pulls: WarcraftLogsBossPull[]) {
 }
 
 function mergePullList(pulls: WarcraftLogsBossPull[], limit = ENCOUNTER_HISTORY_LIMIT) {
-  const merged = new Map<string, WarcraftLogsBossPull>();
+  const byIdentity = new Map<string, WarcraftLogsBossPull>();
   for (const pull of pulls) {
     if (!isEligibleRaidBossPull(pull)) continue;
     const key = pullIdentity(pull);
-    const existing = merged.get(key);
-    merged.set(key, existing ? mergePullData(existing, pull) : pull);
+    const existing = byIdentity.get(key);
+    byIdentity.set(key, existing ? mergePullData(existing, pull) : pull);
   }
-  return sortPullsByDate([...merged.values()]).slice(0, limit);
+
+  const deduped = dedupeEquivalentPulls([...byIdentity.values()]);
+  return sortPullsByDate(deduped).slice(0, limit);
 }
 
 function collectPulls(
@@ -1178,7 +1318,7 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
   const recent = sorted.slice(0, RECENT_PULL_CALC_LIMIT);
   const amounts = recent
     .map((pull) => pull.amount)
-    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0);
   const percentiles = recent
     .map((pull) => pull.percentile)
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
@@ -1202,6 +1342,42 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
     killCount: recent.filter((pull) => normalizeRoleText(pull.killedWith) === "kill").length,
     wipeCount: recent.filter((pull) => normalizeRoleText(pull.killedWith) === "wipe").length,
     lastPullAt: sorted.find((pull) => pull.startTime)?.startTime ?? null,
+  };
+}
+
+function difficultySummaries(pulls: WarcraftLogsBossPull[]): WarcraftLogsDifficultySummary[] {
+  const grouped = new Map<string, WarcraftLogsBossPull[]>();
+  for (const pull of pulls) {
+    const key = String(pull.difficulty ?? "unknown");
+    const list = grouped.get(key) || [];
+    list.push(pull);
+    grouped.set(key, list);
+  }
+
+  return [...grouped.entries()]
+    .map(([key, group]) => {
+      const difficulty = key === "unknown" ? null : Number(key);
+      const bosses = new Set(group.map((pull) => pull.encounterId ?? pull.encounterName)).size;
+      return {
+        difficulty: Number.isFinite(difficulty) ? difficulty : null,
+        difficultyLabel: difficultyLabel(Number.isFinite(difficulty) ? difficulty : null),
+        bosses,
+        pulls: group.length,
+        recentStats: recentStats(group),
+      };
+    })
+    .sort((left, right) => difficultyRank(right.difficulty) - difficultyRank(left.difficulty));
+}
+
+function primaryDifficultyStats(pulls: WarcraftLogsBossPull[]) {
+  const primaryDifficulty = pickHighestDifficulty(pulls);
+  const primaryPulls = pullsForPrimaryDifficulty(pulls, primaryDifficulty);
+  return {
+    primaryDifficulty,
+    primaryDifficultyLabel: primaryDifficulty !== null ? difficultyLabel(primaryDifficulty) : null,
+    primaryPulls,
+    difficultySummaries: difficultySummaries(pulls),
+    recentStats: recentStats(primaryPulls),
   };
 }
 
@@ -1458,10 +1634,10 @@ function amountFromTableRow(
       : ["totalDamage", "damageTotal", "damage", "effectiveDamage", "total"];
 
   const direct = firstNumber(row, metricKeys);
-  if (direct !== null) return direct;
+  if (direct !== null) return direct > 0 ? direct : null;
 
   const total = firstNumber(row, totalKeys);
-  if (total === null) return null;
+  if (total === null || total <= 0) return null;
 
   const activeTime = firstNumber(row, [
     "activeTime",
@@ -2041,16 +2217,21 @@ function normalizeBossSummaries(
       config,
       baseUrl,
     );
-    const sortedByPercent = [...pulls].sort(
+    const primary = primaryDifficultyStats(pulls);
+    const rankingDifficultyMatches = primary.primaryDifficulty === null || ranking.difficulty === primary.primaryDifficulty;
+    const sortedByPercent = [...primary.primaryPulls].sort(
       (left, right) => (right.percentile ?? -1) - (left.percentile ?? -1),
     );
     const bestPull = sortedByPercent[0] || null;
     return {
       ...ranking,
-      bestPercentile: bestPull?.percentile ?? ranking.percentile,
+      bestPercentile: bestPull?.percentile ?? (rankingDifficultyMatches ? ranking.percentile : null),
       todayPercentile:
-        bestPull?.todayPercentile ?? ranking.rankPercent ?? ranking.percentile,
-      recentStats: recentStats(pulls),
+        bestPull?.todayPercentile ?? (rankingDifficultyMatches ? ranking.rankPercent ?? ranking.percentile : null),
+      primaryDifficulty: primary.primaryDifficulty,
+      primaryDifficultyLabel: primary.primaryDifficultyLabel,
+      difficultySummaries: primary.difficultySummaries,
+      recentStats: primary.recentStats,
       pulls,
     };
   });
@@ -2082,7 +2263,22 @@ function normalizeMetricSummary(
     config,
     baseUrl,
   );
-  const pulls = bossRankings.flatMap((boss) => boss.pulls);
+  const pulls = mergePullList(bossRankings.flatMap((boss) => boss.pulls), Number.MAX_SAFE_INTEGER);
+  const primary = primaryDifficultyStats(pulls);
+  const rootBestAverage = firstNumber(root, [
+    "bestPerformanceAverage",
+    "bestPerfAvg",
+    "bestAverage",
+    "best",
+  ]);
+  const rootMedianAverage = firstNumber(root, [
+    "medianPerformanceAverage",
+    "medianPerfAvg",
+    "medianAverage",
+    "median",
+  ]);
+  const calculatedBestAverage = primary.recentStats.maxPercentile ?? null;
+  const calculatedMedianAverage = primary.recentStats.medianPercentile ?? null;
 
   return {
     key: config.key,
@@ -2093,21 +2289,14 @@ function normalizeMetricSummary(
     title: config.title,
     description: config.description,
     sourceLabel: config.sourceLabel,
-    bestPerformanceAverage: firstNumber(root, [
-      "bestPerformanceAverage",
-      "bestPerfAvg",
-      "bestAverage",
-      "best",
-    ]),
-    medianPerformanceAverage: firstNumber(root, [
-      "medianPerformanceAverage",
-      "medianPerfAvg",
-      "medianAverage",
-      "median",
-    ]),
+    bestPerformanceAverage: primary.primaryDifficulty !== null ? calculatedBestAverage : rootBestAverage,
+    medianPerformanceAverage: primary.primaryDifficulty !== null ? calculatedMedianAverage : rootMedianAverage,
     allStarsPoints: firstNumber(allStars, ["points", "score", "amount", "rank"]),
     allStarsRank: firstInteger(allStars, ["rank", "worldRank", "regionRank"]),
-    recentStats: recentStats(pulls),
+    primaryDifficulty: primary.primaryDifficulty,
+    primaryDifficultyLabel: primary.primaryDifficultyLabel,
+    difficultySummaries: primary.difficultySummaries,
+    recentStats: primary.recentStats,
     encounterRankings: rankings,
     bossRankings,
   };
@@ -2254,11 +2443,15 @@ function normalizeAllMetricSummaries(
   );
 }
 
+function hasCleanMetricData(summary: WarcraftLogsMetricSummary) {
+  return summary.recentStats.sampleSize > 0 || summary.recentStats.averagePercentile !== null;
+}
+
 function primarySummary(metricSummaries: WarcraftLogsMetricSummary[]) {
   return (
-    metricSummaries.find((summary) => summary.key === "healer-hps" && summary.encounterRankings.length) ||
-    metricSummaries.find((summary) => summary.key === "dps-dps" && summary.encounterRankings.length) ||
-    metricSummaries.find((summary) => summary.key === "tank-dps" && summary.encounterRankings.length) ||
+    metricSummaries.find((summary) => summary.key === "healer-hps" && hasCleanMetricData(summary)) ||
+    metricSummaries.find((summary) => summary.key === "dps-dps" && hasCleanMetricData(summary)) ||
+    metricSummaries.find((summary) => summary.key === "tank-dps" && hasCleanMetricData(summary)) ||
     metricSummaries.find((summary) => summary.key === "overall") ||
     metricSummaries[0]
   );
@@ -2422,14 +2615,18 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
         bestAverage: metric.bestPerformanceAverage,
         medianAverage: metric.medianPerformanceAverage,
         bosses: metric.bossRankings.length,
+        primaryDifficulty: metric.primaryDifficultyLabel,
         pulls: metric.recentStats.pullCount,
+        samples: metric.recentStats.sampleSize,
         maxAmount: metric.recentStats.maxAmount,
         avgAmount: metric.recentStats.averageAmount,
         sampleBosses: metric.bossRankings.slice(0, 8).map((boss) => ({
           encounterId: boss.encounterId,
           name: boss.encounterName,
           bestPercentile: boss.bestPercentile,
+          primaryDifficulty: boss.primaryDifficultyLabel,
           pulls: boss.pulls.length,
+          samples: boss.recentStats.sampleSize,
           maxAmount: boss.recentStats.maxAmount,
           avgAmount: boss.recentStats.averageAmount,
         })),
