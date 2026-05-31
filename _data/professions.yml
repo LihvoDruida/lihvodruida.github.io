@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 10:18:27'
+  updated_at: '2026-05-31 13:47:29'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6101,7 +6101,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Базрог
   professions:
     primaries:
     - name: Blacksmithing

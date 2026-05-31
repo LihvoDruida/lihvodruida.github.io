@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 10:18:27'
+  updated_at: '2026-05-31 13:47:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13660
-      region: 5975
+      world: 13665
+      region: 5977
       realm: 49
     mythic:
-      world: 7070
+      world: 7073
       region: 3061
       realm: 22
   blackrock-depths:
@@ -193,11 +193,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3342.9
-        color: '#9643ec'
+        score: 3371.8
+        color: '#9d3ded'
       dps:
-        score: 3342.9
-        color: '#9643ec'
+        score: 3371.8
+        color: '#9d3ded'
       healer:
         score: 0
         color: '#ffffff'
@@ -211,8 +211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3342.9
-        color: '#9643ec'
+        score: 3371.8
+        color: '#9d3ded'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -242,14 +242,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3643.2
-        color: '#cf49b3'
+        score: 3691.4
+        color: '#d54ea8'
       dps:
-        score: 3643.2
-        color: '#cf49b3'
+        score: 3691.4
+        color: '#d54ea8'
       healer:
         score: 0
         color: '#ffffff'
@@ -263,8 +263,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3643.2
-        color: '#cf49b3'
+        score: 3691.4
+        color: '#d54ea8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3542,8 +3542,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 288
@@ -5882,11 +5882,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3119.3
@@ -6394,23 +6394,47 @@ members:
       slug: gordunni
     playable_class:
       id: 6
-      name: null
+      name: Death Knight
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Blood
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Базрог
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2647.6
+        color: '#5fc086'
+      dps:
+        score: 242
+        color: '#fdfffd'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2647.6
+        color: '#5fc086'
+      spec_0:
+        score: 2647.6
+        color: '#5fc086'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 242
+        color: '#fdfffd'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -8018,8 +8042,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Vengeance
-      role: TANK
+      name: Devourer
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
     item_level_equipped: 280
