@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 07:51:01'
+  updated_at: '2026-05-31 10:18:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13657
-      region: 5974
+      world: 13660
+      region: 5975
       realm: 49
     mythic:
-      world: 7069
+      world: 7070
       region: 3061
       realm: 22
   blackrock-depths:
@@ -242,14 +242,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3626.5
-        color: '#cc47b9'
+        score: 3643.2
+        color: '#cf49b3'
       dps:
-        score: 3626.5
-        color: '#cc47b9'
+        score: 3643.2
+        color: '#cf49b3'
       healer:
         score: 0
         color: '#ffffff'
@@ -263,8 +263,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3626.5
-        color: '#cc47b9'
+        score: 3643.2
+        color: '#cf49b3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1129,11 +1129,11 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 340
-        color: '#f7fff3'
+        score: 600
+        color: '#e5ffda'
       dps:
-        score: 340
-        color: '#f7fff3'
+        score: 600
+        color: '#e5ffda'
       healer:
         score: 0
         color: '#ffffff'
@@ -1141,8 +1141,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 340
-        color: '#f7fff3'
+        score: 600
+        color: '#e5ffda'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1260,6 +1260,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Regin
+    id: 184963280
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Regin
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Darthkenobi
@@ -1316,7 +1368,7 @@ members:
   character:
     name: Umbramind
     id: 185040389
-    level: 82
+    level: 83
     realm:
       id: 1415
       slug: terokkar
@@ -1958,11 +2010,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2639.7
-        color: '#5fc086'
+        score: 2767
+        color: '#5da6a3'
       dps:
         score: 0
         color: '#ffffff'
@@ -1970,8 +2022,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2639.7
-        color: '#5fc086'
+        score: 2767
+        color: '#5da6a3'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -1979,8 +2031,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2639.7
-        color: '#5fc086'
+        score: 2767
+        color: '#5da6a3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2050,23 +2102,47 @@ members:
       slug: tarren-mill
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 28
-      name: null
+      name: Highmountain Tauren
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Restoration
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
+    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+    item_level_equipped: 278
+    mythic_plus_scores:
+      all:
+        score: 2944.3
+        color: '#4283c8'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 2944.3
+        color: '#4283c8'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 2944.3
+        color: '#4283c8'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -3389,6 +3465,58 @@ members:
       spec_2:
         score: 2868.7
         color: '#5292b9'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Twigsnapper
+    id: 189015501
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Survival
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
+    item_level_equipped: 257
+    mythic_plus_scores:
+      all:
+        score: 1721
+        color: '#8cff70'
+      dps:
+        score: 1721
+        color: '#8cff70'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1721
+        color: '#8cff70'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5528,6 +5656,58 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Rainsh
+    id: 223943927
+    level: 90
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 8
+      name: Mage
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Frost
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/247/223943927-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/silvermoon/Rainsh
+    item_level_equipped: 262
+    mythic_plus_scores:
+      all:
+        score: 2059.8
+        color: '#62ff47'
+      dps:
+        score: 2059.8
+        color: '#62ff47'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2059.8
+        color: '#62ff47'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
 - rank: 3
   character:
     name: Oxydenis
@@ -6214,47 +6394,23 @@ members:
       slug: gordunni
     playable_class:
       id: 6
-      name: Death Knight
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Blood
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Базрог
-    item_level_equipped: 273
-    mythic_plus_scores:
-      all:
-        score: 2647.6
-        color: '#5fc086'
-      dps:
-        score: 242
-        color: '#fdfffd'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2647.6
-        color: '#5fc086'
-      spec_0:
-        score: 2647.6
-        color: '#5fc086'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 242
-        color: '#fdfffd'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -6590,7 +6746,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3351.3
@@ -7334,23 +7490,47 @@ members:
       slug: gordunni
     playable_class:
       id: 2
-      name: null
+      name: Paladin
     playable_race:
       id: 1
-      name: null
+      name: Human
     faction:
       type: ALLIANCE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Protection
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
+    item_level_equipped: 274
+    mythic_plus_scores:
+      all:
+        score: 2462.3
+        color: '#48ea4b'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2462.3
+        color: '#48ea4b'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 2462.3
+        color: '#48ea4b'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
@@ -8021,162 +8201,6 @@ members:
       spec_2:
         score: 2704.4
         color: '#5fb692'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Regin
-    id: 184963280
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Arms
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Regin
-    item_level_equipped: 273
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Rainsh
-    id: 223943927
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 8
-      name: Mage
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Frost
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/247/223943927-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Rainsh
-    item_level_equipped: 262
-    mythic_plus_scores:
-      all:
-        score: 2059.8
-        color: '#62ff47'
-      dps:
-        score: 2059.8
-        color: '#62ff47'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 2059.8
-        color: '#62ff47'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Twigsnapper
-    id: 189015501
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Survival
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
-    item_level_equipped: 257
-    mythic_plus_scores:
-      all:
-        score: 1721
-        color: '#8cff70'
-      dps:
-        score: 1721
-        color: '#8cff70'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 1721
-        color: '#8cff70'
       spec_3:
         score: 0
         color: '#ffffff'
