@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 03:59:01'
+  updated_at: '2026-05-31 07:51:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -56,11 +56,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13650
+      world: 13657
       region: 5974
       realm: 49
     mythic:
-      world: 7064
+      world: 7069
       region: 3061
       realm: 22
   blackrock-depths:
@@ -1958,10 +1958,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 266
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2637.2
+        score: 2639.7
         color: '#5fc086'
       dps:
         score: 0
@@ -1970,7 +1970,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 2637.2
+        score: 2639.7
         color: '#5fc086'
       spec_0:
         score: 0
@@ -1979,7 +1979,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2637.2
+        score: 2639.7
         color: '#5fc086'
       spec_3:
         score: 0
@@ -2050,47 +2050,23 @@ members:
       slug: tarren-mill
     playable_class:
       id: 11
-      name: Druid
+      name: null
     playable_race:
       id: 28
-      name: Highmountain Tauren
+      name: null
     faction:
       type: HORDE
-    gender: male
+    gender: null
     active_spec:
-      name: Restoration
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
-    profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 278
-    mythic_plus_scores:
-      all:
-        score: 2944.3
-        color: '#4283c8'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 2944.3
-        color: '#4283c8'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 2944.3
-        color: '#4283c8'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
@@ -7358,47 +7334,23 @@ members:
       slug: gordunni
     playable_class:
       id: 2
-      name: Paladin
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Protection
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/41/265710889-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
-    item_level_equipped: 274
-    mythic_plus_scores:
-      all:
-        score: 2462.3
-        color: '#48ea4b'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2462.3
-        color: '#48ea4b'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 2462.3
-        color: '#48ea4b'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:

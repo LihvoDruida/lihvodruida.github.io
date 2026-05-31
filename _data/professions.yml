@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 03:59:01'
+  updated_at: '2026-05-31 07:51:01'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -2153,7 +2153,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -7207,7 +7207,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Мелиодас
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
