@@ -1301,9 +1301,16 @@ function pullDuplicateSignature(pull: WarcraftLogsBossPull) {
     pull.role || "role",
     pull.metric || "metric",
     pull.difficulty ?? "difficulty",
+    pull.reportCode || "no-report",
+    pull.reportFightId ?? "no-fight",
+    pullTimeSecondKey(pull),
     pullDayKey(pull),
     roundedDurationSeconds(pull.durationMs),
     roundedMetricAmount(pull.amount),
+    roundedMetricAmount(pull.totalAmount),
+    pull.percentile !== null && pull.percentile !== undefined
+      ? Math.round(pull.percentile * 100) / 100
+      : "no-percentile",
     normalizedKillState(pull.killedWith),
   ].join("|");
 }
@@ -1914,11 +1921,17 @@ function factualDuplicateKey(pull: WarcraftLogsBossPull) {
     return null;
   return [
     "same-facts",
+    pull.encounterId ?? normalizeNameKey(pull.encounterName),
     pull.role || "role",
     pull.metric || "metric",
+    pull.difficulty ?? "difficulty",
     time,
     duration,
     amount,
+    roundedMetricAmount(pull.totalAmount),
+    pull.percentile !== null && pull.percentile !== undefined
+      ? Math.round(pull.percentile * 100) / 100
+      : "no-percentile",
     state,
   ].join("|");
 }
@@ -1927,13 +1940,29 @@ function pullIdentity(pull: WarcraftLogsBossPull) {
   const reportFightKey = reportFightDuplicateKey(pull);
   if (reportFightKey) return reportFightKey;
 
+  const factualKey = factualDuplicateKey(pull);
+  if (factualKey) return factualKey;
+
+  // WCL ranking JSON often gives only a calendar date for multiple pulls on
+  // the same boss. Do not collapse those rows by date only: different HPS/DPS,
+  // parse, duration or kill/wipe state must remain separate pulls.
   return [
-    pull.reportCode,
-    pull.startTime,
-    pull.encounterId ?? pull.encounterName,
-    pull.durationMs,
+    "loose-pull",
+    pull.reportCode || "no-report",
+    pull.startTime || pullDayKey(pull),
+    pull.encounterId ?? normalizeNameKey(pull.encounterName),
+    pull.difficulty ?? "difficulty",
     pull.role || "role",
     pull.metric || "metric",
+    roundedDurationSeconds(pull.durationMs),
+    roundedMetricAmount(pull.amount),
+    roundedMetricAmount(pull.totalAmount),
+    pull.percentile !== null && pull.percentile !== undefined
+      ? Math.round(pull.percentile * 100) / 100
+      : "no-percentile",
+    normalizedKillState(pull.killedWith),
+    pull.rank ?? "no-rank",
+    pull.source,
   ].join(":");
 }
 
@@ -2088,6 +2117,7 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
     return rightTime - leftTime;
   });
   const recent = sorted.slice(0, RECENT_PULL_CALC_LIMIT);
+  const countedPulls = sorted.filter(isEligibleRaidBossPull);
   const amountPulls = recent.filter(
     (pull) =>
       typeof pull.amount === "number" &&
@@ -2141,13 +2171,19 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
       ? totalAmount / (totalActiveTimeMs / 1000)
       : null;
   const arithmeticAverageAmount = average(amounts);
-  const deathCount = recent.reduce(
+  const deathCount = countedPulls.reduce(
     (sum, pull) => sum + (pull.deathCount || 0),
     0,
   );
+  const killCount = countedPulls.filter(
+    (pull) => normalizedKillState(pull.killedWith) === "kill",
+  ).length;
+  const wipeCount = countedPulls.filter(
+    (pull) => normalizedKillState(pull.killedWith) === "wipe",
+  ).length;
 
   return {
-    pullCount: recent.length,
+    pullCount: countedPulls.length,
     sampleSize: amounts.length,
     maxAmount: amounts.length ? Math.max(...amounts) : null,
     minAmount: amounts.length ? Math.min(...amounts) : null,
@@ -2169,12 +2205,8 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
       : null,
     averageFightPercentage: average(fightPercentages),
     deathCount,
-    killCount: recent.filter(
-      (pull) => normalizedKillState(pull.killedWith) === "kill",
-    ).length,
-    wipeCount: recent.filter(
-      (pull) => normalizedKillState(pull.killedWith) === "wipe",
-    ).length,
+    killCount,
+    wipeCount,
     lastPullAt: sorted.find((pull) => pull.startTime)?.startTime ?? null,
   };
 }
@@ -2861,11 +2893,11 @@ function addReportPull(
   target[config.key] ||= {};
   target[config.key][encounterKey] ||= [];
   const list = target[config.key][encounterKey];
-  const existingIndex = list.findIndex(
-    (item) =>
-      pullIdentity(item) === pullIdentity(pull) ||
-      areDuplicatePulls(item, pull),
-  );
+  const pullKey = pullIdentity(pull);
+  const existingIndex = list.findIndex((item) => {
+    const itemKey = pullIdentity(item);
+    return itemKey === pullKey || areDuplicatePulls(item, pull);
+  });
   if (existingIndex >= 0) {
     list[existingIndex] = preferNewerDuplicate(list[existingIndex], pull);
     return { added: false, merged: true };
@@ -2893,7 +2925,7 @@ function recentReportsQuery(limit: number, enhanced = true) {
           startTime
           endTime${reportExtraFields}
           zone { id name }
-          fights(killType: Encounters) {
+          fights(killType: All) {
             id
             encounterID
             originalEncounterID

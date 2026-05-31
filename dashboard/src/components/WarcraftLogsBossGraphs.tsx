@@ -36,7 +36,8 @@ type GraphTick = {
   label: string;
 };
 
-const PERCENTILE_GUIDES = [99, 95, 75, 50, 25, 10] as const;
+const PERCENTILE_MAX = 99;
+const PERCENTILE_GUIDES = [99, 80, 60, 40, 20, 0] as const;
 const SLICE_ORDER = [
   "healer-hps",
   "dps-dps",
@@ -122,7 +123,8 @@ function xCoord(percent: number) {
 }
 
 function yCoord(percent: number) {
-  return VIEWBOX.top + ((100 - percent) / 100) * PLOT_HEIGHT;
+  const safePercent = Math.max(0, Math.min(PERCENTILE_MAX, percent));
+  return VIEWBOX.top + ((PERCENTILE_MAX - safePercent) / PERCENTILE_MAX) * PLOT_HEIGHT;
 }
 
 function diamondPoints(cx: number, cy: number, radius: number) {
@@ -131,11 +133,7 @@ function diamondPoints(cx: number, cy: number, radius: number) {
 
 function percentileLabel(value: number) {
   if (value === 99) return "99-й перцентиль";
-  if (value === 95) return "95-й перцентиль";
-  if (value === 75) return "75-й перцентиль";
-  if (value === 50) return "50-й перцентиль";
-  if (value === 25) return "25-й перцентиль";
-  if (value === 10) return "10-й перцентиль";
+  if (value === 0) return "0-й перцентиль";
   return `${value}-й перцентиль`;
 }
 
