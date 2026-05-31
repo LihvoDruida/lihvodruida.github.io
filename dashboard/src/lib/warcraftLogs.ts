@@ -239,7 +239,7 @@ type WarcraftLogsSliceConfig = {
   description: string;
   sourceLabel: string;
   graphqlMetric?: "hps" | "dps";
-  graphqlRole?: "healer" | "dps" | "tank";
+  graphqlRole?: "Healer" | "DPS" | "Tank";
 };
 
 const ENCOUNTER_HISTORY_LIMIT = 30;
@@ -277,7 +277,7 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
       "Середній і максимальний HPS тільки з пулів, де персонаж був хілом.",
     sourceLabel: "Чисті хіл-пули",
     graphqlMetric: "hps",
-    graphqlRole: "healer",
+    graphqlRole: "Healer",
   },
   {
     key: "dps-dps",
@@ -291,7 +291,7 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
       "Середній і максимальний DPS тільки з пулів, де персонаж був ДД.",
     sourceLabel: "Чисті ДД-пули",
     graphqlMetric: "dps",
-    graphqlRole: "dps",
+    graphqlRole: "DPS",
   },
   {
     key: "tank-dps",
@@ -304,7 +304,7 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     description: "DPS тільки з пулів, де персонаж був танком.",
     sourceLabel: "Танк-пули / DPS",
     graphqlMetric: "dps",
-    graphqlRole: "tank",
+    graphqlRole: "Tank",
   },
   {
     key: "tank-hps",
@@ -317,7 +317,7 @@ const WCL_SLICES: WarcraftLogsSliceConfig[] = [
     description: "HPS / самопідхіл тільки з танкових пулів.",
     sourceLabel: "Танк-пули / HPS",
     graphqlMetric: "hps",
-    graphqlRole: "tank",
+    graphqlRole: "Tank",
   },
   {
     key: "overall",
@@ -3860,9 +3860,6 @@ function normalizeMetricSummary(
   };
 }
 
-function graphqlStringLiteral(value: string) {
-  return JSON.stringify(value);
-}
 
 function zoneDifficultyAlias(
   config: WarcraftLogsSliceConfig,
@@ -3925,7 +3922,7 @@ function zoneRankingsField(
   }
   if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
   if (options.includeRoleArg && config.graphqlRole) {
-    args.push(`role: ${graphqlStringLiteral(config.graphqlRole)}`);
+    args.push(`role: ${config.graphqlRole}`);
   }
 
   const alias = options.difficulty
@@ -4013,7 +4010,7 @@ function encounterRankingArgs(
   }
   if (config.graphqlMetric) args.push(`metric: ${config.graphqlMetric}`);
   if (options.includeRoleArg && config.graphqlRole) {
-    args.push(`role: ${graphqlStringLiteral(config.graphqlRole)}`);
+    args.push(`role: ${config.graphqlRole}`);
   }
   return args.join(", ");
 }
