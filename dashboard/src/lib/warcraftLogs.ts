@@ -38,6 +38,7 @@ type WarcraftLogsGraphqlResponse = {
 
 export type WarcraftLogsRoleKey = "overall" | "healer" | "dps" | "tank";
 export type WarcraftLogsMetricKey = "points" | "hps" | "dps";
+export type WarcraftLogsSummaryMode = "full" | "roster";
 
 export type WarcraftLogsRecentStats = {
   pullCount: number;
@@ -3143,10 +3144,11 @@ async function fetchReportFightTables(input: {
   }
 
   const attempts: ReportTableAttempt[] = [
+    // Fight IDs are the documented and stable way to query per-pull tables after
+    // report.fights. Time-range fallbacks were removed because they can overlap
+    // neighbouring pulls and create duplicate-looking rows for the same boss.
     { enhanced: true, mode: "fightIDs" },
     { enhanced: false, mode: "fightIDs" },
-    { enhanced: true, mode: "timeRange" },
-    { enhanced: false, mode: "timeRange" },
   ];
   const attemptErrors: Array<{
     enhanced: boolean;
@@ -3684,6 +3686,48 @@ function mergeBossPulls(
   return enrichReportPullsWithRankings(reportPulls, encounterPulls);
 }
 
+
+function rankingCompletenessScore(ranking: WarcraftLogsEncounterRanking): number {
+  const values: unknown[] = [
+    ranking.percentile,
+    ranking.medianPercentile,
+    ranking.rankPercent,
+    ranking.bestAmount,
+    ranking.totalKills,
+    ranking.fastestKillMs,
+    ranking.allStarsPoints,
+    ranking.allStarsRank,
+    ranking.reportCode,
+    ranking.startTime,
+  ];
+  return values.reduce<number>(
+    (score, value) =>
+      score + (value !== null && value !== undefined && value !== "" ? 1 : 0),
+    0,
+  );
+}
+
+function dedupeRankingsByBossDifficulty(rankings: WarcraftLogsEncounterRanking[]) {
+  const byKey = new Map<string, WarcraftLogsEncounterRanking>();
+  for (const ranking of rankings) {
+    const key = [
+      ranking.encounterId ?? normalizeNameKey(ranking.encounterName),
+      ranking.role || "role",
+      ranking.metric || "metric",
+      ranking.difficulty ?? "difficulty",
+    ].join("|");
+    const existing = byKey.get(key);
+    if (!existing || rankingCompletenessScore(ranking) > rankingCompletenessScore(existing)) {
+      byKey.set(key, ranking);
+    }
+  }
+  return [...byKey.values()].sort((left, right) => {
+    const difficultyDelta = difficultyRank(right.difficulty) - difficultyRank(left.difficulty);
+    if (difficultyDelta) return difficultyDelta;
+    return left.encounterName.localeCompare(right.encounterName, "uk");
+  });
+}
+
 function normalizeBossSummaries(
   rankings: WarcraftLogsEncounterRanking[],
   encounterRankingsById: Record<string, unknown>,
@@ -3736,15 +3780,17 @@ function normalizeMetricSummary(
 ): WarcraftLogsMetricSummary {
   const root = parseMaybeJsonObject(value);
   const allStars = asRecord(root?.allStars) || asRecord(root?.allstars);
-  const rankings = collectEncounterRankings(
-    root?.rankings ||
-      root?.encounterRankings ||
-      root?.encounters ||
-      root?.bosses ||
-      root ||
-      [],
-    baseUrl,
-    { role: config.role, metric: config.metric, limit: 32 },
+  const rankings = dedupeRankingsByBossDifficulty(
+    collectEncounterRankings(
+      root?.rankings ||
+        root?.encounterRankings ||
+        root?.encounters ||
+        root?.bosses ||
+        root ||
+        [],
+      baseUrl,
+      { role: config.role, metric: config.metric, limit: 64 },
+    ),
   );
   const bossRankings = normalizeBossSummaries(
     rankings,
@@ -4035,14 +4081,14 @@ async function fetchEncounterHistory(input: {
   };
 
   const attempts: EncounterHistoryAttempt[] = [
+    // Keep the same role+difficulty contract as Warcraft Logs rankings.
+    // Falling back to no-role/no-difficulty mixes specs and is the main source
+    // of duplicate bosses and wrong HPS/DPS attribution.
     {
       includeRoleArg: true,
       includeDifficultyArg: true,
       label: "role+difficulty",
     },
-    { includeRoleArg: false, includeDifficultyArg: true, label: "difficulty" },
-    { includeRoleArg: true, includeDifficultyArg: false, label: "role" },
-    { includeRoleArg: false, includeDifficultyArg: false, label: "basic" },
   ];
 
   async function request(
@@ -4228,12 +4274,14 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
   region: BattleNetRegion | string;
   realmSlug: string;
   name: string;
+  mode?: WarcraftLogsSummaryMode;
 }): Promise<WarcraftLogsCharacterSummary> {
   const region = cleanText(input.region, 12).toLowerCase() || "eu";
   const realmSlug = normalizeBattleNetRealmSlug(input.realmSlug);
   const name =
     normalizeBattleNetNameSlug(input.name) || cleanText(input.name, 80);
   const credentials = await getWarcraftLogsApiCredentials();
+  const summaryMode: WarcraftLogsSummaryMode = input.mode === "roster" ? "roster" : "full";
   const profileUrl = characterUrl({
     region,
     realmSlug,
@@ -4260,7 +4308,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
   }
 
   const cacheTtlMs = warcraftLogsCharacterCacheTtlMs(credentials);
-  const cacheKey = `${credentialCacheKey(credentials)}:${region}:${realmSlug}:${name}`;
+  const cacheKey = `${credentialCacheKey(credentials)}:${summaryMode}:${region}:${realmSlug}:${name}`;
   const cached = cacheTtlMs > 0 ? characterSummaryCache.get(cacheKey) : null;
   if (cached && cached.expiresAt > Date.now()) return cached.value;
 
@@ -4274,18 +4322,13 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       label: string;
     };
     const zoneAttempts: ZoneRankingsAttempt[] = [
+      // WCL role+difficulty is the source of truth. No-role fallbacks caused
+      // healer/DPS/tank slices to be polluted by another role on the same boss.
       {
         includeRoleArg: true,
         includeDifficultyArg: true,
         label: "role+difficulty",
       },
-      {
-        includeRoleArg: false,
-        includeDifficultyArg: true,
-        label: "difficulty",
-      },
-      { includeRoleArg: true, includeDifficultyArg: false, label: "role" },
-      { includeRoleArg: false, includeDifficultyArg: false, label: "basic" },
     ];
 
     async function requestZoneRankings(attempt: ZoneRankingsAttempt) {
@@ -4373,22 +4416,26 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       emptyReportPullsBySlice(),
       credentials.baseUrl,
     );
-    const encounterHistory = await fetchEncounterHistory({
-      credentials,
-      token,
-      name: input.name,
-      realmSlug,
-      region,
-      metricSummaries: initialMetricSummaries,
-    });
-    const reportPullsResult = await fetchRecentRaidBossPulls({
-      credentials,
-      token,
-      name: input.name,
-      realmSlug,
-      region,
-      metricSummaries: initialMetricSummaries,
-    });
+    const encounterHistory = summaryMode === "full"
+      ? await fetchEncounterHistory({
+          credentials,
+          token,
+          name: input.name,
+          realmSlug,
+          region,
+          metricSummaries: initialMetricSummaries,
+        })
+      : ({} as Record<string, Record<string, unknown>>);
+    const reportPullsResult = summaryMode === "full"
+      ? await fetchRecentRaidBossPulls({
+          credentials,
+          token,
+          name: input.name,
+          realmSlug,
+          region,
+          metricSummaries: initialMetricSummaries,
+        })
+      : emptyReportPullsResult();
     const metricSummaries = normalizeAllMetricSummaries(
       character,
       encounterHistory,
@@ -4403,6 +4450,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
       character: input.name,
       realmSlug,
       region,
+      mode: summaryMode,
       primaryMetric: primary?.key || null,
       metricCount: metricSummaries.length,
       coverage: {

@@ -3,9 +3,40 @@ import { apiFetchJson } from "@/lib/apiHttp";
 import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, guildStatusFromRank, normalizeBattleNetRegion, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
+import { fetchWarcraftLogsCharacterSummary, type WarcraftLogsMetricSummary } from "@/lib/warcraftLogs";
 
 export type GuildScoreSegment = "all" | "dps" | "healer" | "tank";
 export type GuildRosterRole = "tank" | "healer" | "dps" | "unknown";
+
+export type GuildRosterWarcraftLogsMetric = {
+  label: string;
+  role: "tank" | "healer" | "dps";
+  metric: "hps" | "dps";
+  difficultyLabel: string | null;
+  average: number | null;
+  max: number | null;
+  median: number | null;
+  bestParse: number | null;
+  averageParse: number | null;
+  pulls: number;
+  samples: number;
+  kills: number;
+  wipes: number;
+  bosses: number;
+};
+
+export type GuildRosterWarcraftLogsSnapshot = {
+  status: "ready" | "not_configured" | "not_found" | "error";
+  updatedAt: string | null;
+  profileUrl: string | null;
+  activeRole: GuildRosterRole;
+  primaryMetric: GuildRosterWarcraftLogsMetric | null;
+  hps: GuildRosterWarcraftLogsMetric | null;
+  dps: GuildRosterWarcraftLogsMetric | null;
+  tankDps: GuildRosterWarcraftLogsMetric | null;
+  tankHps: GuildRosterWarcraftLogsMetric | null;
+  error?: string | null;
+};
 
 export type GuildRosterMember = {
   key: string;
@@ -30,6 +61,7 @@ export type GuildRosterMember = {
   scores: Record<GuildScoreSegment, number>;
   scoreColors: Partial<Record<GuildScoreSegment, string>>;
   hasRaiderIo: boolean;
+  warcraftLogs?: GuildRosterWarcraftLogsSnapshot | null;
 };
 
 export type GuildRosterStats = {
@@ -116,8 +148,8 @@ const RACE_ID_FALLBACK: Record<number, string> = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var __mistblossomGuildRosterCache: CachedRoster | undefined;
+  var __mistblossomGuildRosterRefreshPromise: Promise<CachedRoster | null> | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
@@ -268,6 +300,135 @@ async function fetchRaiderCharacter(region: BattleNetRegion, realmSlug: string, 
   } catch {
     return null;
   }
+}
+
+
+function guildRosterWclEnabled() {
+  const raw = cleanText(process.env.GUILD_ROSTER_WCL_ENABLED || "true").toLowerCase();
+  return !["0", "false", "off", "no"].includes(raw);
+}
+
+function guildRosterWclMemberLimit(total: number) {
+  return readIntegerEnv("GUILD_ROSTER_WCL_MEMBER_LIMIT", total || 1, 0, 1000);
+}
+
+function wclRefreshConcurrency(total: number) {
+  return getAdaptiveConcurrency(total, {
+    profile: "external-api",
+    envKey: "GUILD_ROSTER_WCL_CONCURRENCY",
+    maxEnvKey: "GUILD_ROSTER_WCL_MAX_CONCURRENCY",
+    min: 1,
+    max: 3,
+  });
+}
+
+function wclMetricFromSummary(
+  summary: WarcraftLogsMetricSummary | undefined,
+  label: string,
+): GuildRosterWarcraftLogsMetric | null {
+  if (!summary || summary.role === "overall" || (summary.metric !== "hps" && summary.metric !== "dps")) return null;
+  const stats = summary.recentStats;
+  const hasData =
+    stats.sampleSize > 0 ||
+    stats.pullCount > 0 ||
+    stats.maxAmount !== null ||
+    stats.averageAmount !== null ||
+    stats.averagePercentile !== null ||
+    summary.bossRankings.length > 0;
+  if (!hasData) return null;
+
+  return {
+    label,
+    role: summary.role,
+    metric: summary.metric,
+    difficultyLabel: summary.primaryDifficultyLabel,
+    average: stats.averageAmount,
+    max: stats.maxAmount,
+    median: stats.medianAmount,
+    bestParse: stats.maxPercentile ?? summary.bestPerformanceAverage,
+    averageParse: stats.averagePercentile ?? summary.bestPerformanceAverage,
+    pulls: stats.pullCount,
+    samples: stats.sampleSize,
+    kills: stats.killCount,
+    wipes: stats.wipeCount,
+    bosses: summary.bossRankings.length,
+  };
+}
+
+function buildWarcraftLogsRosterSnapshot(
+  member: GuildRosterMember,
+  summary: Awaited<ReturnType<typeof fetchWarcraftLogsCharacterSummary>>,
+): GuildRosterWarcraftLogsSnapshot {
+  const byKey = new Map(summary.metricSummaries.map((item) => [item.key, item]));
+  const healerHps = wclMetricFromSummary(byKey.get("healer-hps"), "HPS");
+  const dpsDps = wclMetricFromSummary(byKey.get("dps-dps"), "DPS");
+  const tankDps = wclMetricFromSummary(byKey.get("tank-dps"), "Tank DPS");
+  const tankHps = wclMetricFromSummary(byKey.get("tank-hps"), "Tank HPS");
+  const activeRole = member.role;
+  const primaryMetric =
+    activeRole === "healer"
+      ? healerHps
+      : activeRole === "dps"
+        ? dpsDps
+        : activeRole === "tank"
+          ? tankDps || tankHps
+          : healerHps || dpsDps || tankDps || tankHps;
+
+  return {
+    status: summary.status,
+    updatedAt: summary.updatedAt,
+    profileUrl: summary.profileUrl,
+    activeRole,
+    primaryMetric,
+    // Keep role slices separated exactly like Warcraft Logs: healer and DPS
+    // cards never consume tank DPS/HPS; tank values remain tank-only fields.
+    hps: activeRole === "healer" || activeRole === "unknown" ? healerHps : null,
+    dps: activeRole === "dps" || activeRole === "unknown" ? dpsDps : null,
+    tankDps: activeRole === "tank" ? tankDps : null,
+    tankHps: activeRole === "tank" ? tankHps : null,
+    error: summary.error || null,
+  };
+}
+
+async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) {
+  if (!guildRosterWclEnabled() || !members.length) return members;
+
+  const limit = Math.min(members.length, guildRosterWclMemberLimit(members.length));
+  if (limit <= 0) return members;
+  const selectedKeys = new Set(members.slice(0, limit).map((member) => member.key));
+  const concurrency = wclRefreshConcurrency(limit);
+  const { results } = await mapConcurrent(
+    members.slice(0, limit),
+    async (member) => {
+      const summary = await fetchWarcraftLogsCharacterSummary({
+        region: member.region,
+        realmSlug: member.realmSlug,
+        name: member.name,
+        mode: "roster",
+      });
+      return {
+        key: member.key,
+        warcraftLogs: buildWarcraftLogsRosterSnapshot(member, summary),
+      };
+    },
+    {
+      profile: "external-api",
+      concurrency,
+      failFast: false,
+    },
+  );
+
+  const wclByKey = new Map(
+    results
+      .filter((item): item is { key: string; warcraftLogs: GuildRosterWarcraftLogsSnapshot } => Boolean(item?.key && item?.warcraftLogs))
+      .map((item) => [item.key, item.warcraftLogs]),
+  );
+
+  return members.map((member) =>
+    selectedKeys.has(member.key)
+      ? { ...member, warcraftLogs: wclByKey.get(member.key) || member.warcraftLogs || null }
+      : member,
+  );
 }
 
 function buildScores(raider: RaiderIoCharacterPayload | null): Record<GuildScoreSegment, number> {
@@ -424,7 +585,8 @@ async function fetchLiveGuildRoster(): Promise<GuildRosterLoadResult> {
     failFast: false,
   });
 
-  const members = sortMembers(results.filter((member): member is GuildRosterMember => Boolean(member)));
+  const baseMembers = sortMembers(results.filter((member): member is GuildRosterMember => Boolean(member)));
+  const members = sortMembers(await enrichGuildMembersWithWarcraftLogs(baseMembers));
   const stats = buildStats({
     guildSummary: guildSummary || guildBlock,
     raiderGuild,
@@ -514,6 +676,22 @@ function publicFromCache(cache: CachedRoster): GuildRosterLoadResult {
 }
 
 
+
+async function refreshGuildRosterAndCache() {
+  const live = await fetchLiveGuildRoster();
+  return writeCachedRoster(live).catch(() => null);
+}
+
+function scheduleGuildRosterBackgroundRefresh(reason: string) {
+  if (globalThis.__mistblossomGuildRosterRefreshPromise) return;
+  globalThis.__mistblossomGuildRosterRefreshPromise = refreshGuildRosterAndCache()
+    .catch(() => null)
+    .finally(() => {
+      globalThis.__mistblossomGuildRosterRefreshPromise = undefined;
+    });
+  void reason;
+}
+
 export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult> {
   const cached = await readCachedRoster().catch(() => null);
   if (cached) return publicFromCache(cached);
@@ -528,14 +706,15 @@ export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult
 
 export async function loadGuildRosterData(options: GuildRosterLoadOptions = {}): Promise<GuildRosterLoadResult> {
   const cached = await readCachedRoster().catch(() => null);
-  if (!options.forceRefresh && isFresh(cached)) {
-    return publicFromCache(cached as CachedRoster);
+
+  if (!options.forceRefresh && cached) {
+    if (!isFresh(cached)) scheduleGuildRosterBackgroundRefresh("stale-cache");
+    return publicFromCache(cached);
   }
 
   try {
-    const live = await fetchLiveGuildRoster();
-    const stored = await writeCachedRoster(live).catch(() => null);
-    return stored ? publicFromCache(stored) : live;
+    const stored = await refreshGuildRosterAndCache();
+    return stored ? publicFromCache(stored) : await fetchLiveGuildRoster();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error || "Не вдалося оновити склад гільдії.");
     if (cached) {

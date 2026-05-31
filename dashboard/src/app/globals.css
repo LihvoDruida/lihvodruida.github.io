@@ -19942,3 +19942,76 @@ a.is-submitting[aria-busy="true"] {
     transition: none !important;
   }
 }
+
+/* Guild roster WCL enrichment: compact role-safe HPS/DPS badges. */
+.guild-wcl-badges {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.guild-wcl-badge,
+.guild-wcl-badges--muted span {
+  display: grid;
+  gap: 3px;
+  min-width: 118px;
+  min-height: 58px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.guild-wcl-badge small,
+.guild-wcl-badges--muted small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.guild-wcl-badge strong,
+.guild-wcl-badges--muted strong {
+  color: #d6a84f;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.guild-wcl-badge em,
+.guild-wcl-badges--muted em {
+  color: var(--faint);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.guild-wcl-badge--healer {
+  border-color: rgba(78, 255, 99, 0.24);
+  background: rgba(78, 255, 99, 0.08);
+}
+
+.guild-wcl-badge--healer strong {
+  color: #71ff84;
+}
+
+.guild-wcl-badge--dps {
+  border-color: rgba(176, 95, 255, 0.26);
+  background: rgba(176, 95, 255, 0.08);
+}
+
+.guild-wcl-badge--dps strong {
+  color: #c276ff;
+}
+
+.guild-wcl-badge--tank {
+  border-color: rgba(102, 183, 255, 0.24);
+  background: rgba(74, 130, 255, 0.08);
+}
+
+.guild-wcl-badge--tank strong {
+  color: #8bbfff;
+}

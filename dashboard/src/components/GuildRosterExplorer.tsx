@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { GuildRosterMember, GuildRosterStats, GuildScoreSegment } from "@/lib/guildRoster";
+import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
 import { formatStableNumber, stableTextCompare } from "@/lib/stableUiText";
 
 type SortKey = "rio-desc" | "rio-asc" | "ilvl-desc" | "name-asc" | "rank-asc";
@@ -11,6 +12,12 @@ type Props = {
   stats: GuildRosterStats;
   source: string;
   error?: string | null;
+};
+
+type GuildRosterLivePayload = Props & {
+  ok?: boolean;
+  memberCount?: number;
+  updatedAt?: string | null;
 };
 
 const SEGMENT_LABELS: Record<GuildScoreSegment, string> = {
@@ -349,7 +356,72 @@ function SegmentBadges({ member, activeSegment }: { member: GuildRosterMember; a
   );
 }
 
+
+function WarcraftLogsBadges({ member }: { member: GuildRosterMember }) {
+  const snapshot = member.warcraftLogs;
+  if (!snapshot || snapshot.status === "not_configured") return null;
+  if (snapshot.status !== "ready") {
+    return (
+      <div className="guild-wcl-badges guild-wcl-badges--muted" aria-label="Warcraft Logs">
+        <span><small>WCL</small><strong>—</strong><em>{snapshot.status === "not_found" ? "немає" : "помилка"}</em></span>
+      </div>
+    );
+  }
+
+  const metrics = member.role === "tank"
+    ? [snapshot.tankDps, snapshot.tankHps]
+    : member.role === "healer"
+      ? [snapshot.hps]
+      : member.role === "dps"
+        ? [snapshot.dps]
+        : [snapshot.hps, snapshot.dps, snapshot.tankDps, snapshot.tankHps];
+  const visible = metrics.filter((item): item is NonNullable<typeof item> => Boolean(item));
+  if (!visible.length) return null;
+
+  return (
+    <div className="guild-wcl-badges" aria-label="Warcraft Logs HPS/DPS">
+      {visible.map((metric) => (
+        <span key={`${metric.role}-${metric.metric}-${metric.label}`} className={`guild-wcl-badge guild-wcl-badge--${metric.role}`}>
+          <small>{metric.label}</small>
+          <strong>{formatNumber(metric.average ?? metric.max ?? 0, 1)}</strong>
+          <em>{metric.difficultyLabel || "WCL"} • {metric.pulls} пулів</em>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function GuildRosterExplorer({ members, stats, source, error }: Props) {
+  const initialRoster = useMemo<GuildRosterLivePayload>(() => ({ members, stats, source, error: error || null }), [members, stats, source, error]);
+  const rosterResource = useDashboardApiResource<GuildRosterLivePayload>({
+    key: "guild-roster",
+    scope: "guild",
+    initialData: initialRoster,
+    minIntervalMs: 10 * 60 * 1000,
+    request: () => ({
+      url: "/api/guild/refresh",
+      method: "POST",
+      headers: { "X-Dashboard-Action": "guild-roster-cache-sync" },
+      json: { force: false },
+      select: (payload) => {
+        const data = payload as Partial<GuildRosterLivePayload> | null;
+        return {
+          members: Array.isArray(data?.members) ? data.members : members,
+          stats: data?.stats || stats,
+          source: typeof data?.source === "string" ? data.source : source,
+          error: typeof data?.error === "string" ? data.error : null,
+          ok: data?.ok,
+          memberCount: data?.memberCount,
+          updatedAt: data?.updatedAt,
+        };
+      },
+    }),
+  });
+  const liveMembers = rosterResource.data.members.length ? rosterResource.data.members : members;
+  const liveStats = rosterResource.data.stats || stats;
+  const liveSource = rosterResource.data.source || source;
+  const liveError = rosterResource.data.error || error || rosterResource.error || null;
+
   const [segment, setSegment] = useState<GuildScoreSegment>("all");
   const [query, setQuery] = useState("");
   const [classFilter, setClassFilter] = useState("Усі класи");
@@ -357,9 +429,9 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
   const [roleFilter, setRoleFilter] = useState("Усі ролі");
   const [factionFilter, setFactionFilter] = useState("Усі фракції");
   const [rioMin, setRioMin] = useState(0);
-  const [rioMax, setRioMax] = useState(Math.ceil(stats.maxRioAll || 0));
+  const [rioMax, setRioMax] = useState(Math.ceil(liveStats.maxRioAll || 0));
   const [itemLevelMin, setItemLevelMin] = useState(0);
-  const [itemLevelMax, setItemLevelMax] = useState(Math.ceil(stats.maxItemLevel || 0));
+  const [itemLevelMax, setItemLevelMax] = useState(Math.ceil(liveStats.maxItemLevel || 0));
   const [sort, setSort] = useState<SortKey>("rio-desc");
   const [filtersOpen, setFiltersOpen] = useState(true);
 
@@ -381,14 +453,14 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
     return () => media.removeListener(applyState);
   }, []);
 
-  const maxRio = Math.max(0, Math.ceil(stats.maxRioAll || 0));
-  const maxItemLevel = Math.max(0, Math.ceil(stats.maxItemLevel || 0));
+  const maxRio = Math.max(0, Math.ceil(liveStats.maxRioAll || 0));
+  const maxItemLevel = Math.max(0, Math.ceil(liveStats.maxItemLevel || 0));
 
   const options = useMemo(() => ({
-    classes: ["Усі класи", ...uniqueSorted(members.map((member) => member.className))],
-    specs: ["Усі спеки", ...uniqueSorted(members.map((member) => member.specName))],
-    factions: ["Усі фракції", ...uniqueSorted(members.map((member) => member.faction))],
-  }), [members]);
+    classes: ["Усі класи", ...uniqueSorted(liveMembers.map((member) => member.className))],
+    specs: ["Усі спеки", ...uniqueSorted(liveMembers.map((member) => member.specName))],
+    factions: ["Усі фракції", ...uniqueSorted(liveMembers.map((member) => member.faction))],
+  }), [liveMembers]);
 
   const filteredMembers = useMemo(() => {
     const search = query.trim().toLowerCase();
@@ -397,7 +469,7 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
     const minItemLevel = Math.min(itemLevelMin, itemLevelMax);
     const maxItemLevelValue = Math.max(itemLevelMin, itemLevelMax);
 
-    return members
+    return liveMembers
       .filter((member) => {
         const score = member.scores[segment] || 0;
         if (score < minRio || score > maxRioValue) return false;
@@ -420,7 +492,7 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
         if (sort === "rank-asc") return (a.rank ?? 999) - (b.rank ?? 999) || stableTextCompare(a.name, b.name);
         return (b.scores[segment] || 0) - (a.scores[segment] || 0) || b.itemLevel - a.itemLevel || stableTextCompare(a.name, b.name);
       });
-  }, [members, segment, query, classFilter, specFilter, roleFilter, factionFilter, rioMin, rioMax, itemLevelMin, itemLevelMax, sort]);
+  }, [liveMembers, segment, query, classFilter, specFilter, roleFilter, factionFilter, rioMin, rioMax, itemLevelMin, itemLevelMax, sort]);
 
   const statData = useMemo(() => {
     const armorColors: Record<ArmorType, string> = {
@@ -431,7 +503,7 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
     };
     const armorCounts = ARMOR_LABELS.map((label) => ({
       label,
-      count: members.filter((member) => getArmorType(member) === label).length,
+      count: liveMembers.filter((member) => getArmorType(member) === label).length,
       color: armorColors[label],
     }));
 
@@ -443,20 +515,20 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
     };
     const roleCounts = ROLE_ORDER.map((role) => ({
       role,
-      count: members.filter((member) => member.role === role).length,
-      averageRio: members.filter((member) => member.role === role).reduce((sum, member, _, arr) => sum + member.scores.all / Math.max(1, arr.length), 0),
+      count: liveMembers.filter((member) => member.role === role).length,
+      averageRio: liveMembers.filter((member) => member.role === role).reduce((sum, member, _, arr) => sum + member.scores.all / Math.max(1, arr.length), 0),
       color: roleColors[role],
     })).filter((item) => item.count > 0 || item.role !== "unknown");
 
     return { armorCounts, roleCounts };
-  }, [members]);
+  }, [liveMembers]);
 
   const segmentCounts = useMemo(() => {
     return (["all", "dps", "healer", "tank"] as GuildScoreSegment[]).reduce((acc, item) => {
-      acc[item] = members.filter((member) => (member.scores[item] || 0) > 0).length;
+      acc[item] = liveMembers.filter((member) => (member.scores[item] || 0) > 0).length;
       return acc;
     }, {} as Record<GuildScoreSegment, number>);
-  }, [members]);
+  }, [liveMembers]);
 
   function resetFilters() {
     setQuery("");
@@ -471,12 +543,12 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
     setSort("rio-desc");
   }
 
-  if (!members.length) {
+  if (!liveMembers.length) {
     return (
       <section className="guild-roster-empty panel">
         <h2>Дані складу гільдії ще не завантажені</h2>
         <p>Сторінка бере склад напряму з Battle.net Guild Roster API та оновлює Raider.IO для персонажів. Перевір Battle.net змінні, Raider.IO access key за потреби та натисни “Оновити склад”.</p>
-        {error ? <small>{error}</small> : null}
+        {liveError ? <small>{liveError}</small> : null}
       </section>
     );
   }
@@ -487,12 +559,12 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
         <StatDonut
           title="Тип броні"
           subtitle="Яку броню носять гравці гільдії"
-          center={formatNumber(stats.averageItemLevel)}
+          center={formatNumber(liveStats.averageItemLevel)}
           caption="СЕР. ILVL"
           segments={statData.armorCounts.map((item) => ({ value: item.count, color: item.color }))}
           legend={statData.armorCounts.map((item) => ({
             label: item.label,
-            value: `${percent(item.count, members.length)}%`,
+            value: `${percent(item.count, liveMembers.length)}%`,
             detail: `${item.count} гравців`,
             color: item.color,
           }))}
@@ -500,12 +572,12 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
         <StatDonut
           title="Середній RIO гільдії"
           subtitle="У центрі — середній Mythic+ рейтинг, по колу — співвідношення ролей"
-          center={formatNumber(stats.averageRioAll)}
+          center={formatNumber(liveStats.averageRioAll)}
           caption="СЕР. RIO"
           segments={statData.roleCounts.map((item) => ({ value: item.count, color: item.color }))}
           legend={statData.roleCounts.map((item) => ({
             label: ROLE_LABELS[item.role] || item.role,
-            value: `${percent(item.count, members.length)}%`,
+            value: `${percent(item.count, liveMembers.length)}%`,
             detail: `${item.count} гравців • сер. RIO ${formatNumber(item.averageRio)}`,
             color: item.color,
           }))}
@@ -581,8 +653,8 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
               </label>
 
               <div className="guild-filter-source">
-                <span>Джерело: {source}</span>
-                {stats.updatedAt ? <span>Оновлено: {stats.updatedAt}</span> : null}
+                <span>Джерело: {liveSource}</span>
+                {liveStats.updatedAt ? <span>Оновлено: {liveStats.updatedAt}</span> : null}
               </div>
             </div>
           ) : null}
@@ -606,16 +678,16 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
           <div className="guild-roster-summary panel">
             <div>
               <span className="eyebrow">Склад гільдії</span>
-              <strong>{filteredMembers.length} / {members.length}</strong>
+              <strong>{filteredMembers.length} / {liveMembers.length}</strong>
               <small>показано після фільтрів</small>
             </div>
             <div>
               <span>Макс. RIO ALL</span>
-              <strong>{formatNumber(stats.maxRioAll, 1)}</strong>
+              <strong>{formatNumber(liveStats.maxRioAll, 1)}</strong>
             </div>
             <div>
               <span>Макс. ilvl</span>
-              <strong>{formatNumber(stats.maxItemLevel)}</strong>
+              <strong>{formatNumber(liveStats.maxItemLevel)}</strong>
             </div>
           </div>
 
@@ -654,6 +726,7 @@ export default function GuildRosterExplorer({ members, stats, source, error }: P
                         <strong>{member.itemLevel || "—"}</strong>
                       </div>
                     </div>
+                    <WarcraftLogsBadges member={member} />
                   </div>
                   <div className="guild-member-side">
                     <div className="guild-member-tags">

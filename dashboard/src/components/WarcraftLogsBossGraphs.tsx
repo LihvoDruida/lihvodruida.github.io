@@ -58,7 +58,7 @@ const PLOT_HEIGHT = VIEWBOX.height - VIEWBOX.top - VIEWBOX.bottom;
 
 function clampPercent(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.max(0, Math.min(100, value));
+  return Math.max(0, Math.min(PERCENTILE_MAX, value));
 }
 
 function formatPercent(value: number | null | undefined) {
@@ -96,6 +96,12 @@ function difficultyLabel(value: number | null | undefined) {
   if (value === 2) return "LEGACY/FLEX";
   if (value === 1) return "LFR";
   return "RAID";
+}
+
+function pullOutcomeLabel(value: string | null | undefined) {
+  if (value === "Kill") return "Кіл";
+  if (value === "Wipe") return "Вайп";
+  return value || "—";
 }
 
 function pullDate(pull: WarcraftLogsBossPull) {
@@ -581,6 +587,22 @@ function PullRow({
               ? `${pull.fightSize} гравців`
               : "тривалість"}
         </small>
+      </span>
+      <span>
+        <strong>{difficultyLabel(pull.difficulty)}</strong>
+        <small>{pull.spec || activeSlice.roleLabel}</small>
+      </span>
+      <span>
+        <strong>{pullOutcomeLabel(pull.killedWith)}</strong>
+        <small>{pull.fightSize ? `${pull.fightSize} гравців` : pull.reportTitle || "результат"}</small>
+      </span>
+      <span>
+        <strong>{pull.interruptCount !== null ? formatStableNumber(pull.interruptCount, 0) : "—"}</strong>
+        <small>інтеррапти</small>
+      </span>
+      <span>
+        <strong>{pull.dispelCount !== null ? formatStableNumber(pull.dispelCount, 0) : "—"}</strong>
+        <small>диспели</small>
       </span>
     </>
   );

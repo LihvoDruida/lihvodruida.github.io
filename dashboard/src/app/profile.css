@@ -3013,3 +3013,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* WCL pull rows now expose full per-pull data without collapsing columns. */
+.profile-wcl-pull-row {
+  grid-template-columns: minmax(150px, 1.35fr) repeat(auto-fit, minmax(74px, 0.72fr));
+}

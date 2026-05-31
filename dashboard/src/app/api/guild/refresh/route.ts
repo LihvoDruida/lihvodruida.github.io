@@ -11,7 +11,7 @@ export const revalidate = 0;
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
 
-  const tooLarge = assertRequestBodySize(request, 2048);
+  const tooLarge = assertRequestBodySize(request, 4096);
   if (tooLarge) return tooLarge;
 
   const session = await getSession();
@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
   if (!globalLimit.ok) return rateLimitResponse(globalLimit.resetAt);
 
   try {
-    const roster = await loadGuildRosterData({ forceRefresh: true });
+    const body = await request.json().catch(() => null) as { force?: unknown } | null;
+    const forceRefresh = body?.force !== false;
+    const roster = await loadGuildRosterData({ forceRefresh });
     logDashboardEvent("info", "guild.roster.refreshed", request, {
       profileId: session?.profileId || null,
       memberCount: roster.members.length,
@@ -37,6 +39,8 @@ export async function POST(request: NextRequest) {
       memberCount: roster.members.length,
       updatedAt: roster.stats.updatedAt,
       source: roster.source,
+      members: roster.members,
+      stats: roster.stats,
       error: roster.error || null,
     }, { headers: noStoreHeaders() });
   } catch (error) {
