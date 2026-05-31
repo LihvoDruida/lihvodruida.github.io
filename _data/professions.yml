@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-05-31 17:09:02'
+  updated_at: '2026-05-31 21:02:24'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -874,7 +874,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Shatnyi
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -1304,7 +1304,7 @@ characters:
         learned_points: 15
         max_points: 100
       - name: Midnight Enchanting
-        learned_points: 76
+        learned_points: 85
         max_points: 100
     - name: Tailoring
       id: 197
@@ -1712,7 +1712,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
+  profile_url: null
   professions:
     primaries:
     - name: Tailoring
@@ -3395,7 +3395,7 @@ characters:
         learned_points: 1
         max_points: 200
       - name: Midnight Fishing
-        learned_points: 36
+        learned_points: 37
         max_points: 300
 - name: Travka
   region: eu
@@ -3692,7 +3692,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Straponeero
+  profile_url: null
   professions:
     primaries:
     - name: Skinning
@@ -5203,7 +5203,7 @@ characters:
   region: eu
   realm: silvermoon
   realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Ironbelly
+  profile_url: null
   professions:
     primaries:
     - name: Engineering
