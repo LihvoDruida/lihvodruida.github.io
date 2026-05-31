@@ -2,6 +2,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { apiFetchJson } from "@/lib/apiHttp";
 import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, guildStatusFromRank, normalizeBattleNetRegion, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import { getGuildRosterWarcraftLogsSettings } from "@/lib/dashboardApiSettings";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { fetchWarcraftLogsCharacterSummary, type WarcraftLogsMetricSummary } from "@/lib/warcraftLogs";
 
@@ -303,22 +304,23 @@ async function fetchRaiderCharacter(region: BattleNetRegion, realmSlug: string, 
 }
 
 
-function guildRosterWclEnabled() {
-  const raw = cleanText(process.env.GUILD_ROSTER_WCL_ENABLED || "true").toLowerCase();
-  return !["0", "false", "off", "no"].includes(raw);
+function guildRosterWclMemberLimit(total: number, configuredLimit: number) {
+  const safeTotal = Math.max(0, Math.floor(total || 0));
+  const safeLimit = Math.max(0, Math.floor(configuredLimit || 0));
+  return safeLimit <= 0 ? safeTotal : Math.min(safeTotal, safeLimit);
 }
 
-function guildRosterWclMemberLimit(total: number) {
-  return readIntegerEnv("GUILD_ROSTER_WCL_MEMBER_LIMIT", total || 1, 0, 1000);
-}
+function wclRefreshConcurrency(total: number, configuredConcurrency: number, configuredMaxConcurrency: number) {
+  const concurrency = Number.isFinite(configuredConcurrency) && configuredConcurrency > 0
+    ? Math.floor(configuredConcurrency)
+    : undefined;
+  const maxConcurrency = Math.max(1, Math.min(Math.floor(configuredMaxConcurrency || 3), 8));
 
-function wclRefreshConcurrency(total: number) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
-    envKey: "GUILD_ROSTER_WCL_CONCURRENCY",
-    maxEnvKey: "GUILD_ROSTER_WCL_MAX_CONCURRENCY",
+    concurrency,
     min: 1,
-    max: 3,
+    max: maxConcurrency,
   });
 }
 
@@ -391,12 +393,24 @@ function buildWarcraftLogsRosterSnapshot(
 }
 
 async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) {
-  if (!guildRosterWclEnabled() || !members.length) return members;
+  if (!members.length) return members;
 
-  const limit = Math.min(members.length, guildRosterWclMemberLimit(members.length));
+  const settings = await getGuildRosterWarcraftLogsSettings().catch(() => ({
+    enabled: true,
+    memberLimit: 0,
+    concurrency: 0,
+    maxConcurrency: 3,
+  }));
+  if (!settings.enabled) return members;
+
+  const limit = guildRosterWclMemberLimit(members.length, settings.memberLimit);
   if (limit <= 0) return members;
   const selectedKeys = new Set(members.slice(0, limit).map((member) => member.key));
-  const concurrency = wclRefreshConcurrency(limit);
+  const concurrency = wclRefreshConcurrency(
+    limit,
+    settings.concurrency,
+    settings.maxConcurrency,
+  );
   const { results } = await mapConcurrent(
     members.slice(0, limit),
     async (member) => {

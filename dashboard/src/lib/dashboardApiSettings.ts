@@ -18,6 +18,10 @@ const DEFAULT_CHARACTER_CACHE_TTL_MS = 120_000;
 const MAX_CHARACTER_CACHE_TTL_MS = 900_000;
 const DEFAULT_WCL_RECENT_REPORT_LIMIT = 12;
 const DEFAULT_WCL_REPORT_FIGHT_TABLE_LIMIT = 24;
+const DEFAULT_GUILD_ROSTER_WCL_ENABLED = true;
+const DEFAULT_GUILD_ROSTER_WCL_MEMBER_LIMIT = 0;
+const DEFAULT_GUILD_ROSTER_WCL_CONCURRENCY = 0;
+const DEFAULT_GUILD_ROSTER_WCL_MAX_CONCURRENCY = 3;
 
 export type DashboardApiSettingsSource = "firestore" | "defaults";
 
@@ -41,6 +45,10 @@ export type DashboardApiSettings = {
   warcraftLogsCharacterCacheTtlMs: number;
   warcraftLogsRecentReportLimit: number;
   warcraftLogsReportFightTableLimit: number;
+  guildRosterWclEnabled: boolean;
+  guildRosterWclMemberLimit: number;
+  guildRosterWclConcurrency: number;
+  guildRosterWclMaxConcurrency: number;
   updatedAt?: string | null;
   updatedBy?: string | null;
   source: DashboardApiSettingsSource;
@@ -66,7 +74,11 @@ type DashboardApiSettingsInput = Partial<
     | "raiderIoCharacterCacheTtlMs"
     | "warcraftLogsCharacterCacheTtlMs"
     | "warcraftLogsRecentReportLimit"
-    | "warcraftLogsReportFightTableLimit",
+    | "warcraftLogsReportFightTableLimit"
+    | "guildRosterWclEnabled"
+    | "guildRosterWclMemberLimit"
+    | "guildRosterWclConcurrency"
+    | "guildRosterWclMaxConcurrency",
     unknown
   >
 >;
@@ -150,6 +162,39 @@ function envWarcraftLogsReportFightTableLimit() {
     DEFAULT_WCL_REPORT_FIGHT_TABLE_LIMIT,
     4,
     60,
+  );
+}
+
+function envGuildRosterWclEnabled() {
+  const raw = cleanText(process.env.GUILD_ROSTER_WCL_ENABLED, 20);
+  if (!raw) return DEFAULT_GUILD_ROSTER_WCL_ENABLED;
+  return booleanValue(raw, DEFAULT_GUILD_ROSTER_WCL_ENABLED);
+}
+
+function envGuildRosterWclMemberLimit() {
+  return integerEnv(
+    "GUILD_ROSTER_WCL_MEMBER_LIMIT",
+    DEFAULT_GUILD_ROSTER_WCL_MEMBER_LIMIT,
+    0,
+    1000,
+  );
+}
+
+function envGuildRosterWclMaxConcurrency() {
+  return integerEnv(
+    "GUILD_ROSTER_WCL_MAX_CONCURRENCY",
+    DEFAULT_GUILD_ROSTER_WCL_MAX_CONCURRENCY,
+    1,
+    8,
+  );
+}
+
+function envGuildRosterWclConcurrency() {
+  return integerEnv(
+    "GUILD_ROSTER_WCL_CONCURRENCY",
+    DEFAULT_GUILD_ROSTER_WCL_CONCURRENCY,
+    0,
+    envGuildRosterWclMaxConcurrency(),
   );
 }
 
@@ -306,6 +351,10 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     warcraftLogsCharacterCacheTtlMs: envWarcraftLogsCharacterCacheTtlMs(),
     warcraftLogsRecentReportLimit: envWarcraftLogsRecentReportLimit(),
     warcraftLogsReportFightTableLimit: envWarcraftLogsReportFightTableLimit(),
+    guildRosterWclEnabled: envGuildRosterWclEnabled(),
+    guildRosterWclMemberLimit: envGuildRosterWclMemberLimit(),
+    guildRosterWclConcurrency: envGuildRosterWclConcurrency(),
+    guildRosterWclMaxConcurrency: envGuildRosterWclMaxConcurrency(),
     updatedAt: null,
     updatedBy: null,
     source: "defaults",
@@ -348,6 +397,12 @@ function normalizeSettings(
     6,
   );
   const credentials = resolveWarcraftLogsCredentials(data);
+  const guildRosterWclMaxConcurrency = integerValue(
+    data?.guildRosterWclMaxConcurrency,
+    fallback.guildRosterWclMaxConcurrency,
+    1,
+    8,
+  );
 
   return {
     backgroundRefreshMinSeconds,
@@ -387,6 +442,23 @@ function normalizeSettings(
     warcraftLogsCharacterCacheTtlMs: credentials.characterCacheTtlMs,
     warcraftLogsRecentReportLimit: credentials.recentReportLimit,
     warcraftLogsReportFightTableLimit: credentials.reportFightTableLimit,
+    guildRosterWclEnabled: booleanValue(
+      data?.guildRosterWclEnabled,
+      fallback.guildRosterWclEnabled,
+    ),
+    guildRosterWclMemberLimit: integerValue(
+      data?.guildRosterWclMemberLimit,
+      fallback.guildRosterWclMemberLimit,
+      0,
+      1000,
+    ),
+    guildRosterWclConcurrency: integerValue(
+      data?.guildRosterWclConcurrency,
+      fallback.guildRosterWclConcurrency,
+      0,
+      guildRosterWclMaxConcurrency,
+    ),
+    guildRosterWclMaxConcurrency,
     updatedAt: timestampToIso(data?.updatedAt),
     updatedBy: typeof data?.updatedBy === "string" ? data.updatedBy : null,
     source,
@@ -470,6 +542,10 @@ export async function setDashboardApiSettings(
     warcraftLogsCharacterCacheTtlMs: settings.warcraftLogsCharacterCacheTtlMs,
     warcraftLogsRecentReportLimit: settings.warcraftLogsRecentReportLimit,
     warcraftLogsReportFightTableLimit: settings.warcraftLogsReportFightTableLimit,
+    guildRosterWclEnabled: settings.guildRosterWclEnabled,
+    guildRosterWclMemberLimit: settings.guildRosterWclMemberLimit,
+    guildRosterWclConcurrency: settings.guildRosterWclConcurrency,
+    guildRosterWclMaxConcurrency: settings.guildRosterWclMaxConcurrency,
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   };
@@ -528,6 +604,16 @@ export async function getExternalCharacterDataSettings() {
   };
 }
 
+export async function getGuildRosterWarcraftLogsSettings() {
+  const settings = await getDashboardApiSettings();
+  return {
+    enabled: settings.guildRosterWclEnabled,
+    memberLimit: settings.guildRosterWclMemberLimit,
+    concurrency: settings.guildRosterWclConcurrency,
+    maxConcurrency: settings.guildRosterWclMaxConcurrency,
+  };
+}
+
 export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wcl = settings.warcraftLogsClientSecretConfigured
     ? `WCL: ${settings.warcraftLogsCredentialsSource}`
@@ -535,7 +621,10 @@ export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wclDebug = settings.warcraftLogsDebugAuditLogs
     ? "WCL debug: увімкнено"
     : "WCL debug: вимкнено";
-  return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${wcl}; ${wclDebug}; WCL reports: ${settings.warcraftLogsRecentReportLimit}/${settings.warcraftLogsReportFightTableLimit}.`;
+  const rosterWcl = settings.guildRosterWclEnabled
+    ? `WCL roster: ${settings.guildRosterWclMemberLimit > 0 ? settings.guildRosterWclMemberLimit : "усі"}/${settings.guildRosterWclConcurrency > 0 ? settings.guildRosterWclConcurrency : "auto"}`
+    : "WCL roster: вимкнено";
+  return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${wcl}; ${wclDebug}; WCL reports: ${settings.warcraftLogsRecentReportLimit}/${settings.warcraftLogsReportFightTableLimit}; ${rosterWcl}.`;
 }
 
 export function dashboardApiSettingsMinBackgroundRefreshSeconds() {

@@ -243,7 +243,6 @@ type WarcraftLogsSliceConfig = {
 };
 
 const ENCOUNTER_HISTORY_LIMIT = 30;
-const RECENT_PULL_CALC_LIMIT = 10;
 const ENCOUNTER_HISTORY_BOSS_LIMIT = 12;
 
 const WCL_RAID_DIFFICULTIES = [
@@ -982,38 +981,10 @@ function resolveReportFightRole(input: {
     };
   }
 
-  // Last-resort role inference for source-filtered table data. This is not used
-  // when the player has both meaningful damage and healing in the same pull, so
-  // a healer's small DPS or a DPS player's self-healing is not mixed silently.
-  const hasDamage = input.damage.amount !== null;
-  const hasHealing = input.healing.amount !== null;
-  if (hasDamage !== hasHealing) {
-    return {
-      role: hasHealing ? "healer" : "dps",
-      spec: tableSpec || input.actor.spec,
-      source: "metric",
-    };
-  }
-
-  const damageAmount = input.damage.amount ?? 0;
-  const healingAmount = input.healing.amount ?? 0;
-  if (damageAmount > 0 && healingAmount > 0) {
-    if (healingAmount >= damageAmount * 2) {
-      return {
-        role: "healer",
-        spec: tableSpec || input.actor.spec,
-        source: "metric",
-      };
-    }
-    if (damageAmount >= healingAmount * 4) {
-      return {
-        role: "dps",
-        spec: tableSpec || input.actor.spec,
-        source: "metric",
-      };
-    }
-  }
-
+  // Do not infer player role from amount proportions. A healer can deal
+  // damage and a DPS can self-heal, but those numbers must never select the
+  // wrong metric slice. If WCL did not provide CombatantInfo/table role/spec,
+  // we skip the pull instead of polluting healer/DPS/tank summaries.
   return {
     role: null,
     spec: tableSpec || input.actor.spec,
@@ -1033,6 +1004,32 @@ function isEligibleRaidBossPull(
 ) {
   const id = pull.encounterId ?? encounterId ?? null;
   return isRaidBossEncounterId(id);
+}
+
+function pullMatchesSliceRoleMetric(
+  pull: WarcraftLogsBossPull,
+  config: Pick<WarcraftLogsSliceConfig, "role" | "metric">,
+) {
+  if (config.role === "overall") return config.metric === "points";
+  if (pull.role !== config.role) return false;
+  if (config.metric !== "hps" && config.metric !== "dps") return false;
+  if (pull.metric !== config.metric) return false;
+
+  // Professional guild progress numbers must be role-clean:
+  // healer pulls emit only HPS, DPS pulls emit only DPS, tanks emit both tank
+  // DPS and tank HPS via their dedicated tank slices.
+  if (config.role === "healer") return config.metric === "hps";
+  if (config.role === "dps") return config.metric === "dps";
+  return config.role === "tank";
+}
+
+function pullsForSlice(
+  pulls: WarcraftLogsBossPull[],
+  config: Pick<WarcraftLogsSliceConfig, "role" | "metric">,
+) {
+  return pulls.filter(
+    (pull) => isEligibleRaidBossPull(pull) && pullMatchesSliceRoleMetric(pull, config),
+  );
 }
 
 function difficultyRank(value: number | null | undefined) {
@@ -2024,10 +2021,11 @@ function sortPullsByDate(pulls: WarcraftLogsBossPull[]) {
 function mergePullList(
   pulls: WarcraftLogsBossPull[],
   limit = ENCOUNTER_HISTORY_LIMIT,
+  config?: Pick<WarcraftLogsSliceConfig, "role" | "metric">,
 ) {
   const byIdentity = new Map<string, WarcraftLogsBossPull>();
-  for (const pull of pulls) {
-    if (!isEligibleRaidBossPull(pull)) continue;
+  const source = config ? pullsForSlice(pulls, config) : pulls.filter(isEligibleRaidBossPull);
+  for (const pull of source) {
     const key = pullIdentity(pull);
     const existing = byIdentity.get(key);
     byIdentity.set(key, existing ? mergePullData(existing, pull) : pull);
@@ -2076,7 +2074,7 @@ function collectPulls(
     }
   }
 
-  return mergePullList(collected, limit);
+  return mergePullList(collected, limit, options);
 }
 
 function average(values: number[]) {
@@ -2117,8 +2115,8 @@ function recentStats(pulls: WarcraftLogsBossPull[]): WarcraftLogsRecentStats {
     const rightTime = right.startTime ? new Date(right.startTime).getTime() : 0;
     return rightTime - leftTime;
   });
-  const recent = sorted.slice(0, RECENT_PULL_CALC_LIMIT);
   const countedPulls = sorted.filter(isEligibleRaidBossPull);
+  const recent = countedPulls;
   const amountPulls = recent.filter(
     (pull) =>
       typeof pull.amount === "number" &&
@@ -2889,7 +2887,9 @@ function addReportPull(
   config: WarcraftLogsSliceConfig,
   pull: WarcraftLogsBossPull,
 ) {
-  if (!isEligibleRaidBossPull(pull)) return { added: false, merged: false };
+  if (!isEligibleRaidBossPull(pull) || !pullMatchesSliceRoleMetric(pull, config)) {
+    return { added: false, merged: false };
+  }
   const encounterKey = String(pull.encounterId);
   target[config.key] ||= {};
   target[config.key][encounterKey] ||= [];
@@ -3682,8 +3682,13 @@ function mergeBossPulls(
     source: "encounter",
     limit: ENCOUNTER_HISTORY_LIMIT,
   });
+  const difficulty = ranking.difficulty ?? null;
+  const sameDifficulty = (pull: WarcraftLogsBossPull) =>
+    difficulty === null || pull.difficulty === null || pull.difficulty === difficulty;
+  const cleanReportPulls = pullsForSlice(reportPulls, config).filter(sameDifficulty);
+  const cleanEncounterPulls = pullsForSlice(encounterPulls, config).filter(sameDifficulty);
 
-  return enrichReportPullsWithRankings(reportPulls, encounterPulls);
+  return enrichReportPullsWithRankings(cleanReportPulls, cleanEncounterPulls);
 }
 
 
@@ -3802,6 +3807,7 @@ function normalizeMetricSummary(
   const pulls = mergePullList(
     bossRankings.flatMap((boss) => boss.pulls),
     Number.MAX_SAFE_INTEGER,
+    config,
   );
   const primary = primaryDifficultyStats(pulls, config.metric);
   const rootBestAverage = firstNumber(root, [

@@ -139,6 +139,14 @@ export default async function AdminOverviewPage() {
                 label: "WCL LOG",
                 value: apiSettings.warcraftLogsDebugAuditLogs ? "ON" : "OFF",
               },
+              {
+                label: "WCL ROSTER",
+                value: apiSettings.guildRosterWclEnabled
+                  ? apiSettings.guildRosterWclMemberLimit > 0
+                    ? String(apiSettings.guildRosterWclMemberLimit)
+                    : "ALL"
+                  : "OFF",
+              },
             ]}
           />
         </header>
@@ -195,6 +203,11 @@ export default async function AdminOverviewPage() {
                   {apiSettings.warcraftLogsClientSecretConfigured
                     ? `WCL: ${apiSettings.warcraftLogsCredentialsSource}`
                     : "WCL: вимкнено"}
+                </span>
+                <span>
+                  {apiSettings.guildRosterWclEnabled
+                    ? `WCL склад: ${apiSettings.guildRosterWclMemberLimit > 0 ? apiSettings.guildRosterWclMemberLimit : "усі"}`
+                    : "WCL склад: OFF"}
                 </span>
               </div>
             </header>
@@ -392,6 +405,83 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                 </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Warcraft Logs у складі гільдії</legend>
+                <input type="hidden" name="guildRosterWclEnabled" value="0" />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="guildRosterWclEnabled"
+                    value="1"
+                    defaultChecked={apiSettings.guildRosterWclEnabled}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Показувати HPS/DPS зі WCL у списку складу</strong>
+                    <small>
+                      Дані записуються в guildRuntimeCache → guildRoster → payload.members[].warcraftLogs і читаються зі збереженого кешу.
+                    </small>
+                  </span>
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL персонажів у складі</span>
+                  <small>
+                    0 = обробляти весь склад. Для великих ростерів краще ставити 40–120, щоб не впиратися в rate limits.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterWclMemberLimit"
+                    min={0}
+                    max={1000}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterWclMemberLimit}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL паралельність складу</span>
+                  <small>
+                    0 = автоматично. Це кількість одночасних WCL-запитів під час оновлення guildRoster cache.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterWclConcurrency"
+                    min={0}
+                    max={8}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterWclConcurrency}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Макс. WCL паралельність складу</span>
+                  <small>
+                    Верхня межа для автоматичного режиму та ручної паралельності.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterWclMaxConcurrency"
+                    min={1}
+                    max={8}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterWclMaxConcurrency}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <div className="admin-policy-hint admin-policy-hint--split">
+                  <strong>Поточний стан WCL для складу</strong>
+                  <small>
+                    Режим: {apiSettings.guildRosterWclEnabled ? "увімкнено" : "вимкнено"}
+                  </small>
+                  <small>
+                    Ліміт персонажів: {apiSettings.guildRosterWclMemberLimit > 0 ? apiSettings.guildRosterWclMemberLimit : "усі"}
+                  </small>
+                  <small>
+                    Паралельність: {apiSettings.guildRosterWclConcurrency > 0 ? apiSettings.guildRosterWclConcurrency : "auto"} / max {apiSettings.guildRosterWclMaxConcurrency}
+                  </small>
+                </div>
               </fieldset>
 
               <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">

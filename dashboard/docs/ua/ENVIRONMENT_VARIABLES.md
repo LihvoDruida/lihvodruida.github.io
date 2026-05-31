@@ -137,9 +137,9 @@
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Concurrency оновлення персонажів Raider.IO для `/guild`. |
 | `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | TTL кешу привʼязок персонаж -> профіль на `/guild`. Дублікати навмисно не лінкуються. За замовчуванням: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Максимум персонажів для одного оновлення складу. |
-| `GUILD_ROSTER_WCL_ENABLED` | optional | Вмикає додавання легкого Warcraft Logs HPS/DPS snapshot у `guildRuntimeCache/guildRoster.payload.members`. Default `true`. |
-| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | optional | Скільки персонажів складу збагачувати WCL-даними за одне live-оновлення. Default = розмір складу. |
-| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | optional | Concurrency легких WCL-запитів для складу. Default 1–3, щоб не бити rate limit. |
+| `GUILD_ROSTER_WCL_ENABLED` | fallback | Вмикає додавання легкого Warcraft Logs HPS/DPS snapshot у `guildRuntimeCache/guildRoster.payload.members`. Основне керування: `/admin` → «Фоновий API та автооновлення» → «Warcraft Logs у складі гільдії». Default `true`. |
+| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | fallback | Скільки персонажів складу збагачувати WCL-даними за одне live-оновлення. `0` = весь склад. Значення з панелі має пріоритет над env. |
+| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | fallback | Concurrency легких WCL-запитів для складу. `0` = auto, max `1–8`. Значення з панелі має пріоритет над env. |
 
 ### Raider.IO і продуктивність
 

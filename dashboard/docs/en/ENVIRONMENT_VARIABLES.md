@@ -137,9 +137,9 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Raider.IO character refresh concurrency for `/guild`. |
 | `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | Cache TTL for character -> owner profile links on `/guild`. Duplicates are intentionally unlinked. Default: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Max characters per roster refresh. |
-| `GUILD_ROSTER_WCL_ENABLED` | optional | Enables lightweight Warcraft Logs HPS/DPS snapshots in `guildRuntimeCache/guildRoster.payload.members`. Default `true`. |
-| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | optional | How many roster characters to enrich with WCL data during one live refresh. Defaults to roster size. |
-| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | optional | Lightweight WCL roster enrichment concurrency. Default 1–3 to avoid rate-limit pressure. |
+| `GUILD_ROSTER_WCL_ENABLED` | fallback | Enables lightweight Warcraft Logs HPS/DPS snapshots in `guildRuntimeCache/guildRoster.payload.members`. Main control is `/admin` → Background API → Warcraft Logs in guild roster. Default `true`. |
+| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | fallback | How many roster characters to enrich with WCL data during one live refresh. `0` = full roster. Panel value overrides env. |
+| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | fallback | Lightweight WCL roster enrichment concurrency. `0` = auto, max `1–8`. Panel value overrides env. |
 
 ### Raider.IO and performance
 

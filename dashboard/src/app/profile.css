@@ -2586,6 +2586,11 @@
 }
 
 .profile-wcl-guide--99 line { stroke: #ff7ac7; }
+.profile-wcl-guide--80 line { stroke: #ff9f1a; }
+.profile-wcl-guide--60 line { stroke: #9f48ff; }
+.profile-wcl-guide--40 line { stroke: #248dff; }
+.profile-wcl-guide--20 line { stroke: #2de04d; }
+.profile-wcl-guide--0 line { stroke: #e5e5e5; }
 .profile-wcl-guide--95 line { stroke: #ff9f1a; }
 .profile-wcl-guide--75 line { stroke: #9f48ff; }
 .profile-wcl-guide--50 line { stroke: #248dff; }
@@ -2891,7 +2896,7 @@
   gap: 7px;
 }
 
-.profile-wcl-difficulty-strip span {
+.profile-wcl-difficulty-strip :is(span, button) {
   min-width: 0;
   display: grid;
   gap: 2px;
@@ -2899,9 +2904,23 @@
   border: 1px solid rgba(214, 176, 92, 0.12);
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.13);
+  color: inherit;
+  text-align: left;
 }
 
-.profile-wcl-difficulty-strip span.is-primary {
+.profile-wcl-difficulty-strip button {
+  appearance: none;
+  cursor: pointer;
+}
+
+.profile-wcl-difficulty-strip button:hover,
+.profile-wcl-difficulty-strip button:focus-visible {
+  border-color: rgba(236, 202, 126, 0.38);
+  background: rgba(236, 202, 126, 0.07);
+  outline: none;
+}
+
+.profile-wcl-difficulty-strip :is(span, button).is-primary {
   border-color: rgba(104, 214, 154, 0.34);
   background: rgba(104, 214, 154, 0.08);
 }

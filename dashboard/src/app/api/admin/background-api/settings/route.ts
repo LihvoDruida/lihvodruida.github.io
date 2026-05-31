@@ -178,6 +178,14 @@ export async function POST(request: NextRequest) {
         warcraftLogsReportFightTableLimit: form.get(
           "warcraftLogsReportFightTableLimit",
         ),
+        guildRosterWclEnabled: form
+          .getAll("guildRosterWclEnabled")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
+        guildRosterWclMemberLimit: form.get("guildRosterWclMemberLimit"),
+        guildRosterWclConcurrency: form.get("guildRosterWclConcurrency"),
+        guildRosterWclMaxConcurrency: form.get("guildRosterWclMaxConcurrency"),
       },
       session,
     );
