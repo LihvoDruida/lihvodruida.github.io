@@ -224,7 +224,7 @@ type WarcraftLogsReportMeasure = {
 type WarcraftLogsReportRoleResolution = {
   role: WarcraftLogsConcreteRoleKey | null;
   spec: string | null;
-  source: "table" | "actor" | "unknown";
+  source: "combatantInfo" | "table" | "actor" | "metric" | "unknown";
 };
 
 type WarcraftLogsSliceConfig = {
@@ -725,6 +725,61 @@ const SPEC_ROLE_BY_KEY: Record<string, WarcraftLogsConcreteRoleKey> = {
   windwalker: "dps",
 };
 
+const SPEC_INFO_BY_ID: Record<number, { spec: string; role: WarcraftLogsConcreteRoleKey }> = {
+  62: { spec: "Arcane", role: "dps" },
+  63: { spec: "Fire", role: "dps" },
+  64: { spec: "Frost", role: "dps" },
+  65: { spec: "Holy", role: "healer" },
+  66: { spec: "Protection", role: "tank" },
+  70: { spec: "Retribution", role: "dps" },
+  71: { spec: "Arms", role: "dps" },
+  72: { spec: "Fury", role: "dps" },
+  73: { spec: "Protection", role: "tank" },
+  102: { spec: "Balance", role: "dps" },
+  103: { spec: "Feral", role: "dps" },
+  104: { spec: "Guardian", role: "tank" },
+  105: { spec: "Restoration", role: "healer" },
+  250: { spec: "Blood", role: "tank" },
+  251: { spec: "Frost", role: "dps" },
+  252: { spec: "Unholy", role: "dps" },
+  253: { spec: "Beast Mastery", role: "dps" },
+  254: { spec: "Marksmanship", role: "dps" },
+  255: { spec: "Survival", role: "dps" },
+  256: { spec: "Discipline", role: "healer" },
+  257: { spec: "Holy", role: "healer" },
+  258: { spec: "Shadow", role: "dps" },
+  259: { spec: "Assassination", role: "dps" },
+  260: { spec: "Outlaw", role: "dps" },
+  261: { spec: "Subtlety", role: "dps" },
+  262: { spec: "Elemental", role: "dps" },
+  263: { spec: "Enhancement", role: "dps" },
+  264: { spec: "Restoration", role: "healer" },
+  265: { spec: "Affliction", role: "dps" },
+  266: { spec: "Demonology", role: "dps" },
+  267: { spec: "Destruction", role: "dps" },
+  268: { spec: "Brewmaster", role: "tank" },
+  269: { spec: "Windwalker", role: "dps" },
+  270: { spec: "Mistweaver", role: "healer" },
+  577: { spec: "Havoc", role: "dps" },
+  581: { spec: "Vengeance", role: "tank" },
+  1467: { spec: "Devastation", role: "dps" },
+  1468: { spec: "Preservation", role: "healer" },
+  1473: { spec: "Augmentation", role: "dps" },
+};
+
+function specInfoFromRecord(record: Record<string, unknown> | null) {
+  const specId = firstInteger(record, [
+    "specID",
+    "specId",
+    "currentSpecID",
+    "currentSpecId",
+    "talentSpecID",
+    "talentSpecId",
+  ]);
+  return specId !== null ? SPEC_INFO_BY_ID[specId] || null : null;
+}
+
+
 function normalizeRoleText(value: unknown) {
   return cleanText(value, 120)
     .toLowerCase()
@@ -778,6 +833,9 @@ function concreteRoleFromSpec(
 }
 
 function specFromRecord(record: Record<string, unknown>) {
+  const byId = specInfoFromRecord(record);
+  if (byId?.spec) return byId.spec;
+
   return (
     cleanText(
       firstValue(record, [
@@ -790,6 +848,7 @@ function specFromRecord(record: Record<string, unknown>) {
         "icon",
         "talentSpec",
         "talent_spec",
+        "talentSpecName",
       ]),
       80,
     ) || null
@@ -809,6 +868,10 @@ function roleFromRecord(
     ]),
   );
   if (directRole) return directRole;
+
+  const byId = specInfoFromRecord(record);
+  if (byId?.role) return byId.role;
+
   return concreteRoleFromSpec(specFromRecord(record));
 }
 
@@ -828,16 +891,29 @@ function resolveReportFightRole(input: {
   actor: WarcraftLogsReportActor;
   damage: WarcraftLogsReportMeasure;
   healing: WarcraftLogsReportMeasure;
+  combatantInfo?: { role: WarcraftLogsConcreteRoleKey | null; spec: string | null } | null;
 }): WarcraftLogsReportRoleResolution {
   const tableSpec = input.damage.spec || input.healing.spec;
+  const combatantRole = input.combatantInfo?.role ?? null;
+  const combatantSpec = input.combatantInfo?.spec ?? null;
+
+  // COMBATANT_INFO is emitted at encounter start and contains the current
+  // specialization. It is the safest per-pull role source for wipes, because
+  // rankings often exist only for kills and damage/healing tables do not always
+  // expose the player's role.
+  if (combatantRole) {
+    return {
+      role: combatantRole,
+      spec: combatantSpec || tableSpec || input.actor.spec,
+      source: "combatantInfo",
+    };
+  }
+
   const tableRoles = [input.damage.role, input.healing.role].filter(
     (role): role is WarcraftLogsConcreteRoleKey => Boolean(role),
   );
   const uniqueTableRoles = [...new Set(tableRoles)];
 
-  // Prefer the role explicitly emitted by the WCL table. Spec names are only a
-  // fallback, because masterData.subType can be a class name rather than the
-  // spec used in that fight.
   if (uniqueTableRoles.length === 1) {
     return {
       role: uniqueTableRoles[0],
@@ -870,6 +946,38 @@ function resolveReportFightRole(input: {
       spec: tableSpec || input.actor.spec,
       source: "actor",
     };
+  }
+
+  // Last-resort role inference for source-filtered table data. This is not used
+  // when the player has both meaningful damage and healing in the same pull, so
+  // a healer's small DPS or a DPS player's self-healing is not mixed silently.
+  const hasDamage = input.damage.amount !== null;
+  const hasHealing = input.healing.amount !== null;
+  if (hasDamage !== hasHealing) {
+    return {
+      role: hasHealing ? "healer" : "dps",
+      spec: tableSpec || input.actor.spec,
+      source: "metric",
+    };
+  }
+
+  const damageAmount = input.damage.amount ?? 0;
+  const healingAmount = input.healing.amount ?? 0;
+  if (damageAmount > 0 && healingAmount > 0) {
+    if (healingAmount >= damageAmount * 2) {
+      return {
+        role: "healer",
+        spec: tableSpec || input.actor.spec,
+        source: "metric",
+      };
+    }
+    if (damageAmount >= healingAmount * 4) {
+      return {
+        role: "dps",
+        spec: tableSpec || input.actor.spec,
+        source: "metric",
+      };
+    }
   }
 
   return {
@@ -2457,6 +2565,92 @@ function rowHasMetricSignal(
   );
 }
 
+
+function sourceFilteredAggregateMeasure(
+  value: unknown,
+  metric: WarcraftLogsMetricKey,
+  durationMs: number,
+) {
+  const root = parseMaybeJsonObject(value);
+  if (!root) return null;
+  const hasNestedRows = Array.isArray(root.entries) || Array.isArray(root.series);
+  const hasAggregateSignal =
+    rowHasMetricSignal(root, metric) ||
+    firstNumber(root, ["totalTime", "activeTime", "duration", "durationMs"]) !== null;
+  if (!hasNestedRows && !hasAggregateSignal) return null;
+
+  const details = amountDetailsFromTableRow(root, metric, durationMs);
+  if (details.amount === null) return null;
+  return {
+    amount: details.amount,
+    totalAmount: details.totalAmount,
+    activeTimeMs: details.activeTimeMs,
+    role: roleFromRecord(root),
+    spec: specFromRecord(root),
+    confidence: 55,
+    index: -1,
+  };
+}
+
+function combatantInfoRows(value: unknown, actor: WarcraftLogsReportActor) {
+  const root = parseMaybeJsonObject(value) || value;
+  const rows: Record<string, unknown>[] = [];
+  const stack: unknown[] = [root];
+  const seen = new Set<unknown>();
+
+  while (stack.length && rows.length < 40) {
+    const current = stack.shift();
+    if (!current || seen.has(current)) continue;
+    seen.add(current);
+
+    if (Array.isArray(current)) {
+      for (const item of current) stack.push(item);
+      continue;
+    }
+
+    const record = asRecord(current);
+    if (!record) continue;
+
+    const rawData = record.data;
+    const data = Array.isArray(rawData)
+      ? rawData
+      : parseMaybeJsonObject(rawData);
+    if (data && data !== record) stack.push(data);
+
+    if (
+      specInfoFromRecord(record) ||
+      firstInteger(record, ["specID", "specId", "currentSpecID", "currentSpecId"]) !== null ||
+      rowMatchesReportActor(record, actor)
+    ) {
+      rows.push(record);
+    }
+
+    for (const nested of Object.values(record)) {
+      if (Array.isArray(nested) || asRecord(nested)) stack.push(nested);
+    }
+  }
+
+  return rows;
+}
+
+function roleFromCombatantInfo(
+  value: unknown,
+  actor: WarcraftLogsReportActor,
+): { role: WarcraftLogsConcreteRoleKey | null; spec: string | null; rowCount: number } {
+  const rows = combatantInfoRows(value, actor);
+  const actorRows = rows.filter((row) => rowMatchesReportActor(row, actor));
+  const source = actorRows.length ? actorRows : rows.length === 1 ? rows : [];
+
+  for (const row of source) {
+    const byId = specInfoFromRecord(row);
+    if (byId) return { role: byId.role, spec: byId.spec, rowCount: rows.length };
+    const role = roleFromRecord(row);
+    if (role) return { role, spec: specFromRecord(row), rowCount: rows.length };
+  }
+
+  return { role: null, spec: null, rowCount: rows.length };
+}
+
 function measureFromReportTable(
   value: unknown,
   metric: "hps" | "dps",
@@ -2466,9 +2660,11 @@ function measureFromReportTable(
   const rows = collectTableRows(value);
   let fallbackRole: WarcraftLogsConcreteRoleKey | null = null;
   let fallbackSpec: string | null = null;
+  const aggregate = sourceFilteredAggregateMeasure(value, metric, durationMs);
 
-  const candidates = rows
-    .map((row, index) => {
+  const candidates = [
+    ...(aggregate ? [aggregate] : []),
+    ...rows.map((row, index) => {
       const role = roleFromRecord(row);
       const spec = specFromRecord(row);
       fallbackRole = fallbackRole || role;
@@ -2504,7 +2700,8 @@ function measureFromReportTable(
         confidence,
         index,
       };
-    })
+    }),
+  ]
     .filter(
       (
         item,
@@ -2700,10 +2897,13 @@ function reportFightTablesQuery(
 
       if (!enhanced) return baseFields.join("\n");
 
+      const eventStart = Math.max(0, Math.floor(fight.startOffsetMs));
+      const eventEnd = Math.max(eventStart + 1, Math.floor(fight.endOffsetMs));
       return [
         ...baseFields,
         `    s${index}: table(${reportTableArgs("Summary", fight, mode)})`,
         `    x${index}: table(${reportTableArgs("Deaths", fight, mode)})`,
+        `    c${index}: events(dataType: CombatantInfo, sourceID: $sourceID, startTime: ${eventStart}, endTime: ${eventEnd}) { data nextPageTimestamp }`,
       ].join("\n");
     })
     .join("\n");
@@ -3068,19 +3268,21 @@ async function fetchRecentRaidBossPulls(input: {
             tables[`x${index}`],
             actor,
           );
-          summaryRows += summaryStats.rowCount;
+          const combatantInfo = roleFromCombatantInfo(tables[`c${index}`], actor);
+          summaryRows += summaryStats.rowCount + combatantInfo.rowCount;
           deathRows += deathStats.rowCount;
           const roleResolution = resolveReportFightRole({
             actor,
+            combatantInfo,
             damage: {
               ...damage,
               role: damage.role || summaryStats.role,
-              spec: damage.spec || summaryStats.spec,
+              spec: damage.spec || summaryStats.spec || combatantInfo.spec,
             },
             healing: {
               ...healing,
               role: healing.role || summaryStats.role,
-              spec: healing.spec || summaryStats.spec,
+              spec: healing.spec || summaryStats.spec || combatantInfo.spec,
             },
           });
 
@@ -3102,6 +3304,9 @@ async function fetchRecentRaidBossPulls(input: {
               healingRole: healing.role,
               damageSpec: damage.spec,
               healingSpec: healing.spec,
+              combatantRole: combatantInfo.role,
+              combatantSpec: combatantInfo.spec,
+              combatantRows: combatantInfo.rowCount,
             });
             continue;
           }
@@ -3172,6 +3377,9 @@ async function fetchRecentRaidBossPulls(input: {
               healingRole: healing.role,
               damageSpec: damage.spec,
               healingSpec: healing.spec,
+              combatantRole: combatantInfo.role,
+              combatantSpec: combatantInfo.spec,
+              combatantRows: combatantInfo.rowCount,
             });
           }
         }

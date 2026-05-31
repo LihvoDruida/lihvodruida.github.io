@@ -74,7 +74,8 @@ function difficultyLabel(value: number | null | undefined) {
   if (value === 5) return "MYTHIC";
   if (value === 4) return "HEROIC";
   if (value === 3) return "NORMAL";
-  if (value === 2) return "LFR";
+  if (value === 2) return "LEGACY/FLEX";
+  if (value === 1) return "LFR";
   return "RAID";
 }
 
