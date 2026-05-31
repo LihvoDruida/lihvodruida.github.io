@@ -292,6 +292,11 @@ function EncounterRankingRow({ ranking }: { ranking: WarcraftLogsEncounterRankin
 }
 
 function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary }) {
+  const cleanPulls =
+    summary.sourceCoverage.uniqueReportPullRows ||
+    summary.sourceCoverage.reportPullRows;
+  const roleTotals = summary.sourceCoverage.roleTotals;
+
   return (
     <article className="panel profile-card profile-character-detail-panel profile-character-detail-panel--wcl">
       <div className="profile-card-head profile-card-head--inline">
@@ -305,23 +310,17 @@ function WarcraftLogsPanel({ summary }: { summary: WarcraftLogsCharacterSummary 
       <WarcraftLogsStatus summary={summary} />
 
       <div className="profile-character-role-scores profile-character-role-scores--three">
-        <StatCard label="Найкращий середній parse" value={formatPercent(summary.bestPerformanceAverage)} hint="За рейдовими босами" />
-        <StatCard label="Медіана parse" value={formatPercent(summary.medianPerformanceAverage)} hint="Стабільний рівень" />
+        <StatCard label="Raid parse avg" value={formatPercent(summary.bestPerformanceAverage)} hint="Чисті boss-pull дані" />
+        <StatCard label="Чисті pull-и" value={formatStableNumber(cleanPulls, 0)} hint={`${summary.sourceCoverage.reportsChecked} WCL звітів`} />
+        <StatCard label="Ролі" value={`${roleTotals.healer}/${roleTotals.dps}/${roleTotals.tank}`} hint="хіл / дд / танк" />
         <StatCard label="All Stars" value={roundNumber(summary.allStarsPoints)} hint={summary.allStarsRank ? `Місце ${formatStableNumber(summary.allStarsRank)}` : "Публічний рейтинг"} />
       </div>
 
       <WarcraftLogsBossGraphs summary={summary} />
-
-      {summary.encounterRankings.length ? (
-        <div className="profile-character-log-list profile-character-log-list--rankings">
-          {summary.encounterRankings.map((ranking, index) => <EncounterRankingRow key={`${ranking.encounterName}-${ranking.metric || "metric"}-${index}`} ranking={ranking} />)}
-        </div>
-      ) : (
-        <EmptyBlock title="Рейдові боси не знайдені" text="Щойно зʼявляться публічні рейдові логи, тут будуть боси, parse %, HPS/DPS та останні пули." />
-      )}
     </article>
   );
 }
+
 
 
 function ecosystemToneClass(tone: CharacterPerformanceEcosystem["signals"][number]["tone"]) {
@@ -333,10 +332,10 @@ function ecosystemToneClass(tone: CharacterPerformanceEcosystem["signals"][numbe
 function PerformanceRoleRow({ role }: { role: CharacterPerformanceRoleSummary }) {
   return (
     <div className="profile-performance-role-row">
-      <span><strong>{role.title}</strong><small>{role.primaryDifficultyLabel || "рейд"} • {role.bosses} босів • {role.pulls} записів</small></span>
+      <span><strong>{role.title}</strong><small>{role.primaryDifficultyLabel || "рейд"} • {role.bosses} босів • {role.pulls} чистих pull-ів</small></span>
       <span><strong>{formatPercent(role.bestAverage)}</strong><small>Кращий середній</small></span>
       <span><strong>{formatMetricAmount(role.maxAmount)}</strong><small>Макс. {role.metric}</small></span>
-      <span><strong>{formatMetricAmount(role.averageAmount)}</strong><small>Середнє≤10</small></span>
+      <span><strong>{formatMetricAmount(role.averageAmount)}</strong><small>Середній показник</small></span>
       <span><strong>{formatPercent(role.consistencyScore)}</strong><small>Стабільність</small></span>
     </div>
   );
@@ -349,7 +348,7 @@ function CharacterPerformancePanel({ ecosystem }: { ecosystem: CharacterPerforma
         <div>
           <span className="eyebrow">Ефективність</span>
           <h2>Raider.IO × Warcraft Logs</h2>
-          <p>Зведена оцінка персонажа з рейдових логів, Mythic+ і нашого розрахунку HPS/DPS.</p>
+          <p>Зведена оцінка персонажа з рейдових логів, Mythic+ і чистих рольових HPS/DPS без змішування хіла, ДД і танка.</p>
         </div>
         <span className="profile-count-pill">Довіра {roundNumber(ecosystem.dataConfidence)}%</span>
       </div>

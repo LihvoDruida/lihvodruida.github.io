@@ -68,8 +68,13 @@ function formatPercent(value: number | null | undefined) {
   return `${formatStableNumber(percent, percent % 1 ? 1 : 0)}%`;
 }
 
+function clampProgress(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.max(0, Math.min(100, value));
+}
+
 function formatProgress(value: number | null | undefined) {
-  const percent = clampPercent(value);
+  const percent = clampProgress(value);
   if (percent === null) return "—";
   return `${formatStableNumber(percent, percent % 1 ? 1 : 0)}%`;
 }
@@ -99,10 +104,25 @@ function difficultyLabel(value: number | null | undefined) {
   return "RAID";
 }
 
+function normalizedOutcome(value: string | null | undefined) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (["kill", "killed", "true", "1", "кіл"].includes(normalized)) return "kill";
+  if (["wipe", "wiped", "false", "0", "вайп"].includes(normalized)) return "wipe";
+  return normalized || "unknown";
+}
+
 function pullOutcomeLabel(value: string | null | undefined) {
-  if (value === "Kill") return "Кіл";
-  if (value === "Wipe") return "Вайп";
+  const outcome = normalizedOutcome(value);
+  if (outcome === "kill") return "Кіл";
+  if (outcome === "wipe") return "Вайп";
   return value || "—";
+}
+
+function pullOutcomeClass(value: string | null | undefined) {
+  const outcome = normalizedOutcome(value);
+  if (outcome === "kill") return "is-kill";
+  if (outcome === "wipe") return "is-wipe";
+  return "is-unknown";
 }
 
 function pullDate(pull: WarcraftLogsBossPull) {
@@ -631,6 +651,24 @@ function MetricStat({
   );
 }
 
+function PullFact({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "good" | "warn" | "muted";
+}) {
+  if (!value || value === "—") return null;
+  return (
+    <span className={`profile-wcl-pull-fact${tone ? ` profile-wcl-pull-fact--${tone}` : ""}`}>
+      <strong>{value}</strong>
+      <small>{label}</small>
+    </span>
+  );
+}
+
 function PullRow({
   pull,
   index,
@@ -646,76 +684,82 @@ function PullRow({
       : pull.metric === "dps"
         ? (pull.damageDone ?? pull.totalAmount)
         : pull.totalAmount;
+  const outcome = normalizedOutcome(pull.killedWith);
   const progress =
-    pull.killedWith === "Wipe" ? pull.bossPercentage : pull.fightPercentage;
+    outcome === "wipe"
+      ? pull.bossPercentage
+      : (pull.fightPercentage ?? pull.bossPercentage);
+  const primaryMetric = formatAmount(pull.amount);
+  const reportMeta = [
+    formatStableUkCompactDate(pull.startTime),
+    difficultyLabel(pull.difficulty),
+    pull.reportFightId !== null ? `fight ${pull.reportFightId}` : null,
+    pull.fightSize ? `${pull.fightSize} гравців` : null,
+  ]
+    .filter(Boolean)
+    .join(" • ");
+
   const row = (
     <>
-      <span>
-        <strong>{formatPercent(pull.percentile)}</strong>
-        <small>
-          #{index + 1} • {formatStableUkCompactDate(pull.startTime)}
-          {pull.killedWith ? ` • ${pull.killedWith}` : ""}
-        </small>
+      <span className="profile-wcl-pull-main">
+        <strong>#{index + 1} · {pullOutcomeLabel(pull.killedWith)}</strong>
+        <small>{reportMeta || pull.reportTitle || "рейдовий pull"}</small>
       </span>
-      <span>
-        <strong>{formatAmount(pull.amount)}</strong>
+      <span className="profile-wcl-pull-primary">
+        <strong>{primaryMetric}</strong>
         <small>{metricLabel(activeSlice)}</small>
       </span>
-      <span>
-        <strong>{formatAmount(total)}</strong>
-        <small>{totalAmountLabel(activeSlice)}</small>
-      </span>
-      <span>
-        <strong>
-          {pull.deathCount !== null
-            ? formatStableNumber(pull.deathCount, 0)
-            : "—"}
-        </strong>
-        <small>смерті</small>
-      </span>
-      <span>
-        <strong>
-          {progress !== null
-            ? formatProgress(progress)
-            : pull.itemLevel !== null
+      <span className="profile-wcl-pull-facts">
+        <PullFact label="parse" value={formatPercent(pull.percentile)} />
+        <PullFact label={totalAmountLabel(activeSlice)} value={formatAmount(total)} />
+        <PullFact
+          label={outcome === "wipe" ? "залишок боса" : "прогрес"}
+          value={formatProgress(progress)}
+          tone={outcome === "kill" ? "good" : outcome === "wipe" ? "warn" : undefined}
+        />
+        <PullFact label="тривалість" value={formatDuration(pull.durationMs)} />
+        <PullFact
+          label="смерті"
+          value={
+            pull.deathCount !== null
+              ? formatStableNumber(pull.deathCount, 0)
+              : "—"
+          }
+          tone={pull.deathCount && pull.deathCount > 0 ? "warn" : "muted"}
+        />
+        <PullFact
+          label="ilvl"
+          value={
+            pull.itemLevel !== null
               ? formatStableNumber(pull.itemLevel, 0)
-              : "—"}
-        </strong>
-        <small>{progress !== null ? "прогрес" : "ilvl"}</small>
-      </span>
-      <span>
-        <strong>{formatDuration(pull.durationMs)}</strong>
-        <small>
-          {pull.reportFightId !== null
-            ? `fight ${pull.reportFightId}`
-            : pull.fightSize
-              ? `${pull.fightSize} гравців`
-              : "тривалість"}
-        </small>
-      </span>
-      <span>
-        <strong>{difficultyLabel(pull.difficulty)}</strong>
-        <small>{pull.spec || activeSlice.roleLabel}</small>
-      </span>
-      <span>
-        <strong>{pullOutcomeLabel(pull.killedWith)}</strong>
-        <small>{pull.fightSize ? `${pull.fightSize} гравців` : pull.reportTitle || "результат"}</small>
-      </span>
-      <span>
-        <strong>{pull.interruptCount !== null ? formatStableNumber(pull.interruptCount, 0) : "—"}</strong>
-        <small>інтеррапти</small>
-      </span>
-      <span>
-        <strong>{pull.dispelCount !== null ? formatStableNumber(pull.dispelCount, 0) : "—"}</strong>
-        <small>диспели</small>
+              : "—"
+          }
+        />
+        <PullFact
+          label="interrupts"
+          value={
+            pull.interruptCount !== null
+              ? formatStableNumber(pull.interruptCount, 0)
+              : "—"
+          }
+        />
+        <PullFact
+          label="dispels"
+          value={
+            pull.dispelCount !== null
+              ? formatStableNumber(pull.dispelCount, 0)
+              : "—"
+          }
+        />
       </span>
     </>
   );
 
+  const className = `profile-wcl-pull-row ${pullOutcomeClass(pull.killedWith)}`;
   if (pull.reportUrl) {
     return (
       <a
-        className="profile-wcl-pull-row"
+        className={className}
         href={pull.reportUrl}
         target="_blank"
         rel="noreferrer"
@@ -724,7 +768,7 @@ function PullRow({
       </a>
     );
   }
-  return <div className="profile-wcl-pull-row">{row}</div>;
+  return <div className={className}>{row}</div>;
 }
 
 
@@ -742,6 +786,7 @@ function BossButton({
   difficulty: number | null;
 }) {
   const stats = bossStatsForDifficulty(boss, difficulty);
+  const recent = stats?.recentStats ?? boss.recentStats;
   return (
     <button
       type="button"
@@ -752,14 +797,15 @@ function BossButton({
     >
       <strong>{boss.encounterName}</strong>
       <span>
-        {stats?.difficultyLabel || difficultyLabel(difficulty ?? boss.difficulty)} •{" "}
-        {formatPercent(stats?.recentStats.averagePercentile ?? boss.bestPercentile)} • середнє{" "}
-        {formatAmount(stats?.recentStats.averageAmount ?? boss.recentStats.averageAmount)} {label} •{" "}
-        {formatStableNumber(stats?.recentStats.pullCount ?? 0, 0)} пулів
+        {stats?.difficultyLabel || difficultyLabel(difficulty ?? boss.difficulty)} · {formatPercent(recent.averagePercentile ?? boss.bestPercentile)} parse · {formatAmount(recent.averageAmount)} {label}
       </span>
+      <em>
+        {formatStableNumber(recent.pullCount, 0)} пулів · {formatStableNumber(recent.killCount, 0)}/{formatStableNumber(recent.wipeCount, 0)} К/В · {formatStableNumber(recent.deathCount, 0)} смертей
+      </em>
     </button>
   );
 }
+
 
 function GraphSidePanel({
   activeBoss,
@@ -772,10 +818,6 @@ function GraphSidePanel({
 }) {
   const difficultyStats = bossStatsForDifficulty(activeBoss, activeDifficulty);
   const stats = difficultyStats?.recentStats ?? activeBoss.recentStats;
-  const pulls = pullsForDifficulty(activeBoss.pulls, activeDifficulty);
-  const killCount = pulls.filter(
-    (pull) => pull.killedWith === "Kill",
-  ).length;
   return (
     <aside
       className="profile-wcl-graph-side"
@@ -792,27 +834,19 @@ function GraphSidePanel({
             activeBoss.bestPercentile,
         )}
       </strong>
-      <small>Parse по активній складності</small>
+      <small>Середній parse по активній складності</small>
       <dl>
-        <div>
-          <dt>Parse avg</dt>
-          <dd>{formatPercent(stats.averagePercentile)}</dd>
-        </div>
         <div>
           <dt>Пули</dt>
           <dd>{formatStableNumber(stats.pullCount, 0)}</dd>
         </div>
         <div>
-          <dt>Кіли</dt>
-          <dd>{formatStableNumber(stats.killCount || activeBoss.totalKills || killCount, 0)}</dd>
+          <dt>Кіл / вайп</dt>
+          <dd>{formatStableNumber(stats.killCount, 0)} / {formatStableNumber(stats.wipeCount, 0)}</dd>
         </div>
         <div>
           <dt>Макс. {activeSlice.metricLabel}</dt>
-          <dd>
-            {formatAmount(
-              stats.maxAmount ?? activeBoss.bestAmount,
-            )}
-          </dd>
+          <dd>{formatAmount(stats.maxAmount ?? activeBoss.bestAmount)}</dd>
         </div>
         <div>
           <dt>Середній</dt>
@@ -838,18 +872,11 @@ function GraphSidePanel({
           <dt>Найшвидший кіл</dt>
           <dd>{formatDuration(activeBoss.fastestKillMs)}</dd>
         </div>
-        <div>
-          <dt>All Stars</dt>
-          <dd>
-            {activeBoss.allStarsPoints !== null
-              ? formatStableNumber(activeBoss.allStarsPoints, 2)
-              : "—"}
-          </dd>
-        </div>
       </dl>
     </aside>
   );
 }
+
 
 function DataCoverageStrip({
   summary,
@@ -857,54 +884,39 @@ function DataCoverageStrip({
   summary: WarcraftLogsCharacterSummary;
 }) {
   const coverage = summary.sourceCoverage;
+  const cleanPulls = coverage.uniqueReportPullRows || coverage.reportPullRows;
   return (
     <div className="profile-wcl-data-strip" aria-label="Покриття Warcraft Logs">
       <span>
         <strong>{formatStableNumber(coverage.reportsChecked, 0)}</strong>
-        <small>звіти</small>
+        <small>WCL звітів</small>
+      </span>
+      <span>
+        <strong>{formatStableNumber(coverage.reportBossFightsChecked, 0)}</strong>
+        <small>boss pull-ів знайдено</small>
+      </span>
+      <span>
+        <strong>{formatStableNumber(cleanPulls, 0)}</strong>
+        <small>чистих рольових pull-ів</small>
       </span>
       <span>
         <strong>
-          {formatStableNumber(coverage.reportBossFightsChecked, 0)}
+          {formatStableNumber(coverage.roleTotals.healer, 0)} / {formatStableNumber(coverage.roleTotals.dps, 0)} / {formatStableNumber(coverage.roleTotals.tank, 0)}
         </strong>
-        <small>boss fights</small>
+        <small>хіл / дд / танк</small>
       </span>
       <span>
-        <strong>
-          {formatStableNumber(
-            coverage.uniqueReportPullRows || coverage.reportPullRows,
-            0,
-          )}
-        </strong>
-        <small>чисті пули</small>
+        <strong>{formatStableNumber(coverage.skippedUnknownRole, 0)}</strong>
+        <small>без чистої ролі</small>
       </span>
       <span>
         <strong>{formatStableNumber(coverage.duplicatePullRows, 0)}</strong>
-        <small>дублі</small>
+        <small>обʼєднаних дублів</small>
       </span>
-      <span>
-        <strong>
-          {formatStableNumber(coverage.summaryTableRows, 0)}/
-          {formatStableNumber(coverage.deathTableRows, 0)}
-        </strong>
-        <small>summary/deaths</small>
-      </span>
-      <span>
-        <strong>{formatStableNumber(coverage.archivedReports, 0)}</strong>
-        <small>архівні</small>
-      </span>
-      {coverage.rateLimitLimitPerHour !== null ? (
-        <span>
-          <strong>
-            {formatStableNumber(coverage.rateLimitPointsSpentThisHour ?? 0, 0)}/
-            {formatStableNumber(coverage.rateLimitLimitPerHour, 0)}
-          </strong>
-          <small>API points</small>
-        </span>
-      ) : null}
     </div>
   );
 }
+
 
 export default function WarcraftLogsBossGraphs({
   summary,
@@ -960,8 +972,8 @@ export default function WarcraftLogsBossGraphs({
           <span className="eyebrow">Warcraft Logs</span>
           <h3>Чисті пули по рейдових босах</h3>
           <p>
-            Boss-pulls з WCL без трешу й ключів. Основні цифри беруться з
-            найвищої складності, де є дані.
+            Чисті рейдові pull-и з WCL: хілам рахуємо тільки HPS, ДД тільки DPS,
+            танкам окремо Tank DPS і Tank HPS. Складність перемикається нижче.
           </p>
         </div>
         <span className="profile-count-pill">{slices.length} метрик</span>
@@ -989,10 +1001,7 @@ export default function WarcraftLogsBossGraphs({
           >
             <strong>{slice.title}</strong>
             <span>
-              {slice.primaryDifficultyLabel || "рейд"} •{" "}
-              {formatPercent(slice.bestPerformanceAverage)} • середнє{" "}
-              {formatAmount(slice.recentStats.averageAmount)} •{" "}
-              {slice.recentStats.sampleSize} записів
+              {slice.primaryDifficultyLabel || "рейд"} • {formatStableNumber(slice.recentStats.pullCount, 0)} пулів • {formatStableNumber(slice.recentStats.killCount, 0)}/{formatStableNumber(slice.recentStats.wipeCount, 0)} К/В
             </span>
           </button>
         ))}
@@ -1008,7 +1017,7 @@ export default function WarcraftLogsBossGraphs({
           hint="перемикач нижче"
         />
         <MetricStat
-          label="Найкращий середній parse"
+          label="Parse avg"
           value={formatPercent(activeStats?.averagePercentile ?? activeSlice.bestPerformanceAverage)}
           hint={activeSlice.roleLabel}
         />
@@ -1038,13 +1047,13 @@ export default function WarcraftLogsBossGraphs({
           hint="розкид"
         />
         <MetricStat
-          label="Пули / смерті"
-          value={`${formatStableNumber(activeStats?.pullCount ?? 0, 0)} / ${formatStableNumber(activeStats?.deathCount ?? 0, 0)}`}
-          hint={activeSlice.sourceLabel}
+          label="Пули / К/В"
+          value={`${formatStableNumber(activeStats?.pullCount ?? 0, 0)} / ${formatStableNumber(activeStats?.killCount ?? 0, 0)}-${formatStableNumber(activeStats?.wipeCount ?? 0, 0)}`}
+          hint={`${formatStableNumber(activeStats?.deathCount ?? 0, 0)} смертей`}
         />
       </div>
 
-      {difficulties.length > 1 ? (
+      {difficulties.length ? (
         <div
           className="profile-wcl-difficulty-strip"
           aria-label="Перемикач складності Warcraft Logs"
@@ -1088,7 +1097,7 @@ export default function WarcraftLogsBossGraphs({
               const key = `${boss.encounterId ?? boss.encounterName}`;
               return (
                 <BossButton
-                  key={`${key}-${index}`}
+                  key={key}
                   boss={boss}
                   label={activeSlice.metricLabel}
                   difficulty={activeDifficultyValue}
@@ -1170,6 +1179,7 @@ export default function WarcraftLogsBossGraphs({
                 aria-label="Доступні рейдові пули по босу"
               >
                 {pullsForDifficulty(activeBoss.pulls, activeDifficultyValue)
+                  .sort((left, right) => pullDate(right) - pullDate(left))
                   .map((pull, index) => (
                     <PullRow
                       key={`${pull.reportCode || activeBoss.encounterName}-${pull.reportFightId ?? pull.startTime ?? index}-${pull.amount ?? pull.percentile ?? index}`}

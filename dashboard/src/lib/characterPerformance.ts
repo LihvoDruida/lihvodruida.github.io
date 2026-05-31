@@ -101,11 +101,12 @@ function normalizedRaidScore(summary: WarcraftLogsMetricSummary) {
       summary.recentStats.medianPercentile,
   );
   const consistency = finiteNumber(summary.recentStats.consistencyScore);
+  const sampleWeight = clamp(summary.recentStats.pullCount / 8, 0.35, 1);
   return weightedAverage([
-    { value: best, weight: 0.35 },
-    { value: median, weight: 0.25 },
-    { value: recent, weight: 0.25 },
-    { value: consistency, weight: 0.15 },
+    { value: best, weight: 0.25 * sampleWeight },
+    { value: median, weight: 0.20 * sampleWeight },
+    { value: recent, weight: 0.35 * sampleWeight },
+    { value: consistency, weight: 0.20 * sampleWeight },
   ]);
 }
 
@@ -118,6 +119,34 @@ function usefulMetric(summary: WarcraftLogsMetricSummary) {
     summary.bestPerformanceAverage !== null ||
     summary.medianPerformanceAverage !== null,
   );
+}
+
+function effectiveRaidPulls(wcl: WarcraftLogsCharacterSummary) {
+  const coveragePulls =
+    wcl.sourceCoverage.uniqueReportPullRows || wcl.sourceCoverage.reportPullRows;
+  if (coveragePulls > 0) return coveragePulls;
+
+  const roleTotals = wcl.sourceCoverage.roleTotals;
+  const rolePulls = roleTotals.healer + roleTotals.dps + roleTotals.tank;
+  if (rolePulls > 0) return rolePulls;
+
+  // Tank has two metric slices, so use max per role rather than a raw sum.
+  const byRole = new Map<WarcraftLogsRoleKey, number>();
+  for (const summary of wcl.metricSummaries.filter(usefulMetric)) {
+    byRole.set(
+      summary.role,
+      Math.max(byRole.get(summary.role) || 0, summary.recentStats.pullCount),
+    );
+  }
+  return [...byRole.values()].reduce((sum, value) => sum + value, 0);
+}
+
+function roleSortWeight(role: WarcraftLogsRoleKey, key: string) {
+  if (role === "healer") return 10;
+  if (role === "dps") return 20;
+  if (role === "tank" && key.includes("dps")) return 30;
+  if (role === "tank") return 31;
+  return 99;
 }
 
 function strongestRaidSlice(wcl: WarcraftLogsCharacterSummary) {
@@ -138,15 +167,14 @@ function dataConfidence(input: {
     input.rio.bestRuns.length +
     input.rio.recentRuns.length +
     input.rio.highestRuns.length;
-  const wclPulls = input.wcl.metricSummaries.reduce(
-    (sum, summary) => sum + summary.recentStats.pullCount,
-    0,
-  );
+  const wclPulls = effectiveRaidPulls(input.wcl);
   const reports = input.wcl.sourceCoverage.reportsChecked;
+  const cleanRolePenalty = input.wcl.sourceCoverage.skippedUnknownRole > 0 ? -5 : 0;
   return clamp(
-    (Math.min(rioRuns, 20) / 20) * 35 +
-      (Math.min(wclPulls, 30) / 30) * 45 +
-      (Math.min(reports, 10) / 10) * 20,
+    (Math.min(rioRuns, 20) / 20) * 30 +
+      (Math.min(wclPulls, 30) / 30) * 50 +
+      (Math.min(reports, 10) / 10) * 20 +
+      cleanRolePenalty,
   );
 }
 
@@ -178,10 +206,7 @@ export function buildCharacterPerformanceEcosystem(input: {
     { value: gearScore, weight: 0.15 },
   ]);
   const confidence = dataConfidence({ rio: input.rio, wcl: input.wcl });
-  const totalPulls = input.wcl.metricSummaries.reduce(
-    (sum, summary) => sum + summary.recentStats.pullCount,
-    0,
-  );
+  const totalPulls = effectiveRaidPulls(input.wcl);
   const roleTotals = input.wcl.sourceCoverage.roleTotals;
 
   const signals: CharacterPerformanceSignal[] = [
@@ -189,7 +214,7 @@ export function buildCharacterPerformanceEcosystem(input: {
       "overall",
       "Індекс ефективності",
       formatScore(overallScore),
-      "Зведена оцінка з рейдів, ключів і ilvl.",
+      "Рейди 50%, M+ 35%, ilvl 15%; WCL рахується тільки по чистих ролях.",
       overallScore !== null && overallScore >= 70
         ? "good"
         : overallScore !== null && overallScore < 45
@@ -201,7 +226,7 @@ export function buildCharacterPerformanceEcosystem(input: {
       "Raid/WCL",
       formatScore(raidScore),
       raidSlice
-        ? `${raidSlice.title} ${raidSlice.primaryDifficultyLabel || ""}: best ${formatPercent(raidSlice.bestPerformanceAverage)}, середній parse ${formatPercent(raidSlice.recentStats.averagePercentile)}`
+        ? `${raidSlice.title} ${raidSlice.primaryDifficultyLabel || ""}: ${raidSlice.recentStats.pullCount} pull-ів, parse avg ${formatPercent(raidSlice.recentStats.averagePercentile)}, стабільність ${formatPercent(raidSlice.recentStats.consistencyScore)}`
         : "Недостатньо чистих рейдових пулів.",
       raidScore !== null && raidScore >= 70
         ? "good"
@@ -224,13 +249,17 @@ export function buildCharacterPerformanceEcosystem(input: {
       "confidence",
       "Довіра до даних",
       formatPercent(confidence),
-      `WCL pulls ${totalPulls}, reports ${input.wcl.sourceCoverage.reportsChecked}, RIO runs ${input.rio.bestRuns.length + input.rio.recentRuns.length}.`,
+      `WCL чисті pull-и ${totalPulls}, звіти ${input.wcl.sourceCoverage.reportsChecked}, RIO runs ${input.rio.bestRuns.length + input.rio.recentRuns.length}.`,
       confidence >= 60 ? "good" : confidence < 30 ? "warn" : "neutral",
     ),
   ];
 
   const roles = input.wcl.metricSummaries
     .filter(usefulMetric)
+    .sort(
+      (left, right) =>
+        roleSortWeight(left.role, left.key) - roleSortWeight(right.role, right.key),
+    )
     .map<CharacterPerformanceRoleSummary>((summary) => ({
       key: summary.key,
       title: summary.title,
@@ -251,7 +280,8 @@ export function buildCharacterPerformanceEcosystem(input: {
     `${input.rio.bestRunStats.runCount} найкращі ключі`,
     `${input.rio.recentRunStats.runCount} останні ключі`,
     `${input.wcl.sourceCoverage.reportsChecked} WCL звіти`,
-    `${roleTotals.healer} хіл / ${roleTotals.dps} дд / ${roleTotals.tank} танк боїв`,
+    `${totalPulls} чистих WCL pull-ів`,
+    `${roleTotals.healer} хіл / ${roleTotals.dps} дд / ${roleTotals.tank} танк`,
   ].join(" • ");
 
   return {
