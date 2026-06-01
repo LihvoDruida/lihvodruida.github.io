@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-01 04:12:02'
+  updated_at: '2026-06-01 13:38:14'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 158
 characters:
 - name: Бреинор
   region: eu
@@ -1474,6 +1474,104 @@ characters:
       - name: Dragon Isles Fishing
         learned_points: 34
         max_points: 100
+- name: Ragnarosh
+  region: eu
+  realm: terokkar
+  realm_slug: terokkar
+  profile_url: https://raider.io/characters/eu/terokkar/Ragnarosh
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Blacksmithing
+        learned_points: 33
+        max_points: 100
+      - name: Midnight Blacksmithing
+        learned_points: 35
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Mining
+        learned_points: 16
+        max_points: 100
+      - name: Khaz Algar Mining
+        learned_points: 96
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 94
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 2
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Cooking
+        learned_points: 29
+        max_points: 100
+      - name: Khaz Algar Cooking
+        learned_points: 37
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 65
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Dragon Isles Fishing
+        learned_points: 16
+        max_points: 100
+      - name: Khaz Algar Fishing
+        learned_points: 18
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 11
+        max_points: 300
 - name: Nebatur
   region: eu
   realm: terokkar
@@ -5449,6 +5547,9 @@ characters:
     - name: Tailoring
       id: 197
       tiers:
+      - name: Pandaria Tailoring
+        learned_points: 75
+        max_points: 75
       - name: Cataclysm Tailoring
         learned_points: 1
         max_points: 75
@@ -5456,7 +5557,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 66
+        learned_points: 71
         max_points: 100
     - name: Inscription
       id: 773
@@ -5468,7 +5569,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Inscription
-        learned_points: 43
+        learned_points: 45
         max_points: 100
     secondaries:
     - name: Archaeology
