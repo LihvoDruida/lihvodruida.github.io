@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-01 13:38:14'
+  updated_at: '2026-06-01 20:19:05'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 158
+  member_count: 157
 characters:
 - name: Бреинор
   region: eu
@@ -3697,6 +3697,15 @@ characters:
   profile_url: https://raider.io/characters/eu/terokkar/Yokuha
   professions:
     primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 14
+        max_points: 100
     - name: Herbalism
       id: 182
       tiers:
@@ -3706,15 +3715,6 @@ characters:
       - name: Midnight Herbalism
         learned_points: 103
         max_points: 105
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 89
-        max_points: 100
     secondaries: []
 - name: Yokum
   region: eu
@@ -5537,62 +5537,6 @@ characters:
         learned_points: 69
         max_points: 100
     secondaries: []
-- name: Rainsh
-  region: eu
-  realm: silvermoon
-  realm_slug: silvermoon
-  profile_url: https://raider.io/characters/eu/silvermoon/Rainsh
-  professions:
-    primaries:
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Pandaria Tailoring
-        learned_points: 75
-        max_points: 75
-      - name: Cataclysm Tailoring
-        learned_points: 1
-        max_points: 75
-      - name: Classic Tailoring
-        learned_points: 300
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 71
-        max_points: 100
-    - name: Inscription
-      id: 773
-      tiers:
-      - name: Cataclysm Inscription
-        learned_points: 1
-        max_points: 75
-      - name: Classic Inscription
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Inscription
-        learned_points: 45
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Cataclysm Cooking
-        learned_points: 1
-        max_points: 75
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 11
-        max_points: 300
 - name: Oxydenis
   region: eu
   realm: silvermoon
@@ -5742,7 +5686,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 98
+        learned_points: 99
         max_points: 100
     secondaries:
     - name: Cooking
@@ -6533,7 +6477,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 267
+        learned_points: 268
         max_points: 300
 - name: Кеенди
   region: eu
