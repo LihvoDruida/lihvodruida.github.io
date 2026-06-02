@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
-import { invalidatePublicCacheKey, invalidatePublicCachePrefix, publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
+import { invalidatePublicCacheBatch, invalidatePublicCachePrefix, publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
 import { getRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
 import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
 import { getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
@@ -745,10 +745,10 @@ async function readRaidItemPublicCache(raidId: string) {
 
 async function invalidateRaidPublicCaches(raidId?: string | null) {
   const id = cleanRaidId(raidId);
-  await Promise.all([
-    invalidatePublicCachePrefix(publicCacheKey(["dashboard", "raids", "list"])),
-    id ? invalidatePublicCacheKey(raidItemPublicCacheKey(id)) : Promise.resolve({ ok: true }),
-  ]).catch((error) => {
+  await invalidatePublicCacheBatch({
+    prefixes: [publicCacheKey(["dashboard", "raids", "list"])],
+    keys: id ? [raidItemPublicCacheKey(id)] : [],
+  }).catch((error) => {
     logDashboardEvent("warn", "raids.public_cache_invalidate_failed", undefined, {
       raidId: id || null,
       message: error instanceof Error ? error.message : String(error || "unknown"),

@@ -420,6 +420,8 @@ type DiscordRolesCacheEntry = {
 declare global {
   // eslint-disable-next-line no-var
   var __mistblossomDiscordRolesCache: Map<string, DiscordRolesCacheEntry> | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomDiscordRouteCooldowns: Map<string, number> | undefined;
 }
 
 function discordRolesCacheTtlMs() {
@@ -531,13 +533,58 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function discordRouteCooldowns() {
+  const map = globalThis.__mistblossomDiscordRouteCooldowns || new Map<string, number>();
+  globalThis.__mistblossomDiscordRouteCooldowns = map;
+  return map;
+}
+
+function discordRouteKey(path: string, method: string) {
+  // Keep major parameters but collapse snowflakes. This approximates Discord route buckets
+  // and avoids hammering the same message/member route after a 429.
+  return `${method}:${String(path || "")}`
+    .replace(/\/\d{16,25}/g, "/:id")
+    .replace(/[?&](?:limit|before|after|around)=[^&]+/g, "")
+    .slice(0, 180);
+}
+
+function discordApiTimeoutMs(method: string) {
+  const configured = Number(process.env.DISCORD_API_TIMEOUT_MS || "");
+  const fallback = method === "GET" ? 10_000 : 14_000;
+  return Math.max(3_000, Math.min(45_000, Math.floor(Number.isFinite(configured) && configured > 0 ? configured : fallback)));
+}
+
+async function waitForDiscordCooldown(key: string) {
+  const until = discordRouteCooldowns().get(key) || 0;
+  const delay = until - Date.now();
+  if (delay > 0) await sleep(Math.min(delay, 15_000));
+}
+
+function setDiscordCooldown(key: string, delayMs: number) {
+  discordRouteCooldowns().set(key, Date.now() + Math.max(500, Math.min(30_000, Math.floor(delayMs))));
+}
+
 function discordRetryAfterMs(response: Response, json: any, attempt: number) {
-  const retryAfter = Number(json?.retry_after ?? response.headers.get("retry-after") ?? 0);
+  const retryAfter = Number(json?.retry_after ?? response.headers.get("retry-after") ?? response.headers.get("x-ratelimit-reset-after") ?? 0);
   const normalized = Number.isFinite(retryAfter) && retryAfter > 0
     ? retryAfter > 50 ? retryAfter : retryAfter * 1000
-    : 900 + attempt * 550;
-  const jitter = 150 + Math.floor(Math.random() * 250);
-  return Math.max(500, Math.min(15_000, Math.floor(normalized + jitter)));
+    : 900 + attempt * 650;
+  const jitter = 150 + Math.floor(Math.random() * 300);
+  return Math.max(500, Math.min(20_000, Math.floor(normalized + jitter)));
+}
+
+function shouldRetryDiscordStatus(status: number) {
+  return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function shouldLogDiscordSuccess() {
+  return String(process.env.DISCORD_API_LOG_SUCCESS || "").trim() === "1";
+}
+
+function sanitizeDiscordApiPath(path: string) {
+  return String(path || "")
+    .replace(/([?&](?:access_token|token|authorization)=)[^&]+/gi, "$1[redacted]")
+    .slice(0, 320);
 }
 
 export async function discordApi<T = any>(path: string, init: DiscordRequestInit = {}): Promise<T> {
@@ -556,57 +603,89 @@ export async function discordApi<T = any>(path: string, init: DiscordRequestInit
   const auditReason = encodeAuditReason(init.auditReason);
   if (auditReason) headers.set("X-Audit-Log-Reason", auditReason);
 
-  const maxAttempts = method === "DELETE" ? 7 : 5;
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const response = await fetch(`${DISCORD_API_BASE}${path}`, {
-      ...init,
-      headers,
-      cache: "no-store",
-    });
+  const routeKey = discordRouteKey(path, method);
+  const maxAttempts = method === "DELETE" ? 7 : isMutation ? 5 : 4;
+  const timeoutMs = discordApiTimeoutMs(method);
 
-    if (response.status === 204) {
-      if (isMutation) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await waitForDiscordCooldown(routeKey);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(`${DISCORD_API_BASE}${path}`, {
+        ...init,
+        headers,
+        cache: "no-store",
+        signal: controller.signal,
+      });
+
+      if (response.status === 204) {
+        if (isMutation && shouldLogDiscordSuccess()) {
+          logDashboardEvent("info", "discord.api.mutation_ok", undefined, {
+            method,
+            path: sanitizeDiscordApiPath(path),
+            status: response.status,
+            attempt: attempt + 1,
+          });
+        }
+        return undefined as T;
+      }
+
+      const raw = await response.text().catch(() => "");
+      const json = raw ? tryParseJson(raw) : null;
+
+      if (response.status === 429) {
+        const delay = discordRetryAfterMs(response, json, attempt);
+        setDiscordCooldown(routeKey, delay);
+        if (attempt < maxAttempts - 1) {
+          await sleep(delay);
+          continue;
+        }
+      } else if (shouldRetryDiscordStatus(response.status) && attempt < maxAttempts - 1) {
+        await sleep(discordRetryAfterMs(response, json, attempt));
+        continue;
+      }
+
+      if (!response.ok) {
+        const detail = typeof json?.message === "string" ? json.message : raw;
+        logDashboardEvent("warn", "discord.api.request_failed", undefined, {
+          method,
+          path: sanitizeDiscordApiPath(path),
+          status: response.status,
+          attempt: attempt + 1,
+          detail: String(detail || "невідома помилка").slice(0, 220),
+        });
+        const rateHint = response.status === 429 ? " Після кількох повторів Discord усе ще обмежує запити." : "";
+        throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}${rateHint}`);
+      }
+
+      if (isMutation && shouldLogDiscordSuccess()) {
         logDashboardEvent("info", "discord.api.mutation_ok", undefined, {
           method,
-          path,
+          path: sanitizeDiscordApiPath(path),
           status: response.status,
           attempt: attempt + 1,
         });
       }
-      return undefined as T;
+
+      return (json ?? raw) as T;
+    } catch (error) {
+      if ((error as Error)?.name === "AbortError") {
+        if (attempt < maxAttempts - 1) {
+          await sleep(500 + attempt * 650);
+          continue;
+        }
+        throw new Error(`Discord API timeout after ${timeoutMs}ms: ${sanitizeDiscordApiPath(path)}`);
+      }
+      if (attempt < maxAttempts - 1 && /ECONNRESET|ETIMEDOUT|fetch failed|network/i.test(String((error as Error)?.message || error))) {
+        await sleep(500 + attempt * 650);
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const raw = await response.text().catch(() => "");
-    const json = raw ? tryParseJson(raw) : null;
-
-    if (response.status === 429 && attempt < maxAttempts - 1) {
-      await sleep(discordRetryAfterMs(response, json, attempt));
-      continue;
-    }
-
-    if (!response.ok) {
-      const detail = typeof json?.message === "string" ? json.message : raw;
-      logDashboardEvent("warn", "discord.api.request_failed", undefined, {
-        method,
-        path,
-        status: response.status,
-        attempt: attempt + 1,
-        detail: String(detail || "невідома помилка").slice(0, 220),
-      });
-      const rateHint = response.status === 429 ? " Після кількох повторів Discord усе ще обмежує запити." : "";
-      throw new Error(`Discord API ${response.status}: ${String(detail || "невідома помилка").slice(0, 220)}${rateHint}`);
-    }
-
-    if (isMutation) {
-      logDashboardEvent("info", "discord.api.mutation_ok", undefined, {
-        method,
-        path,
-        status: response.status,
-        attempt: attempt + 1,
-      });
-    }
-
-    return (json ?? raw) as T;
   }
 
   throw new Error("Discord API 429: Discord продовжує обмежувати запити після кількох повторів.");
@@ -1577,31 +1656,23 @@ export async function fetchDiscordGuildMemberSnapshot(userIdInput: string, guild
 export async function fetchDiscordGuildBanSnapshot(userIdInput: string, guildIdInput = getDiscordGuildId()): Promise<DiscordGuildBanSnapshot | null> {
   const guildId = snowflake(guildIdInput);
   const userId = snowflake(userIdInput);
-  const token = getBotToken();
   if (!guildId || !userId) throw new Error("Не вистачає guild/user ID для перевірки Discord-бану.");
-  if (!token) throw new Error("Discord bot token не налаштований. Перевірка бану неможлива.");
 
-  const response = await fetch(`${DISCORD_API_BASE}/guilds/${guildId}/bans/${userId}`, {
-    headers: { Authorization: `Bot ${token}` },
-    cache: "no-store",
-  });
-
-  if (response.status === 404) return null;
-
-  const raw = await response.text().catch(() => "");
-  const ban = raw ? tryParseJson(raw) : null;
-
-  if (!response.ok || !ban || typeof ban !== "object") {
-    const detail = typeof ban?.message === "string" ? ban.message : raw;
+  let ban: any;
+  try {
+    ban = await discordApi<any>(`/guilds/${guildId}/bans/${userId}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (/404|unknown ban|10026/i.test(message)) return null;
     logDashboardEvent("warn", "discord.ban_check_failed", undefined, {
       guildId,
       userId,
-      status: response.status,
-      detail: String(detail || "невідома помилка").slice(0, 220),
+      detail: message.slice(0, 220),
     });
-    throw new Error(`Discord API ${response.status}: ${String(detail || "ban lookup failed").slice(0, 220)}`);
+    throw error;
   }
 
+  if (!ban || typeof ban !== "object") throw new Error("Discord API: ban lookup returned invalid payload.");
   const user = ban.user && typeof ban.user === "object" ? ban.user : {};
   return {
     userId,

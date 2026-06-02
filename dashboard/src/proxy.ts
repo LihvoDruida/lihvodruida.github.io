@@ -100,7 +100,7 @@ function contentSecurityPolicy(nonce: string) {
     `style-src ${styleSrc}`,
     "img-src 'self' data: blob: https://cdn.discordapp.com https://media.discordapp.net https://render.worldofwarcraft.com https://cdnassets.raider.io https://raider.io",
     "font-src 'self' data:",
-    "connect-src 'self' https://discord.com https://discordapp.com https://cdn.discordapp.com https://media.discordapp.net https://api.github.com https://raider.io https://*.raider.io https://render.worldofwarcraft.com",
+    "connect-src 'self' https://discord.com https://discordapp.com https://cdn.discordapp.com https://media.discordapp.net https://api.github.com https://raider.io https://*.raider.io https://render.worldofwarcraft.com https://*.workers.dev",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "media-src 'self' https:",

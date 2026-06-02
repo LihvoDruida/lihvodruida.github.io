@@ -5,9 +5,9 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import { logDashboardEvent } from "@/lib/security";
 import { resilientRead } from "@/lib/runtimeResilience";
 import { firebaseWrite } from "@/lib/firebaseAccess";
+import { discordApi } from "@/lib/discordAdmin";
 import type { DashboardSession } from "@/lib/auth";
 
-const DISCORD_API_BASE = "https://discord.com/api/v10";
 const SETTINGS_COLLECTION = "dashboardSettings";
 const ADMIN_AUDIT_LOG_POLICY_DOC_ID = "adminAuditLogPolicy";
 
@@ -173,24 +173,21 @@ export async function listAdminAuditLogsFromDiscord(limitInput: unknown = 50, op
   let before: string | null = null;
   for (let page = 0; page < 3 && items.length < limit; page += 1) {
     const pageLimit = Math.min(100, Math.max(10, limit - items.length));
-    const url = new URL(`${DISCORD_API_BASE}/channels/${policy.channelId}/messages`);
-    url.searchParams.set("limit", String(pageLimit));
-    if (before) url.searchParams.set("before", before);
+    const params = new URLSearchParams();
+    params.set("limit", String(pageLimit));
+    if (before) params.set("before", before);
 
-    const response = await fetch(url, {
-      headers: { Authorization: `Bot ${token}` },
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      const raw = await response.text().catch(() => "");
+    let messages: DiscordAuditMessage[] = [];
+    try {
+      const path = `/channels/${policy.channelId}/messages?${params.toString()}`;
+      const payload = await discordApi<DiscordAuditMessage[]>(path, { method: "GET" });
+      messages = Array.isArray(payload) ? payload : [];
+    } catch (error) {
       logDashboardEvent("warn", "admin.audit.discord_read_failed", undefined, {
-        status: response.status,
-        message: raw.slice(0, 240) || `Discord API error ${response.status}`,
+        message: error instanceof Error ? error.message.slice(0, 240) : String(error || "Discord API error").slice(0, 240),
       });
       break;
     }
-
-    const messages = await response.json().catch(() => []) as DiscordAuditMessage[];
     if (!Array.isArray(messages) || messages.length === 0) break;
     before = String(messages[messages.length - 1]?.id || "") || null;
 
@@ -492,28 +489,20 @@ export async function publishAdminAuditToDiscord(item: AdminAuditNotificationInp
   if (!policy.includeSystemLogs && item.actorId === "system") return { skipped: true, reason: "system_logs_disabled" };
   if (!shouldPublishStatus(item.status, policy.minStatus)) return { skipped: true, reason: "below_min_status" };
 
-  const token = process.env.DISCORD_BOT_TOKEN;
-  if (!token) return { skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
+  if (!process.env.DISCORD_BOT_TOKEN) return { skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
 
-  const response = await fetch(`${DISCORD_API_BASE}/channels/${policy.channelId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bot ${token}`,
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: JSON.stringify({
-      allowed_mentions: { parse: [] },
-      embeds: [auditEmbed(item)],
-    }),
-  });
-
-  if (!response.ok) {
-    const raw = await response.text().catch(() => "");
-    return { ok: false, status: response.status, error: raw || `Discord API error ${response.status}` };
+  try {
+    const payload = await discordApi<{ id?: string }>(`/channels/${policy.channelId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({
+        allowed_mentions: { parse: [] },
+        embeds: [auditEmbed(item)],
+      }),
+    });
+    return { ok: true, channelId: policy.channelId, messageId: payload?.id || null };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Discord API error" };
   }
-
-  const payload = await response.json().catch(() => null);
-  return { ok: true, channelId: policy.channelId, messageId: payload?.id || null };
 }
 
 export function summarizeAdminAuditDiscordPolicy(policy: AdminAuditDiscordPolicy) {

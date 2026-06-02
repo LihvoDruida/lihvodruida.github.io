@@ -9,6 +9,7 @@ const MAX_GITHUB_LIST_PAGES = 5;
 let firebaseAuthCache = { accessToken: "", expiresAt: 0 };
 let battleNetAuthCache = { accessToken: "", expiresAt: 0, region: "" };
 let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
+let discordRouteCooldowns = new Map();
 
 
 const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache"]);
@@ -330,11 +331,21 @@ async function retryAsync(task, retries = 2, delayMs = 250) {
     } catch (error) {
       lastError = error;
       if (attempt === retries) break;
-      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+      await sleep(delayMs * (attempt + 1));
     }
   }
 
   throw lastError;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, Math.floor(ms || 0))));
+}
+
+function timeoutMs(value, fallback, min = 500, max = 30_000) {
+  const parsed = Number(value);
+  const clean = Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  return Math.max(min, Math.min(max, Math.floor(clean)));
 }
 
 function buildCorsHeaders(corsOrigin, status = 200) {
@@ -342,7 +353,7 @@ function buildCorsHeaders(corsOrigin, status = 200) {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": corsOrigin || "null",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
     "Vary": "Origin",
   };
@@ -627,16 +638,20 @@ function defaultAllowedOrigins(env) {
 }
 
 function statsAuthToken(env) {
-  return String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || env.PUBLIC_API_CACHE_TOKEN || "").trim();
+  return String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
 }
 
 function publicApiCacheTokens(env) {
-  return Array.from(new Set([
-    env.PUBLIC_API_CACHE_TOKEN,
-    env.DISCORD_RULES_STATS_TOKEN,
-    env.INTERNAL_PROFILE_LOOKUP_TOKEN,
-    env.WORKER_STATS_TOKEN,
-  ].map((value) => String(value || "").trim()).filter(Boolean)));
+  const explicit = String(env.PUBLIC_API_CACHE_TOKEN || "").trim();
+  if (explicit) return [explicit];
+  if (envFlag(env, "PUBLIC_API_CACHE_ALLOW_SHARED_TOKEN", false)) {
+    return Array.from(new Set([
+      env.DISCORD_RULES_STATS_TOKEN,
+      env.INTERNAL_PROFILE_LOOKUP_TOKEN,
+      env.WORKER_STATS_TOKEN,
+    ].map((value) => String(value || "").trim()).filter(Boolean)));
+  }
+  return [];
 }
 
 async function sha256Hex(value) {
@@ -799,6 +814,46 @@ function hasCloudflareAccessServiceAuth(env) {
   );
 }
 
+async function fetchDashboardText(env, url, token, init = {}, options = {}) {
+  const method = String(init.method || "GET").toUpperCase();
+  const retries = Math.max(0, Math.min(3, Number(options.retries ?? (method === "GET" ? 2 : 1))));
+  const timeout = timeoutMs(options.timeoutMs || env.DASHBOARD_API_TIMEOUT_MS, method === "GET" ? 7000 : 9000, 1500, 30000);
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, {
+        ...init,
+        headers: {
+          ...dashboardProfileLookupHeaders(env, token),
+          ...(init.headers || {}),
+        },
+        signal: controller.signal,
+      });
+      const raw = await response.text().catch(() => "");
+      if ((response.status === 408 || response.status === 429 || response.status >= 500) && attempt < retries) {
+        const retryAfter = Number(response.headers.get("retry-after") || 0);
+        await sleep(Math.max(350, Math.min(5000, (Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 450 + attempt * 650))));
+        continue;
+      }
+      return { response, raw };
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries && (error?.name === "AbortError" || /fetch failed|network|ECONNRESET|ETIMEDOUT/i.test(String(error?.message || error)))) {
+        await sleep(350 + attempt * 650);
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  throw lastError || new Error("Dashboard request failed");
+}
+
 function pickMainCharacter(value) {
   if (!value || typeof value !== "object") return null;
   return {
@@ -834,10 +889,7 @@ async function lookupDashboardProfileByDiscord(env, discordId) {
   url.searchParams.set("discord_id", cleanDiscordId);
 
   try {
-    const response = await fetch(url.toString(), {
-      headers: dashboardProfileLookupHeaders(env, token),
-    });
-    const raw = await response.text().catch(() => "");
+    const { response, raw } = await fetchDashboardText(env, url.toString(), token, { method: "GET" }, { timeoutMs: 7000, retries: 2 });
     let data = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
@@ -2012,30 +2064,94 @@ function buildUpdatedApplicationEmbeds(interaction, statusKey, issueNumber, mode
 }
 
 
+function discordRouteKey(path, method) {
+  return `${String(method || "GET").toUpperCase()}:${String(path || "")}`
+    .replace(/\/\d{16,25}/g, "/:id")
+    .replace(/[?&](?:limit|before|after|around)=[^&]+/g, "")
+    .slice(0, 180);
+}
+
+function discordRetryAfterMs(response, json, attempt) {
+  const raw = Number(json?.retry_after ?? response.headers.get("retry-after") ?? response.headers.get("x-ratelimit-reset-after") ?? 0);
+  const normalized = Number.isFinite(raw) && raw > 0 ? (raw > 50 ? raw : raw * 1000) : 800 + attempt * 650;
+  return Math.max(500, Math.min(20_000, Math.floor(normalized + Math.random() * 300)));
+}
+
+function shouldRetryDiscordStatus(status) {
+  return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+async function waitForDiscordRoute(routeKey) {
+  const until = discordRouteCooldowns.get(routeKey) || 0;
+  const delay = until - Date.now();
+  if (delay > 0) await sleep(Math.min(delay, 15_000));
+}
+
 async function discordApiFetch(env, path, init = {}) {
   const startedAt = nowMs();
-  const method = init.method || "GET";
+  const method = String(init.method || "GET").toUpperCase();
+  const routeKey = discordRouteKey(path, method);
+  const maxAttempts = method === "GET" ? 4 : 5;
+  const timeout = timeoutMs(env.DISCORD_API_TIMEOUT_MS, method === "GET" ? 10_000 : 14_000, 2_000, 45_000);
 
-  const response = await fetch(`https://discord.com/api/v10${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
-      "Content-Type": "application/json; charset=utf-8",
-      ...(init.headers || {}),
-    },
-  });
+  let lastResponse = null;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await waitForDiscordRoute(routeKey);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
 
-  if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
-    logWorkerEvent(response.ok ? "info" : "warn", "discord.fetch", {
-      method,
-      path: sanitizeApiPathForLog(path),
-      status: response.status,
-      ok: response.ok,
-      ms: elapsedMs(startedAt),
-    });
+    try {
+      const response = await fetch(`https://discord.com/api/v10${path}`, {
+        ...init,
+        headers: {
+          Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
+          "Content-Type": "application/json; charset=utf-8",
+          ...(init.headers || {}),
+        },
+        signal: controller.signal,
+      });
+      lastResponse = response;
+
+      if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
+        logWorkerEvent(response.ok ? "info" : "warn", "discord.fetch", {
+          method,
+          path: sanitizeApiPathForLog(path),
+          status: response.status,
+          ok: response.ok,
+          attempt: attempt + 1,
+          ms: elapsedMs(startedAt),
+        });
+      }
+
+      if (response.status === 429) {
+        const raw = await response.clone().text().catch(() => "");
+        let json = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch { json = null; }
+        const delay = discordRetryAfterMs(response, json, attempt);
+        discordRouteCooldowns.set(routeKey, Date.now() + delay);
+        if (attempt < maxAttempts - 1) {
+          await sleep(delay);
+          continue;
+        }
+      } else if (shouldRetryDiscordStatus(response.status) && attempt < maxAttempts - 1) {
+        await sleep(discordRetryAfterMs(response, null, attempt));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      if ((error?.name === "AbortError" || /fetch failed|network|ECONNRESET|ETIMEDOUT/i.test(String(error?.message || error))) && attempt < maxAttempts - 1) {
+        await sleep(500 + attempt * 650);
+        continue;
+      }
+      logWorkerEvent("warn", "discord.fetch.exception", { method, path: sanitizeApiPathForLog(path), message: error?.message || String(error), ms: elapsedMs(startedAt) });
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
-  return response;
+  return lastResponse || new Response(JSON.stringify({ message: "Discord API failed" }), { status: 503 });
 }
 
 function discordRaidMessageTokens(env) {
@@ -3323,12 +3439,13 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
   }
 
   try {
-    const response = await fetch(dashboardRaidActionEndpoint(env, raidAction.raidId), {
+    const idempotencyKey = `discord-raid:${raidAction.raidId}:${getDiscordUserId(interaction)}:${raidAction.action}:${raidAction.characterKey || "main"}:${interaction?.id || Date.now()}`;
+    const { response, raw } = await fetchDashboardText(env, dashboardRaidActionEndpoint(env, raidAction.raidId), token, {
       method: "POST",
       headers: {
-        ...dashboardProfileLookupHeaders(env, token),
         "content-type": "application/json; charset=utf-8",
         "x-worker-stats-token": token,
+        "x-idempotency-key": idempotencyKey,
       },
       body: JSON.stringify({
         action: raidAction.action,
@@ -3340,9 +3457,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         messageId: getRaidInteractionMessageRef(interaction).messageId,
         source: "discord-interaction-worker",
       }),
-    });
-
-    const raw = await response.text().catch(() => "");
+    }, { timeoutMs: 9000, retries: 1 });
     let data = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
@@ -3839,13 +3954,15 @@ export default {
     const requestId = requestIdFromRequest(request);
     const url = new URL(request.url);
 
-    logWorkerEvent("info", "request.start", {
-      requestId,
-      method: request.method,
-      path: url.pathname,
-      query: url.search ? url.search.slice(0, 500) : "",
-      origin: request.headers.get("Origin") || "",
-    });
+    if (String(env.DEBUG_LOGS || "").trim() === "1") {
+      logWorkerEvent("info", "request.start", {
+        requestId,
+        method: request.method,
+        path: url.pathname,
+        query: url.search ? url.search.slice(0, 500) : "",
+        origin: request.headers.get("Origin") || "",
+      });
+    }
 
     let response;
 
@@ -3855,7 +3972,7 @@ export default {
           status: 204,
           headers: {
             "Access-Control-Allow-Origin": allowedOrigin(request, env) || "null",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+            "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
             "Cache-Control": "no-store",
             "Vary": "Origin",

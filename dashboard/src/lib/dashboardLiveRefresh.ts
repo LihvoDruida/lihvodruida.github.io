@@ -1,6 +1,7 @@
 export const DASHBOARD_DATA_MUTATED_EVENT = "dashboard:data-mutated";
 export const DASHBOARD_DATA_REFRESHED_EVENT = "dashboard:data-refreshed";
 export const DASHBOARD_LAST_MUTATION_STORAGE_KEY = "mistblossom-dashboard:last-data-mutation";
+export const DASHBOARD_MUTATION_BROADCAST_CHANNEL = "mistblossom-dashboard:mutations";
 
 export type DashboardDataScope =
   | "applications"
@@ -52,5 +53,15 @@ export function notifyDashboardDataChanged(detail: DashboardDataMutationDetail =
     window.localStorage.setItem(DASHBOARD_LAST_MUTATION_STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Ignore unavailable storage. Same-tab listeners still receive the event above.
+  }
+
+  try {
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel(DASHBOARD_MUTATION_BROADCAST_CHANNEL);
+      channel.postMessage(payload);
+      channel.close();
+    }
+  } catch {
+    // BroadcastChannel is an optimization. localStorage + same-tab event remain enough.
   }
 }

@@ -6,6 +6,7 @@ import {
   statusEmoji,
   statusText,
 } from "./github";
+import { discordApi } from "@/lib/discordAdmin";
 
 function cleanText(value: unknown, max = 200) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
@@ -75,26 +76,15 @@ export async function editDiscordApplicationMessage(params: {
     return { ok: false, skipped: true, reason: "Discord message marker is missing" };
   }
 
-  const getResponse = await fetch(
-    `https://discord.com/api/v10/channels/${ref.channel_id}/messages/${ref.message_id}`,
-    {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-
-  if (!getResponse.ok) {
-    const raw = await getResponse.text().catch(() => "");
+  let message: any;
+  try {
+    message = await discordApi<any>(`/channels/${ref.channel_id}/messages/${ref.message_id}`);
+  } catch (error) {
     return {
       ok: false,
-      status: getResponse.status,
-      reason: raw || "Could not fetch original Discord message",
+      reason: error instanceof Error ? error.message : "Could not fetch original Discord message",
     };
   }
-
-  const message = await getResponse.json();
   const embeds = Array.isArray(message.embeds) ? message.embeds.map((embed: any) => ({ ...embed })) : [];
   const primaryEmbed = embeds[0] || buildFallbackEmbed({
     issueNumber: params.issueNumber,
@@ -113,29 +103,20 @@ export async function editDiscordApplicationMessage(params: {
 
   embeds[0] = primaryEmbed;
 
-  const patchResponse = await fetch(
-    `https://discord.com/api/v10/channels/${ref.channel_id}/messages/${ref.message_id}`,
-    {
+  try {
+    await discordApi<any>(`/channels/${ref.channel_id}/messages/${ref.message_id}`, {
       method: "PATCH",
-      headers: {
-        Authorization: `Bot ${botToken}`,
-        "Content-Type": "application/json; charset=utf-8",
-      },
       body: JSON.stringify({
         content: `📋 **Заявка #${params.issueNumber} оновлена**\n> Статус: ${statusEmoji(params.status)} **${statusText(params.status)}**\n> Модератор: 👤 **${cleanText(params.moderator, 80)}**`,
         embeds: embeds.slice(0, 10),
         components: [],
         allowed_mentions: { parse: [] },
       }),
-    }
-  );
-
-  if (!patchResponse.ok) {
-    const raw = await patchResponse.text().catch(() => "");
+    });
+  } catch (error) {
     return {
       ok: false,
-      status: patchResponse.status,
-      reason: raw || "Could not edit original Discord message",
+      reason: error instanceof Error ? error.message : "Could not edit original Discord message",
     };
   }
 
@@ -159,22 +140,16 @@ export async function notifyDiscordStatusChange(params: {
     return { skipped: true, reason: "DISCORD_BOT_TOKEN or DISCORD_CHANNEL_ID is missing" };
   }
 
-  const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bot ${botToken}`,
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: JSON.stringify({
-      allowed_mentions: { parse: [] },
-      embeds: [buildFallbackEmbed(params)],
-    }),
-  });
-
-  if (!response.ok) {
-    const raw = await response.text().catch(() => "");
-    return { ok: false, error: raw || `Discord API error ${response.status}` };
+  try {
+    await discordApi<any>(`/channels/${channelId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({
+        allowed_mentions: { parse: [] },
+        embeds: [buildFallbackEmbed(params)],
+      }),
+    });
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Discord API error" };
   }
-
-  return { ok: true };
 }

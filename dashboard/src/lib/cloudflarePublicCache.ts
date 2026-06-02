@@ -63,14 +63,18 @@ function publicCacheEndpoint() {
 }
 
 function publicCacheToken() {
-  return cleanText(
-    process.env.PUBLIC_API_CACHE_TOKEN ||
-    process.env.DISCORD_RULES_STATS_TOKEN ||
-    process.env.WORKER_STATS_TOKEN ||
-    process.env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
-    "",
-    500,
-  );
+  const explicit = cleanText(process.env.PUBLIC_API_CACHE_TOKEN || "", 500);
+  if (explicit) return explicit;
+  if (String(process.env.PUBLIC_API_CACHE_ALLOW_SHARED_TOKEN || "").trim() === "1") {
+    return cleanText(
+      process.env.DISCORD_RULES_STATS_TOKEN ||
+      process.env.WORKER_STATS_TOKEN ||
+      process.env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
+      "",
+      500,
+    );
+  }
+  return "";
 }
 
 export function cloudflarePublicCacheConfigured() {
@@ -166,6 +170,34 @@ export async function writePublicCache(key: string, value: unknown, options: Pub
   }
 }
 
+
+export async function invalidatePublicCacheBatch(options: { key?: string | null; prefix?: string | null; keys?: Array<string | null | undefined>; prefixes?: Array<string | null | undefined> }) {
+  const endpoint = publicCacheEndpoint();
+  if (!endpoint || !publicCacheToken()) return { ok: false, skipped: true, reason: "unconfigured" };
+
+  const body = {
+    key: options.key ? cleanText(options.key, 240) : undefined,
+    prefix: options.prefix ? cleanText(options.prefix, 240) : undefined,
+    keys: Array.isArray(options.keys) ? options.keys.map((key) => cleanText(key, 240)).filter(Boolean).slice(0, 50) : undefined,
+    prefixes: Array.isArray(options.prefixes) ? options.prefixes.map((prefix) => cleanText(prefix, 240)).filter(Boolean).slice(0, 20) : undefined,
+  };
+
+  try {
+    const response = await fetchWithTimeout(endpoint, {
+      method: "DELETE",
+      headers: publicCacheHeaders(),
+      body: JSON.stringify(body),
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) return { ok: false, status: response.status, error: data?.error || `Cloudflare cache HTTP ${response.status}` };
+    return data || { ok: true };
+  } catch (error) {
+    logDashboardEvent("warn", "cloudflare_public_cache.invalidate_batch_failed", undefined, {
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return { ok: false, error: error instanceof Error ? error.message : String(error || "Cloudflare cache batch invalidate failed") };
+  }
+}
 export async function invalidatePublicCachePrefix(prefix: string) {
   const endpoint = publicCacheEndpoint();
   if (!endpoint || !publicCacheToken()) return { ok: false, skipped: true, reason: "unconfigured" };

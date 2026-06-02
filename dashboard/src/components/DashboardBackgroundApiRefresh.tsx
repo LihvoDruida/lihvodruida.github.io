@@ -8,6 +8,7 @@ import {
 import {
   DASHBOARD_DATA_MUTATED_EVENT,
   DASHBOARD_LAST_MUTATION_STORAGE_KEY,
+  DASHBOARD_MUTATION_BROADCAST_CHANNEL,
   type DashboardDataMutationDetail,
 } from "@/lib/dashboardLiveRefresh";
 
@@ -175,6 +176,15 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
       }
     }
 
+    let mutationBroadcast: BroadcastChannel | null = null;
+    if ("BroadcastChannel" in window) {
+      mutationBroadcast = new BroadcastChannel(DASHBOARD_MUTATION_BROADCAST_CHANNEL);
+      mutationBroadcast.onmessage = (event) => {
+        const detail = (event.data || {}) as DashboardDataMutationDetail;
+        void refresh("broadcast-mutation", { force: true, scope: detail.scope });
+      };
+    }
+
     document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("focus", onFocus);
     window.addEventListener("online", onOnline);
@@ -190,6 +200,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
       window.removeEventListener("online", onOnline);
       window.removeEventListener(DASHBOARD_DATA_MUTATED_EVENT, onDataMutated);
       window.removeEventListener("storage", onStorage);
+      mutationBroadcast?.close();
     };
   }, [refreshMinMs]);
 

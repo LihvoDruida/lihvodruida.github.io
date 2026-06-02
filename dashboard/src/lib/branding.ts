@@ -1,3 +1,5 @@
+import { discordApi } from "@/lib/discordAdmin";
+
 export type GuildBranding = {
   name: string;
   iconUrl: string;
@@ -34,18 +36,7 @@ export async function getGuildBranding(): Promise<GuildBranding> {
   }
 
   try {
-    const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}`, {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Discord guild API ${response.status}`);
-    }
-
-    const guild = await response.json();
+    const guild = await discordApi<any>(`/guilds/${guildId}`, { method: "GET" });
 
     const value: GuildBranding = {
       name: guild?.name || process.env.DISCORD_GUILD_NAME || FALLBACK_GUILD_NAME,
