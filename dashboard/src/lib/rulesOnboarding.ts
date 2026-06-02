@@ -4,6 +4,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { getDashboardUrl } from "@/lib/oauth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 import {
   buildProfileDiscordNicknamePlan,
   cleanProfileGrammaticalGender,
@@ -229,12 +230,21 @@ export async function markRulesOnboardingCompleted(profileId: string, input: { r
   if (!hasFirebaseProfileConfig()) return;
   const cleanProfileId = String(profileId || "").trim();
   if (!/^id[a-f0-9]{16,40}$/.test(cleanProfileId)) return;
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).set({
-    rulesOnboarding: {
-      completedAt: FieldValue.serverTimestamp(),
-      roleIds: cleanRoleIds(input.roleIds),
-      nickname: input.nickname || null,
+  await firebaseWrite(
+    "rules",
+    `profile:${cleanProfileId}:rules-onboarding`,
+    () => getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).set({
+      rulesOnboarding: {
+        completedAt: FieldValue.serverTimestamp(),
+        roleIds: cleanRoleIds(input.roleIds),
+        nickname: input.nickname || null,
+      },
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true }),
+    {
+      timeoutMs: 3_000,
+      logEvent: "rules.onboarding_write_failed",
+      fallback: () => undefined,
     },
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  );
 }

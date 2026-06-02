@@ -1,12 +1,13 @@
 import { checkBattleNetApplicationAccess, getDefaultBattleNetRegion } from "@/lib/battlenet";
 import { discordApi, getDiscordGuildId, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasFirebaseProfileConfig, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import { firebaseCapability } from "@/lib/firebaseAccess";
 import { githubFetch } from "@/lib/github";
 
 export type IntegrationState = "ok" | "warning" | "error" | "unconfigured";
 
 export type IntegrationStatusItem = {
-  key: "discord" | "battlenet" | "github" | "firebase";
+  key: "discord" | "battlenet" | "github" | "firebase" | "firebase-write";
   label: string;
   state: IntegrationState;
   message: string;
@@ -89,6 +90,17 @@ async function checkFirebaseProfiles(checkedAt: string): Promise<IntegrationStat
   }
 }
 
+async function checkFirebaseWrites(checkedAt: string): Promise<IntegrationStatusItem> {
+  const capability = firebaseCapability("profile", "write");
+  if (!capability.configured) {
+    return item("firebase-write", "Запис Firebase", "unconfigured", "потребує уваги", checkedAt);
+  }
+  if (!capability.available) {
+    return item("firebase-write", "Запис Firebase", "warning", "режим тільки читання", checkedAt);
+  }
+  return item("firebase-write", "Запис Firebase", "ok", "доступний", checkedAt);
+}
+
 export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSummary> {
   const checkedAt = new Date().toISOString();
   const results = await Promise.allSettled([
@@ -96,6 +108,7 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
     checkBattleNet(checkedAt),
     checkGitHub(checkedAt),
     checkFirebaseProfiles(checkedAt),
+    checkFirebaseWrites(checkedAt),
   ]);
 
   const fallbackKeys: Array<[IntegrationStatusItem["key"], string]> = [
@@ -103,6 +116,7 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
     ["battlenet", "Battle.net"],
     ["github", "Заявки"],
     ["firebase", "Профілі"],
+    ["firebase-write", "Запис Firebase"],
   ];
 
   return {

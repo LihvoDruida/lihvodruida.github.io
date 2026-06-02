@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { resilientRead } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 import type { DashboardSession } from "@/lib/auth";
 
 export const DEFAULT_NICKNAME_TEMPLATE = "{name} [{main}, {alt}, {alt}]";
@@ -158,11 +159,16 @@ export async function getGuildNicknamePolicy(options: { bypassCache?: boolean } 
 export async function setGuildNicknamePolicy(templateInput: unknown, actor?: DashboardSession | null) {
   const template = cleanNicknameTemplate(templateInput);
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase не налаштований для збереження шаблону ніку.");
-  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).set({
-    template,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: actor?.name || actor?.login || actor?.id || null,
-  }, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "guild-nickname-policy:save",
+    () => getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).set({
+      template,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor?.name || actor?.login || actor?.id || null,
+    }, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "guild.nickname_policy_write_failed" },
+  );
   return setNicknamePolicyCache({
     ...normalizePolicyData({ template }),
     updatedAt: new Date().toISOString(),
@@ -184,15 +190,20 @@ export async function setGuildDiscordManagementSettings(input: {
   const nicknameCleanupConcurrency = cleanIntegerSetting(input.nicknameCleanupConcurrency, DEFAULT_NICKNAME_CLEANUP_CONCURRENCY, 0, nicknameCleanupMaxConcurrency);
 
   if (!hasFirebaseProfileConfig()) throw new Error("Firebase не налаштований для збереження Discord-налаштувань.");
-  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).set({
-    template,
-    roleRemoveConcurrency,
-    roleRemoveMaxConcurrency,
-    nicknameCleanupConcurrency,
-    nicknameCleanupMaxConcurrency,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: actor?.name || actor?.login || actor?.id || null,
-  }, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "guild-discord-management:save",
+    () => getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).set({
+      template,
+      roleRemoveConcurrency,
+      roleRemoveMaxConcurrency,
+      nicknameCleanupConcurrency,
+      nicknameCleanupMaxConcurrency,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor?.name || actor?.login || actor?.id || null,
+    }, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "guild.discord_management_write_failed" },
+  );
 
   return setNicknamePolicyCache({
     ...normalizePolicyData({

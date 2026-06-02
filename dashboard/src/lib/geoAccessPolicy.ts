@@ -6,6 +6,7 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import type { DashboardSession } from "@/lib/auth";
 import { logDashboardEvent, noStoreHeaders } from "@/lib/security";
 import { resilientRead } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const GEO_ACCESS_DOC_ID = "geoAccessPolicy";
@@ -209,15 +210,20 @@ export async function setGeoAccessPolicy(input: {
     blockedCountries: parseBlockedCountries(input.blockedCountries, []),
   });
 
-  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(GEO_ACCESS_DOC_ID).set({
-    enabled: nextPolicy.enabled,
-    blockApplications: nextPolicy.blockApplications,
-    blockAuth: nextPolicy.blockAuth,
-    blockUnknownCountries: nextPolicy.blockUnknownCountries,
-    blockedCountries: nextPolicy.blockedCountries,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: actor?.name || actor?.login || actor?.id || null,
-  }, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "geo-access-policy:save",
+    () => getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(GEO_ACCESS_DOC_ID).set({
+      enabled: nextPolicy.enabled,
+      blockApplications: nextPolicy.blockApplications,
+      blockAuth: nextPolicy.blockAuth,
+      blockUnknownCountries: nextPolicy.blockUnknownCountries,
+      blockedCountries: nextPolicy.blockedCountries,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor?.name || actor?.login || actor?.id || null,
+    }, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "geo_access.policy_write_failed" },
+  );
 
   return setGeoPolicyCache({
     ...nextPolicy,

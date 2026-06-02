@@ -392,6 +392,10 @@ function userFriendlyErrorMessage(message: string, fallback: string) {
     return "Збереження тимчасово недоступне. Спробуй пізніше або звернись до гільдмайстра.";
   }
 
+  if (/режим тільки читання|дані можна переглядати|read.?only|write.*unavailable/i.test(text)) {
+    return "Панель зараз у режимі тільки читання: перегляд працює, але зміни тимчасово не зберігаються.";
+  }
+
   if (/channel_id|message id|unknown message|10008|discord.*404|invalid form body/i.test(text)) {
     return "Discord не підтвердив повідомлення. Перевір канал і повтори дію.";
   }

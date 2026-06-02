@@ -54,6 +54,7 @@ import {
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
 import { resilientRead, resilientWrite, getRuntimeCachedValue, setRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
+import { firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
 
 export {
   deleteDashboardProfileById,
@@ -1028,39 +1029,45 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     };
   }
 
-  const db = getFirebaseAdminDb();
-  const ref = db.collection("dashboardProfiles").doc(profileId);
-  const snapshot = await ref.get();
-  await ref.set(
-    {
-      profileId,
-      provider: profile.provider,
-      providerUserId: profile.providerUserId,
-      displayName: profile.displayName,
-      login: profile.login || null,
-      role: profile.role,
-      groupId: profile.groupId || null,
-      groupName: profile.groupName || null,
-      groupRank: Number.isFinite(Number(profile.groupRank))
-        ? Math.floor(Number(profile.groupRank))
-        : fallbackProfileRank(profile.role),
-      avatarUrl: profile.avatarUrl || null,
-      discordRoleIds: profile.discordRoleIds,
-      updatedAt: FieldValue.serverTimestamp(),
-      lastLoginAt: FieldValue.serverTimestamp(),
-      ...(snapshot.exists
-        ? {}
-        : {
-            createdAt: FieldValue.serverTimestamp(),
-            characters: [],
-            mainCharacterKey: null,
-            nicknameCharacterKeys: [],
-            raidRolePreference: null,
-            publicNameMode: "name",
-            grammaticalGender: "unspecified",
-          }),
+  await writeProfileStorage(
+    `profile:${profileId}:ensure`,
+    async () => {
+      const db = getFirebaseAdminDb();
+      const ref = db.collection("dashboardProfiles").doc(profileId);
+      const snapshot = await ref.get();
+      await ref.set(
+        {
+          profileId,
+          provider: profile.provider,
+          providerUserId: profile.providerUserId,
+          displayName: profile.displayName,
+          login: profile.login || null,
+          role: profile.role,
+          groupId: profile.groupId || null,
+          groupName: profile.groupName || null,
+          groupRank: Number.isFinite(Number(profile.groupRank))
+            ? Math.floor(Number(profile.groupRank))
+            : fallbackProfileRank(profile.role),
+          avatarUrl: profile.avatarUrl || null,
+          discordRoleIds: profile.discordRoleIds,
+          updatedAt: FieldValue.serverTimestamp(),
+          lastLoginAt: FieldValue.serverTimestamp(),
+          ...(snapshot.exists
+            ? {}
+            : {
+                createdAt: FieldValue.serverTimestamp(),
+                characters: [],
+                mainCharacterKey: null,
+                nicknameCharacterKeys: [],
+                raidRolePreference: null,
+                publicNameMode: "name",
+                grammaticalGender: "unspecified",
+              }),
+        },
+        { merge: true },
+      );
     },
-    { merge: true },
+    { timeoutMs: 4_000, logEvent: "profiles.ensure_write_failed" },
   );
 
   clearProfileRuntimeCaches(profileId);
@@ -1136,41 +1143,54 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   // SESSION_SECRET was rotated after a profile was created, the deterministic
   // document id changes. Querying Firestore by providerUserId keeps already
   // stored dashboardProfiles documents usable for Worker lookups.
-  const db = getFirebaseAdminDb();
-  const byProviderUserId = await db
-    .collection("dashboardProfiles")
-    .where("providerUserId", "==", cleanDiscordId)
-    .limit(5)
-    .get();
+  return resilientRead(
+    `profile:discord:${cleanDiscordId}`,
+    async () => {
+      const db = getFirebaseAdminDb();
+      const byProviderUserId = await db
+        .collection("dashboardProfiles")
+        .where("providerUserId", "==", cleanDiscordId)
+        .limit(5)
+        .get();
 
-  for (const doc of byProviderUserId.docs) {
-    const profile = normalizeProfile(doc.id, doc.data() || {});
-    if (
-      profile.provider === "discord" ||
-      profile.providerUserId === cleanDiscordId
-    ) {
-      return resolveProfileAccessForCurrentGroups(profile);
-    }
-  }
+      for (const doc of byProviderUserId.docs) {
+        const profile = normalizeProfile(doc.id, doc.data() || {});
+        if (
+          profile.provider === "discord" ||
+          profile.providerUserId === cleanDiscordId
+        ) {
+          return resolveProfileAccessForCurrentGroups(profile);
+        }
+      }
 
-  // Older experiments may have stored the Discord id under a direct field.
-  // Keep these fallbacks cheap and limited.
-  for (const field of ["discordId", "discordUserId"]) {
-    const snapshot = await db
-      .collection("dashboardProfiles")
-      .where(field, "==", cleanDiscordId)
-      .limit(1)
-      .get()
-      .catch(() => null);
+      // Older experiments may have stored the Discord id under a direct field.
+      // Keep these fallbacks cheap and limited.
+      for (const field of ["discordId", "discordUserId"]) {
+        const snapshot = await db
+          .collection("dashboardProfiles")
+          .where(field, "==", cleanDiscordId)
+          .limit(1)
+          .get()
+          .catch(() => null);
 
-    const doc = snapshot?.docs?.[0];
-    if (doc)
-      return resolveProfileAccessForCurrentGroups(
-        normalizeProfile(doc.id, doc.data() || {}),
-      );
-  }
+        const doc = snapshot?.docs?.[0];
+        if (doc)
+          return resolveProfileAccessForCurrentGroups(
+            normalizeProfile(doc.id, doc.data() || {}),
+          );
+      }
 
-  return null;
+      return null;
+    },
+    {
+      ttlMs: 60_000,
+      timeoutMs: 3_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<DashboardProfile | null>(`profile:discord:${cleanDiscordId}`, 24 * 60 * 60 * 1000),
+      logEvent: "profiles.discord_lookup_read_failed",
+    },
+  );
 }
 
 export async function listDashboardProfiles(params: {
@@ -1256,13 +1276,26 @@ export async function listDashboardProfilesForDiscordSync(
     10,
     Math.min(1000, Math.floor(Number(limit) || 1000)),
   );
-  const snapshot = await getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .limit(safeLimit)
-    .get();
+  const snapshotProfiles = await resilientRead(
+    `profiles:discord-sync:${safeLimit}`,
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection("dashboardProfiles")
+        .limit(safeLimit)
+        .get();
+      return snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
+    },
+    {
+      ttlMs: 60_000,
+      timeoutMs: 4_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<DashboardProfile[]>(`profiles:discord-sync:${safeLimit}`, 10 * 60_000) || [],
+      logEvent: "profiles.discord_sync_read_failed",
+    },
+  );
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
-  return snapshot.docs
-    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+  return snapshotProfiles
     .map((profile: DashboardProfile) =>
       groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
     );
@@ -1279,32 +1312,46 @@ export async function listAllDashboardProfilesForDiscordSync(
       ? Math.min(50_000, Math.floor(maxTotalNumber))
       : 50_000;
   const pageSize = 500;
-  const db = getFirebaseAdminDb();
-  const baseQuery = db
-    .collection("dashboardProfiles")
-    .orderBy(FieldPath.documentId());
-  const docs: any[] = [];
-  let cursor: any = null;
+  const profiles = await resilientRead(
+    `profiles:discord-sync:all:${maxTotal}`,
+    async () => {
+      const db = getFirebaseAdminDb();
+      const baseQuery = db
+        .collection("dashboardProfiles")
+        .orderBy(FieldPath.documentId());
+      const docs: any[] = [];
+      let cursor: any = null;
 
-  while (docs.length < maxTotal) {
-    let query: any = baseQuery.limit(
-      Math.min(pageSize, maxTotal - docs.length),
-    );
-    if (cursor)
-      query = baseQuery
-        .startAfter(cursor)
-        .limit(Math.min(pageSize, maxTotal - docs.length));
+      while (docs.length < maxTotal) {
+        let query: any = baseQuery.limit(
+          Math.min(pageSize, maxTotal - docs.length),
+        );
+        if (cursor)
+          query = baseQuery
+            .startAfter(cursor)
+            .limit(Math.min(pageSize, maxTotal - docs.length));
 
-    const snapshot = await query.get();
-    if (snapshot.empty) break;
-    docs.push(...snapshot.docs);
-    cursor = snapshot.docs[snapshot.docs.length - 1];
-    if (snapshot.docs.length < pageSize) break;
-  }
+        const snapshot = await query.get();
+        if (snapshot.empty) break;
+        docs.push(...snapshot.docs);
+        cursor = snapshot.docs[snapshot.docs.length - 1];
+        if (snapshot.docs.length < pageSize) break;
+      }
+
+      return docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
+    },
+    {
+      ttlMs: 60_000,
+      timeoutMs: 8_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<DashboardProfile[]>(`profiles:discord-sync:all:${maxTotal}`, 10 * 60_000) || [],
+      logEvent: "profiles.discord_sync_all_read_failed",
+    },
+  );
 
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
-  return docs
-    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+  return profiles
     .map((profile: DashboardProfile) =>
       groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
     );
@@ -1349,6 +1396,24 @@ function clearProfileRuntimeCaches(profileId?: string | null, options: { charact
   if (cleanId) clearRuntimeCachedValue(`profile:${cleanId}`);
   clearRuntimeCachedValuesByPrefix("profiles:list:");
   if (options.characterLinks) clearCharacterProfileLinksCache();
+}
+
+function profileWriteUnavailableError() {
+  return new Error(firebaseUnavailableMessage("profile", "write"));
+}
+
+async function writeProfileStorage<T>(
+  key: string,
+  writer: () => Promise<T>,
+  options: { timeoutMs?: number; logEvent?: string } = {},
+) {
+  return firebaseWrite("profile", key, writer, {
+    timeoutMs: options.timeoutMs || 4_000,
+    logEvent: options.logEvent || "profiles.write_failed",
+    fallback: () => {
+      throw profileWriteUnavailableError();
+    },
+  });
 }
 
 function characterProfileLinkKeys(character: ProfileCharacter) {
@@ -1414,18 +1479,24 @@ export async function saveProfileCharacterWarcraftLogsSnapshot(input: {
   });
 
   if (!changed) return false;
-  await ref.set(
-    {
-      characters,
-      updatedAt: FieldValue.serverTimestamp(),
-      battlenet: {
-        ...(profile.battlenet || {}),
-        lastCharacterRefreshAt: FieldValue.serverTimestamp(),
-      },
+  await writeProfileStorage(
+    `profile:${cleanProfileId}:wcl-snapshot`,
+    async () => {
+      await ref.set(
+        {
+          characters,
+          updatedAt: FieldValue.serverTimestamp(),
+          battlenet: {
+            ...(profile.battlenet || {}),
+            lastCharacterRefreshAt: FieldValue.serverTimestamp(),
+          },
+        },
+        { merge: true },
+      );
+      clearProfileRuntimeCaches(cleanProfileId, { characterLinks: true });
     },
-    { merge: true },
+    { timeoutMs: 4_000, logEvent: "profiles.wcl_snapshot_write_failed" },
   );
-  clearProfileRuntimeCaches(cleanProfileId, { characterLinks: true });
   return true;
 }
 
@@ -1761,7 +1832,14 @@ export async function saveBattleNetSyncState(
     }
   }
 
-  await ref.set(payload, { merge: true });
+  await writeProfileStorage(
+    `profile:${profileId}:battlenet-scan`,
+    async () => {
+      await ref.set(payload, { merge: true });
+      clearProfileRuntimeCaches(profileId, { characterLinks: true });
+    },
+    { timeoutMs: 4_000, logEvent: "profiles.battlenet_scan_write_failed" },
+  );
 }
 
 export async function getProfileBattleNetCandidates(profileId: string) {
@@ -1808,10 +1886,17 @@ export async function clearProfileBattleNetCandidates(
   }
   if (isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) return false;
 
-  await ref.update({
-    ...candidateStorageDeleteUpdate(),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+  await writeProfileStorage(
+    `profile:${profileId}:candidate-clear`,
+    async () => {
+      await ref.update({
+        ...candidateStorageDeleteUpdate(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      clearProfileRuntimeCaches(profileId);
+    },
+    { timeoutMs: 3_000, logEvent: "profiles.candidate_clear_write_failed" },
+  );
   return true;
 }
 
@@ -1832,33 +1917,40 @@ export async function removeProfileBattleNetCandidates(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) return;
+  await writeProfileStorage(
+    `profile:${profileId}:candidate-remove`,
+    async () => {
+      await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) return;
 
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const remaining = (profile.battlenet?.candidateCharacters || []).filter(
-      (candidate) => !removeKeys.has(candidate.key),
-    );
-    if (!remaining.length) {
-      transaction.update(ref, {
-        ...candidateStorageDeleteUpdate(),
-        updatedAt: FieldValue.serverTimestamp(),
+        const profile = normalizeProfile(profileId, snapshot.data() || {});
+        const remaining = (profile.battlenet?.candidateCharacters || []).filter(
+          (candidate) => !removeKeys.has(candidate.key),
+        );
+        if (!remaining.length) {
+          transaction.update(ref, {
+            ...candidateStorageDeleteUpdate(),
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+          return;
+        }
+
+        transaction.set(
+          ref,
+          {
+            battlenet: {
+              candidateCharacters: remaining,
+            },
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       });
-      return;
-    }
-
-    transaction.set(
-      ref,
-      {
-        battlenet: {
-          candidateCharacters: remaining,
-        },
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
-  });
+      clearProfileRuntimeCaches(profileId);
+    },
+    { timeoutMs: 4_000, logEvent: "profiles.candidate_remove_write_failed" },
+  );
 }
 
 type ProfileExternalRefreshReason =
@@ -2180,15 +2272,21 @@ async function refreshProfileExternalDataInternal(
     };
   }
 
-  await ref.set(
-    {
-      characters: nextCharacters,
-      battlenet: battlenetPayload,
-      updatedAt: FieldValue.serverTimestamp(),
+  await writeProfileStorage(
+    `profile:${profile.profileId}:external-refresh`,
+    async () => {
+      await ref.set(
+        {
+          characters: nextCharacters,
+          battlenet: battlenetPayload,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+      clearProfileRuntimeCaches(profile.profileId, { characterLinks: true });
     },
-    { merge: true },
+    { timeoutMs: 5_000, logEvent: "profiles.external_refresh_write_failed" },
   );
-  clearProfileRuntimeCaches(profile.profileId, { characterLinks: true });
 
   const snapshot = await ref.get().catch(() => null);
   return {
@@ -2323,13 +2421,26 @@ export async function refreshAllProfilesExternalData(
       ) || 0,
     ),
   );
-  const snapshot = await getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .limit(limit)
-    .get();
-  const profiles: DashboardProfile[] = snapshot.docs
-    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
-    .filter((profile: DashboardProfile) => profile.characters.length);
+  const profiles: DashboardProfile[] = await resilientRead(
+    `profiles:external-refresh:${limit}`,
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection("dashboardProfiles")
+        .limit(limit)
+        .get();
+      return snapshot.docs
+        .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+        .filter((profile: DashboardProfile) => profile.characters.length);
+    },
+    {
+      ttlMs: 60_000,
+      timeoutMs: 4_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<DashboardProfile[]>(`profiles:external-refresh:${limit}`, 10 * 60_000) || [],
+      logEvent: "profiles.external_refresh_list_read_failed",
+    },
+  );
 
   let refreshedProfiles = 0;
   let refreshedCharacters = 0;
@@ -2392,35 +2503,39 @@ export async function addProfileCharacter(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  const result = await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const current = profile.characters;
-    if (current.some((item) => item.key === cleanKey)) {
-      return { added: false, reason: "duplicate" as const, key: cleanKey };
-    }
-    const now = new Date().toISOString();
-    const nextCharacter: ProfileCharacter = {
-      ...candidate,
-      addedAt: now,
-      lastSeenAt: candidate.lastSeenAt || now,
-    };
-    const nextCharacters = [...current, nextCharacter];
-    const mainCharacterKey = profile.mainCharacterKey || nextCharacter.key;
+  const result = await writeProfileStorage(
+    `profile:${profileId}:character-add:${cleanKey}`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+      const profile = normalizeProfile(profileId, snapshot.data() || {});
+      const current = profile.characters;
+      if (current.some((item) => item.key === cleanKey)) {
+        return { added: false, reason: "duplicate" as const, key: cleanKey };
+      }
+      const now = new Date().toISOString();
+      const nextCharacter: ProfileCharacter = {
+        ...candidate,
+        addedAt: now,
+        lastSeenAt: candidate.lastSeenAt || now,
+      };
+      const nextCharacters = [...current, nextCharacter];
+      const mainCharacterKey = profile.mainCharacterKey || nextCharacter.key;
 
-    transaction.set(
-      ref,
-      {
-        characters: nextCharacters,
-        mainCharacterKey,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
+      transaction.set(
+        ref,
+        {
+          characters: nextCharacters,
+          mainCharacterKey,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
 
-    return { added: true, key: cleanKey };
-  });
+      return { added: true, key: cleanKey };
+    }),
+    { timeoutMs: 5_000, logEvent: "profiles.character_add_write_failed" },
+  );
   if (result.added) clearProfileRuntimeCaches(profileId, { characterLinks: true });
   return result;
 }
@@ -2456,44 +2571,48 @@ export async function addProfileCharacters(
     .collection("dashboardProfiles")
     .doc(profileId);
 
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+  await writeProfileStorage(
+    `profile:${profileId}:characters-bulk-add`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error("Профіль не знайдено.");
 
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const current = profile.characters;
-    const currentKeys = new Set(current.map((item) => item.key));
-    const now = new Date().toISOString();
-    const nextCharacters = [...current];
+      const profile = normalizeProfile(profileId, snapshot.data() || {});
+      const current = profile.characters;
+      const currentKeys = new Set(current.map((item) => item.key));
+      const now = new Date().toISOString();
+      const nextCharacters = [...current];
 
-    for (const [key, candidate] of normalized) {
-      if (currentKeys.has(key)) {
-        skippedKeys.push(key);
-        skippedReasons[key] = "duplicate";
-        continue;
+      for (const [key, candidate] of normalized) {
+        if (currentKeys.has(key)) {
+          skippedKeys.push(key);
+          skippedReasons[key] = "duplicate";
+          continue;
+        }
+        nextCharacters.push({
+          ...candidate,
+          addedAt: now,
+          lastSeenAt: candidate.lastSeenAt || now,
+        });
+        currentKeys.add(key);
+        addedKeys.push(key);
       }
-      nextCharacters.push({
-        ...candidate,
-        addedAt: now,
-        lastSeenAt: candidate.lastSeenAt || now,
-      });
-      currentKeys.add(key);
-      addedKeys.push(key);
-    }
 
-    if (!addedKeys.length) return;
+      if (!addedKeys.length) return;
 
-    transaction.set(
-      ref,
-      {
-        characters: nextCharacters,
-        mainCharacterKey:
-          profile.mainCharacterKey || nextCharacters[0]?.key || null,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
-  });
+      transaction.set(
+        ref,
+        {
+          characters: nextCharacters,
+          mainCharacterKey:
+            profile.mainCharacterKey || nextCharacters[0]?.key || null,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }),
+    { timeoutMs: 6_000, logEvent: "profiles.characters_bulk_add_write_failed" },
+  );
 
   if (addedKeys.length) clearProfileRuntimeCaches(profileId, { characterLinks: true });
 
@@ -2520,41 +2639,45 @@ export async function removeProfileCharacter(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const nextCharacters = profile.characters.filter(
-      (item) => item.key !== cleanKey,
-    );
-    const nextMain =
-      profile.mainCharacterKey === cleanKey
-        ? nextCharacters[0]?.key || null
-        : profile.mainCharacterKey || null;
+  await writeProfileStorage(
+    `profile:${profileId}:character-remove:${cleanKey}`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+      const profile = normalizeProfile(profileId, snapshot.data() || {});
+      const nextCharacters = profile.characters.filter(
+        (item) => item.key !== cleanKey,
+      );
+      const nextMain =
+        profile.mainCharacterKey === cleanKey
+          ? nextCharacters[0]?.key || null
+          : profile.mainCharacterKey || null;
 
-    const updatePayload: Record<string, unknown> = {
-      characters: nextCharacters,
-      mainCharacterKey: nextMain,
-      nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
-        .filter(
-          (key) =>
-            key !== cleanKey &&
-            nextCharacters.some(
-              (item) => item.key === key && item.key !== nextMain,
-            ),
-        )
-        .slice(0, 2),
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-    if (
-      profile.raidRolePreference?.characterKey === cleanKey ||
-      (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)
-    ) {
-      updatePayload.raidRolePreference = FieldValue.delete();
-    }
+      const updatePayload: Record<string, unknown> = {
+        characters: nextCharacters,
+        mainCharacterKey: nextMain,
+        nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
+          .filter(
+            (key) =>
+              key !== cleanKey &&
+              nextCharacters.some(
+                (item) => item.key === key && item.key !== nextMain,
+              ),
+          )
+          .slice(0, 2),
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+      if (
+        profile.raidRolePreference?.characterKey === cleanKey ||
+        (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)
+      ) {
+        updatePayload.raidRolePreference = FieldValue.delete();
+      }
 
-    transaction.set(ref, updatePayload, { merge: true });
-  });
+      transaction.set(ref, updatePayload, { merge: true });
+    }),
+    { timeoutMs: 5_000, logEvent: "profiles.character_remove_write_failed" },
+  );
   clearProfileRuntimeCaches(profileId, { characterLinks: true });
 }
 
@@ -2570,27 +2693,31 @@ export async function setMainProfileCharacter(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) throw new Error("Профіль не знайдено.");
-    const profile = normalizeProfile(profileId, snapshot.data() || {});
-    if (!profile.characters.some((item) => item.key === cleanKey)) {
-      throw new Error("Персонаж не доданий до профілю.");
-    }
+  await writeProfileStorage(
+    `profile:${profileId}:character-main:${cleanKey}`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error("Профіль не знайдено.");
+      const profile = normalizeProfile(profileId, snapshot.data() || {});
+      if (!profile.characters.some((item) => item.key === cleanKey)) {
+        throw new Error("Персонаж не доданий до профілю.");
+      }
 
-    const updatePayload: Record<string, unknown> = {
-      mainCharacterKey: cleanKey,
-      nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
-        .filter((key) => key !== cleanKey)
-        .slice(0, 2),
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-    if (profile.mainCharacterKey && profile.mainCharacterKey !== cleanKey) {
-      updatePayload.raidRolePreference = FieldValue.delete();
-    }
+      const updatePayload: Record<string, unknown> = {
+        mainCharacterKey: cleanKey,
+        nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
+          .filter((key) => key !== cleanKey)
+          .slice(0, 2),
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+      if (profile.mainCharacterKey && profile.mainCharacterKey !== cleanKey) {
+        updatePayload.raidRolePreference = FieldValue.delete();
+      }
 
-    transaction.set(ref, updatePayload, { merge: true });
-  });
+      transaction.set(ref, updatePayload, { merge: true });
+    }),
+    { timeoutMs: 5_000, logEvent: "profiles.character_main_write_failed" },
+  );
   clearProfileRuntimeCaches(profileId, { characterLinks: true });
 }
 
@@ -2860,12 +2987,16 @@ export async function setProfilePreferredName(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  await ref.set(
-    {
-      preferredName,
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
+  await writeProfileStorage(
+    `profile:${profileId}:preferred-name`,
+    () => ref.set(
+      {
+        preferredName,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    ),
+    { timeoutMs: 3_000, logEvent: "profiles.preferred_name_write_failed" },
   );
 
   clearProfileRuntimeCaches(profileId, { characterLinks: true });
@@ -2882,12 +3013,16 @@ export async function setProfilePublicNameMode(
     throw new Error("Профілі тимчасово недоступні.");
 
   const publicNameMode = cleanProfilePublicNameMode(modeInput);
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
-    {
-      publicNameMode,
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
+  await writeProfileStorage(
+    `profile:${profileId}:public-name-mode`,
+    () => getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
+      {
+        publicNameMode,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    ),
+    { timeoutMs: 3_000, logEvent: "profiles.public_name_mode_write_failed" },
   );
 
   clearProfileRuntimeCaches(profileId, { characterLinks: true });
@@ -2904,12 +3039,16 @@ export async function setProfileGrammaticalGender(
     throw new Error("Профілі тимчасово недоступні.");
 
   const grammaticalGender = cleanProfileGrammaticalGender(genderInput);
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
-    {
-      grammaticalGender,
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
+  await writeProfileStorage(
+    `profile:${profileId}:grammatical-gender`,
+    () => getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
+      {
+        grammaticalGender,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    ),
+    { timeoutMs: 3_000, logEvent: "profiles.grammatical_gender_write_failed" },
   );
 
   clearProfileRuntimeCaches(profileId);
@@ -2930,25 +3069,29 @@ export async function markProfileDiscordNicknameSynced(
     ? source.characterNames
     : [];
 
-  await getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .doc(profileId)
-    .set(
-      {
-        discordNickname: {
-          value: cleanDiscordNicknamePart(nickname, 32),
-          syncedAt: FieldValue.serverTimestamp(),
-          sourcePreferredName:
-            cleanProfileName(source?.baseName || "", 32) || null,
-          sourceCharacters: sourceCharacterNames
-            .map((item) => cleanDiscordNicknamePart(item, 16))
-            .filter(Boolean)
-            .slice(0, 3),
+  await writeProfileStorage(
+    `profile:${profileId}:discord-nickname-synced`,
+    () => getFirebaseAdminDb()
+      .collection("dashboardProfiles")
+      .doc(profileId)
+      .set(
+        {
+          discordNickname: {
+            value: cleanDiscordNicknamePart(nickname, 32),
+            syncedAt: FieldValue.serverTimestamp(),
+            sourcePreferredName:
+              cleanProfileName(source?.baseName || "", 32) || null,
+            sourceCharacters: sourceCharacterNames
+              .map((item) => cleanDiscordNicknamePart(item, 16))
+              .filter(Boolean)
+              .slice(0, 3),
+          },
+          updatedAt: FieldValue.serverTimestamp(),
         },
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
+        { merge: true },
+      ),
+    { timeoutMs: 3_000, logEvent: "profiles.discord_nickname_synced_write_failed" },
+  );
   clearProfileRuntimeCaches(profileId);
 }
 
@@ -2966,7 +3109,9 @@ export async function setProfileNicknameCharacters(
     .collection("dashboardProfiles")
     .doc(profileId);
 
-  const selected = await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+  const selected = await writeProfileStorage(
+    `profile:${profileId}:nickname-characters`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
 
@@ -2988,7 +3133,9 @@ export async function setProfileNicknameCharacters(
     );
 
     return selected;
-  });
+    }),
+    { timeoutMs: 4_000, logEvent: "profiles.nickname_characters_write_failed" },
+  );
   clearProfileRuntimeCaches(profileId, { characterLinks: true });
   return selected;
 }
@@ -3005,7 +3152,9 @@ export async function setProfileRaidRolePreference(
     .collection("dashboardProfiles")
     .doc(profileId);
 
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+  await writeProfileStorage(
+    `profile:${profileId}:raid-role`,
+    () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
 
@@ -3028,7 +3177,9 @@ export async function setProfileRaidRolePreference(
     }
 
     transaction.set(ref, updatePayload, { merge: true });
-  });
+    }),
+    { timeoutMs: 4_000, logEvent: "profiles.raid_role_write_failed" },
+  );
   clearProfileRuntimeCaches(profileId);
 }
 

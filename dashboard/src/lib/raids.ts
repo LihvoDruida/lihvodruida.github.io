@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
-import { resilientRead, getRuntimeCachedValue } from "@/lib/runtimeResilience";
+import { getRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
+import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
 import { getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
@@ -708,10 +709,25 @@ export function hasRaidStorage() {
   return hasFirebaseProfileConfig();
 }
 
+function clearRaidRuntimeCaches(raidId?: string | null) {
+  const id = cleanRaidId(raidId);
+  if (id) clearRuntimeCachedValue(`raid:${id}`);
+  clearRuntimeCachedValuesByPrefix("raids:list:");
+}
+
+function raidWriteErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (/збереження|write|permission|quota|firestore|firebase|timed out|timeout|resource/i.test(message)) {
+    return firebaseUnavailableMessage("raid", "write");
+  }
+  return message || "Запис на рейд тимчасово недоступний. Спробуй пізніше.";
+}
+
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
   const safeLimit = Math.max(1, Math.min(100, limit));
-  return resilientRead(
+  return firebaseRead(
+    "raid",
     `raids:list:${safeLimit}`,
     async () => {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
@@ -722,7 +738,6 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
     {
       ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidListCacheTtlMs || process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
       timeoutMs: 3_000,
-      circuitKey: "firebase-raid-read",
       circuitTtlMs: 90_000,
       fallback: () => getRuntimeCachedValue<RaidItem[]>(`raids:list:${safeLimit}`, 24 * 60 * 60 * 1000) || [],
       logEvent: "raids.list_read_failed",
@@ -733,7 +748,8 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
 export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const id = cleanRaidId(raidId);
   if (!id || !hasRaidStorage()) return null;
-  return resilientRead(
+  return firebaseRead(
+    "raid",
     `raid:${id}`,
     async () => {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
@@ -743,7 +759,6 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
     {
       ttlMs: Math.max(10_000, Math.min(120_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidItemCacheTtlMs || process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
       timeoutMs: 2_500,
-      circuitKey: "firebase-raid-read",
       circuitTtlMs: 90_000,
       fallback: () => getRuntimeCachedValue<RaidItem | null>(`raid:${id}`, 24 * 60 * 60 * 1000),
       logEvent: "raids.item_read_failed",
@@ -753,8 +768,20 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
 
 async function syncAutoClosedRaid(raid: RaidItem) {
   if (raid.status !== "closed" || !hasRaidStorage()) return;
-  const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
-  await ref.set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  await firebaseWrite(
+    "raid",
+    `raid:${raid.id}:auto-close`,
+    async () => {
+      const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
+      await ref.set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      clearRaidRuntimeCaches(raid.id);
+    },
+    {
+      timeoutMs: 3_000,
+      logEvent: "raids.auto_close_write_failed",
+      fallback: () => undefined,
+    },
+  );
   if (raid.channelId && raid.messageId) {
     await publishOrUpdateRaid({ ...raid, status: "closed" }, raid.channelId).catch(() => null);
   }
@@ -765,7 +792,15 @@ export async function closeRaid(raidId: string) {
   if (!raid) throw new Error("Рейд не знайдено.");
   if (raid.status === "draft") throw new Error("Чернетку не можна закрити. Її можна видалити або опублікувати.");
   const closed: RaidItem = { ...raid, status: "closed" };
-  await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  await firebaseWrite(
+    "raid",
+    `raid:${raid.id}:close`,
+    async () => {
+      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      clearRaidRuntimeCaches(raid.id);
+    },
+    { timeoutMs: 3_000, logEvent: "raids.close_write_failed" },
+  );
 
   let discordSynced = true;
   if (closed.channelId && closed.messageId) {
@@ -806,7 +841,15 @@ export async function deleteRaid(raidId: string) {
     }
   }
 
-  await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
+  await firebaseWrite(
+    "raid",
+    `raid:${raid.id}:delete`,
+    async () => {
+      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
+      clearRaidRuntimeCaches(raid.id);
+    },
+    { timeoutMs: 3_000, logEvent: "raids.delete_write_failed" },
+  );
   return { ...raid, discordDeleted, discordDeleteFailed };
 }
 
@@ -859,10 +902,22 @@ export async function syncRaidSignupGenderForProfile(profile: Pick<DashboardProf
     });
 
     if (!changed) continue;
-    await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-      signups: nextSignups,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await firebaseWrite(
+      "raid",
+      `raid:${raid.id}:gender-sync`,
+      async () => {
+        await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
+          signups: nextSignups,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+        clearRaidRuntimeCaches(raid.id);
+      },
+      {
+        timeoutMs: 3_000,
+        logEvent: "raids.gender_sync_write_failed",
+        fallback: () => undefined,
+      },
+    );
     updatedRaids += 1;
   }
 
@@ -943,23 +998,31 @@ function validateRaidPayload(payload: ReturnType<typeof formRaidPayload>, existi
 export async function saveRaidFromForm(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
   if (!hasRaidStorage()) throw new Error("Збереження рейдів тимчасово недоступне.");
 
-  const db = getFirebaseAdminDb();
   const raidId = cleanRaidId(form.get("raidId"));
   const payload = formRaidPayload(form, user, profile);
-  const ref = raidId ? db.collection(RAID_COLLECTION).doc(raidId) : db.collection(RAID_COLLECTION).doc();
-  const snapshot = await ref.get();
-  const existingRaid = snapshot.exists ? normalizeRaid(snapshot.id, snapshot.data() || {}) : null;
-  validateRaidPayload(payload, existingRaid);
+  return firebaseWrite(
+    "raid",
+    raidId ? `raid:${raidId}:save` : "raid:new:save",
+    async () => {
+      const db = getFirebaseAdminDb();
+      const ref = raidId ? db.collection(RAID_COLLECTION).doc(raidId) : db.collection(RAID_COLLECTION).doc();
+      const snapshot = await ref.get();
+      const existingRaid = snapshot.exists ? normalizeRaid(snapshot.id, snapshot.data() || {}) : null;
+      validateRaidPayload(payload, existingRaid);
 
-  await ref.set({
-    ...payload,
-    status: snapshot.exists ? snapshot.get("status") || "draft" : "draft",
-    updatedAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), signups: [] }),
-  }, { merge: true });
+      await ref.set({
+        ...payload,
+        status: snapshot.exists ? snapshot.get("status") || "draft" : "draft",
+        updatedAt: FieldValue.serverTimestamp(),
+        ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), signups: [] }),
+      }, { merge: true });
 
-  const saved = await ref.get();
-  return normalizeRaid(ref.id, saved.data() || {});
+      const saved = await ref.get();
+      clearRaidRuntimeCaches(ref.id);
+      return normalizeRaid(ref.id, saved.data() || {});
+    },
+    { timeoutMs: 6_000, logEvent: "raids.save_write_failed" },
+  );
 }
 
 function dateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
@@ -1429,14 +1492,22 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   if (!nextChannelId || !nextMessageId) throw new Error("Discord не підтвердив повідомлення. Перевір канал і повтори дію.");
   const messageUrl = discordMessageUrl(nextChannelId, nextMessageId);
 
-  await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-    status: closed ? "closed" : "published",
-    channelId: nextChannelId,
-    messageId: nextMessageId,
-    messageUrl,
-    publishedAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  await firebaseWrite(
+    "raid",
+    `raid:${raid.id}:publish-state`,
+    async () => {
+      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
+        status: closed ? "closed" : "published",
+        channelId: nextChannelId,
+        messageId: nextMessageId,
+        messageUrl,
+        publishedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      clearRaidRuntimeCaches(raid.id);
+    },
+    { timeoutMs: 3_000, logEvent: "raids.publish_state_write_failed" },
+  );
 
   return { channelId: nextChannelId, messageId: nextMessageId, messageUrl };
 }
@@ -1529,21 +1600,29 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   const id = cleanRaidId(raidId);
   if (!id || !hasRaidStorage()) throw new Error("Рейд не знайдено або збереження тимчасово недоступне.");
 
-  const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id);
-  await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
-    const snapshot = await transaction.get(ref);
-    if (!snapshot.exists) throw new Error("Рейд не знайдено.");
-    const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
-    if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
-    if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
-    const block = raidMinItemLevelBlockMessage(raid, signup);
-    if (block) throw new Error(block);
-    const fullBlock = raidRegistrationFullMessage(raid, signup.discordId, signup.status);
-    if (fullBlock) throw new Error(fullBlock);
-    const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
-    nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
-    transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-  });
+  await firebaseWrite(
+    "raid",
+    `raid:${id}:signup:${signup.discordId}`,
+    async () => {
+      const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id);
+      await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) throw new Error("Рейд не знайдено.");
+        const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+        if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
+        if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
+        const block = raidMinItemLevelBlockMessage(raid, signup);
+        if (block) throw new Error(block);
+        const fullBlock = raidRegistrationFullMessage(raid, signup.discordId, signup.status);
+        if (fullBlock) throw new Error(fullBlock);
+        const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
+        nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
+        transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      });
+      clearRaidRuntimeCaches(id);
+    },
+    { timeoutMs: 5_000, logEvent: "raids.signup_write_failed" },
+  );
 
   const updated = await getRaid(id);
   if (!updated) throw new Error("Рейд не знайдено після оновлення.");
@@ -1714,7 +1793,12 @@ export async function handleRaidDiscordAction(params: {
   const signup = signupFromProfile(params.action, params.userId, params.userName, profile, selectedCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
-  const updated = await recordRaidSignup(raid.id, signup);
+  let updated: RaidItem;
+  try {
+    updated = await recordRaidSignup(raid.id, signup);
+  } catch (error) {
+    return { ok: false, content: raidWriteErrorMessage(error), warning: null, storageReadOnly: true };
+  }
   const discordSynced = await syncRaidDiscordAfterSignup(updated, params.messageRef);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
   return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
@@ -1785,7 +1869,12 @@ export async function handleRaidSessionAction(params: {
   const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, selectedCharacter?.key || params.characterKey);
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
-  const updated = await recordRaidSignup(raid.id, signup);
+  let updated: RaidItem;
+  try {
+    updated = await recordRaidSignup(raid.id, signup);
+  } catch (error) {
+    return { ok: false, content: raidWriteErrorMessage(error), warning: null, storageReadOnly: true };
+  }
   const discordSynced = await syncRaidDiscordAfterSignup(updated);
   const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
   return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };

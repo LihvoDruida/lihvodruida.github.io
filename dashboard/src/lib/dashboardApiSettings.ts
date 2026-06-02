@@ -8,6 +8,7 @@ import {
 } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
 import { resilientRead, setRuntimeCachedValue, getRuntimeStaleValue } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const DASHBOARD_API_SETTINGS_DOC_ID = "backgroundApiPolicy";
@@ -1476,7 +1477,12 @@ export async function setDashboardApiSettings(
     tokenCacheResetHint();
   }
 
-  await doc.set(payload, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "dashboard-api-settings:save",
+    () => doc.set(payload, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "dashboard_api.settings_write_failed" },
+  );
 
   return setSettingsCache({
     ...settings,

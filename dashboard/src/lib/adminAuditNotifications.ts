@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
 import { resilientRead } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 import type { DashboardSession } from "@/lib/auth";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
@@ -156,14 +157,19 @@ export async function setAdminAuditDiscordPolicy(input: {
   const minStatus = cleanMinStatus(input.minStatus);
   const includeSystemLogs = input.includeSystemLogs === "1" || input.includeSystemLogs === "on" || input.includeSystemLogs === "true" || input.includeSystemLogs === true;
 
-  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID).set({
-    enabled,
-    channelId,
-    minStatus,
-    includeSystemLogs,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: actor?.name || actor?.login || actor?.id || null,
-  }, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "admin-audit-policy:save",
+    () => getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID).set({
+      enabled,
+      channelId,
+      minStatus,
+      includeSystemLogs,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor?.name || actor?.login || actor?.id || null,
+    }, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "admin.audit.policy_write_failed" },
+  );
 
   return setAuditPolicyCache({
     enabled: enabled && Boolean(channelId),

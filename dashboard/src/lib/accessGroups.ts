@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
 import { getRuntimeCachedValue, setRuntimeCachedValue, clearRuntimeCachedValue, resilientRead, resilientWrite, runtimeCircuitOpen, logThrottled, safeErrorText } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 import { publishAdminAuditToDiscord, type AdminAuditNotificationInput } from "@/lib/adminAuditNotifications";
 import { getAuditLogRuntimeSettings } from "@/lib/dashboardApiSettings";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
@@ -221,7 +222,10 @@ export async function listAccessGroups(): Promise<AccessGroup[]> {
 export async function ensureDefaultAccessGroups() {
   if (!hasFirebaseProfileConfig()) return fallbackGroups();
   const ref = collectionRef();
-  await Promise.all(DEFAULT_GROUPS.map(async (group) => {
+  await Promise.all(DEFAULT_GROUPS.map(async (group) => firebaseWrite(
+    "access-groups",
+    `access-group:${group.id}:ensure`,
+    async () => {
     const doc = ref.doc(group.id);
     const snap = await doc.get();
     if (!snap.exists) {
@@ -250,7 +254,13 @@ export async function ensureDefaultAccessGroups() {
     if (Object.keys(patch).length) {
       await doc.set({ ...patch, updatedAt: nowIso() }, { merge: true });
     }
-  }));
+    },
+    {
+      timeoutMs: 3_000,
+      logEvent: "access_groups.ensure_write_failed",
+      fallback: () => undefined,
+    },
+  )));
   return fallbackGroups();
 }
 
@@ -379,10 +389,18 @@ export async function upsertAccessGroup(input: {
   };
 
   const ref = collectionRef();
-  if (currentId && currentId !== id) {
-    await ref.doc(currentId).delete();
-  }
-  await ref.doc(id).set({ ...doc, createdAt: currentGroup?.createdAt || nowIso() }, { merge: true });
+  await firebaseWrite(
+    "access-groups",
+    `access-group:${id}:upsert`,
+    async () => {
+      if (currentId && currentId !== id) {
+        await ref.doc(currentId).delete();
+      }
+      await ref.doc(id).set({ ...doc, createdAt: currentGroup?.createdAt || nowIso() }, { merge: true });
+      clearRuntimeCachedValue("access-groups");
+    },
+    { timeoutMs: 4_000, logEvent: "access_groups.upsert_write_failed" },
+  );
   return normalizeGroup(id, doc);
 }
 
@@ -393,7 +411,15 @@ export async function deleteAccessGroup(groupId: string, viewer: DashboardSessio
   const group = await getAccessGroup(id);
   if (!group) return true;
   if (!canEditTargetGroup(viewer, group)) throw new Error("Цю групу не можна видалити з поточного акаунта.");
-  await collectionRef().doc(id).delete();
+  await firebaseWrite(
+    "access-groups",
+    `access-group:${id}:delete`,
+    async () => {
+      await collectionRef().doc(id).delete();
+      clearRuntimeCachedValue("access-groups");
+    },
+    { timeoutMs: 4_000, logEvent: "access_groups.delete_write_failed" },
+  );
   return true;
 }
 

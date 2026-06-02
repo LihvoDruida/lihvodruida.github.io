@@ -66,6 +66,30 @@ export function isTimeoutLikeError(error: unknown) {
   return /AbortError|timed out|timeout|deadline|ETIMEDOUT|ECONNRESET|socket hang up/i.test(safeErrorText(error));
 }
 
+export function isPermissionLikeError(error: unknown) {
+  const anyError = error as { code?: unknown; details?: unknown; message?: unknown } | null;
+  const text = [anyError?.code, anyError?.details, anyError?.message, safeErrorText(error)]
+    .filter(Boolean)
+    .join(" ");
+  return /PERMISSION_DENIED|permission-denied|unauthorized|unauthenticated|Missing or insufficient permissions|7\s+PERMISSION/i.test(text);
+}
+
+export function isUnavailableLikeError(error: unknown) {
+  const anyError = error as { code?: unknown; details?: unknown; message?: unknown } | null;
+  const text = [anyError?.code, anyError?.details, anyError?.message, safeErrorText(error)]
+    .filter(Boolean)
+    .join(" ");
+  return /UNAVAILABLE|unavailable|Service Unavailable|503|ECONNREFUSED|ENOTFOUND|EAI_AGAIN/i.test(text);
+}
+
+export function isConfigurationLikeError(error: unknown) {
+  return /credential|private key|client_email|project_id|Firebase.*not configured|Profile storage is not configured|invalid.*key|parse.*key/i.test(safeErrorText(error));
+}
+
+export function isRecoverableRuntimeError(error: unknown) {
+  return isQuotaOrResourceError(error) || isTimeoutLikeError(error) || isPermissionLikeError(error) || isUnavailableLikeError(error) || isConfigurationLikeError(error);
+}
+
 function circuitKey(key: string) {
   return String(key || "global").trim().slice(0, 160) || "global";
 }
@@ -204,7 +228,7 @@ export async function resilientRead<T>(
     clearRuntimeCircuit(breakerKey);
     return setRuntimeCachedValue(valueKey, loaded);
   } catch (error) {
-    if (isQuotaOrResourceError(error) || isTimeoutLikeError(error)) {
+    if (isRecoverableRuntimeError(error)) {
       openRuntimeCircuit(breakerKey, error, options.circuitTtlMs || 60_000);
     }
     if (options.logEvent) {
@@ -235,7 +259,7 @@ export async function resilientWrite<T>(
     clearRuntimeCircuit(breakerKey);
     return result;
   } catch (error) {
-    if (isQuotaOrResourceError(error) || isTimeoutLikeError(error)) {
+    if (isRecoverableRuntimeError(error)) {
       openRuntimeCircuit(breakerKey, error, options.circuitTtlMs || 60_000);
     }
     if (options.logEvent) {

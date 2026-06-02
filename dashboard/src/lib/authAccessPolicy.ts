@@ -5,6 +5,7 @@ import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmi
 import type { DashboardSession } from "@/lib/auth";
 import { logDashboardEvent } from "@/lib/security";
 import { resilientRead } from "@/lib/runtimeResilience";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const AUTH_ACCESS_DOC_ID = "authAccessPolicy";
@@ -166,15 +167,20 @@ export async function setAuthAccessPolicy(input: {
     requiredRoleIds: selectedRoleIds,
   });
 
-  await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(AUTH_ACCESS_DOC_ID).set({
-    enabled: nextPolicy.enabled,
-    requireConfiguredRole: nextPolicy.requireConfiguredRole,
-    allowServerOwner: nextPolicy.allowServerOwner,
-    allowEmergencyTokenLogin: nextPolicy.allowEmergencyTokenLogin,
-    requiredRoleIds: nextPolicy.requiredRoleIds,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: actor?.name || actor?.login || actor?.id || null,
-  }, { merge: true });
+  await firebaseWrite(
+    "settings",
+    "auth-access-policy:save",
+    () => getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(AUTH_ACCESS_DOC_ID).set({
+      enabled: nextPolicy.enabled,
+      requireConfiguredRole: nextPolicy.requireConfiguredRole,
+      allowServerOwner: nextPolicy.allowServerOwner,
+      allowEmergencyTokenLogin: nextPolicy.allowEmergencyTokenLogin,
+      requiredRoleIds: nextPolicy.requiredRoleIds,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor?.name || actor?.login || actor?.id || null,
+    }, { merge: true }),
+    { timeoutMs: 3_000, logEvent: "auth_access.policy_write_failed" },
+  );
 
   return setAuthPolicyCache({
     ...nextPolicy,

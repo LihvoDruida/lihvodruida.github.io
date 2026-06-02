@@ -1,5 +1,6 @@
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { createStableProfileId } from "@/lib/profileIds";
+import { firebaseWrite } from "@/lib/firebaseAccess";
 
 export type DashboardProfileDeleteResult =
   | { deleted: number; profileIds: string[]; reason: "deleted" }
@@ -14,7 +15,12 @@ export async function deleteDashboardProfileById(profileId: string): Promise<boo
   if (!/^id[a-f0-9]{16,40}$/.test(cleanProfileId)) return false;
   if (!hasFirebaseProfileConfig()) return false;
 
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).delete();
+  await firebaseWrite(
+    "profile",
+    `profile:${cleanProfileId}:delete`,
+    () => getFirebaseAdminDb().collection("dashboardProfiles").doc(cleanProfileId).delete(),
+    { timeoutMs: 3_000, logEvent: "profiles.delete_write_failed" },
+  );
   clearProfileDerivedCaches();
   return true;
 }
@@ -59,9 +65,16 @@ export async function deleteDashboardProfilesByDiscordUserId(discordUserId: stri
 
   if (!refs.size) return { deleted: 0, profileIds: [], reason: "not-found" };
 
-  const batch = db.batch();
-  for (const ref of refs.values()) batch.delete(ref);
-  await batch.commit();
+  await firebaseWrite(
+    "profile",
+    `profile:discord:${cleanDiscordId}:delete`,
+    async () => {
+      const batch = db.batch();
+      for (const ref of refs.values()) batch.delete(ref);
+      await batch.commit();
+    },
+    { timeoutMs: 5_000, logEvent: "profiles.discord_delete_write_failed" },
+  );
   clearProfileDerivedCaches();
 
   return { deleted: refs.size, profileIds: Array.from(refs.keys()), reason: "deleted" };
