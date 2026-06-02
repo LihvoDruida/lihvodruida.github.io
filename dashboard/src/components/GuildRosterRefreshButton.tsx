@@ -153,6 +153,8 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
           0,
           Number(payload.refresh?.warcraftLogs?.remaining || 0),
         );
+        const rioReason = String((payload.refresh?.raiderIo as { reason?: unknown } | undefined)?.reason || "");
+        const rioRateLimited = rioReason.startsWith("raiderio_rate_limited");
         const processedBattleNet = Math.max(
           0,
           Number(sync?.processed?.battleNet || 0),
@@ -173,6 +175,14 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         setMessage(
           `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Battle.net ${processedBattleNet}/${total}, Raider.IO ${processedRio}/${total}, WCL ${processedWcl}/${total}. Залишилось: Battle.net ${battleNetLeft}, Raider.IO ${rioLeft}, WCL ${wclLeft}.`,
         );
+
+        if (rioRateLimited) {
+          const seconds = Number(rioReason.split(":")[1]?.replace("s", ""));
+          setMessage(
+            `Raider.IO тимчасово обмежив запити. Дані, які вже отримані, збережено. Продовжити можна приблизно через ${Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds / 60)) : 15} хв.`,
+          );
+          break;
+        }
 
         if (
           !payload.hasMore ||

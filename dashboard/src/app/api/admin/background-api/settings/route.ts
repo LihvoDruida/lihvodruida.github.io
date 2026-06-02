@@ -193,6 +193,8 @@ export async function POST(request: NextRequest) {
         guildRosterRefreshMaxConcurrency: form.get("guildRosterRefreshMaxConcurrency"),
         raiderIoRequestTimeoutMs: form.get("raiderIoRequestTimeoutMs"),
         raiderIoRequestRetries: form.get("raiderIoRequestRetries"),
+        raiderIoRateLimitCooldownSeconds: form.get("raiderIoRateLimitCooldownSeconds"),
+        raiderIoRequestMinDelayMs: form.get("raiderIoRequestMinDelayMs"),
         battleNetRequestTimeoutMs: form.get("battleNetRequestTimeoutMs"),
         battleNetRequestRetries: form.get("battleNetRequestRetries"),
         profileReadCacheTtlMs: form.get("profileReadCacheTtlMs"),

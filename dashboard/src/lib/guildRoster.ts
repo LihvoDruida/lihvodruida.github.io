@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
-import { apiFetchJson } from "@/lib/apiHttp";
+import { ApiHttpError, apiFetchJson } from "@/lib/apiHttp";
 import {
   fetchBattleNetApplicationData,
   fetchBattleNetCharacterSnapshot,
@@ -214,6 +214,8 @@ declare global {
   var __mistblossomGuildRosterCache: CachedRoster | undefined;
   var __mistblossomGuildRosterSyncJob: GuildRosterSyncJob | undefined;
   var __mistblossomGuildRosterMemberWarningLoggedAt: Map<string, number> | undefined;
+  var __mistblossomRaiderIoRateLimitState: { blockedUntil: number; reason: string; loggedAt?: number } | undefined;
+  var __mistblossomRaiderIoLastRequestAt: number | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
@@ -380,18 +382,147 @@ function raiderIoAccessKey() {
   return cleanText(process.env.RAIDERIO_ACCESS_KEY);
 }
 
+class RaiderIoRateLimitError extends Error {
+  retryAfterMs: number;
+  blockedUntil: number;
+
+  constructor(message: string, retryAfterMs: number) {
+    super(message);
+    this.name = "RaiderIoRateLimitError";
+    this.retryAfterMs = Math.max(1_000, retryAfterMs);
+    this.blockedUntil = Date.now() + this.retryAfterMs;
+  }
+}
+
+function isRaiderIoRateLimitError(error: unknown): error is RaiderIoRateLimitError {
+  return error instanceof RaiderIoRateLimitError;
+}
+
+function raiderIoCooldownMs(
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRateLimitCooldownSeconds"> | null,
+) {
+  const seconds = Number(
+    settings?.raiderIoRateLimitCooldownSeconds ??
+      readIntegerEnv("RAIDERIO_RATE_LIMIT_COOLDOWN_SECONDS", 900, 60, 86_400),
+  );
+  return Math.max(60_000, Math.min(86_400_000, Math.floor(seconds) * 1000));
+}
+
+function raiderIoRequestMinDelayMs(
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestMinDelayMs"> | null,
+) {
+  const value = Number(
+    settings?.raiderIoRequestMinDelayMs ??
+      readIntegerEnv("RAIDERIO_REQUEST_MIN_DELAY_MS", 350, 0, 10_000),
+  );
+  return Math.max(0, Math.min(10_000, Math.floor(value)));
+}
+
+function getRaiderIoRateLimitBlock() {
+  const state = globalThis.__mistblossomRaiderIoRateLimitState;
+  if (!state) return null;
+  if (state.blockedUntil <= Date.now()) {
+    globalThis.__mistblossomRaiderIoRateLimitState = undefined;
+    return null;
+  }
+  return state;
+}
+
+function raiderIoRateLimitMessage(error: unknown) {
+  if (error instanceof RaiderIoRateLimitError) return error.message;
+  const parts = [
+    error instanceof Error ? error.message : String(error || ""),
+    error instanceof ApiHttpError ? JSON.stringify(error.body || "") : "",
+  ];
+  return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
+function isRaiderIoRateLimited(error: unknown) {
+  if (error instanceof RaiderIoRateLimitError) return true;
+  const message = raiderIoRateLimitMessage(error).toLowerCase();
+  return (
+    (error instanceof ApiHttpError && error.status === 429) ||
+    message.includes("too many requests") ||
+    message.includes("request limit") ||
+    message.includes("patreon")
+  );
+}
+
+async function waitForRaiderIoSlot(
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestMinDelayMs"> | null,
+) {
+  const delayMs = raiderIoRequestMinDelayMs(settings);
+  if (!delayMs) return;
+
+  const last = globalThis.__mistblossomRaiderIoLastRequestAt || 0;
+  const waitMs = Math.max(0, last + delayMs - Date.now());
+  if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+  globalThis.__mistblossomRaiderIoLastRequestAt = Date.now();
+}
+
+async function recordRaiderIoRateLimit(
+  error: unknown,
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRateLimitCooldownSeconds" | "warningAuditLogs"> | null,
+) {
+  const retryAfterMs = error instanceof ApiHttpError && error.retryAfterMs
+    ? error.retryAfterMs
+    : raiderIoCooldownMs(settings);
+  const message = raiderIoRateLimitMessage(error) || "Raider.IO rate limit";
+  const blockedUntil = Date.now() + Math.max(60_000, retryAfterMs);
+  const previous = globalThis.__mistblossomRaiderIoRateLimitState;
+  globalThis.__mistblossomRaiderIoRateLimitState = {
+    blockedUntil: Math.max(blockedUntil, previous?.blockedUntil || 0),
+    reason: message,
+    loggedAt: previous?.loggedAt,
+  };
+
+  const state = globalThis.__mistblossomRaiderIoRateLimitState;
+  const lastLogged = state.loggedAt || 0;
+  if (settings?.warningAuditLogs !== false && Date.now() - lastLogged > 10 * 60_000) {
+    state.loggedAt = Date.now();
+    await recordDashboardSystemLog(
+      "warning",
+      "guild.roster.raiderio.rate_limited",
+      {
+        summary: "Raider.IO тимчасово обмежив API. Синхронізація M+ score буде продовжена після паузи.",
+        error: message,
+        retryAfterSeconds: Math.ceil((state.blockedUntil - Date.now()) / 1000),
+      },
+      { persist: true },
+    ).catch(() => false);
+  }
+
+  return new RaiderIoRateLimitError(message, state.blockedUntil - Date.now());
+}
+
 async function fetchJsonWithTimeout(
   url: URL,
   label: string,
-  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestTimeoutMs" | "raiderIoRequestRetries"> | null,
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestTimeoutMs" | "raiderIoRequestRetries" | "raiderIoRateLimitCooldownSeconds" | "raiderIoRequestMinDelayMs" | "warningAuditLogs"> | null,
 ) {
-  return apiFetchJson<any>(url, {
-    label,
-    timeoutMs: raiderIoTimeoutMs(settings),
-    retries: Math.max(0, Math.min(4, Math.floor(Number(settings?.raiderIoRequestRetries ?? readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4))))),
-    cache: "no-store",
-    userAgent: "mistblossom-dashboard",
-  });
+  const activeLimit = getRaiderIoRateLimitBlock();
+  if (activeLimit) {
+    throw new RaiderIoRateLimitError(
+      activeLimit.reason || "Raider.IO rate limit",
+      activeLimit.blockedUntil - Date.now(),
+    );
+  }
+
+  await waitForRaiderIoSlot(settings);
+
+  try {
+    return await apiFetchJson<any>(url, {
+      label,
+      timeoutMs: raiderIoTimeoutMs(settings),
+      retries: Math.max(0, Math.min(4, Math.floor(Number(settings?.raiderIoRequestRetries ?? readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4))))),
+      retryStatuses: [408, 425, 500, 502, 503, 504],
+      cache: "no-store",
+      userAgent: "mistblossom-dashboard",
+    });
+  } catch (error) {
+    if (isRaiderIoRateLimited(error)) throw await recordRaiderIoRateLimit(error, settings);
+    throw error;
+  }
 }
 
 async function fetchRaiderGuild(
@@ -413,7 +544,8 @@ async function fetchRaiderGuild(
 
   try {
     return await fetchJsonWithTimeout(url, "Raider.IO guild", settings);
-  } catch {
+  } catch (error) {
+    if (!isRaiderIoRateLimitError(error)) return null;
     return null;
   }
 }
@@ -438,7 +570,8 @@ async function fetchRaiderCharacter(
       `Raider.IO character ${name}`,
       settings,
     )) as RaiderIoCharacterPayload;
-  } catch {
+  } catch (error) {
+    if (isRaiderIoRateLimitError(error)) throw error;
     return null;
   }
 }
@@ -907,6 +1040,127 @@ function sortMembers(members: GuildRosterMember[]) {
       b.scores.all - a.scores.all ||
       b.itemLevel - a.itemLevel ||
       a.name.localeCompare(b.name, "uk"),
+  );
+}
+
+function scoresFromProfileRaiderIo(snapshot: any): Record<GuildScoreSegment, number> {
+  const source = snapshot?.currentScores || {};
+  return SEGMENTS.reduce((acc, segment) => {
+    const entry = source[segment] || source[segment.toUpperCase?.()];
+    const value = typeof entry === "object" && entry ? entry.score : entry;
+    acc[segment] = parsePositiveNumber(value);
+    return acc;
+  }, {} as Record<GuildScoreSegment, number>);
+}
+
+function scoreColorsFromProfileRaiderIo(snapshot: any): Partial<Record<GuildScoreSegment, string>> {
+  const source = snapshot?.currentScores || {};
+  return SEGMENTS.reduce((acc, segment) => {
+    const entry = source[segment] || source[segment.toUpperCase?.()];
+    const color = cleanText(entry && typeof entry === "object" ? entry.color : "");
+    if (/^#[0-9a-f]{6}$/i.test(color)) acc[segment] = color;
+    return acc;
+  }, {} as Partial<Record<GuildScoreSegment, string>>);
+}
+
+async function buildProfileSeedRoster(
+  settings?: GuildRosterRuntimeSettings | null,
+): Promise<CachedRoster | null> {
+  if (!hasFirebaseProfileConfig()) return null;
+
+  const config = getGuildConfig(settings);
+  const updatedAt = nowIso();
+  const limit = guildMemberLimit(settings);
+
+  return resilientRead(
+    "guild-roster-profile-seed",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection("dashboardProfiles")
+        .limit(Math.max(50, Math.min(1000, limit)))
+        .get();
+
+      const membersByKey = new Map<string, GuildRosterMember>();
+      for (const profileDoc of snapshot.docs) {
+        const profile = profileDoc.data() || {};
+        const characters = Array.isArray(profile.characters) ? profile.characters : [];
+        for (const character of characters) {
+          const name = cleanText(character?.name);
+          if (!name) continue;
+
+          const region = normalizeBattleNetRegion(character?.region || config.region);
+          const realmSlug = slugify(character?.realmSlug || character?.realmName || config.realmSlug) || config.realmSlug;
+          if (region !== config.region || realmSlug !== config.realmSlug) continue;
+
+          const realmName = cleanText(character?.realmName || realmSlug).toUpperCase();
+          const key = buildBattleNetCharacterKey(region, realmSlug, name) || characterKey(region, realmSlug, name, character?.key);
+          if (!key || membersByKey.has(key)) continue;
+
+          const rankInfo = guildStatusFromRank(character?.guildRank);
+          const scores = scoresFromProfileRaiderIo(character?.raiderIo);
+          const member: GuildRosterMember = {
+            key,
+            ownerProfileId: profileDoc.id,
+            ownerDisplayName: cleanText(profile.displayName || profile.preferredName || profile.login) || null,
+            rank: rankInfo.rank,
+            guildStatus: character?.guildStatus || rankInfo.status,
+            guildStatusLabel: character?.guildStatusLabel || rankInfo.label,
+            name,
+            realmSlug,
+            realmName,
+            region: region.toUpperCase(),
+            className: cleanText(character?.className || "Unknown"),
+            raceName: cleanText(character?.raceName || "Unknown"),
+            faction: normalizeFaction(character?.faction || "Alliance"),
+            gender: cleanText(character?.genderName || ""),
+            specName: cleanText(character?.activeSpecName || "Unknown"),
+            role: normalizeRole(character?.activeSpecRole),
+            avatarUrl: cleanText(character?.avatarUrl) || null,
+            profileUrl: cleanText(character?.raiderIo?.profileUrl || character?.profileUrl) || null,
+            itemLevel: Math.round(parsePositiveNumber(character?.itemLevel) || 0),
+            battleNetUpdatedAt: cleanText(character?.lastSeenAt || character?.addedAt) || updatedAt,
+            scores,
+            scoreColors: scoreColorsFromProfileRaiderIo(character?.raiderIo),
+            hasRaiderIo: Boolean(character?.raiderIo?.profileUrl || hasUsefulScores(scores)),
+            raiderIoUpdatedAt: cleanText(character?.raiderIo?.updatedAt) || null,
+            warcraftLogs: normalizeWarcraftLogsStoredSnapshot(character?.warcraftLogs),
+          };
+          membersByKey.set(key, member);
+          if (membersByKey.size >= limit) break;
+        }
+        if (membersByKey.size >= limit) break;
+      }
+
+      const members = sortMembers(Array.from(membersByKey.values()));
+      if (!members.length) return null;
+
+      return stripUndefined({
+        members,
+        stats: buildStats({
+          guildSummary: {
+            name: config.guildName,
+            realm: { slug: config.realmSlug, name: config.realmSlug },
+            faction: { type: "Alliance" },
+          },
+          raiderGuild: null,
+          members,
+          updatedAt,
+          configuredGuildName: config.guildName,
+          configuredRealmSlug: config.realmSlug,
+        }),
+        source: `${LIVE_SOURCE} • profile-seed-cache`,
+        error: "Battle.net roster тимчасово недоступний; показано seed зі збережених профілів.",
+        cachedAt: updatedAt,
+      } satisfies CachedRoster);
+    },
+    {
+      ttlMs: Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || 120_000))),
+      timeoutMs: 3_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<CachedRoster | null>("guild-roster-profile-seed", 24 * 60 * 60 * 1000) || null,
+      logEvent: "guild.roster.profile_seed_read_failed",
+    },
   );
 }
 
@@ -1588,6 +1842,19 @@ async function enrichGuildMembersWithRaiderIoStep(
     (member) => member.raiderIoUpdatedAt,
   );
   const totalCandidates = candidates.length;
+  const activeLimit = getRaiderIoRateLimitBlock();
+  if (activeLimit && totalCandidates) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      checked: 0,
+      remaining: totalCandidates,
+      totalCandidates,
+      skipped: true,
+      reason: `raiderio_rate_limited:${Math.ceil((activeLimit.blockedUntil - Date.now()) / 1000)}s`,
+    };
+  }
+
   const stepLimit = guildRosterRaiderIoStepLimit(
     totalCandidates,
     options.settings,
@@ -1627,6 +1894,11 @@ async function enrichGuildMembersWithRaiderIoStep(
       changedMemberKeys.add(member.key);
       checked += 1;
     } catch (error) {
+      if (isRaiderIoRateLimitError(error)) {
+        reason = `raiderio_rate_limited:${Math.ceil(error.retryAfterMs / 1000)}s`;
+        break;
+      }
+
       const message = error instanceof Error ? error.message : String(error || "unknown");
       updates.set(member.key, { ...member, raiderIoUpdatedAt: updatedAt });
       changedMemberKeys.add(member.key);
@@ -2097,6 +2369,52 @@ async function advanceGuildRosterSyncStep(
         const message =
           error instanceof Error ? error.message : String(error || "unknown");
         if (!currentCache?.members.length) {
+          const seed = await buildProfileSeedRoster(settings).catch(() => null);
+          if (seed?.members.length) {
+            currentCache = await writeCachedRoster(seed, {
+              fullMemberRewrite: true,
+              settings,
+            });
+            currentJob = {
+              ...currentJob,
+              phase: "battlenet",
+              status: "running",
+              totalMembers: currentCache.members.length,
+              processed: {
+                ...currentJob.processed,
+                roster: currentCache.members.length,
+              },
+              updatedAt: nowIso(),
+              errors: [
+                ...(currentJob.errors || []).slice(-8),
+                `Battle.net roster unavailable; used profile seed cache: ${message}`,
+              ],
+            };
+            rosterProgress = {
+              refreshed: true,
+              source: `${currentCache.source} • Battle.net-fallback`,
+            };
+            await recordDashboardSystemLog(
+              "warning",
+              "guild.roster.profile_seed_used",
+              {
+                summary: "Battle.net roster не дав відповідь, створено тимчасовий кеш зі збережених профілів.",
+                error: message,
+                memberCount: currentCache.members.length,
+              },
+              { persist: settings?.warningAuditLogs !== false },
+            );
+            await writeGuildRosterSyncJob(currentJob);
+            return {
+              cache: currentCache,
+              job: currentJob,
+              rosterProgress,
+              battleNetProgress,
+              raiderIoProgress,
+              warcraftLogsProgress,
+            };
+          }
+
           const friendly = message === "Not Found"
             ? `Battle.net не знайшов гільдію ${getGuildConfig(settings).guildName} на ${getGuildConfig(settings).realmSlug}-${getGuildConfig(settings).region}. Перевір назву, realm і region у Керуванні → Фоновий API.`
             : message;
@@ -2433,7 +2751,7 @@ export async function refreshGuildRosterApiBatch(
           members: [],
           stats: fallbackStats(),
           source: "stored-cache-missing",
-          error: "Склад гільдії ще не має кешу. Запустіть синхронізацію складу.",
+          error: "Кеш складу ще створюється. Натисни “Оновити склад” — перший крок створить базовий кеш із Battle.net або fallback зі збережених профілів.",
         };
 
     return {
@@ -2478,7 +2796,7 @@ export async function refreshGuildRosterApiBatch(
       members: [],
       stats: fallbackStats(),
       source: "stored-cache-missing",
-      error: "Склад гільдії ще не має кешу. Запустіть синхронізацію складу.",
+      error: "Кеш складу ще створюється. Натисни “Оновити склад” — перший крок створить базовий кеш із Battle.net або fallback зі збережених профілів.",
     };
     return {
       ...fallback,

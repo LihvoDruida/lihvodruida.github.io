@@ -481,6 +481,16 @@ export default async function AdminOverviewPage() {
                   <input type="number" name="raiderIoRequestRetries" min={0} max={4} step={1} defaultValue={apiSettings.raiderIoRequestRetries} disabled={!canEditApiSettings} />
                 </label>
                 <label className="admin-policy-input">
+                  <span>Raider.IO cooldown після 429, секунд</span>
+                  <small>Пауза для всього сайту після відповіді Too many requests.</small>
+                  <input type="number" name="raiderIoRateLimitCooldownSeconds" min={60} max={86400} step={60} defaultValue={apiSettings.raiderIoRateLimitCooldownSeconds} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raider.IO пауза між запитами, мс</span>
+                  <small>Локальний throttle, щоб не перевищувати ліміт API під час великих ростерів.</small>
+                  <input type="number" name="raiderIoRequestMinDelayMs" min={0} max={10000} step={50} defaultValue={apiSettings.raiderIoRequestMinDelayMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
                   <span>Profile read cache, мс</span>
                   <input type="number" name="profileReadCacheTtlMs" min={30000} max={300000} step={10000} defaultValue={apiSettings.profileReadCacheTtlMs} disabled={!canEditApiSettings} />
                 </label>
