@@ -51,7 +51,7 @@ export default async function GuildRosterPage() {
         "page.guild.roster_read_failed",
         {
           summary:
-            "Сторінка складу відкрилась без кешу: читання roster не спрацювало.",
+            "Сторінка складу відкрилась без Firebase-записів: читання roster не спрацювало.",
           message:
             error instanceof Error ? error.message : String(error || "unknown"),
         },
@@ -73,7 +73,7 @@ export default async function GuildRosterPage() {
         },
         source: "fallback",
         error:
-          "Склад тимчасово недоступний. Сторінку відкрито без live-збору, спробуй оновити кеш пізніше.",
+          "Склад тимчасово недоступний. Сторінку відкрито без live-збору; синхронізація створить Firebase-записи покроково.",
       };
     }),
     getDashboardApiSettings().catch((error) => {
@@ -165,6 +165,7 @@ export default async function GuildRosterPage() {
 
             <div className="guild-hero-actions">
               <GuildRosterRefreshButton
+                autoStartMissingRecords={members.length === 0}
                 settings={{
                   clientDrivenSyncEnabled:
                     apiSettings.guildRosterClientDrivenSyncEnabled,

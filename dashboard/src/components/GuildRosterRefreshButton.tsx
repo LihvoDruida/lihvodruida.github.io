@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dashboardApiJson } from "@/lib/dashboardApiClient";
 import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
@@ -51,6 +51,7 @@ type GuildRosterRefreshSettings = {
 
 type Props = {
   settings?: GuildRosterRefreshSettings;
+  autoStartMissingRecords?: boolean;
 };
 
 function boundedInt(
@@ -78,10 +79,14 @@ function phaseLabel(phase?: string) {
   return "очікування";
 }
 
-export default function GuildRosterRefreshButton({ settings }: Props) {
+export default function GuildRosterRefreshButton({
+  settings,
+  autoStartMissingRecords = false,
+}: Props) {
   const [state, setState] = useState<RefreshState>("idle");
   const [message, setMessage] = useState("");
   const runIdRef = useRef(0);
+  const autoStartedRef = useRef(false);
 
   const clientDrivenSyncEnabled = settings?.clientDrivenSyncEnabled !== false;
   const maxSteps = boundedInt(settings?.clientMaxSteps, 2200, 1, 10_000);
@@ -206,7 +211,7 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         payload?.hasMore
           ? clientDrivenSyncEnabled
             ? `Досягнуто ліміт кроків (${maxSteps}). Дані збережені, але синхронізація ще має продовження. Збільш ліміт у налаштуваннях або натисни “Оновити склад” ще раз.`
-            : `Перший крок виконано: персонажів у кеші ${payload?.memberCount ?? 0}. Увімкни клієнтський цикл або натискай повторно для продовження.`
+            : `Перший крок виконано: Firebase-записів персонажів ${payload?.memberCount ?? 0}. Увімкни клієнтський цикл або натискай повторно для продовження.`
           : `Готово: склад синхронізовано, персонажів: ${payload?.memberCount ?? 0}.`,
       );
       notifyDashboardDataChanged({
@@ -225,6 +230,19 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
       );
     }
   }
+
+  useEffect(() => {
+    if (!autoStartMissingRecords || autoStartedRef.current || state !== "idle")
+      return;
+    autoStartedRef.current = true;
+    setMessage("Firebase-записів складу ще немає. Запускаю первинну синхронізацію…");
+    const timer = window.setTimeout(() => {
+      void refreshRoster();
+    }, 350);
+    return () => window.clearTimeout(timer);
+    // refreshRoster intentionally remains local to avoid restarting auto sync on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStartMissingRecords, state]);
 
   return (
     <div className="guild-refresh-action">

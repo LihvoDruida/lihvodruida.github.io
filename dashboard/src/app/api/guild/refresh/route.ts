@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       roster.refresh.battleNet.reason,
       roster.refresh.raiderIo.reason,
       roster.refresh.warcraftLogs.reason,
-    ].filter((reason): reason is string => Boolean(reason && !["served_from_cache", "not_current_phase", "fresh", "disabled", "disabled_by_step_size"].includes(reason)));
+    ].filter((reason): reason is string => Boolean(reason && !["served_from_firebase", "not_current_phase", "fresh", "disabled", "disabled_by_step_size"].includes(reason)));
     const syncError = roster.refresh.sync.errors.at(-1) || null;
     const auditLevel = roster.refresh.sync.status === "failed"
       ? "error"
