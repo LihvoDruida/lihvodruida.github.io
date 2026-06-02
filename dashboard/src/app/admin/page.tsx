@@ -639,15 +639,15 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                   <span>
-                    <strong>Записувати warning/error API у журнал</strong>
+                    <strong>Надсилати warning/error API у Discord-журнал</strong>
                     <small>
-                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO/WCL і падіння sync job потрапляють у глобальний журнал.
+                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO/WCL і падіння sync job йдуть у Discord-журнал без запису в dashboardAdminAudit.
                     </small>
                   </span>
                 </label>
                 <label className="admin-policy-input">
-                  <span>Audit read cache TTL, мс</span>
-                  <small>Кеш читання /admin/logs, щоб сторінка не читала Firebase при кожному відкритті.</small>
+                  <span>Discord audit read cache TTL, мс</span>
+                  <small>Кеш читання /admin/logs, щоб сторінка не зверталась до Discord API при кожному відкритті.</small>
                   <input
                     type="number"
                     name="auditLogReadCacheTtlMs"
@@ -659,8 +659,8 @@ export default async function AdminOverviewPage() {
                   />
                 </label>
                 <label className="admin-policy-input">
-                  <span>Audit dedupe window, мс</span>
-                  <small>Однакові системні помилки в цьому вікні не дублюються у Firebase.</small>
+                  <span>Discord audit dedupe window, мс</span>
+                  <small>Однакові системні помилки в цьому вікні не дублюються в Discord.</small>
                   <input
                     type="number"
                     name="auditLogDedupeWindowMs"
@@ -672,8 +672,8 @@ export default async function AdminOverviewPage() {
                   />
                 </label>
                 <label className="admin-policy-input">
-                  <span>Audit max stored</span>
-                  <small>Скільки останніх записів тримати у Firestore після автоматичного prune.</small>
+                  <span>Audit max visible</span>
+                  <small>Скільки останніх записів показувати з Discord-журналу та локальної памʼяті процесу.</small>
                   <input
                     type="number"
                     name="auditLogMaxStored"

@@ -14,7 +14,7 @@ export const revalidate = 0;
 
 export const metadata = buildPageMetadata({
   title: "Журнал дій",
-  description: "Останні адміністративні дії Mistblossom, результати Discord API та помилки.",
+  description: "Останні адміністративні дії Mistblossom із Discord-журналу, результати Discord API та помилки.",
   path: "/admin/logs",
   keywords: ["журнал", "адмін", "Discord", "помилки"],
 });
@@ -42,8 +42,8 @@ function formatDate(value?: string | null) {
 }
 
 function discordPolicySourceLabel(source: string) {
-  if (source === "firestore") return "Збережено у Firebase";
-  return "Не налаштовано";
+  if (source === "firestore") return "Налаштування з панелі";
+  return "Fallback з ENV/коду";
 }
 
 function statusLabel(status: string) {
@@ -106,14 +106,14 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
             <span className="eyebrow">Mistblossom Vanguard • Журнал</span>
             <h1>Журнал дій</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Останні адміністративні дії, Discord-операції, результати та помилки. Зберігаються останні 500 записів, на сторінці можна показати до 250.</p>
+            <p className="lead">Останні адміністративні дії читаються з Discord-каналу журналу. Firebase-колекція dashboardAdminAudit більше не використовується для читання або запису логів.</p>
           </div>
           <HeroSidePanel
             ariaLabel="Огляд журналу дій"
             summary={[
-              { label: "ЗАПИСИ", value: logs.length.toLocaleString("uk-UA"), note: `Показано останні ${limit}` },
+              { label: "ЗАПИСИ", value: logs.length.toLocaleString("uk-UA"), note: `Discord + поточна памʼять, до ${limit}` },
               { label: "СТАН", value: failed ? "Є помилки" : warnings ? "Є попередження" : "Чисто", note: "Адміністративні операції" },
-              { label: "DISCORD", value: discordPolicy.enabled ? "Увімкнено" : "Вимкнено", note: discordPolicy.channelId ? `Канал ${discordPolicy.channelId}` : "Канал не задано" },
+              { label: "ДЖЕРЕЛО", value: discordPolicy.enabled ? "Discord" : "Локально", note: discordPolicy.channelId ? `Канал ${discordPolicy.channelId}` : "Канал не задано" },
             ]}
             stats={[
               { label: "WARNING", value: warnings.toLocaleString("uk-UA") },
@@ -132,7 +132,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
           <form className="admin-log-limit-form" method="get">
             <label className="field-label">Кількість дій для показу
               <input className="input" type="number" name="limit" min="10" max="250" defaultValue={limit} />
-              <small>Можна показати від 10 до 250 останніх дій.</small>
+              <small>Показуємо записи з Discord-каналу журналу та тимчасові записи з памʼяті поточного процесу.</small>
             </label>
             <button className="btn subtle" type="submit">Оновити журнал</button>
           </form>
@@ -140,26 +140,26 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
           <form className="admin-log-discord-form" action="/api/admin/logs/settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true">
             <div className="profile-card-head profile-card-head--inline">
               <div>
-                <span className="eyebrow">Discord mirror</span>
-                <h2>Дублювання журналу в Discord</h2>
+                <span className="eyebrow">Discord журнал</span>
+                <h2>Журнал без Firebase-записів</h2>
               </div>
-              <span className={`status-pill ${discordPolicy.enabled ? "success" : "neutral"}`}>{discordPolicy.enabled ? "Увімкнено" : "Вимкнено"}</span>
+              <span className={`status-pill ${discordPolicy.enabled ? "success" : "neutral"}`}>{discordPolicy.enabled ? "Discord" : "Локально"}</span>
             </div>
-            <p className="profile-card-lead">Кожен запис із /admin/logs може дублюватися в окремий Discord-канал як markdown embed. Discord mirror зберігається на цій сторінці, а читання, dedupe і prune журналу керуються в /admin → Фоновий API та автооновлення. Токени, cookie, email і приватні поля обрізаються перед записом.</p>
+            <p className="profile-card-lead">Журнал більше не пишеться в Firebase. Кожна дія відправляється в окремий Discord-канал як embed, а ця сторінка читає останні повідомлення назад із каналу. Токени, cookie, email і приватні поля обрізаються перед публікацією.</p>
             <div className="admin-log-discord-grid">
               <label className="toggle-row admin-log-toggle-row">
                 <input type="checkbox" name="enabled" value="1" defaultChecked={discordPolicy.enabled} disabled={!canEditLogSettings} />
-                <span>Публікувати audit-log у Discord</span>
+                <span>Писати audit-log у Discord</span>
               </label>
               <label className="field-label">Discord channel ID
                 <input className="input" name="channelId" inputMode="numeric" pattern="[0-9]{16,25}" defaultValue={discordPolicy.channelId} placeholder="123456789012345678" disabled={!canEditLogSettings} />
-                <small>Бот має бачити канал і мати право Send Messages + Embed Links. Змінні ADMIN_LOGS_DISCORD_* більше не потрібні.</small>
+                <small>Бот має права View Channel, Read Message History, Send Messages і Embed Links.</small>
               </label>
               <label className="field-label">Які записи дублювати
                 <select className="select" name="minStatus" defaultValue={discordPolicy.minStatus} disabled={!canEditLogSettings}>
                   {statusOptions().map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
-                <small>Для бойового каналу краще warning/error, щоб не спамити.</small>
+                <small>Для бойового каналу краще warning/error, щоб не спамити Discord.</small>
               </label>
               <label className="toggle-row admin-log-toggle-row">
                 <input type="checkbox" name="includeSystemLogs" value="1" defaultChecked={discordPolicy.includeSystemLogs} disabled={!canEditLogSettings} />
@@ -170,10 +170,10 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               <span><strong>{discordPolicySourceLabel(discordPolicy.source)}</strong><small>Джерело налаштувань</small></span>
               <span><strong>{discordPolicy.minStatus}</strong><small>Мінімальний рівень</small></span>
               <span><strong>{discordPolicy.includeSystemLogs ? "Так" : "Ні"}</strong><small>System logs</small></span>
-              <span><strong>{Math.round(auditSettings.readCacheTtlMs / 1000)}с</strong><small>Read cache</small></span>
+              <span><strong>{Math.round(auditSettings.readCacheTtlMs / 1000)}с</strong><small>Discord read cache</small></span>
               <span><strong>{Math.round(auditSettings.dedupeWindowMs / 1000)}с</strong><small>Dedupe</small></span>
             </div>
-            <button className="btn primary" type="submit" disabled={!canEditLogSettings}>Зберегти Discord-дублювання</button>
+            <button className="btn primary" type="submit" disabled={!canEditLogSettings}>Зберегти Discord-журнал</button>
             {!canEditLogSettings ? <small className="muted-note">Змінювати ці параметри може тільки адміністратор із правом керування групами.</small> : null}
           </form>
         </section>
@@ -212,7 +212,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
           )) : (
             <article className="panel admin-log-row admin-log-row--info">
               <strong>Журнал порожній</strong>
-              <p>Після першої адмін-дії тут зʼявиться запис із результатом.</p>
+              <p>Записи зʼявляться після першої дії, яку бот опублікує в Discord-канал журналу. Firebase-читання для dashboardAdminAudit не виконується.</p>
             </article>
           )}
         </section>

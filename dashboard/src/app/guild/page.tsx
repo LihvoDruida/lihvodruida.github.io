@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import AppProblemScreen from "@/components/AppProblemScreen";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import GuildRosterExplorer from "@/components/GuildRosterExplorer";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
@@ -101,23 +102,19 @@ export default async function GuildRosterPage() {
 
   if (storageLimited) {
     return (
-      <main className="container guild-page">
-        <section
-          className="dashboard-shell content-shell"
-          aria-label="Тимчасова технічна помилка"
-        >
-          <DashboardIdentity user={user} activeSection="guild" />
-          <article className="panel app-error-panel">
-            <span className="eyebrow">Firebase quota guard</span>
-            <h1>Тимчасова технічна помилка</h1>
-            <p>
-              Firebase зараз недоступний або перевищив no-cost ліміти. Сторінка
-              не запускає додаткові важкі читання складу, щоб не добивати квоту.
-            </p>
-            {roster.error ? <small>{roster.error}</small> : null}
-          </article>
-        </section>
-      </main>
+      <AppProblemScreen
+        kind="quota"
+        eyebrow="Склад гільдії"
+        title="Склад тимчасово недоступний"
+        message="Firebase зараз недоступний або досяг ліміту читань. Сторінка не запускає додаткове масове читання складу, щоб не збільшувати навантаження."
+        primaryLabel="Повторити"
+        secondaryHref="/"
+        secondaryLabel="До панелі"
+        details={[
+          roster.error || "Синхронізація складу відновиться після доступу до Firebase.",
+          "Адмінські дії, профілі та рейди не запускають зайвих читань цієї сторінки.",
+        ]}
+      />
     );
   }
 

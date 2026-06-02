@@ -128,10 +128,21 @@ export default async function ProfilesPage({ searchParams }: { searchParams: Pro
 
       <section className="profile-directory-grid" aria-label="Список доступних профілів">
         {profiles.length ? profiles.map((profile) => <ProfileCard key={profile.profileId} profile={profile} />) : (
-          <div className="content-empty panel">
-            <strong>Профілі не знайдено.</strong>
-            <span>Спробуй змінити пошук або дочекайся, поки учасники увійдуть через Discord.</span>
-          </div>
+          <article className="content-empty content-empty--profiles panel" aria-live="polite">
+            <span className="content-empty__icon" aria-hidden="true">🌿</span>
+            <div className="content-empty__copy">
+              <strong>{query ? "За цим пошуком профілів немає" : "Профілі ще не доступні"}</strong>
+              <span>
+                {query
+                  ? "Перевір Discord-нік, імʼя персонажа або реалм. Нижчі групи доступу не бачать профілі з вищими правами."
+                  : "Профіль зʼявиться після входу учасника через Discord і проходження перевірки доступу."}
+              </span>
+            </div>
+            <div className="content-empty__actions">
+              {query ? <a className="btn subtle" href="/profiles">Скинути пошук</a> : null}
+              <a className="btn subtle" href="/discord">Перевірити Discord</a>
+            </div>
+          </article>
         )}
       </section>
       </section>

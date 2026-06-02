@@ -19,6 +19,8 @@ declare global {
   var __mistblossomAdminAuditDiscordPolicyCache: { policy: AdminAuditDiscordPolicy; cachedAt: number } | undefined;
   // eslint-disable-next-line no-var
   var __mistblossomAdminAuditDiscordPolicyErrorLoggedAt: number | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditDiscordMessagesCache: { items: AdminAuditNotificationInput[]; cachedAt: number; channelId: string } | undefined;
 }
 
 function auditPolicyCacheFresh() {
@@ -67,6 +69,148 @@ export type AdminAuditNotificationInput = {
   details: Record<string, unknown>;
   createdAt: string | null;
 };
+
+type DiscordAuditEmbed = {
+  title?: string;
+  description?: string;
+  timestamp?: string;
+  footer?: { text?: string };
+  fields?: Array<{ name?: string; value?: string; inline?: boolean }>;
+};
+
+type DiscordAuditMessage = {
+  id?: string;
+  channel_id?: string;
+  timestamp?: string;
+  embeds?: DiscordAuditEmbed[];
+};
+
+function unescapeDiscordText(value: unknown) {
+  return String(value || "")
+    .replace(/\\([`*_~|>])/g, "$1")
+    .replace(/^`|`$/g, "")
+    .trim();
+}
+
+function parseDescriptionLine(description: string, label: string) {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = description.match(new RegExp(`\\*\\*${escaped}:\\*\\*\\s*([^\\n]+)`, "i"));
+  return unescapeDiscordText(match?.[1] || "");
+}
+
+function statusFromDiscordLabel(value: unknown): AdminAuditStatus {
+  const text = String(value || "").trim().toLowerCase();
+  if (text.includes("помил") || text === "error") return "error";
+  if (text.includes("поперед") || text === "warning") return "warning";
+  if (text.includes("усп") || text === "success") return "success";
+  return "info";
+}
+
+function parseFieldValue(value: unknown) {
+  const cleaned = unescapeDiscordText(value);
+  if (!cleaned) return "";
+  const numeric = Number(cleaned);
+  if (Number.isFinite(numeric) && cleaned.length <= 18) return numeric;
+  if (cleaned === "true") return true;
+  if (cleaned === "false") return false;
+  return cleaned;
+}
+
+function parseAuditEmbed(message: DiscordAuditMessage, embed: DiscordAuditEmbed): AdminAuditNotificationInput | null {
+  const description = String(embed.description || "");
+  const footer = String(embed.footer?.text || "");
+  if (!description.includes("**Дія:**") && !footer.includes("/admin/logs")) return null;
+
+  const action = parseDescriptionLine(description, "Дія") || "admin.action";
+  const actor = parseDescriptionLine(description, "Автор") || "Discord log";
+  const summary = parseDescriptionLine(description, "Підсумок") || "Дію виконано.";
+  const details: Record<string, unknown> = {
+    auditStorage: "discord",
+    discordMessageId: message.id || null,
+    discordChannelId: message.channel_id || null,
+  };
+
+  for (const field of embed.fields || []) {
+    const key = String(field.name || "").trim();
+    if (!key || /token|secret|password|authorization|cookie|signature/i.test(key)) continue;
+    const parsed = parseFieldValue(field.value);
+    if (parsed !== "") details[key.slice(0, 80)] = parsed;
+  }
+
+  const footerId = footer.split("•").map((part) => part.trim()).find((part) => part && part !== "Mistblossom Vanguard" && part !== "/admin/logs");
+  return {
+    id: footerId || `discord-${message.id || Math.random().toString(36).slice(2, 10)}`,
+    action: action.slice(0, 120),
+    actorId: actor.slice(0, 80),
+    actorName: actor.slice(0, 100),
+    actorGroupId: null,
+    isServerOwner: actor.toLowerCase().includes("власник"),
+    status: statusFromDiscordLabel(parseDescriptionLine(description, "Статус")),
+    summary: summary.slice(0, 260),
+    details,
+    createdAt: embed.timestamp || message.timestamp || null,
+  };
+}
+
+function discordAuditCacheFresh(channelId: string, ttlMs: number) {
+  const cached = globalThis.__mistblossomAdminAuditDiscordMessagesCache;
+  return Boolean(cached && cached.channelId === channelId && Date.now() - cached.cachedAt < ttlMs);
+}
+
+export async function listAdminAuditLogsFromDiscord(limitInput: unknown = 50, options: { cacheTtlMs?: number } = {}) {
+  const policy = await getAdminAuditDiscordPolicy();
+  const limit = Math.max(10, Math.min(250, Math.floor(Number(limitInput) || 50)));
+  const cacheTtlMs = Math.max(5_000, Math.min(120_000, Math.floor(Number(options.cacheTtlMs) || 30_000)));
+  if (!policy.enabled || !policy.channelId) return [] as AdminAuditNotificationInput[];
+  if (discordAuditCacheFresh(policy.channelId, cacheTtlMs)) {
+    return (globalThis.__mistblossomAdminAuditDiscordMessagesCache?.items || []).slice(0, limit);
+  }
+
+  const token = process.env.DISCORD_BOT_TOKEN;
+  if (!token) return [] as AdminAuditNotificationInput[];
+
+  const items: AdminAuditNotificationInput[] = [];
+  let before: string | null = null;
+  for (let page = 0; page < 3 && items.length < limit; page += 1) {
+    const pageLimit = Math.min(100, Math.max(10, limit - items.length));
+    const url = new URL(`${DISCORD_API_BASE}/channels/${policy.channelId}/messages`);
+    url.searchParams.set("limit", String(pageLimit));
+    if (before) url.searchParams.set("before", before);
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bot ${token}` },
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      const raw = await response.text().catch(() => "");
+      logDashboardEvent("warn", "admin.audit.discord_read_failed", undefined, {
+        status: response.status,
+        message: raw.slice(0, 240) || `Discord API error ${response.status}`,
+      });
+      break;
+    }
+
+    const messages = await response.json().catch(() => []) as DiscordAuditMessage[];
+    if (!Array.isArray(messages) || messages.length === 0) break;
+    before = String(messages[messages.length - 1]?.id || "") || null;
+
+    for (const message of messages) {
+      for (const embed of message.embeds || []) {
+        const parsed = parseAuditEmbed(message, embed);
+        if (parsed) items.push(parsed);
+        if (items.length >= limit) break;
+      }
+      if (items.length >= limit) break;
+    }
+  }
+
+  globalThis.__mistblossomAdminAuditDiscordMessagesCache = {
+    items,
+    cachedAt: Date.now(),
+    channelId: policy.channelId,
+  };
+  return items.slice(0, limit);
+}
 
 function cleanChannelId(value: unknown) {
   const text = String(value || "").trim();
@@ -373,10 +517,10 @@ export async function publishAdminAuditToDiscord(item: AdminAuditNotificationInp
 }
 
 export function summarizeAdminAuditDiscordPolicy(policy: AdminAuditDiscordPolicy) {
-  if (!policy.enabled) return "Discord-дублювання журналу вимкнено. Налаштування зберігаються напряму з /admin/logs у Firebase.";
+  if (!policy.enabled) return "Discord-журнал вимкнено. Firebase-журнал не використовується, тому /admin/logs покаже тільки тимчасові локальні записи.";
   const statusText = policy.minStatus === "info" ? "усі записи" : policy.minStatus === "warning" ? "warning/error" : "тільки error";
   const systemText = policy.includeSystemLogs ? "системні записи увімкнені" : "системні записи вимкнені";
-  return `Discord-дублювання увімкнено через /admin/logs: канал ${policy.channelId}, ${statusText}, ${systemText}.`;
+  return `Discord-журнал увімкнено: канал ${policy.channelId}, ${statusText}, ${systemText}. Записи зберігаються в Discord і читаються назад із каналу.`;
 }
 
 export function statusOptions() {
