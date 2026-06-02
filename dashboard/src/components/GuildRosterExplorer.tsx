@@ -901,13 +901,40 @@ export default function GuildRosterExplorer({
   }
 
   if (!liveMembers.length) {
+    const isStorageLimited =
+      liveSource === "firebase-temporary-unavailable" ||
+      /ліміт|quota|resource|firebase.*недоступ/i.test(liveError || "");
+
+    if (isStorageLimited) {
+      return (
+        <section className="guild-roster-empty panel app-error-panel" aria-live="polite">
+          <span className="eyebrow">Firebase quota guard</span>
+          <h2>Тимчасова технічна помилка</h2>
+          <p>
+            Сховище Firebase зараз недоступне або вперлося в ліміти. Сайт
+            зупинив важкі читання складу, щоб не збільшувати перевищення квоти.
+          </p>
+          {liveError ? <small>{liveError}</small> : null}
+          <div className="form-actions">
+            <button
+              className="btn subtle"
+              type="button"
+              onClick={() => window.location.reload()}
+            >
+              Оновити сторінку
+            </button>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section className="guild-roster-empty panel">
         <h2>Дані складу гільдії ще не завантажені</h2>
         <p>
-          Сторінка бере склад напряму з Battle.net Guild Roster API та оновлює
-          Raider.IO для персонажів. Перевір Battle.net змінні, Raider.IO access
-          key за потреби та натисни “Оновити склад”.
+          Сторінка читає тільки нормалізовані Firebase-записи. Live-збір не
+          запускається під час render, щоб не роздувати API та Firebase-ліміти.
+          Запусти покрокову синхронізацію через кнопку “Оновити склад”.
         </p>
         {liveError ? <small>{liveError}</small> : null}
       </section>

@@ -28,17 +28,17 @@ export default function AppError({
       >
         <article className="panel app-error-panel">
           <span className="eyebrow">
-            {isTransient ? "Connection interrupted" : "Application error"}
+            {isTransient ? "Connection interrupted" : "Technical issue"}
           </span>
           <h1>
             {isTransient
               ? "Зʼєднання перервалося під час відкриття сторінки"
-              : "Не вдалося відкрити блок сторінки"}
+              : "Тимчасова технічна помилка"}
           </h1>
           <p>
             {isTransient
               ? "Це схоже на обрив браузерного/Next.js stream-запиту. Дані не змінювались. Онови сторінку або натисни повторити."
-              : "Ми записали технічні деталі в журнал. Спробуй повторити або онови сторінку."}
+              : "Сторінка не змогла безпечно отримати дані. Ми не запускаємо додаткові важкі запити, щоб не збільшувати навантаження. Спробуй повторити пізніше або онови сторінку."}
           </p>
           {error?.digest ? <small>Код: {error.digest}</small> : null}
           <div className="form-actions">

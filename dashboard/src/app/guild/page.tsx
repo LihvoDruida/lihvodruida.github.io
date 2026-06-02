@@ -97,6 +97,29 @@ export default async function GuildRosterPage() {
     }),
   ]);
   const members = roster.members;
+  const storageLimited = roster.source === "firebase-temporary-unavailable" && members.length === 0;
+
+  if (storageLimited) {
+    return (
+      <main className="container guild-page">
+        <section
+          className="dashboard-shell content-shell"
+          aria-label="Тимчасова технічна помилка"
+        >
+          <DashboardIdentity user={user} activeSection="guild" />
+          <article className="panel app-error-panel">
+            <span className="eyebrow">Firebase quota guard</span>
+            <h1>Тимчасова технічна помилка</h1>
+            <p>
+              Firebase зараз недоступний або перевищив no-cost ліміти. Сторінка
+              не запускає додаткові важкі читання складу, щоб не добивати квоту.
+            </p>
+            {roster.error ? <small>{roster.error}</small> : null}
+          </article>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="container guild-page">

@@ -18,7 +18,7 @@ import {
 } from "@/lib/concurrency";
 import { getGuildRosterSyncSettings } from "@/lib/dashboardApiSettings";
 import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
-import { resilientRead, resilientWrite, getRuntimeCachedValue } from "@/lib/runtimeResilience";
+import { resilientRead, resilientWrite, getRuntimeCachedValue, runtimeCircuitOpen } from "@/lib/runtimeResilience";
 import {
   getFirebaseAdminDb,
   hasFirebaseProfileConfig,
@@ -163,6 +163,9 @@ const CACHE_DOCUMENT = "guildRoster";
 const CACHE_MEMBERS_COLLECTION = "members";
 const GUILD_RECORDS_COLLECTION = "guildRosterRecords";
 const GUILD_RECORDS_MEMBERS_COLLECTION = "members";
+const GUILD_RECORDS_CHUNKS_COLLECTION = "memberChunks";
+const GUILD_RECORDS_CHUNK_FORMAT_VERSION = 2;
+const GUILD_RECORDS_MAX_CHUNKS = 80;
 const SYNC_JOB_DOCUMENT = "guildRosterSyncJob";
 const LIVE_SOURCE = "Battle.net Guild/Profile API + Raider.IO M+ API + Warcraft Logs API";
 
@@ -1324,6 +1327,63 @@ function guildRosterCacheWriteBatchSize(
   return Math.max(1, Math.min(250, Math.floor(parsed)));
 }
 
+function guildRosterRecordsChunkSize() {
+  const parsed = Number(process.env.GUILD_ROSTER_RECORDS_CHUNK_SIZE || 64);
+  if (!Number.isFinite(parsed)) return 64;
+  return Math.max(25, Math.min(120, Math.floor(parsed)));
+}
+
+function guildRosterLegacyMemberDocsReadEnabled() {
+  return /^(1|true|yes|on)$/i.test(
+    String(process.env.GUILD_ROSTER_READ_LEGACY_MEMBER_DOCS || ""),
+  );
+}
+
+function guildRosterLegacyMemberDocsWriteEnabled() {
+  return /^(1|true|yes|on)$/i.test(
+    String(process.env.GUILD_ROSTER_WRITE_LEGACY_MEMBER_DOCS || ""),
+  );
+}
+
+function guildRosterChunkDocId(index: number) {
+  return `chunk-${String(index).padStart(4, "0")}`;
+}
+
+function chunkArray<T>(items: T[], size: number) {
+  const chunks: T[][] = [];
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+  return chunks;
+}
+
+function guildRosterChunkReadySet() {
+  const set = globalThis.__mistblossomGuildRosterChunkReadyByDocId || new Set<string>();
+  globalThis.__mistblossomGuildRosterChunkReadyByDocId = set;
+  return set;
+}
+
+function markGuildRosterChunkStoreReady(docId: string) {
+  guildRosterChunkReadySet().add(docId);
+}
+
+function guildRosterChunkStoreReady(docId: string) {
+  return guildRosterChunkReadySet().has(docId);
+}
+
+function readGuildRosterChunkCount(data: any) {
+  const value = Number(data?.memberChunks?.count ?? data?.chunkCount ?? 0);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.max(0, Math.min(GUILD_RECORDS_MAX_CHUNKS, Math.floor(value)));
+}
+
+function normalizeMembersFromChunkData(data: any) {
+  const rows = Array.isArray(data?.members) ? data.members : [];
+  return rows
+    .map((item) => normalizeMemberRecord(item))
+    .filter((member): member is GuildRosterMember => Boolean(member?.key));
+}
+
 function memberDocId(
   member: Pick<GuildRosterMember, "key" | "region" | "realmSlug" | "name">,
 ) {
@@ -1433,27 +1493,47 @@ async function readGuildRosterRecords(
 ): Promise<CachedRoster | null> {
   if (!hasFirebaseProfileConfig()) return null;
 
+  const recordsDocId = guildRecordsDocId(settings);
+  const cacheKey = `guild-roster-records:${recordsDocId}`;
+
   return resilientRead<CachedRoster | null>(
-    `guild-roster-records:${guildRecordsDocId(settings)}`,
+    cacheKey,
     async () => {
       const doc = guildRecordsDoc(settings);
-      const [snapshot, memberSnapshots] = await Promise.all([
-        doc.get(),
-        doc.collection(GUILD_RECORDS_MEMBERS_COLLECTION).limit(1100).get(),
-      ]);
-      const members = memberSnapshots.docs
-        .map((item) => normalizeMemberRecord(item.data()))
-        .filter((member): member is GuildRosterMember => Boolean(member?.key));
-      const cache = buildRosterFromFirebaseRecords(snapshot.data() || {}, members);
+      const snapshot = await doc.get();
+      if (!snapshot.exists) return null;
+
+      const data = snapshot.data() || {};
+      const chunkCount = readGuildRosterChunkCount(data);
+      let members: GuildRosterMember[] = [];
+
+      if (chunkCount > 0) {
+        const refs = Array.from({ length: chunkCount }, (_, index) =>
+          doc.collection(GUILD_RECORDS_CHUNKS_COLLECTION).doc(guildRosterChunkDocId(index)),
+        );
+        const chunkSnapshots = await getFirebaseAdminDb().getAll(...refs);
+        members = chunkSnapshots.flatMap((item) => normalizeMembersFromChunkData(item.data() || {}));
+        markGuildRosterChunkStoreReady(recordsDocId);
+      } else if (guildRosterLegacyMemberDocsReadEnabled()) {
+        const memberSnapshots = await doc
+          .collection(GUILD_RECORDS_MEMBERS_COLLECTION)
+          .limit(1100)
+          .get();
+        members = memberSnapshots.docs
+          .map((item) => normalizeMemberRecord(item.data()))
+          .filter((member): member is GuildRosterMember => Boolean(member?.key));
+      }
+
+      const cache = buildRosterFromFirebaseRecords(data, members);
       if (cache) globalThis.__mistblossomGuildRosterCache = cache;
       return cache;
     },
     {
-      ttlMs: Math.max(10_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))),
+      ttlMs: Math.max(10_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 120_000))),
       timeoutMs: 3_500,
       circuitKey: "firebase-guild-roster-records-read",
-      circuitTtlMs: 120_000,
-      fallback: () => getRuntimeCachedValue<CachedRoster | null>(`guild-roster-records:${guildRecordsDocId(settings)}`, 24 * 60 * 60 * 1000) || null,
+      circuitTtlMs: 300_000,
+      fallback: () => getRuntimeCachedValue<CachedRoster | null>(cacheKey, 24 * 60 * 60 * 1000) || null,
       logEvent: "guild.roster.records_read_failed",
     },
   );
@@ -1465,34 +1545,84 @@ async function writeGuildRosterRecords(
 ) {
   if (!hasFirebaseProfileConfig()) return false;
   const config = getGuildConfig(options.settings);
+  const recordsDocId = guildRecordsDocId(options.settings);
   const doc = guildRecordsDoc(options.settings);
   const changedKeys = options.changedMemberKeys;
-  const membersToWrite = changedKeys?.size
-    ? cache.members.filter((member) => changedKeys.has(member.key))
-    : cache.members;
-  const chunkSize = guildRosterCacheWriteBatchSize(options.settings);
+  const recordChunkSize = guildRosterRecordsChunkSize();
+  const memberChunks = chunkArray(cache.members, recordChunkSize);
   const updatedAtIso = new Date().toISOString();
+  const shouldWriteAllChunks =
+    options.fullMemberRewrite ||
+    !changedKeys?.size ||
+    !guildRosterChunkStoreReady(recordsDocId);
+  const changedChunkIndexes = shouldWriteAllChunks
+    ? new Set(memberChunks.map((_, index) => index))
+    : new Set(
+        memberChunks
+          .map((chunk, index) =>
+            chunk.some((member) => changedKeys?.has(member.key)) ? index : -1,
+          )
+          .filter((index) => index >= 0),
+      );
 
   await doc.set(
     stripUndefined({
       region: config.region,
       realmSlug: config.realmSlug,
       guildName: config.guildName,
-      guildKey: guildRecordsDocId(options.settings),
+      guildKey: recordsDocId,
       stats: cache.stats,
       source: `${LIVE_SOURCE} • Firebase records`,
       error: cache.error || null,
       memberCount: cache.members.length,
       cachedAt: cache.cachedAt,
+      memberChunks: {
+        version: GUILD_RECORDS_CHUNK_FORMAT_VERSION,
+        collection: GUILD_RECORDS_CHUNKS_COLLECTION,
+        count: memberChunks.length,
+        chunkSize: recordChunkSize,
+        memberCount: cache.members.length,
+        writtenAtIso: updatedAtIso,
+      },
+      chunkCount: memberChunks.length,
       updatedAtIso,
       updatedAt: FieldValue.serverTimestamp(),
     }),
     { merge: true },
   );
 
-  for (let index = 0; index < membersToWrite.length; index += chunkSize) {
+  const chunkBatchSize = guildRosterCacheWriteBatchSize(options.settings);
+  const chunkIndexes = Array.from(changedChunkIndexes).sort((a, b) => a - b);
+  for (let index = 0; index < chunkIndexes.length; index += chunkBatchSize) {
     const batch = getFirebaseAdminDb().batch();
-    for (const member of membersToWrite.slice(index, index + chunkSize)) {
+    for (const chunkIndex of chunkIndexes.slice(index, index + chunkBatchSize)) {
+      batch.set(
+        doc.collection(GUILD_RECORDS_CHUNKS_COLLECTION).doc(guildRosterChunkDocId(chunkIndex)),
+        stripUndefined({
+          version: GUILD_RECORDS_CHUNK_FORMAT_VERSION,
+          chunkIndex,
+          count: memberChunks[chunkIndex]?.length || 0,
+          members: memberChunks[chunkIndex] || [],
+          updatedAtIso,
+          updatedAt: FieldValue.serverTimestamp(),
+        }),
+        { merge: true },
+      );
+    }
+    await batch.commit();
+  }
+
+  markGuildRosterChunkStoreReady(recordsDocId);
+
+  if (!guildRosterLegacyMemberDocsWriteEnabled()) return true;
+
+  const membersToWrite = changedKeys?.size
+    ? cache.members.filter((member) => changedKeys.has(member.key))
+    : cache.members;
+  const memberBatchSize = guildRosterCacheWriteBatchSize(options.settings);
+  for (let index = 0; index < membersToWrite.length; index += memberBatchSize) {
+    const batch = getFirebaseAdminDb().batch();
+    for (const member of membersToWrite.slice(index, index + memberBatchSize)) {
       batch.set(
         doc.collection(GUILD_RECORDS_MEMBERS_COLLECTION).doc(memberDocId(member)),
         stripUndefined({
@@ -1510,24 +1640,6 @@ async function writeGuildRosterRecords(
       );
     }
     await batch.commit();
-  }
-
-  if (options.fullMemberRewrite && options.settings?.cacheDeleteStaleMembers) {
-    const activeDocIds = new Set(cache.members.map((member) => memberDocId(member)));
-    const existing = await doc.collection(GUILD_RECORDS_MEMBERS_COLLECTION).get();
-    for (let index = 0; index < existing.docs.length; index += chunkSize) {
-      const batch = getFirebaseAdminDb().batch();
-      for (const item of existing.docs.slice(index, index + chunkSize)) {
-        if (!activeDocIds.has(item.id)) {
-          batch.set(
-            item.ref,
-            { presentInGuild: false, updatedAt: FieldValue.serverTimestamp(), updatedAtIso },
-            { merge: true },
-          );
-        }
-      }
-      await batch.commit();
-    }
   }
 
   return true;
@@ -1570,7 +1682,7 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
         return legacyCache;
       }
 
-      if (data.payloadSharded) {
+      if (data.payloadSharded && guildRosterLegacyMemberDocsReadEnabled()) {
         const memberSnapshots = await doc
           .collection(CACHE_MEMBERS_COLLECTION)
           .limit(1100)
@@ -1596,6 +1708,26 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
       logEvent: "guild.roster.cache_read_failed",
     },
   );
+}
+
+function firebaseGuildRosterStorageLimited() {
+  return (
+    runtimeCircuitOpen("firebase-guild-roster-records-read") ||
+    runtimeCircuitOpen("firebase-guild-roster-read") ||
+    runtimeCircuitOpen("firebase-guild-roster-write")
+  );
+}
+
+function emptyGuildRosterFallback(message?: string): GuildRosterLoadResult {
+  const storageLimited = firebaseGuildRosterStorageLimited();
+  return {
+    members: [],
+    stats: fallbackStats(),
+    source: storageLimited ? "firebase-temporary-unavailable" : "firebase-records-missing",
+    error: storageLimited
+      ? message || "Тимчасова технічна помилка: сховище Firebase недоступне або перевищило ліміти. Сайт зупинив важкі Firebase-запити, щоб не збільшувати перевищення квоти."
+      : message || "Firebase-записи складу ще створюються. Синхронізація створить базові записи з Battle.net або зі збережених профілів.",
+  };
 }
 
 type CachedRosterWriteOptions = {
@@ -2941,12 +3073,7 @@ export async function refreshGuildRosterApiBatch(
     const activeJob = existingJob?.status === "running" ? existingJob : null;
     const base = cached
       ? publicFromCache(cached)
-      : {
-          members: [],
-          stats: fallbackStats(),
-          source: "firebase-records-missing",
-          error: "Firebase-записи складу ще створюються. Синхронізація створить базові записи з Battle.net або зі збережених профілів.",
-        };
+      : emptyGuildRosterFallback();
 
     return {
       ...base,
@@ -2986,12 +3113,7 @@ export async function refreshGuildRosterApiBatch(
   }
 
   if (!cached) {
-    const fallback: GuildRosterLoadResult = {
-      members: [],
-      stats: fallbackStats(),
-      source: "firebase-records-missing",
-      error: "Firebase-записи складу ще створюються. Синхронізація створить базові записи з Battle.net або зі збережених профілів.",
-    };
+    const fallback = emptyGuildRosterFallback();
     return {
       ...fallback,
       refresh: {
@@ -3022,12 +3144,7 @@ export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult
   const cached = await readCachedRoster(settings).catch(() => null);
   if (cached) return publicFromCache(cached);
 
-  return {
-    members: [],
-    stats: fallbackStats(),
-    source: "firebase-records-missing",
-    error: "У Firebase ще немає нормалізованих записів складу гільдії.",
-  };
+  return emptyGuildRosterFallback("У Firebase ще немає нормалізованих записів складу гільдії.");
 }
 
 export async function loadGuildRosterData(
@@ -3039,10 +3156,9 @@ export async function loadGuildRosterData(
 
   if (cached) return publicFromCache(cached);
 
-  return {
-    members: [],
-    stats: fallbackStats(),
-    source: "firebase-records-missing",
-    error: "У Firebase ще немає нормалізованих записів складу або вони тимчасово недоступні. Сторінка не запускає live-збір під час render; синхронізація створює записи покроково.",
-  };
+  return emptyGuildRosterFallback(
+    firebaseGuildRosterStorageLimited()
+      ? "Тимчасова технічна помилка: сховище Firebase недоступне або перевищило ліміти. Сайт не запускає додаткові важкі читання, щоб не добивати квоту."
+      : "У Firebase ще немає нормалізованих записів складу або вони тимчасово недоступні. Сторінка не запускає live-збір під час render; синхронізація створює записи покроково.",
+  );
 }
