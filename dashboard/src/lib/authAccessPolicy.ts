@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { DashboardSession } from "@/lib/auth";
 import { logDashboardEvent } from "@/lib/security";
+import { resilientRead } from "@/lib/runtimeResilience";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const AUTH_ACCESS_DOC_ID = "authAccessPolicy";
@@ -118,12 +119,29 @@ export async function getAuthAccessPolicy(options: { bypassCache?: boolean } = {
     return globalThis.__mistblossomAuthAccessPolicyCache!.policy;
   }
   if (!hasFirebaseProfileConfig()) return setAuthPolicyCache(defaultAuthAccessPolicy());
-  const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(AUTH_ACCESS_DOC_ID).get().catch((error) => {
-    logAuthPolicyReadFailureOnce(error);
-    return null;
-  });
-  if (!snapshot?.exists) return setAuthPolicyCache(globalThis.__mistblossomAuthAccessPolicyCache?.policy || defaultAuthAccessPolicy());
-  return setAuthPolicyCache(normalizePolicyData(snapshot.data() || null));
+
+  const policy = await resilientRead(
+    "getAuthAccessPolicy",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(AUTH_ACCESS_DOC_ID)
+        .get();
+      return snapshot.exists
+        ? normalizePolicyData(snapshot.data() || null)
+        : globalThis.__mistblossomAuthAccessPolicyCache?.policy || defaultAuthAccessPolicy();
+    },
+    {
+      ttlMs: POLICY_CACHE_TTL_MS,
+      timeoutMs: 2_000,
+      circuitKey: "firebase-auth-policy-read",
+      circuitTtlMs: 90_000,
+      bypassCache: Boolean(options.bypassCache),
+      fallback: () => globalThis.__mistblossomAuthAccessPolicyCache?.policy || defaultAuthAccessPolicy(),
+      logEvent: "auth_access.policy_read_failed",
+    },
+  );
+  return setAuthPolicyCache(policy);
 }
 
 export async function setAuthAccessPolicy(input: {

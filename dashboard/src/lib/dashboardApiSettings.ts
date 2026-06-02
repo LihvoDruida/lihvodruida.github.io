@@ -7,6 +7,7 @@ import {
   hasFirebaseProfileConfig,
 } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
+import { resilientRead, setRuntimeCachedValue, getRuntimeStaleValue } from "@/lib/runtimeResilience";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const DASHBOARD_API_SETTINGS_DOC_ID = "backgroundApiPolicy";
@@ -934,20 +935,29 @@ export async function getDashboardApiSettings(options: { bypassCache?: boolean }
     return setSettingsCache(defaultDashboardApiSettings());
   }
 
-  const snapshot = await getFirebaseAdminDb()
-    .collection(SETTINGS_COLLECTION)
-    .doc(DASHBOARD_API_SETTINGS_DOC_ID)
-    .get()
-    .catch((error) => {
-      logSettingsReadFailureOnce("dashboard_api.settings_read_failed", error);
-      return null;
-    });
+  const settings = await resilientRead(
+    "dashboard-api-settings",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(DASHBOARD_API_SETTINGS_DOC_ID)
+        .get();
+      return snapshot.exists
+        ? normalizeSettings(snapshot.data() || null, "firestore")
+        : globalThis.__mistblossomDashboardApiSettingsCache?.settings || defaultDashboardApiSettings();
+    },
+    {
+      ttlMs: SETTINGS_CACHE_TTL_MS,
+      timeoutMs: 2_500,
+      circuitKey: "firebase-settings-read",
+      circuitTtlMs: 90_000,
+      bypassCache: Boolean(options.bypassCache),
+      fallback: () => globalThis.__mistblossomDashboardApiSettingsCache?.settings || defaultDashboardApiSettings(),
+      logEvent: "dashboard_api.settings_read_failed",
+    },
+  );
 
-  if (!snapshot?.exists) {
-    return setSettingsCache(globalThis.__mistblossomDashboardApiSettingsCache?.settings || defaultDashboardApiSettings());
-  }
-
-  return setSettingsCache(normalizeSettings(snapshot.data() || null, "firestore"));
+  return setSettingsCache(settings);
 }
 
 export async function setDashboardApiSettings(
@@ -1076,19 +1086,27 @@ export async function getWarcraftLogsApiCredentials(): Promise<WarcraftLogsApiCr
     return credentials;
   }
 
-  const snapshot = await getFirebaseAdminDb()
-    .collection(SETTINGS_COLLECTION)
-    .doc(DASHBOARD_API_SETTINGS_DOC_ID)
-    .get()
-    .catch((error) => {
-      logSettingsReadFailureOnce("warcraft_logs.settings_read_failed", error);
-      return null;
-    });
-
-  const credentials = resolveWarcraftLogsCredentials(
-    snapshot?.exists ? snapshot.data() || null : null,
+  const credentials = await resilientRead(
+    "warcraft-logs-api-credentials",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(DASHBOARD_API_SETTINGS_DOC_ID)
+        .get();
+      return resolveWarcraftLogsCredentials(snapshot.exists ? snapshot.data() || null : null);
+    },
+    {
+      ttlMs: SETTINGS_CACHE_TTL_MS,
+      timeoutMs: 2_500,
+      circuitKey: "firebase-settings-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeStaleValue<WarcraftLogsApiCredentials>("warcraft-logs-api-credentials") || resolveWarcraftLogsCredentials(null),
+      logEvent: "warcraft_logs.settings_read_failed",
+    },
   );
+
   globalThis.__mistblossomWarcraftLogsCredentialsCache = { credentials, cachedAt: Date.now() };
+  setRuntimeCachedValue("warcraft-logs-api-credentials", credentials);
   return credentials;
 }
 

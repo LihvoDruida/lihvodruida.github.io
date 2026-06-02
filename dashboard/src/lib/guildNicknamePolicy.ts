@@ -2,6 +2,7 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
+import { resilientRead } from "@/lib/runtimeResilience";
 import type { DashboardSession } from "@/lib/auth";
 
 export const DEFAULT_NICKNAME_TEMPLATE = "{name} [{main}, {alt}, {alt}]";
@@ -129,11 +130,29 @@ export async function getGuildNicknamePolicy(options: { bypassCache?: boolean } 
   if (!options.bypassCache && nicknamePolicyCacheFresh()) {
     return globalThis.__mistblossomGuildNicknamePolicyCache!.policy;
   }
-  if (!hasFirebaseProfileConfig()) return setNicknamePolicyCache(normalizePolicyData(null));
+  const fallback = globalThis.__mistblossomGuildNicknamePolicyCache?.policy || normalizePolicyData(null);
+  if (!hasFirebaseProfileConfig()) return setNicknamePolicyCache(fallback);
 
-  const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).get().catch(() => null);
-  if (!snapshot?.exists) return setNicknamePolicyCache(globalThis.__mistblossomGuildNicknamePolicyCache?.policy || normalizePolicyData(null));
-  return setNicknamePolicyCache(normalizePolicyData(snapshot.data() || null));
+  const policy = await resilientRead(
+    "guild-nickname-policy",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(POLICY_DOC_ID)
+        .get();
+      return snapshot.exists ? normalizePolicyData(snapshot.data() || null) : fallback;
+    },
+    {
+      ttlMs: POLICY_CACHE_TTL_MS,
+      timeoutMs: 2_000,
+      fallback: () => fallback,
+      circuitKey: "firebase-guild-nickname-policy-read",
+      circuitTtlMs: 2 * 60_000,
+      logEvent: "guild.nickname_policy_read_failed",
+      bypassCache: options.bypassCache,
+    },
+  );
+  return setNicknamePolicyCache(policy);
 }
 
 export async function setGuildNicknamePolicy(templateInput: unknown, actor?: DashboardSession | null) {

@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
+import { getRuntimeCachedValue, setRuntimeCachedValue, resilientRead, resilientWrite, runtimeCircuitOpen, logThrottled, safeErrorText } from "@/lib/runtimeResilience";
 import { publishAdminAuditToDiscord, type AdminAuditNotificationInput } from "@/lib/adminAuditNotifications";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import {
@@ -163,17 +164,57 @@ function fallbackGroups() {
   return DEFAULT_GROUPS.map((group) => ({ ...group, permissions: [...group.permissions], discordRoleIds: [...group.discordRoleIds] }));
 }
 
+const ACCESS_GROUPS_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.ACCESS_GROUPS_CACHE_TTL_MS || 10 * 60_000)));
+const ACCESS_GROUPS_ENSURE_TTL_MS = Math.max(60_000, Math.min(60 * 60_000, Number(process.env.ACCESS_GROUPS_ENSURE_TTL_MS || 30 * 60_000)));
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomAccessGroupsEnsuredAt: number | undefined;
+}
+
+function cacheAccessGroups(groups: AccessGroup[]) {
+  return setRuntimeCachedValue("access-groups", groups.map((group) => ({ ...group, permissions: [...group.permissions], discordRoleIds: [...group.discordRoleIds] })));
+}
+
+function cachedAccessGroups() {
+  return getRuntimeCachedValue<AccessGroup[]>("access-groups", ACCESS_GROUPS_CACHE_TTL_MS);
+}
+
 function collectionRef() {
   return getFirebaseAdminDb().collection("dashboardAccessGroups");
 }
 
 export async function listAccessGroups(): Promise<AccessGroup[]> {
-  if (!hasFirebaseProfileConfig()) return fallbackGroups();
-  const ref = collectionRef();
-  await ensureDefaultAccessGroups();
-  const snapshot = await ref.get();
-  const groups = snapshot.docs.map((doc: any) => normalizeGroup(doc.id, doc.data()));
-  return groups.sort((a: AccessGroup, b: AccessGroup) => b.rank - a.rank || a.id.localeCompare(b.id, "uk", { numeric: true }) || a.name.localeCompare(b.name, "uk"));
+  const cached = cachedAccessGroups();
+  if (cached) return cached;
+  if (!hasFirebaseProfileConfig()) return cacheAccessGroups(fallbackGroups());
+
+  return resilientRead(
+    "access-groups",
+    async () => {
+      const snapshot = await collectionRef().get();
+      const stored = snapshot.docs.map((doc: any) => normalizeGroup(doc.id, doc.data()));
+      const groups = stored.length ? stored : fallbackGroups();
+      const sorted = groups.sort((a: AccessGroup, b: AccessGroup) => b.rank - a.rank || a.id.localeCompare(b.id, "uk", { numeric: true }) || a.name.localeCompare(b.name, "uk"));
+
+      if (stored.length < DEFAULT_GROUPS.length && Date.now() - (globalThis.__mistblossomAccessGroupsEnsuredAt || 0) > ACCESS_GROUPS_ENSURE_TTL_MS) {
+        globalThis.__mistblossomAccessGroupsEnsuredAt = Date.now();
+        void ensureDefaultAccessGroups().catch((error) => {
+          logThrottled("warn", "access_groups.ensure_defaults_failed", { message: safeErrorText(error) }, 5 * 60_000);
+        });
+      }
+
+      return cacheAccessGroups(sorted);
+    },
+    {
+      ttlMs: ACCESS_GROUPS_CACHE_TTL_MS,
+      timeoutMs: 2_500,
+      circuitKey: "firebase-access-groups-read",
+      circuitTtlMs: 90_000,
+      fallback: () => cachedAccessGroups() || fallbackGroups(),
+      logEvent: "access_groups.read_failed",
+    },
+  );
 }
 
 export async function ensureDefaultAccessGroups() {
@@ -531,36 +572,38 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     return false;
   }
 
-  try {
-    const ref = await auditCollectionRef().add(payload);
-    const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
-    await mirrorAuditLogToDiscord(storedItem);
-    const now = Date.now();
-    if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
-      globalThis.__mistblossomAdminAuditPrunedAt = now;
-      void pruneAdminAuditLogs(500);
-    }
-    logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
-    return true;
-  } catch (error) {
-    const memoryItem = {
-      ...fallbackItem,
-      details: {
-        ...fallbackItem.details,
-        auditStorage: "memory_after_firestore_failure",
-        auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
+  return resilientWrite(
+    `admin-audit:${action}:${viewer.id}`,
+    async () => {
+      const ref = await auditCollectionRef().add(payload);
+      const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+      void mirrorAuditLogToDiscord(storedItem);
+      const now = Date.now();
+      if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
+        globalThis.__mistblossomAdminAuditPrunedAt = now;
+        void pruneAdminAuditLogs(500);
+      }
+      logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
+      return true;
+    },
+    {
+      circuitKey: "firebase-audit-write",
+      circuitTtlMs: 120_000,
+      timeoutMs: 2_500,
+      logEvent: "admin.audit.write_failed",
+      fallback: () => {
+        const memoryItem = {
+          ...fallbackItem,
+          details: {
+            ...fallbackItem.details,
+            auditStorage: runtimeCircuitOpen("firebase-audit-write") ? "memory_circuit_open" : "memory_after_firestore_failure",
+          },
+        };
+        pushFallbackAdminAudit(memoryItem);
+        return false;
       },
-    };
-    pushFallbackAdminAudit(memoryItem);
-    await mirrorAuditLogToDiscord(memoryItem);
-    logDashboardEvent("error", "admin.audit.write_failed", undefined, {
-      action,
-      actorId: viewer.id,
-      status,
-      error: error instanceof Error ? error.message : String(error || "unknown"),
-    });
-    return false;
-  }
+    },
+  );
 }
 
 export async function recordSystemAudit(action: string, details: Record<string, unknown> = {}) {
@@ -599,34 +642,37 @@ export async function recordSystemAudit(action: string, details: Record<string, 
     return false;
   }
 
-  try {
-    const ref = await auditCollectionRef().add(payload);
-    const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
-    await mirrorAuditLogToDiscord(storedItem);
-    const now = Date.now();
-    if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
-      globalThis.__mistblossomAdminAuditPrunedAt = now;
-      void pruneAdminAuditLogs(500);
-    }
-    logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
-    return true;
-  } catch (error) {
-    const memoryItem = {
-      ...fallbackItem,
-      details: {
-        ...fallbackItem.details,
-        auditStorage: "memory_after_firestore_failure",
-        auditWriteError: error instanceof Error ? error.message : String(error || "unknown"),
+  return resilientWrite(
+    `system-audit:${action}:${status}`,
+    async () => {
+      const ref = await auditCollectionRef().add(payload);
+      const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+      void mirrorAuditLogToDiscord(storedItem);
+      const now = Date.now();
+      if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
+        globalThis.__mistblossomAdminAuditPrunedAt = now;
+        void pruneAdminAuditLogs(500);
+      }
+      logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
+      return true;
+    },
+    {
+      circuitKey: "firebase-audit-write",
+      circuitTtlMs: 120_000,
+      timeoutMs: 2_500,
+      logEvent: "admin.audit.system_write_failed",
+      fallback: () => {
+        const memoryItem = {
+          ...fallbackItem,
+          details: {
+            ...fallbackItem.details,
+            auditStorage: runtimeCircuitOpen("firebase-audit-write") ? "memory_circuit_open" : "memory_after_firestore_failure",
+          },
+        };
+        pushFallbackAdminAudit(memoryItem);
+        return false;
       },
-    };
-    pushFallbackAdminAudit(memoryItem);
-    await mirrorAuditLogToDiscord(memoryItem);
-    logDashboardEvent("error", "admin.audit.system_write_failed", undefined, {
-      action,
-      status,
-      error: error instanceof Error ? error.message : String(error || "unknown"),
-    });
-    return false;
-  }
+    },
+  );
 }
 

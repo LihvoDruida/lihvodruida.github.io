@@ -18,6 +18,7 @@ import {
 } from "@/lib/concurrency";
 import { getGuildRosterSyncSettings } from "@/lib/dashboardApiSettings";
 import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
+import { resilientRead, resilientWrite, getRuntimeCachedValue } from "@/lib/runtimeResilience";
 import {
   getFirebaseAdminDb,
   hasFirebaseProfileConfig,
@@ -1071,33 +1072,47 @@ async function readCachedRoster(): Promise<CachedRoster | null> {
     return globalThis.__mistblossomGuildRosterCache;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const doc = getFirebaseAdminDb()
-    .collection(CACHE_COLLECTION)
-    .doc(CACHE_DOCUMENT);
-  const snapshot = await doc.get();
-  if (!snapshot.exists) return null;
-  const data = snapshot.data() || {};
-  const legacyCache = data.payload;
-  if (isCachedRoster(legacyCache)) {
-    globalThis.__mistblossomGuildRosterCache = legacyCache;
-    return legacyCache;
-  }
+  return resilientRead(
+    "guild-roster-cache",
+    async () => {
+      const doc = getFirebaseAdminDb()
+        .collection(CACHE_COLLECTION)
+        .doc(CACHE_DOCUMENT);
+      const snapshot = await doc.get();
+      if (!snapshot.exists) return null;
+      const data = snapshot.data() || {};
+      const legacyCache = data.payload;
+      if (isCachedRoster(legacyCache)) {
+        globalThis.__mistblossomGuildRosterCache = legacyCache;
+        return legacyCache;
+      }
 
-  if (data.payloadSharded) {
-    const memberSnapshots = await doc
-      .collection(CACHE_MEMBERS_COLLECTION)
-      .get();
-    const members = memberSnapshots.docs
-      .map((item) => item.data()?.member)
-      .filter((member): member is GuildRosterMember => Boolean(member?.key));
-    const cache = cachedRosterFromShardedPayload(data, members);
-    if (cache) {
-      globalThis.__mistblossomGuildRosterCache = cache;
-      return cache;
-    }
-  }
+      if (data.payloadSharded) {
+        const memberSnapshots = await doc
+          .collection(CACHE_MEMBERS_COLLECTION)
+          .limit(1100)
+          .get();
+        const members = memberSnapshots.docs
+          .map((item) => item.data()?.member)
+          .filter((member): member is GuildRosterMember => Boolean(member?.key));
+        const cache = cachedRosterFromShardedPayload(data, members);
+        if (cache) {
+          globalThis.__mistblossomGuildRosterCache = cache;
+          return cache;
+        }
+      }
 
-  return null;
+      return null;
+    },
+    {
+      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))),
+      timeoutMs: 4_000,
+      circuitKey: "firebase-guild-roster-read",
+      circuitTtlMs: 120_000,
+      fallback: () => getRuntimeCachedValue<CachedRoster | null>("guild-roster-cache", 24 * 60 * 60 * 1000) || globalThis.__mistblossomGuildRosterCache || null,
+      logEvent: "guild.roster.cache_read_failed",
+    },
+  );
 }
 
 type CachedRosterWriteOptions = {
@@ -1167,35 +1182,48 @@ async function writeCachedRoster(
   globalThis.__mistblossomGuildRosterCache = cache;
 
   if (hasFirebaseProfileConfig()) {
-    const doc = getFirebaseAdminDb()
-      .collection(CACHE_COLLECTION)
-      .doc(CACHE_DOCUMENT);
-    if (shardedCacheEnabled(cache.members.length, options.settings)) {
-      await doc.set(
-        {
-          payload: FieldValue.delete(),
-          payloadSharded: stripUndefined({
-            stats: cache.stats,
-            source: cache.source,
-            error: cache.error || null,
-            cachedAt: cache.cachedAt,
-            memberCount: cache.members.length,
-          }),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-      await writeMemberDocs(cache.members, options);
-    } else {
-      await doc.set(
-        {
-          payload: cache,
-          payloadSharded: FieldValue.delete(),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-    }
+    await resilientWrite(
+      "guild-roster-cache-write",
+      async () => {
+        const doc = getFirebaseAdminDb()
+          .collection(CACHE_COLLECTION)
+          .doc(CACHE_DOCUMENT);
+        if (shardedCacheEnabled(cache.members.length, options.settings)) {
+          await doc.set(
+            {
+              payload: FieldValue.delete(),
+              payloadSharded: stripUndefined({
+                stats: cache.stats,
+                source: cache.source,
+                error: cache.error || null,
+                cachedAt: cache.cachedAt,
+                memberCount: cache.members.length,
+              }),
+              updatedAt: FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
+          await writeMemberDocs(cache.members, options);
+        } else {
+          await doc.set(
+            {
+              payload: cache,
+              payloadSharded: FieldValue.delete(),
+              updatedAt: FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
+        }
+        return true;
+      },
+      {
+        circuitKey: "firebase-guild-roster-write",
+        circuitTtlMs: 120_000,
+        timeoutMs: 12_000,
+        fallback: () => false,
+        logEvent: "guild.roster.cache_write_failed",
+      },
+    );
   }
 
   return cache;
@@ -1851,18 +1879,43 @@ async function readGuildRosterSyncJob(): Promise<GuildRosterSyncJob | null> {
     return normalizeSyncJob(globalThis.__mistblossomGuildRosterSyncJob);
   const doc = syncJobDoc();
   if (!doc) return null;
-  const snapshot = await doc.get().catch(() => null);
-  const data = snapshot?.exists ? snapshot.data() : null;
-  const job = isSyncJob(data) ? normalizeSyncJob(data) : null;
-  if (job) globalThis.__mistblossomGuildRosterSyncJob = job;
-  return job;
+  return resilientRead(
+    "guild-roster-sync-job",
+    async () => {
+      const snapshot = await doc.get();
+      const data = snapshot.exists ? snapshot.data() : null;
+      const job = isSyncJob(data) ? normalizeSyncJob(data) : null;
+      if (job) globalThis.__mistblossomGuildRosterSyncJob = job;
+      return job;
+    },
+    {
+      ttlMs: 10_000,
+      timeoutMs: 2_000,
+      circuitKey: "firebase-guild-roster-read",
+      circuitTtlMs: 90_000,
+      fallback: () => globalThis.__mistblossomGuildRosterSyncJob ? normalizeSyncJob(globalThis.__mistblossomGuildRosterSyncJob) : null,
+      logEvent: "guild.roster.sync_job_read_failed",
+    },
+  );
 }
 
 async function writeGuildRosterSyncJob(job: GuildRosterSyncJob) {
   const next = stripUndefined(job);
   globalThis.__mistblossomGuildRosterSyncJob = next;
   const doc = syncJobDoc();
-  if (doc) await doc.set(next, { merge: false }).catch(() => null);
+  if (doc) {
+    await resilientWrite(
+      "guild-roster-sync-job-write",
+      () => doc.set(next, { merge: false }),
+      {
+        circuitKey: "firebase-guild-roster-write",
+        circuitTtlMs: 120_000,
+        timeoutMs: 2_000,
+        fallback: () => undefined,
+        logEvent: "guild.roster.sync_job_write_failed",
+      },
+    );
+  }
   return next;
 }
 

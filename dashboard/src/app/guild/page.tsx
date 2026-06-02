@@ -4,9 +4,8 @@ import GuildRosterExplorer from "@/components/GuildRosterExplorer";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
 import { loadGuildRosterData } from "@/lib/guildRoster";
-import { getOwnProfilePath, listCharacterProfileLinks } from "@/lib/profiles";
+import { getOwnProfilePath } from "@/lib/profiles";
 import { canViewGuildRoster } from "@/lib/permissions";
-import { buildBattleNetCharacterKey } from "@/lib/wowCharacters";
 import { buildPageMetadata } from "@/lib/seo";
 import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
 
@@ -44,23 +43,11 @@ export default async function GuildRosterPage() {
   }
   if (!canViewGuildRoster(user)) redirect(await getOwnProfilePath(user));
 
-  const [roster, profileLinks, apiSettings] = await Promise.all([
+  const [roster, apiSettings] = await Promise.all([
     loadGuildRosterData(),
-    listCharacterProfileLinks().catch(() => new Map()),
     getDashboardApiSettings(),
   ]);
-  const members = roster.members.map((member) => {
-    const profileLink = profileLinks.get(
-      buildBattleNetCharacterKey(member.region, member.realmSlug, member.name),
-    );
-    return profileLink
-      ? {
-          ...member,
-          ownerProfileId: profileLink.profileId,
-          ownerDisplayName: profileLink.displayName,
-        }
-      : member;
-  });
+  const members = roster.members;
 
   return (
     <main className="container guild-page">

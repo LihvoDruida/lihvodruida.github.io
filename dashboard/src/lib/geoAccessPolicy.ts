@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import type { DashboardSession } from "@/lib/auth";
 import { logDashboardEvent, noStoreHeaders } from "@/lib/security";
+import { resilientRead } from "@/lib/runtimeResilience";
 
 const SETTINGS_COLLECTION = "dashboardSettings";
 const GEO_ACCESS_DOC_ID = "geoAccessPolicy";
@@ -161,12 +162,29 @@ export async function getGeoAccessPolicy(options: { bypassCache?: boolean } = {}
     return globalThis.__mistblossomGeoAccessPolicyCache!.policy;
   }
   if (!hasFirebaseProfileConfig()) return setGeoPolicyCache(defaultGeoAccessPolicy());
-  const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(GEO_ACCESS_DOC_ID).get().catch((error) => {
-    logGeoPolicyReadFailureOnce(error);
-    return null;
-  });
-  if (!snapshot?.exists) return setGeoPolicyCache(globalThis.__mistblossomGeoAccessPolicyCache?.policy || defaultGeoAccessPolicy());
-  return setGeoPolicyCache(normalizePolicyData(snapshot.data() || null));
+
+  const policy = await resilientRead(
+    "getGeoAccessPolicy",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(GEO_ACCESS_DOC_ID)
+        .get();
+      return snapshot.exists
+        ? normalizePolicyData(snapshot.data() || null)
+        : globalThis.__mistblossomGeoAccessPolicyCache?.policy || defaultGeoAccessPolicy();
+    },
+    {
+      ttlMs: POLICY_CACHE_TTL_MS,
+      timeoutMs: 2_000,
+      circuitKey: "firebase-geo-policy-read",
+      circuitTtlMs: 90_000,
+      bypassCache: Boolean(options.bypassCache),
+      fallback: () => globalThis.__mistblossomGeoAccessPolicyCache?.policy || defaultGeoAccessPolicy(),
+      logEvent: "geo_access.policy_read_failed",
+    },
+  );
+  return setGeoPolicyCache(policy);
 }
 
 export async function setGeoAccessPolicy(input: {

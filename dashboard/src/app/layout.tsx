@@ -4,11 +4,8 @@ import "./globals.css";
 import "./profile.css";
 import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
-import LiveDataRefresh from "@/components/LiveDataRefresh";
-import ImpersonationToast from "@/components/ImpersonationToast";
 import AppFooter from "@/components/AppFooter";
 import ClientErrorReporter from "@/components/ClientErrorReporter";
-import { getSession } from "@/lib/auth";
 import { DASHBOARD_TITLE, DEFAULT_SEO_DESCRIPTION, dashboardBaseUrl, privateRobots } from "@/lib/seo";
 
 export const viewport: Viewport = {
@@ -88,11 +85,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const session = await getSession().catch(() => null);
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="uk">
-      <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh enabled={Boolean(session)} />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}<AppFooter /></body>
+      <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense>{children}<AppFooter /></body>
     </html>
   );
 }

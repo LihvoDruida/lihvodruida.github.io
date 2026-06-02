@@ -4,6 +4,7 @@ import { applyAccessGroupToSession, hasPermission, recordSystemAudit, resolveAcc
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 import { createStableProfileId } from "@/lib/profileIds";
 import { logDashboardEvent } from "@/lib/security";
+import { isQuotaOrResourceError, isTimeoutLikeError, openRuntimeCircuit, runtimeCircuitOpen, singleFlight, withTimeout } from "@/lib/runtimeResilience";
 import { evaluateAuthAccessPolicy, getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 
 export type DashboardRole = "admin" | "moderator" | "mentor" | "member";
@@ -125,71 +126,82 @@ async function refreshDiscordAccess(session: DashboardSession | null): Promise<D
   const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.session;
 
-  try {
-    const [member, guild, authPolicy] = await Promise.all([
-      fetchDiscordGuildMemberSnapshot(session.id),
-      fetchDiscordGuildSnapshot().catch(() => null),
-      getAuthAccessPolicy(),
-    ]);
-    const authDecision = evaluateAuthAccessPolicy(authPolicy, {
-      userId: session.id,
-      ownerId: guild?.ownerId || null,
-      roleIds: member.roleIds || [],
-    });
-    if (!authDecision.allowed) {
-      logDashboardEvent("warn", "auth.discord.live.required_role_missing", undefined, {
+  if (runtimeCircuitOpen("discord-live-access")) {
+    return cached?.session ?? session;
+  }
+
+  return singleFlight(`discord-live-access:${cacheKey}`, async () => {
+    try {
+      const [member, guild, authPolicy] = await withTimeout(Promise.all([
+        fetchDiscordGuildMemberSnapshot(session.id),
+        fetchDiscordGuildSnapshot().catch(() => null),
+        getAuthAccessPolicy(),
+      ]), 3_500, "discord live access");
+      const authDecision = evaluateAuthAccessPolicy(authPolicy, {
         userId: session.id,
-        profileId: session.profileId,
-        reason: authDecision.reason,
-        requiredRoles: authDecision.requiredRoleIds.length,
-        memberRoles: member.roleIds?.length || 0,
+        ownerId: guild?.ownerId || null,
+        roleIds: member.roleIds || [],
       });
-      await recordSystemAudit("auth.discord.live.required_role_missing", {
-        status: "warning",
-        summary: authDecision.reason === "no_required_role_configured"
-          ? "Сесію Discord заблоковано: обовʼязкова роль для входу не налаштована."
-          : "Сесію Discord заблоковано: у користувача немає обовʼязкової ролі сервера.",
-        userId: session.id,
-        profileId: session.profileId,
-        reason: authDecision.reason,
-        requiredRoleIds: authDecision.requiredRoleIds,
-      }).catch(() => false);
-      cache.set(cacheKey, { checkedAt: Date.now(), session: null });
-      return null;
-    }
-
-    const resolved = await resolveAccessGroupFromDiscord(member.roleIds || [], session.id, guild?.ownerId || null);
-    const liveSession: DashboardSession | null = resolved.group.permissions.includes("dashboard.view")
-      ? applyAccessGroupToSession({
-          ...session,
-          name: member.displayName || session.name,
-          discordRoleIds: member.roleIds || [],
-          impersonatedBy: undefined,
-        }, resolved.group, resolved.isServerOwner)
-      : null;
-
-    cache.set(cacheKey, { checkedAt: Date.now(), session: liveSession });
-    return liveSession;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error || "");
-    if (/^Discord API 404:/.test(message)) {
-      await deleteProfileAfterDiscordMembershipLoss(session, message).catch((cleanupError) => {
-        logDashboardEvent("error", "auth.discord.live.profile_delete_failed", undefined, {
+      if (!authDecision.allowed) {
+        logDashboardEvent("warn", "auth.discord.live.required_role_missing", undefined, {
           userId: session.id,
           profileId: session.profileId,
-          message: cleanupError instanceof Error ? cleanupError.message : String(cleanupError || "unknown"),
+          reason: authDecision.reason,
+          requiredRoles: authDecision.requiredRoleIds.length,
+          memberRoles: member.roleIds?.length || 0,
         });
-      });
-      cache.set(cacheKey, { checkedAt: Date.now(), session: null });
-      return null;
-    }
+        void recordSystemAudit("auth.discord.live.required_role_missing", {
+          status: "warning",
+          summary: authDecision.reason === "no_required_role_configured"
+            ? "Сесію Discord заблоковано: обовʼязкова роль для входу не налаштована."
+            : "Сесію Discord заблоковано: у користувача немає обовʼязкової ролі сервера.",
+          userId: session.id,
+          profileId: session.profileId,
+          reason: authDecision.reason,
+          requiredRoleIds: authDecision.requiredRoleIds,
+        }).catch(() => false);
+        cache.set(cacheKey, { checkedAt: Date.now(), session: null });
+        return null;
+      }
 
-    // Discord outages must not preserve elevated access from a stale cookie.
-    // Keep only safe member-level access, then retry soon.
-    const fallbackSession = isSensitiveDashboardRole(session.role) ? downgradeToSafeMemberSession(session) : session;
-    cache.set(cacheKey, { checkedAt: Date.now() - Math.floor(ttlMs * 0.75), session: fallbackSession });
-    return fallbackSession;
-  }
+      const resolved = await resolveAccessGroupFromDiscord(member.roleIds || [], session.id, guild?.ownerId || null);
+      const liveSession: DashboardSession | null = resolved.group.permissions.includes("dashboard.view")
+        ? applyAccessGroupToSession({
+            ...session,
+            name: member.displayName || session.name,
+            discordRoleIds: member.roleIds || [],
+            impersonatedBy: undefined,
+          }, resolved.group, resolved.isServerOwner)
+        : null;
+
+      cache.set(cacheKey, { checkedAt: Date.now(), session: liveSession });
+      return liveSession;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error || "");
+      if (/^Discord API 404:/.test(message)) {
+        await deleteProfileAfterDiscordMembershipLoss(session, message).catch((cleanupError) => {
+          logDashboardEvent("error", "auth.discord.live.profile_delete_failed", undefined, {
+            userId: session.id,
+            profileId: session.profileId,
+            message: cleanupError instanceof Error ? cleanupError.message : String(cleanupError || "unknown"),
+          });
+        });
+        cache.set(cacheKey, { checkedAt: Date.now(), session: null });
+        return null;
+      }
+
+      if (isQuotaOrResourceError(error) || isTimeoutLikeError(error)) {
+        openRuntimeCircuit("discord-live-access", error, 120_000);
+        const fallbackSession = cached?.session ?? session;
+        cache.set(cacheKey, { checkedAt: Date.now(), session: fallbackSession });
+        return fallbackSession;
+      }
+
+      const fallbackSession = isSensitiveDashboardRole(session.role) ? downgradeToSafeMemberSession(session) : session;
+      cache.set(cacheKey, { checkedAt: Date.now() - Math.floor(ttlMs * 0.75), session: fallbackSession });
+      return fallbackSession;
+    }
+  });
 }
 
 async function enforceNonDiscordSessionPolicy(session: DashboardSession | null): Promise<DashboardSession | null> {

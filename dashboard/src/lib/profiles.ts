@@ -53,6 +53,7 @@ import {
 } from "@/lib/permissions";
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
+import { resilientRead, resilientWrite, getRuntimeCachedValue, setRuntimeCachedValue } from "@/lib/runtimeResilience";
 
 export {
   deleteDashboardProfileById,
@@ -1069,32 +1070,51 @@ export async function getProfileById(profileId: string) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return null;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const ref = getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .doc(profileId);
-  const snapshot = await ref.get();
-  if (!snapshot.exists) return null;
+  return resilientRead(
+    `profile:${profileId}`,
+    async () => {
+      const ref = getFirebaseAdminDb()
+        .collection("dashboardProfiles")
+        .doc(profileId);
+      const snapshot = await ref.get();
+      if (!snapshot.exists) return null;
 
-  let data = snapshot.data() || {};
-  const battlenetRaw =
-    data.battlenet && typeof data.battlenet === "object"
-      ? (data.battlenet as Record<string, unknown>)
-      : null;
-  if (
-    hasCandidateStorage(battlenetRaw) &&
-    !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)
-  ) {
-    data = stripCandidateStorageFromData(data);
-    await ref
-      .update({
-        ...candidateStorageDeleteUpdate(),
-        updatedAt: FieldValue.serverTimestamp(),
-      })
-      .catch(() => undefined);
-  }
+      let data = snapshot.data() || {};
+      const battlenetRaw =
+        data.battlenet && typeof data.battlenet === "object"
+          ? (data.battlenet as Record<string, unknown>)
+          : null;
+      if (
+        hasCandidateStorage(battlenetRaw) &&
+        !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)
+      ) {
+        data = stripCandidateStorageFromData(data);
+        void resilientWrite(
+          `profile:${profileId}:candidate-cleanup`,
+          () => ref.update({
+            ...candidateStorageDeleteUpdate(),
+            updatedAt: FieldValue.serverTimestamp(),
+          }),
+          {
+            circuitKey: "firebase-profile-write",
+            timeoutMs: 2_000,
+            fallback: () => undefined,
+            logEvent: "profiles.candidate_cleanup_failed",
+          },
+        );
+      }
 
-  return resolveProfileAccessForCurrentGroups(
-    normalizeProfile(profileId, data),
+      const profile = normalizeProfile(profileId, data);
+      return resolveProfileAccessForCurrentGroups(profile);
+    },
+    {
+      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.PROFILE_READ_CACHE_TTL_MS || 60_000))),
+      timeoutMs: 3_000,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<DashboardProfile | null>(`profile:${profileId}`, 24 * 60 * 60 * 1000),
+      logEvent: "profiles.item_read_failed",
+    },
   );
 }
 
@@ -1163,12 +1183,25 @@ export async function listDashboardProfiles(params: {
   const query = String(params.query || "")
     .trim()
     .toLocaleLowerCase("uk");
-  const [snapshot, groups] = await Promise.all([
-    getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get(),
+  const [profilesFromStore, groups] = await Promise.all([
+    resilientRead(
+      `profiles:list:${safeLimit}`,
+      async () => {
+        const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
+        return snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
+      },
+      {
+        ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.PROFILE_LIST_CACHE_TTL_MS || 60_000))),
+        timeoutMs: 3_000,
+        circuitKey: "firebase-profile-read",
+        circuitTtlMs: 90_000,
+        fallback: () => getRuntimeCachedValue<DashboardProfile[]>(`profiles:list:${safeLimit}`, 24 * 60 * 60 * 1000) || [],
+        logEvent: "profiles.list_read_failed",
+      },
+    ),
     listAccessGroups().catch(() => [] as AccessGroup[]),
   ]);
-  const profiles: DashboardProfile[] = snapshot.docs
-    .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
+  const profiles: DashboardProfile[] = profilesFromStore
     .map((profile: DashboardProfile) =>
       groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
     )
@@ -1394,54 +1427,67 @@ export async function listCharacterProfileLinks() {
     return new Map(cached.links);
   }
 
-  const contenders = new Map<
-    string,
-    { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }
-  >();
-  const snapshot = await getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .limit(1000)
-    .get();
-  const profiles = snapshot.docs.map((doc: any) =>
-    normalizeProfile(doc.id, doc.data() || {}),
-  );
+  return resilientRead(
+    "profile-character-links",
+    async () => {
+      const contenders = new Map<
+        string,
+        { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }
+      >();
+      const snapshot = await getFirebaseAdminDb()
+        .collection("dashboardProfiles")
+        .limit(1000)
+        .get();
+      const profiles = snapshot.docs.map((doc: any) =>
+        normalizeProfile(doc.id, doc.data() || {}),
+      );
 
-  for (const profile of profiles) {
-    const displayName = getProfilePublicName(profile);
-    for (const character of profile.characters) {
-      for (const key of characterProfileLinkKeys(character)) {
-        const existing = contenders.get(key);
-        if (!existing) {
-          contenders.set(key, {
-            link: {
-              profileId: profile.profileId,
-              displayName,
-              warcraftLogs: character.warcraftLogs || null,
-            },
-            profileIds: new Set([profile.profileId]),
-            duplicate: false,
-          });
-          continue;
-        }
+      for (const profile of profiles) {
+        const displayName = getProfilePublicName(profile);
+        for (const character of profile.characters) {
+          for (const key of characterProfileLinkKeys(character)) {
+            const existing = contenders.get(key);
+            if (!existing) {
+              contenders.set(key, {
+                link: {
+                  profileId: profile.profileId,
+                  displayName,
+                  warcraftLogs: character.warcraftLogs || null,
+                },
+                profileIds: new Set([profile.profileId]),
+                duplicate: false,
+              });
+              continue;
+            }
 
-        existing.profileIds.add(profile.profileId);
-        if (existing.profileIds.size > 1) {
-          existing.duplicate = true;
+            existing.profileIds.add(profile.profileId);
+            if (existing.profileIds.size > 1) {
+              existing.duplicate = true;
+            }
+          }
         }
       }
-    }
-  }
 
-  const links = new Map<string, CharacterProfileLink>();
-  for (const [key, contender] of contenders) {
-    if (!contender.duplicate) links.set(key, contender.link);
-  }
+      const links = new Map<string, CharacterProfileLink>();
+      for (const [key, contender] of contenders) {
+        if (!contender.duplicate) links.set(key, contender.link);
+      }
 
-  globalThis.__mistblossomCharacterProfileLinksCache = {
-    checkedAt: Date.now(),
-    links: new Map(links),
-  };
-  return links;
+      globalThis.__mistblossomCharacterProfileLinksCache = {
+        checkedAt: Date.now(),
+        links: new Map(links),
+      };
+      return links;
+    },
+    {
+      ttlMs,
+      timeoutMs: 3_500,
+      circuitKey: "firebase-profile-read",
+      circuitTtlMs: 90_000,
+      fallback: () => cached ? new Map(cached.links) : emptyLinks,
+      logEvent: "profiles.character_links_read_failed",
+    },
+  );
 }
 
 export type ProfileCharacterConflict = {

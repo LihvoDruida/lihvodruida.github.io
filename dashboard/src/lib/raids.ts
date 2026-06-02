@@ -1,5 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
+import { resilientRead, getRuntimeCachedValue } from "@/lib/runtimeResilience";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
@@ -708,33 +709,45 @@ export function hasRaidStorage() {
 
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
-  try {
-    const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(Math.max(1, Math.min(100, limit))).get();
-    const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
-    return raids
-      .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
-  } catch (error) {
-    logDashboardEvent("warn", "raids.list_read_failed", undefined, {
-      message: error instanceof Error ? error.message : String(error || "unknown"),
-    });
-    return [];
-  }
+  const safeLimit = Math.max(1, Math.min(100, limit));
+  return resilientRead(
+    `raids:list:${safeLimit}`,
+    async () => {
+      const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
+      const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
+      return raids
+        .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+    },
+    {
+      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
+      timeoutMs: 3_000,
+      circuitKey: "firebase-raid-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<RaidItem[]>(`raids:list:${safeLimit}`, 24 * 60 * 60 * 1000) || [],
+      logEvent: "raids.list_read_failed",
+    },
+  );
 }
 
 export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const id = cleanRaidId(raidId);
   if (!id || !hasRaidStorage()) return null;
-  try {
-    const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
-    if (!snapshot.exists) return null;
-    return normalizeRaid(snapshot.id, snapshot.data() || {});
-  } catch (error) {
-    logDashboardEvent("warn", "raids.item_read_failed", undefined, {
-      raidId: id,
-      message: error instanceof Error ? error.message : String(error || "unknown"),
-    });
-    return null;
-  }
+  return resilientRead(
+    `raid:${id}`,
+    async () => {
+      const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
+      if (!snapshot.exists) return null;
+      return normalizeRaid(snapshot.id, snapshot.data() || {});
+    },
+    {
+      ttlMs: Math.max(10_000, Math.min(120_000, Number(process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
+      timeoutMs: 2_500,
+      circuitKey: "firebase-raid-read",
+      circuitTtlMs: 90_000,
+      fallback: () => getRuntimeCachedValue<RaidItem | null>(`raid:${id}`, 24 * 60 * 60 * 1000),
+      logEvent: "raids.item_read_failed",
+    },
+  );
 }
 
 async function syncAutoClosedRaid(raid: RaidItem) {

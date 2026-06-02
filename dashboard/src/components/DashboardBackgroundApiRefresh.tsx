@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DASHBOARD_BACKGROUND_REFRESH_MIN_MS,
   refreshDashboardApiResources,
@@ -12,6 +12,11 @@ import {
 } from "@/lib/dashboardLiveRefresh";
 
 type RefreshState = "idle" | "checking" | "paused" | "offline";
+
+const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 60_000;
+const BACKGROUND_MUTATION_REFRESH_MIN_MS = 15_000;
+let lastBackgroundRefreshAt = 0;
+let activeBackgroundRefresh: Promise<void> | null = null;
 type DataMutationEvent = CustomEvent<DashboardDataMutationDetail>;
 
 function isTextEditingElement(element: Element | null) {
@@ -52,6 +57,7 @@ type BackgroundApiSettingsUpdatedEvent = CustomEvent<{ backgroundRefreshMinSecon
 export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMinMsInput }: Props) {
   const [state, setState] = useState<RefreshState>("idle");
   const [refreshMinMs, setRefreshMinMs] = useState(() => normalizeRefreshMinMs(refreshMinMsInput));
+  const inFlightRef = useRef(false);
 
   useEffect(() => {
     setRefreshMinMs(normalizeRefreshMinMs(refreshMinMsInput));
@@ -117,8 +123,27 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
         return;
       }
 
+      const now = Date.now();
+      const minSpacing = options.force ? BACKGROUND_MUTATION_REFRESH_MIN_MS : BACKGROUND_VISIBLE_REFRESH_MIN_MS;
+      if (inFlightRef.current || activeBackgroundRefresh) {
+        setState("paused");
+        schedule(minSpacing, reason);
+        return;
+      }
+      if (now - lastBackgroundRefreshAt < minSpacing) {
+        schedule(minSpacing - (now - lastBackgroundRefreshAt), reason);
+        return;
+      }
+
       setState("checking");
-      await refreshDashboardApiResources({ reason, force: options.force, scope: options.scope });
+      inFlightRef.current = true;
+      activeBackgroundRefresh = refreshDashboardApiResources({ reason, force: options.force, scope: options.scope })
+        .catch(() => undefined)
+        .then(() => undefined);
+      await activeBackgroundRefresh;
+      activeBackgroundRefresh = null;
+      lastBackgroundRefreshAt = Date.now();
+      inFlightRef.current = false;
       if (!cancelled) setState("idle");
       schedule(refreshMinMs, "interval");
     }

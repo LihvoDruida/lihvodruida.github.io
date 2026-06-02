@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
+import { resilientRead } from "@/lib/runtimeResilience";
 import type { DashboardSession } from "@/lib/auth";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
@@ -117,16 +118,29 @@ export async function getAdminAuditDiscordPolicy(options: { bypassCache?: boolea
     return globalThis.__mistblossomAdminAuditDiscordPolicyCache!.policy;
   }
   if (!hasFirebaseProfileConfig()) return setAuditPolicyCache(defaultPolicy());
-  const snapshot = await getFirebaseAdminDb()
-    .collection(SETTINGS_COLLECTION)
-    .doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID)
-    .get()
-    .catch((error) => {
-      logAuditPolicyReadFailureOnce(error);
-      return null;
-    });
-  if (!snapshot?.exists) return setAuditPolicyCache(globalThis.__mistblossomAdminAuditDiscordPolicyCache?.policy || defaultPolicy());
-  return setAuditPolicyCache(normalizePolicy(snapshot.data() || null));
+
+  const policy = await resilientRead(
+    "getAdminAuditDiscordPolicy",
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(SETTINGS_COLLECTION)
+        .doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID)
+        .get();
+      return snapshot.exists
+        ? normalizePolicy(snapshot.data() || null)
+        : globalThis.__mistblossomAdminAuditDiscordPolicyCache?.policy || defaultPolicy();
+    },
+    {
+      ttlMs: POLICY_CACHE_TTL_MS,
+      timeoutMs: 2_000,
+      circuitKey: "firebase-audit-policy-read",
+      circuitTtlMs: 90_000,
+      bypassCache: Boolean(options.bypassCache),
+      fallback: () => globalThis.__mistblossomAdminAuditDiscordPolicyCache?.policy || defaultPolicy(),
+      logEvent: "admin.audit.discord_policy_read_failed",
+    },
+  );
+  return setAuditPolicyCache(policy);
 }
 
 export async function setAdminAuditDiscordPolicy(input: {

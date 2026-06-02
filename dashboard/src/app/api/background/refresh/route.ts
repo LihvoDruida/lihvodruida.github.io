@@ -4,7 +4,7 @@ import { getIntegrationStatusSummary } from "@/lib/integrationStatus";
 import { getDashboardApiSettings, type DashboardApiSettings } from "@/lib/dashboardApiSettings";
 import { loadStoredGuildRosterData } from "@/lib/guildRoster";
 import { canManageRaids, canViewGuildRoster, isDashboardStaff } from "@/lib/permissions";
-import { canViewProfile, getProfileById, refreshProfileExternalData } from "@/lib/profiles";
+import { canViewProfile, getProfileById } from "@/lib/profiles";
 import { getRaid, isRaidClosed, raidDisplayCapacity, raidLiveRevision, raidRosterCounts, raidTitle } from "@/lib/raids";
 import {
   assertRequestBodySize,
@@ -34,7 +34,7 @@ type BackgroundResourceRequest = {
 };
 
 const MIN_BACKGROUND_REFRESH_SECONDS = 10 * 60;
-const MAX_RESOURCES_PER_REQUEST = 8;
+const MAX_RESOURCES_PER_REQUEST = 3;
 
 function cleanText(value: unknown, maxLength = 180) {
   return String(value || "").trim().slice(0, Math.max(0, maxLength));
@@ -116,25 +116,20 @@ async function resolveProfileExternal(resource: BackgroundResourceRequest, sessi
   }
 
   const minSpacingSeconds = requestedSpacingSeconds(resource.minSpacingSeconds, settings.profileViewRefreshMinSeconds, settings.profileViewRefreshMinSeconds);
-  const result = await refreshProfileExternalData(profile, {
-    reason: "background_api",
-    minSpacingSeconds,
-    maxCharacters: profile.characters.length,
-    force: false,
-  });
-  const responseProfile = result.profile || profile;
-  const throttled = result.refreshed === 0 && result.failed === 0 && result.skipped > 0;
-
+  // Background polling must never perform expensive external API refreshes or
+  // Firestore writes. Full profile refresh is handled by the explicit
+  // /api/profile/[profileId]/refresh-external-data route and admin actions.
+  void minSpacingSeconds;
   return {
     ok: true,
     profileId,
-    refreshed: result.refreshed,
-    failed: result.failed,
-    skipped: result.skipped,
-    locked: result.locked,
-    throttled,
+    refreshed: 0,
+    failed: 0,
+    skipped: profile.characters.length,
+    locked: false,
+    throttled: true,
     checkedAt: new Date().toISOString(),
-    profile: publicProfilePayload(responseProfile),
+    profile: publicProfilePayload(profile),
   };
 }
 
@@ -186,15 +181,18 @@ export async function POST(request: NextRequest) {
   }
 
   const startedAt = Date.now();
-  const results = await Promise.all(resources.map(async (resource, index) => {
+  const results = [];
+  for (let index = 0; index < resources.length; index += 1) {
+    const resource = resources[index];
     const key = resourceKey(resource, index);
     try {
       const result = await resolveResource(resource, session, settings);
-      return { key, ...result };
+      results.push({ key, ...result });
     } catch (error) {
-      return { key, ok: false, error: error instanceof Error ? error.message : "resource_failed" };
+      results.push({ key, ok: false, error: error instanceof Error ? error.message : "resource_failed" });
     }
-  }));
+    if (Date.now() - startedAt > 4_000) break;
+  }
 
   logDashboardEvent("debug", "background_api.refresh", request, {
     profileId: session.profileId || null,

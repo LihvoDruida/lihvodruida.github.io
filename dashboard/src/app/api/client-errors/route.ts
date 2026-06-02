@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { recordAdminAudit } from "@/lib/accessGroups";
 import { assertRequestBodySize, checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 function clean(value: unknown, limit = 500) {
@@ -41,7 +39,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, ignored: true }, { headers: noStoreHeaders() });
     }
 
-    const session = await getSession().catch(() => null);
     const details = {
       status: "error",
       summary: `Client-side помилка: ${message}`,
@@ -54,9 +51,6 @@ export async function POST(request: NextRequest) {
     };
 
     logDashboardEvent("error", "client.exception", request, details);
-    if (session) {
-      await recordAdminAudit("client.exception", session, details).catch(() => null);
-    }
 
     return NextResponse.json({ ok: true }, { headers: noStoreHeaders() });
   } catch (error) {
