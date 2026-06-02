@@ -5823,10 +5823,9 @@ body {
 
 @media (min-width: 1181px) {
   .discord-send-controls {
-    grid-template-columns: minmax(210px, 1.35fr) minmax(120px, 0.7fr) minmax(
-        170px,
-        1fr
-      ) minmax(180px, 1fr);
+    grid-template-columns:
+      minmax(210px, 1.35fr) minmax(120px, 0.7fr) minmax(170px, 1fr)
+      minmax(180px, 1fr);
   }
 }
 
@@ -10975,10 +10974,9 @@ body {
 /* Dynamic dashboard UX: applications, integrations, Discord preview */
 .applications-live-filters {
   display: grid;
-  grid-template-columns: minmax(220px, 1.4fr) repeat(
-      3,
-      minmax(150px, 0.75fr)
-    ) auto;
+  grid-template-columns:
+    minmax(220px, 1.4fr) repeat(3, minmax(150px, 0.75fr))
+    auto;
   align-items: flex-end;
   gap: 12px;
   transition:
@@ -19547,10 +19545,9 @@ button[aria-busy="true"]::after,
 
 .admin-log-discord-grid {
   display: grid;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(220px, 1fr) minmax(
-      220px,
-      1fr
-    ) minmax(180px, 0.8fr);
+  grid-template-columns:
+    minmax(180px, 0.8fr) minmax(220px, 1fr) minmax(220px, 1fr)
+    minmax(180px, 0.8fr);
   gap: 12px;
   align-items: end;
 }
@@ -19943,7 +19940,7 @@ a.is-submitting[aria-busy="true"] {
   }
 }
 
-/* Guild roster WCL enrichment: compact role-safe HPS/DPS badges. */
+/* Guild roster WCL enrichment: compact role-safe HPS/DPS badges from last 5 kill/wipe pulls. */
 .guild-wcl-badges {
   position: relative;
   z-index: 1;
@@ -19957,8 +19954,8 @@ a.is-submitting[aria-busy="true"] {
 .guild-wcl-badges--muted span {
   display: grid;
   gap: 3px;
-  min-width: 118px;
-  min-height: 58px;
+  min-width: 142px;
+  min-height: 62px;
   padding: 9px 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;

@@ -1,43 +1,45 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { apiFetchJson } from "@/lib/apiHttp";
-import { fetchBattleNetApplicationData, getDefaultBattleNetRegion, guildStatusFromRank, normalizeBattleNetRegion, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
-import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import {
+  fetchBattleNetApplicationData,
+  getDefaultBattleNetRegion,
+  guildStatusFromRank,
+  normalizeBattleNetRegion,
+  type BattleNetGuildCharacterStatus,
+  type BattleNetRegion,
+} from "@/lib/battlenet";
+import {
+  getAdaptiveConcurrency,
+  mapConcurrent,
+  readIntegerEnv,
+} from "@/lib/concurrency";
 import { getGuildRosterWarcraftLogsSettings } from "@/lib/dashboardApiSettings";
-import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { fetchWarcraftLogsCharacterSummary, type WarcraftLogsMetricSummary } from "@/lib/warcraftLogs";
+import {
+  getFirebaseAdminDb,
+  hasFirebaseProfileConfig,
+} from "@/lib/firebaseAdmin";
+import {
+  listCharacterProfileLinks,
+  saveProfileCharacterWarcraftLogsSnapshot,
+  type CharacterProfileLink,
+} from "@/lib/profiles";
+import {
+  buildBattleNetCharacterKey,
+  normalizeCharacterKey,
+} from "@/lib/wowCharacters";
+import {
+  buildWarcraftLogsStoredSnapshot,
+  fetchWarcraftLogsCharacterSummary,
+  normalizeWarcraftLogsStoredSnapshot,
+  type WarcraftLogsStoredMetric,
+  type WarcraftLogsStoredSnapshot,
+} from "@/lib/warcraftLogs";
 
 export type GuildScoreSegment = "all" | "dps" | "healer" | "tank";
 export type GuildRosterRole = "tank" | "healer" | "dps" | "unknown";
 
-export type GuildRosterWarcraftLogsMetric = {
-  label: string;
-  role: "tank" | "healer" | "dps";
-  metric: "hps" | "dps";
-  difficultyLabel: string | null;
-  average: number | null;
-  max: number | null;
-  median: number | null;
-  bestParse: number | null;
-  averageParse: number | null;
-  pulls: number;
-  samples: number;
-  kills: number;
-  wipes: number;
-  bosses: number;
-};
-
-export type GuildRosterWarcraftLogsSnapshot = {
-  status: "ready" | "not_configured" | "not_found" | "error";
-  updatedAt: string | null;
-  profileUrl: string | null;
-  activeRole: GuildRosterRole;
-  primaryMetric: GuildRosterWarcraftLogsMetric | null;
-  hps: GuildRosterWarcraftLogsMetric | null;
-  dps: GuildRosterWarcraftLogsMetric | null;
-  tankDps: GuildRosterWarcraftLogsMetric | null;
-  tankHps: GuildRosterWarcraftLogsMetric | null;
-  error?: string | null;
-};
+export type GuildRosterWarcraftLogsMetric = WarcraftLogsStoredMetric;
+export type GuildRosterWarcraftLogsSnapshot = WarcraftLogsStoredSnapshot;
 
 export type GuildRosterMember = {
   key: string;
@@ -150,11 +152,16 @@ const RACE_ID_FALLBACK: Record<number, string> = {
 
 declare global {
   var __mistblossomGuildRosterCache: CachedRoster | undefined;
-  var __mistblossomGuildRosterRefreshPromise: Promise<CachedRoster | null> | undefined;
+  var __mistblossomGuildRosterRefreshPromise:
+    | Promise<CachedRoster | null>
+    | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
-  return String(value ?? fallback).normalize("NFC").replace(/\s+/g, " ").trim();
+  return String(value ?? fallback)
+    .normalize("NFC")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function parsePositiveNumber(value: unknown) {
@@ -180,7 +187,8 @@ function slugify(value: unknown) {
 function normalizeRole(value: unknown): GuildRosterRole {
   const role = cleanText(value).toLowerCase();
   if (["tank", "танк"].includes(role)) return "tank";
-  if (["healer", "healing", "heal", "хіл", "хілер", "лікар"].includes(role)) return "healer";
+  if (["healer", "healing", "heal", "хіл", "хілер", "лікар"].includes(role))
+    return "healer";
   if (["dps", "damage", "damager", "дпс"].includes(role)) return "dps";
   return "unknown";
 }
@@ -198,45 +206,83 @@ function pickLocalizedName(value: any): string | null {
   if (!value) return null;
   if (typeof value === "string") return cleanText(value) || null;
   if (typeof value.name === "string") return cleanText(value.name) || null;
-  if (typeof value.name?.en_GB === "string") return cleanText(value.name.en_GB) || null;
-  if (typeof value.name?.en_US === "string") return cleanText(value.name.en_US) || null;
-  const localized = Object.values(value.name || {}).find((item) => typeof item === "string" && cleanText(item));
+  if (typeof value.name?.en_GB === "string")
+    return cleanText(value.name.en_GB) || null;
+  if (typeof value.name?.en_US === "string")
+    return cleanText(value.name.en_US) || null;
+  const localized = Object.values(value.name || {}).find(
+    (item) => typeof item === "string" && cleanText(item),
+  );
   return localized ? cleanText(localized) || null : null;
 }
 
-function scoreFromSegments(segments: Record<string, any> | null | undefined, segment: GuildScoreSegment) {
+function scoreFromSegments(
+  segments: Record<string, any> | null | undefined,
+  segment: GuildScoreSegment,
+) {
   const entry = segments?.[segment] || segments?.[segment.toUpperCase()];
-  if (entry && typeof entry === "object") return parsePositiveNumber(entry.score);
+  if (entry && typeof entry === "object")
+    return parsePositiveNumber(entry.score);
   return parsePositiveNumber(entry);
 }
 
-function scoreColorFromSegments(segments: Record<string, any> | null | undefined, segment: GuildScoreSegment) {
+function scoreColorFromSegments(
+  segments: Record<string, any> | null | undefined,
+  segment: GuildScoreSegment,
+) {
   const entry = segments?.[segment] || segments?.[segment.toUpperCase()];
   if (!entry || typeof entry !== "object") return undefined;
   const color = cleanText(entry.color);
   return /^#[0-9a-f]{6}$/i.test(color) ? color : undefined;
 }
 
-function extractCurrentSeasonSegments(payload: RaiderIoCharacterPayload | null | undefined) {
-  const seasons = Array.isArray(payload?.mythic_plus_scores_by_season) ? payload?.mythic_plus_scores_by_season : [];
+function extractCurrentSeasonSegments(
+  payload: RaiderIoCharacterPayload | null | undefined,
+) {
+  const seasons = Array.isArray(payload?.mythic_plus_scores_by_season)
+    ? payload?.mythic_plus_scores_by_season
+    : [];
   return (seasons[0]?.segments || {}) as Record<string, any>;
 }
 
-function characterKey(region: string, realmSlug: string, name: string, id?: unknown) {
+function characterKey(
+  region: string,
+  realmSlug: string,
+  name: string,
+  id?: unknown,
+) {
   const safeName = slugify(name) || cleanText(name).toLocaleLowerCase();
   return `${region.toLowerCase()}:${realmSlug.toLowerCase()}:${safeName}:${cleanText(id || "")}`;
 }
 
 function getGuildConfig() {
-  const region = normalizeBattleNetRegion(process.env.GUILD_ROSTER_REGION || process.env.WOW_REGION || getDefaultBattleNetRegion());
-  const realmSlug = slugify(process.env.GUILD_ROSTER_REALM || process.env.WOW_REALM || process.env.WOW_GUILD_REALM || DEFAULT_GUILD_REALM) || DEFAULT_GUILD_REALM;
-  const guildName = cleanText(process.env.GUILD_ROSTER_NAME || process.env.WOW_GUILD_NAME || process.env.BATTLENET_ALLOWED_GUILD_NAME || DEFAULT_GUILD_NAME, DEFAULT_GUILD_NAME);
+  const region = normalizeBattleNetRegion(
+    process.env.GUILD_ROSTER_REGION ||
+      process.env.WOW_REGION ||
+      getDefaultBattleNetRegion(),
+  );
+  const realmSlug =
+    slugify(
+      process.env.GUILD_ROSTER_REALM ||
+        process.env.WOW_REALM ||
+        process.env.WOW_GUILD_REALM ||
+        DEFAULT_GUILD_REALM,
+    ) || DEFAULT_GUILD_REALM;
+  const guildName = cleanText(
+    process.env.GUILD_ROSTER_NAME ||
+      process.env.WOW_GUILD_NAME ||
+      process.env.BATTLENET_ALLOWED_GUILD_NAME ||
+      DEFAULT_GUILD_NAME,
+    DEFAULT_GUILD_NAME,
+  );
   const guildSlug = slugify(guildName) || slugify(DEFAULT_GUILD_NAME);
   return { region, realmSlug, guildName, guildSlug };
 }
 
 function cacheTtlMs() {
-  return readIntegerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", 1800, 300, 86_400) * 1000;
+  return (
+    readIntegerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", 1800, 300, 86_400) * 1000
+  );
 }
 
 function refreshConcurrency(total: number) {
@@ -271,12 +317,19 @@ async function fetchJsonWithTimeout(url: URL, label: string) {
   });
 }
 
-async function fetchRaiderGuild(region: BattleNetRegion, realmSlug: string, guildName: string) {
+async function fetchRaiderGuild(
+  region: BattleNetRegion,
+  realmSlug: string,
+  guildName: string,
+) {
   const url = new URL("https://raider.io/api/v1/guilds/profile");
   url.searchParams.set("region", region);
   url.searchParams.set("realm", realmSlug);
   url.searchParams.set("name", guildName);
-  url.searchParams.set("fields", "raid_progression:current-expansion:previous-expansion,raid_rankings:current-expansion:previous-expansion");
+  url.searchParams.set(
+    "fields",
+    "raid_progression:current-expansion:previous-expansion,raid_rankings:current-expansion:previous-expansion",
+  );
   const key = raiderIoAccessKey();
   if (key) url.searchParams.set("access_key", key);
 
@@ -287,7 +340,11 @@ async function fetchRaiderGuild(region: BattleNetRegion, realmSlug: string, guil
   }
 }
 
-async function fetchRaiderCharacter(region: BattleNetRegion, realmSlug: string, name: string) {
+async function fetchRaiderCharacter(
+  region: BattleNetRegion,
+  realmSlug: string,
+  name: string,
+) {
   const url = new URL("https://raider.io/api/v1/characters/profile");
   url.searchParams.set("region", region);
   url.searchParams.set("realm", realmSlug);
@@ -297,12 +354,14 @@ async function fetchRaiderCharacter(region: BattleNetRegion, realmSlug: string, 
   if (key) url.searchParams.set("access_key", key);
 
   try {
-    return await fetchJsonWithTimeout(url, `Raider.IO character ${name}`) as RaiderIoCharacterPayload;
+    return (await fetchJsonWithTimeout(
+      url,
+      `Raider.IO character ${name}`,
+    )) as RaiderIoCharacterPayload;
   } catch {
     return null;
   }
 }
-
 
 function guildRosterWclMemberLimit(total: number, configuredLimit: number) {
   const safeTotal = Math.max(0, Math.floor(total || 0));
@@ -310,11 +369,19 @@ function guildRosterWclMemberLimit(total: number, configuredLimit: number) {
   return safeLimit <= 0 ? safeTotal : Math.min(safeTotal, safeLimit);
 }
 
-function wclRefreshConcurrency(total: number, configuredConcurrency: number, configuredMaxConcurrency: number) {
-  const concurrency = Number.isFinite(configuredConcurrency) && configuredConcurrency > 0
-    ? Math.floor(configuredConcurrency)
-    : undefined;
-  const maxConcurrency = Math.max(1, Math.min(Math.floor(configuredMaxConcurrency || 3), 8));
+function wclRefreshConcurrency(
+  total: number,
+  configuredConcurrency: number,
+  configuredMaxConcurrency: number,
+) {
+  const concurrency =
+    Number.isFinite(configuredConcurrency) && configuredConcurrency > 0
+      ? Math.floor(configuredConcurrency)
+      : undefined;
+  const maxConcurrency = Math.max(
+    1,
+    Math.min(Math.floor(configuredMaxConcurrency || 3), 8),
+  );
 
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
@@ -324,75 +391,74 @@ function wclRefreshConcurrency(total: number, configuredConcurrency: number, con
   });
 }
 
-function wclMetricFromSummary(
-  summary: WarcraftLogsMetricSummary | undefined,
-  label: string,
-): GuildRosterWarcraftLogsMetric | null {
-  if (!summary || summary.role === "overall" || (summary.metric !== "hps" && summary.metric !== "dps")) return null;
-  const stats = summary.recentStats;
-  const hasData =
-    stats.sampleSize > 0 ||
-    stats.pullCount > 0 ||
-    stats.maxAmount !== null ||
-    stats.averageAmount !== null ||
-    stats.averagePercentile !== null ||
-    summary.bossRankings.length > 0;
-  if (!hasData) return null;
-
-  return {
-    label,
-    role: summary.role,
-    metric: summary.metric,
-    difficultyLabel: summary.primaryDifficultyLabel,
-    average: stats.averageAmount,
-    max: stats.maxAmount,
-    median: stats.medianAmount,
-    bestParse: stats.maxPercentile ?? summary.bestPerformanceAverage,
-    averageParse: stats.averagePercentile ?? summary.bestPerformanceAverage,
-    pulls: stats.pullCount,
-    samples: stats.sampleSize,
-    kills: stats.killCount,
-    wipes: stats.wipeCount,
-    bosses: summary.bossRankings.length,
-  };
-}
-
 function buildWarcraftLogsRosterSnapshot(
   member: GuildRosterMember,
   summary: Awaited<ReturnType<typeof fetchWarcraftLogsCharacterSummary>>,
 ): GuildRosterWarcraftLogsSnapshot {
-  const byKey = new Map(summary.metricSummaries.map((item) => [item.key, item]));
-  const healerHps = wclMetricFromSummary(byKey.get("healer-hps"), "HPS");
-  const dpsDps = wclMetricFromSummary(byKey.get("dps-dps"), "DPS");
-  const tankDps = wclMetricFromSummary(byKey.get("tank-dps"), "Tank DPS");
-  const tankHps = wclMetricFromSummary(byKey.get("tank-hps"), "Tank HPS");
-  const activeRole = member.role;
-  const primaryMetric =
-    activeRole === "healer"
-      ? healerHps
-      : activeRole === "dps"
-        ? dpsDps
-        : activeRole === "tank"
-          ? tankDps || tankHps
-          : healerHps || dpsDps || tankDps || tankHps;
-
-  return {
-    status: summary.status,
-    updatedAt: summary.updatedAt,
-    profileUrl: summary.profileUrl,
-    activeRole,
-    primaryMetric,
-    // Keep role slices separated exactly like Warcraft Logs: healer and DPS
-    // cards never consume tank DPS/HPS; tank values remain tank-only fields.
-    hps: activeRole === "healer" || activeRole === "unknown" ? healerHps : null,
-    dps: activeRole === "dps" || activeRole === "unknown" ? dpsDps : null,
-    tankDps: activeRole === "tank" ? tankDps : null,
-    tankHps: activeRole === "tank" ? tankHps : null,
-    error: summary.error || null,
-  };
+  return buildWarcraftLogsStoredSnapshot(summary, member.role);
 }
 
-async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) {
+function storedWclSnapshotFresh(
+  snapshot?: GuildRosterWarcraftLogsSnapshot | null,
+) {
+  const normalized = normalizeWarcraftLogsStoredSnapshot(snapshot);
+  if (!normalized?.updatedAt || normalized.status !== "ready") return false;
+  const updatedAt = Date.parse(normalized.updatedAt);
+  if (!Number.isFinite(updatedAt)) return false;
+  const ttlSeconds = readIntegerEnv(
+    "GUILD_ROSTER_PROFILE_WCL_TTL_SECONDS",
+    21_600,
+    300,
+    604_800,
+  );
+  return Date.now() - updatedAt < ttlSeconds * 1000;
+}
+
+function memberProfileLookupKeys(member: GuildRosterMember) {
+  const keys = new Set<string>();
+  const normalized = normalizeCharacterKey(member.key);
+  if (normalized) keys.add(normalized);
+  const battleNetKey = buildBattleNetCharacterKey(
+    member.region,
+    member.realmSlug,
+    member.name,
+  );
+  if (battleNetKey) keys.add(battleNetKey);
+  return keys;
+}
+
+async function enrichGuildMembersWithProfileLinks(
+  members: GuildRosterMember[],
+) {
+  if (!members.length || !hasFirebaseProfileConfig()) return members;
+  const links = await listCharacterProfileLinks().catch(
+    () => new Map<string, CharacterProfileLink>(),
+  );
+  if (!links.size) return members;
+
+  return members.map((member) => {
+    let link: CharacterProfileLink | null = null;
+    for (const key of memberProfileLookupKeys(member)) {
+      link = links.get(key) || null;
+      if (link) break;
+    }
+    if (!link) return member;
+
+    const stored = normalizeWarcraftLogsStoredSnapshot(link.warcraftLogs);
+    return {
+      ...member,
+      ownerProfileId: link.profileId,
+      ownerDisplayName: link.displayName,
+      warcraftLogs: storedWclSnapshotFresh(stored)
+        ? stored
+        : member.warcraftLogs || null,
+    };
+  });
+}
+
+async function enrichGuildMembersWithWarcraftLogs(
+  members: GuildRosterMember[],
+) {
   if (!members.length) return members;
 
   const settings = await getGuildRosterWarcraftLogsSettings().catch(() => ({
@@ -405,14 +471,21 @@ async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) 
 
   const limit = guildRosterWclMemberLimit(members.length, settings.memberLimit);
   if (limit <= 0) return members;
-  const selectedKeys = new Set(members.slice(0, limit).map((member) => member.key));
+
+  const selected = members.slice(0, limit);
+  const selectedKeys = new Set(selected.map((member) => member.key));
+  const staleMembers = selected.filter(
+    (member) => !storedWclSnapshotFresh(member.warcraftLogs),
+  );
+  if (!staleMembers.length) return members;
+
   const concurrency = wclRefreshConcurrency(
-    limit,
+    staleMembers.length,
     settings.concurrency,
     settings.maxConcurrency,
   );
   const { results } = await mapConcurrent(
-    members.slice(0, limit),
+    staleMembers,
     async (member) => {
       const summary = await fetchWarcraftLogsCharacterSummary({
         region: member.region,
@@ -420,9 +493,20 @@ async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) 
         name: member.name,
         mode: "roster",
       });
+      const warcraftLogs = buildWarcraftLogsRosterSnapshot(member, summary);
+      if (member.ownerProfileId) {
+        await saveProfileCharacterWarcraftLogsSnapshot({
+          profileId: member.ownerProfileId,
+          characterKey: member.key,
+          region: member.region,
+          realmSlug: member.realmSlug,
+          name: member.name,
+          warcraftLogs,
+        }).catch(() => false);
+      }
       return {
         key: member.key,
-        warcraftLogs: buildWarcraftLogsRosterSnapshot(member, summary),
+        warcraftLogs,
       };
     },
     {
@@ -434,32 +518,52 @@ async function enrichGuildMembersWithWarcraftLogs(members: GuildRosterMember[]) 
 
   const wclByKey = new Map(
     results
-      .filter((item): item is { key: string; warcraftLogs: GuildRosterWarcraftLogsSnapshot } => Boolean(item?.key && item?.warcraftLogs))
+      .filter(
+        (
+          item,
+        ): item is {
+          key: string;
+          warcraftLogs: GuildRosterWarcraftLogsSnapshot;
+        } => Boolean(item?.key && item?.warcraftLogs),
+      )
       .map((item) => [item.key, item.warcraftLogs]),
   );
 
   return members.map((member) =>
     selectedKeys.has(member.key)
-      ? { ...member, warcraftLogs: wclByKey.get(member.key) || member.warcraftLogs || null }
+      ? {
+          ...member,
+          warcraftLogs: wclByKey.get(member.key) || member.warcraftLogs || null,
+        }
       : member,
   );
 }
 
-function buildScores(raider: RaiderIoCharacterPayload | null): Record<GuildScoreSegment, number> {
+function buildScores(
+  raider: RaiderIoCharacterPayload | null,
+): Record<GuildScoreSegment, number> {
   const segments = extractCurrentSeasonSegments(raider);
-  return SEGMENTS.reduce((acc, segment) => {
-    acc[segment] = scoreFromSegments(segments, segment);
-    return acc;
-  }, {} as Record<GuildScoreSegment, number>);
+  return SEGMENTS.reduce(
+    (acc, segment) => {
+      acc[segment] = scoreFromSegments(segments, segment);
+      return acc;
+    },
+    {} as Record<GuildScoreSegment, number>,
+  );
 }
 
-function buildScoreColors(raider: RaiderIoCharacterPayload | null): Partial<Record<GuildScoreSegment, string>> {
+function buildScoreColors(
+  raider: RaiderIoCharacterPayload | null,
+): Partial<Record<GuildScoreSegment, string>> {
   const segments = extractCurrentSeasonSegments(raider);
-  return SEGMENTS.reduce((acc, segment) => {
-    const color = scoreColorFromSegments(segments, segment);
-    if (color) acc[segment] = color;
-    return acc;
-  }, {} as Partial<Record<GuildScoreSegment, string>>);
+  return SEGMENTS.reduce(
+    (acc, segment) => {
+      const color = scoreColorFromSegments(segments, segment);
+      if (color) acc[segment] = color;
+      return acc;
+    },
+    {} as Partial<Record<GuildScoreSegment, string>>,
+  );
 }
 
 function numberFromHref(value: unknown) {
@@ -468,16 +572,26 @@ function numberFromHref(value: unknown) {
 }
 
 function rosterClassName(character: any) {
-  const direct = pickLocalizedName(character?.playable_class || character?.character_class);
+  const direct = pickLocalizedName(
+    character?.playable_class || character?.character_class,
+  );
   if (direct) return direct;
-  const id = Number(character?.playable_class?.id || character?.character_class?.id || numberFromHref(character?.playable_class?.key?.href));
+  const id = Number(
+    character?.playable_class?.id ||
+      character?.character_class?.id ||
+      numberFromHref(character?.playable_class?.key?.href),
+  );
   return CLASS_ID_FALLBACK[id] || "Unknown";
 }
 
 function rosterRaceName(character: any) {
   const direct = pickLocalizedName(character?.playable_race || character?.race);
   if (direct) return direct;
-  const id = Number(character?.playable_race?.id || character?.race?.id || numberFromHref(character?.playable_race?.key?.href));
+  const id = Number(
+    character?.playable_race?.id ||
+      character?.race?.id ||
+      numberFromHref(character?.playable_race?.key?.href),
+  );
   return RACE_ID_FALLBACK[id] || "Unknown";
 }
 
@@ -495,20 +609,48 @@ function buildMemberFromSources(input: {
   const name = cleanText(character.name || raider?.name);
   if (!name) return null;
 
-  const realmSlug = slugify(character.realm?.slug || character.realm?.name || raider?.realm || input.fallbackRealmSlug) || input.fallbackRealmSlug;
-  const realmName = cleanText(character.realm?.name || raider?.realm || input.fallbackRealmName || realmSlug).toUpperCase();
-  const className = cleanText(raider?.class || rosterClassName(character) || "Unknown");
-  const raceName = cleanText(raider?.race || rosterRaceName(character) || "Unknown");
+  const realmSlug =
+    slugify(
+      character.realm?.slug ||
+        character.realm?.name ||
+        raider?.realm ||
+        input.fallbackRealmSlug,
+    ) || input.fallbackRealmSlug;
+  const realmName = cleanText(
+    character.realm?.name ||
+      raider?.realm ||
+      input.fallbackRealmName ||
+      realmSlug,
+  ).toUpperCase();
+  const className = cleanText(
+    raider?.class || rosterClassName(character) || "Unknown",
+  );
+  const raceName = cleanText(
+    raider?.race || rosterRaceName(character) || "Unknown",
+  );
   const specName = cleanText(raider?.active_spec_name || "Unknown");
-  const role = normalizeRole(raider?.active_spec_role || character.active_spec?.role || character.role);
+  const role = normalizeRole(
+    raider?.active_spec_role || character.active_spec?.role || character.role,
+  );
   const scores = buildScores(raider);
   const profileUrl = cleanText(raider?.profile_url) || null;
-  const avatarUrl = cleanText(raider?.thumbnail_url || raider?.avatar_url || character.avatarUrl || character.avatar) || null;
+  const avatarUrl =
+    cleanText(
+      raider?.thumbnail_url ||
+        raider?.avatar_url ||
+        character.avatarUrl ||
+        character.avatar,
+    ) || null;
 
   const rankInfo = guildStatusFromRank(input.rosterEntry?.rank);
 
   return {
-    key: characterKey(input.region, realmSlug, name, character.id || input.index),
+    key: characterKey(
+      input.region,
+      realmSlug,
+      name,
+      character.id || input.index,
+    ),
     rank: rankInfo.rank,
     guildStatus: rankInfo.status,
     guildStatusLabel: rankInfo.label,
@@ -518,16 +660,32 @@ function buildMemberFromSources(input: {
     region: input.region.toUpperCase(),
     className,
     raceName,
-    faction: normalizeFaction(raider?.faction || character.faction?.type || character.faction || input.fallbackFaction),
-    gender: cleanText(raider?.gender || character.gender?.type || character.gender || ""),
+    faction: normalizeFaction(
+      raider?.faction ||
+        character.faction?.type ||
+        character.faction ||
+        input.fallbackFaction,
+    ),
+    gender: cleanText(
+      raider?.gender || character.gender?.type || character.gender || "",
+    ),
     specName,
     role,
     avatarUrl,
     profileUrl,
-    itemLevel: Math.round(parsePositiveNumber(raider?.gear?.item_level_equipped || character.itemLevel || character.item_level || character.ilvl)),
+    itemLevel: Math.round(
+      parsePositiveNumber(
+        raider?.gear?.item_level_equipped ||
+          character.itemLevel ||
+          character.item_level ||
+          character.ilvl,
+      ),
+    ),
     scores,
     scoreColors: buildScoreColors(raider),
-    hasRaiderIo: Boolean(profileUrl || Object.values(scores).some((score) => score > 0)),
+    hasRaiderIo: Boolean(
+      profileUrl || Object.values(scores).some((score) => score > 0),
+    ),
   };
 }
 
@@ -546,11 +704,20 @@ function buildStats(input: {
 
   return {
     updatedAt: input.updatedAt,
-    memberCount: members.length || Number(guild.member_count || guild.members_count || 0),
-    guildName: cleanText(guild.name || input.configuredGuildName || DEFAULT_GUILD_NAME),
-    guildRealm: cleanText(realm.name || realm.slug || input.configuredRealmSlug || DEFAULT_GUILD_REALM),
+    memberCount:
+      members.length || Number(guild.member_count || guild.members_count || 0),
+    guildName: cleanText(
+      guild.name || input.configuredGuildName || DEFAULT_GUILD_NAME,
+    ),
+    guildRealm: cleanText(
+      realm.name ||
+        realm.slug ||
+        input.configuredRealmSlug ||
+        DEFAULT_GUILD_REALM,
+    ),
     guildFaction: normalizeFaction(faction.type || faction.name),
-    profileUrl: cleanText(input.raiderGuild?.profile_url || guild.profile_url) || null,
+    profileUrl:
+      cleanText(input.raiderGuild?.profile_url || guild.profile_url) || null,
     maxRioAll: Math.max(0, ...members.map((member) => member.scores.all)),
     maxItemLevel: Math.max(0, ...members.map((member) => member.itemLevel)),
     averageRioAll: average(members.map((member) => member.scores.all)),
@@ -559,7 +726,12 @@ function buildStats(input: {
 }
 
 function sortMembers(members: GuildRosterMember[]) {
-  return members.sort((a, b) => b.scores.all - a.scores.all || b.itemLevel - a.itemLevel || a.name.localeCompare(b.name, "uk"));
+  return members.sort(
+    (a, b) =>
+      b.scores.all - a.scores.all ||
+      b.itemLevel - a.itemLevel ||
+      a.name.localeCompare(b.name, "uk"),
+  );
 }
 
 async function fetchLiveGuildRoster(): Promise<GuildRosterLoadResult> {
@@ -567,40 +739,74 @@ async function fetchLiveGuildRoster(): Promise<GuildRosterLoadResult> {
   const updatedAt = new Date().toISOString();
 
   const [guildSummary, roster, raiderGuild] = await Promise.all([
-    fetchBattleNetApplicationData(`/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}`, undefined, config.region),
-    fetchBattleNetApplicationData(`/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`, undefined, config.region),
+    fetchBattleNetApplicationData(
+      `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}`,
+      undefined,
+      config.region,
+    ),
+    fetchBattleNetApplicationData(
+      `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
+      undefined,
+      config.region,
+    ),
     fetchRaiderGuild(config.region, config.realmSlug, config.guildName),
   ]);
 
   const guildBlock = roster?.guild || guildSummary || {};
-  const fallbackRealmSlug = slugify(guildBlock?.realm?.slug || guildBlock?.realm?.name || config.realmSlug) || config.realmSlug;
-  const fallbackRealmName = cleanText(guildBlock?.realm?.name || guildBlock?.realm?.slug || config.realmSlug);
-  const fallbackFaction = cleanText(guildBlock?.faction?.type || guildSummary?.faction?.type || guildSummary?.faction?.name || "Alliance");
-  const rawMembers: any[] = Array.isArray(roster?.members) ? roster.members.slice(0, guildMemberLimit()) : [];
+  const fallbackRealmSlug =
+    slugify(
+      guildBlock?.realm?.slug || guildBlock?.realm?.name || config.realmSlug,
+    ) || config.realmSlug;
+  const fallbackRealmName = cleanText(
+    guildBlock?.realm?.name || guildBlock?.realm?.slug || config.realmSlug,
+  );
+  const fallbackFaction = cleanText(
+    guildBlock?.faction?.type ||
+      guildSummary?.faction?.type ||
+      guildSummary?.faction?.name ||
+      "Alliance",
+  );
+  const rawMembers: any[] = Array.isArray(roster?.members)
+    ? roster.members.slice(0, guildMemberLimit())
+    : [];
   const concurrency = refreshConcurrency(rawMembers.length);
 
-  const { results } = await mapConcurrent(rawMembers, async (entry, index) => {
-    const character = entry?.character || {};
-    const name = cleanText(character.name);
-    const realmSlug = slugify(character.realm?.slug || character.realm?.name || fallbackRealmSlug) || fallbackRealmSlug;
-    const raider = name ? await fetchRaiderCharacter(config.region, realmSlug, name) : null;
-    return buildMemberFromSources({
-      rosterEntry: entry,
-      raider,
-      region: config.region,
-      fallbackRealmSlug,
-      fallbackRealmName,
-      fallbackFaction,
-      index,
-    });
-  }, {
-    profile: "external-api",
-    concurrency,
-    failFast: false,
-  });
+  const { results } = await mapConcurrent(
+    rawMembers,
+    async (entry, index) => {
+      const character = entry?.character || {};
+      const name = cleanText(character.name);
+      const realmSlug =
+        slugify(
+          character.realm?.slug || character.realm?.name || fallbackRealmSlug,
+        ) || fallbackRealmSlug;
+      const raider = name
+        ? await fetchRaiderCharacter(config.region, realmSlug, name)
+        : null;
+      return buildMemberFromSources({
+        rosterEntry: entry,
+        raider,
+        region: config.region,
+        fallbackRealmSlug,
+        fallbackRealmName,
+        fallbackFaction,
+        index,
+      });
+    },
+    {
+      profile: "external-api",
+      concurrency,
+      failFast: false,
+    },
+  );
 
-  const baseMembers = sortMembers(results.filter((member): member is GuildRosterMember => Boolean(member)));
-  const members = sortMembers(await enrichGuildMembersWithWarcraftLogs(baseMembers));
+  const baseMembers = sortMembers(
+    results.filter((member): member is GuildRosterMember => Boolean(member)),
+  );
+  const linkedMembers = await enrichGuildMembersWithProfileLinks(baseMembers);
+  const members = sortMembers(
+    await enrichGuildMembersWithWarcraftLogs(linkedMembers),
+  );
   const stats = buildStats({
     guildSummary: guildSummary || guildBlock,
     raiderGuild,
@@ -635,7 +841,12 @@ function fallbackStats(): GuildRosterStats {
 }
 
 function isCachedRoster(value: any): value is CachedRoster {
-  return Boolean(value && Array.isArray(value.members) && value.stats && typeof value.cachedAt === "string");
+  return Boolean(
+    value &&
+    Array.isArray(value.members) &&
+    value.stats &&
+    typeof value.cachedAt === "string",
+  );
 }
 
 function stripUndefined<T>(value: T): T {
@@ -649,10 +860,14 @@ function isFresh(cache: CachedRoster | null, ttlMs = cacheTtlMs()) {
 }
 
 async function readCachedRoster(): Promise<CachedRoster | null> {
-  if (globalThis.__mistblossomGuildRosterCache) return globalThis.__mistblossomGuildRosterCache;
+  if (globalThis.__mistblossomGuildRosterCache)
+    return globalThis.__mistblossomGuildRosterCache;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const snapshot = await getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(CACHE_DOCUMENT).get();
+  const snapshot = await getFirebaseAdminDb()
+    .collection(CACHE_COLLECTION)
+    .doc(CACHE_DOCUMENT)
+    .get();
   if (!snapshot.exists) return null;
   const data = snapshot.data() || {};
   const cache = data.payload;
@@ -671,10 +886,16 @@ async function writeCachedRoster(result: GuildRosterLoadResult) {
   globalThis.__mistblossomGuildRosterCache = cache;
 
   if (hasFirebaseProfileConfig()) {
-    await getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(CACHE_DOCUMENT).set({
-      payload: cache,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await getFirebaseAdminDb()
+      .collection(CACHE_COLLECTION)
+      .doc(CACHE_DOCUMENT)
+      .set(
+        {
+          payload: cache,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
   }
 
   return cache;
@@ -689,8 +910,6 @@ function publicFromCache(cache: CachedRoster): GuildRosterLoadResult {
   };
 }
 
-
-
 async function refreshGuildRosterAndCache() {
   const live = await fetchLiveGuildRoster();
   return writeCachedRoster(live).catch(() => null);
@@ -698,11 +917,12 @@ async function refreshGuildRosterAndCache() {
 
 function scheduleGuildRosterBackgroundRefresh(reason: string) {
   if (globalThis.__mistblossomGuildRosterRefreshPromise) return;
-  globalThis.__mistblossomGuildRosterRefreshPromise = refreshGuildRosterAndCache()
-    .catch(() => null)
-    .finally(() => {
-      globalThis.__mistblossomGuildRosterRefreshPromise = undefined;
-    });
+  globalThis.__mistblossomGuildRosterRefreshPromise =
+    refreshGuildRosterAndCache()
+      .catch(() => null)
+      .finally(() => {
+        globalThis.__mistblossomGuildRosterRefreshPromise = undefined;
+      });
   void reason;
 }
 
@@ -718,7 +938,9 @@ export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult
   };
 }
 
-export async function loadGuildRosterData(options: GuildRosterLoadOptions = {}): Promise<GuildRosterLoadResult> {
+export async function loadGuildRosterData(
+  options: GuildRosterLoadOptions = {},
+): Promise<GuildRosterLoadResult> {
   const cached = await readCachedRoster().catch(() => null);
 
   if (!options.forceRefresh && cached) {
@@ -730,7 +952,10 @@ export async function loadGuildRosterData(options: GuildRosterLoadOptions = {}):
     const stored = await refreshGuildRosterAndCache();
     return stored ? publicFromCache(stored) : await fetchLiveGuildRoster();
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error || "Не вдалося оновити склад гільдії.");
+    const message =
+      error instanceof Error
+        ? error.message
+        : String(error || "Не вдалося оновити склад гільдії.");
     if (cached) {
       return {
         ...publicFromCache(cached),
@@ -743,7 +968,9 @@ export async function loadGuildRosterData(options: GuildRosterLoadOptions = {}):
       members: [],
       stats: fallbackStats(),
       source: "not-configured",
-      error: message || "Battle.net / Raider.IO інтеграція складу гільдії не налаштована.",
+      error:
+        message ||
+        "Battle.net / Raider.IO інтеграція складу гільдії не налаштована.",
     };
   }
 }

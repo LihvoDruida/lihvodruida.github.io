@@ -1,19 +1,63 @@
 import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/profileIds";
-import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
+import {
+  getFirebaseAdminDb,
+  hasFirebaseProfileConfig,
+} from "@/lib/firebaseAdmin";
+import {
+  getAdaptiveConcurrency,
+  mapConcurrent,
+  readIntegerEnv,
+} from "@/lib/concurrency";
 import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
-import { fetchRaiderIoCharacterProfile, stripRaiderIoRaw, type RaiderIoCharacterSnapshot } from "@/lib/raiderIo";
-import { fetchBattleNetCharacterSnapshot, type BattleNetAccountInfo, type BattleNetCharacterCandidate, type BattleNetGuildCharacterStatus, type BattleNetRegion } from "@/lib/battlenet";
-import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
-import { normalizeWowRole, resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
-import { DEFAULT_NICKNAME_TEMPLATE, renderNicknameFromTemplate } from "@/lib/guildNicknamePolicy";
-import { canManageApplications, canViewAllProfiles, canViewProfiles, canViewProfilesInOwnGroupOrBelow, dashboardRoleRank } from "@/lib/permissions";
+import {
+  fetchRaiderIoCharacterProfile,
+  stripRaiderIoRaw,
+  type RaiderIoCharacterSnapshot,
+} from "@/lib/raiderIo";
+import {
+  buildWarcraftLogsStoredSnapshot,
+  fetchWarcraftLogsCharacterSummary,
+  normalizeWarcraftLogsStoredSnapshot,
+  type WarcraftLogsStoredSnapshot,
+} from "@/lib/warcraftLogs";
+import {
+  fetchBattleNetCharacterSnapshot,
+  type BattleNetAccountInfo,
+  type BattleNetCharacterCandidate,
+  type BattleNetGuildCharacterStatus,
+  type BattleNetRegion,
+} from "@/lib/battlenet";
+import {
+  buildBattleNetCharacterKey,
+  normalizeBattleNetNameSlug,
+  normalizeBattleNetRealmSlug,
+  normalizeCharacterKey,
+} from "@/lib/wowCharacters";
+import {
+  normalizeWowRole,
+  resolveWowCharacterRole,
+  type WowCharacterRole,
+} from "@/lib/wowRoles";
+import {
+  DEFAULT_NICKNAME_TEMPLATE,
+  renderNicknameFromTemplate,
+} from "@/lib/guildNicknamePolicy";
+import {
+  canManageApplications,
+  canViewAllProfiles,
+  canViewProfiles,
+  canViewProfilesInOwnGroupOrBelow,
+  dashboardRoleRank,
+} from "@/lib/permissions";
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
 
-export { deleteDashboardProfileById, deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
+export {
+  deleteDashboardProfileById,
+  deleteDashboardProfilesByDiscordUserId,
+} from "@/lib/profileCleanup";
 
 export type ProfileCharacter = BattleNetCharacterCandidate & {
   guildRank?: number | null;
@@ -22,10 +66,16 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
   isMain?: boolean;
   raiderIo?: RaiderIoCharacterSnapshot | null;
+  warcraftLogs?: WarcraftLogsStoredSnapshot | null;
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
-export type ProfileGrammaticalGender = "unspecified" | "neutral" | "nonbinary" | "male" | "female";
+export type ProfileGrammaticalGender =
+  | "unspecified"
+  | "neutral"
+  | "nonbinary"
+  | "male"
+  | "female";
 
 export type DashboardProfile = {
   profileId: string;
@@ -96,25 +146,41 @@ function timestampToIso(value: unknown) {
 }
 
 function cleanRole(value: unknown): DashboardRole {
-  return value === "admin" || value === "moderator" || value === "mentor" || value === "member" ? value : "member";
+  return value === "admin" ||
+    value === "moderator" ||
+    value === "mentor" ||
+    value === "member"
+    ? value
+    : "member";
 }
 
 function optionalString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.slice(0, 500) : null;
 }
 
-function readBoundedIntegerEnv(names: string[], fallback: number, min: number, max: number) {
+function readBoundedIntegerEnv(
+  names: string[],
+  fallback: number,
+  min: number,
+  max: number,
+) {
   for (const name of names) {
     const raw = process.env[name];
     if (raw === undefined || raw === null || raw === "") continue;
     const value = Number(raw);
-    if (Number.isFinite(value)) return Math.max(min, Math.min(Math.floor(value), max));
+    if (Number.isFinite(value))
+      return Math.max(min, Math.min(Math.floor(value), max));
   }
   return Math.max(min, Math.min(Math.floor(fallback), max));
 }
 
 function getBattleNetCandidateTtlMs() {
-  const minutes = readBoundedIntegerEnv(["BATTLENET_CANDIDATE_TTL_MINUTES"], 3, 1, 1440);
+  const minutes = readBoundedIntegerEnv(
+    ["BATTLENET_CANDIDATE_TTL_MINUTES"],
+    3,
+    1,
+    1440,
+  );
   return minutes * 60 * 1000;
 }
 
@@ -131,14 +197,18 @@ function isFutureTimestamp(value: unknown) {
 }
 
 function candidateExpiryIso(value: unknown) {
-  return isFutureTimestamp(value) ? timestampToIso(value) || optionalString(value) : null;
+  return isFutureTimestamp(value)
+    ? timestampToIso(value) || optionalString(value)
+    : null;
 }
 
 function hasCandidateStorage(battlenetRaw: Record<string, unknown> | null) {
   if (!battlenetRaw) return false;
-  return Array.isArray(battlenetRaw.candidateCharacters)
-    || battlenetRaw.candidateSavedAt !== undefined
-    || battlenetRaw.candidateExpiresAt !== undefined;
+  return (
+    Array.isArray(battlenetRaw.candidateCharacters) ||
+    battlenetRaw.candidateSavedAt !== undefined ||
+    battlenetRaw.candidateExpiresAt !== undefined
+  );
 }
 
 function candidateStorageDeleteUpdate() {
@@ -150,9 +220,17 @@ function candidateStorageDeleteUpdate() {
 }
 
 function stripCandidateStorageFromData(data: Record<string, unknown>) {
-  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  const battlenetRaw =
+    data.battlenet && typeof data.battlenet === "object"
+      ? (data.battlenet as Record<string, unknown>)
+      : null;
   if (!battlenetRaw) return data;
-  const { candidateCharacters, candidateSavedAt, candidateExpiresAt, ...restBattlenet } = battlenetRaw;
+  const {
+    candidateCharacters,
+    candidateSavedAt,
+    candidateExpiresAt,
+    ...restBattlenet
+  } = battlenetRaw;
   return { ...data, battlenet: restBattlenet };
 }
 
@@ -181,7 +259,9 @@ function cleanProfileName(value: unknown, maxLength = 32) {
 }
 
 function cleanDiscordNicknamePart(value: unknown, maxLength = 32) {
-  return cleanProfileName(value, maxLength).replace(/[\[\]]/g, "").trim();
+  return cleanProfileName(value, maxLength)
+    .replace(/[\[\]]/g, "")
+    .trim();
 }
 
 function cleanAuthorName(value: unknown, maxLength = 80) {
@@ -204,7 +284,10 @@ function cleanProfilePublicNameMode(value: unknown): ProfilePublicNameMode {
   return value === "server_nickname" ? "server_nickname" : "name";
 }
 
-function cleanNicknameCharacterKeys(value: unknown, mainCharacterKey?: string | null) {
+function cleanNicknameCharacterKeys(
+  value: unknown,
+  mainCharacterKey?: string | null,
+) {
   if (!Array.isArray(value)) return [];
   const mainKey = cleanCharacterKey(mainCharacterKey);
   const seen = new Set<string>();
@@ -221,12 +304,56 @@ function cleanNicknameCharacterKeys(value: unknown, mainCharacterKey?: string | 
   return result;
 }
 
-export function cleanProfileGrammaticalGender(value: unknown): ProfileGrammaticalGender {
-  const key = String(value || "").trim().toLocaleLowerCase("uk");
-  if (["male", "man", "boy", "m", "чоловік", "чоловіча", "ч", "хлопець"].includes(key)) return "male";
-  if (["female", "woman", "girl", "f", "жінка", "жіноча", "ж", "дівчина"].includes(key)) return "female";
-  if (["nonbinary", "non-binary", "non_binary", "nb", "небінарна", "небінарний", "небінарна особа"].includes(key)) return "nonbinary";
-  if (["neutral", "neuter", "n", "нейтральна", "нейтральне", "нейтрально", "нейтральний", "нейтральне звертання"].includes(key)) return "neutral";
+export function cleanProfileGrammaticalGender(
+  value: unknown,
+): ProfileGrammaticalGender {
+  const key = String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk");
+  if (
+    ["male", "man", "boy", "m", "чоловік", "чоловіча", "ч", "хлопець"].includes(
+      key,
+    )
+  )
+    return "male";
+  if (
+    [
+      "female",
+      "woman",
+      "girl",
+      "f",
+      "жінка",
+      "жіноча",
+      "ж",
+      "дівчина",
+    ].includes(key)
+  )
+    return "female";
+  if (
+    [
+      "nonbinary",
+      "non-binary",
+      "non_binary",
+      "nb",
+      "небінарна",
+      "небінарний",
+      "небінарна особа",
+    ].includes(key)
+  )
+    return "nonbinary";
+  if (
+    [
+      "neutral",
+      "neuter",
+      "n",
+      "нейтральна",
+      "нейтральне",
+      "нейтрально",
+      "нейтральний",
+      "нейтральне звертання",
+    ].includes(key)
+  )
+    return "neutral";
   return "unspecified";
 }
 
@@ -239,15 +366,22 @@ export function profileGenderLabel(value: unknown) {
   return "Не вибрано";
 }
 
-export function profileGenderedText(value: unknown, maleText: string, femaleText: string, neutralText = maleText) {
+export function profileGenderedText(
+  value: unknown,
+  maleText: string,
+  femaleText: string,
+  neutralText = maleText,
+) {
   const gender = cleanProfileGrammaticalGender(value);
   if (gender === "male") return maleText;
   if (gender === "female") return femaleText;
   return neutralText;
 }
 
-
-export type ProfileSettingsSetupStepKey = "profile_name" | "profile_gender" | "profile_display_mode";
+export type ProfileSettingsSetupStepKey =
+  | "profile_name"
+  | "profile_gender"
+  | "profile_display_mode";
 
 export type ProfileSettingsSetupStep = {
   key: ProfileSettingsSetupStepKey;
@@ -257,37 +391,59 @@ export type ProfileSettingsSetupStep = {
   href?: string;
 };
 
-function isProfileNameReady(profile: Pick<DashboardProfile, "preferredName" | "displayName" | "login"> | null | undefined) {
-  return codePointLength(cleanProfileName(profile?.preferredName || "", 32)) >= 2;
+function isProfileNameReady(
+  profile:
+    | Pick<DashboardProfile, "preferredName" | "displayName" | "login">
+    | null
+    | undefined,
+) {
+  return (
+    codePointLength(cleanProfileName(profile?.preferredName || "", 32)) >= 2
+  );
 }
 
-export function profileSettingsSetupStatus(profile: DashboardProfile | null | undefined) {
+export function profileSettingsSetupStatus(
+  profile: DashboardProfile | null | undefined,
+) {
   const profileId = profile?.profileId || "";
-  const settingsHref = profileId ? `/profile/${profileId}/settings?setup=1` : "/profile";
+  const settingsHref = profileId
+    ? `/profile/${profileId}/settings?setup=1`
+    : "/profile";
   const publicMode = cleanProfilePublicNameMode(profile?.publicNameMode);
   const hasName = isProfileNameReady(profile);
-  const hasGender = Boolean(profile && cleanProfileGrammaticalGender(profile.grammaticalGender) !== "unspecified");
-  const hasDisplayMode = Boolean(profile && (publicMode === "name" || publicMode === "server_nickname"));
+  const hasGender = Boolean(
+    profile &&
+    cleanProfileGrammaticalGender(profile.grammaticalGender) !== "unspecified",
+  );
+  const hasDisplayMode = Boolean(
+    profile && (publicMode === "name" || publicMode === "server_nickname"),
+  );
 
   const steps: ProfileSettingsSetupStep[] = [
     {
       key: "profile_name",
       title: "Імʼя профілю",
-      description: hasName ? `Вказано: ${profile?.preferredName}` : "Вкажи коротке імʼя, з якого будується профіль і серверний Discord-нік.",
+      description: hasName
+        ? `Вказано: ${profile?.preferredName}`
+        : "Вкажи коротке імʼя, з якого будується профіль і серверний Discord-нік.",
       complete: hasName,
       href: settingsHref,
     },
     {
       key: "profile_gender",
       title: "Стать / звертання",
-      description: hasGender ? "Звертання вибрано." : "Вибери звертання для особистих повідомлень сайту та Discord.",
+      description: hasGender
+        ? "Звертання вибрано."
+        : "Вибери звертання для особистих повідомлень сайту та Discord.",
       complete: hasGender,
       href: settingsHref,
     },
     {
       key: "profile_display_mode",
       title: "Формат відображення",
-      description: hasDisplayMode ? "Формат імені профілю валідний." : "Потрібно вибрати, що показувати публічно: імʼя профілю або серверний формат.",
+      description: hasDisplayMode
+        ? "Формат імені профілю валідний."
+        : "Потрібно вибрати, що показувати публічно: імʼя профілю або серверний формат.",
       complete: hasDisplayMode,
       href: settingsHref,
     },
@@ -301,17 +457,24 @@ export function profileSettingsSetupStatus(profile: DashboardProfile | null | un
   };
 }
 
-export function profileNeedsSettingsSetup(profile: DashboardProfile | null | undefined) {
+export function profileNeedsSettingsSetup(
+  profile: DashboardProfile | null | undefined,
+) {
   return !profileSettingsSetupStatus(profile).complete;
 }
 
 export function profileSettingsSetupPath(profileId: string) {
   const cleanProfileId = String(profileId || "").trim();
-  return /^id[a-f0-9]{16,40}$/.test(cleanProfileId) ? `/profile/${cleanProfileId}/settings?setup=1` : "/profile";
+  return /^id[a-f0-9]{16,40}$/.test(cleanProfileId)
+    ? `/profile/${cleanProfileId}/settings?setup=1`
+    : "/profile";
 }
 
 function normalizeRaiderIoScoreSegment(value: unknown) {
-  const item = value && typeof value === "object" ? value as Record<string, unknown> : null;
+  const item =
+    value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : null;
   const score = item ? Number(item.score) : Number(value);
   const color = cleanString(item?.color, 16);
   return {
@@ -320,10 +483,15 @@ function normalizeRaiderIoScoreSegment(value: unknown) {
   };
 }
 
-function normalizeRaiderIoSnapshot(value: unknown): RaiderIoCharacterSnapshot | null {
+function normalizeRaiderIoSnapshot(
+  value: unknown,
+): RaiderIoCharacterSnapshot | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
-  const rawScores = item.currentScores && typeof item.currentScores === "object" ? item.currentScores as Record<string, unknown> : {};
+  const rawScores =
+    item.currentScores && typeof item.currentScores === "object"
+      ? (item.currentScores as Record<string, unknown>)
+      : {};
   const currentScores: RaiderIoCharacterSnapshot["currentScores"] = {
     all: normalizeRaiderIoScoreSegment(rawScores.all),
     dps: normalizeRaiderIoScoreSegment(rawScores.dps),
@@ -336,26 +504,56 @@ function normalizeRaiderIoSnapshot(value: unknown): RaiderIoCharacterSnapshot | 
   return {
     profileUrl: optionalString(item.profileUrl),
     thumbnailUrl: optionalString(item.thumbnailUrl),
-    itemLevelEquipped: Number.isFinite(itemLevelEquipped) && itemLevelEquipped > 0 ? itemLevelEquipped : null,
-    currentScore: Number.isFinite(currentScore) && currentScore >= 0 ? currentScore : currentScores.all.score,
+    itemLevelEquipped:
+      Number.isFinite(itemLevelEquipped) && itemLevelEquipped > 0
+        ? itemLevelEquipped
+        : null,
+    currentScore:
+      Number.isFinite(currentScore) && currentScore >= 0
+        ? currentScore
+        : currentScores.all.score,
     currentScores,
-    updatedAt: timestampToIso(item.updatedAt) || optionalString(item.updatedAt) || new Date(0).toISOString(),
+    updatedAt:
+      timestampToIso(item.updatedAt) ||
+      optionalString(item.updatedAt) ||
+      new Date(0).toISOString(),
   };
 }
 
-function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): ProfileCharacter | null {
+function normalizeCharacter(
+  value: unknown,
+  mainCharacterKey?: string | null,
+): ProfileCharacter | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
   const key = cleanCharacterKey(item.key);
   const name = cleanString(item.name, 80);
   const realmSlug = normalizeBattleNetRealmSlug(item.realmSlug);
-  const normalizedName = normalizeBattleNetNameSlug(item.normalizedName || name);
+  const normalizedName = normalizeBattleNetNameSlug(
+    item.normalizedName || name,
+  );
   if (!key || !name || !realmSlug) return null;
 
   const className = optionalString(item.className);
-  const activeSpecName = optionalString(item.activeSpecName || item.active_spec_name || item.specName || item.spec_name);
-  const activeSpecId = Number.isFinite(Number(item.activeSpecId || item.active_spec_id || item.specId || item.spec_id))
-    ? Math.floor(Number(item.activeSpecId || item.active_spec_id || item.specId || item.spec_id))
+  const activeSpecName = optionalString(
+    item.activeSpecName ||
+      item.active_spec_name ||
+      item.specName ||
+      item.spec_name,
+  );
+  const activeSpecId = Number.isFinite(
+    Number(
+      item.activeSpecId || item.active_spec_id || item.specId || item.spec_id,
+    ),
+  )
+    ? Math.floor(
+        Number(
+          item.activeSpecId ||
+            item.active_spec_id ||
+            item.specId ||
+            item.spec_id,
+        ),
+      )
     : null;
   const activeSpecRole = resolveWowCharacterRole({
     className,
@@ -367,7 +565,8 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
   return {
     key,
     source: "battlenet",
-    region: (cleanString(item.region, 12).toLocaleLowerCase("uk") || "eu") as BattleNetRegion,
+    region: (cleanString(item.region, 12).toLocaleLowerCase("uk") ||
+      "eu") as BattleNetRegion,
     name,
     normalizedName,
     realmSlug,
@@ -382,23 +581,44 @@ function normalizeCharacter(value: unknown, mainCharacterKey?: string | null): P
     genderName: optionalString(item.genderName),
     guildName: optionalString(item.guildName),
     guildRealmSlug: optionalString(item.guildRealmSlug),
-    guildRank: Number.isFinite(Number(item.guildRank)) ? Math.max(0, Math.floor(Number(item.guildRank))) : null,
-    guildStatus: ["guild_master", "officer", "member"].includes(String(item.guildStatus || "")) ? item.guildStatus as BattleNetGuildCharacterStatus : null,
+    guildRank: Number.isFinite(Number(item.guildRank))
+      ? Math.max(0, Math.floor(Number(item.guildRank)))
+      : null,
+    guildStatus: ["guild_master", "officer", "member"].includes(
+      String(item.guildStatus || ""),
+    )
+      ? (item.guildStatus as BattleNetGuildCharacterStatus)
+      : null,
     guildStatusLabel: optionalString(item.guildStatusLabel),
     profileUrl: optionalString(item.profileUrl) || "#",
     avatarUrl: optionalString(item.avatarUrl),
     renderUrl: optionalString(item.renderUrl),
     mediaUrl: optionalString(item.mediaUrl),
-    verifiedGuild: typeof item.verifiedGuild === "boolean" ? item.verifiedGuild : Boolean(item.guildName),
-    itemLevel: Number.isFinite(Number(item.itemLevel)) ? Number(item.itemLevel) : null,
+    verifiedGuild:
+      typeof item.verifiedGuild === "boolean"
+        ? item.verifiedGuild
+        : Boolean(item.guildName),
+    itemLevel: Number.isFinite(Number(item.itemLevel))
+      ? Number(item.itemLevel)
+      : null,
     raiderIo: normalizeRaiderIoSnapshot(item.raiderIo || item.raider_io),
-    lastSeenAt: timestampToIso(item.lastSeenAt) || optionalString(item.lastSeenAt) || null || new Date(0).toISOString(),
+    warcraftLogs: normalizeWarcraftLogsStoredSnapshot(
+      item.warcraftLogs || item.wcl || item.warcraft_logs,
+    ),
+    lastSeenAt:
+      timestampToIso(item.lastSeenAt) ||
+      optionalString(item.lastSeenAt) ||
+      null ||
+      new Date(0).toISOString(),
     addedAt: timestampToIso(item.addedAt) || optionalString(item.addedAt),
     isMain: Boolean(mainCharacterKey && key === mainCharacterKey),
   };
 }
 
-function normalizeCharacterList(value: unknown, mainCharacterKey?: string | null) {
+function normalizeCharacterList(
+  value: unknown,
+  mainCharacterKey?: string | null,
+) {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
   const characters: ProfileCharacter[] = [];
@@ -415,19 +635,31 @@ function normalizeCharacters(value: unknown, mainCharacterKey?: string | null) {
   return normalizeCharacterList(value, mainCharacterKey);
 }
 
-function normalizeBattleNetCandidateCharacters(battlenetRaw: Record<string, unknown> | null) {
+function normalizeBattleNetCandidateCharacters(
+  battlenetRaw: Record<string, unknown> | null,
+) {
   if (!battlenetRaw) return [];
   if (!isFutureTimestamp(battlenetRaw.candidateExpiresAt)) return [];
   return normalizeCharacterList(battlenetRaw.candidateCharacters, null);
 }
 
 function cleanGroupId(value: unknown) {
-  const cleaned = String(value || "").trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32);
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 32);
   return cleaned || null;
 }
 
 function cleanGroupName(value: unknown) {
-  const cleaned = Array.from(String(value || "").normalize("NFC").trim().replace(/\s+/g, " ")).slice(0, 80).join("");
+  const cleaned = Array.from(
+    String(value || "")
+      .normalize("NFC")
+      .trim()
+      .replace(/\s+/g, " "),
+  )
+    .slice(0, 80)
+    .join("");
   return cleaned || null;
 }
 
@@ -440,7 +672,10 @@ function fallbackProfileRank(role: DashboardRole) {
   return dashboardRoleRank(role) || 10;
 }
 
-function groupForProfile(profile: Pick<DashboardProfile, "groupId" | "role">, groups: AccessGroup[]) {
+function groupForProfile(
+  profile: Pick<DashboardProfile, "groupId" | "role">,
+  groups: AccessGroup[],
+) {
   if (profile.groupId) {
     const byId = groups.find((group) => group.id === profile.groupId);
     if (byId) return byId;
@@ -448,7 +683,10 @@ function groupForProfile(profile: Pick<DashboardProfile, "groupId" | "role">, gr
   return groups.find((group) => group.role === profile.role) || null;
 }
 
-function applyCurrentProfileGroup(profile: DashboardProfile, groups: AccessGroup[]) {
+function applyCurrentProfileGroup(
+  profile: DashboardProfile,
+  groups: AccessGroup[],
+) {
   const group = groupForProfile(profile, groups);
   if (!group) {
     return {
@@ -466,12 +704,17 @@ function applyCurrentProfileGroup(profile: DashboardProfile, groups: AccessGroup
   };
 }
 
-export async function resolveProfileAccessForCurrentGroups(profile: DashboardProfile) {
+export async function resolveProfileAccessForCurrentGroups(
+  profile: DashboardProfile,
+) {
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
   return groups.length ? applyCurrentProfileGroup(profile, groups) : profile;
 }
 
-function normalizeRaidRolePreference(value: unknown, mainCharacterKey?: string | null): DashboardProfile["raidRolePreference"] {
+function normalizeRaidRolePreference(
+  value: unknown,
+  mainCharacterKey?: string | null,
+): DashboardProfile["raidRolePreference"] {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
   const characterKey = cleanCharacterKey(item.characterKey);
@@ -489,19 +732,36 @@ function normalizeRaidRolePreference(value: unknown, mainCharacterKey?: string |
   };
 }
 
-function normalizeProfile(profileId: string, data: Record<string, unknown>): DashboardProfile {
+function normalizeProfile(
+  profileId: string,
+  data: Record<string, unknown>,
+): DashboardProfile {
   const mainCharacterKey = cleanCharacterKey(data.mainCharacterKey) || null;
-  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
-  const discordNicknameRaw = data.discordNickname && typeof data.discordNickname === "object" ? data.discordNickname as Record<string, unknown> : null;
+  const battlenetRaw =
+    data.battlenet && typeof data.battlenet === "object"
+      ? (data.battlenet as Record<string, unknown>)
+      : null;
+  const discordNicknameRaw =
+    data.discordNickname && typeof data.discordNickname === "object"
+      ? (data.discordNickname as Record<string, unknown>)
+      : null;
 
   return {
     profileId,
-    provider: data.provider === "github" || data.provider === "token" ? data.provider : "discord",
+    provider:
+      data.provider === "github" || data.provider === "token"
+        ? data.provider
+        : "discord",
     providerUserId: String(data.providerUserId || ""),
-    displayName: String(data.displayName || data.login || "Guild member").slice(0, 120),
+    displayName: String(data.displayName || data.login || "Guild member").slice(
+      0,
+      120,
+    ),
     preferredName: cleanProfileName(data.preferredName, 32) || null,
     publicNameMode: cleanProfilePublicNameMode(data.publicNameMode),
-    grammaticalGender: cleanProfileGrammaticalGender(data.grammaticalGender || data.gender || data.sex),
+    grammaticalGender: cleanProfileGrammaticalGender(
+      data.grammaticalGender || data.gender || data.sex,
+    ),
     login: data.login ? String(data.login).slice(0, 120) : null,
     role: cleanRole(data.role),
     groupId: cleanGroupId(data.groupId),
@@ -509,44 +769,152 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
     groupRank: cleanGroupRank(data.groupRank),
     avatarUrl: optionalString(data.avatarUrl),
     discordRoleIds: Array.isArray(data.discordRoleIds)
-      ? data.discordRoleIds.map((roleId: unknown) => String(roleId || "").trim()).filter(Boolean).slice(0, 100)
+      ? data.discordRoleIds
+          .map((roleId: unknown) => String(roleId || "").trim())
+          .filter(Boolean)
+          .slice(0, 100)
       : [],
     characters: normalizeCharacters(data.characters, mainCharacterKey),
     mainCharacterKey,
-    nicknameCharacterKeys: cleanNicknameCharacterKeys(data.nicknameCharacterKeys || data.discordNicknameCharacterKeys, mainCharacterKey),
-    raidRolePreference: normalizeRaidRolePreference(data.raidRolePreference, mainCharacterKey),
-    discordNickname: discordNicknameRaw ? {
-      value: cleanDiscordNicknamePart(discordNicknameRaw.value, 32) || null,
-      syncedAt: timestampToIso(discordNicknameRaw.syncedAt) || optionalString(discordNicknameRaw.syncedAt),
-      sourcePreferredName: cleanProfileName(discordNicknameRaw.sourcePreferredName, 32) || null,
-      sourceCharacters: Array.isArray(discordNicknameRaw.sourceCharacters)
-        ? discordNicknameRaw.sourceCharacters.map((item: unknown) => cleanDiscordNicknamePart(item, 16)).filter(Boolean).slice(0, 3)
-        : [],
-    } : null,
-    battlenet: battlenetRaw ? {
-      linked: Boolean(battlenetRaw.linked),
-      region: optionalString(battlenetRaw.region),
-      accountLabel: optionalString(battlenetRaw.accountLabel),
-      accountIdHash: optionalString(battlenetRaw.accountIdHash),
-      lastConnectedAt: timestampToIso(battlenetRaw.lastConnectedAt),
-      lastSyncAt: timestampToIso(battlenetRaw.lastSyncAt),
-      lastCharacterRefreshAt: timestampToIso(battlenetRaw.lastCharacterRefreshAt),
-      lastProfileViewRefreshAt: timestampToIso(battlenetRaw.lastProfileViewRefreshAt),
-      lastProfileViewRefresh: battlenetRaw.lastProfileViewRefresh && typeof battlenetRaw.lastProfileViewRefresh === "object" ? {
-        refreshed: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).refreshed)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).refreshed) : undefined,
-        failed: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).failed)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).failed) : undefined,
-        skipped: Number.isFinite(Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).skipped)) ? Number((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).skipped) : undefined,
-        updatedAt: timestampToIso((battlenetRaw.lastProfileViewRefresh as Record<string, unknown>).updatedAt),
-      } : null,
-      totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters)) ? Number(battlenetRaw.totalCharacters) : undefined,
-      scannedCharacters: Number.isFinite(Number(battlenetRaw.scannedCharacters)) ? Number(battlenetRaw.scannedCharacters) : undefined,
-      eligibleCharacters: Number.isFinite(Number(battlenetRaw.eligibleCharacters)) ? Number(battlenetRaw.eligibleCharacters) : undefined,
-      guildCharacters: Number.isFinite(Number(battlenetRaw.guildCharacters)) ? Number(battlenetRaw.guildCharacters) : undefined,
-      otherCharacters: Number.isFinite(Number(battlenetRaw.otherCharacters)) ? Number(battlenetRaw.otherCharacters) : undefined,
-      candidateCharacters: normalizeBattleNetCandidateCharacters(battlenetRaw),
-      candidateSavedAt: candidateExpiryIso(battlenetRaw.candidateExpiresAt) ? timestampToIso(battlenetRaw.candidateSavedAt) : null,
-      candidateExpiresAt: candidateExpiryIso(battlenetRaw.candidateExpiresAt),
-    } : null,
+    nicknameCharacterKeys: cleanNicknameCharacterKeys(
+      data.nicknameCharacterKeys || data.discordNicknameCharacterKeys,
+      mainCharacterKey,
+    ),
+    raidRolePreference: normalizeRaidRolePreference(
+      data.raidRolePreference,
+      mainCharacterKey,
+    ),
+    discordNickname: discordNicknameRaw
+      ? {
+          value: cleanDiscordNicknamePart(discordNicknameRaw.value, 32) || null,
+          syncedAt:
+            timestampToIso(discordNicknameRaw.syncedAt) ||
+            optionalString(discordNicknameRaw.syncedAt),
+          sourcePreferredName:
+            cleanProfileName(discordNicknameRaw.sourcePreferredName, 32) ||
+            null,
+          sourceCharacters: Array.isArray(discordNicknameRaw.sourceCharacters)
+            ? discordNicknameRaw.sourceCharacters
+                .map((item: unknown) => cleanDiscordNicknamePart(item, 16))
+                .filter(Boolean)
+                .slice(0, 3)
+            : [],
+        }
+      : null,
+    battlenet: battlenetRaw
+      ? {
+          linked: Boolean(battlenetRaw.linked),
+          region: optionalString(battlenetRaw.region),
+          accountLabel: optionalString(battlenetRaw.accountLabel),
+          accountIdHash: optionalString(battlenetRaw.accountIdHash),
+          lastConnectedAt: timestampToIso(battlenetRaw.lastConnectedAt),
+          lastSyncAt: timestampToIso(battlenetRaw.lastSyncAt),
+          lastCharacterRefreshAt: timestampToIso(
+            battlenetRaw.lastCharacterRefreshAt,
+          ),
+          lastProfileViewRefreshAt: timestampToIso(
+            battlenetRaw.lastProfileViewRefreshAt,
+          ),
+          lastProfileViewRefresh:
+            battlenetRaw.lastProfileViewRefresh &&
+            typeof battlenetRaw.lastProfileViewRefresh === "object"
+              ? {
+                  refreshed: Number.isFinite(
+                    Number(
+                      (
+                        battlenetRaw.lastProfileViewRefresh as Record<
+                          string,
+                          unknown
+                        >
+                      ).refreshed,
+                    ),
+                  )
+                    ? Number(
+                        (
+                          battlenetRaw.lastProfileViewRefresh as Record<
+                            string,
+                            unknown
+                          >
+                        ).refreshed,
+                      )
+                    : undefined,
+                  failed: Number.isFinite(
+                    Number(
+                      (
+                        battlenetRaw.lastProfileViewRefresh as Record<
+                          string,
+                          unknown
+                        >
+                      ).failed,
+                    ),
+                  )
+                    ? Number(
+                        (
+                          battlenetRaw.lastProfileViewRefresh as Record<
+                            string,
+                            unknown
+                          >
+                        ).failed,
+                      )
+                    : undefined,
+                  skipped: Number.isFinite(
+                    Number(
+                      (
+                        battlenetRaw.lastProfileViewRefresh as Record<
+                          string,
+                          unknown
+                        >
+                      ).skipped,
+                    ),
+                  )
+                    ? Number(
+                        (
+                          battlenetRaw.lastProfileViewRefresh as Record<
+                            string,
+                            unknown
+                          >
+                        ).skipped,
+                      )
+                    : undefined,
+                  updatedAt: timestampToIso(
+                    (
+                      battlenetRaw.lastProfileViewRefresh as Record<
+                        string,
+                        unknown
+                      >
+                    ).updatedAt,
+                  ),
+                }
+              : null,
+          totalCharacters: Number.isFinite(Number(battlenetRaw.totalCharacters))
+            ? Number(battlenetRaw.totalCharacters)
+            : undefined,
+          scannedCharacters: Number.isFinite(
+            Number(battlenetRaw.scannedCharacters),
+          )
+            ? Number(battlenetRaw.scannedCharacters)
+            : undefined,
+          eligibleCharacters: Number.isFinite(
+            Number(battlenetRaw.eligibleCharacters),
+          )
+            ? Number(battlenetRaw.eligibleCharacters)
+            : undefined,
+          guildCharacters: Number.isFinite(Number(battlenetRaw.guildCharacters))
+            ? Number(battlenetRaw.guildCharacters)
+            : undefined,
+          otherCharacters: Number.isFinite(Number(battlenetRaw.otherCharacters))
+            ? Number(battlenetRaw.otherCharacters)
+            : undefined,
+          candidateCharacters:
+            normalizeBattleNetCandidateCharacters(battlenetRaw),
+          candidateSavedAt: candidateExpiryIso(battlenetRaw.candidateExpiresAt)
+            ? timestampToIso(battlenetRaw.candidateSavedAt)
+            : null,
+          candidateExpiresAt: candidateExpiryIso(
+            battlenetRaw.candidateExpiresAt,
+          ),
+        }
+      : null,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
     lastLoginAt: timestampToIso(data.lastLoginAt),
@@ -554,9 +922,15 @@ function normalizeProfile(profileId: string, data: Record<string, unknown>): Das
 }
 
 export async function getOwnProfilePath(session: DashboardSession) {
-  const profileId = session.profileId || (await createStableProfileId(session.provider, session.id));
+  const profileId =
+    session.profileId ||
+    (await createStableProfileId(session.provider, session.id));
   const profile = await getProfileById(profileId).catch(() => null);
-  if (profileNeedsSettingsSetup(profile || profileFromSession({ ...session, profileId }))) {
+  if (
+    profileNeedsSettingsSetup(
+      profile || profileFromSession({ ...session, profileId }),
+    )
+  ) {
     return profileSettingsSetupPath(profileId);
   }
   return `/profile/${profileId}`;
@@ -565,34 +939,55 @@ export async function getOwnProfilePath(session: DashboardSession) {
 export function canViewProfile(
   viewer: DashboardSession | null | undefined,
   profileId: string,
-  profile?: Pick<DashboardProfile, "role" | "profileId" | "provider" | "providerUserId" | "groupId" | "groupRank"> | null,
+  profile?: Pick<
+    DashboardProfile,
+    | "role"
+    | "profileId"
+    | "provider"
+    | "providerUserId"
+    | "groupId"
+    | "groupRank"
+  > | null,
 ) {
   if (!viewer) return false;
   const ownProfileId = viewer.profileId || "";
-  const isOwnProfile = Boolean(ownProfileId && ownProfileId === profileId)
-    || Boolean(profile && profile.provider === viewer.provider && profile.providerUserId === viewer.id);
+  const isOwnProfile =
+    Boolean(ownProfileId && ownProfileId === profileId) ||
+    Boolean(
+      profile &&
+      profile.provider === viewer.provider &&
+      profile.providerUserId === viewer.id,
+    );
   if (isOwnProfile) return true;
 
   if (canViewAllProfiles(viewer)) return true;
   if (!profile) return canViewProfiles(viewer);
   if (!canViewProfilesInOwnGroupOrBelow(viewer)) return false;
 
-  const viewerRank = Number.isFinite(Number(viewer.groupRank)) ? Math.floor(Number(viewer.groupRank)) : dashboardRoleRank(viewer.role);
-  const targetRank = Number.isFinite(Number(profile.groupRank)) ? Math.floor(Number(profile.groupRank)) : dashboardRoleRank(profile.role);
+  const viewerRank = Number.isFinite(Number(viewer.groupRank))
+    ? Math.floor(Number(viewer.groupRank))
+    : dashboardRoleRank(viewer.role);
+  const targetRank = Number.isFinite(Number(profile.groupRank))
+    ? Math.floor(Number(profile.groupRank))
+    : dashboardRoleRank(profile.role);
   return viewerRank >= targetRank;
 }
-
 
 export function canManageProfiles(viewer: DashboardSession | null | undefined) {
   return canManageApplications(viewer);
 }
 
-export function canManageOwnCharacters(viewer: DashboardSession | null | undefined, profileId: string) {
+export function canManageOwnCharacters(
+  viewer: DashboardSession | null | undefined,
+  profileId: string,
+) {
   return Boolean(viewer?.profileId && viewer.profileId === profileId);
 }
 
 export async function upsertProfileFromSession(session: DashboardSession) {
-  const profileId = session.profileId || (await createStableProfileId(session.provider, session.id));
+  const profileId =
+    session.profileId ||
+    (await createStableProfileId(session.provider, session.id));
   const profile: DashboardProfile = {
     profileId,
     provider: session.provider,
@@ -605,9 +1000,17 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     role: session.role,
     groupId: session.groupId || null,
     groupName: session.groupName || null,
-    groupRank: Number.isFinite(Number(session.groupRank)) ? Math.floor(Number(session.groupRank)) : dashboardRoleRank(session.role),
+    groupRank: Number.isFinite(Number(session.groupRank))
+      ? Math.floor(Number(session.groupRank))
+      : dashboardRoleRank(session.role),
     avatarUrl: session.avatar_url || session.avatar || null,
-    discordRoleIds: Array.from(new Set((session.discordRoleIds || []).map((roleId) => String(roleId || "").trim()).filter(Boolean))).slice(0, 100),
+    discordRoleIds: Array.from(
+      new Set(
+        (session.discordRoleIds || [])
+          .map((roleId) => String(roleId || "").trim())
+          .filter(Boolean),
+      ),
+    ).slice(0, 100),
     characters: [],
     mainCharacterKey: null,
     nicknameCharacterKeys: [],
@@ -617,28 +1020,47 @@ export async function upsertProfileFromSession(session: DashboardSession) {
   };
 
   if (!hasFirebaseProfileConfig()) {
-    return { profile, stored: false, reason: "firebase-not-configured" as const };
+    return {
+      profile,
+      stored: false,
+      reason: "firebase-not-configured" as const,
+    };
   }
 
   const db = getFirebaseAdminDb();
   const ref = db.collection("dashboardProfiles").doc(profileId);
   const snapshot = await ref.get();
-  await ref.set({
-    profileId,
-    provider: profile.provider,
-    providerUserId: profile.providerUserId,
-    displayName: profile.displayName,
-    login: profile.login || null,
-    role: profile.role,
-    groupId: profile.groupId || null,
-    groupName: profile.groupName || null,
-    groupRank: Number.isFinite(Number(profile.groupRank)) ? Math.floor(Number(profile.groupRank)) : fallbackProfileRank(profile.role),
-    avatarUrl: profile.avatarUrl || null,
-    discordRoleIds: profile.discordRoleIds,
-    updatedAt: FieldValue.serverTimestamp(),
-    lastLoginAt: FieldValue.serverTimestamp(),
-    ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), characters: [], mainCharacterKey: null, nicknameCharacterKeys: [], raidRolePreference: null, publicNameMode: "name", grammaticalGender: "unspecified" }),
-  }, { merge: true });
+  await ref.set(
+    {
+      profileId,
+      provider: profile.provider,
+      providerUserId: profile.providerUserId,
+      displayName: profile.displayName,
+      login: profile.login || null,
+      role: profile.role,
+      groupId: profile.groupId || null,
+      groupName: profile.groupName || null,
+      groupRank: Number.isFinite(Number(profile.groupRank))
+        ? Math.floor(Number(profile.groupRank))
+        : fallbackProfileRank(profile.role),
+      avatarUrl: profile.avatarUrl || null,
+      discordRoleIds: profile.discordRoleIds,
+      updatedAt: FieldValue.serverTimestamp(),
+      lastLoginAt: FieldValue.serverTimestamp(),
+      ...(snapshot.exists
+        ? {}
+        : {
+            createdAt: FieldValue.serverTimestamp(),
+            characters: [],
+            mainCharacterKey: null,
+            nicknameCharacterKeys: [],
+            raidRolePreference: null,
+            publicNameMode: "name",
+            grammaticalGender: "unspecified",
+          }),
+    },
+    { merge: true },
+  );
 
   return { profile, stored: true };
 }
@@ -647,21 +1069,33 @@ export async function getProfileById(profileId: string) {
   if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return null;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   const snapshot = await ref.get();
   if (!snapshot.exists) return null;
 
   let data = snapshot.data() || {};
-  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
-  if (hasCandidateStorage(battlenetRaw) && !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) {
+  const battlenetRaw =
+    data.battlenet && typeof data.battlenet === "object"
+      ? (data.battlenet as Record<string, unknown>)
+      : null;
+  if (
+    hasCandidateStorage(battlenetRaw) &&
+    !isFutureTimestamp(battlenetRaw?.candidateExpiresAt)
+  ) {
     data = stripCandidateStorageFromData(data);
-    await ref.update({
-      ...candidateStorageDeleteUpdate(),
-      updatedAt: FieldValue.serverTimestamp(),
-    }).catch(() => undefined);
+    await ref
+      .update({
+        ...candidateStorageDeleteUpdate(),
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+      .catch(() => undefined);
   }
 
-  return resolveProfileAccessForCurrentGroups(normalizeProfile(profileId, data));
+  return resolveProfileAccessForCurrentGroups(
+    normalizeProfile(profileId, data),
+  );
 }
 
 export async function getProfileByDiscordUserId(discordUserId: string) {
@@ -670,7 +1104,10 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   if (!hasFirebaseProfileConfig()) return null;
 
   // Fast path: current stable document id. This is what new Discord logins use.
-  const stableProfileId = await createStableProfileId("discord", cleanDiscordId);
+  const stableProfileId = await createStableProfileId(
+    "discord",
+    cleanDiscordId,
+  );
   const stableProfile = await getProfileById(stableProfileId);
   if (stableProfile) return stableProfile;
 
@@ -679,14 +1116,18 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   // document id changes. Querying Firestore by providerUserId keeps already
   // stored dashboardProfiles documents usable for Worker lookups.
   const db = getFirebaseAdminDb();
-  const byProviderUserId = await db.collection("dashboardProfiles")
+  const byProviderUserId = await db
+    .collection("dashboardProfiles")
     .where("providerUserId", "==", cleanDiscordId)
     .limit(5)
     .get();
 
   for (const doc of byProviderUserId.docs) {
     const profile = normalizeProfile(doc.id, doc.data() || {});
-    if (profile.provider === "discord" || profile.providerUserId === cleanDiscordId) {
+    if (
+      profile.provider === "discord" ||
+      profile.providerUserId === cleanDiscordId
+    ) {
       return resolveProfileAccessForCurrentGroups(profile);
     }
   }
@@ -694,20 +1135,22 @@ export async function getProfileByDiscordUserId(discordUserId: string) {
   // Older experiments may have stored the Discord id under a direct field.
   // Keep these fallbacks cheap and limited.
   for (const field of ["discordId", "discordUserId"]) {
-    const snapshot = await db.collection("dashboardProfiles")
+    const snapshot = await db
+      .collection("dashboardProfiles")
       .where(field, "==", cleanDiscordId)
       .limit(1)
       .get()
       .catch(() => null);
 
     const doc = snapshot?.docs?.[0];
-    if (doc) return resolveProfileAccessForCurrentGroups(normalizeProfile(doc.id, doc.data() || {}));
+    if (doc)
+      return resolveProfileAccessForCurrentGroups(
+        normalizeProfile(doc.id, doc.data() || {}),
+      );
   }
 
   return null;
 }
-
-
 
 export async function listDashboardProfiles(params: {
   viewer: DashboardSession;
@@ -717,65 +1160,106 @@ export async function listDashboardProfiles(params: {
   if (!hasFirebaseProfileConfig()) return [];
 
   const safeLimit = Math.max(10, Math.min(200, Number(params.limit || 120)));
-  const query = String(params.query || "").trim().toLocaleLowerCase("uk");
+  const query = String(params.query || "")
+    .trim()
+    .toLocaleLowerCase("uk");
   const [snapshot, groups] = await Promise.all([
     getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get(),
     listAccessGroups().catch(() => [] as AccessGroup[]),
   ]);
   const profiles: DashboardProfile[] = snapshot.docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
-    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile)
-    .filter((profile: DashboardProfile) => canViewProfile(params.viewer, profile.profileId, profile));
+    .map((profile: DashboardProfile) =>
+      groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
+    )
+    .filter((profile: DashboardProfile) =>
+      canViewProfile(params.viewer, profile.profileId, profile),
+    );
 
   const filtered = query
-    ? profiles.filter((profile: DashboardProfile) => [
-        getProfilePublicName(profile),
-        getProfileSiteName(profile),
-        getProfileServerStyleName(profile),
-        profile.displayName,
-        profile.preferredName,
-        profile.login,
-        profile.role,
-        profile.provider,
-        profile.characters.map((item: ProfileCharacter) => item.name).join(" "),
-        profile.characters.map((item: ProfileCharacter) => item.realmName || item.realmSlug).join(" "),
-        getMainCharacter(profile)?.name,
-      ].some((value) => String(value || "").toLocaleLowerCase("uk").includes(query)))
+    ? profiles.filter((profile: DashboardProfile) =>
+        [
+          getProfilePublicName(profile),
+          getProfileSiteName(profile),
+          getProfileServerStyleName(profile),
+          profile.displayName,
+          profile.preferredName,
+          profile.login,
+          profile.role,
+          profile.provider,
+          profile.characters
+            .map((item: ProfileCharacter) => item.name)
+            .join(" "),
+          profile.characters
+            .map((item: ProfileCharacter) => item.realmName || item.realmSlug)
+            .join(" "),
+          getMainCharacter(profile)?.name,
+        ].some((value) =>
+          String(value || "")
+            .toLocaleLowerCase("uk")
+            .includes(query),
+        ),
+      )
     : profiles;
 
   return filtered.sort((a: DashboardProfile, b: DashboardProfile) => {
-    const aTime = Date.parse(a.lastLoginAt || a.updatedAt || a.createdAt || "") || 0;
-    const bTime = Date.parse(b.lastLoginAt || b.updatedAt || b.createdAt || "") || 0;
-    return bTime - aTime || getProfilePublicName(a).localeCompare(getProfilePublicName(b), "uk");
+    const aTime =
+      Date.parse(a.lastLoginAt || a.updatedAt || a.createdAt || "") || 0;
+    const bTime =
+      Date.parse(b.lastLoginAt || b.updatedAt || b.createdAt || "") || 0;
+    return (
+      bTime - aTime ||
+      getProfilePublicName(a).localeCompare(getProfilePublicName(b), "uk")
+    );
   });
 }
 
-export async function listDashboardProfilesForDiscordSync(limit = 1000): Promise<DashboardProfile[]> {
+export async function listDashboardProfilesForDiscordSync(
+  limit = 1000,
+): Promise<DashboardProfile[]> {
   if (!hasFirebaseProfileConfig()) return [];
-  const safeLimit = Math.max(10, Math.min(1000, Math.floor(Number(limit) || 1000)));
-  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(safeLimit).get();
+  const safeLimit = Math.max(
+    10,
+    Math.min(1000, Math.floor(Number(limit) || 1000)),
+  );
+  const snapshot = await getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .limit(safeLimit)
+    .get();
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
   return snapshot.docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
-    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile);
+    .map((profile: DashboardProfile) =>
+      groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
+    );
 }
 
-export async function listAllDashboardProfilesForDiscordSync(maxTotalInput?: unknown): Promise<DashboardProfile[]> {
+export async function listAllDashboardProfilesForDiscordSync(
+  maxTotalInput?: unknown,
+): Promise<DashboardProfile[]> {
   if (!hasFirebaseProfileConfig()) return [];
 
   const maxTotalNumber = Number(maxTotalInput);
-  const maxTotal = Number.isFinite(maxTotalNumber) && maxTotalNumber > 0
-    ? Math.min(50_000, Math.floor(maxTotalNumber))
-    : 50_000;
+  const maxTotal =
+    Number.isFinite(maxTotalNumber) && maxTotalNumber > 0
+      ? Math.min(50_000, Math.floor(maxTotalNumber))
+      : 50_000;
   const pageSize = 500;
   const db = getFirebaseAdminDb();
-  const baseQuery = db.collection("dashboardProfiles").orderBy(FieldPath.documentId());
+  const baseQuery = db
+    .collection("dashboardProfiles")
+    .orderBy(FieldPath.documentId());
   const docs: any[] = [];
   let cursor: any = null;
 
   while (docs.length < maxTotal) {
-    let query: any = baseQuery.limit(Math.min(pageSize, maxTotal - docs.length));
-    if (cursor) query = baseQuery.startAfter(cursor).limit(Math.min(pageSize, maxTotal - docs.length));
+    let query: any = baseQuery.limit(
+      Math.min(pageSize, maxTotal - docs.length),
+    );
+    if (cursor)
+      query = baseQuery
+        .startAfter(cursor)
+        .limit(Math.min(pageSize, maxTotal - docs.length));
 
     const snapshot = await query.get();
     if (snapshot.empty) break;
@@ -787,12 +1271,15 @@ export async function listAllDashboardProfilesForDiscordSync(maxTotalInput?: unk
   const groups = await listAccessGroups().catch(() => [] as AccessGroup[]);
   return docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
-    .map((profile: DashboardProfile) => groups.length ? applyCurrentProfileGroup(profile, groups) : profile);
+    .map((profile: DashboardProfile) =>
+      groups.length ? applyCurrentProfileGroup(profile, groups) : profile,
+    );
 }
 
 export type CharacterProfileLink = {
   profileId: string;
   displayName: string;
+  warcraftLogs?: WarcraftLogsStoredSnapshot | null;
 };
 
 type CharacterProfileLinksCacheEntry = {
@@ -802,11 +1289,15 @@ type CharacterProfileLinksCacheEntry = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __mistblossomCharacterProfileLinksCache: CharacterProfileLinksCacheEntry | undefined;
+  var __mistblossomCharacterProfileLinksCache:
+    | CharacterProfileLinksCacheEntry
+    | undefined;
 }
 
 function characterProfileLinksCacheTtlMs() {
-  const parsed = Number(process.env.PROFILE_CHARACTER_LINK_CACHE_SECONDS || 120);
+  const parsed = Number(
+    process.env.PROFILE_CHARACTER_LINK_CACHE_SECONDS || 120,
+  );
   if (!Number.isFinite(parsed)) return 120_000;
   return Math.max(30, Math.min(900, Math.floor(parsed))) * 1000;
 }
@@ -821,7 +1312,9 @@ function characterProfileLinkKeys(character: ProfileCharacter) {
   if (existingKey) keys.add(existingKey);
 
   const region = character.region || "eu";
-  const realmValues = [character.realmSlug, character.realmName].filter(Boolean);
+  const realmValues = [character.realmSlug, character.realmName].filter(
+    Boolean,
+  );
   const nameValues = [character.normalizedName, character.name].filter(Boolean);
 
   for (const realm of realmValues) {
@@ -834,6 +1327,63 @@ function characterProfileLinkKeys(character: ProfileCharacter) {
   return keys;
 }
 
+export async function saveProfileCharacterWarcraftLogsSnapshot(input: {
+  profileId: string;
+  characterKey?: string | null;
+  region?: unknown;
+  realmSlug?: unknown;
+  name?: unknown;
+  warcraftLogs: WarcraftLogsStoredSnapshot | null;
+}) {
+  const cleanProfileId = String(input.profileId || "").trim();
+  const warcraftLogs = normalizeWarcraftLogsStoredSnapshot(input.warcraftLogs);
+  if (!cleanProfileId || !warcraftLogs || !hasFirebaseProfileConfig()) {
+    return false;
+  }
+
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(cleanProfileId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) return false;
+
+  const profile = normalizeProfile(cleanProfileId, snapshot.data() || {});
+  const lookupKeys = new Set<string>();
+  const rawCharacterKey = normalizeCharacterKey(input.characterKey);
+  if (rawCharacterKey) lookupKeys.add(rawCharacterKey);
+  const battleNetKey = buildBattleNetCharacterKey(
+    input.region || "eu",
+    input.realmSlug,
+    input.name,
+  );
+  if (battleNetKey) lookupKeys.add(battleNetKey);
+  if (!lookupKeys.size) return false;
+
+  let changed = false;
+  const characters = profile.characters.map((character) => {
+    const keys = characterProfileLinkKeys(character);
+    const matches = [...lookupKeys].some((key) => keys.has(key));
+    if (!matches) return character;
+    changed = true;
+    return { ...character, warcraftLogs };
+  });
+
+  if (!changed) return false;
+  await ref.set(
+    {
+      characters,
+      updatedAt: FieldValue.serverTimestamp(),
+      battlenet: {
+        ...(profile.battlenet || {}),
+        lastCharacterRefreshAt: FieldValue.serverTimestamp(),
+      },
+    },
+    { merge: true },
+  );
+  clearCharacterProfileLinksCache();
+  return true;
+}
+
 export async function listCharacterProfileLinks() {
   const emptyLinks = new Map<string, CharacterProfileLink>();
   if (!hasFirebaseProfileConfig()) return emptyLinks;
@@ -844,9 +1394,17 @@ export async function listCharacterProfileLinks() {
     return new Map(cached.links);
   }
 
-  const contenders = new Map<string, { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }>();
-  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(1000).get();
-  const profiles = snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
+  const contenders = new Map<
+    string,
+    { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }
+  >();
+  const snapshot = await getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .limit(1000)
+    .get();
+  const profiles = snapshot.docs.map((doc: any) =>
+    normalizeProfile(doc.id, doc.data() || {}),
+  );
 
   for (const profile of profiles) {
     const displayName = getProfilePublicName(profile);
@@ -855,7 +1413,11 @@ export async function listCharacterProfileLinks() {
         const existing = contenders.get(key);
         if (!existing) {
           contenders.set(key, {
-            link: { profileId: profile.profileId, displayName },
+            link: {
+              profileId: profile.profileId,
+              displayName,
+              warcraftLogs: character.warcraftLogs || null,
+            },
             profileIds: new Set([profile.profileId]),
             duplicate: false,
           });
@@ -875,7 +1437,10 @@ export async function listCharacterProfileLinks() {
     if (!contender.duplicate) links.set(key, contender.link);
   }
 
-  globalThis.__mistblossomCharacterProfileLinksCache = { checkedAt: Date.now(), links: new Map(links) };
+  globalThis.__mistblossomCharacterProfileLinksCache = {
+    checkedAt: Date.now(),
+    links: new Map(links),
+  };
   return links;
 }
 
@@ -893,7 +1458,9 @@ export class ProfileCharacterConflictError extends Error {
 
   constructor(conflicts: ProfileCharacterConflict[]) {
     const first = conflicts[0];
-    const character = first ? `${first.characterName}${first.realmName ? `-${first.realmName}` : ""}` : "персонаж";
+    const character = first
+      ? `${first.characterName}${first.realmName ? `-${first.realmName}` : ""}`
+      : "персонаж";
     super(`${character} уже привʼязаний до іншого профілю.`);
     this.name = "ProfileCharacterConflictError";
     this.conflicts = conflicts;
@@ -915,18 +1482,32 @@ function normalizedConflictCharacters(inputs: unknown[]) {
 export async function findProfileCharacterConflicts(
   profileId: string,
   characterInputs: unknown[],
-  options: { maxProfiles?: number; maxConflicts?: number; excludeProviderUserId?: string | null } = {},
+  options: {
+    maxProfiles?: number;
+    maxConflicts?: number;
+    excludeProviderUserId?: string | null;
+  } = {},
 ): Promise<ProfileCharacterConflict[]> {
   const requestedByKey = normalizedConflictCharacters(characterInputs);
   const cleanProfileId = String(profileId || "").trim();
   if (!requestedByKey.size || !hasFirebaseProfileConfig()) return [];
 
-  const maxProfiles = Math.max(100, Math.min(50_000, Math.floor(Number(options.maxProfiles) || 50_000)));
-  const maxConflicts = Math.max(1, Math.min(100, Math.floor(Number(options.maxConflicts) || 25)));
-  const excludedProviderUserId = String(options.excludeProviderUserId || "").trim();
+  const maxProfiles = Math.max(
+    100,
+    Math.min(50_000, Math.floor(Number(options.maxProfiles) || 50_000)),
+  );
+  const maxConflicts = Math.max(
+    1,
+    Math.min(100, Math.floor(Number(options.maxConflicts) || 25)),
+  );
+  const excludedProviderUserId = String(
+    options.excludeProviderUserId || "",
+  ).trim();
   const pageSize = 500;
   const db = getFirebaseAdminDb();
-  const baseQuery = db.collection("dashboardProfiles").orderBy(FieldPath.documentId());
+  const baseQuery = db
+    .collection("dashboardProfiles")
+    .orderBy(FieldPath.documentId());
   const conflicts: ProfileCharacterConflict[] = [];
   const seen = new Set<string>();
   let cursor: any = null;
@@ -934,7 +1515,10 @@ export async function findProfileCharacterConflicts(
 
   while (checked < maxProfiles && conflicts.length < maxConflicts) {
     let query: any = baseQuery.limit(Math.min(pageSize, maxProfiles - checked));
-    if (cursor) query = baseQuery.startAfter(cursor).limit(Math.min(pageSize, maxProfiles - checked));
+    if (cursor)
+      query = baseQuery
+        .startAfter(cursor)
+        .limit(Math.min(pageSize, maxProfiles - checked));
 
     const snapshot = await query.get();
     if (snapshot.empty) break;
@@ -944,7 +1528,11 @@ export async function findProfileCharacterConflicts(
     for (const doc of snapshot.docs) {
       if (doc.id === cleanProfileId) continue;
       const profile = normalizeProfile(doc.id, doc.data() || {});
-      if (excludedProviderUserId && profile.providerUserId === excludedProviderUserId) continue;
+      if (
+        excludedProviderUserId &&
+        profile.providerUserId === excludedProviderUserId
+      )
+        continue;
       if (!profile.characters.length) continue;
 
       for (const character of profile.characters) {
@@ -973,19 +1561,36 @@ export async function findProfileCharacterConflicts(
   return conflicts;
 }
 
-export async function assertNoProfileCharacterConflicts(profileId: string, characterInputs: unknown[]) {
+export async function assertNoProfileCharacterConflicts(
+  profileId: string,
+  characterInputs: unknown[],
+) {
   let excludeProviderUserId = "";
-  if (/^id[a-f0-9]{16,40}$/.test(String(profileId || "")) && hasFirebaseProfileConfig()) {
-    const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).get().catch(() => null);
-    excludeProviderUserId = String(snapshot?.data()?.providerUserId || "").trim();
+  if (
+    /^id[a-f0-9]{16,40}$/.test(String(profileId || "")) &&
+    hasFirebaseProfileConfig()
+  ) {
+    const snapshot = await getFirebaseAdminDb()
+      .collection("dashboardProfiles")
+      .doc(profileId)
+      .get()
+      .catch(() => null);
+    excludeProviderUserId = String(
+      snapshot?.data()?.providerUserId || "",
+    ).trim();
   }
-  const conflicts = await findProfileCharacterConflicts(profileId, characterInputs, { excludeProviderUserId });
+  const conflicts = await findProfileCharacterConflicts(
+    profileId,
+    characterInputs,
+    { excludeProviderUserId },
+  );
   if (conflicts.length) throw new ProfileCharacterConflictError(conflicts);
   return true;
 }
 
-
-export function profileFromSession(session: DashboardSession): DashboardProfile {
+export function profileFromSession(
+  session: DashboardSession,
+): DashboardProfile {
   return {
     profileId: session.profileId || "",
     provider: session.provider,
@@ -998,7 +1603,9 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
     role: session.role,
     groupId: session.groupId || null,
     groupName: session.groupName || null,
-    groupRank: Number.isFinite(Number(session.groupRank)) ? Math.floor(Number(session.groupRank)) : dashboardRoleRank(session.role),
+    groupRank: Number.isFinite(Number(session.groupRank))
+      ? Math.floor(Number(session.groupRank))
+      : dashboardRoleRank(session.role),
     avatarUrl: session.avatar_url || session.avatar || null,
     discordRoleIds: session.discordRoleIds || [],
     characters: [],
@@ -1010,19 +1617,27 @@ export function profileFromSession(session: DashboardSession): DashboardProfile 
   };
 }
 
-export async function saveBattleNetSyncState(profileId: string, scan: {
-  region: BattleNetRegion | string;
-  totalCharacters: number;
-  scannedCharacters: number;
-  eligibleCharacters: number;
-  guildCharacters?: number;
-  otherCharacters?: number;
-  characters?: BattleNetCharacterCandidate[];
-}, account?: BattleNetAccountInfo | null) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function saveBattleNetSyncState(
+  profileId: string,
+  scan: {
+    region: BattleNetRegion | string;
+    totalCharacters: number;
+    scannedCharacters: number;
+    eligibleCharacters: number;
+    guildCharacters?: number;
+    otherCharacters?: number;
+    characters?: BattleNetCharacterCandidate[];
+  },
+  account?: BattleNetAccountInfo | null,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   const snapshot = await ref.get();
   const freshByKey = new Map<string, ProfileCharacter>();
 
@@ -1032,10 +1647,14 @@ export async function saveBattleNetSyncState(profileId: string, scan: {
   }
 
   const candidateCharacters = Array.from(freshByKey.values());
-  const candidateExpiresAt = Timestamp.fromDate(new Date(Date.now() + getBattleNetCandidateTtlMs()));
+  const candidateExpiresAt = Timestamp.fromDate(
+    new Date(Date.now() + getBattleNetCandidateTtlMs()),
+  );
   const guildCharacters = Number.isFinite(Number(scan.guildCharacters))
     ? Math.max(0, Math.floor(Number(scan.guildCharacters)))
-    : candidateCharacters.filter((character) => Boolean(character.verifiedGuild)).length;
+    : candidateCharacters.filter((character) =>
+        Boolean(character.verifiedGuild),
+      ).length;
 
   const payload: Record<string, unknown> = {
     battlenet: {
@@ -1093,24 +1712,40 @@ export async function getProfileBattleNetCandidates(profileId: string) {
   return profile?.battlenet?.candidateCharacters || [];
 }
 
-export async function clearProfileBattleNetCandidates(profileId: string, expectedExpiresAt?: string | null) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig()) return false;
+export async function clearProfileBattleNetCandidates(
+  profileId: string,
+  expectedExpiresAt?: string | null,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig())
+    return false;
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   const snapshot = await ref.get();
   if (!snapshot.exists) return false;
 
   const data = snapshot.data() || {};
-  const battlenetRaw = data.battlenet && typeof data.battlenet === "object" ? data.battlenet as Record<string, unknown> : null;
+  const battlenetRaw =
+    data.battlenet && typeof data.battlenet === "object"
+      ? (data.battlenet as Record<string, unknown>)
+      : null;
   if (!hasCandidateStorage(battlenetRaw)) return false;
 
   const currentExpiresMs = timestampMillis(battlenetRaw?.candidateExpiresAt);
-  const expectedExpiresMs = expectedExpiresAt ? timestampMillis(expectedExpiresAt) : null;
+  const expectedExpiresMs = expectedExpiresAt
+    ? timestampMillis(expectedExpiresAt)
+    : null;
 
   // A stale tab must not clear a freshly refreshed candidate list.
   // But once the stored list is already expired, clear it even if string formatting
   // differs between Firestore Timestamp and ISO sent by the client.
-  if (expectedExpiresMs !== null && currentExpiresMs !== null && currentExpiresMs > expectedExpiresMs + 1000 && isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) {
+  if (
+    expectedExpiresMs !== null &&
+    currentExpiresMs !== null &&
+    currentExpiresMs > expectedExpiresMs + 1000 &&
+    isFutureTimestamp(battlenetRaw?.candidateExpiresAt)
+  ) {
     return false;
   }
   if (isFutureTimestamp(battlenetRaw?.candidateExpiresAt)) return false;
@@ -1122,17 +1757,31 @@ export async function clearProfileBattleNetCandidates(profileId: string, expecte
   return true;
 }
 
-export async function removeProfileBattleNetCandidates(profileId: string, characterKeys: string[]) {
-  const removeKeys = new Set((characterKeys || []).map((key) => cleanCharacterKey(key)).filter(Boolean));
-  if (!removeKeys.size || !/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig()) return;
+export async function removeProfileBattleNetCandidates(
+  profileId: string,
+  characterKeys: string[],
+) {
+  const removeKeys = new Set(
+    (characterKeys || []).map((key) => cleanCharacterKey(key)).filter(Boolean),
+  );
+  if (
+    !removeKeys.size ||
+    !/^id[a-f0-9]{16,40}$/.test(profileId) ||
+    !hasFirebaseProfileConfig()
+  )
+    return;
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) return;
 
     const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const remaining = (profile.battlenet?.candidateCharacters || []).filter((candidate) => !removeKeys.has(candidate.key));
+    const remaining = (profile.battlenet?.candidateCharacters || []).filter(
+      (candidate) => !removeKeys.has(candidate.key),
+    );
     if (!remaining.length) {
       transaction.update(ref, {
         ...candidateStorageDeleteUpdate(),
@@ -1141,16 +1790,25 @@ export async function removeProfileBattleNetCandidates(profileId: string, charac
       return;
     }
 
-    transaction.set(ref, {
-      battlenet: {
-        candidateCharacters: remaining,
+    transaction.set(
+      ref,
+      {
+        battlenet: {
+          candidateCharacters: remaining,
+        },
+        updatedAt: FieldValue.serverTimestamp(),
       },
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+      { merge: true },
+    );
   });
 }
 
-type ProfileExternalRefreshReason = "profile_view" | "raid_signup" | "manual" | "cron" | "background_api";
+type ProfileExternalRefreshReason =
+  | "profile_view"
+  | "raid_signup"
+  | "manual"
+  | "cron"
+  | "background_api";
 
 type ProfileExternalRefreshOptions = {
   reason?: ProfileExternalRefreshReason;
@@ -1174,17 +1832,26 @@ type ProfileRefreshLock = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __mistblossomProfileExternalRefreshLocks: Map<string, ProfileRefreshLock> | undefined;
+  var __mistblossomProfileExternalRefreshLocks:
+    | Map<string, ProfileRefreshLock>
+    | undefined;
 }
 
 function profileRefreshLocks() {
   if (!globalThis.__mistblossomProfileExternalRefreshLocks) {
-    globalThis.__mistblossomProfileExternalRefreshLocks = new Map<string, ProfileRefreshLock>();
+    globalThis.__mistblossomProfileExternalRefreshLocks = new Map<
+      string,
+      ProfileRefreshLock
+    >();
   }
   return globalThis.__mistblossomProfileExternalRefreshLocks;
 }
 
-function profileRefreshConcurrency(total: number, configuredConcurrency = 0, configuredMaxConcurrency = 8) {
+function profileRefreshConcurrency(
+  total: number,
+  configuredConcurrency = 0,
+  configuredMaxConcurrency = 8,
+) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
     concurrency: configuredConcurrency > 0 ? configuredConcurrency : undefined,
@@ -1202,7 +1869,11 @@ function profileCronRefreshLimit() {
   return readIntegerEnv("PROFILE_EXTERNAL_REFRESH_BATCH_LIMIT", 50, 1, 500);
 }
 
-function profileCronRefreshConcurrency(total: number, configuredConcurrency = 0, configuredMaxConcurrency = 6) {
+function profileCronRefreshConcurrency(
+  total: number,
+  configuredConcurrency = 0,
+  configuredMaxConcurrency = 6,
+) {
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
     concurrency: configuredConcurrency > 0 ? configuredConcurrency : undefined,
@@ -1211,20 +1882,36 @@ function profileCronRefreshConcurrency(total: number, configuredConcurrency = 0,
   });
 }
 
-function lastProfileRefreshMillis(profile: DashboardProfile | null | undefined, reason: ProfileExternalRefreshReason) {
-  const candidate = reason === "profile_view"
-    ? profile?.battlenet?.lastProfileViewRefreshAt || profile?.battlenet?.lastCharacterRefreshAt || profile?.battlenet?.lastSyncAt
-    : profile?.battlenet?.lastCharacterRefreshAt || profile?.battlenet?.lastSyncAt;
+function lastProfileRefreshMillis(
+  profile: DashboardProfile | null | undefined,
+  reason: ProfileExternalRefreshReason,
+) {
+  const candidate =
+    reason === "profile_view"
+      ? profile?.battlenet?.lastProfileViewRefreshAt ||
+        profile?.battlenet?.lastCharacterRefreshAt ||
+        profile?.battlenet?.lastSyncAt
+      : profile?.battlenet?.lastCharacterRefreshAt ||
+        profile?.battlenet?.lastSyncAt;
   return timestampMillis(candidate);
 }
 
-function isProfileRefreshFresh(profile: DashboardProfile | null | undefined, reason: ProfileExternalRefreshReason, minSpacingSeconds: number) {
+function isProfileRefreshFresh(
+  profile: DashboardProfile | null | undefined,
+  reason: ProfileExternalRefreshReason,
+  minSpacingSeconds: number,
+) {
   if (minSpacingSeconds <= 0) return false;
   const last = lastProfileRefreshMillis(profile, reason);
-  return typeof last === "number" && Date.now() - last < minSpacingSeconds * 1000;
+  return (
+    typeof last === "number" && Date.now() - last < minSpacingSeconds * 1000
+  );
 }
 
-function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter): ProfileCharacter {
+function mergeFreshCharacter(
+  current: ProfileCharacter,
+  fresh: ProfileCharacter,
+): ProfileCharacter {
   return {
     ...current,
     ...fresh,
@@ -1233,52 +1920,118 @@ function mergeFreshCharacter(current: ProfileCharacter, fresh: ProfileCharacter)
     isMain: current.isMain,
     verifiedGuild: fresh.verifiedGuild,
     raiderIo: fresh.raiderIo ?? current.raiderIo ?? null,
-    lastSeenAt: fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
+    warcraftLogs: fresh.warcraftLogs ?? current.warcraftLogs ?? null,
+    lastSeenAt:
+      fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
   };
 }
 
 async function refreshCharacterSnapshot(current: ProfileCharacter) {
-  const [battleNetSnapshot, raiderIoSnapshot] = await Promise.all([
-    fetchBattleNetCharacterSnapshot(current).catch(() => null),
-    fetchRaiderIoCharacterProfile({
-      region: current.region || "eu",
-      realmSlug: current.realmSlug,
-      name: current.normalizedName || current.name,
-    }).catch(() => null),
-  ]);
+  const characterRegion = current.region || "eu";
+  const characterName = current.normalizedName || current.name;
+  const [battleNetSnapshot, raiderIoSnapshot, warcraftLogsSummary] =
+    await Promise.all([
+      fetchBattleNetCharacterSnapshot(current).catch(() => null),
+      fetchRaiderIoCharacterProfile({
+        region: characterRegion,
+        realmSlug: current.realmSlug,
+        name: characterName,
+      }).catch(() => null),
+      fetchWarcraftLogsCharacterSummary({
+        region: characterRegion,
+        realmSlug: current.realmSlug,
+        name: current.name,
+        mode: "roster",
+      }).catch(() => null),
+    ]);
 
-  if (!battleNetSnapshot && !raiderIoSnapshot) return null;
+  if (!battleNetSnapshot && !raiderIoSnapshot && !warcraftLogsSummary)
+    return null;
 
   const source = battleNetSnapshot || current;
-  const normalized = normalizeCharacter({
-    ...source,
-    key: current.key,
-    isMain: current.isMain,
-    raiderIo: stripRaiderIoRaw(raiderIoSnapshot) || current.raiderIo || null,
-    itemLevel: battleNetSnapshot?.itemLevel ?? raiderIoSnapshot?.itemLevelEquipped ?? current.itemLevel ?? null,
-    avatarUrl: battleNetSnapshot?.avatarUrl || current.avatarUrl || raiderIoSnapshot?.thumbnailUrl || null,
-    profileUrl: battleNetSnapshot?.profileUrl || current.profileUrl || raiderIoSnapshot?.profileUrl || "#",
-    lastSeenAt: battleNetSnapshot?.lastSeenAt || raiderIoSnapshot?.updatedAt || current.lastSeenAt || new Date().toISOString(),
-  }, current.isMain ? current.key : null);
+  const normalized = normalizeCharacter(
+    {
+      ...source,
+      key: current.key,
+      isMain: current.isMain,
+      raiderIo: stripRaiderIoRaw(raiderIoSnapshot) || current.raiderIo || null,
+      warcraftLogs: warcraftLogsSummary
+        ? buildWarcraftLogsStoredSnapshot(
+            warcraftLogsSummary,
+            normalizeWowRole(current.activeSpecRole) || "unknown",
+          )
+        : current.warcraftLogs || null,
+      itemLevel:
+        battleNetSnapshot?.itemLevel ??
+        raiderIoSnapshot?.itemLevelEquipped ??
+        current.itemLevel ??
+        null,
+      avatarUrl:
+        battleNetSnapshot?.avatarUrl ||
+        current.avatarUrl ||
+        raiderIoSnapshot?.thumbnailUrl ||
+        null,
+      profileUrl:
+        battleNetSnapshot?.profileUrl ||
+        current.profileUrl ||
+        raiderIoSnapshot?.profileUrl ||
+        "#",
+      lastSeenAt:
+        battleNetSnapshot?.lastSeenAt ||
+        raiderIoSnapshot?.updatedAt ||
+        current.lastSeenAt ||
+        new Date().toISOString(),
+    },
+    current.isMain ? current.key : null,
+  );
 
   return normalized;
 }
 
-async function refreshProfileExternalDataInternal(profile: DashboardProfile, options: Required<ProfileExternalRefreshOptions>): Promise<ProfileExternalRefreshResult> {
-  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) {
-    return { profile: profile || null, refreshed: 0, failed: 0, skipped: 0, locked: false };
+async function refreshProfileExternalDataInternal(
+  profile: DashboardProfile,
+  options: Required<ProfileExternalRefreshOptions>,
+): Promise<ProfileExternalRefreshResult> {
+  if (
+    !profile?.profileId ||
+    !profile.characters.length ||
+    !hasFirebaseProfileConfig()
+  ) {
+    return {
+      profile: profile || null,
+      refreshed: 0,
+      failed: 0,
+      skipped: 0,
+      locked: false,
+    };
   }
 
-  if (!options.force && isProfileRefreshFresh(profile, options.reason, options.minSpacingSeconds)) {
-    return { profile, refreshed: 0, failed: 0, skipped: profile.characters.length, locked: false };
+  if (
+    !options.force &&
+    isProfileRefreshFresh(profile, options.reason, options.minSpacingSeconds)
+  ) {
+    return {
+      profile,
+      refreshed: 0,
+      failed: 0,
+      skipped: profile.characters.length,
+      locked: false,
+    };
   }
 
   const characters = (() => {
-    const mainKey = profile.mainCharacterKey || profile.characters[0]?.key || "";
-    const main = profile.characters.find((item) => item.key === mainKey) || profile.characters[0] || null;
+    const mainKey =
+      profile.mainCharacterKey || profile.characters[0]?.key || "";
+    const main =
+      profile.characters.find((item) => item.key === mainKey) ||
+      profile.characters[0] ||
+      null;
     const rest = profile.characters.filter((item) => item.key !== main?.key);
     const ordered = main ? [main, ...rest] : rest;
-    return ordered.slice(0, Math.max(0, Math.min(options.maxCharacters, ordered.length)));
+    return ordered.slice(
+      0,
+      Math.max(0, Math.min(options.maxCharacters, ordered.length)),
+    );
   })();
 
   if (!characters.length) {
@@ -1286,15 +2039,23 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
   }
 
   const apiSettings = await getDashboardApiSettings();
-  const concurrency = profileRefreshConcurrency(characters.length, apiSettings.profileCharacterRefreshConcurrency, apiSettings.profileCharacterRefreshMaxConcurrency);
-  const { results } = await mapConcurrent(characters, async (character) => {
-    const fresh = await refreshCharacterSnapshot(character);
-    return fresh ? { key: character.key, fresh } : null;
-  }, {
-    profile: "external-api",
-    concurrency,
-    failFast: false,
-  });
+  const concurrency = profileRefreshConcurrency(
+    characters.length,
+    apiSettings.profileCharacterRefreshConcurrency,
+    apiSettings.profileCharacterRefreshMaxConcurrency,
+  );
+  const { results } = await mapConcurrent(
+    characters,
+    async (character) => {
+      const fresh = await refreshCharacterSnapshot(character);
+      return fresh ? { key: character.key, fresh } : null;
+    },
+    {
+      profile: "external-api",
+      concurrency,
+      failFast: false,
+    },
+  );
 
   const freshByKey = new Map<string, ProfileCharacter>();
   let failed = 0;
@@ -1318,7 +2079,9 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
   });
 
   const firstCharacter = nextCharacters[0] || null;
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profile.profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profile.profileId);
   const battlenetPayload: Record<string, unknown> = {
     linked: profile.battlenet?.linked ?? true,
     region: profile.battlenet?.region || firstCharacter?.region || "eu",
@@ -1345,7 +2108,11 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
     };
   }
 
-  if (options.reason === "manual" || options.reason === "cron" || options.reason === "background_api") {
+  if (
+    options.reason === "manual" ||
+    options.reason === "cron" ||
+    options.reason === "background_api"
+  ) {
     battlenetPayload.lastAutomatedRefresh = {
       reason: options.reason,
       refreshed,
@@ -1355,16 +2122,21 @@ async function refreshProfileExternalDataInternal(profile: DashboardProfile, opt
     };
   }
 
-  await ref.set({
-    characters: nextCharacters,
-    battlenet: battlenetPayload,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  await ref.set(
+    {
+      characters: nextCharacters,
+      battlenet: battlenetPayload,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
   clearCharacterProfileLinksCache();
 
   const snapshot = await ref.get().catch(() => null);
   return {
-    profile: snapshot?.exists ? normalizeProfile(profile.profileId, snapshot.data() || {}) : { ...profile, characters: nextCharacters },
+    profile: snapshot?.exists
+      ? normalizeProfile(profile.profileId, snapshot.data() || {})
+      : { ...profile, characters: nextCharacters },
     refreshed,
     failed,
     skipped,
@@ -1376,14 +2148,34 @@ export async function refreshProfileExternalData(
   profile: DashboardProfile | null | undefined,
   options: ProfileExternalRefreshOptions = {},
 ): Promise<ProfileExternalRefreshResult> {
-  if (!profile?.profileId || !profile.characters.length || !hasFirebaseProfileConfig()) {
-    return { profile: profile || null, refreshed: 0, failed: 0, skipped: 0, locked: false };
+  if (
+    !profile?.profileId ||
+    !profile.characters.length ||
+    !hasFirebaseProfileConfig()
+  ) {
+    return {
+      profile: profile || null,
+      refreshed: 0,
+      failed: 0,
+      skipped: 0,
+      locked: false,
+    };
   }
 
   const resolved: Required<ProfileExternalRefreshOptions> = {
     reason: options.reason || "manual",
-    maxCharacters: Math.max(1, Math.min(Number(options.maxCharacters || profile.characters.length) || profile.characters.length, profile.characters.length)),
-    minSpacingSeconds: Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? 0) || 0)),
+    maxCharacters: Math.max(
+      1,
+      Math.min(
+        Number(options.maxCharacters || profile.characters.length) ||
+          profile.characters.length,
+        profile.characters.length,
+      ),
+    ),
+    minSpacingSeconds: Math.max(
+      0,
+      Math.floor(Number(options.minSpacingSeconds ?? 0) || 0),
+    ),
     force: Boolean(options.force),
   };
 
@@ -1391,17 +2183,26 @@ export async function refreshProfileExternalData(
   const locks = profileRefreshLocks();
   const existing = locks.get(lockKey);
   if (existing && Date.now() - existing.checkedAt < 90_000) {
-    const result = await existing.promise.catch(() => ({ profile, refreshed: 0, failed: 1, skipped: 0, locked: true }));
+    const result = await existing.promise.catch(() => ({
+      profile,
+      refreshed: 0,
+      failed: 1,
+      skipped: 0,
+      locked: true,
+    }));
     return { ...result, locked: true };
   }
 
-  const promise = refreshProfileExternalDataInternal(profile, resolved)
-    .finally(() => locks.delete(lockKey));
+  const promise = refreshProfileExternalDataInternal(profile, resolved).finally(
+    () => locks.delete(lockKey),
+  );
   locks.set(lockKey, { checkedAt: Date.now(), promise });
   return promise;
 }
 
-export async function refreshProfileExternalDataOnView(profile: DashboardProfile | null | undefined) {
+export async function refreshProfileExternalDataOnView(
+  profile: DashboardProfile | null | undefined,
+) {
   return refreshProfileExternalData(profile, {
     reason: "profile_view",
     minSpacingSeconds: await profileViewRefreshMinSpacingSeconds(),
@@ -1409,7 +2210,9 @@ export async function refreshProfileExternalDataOnView(profile: DashboardProfile
   });
 }
 
-export async function refreshProfileCharactersForRaidSignup(profile: DashboardProfile | null | undefined) {
+export async function refreshProfileCharactersForRaidSignup(
+  profile: DashboardProfile | null | undefined,
+) {
   const restLimitRaw = Number(process.env.BATTLENET_SIGNUP_REFRESH_REST_LIMIT);
   const maxCharacters = profile?.characters.length
     ? Number.isFinite(restLimitRaw) && restLimitRaw >= 0
@@ -1425,21 +2228,47 @@ export async function refreshProfileCharactersForRaidSignup(profile: DashboardPr
   return result.profile;
 }
 
-export async function refreshAllProfilesExternalData(options: {
-  limit?: number;
-  minSpacingSeconds?: number;
-  force?: boolean;
-  reason?: "manual" | "cron";
-} = {}) {
+export async function refreshAllProfilesExternalData(
+  options: {
+    limit?: number;
+    minSpacingSeconds?: number;
+    force?: boolean;
+    reason?: "manual" | "cron";
+  } = {},
+) {
   if (!hasFirebaseProfileConfig()) {
-    return { checked: 0, refreshedProfiles: 0, refreshedCharacters: 0, failedProfiles: 0, skippedProfiles: 0 };
+    return {
+      checked: 0,
+      refreshedProfiles: 0,
+      refreshedCharacters: 0,
+      failedProfiles: 0,
+      skippedProfiles: 0,
+    };
   }
 
   const apiSettings = await getDashboardApiSettings();
-  const defaultLimit = apiSettings.profileExternalRefreshBatchLimit || profileCronRefreshLimit();
-  const limit = Math.max(1, Math.min(Math.floor(Number(options.limit || defaultLimit) || defaultLimit), 500));
-  const minSpacingSeconds = Math.max(0, Math.floor(Number(options.minSpacingSeconds ?? apiSettings.profileExternalRefreshMinSeconds) || 0));
-  const snapshot = await getFirebaseAdminDb().collection("dashboardProfiles").limit(limit).get();
+  const defaultLimit =
+    apiSettings.profileExternalRefreshBatchLimit || profileCronRefreshLimit();
+  const limit = Math.max(
+    1,
+    Math.min(
+      Math.floor(Number(options.limit || defaultLimit) || defaultLimit),
+      500,
+    ),
+  );
+  const minSpacingSeconds = Math.max(
+    0,
+    Math.floor(
+      Number(
+        options.minSpacingSeconds ??
+          apiSettings.profileExternalRefreshMinSeconds,
+      ) || 0,
+    ),
+  );
+  const snapshot = await getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .limit(limit)
+    .get();
   const profiles: DashboardProfile[] = snapshot.docs
     .map((doc: any) => normalizeProfile(doc.id, doc.data() || {}))
     .filter((profile: DashboardProfile) => profile.characters.length);
@@ -1449,25 +2278,33 @@ export async function refreshAllProfilesExternalData(options: {
   let failedProfiles = 0;
   let skippedProfiles = 0;
 
-  const concurrency = profileCronRefreshConcurrency(profiles.length, apiSettings.profileExternalRefreshConcurrency, apiSettings.profileExternalRefreshMaxConcurrency);
-  await mapConcurrent(profiles, async (profile) => {
-    try {
-      const result = await refreshProfileExternalData(profile, {
-        reason: options.reason || "cron",
-        minSpacingSeconds,
-        force: Boolean(options.force),
-      });
-      if (result.refreshed > 0) refreshedProfiles += 1;
-      refreshedCharacters += result.refreshed;
-      if (result.skipped > 0 && result.refreshed === 0) skippedProfiles += 1;
-    } catch {
-      failedProfiles += 1;
-    }
-  }, {
-    profile: "external-api",
-    concurrency,
-    failFast: false,
-  });
+  const concurrency = profileCronRefreshConcurrency(
+    profiles.length,
+    apiSettings.profileExternalRefreshConcurrency,
+    apiSettings.profileExternalRefreshMaxConcurrency,
+  );
+  await mapConcurrent(
+    profiles,
+    async (profile) => {
+      try {
+        const result = await refreshProfileExternalData(profile, {
+          reason: options.reason || "cron",
+          minSpacingSeconds,
+          force: Boolean(options.force),
+        });
+        if (result.refreshed > 0) refreshedProfiles += 1;
+        refreshedCharacters += result.refreshed;
+        if (result.skipped > 0 && result.refreshed === 0) skippedProfiles += 1;
+      } catch {
+        failedProfiles += 1;
+      }
+    },
+    {
+      profile: "external-api",
+      concurrency,
+      failFast: false,
+    },
+  );
 
   return {
     checked: profiles.length,
@@ -1478,17 +2315,25 @@ export async function refreshAllProfilesExternalData(options: {
   };
 }
 
-export async function addProfileCharacter(profileId: string, candidateInput: BattleNetCharacterCandidate) {
+export async function addProfileCharacter(
+  profileId: string,
+  candidateInput: BattleNetCharacterCandidate,
+) {
   const candidate = normalizeCharacter(candidateInput, null);
   const cleanKey = cleanCharacterKey(candidate?.key);
   if (!candidate || !cleanKey) {
-    throw new Error("Цей персонаж не підтверджений через Battle.net або має некоректні дані.");
+    throw new Error(
+      "Цей персонаж не підтверджений через Battle.net або має некоректні дані.",
+    );
   }
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   await assertNoProfileCharacterConflicts(profileId, [candidate]);
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
@@ -1498,23 +2343,33 @@ export async function addProfileCharacter(profileId: string, candidateInput: Bat
       return { added: false, reason: "duplicate" as const, key: cleanKey };
     }
     const now = new Date().toISOString();
-    const nextCharacter: ProfileCharacter = { ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now };
+    const nextCharacter: ProfileCharacter = {
+      ...candidate,
+      addedAt: now,
+      lastSeenAt: candidate.lastSeenAt || now,
+    };
     const nextCharacters = [...current, nextCharacter];
     const mainCharacterKey = profile.mainCharacterKey || nextCharacter.key;
 
-    transaction.set(ref, {
-      characters: nextCharacters,
-      mainCharacterKey,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    transaction.set(
+      ref,
+      {
+        characters: nextCharacters,
+        mainCharacterKey,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
 
     clearCharacterProfileLinksCache();
     return { added: true, key: cleanKey };
   });
 }
 
-
-export async function addProfileCharacters(profileId: string, candidateInputs: BattleNetCharacterCandidate[]) {
+export async function addProfileCharacters(
+  profileId: string,
+  candidateInputs: BattleNetCharacterCandidate[],
+) {
   const requested = Array.isArray(candidateInputs) ? candidateInputs.length : 0;
   const normalized = new Map<string, ProfileCharacter>();
   for (const input of candidateInputs || []) {
@@ -1527,14 +2382,20 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
   if (!normalized.size) {
     throw new Error("Немає підтверджених Battle.net персонажів для додавання.");
   }
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
-  await assertNoProfileCharacterConflicts(profileId, Array.from(normalized.values()));
+  await assertNoProfileCharacterConflicts(
+    profileId,
+    Array.from(normalized.values()),
+  );
 
   const addedKeys: string[] = [];
   const skippedKeys: string[] = [];
   const skippedReasons: Record<string, "duplicate"> = {};
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
 
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
@@ -1552,18 +2413,27 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
         skippedReasons[key] = "duplicate";
         continue;
       }
-      nextCharacters.push({ ...candidate, addedAt: now, lastSeenAt: candidate.lastSeenAt || now });
+      nextCharacters.push({
+        ...candidate,
+        addedAt: now,
+        lastSeenAt: candidate.lastSeenAt || now,
+      });
       currentKeys.add(key);
       addedKeys.push(key);
     }
 
     if (!addedKeys.length) return;
 
-    transaction.set(ref, {
-      characters: nextCharacters,
-      mainCharacterKey: profile.mainCharacterKey || nextCharacters[0]?.key || null,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    transaction.set(
+      ref,
+      {
+        characters: nextCharacters,
+        mainCharacterKey:
+          profile.mainCharacterKey || nextCharacters[0]?.key || null,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
   });
 
   if (addedKeys.length) clearCharacterProfileLinksCache();
@@ -1579,26 +2449,48 @@ export async function addProfileCharacters(profileId: string, candidateInputs: B
   };
 }
 
-export async function removeProfileCharacter(profileId: string, characterKey: string) {
+export async function removeProfileCharacter(
+  profileId: string,
+  characterKey: string,
+) {
   const cleanKey = cleanCharacterKey(characterKey);
   if (!cleanKey) throw new Error("Некоректний персонаж.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
     const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const nextCharacters = profile.characters.filter((item) => item.key !== cleanKey);
-    const nextMain = profile.mainCharacterKey === cleanKey ? nextCharacters[0]?.key || null : profile.mainCharacterKey || null;
+    const nextCharacters = profile.characters.filter(
+      (item) => item.key !== cleanKey,
+    );
+    const nextMain =
+      profile.mainCharacterKey === cleanKey
+        ? nextCharacters[0]?.key || null
+        : profile.mainCharacterKey || null;
 
     const updatePayload: Record<string, unknown> = {
       characters: nextCharacters,
       mainCharacterKey: nextMain,
-      nicknameCharacterKeys: (profile.nicknameCharacterKeys || []).filter((key) => key !== cleanKey && nextCharacters.some((item) => item.key === key && item.key !== nextMain)).slice(0, 2),
+      nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
+        .filter(
+          (key) =>
+            key !== cleanKey &&
+            nextCharacters.some(
+              (item) => item.key === key && item.key !== nextMain,
+            ),
+        )
+        .slice(0, 2),
       updatedAt: FieldValue.serverTimestamp(),
     };
-    if (profile.raidRolePreference?.characterKey === cleanKey || (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)) {
+    if (
+      profile.raidRolePreference?.characterKey === cleanKey ||
+      (profile.mainCharacterKey && profile.mainCharacterKey !== nextMain)
+    ) {
       updatePayload.raidRolePreference = FieldValue.delete();
     }
 
@@ -1607,12 +2499,18 @@ export async function removeProfileCharacter(profileId: string, characterKey: st
   clearCharacterProfileLinksCache();
 }
 
-export async function setMainProfileCharacter(profileId: string, characterKey: string) {
+export async function setMainProfileCharacter(
+  profileId: string,
+  characterKey: string,
+) {
   const cleanKey = cleanCharacterKey(characterKey);
   if (!cleanKey) throw new Error("Некоректний персонаж.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
@@ -1623,7 +2521,9 @@ export async function setMainProfileCharacter(profileId: string, characterKey: s
 
     const updatePayload: Record<string, unknown> = {
       mainCharacterKey: cleanKey,
-      nicknameCharacterKeys: (profile.nicknameCharacterKeys || []).filter((key) => key !== cleanKey).slice(0, 2),
+      nicknameCharacterKeys: (profile.nicknameCharacterKeys || [])
+        .filter((key) => key !== cleanKey)
+        .slice(0, 2),
       updatedAt: FieldValue.serverTimestamp(),
     };
     if (profile.mainCharacterKey && profile.mainCharacterKey !== cleanKey) {
@@ -1638,31 +2538,60 @@ export function normalizeProfilePreferredName(value: unknown) {
   return cleanProfileName(value, 32);
 }
 
-export function getProfileSiteName(profile: DashboardProfile | null | undefined) {
-  return cleanProfileName(profile?.preferredName || "", 32) || cleanProfileName(profile?.displayName || profile?.login || "", 32) || "Учасник";
+export function getProfileSiteName(
+  profile: DashboardProfile | null | undefined,
+) {
+  return (
+    cleanProfileName(profile?.preferredName || "", 32) ||
+    cleanProfileName(profile?.displayName || profile?.login || "", 32) ||
+    "Учасник"
+  );
 }
 
-export function getProfileDiscordName(profile: DashboardProfile | null | undefined) {
-  return cleanProfileName(profile?.displayName || profile?.login || "", 32) || "Discord";
+export function getProfileDiscordName(
+  profile: DashboardProfile | null | undefined,
+) {
+  return (
+    cleanProfileName(profile?.displayName || profile?.login || "", 32) ||
+    "Discord"
+  );
 }
 
-export function getProfileServerStyleName(profile: DashboardProfile | null | undefined, maxLength = 80, template = DEFAULT_NICKNAME_TEMPLATE) {
+export function getProfileServerStyleName(
+  profile: DashboardProfile | null | undefined,
+  maxLength = 80,
+  template = DEFAULT_NICKNAME_TEMPLATE,
+) {
   if (!profile) return "Учасник";
-  const base = cleanDiscordNicknamePart(profile.preferredName || profile.displayName || profile.login || "", 32) || "Учасник";
+  const base =
+    cleanDiscordNicknamePart(
+      profile.preferredName || profile.displayName || profile.login || "",
+      32,
+    ) || "Учасник";
   const characterNames = orderedCharactersForNickname(profile).slice(0, 3);
-  if (!characterNames.length) return sliceCodePoints(base, maxLength).trim() || "Учасник";
+  if (!characterNames.length)
+    return sliceCodePoints(base, maxLength).trim() || "Учасник";
 
   for (let count = characterNames.length; count >= 1; count -= 1) {
-    const candidate = composeDiscordNickname(base, characterNames.slice(0, count), template);
+    const candidate = composeDiscordNickname(
+      base,
+      characterNames.slice(0, count),
+      template,
+    );
     if (codePointLength(candidate) <= maxLength) return candidate;
   }
 
   return sliceCodePoints(base, maxLength).trim() || "Учасник";
 }
 
-export function getProfilePublicName(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE) {
+export function getProfilePublicName(
+  profile: DashboardProfile | null | undefined,
+  template = DEFAULT_NICKNAME_TEMPLATE,
+) {
   if (!profile) return "Учасник";
-  return profile.publicNameMode === "server_nickname" ? getProfileServerStyleName(profile, 80, template) : getProfileSiteName(profile);
+  return profile.publicNameMode === "server_nickname"
+    ? getProfileServerStyleName(profile, 80, template)
+    : getProfileSiteName(profile);
 }
 
 export type AuthorNameSuggestion = {
@@ -1678,10 +2607,29 @@ export function buildAuthorNameSuggestions(params: {
 }) {
   const profile = params.profile || null;
   const candidates: AuthorNameSuggestion[] = [
-    { source: "server", label: "Імʼя на сервері", value: cleanAuthorName(params.serverDiscordName || "", 80) },
-    { source: "site", label: "Імʼя з сайту", value: profile ? getProfileSiteName(profile) : "" },
-    { source: "profile", label: "Формат профілю", value: profile ? getProfilePublicName(profile) : "" },
-    { source: "discord", label: "Discord", value: cleanAuthorName(profile?.displayName || params.sessionName || profile?.login || "", 80) },
+    {
+      source: "server",
+      label: "Імʼя на сервері",
+      value: cleanAuthorName(params.serverDiscordName || "", 80),
+    },
+    {
+      source: "site",
+      label: "Імʼя з сайту",
+      value: profile ? getProfileSiteName(profile) : "",
+    },
+    {
+      source: "profile",
+      label: "Формат профілю",
+      value: profile ? getProfilePublicName(profile) : "",
+    },
+    {
+      source: "discord",
+      label: "Discord",
+      value: cleanAuthorName(
+        profile?.displayName || params.sessionName || profile?.login || "",
+        80,
+      ),
+    },
   ];
 
   const seen = new Set<string>();
@@ -1697,16 +2645,21 @@ export function buildAuthorNameSuggestions(params: {
 
 function orderedCharactersForNickname(profile: DashboardProfile) {
   const main = getMainCharacter(profile);
-  const characterByKey = new Map(profile.characters.map((character) => [character.key, character]));
-  const selectedAlts = cleanNicknameCharacterKeys(profile.nicknameCharacterKeys, main?.key)
+  const characterByKey = new Map(
+    profile.characters.map((character) => [character.key, character]),
+  );
+  const selectedAlts = cleanNicknameCharacterKeys(
+    profile.nicknameCharacterKeys,
+    main?.key,
+  )
     .map((key) => characterByKey.get(key))
     .filter((character): character is ProfileCharacter => Boolean(character));
-  const fallbackAlts = profile.characters.filter((item) => item.key !== main?.key && !selectedAlts.some((alt) => alt.key === item.key));
-  const ordered = [
-    ...(main ? [main] : []),
-    ...selectedAlts,
-    ...fallbackAlts,
-  ];
+  const fallbackAlts = profile.characters.filter(
+    (item) =>
+      item.key !== main?.key &&
+      !selectedAlts.some((alt) => alt.key === item.key),
+  );
+  const ordered = [...(main ? [main] : []), ...selectedAlts, ...fallbackAlts];
   const seen = new Set<string>();
   const result: string[] = [];
   for (const character of ordered) {
@@ -1720,7 +2673,11 @@ function orderedCharactersForNickname(profile: DashboardProfile) {
   return result;
 }
 
-function composeDiscordNickname(name: string, characters: string[], template = DEFAULT_NICKNAME_TEMPLATE) {
+function composeDiscordNickname(
+  name: string,
+  characters: string[],
+  template = DEFAULT_NICKNAME_TEMPLATE,
+) {
   return renderNicknameFromTemplate(template, { name, characters });
 }
 
@@ -1734,9 +2691,15 @@ export type ProfileDiscordNicknamePlan = {
   maxLength: number;
 };
 
-export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE): ProfileDiscordNicknamePlan {
+export function buildProfileDiscordNicknamePlan(
+  profile: DashboardProfile | null | undefined,
+  template = DEFAULT_NICKNAME_TEMPLATE,
+): ProfileDiscordNicknamePlan {
   const maxLength = 32;
-  const base = cleanDiscordNicknamePart(profile?.preferredName || "", maxLength);
+  const base = cleanDiscordNicknamePart(
+    profile?.preferredName || "",
+    maxLength,
+  );
   if (!profile || !base) {
     return {
       value: null,
@@ -1785,7 +2748,11 @@ export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null
   const spaceForMain = Math.max(1, maxLength - codePointLength(base) - 3);
   if (spaceForMain >= 1 && codePointLength(base) <= maxLength - 4) {
     const mainName = sliceCodePoints(requestedNames[0], spaceForMain).trim();
-    const candidate = composeDiscordNickname(base, mainName ? [mainName] : [], template);
+    const candidate = composeDiscordNickname(
+      base,
+      mainName ? [mainName] : [],
+      template,
+    );
     if (mainName && codePointLength(candidate) <= maxLength) {
       return {
         value: candidate,
@@ -1810,48 +2777,78 @@ export function buildProfileDiscordNicknamePlan(profile: DashboardProfile | null
   };
 }
 
-export function buildProfileDiscordNickname(profile: DashboardProfile | null | undefined, template = DEFAULT_NICKNAME_TEMPLATE) {
+export function buildProfileDiscordNickname(
+  profile: DashboardProfile | null | undefined,
+  template = DEFAULT_NICKNAME_TEMPLATE,
+) {
   return buildProfileDiscordNicknamePlan(profile, template).value;
 }
 
-export async function setProfilePreferredName(profileId: string, nameInput: unknown) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function setProfilePreferredName(
+  profileId: string,
+  nameInput: unknown,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   const preferredName = normalizeProfilePreferredName(nameInput);
-  if (codePointLength(preferredName) < 2) throw new Error("Імʼя має містити щонайменше 2 символи.");
+  if (codePointLength(preferredName) < 2)
+    throw new Error("Імʼя має містити щонайменше 2 символи.");
 
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
-  await ref.set({
-    preferredName,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
+  await ref.set(
+    {
+      preferredName,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
 
   return preferredName;
 }
 
-export async function setProfilePublicNameMode(profileId: string, modeInput: unknown) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function setProfilePublicNameMode(
+  profileId: string,
+  modeInput: unknown,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   const publicNameMode = cleanProfilePublicNameMode(modeInput);
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
-    publicNameMode,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
+    {
+      publicNameMode,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
 
   return publicNameMode;
 }
 
-export async function setProfileGrammaticalGender(profileId: string, genderInput: unknown) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function setProfileGrammaticalGender(
+  profileId: string,
+  genderInput: unknown,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   const grammaticalGender = cleanProfileGrammaticalGender(genderInput);
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
-    grammaticalGender,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set(
+    {
+      grammaticalGender,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
 
   return grammaticalGender;
 }
@@ -1861,54 +2858,86 @@ export async function markProfileDiscordNicknameSynced(
   nickname: string,
   source?: Pick<ProfileDiscordNicknamePlan, "baseName" | "characterNames">,
 ) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
-  const sourceCharacterNames = Array.isArray(source?.characterNames) ? source.characterNames : [];
+  const sourceCharacterNames = Array.isArray(source?.characterNames)
+    ? source.characterNames
+    : [];
 
-  await getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId).set({
-    discordNickname: {
-      value: cleanDiscordNicknamePart(nickname, 32),
-      syncedAt: FieldValue.serverTimestamp(),
-      sourcePreferredName: cleanProfileName(source?.baseName || "", 32) || null,
-      sourceCharacters: sourceCharacterNames.map((item) => cleanDiscordNicknamePart(item, 16)).filter(Boolean).slice(0, 3),
-    },
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  await getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId)
+    .set(
+      {
+        discordNickname: {
+          value: cleanDiscordNicknamePart(nickname, 32),
+          syncedAt: FieldValue.serverTimestamp(),
+          sourcePreferredName:
+            cleanProfileName(source?.baseName || "", 32) || null,
+          sourceCharacters: sourceCharacterNames
+            .map((item) => cleanDiscordNicknamePart(item, 16))
+            .filter(Boolean)
+            .slice(0, 3),
+        },
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
 }
 
-export async function setProfileNicknameCharacters(profileId: string, characterKeysInput: unknown) {
-  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) throw new Error("Некоректний ID профілю.");
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function setProfileNicknameCharacters(
+  profileId: string,
+  characterKeysInput: unknown,
+) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId))
+    throw new Error("Некоректний ID профілю.");
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   const requestedKeys = cleanNicknameCharacterKeys(characterKeysInput);
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
 
   return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
 
     const profile = normalizeProfile(profileId, snapshot.data() || {});
-    const mainKey = getMainCharacter(profile)?.key || profile.mainCharacterKey || null;
+    const mainKey =
+      getMainCharacter(profile)?.key || profile.mainCharacterKey || null;
     const characterKeys = new Set(profile.characters.map((item) => item.key));
     const selected = requestedKeys
       .filter((key) => key !== mainKey && characterKeys.has(key))
       .slice(0, 2);
 
-    transaction.set(ref, {
-      nicknameCharacterKeys: selected,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    transaction.set(
+      ref,
+      {
+        nicknameCharacterKeys: selected,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
 
     return selected;
   });
 }
 
-export async function setProfileRaidRolePreference(profileId: string, roleInput: unknown) {
-  if (!hasFirebaseProfileConfig()) throw new Error("Профілі тимчасово недоступні.");
+export async function setProfileRaidRolePreference(
+  profileId: string,
+  roleInput: unknown,
+) {
+  if (!hasFirebaseProfileConfig())
+    throw new Error("Профілі тимчасово недоступні.");
 
   const role = normalizeWowRole(roleInput);
-  const ref = getFirebaseAdminDb().collection("dashboardProfiles").doc(profileId);
+  const ref = getFirebaseAdminDb()
+    .collection("dashboardProfiles")
+    .doc(profileId);
 
   await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
@@ -1936,17 +2965,31 @@ export async function setProfileRaidRolePreference(profileId: string, roleInput:
   });
 }
 
-export function getProfileRaidRole(profile: DashboardProfile | null | undefined) {
+export function getProfileRaidRole(
+  profile: DashboardProfile | null | undefined,
+) {
   const main = profile ? getMainCharacter(profile) : null;
-  const manualRole = profile?.raidRolePreference?.characterKey === main?.key ? profile?.raidRolePreference?.role : null;
-  return manualRole || (main ? resolveWowCharacterRole({
-    className: main.className,
-    activeSpecName: main.activeSpecName,
-    activeSpecId: main.activeSpecId,
-    activeSpecRole: main.activeSpecRole,
-  }) : "dps");
+  const manualRole =
+    profile?.raidRolePreference?.characterKey === main?.key
+      ? profile?.raidRolePreference?.role
+      : null;
+  return (
+    manualRole ||
+    (main
+      ? resolveWowCharacterRole({
+          className: main.className,
+          activeSpecName: main.activeSpecName,
+          activeSpecId: main.activeSpecId,
+          activeSpecRole: main.activeSpecRole,
+        })
+      : "dps")
+  );
 }
 
 export function getMainCharacter(profile: DashboardProfile) {
-  return profile.characters.find((item) => item.key === profile.mainCharacterKey) || profile.characters[0] || null;
+  return (
+    profile.characters.find((item) => item.key === profile.mainCharacterKey) ||
+    profile.characters[0] ||
+    null
+  );
 }
