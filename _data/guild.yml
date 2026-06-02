@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-01 20:19:05'
+  updated_at: '2026-06-02 04:05:59'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 158
   achievement_points: 580
   created_timestamp: 1764795965000
 raid_progression:
@@ -25,6 +25,12 @@ raid_progression:
     normal_bosses_killed: 9
     heroic_bosses_killed: 7
     mythic_bosses_killed: 2
+  sporefall:
+    summary: 0/1 N
+    total_bosses: 1
+    normal_bosses_killed: 0
+    heroic_bosses_killed: 0
+    mythic_bosses_killed: 0
   blackrock-depths:
     summary: 0/8 N
     total_bosses: 8
@@ -56,13 +62,26 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13750
-      region: 6023
+      world: 13764
+      region: 6028
       realm: 49
     mythic:
-      world: 7147
-      region: 3102
+      world: 7162
+      region: 3109
       realm: 22
+  sporefall:
+    normal:
+      world: 0
+      region: 0
+      realm: 0
+    heroic:
+      world: 0
+      region: 0
+      realm: 0
+    mythic:
+      world: 0
+      region: 0
+      realm: 0
   blackrock-depths:
     normal:
       world: 0
@@ -2166,16 +2185,16 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 278
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
       tank:
         score: 0
@@ -2190,7 +2209,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
     sources:
       roster: blizzard
@@ -2741,10 +2760,10 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
       dps:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
       healer:
         score: 0
@@ -2759,7 +2778,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2976.5
+        score: 2989.9
         color: '#397ece'
       spec_3:
         score: 0
@@ -8225,6 +8244,58 @@ members:
       spec_2:
         score: 2746.4
         color: '#5eae9a'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Монэлушка
+    id: 260267965
+    level: 90
+    realm:
+      id: 1602
+      slug: gordunni
+    playable_class:
+      id: 10
+      name: Monk
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Mistweaver
+      role: HEALING
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
+    item_level_equipped: 212
+    mythic_plus_scores:
+      all:
+        score: 830.2
+        color: '#d5ffc5'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 830.2
+        color: '#d5ffc5'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 830.2
+        color: '#d5ffc5'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'

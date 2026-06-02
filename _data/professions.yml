@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-01 20:19:05'
+  updated_at: '2026-06-02 04:05:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 158
 characters:
 - name: Бреинор
   region: eu
@@ -1424,6 +1424,9 @@ characters:
         max_points: 100
       - name: Khaz Algar Herbalism
         learned_points: 24
+        max_points: 100
+      - name: Midnight Herbalism
+        learned_points: 4
         max_points: 100
     - name: Alchemy
       id: 171
@@ -3704,7 +3707,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 14
+        learned_points: 15
         max_points: 100
     - name: Herbalism
       id: 182
@@ -7777,3 +7780,56 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+- name: Монэлушка
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 5
+        max_points: 300
+      - name: Shadowlands Enchanting
+        learned_points: 27
+        max_points: 115
+      - name: Dragon Isles Enchanting
+        learned_points: 37
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 25
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 50
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 4
+        max_points: 75
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 21
+        max_points: 100
