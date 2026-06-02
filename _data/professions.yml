@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-06-02 04:05:59'
+  updated_at: '2026-06-02 12:05:55'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-05-30T10:01:20.000Z'
+  raider_io_last_crawled_at: '2026-06-02T10:28:23.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 158
+  member_count: 159
 characters:
 - name: Бреинор
   region: eu
@@ -6582,6 +6582,59 @@ characters:
       - name: Midnight Fishing
         learned_points: 14
         max_points: 300
+- name: Монэлушка
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
+  professions:
+    primaries:
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 5
+        max_points: 300
+      - name: Shadowlands Enchanting
+        learned_points: 27
+        max_points: 115
+      - name: Dragon Isles Enchanting
+        learned_points: 37
+        max_points: 100
+      - name: Midnight Enchanting
+        learned_points: 25
+        max_points: 100
+    - name: Tailoring
+      id: 197
+      tiers:
+      - name: Classic Tailoring
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Tailoring
+        learned_points: 50
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Cataclysm Cooking
+        learned_points: 1
+        max_points: 75
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Cooking
+        learned_points: 4
+        max_points: 75
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 21
+        max_points: 100
 - name: Моннал
   region: eu
   realm: gordunni
@@ -7780,50 +7833,14 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Монэлушка
+- name: Sandora
   region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Sandora
   professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 5
-        max_points: 300
-      - name: Shadowlands Enchanting
-        learned_points: 27
-        max_points: 115
-      - name: Dragon Isles Enchanting
-        learned_points: 37
-        max_points: 100
-      - name: Midnight Enchanting
-        learned_points: 25
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 50
-        max_points: 100
+    primaries: []
     secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Cataclysm Cooking
-        learned_points: 1
-        max_points: 75
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Cooking
-        learned_points: 4
-        max_points: 75
     - name: Fishing
       id: 356
       tiers:
@@ -7831,5 +7848,5 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Fishing
-        learned_points: 21
+        learned_points: 8
         max_points: 100
