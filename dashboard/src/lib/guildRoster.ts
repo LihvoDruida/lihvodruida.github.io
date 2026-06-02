@@ -1361,8 +1361,11 @@ function chunkArray<T>(items: T[], size: number) {
 }
 
 function guildRosterChunkReadySet() {
-  const set = globalThis.__mistblossomGuildRosterChunkReadyByDocId || new Set<string>();
-  globalThis.__mistblossomGuildRosterChunkReadyByDocId = set;
+  const state = globalThis as typeof globalThis & {
+    __mistblossomGuildRosterChunkReadyByDocId?: Set<string>;
+  };
+  const set = state.__mistblossomGuildRosterChunkReadyByDocId || new Set<string>();
+  state.__mistblossomGuildRosterChunkReadyByDocId = set;
   return set;
 }
 
@@ -1384,7 +1387,7 @@ function normalizeMembersFromChunkData(data: any) {
   const rows = Array.isArray(data?.members) ? data.members : [];
   return rows
     .map((item: unknown) => normalizeMemberRecord(item))
-    .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
+    .filter((member): member is GuildRosterMember => Boolean(member?.key));
 }
 
 function memberDocId(
@@ -1531,7 +1534,7 @@ async function readGuildRosterRecords(
           .get();
         members = memberSnapshots.docs
           .map((item: { data: () => unknown }) => normalizeMemberRecord(item.data()))
-          .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
+          .filter((member): member is GuildRosterMember => Boolean(member?.key));
       }
 
       const cache = buildRosterFromFirebaseRecords(data, members);
@@ -1698,8 +1701,10 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
           .limit(1100)
           .get();
         const members = memberSnapshots.docs
-          .map((item: { data: () => { member?: unknown } }) => item.data()?.member)
-          .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
+          .map((item: { data: () => { member?: unknown } }) =>
+            normalizeMemberRecord(item.data()?.member),
+          )
+          .filter((member): member is GuildRosterMember => Boolean(member?.key));
         const cache = cachedRosterFromShardedPayload(data, members);
         if (cache) {
           globalThis.__mistblossomGuildRosterCache = cache;

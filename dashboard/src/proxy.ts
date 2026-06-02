@@ -39,6 +39,22 @@ function isPublicApiPath(pathname: string) {
   );
 }
 
+function isInternalBearerApiPath(pathname: string) {
+  return (
+    pathname === "/api/profile/discord-lookup" ||
+    pathname === "/api/admin/profiles/refresh-external-data" ||
+    /^\/api\/raids\/[^/]+\/discord-action$/.test(pathname)
+  );
+}
+
+function hasPotentialInternalBearerToken(request: NextRequest) {
+  const authorization = request.headers.get("authorization") || "";
+  return (
+    /^Bearer\s+\S+/i.test(authorization) ||
+    Boolean(request.headers.get("x-worker-stats-token"))
+  );
+}
+
 function isProtectedApiPath(pathname: string) {
   return pathname.startsWith("/api/") && !isPublicApiPath(pathname);
 }
@@ -140,8 +156,15 @@ export function proxy(request: NextRequest) {
 
   const isDiscordInteractionEndpoint =
     request.nextUrl.pathname === "/api/discord/interactions";
+  const hasInternalBearerAuth =
+    isInternalBearerApiPath(request.nextUrl.pathname) &&
+    hasPotentialInternalBearerToken(request);
 
-  if (!isDiscordInteractionEndpoint && !verifyTrustedOrigin(request)) {
+  if (
+    !isDiscordInteractionEndpoint &&
+    !hasInternalBearerAuth &&
+    !verifyTrustedOrigin(request)
+  ) {
     return forbiddenResponse("Недовірене джерело запиту.");
   }
 
@@ -172,6 +195,7 @@ export function proxy(request: NextRequest) {
 
   if (
     isProtectedApiPath(request.nextUrl.pathname) &&
+    !hasInternalBearerAuth &&
     !hasDashboardSessionCookie(request)
   ) {
     return NextResponse.json(
