@@ -368,9 +368,13 @@ export type AdminAuditLogItem = {
   createdAt: string | null;
 };
 
+const ADMIN_AUDIT_PRUNE_TTL_MS = Math.max(60_000, Math.min(60 * 60_000, Number(process.env.ADMIN_AUDIT_PRUNE_TTL_MS || 10 * 60_000)));
+
 declare global {
   // eslint-disable-next-line no-var
   var __mistblossomAdminAuditFallback: AdminAuditLogItem[] | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditPrunedAt: number | undefined;
 }
 
 function fallbackAuditLogs() {
@@ -531,7 +535,11 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     const ref = await auditCollectionRef().add(payload);
     const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
     await mirrorAuditLogToDiscord(storedItem);
-    void pruneAdminAuditLogs(500);
+    const now = Date.now();
+    if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
+      globalThis.__mistblossomAdminAuditPrunedAt = now;
+      void pruneAdminAuditLogs(500);
+    }
     logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
     return true;
   } catch (error) {
@@ -595,7 +603,11 @@ export async function recordSystemAudit(action: string, details: Record<string, 
     const ref = await auditCollectionRef().add(payload);
     const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
     await mirrorAuditLogToDiscord(storedItem);
-    void pruneAdminAuditLogs(500);
+    const now = Date.now();
+    if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
+      globalThis.__mistblossomAdminAuditPrunedAt = now;
+      void pruneAdminAuditLogs(500);
+    }
     logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
     return true;
   } catch (error) {

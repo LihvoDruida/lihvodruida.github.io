@@ -1,4 +1,5 @@
 import { FieldValue } from "firebase-admin/firestore";
+import { logDashboardEvent } from "@/lib/security";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
@@ -707,26 +708,33 @@ export function hasRaidStorage() {
 
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
-  const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(Math.max(1, Math.min(100, limit))).get();
-  const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
-  await Promise.all(snapshot.docs
-    .map((doc, index) => ({ rawStatus: doc.get("status"), raid: raids[index] }))
-    .filter((item): item is { rawStatus: unknown; raid: RaidItem } => item.rawStatus === "published" && Boolean(item.raid) && item.raid.status === "closed")
-    .slice(0, 8)
-    .map((item) => syncAutoClosedRaid(item.raid).catch(() => null)));
-  return raids
-    .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+  try {
+    const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(Math.max(1, Math.min(100, limit))).get();
+    const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
+    return raids
+      .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+  } catch (error) {
+    logDashboardEvent("warn", "raids.list_read_failed", undefined, {
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return [];
+  }
 }
 
 export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const id = cleanRaidId(raidId);
   if (!id || !hasRaidStorage()) return null;
-  const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
-  if (!snapshot.exists) return null;
-  const rawStatus = snapshot.get("status");
-  const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
-  if (rawStatus === "published" && raid.status === "closed") await syncAutoClosedRaid(raid).catch(() => null);
-  return raid;
+  try {
+    const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
+    if (!snapshot.exists) return null;
+    return normalizeRaid(snapshot.id, snapshot.data() || {});
+  } catch (error) {
+    logDashboardEvent("warn", "raids.item_read_failed", undefined, {
+      raidId: id,
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+    return null;
+  }
 }
 
 async function syncAutoClosedRaid(raid: RaidItem) {

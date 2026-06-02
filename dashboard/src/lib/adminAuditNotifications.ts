@@ -9,6 +9,37 @@ const DISCORD_API_BASE = "https://discord.com/api/v10";
 const SETTINGS_COLLECTION = "dashboardSettings";
 const ADMIN_AUDIT_LOG_POLICY_DOC_ID = "adminAuditLogPolicy";
 
+const POLICY_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.ADMIN_AUDIT_POLICY_CACHE_TTL_MS || 10 * 60_000)));
+const POLICY_ERROR_LOG_TTL_MS = 5 * 60_000;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditDiscordPolicyCache: { policy: AdminAuditDiscordPolicy; cachedAt: number } | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditDiscordPolicyErrorLoggedAt: number | undefined;
+}
+
+function auditPolicyCacheFresh() {
+  const cached = globalThis.__mistblossomAdminAuditDiscordPolicyCache;
+  return Boolean(cached && Date.now() - cached.cachedAt < POLICY_CACHE_TTL_MS);
+}
+
+function setAuditPolicyCache(policy: AdminAuditDiscordPolicy) {
+  globalThis.__mistblossomAdminAuditDiscordPolicyCache = { policy, cachedAt: Date.now() };
+  return policy;
+}
+
+function logAuditPolicyReadFailureOnce(error: unknown) {
+  const now = Date.now();
+  const last = globalThis.__mistblossomAdminAuditDiscordPolicyErrorLoggedAt || 0;
+  if (now - last < POLICY_ERROR_LOG_TTL_MS) return;
+  globalThis.__mistblossomAdminAuditDiscordPolicyErrorLoggedAt = now;
+  logDashboardEvent("warn", "admin.audit.discord_policy_read_failed", undefined, {
+    message: error instanceof Error ? error.message : String(error || "unknown"),
+  });
+}
+
+
 export type AdminAuditStatus = "success" | "warning" | "error" | "info";
 export type AdminAuditDiscordMinStatus = "info" | "warning" | "error";
 
@@ -81,20 +112,21 @@ function normalizePolicy(raw: Record<string, unknown> | null | undefined): Admin
   };
 }
 
-export async function getAdminAuditDiscordPolicy(): Promise<AdminAuditDiscordPolicy> {
-  if (!hasFirebaseProfileConfig()) return defaultPolicy();
+export async function getAdminAuditDiscordPolicy(options: { bypassCache?: boolean } = {}): Promise<AdminAuditDiscordPolicy> {
+  if (!options.bypassCache && auditPolicyCacheFresh()) {
+    return globalThis.__mistblossomAdminAuditDiscordPolicyCache!.policy;
+  }
+  if (!hasFirebaseProfileConfig()) return setAuditPolicyCache(defaultPolicy());
   const snapshot = await getFirebaseAdminDb()
     .collection(SETTINGS_COLLECTION)
     .doc(ADMIN_AUDIT_LOG_POLICY_DOC_ID)
     .get()
     .catch((error) => {
-      logDashboardEvent("warn", "admin.audit.discord_policy_read_failed", undefined, {
-        message: error instanceof Error ? error.message : String(error || "unknown"),
-      });
+      logAuditPolicyReadFailureOnce(error);
       return null;
     });
-  if (!snapshot?.exists) return defaultPolicy();
-  return normalizePolicy(snapshot.data() || null);
+  if (!snapshot?.exists) return setAuditPolicyCache(globalThis.__mistblossomAdminAuditDiscordPolicyCache?.policy || defaultPolicy());
+  return setAuditPolicyCache(normalizePolicy(snapshot.data() || null));
 }
 
 export async function setAdminAuditDiscordPolicy(input: {
@@ -119,7 +151,15 @@ export async function setAdminAuditDiscordPolicy(input: {
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   }, { merge: true });
 
-  return getAdminAuditDiscordPolicy();
+  return setAuditPolicyCache({
+    enabled: enabled && Boolean(channelId),
+    channelId,
+    minStatus,
+    includeSystemLogs,
+    updatedAt: new Date().toISOString(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+    source: "firestore",
+  });
 }
 
 function shouldPublishStatus(status: AdminAuditStatus, minStatus: AdminAuditDiscordMinStatus) {

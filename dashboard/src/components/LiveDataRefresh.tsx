@@ -1,5 +1,11 @@
 import DashboardBackgroundApiRefresh from "@/components/DashboardBackgroundApiRefresh";
 
-export default function LiveDataRefresh() {
-  return <DashboardBackgroundApiRefresh />;
+type Props = {
+  enabled?: boolean;
+  refreshMinMs?: number;
+};
+
+export default function LiveDataRefresh({ enabled = true, refreshMinMs }: Props) {
+  if (!enabled) return null;
+  return <DashboardBackgroundApiRefresh refreshMinMs={refreshMinMs} />;
 }

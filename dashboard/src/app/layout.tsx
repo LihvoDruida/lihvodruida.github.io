@@ -92,7 +92,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const session = await getSession().catch(() => null);
   return (
     <html lang="uk">
-      <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}<AppFooter /></body>
+      <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense><LiveDataRefresh enabled={Boolean(session)} />{session?.impersonatedBy ? <ImpersonationToast groupName={session.groupName || session.role} /> : null}{children}<AppFooter /></body>
     </html>
   );
 }

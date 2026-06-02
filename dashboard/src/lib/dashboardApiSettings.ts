@@ -45,6 +45,42 @@ const DEFAULT_WCL_ROSTER_REPORT_TABLE_CONCURRENCY = 1;
 const DEFAULT_DASHBOARD_API_DEBUG_AUDIT_LOGS = false;
 const DEFAULT_DASHBOARD_API_WARNING_AUDIT_LOGS = true;
 
+
+const SETTINGS_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.DASHBOARD_API_SETTINGS_CACHE_TTL_MS || 5 * 60_000)));
+const SETTINGS_ERROR_LOG_TTL_MS = 5 * 60_000;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomDashboardApiSettingsCache: { settings: DashboardApiSettings; cachedAt: number } | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomDashboardApiSettingsErrorLoggedAt: number | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomWarcraftLogsCredentialsCache: { credentials: WarcraftLogsApiCredentials; cachedAt: number } | undefined;
+}
+
+function settingsCacheFresh() {
+  const cached = globalThis.__mistblossomDashboardApiSettingsCache;
+  return Boolean(cached && Date.now() - cached.cachedAt < SETTINGS_CACHE_TTL_MS);
+}
+
+function setSettingsCache(settings: DashboardApiSettings) {
+  globalThis.__mistblossomDashboardApiSettingsCache = { settings, cachedAt: Date.now() };
+  return settings;
+}
+
+function logSettingsReadFailureOnce(event: string, error: unknown) {
+  const now = Date.now();
+  const last = globalThis.__mistblossomDashboardApiSettingsErrorLoggedAt || 0;
+  if (now - last < SETTINGS_ERROR_LOG_TTL_MS) return;
+  globalThis.__mistblossomDashboardApiSettingsErrorLoggedAt = now;
+  logDashboardEvent(
+    "warn",
+    event,
+    undefined,
+    { message: error instanceof Error ? error.message : String(error || "unknown") },
+  );
+}
+
 export type DashboardApiSettingsSource = "firestore" | "defaults";
 
 export type WarcraftLogsCredentialsSource = "panel" | "env" | "none";
@@ -889,27 +925,29 @@ function normalizeSettings(
   };
 }
 
-export async function getDashboardApiSettings(): Promise<DashboardApiSettings> {
-  if (!hasFirebaseProfileConfig()) return defaultDashboardApiSettings();
+export async function getDashboardApiSettings(options: { bypassCache?: boolean } = {}): Promise<DashboardApiSettings> {
+  if (!options.bypassCache && settingsCacheFresh()) {
+    return globalThis.__mistblossomDashboardApiSettingsCache!.settings;
+  }
+
+  if (!hasFirebaseProfileConfig()) {
+    return setSettingsCache(defaultDashboardApiSettings());
+  }
+
   const snapshot = await getFirebaseAdminDb()
     .collection(SETTINGS_COLLECTION)
     .doc(DASHBOARD_API_SETTINGS_DOC_ID)
     .get()
     .catch((error) => {
-      logDashboardEvent(
-        "warn",
-        "dashboard_api.settings_read_failed",
-        undefined,
-        {
-          message:
-            error instanceof Error ? error.message : String(error || "unknown"),
-        },
-      );
+      logSettingsReadFailureOnce("dashboard_api.settings_read_failed", error);
       return null;
     });
 
-  if (!snapshot?.exists) return defaultDashboardApiSettings();
-  return normalizeSettings(snapshot.data() || null, "firestore");
+  if (!snapshot?.exists) {
+    return setSettingsCache(globalThis.__mistblossomDashboardApiSettingsCache?.settings || defaultDashboardApiSettings());
+  }
+
+  return setSettingsCache(normalizeSettings(snapshot.data() || null, "firestore"));
 }
 
 export async function setDashboardApiSettings(
@@ -1013,38 +1051,45 @@ export async function setDashboardApiSettings(
 
   await doc.set(payload, { merge: true });
 
-  return getDashboardApiSettings();
+  return setSettingsCache({
+    ...settings,
+    updatedAt: new Date().toISOString(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+    source: "firestore",
+  });
 }
 
 function tokenCacheResetHint() {
+  globalThis.__mistblossomWarcraftLogsCredentialsCache = undefined;
   // Token cache lives in src/lib/warcraftLogs.ts and is intentionally private.
   // Changing credentials should not block saving settings; the next serverless
   // invocation will use fresh credentials, and warm instances expire tokens quickly.
 }
 
 export async function getWarcraftLogsApiCredentials(): Promise<WarcraftLogsApiCredentials> {
-  if (!hasFirebaseProfileConfig()) return resolveWarcraftLogsCredentials(null);
+  const cached = globalThis.__mistblossomWarcraftLogsCredentialsCache;
+  if (cached && Date.now() - cached.cachedAt < SETTINGS_CACHE_TTL_MS) return cached.credentials;
+
+  if (!hasFirebaseProfileConfig()) {
+    const credentials = resolveWarcraftLogsCredentials(null);
+    globalThis.__mistblossomWarcraftLogsCredentialsCache = { credentials, cachedAt: Date.now() };
+    return credentials;
+  }
 
   const snapshot = await getFirebaseAdminDb()
     .collection(SETTINGS_COLLECTION)
     .doc(DASHBOARD_API_SETTINGS_DOC_ID)
     .get()
     .catch((error) => {
-      logDashboardEvent(
-        "warn",
-        "warcraft_logs.settings_read_failed",
-        undefined,
-        {
-          message:
-            error instanceof Error ? error.message : String(error || "unknown"),
-        },
-      );
+      logSettingsReadFailureOnce("warcraft_logs.settings_read_failed", error);
       return null;
     });
 
-  return resolveWarcraftLogsCredentials(
+  const credentials = resolveWarcraftLogsCredentials(
     snapshot?.exists ? snapshot.data() || null : null,
   );
+  globalThis.__mistblossomWarcraftLogsCredentialsCache = { credentials, cachedAt: Date.now() };
+  return credentials;
 }
 
 export async function getExternalCharacterDataSettings() {

@@ -14,6 +14,24 @@ const SETTINGS_COLLECTION = "dashboardSettings";
 const POLICY_DOC_ID = "discordNicknamePolicy";
 const TOKEN_PATTERN = /\{(name|main|alt)\}/gi;
 
+const POLICY_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.GUILD_NICKNAME_POLICY_CACHE_TTL_MS || 10 * 60_000)));
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomGuildNicknamePolicyCache: { policy: GuildNicknamePolicy; cachedAt: number } | undefined;
+}
+
+function nicknamePolicyCacheFresh() {
+  const cached = globalThis.__mistblossomGuildNicknamePolicyCache;
+  return Boolean(cached && Date.now() - cached.cachedAt < POLICY_CACHE_TTL_MS);
+}
+
+function setNicknamePolicyCache(policy: GuildNicknamePolicy) {
+  globalThis.__mistblossomGuildNicknamePolicyCache = { policy, cachedAt: Date.now() };
+  return policy;
+}
+
+
 export type GuildNicknamePolicy = {
   template: string;
   roleRemoveConcurrency: number;
@@ -107,12 +125,15 @@ export function nicknameTemplateExample(templateInput: unknown = DEFAULT_NICKNAM
   });
 }
 
-export async function getGuildNicknamePolicy(): Promise<GuildNicknamePolicy> {
-  if (!hasFirebaseProfileConfig()) return normalizePolicyData(null);
+export async function getGuildNicknamePolicy(options: { bypassCache?: boolean } = {}): Promise<GuildNicknamePolicy> {
+  if (!options.bypassCache && nicknamePolicyCacheFresh()) {
+    return globalThis.__mistblossomGuildNicknamePolicyCache!.policy;
+  }
+  if (!hasFirebaseProfileConfig()) return setNicknamePolicyCache(normalizePolicyData(null));
 
   const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(POLICY_DOC_ID).get().catch(() => null);
-  if (!snapshot?.exists) return normalizePolicyData(null);
-  return normalizePolicyData(snapshot.data() || null);
+  if (!snapshot?.exists) return setNicknamePolicyCache(globalThis.__mistblossomGuildNicknamePolicyCache?.policy || normalizePolicyData(null));
+  return setNicknamePolicyCache(normalizePolicyData(snapshot.data() || null));
 }
 
 export async function setGuildNicknamePolicy(templateInput: unknown, actor?: DashboardSession | null) {
@@ -123,7 +144,11 @@ export async function setGuildNicknamePolicy(templateInput: unknown, actor?: Das
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   }, { merge: true });
-  return getGuildNicknamePolicy();
+  return setNicknamePolicyCache({
+    ...normalizePolicyData({ template }),
+    updatedAt: new Date().toISOString(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+  });
 }
 
 export async function setGuildDiscordManagementSettings(input: {
@@ -150,7 +175,17 @@ export async function setGuildDiscordManagementSettings(input: {
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   }, { merge: true });
 
-  return getGuildNicknamePolicy();
+  return setNicknamePolicyCache({
+    ...normalizePolicyData({
+      template,
+      roleRemoveConcurrency,
+      roleRemoveMaxConcurrency,
+      nicknameCleanupConcurrency,
+      nicknameCleanupMaxConcurrency,
+    }),
+    updatedAt: new Date().toISOString(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+  });
 }
 
 function cleanNicknamePart(value: unknown, maxLength: number) {

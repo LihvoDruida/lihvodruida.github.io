@@ -58,39 +58,14 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
   }, [refreshMinMsInput]);
 
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-
-    async function loadRuntimeSettings() {
-      try {
-        const response = await fetch("/api/background/settings", {
-          method: "GET",
-          cache: "no-store",
-          headers: { Accept: "application/json" },
-          signal: controller.signal,
-        });
-        if (!response.ok) return;
-        const payload = await response.json().catch(() => null) as { settings?: { backgroundRefreshMinSeconds?: unknown } } | null;
-        const nextSeconds = Number(payload?.settings?.backgroundRefreshMinSeconds);
-        if (!cancelled && Number.isFinite(nextSeconds)) setRefreshMinMs(normalizeRefreshMinMs(nextSeconds * 1000));
-      } catch (error) {
-        if ((error as Error)?.name !== "AbortError") {
-          // Keep the safe local fallback if runtime settings cannot be loaded.
-        }
-      }
-    }
-
     function onBackgroundApiSettingsUpdated(event: Event) {
       const detail = (event as BackgroundApiSettingsUpdatedEvent).detail || {};
       const nextSeconds = Number(detail.backgroundRefreshMinSeconds);
       if (Number.isFinite(nextSeconds)) setRefreshMinMs(normalizeRefreshMinMs(nextSeconds * 1000));
     }
 
-    void loadRuntimeSettings();
     window.addEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
     return () => {
-      cancelled = true;
-      controller.abort();
       window.removeEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
     };
   }, []);

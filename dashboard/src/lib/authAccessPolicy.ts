@@ -8,6 +8,35 @@ import { logDashboardEvent } from "@/lib/security";
 const SETTINGS_COLLECTION = "dashboardSettings";
 const AUTH_ACCESS_DOC_ID = "authAccessPolicy";
 
+const POLICY_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.AUTH_ACCESS_POLICY_CACHE_TTL_MS || 10 * 60_000)));
+const POLICY_ERROR_LOG_TTL_MS = 5 * 60_000;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomAuthAccessPolicyCache: { policy: AuthAccessPolicy; cachedAt: number } | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomAuthAccessPolicyErrorLoggedAt: number | undefined;
+}
+
+function authPolicyCacheFresh() {
+  const cached = globalThis.__mistblossomAuthAccessPolicyCache;
+  return Boolean(cached && Date.now() - cached.cachedAt < POLICY_CACHE_TTL_MS);
+}
+
+function setAuthPolicyCache(policy: AuthAccessPolicy) {
+  globalThis.__mistblossomAuthAccessPolicyCache = { policy, cachedAt: Date.now() };
+  return policy;
+}
+
+function logAuthPolicyReadFailureOnce(error: unknown) {
+  const now = Date.now();
+  const last = globalThis.__mistblossomAuthAccessPolicyErrorLoggedAt || 0;
+  if (now - last < POLICY_ERROR_LOG_TTL_MS) return;
+  globalThis.__mistblossomAuthAccessPolicyErrorLoggedAt = now;
+  logDashboardEvent("warn", "auth_access.policy_read_failed", undefined, { message: error instanceof Error ? error.message : String(error || "unknown") });
+}
+
+
 export type AuthAccessPolicy = {
   enabled: boolean;
   requireConfiguredRole: boolean;
@@ -84,14 +113,17 @@ function normalizePolicyData(data?: Record<string, unknown> | null): AuthAccessP
   };
 }
 
-export async function getAuthAccessPolicy(): Promise<AuthAccessPolicy> {
-  if (!hasFirebaseProfileConfig()) return defaultAuthAccessPolicy();
+export async function getAuthAccessPolicy(options: { bypassCache?: boolean } = {}): Promise<AuthAccessPolicy> {
+  if (!options.bypassCache && authPolicyCacheFresh()) {
+    return globalThis.__mistblossomAuthAccessPolicyCache!.policy;
+  }
+  if (!hasFirebaseProfileConfig()) return setAuthPolicyCache(defaultAuthAccessPolicy());
   const snapshot = await getFirebaseAdminDb().collection(SETTINGS_COLLECTION).doc(AUTH_ACCESS_DOC_ID).get().catch((error) => {
-    logDashboardEvent("warn", "auth_access.policy_read_failed", undefined, { message: error instanceof Error ? error.message : String(error || "unknown") });
+    logAuthPolicyReadFailureOnce(error);
     return null;
   });
-  if (!snapshot?.exists) return defaultAuthAccessPolicy();
-  return normalizePolicyData(snapshot.data() || null);
+  if (!snapshot?.exists) return setAuthPolicyCache(globalThis.__mistblossomAuthAccessPolicyCache?.policy || defaultAuthAccessPolicy());
+  return setAuthPolicyCache(normalizePolicyData(snapshot.data() || null));
 }
 
 export async function setAuthAccessPolicy(input: {
@@ -126,7 +158,11 @@ export async function setAuthAccessPolicy(input: {
     updatedBy: actor?.name || actor?.login || actor?.id || null,
   }, { merge: true });
 
-  return getAuthAccessPolicy();
+  return setAuthPolicyCache({
+    ...nextPolicy,
+    updatedAt: new Date().toISOString(),
+    updatedBy: actor?.name || actor?.login || actor?.id || null,
+  });
 }
 
 export function evaluateAuthAccessPolicy(policy: AuthAccessPolicy, params: {

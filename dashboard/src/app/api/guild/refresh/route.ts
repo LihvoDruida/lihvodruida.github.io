@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const includeWarcraftLogs = body?.wcl === undefined ? true : truthy(body.wcl);
     const forceWarcraftLogs = truthy(body?.forceWcl);
     const continueSync = truthy(body?.continue);
-    const includeMembers = body?.includeMembers === undefined ? true : truthy(body.includeMembers);
+    const includeMembers = body?.includeMembers === undefined ? false : truthy(body.includeMembers);
     const debugRequested = truthy(body?.debug) || request.headers.get("x-dashboard-debug") === "1";
     const cacheOnly = truthy(body?.cacheOnly);
     const apiSettings = await getDashboardApiSettings().catch(() => null);

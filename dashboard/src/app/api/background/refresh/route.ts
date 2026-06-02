@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getIntegrationStatusSummary } from "@/lib/integrationStatus";
 import { getDashboardApiSettings, type DashboardApiSettings } from "@/lib/dashboardApiSettings";
-import { loadGuildRosterData } from "@/lib/guildRoster";
+import { loadStoredGuildRosterData } from "@/lib/guildRoster";
 import { canManageRaids, canViewGuildRoster, isDashboardStaff } from "@/lib/permissions";
 import { canViewProfile, getProfileById, refreshProfileExternalData } from "@/lib/profiles";
 import { getRaid, isRaidClosed, raidDisplayCapacity, raidLiveRevision, raidRosterCounts, raidTitle } from "@/lib/raids";
@@ -71,7 +71,7 @@ async function resolveIntegrationStatus() {
 }
 
 async function resolveGuildRoster() {
-  const roster = await loadGuildRosterData({ forceRefresh: false });
+  const roster = await loadStoredGuildRosterData();
   return {
     memberCount: roster.members.length,
     updatedAt: roster.stats.updatedAt,

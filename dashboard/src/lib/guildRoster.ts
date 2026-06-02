@@ -212,6 +212,7 @@ const RACE_ID_FALLBACK: Record<number, string> = {
 declare global {
   var __mistblossomGuildRosterCache: CachedRoster | undefined;
   var __mistblossomGuildRosterSyncJob: GuildRosterSyncJob | undefined;
+  var __mistblossomGuildRosterMemberWarningLoggedAt: Map<string, number> | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
@@ -1034,6 +1035,12 @@ function shardedCacheEnabled(
   return memberCount >= 150;
 }
 
+function guildRosterCacheWriteBatchSize() {
+  const parsed = Number(process.env.GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE || 50);
+  if (!Number.isFinite(parsed)) return 50;
+  return Math.max(1, Math.min(100, Math.floor(parsed)));
+}
+
 function memberDocId(
   member: Pick<GuildRosterMember, "key" | "region" | "realmSlug" | "name">,
 ) {
@@ -1113,7 +1120,7 @@ async function writeMemberDocs(
   const membersToWrite = changedKeys?.size
     ? members.filter((member) => changedKeys.has(member.key))
     : members;
-  const chunkSize = 400;
+  const chunkSize = guildRosterCacheWriteBatchSize();
 
   for (let index = 0; index < membersToWrite.length; index += chunkSize) {
     const batch = getFirebaseAdminDb().batch();
@@ -1132,7 +1139,7 @@ async function writeMemberDocs(
     await batch.commit();
   }
 
-  if (options.fullMemberRewrite) {
+  if (options.fullMemberRewrite && process.env.GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS === "1") {
     const activeDocIds = new Set(members.map((member) => memberDocId(member)));
     const existing = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
     const staleDocs = existing.docs.filter(
@@ -1297,6 +1304,22 @@ function syncProgress(
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function shouldLogMemberWarning(key: string, ttlMs = 60 * 60_000) {
+  const map = globalThis.__mistblossomGuildRosterMemberWarningLoggedAt || new Map<string, number>();
+  globalThis.__mistblossomGuildRosterMemberWarningLoggedAt = map;
+  const last = map.get(key) || 0;
+  const now = Date.now();
+  if (now - last < ttlMs) return false;
+  map.set(key, now);
+  if (map.size > 2000) {
+    for (const [itemKey, value] of map) {
+      if (now - value > ttlMs) map.delete(itemKey);
+      if (map.size <= 1500) break;
+    }
+  }
+  return true;
 }
 
 function guildRosterStepBudgetMs(
@@ -1676,17 +1699,33 @@ async function enrichGuildMembersWithWarcraftLogsStep(
               warcraftLogs.tankDps?.pulls ||
               warcraftLogs.tankHps?.pulls,
           );
-          if (settings?.warningAuditLogs !== false && summary.status !== "ready") {
-            await recordDashboardSystemLog("warning", "guild.roster.wcl.member_status", {
-              summary: `Warcraft Logs не дав ready для ${member.name}`,
-              character: member.name,
-              realmSlug: member.realmSlug,
-              region: member.region,
-              role: member.role,
-              status: summary.status,
-              error: summary.error || null,
-              profileUrl: summary.profileUrl || null,
-            }, { persist: true });
+          if (summary.status !== "ready") {
+            const logKey = `wcl-status:${member.key}:${summary.status}:${summary.error || ""}`;
+            const shouldPersist = summary.status === "error"
+              && settings?.warningAuditLogs !== false
+              && shouldLogMemberWarning(logKey);
+            if (shouldPersist) {
+              await recordDashboardSystemLog("warning", "guild.roster.wcl.member_status", {
+                summary: `Warcraft Logs не дав ready для ${member.name}`,
+                character: member.name,
+                realmSlug: member.realmSlug,
+                region: member.region,
+                role: member.role,
+                status: summary.status,
+                error: summary.error || null,
+                profileUrl: summary.profileUrl || null,
+              }, { persist: true });
+            } else if (settings?.debugAuditLogs && shouldLogMemberWarning(logKey, 10 * 60_000)) {
+              await recordDashboardSystemLog("debug", "guild.roster.wcl.member_status", {
+                summary: `Warcraft Logs статус ${summary.status} для ${member.name}`,
+                character: member.name,
+                realmSlug: member.realmSlug,
+                region: member.region,
+                role: member.role,
+                status: summary.status,
+                error: summary.error || null,
+              }, { debugEnabled: true, persist: true });
+            }
           } else if (settings?.debugAuditLogs && !hasMetric) {
             await recordDashboardSystemLog("debug", "guild.roster.wcl.member_no_metric", {
               summary: `Warcraft Logs ready без DPS/HPS для ${member.name}`,
@@ -1724,7 +1763,7 @@ async function enrichGuildMembersWithWarcraftLogsStep(
             tankHps: null,
             error: message || "Warcraft Logs step failed",
           };
-          if (settings?.warningAuditLogs !== false) {
+          if (settings?.warningAuditLogs !== false && shouldLogMemberWarning(`wcl-failed:${member.key}:${message}`)) {
             await recordDashboardSystemLog("warning", "guild.roster.wcl.member_failed", {
               summary: `Warcraft Logs не оновив ${member.name}`,
               character: member.name,
@@ -2384,22 +2423,10 @@ export async function loadGuildRosterData(
 
   if (cached) return publicFromCache(cached);
 
-  try {
-    const stored = await refreshGuildRosterAndCache(null);
-    return stored ? publicFromCache(stored) : await fetchLiveGuildRoster();
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : String(error || "Не вдалося оновити склад гільдії.");
-
-    return {
-      members: [],
-      stats: fallbackStats(),
-      source: "not-configured",
-      error:
-        message ||
-        "Battle.net / Raider.IO інтеграція складу гільдії не налаштована.",
-    };
-  }
+  return {
+    members: [],
+    stats: fallbackStats(),
+    source: "stored-cache-missing",
+    error: "Склад гільдії ще не має кешу або кеш тимчасово недоступний. Запусти покрокову синхронізацію — сторінка більше не блокується live-збором.",
+  };
 }
