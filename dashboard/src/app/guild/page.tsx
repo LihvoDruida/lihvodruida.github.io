@@ -8,6 +8,7 @@ import { getOwnProfilePath } from "@/lib/profiles";
 import { canViewGuildRoster } from "@/lib/permissions";
 import { buildPageMetadata } from "@/lib/seo";
 import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
+import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -44,8 +45,56 @@ export default async function GuildRosterPage() {
   if (!canViewGuildRoster(user)) redirect(await getOwnProfilePath(user));
 
   const [roster, apiSettings] = await Promise.all([
-    loadGuildRosterData(),
-    getDashboardApiSettings(),
+    loadGuildRosterData().catch((error) => {
+      void recordDashboardSystemLog(
+        "error",
+        "page.guild.roster_read_failed",
+        {
+          summary:
+            "Сторінка складу відкрилась без кешу: читання roster не спрацювало.",
+          message:
+            error instanceof Error ? error.message : String(error || "unknown"),
+        },
+        { persist: true },
+      );
+      return {
+        members: [],
+        stats: {
+          guildName: "Mistblossom Vanguard",
+          guildRealm: "Terokkar",
+          guildFaction: "Alliance",
+          profileUrl: null,
+          memberCount: 0,
+          averageItemLevel: 0,
+          averageRioAll: 0,
+          maxItemLevel: 0,
+          maxRioAll: 0,
+          updatedAt: null,
+        },
+        source: "fallback",
+        error:
+          "Склад тимчасово недоступний. Сторінку відкрито без live-збору, спробуй оновити кеш пізніше.",
+      };
+    }),
+    getDashboardApiSettings().catch((error) => {
+      void recordDashboardSystemLog(
+        "warning",
+        "page.guild.settings_read_failed",
+        {
+          summary:
+            "Налаштування синхронізації складу тимчасово недоступні, використано безпечні значення.",
+          message:
+            error instanceof Error ? error.message : String(error || "unknown"),
+        },
+        { persist: false },
+      );
+      return {
+        guildRosterClientDrivenSyncEnabled: true,
+        guildRosterClientStepDelayMs: 500,
+        guildRosterClientRequestTimeoutMs: 25_000,
+        guildRosterClientMaxSteps: 500,
+      };
+    }),
   ]);
   const members = roster.members;
 

@@ -6,25 +6,34 @@ import { dispatchDashboardToast } from "@/lib/clientToasts";
 type ClientErrorPayload = {
   message: string;
   stack?: string;
-  source: "window-error" | "unhandled-rejection" | "react-error-boundary" | "manual";
+  source:
+    | "window-error"
+    | "unhandled-rejection"
+    | "react-error-boundary"
+    | "manual";
   pathname: string;
   userAgent: string;
 };
 
 function errorMessage(value: unknown) {
-  if (value instanceof Error) return value.message || value.name || "Client error";
-  if (value && typeof value === "object" && "message" in value) return String((value as { message?: unknown }).message || "Client error");
+  if (value instanceof Error)
+    return value.message || value.name || "Client error";
+  if (value && typeof value === "object" && "message" in value)
+    return String((value as { message?: unknown }).message || "Client error");
   return String(value || "Client error");
 }
 
 function errorStack(value: unknown) {
   if (value instanceof Error) return value.stack || "";
-  if (value && typeof value === "object" && "stack" in value) return String((value as { stack?: unknown }).stack || "");
+  if (value && typeof value === "object" && "stack" in value)
+    return String((value as { stack?: unknown }).stack || "");
   return "";
 }
 
 export function isIgnorableClientError(message: string) {
-  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(message);
+  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(
+    message,
+  );
 }
 
 export function isTransientClientStreamError(message: string) {
@@ -48,7 +57,10 @@ async function reportClientError(payload: ClientErrorPayload) {
   }
 }
 
-export function sendClientErrorReport(error: unknown, source: ClientErrorPayload["source"] = "manual") {
+export function sendClientErrorReport(
+  error: unknown,
+  source: ClientErrorPayload["source"] = "manual",
+) {
   if (typeof window === "undefined") return;
   const message = errorMessage(error).slice(0, 500);
   if (!message || isIgnorableClientError(message)) return;
@@ -78,9 +90,10 @@ export default function ClientErrorReporter() {
       sendClientErrorReport(error, source);
       dispatchDashboardToast({
         tone: "error",
-        title: "Помилка інтерфейсу",
-        message: "Панель зафіксувала client-side помилку й записала її в журнал. Онови сторінку, якщо блок не відновився.",
-        ttl: 9000,
+        title: "Технічний збій",
+        message:
+          "Частина сторінки не оновилась. Спробуй повторити дію або онови сторінку.",
+        ttl: 7200,
       });
     }
 

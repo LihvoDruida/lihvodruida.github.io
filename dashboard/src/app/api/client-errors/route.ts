@@ -1,16 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { assertRequestBodySize, checkRateLimit, getClientIp, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
+import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
+import {
+  assertRequestBodySize,
+  checkRateLimit,
+  getClientIp,
+  logDashboardEvent,
+  noStoreHeaders,
+  safeErrorMessage,
+} from "@/lib/security";
 
 function clean(value: unknown, limit = 500) {
-  return String(value || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, limit);
+  return String(value || "")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, limit);
 }
 
 function cleanStack(value: unknown) {
-  return String(value || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").slice(0, 4000);
+  return String(value || "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .slice(0, 4000);
 }
 
 function isIgnorableClientErrorMessage(message: string) {
-  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(message);
+  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(
+    message,
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -25,7 +41,9 @@ export async function POST(request: NextRequest) {
       {
         status: 429,
         headers: noStoreHeaders({
-          "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
+          "Retry-After": String(
+            Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000)),
+          ),
         }),
       },
     );
@@ -34,9 +52,16 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json().catch(() => ({}));
     const message = clean(data?.message, 500);
-    if (!message) return NextResponse.json({ ok: false, error: "Empty client error." }, { status: 400, headers: noStoreHeaders() });
+    if (!message)
+      return NextResponse.json(
+        { ok: false, error: "Empty client error." },
+        { status: 400, headers: noStoreHeaders() },
+      );
     if (isIgnorableClientErrorMessage(message)) {
-      return NextResponse.json({ ok: true, ignored: true }, { headers: noStoreHeaders() });
+      return NextResponse.json(
+        { ok: true, ignored: true },
+        { headers: noStoreHeaders() },
+      );
     }
 
     const details = {
@@ -52,9 +77,30 @@ export async function POST(request: NextRequest) {
 
     logDashboardEvent("error", "client.exception", request, details);
 
+    const shouldPersist =
+      /Server Components render|react-error-boundary|page|route/i.test(
+        `${details.message} ${details.source}`,
+      );
+    if (shouldPersist) {
+      await recordDashboardSystemLog(
+        "error",
+        "page.client_exception",
+        {
+          ...details,
+          summary: "Технічна помилка сторінки записана з браузера.",
+        },
+        { persist: true },
+      ).catch(() => false);
+    }
+
     return NextResponse.json({ ok: true }, { headers: noStoreHeaders() });
   } catch (error) {
-    logDashboardEvent("warn", "client.exception_log_failed", request, { message: safeErrorMessage(error) });
-    return NextResponse.json({ ok: false }, { status: 400, headers: noStoreHeaders() });
+    logDashboardEvent("warn", "client.exception_log_failed", request, {
+      message: safeErrorMessage(error),
+    });
+    return NextResponse.json(
+      { ok: false },
+      { status: 400, headers: noStoreHeaders() },
+    );
   }
 }

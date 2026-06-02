@@ -6,7 +6,16 @@ import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
 import AppFooter from "@/components/AppFooter";
 import ClientErrorReporter from "@/components/ClientErrorReporter";
-import { DASHBOARD_TITLE, DEFAULT_SEO_DESCRIPTION, dashboardBaseUrl, privateRobots } from "@/lib/seo";
+import ClientAuthGuard from "@/components/ClientAuthGuard";
+import {
+  DASHBOARD_TITLE,
+  DEFAULT_SEO_DESCRIPTION,
+  dashboardBaseUrl,
+  privateRobots,
+} from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -41,11 +50,21 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+      {
+        url: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/android-chrome-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
     ],
     shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -85,10 +104,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="uk">
-      <body><ClientErrorReporter /><DashboardFormEnhancer /><Suspense fallback={null}><GlobalToasts /></Suspense>{children}<AppFooter /></body>
+      <body>
+        <ClientErrorReporter />
+        <ClientAuthGuard />
+        <DashboardFormEnhancer />
+        <Suspense fallback={null}>
+          <GlobalToasts />
+        </Suspense>
+        {children}
+        <AppFooter />
+      </body>
     </html>
   );
 }

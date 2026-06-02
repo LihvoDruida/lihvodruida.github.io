@@ -1,7 +1,11 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
+import { notifyDashboardLogout } from "@/components/ClientAuthGuard";
+import {
+  dashboardErrorMessage,
+  dispatchDashboardToast,
+} from "@/lib/clientToasts";
 
 export default function LogoutButton() {
   const [pending, setPending] = useState(false);
@@ -12,9 +16,11 @@ export default function LogoutButton() {
     dispatchDashboardToast({
       tone: "warning",
       title: "Резервний вихід",
-      message: "Основний запит не підтвердився, тому запускаємо безпечний fallback.",
+      message:
+        "Основний запит не підтвердився, тому запускаємо безпечний fallback.",
       ttl: 4200,
     });
+    notifyDashboardLogout();
     window.location.assign("/api/auth/logout?fallback=1");
   }
 
@@ -24,7 +30,12 @@ export default function LogoutButton() {
 
     setPending(true);
     setError("");
-    dispatchDashboardToast({ tone: "info", title: "Вихід з акаунта", message: "Завершуємо поточну сесію.", ttl: 3200 });
+    dispatchDashboardToast({
+      tone: "info",
+      title: "Вихід з акаунта",
+      message: "Завершуємо поточну сесію.",
+      ttl: 3200,
+    });
 
     try {
       const response = await fetch("/api/auth/logout", {
@@ -40,27 +51,53 @@ export default function LogoutButton() {
 
       if (!response.ok && !response.redirected) {
         const data = await response.json().catch(() => ({}));
-        fallbackLogout(data?.error || `Logout POST failed with ${response.status}`);
+        fallbackLogout(
+          data?.error || `Logout POST failed with ${response.status}`,
+        );
         return;
       }
 
-      dispatchDashboardToast({ tone: "success", title: "Сесію завершено", message: "Повертаємо на сторінку входу." });
+      dispatchDashboardToast({
+        tone: "success",
+        title: "Сесію завершено",
+        message: "Повертаємо на сторінку входу.",
+      });
+      notifyDashboardLogout();
       window.location.assign("/login");
     } catch (caught) {
       console.error("[dashboard:logout]", caught);
       const errorMessage = dashboardErrorMessage(caught, "Logout fetch failed");
       setError("Виконуємо резервний вихід...");
-      dispatchDashboardToast({ tone: "error", title: "Основний вихід не спрацював", message: errorMessage });
+      dispatchDashboardToast({
+        tone: "error",
+        title: "Основний вихід не спрацював",
+        message: errorMessage,
+      });
       fallbackLogout(errorMessage);
     }
   }
 
   return (
-    <form method="post" action="/api/auth/logout" className="dashboard-user__logout" data-toast-managed="true" onSubmit={submitLogout}>
-      <button type="submit" aria-label="Вийти" disabled={pending} aria-busy={pending}>
+    <form
+      method="post"
+      action="/api/auth/logout"
+      className="dashboard-user__logout"
+      data-toast-managed="true"
+      onSubmit={submitLogout}
+    >
+      <button
+        type="submit"
+        aria-label="Вийти"
+        disabled={pending}
+        aria-busy={pending}
+      >
         {pending ? "Виходимо..." : "Вийти"}
       </button>
-      {error ? <small className="dashboard-user__logout-error" role="alert">{error}</small> : null}
+      {error ? (
+        <small className="dashboard-user__logout-error" role="alert">
+          {error}
+        </small>
+      ) : null}
     </form>
   );
 }

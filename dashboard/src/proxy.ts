@@ -12,6 +12,47 @@ import {
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+const SESSION_COOKIE_NAMES = [
+  "__Host-mistblossom_dashboard_session",
+  "mistblossom_dashboard_session",
+];
+
+function hasDashboardSessionCookie(request: NextRequest) {
+  return SESSION_COOKIE_NAMES.some((name) =>
+    Boolean(request.cookies.get(name)?.value),
+  );
+}
+
+function isProtectedPagePath(pathname: string) {
+  if (pathname === "/") return true;
+  return /^\/(?:admin|guild|profile|profiles|raids|discord|content|rules\/accept)(?:\/|$)/.test(
+    pathname,
+  );
+}
+
+function isPublicApiPath(pathname: string) {
+  return (
+    pathname.startsWith("/api/auth/") ||
+    pathname === "/api/client-errors" ||
+    pathname === "/api/background/settings" ||
+    pathname === "/api/discord/interactions"
+  );
+}
+
+function isProtectedApiPath(pathname: string) {
+  return pathname.startsWith("/api/") && !isPublicApiPath(pathname);
+}
+
+function loginRedirectFor(request: NextRequest) {
+  const target = request.nextUrl.clone();
+  const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  target.pathname = "/login";
+  target.search = "";
+  if (nextPath && nextPath !== "/") target.searchParams.set("next", nextPath);
+  target.searchParams.set("reauth", "1");
+  return target;
+}
+
 function createNonce() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -21,7 +62,12 @@ function createNonce() {
 }
 
 function contentSecurityPolicy(nonce: string) {
-  const scriptSrc = ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'", isDevelopment ? "'unsafe-eval'" : ""]
+  const scriptSrc = [
+    "'self'",
+    `'nonce-${nonce}'`,
+    "'strict-dynamic'",
+    isDevelopment ? "'unsafe-eval'" : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -44,19 +90,24 @@ function contentSecurityPolicy(nonce: string) {
     "media-src 'self' https:",
     "object-src 'none'",
     upgrade,
-  ].filter(Boolean).join("; ");
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 function shouldRequireCloudflareProxy(host: string) {
   if (isDevelopment || isLocalHost(host)) return false;
-  return String(process.env.SECURITY_REQUIRE_CLOUDFLARE || "").toLowerCase() === "true";
+  return (
+    String(process.env.SECURITY_REQUIRE_CLOUDFLARE || "").toLowerCase() ===
+    "true"
+  );
 }
 
 function hasCloudflareSignal(request: NextRequest) {
   return Boolean(
     request.headers.get("cf-ray") ||
     request.headers.get("cf-connecting-ip") ||
-    request.headers.get("cf-visitor")
+    request.headers.get("cf-visitor"),
   );
 }
 
@@ -64,14 +115,22 @@ export function proxy(request: NextRequest) {
   const host = getRequestHost(request);
 
   if (!isAllowedHost(host)) {
-    logDashboardEvent("warn", "proxy.host_rejected", request, { blockedHost: host });
+    logDashboardEvent("warn", "proxy.host_rejected", request, {
+      blockedHost: host,
+    });
 
     if (request.method === "GET" || request.method === "HEAD") {
-      const target = new URL(request.nextUrl.pathname + request.nextUrl.search, getCanonicalDashboardOrigin());
+      const target = new URL(
+        request.nextUrl.pathname + request.nextUrl.search,
+        getCanonicalDashboardOrigin(),
+      );
       return NextResponse.redirect(target, 308);
     }
 
-    return new NextResponse("Blocked host", { status: 421, headers: noStoreHeaders() });
+    return new NextResponse("Blocked host", {
+      status: 421,
+      headers: noStoreHeaders(),
+    });
   }
 
   if (shouldRequireCloudflareProxy(host) && !hasCloudflareSignal(request)) {
@@ -79,49 +138,128 @@ export function proxy(request: NextRequest) {
     return forbiddenResponse("Запит має проходити через Cloudflare.");
   }
 
-  const isDiscordInteractionEndpoint = request.nextUrl.pathname === "/api/discord/interactions";
+  const isDiscordInteractionEndpoint =
+    request.nextUrl.pathname === "/api/discord/interactions";
 
   if (!isDiscordInteractionEndpoint && !verifyTrustedOrigin(request)) {
     return forbiddenResponse("Недовірене джерело запиту.");
   }
 
-  if (request.method === "POST" && request.nextUrl.pathname === "/admin/discord") {
-    const wantsJson = String(request.headers.get("x-dashboard-action") || "").toLowerCase() === "live" || String(request.headers.get("accept") || "").toLowerCase().includes("application/json");
-    logDashboardEvent("warn", "proxy.admin_discord_stale_server_action_redirect", request, { wantsJson });
+  if (
+    (request.method === "GET" || request.method === "HEAD") &&
+    isProtectedPagePath(request.nextUrl.pathname) &&
+    !hasDashboardSessionCookie(request)
+  ) {
+    const response = NextResponse.redirect(loginRedirectFor(request), 303);
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    response.cookies.set(
+      "dashboard_toast",
+      JSON.stringify({
+        tone: "warning",
+        title: "Потрібен вхід",
+        message: "Сторінка доступна тільки після авторизації.",
+        ttl: 5200,
+      }),
+      { path: "/", maxAge: 45, sameSite: "lax" },
+    );
+    return response;
+  }
+
+  if (
+    isProtectedApiPath(request.nextUrl.pathname) &&
+    !hasDashboardSessionCookie(request)
+  ) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "unauthorized",
+        toast: {
+          tone: "warning",
+          title: "Потрібен вхід",
+          message: "Сесія завершилась. Увійди ще раз і повтори дію.",
+        },
+      },
+      { status: 401, headers: noStoreHeaders() },
+    );
+  }
+
+  if (
+    request.method === "POST" &&
+    request.nextUrl.pathname === "/admin/discord"
+  ) {
+    const wantsJson =
+      String(request.headers.get("x-dashboard-action") || "").toLowerCase() ===
+        "live" ||
+      String(request.headers.get("accept") || "")
+        .toLowerCase()
+        .includes("application/json");
+    logDashboardEvent(
+      "warn",
+      "proxy.admin_discord_stale_server_action_redirect",
+      request,
+      { wantsJson },
+    );
 
     if (wantsJson) {
-      return NextResponse.json({
-        ok: false,
-        refresh: true,
-        toast: {
-          tone: "error",
-          title: "Discord-дія не дійшла до API",
-          message: "Форма відправилась на /admin/discord замість /api/admin/discord/*. Онови сторінку після деплою й повтори дію.",
-          ttl: 8200,
+      return NextResponse.json(
+        {
+          ok: false,
+          refresh: true,
+          toast: {
+            tone: "error",
+            title: "Discord-дія не дійшла до API",
+            message:
+              "Форма відправилась на /admin/discord замість /api/admin/discord/*. Онови сторінку після деплою й повтори дію.",
+            ttl: 8200,
+          },
         },
-      }, { status: 409, headers: noStoreHeaders() });
+        { status: 409, headers: noStoreHeaders() },
+      );
     }
 
     const target = request.nextUrl.clone();
     target.pathname = "/admin/discord";
     target.search = "";
     const response = NextResponse.redirect(target, 303);
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-    response.cookies.set("dashboard_toast", JSON.stringify({
-      tone: "warning",
-      title: "Сторінку Discord-керування оновлено",
-      message: "Форма була з попередньої версії деплою. Відкрий сторінку ще раз і повтори дію — тепер дії йдуть через API, а не Server Action.",
-      ttl: 8200,
-    }), { path: "/", maxAge: 45, sameSite: "lax" });
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate",
+    );
+    response.cookies.set(
+      "dashboard_toast",
+      JSON.stringify({
+        tone: "warning",
+        title: "Сторінку Discord-керування оновлено",
+        message:
+          "Форма була з попередньої версії деплою. Відкрий сторінку ще раз і повтори дію — тепер дії йдуть через API, а не Server Action.",
+        ttl: 8200,
+      }),
+      { path: "/", maxAge: 45, sameSite: "lax" },
+    );
     return response;
   }
 
-  const staleRaidActionMatch = request.nextUrl.pathname.match(/^\/raids\/([^/]+)$/);
-  if (request.method === "POST" && staleRaidActionMatch && request.nextUrl.searchParams.has("nxtPraidId")) {
+  const staleRaidActionMatch =
+    request.nextUrl.pathname.match(/^\/raids\/([^/]+)$/);
+  if (
+    request.method === "POST" &&
+    staleRaidActionMatch &&
+    request.nextUrl.searchParams.has("nxtPraidId")
+  ) {
     const target = request.nextUrl.clone();
     target.pathname = `/api/raids/${encodeURIComponent(staleRaidActionMatch[1])}/attendance`;
     target.search = "";
-    logDashboardEvent("warn", "proxy.raid_stale_server_action_rewrite", request, { raidId: staleRaidActionMatch[1] });
+    logDashboardEvent(
+      "warn",
+      "proxy.raid_stale_server_action_rewrite",
+      request,
+      { raidId: staleRaidActionMatch[1] },
+    );
     return NextResponse.rewrite(target, { headers: noStoreHeaders() });
   }
 
@@ -135,10 +273,16 @@ export function proxy(request: NextRequest) {
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("X-Nonce", nonce);
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
-  response.headers.set("Vary", "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Url");
+  response.headers.set(
+    "Vary",
+    "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Url",
+  );
 
   return response;
 }
@@ -146,7 +290,8 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
+      source:
+        "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

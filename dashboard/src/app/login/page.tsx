@@ -1,15 +1,24 @@
-import { getSession } from "@/lib/auth";
+import { getStoredSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/seo";
-import { getProfileById, profileFromSession, profileNeedsSettingsSetup, profileSettingsSetupPath } from "@/lib/profiles";
+import {
+  getProfileById,
+  profileFromSession,
+  profileNeedsSettingsSetup,
+  profileSettingsSetupPath,
+} from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
-import { normalizeRulesAcceptPath, rulesOnboardingStatus } from "@/lib/rulesOnboarding";
+import {
+  normalizeRulesAcceptPath,
+  rulesOnboardingStatus,
+} from "@/lib/rulesOnboarding";
 import { getAuthAccessPolicy } from "@/lib/authAccessPolicy";
 
 export const metadata = buildPageMetadata({
   title: "Вхід до панелі",
-  description: "Безпечний вхід до особистої панелі Mistblossom Vanguard через Discord для учасників, офіцерів і гільдмайстра.",
+  description:
+    "Безпечний вхід до особистої панелі Mistblossom Vanguard через Discord для учасників, офіцерів і гільдмайстра.",
   path: "/login",
   keywords: ["вхід Discord", "панель гільдії"],
 });
@@ -21,7 +30,11 @@ function safeNextPath(value?: string) {
   const path = String(value || "").trim();
   if (!path || path.length > 220) return "";
   if (!path.startsWith("/") || path.startsWith("//")) return "";
-  if (path === "/" || /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)) return path;
+  if (
+    path === "/" ||
+    /^\/(?:raids|profile|rules\/accept)(?:[/?#]|$)/.test(path)
+  )
+    return path;
   return "";
 }
 
@@ -29,20 +42,27 @@ function errorText(error?: string) {
   if (!error) return null;
 
   const map: Record<string, string> = {
-    access_denied: "Доступ закрито: потрібна роль адміна, модератора, наставника або дозволений доступ учасника гільдії.",
+    access_denied:
+      "Доступ закрито: потрібна роль адміна, модератора, наставника або дозволений доступ учасника гільдії.",
     discord_oauth: "Discord не завершив авторизацію. Спробуй ще раз.",
-    oauth_state: "Сесія входу застаріла або було відкрито кілька входів одночасно. Натисни вхід ще раз — тепер паралельні входи обробляються без блокування.",
+    oauth_state:
+      "Сесія входу застаріла або було відкрито кілька входів одночасно. Натисни вхід ще раз — тепер паралельні входи обробляються без блокування.",
     discord_required: "Для входу потрібен Discord.",
     discord_only: "GitHub вхід вимкнено. Використай Discord.",
     token: "Резервний ключ неправильний.",
     rate_limit: "Забагато спроб. Зачекай кілька хвилин.",
     geo_blocked: "Доступ із цієї країни зараз обмежено правилами спільноти.",
-    required_discord_role: "Доступ закрито: ти є на сервері Discord, але не маєш ролі, потрібної для авторизації або реєстрації.",
-    auth_role_not_configured: "Доступ тимчасово закрито: адміністратор ще не вибрав Discord-роль, потрібну для авторизації.",
-    not_guild_member: "Доступ закрито: Discord-акаунт не є учасником сервера гільдії.",
+    required_discord_role:
+      "Доступ закрито: ти є на сервері Discord, але не маєш ролі, потрібної для авторизації або реєстрації.",
+    auth_role_not_configured:
+      "Доступ тимчасово закрито: адміністратор ще не вибрав Discord-роль, потрібну для авторизації.",
+    not_guild_member:
+      "Доступ закрито: Discord-акаунт не є учасником сервера гільдії.",
     discord_banned: "Доступ закрито: Discord-акаунт заблокований на сервері.",
-    security_check_failed: "Не вдалося безпечно перевірити Discord-сервер або ролі. Спробуй пізніше.",
-    token_disabled: "Резервний вхід вимкнено правилами безпеки. Використай Discord.",
+    security_check_failed:
+      "Не вдалося безпечно перевірити Discord-сервер або ролі. Спробуй пізніше.",
+    token_disabled:
+      "Резервний вхід вимкнено правилами безпеки. Використай Discord.",
   };
 
   return map[error] || "Не вдалося увійти. Перевір доступ у Discord.";
@@ -63,21 +83,47 @@ function discordStartPath(nextPath: string, forceFreshLogin: boolean) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string; force?: string; switch?: string; reauth?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    next?: string;
+    force?: string;
+    switch?: string;
+    reauth?: string;
+  }>;
 }) {
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
-  const forceFreshLogin = isEnabled(params.force) || isEnabled(params.switch) || isEnabled(params.reauth);
-  const session = forceFreshLogin ? null : await getSession();
+  const forceFreshLogin =
+    isEnabled(params.force) ||
+    isEnabled(params.switch) ||
+    isEnabled(params.reauth);
+  const session = forceFreshLogin
+    ? null
+    : await getStoredSession().catch(() => null);
   if (session) {
     const profileId = session.profileId || "";
-    const profile = profileId ? await getProfileById(profileId).catch(() => null) : null;
-    const setupProfile = profile || (profileId ? profileFromSession({ ...session, profileId }) : null);
-    const setupPath = setupProfile && profileNeedsSettingsSetup(setupProfile) ? profileSettingsSetupPath(setupProfile.profileId) : "";
+    const profile = profileId
+      ? await getProfileById(profileId).catch(() => null)
+      : null;
+    const setupProfile =
+      profile ||
+      (profileId ? profileFromSession({ ...session, profileId }) : null);
+    const setupPath =
+      setupProfile && profileNeedsSettingsSetup(setupProfile)
+        ? profileSettingsSetupPath(setupProfile.profileId)
+        : "";
     const rulesNextPath = normalizeRulesAcceptPath(nextPath);
-    const nicknamePolicy = rulesNextPath ? await getGuildNicknamePolicy() : null;
-    const rulesStatus = setupProfile && rulesNextPath ? rulesOnboardingStatus(setupProfile, nicknamePolicy?.template) : null;
-    const rulesRedirectPath = rulesNextPath && !rulesStatus?.complete ? normalizeRulesAcceptPath(rulesNextPath, "incomplete") : rulesNextPath;
+    const nicknamePolicy = rulesNextPath
+      ? await getGuildNicknamePolicy()
+      : null;
+    const rulesStatus =
+      setupProfile && rulesNextPath
+        ? rulesOnboardingStatus(setupProfile, nicknamePolicy?.template)
+        : null;
+    const rulesRedirectPath =
+      rulesNextPath && !rulesStatus?.complete
+        ? normalizeRulesAcceptPath(rulesNextPath, "incomplete")
+        : rulesNextPath;
     redirect(rulesRedirectPath || setupPath || nextPath || "/");
   }
 
@@ -85,7 +131,9 @@ export default async function LoginPage({
   const authPolicy = await getAuthAccessPolicy();
   const error = errorText(params.error);
   const hasDiscord = Boolean(process.env.DISCORD_OAUTH_CLIENT_ID);
-  const hasTokenFallback = Boolean(process.env.ADMIN_DASHBOARD_TOKEN) && (!authPolicy.enabled || authPolicy.allowEmergencyTokenLogin);
+  const hasTokenFallback =
+    Boolean(process.env.ADMIN_DASHBOARD_TOKEN) &&
+    (!authPolicy.enabled || authPolicy.allowEmergencyTokenLogin);
 
   return (
     <main className="login-screen">
@@ -119,7 +167,8 @@ export default async function LoginPage({
             <span>гільдії</span>
           </h1>
           <p className="login-lead">
-            Увійди через Discord. Адміни й офіцери отримують керування, наставники — перегляд заявок, учасники — особистий профіль.
+            Увійди через Discord. Адміни й офіцери отримують керування,
+            наставники — перегляд заявок, учасники — особистий профіль.
           </p>
 
           <div className="login-feature-list" aria-label="Можливості панелі">
@@ -136,7 +185,10 @@ export default async function LoginPage({
 
           <div className="login-action-row">
             {hasDiscord ? (
-              <a className="login-discord-button" href={discordStartPath(nextPath, forceFreshLogin)}>
+              <a
+                className="login-discord-button"
+                href={discordStartPath(nextPath, forceFreshLogin)}
+              >
                 <span className="login-discord-button__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false">
                     <path
@@ -149,7 +201,10 @@ export default async function LoginPage({
                   <strong>Увійти через Discord</strong>
                   <small>Перевірка ролей автоматична</small>
                 </span>
-                <span className="login-discord-button__arrow" aria-hidden="true">
+                <span
+                  className="login-discord-button__arrow"
+                  aria-hidden="true"
+                >
                   →
                 </span>
               </a>
@@ -180,7 +235,8 @@ export default async function LoginPage({
           ) : null}
 
           <p className="login-note">
-            Доступ визначається Discord-ролями. Учасники бачать тільки власний профіль, а приватні дані не показуються в інтерфейсі.
+            Доступ визначається Discord-ролями. Учасники бачать тільки власний
+            профіль, а приватні дані не показуються в інтерфейсі.
           </p>
         </div>
       </section>

@@ -347,8 +347,8 @@ export async function GET(request: NextRequest) {
         { excludeProviderUserId: userId },
       ).catch((error) => {
         logDashboardEvent(
-          "error",
-          "auth.discord.callback.character_conflict_check_failed",
+          "warn",
+          "auth.discord.callback.character_conflict_check_unavailable",
           request,
           {
             userId,
@@ -356,7 +356,7 @@ export async function GET(request: NextRequest) {
             message: error instanceof Error ? error.message : String(error),
           },
         );
-        throw error;
+        return [];
       });
       if (conflicts.length) {
         logDashboardEvent(

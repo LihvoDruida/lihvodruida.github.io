@@ -9,6 +9,7 @@ export {
   createSessionToken,
   getSession,
   getSessionUser,
+  getStoredSession,
   isAuthenticated,
   setSession,
   parseOAuthStateToken,
@@ -16,8 +17,4 @@ export {
   verifyToken,
 } from "./auth";
 
-export type {
-  DashboardRole,
-  DashboardSession,
-  SessionUser,
-} from "./auth";
+export type { DashboardRole, DashboardSession, SessionUser } from "./auth";

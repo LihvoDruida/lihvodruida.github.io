@@ -48,7 +48,10 @@ function expireAuthCookies(response: NextResponse) {
 
 function logoutRedirect(target: string) {
   const response = NextResponse.redirect(target, 303);
-  for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);
+  for (const [key, value] of Object.entries(noStoreHeaders()))
+    response.headers.set(key, value);
+  response.headers.set("Clear-Site-Data", '"cache"');
+  response.headers.set("X-Dashboard-Session", "cleared");
   expireAuthCookies(response);
   return response;
 }
@@ -63,9 +66,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  if (request.nextUrl.searchParams.get("fallback") === "1") {
+    logDashboardEvent("warn", "auth.logout.get_fallback", request);
+    await clearSession();
+    return logoutRedirect(
+      new URL("/login?loggedOut=1", request.url).toString(),
+    );
+  }
+
   logDashboardEvent("warn", "auth.logout.get_blocked", request);
   return NextResponse.json(
     { error: "Logout requires POST." },
-    { status: 405, headers: noStoreHeaders({ Allow: "POST" }) }
+    { status: 405, headers: noStoreHeaders({ Allow: "POST" }) },
   );
 }
