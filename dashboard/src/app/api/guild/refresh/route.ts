@@ -18,6 +18,7 @@ type GuildRefreshBody = {
   continue?: unknown;
   includeMembers?: unknown;
   debug?: unknown;
+  cacheOnly?: unknown;
 };
 
 function truthy(value: unknown) {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
     const continueSync = truthy(body?.continue);
     const includeMembers = body?.includeMembers === undefined ? true : truthy(body.includeMembers);
     const debugRequested = truthy(body?.debug) || request.headers.get("x-dashboard-debug") === "1";
+    const cacheOnly = truthy(body?.cacheOnly);
     const apiSettings = await getDashboardApiSettings().catch(() => null);
     const debugAuditEnabled = Boolean(debugRequested || apiSettings?.dashboardApiDebugAuditLogs || apiSettings?.warcraftLogsDebugAuditLogs);
     const roster = await refreshGuildRosterApiBatch({
@@ -59,13 +61,15 @@ export async function POST(request: NextRequest) {
       includeWarcraftLogs,
       forceWarcraftLogs,
       continueSync,
+      cacheOnly,
     });
 
     const warningReasons = [
       roster.refresh.battleNet.reason,
       roster.refresh.raiderIo.reason,
       roster.refresh.warcraftLogs.reason,
-    ].filter((reason): reason is string => Boolean(reason && !["served_from_cache", "not_current_phase", "fresh", "disabled"].includes(reason)));
+    ].filter((reason): reason is string => Boolean(reason && !["served_from_cache", "not_current_phase", "fresh", "disabled", "disabled_by_step_size"].includes(reason)));
+    const syncError = roster.refresh.sync.errors.at(-1) || null;
     const auditLevel = roster.refresh.sync.status === "failed"
       ? "error"
       : warningReasons.length
@@ -74,19 +78,24 @@ export async function POST(request: NextRequest) {
     const shouldPersistStep = auditLevel === "debug"
       ? debugAuditEnabled
       : apiSettings?.dashboardApiWarningAuditLogs !== false;
-    await recordDashboardSystemLog(auditLevel, "guild.roster.sync.step", {
-      summary: `Guild roster sync: ${roster.refresh.sync.phase} • ${roster.members.length} персонажів`,
-      profileId: session?.profileId || null,
-      memberCount: roster.members.length,
-      source: roster.source,
-      forceRefresh,
-      includeWarcraftLogs,
-      forceWarcraftLogs,
-      continueSync,
-      includeMembers,
-      refresh: roster.refresh,
-      warningReasons,
-    }, { debugEnabled: debugAuditEnabled, persist: shouldPersistStep });
+    if (!cacheOnly) {
+      await recordDashboardSystemLog(auditLevel, "guild.roster.sync.step", {
+        summary: `Guild roster sync: ${roster.refresh.sync.phase} • ${roster.members.length} персонажів`,
+        profileId: session?.profileId || null,
+        memberCount: roster.members.length,
+        source: roster.source,
+        forceRefresh,
+        includeWarcraftLogs,
+        forceWarcraftLogs,
+        continueSync,
+        includeMembers,
+        cacheOnly,
+        refresh: roster.refresh,
+        warningReasons,
+        error: syncError,
+        syncErrors: roster.refresh.sync.errors,
+      }, { debugEnabled: debugAuditEnabled, persist: shouldPersistStep });
+    }
 
     logDashboardEvent("info", "guild.roster.refreshed", request, {
       profileId: session?.profileId || null,
@@ -101,7 +110,7 @@ export async function POST(request: NextRequest) {
       updatedAt: roster.stats.updatedAt,
       source: roster.source,
       ...(includeMembers ? { members: roster.members, stats: roster.stats } : {}),
-      error: roster.error || null,
+      error: roster.error || syncError || null,
       refresh: roster.refresh,
       hasMore:
         roster.refresh.sync.status === "running" ||

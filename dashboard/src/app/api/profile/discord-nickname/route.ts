@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { fetchDiscordGuildSnapshot, getDiscordGuildId, updateGuildMemberNickname } from "@/lib/discordAdmin";
 import { buildProfileDiscordNicknamePlan, getProfileById, markProfileDiscordNicknameSynced } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
-import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {

@@ -22,6 +22,7 @@ type GuildRosterRefreshPayload = {
         raiderIo?: number;
         warcraftLogs?: number;
       };
+      errors?: string[];
     };
     battleNet?: {
       remaining?: number;
@@ -184,15 +185,18 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
       }
 
       if (payload?.refresh?.sync?.status === "failed") {
+        const lastSyncError = payload.refresh.sync.errors?.at(-1);
         throw new Error(
-          payload.error || "Синхронізація зупинилась з помилкою.",
+          payload.error || lastSyncError || "Синхронізація зупинилась з помилкою.",
         );
       }
 
       setState("done");
       setMessage(
-        payload?.hasMore && !clientDrivenSyncEnabled
-          ? `Перший крок виконано: персонажів у кеші ${payload?.memberCount ?? 0}. Увімкни клієнтський цикл або натискай повторно для продовження.`
+        payload?.hasMore
+          ? clientDrivenSyncEnabled
+            ? `Досягнуто ліміт кроків (${maxSteps}). Дані збережені, але синхронізація ще має продовження. Збільш ліміт у налаштуваннях або натисни “Оновити склад” ще раз.`
+            : `Перший крок виконано: персонажів у кеші ${payload?.memberCount ?? 0}. Увімкни клієнтський цикл або натискай повторно для продовження.`
           : `Готово: склад синхронізовано, персонажів: ${payload?.memberCount ?? 0}.`,
       );
       notifyDashboardDataChanged({

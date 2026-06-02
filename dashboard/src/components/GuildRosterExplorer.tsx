@@ -633,7 +633,7 @@ export default function GuildRosterExplorer({
       url: "/api/guild/refresh",
       method: "POST",
       headers: { "X-Dashboard-Action": "guild-roster-cache-sync" },
-      json: { force: false },
+      json: { cacheOnly: true, includeMembers: true },
       select: (payload) => {
         const data = payload as Partial<GuildRosterLivePayload> | null;
         return {

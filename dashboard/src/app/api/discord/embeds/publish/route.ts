@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const updated = await editDiscordEmbedMessage({
+      await editDiscordEmbedMessage({
         ref: editRef,
         content,
         embed,

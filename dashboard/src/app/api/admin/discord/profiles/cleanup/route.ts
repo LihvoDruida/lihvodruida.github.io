@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function compactProfileCleanupResult(result: Awaited<ReturnType<typeof cleanupDashboardProfilesDiscordMembership>>) {
-  const { targets: _targets, activePreview: _activePreview, ...compact } = result;
+  const compact = { ...result } as Partial<typeof result>;
+  delete compact.targets;
+  delete compact.activePreview;
   return compact;
 }
 

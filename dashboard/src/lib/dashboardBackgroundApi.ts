@@ -264,8 +264,11 @@ export function dashboardBackgroundApiVersion() {
 export function useDashboardApiResource<T>(options: DashboardApiResourceOptions<T>) {
   const key = cleanKey(options.key);
   const optionsRef = useRef(options);
-  optionsRef.current = options;
   const initialStateRef = useRef(initialState(options.initialData));
+
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
   const getOptions = useCallback(() => optionsRef.current, []);
   const getSnapshot = useCallback(() => {
     void version;

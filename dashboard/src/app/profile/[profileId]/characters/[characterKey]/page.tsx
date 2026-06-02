@@ -34,7 +34,6 @@ import {
   fetchWarcraftLogsCharacterSummary,
   warcraftLogsSummaryFromStoredSnapshot,
   type WarcraftLogsCharacterSummary,
-  type WarcraftLogsEncounterRanking,
 } from "@/lib/warcraftLogs";
 import {
   dateMillis,
@@ -532,47 +531,6 @@ function WarcraftLogsStatus({
   return (
     <div className="profile-character-service-note" role="status">
       {message}
-    </div>
-  );
-}
-
-function EncounterRankingRow({
-  ranking,
-}: {
-  ranking: WarcraftLogsEncounterRanking;
-}) {
-  return (
-    <div className="profile-character-log-ranking">
-      <span>
-        <strong>{ranking.encounterName}</strong>
-        <small>
-          {[
-            ranking.spec,
-            ranking.metric?.toUpperCase(),
-            ranking.startTime
-              ? formatStableUkCompactDate(ranking.startTime)
-              : null,
-          ]
-            .filter(Boolean)
-            .join(" • ")}
-        </small>
-      </span>
-      <span>
-        <strong>{formatPercent(ranking.percentile)}</strong>
-        <small>Parse</small>
-      </span>
-      <span>
-        <strong>{formatMetricAmount(ranking.bestAmount)}</strong>
-        <small>{ranking.metric?.toUpperCase() || "Best"}</small>
-      </span>
-      <span>
-        <strong>{ranking.totalKills ?? "—"}</strong>
-        <small>
-          {ranking.fastestKillMs
-            ? `Fast ${formatDuration(ranking.fastestKillMs)}`
-            : "Kills"}
-        </small>
-      </span>
     </div>
   );
 }

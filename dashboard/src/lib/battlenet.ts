@@ -644,7 +644,15 @@ export async function fetchBattleNetGuildCharacters(accessToken: string, regionI
   };
 }
 
-export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetCharacterCandidate, "region" | "name" | "normalizedName" | "realmSlug">): Promise<BattleNetCharacterCandidate | null> {
+export async function fetchBattleNetCharacterSnapshot(
+  input: Pick<
+    BattleNetCharacterCandidate,
+    "region" | "name" | "normalizedName" | "realmSlug"
+  > & {
+    guildRankInfo?: BattleNetGuildRankInfo | null;
+    skipGuildRankMap?: boolean;
+  },
+): Promise<BattleNetCharacterCandidate | null> {
   const region = normalizeBattleNetRegion(input.region || getDefaultBattleNetRegion());
   const realmSlug = normalizeBattleNetRealmSlug(input.realmSlug);
   const nameSlug = normalizeBattleNetNameSlug(input.normalizedName || input.name);
@@ -654,10 +662,12 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
   const [details, media, guildRankMap] = await Promise.all([
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region),
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
-    fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>()),
+    input.guildRankInfo || input.skipGuildRankMap
+      ? Promise.resolve(new Map<string, BattleNetGuildRankInfo>())
+      : fetchBattleNetGuildRankMap(region).catch(() => new Map<string, BattleNetGuildRankInfo>()),
   ]);
 
-  const verifiedGuild = isMistblossomGuild(details);
+  const verifiedGuild = Boolean(input.guildRankInfo?.status) || isMistblossomGuild(details);
   if (!verifiedGuild && envFlag("BATTLENET_ONLY_GUILD_CHARACTERS", false)) {
     return null;
   }
@@ -673,7 +683,9 @@ export async function fetchBattleNetCharacterSnapshot(input: Pick<BattleNetChara
   const className = pickLocalizedName(details?.character_class || details?.playable_class);
   const characterKey = buildBattleNetCharacterKey(region, cleanRealmSlug, normalizedName);
   if (!characterKey) return null;
-  const guildRankInfo = verifiedGuild ? guildRankMap.get(characterKey) || guildStatusFromRank(null) : guildStatusFromRank(null);
+  const guildRankInfo = verifiedGuild
+    ? input.guildRankInfo || guildRankMap.get(characterKey) || guildStatusFromRank(null)
+    : guildStatusFromRank(null);
 
   return {
     key: characterKey,

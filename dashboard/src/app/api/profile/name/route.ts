@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { setProfilePreferredName } from "@/lib/profiles";
-import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
+import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
 function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
