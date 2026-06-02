@@ -17,12 +17,6 @@ import {
   type RaiderIoCharacterSnapshot,
 } from "@/lib/raiderIo";
 import {
-  buildWarcraftLogsStoredSnapshot,
-  fetchWarcraftLogsCharacterSummary,
-  normalizeWarcraftLogsStoredSnapshot,
-  type WarcraftLogsStoredSnapshot,
-} from "@/lib/warcraftLogs";
-import {
   fetchBattleNetCharacterSnapshot,
   type BattleNetAccountInfo,
   type BattleNetCharacterCandidate,
@@ -68,7 +62,6 @@ export type ProfileCharacter = BattleNetCharacterCandidate & {
   addedAt?: string | null;
   isMain?: boolean;
   raiderIo?: RaiderIoCharacterSnapshot | null;
-  warcraftLogs?: WarcraftLogsStoredSnapshot | null;
 };
 
 export type ProfilePublicNameMode = "name" | "server_nickname";
@@ -604,9 +597,6 @@ function normalizeCharacter(
       ? Number(item.itemLevel)
       : null,
     raiderIo: normalizeRaiderIoSnapshot(item.raiderIo || item.raider_io),
-    warcraftLogs: normalizeWarcraftLogsStoredSnapshot(
-      item.warcraftLogs || item.wcl || item.warcraft_logs,
-    ),
     lastSeenAt:
       timestampToIso(item.lastSeenAt) ||
       optionalString(item.lastSeenAt) ||
@@ -1360,7 +1350,6 @@ export async function listAllDashboardProfilesForDiscordSync(
 export type CharacterProfileLink = {
   profileId: string;
   displayName: string;
-  warcraftLogs?: WarcraftLogsStoredSnapshot | null;
 };
 
 type CharacterProfileLinksCacheEntry = {
@@ -1437,69 +1426,6 @@ function characterProfileLinkKeys(character: ProfileCharacter) {
   return keys;
 }
 
-export async function saveProfileCharacterWarcraftLogsSnapshot(input: {
-  profileId: string;
-  characterKey?: string | null;
-  region?: unknown;
-  realmSlug?: unknown;
-  name?: unknown;
-  warcraftLogs: WarcraftLogsStoredSnapshot | null;
-}) {
-  const cleanProfileId = String(input.profileId || "").trim();
-  const warcraftLogs = normalizeWarcraftLogsStoredSnapshot(input.warcraftLogs);
-  if (!cleanProfileId || !warcraftLogs || !hasFirebaseProfileConfig()) {
-    return false;
-  }
-
-  const ref = getFirebaseAdminDb()
-    .collection("dashboardProfiles")
-    .doc(cleanProfileId);
-  const snapshot = await ref.get();
-  if (!snapshot.exists) return false;
-
-  const profile = normalizeProfile(cleanProfileId, snapshot.data() || {});
-  const lookupKeys = new Set<string>();
-  const rawCharacterKey = normalizeCharacterKey(input.characterKey);
-  if (rawCharacterKey) lookupKeys.add(rawCharacterKey);
-  const battleNetKey = buildBattleNetCharacterKey(
-    input.region || "eu",
-    input.realmSlug,
-    input.name,
-  );
-  if (battleNetKey) lookupKeys.add(battleNetKey);
-  if (!lookupKeys.size) return false;
-
-  let changed = false;
-  const characters = profile.characters.map((character) => {
-    const keys = characterProfileLinkKeys(character);
-    const matches = [...lookupKeys].some((key) => keys.has(key));
-    if (!matches) return character;
-    changed = true;
-    return { ...character, warcraftLogs };
-  });
-
-  if (!changed) return false;
-  await writeProfileStorage(
-    `profile:${cleanProfileId}:wcl-snapshot`,
-    async () => {
-      await ref.set(
-        {
-          characters,
-          updatedAt: FieldValue.serverTimestamp(),
-          battlenet: {
-            ...(profile.battlenet || {}),
-            lastCharacterRefreshAt: FieldValue.serverTimestamp(),
-          },
-        },
-        { merge: true },
-      );
-      clearProfileRuntimeCaches(cleanProfileId, { characterLinks: true });
-    },
-    { timeoutMs: 4_000, logEvent: "profiles.wcl_snapshot_write_failed" },
-  );
-  return true;
-}
-
 export async function listCharacterProfileLinks() {
   const emptyLinks = new Map<string, CharacterProfileLink>();
   if (!hasFirebaseProfileConfig()) return emptyLinks;
@@ -1535,7 +1461,6 @@ export async function listCharacterProfileLinks() {
                 link: {
                   profileId: profile.profileId,
                   displayName,
-                  warcraftLogs: character.warcraftLogs || null,
                 },
                 profileIds: new Set([profile.profileId]),
                 duplicate: false,
@@ -2070,7 +1995,6 @@ function mergeFreshCharacter(
     isMain: current.isMain,
     verifiedGuild: fresh.verifiedGuild,
     raiderIo: fresh.raiderIo ?? current.raiderIo ?? null,
-    warcraftLogs: fresh.warcraftLogs ?? current.warcraftLogs ?? null,
     lastSeenAt:
       fresh.lastSeenAt || current.lastSeenAt || new Date().toISOString(),
   };
@@ -2079,24 +2003,16 @@ function mergeFreshCharacter(
 async function refreshCharacterSnapshot(current: ProfileCharacter) {
   const characterRegion = current.region || "eu";
   const characterName = current.normalizedName || current.name;
-  const [battleNetSnapshot, raiderIoSnapshot, warcraftLogsSummary] =
-    await Promise.all([
-      fetchBattleNetCharacterSnapshot(current).catch(() => null),
-      fetchRaiderIoCharacterProfile({
-        region: characterRegion,
-        realmSlug: current.realmSlug,
-        name: characterName,
-      }).catch(() => null),
-      fetchWarcraftLogsCharacterSummary({
-        region: characterRegion,
-        realmSlug: current.realmSlug,
-        name: current.name,
-        mode: "roster",
-      }).catch(() => null),
-    ]);
+  const [battleNetSnapshot, raiderIoSnapshot] = await Promise.all([
+    fetchBattleNetCharacterSnapshot(current).catch(() => null),
+    fetchRaiderIoCharacterProfile({
+      region: characterRegion,
+      realmSlug: current.realmSlug,
+      name: characterName,
+    }).catch(() => null),
+  ]);
 
-  if (!battleNetSnapshot && !raiderIoSnapshot && !warcraftLogsSummary)
-    return null;
+  if (!battleNetSnapshot && !raiderIoSnapshot) return null;
 
   const source = battleNetSnapshot || current;
   const normalized = normalizeCharacter(
@@ -2105,12 +2021,6 @@ async function refreshCharacterSnapshot(current: ProfileCharacter) {
       key: current.key,
       isMain: current.isMain,
       raiderIo: stripRaiderIoRaw(raiderIoSnapshot) || current.raiderIo || null,
-      warcraftLogs: warcraftLogsSummary
-        ? buildWarcraftLogsStoredSnapshot(
-            warcraftLogsSummary,
-            normalizeWowRole(current.activeSpecRole) || "unknown",
-          )
-        : current.warcraftLogs || null,
       itemLevel:
         battleNetSnapshot?.itemLevel ??
         raiderIoSnapshot?.itemLevelEquipped ??

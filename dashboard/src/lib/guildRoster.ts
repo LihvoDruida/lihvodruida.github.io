@@ -26,7 +26,6 @@ import {
 } from "@/lib/firebaseAdmin";
 import {
   listCharacterProfileLinks,
-  saveProfileCharacterWarcraftLogsSnapshot,
   type CharacterProfileLink,
 } from "@/lib/profiles";
 import {
@@ -34,19 +33,8 @@ import {
   normalizeBattleNetNameSlug,
   normalizeCharacterKey,
 } from "@/lib/wowCharacters";
-import {
-  buildWarcraftLogsStoredSnapshot,
-  fetchWarcraftLogsCharacterSummary,
-  normalizeWarcraftLogsStoredSnapshot,
-  type WarcraftLogsStoredMetric,
-  type WarcraftLogsStoredSnapshot,
-} from "@/lib/warcraftLogs";
-
 export type GuildScoreSegment = "all" | "dps" | "healer" | "tank";
 export type GuildRosterRole = "tank" | "healer" | "dps" | "unknown";
-
-export type GuildRosterWarcraftLogsMetric = WarcraftLogsStoredMetric;
-export type GuildRosterWarcraftLogsSnapshot = WarcraftLogsStoredSnapshot;
 
 export type GuildRosterMember = {
   key: string;
@@ -73,7 +61,6 @@ export type GuildRosterMember = {
   scoreColors: Partial<Record<GuildScoreSegment, string>>;
   hasRaiderIo: boolean;
   raiderIoUpdatedAt?: string | null;
-  warcraftLogs?: GuildRosterWarcraftLogsSnapshot | null;
 };
 
 export type GuildRosterStats = {
@@ -104,7 +91,6 @@ export type GuildRosterSyncPhase =
   | "roster"
   | "battlenet"
   | "raiderio"
-  | "warcraftlogs"
   | "completed"
   | "failed";
 
@@ -118,14 +104,11 @@ export type GuildRosterSyncJob = {
   updatedAt: string;
   completedAt?: string | null;
   forceRoster: boolean;
-  includeWarcraftLogs: boolean;
-  forceWarcraftLogs: boolean;
   totalMembers: number;
   processed: {
     roster: number;
     battleNet: number;
     raiderIo: number;
-    warcraftLogs: number;
   };
   errors: string[];
   lastMemberKey?: string | null;
@@ -140,7 +123,6 @@ export type GuildRosterSyncProgress = {
     roster: number;
     battleNet: number;
     raiderIo: number;
-    warcraftLogs: number;
   };
   updatedAt: string | null;
   completedAt: string | null;
@@ -168,7 +150,7 @@ const GUILD_RECORDS_CHUNKS_COLLECTION = "memberChunks";
 const GUILD_RECORDS_CHUNK_FORMAT_VERSION = 2;
 const GUILD_RECORDS_MAX_CHUNKS = 80;
 const SYNC_JOB_DOCUMENT = "guildRosterSyncJob";
-const LIVE_SOURCE = "Battle.net Guild/Profile API + Raider.IO M+ API + Warcraft Logs API";
+const LIVE_SOURCE = "Battle.net Guild/Profile API + Raider.IO M+ API";
 
 const CLASS_ID_FALLBACK: Record<number, string> = {
   1: "Warrior",
@@ -583,33 +565,6 @@ async function fetchRaiderCharacter(
   }
 }
 
-function guildRosterWclMemberLimit(total: number, configuredLimit: number) {
-  const safeTotal = Math.max(0, Math.floor(total || 0));
-  const safeLimit = Math.max(0, Math.floor(configuredLimit || 0));
-  return safeLimit <= 0 ? safeTotal : Math.min(safeTotal, safeLimit);
-}
-
-function buildWarcraftLogsRosterSnapshot(
-  member: GuildRosterMember,
-  summary: Awaited<ReturnType<typeof fetchWarcraftLogsCharacterSummary>>,
-): GuildRosterWarcraftLogsSnapshot {
-  return buildWarcraftLogsStoredSnapshot(summary, member.role);
-}
-
-function storedWclSnapshotFresh(
-  snapshot?: GuildRosterWarcraftLogsSnapshot | null,
-  ttlSeconds?: number,
-) {
-  const normalized = normalizeWarcraftLogsStoredSnapshot(snapshot);
-  if (!normalized?.updatedAt || normalized.status !== "ready") return false;
-  const updatedAt = Date.parse(normalized.updatedAt);
-  if (!Number.isFinite(updatedAt)) return false;
-  const effectiveTtlSeconds = Number.isFinite(ttlSeconds)
-    ? Math.max(300, Math.min(604_800, Math.floor(Number(ttlSeconds))))
-    : 21_600;
-  return Date.now() - updatedAt < effectiveTtlSeconds * 1000;
-}
-
 function updatedSince(value: string | null | undefined, since?: string | null) {
   if (!since) return false;
   const valueTime = Date.parse(value || "");
@@ -677,14 +632,10 @@ async function enrichGuildMembersWithProfileLinks(
     }
     if (!link) return member;
 
-    const stored = normalizeWarcraftLogsStoredSnapshot(link.warcraftLogs);
     return {
       ...member,
       ownerProfileId: link.profileId,
       ownerDisplayName: link.displayName,
-      warcraftLogs: storedWclSnapshotFresh(stored)
-        ? stored
-        : member.warcraftLogs || null,
     };
   });
 }
@@ -696,21 +647,6 @@ type GuildRosterApiBatchProgress = {
   skipped: boolean;
   reason?: string | null;
 };
-
-function storedWclSnapshotFreshForBatch(
-  snapshot?: GuildRosterWarcraftLogsSnapshot | null,
-  options: {
-    force?: boolean;
-    ttlSeconds?: number;
-    jobRequestedAt?: string | null;
-  } = {},
-) {
-  const normalized = normalizeWarcraftLogsStoredSnapshot(snapshot);
-  if (options.force) {
-    return updatedSince(normalized?.updatedAt, options.jobRequestedAt);
-  }
-  return storedWclSnapshotFresh(normalized, options.ttlSeconds);
-}
 
 function buildScores(
   raider: RaiderIoCharacterPayload | null,
@@ -825,7 +761,6 @@ function mergePreviousMemberSnapshot(
       member.hasRaiderIo || previous.hasRaiderIo || hasUsefulScores(nextScores),
     raiderIoUpdatedAt:
       member.raiderIoUpdatedAt || previous.raiderIoUpdatedAt || null,
-    warcraftLogs: member.warcraftLogs || previous.warcraftLogs || null,
   };
 }
 
@@ -1130,7 +1065,6 @@ async function buildProfileSeedRoster(
             scoreColors: scoreColorsFromProfileRaiderIo(character?.raiderIo),
             hasRaiderIo: Boolean(character?.raiderIo?.profileUrl || hasUsefulScores(scores)),
             raiderIoUpdatedAt: cleanText(character?.raiderIo?.updatedAt) || null,
-            warcraftLogs: normalizeWarcraftLogsStoredSnapshot(character?.warcraftLogs),
           };
           membersByKey.set(key, member);
           if (membersByKey.size >= limit) break;
@@ -1467,7 +1401,6 @@ function normalizeMemberRecord(data: any): GuildRosterMember | null {
     scoreColors: raw.scoreColors && typeof raw.scoreColors === "object" ? raw.scoreColors : {},
     hasRaiderIo: Boolean(raw.hasRaiderIo || raw.profileUrl || hasUsefulScores(scores)),
     raiderIoUpdatedAt: cleanText(raw.raiderIoUpdatedAt) || null,
-    warcraftLogs: normalizeWarcraftLogsStoredSnapshot(raw.warcraftLogs),
   } satisfies GuildRosterMember);
 }
 
@@ -1938,7 +1871,6 @@ export type GuildRosterRefreshProgress = {
   };
   battleNet: GuildRosterApiBatchProgress;
   raiderIo: GuildRosterApiBatchProgress;
-  warcraftLogs: GuildRosterApiBatchProgress;
   sync: GuildRosterSyncProgress;
 };
 
@@ -1966,7 +1898,7 @@ function syncProgress(
       status: "idle",
       phase: "idle",
       totalMembers: 0,
-      processed: { roster: 0, battleNet: 0, raiderIo: 0, warcraftLogs: 0 },
+      processed: { roster: 0, battleNet: 0, raiderIo: 0 },
       updatedAt: null,
       completedAt: null,
       errors: [],
@@ -1978,7 +1910,6 @@ function syncProgress(
     roster: Math.min(totalMembers, Math.max(0, Number(job.processed?.roster || 0))),
     battleNet: Math.min(totalMembers, Math.max(0, Number(job.processed?.battleNet || 0))),
     raiderIo: Math.min(totalMembers, Math.max(0, Number(job.processed?.raiderIo || 0))),
-    warcraftLogs: Math.min(totalMembers, Math.max(0, Number(job.processed?.warcraftLogs || 0))),
   };
 
   return {
@@ -2049,16 +1980,6 @@ function guildRosterRaiderIoStepLimit(
       0,
       Math.min(100, Math.floor(Number(settings?.raiderIoStepSize ?? 5))),
     ),
-  );
-}
-
-function guildRosterWclStepLimit(
-  total: number,
-  settings?: Pick<GuildRosterRuntimeSettings, "wclStepSize"> | null,
-) {
-  return Math.min(
-    Math.max(0, total),
-    Math.max(0, Math.min(20, Math.floor(Number(settings?.wclStepSize ?? 1)))),
   );
 }
 
@@ -2309,213 +2230,6 @@ async function enrichGuildMembersWithRaiderIoStep(
   };
 }
 
-async function enrichGuildMembersWithWarcraftLogsStep(
-  members: GuildRosterMember[],
-  options: {
-    force?: boolean;
-    deadline: number;
-    settings?: GuildRosterRuntimeSettings | null;
-    jobRequestedAt?: string | null;
-  },
-): Promise<GuildRosterApiStepResult> {
-  if (!members.length) {
-    return {
-      members,
-      changedMemberKeys: new Set(),
-      ...emptyProgress("empty_roster"),
-    };
-  }
-
-  const settings =
-    options.settings ?? (await getGuildRosterSyncSettings().catch(() => null));
-  if (settings?.wclEnabled === false) {
-    return {
-      members,
-      changedMemberKeys: new Set(),
-      ...emptyProgress("disabled"),
-    };
-  }
-
-  const limit = guildRosterWclMemberLimit(
-    members.length,
-    settings?.wclMemberLimit ?? 0,
-  );
-  const selected = members.slice(0, limit);
-  const candidates = staleFirst(
-    selected.filter(
-      (member) =>
-        !storedWclSnapshotFreshForBatch(member.warcraftLogs, {
-          force: options.force,
-          ttlSeconds: settings?.profileWclTtlSeconds,
-          jobRequestedAt: options.jobRequestedAt,
-        }),
-    ),
-    (member) => member.warcraftLogs?.updatedAt,
-  );
-  const totalCandidates = candidates.length;
-  const stepLimit = guildRosterWclStepLimit(totalCandidates, settings);
-  if (!stepLimit || !totalCandidates) {
-    return {
-      members,
-      changedMemberKeys: new Set(),
-      checked: 0,
-      remaining: !stepLimit && totalCandidates ? 0 : totalCandidates,
-      totalCandidates,
-      skipped: true,
-      reason: totalCandidates ? "disabled_by_step_size" : "fresh",
-    };
-  }
-
-  const updates = new Map<string, GuildRosterMember>();
-  const changedMemberKeys = new Set<string>();
-  let checked = 0;
-  let reason: string | null = null;
-  const membersToProcess = candidates.slice(0, stepLimit);
-
-  if (!hasStepBudget(options.deadline, 13_000)) {
-    reason = "step_budget_exhausted";
-  } else {
-    const configuredConcurrency = Number(settings?.wclConcurrency || 0);
-    const maxConcurrency = Math.max(
-      1,
-      Math.min(8, Math.floor(Number(settings?.wclMaxConcurrency || 1))),
-    );
-    const concurrency = Math.min(
-      membersToProcess.length,
-      Math.max(
-        1,
-        Math.min(
-          maxConcurrency,
-          Math.floor(configuredConcurrency > 0 ? configuredConcurrency : 1),
-        ),
-      ),
-    );
-
-    const { results } = await mapConcurrent(
-      membersToProcess,
-      async (member) => {
-        try {
-          const summary = await fetchWarcraftLogsCharacterSummary({
-            region: member.region,
-            realmSlug: member.realmSlug,
-            name: member.name,
-            mode: "roster",
-          });
-          const warcraftLogs = buildWarcraftLogsRosterSnapshot(member, summary);
-          const hasMetric = Boolean(
-            warcraftLogs.primaryMetric?.pulls ||
-              warcraftLogs.hps?.pulls ||
-              warcraftLogs.dps?.pulls ||
-              warcraftLogs.tankDps?.pulls ||
-              warcraftLogs.tankHps?.pulls,
-          );
-          if (summary.status !== "ready") {
-            const logKey = `wcl-status:${member.key}:${summary.status}:${summary.error || ""}`;
-            const shouldPersist = summary.status === "error"
-              && settings?.warningAuditLogs !== false
-              && shouldLogMemberWarning(logKey);
-            if (shouldPersist) {
-              await recordDashboardSystemLog("warning", "guild.roster.wcl.member_status", {
-                summary: `Warcraft Logs не дав ready для ${member.name}`,
-                character: member.name,
-                realmSlug: member.realmSlug,
-                region: member.region,
-                role: member.role,
-                status: summary.status,
-                error: summary.error || null,
-                profileUrl: summary.profileUrl || null,
-              }, { persist: true });
-            } else if (settings?.debugAuditLogs && shouldLogMemberWarning(logKey, 10 * 60_000)) {
-              await recordDashboardSystemLog("debug", "guild.roster.wcl.member_status", {
-                summary: `Warcraft Logs статус ${summary.status} для ${member.name}`,
-                character: member.name,
-                realmSlug: member.realmSlug,
-                region: member.region,
-                role: member.role,
-                status: summary.status,
-                error: summary.error || null,
-              }, { debugEnabled: true, persist: true });
-            }
-          } else if (settings?.debugAuditLogs && !hasMetric) {
-            await recordDashboardSystemLog("debug", "guild.roster.wcl.member_no_metric", {
-              summary: `Warcraft Logs ready без DPS/HPS для ${member.name}`,
-              character: member.name,
-              realmSlug: member.realmSlug,
-              region: member.region,
-              role: member.role,
-              coverage: summary.sourceCoverage,
-            }, { debugEnabled: true, persist: true });
-          }
-
-          if (member.ownerProfileId) {
-            await saveProfileCharacterWarcraftLogsSnapshot({
-              profileId: member.ownerProfileId,
-              characterKey: member.key,
-              region: member.region,
-              realmSlug: member.realmSlug,
-              name: member.name,
-              warcraftLogs,
-            }).catch(() => false);
-          }
-
-          return { key: member.key, member: { ...member, warcraftLogs } };
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error || "unknown");
-          const failed: GuildRosterWarcraftLogsSnapshot = {
-            status: "error",
-            updatedAt: nowIso(),
-            profileUrl: null,
-            activeRole: member.role,
-            primaryMetric: null,
-            hps: null,
-            dps: null,
-            tankDps: null,
-            tankHps: null,
-            error: message || "Warcraft Logs step failed",
-          };
-          if (settings?.warningAuditLogs !== false && shouldLogMemberWarning(`wcl-failed:${member.key}:${message}`)) {
-            await recordDashboardSystemLog("warning", "guild.roster.wcl.member_failed", {
-              summary: `Warcraft Logs не оновив ${member.name}`,
-              character: member.name,
-              realmSlug: member.realmSlug,
-              region: member.region,
-              role: member.role,
-              error: message,
-            }, { persist: true });
-          }
-          return {
-            key: member.key,
-            member: { ...member, warcraftLogs: failed },
-          };
-        }
-      },
-      {
-        profile: "external-api",
-        concurrency,
-        max: concurrency,
-        failFast: false,
-      },
-    );
-
-    for (const result of results) {
-      if (!result) continue;
-      updates.set(result.key, result.member);
-      changedMemberKeys.add(result.key);
-      checked += 1;
-    }
-  }
-
-  return {
-    members: replaceMembersByKey(members, updates),
-    changedMemberKeys,
-    checked,
-    remaining: progressRemainingFromCandidates(totalCandidates, checked),
-    totalCandidates,
-    skipped: checked === 0,
-    reason: checked === 0 ? reason || "not_processed" : reason,
-  };
-}
-
 function syncJobDoc() {
   if (!hasFirebaseProfileConfig()) return null;
   return getFirebaseAdminDb()
@@ -2541,7 +2255,6 @@ function normalizeSyncJob(job: GuildRosterSyncJob): GuildRosterSyncJob {
       job.phase === "roster" ||
       job.phase === "battlenet" ||
       job.phase === "raiderio" ||
-      job.phase === "warcraftlogs" ||
       job.phase === "completed" ||
       job.phase === "failed"
         ? job.phase
@@ -2550,7 +2263,6 @@ function normalizeSyncJob(job: GuildRosterSyncJob): GuildRosterSyncJob {
       roster: Number(job.processed?.roster || 0),
       battleNet: Number(job.processed?.battleNet || 0),
       raiderIo: Number(job.processed?.raiderIo || 0),
-      warcraftLogs: Number(job.processed?.warcraftLogs || 0),
     },
     errors: Array.isArray(job.errors) ? job.errors.slice(-20).map(String) : [],
   };
@@ -2618,8 +2330,6 @@ function syncJobStale(
 
 function createGuildRosterSyncJob(options: {
   forceRoster?: boolean;
-  includeWarcraftLogs?: boolean;
-  forceWarcraftLogs?: boolean;
   cached?: CachedRoster | null;
 }): GuildRosterSyncJob {
   const now = nowIso();
@@ -2632,10 +2342,8 @@ function createGuildRosterSyncJob(options: {
     updatedAt: now,
     completedAt: null,
     forceRoster: Boolean(options.forceRoster),
-    includeWarcraftLogs: options.includeWarcraftLogs !== false,
-    forceWarcraftLogs: Boolean(options.forceWarcraftLogs),
     totalMembers: options.cached?.members?.length || 0,
-    processed: { roster: 0, battleNet: 0, raiderIo: 0, warcraftLogs: 0 },
+    processed: { roster: 0, battleNet: 0, raiderIo: 0 },
     errors: [],
     lastMemberKey: null,
   };
@@ -2644,8 +2352,6 @@ function createGuildRosterSyncJob(options: {
 async function getOrCreateGuildRosterSyncJob(
   options: {
     forceRoster?: boolean;
-    includeWarcraftLogs?: boolean;
-    forceWarcraftLogs?: boolean;
     continueSync?: boolean;
   },
   cached: CachedRoster | null,
@@ -2661,8 +2367,6 @@ async function getOrCreateGuildRosterSyncJob(
     return writeGuildRosterSyncJob(
       createGuildRosterSyncJob({
         forceRoster: shouldRefreshRoster,
-        includeWarcraftLogs: options.includeWarcraftLogs,
-        forceWarcraftLogs: options.forceWarcraftLogs,
         cached,
       }),
     );
@@ -2674,8 +2378,6 @@ async function getOrCreateGuildRosterSyncJob(
     return writeGuildRosterSyncJob(
       createGuildRosterSyncJob({
         forceRoster: shouldRefreshRoster,
-        includeWarcraftLogs: options.includeWarcraftLogs,
-        forceWarcraftLogs: options.forceWarcraftLogs,
         cached,
       }),
     );
@@ -2708,7 +2410,6 @@ async function advanceGuildRosterSyncStep(
   rosterProgress: { refreshed: boolean; source: string };
   battleNetProgress: GuildRosterApiBatchProgress;
   raiderIoProgress: GuildRosterApiBatchProgress;
-  warcraftLogsProgress: GuildRosterApiBatchProgress;
 }> {
   const deadline = Date.now() + guildRosterStepBudgetMs(settings);
   let currentCache = cached;
@@ -2721,8 +2422,6 @@ async function advanceGuildRosterSyncStep(
     emptyProgress("not_current_phase");
   let raiderIoProgress: GuildRosterApiBatchProgress =
     emptyProgress("not_current_phase");
-  let warcraftLogsProgress: GuildRosterApiBatchProgress =
-    emptyProgress("not_current_phase");
 
   try {
     if (currentJob.status !== "running") {
@@ -2732,7 +2431,6 @@ async function advanceGuildRosterSyncStep(
         rosterProgress,
         battleNetProgress,
         raiderIoProgress,
-        warcraftLogsProgress,
       };
     }
 
@@ -2794,8 +2492,7 @@ async function advanceGuildRosterSyncStep(
               rosterProgress,
               battleNetProgress,
               raiderIoProgress,
-              warcraftLogsProgress,
-            };
+                  };
           }
 
           const friendly = message === "Not Found"
@@ -2817,7 +2514,6 @@ async function advanceGuildRosterSyncStep(
             rosterProgress,
             battleNetProgress,
             raiderIoProgress,
-            warcraftLogsProgress,
           };
         }
 
@@ -2857,7 +2553,6 @@ async function advanceGuildRosterSyncStep(
         rosterProgress,
         battleNetProgress,
         raiderIoProgress,
-        warcraftLogsProgress,
       };
     }
 
@@ -2870,7 +2565,6 @@ async function advanceGuildRosterSyncStep(
         rosterProgress,
         battleNetProgress,
         raiderIoProgress,
-        warcraftLogsProgress,
       };
     }
 
@@ -2934,7 +2628,6 @@ async function advanceGuildRosterSyncStep(
         rosterProgress,
         battleNetProgress,
         raiderIoProgress,
-        warcraftLogsProgress,
       };
     }
 
@@ -2970,11 +2663,7 @@ async function advanceGuildRosterSyncStep(
       }
 
       const nextPhase: GuildRosterSyncPhase =
-        step.remaining > 0
-          ? "raiderio"
-          : currentJob.includeWarcraftLogs
-            ? "warcraftlogs"
-            : "completed";
+        step.remaining > 0 ? "raiderio" : "completed";
       currentJob = {
         ...currentJob,
         phase: nextPhase,
@@ -3002,70 +2691,6 @@ async function advanceGuildRosterSyncStep(
         rosterProgress,
         battleNetProgress,
         raiderIoProgress,
-        warcraftLogsProgress,
-      };
-    }
-
-    if (currentJob.phase === "warcraftlogs") {
-      const step = await enrichGuildMembersWithWarcraftLogsStep(
-        currentCache.members,
-        {
-          force: currentJob.forceWarcraftLogs,
-          deadline,
-          settings,
-          jobRequestedAt: currentJob.requestedAt,
-        },
-      );
-      warcraftLogsProgress = {
-        checked: step.checked,
-        remaining: step.remaining,
-        totalCandidates: step.totalCandidates,
-        skipped: step.skipped,
-        reason: step.reason ?? null,
-      };
-
-      if (step.checked > 0) {
-        currentCache = await writeCachedRoster(
-          {
-            members: sortMembers(step.members),
-            stats: { ...currentCache.stats, updatedAt: nowIso() },
-            source: `${LIVE_SOURCE} • WCL step`,
-            error: currentCache.error || null,
-          },
-          { changedMemberKeys: step.changedMemberKeys, settings },
-        );
-      }
-
-      const nextPhase: GuildRosterSyncPhase =
-        step.remaining > 0 ? "warcraftlogs" : "completed";
-      currentJob = {
-        ...currentJob,
-        phase: nextPhase,
-        status: nextPhase === "completed" ? "completed" : "running",
-        totalMembers: currentCache?.members.length || currentJob.totalMembers,
-        processed: {
-          ...currentJob.processed,
-          warcraftLogs: processedCountAfterStep(
-            currentJob.processed.warcraftLogs,
-            currentCache?.members.length || currentJob.totalMembers,
-            step,
-          ),
-        },
-        lastMemberKey:
-          Array.from(step.changedMemberKeys).at(-1) ||
-          currentJob.lastMemberKey ||
-          null,
-        updatedAt: nowIso(),
-        completedAt: nextPhase === "completed" ? nowIso() : null,
-      };
-      await writeGuildRosterSyncJob(currentJob);
-      return {
-        cache: currentCache,
-        job: currentJob,
-        rosterProgress,
-        battleNetProgress,
-        raiderIoProgress,
-        warcraftLogsProgress,
       };
     }
 
@@ -3080,7 +2705,6 @@ async function advanceGuildRosterSyncStep(
       rosterProgress,
       battleNetProgress,
       raiderIoProgress,
-      warcraftLogsProgress,
     };
   } catch (error) {
     const message =
@@ -3108,7 +2732,6 @@ async function advanceGuildRosterSyncStep(
       rosterProgress,
       battleNetProgress,
       raiderIoProgress,
-      warcraftLogsProgress,
     };
   }
 }
@@ -3116,8 +2739,6 @@ async function advanceGuildRosterSyncStep(
 export async function refreshGuildRosterApiBatch(
   options: {
     forceRoster?: boolean;
-    includeWarcraftLogs?: boolean;
-    forceWarcraftLogs?: boolean;
     continueSync?: boolean;
     cacheOnly?: boolean;
   } = {},
@@ -3138,7 +2759,6 @@ export async function refreshGuildRosterApiBatch(
         roster: { refreshed: false, source: base.source },
         battleNet: emptyProgress("served_from_firebase"),
         raiderIo: emptyProgress("served_from_firebase"),
-        warcraftLogs: emptyProgress("served_from_firebase"),
         sync: syncProgress(activeJob),
       },
     };
@@ -3156,8 +2776,6 @@ export async function refreshGuildRosterApiBatch(
     emptyProgress("served_from_firebase");
   let raiderIoProgress: GuildRosterApiBatchProgress =
     emptyProgress("served_from_firebase");
-  let warcraftLogsProgress: GuildRosterApiBatchProgress =
-    emptyProgress("served_from_firebase");
 
   if (job?.status === "running" && shouldStart) {
     const step = await advanceGuildRosterSyncStep(job, cached, settings);
@@ -3166,7 +2784,6 @@ export async function refreshGuildRosterApiBatch(
     rosterProgress = step.rosterProgress;
     battleNetProgress = step.battleNetProgress;
     raiderIoProgress = step.raiderIoProgress;
-    warcraftLogsProgress = step.warcraftLogsProgress;
   }
 
   if (!cached) {
@@ -3177,7 +2794,6 @@ export async function refreshGuildRosterApiBatch(
         roster: rosterProgress,
         battleNet: emptyProgress("firebase_records_missing"),
         raiderIo: emptyProgress("firebase_records_missing"),
-        warcraftLogs: emptyProgress("firebase_records_missing"),
         sync: syncProgress(isActiveRequest ? job : null),
       },
     };
@@ -3190,7 +2806,6 @@ export async function refreshGuildRosterApiBatch(
       roster: { ...rosterProgress, source: publicRoster.source },
       battleNet: battleNetProgress,
       raiderIo: raiderIoProgress,
-      warcraftLogs: warcraftLogsProgress,
       sync: syncProgress(isActiveRequest ? job : null),
     },
   };

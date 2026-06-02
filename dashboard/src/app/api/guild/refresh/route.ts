@@ -13,8 +13,6 @@ export const maxDuration = 30;
 
 type GuildRefreshBody = {
   force?: unknown;
-  wcl?: unknown;
-  forceWcl?: unknown;
   continue?: unknown;
   includeMembers?: unknown;
   debug?: unknown;
@@ -48,18 +46,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => null)) as GuildRefreshBody | null;
     const forceRefresh = truthy(body?.force);
-    const includeWarcraftLogs = body?.wcl === undefined ? true : truthy(body.wcl);
-    const forceWarcraftLogs = truthy(body?.forceWcl);
     const continueSync = truthy(body?.continue);
     const includeMembers = body?.includeMembers === undefined ? false : truthy(body.includeMembers);
     const debugRequested = truthy(body?.debug) || request.headers.get("x-dashboard-debug") === "1";
     const cacheOnly = truthy(body?.cacheOnly);
     const apiSettings = await getDashboardApiSettings().catch(() => null);
-    const debugAuditEnabled = Boolean(debugRequested || apiSettings?.dashboardApiDebugAuditLogs || apiSettings?.warcraftLogsDebugAuditLogs);
+    const debugAuditEnabled = Boolean(debugRequested || apiSettings?.dashboardApiDebugAuditLogs);
     const roster = await refreshGuildRosterApiBatch({
       forceRoster: forceRefresh,
-      includeWarcraftLogs,
-      forceWarcraftLogs,
       continueSync,
       cacheOnly,
     });
@@ -67,7 +61,6 @@ export async function POST(request: NextRequest) {
     const warningReasons = [
       roster.refresh.battleNet.reason,
       roster.refresh.raiderIo.reason,
-      roster.refresh.warcraftLogs.reason,
     ].filter((reason): reason is string => Boolean(reason && !["served_from_firebase", "not_current_phase", "fresh", "disabled", "disabled_by_step_size"].includes(reason)));
     const syncError = roster.refresh.sync.errors.at(-1) || null;
     const auditLevel = roster.refresh.sync.status === "failed"
@@ -85,8 +78,6 @@ export async function POST(request: NextRequest) {
         memberCount: roster.members.length,
         source: roster.source,
         forceRefresh,
-        includeWarcraftLogs,
-        forceWarcraftLogs,
         continueSync,
         includeMembers,
         cacheOnly,
@@ -115,8 +106,7 @@ export async function POST(request: NextRequest) {
       hasMore:
         roster.refresh.sync.status === "running" ||
         roster.refresh.battleNet.remaining > 0 ||
-        roster.refresh.raiderIo.remaining > 0 ||
-        roster.refresh.warcraftLogs.remaining > 0,
+        roster.refresh.raiderIo.remaining > 0,
     }, { headers: noStoreHeaders() });
   } catch (error) {
     const message = safeErrorMessage(error);

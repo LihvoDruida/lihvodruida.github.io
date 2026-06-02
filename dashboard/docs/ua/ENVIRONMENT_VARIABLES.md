@@ -137,9 +137,6 @@
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Concurrency оновлення персонажів Raider.IO для `/guild`. |
 | `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | TTL кешу привʼязок персонаж -> профіль на `/guild`. Дублікати навмисно не лінкуються. За замовчуванням: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Максимум персонажів для одного оновлення складу. |
-| `GUILD_ROSTER_WCL_ENABLED` | fallback | Вмикає додавання легкого Warcraft Logs HPS/DPS snapshot у `guildRuntimeCache/guildRoster.payload.members`. Основне керування: `/admin` → «Фоновий API та автооновлення» → «Warcraft Logs у складі гільдії». Default `true`. |
-| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | fallback | Скільки персонажів складу збагачувати WCL-даними за одне live-оновлення. `0` = весь склад. Значення з панелі має пріоритет над env. |
-| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | fallback | Concurrency легких WCL-запитів для складу. `0` = auto, max `1–8`. Значення з панелі має пріоритет над env. |
 
 ### Raider.IO і продуктивність
 
@@ -154,19 +151,6 @@
 | `CONTENT_READ_CONCURRENCY` | optional | Concurrency читання контенту. |
 | `CONTENT_READ_MAX_CONCURRENCY` | optional | Max concurrency читання контенту. |
 
-
-### Warcraft Logs
-
-| Variable | Обов’язковість | Опис |
-|---|---|---|
-| `WARCRAFTLOGS_CLIENT_ID` | optional secret | OAuth client id Warcraft Logs для публічного API v2. Потрібен для сторінок статистики персонажів. |
-| `WARCRAFTLOGS_CLIENT_SECRET` | optional secret | OAuth client secret Warcraft Logs. Зберігати тільки server-side. |
-| `WCL_CLIENT_ID` | alias | Legacy alias для `WARCRAFTLOGS_CLIENT_ID`. |
-| `WCL_CLIENT_SECRET` | alias secret | Legacy alias для `WARCRAFTLOGS_CLIENT_SECRET`. |
-| `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Timeout запитів Warcraft Logs, default `12000`. |
-| `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Кількість retry для Warcraft Logs, default `1`. |
-| `WARCRAFTLOGS_DEBUG_AUDIT_LOGS` | fallback | Legacy/fallback перемикач debug audit logs. Основне керування перенесено в `/admin` → Warcraft Logs API. |
-| `WARCRAFTLOGS_BASE_URL` | optional | Base URL API. Для Retail залишати порожнім або `https://www.warcraftlogs.com`. |
 
 ### Рейди
 

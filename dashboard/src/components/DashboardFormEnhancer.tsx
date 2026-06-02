@@ -207,7 +207,7 @@ function actionText(action: string) {
       label: "Зберігаємо...",
       title: "Зберігаємо API-налаштування",
       message:
-        "Оновлюємо інтервали, batch-ліміти, паралельність і Warcraft Logs credentials.",
+        "Оновлюємо інтервали, batch-ліміти, паралельність і кеші API.",
     };
   if (action.includes("/api/admin/discord/nickname"))
     return {

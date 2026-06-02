@@ -21,9 +21,6 @@ type SortKey =
   | "rio-desc"
   | "rio-asc"
   | "ilvl-desc"
-  | "wcl-dps-desc"
-  | "wcl-hps-desc"
-  | "wcl-updated-desc"
   | "name-asc"
   | "rank-asc";
 
@@ -108,43 +105,6 @@ const ROLE_ORDER = ["tank", "healer", "dps", "unknown"];
 function formatNumber(value: number, digits = 0) {
   if (!Number.isFinite(value) || value <= 0) return "—";
   return formatStableNumber(value, digits);
-}
-
-type GuildRosterWclMetric = NonNullable<
-  NonNullable<GuildRosterMember["warcraftLogs"]>["primaryMetric"]
->;
-
-function metricAmount(metric?: GuildRosterWclMetric | null) {
-  if (!metric) return 0;
-  const value = Number(metric.max ?? metric.average ?? 0);
-  if (!Number.isFinite(value) || value <= 0) return 0;
-  return value;
-}
-
-function metricHasValue(metric?: GuildRosterWclMetric | null) {
-  if (!metric) return false;
-  return metricAmount(metric) > 0 && Number(metric.pulls || 0) > 0;
-}
-
-function memberWclDps(member: GuildRosterMember) {
-  const snapshot = member.warcraftLogs;
-  if (!snapshot || snapshot.status !== "ready") return 0;
-  if (member.role === "tank") return metricAmount(snapshot.tankDps);
-  if (member.role === "dps") return metricAmount(snapshot.dps);
-  return Math.max(metricAmount(snapshot.dps), metricAmount(snapshot.tankDps));
-}
-
-function memberWclHps(member: GuildRosterMember) {
-  const snapshot = member.warcraftLogs;
-  if (!snapshot || snapshot.status !== "ready") return 0;
-  if (member.role === "tank") return metricAmount(snapshot.tankHps);
-  if (member.role === "healer") return metricAmount(snapshot.hps);
-  return Math.max(metricAmount(snapshot.hps), metricAmount(snapshot.tankHps));
-}
-
-function memberWclUpdatedAt(member: GuildRosterMember) {
-  const time = Date.parse(member.warcraftLogs?.updatedAt || "");
-  return Number.isFinite(time) ? time : 0;
 }
 
 function uniqueSorted(values: string[]) {
@@ -511,7 +471,6 @@ function SegmentBadges({
 }
 
 function DataSourceStatus({ member }: { member: GuildRosterMember }) {
-  const wcl = member.warcraftLogs;
   const bnetProfileReady = Boolean(
     member.battleNetUpdatedAt ||
       member.itemLevel > 0 ||
@@ -519,8 +478,7 @@ function DataSourceStatus({ member }: { member: GuildRosterMember }) {
       member.specName !== "Unknown" ||
       member.role !== "unknown",
   );
-  const wclReady = Boolean(wcl && wcl.status === "ready");
-  const wclHasMetric = memberWclDps(member) > 0 || memberWclHps(member) > 0;
+
   return (
     <div className="guild-member-source-row" aria-label="Джерела даних персонажа">
       <span className="is-ready">Battle.net: склад</span>
@@ -530,86 +488,6 @@ function DataSourceStatus({ member }: { member: GuildRosterMember }) {
       <span className={member.hasRaiderIo ? "is-ready" : "is-pending"}>
         Raider.IO: {member.hasRaiderIo ? "M+" : "очікує"}
       </span>
-      <span className={wclHasMetric ? "is-ready" : wclReady ? "is-empty" : "is-pending"}>
-        WCL: {wclHasMetric ? "DPS/HPS" : wclReady ? "без pull" : wcl?.status === "error" ? "помилка" : "очікує"}
-      </span>
-    </div>
-  );
-}
-
-function WarcraftLogsBadges({ member }: { member: GuildRosterMember }) {
-  const snapshot = member.warcraftLogs;
-  if (!snapshot || snapshot.status === "not_configured") {
-    return (
-      <div
-        className="guild-wcl-badges guild-wcl-badges--muted"
-        aria-label="Warcraft Logs"
-      >
-        <span>
-          <small>Warcraft Logs</small>
-          <strong>очікує</strong>
-          <em>дані DPS/HPS ще не синхронізовані</em>
-        </span>
-      </div>
-    );
-  }
-  if (snapshot.status !== "ready") {
-    return (
-      <div
-        className="guild-wcl-badges guild-wcl-badges--muted"
-        aria-label="Warcraft Logs"
-      >
-        <span>
-          <small>Warcraft Logs</small>
-          <strong>—</strong>
-          <em>{snapshot.status === "not_found" ? "персонажа не знайдено" : snapshot.error || "помилка синхронізації"}</em>
-        </span>
-      </div>
-    );
-  }
-
-  const metrics =
-    member.role === "tank"
-      ? [snapshot.tankDps, snapshot.tankHps]
-      : member.role === "healer"
-        ? [snapshot.hps]
-        : member.role === "dps"
-          ? [snapshot.dps]
-          : [snapshot.hps, snapshot.dps, snapshot.tankDps, snapshot.tankHps];
-  const visible = metrics.filter((item): item is GuildRosterWclMetric =>
-    metricHasValue(item),
-  );
-
-  if (!visible.length) {
-    return (
-      <div
-        className="guild-wcl-badges guild-wcl-badges--muted"
-        aria-label="Warcraft Logs"
-      >
-        <span>
-          <small>Warcraft Logs</small>
-          <strong>без pull</strong>
-          <em>немає валідних DPS/HPS з останніх 5 kill/wipe</em>
-        </span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="guild-wcl-badges" aria-label="Warcraft Logs HPS/DPS">
-      {visible.map((metric) => (
-        <span
-          key={`${metric.role}-${metric.metric}-${metric.label}`}
-          className={`guild-wcl-badge guild-wcl-badge--${metric.role}`}
-        >
-          <small>{metric.label} MAX 5</small>
-          <strong>{formatNumber(metricAmount(metric), 1)}</strong>
-          <em>
-            сер. {formatNumber(metric.average ?? 0, 1)} • {metric.kills} kill /{" "}
-            {metric.wipes} wipe • {metric.pulls}/5
-          </em>
-        </span>
-      ))}
     </div>
   );
 }
@@ -668,8 +546,6 @@ export default function GuildRosterExplorer({
   const [itemLevelMax, setItemLevelMax] = useState(
     Math.ceil(liveStats.maxItemLevel || 0),
   );
-  const [wclDpsMin, setWclDpsMin] = useState(0);
-  const [wclDpsMax, setWclDpsMax] = useState(0);
   const [sort, setSort] = useState<SortKey>("rio-desc");
   const [filtersOpen, setFiltersOpen] = useState(true);
 
@@ -693,14 +569,6 @@ export default function GuildRosterExplorer({
 
   const maxRio = Math.max(0, Math.ceil(liveStats.maxRioAll || 0));
   const maxItemLevel = Math.max(0, Math.ceil(liveStats.maxItemLevel || 0));
-  const maxWclDps = Math.ceil(Math.max(0, ...liveMembers.map(memberWclDps)));
-  const maxWclHps = Math.ceil(Math.max(0, ...liveMembers.map(memberWclHps)));
-  const wclReadyCount = liveMembers.filter(
-    (member) => member.warcraftLogs?.status === "ready",
-  ).length;
-  const wclMetricCount = liveMembers.filter(
-    (member) => memberWclDps(member) > 0 || memberWclHps(member) > 0,
-  ).length;
 
   useEffect(() => {
     setRioMax((value) => (value <= 0 || value < maxRio ? maxRio : Math.min(value, maxRio)));
@@ -711,12 +579,6 @@ export default function GuildRosterExplorer({
       value <= 0 || value < maxItemLevel ? maxItemLevel : Math.min(value, maxItemLevel),
     );
   }, [maxItemLevel]);
-
-  useEffect(() => {
-    setWclDpsMax((value) =>
-      value <= 0 || value < maxWclDps ? maxWclDps : Math.min(value, maxWclDps),
-    );
-  }, [maxWclDps]);
 
   const options = useMemo(
     () => ({
@@ -742,8 +604,6 @@ export default function GuildRosterExplorer({
     const maxRioValue = Math.max(rioMin, rioMax);
     const minItemLevel = Math.min(itemLevelMin, itemLevelMax);
     const maxItemLevelValue = Math.max(itemLevelMin, itemLevelMax);
-    const minWclDps = Math.min(wclDpsMin, wclDpsMax);
-    const maxWclDpsValue = Math.max(wclDpsMin, wclDpsMax);
 
     return liveMembers
       .filter((member) => {
@@ -753,9 +613,6 @@ export default function GuildRosterExplorer({
           member.itemLevel < minItemLevel ||
           member.itemLevel > maxItemLevelValue
         )
-          return false;
-        const wclDps = memberWclDps(member);
-        if (maxWclDpsValue > 0 && (wclDps < minWclDps || wclDps > maxWclDpsValue))
           return false;
         if (classFilter !== "Усі класи" && member.className !== classFilter)
           return false;
@@ -794,20 +651,6 @@ export default function GuildRosterExplorer({
             b.itemLevel - a.itemLevel ||
             (b.scores[segment] || 0) - (a.scores[segment] || 0)
           );
-        if (sort === "wcl-dps-desc")
-          return (
-            memberWclDps(b) - memberWclDps(a) ||
-            (b.scores[segment] || 0) - (a.scores[segment] || 0) ||
-            stableTextCompare(a.name, b.name)
-          );
-        if (sort === "wcl-hps-desc")
-          return (
-            memberWclHps(b) - memberWclHps(a) ||
-            (b.scores[segment] || 0) - (a.scores[segment] || 0) ||
-            stableTextCompare(a.name, b.name)
-          );
-        if (sort === "wcl-updated-desc")
-          return memberWclUpdatedAt(b) - memberWclUpdatedAt(a) || stableTextCompare(a.name, b.name);
         if (sort === "name-asc") return stableTextCompare(a.name, b.name);
         if (sort === "rank-asc")
           return (
@@ -832,8 +675,6 @@ export default function GuildRosterExplorer({
     rioMax,
     itemLevelMin,
     itemLevelMax,
-    wclDpsMin,
-    wclDpsMax,
     sort,
   ]);
 
@@ -895,8 +736,6 @@ export default function GuildRosterExplorer({
     setRioMax(maxRio);
     setItemLevelMin(0);
     setItemLevelMax(maxItemLevel);
-    setWclDpsMin(0);
-    setWclDpsMax(maxWclDps);
     setSort("rio-desc");
   }
 
@@ -1037,18 +876,6 @@ export default function GuildRosterExplorer({
               />
 
               <RangeFilter
-                idBase="guild-roster-wcl-dps"
-                nameBase="guild_roster_wcl_dps"
-                label="WCL DPS MAX 5"
-                minValue={wclDpsMin}
-                maxValue={wclDpsMax}
-                absoluteMin={0}
-                absoluteMax={maxWclDps}
-                onMinChange={setWclDpsMin}
-                onMaxChange={setWclDpsMax}
-              />
-
-              <RangeFilter
                 idBase="guild-roster-item-level"
                 nameBase="guild_roster_item_level"
                 label="Item level"
@@ -1103,9 +930,6 @@ export default function GuildRosterExplorer({
                   <option value="rio-desc">RIO: від більшого</option>
                   <option value="rio-asc">RIO: від меншого</option>
                   <option value="ilvl-desc">Item level: від більшого</option>
-                  <option value="wcl-dps-desc">WCL DPS MAX 5</option>
-                  <option value="wcl-hps-desc">WCL HPS MAX 5</option>
-                  <option value="wcl-updated-desc">WCL: останнє оновлення</option>
                   <option value="name-asc">Ім’я: А–Я</option>
                   <option value="rank-asc">Гільдійний ранг</option>
                 </select>
@@ -1156,18 +980,6 @@ export default function GuildRosterExplorer({
             <div>
               <span>Макс. ilvl</span>
               <strong>{formatNumber(liveStats.maxItemLevel)}</strong>
-            </div>
-            <div>
-              <span>WCL DPS MAX 5</span>
-              <strong>{formatNumber(maxWclDps, 1)}</strong>
-            </div>
-            <div>
-              <span>WCL HPS MAX 5</span>
-              <strong>{formatNumber(maxWclHps, 1)}</strong>
-            </div>
-            <div>
-              <span>WCL готово</span>
-              <strong>{wclMetricCount}/{wclReadyCount || liveMembers.length}</strong>
             </div>
           </div>
 
@@ -1224,7 +1036,6 @@ export default function GuildRosterExplorer({
                           <strong>{member.itemLevel || "—"}</strong>
                         </div>
                       </div>
-                      <WarcraftLogsBadges member={member} />
                     </div>
                     <div className="guild-member-side">
                       <div className="guild-member-tags">

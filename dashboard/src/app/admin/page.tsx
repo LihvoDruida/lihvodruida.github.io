@@ -128,32 +128,12 @@ export default async function AdminOverviewPage() {
                 value: `${Math.round(apiSettings.backgroundRefreshMinSeconds / 60)}хв`,
               },
               {
-                label: "WCL",
-                value: apiSettings.warcraftLogsClientSecretConfigured
-                  ? apiSettings.warcraftLogsCredentialsSource === "panel"
-                    ? "PANEL"
-                    : "ENV"
-                  : "OFF",
-              },
-              {
                 label: "API LOG",
                 value: apiSettings.dashboardApiDebugAuditLogs
                   ? "DEBUG"
                   : apiSettings.dashboardApiWarningAuditLogs
                     ? "WARN"
                     : "OFF",
-              },
-              {
-                label: "WCL LOG",
-                value: apiSettings.warcraftLogsDebugAuditLogs ? "ON" : "OFF",
-              },
-              {
-                label: "WCL ROSTER",
-                value: apiSettings.guildRosterWclEnabled
-                  ? apiSettings.guildRosterWclMemberLimit > 0
-                    ? String(apiSettings.guildRosterWclMemberLimit)
-                    : "ALL"
-                  : "OFF",
               },
             ]}
           />
@@ -192,7 +172,7 @@ export default async function AdminOverviewPage() {
               <div className="admin-policy-card__title">
                 <strong>Фоновий API та автооновлення</strong>
                 <small>
-                  Керує оновленням профілів, Raider.IO та Warcraft Logs.
+                  Керує оновленням профілів, Battle.net, Raider.IO, кешем та Discord-журналом.
                 </small>
               </div>
               <div
@@ -204,16 +184,6 @@ export default async function AdminOverviewPage() {
                 </span>
                 <span>
                   {apiSettings.source === "firestore" ? "панель" : "запасне"}
-                </span>
-                <span>
-                  {apiSettings.warcraftLogsClientSecretConfigured
-                    ? `WCL: ${apiSettings.warcraftLogsCredentialsSource}`
-                    : "WCL: вимкнено"}
-                </span>
-                <span>
-                  {apiSettings.guildRosterWclEnabled
-                    ? `WCL склад: ${apiSettings.guildRosterWclMemberLimit > 0 ? apiSettings.guildRosterWclMemberLimit : "усі"}`
-                    : "WCL склад: OFF"}
                 </span>
               </div>
             </header>
@@ -570,49 +540,9 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                 </label>
-                <label className="admin-policy-input">
-                  <span>Кеш Warcraft Logs, мс</span>
-                  <small>
-                    Скільки тримати зібрану WCL-статистику персонажа.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsCharacterCacheTtlMs"
-                    min={0}
-                    max={900000}
-                    step={30000}
-                    defaultValue={apiSettings.warcraftLogsCharacterCacheTtlMs}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL звітів</span>
-                  <small>
-                    Скільки останніх рейдових звітів переглядати для персонажа.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRecentReportLimit"
-                    min={1}
-                    max={30}
-                    step={1}
-                    defaultValue={apiSettings.warcraftLogsRecentReportLimit}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL боїв у звіті</span>
-                  <small>Скільки boss-pulls брати з одного звіту.</small>
-                  <input
-                    type="number"
-                    name="warcraftLogsReportFightTableLimit"
-                    min={4}
-                    max={60}
-                    step={1}
-                    defaultValue={apiSettings.warcraftLogsReportFightTableLimit}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
+                
+                
+                
                 <input type="hidden" name="dashboardApiDebugAuditLogs" value="0" />
                 <label className="admin-policy-toggle">
                   <input
@@ -641,7 +571,7 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Надсилати warning/error API у Discord-журнал</strong>
                     <small>
-                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO/WCL і падіння sync job йдуть у Discord-журнал без запису в dashboardAdminAudit.
+                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO і падіння sync job йдуть у Discord-журнал без запису в dashboardAdminAudit.
                     </small>
                   </span>
                 </label>
@@ -890,366 +820,6 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                 </label>
-                <label className="admin-policy-input">
-                  <span>Макс. клієнтських кроків</span>
-                  <small>
-                    Запобіжник, щоб браузер не крутив синхронізацію нескінченно.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterClientMaxSteps"
-                    min={1}
-                    max={10000}
-                    step={10}
-                    defaultValue={apiSettings.guildRosterClientMaxSteps}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-              </fieldset>
-
-              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
-                <legend>Warcraft Logs у складі гільдії</legend>
-                <input type="hidden" name="guildRosterWclEnabled" value="0" />
-                <label className="admin-policy-toggle">
-                  <input
-                    type="checkbox"
-                    name="guildRosterWclEnabled"
-                    value="1"
-                    defaultChecked={apiSettings.guildRosterWclEnabled}
-                    disabled={!canEditApiSettings}
-                  />
-                  <span>
-                    <strong>Показувати HPS/DPS зі WCL у списку складу</strong>
-                    <small>
-                      Дані записуються в guildRuntimeCache → guildRoster →
-                      payload.members[].warcraftLogs і читаються зі збереженого
-                      кешу.
-                    </small>
-                  </span>
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL персонажів у складі</span>
-                  <small>
-                    0 = обробляти весь склад. Для великих ростерів краще ставити
-                    40–120, щоб не впиратися в rate limits.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterWclMemberLimit"
-                    min={0}
-                    max={1000}
-                    step={1}
-                    defaultValue={apiSettings.guildRosterWclMemberLimit}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL паралельність складу</span>
-                  <small>
-                    0 = автоматично. Це кількість одночасних WCL-запитів під час
-                    оновлення guildRoster cache.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterWclConcurrency"
-                    min={0}
-                    max={8}
-                    step={1}
-                    defaultValue={apiSettings.guildRosterWclConcurrency}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>Макс. WCL паралельність складу</span>
-                  <small>
-                    Верхня межа для автоматичного режиму та ручної
-                    паралельності.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterWclMaxConcurrency"
-                    min={1}
-                    max={8}
-                    step={1}
-                    defaultValue={apiSettings.guildRosterWclMaxConcurrency}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL крок складу</span>
-                  <small>
-                    Скільки персонажів WCL обробляти за один HTTP-крок. Для
-                    стабільності 1–2.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterWclStepSize"
-                    min={0}
-                    max={20}
-                    step={1}
-                    defaultValue={apiSettings.guildRosterWclStepSize}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL snapshot TTL, секунд</span>
-                  <small>
-                    Скільки тримати збережений DPS/HPS snapshot персонажа перед
-                    повторною перевіркою.
-                  </small>
-                  <input
-                    type="number"
-                    name="guildRosterProfileWclTtlSeconds"
-                    min={300}
-                    max={604800}
-                    step={300}
-                    defaultValue={apiSettings.guildRosterProfileWclTtlSeconds}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL roster timeout, мс</span>
-                  <small>
-                    Timeout одного Warcraft Logs GraphQL-запиту у roster mode.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRosterRequestTimeoutMs"
-                    min={1500}
-                    max={12000}
-                    step={500}
-                    defaultValue={
-                      apiSettings.warcraftLogsRosterRequestTimeoutMs
-                    }
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL roster retries</span>
-                  <small>
-                    Повторні спроби для WCL roster-запитів. 0 — найменший ризик
-                    timeout.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRosterRequestRetries"
-                    min={0}
-                    max={2}
-                    step={1}
-                    defaultValue={apiSettings.warcraftLogsRosterRequestRetries}
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL recent reports для складу</span>
-                  <small>
-                    Скільки останніх report перевіряти в легкому roster mode.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRosterRecentReportLimit"
-                    min={1}
-                    max={8}
-                    step={1}
-                    defaultValue={
-                      apiSettings.warcraftLogsRosterRecentReportLimit
-                    }
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL boss fights у report</span>
-                  <small>
-                    Скільки boss-fight seed брати з одного report у roster mode.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRosterReportFightTableLimit"
-                    min={3}
-                    max={16}
-                    step={1}
-                    defaultValue={
-                      apiSettings.warcraftLogsRosterReportFightTableLimit
-                    }
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>WCL report table concurrency</span>
-                  <small>
-                    Паралельність читання tables всередині одного WCL-персонажа
-                    у roster mode.
-                  </small>
-                  <input
-                    type="number"
-                    name="warcraftLogsRosterReportTableConcurrency"
-                    min={1}
-                    max={2}
-                    step={1}
-                    defaultValue={
-                      apiSettings.warcraftLogsRosterReportTableConcurrency
-                    }
-                    disabled={!canEditApiSettings}
-                  />
-                </label>
-                <div className="admin-policy-hint admin-policy-hint--split">
-                  <strong>Поточний стан WCL для складу</strong>
-                  <small>
-                    Режим:{" "}
-                    {apiSettings.guildRosterWclEnabled
-                      ? "увімкнено"
-                      : "вимкнено"}
-                  </small>
-                  <small>
-                    Ліміт персонажів:{" "}
-                    {apiSettings.guildRosterWclMemberLimit > 0
-                      ? apiSettings.guildRosterWclMemberLimit
-                      : "усі"}
-                  </small>
-                  <small>
-                    Паралельність:{" "}
-                    {apiSettings.guildRosterWclConcurrency > 0
-                      ? apiSettings.guildRosterWclConcurrency
-                      : "auto"}{" "}
-                    / max {apiSettings.guildRosterWclMaxConcurrency}
-                  </small>
-                  <small>
-                    Крок: {apiSettings.guildRosterWclStepSize}; TTL:{" "}
-                    {Math.round(
-                      apiSettings.guildRosterProfileWclTtlSeconds / 60,
-                    )}{" "}
-                    хв
-                  </small>
-                  <small>
-                    GraphQL: timeout{" "}
-                    {apiSettings.warcraftLogsRosterRequestTimeoutMs}мс, retries{" "}
-                    {apiSettings.warcraftLogsRosterRequestRetries}, reports{" "}
-                    {apiSettings.warcraftLogsRosterRecentReportLimit}, fights{" "}
-                    {apiSettings.warcraftLogsRosterReportFightTableLimit}
-                  </small>
-                </div>
-              </fieldset>
-
-              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
-                <legend>Warcraft Logs API</legend>
-                <label className="admin-policy-input">
-                  <span>Warcraft Logs Client ID</span>
-                  <small>
-                    Можна зберігати тут. Якщо поле порожнє, система використає
-                    запасне значення з деплою.
-                  </small>
-                  <input
-                    name="warcraftLogsClientId"
-                    defaultValue={apiSettings.warcraftLogsClientId || ""}
-                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                    disabled={!canEditApiSettings}
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>Warcraft Logs Client Secret</span>
-                  <small>
-                    Секрет не показується повторно. Вводь його тільки для
-                    встановлення або заміни.
-                  </small>
-                  <input
-                    type="password"
-                    name="warcraftLogsClientSecret"
-                    placeholder={
-                      apiSettings.warcraftLogsClientSecretConfigured
-                        ? "Secret уже налаштований — залиш порожнім, щоб не змінювати"
-                        : "Встав Client Secret"
-                    }
-                    disabled={!canEditApiSettings}
-                    autoComplete="new-password"
-                    spellCheck={false}
-                  />
-                </label>
-                <label className="admin-policy-input">
-                  <span>Warcraft Logs Base URL</span>
-                  <small>
-                    Залиш стандартну адресу, якщо немає окремої причини
-                    змінювати.
-                  </small>
-                  <input
-                    name="warcraftLogsBaseUrl"
-                    defaultValue={apiSettings.warcraftLogsBaseUrl}
-                    placeholder="https://www.warcraftlogs.com"
-                    disabled={!canEditApiSettings}
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                </label>
-                <input
-                  type="hidden"
-                  name="warcraftLogsDebugAuditLogs"
-                  value="0"
-                />
-                <label className="admin-policy-toggle">
-                  <input
-                    type="checkbox"
-                    name="warcraftLogsDebugAuditLogs"
-                    value="1"
-                    defaultChecked={apiSettings.warcraftLogsDebugAuditLogs}
-                    disabled={!canEditApiSettings}
-                  />
-                  <span>
-                    <strong>Увімкнути тимчасовий WCL debug audit log</strong>
-                    <small>
-                      Тимчасово записує сирі відповіді та розбір даних у
-                      загальні логи. Після перевірки вимкни.
-                    </small>
-                  </span>
-                </label>
-
-                <label className="admin-policy-toggle admin-policy-toggle--danger">
-                  <input
-                    type="checkbox"
-                    name="clearWarcraftLogsClientSecret"
-                    disabled={!canEditApiSettings}
-                  />
-                  <span>
-                    <strong>Очистити збережений Client Secret у панелі</strong>
-                    <small>
-                      Очищає секрет із панелі. Запасне значення з деплою не
-                      чіпається.
-                    </small>
-                  </span>
-                </label>
-                <div className="admin-policy-hint admin-policy-hint--split">
-                  <strong>Поточний стан Warcraft Logs</strong>
-                  <small>
-                    Статус:{" "}
-                    {apiSettings.warcraftLogsClientSecretConfigured
-                      ? "налаштовано"
-                      : "не налаштовано"}
-                  </small>
-                  <small>
-                    Джерело:{" "}
-                    {apiSettings.warcraftLogsCredentialsSource === "panel"
-                      ? "панель керування"
-                      : apiSettings.warcraftLogsCredentialsSource === "env"
-                        ? "запасне значення"
-                        : "немає"}
-                  </small>
-                  <small>
-                    Secret:{" "}
-                    {apiSettings.warcraftLogsClientSecretConfigured
-                      ? "збережений / доступний"
-                      : "відсутній"}
-                  </small>
-                  <small>
-                    Debug audit log:{" "}
-                    {apiSettings.warcraftLogsDebugAuditLogs
-                      ? "увімкнено"
-                      : "вимкнено"}
-                  </small>
-                  <small>
-                    Обсяг: {apiSettings.warcraftLogsRecentReportLimit} звітів /{" "}
-                    {apiSettings.warcraftLogsReportFightTableLimit} боїв
-                  </small>
-                </div>
               </fieldset>
 
               <footer className="admin-policy-footer">

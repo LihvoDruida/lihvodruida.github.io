@@ -137,9 +137,6 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `GUILD_ROSTER_REFRESH_CONCURRENCY` | optional | Raider.IO character refresh concurrency for `/guild`. |
 | `PROFILE_CHARACTER_LINK_CACHE_SECONDS` | optional | Cache TTL for character -> owner profile links on `/guild`. Duplicates are intentionally unlinked. Default: `120`. |
 | `GUILD_ROSTER_MEMBER_LIMIT` | optional | Max characters per roster refresh. |
-| `GUILD_ROSTER_WCL_ENABLED` | fallback | Enables lightweight Warcraft Logs HPS/DPS snapshots in `guildRuntimeCache/guildRoster.payload.members`. Main control is `/admin` → Background API → Warcraft Logs in guild roster. Default `true`. |
-| `GUILD_ROSTER_WCL_MEMBER_LIMIT` | fallback | How many roster characters to enrich with WCL data during one live refresh. `0` = full roster. Panel value overrides env. |
-| `GUILD_ROSTER_WCL_CONCURRENCY` / `GUILD_ROSTER_WCL_MAX_CONCURRENCY` | fallback | Lightweight WCL roster enrichment concurrency. `0` = auto, max `1–8`. Panel value overrides env. |
 
 ### Raider.IO and performance
 
@@ -154,19 +151,6 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `CONTENT_READ_CONCURRENCY` | optional | Content read concurrency. |
 | `CONTENT_READ_MAX_CONCURRENCY` | optional | Max content read concurrency. |
 
-
-### Warcraft Logs
-
-| Variable | Required | Description |
-|---|---|---|
-| `WARCRAFTLOGS_CLIENT_ID` | optional secret | Warcraft Logs OAuth client id for the public API v2. Used by per-character statistics pages. |
-| `WARCRAFTLOGS_CLIENT_SECRET` | optional secret | Warcraft Logs OAuth client secret. Store server-side only. |
-| `WCL_CLIENT_ID` | alias | Legacy alias for `WARCRAFTLOGS_CLIENT_ID`. |
-| `WCL_CLIENT_SECRET` | alias secret | Legacy alias for `WARCRAFTLOGS_CLIENT_SECRET`. |
-| `WARCRAFTLOGS_REQUEST_TIMEOUT_MS` | optional | Warcraft Logs request timeout, default `12000`. |
-| `WARCRAFTLOGS_REQUEST_RETRIES` | optional | Warcraft Logs retry count, default `1`. |
-| `WARCRAFTLOGS_DEBUG_AUDIT_LOGS` | fallback | Legacy/fallback debug audit logs switch. Main control is now in `/admin` → Warcraft Logs API. |
-| `WARCRAFTLOGS_BASE_URL` | optional | API base URL. Keep empty or `https://www.warcraftlogs.com` for Retail. |
 
 ### Raids
 

@@ -162,13 +162,6 @@ export async function POST(request: NextRequest) {
         profileExternalRefreshMaxConcurrency: form.get(
           "profileExternalRefreshMaxConcurrency",
         ),
-        warcraftLogsClientId: form.get("warcraftLogsClientId"),
-        warcraftLogsClientSecret: form.get("warcraftLogsClientSecret"),
-        clearWarcraftLogsClientSecret: form.get(
-          "clearWarcraftLogsClientSecret",
-        ),
-        warcraftLogsBaseUrl: form.get("warcraftLogsBaseUrl"),
-        warcraftLogsDebugAuditLogs: formFlag(form, "warcraftLogsDebugAuditLogs"),
         dashboardApiDebugAuditLogs: formFlag(form, "dashboardApiDebugAuditLogs"),
         dashboardApiWarningAuditLogs: formFlag(form, "dashboardApiWarningAuditLogs"),
         guildRosterRegion: form.get("guildRosterRegion"),
@@ -198,15 +191,6 @@ export async function POST(request: NextRequest) {
         auditLogDedupeWindowMs: form.get("auditLogDedupeWindowMs"),
         auditLogMaxStored: form.get("auditLogMaxStored"),
         raiderIoCharacterCacheTtlMs: form.get("raiderIoCharacterCacheTtlMs"),
-        warcraftLogsCharacterCacheTtlMs: form.get(
-          "warcraftLogsCharacterCacheTtlMs",
-        ),
-        warcraftLogsRecentReportLimit: form.get(
-          "warcraftLogsRecentReportLimit",
-        ),
-        warcraftLogsReportFightTableLimit: form.get(
-          "warcraftLogsReportFightTableLimit",
-        ),
         guildRosterMemberLimit: form.get("guildRosterMemberLimit"),
         guildRosterRefreshStepBudgetMs: form.get(
           "guildRosterRefreshStepBudgetMs",
@@ -230,29 +214,6 @@ export async function POST(request: NextRequest) {
           "guildRosterClientRequestTimeoutMs",
         ),
         guildRosterClientMaxSteps: form.get("guildRosterClientMaxSteps"),
-        guildRosterWclEnabled: formFlag(form, "guildRosterWclEnabled"),
-        guildRosterWclMemberLimit: form.get("guildRosterWclMemberLimit"),
-        guildRosterWclStepSize: form.get("guildRosterWclStepSize"),
-        guildRosterWclConcurrency: form.get("guildRosterWclConcurrency"),
-        guildRosterWclMaxConcurrency: form.get("guildRosterWclMaxConcurrency"),
-        guildRosterProfileWclTtlSeconds: form.get(
-          "guildRosterProfileWclTtlSeconds",
-        ),
-        warcraftLogsRosterRequestTimeoutMs: form.get(
-          "warcraftLogsRosterRequestTimeoutMs",
-        ),
-        warcraftLogsRosterRequestRetries: form.get(
-          "warcraftLogsRosterRequestRetries",
-        ),
-        warcraftLogsRosterRecentReportLimit: form.get(
-          "warcraftLogsRosterRecentReportLimit",
-        ),
-        warcraftLogsRosterReportFightTableLimit: form.get(
-          "warcraftLogsRosterReportFightTableLimit",
-        ),
-        warcraftLogsRosterReportTableConcurrency: form.get(
-          "warcraftLogsRosterReportTableConcurrency",
-        ),
       },
       session,
     );

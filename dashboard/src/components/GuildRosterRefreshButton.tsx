@@ -20,7 +20,6 @@ type GuildRosterRefreshPayload = {
         roster?: number;
         battleNet?: number;
         raiderIo?: number;
-        warcraftLogs?: number;
       };
       errors?: string[];
     };
@@ -30,11 +29,6 @@ type GuildRosterRefreshPayload = {
       totalCandidates?: number;
     };
     raiderIo?: {
-      remaining?: number;
-      checked?: number;
-      totalCandidates?: number;
-    };
-    warcraftLogs?: {
       remaining?: number;
       checked?: number;
       totalCandidates?: number;
@@ -73,7 +67,6 @@ function phaseLabel(phase?: string) {
   if (phase === "roster") return "Battle.net склад";
   if (phase === "battlenet") return "Battle.net профілі";
   if (phase === "raiderio") return "Raider.IO";
-  if (phase === "warcraftlogs") return "Warcraft Logs";
   if (phase === "completed") return "завершено";
   if (phase === "failed") return "помилка";
   return "очікування";
@@ -105,8 +98,6 @@ export default function GuildRosterRefreshButton({
       json: {
         force: step === 0,
         continue: step > 0,
-        wcl: true,
-        forceWcl: step === 0,
         includeMembers: false,
       },
       retries: 0,
@@ -154,10 +145,6 @@ export default function GuildRosterRefreshButton({
           0,
           Number(payload.refresh?.raiderIo?.remaining || 0),
         );
-        const wclLeft = Math.max(
-          0,
-          Number(payload.refresh?.warcraftLogs?.remaining || 0),
-        );
         const rioReason = String((payload.refresh?.raiderIo as { reason?: unknown } | undefined)?.reason || "");
         const rioRateLimited = rioReason.startsWith("raiderio_rate_limited");
         const processedBattleNet = Math.max(
@@ -168,17 +155,13 @@ export default function GuildRosterRefreshButton({
           0,
           Number(sync?.processed?.raiderIo || 0),
         );
-        const processedWcl = Math.max(
-          0,
-          Number(sync?.processed?.warcraftLogs || 0),
-        );
         const total = Math.max(
           0,
           Number(sync?.totalMembers || payload.memberCount || 0),
         );
 
         setMessage(
-          `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Battle.net ${processedBattleNet}/${total}, Raider.IO ${processedRio}/${total}, WCL ${processedWcl}/${total}. Залишилось: Battle.net ${battleNetLeft}, Raider.IO ${rioLeft}, WCL ${wclLeft}.`,
+          `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Battle.net ${processedBattleNet}/${total}, Raider.IO ${processedRio}/${total}. Залишилось: Battle.net ${battleNetLeft}, Raider.IO ${rioLeft}.`,
         );
 
         if (rioRateLimited) {
