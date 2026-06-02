@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
 import { resilientRead, getRuntimeCachedValue } from "@/lib/runtimeResilience";
+import { getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
 import type { DashboardSession } from "@/lib/auth";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
@@ -719,7 +720,7 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
         .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
     },
     {
-      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
+      ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidListCacheTtlMs || process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
       timeoutMs: 3_000,
       circuitKey: "firebase-raid-read",
       circuitTtlMs: 90_000,
@@ -740,7 +741,7 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
       return normalizeRaid(snapshot.id, snapshot.data() || {});
     },
     {
-      ttlMs: Math.max(10_000, Math.min(120_000, Number(process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
+      ttlMs: Math.max(10_000, Math.min(120_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidItemCacheTtlMs || process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
       timeoutMs: 2_500,
       circuitKey: "firebase-raid-read",
       circuitTtlMs: 90_000,

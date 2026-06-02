@@ -178,6 +178,28 @@ export async function POST(request: NextRequest) {
           .some((value) => String(value) === "1")
           ? "1"
           : "0",
+        guildRosterRegion: form.get("guildRosterRegion"),
+        guildRosterRealm: form.get("guildRosterRealm"),
+        guildRosterName: form.get("guildRosterName"),
+        guildRosterCacheTtlSeconds: form.get("guildRosterCacheTtlSeconds"),
+        guildRosterCacheReadTtlMs: form.get("guildRosterCacheReadTtlMs"),
+        guildRosterCacheWriteBatchSize: form.get("guildRosterCacheWriteBatchSize"),
+        guildRosterCacheDeleteStaleMembers: form
+          .getAll("guildRosterCacheDeleteStaleMembers")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
+        guildRosterRefreshConcurrency: form.get("guildRosterRefreshConcurrency"),
+        guildRosterRefreshMaxConcurrency: form.get("guildRosterRefreshMaxConcurrency"),
+        raiderIoRequestTimeoutMs: form.get("raiderIoRequestTimeoutMs"),
+        raiderIoRequestRetries: form.get("raiderIoRequestRetries"),
+        battleNetRequestTimeoutMs: form.get("battleNetRequestTimeoutMs"),
+        battleNetRequestRetries: form.get("battleNetRequestRetries"),
+        profileReadCacheTtlMs: form.get("profileReadCacheTtlMs"),
+        profileListCacheTtlMs: form.get("profileListCacheTtlMs"),
+        profileCharacterLinksCacheTtlMs: form.get("profileCharacterLinksCacheTtlMs"),
+        raidListCacheTtlMs: form.get("raidListCacheTtlMs"),
+        raidItemCacheTtlMs: form.get("raidItemCacheTtlMs"),
         raiderIoCharacterCacheTtlMs: form.get("raiderIoCharacterCacheTtlMs"),
         warcraftLogsCharacterCacheTtlMs: form.get(
           "warcraftLogsCharacterCacheTtlMs",

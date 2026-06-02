@@ -10,7 +10,7 @@ import {
   mapConcurrent,
   readIntegerEnv,
 } from "@/lib/concurrency";
-import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
+import { getDashboardApiSettings, getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
 import {
   fetchRaiderIoCharacterProfile,
   stripRaiderIoRaw,
@@ -1108,7 +1108,7 @@ export async function getProfileById(profileId: string) {
       return resolveProfileAccessForCurrentGroups(profile);
     },
     {
-      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.PROFILE_READ_CACHE_TTL_MS || 60_000))),
+      ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.profileReadCacheTtlMs || process.env.PROFILE_READ_CACHE_TTL_MS || 60_000))),
       timeoutMs: 3_000,
       circuitKey: "firebase-profile-read",
       circuitTtlMs: 90_000,
@@ -1191,7 +1191,7 @@ export async function listDashboardProfiles(params: {
         return snapshot.docs.map((doc: any) => normalizeProfile(doc.id, doc.data() || {}));
       },
       {
-        ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.PROFILE_LIST_CACHE_TTL_MS || 60_000))),
+        ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.profileListCacheTtlMs || process.env.PROFILE_LIST_CACHE_TTL_MS || 60_000))),
         timeoutMs: 3_000,
         circuitKey: "firebase-profile-read",
         circuitTtlMs: 90_000,
@@ -1327,10 +1327,13 @@ declare global {
     | undefined;
 }
 
-function characterProfileLinksCacheTtlMs() {
-  const parsed = Number(
-    process.env.PROFILE_CHARACTER_LINK_CACHE_SECONDS || 120,
-  );
+async function characterProfileLinksCacheTtlMs() {
+  const settings = await getSiteRuntimeSettings().catch(() => null);
+  const configured = Number(settings?.profileCharacterLinksCacheTtlMs);
+  if (Number.isFinite(configured)) {
+    return Math.max(30_000, Math.min(600_000, Math.floor(configured)));
+  }
+  const parsed = Number(process.env.PROFILE_CHARACTER_LINK_CACHE_SECONDS || 120);
   if (!Number.isFinite(parsed)) return 120_000;
   return Math.max(30, Math.min(900, Math.floor(parsed))) * 1000;
 }
@@ -1422,7 +1425,7 @@ export async function listCharacterProfileLinks() {
   if (!hasFirebaseProfileConfig()) return emptyLinks;
 
   const cached = globalThis.__mistblossomCharacterProfileLinksCache;
-  const ttlMs = characterProfileLinksCacheTtlMs();
+  const ttlMs = await characterProfileLinksCacheTtlMs();
   if (cached && Date.now() - cached.checkedAt < ttlMs) {
     return new Map(cached.links);
   }

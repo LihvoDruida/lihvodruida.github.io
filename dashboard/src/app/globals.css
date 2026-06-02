@@ -18899,6 +18899,30 @@ button[aria-busy="true"]::after,
   align-content: start;
 }
 
+.admin-policy-fieldset--dense {
+  gap: 8px;
+  padding: 12px;
+}
+
+.admin-policy-fieldset--dense .admin-policy-input,
+.admin-policy-fieldset--dense .admin-policy-toggle,
+.admin-policy-fieldset--dense .admin-policy-hint {
+  padding: 9px 10px;
+  border-radius: 12px;
+}
+
+.admin-policy-fieldset--dense .admin-policy-input span,
+.admin-policy-fieldset--dense .admin-policy-toggle strong,
+.admin-policy-fieldset--dense .admin-policy-hint strong {
+  font-size: 0.86rem;
+}
+
+.admin-policy-fieldset--dense .admin-policy-input small,
+.admin-policy-fieldset--dense .admin-policy-toggle small,
+.admin-policy-fieldset--dense .admin-policy-hint small {
+  font-size: 0.72rem;
+}
+
 .admin-policy-toggle,
 .admin-policy-input,
 .admin-policy-hint {

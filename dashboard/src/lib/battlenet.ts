@@ -311,7 +311,13 @@ export async function checkBattleNetApplicationAccess(regionInput?: string | nul
   return true;
 }
 
-async function bnetFetch(accessToken: string, path: string, params?: Record<string, string>, regionInput?: string | null) {
+async function bnetFetch(
+  accessToken: string,
+  path: string,
+  params?: Record<string, string>,
+  regionInput?: string | null,
+  options?: { timeoutMs?: number; retries?: number },
+) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const locale = getBattleNetLocale(region);
   const url = new URL(`${battleNetApiBase(region)}${path}`);
@@ -323,17 +329,22 @@ async function bnetFetch(accessToken: string, path: string, params?: Record<stri
 
   return apiFetchJson<any>(url, {
     label: "Battle.net API",
-    timeoutMs: getBattleNetRequestTimeoutMs(),
-    retries: getBattleNetRetryCount(),
+    timeoutMs: Math.max(2_500, Math.min(30_000, Math.floor(Number(options?.timeoutMs || getBattleNetRequestTimeoutMs())))),
+    retries: Math.max(0, Math.min(5, Math.floor(Number(options?.retries ?? getBattleNetRetryCount())))),
     headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
     cache: "no-store",
   });
 }
 
-export async function fetchBattleNetApplicationData(path: string, params?: Record<string, string>, regionInput?: string | null) {
+export async function fetchBattleNetApplicationData(
+  path: string,
+  params?: Record<string, string>,
+  regionInput?: string | null,
+  options?: { timeoutMs?: number; retries?: number },
+) {
   const region = normalizeBattleNetRegion(regionInput || getDefaultBattleNetRegion());
   const accessToken = await fetchBattleNetApplicationToken(region);
-  return bnetFetch(accessToken, path, params, region);
+  return bnetFetch(accessToken, path, params, region, options);
 }
 
 

@@ -46,6 +46,22 @@ const DEFAULT_WCL_ROSTER_REPORT_TABLE_CONCURRENCY = 1;
 const DEFAULT_DASHBOARD_API_DEBUG_AUDIT_LOGS = false;
 const DEFAULT_DASHBOARD_API_WARNING_AUDIT_LOGS = true;
 
+const DEFAULT_GUILD_ROSTER_CACHE_TTL_SECONDS = 1800;
+const DEFAULT_GUILD_ROSTER_CACHE_READ_TTL_MS = 120_000;
+const DEFAULT_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE = 50;
+const DEFAULT_GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS = false;
+const DEFAULT_GUILD_ROSTER_REFRESH_CONCURRENCY = 2;
+const DEFAULT_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY = 6;
+const DEFAULT_RAIDERIO_REQUEST_TIMEOUT_MS = 10_000;
+const DEFAULT_RAIDERIO_REQUEST_RETRIES = 1;
+const DEFAULT_BATTLENET_REQUEST_TIMEOUT_MS = 10_000;
+const DEFAULT_BATTLENET_REQUEST_RETRIES = 2;
+const DEFAULT_PROFILE_READ_CACHE_TTL_MS = 60_000;
+const DEFAULT_PROFILE_LIST_CACHE_TTL_MS = 120_000;
+const DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS = 300_000;
+const DEFAULT_RAID_LIST_CACHE_TTL_MS = 60_000;
+const DEFAULT_RAID_ITEM_CACHE_TTL_MS = 60_000;
+
 
 const SETTINGS_CACHE_TTL_MS = Math.max(60_000, Math.min(30 * 60_000, Number(process.env.DASHBOARD_API_SETTINGS_CACHE_TTL_MS || 5 * 60_000)));
 const SETTINGS_ERROR_LOG_TTL_MS = 5 * 60_000;
@@ -102,6 +118,24 @@ export type DashboardApiSettings = {
   warcraftLogsDebugAuditLogs: boolean;
   dashboardApiDebugAuditLogs: boolean;
   dashboardApiWarningAuditLogs: boolean;
+  guildRosterRegion: string;
+  guildRosterRealm: string;
+  guildRosterName: string;
+  guildRosterCacheTtlSeconds: number;
+  guildRosterCacheReadTtlMs: number;
+  guildRosterCacheWriteBatchSize: number;
+  guildRosterCacheDeleteStaleMembers: boolean;
+  guildRosterRefreshConcurrency: number;
+  guildRosterRefreshMaxConcurrency: number;
+  raiderIoRequestTimeoutMs: number;
+  raiderIoRequestRetries: number;
+  battleNetRequestTimeoutMs: number;
+  battleNetRequestRetries: number;
+  profileReadCacheTtlMs: number;
+  profileListCacheTtlMs: number;
+  profileCharacterLinksCacheTtlMs: number;
+  raidListCacheTtlMs: number;
+  raidItemCacheTtlMs: number;
   raiderIoCharacterCacheTtlMs: number;
   warcraftLogsCharacterCacheTtlMs: number;
   warcraftLogsRecentReportLimit: number;
@@ -157,6 +191,24 @@ type DashboardApiSettingsInput = Partial<
     | keyof DashboardApiSettings
     | "warcraftLogsClientSecret"
     | "clearWarcraftLogsClientSecret"
+    | "guildRosterRegion"
+    | "guildRosterRealm"
+    | "guildRosterName"
+    | "guildRosterCacheTtlSeconds"
+    | "guildRosterCacheReadTtlMs"
+    | "guildRosterCacheWriteBatchSize"
+    | "guildRosterCacheDeleteStaleMembers"
+    | "guildRosterRefreshConcurrency"
+    | "guildRosterRefreshMaxConcurrency"
+    | "raiderIoRequestTimeoutMs"
+    | "raiderIoRequestRetries"
+    | "battleNetRequestTimeoutMs"
+    | "battleNetRequestRetries"
+    | "profileReadCacheTtlMs"
+    | "profileListCacheTtlMs"
+    | "profileCharacterLinksCacheTtlMs"
+    | "raidListCacheTtlMs"
+    | "raidItemCacheTtlMs"
     | "raiderIoCharacterCacheTtlMs"
     | "warcraftLogsCharacterCacheTtlMs"
     | "warcraftLogsRecentReportLimit"
@@ -245,6 +297,89 @@ function envDashboardApiWarningAuditLogs() {
   const raw = cleanText(process.env.DASHBOARD_API_WARNING_AUDIT_LOGS, 20);
   if (!raw) return DEFAULT_DASHBOARD_API_WARNING_AUDIT_LOGS;
   return booleanValue(raw, DEFAULT_DASHBOARD_API_WARNING_AUDIT_LOGS);
+}
+
+function envGuildRosterRegion() {
+  return cleanText(
+    process.env.GUILD_ROSTER_REGION || process.env.WOW_REGION || process.env.BATTLENET_DEFAULT_REGION || "eu",
+    20,
+  ).toLowerCase() || "eu";
+}
+
+function envGuildRosterRealm() {
+  return cleanText(
+    process.env.GUILD_ROSTER_REALM || process.env.WOW_REALM || process.env.WOW_GUILD_REALM || process.env.BATTLENET_ALLOWED_GUILD_REALM || "terokkar",
+    80,
+  ).toLowerCase() || "terokkar";
+}
+
+function envGuildRosterName() {
+  return cleanText(
+    process.env.GUILD_ROSTER_NAME || process.env.WOW_GUILD_NAME || process.env.BATTLENET_ALLOWED_GUILD_NAME || "Mistblossom Vanguard",
+    120,
+  ) || "Mistblossom Vanguard";
+}
+
+function envGuildRosterCacheTtlSeconds() {
+  return integerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", DEFAULT_GUILD_ROSTER_CACHE_TTL_SECONDS, 300, 86_400);
+}
+
+function envGuildRosterCacheReadTtlMs() {
+  return integerEnv("GUILD_ROSTER_CACHE_READ_TTL_MS", DEFAULT_GUILD_ROSTER_CACHE_READ_TTL_MS, 30_000, 300_000);
+}
+
+function envGuildRosterCacheWriteBatchSize() {
+  return integerEnv("GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE", DEFAULT_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE, 1, 250);
+}
+
+function envGuildRosterCacheDeleteStaleMembers() {
+  const raw = cleanText(process.env.GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS, 20);
+  if (!raw) return DEFAULT_GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS;
+  return booleanValue(raw, DEFAULT_GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS);
+}
+
+function envGuildRosterRefreshConcurrency() {
+  return integerEnv("GUILD_ROSTER_REFRESH_CONCURRENCY", DEFAULT_GUILD_ROSTER_REFRESH_CONCURRENCY, 1, envGuildRosterRefreshMaxConcurrency());
+}
+
+function envGuildRosterRefreshMaxConcurrency() {
+  return integerEnv("GUILD_ROSTER_REFRESH_MAX_CONCURRENCY", DEFAULT_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY, 1, 12);
+}
+
+function envRaiderIoRequestTimeoutMs() {
+  return integerEnv("RAIDERIO_REQUEST_TIMEOUT_MS", DEFAULT_RAIDERIO_REQUEST_TIMEOUT_MS, 2_500, 30_000);
+}
+
+function envRaiderIoRequestRetries() {
+  return integerEnv("RAIDERIO_REQUEST_RETRIES", DEFAULT_RAIDERIO_REQUEST_RETRIES, 0, 4);
+}
+
+function envBattleNetRequestTimeoutMs() {
+  return integerEnv("BATTLENET_REQUEST_TIMEOUT_MS", DEFAULT_BATTLENET_REQUEST_TIMEOUT_MS, 2_500, 30_000);
+}
+
+function envBattleNetRequestRetries() {
+  return integerEnv("BATTLENET_REQUEST_RETRIES", DEFAULT_BATTLENET_REQUEST_RETRIES, 0, 5);
+}
+
+function envProfileReadCacheTtlMs() {
+  return integerEnv("PROFILE_READ_CACHE_TTL_MS", DEFAULT_PROFILE_READ_CACHE_TTL_MS, 30_000, 300_000);
+}
+
+function envProfileListCacheTtlMs() {
+  return integerEnv("PROFILE_LIST_CACHE_TTL_MS", DEFAULT_PROFILE_LIST_CACHE_TTL_MS, 30_000, 300_000);
+}
+
+function envProfileCharacterLinksCacheTtlMs() {
+  return integerEnv("PROFILE_CHARACTER_LINKS_CACHE_TTL_MS", DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS, 30_000, 600_000);
+}
+
+function envRaidListCacheTtlMs() {
+  return integerEnv("RAID_LIST_CACHE_TTL_MS", DEFAULT_RAID_LIST_CACHE_TTL_MS, 30_000, 300_000);
+}
+
+function envRaidItemCacheTtlMs() {
+  return integerEnv("RAID_ITEM_CACHE_TTL_MS", DEFAULT_RAID_ITEM_CACHE_TTL_MS, 10_000, 120_000);
 }
 
 function envRaiderIoCharacterCacheTtlMs() {
@@ -684,6 +819,24 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     warcraftLogsDebugAuditLogs: envWarcraftLogsDebugAuditLogs(),
     dashboardApiDebugAuditLogs: envDashboardApiDebugAuditLogs(),
     dashboardApiWarningAuditLogs: envDashboardApiWarningAuditLogs(),
+    guildRosterRegion: envGuildRosterRegion(),
+    guildRosterRealm: envGuildRosterRealm(),
+    guildRosterName: envGuildRosterName(),
+    guildRosterCacheTtlSeconds: envGuildRosterCacheTtlSeconds(),
+    guildRosterCacheReadTtlMs: envGuildRosterCacheReadTtlMs(),
+    guildRosterCacheWriteBatchSize: envGuildRosterCacheWriteBatchSize(),
+    guildRosterCacheDeleteStaleMembers: envGuildRosterCacheDeleteStaleMembers(),
+    guildRosterRefreshConcurrency: envGuildRosterRefreshConcurrency(),
+    guildRosterRefreshMaxConcurrency: envGuildRosterRefreshMaxConcurrency(),
+    raiderIoRequestTimeoutMs: envRaiderIoRequestTimeoutMs(),
+    raiderIoRequestRetries: envRaiderIoRequestRetries(),
+    battleNetRequestTimeoutMs: envBattleNetRequestTimeoutMs(),
+    battleNetRequestRetries: envBattleNetRequestRetries(),
+    profileReadCacheTtlMs: envProfileReadCacheTtlMs(),
+    profileListCacheTtlMs: envProfileListCacheTtlMs(),
+    profileCharacterLinksCacheTtlMs: envProfileCharacterLinksCacheTtlMs(),
+    raidListCacheTtlMs: envRaidListCacheTtlMs(),
+    raidItemCacheTtlMs: envRaidItemCacheTtlMs(),
     raiderIoCharacterCacheTtlMs: envRaiderIoCharacterCacheTtlMs(),
     warcraftLogsCharacterCacheTtlMs: envWarcraftLogsCharacterCacheTtlMs(),
     warcraftLogsRecentReportLimit: envWarcraftLogsRecentReportLimit(),
@@ -800,6 +953,102 @@ function normalizeSettings(
     dashboardApiWarningAuditLogs: booleanValue(
       data?.dashboardApiWarningAuditLogs,
       fallback.dashboardApiWarningAuditLogs,
+    ),
+    guildRosterRegion: cleanText(data?.guildRosterRegion, 20).toLowerCase() || fallback.guildRosterRegion,
+    guildRosterRealm: cleanText(data?.guildRosterRealm, 80).toLowerCase() || fallback.guildRosterRealm,
+    guildRosterName: cleanText(data?.guildRosterName, 120) || fallback.guildRosterName,
+    guildRosterCacheTtlSeconds: integerValue(
+      data?.guildRosterCacheTtlSeconds,
+      fallback.guildRosterCacheTtlSeconds,
+      300,
+      86_400,
+    ),
+    guildRosterCacheReadTtlMs: integerValue(
+      data?.guildRosterCacheReadTtlMs,
+      fallback.guildRosterCacheReadTtlMs,
+      30_000,
+      300_000,
+    ),
+    guildRosterCacheWriteBatchSize: integerValue(
+      data?.guildRosterCacheWriteBatchSize,
+      fallback.guildRosterCacheWriteBatchSize,
+      1,
+      250,
+    ),
+    guildRosterCacheDeleteStaleMembers: booleanValue(
+      data?.guildRosterCacheDeleteStaleMembers,
+      fallback.guildRosterCacheDeleteStaleMembers,
+    ),
+    guildRosterRefreshMaxConcurrency: integerValue(
+      data?.guildRosterRefreshMaxConcurrency,
+      fallback.guildRosterRefreshMaxConcurrency,
+      1,
+      12,
+    ),
+    guildRosterRefreshConcurrency: integerValue(
+      data?.guildRosterRefreshConcurrency,
+      fallback.guildRosterRefreshConcurrency,
+      1,
+      integerValue(
+        data?.guildRosterRefreshMaxConcurrency,
+        fallback.guildRosterRefreshMaxConcurrency,
+        1,
+        12,
+      ),
+    ),
+    raiderIoRequestTimeoutMs: integerValue(
+      data?.raiderIoRequestTimeoutMs,
+      fallback.raiderIoRequestTimeoutMs,
+      2_500,
+      30_000,
+    ),
+    raiderIoRequestRetries: integerValue(
+      data?.raiderIoRequestRetries,
+      fallback.raiderIoRequestRetries,
+      0,
+      4,
+    ),
+    battleNetRequestTimeoutMs: integerValue(
+      data?.battleNetRequestTimeoutMs,
+      fallback.battleNetRequestTimeoutMs,
+      2_500,
+      30_000,
+    ),
+    battleNetRequestRetries: integerValue(
+      data?.battleNetRequestRetries,
+      fallback.battleNetRequestRetries,
+      0,
+      5,
+    ),
+    profileReadCacheTtlMs: integerValue(
+      data?.profileReadCacheTtlMs,
+      fallback.profileReadCacheTtlMs,
+      30_000,
+      300_000,
+    ),
+    profileListCacheTtlMs: integerValue(
+      data?.profileListCacheTtlMs,
+      fallback.profileListCacheTtlMs,
+      30_000,
+      300_000,
+    ),
+    profileCharacterLinksCacheTtlMs: integerValue(
+      data?.profileCharacterLinksCacheTtlMs,
+      fallback.profileCharacterLinksCacheTtlMs,
+      30_000,
+      600_000,
+    ),
+    raidListCacheTtlMs: integerValue(
+      data?.raidListCacheTtlMs,
+      fallback.raidListCacheTtlMs,
+      30_000,
+      300_000,
+    ),
+    raidItemCacheTtlMs: integerValue(
+      data?.raidItemCacheTtlMs,
+      fallback.raidItemCacheTtlMs,
+      10_000,
+      120_000,
     ),
     raiderIoCharacterCacheTtlMs: integerValue(
       data?.raiderIoCharacterCacheTtlMs,
@@ -1012,6 +1261,24 @@ export async function setDashboardApiSettings(
     warcraftLogsDebugAuditLogs: settings.warcraftLogsDebugAuditLogs,
     dashboardApiDebugAuditLogs: settings.dashboardApiDebugAuditLogs,
     dashboardApiWarningAuditLogs: settings.dashboardApiWarningAuditLogs,
+    guildRosterRegion: settings.guildRosterRegion,
+    guildRosterRealm: settings.guildRosterRealm,
+    guildRosterName: settings.guildRosterName,
+    guildRosterCacheTtlSeconds: settings.guildRosterCacheTtlSeconds,
+    guildRosterCacheReadTtlMs: settings.guildRosterCacheReadTtlMs,
+    guildRosterCacheWriteBatchSize: settings.guildRosterCacheWriteBatchSize,
+    guildRosterCacheDeleteStaleMembers: settings.guildRosterCacheDeleteStaleMembers,
+    guildRosterRefreshConcurrency: settings.guildRosterRefreshConcurrency,
+    guildRosterRefreshMaxConcurrency: settings.guildRosterRefreshMaxConcurrency,
+    raiderIoRequestTimeoutMs: settings.raiderIoRequestTimeoutMs,
+    raiderIoRequestRetries: settings.raiderIoRequestRetries,
+    battleNetRequestTimeoutMs: settings.battleNetRequestTimeoutMs,
+    battleNetRequestRetries: settings.battleNetRequestRetries,
+    profileReadCacheTtlMs: settings.profileReadCacheTtlMs,
+    profileListCacheTtlMs: settings.profileListCacheTtlMs,
+    profileCharacterLinksCacheTtlMs: settings.profileCharacterLinksCacheTtlMs,
+    raidListCacheTtlMs: settings.raidListCacheTtlMs,
+    raidItemCacheTtlMs: settings.raidItemCacheTtlMs,
     raiderIoCharacterCacheTtlMs: settings.raiderIoCharacterCacheTtlMs,
     warcraftLogsCharacterCacheTtlMs: settings.warcraftLogsCharacterCacheTtlMs,
     warcraftLogsRecentReportLimit: settings.warcraftLogsRecentReportLimit,
@@ -1124,6 +1391,19 @@ export async function getExternalCharacterDataSettings() {
 export async function getGuildRosterSyncSettings() {
   const settings = await getDashboardApiSettings();
   return {
+    region: settings.guildRosterRegion,
+    realm: settings.guildRosterRealm,
+    guildName: settings.guildRosterName,
+    cacheTtlSeconds: settings.guildRosterCacheTtlSeconds,
+    cacheReadTtlMs: settings.guildRosterCacheReadTtlMs,
+    cacheWriteBatchSize: settings.guildRosterCacheWriteBatchSize,
+    cacheDeleteStaleMembers: settings.guildRosterCacheDeleteStaleMembers,
+    refreshConcurrency: settings.guildRosterRefreshConcurrency,
+    refreshMaxConcurrency: settings.guildRosterRefreshMaxConcurrency,
+    raiderIoRequestTimeoutMs: settings.raiderIoRequestTimeoutMs,
+    raiderIoRequestRetries: settings.raiderIoRequestRetries,
+    battleNetRequestTimeoutMs: settings.battleNetRequestTimeoutMs,
+    battleNetRequestRetries: settings.battleNetRequestRetries,
     memberLimit: settings.guildRosterMemberLimit,
     stepBudgetMs: settings.guildRosterRefreshStepBudgetMs,
     syncJobTtlSeconds: settings.guildRosterSyncJobTtlSeconds,
@@ -1165,6 +1445,19 @@ export async function getGuildRosterWarcraftLogsSettings() {
   };
 }
 
+export async function getSiteRuntimeSettings() {
+  const settings = await getDashboardApiSettings();
+  return {
+    profileReadCacheTtlMs: settings.profileReadCacheTtlMs,
+    profileListCacheTtlMs: settings.profileListCacheTtlMs,
+    profileCharacterLinksCacheTtlMs: settings.profileCharacterLinksCacheTtlMs,
+    raidListCacheTtlMs: settings.raidListCacheTtlMs,
+    raidItemCacheTtlMs: settings.raidItemCacheTtlMs,
+    dashboardApiWarningAuditLogs: settings.dashboardApiWarningAuditLogs,
+    dashboardApiDebugAuditLogs: settings.dashboardApiDebugAuditLogs,
+  };
+}
+
 export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const wcl = settings.warcraftLogsClientSecretConfigured
     ? `WCL: ${settings.warcraftLogsCredentialsSource}`
@@ -1175,7 +1468,7 @@ export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const rosterWcl = settings.guildRosterWclEnabled
     ? `WCL roster: ${settings.guildRosterWclMemberLimit > 0 ? settings.guildRosterWclMemberLimit : "усі"}; крок ${settings.guildRosterWclStepSize}; timeout ${settings.warcraftLogsRosterRequestTimeoutMs}мс`
     : "WCL roster: вимкнено";
-  const rosterSync = `Guild roster: ${settings.guildRosterMemberLimit} перс.; Battle.net крок ${settings.guildRosterBattleNetStepSize}; Raider.IO крок ${settings.guildRosterRaiderIoStepSize}; бюджет ${settings.guildRosterRefreshStepBudgetMs}мс; client ${settings.guildRosterClientDrivenSyncEnabled ? "ON" : "OFF"}`;
+  const rosterSync = `Guild roster: ${settings.guildRosterName}-${settings.guildRosterRealm}-${settings.guildRosterRegion}; ${settings.guildRosterMemberLimit} перс.; Battle.net крок ${settings.guildRosterBattleNetStepSize}; Raider.IO крок ${settings.guildRosterRaiderIoStepSize}; кеш ${settings.guildRosterCacheTtlSeconds}с; бюджет ${settings.guildRosterRefreshStepBudgetMs}мс; client ${settings.guildRosterClientDrivenSyncEnabled ? "ON" : "OFF"}`;
   const apiDebug = `API logs: debug ${settings.dashboardApiDebugAuditLogs ? "ON" : "OFF"}, warnings ${settings.dashboardApiWarningAuditLogs ? "ON" : "OFF"}`;
   return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${wcl}; ${wclDebug}; ${apiDebug}; WCL reports: ${settings.warcraftLogsRecentReportLimit}/${settings.warcraftLogsReportFightTableLimit}; ${rosterSync}; ${rosterWcl}.`;
 }

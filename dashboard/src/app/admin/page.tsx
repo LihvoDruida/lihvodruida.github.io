@@ -346,6 +346,162 @@ export default async function AdminOverviewPage() {
                 </label>
               </fieldset>
 
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact admin-policy-fieldset--dense">
+                <legend>Runtime-параметри сайту</legend>
+                <label className="admin-policy-input">
+                  <span>Guild region</span>
+                  <small>Battle.net/Raider.IO region для складу.</small>
+                  <input
+                    name="guildRosterRegion"
+                    defaultValue={apiSettings.guildRosterRegion}
+                    disabled={!canEditApiSettings}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild realm</span>
+                  <small>Realm slug без пробілів, наприклад terokkar.</small>
+                  <input
+                    name="guildRosterRealm"
+                    defaultValue={apiSettings.guildRosterRealm}
+                    disabled={!canEditApiSettings}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild name</span>
+                  <small>Назва гільдії для Battle.net Guild Roster API.</small>
+                  <input
+                    name="guildRosterName"
+                    defaultValue={apiSettings.guildRosterName}
+                    disabled={!canEditApiSettings}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild cache TTL, секунд</span>
+                  <small>Коли кеш складу вважається застарілим.</small>
+                  <input
+                    type="number"
+                    name="guildRosterCacheTtlSeconds"
+                    min={300}
+                    max={86400}
+                    step={300}
+                    defaultValue={apiSettings.guildRosterCacheTtlSeconds}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild read cache TTL, мс</span>
+                  <small>In-memory кеш читання guildRuntimeCache.</small>
+                  <input
+                    type="number"
+                    name="guildRosterCacheReadTtlMs"
+                    min={30000}
+                    max={300000}
+                    step={10000}
+                    defaultValue={apiSettings.guildRosterCacheReadTtlMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild write batch size</span>
+                  <small>Скільки member-docs писати за один Firestore batch.</small>
+                  <input
+                    type="number"
+                    name="guildRosterCacheWriteBatchSize"
+                    min={1}
+                    max={250}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterCacheWriteBatchSize}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild refresh concurrency</span>
+                  <small>Легка паралельність внутрішньої обробки roster.</small>
+                  <input
+                    type="number"
+                    name="guildRosterRefreshConcurrency"
+                    min={1}
+                    max={12}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterRefreshConcurrency}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild max concurrency</span>
+                  <small>Верхня межа паралельності roster-обробки.</small>
+                  <input
+                    type="number"
+                    name="guildRosterRefreshMaxConcurrency"
+                    min={1}
+                    max={12}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterRefreshMaxConcurrency}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <input type="hidden" name="guildRosterCacheDeleteStaleMembers" value="0" />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="guildRosterCacheDeleteStaleMembers"
+                    value="1"
+                    defaultChecked={apiSettings.guildRosterCacheDeleteStaleMembers}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Видаляти stale member-docs</strong>
+                    <small>Вимкнено за замовчуванням, щоб не створювати write storm у Firebase.</small>
+                  </span>
+                </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact admin-policy-fieldset--dense">
+                <legend>Timeout, retry та кеші сторінок</legend>
+                <label className="admin-policy-input">
+                  <span>Battle.net timeout, мс</span>
+                  <input type="number" name="battleNetRequestTimeoutMs" min={2500} max={30000} step={500} defaultValue={apiSettings.battleNetRequestTimeoutMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Battle.net retries</span>
+                  <input type="number" name="battleNetRequestRetries" min={0} max={5} step={1} defaultValue={apiSettings.battleNetRequestRetries} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raider.IO timeout, мс</span>
+                  <input type="number" name="raiderIoRequestTimeoutMs" min={2500} max={30000} step={500} defaultValue={apiSettings.raiderIoRequestTimeoutMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raider.IO retries</span>
+                  <input type="number" name="raiderIoRequestRetries" min={0} max={4} step={1} defaultValue={apiSettings.raiderIoRequestRetries} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Profile read cache, мс</span>
+                  <input type="number" name="profileReadCacheTtlMs" min={30000} max={300000} step={10000} defaultValue={apiSettings.profileReadCacheTtlMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Profile list cache, мс</span>
+                  <input type="number" name="profileListCacheTtlMs" min={30000} max={300000} step={10000} defaultValue={apiSettings.profileListCacheTtlMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Character links cache, мс</span>
+                  <input type="number" name="profileCharacterLinksCacheTtlMs" min={30000} max={600000} step={10000} defaultValue={apiSettings.profileCharacterLinksCacheTtlMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raid list cache, мс</span>
+                  <input type="number" name="raidListCacheTtlMs" min={30000} max={300000} step={10000} defaultValue={apiSettings.raidListCacheTtlMs} disabled={!canEditApiSettings} />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raid item cache, мс</span>
+                  <input type="number" name="raidItemCacheTtlMs" min={10000} max={120000} step={5000} defaultValue={apiSettings.raidItemCacheTtlMs} disabled={!canEditApiSettings} />
+                </label>
+              </fieldset>
+
               <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
                 <legend>Кеш та обсяг даних</legend>
                 <label className="admin-policy-input">
@@ -1008,15 +1164,14 @@ export default async function AdminOverviewPage() {
 
               <footer className="admin-policy-footer">
                 <small>
-                  Секрет зберігається тільки на сервері. Логи перевірки вмикай
-                  тимчасово.
+                  Якщо панель ще не збережена, поточні значення взяті з ENV/fallback. Натисни збереження, щоб записати їх у Firebase й використовувати як єдине runtime-джерело.
                 </small>
                 <button
                   className="btn primary"
                   type="submit"
                   disabled={!canEditApiSettings}
                 >
-                  Зберегти API та Warcraft Logs
+                  Зберегти runtime-параметри
                 </button>
               </footer>
             </form>

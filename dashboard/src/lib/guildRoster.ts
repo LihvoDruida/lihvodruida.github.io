@@ -314,21 +314,24 @@ function characterKey(
   return `${region.toLowerCase()}:${realmSlug.toLowerCase()}:${safeName}:${cleanText(id || "")}`;
 }
 
-function getGuildConfig() {
+function getGuildConfig(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null) {
   const region = normalizeBattleNetRegion(
-    process.env.GUILD_ROSTER_REGION ||
+    settings?.region ||
+      process.env.GUILD_ROSTER_REGION ||
       process.env.WOW_REGION ||
       getDefaultBattleNetRegion(),
   );
   const realmSlug =
     slugify(
-      process.env.GUILD_ROSTER_REALM ||
+      settings?.realm ||
+        process.env.GUILD_ROSTER_REALM ||
         process.env.WOW_REALM ||
         process.env.WOW_GUILD_REALM ||
         DEFAULT_GUILD_REALM,
     ) || DEFAULT_GUILD_REALM;
   const guildName = cleanText(
-    process.env.GUILD_ROSTER_NAME ||
+    settings?.guildName ||
+      process.env.GUILD_ROSTER_NAME ||
       process.env.WOW_GUILD_NAME ||
       process.env.BATTLENET_ALLOWED_GUILD_NAME ||
       DEFAULT_GUILD_NAME,
@@ -338,13 +341,19 @@ function getGuildConfig() {
   return { region, realmSlug, guildName, guildSlug };
 }
 
-function cacheTtlMs() {
+function cacheTtlMs(settings?: Pick<GuildRosterRuntimeSettings, "cacheTtlSeconds"> | null) {
   return (
-    readIntegerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", 1800, 300, 86_400) * 1000
+    Math.max(300, Math.min(86_400, Math.floor(Number(settings?.cacheTtlSeconds || readIntegerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", 1800, 300, 86_400))))) * 1000
   );
 }
 
-function refreshConcurrency(total: number) {
+function refreshConcurrency(
+  total: number,
+  settings?: Pick<GuildRosterRuntimeSettings, "refreshConcurrency" | "refreshMaxConcurrency"> | null,
+) {
+  if (settings?.refreshConcurrency) {
+    return Math.max(1, Math.min(total || 1, Math.min(settings.refreshConcurrency, settings.refreshMaxConcurrency || settings.refreshConcurrency)));
+  }
   return getAdaptiveConcurrency(total, {
     profile: "external-api",
     envKey: "GUILD_ROSTER_REFRESH_CONCURRENCY",
@@ -363,19 +372,23 @@ function guildMemberLimit(
   );
 }
 
-function raiderIoTimeoutMs() {
-  return readIntegerEnv("RAIDERIO_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000);
+function raiderIoTimeoutMs(settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestTimeoutMs"> | null) {
+  return Math.max(2_500, Math.min(30_000, Math.floor(Number(settings?.raiderIoRequestTimeoutMs || readIntegerEnv("RAIDERIO_REQUEST_TIMEOUT_MS", 10_000, 2_500, 30_000)))));
 }
 
 function raiderIoAccessKey() {
   return cleanText(process.env.RAIDERIO_ACCESS_KEY);
 }
 
-async function fetchJsonWithTimeout(url: URL, label: string) {
+async function fetchJsonWithTimeout(
+  url: URL,
+  label: string,
+  settings?: Pick<GuildRosterRuntimeSettings, "raiderIoRequestTimeoutMs" | "raiderIoRequestRetries"> | null,
+) {
   return apiFetchJson<any>(url, {
     label,
-    timeoutMs: raiderIoTimeoutMs(),
-    retries: readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4),
+    timeoutMs: raiderIoTimeoutMs(settings),
+    retries: Math.max(0, Math.min(4, Math.floor(Number(settings?.raiderIoRequestRetries ?? readIntegerEnv("RAIDERIO_REQUEST_RETRIES", 1, 0, 4))))),
     cache: "no-store",
     userAgent: "mistblossom-dashboard",
   });
@@ -385,6 +398,7 @@ async function fetchRaiderGuild(
   region: BattleNetRegion,
   realmSlug: string,
   guildName: string,
+  settings?: GuildRosterRuntimeSettings | null,
 ) {
   const url = new URL("https://raider.io/api/v1/guilds/profile");
   url.searchParams.set("region", region);
@@ -398,7 +412,7 @@ async function fetchRaiderGuild(
   if (key) url.searchParams.set("access_key", key);
 
   try {
-    return await fetchJsonWithTimeout(url, "Raider.IO guild");
+    return await fetchJsonWithTimeout(url, "Raider.IO guild", settings);
   } catch {
     return null;
   }
@@ -408,6 +422,7 @@ async function fetchRaiderCharacter(
   region: BattleNetRegion,
   realmSlug: string,
   name: string,
+  settings?: GuildRosterRuntimeSettings | null,
 ) {
   const url = new URL("https://raider.io/api/v1/characters/profile");
   url.searchParams.set("region", region);
@@ -421,6 +436,7 @@ async function fetchRaiderCharacter(
     return (await fetchJsonWithTimeout(
       url,
       `Raider.IO character ${name}`,
+      settings,
     )) as RaiderIoCharacterPayload;
   } catch {
     return null;
@@ -900,7 +916,7 @@ async function fetchLiveGuildRoster(
     settings?: GuildRosterRuntimeSettings | null;
   } = {},
 ): Promise<GuildRosterLoadResult> {
-  const config = getGuildConfig();
+  const config = getGuildConfig(options.settings);
   const updatedAt = new Date().toISOString();
 
   const guildNamespace = { namespace: `dynamic-${config.region}` };
@@ -909,13 +925,21 @@ async function fetchLiveGuildRoster(
       `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}`,
       guildNamespace,
       config.region,
+      {
+        timeoutMs: options.settings?.battleNetRequestTimeoutMs,
+        retries: options.settings?.battleNetRequestRetries,
+      },
     ),
     fetchBattleNetApplicationData(
       `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
       guildNamespace,
       config.region,
+      {
+        timeoutMs: options.settings?.battleNetRequestTimeoutMs,
+        retries: options.settings?.battleNetRequestRetries,
+      },
     ),
-    fetchRaiderGuild(config.region, config.realmSlug, config.guildName),
+    fetchRaiderGuild(config.region, config.realmSlug, config.guildName, options.settings),
   ]);
 
   const guildBlock = roster?.guild || guildSummary || {};
@@ -935,7 +959,7 @@ async function fetchLiveGuildRoster(
   const rawMembers: any[] = Array.isArray(roster?.members)
     ? roster.members.slice(0, guildMemberLimit(options.settings))
     : [];
-  const concurrency = refreshConcurrency(rawMembers.length);
+  const concurrency = refreshConcurrency(rawMembers.length, options.settings);
   const previousMembers = cachedRosterMemberMap(options.previous);
 
   const { results } = await mapConcurrent(
@@ -1036,10 +1060,12 @@ function shardedCacheEnabled(
   return memberCount >= 150;
 }
 
-function guildRosterCacheWriteBatchSize() {
-  const parsed = Number(process.env.GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE || 50);
+function guildRosterCacheWriteBatchSize(
+  settings?: Pick<GuildRosterRuntimeSettings, "cacheWriteBatchSize"> | null,
+) {
+  const parsed = Number(settings?.cacheWriteBatchSize || process.env.GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE || 50);
   if (!Number.isFinite(parsed)) return 50;
-  return Math.max(1, Math.min(100, Math.floor(parsed)));
+  return Math.max(1, Math.min(250, Math.floor(parsed)));
 }
 
 function memberDocId(
@@ -1067,7 +1093,7 @@ function cachedRosterFromShardedPayload(
   } satisfies CachedRoster);
 }
 
-async function readCachedRoster(): Promise<CachedRoster | null> {
+async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "cacheReadTtlMs"> | null): Promise<CachedRoster | null> {
   if (globalThis.__mistblossomGuildRosterCache)
     return globalThis.__mistblossomGuildRosterCache;
   if (!hasFirebaseProfileConfig()) return null;
@@ -1105,7 +1131,7 @@ async function readCachedRoster(): Promise<CachedRoster | null> {
       return null;
     },
     {
-      ttlMs: Math.max(30_000, Math.min(300_000, Number(process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))),
+      ttlMs: Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))),
       timeoutMs: 4_000,
       circuitKey: "firebase-guild-roster-read",
       circuitTtlMs: 120_000,
@@ -1135,7 +1161,7 @@ async function writeMemberDocs(
   const membersToWrite = changedKeys?.size
     ? members.filter((member) => changedKeys.has(member.key))
     : members;
-  const chunkSize = guildRosterCacheWriteBatchSize();
+  const chunkSize = guildRosterCacheWriteBatchSize(options.settings);
 
   for (let index = 0; index < membersToWrite.length; index += chunkSize) {
     const batch = getFirebaseAdminDb().batch();
@@ -1154,7 +1180,7 @@ async function writeMemberDocs(
     await batch.commit();
   }
 
-  if (options.fullMemberRewrite && process.env.GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS === "1") {
+  if (options.fullMemberRewrite && options.settings?.cacheDeleteStaleMembers) {
     const activeDocIds = new Set(members.map((member) => memberDocId(member)));
     const existing = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
     const staleDocs = existing.docs.filter(
@@ -1594,6 +1620,7 @@ async function enrichGuildMembersWithRaiderIoStep(
         normalizeBattleNetRegion(member.region),
         member.realmSlug,
         member.name,
+        options.settings,
       );
       const next = applyRaiderIoPayload(member, raider, updatedAt);
       updates.set(member.key, next);
@@ -2069,7 +2096,29 @@ async function advanceGuildRosterSyncStep(
       } catch (error) {
         const message =
           error instanceof Error ? error.message : String(error || "unknown");
-        if (!currentCache?.members.length) throw error;
+        if (!currentCache?.members.length) {
+          const friendly = message === "Not Found"
+            ? `Battle.net не знайшов гільдію ${getGuildConfig(settings).guildName} на ${getGuildConfig(settings).realmSlug}-${getGuildConfig(settings).region}. Перевір назву, realm і region у Керуванні → Фоновий API.`
+            : message;
+          currentJob = {
+            ...currentJob,
+            status: "failed",
+            phase: "failed",
+            updatedAt: nowIso(),
+            completedAt: nowIso(),
+            errors: [...(currentJob.errors || []).slice(-9), friendly],
+          };
+          rosterProgress = { refreshed: false, source: "Battle.net roster unavailable" };
+          await writeGuildRosterSyncJob(currentJob);
+          return {
+            cache: currentCache,
+            job: currentJob,
+            rosterProgress,
+            battleNetProgress,
+            raiderIoProgress,
+            warcraftLogsProgress,
+          };
+        }
 
         await recordDashboardSystemLog(
           "warning",
@@ -2373,7 +2422,7 @@ export async function refreshGuildRosterApiBatch(
   } = {},
 ): Promise<GuildRosterLoadResult & { refresh: GuildRosterRefreshProgress }> {
   const settings = await getGuildRosterSyncSettings().catch(() => null);
-  let cached = await readCachedRoster().catch(() => null);
+  let cached = await readCachedRoster(settings).catch(() => null);
 
   if (options.cacheOnly) {
     const existingJob = await readGuildRosterSyncJob().catch(() => null);
@@ -2400,7 +2449,7 @@ export async function refreshGuildRosterApiBatch(
   }
 
   const shouldStart =
-    options.forceRoster || options.continueSync || !cached || !isFresh(cached);
+    options.forceRoster || options.continueSync || !cached || !isFresh(cached, cacheTtlMs(settings));
   let job = shouldStart
     ? await getOrCreateGuildRosterSyncJob(options, cached, settings)
     : await readGuildRosterSyncJob().catch(() => null);
@@ -2457,7 +2506,8 @@ export async function refreshGuildRosterApiBatch(
 }
 
 export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult> {
-  const cached = await readCachedRoster().catch(() => null);
+  const settings = await getGuildRosterSyncSettings().catch(() => null);
+  const cached = await readCachedRoster(settings).catch(() => null);
   if (cached) return publicFromCache(cached);
 
   return {
@@ -2472,7 +2522,8 @@ export async function loadGuildRosterData(
   options: GuildRosterLoadOptions = {},
 ): Promise<GuildRosterLoadResult> {
   void options;
-  const cached = await readCachedRoster().catch(() => null);
+  const settings = await getGuildRosterSyncSettings().catch(() => null);
+  const cached = await readCachedRoster(settings).catch(() => null);
 
   if (cached) return publicFromCache(cached);
 
