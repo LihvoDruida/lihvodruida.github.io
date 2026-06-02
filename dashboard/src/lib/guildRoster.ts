@@ -1383,11 +1383,18 @@ function readGuildRosterChunkCount(data: any) {
   return Math.max(0, Math.min(GUILD_RECORDS_MAX_CHUNKS, Math.floor(value)));
 }
 
-function normalizeMembersFromChunkData(data: any) {
-  const rows = Array.isArray(data?.members) ? data.members : [];
-  return rows
-    .map((item: unknown) => normalizeMemberRecord(item))
-    .filter((member): member is GuildRosterMember => Boolean(member?.key));
+function normalizeMembersFromChunkData(data: any): GuildRosterMember[] {
+  const rows: unknown[] = Array.isArray(data?.members) ? data.members : [];
+  const members: GuildRosterMember[] = [];
+
+  for (const item of rows) {
+    const member = normalizeMemberRecord(item);
+    if (member?.key) {
+      members.push(member);
+    }
+  }
+
+  return members;
 }
 
 function memberDocId(
