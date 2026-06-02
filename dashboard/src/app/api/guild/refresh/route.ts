@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { loadGuildRosterData } from "@/lib/guildRoster";
+import { refreshGuildRosterApiBatch } from "@/lib/guildRoster";
 import { canViewGuildRoster } from "@/lib/permissions";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, unauthorizedResponse, verifyTrustedOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const revalidate = 0;
+
+type GuildRefreshBody = {
+  force?: unknown;
+  wcl?: unknown;
+  forceWcl?: unknown;
+};
+
+function truthy(value: unknown) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value > 0;
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return ["1", "true", "yes", "y", "on"].includes(normalized);
+}
 
 export async function POST(request: NextRequest) {
   if (!verifyTrustedOrigin(request)) return forbiddenResponse();
@@ -18,20 +31,29 @@ export async function POST(request: NextRequest) {
   if (!canViewGuildRoster(session)) return unauthorizedResponse();
 
   const ip = getClientIp(request);
-  const limit = checkRateLimit(`guild-roster-refresh:${session?.profileId || session?.id || ip}`, 4, 15 * 60 * 1000);
+  const actor = session?.profileId || session?.id || ip;
+  const limit = checkRateLimit(`guild-roster-refresh:${actor}`, 30, 15 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
-  const globalLimit = checkRateLimit("guild-roster-refresh:global", 8, 15 * 60 * 1000);
+  const globalLimit = checkRateLimit("guild-roster-refresh:global", 120, 15 * 60 * 1000);
   if (!globalLimit.ok) return rateLimitResponse(globalLimit.resetAt);
 
   try {
-    const body = await request.json().catch(() => null) as { force?: unknown } | null;
-    const forceRefresh = body?.force !== false;
-    const roster = await loadGuildRosterData({ forceRefresh });
+    const body = (await request.json().catch(() => null)) as GuildRefreshBody | null;
+    const forceRefresh = truthy(body?.force);
+    const includeWarcraftLogs = body?.wcl === undefined ? true : truthy(body.wcl);
+    const forceWarcraftLogs = truthy(body?.forceWcl);
+    const roster = await refreshGuildRosterApiBatch({
+      forceRoster: forceRefresh,
+      includeWarcraftLogs,
+      forceWarcraftLogs,
+    });
+
     logDashboardEvent("info", "guild.roster.refreshed", request, {
       profileId: session?.profileId || null,
       memberCount: roster.members.length,
       source: roster.source,
+      refresh: roster.refresh,
     });
 
     return NextResponse.json({
@@ -42,6 +64,10 @@ export async function POST(request: NextRequest) {
       members: roster.members,
       stats: roster.stats,
       error: roster.error || null,
+      refresh: roster.refresh,
+      hasMore:
+        roster.refresh.raiderIo.remaining > 0 ||
+        roster.refresh.warcraftLogs.remaining > 0,
     }, { headers: noStoreHeaders() });
   } catch (error) {
     logDashboardEvent("warn", "guild.roster.refresh_failed", request, {

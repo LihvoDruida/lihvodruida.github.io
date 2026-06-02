@@ -3064,6 +3064,8 @@ async function fetchRecentReportRecords(input: {
   name: string;
   realmSlug: string;
   region: string;
+  recentReportLimit?: number;
+  timeoutMs?: number;
 }) {
   async function request(enhanced: boolean) {
     return apiFetchJson<WarcraftLogsGraphqlResponse>(
@@ -3071,7 +3073,7 @@ async function fetchRecentReportRecords(input: {
       {
         method: "POST",
         label: `Warcraft Logs recent reports ${input.name}${enhanced ? " enhanced" : " basic"}`,
-        timeoutMs: warcraftLogsTimeoutMs(),
+        timeoutMs: input.timeoutMs ?? warcraftLogsTimeoutMs(),
         retries: warcraftLogsRetryCount(),
         retryMethods: ["POST"],
         headers: {
@@ -3081,7 +3083,8 @@ async function fetchRecentReportRecords(input: {
         },
         body: JSON.stringify({
           query: recentReportsQuery(
-            warcraftLogsRecentReportLimit(input.credentials),
+            input.recentReportLimit ??
+              warcraftLogsRecentReportLimit(input.credentials),
             enhanced,
           ),
           variables: {
@@ -3139,6 +3142,7 @@ async function fetchReportFightTables(input: {
   reportCode: string;
   sourceId: number;
   fights: WarcraftLogsReportFightSeed[];
+  timeoutMs?: number;
 }) {
   if (!input.fights.length) return null;
 
@@ -3159,7 +3163,7 @@ async function fetchReportFightTables(input: {
       {
         method: "POST",
         label: `Warcraft Logs report boss tables ${input.reportCode} ${attempt.mode}${attempt.enhanced ? " enhanced" : " basic"}`,
-        timeoutMs: warcraftLogsTimeoutMs(),
+        timeoutMs: input.timeoutMs ?? warcraftLogsTimeoutMs(),
         retries: warcraftLogsRetryCount(),
         retryMethods: ["POST"],
         headers: {
@@ -3262,11 +3266,19 @@ async function fetchRecentRaidBossPulls(input: {
   realmSlug: string;
   region: string;
   metricSummaries: WarcraftLogsMetricSummary[];
+  recentReportLimit?: number;
+  reportFightTableLimit?: number;
+  reportTableConcurrency?: number;
+  timeoutMs?: number;
 }) {
   const knownBosses = knownRaidBossIds(input.metricSummaries);
 
   try {
-    const reports = await fetchRecentReportRecords(input);
+    const reports = await fetchRecentReportRecords({
+      ...input,
+      recentReportLimit: input.recentReportLimit,
+      timeoutMs: input.timeoutMs,
+    });
     const startedAt = Date.now();
 
     const mapped = await mapConcurrentSettled(
@@ -3296,7 +3308,8 @@ async function fetchRecentRaidBossPulls(input: {
         const fights = reportFightSeeds(
           report,
           knownBosses,
-          warcraftLogsReportFightTableLimit(input.credentials),
+          input.reportFightTableLimit ??
+            warcraftLogsReportFightTableLimit(input.credentials),
         );
         if (!fights.length) {
           return {
@@ -3345,6 +3358,7 @@ async function fetchRecentRaidBossPulls(input: {
           reportCode,
           sourceId: actor.id,
           fights,
+          timeoutMs: input.timeoutMs,
         });
         if (!tableResult?.report) {
           return {
@@ -3545,9 +3559,12 @@ async function fetchRecentRaidBossPulls(input: {
       },
       {
         profile: "external-api",
-        envKey: "WARCRAFTLOGS_REPORT_TABLE_CONCURRENCY",
+        concurrency: input.reportTableConcurrency,
+        envKey: input.reportTableConcurrency
+          ? undefined
+          : "WARCRAFTLOGS_REPORT_TABLE_CONCURRENCY",
         maxEnvKey: "WARCRAFTLOGS_MAX_CONCURRENCY",
-        max: 4,
+        max: input.reportTableConcurrency ?? 4,
         failFast: false,
       },
     );
@@ -4124,6 +4141,7 @@ async function fetchEncounterHistory(input: {
   realmSlug: string;
   region: string;
   metricSummaries: WarcraftLogsMetricSummary[];
+  timeoutMs?: number;
 }) {
   type EncounterHistoryResult = {
     mapped: Record<string, Record<string, unknown>>;
@@ -4155,7 +4173,7 @@ async function fetchEncounterHistory(input: {
       {
         method: "POST",
         label: `Warcraft Logs encounter history ${input.name} ${attempt.label}`,
-        timeoutMs: warcraftLogsTimeoutMs(),
+        timeoutMs: input.timeoutMs ?? warcraftLogsTimeoutMs(),
         retries: warcraftLogsRetryCount(),
         retryMethods: ["POST"],
         headers: {
@@ -4658,6 +4676,24 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
   const credentials = await getWarcraftLogsApiCredentials();
   const summaryMode: WarcraftLogsSummaryMode =
     input.mode === "roster" ? "roster" : "full";
+  const rosterMode = summaryMode === "roster";
+  const requestTimeoutMs = rosterMode
+    ? readIntegerEnv(
+        "WARCRAFTLOGS_ROSTER_REQUEST_TIMEOUT_MS",
+        5_000,
+        1_500,
+        20_000,
+      )
+    : warcraftLogsTimeoutMs();
+  const recentReportLimit = rosterMode
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_RECENT_REPORT_LIMIT", 3, 1, 12)
+    : warcraftLogsRecentReportLimit(credentials);
+  const reportFightTableLimit = rosterMode
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_FIGHT_TABLE_LIMIT", 8, 3, 24)
+    : warcraftLogsReportFightTableLimit(credentials);
+  const reportTableConcurrency = rosterMode
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_TABLE_CONCURRENCY", 1, 1, 2)
+    : undefined;
   const profileUrl = characterUrl({
     region,
     realmSlug,
@@ -4713,7 +4749,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
         {
           method: "POST",
           label: `Warcraft Logs character ${input.name} ${attempt.label}`,
-          timeoutMs: warcraftLogsTimeoutMs(),
+          timeoutMs: requestTimeoutMs,
           retries: warcraftLogsRetryCount(),
           retryMethods: ["POST"],
           headers: {
@@ -4801,6 +4837,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
             realmSlug,
             region,
             metricSummaries: initialMetricSummaries,
+            timeoutMs: requestTimeoutMs,
           })
         : ({} as Record<string, Record<string, unknown>>);
     const shouldFetchReportPulls =
@@ -4813,6 +4850,10 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
           realmSlug,
           region,
           metricSummaries: initialMetricSummaries,
+          recentReportLimit,
+          reportFightTableLimit,
+          reportTableConcurrency,
+          timeoutMs: requestTimeoutMs,
         })
       : emptyReportPullsResult();
     const metricSummaries = normalizeAllMetricSummaries(
