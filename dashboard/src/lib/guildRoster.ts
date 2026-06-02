@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { apiFetchJson } from "@/lib/apiHttp";
 import {
@@ -92,6 +93,49 @@ export type GuildRosterLoadOptions = {
   forceRefresh?: boolean;
 };
 
+export type GuildRosterSyncPhase =
+  | "roster"
+  | "raiderio"
+  | "warcraftlogs"
+  | "completed"
+  | "failed";
+
+export type GuildRosterSyncJobStatus = "running" | "completed" | "failed";
+
+export type GuildRosterSyncJob = {
+  id: string;
+  status: GuildRosterSyncJobStatus;
+  phase: GuildRosterSyncPhase;
+  requestedAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
+  forceRoster: boolean;
+  includeWarcraftLogs: boolean;
+  forceWarcraftLogs: boolean;
+  totalMembers: number;
+  processed: {
+    roster: number;
+    raiderIo: number;
+    warcraftLogs: number;
+  };
+  errors: string[];
+  lastMemberKey?: string | null;
+};
+
+export type GuildRosterSyncProgress = {
+  id: string | null;
+  status: GuildRosterSyncJobStatus | "idle";
+  phase: GuildRosterSyncPhase | "idle";
+  totalMembers: number;
+  processed: {
+    roster: number;
+    raiderIo: number;
+    warcraftLogs: number;
+  };
+  updatedAt: string | null;
+  completedAt: string | null;
+};
+
 type CachedRoster = GuildRosterLoadResult & {
   cachedAt: string;
 };
@@ -103,6 +147,8 @@ const DEFAULT_GUILD_NAME = "Mistblossom Vanguard";
 const DEFAULT_GUILD_REALM = "terokkar";
 const CACHE_COLLECTION = "guildRuntimeCache";
 const CACHE_DOCUMENT = "guildRoster";
+const CACHE_MEMBERS_COLLECTION = "members";
+const SYNC_JOB_DOCUMENT = "guildRosterSyncJob";
 const LIVE_SOURCE = "Battle.net Guild Roster API + Raider.IO Character API";
 
 const CLASS_ID_FALLBACK: Record<number, string> = {
@@ -156,6 +202,7 @@ declare global {
   var __mistblossomGuildRosterRefreshPromise:
     | Promise<CachedRoster | null>
     | undefined;
+  var __mistblossomGuildRosterSyncJob: GuildRosterSyncJob | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
@@ -370,28 +417,6 @@ function guildRosterWclMemberLimit(total: number, configuredLimit: number) {
   return safeLimit <= 0 ? safeTotal : Math.min(safeTotal, safeLimit);
 }
 
-function wclRefreshConcurrency(
-  total: number,
-  configuredConcurrency: number,
-  configuredMaxConcurrency: number,
-) {
-  const concurrency =
-    Number.isFinite(configuredConcurrency) && configuredConcurrency > 0
-      ? Math.floor(configuredConcurrency)
-      : undefined;
-  const maxConcurrency = Math.max(
-    1,
-    Math.min(Math.floor(configuredMaxConcurrency || 3), 8),
-  );
-
-  return getAdaptiveConcurrency(total, {
-    profile: "external-api",
-    concurrency,
-    min: 1,
-    max: maxConcurrency,
-  });
-}
-
 function buildWarcraftLogsRosterSnapshot(
   member: GuildRosterMember,
   summary: Awaited<ReturnType<typeof fetchWarcraftLogsCharacterSummary>>,
@@ -465,158 +490,12 @@ type GuildRosterApiBatchProgress = {
   reason?: string | null;
 };
 
-type GuildRosterWarcraftLogsBatchResult = GuildRosterApiBatchProgress & {
-  members: GuildRosterMember[];
-};
-
-function guildRosterWclBatchLimit(total: number) {
-  return Math.min(
-    Math.max(0, total),
-    readIntegerEnv("GUILD_ROSTER_WCL_BATCH_SIZE", 1, 0, 20),
-  );
-}
-
 function storedWclSnapshotFreshForBatch(
   snapshot?: GuildRosterWarcraftLogsSnapshot | null,
   force = false,
 ) {
   if (force) return false;
   return storedWclSnapshotFresh(snapshot);
-}
-
-async function enrichGuildMembersWithWarcraftLogs(
-  members: GuildRosterMember[],
-  options: { force?: boolean; batchLimit?: number } = {},
-): Promise<GuildRosterWarcraftLogsBatchResult> {
-  if (!members.length) {
-    return {
-      members,
-      checked: 0,
-      remaining: 0,
-      totalCandidates: 0,
-      skipped: true,
-      reason: "empty_roster",
-    };
-  }
-
-  const settings = await getGuildRosterWarcraftLogsSettings().catch(() => ({
-    enabled: true,
-    memberLimit: 0,
-    concurrency: 0,
-    maxConcurrency: 3,
-  }));
-  if (!settings.enabled) {
-    return {
-      members,
-      checked: 0,
-      remaining: 0,
-      totalCandidates: 0,
-      skipped: true,
-      reason: "disabled",
-    };
-  }
-
-  const limit = guildRosterWclMemberLimit(members.length, settings.memberLimit);
-  if (limit <= 0) {
-    return {
-      members,
-      checked: 0,
-      remaining: 0,
-      totalCandidates: 0,
-      skipped: true,
-      reason: "limit_zero",
-    };
-  }
-
-  const selected = members.slice(0, limit);
-  const selectedKeys = new Set(selected.map((member) => member.key));
-  const candidates = staleFirst(
-    selected.filter(
-      (member) =>
-        !storedWclSnapshotFreshForBatch(member.warcraftLogs, options.force),
-    ),
-    (member) => member.warcraftLogs?.updatedAt,
-  );
-  const requestedLimit = Math.max(0, Math.floor(options.batchLimit || 0));
-  const batchLimit = requestedLimit || guildRosterWclBatchLimit(candidates.length);
-  const staleMembers = candidates.slice(0, batchLimit);
-
-  if (!staleMembers.length) {
-    return {
-      members,
-      checked: 0,
-      remaining: 0,
-      totalCandidates: candidates.length,
-      skipped: true,
-      reason: "fresh",
-    };
-  }
-
-  const concurrency = wclRefreshConcurrency(
-    staleMembers.length,
-    settings.concurrency,
-    settings.maxConcurrency,
-  );
-  const { results } = await mapConcurrent(
-    staleMembers,
-    async (member) => {
-      const summary = await fetchWarcraftLogsCharacterSummary({
-        region: member.region,
-        realmSlug: member.realmSlug,
-        name: member.name,
-        mode: "roster",
-      });
-      const warcraftLogs = buildWarcraftLogsRosterSnapshot(member, summary);
-      if (member.ownerProfileId) {
-        await saveProfileCharacterWarcraftLogsSnapshot({
-          profileId: member.ownerProfileId,
-          characterKey: member.key,
-          region: member.region,
-          realmSlug: member.realmSlug,
-          name: member.name,
-          warcraftLogs,
-        }).catch(() => false);
-      }
-      return {
-        key: member.key,
-        warcraftLogs,
-      };
-    },
-    {
-      profile: "external-api",
-      concurrency,
-      failFast: false,
-    },
-  );
-
-  const wclByKey = new Map(
-    results
-      .filter(
-        (
-          item,
-        ): item is {
-          key: string;
-          warcraftLogs: GuildRosterWarcraftLogsSnapshot;
-        } => Boolean(item?.key && item?.warcraftLogs),
-      )
-      .map((item) => [item.key, item.warcraftLogs]),
-  );
-
-  return {
-    members: members.map((member) =>
-      selectedKeys.has(member.key)
-        ? {
-            ...member,
-            warcraftLogs: wclByKey.get(member.key) || member.warcraftLogs || null,
-          }
-        : member,
-    ),
-    checked: wclByKey.size,
-    remaining: Math.max(0, candidates.length - wclByKey.size),
-    totalCandidates: candidates.length,
-    skipped: false,
-    reason: null,
-  };
 }
 
 function buildScores(
@@ -735,23 +614,6 @@ function raiderIoSnapshotFresh(member: GuildRosterMember) {
   return timestampAgeMs(member.raiderIoUpdatedAt) < ttlSeconds * 1000;
 }
 
-function guildRosterRaiderIoBatchLimit(total: number) {
-  return Math.min(
-    Math.max(0, total),
-    readIntegerEnv("GUILD_ROSTER_RAIDERIO_BATCH_SIZE", 3, 0, 100),
-  );
-}
-
-function guildRosterRaiderIoConcurrency(total: number) {
-  return getAdaptiveConcurrency(total, {
-    profile: "external-api",
-    envKey: "GUILD_ROSTER_RAIDERIO_CONCURRENCY",
-    maxEnvKey: "GUILD_ROSTER_RAIDERIO_MAX_CONCURRENCY",
-    min: 1,
-    max: 3,
-  });
-}
-
 function applyRaiderIoPayload(
   member: GuildRosterMember,
   raider: RaiderIoCharacterPayload | null,
@@ -788,53 +650,6 @@ function applyRaiderIoPayload(
     scoreColors: buildScoreColors(raider),
     hasRaiderIo: Boolean(profileUrl || hasUsefulScores(scores)),
     raiderIoUpdatedAt: updatedAt,
-  };
-}
-
-async function enrichGuildMembersWithRaiderIoBatch(
-  members: GuildRosterMember[],
-  updatedAt: string,
-) {
-  if (!members.length) return { members, checked: 0, remaining: 0 };
-
-  const candidates = staleFirst(
-    members.filter((member) => !raiderIoSnapshotFresh(member)),
-    (member) => member.raiderIoUpdatedAt,
-  );
-  const batchLimit = guildRosterRaiderIoBatchLimit(candidates.length);
-  const selected = candidates.slice(0, batchLimit);
-  if (!selected.length) return { members, checked: 0, remaining: 0 };
-
-  const selectedKeys = new Set(selected.map((member) => member.key));
-  const { results } = await mapConcurrent(
-    selected,
-    async (member) => {
-      const raider = await fetchRaiderCharacter(
-        normalizeBattleNetRegion(member.region),
-        member.realmSlug,
-        member.name,
-      );
-      return applyRaiderIoPayload(member, raider, updatedAt);
-    },
-    {
-      profile: "external-api",
-      concurrency: guildRosterRaiderIoConcurrency(selected.length),
-      failFast: false,
-    },
-  );
-
-  const byKey = new Map(
-    results
-      .filter((member): member is GuildRosterMember => Boolean(member?.key))
-      .map((member) => [member.key, member]),
-  );
-
-  return {
-    members: members.map((member) =>
-      selectedKeys.has(member.key) ? byKey.get(member.key) || member : member,
-    ),
-    checked: byKey.size,
-    remaining: Math.max(0, candidates.length - byKey.size),
   };
 }
 
@@ -1073,11 +888,7 @@ async function fetchLiveGuildRoster(options: { previous?: CachedRoster | null } 
     results.filter((member): member is GuildRosterMember => Boolean(member)),
   );
   const linkedMembers = await enrichGuildMembersWithProfileLinks(baseMembers);
-  const raiderIoBatch = await enrichGuildMembersWithRaiderIoBatch(
-    linkedMembers,
-    updatedAt,
-  );
-  const members = sortMembers(raiderIoBatch.members);
+  const members = sortMembers(linkedMembers);
   const stats = buildStats({
     guildSummary: guildSummary || guildBlock,
     raiderGuild,
@@ -1130,24 +941,113 @@ function isFresh(cache: CachedRoster | null, ttlMs = cacheTtlMs()) {
   return Number.isFinite(cachedAt) && Date.now() - cachedAt < ttlMs;
 }
 
+function shardedCacheEnabled(memberCount: number) {
+  const raw = cleanText(process.env.GUILD_ROSTER_SHARDED_CACHE_ENABLED, "").toLowerCase();
+  if (["0", "false", "no", "off"].includes(raw)) return false;
+  if (["1", "true", "yes", "on"].includes(raw)) return true;
+  const threshold = readIntegerEnv("GUILD_ROSTER_SHARDED_CACHE_THRESHOLD", 150, 1, 1000);
+  return memberCount >= threshold;
+}
+
+function memberDocId(member: Pick<GuildRosterMember, "key" | "region" | "realmSlug" | "name">) {
+  const source = member.key || memberBattleNetKey(member) || `${member.region}:${member.realmSlug}:${member.name}`;
+  return createHash("sha1").update(source.toLowerCase()).digest("hex");
+}
+
+function cachedRosterFromShardedPayload(data: any, members: GuildRosterMember[]): CachedRoster | null {
+  const meta = data?.payloadSharded;
+  if (!meta || !meta.stats || typeof meta.cachedAt !== "string") return null;
+  return stripUndefined({
+    members: sortMembers(members),
+    stats: meta.stats,
+    source: cleanText(meta.source) || `${LIVE_SOURCE} • cache`,
+    error: typeof meta.error === "string" ? meta.error : null,
+    cachedAt: meta.cachedAt,
+  } satisfies CachedRoster);
+}
+
 async function readCachedRoster(): Promise<CachedRoster | null> {
   if (globalThis.__mistblossomGuildRosterCache)
     return globalThis.__mistblossomGuildRosterCache;
   if (!hasFirebaseProfileConfig()) return null;
 
-  const snapshot = await getFirebaseAdminDb()
-    .collection(CACHE_COLLECTION)
-    .doc(CACHE_DOCUMENT)
-    .get();
+  const doc = getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(CACHE_DOCUMENT);
+  const snapshot = await doc.get();
   if (!snapshot.exists) return null;
   const data = snapshot.data() || {};
-  const cache = data.payload;
-  if (!isCachedRoster(cache)) return null;
-  globalThis.__mistblossomGuildRosterCache = cache;
-  return cache;
+  const legacyCache = data.payload;
+  if (isCachedRoster(legacyCache)) {
+    globalThis.__mistblossomGuildRosterCache = legacyCache;
+    return legacyCache;
+  }
+
+  if (data.payloadSharded) {
+    const memberSnapshots = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
+    const members = memberSnapshots.docs
+      .map((item) => item.data()?.member)
+      .filter((member): member is GuildRosterMember => Boolean(member?.key));
+    const cache = cachedRosterFromShardedPayload(data, members);
+    if (cache) {
+      globalThis.__mistblossomGuildRosterCache = cache;
+      return cache;
+    }
+  }
+
+  return null;
 }
 
-async function writeCachedRoster(result: GuildRosterLoadResult) {
+type CachedRosterWriteOptions = {
+  changedMemberKeys?: Set<string>;
+  fullMemberRewrite?: boolean;
+};
+
+async function writeMemberDocs(
+  members: GuildRosterMember[],
+  options: CachedRosterWriteOptions = {},
+) {
+  if (!hasFirebaseProfileConfig()) return;
+  if (!members.length && !options.fullMemberRewrite) return;
+
+  const doc = getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(CACHE_DOCUMENT);
+  const changedKeys = options.changedMemberKeys;
+  const membersToWrite = changedKeys?.size
+    ? members.filter((member) => changedKeys.has(member.key))
+    : members;
+  const chunkSize = 400;
+
+  for (let index = 0; index < membersToWrite.length; index += chunkSize) {
+    const batch = getFirebaseAdminDb().batch();
+    for (const member of membersToWrite.slice(index, index + chunkSize)) {
+      batch.set(
+        doc.collection(CACHE_MEMBERS_COLLECTION).doc(memberDocId(member)),
+        {
+          key: member.key,
+          battleNetKey: memberBattleNetKey(member),
+          member: stripUndefined(member),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+    await batch.commit();
+  }
+
+  if (options.fullMemberRewrite) {
+    const activeDocIds = new Set(members.map((member) => memberDocId(member)));
+    const existing = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
+    const staleDocs = existing.docs.filter((item) => !activeDocIds.has(item.id));
+    for (let index = 0; index < staleDocs.length; index += chunkSize) {
+      const batch = getFirebaseAdminDb().batch();
+      for (const item of staleDocs.slice(index, index + chunkSize)) batch.delete(item.ref);
+      await batch.commit();
+    }
+  }
+}
+
+async function writeCachedRoster(
+  result: GuildRosterLoadResult,
+  options: CachedRosterWriteOptions = {},
+) {
   const cache = stripUndefined({
     ...result,
     source: `${LIVE_SOURCE} • cache`,
@@ -1157,16 +1057,33 @@ async function writeCachedRoster(result: GuildRosterLoadResult) {
   globalThis.__mistblossomGuildRosterCache = cache;
 
   if (hasFirebaseProfileConfig()) {
-    await getFirebaseAdminDb()
-      .collection(CACHE_COLLECTION)
-      .doc(CACHE_DOCUMENT)
-      .set(
+    const doc = getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(CACHE_DOCUMENT);
+    if (shardedCacheEnabled(cache.members.length)) {
+      await doc.set(
         {
-          payload: cache,
+          payload: FieldValue.delete(),
+          payloadSharded: stripUndefined({
+            stats: cache.stats,
+            source: cache.source,
+            error: cache.error || null,
+            cachedAt: cache.cachedAt,
+            memberCount: cache.members.length,
+          }),
           updatedAt: FieldValue.serverTimestamp(),
         },
         { merge: true },
       );
+      await writeMemberDocs(cache.members, options);
+    } else {
+      await doc.set(
+        {
+          payload: cache,
+          payloadSharded: FieldValue.delete(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
   }
 
   return cache;
@@ -1183,7 +1100,7 @@ function publicFromCache(cache: CachedRoster): GuildRosterLoadResult {
 
 async function refreshGuildRosterAndCache(previous?: CachedRoster | null) {
   const live = await fetchLiveGuildRoster({ previous });
-  return writeCachedRoster(live).catch(() => null);
+  return writeCachedRoster(live, { fullMemberRewrite: true }).catch(() => null);
 }
 
 function scheduleGuildRosterBackgroundRefresh(reason: string) {
@@ -1205,6 +1122,12 @@ export type GuildRosterRefreshProgress = {
   };
   raiderIo: GuildRosterApiBatchProgress;
   warcraftLogs: GuildRosterApiBatchProgress;
+  sync: GuildRosterSyncProgress;
+};
+
+type GuildRosterApiStepResult = GuildRosterApiBatchProgress & {
+  members: GuildRosterMember[];
+  changedMemberKeys: Set<string>;
 };
 
 function emptyProgress(reason: string): GuildRosterApiBatchProgress {
@@ -1217,20 +1140,558 @@ function emptyProgress(reason: string): GuildRosterApiBatchProgress {
   };
 }
 
+function syncProgress(job?: GuildRosterSyncJob | null): GuildRosterSyncProgress {
+  if (!job) {
+    return {
+      id: null,
+      status: "idle",
+      phase: "idle",
+      totalMembers: 0,
+      processed: { roster: 0, raiderIo: 0, warcraftLogs: 0 },
+      updatedAt: null,
+      completedAt: null,
+    };
+  }
+
+  return {
+    id: job.id,
+    status: job.status,
+    phase: job.phase,
+    totalMembers: job.totalMembers,
+    processed: job.processed,
+    updatedAt: job.updatedAt,
+    completedAt: job.completedAt || null,
+  };
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function guildRosterStepBudgetMs() {
+  return readIntegerEnv("GUILD_ROSTER_REFRESH_STEP_BUDGET_MS", 22_000, 15_000, 38_000);
+}
+
+function hasStepBudget(deadline: number, reserveMs: number) {
+  return Date.now() + reserveMs < deadline;
+}
+
+function guildRosterRaiderIoStepLimit(total: number) {
+  return Math.min(
+    Math.max(0, total),
+    readIntegerEnv(
+      "GUILD_ROSTER_RAIDERIO_STEP_SIZE",
+      readIntegerEnv("GUILD_ROSTER_RAIDERIO_BATCH_SIZE", 5, 0, 100),
+      0,
+      100,
+    ),
+  );
+}
+
+function guildRosterWclStepLimit(total: number) {
+  return Math.min(
+    Math.max(0, total),
+    readIntegerEnv(
+      "GUILD_ROSTER_WCL_STEP_SIZE",
+      readIntegerEnv("GUILD_ROSTER_WCL_BATCH_SIZE", 1, 0, 20),
+      0,
+      20,
+    ),
+  );
+}
+
+function replaceMembersByKey(
+  members: GuildRosterMember[],
+  updates: Map<string, GuildRosterMember>,
+) {
+  if (!updates.size) return members;
+  return members.map((member) => updates.get(member.key) || member);
+}
+
+function progressRemainingFromCandidates(totalCandidates: number, checked: number) {
+  return Math.max(0, totalCandidates - Math.max(0, checked));
+}
+
+async function enrichGuildMembersWithRaiderIoStep(
+  members: GuildRosterMember[],
+  updatedAt: string,
+  options: { force?: boolean; deadline: number },
+): Promise<GuildRosterApiStepResult> {
+  if (!members.length) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      ...emptyProgress("empty_roster"),
+    };
+  }
+
+  const candidates = staleFirst(
+    members.filter((member) => options.force || !raiderIoSnapshotFresh(member)),
+    (member) => member.raiderIoUpdatedAt,
+  );
+  const totalCandidates = candidates.length;
+  const stepLimit = guildRosterRaiderIoStepLimit(totalCandidates);
+  if (!stepLimit || !totalCandidates) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      checked: 0,
+      remaining: totalCandidates,
+      totalCandidates,
+      skipped: true,
+      reason: totalCandidates ? "step_limit_zero" : "fresh",
+    };
+  }
+
+  const updates = new Map<string, GuildRosterMember>();
+  const changedMemberKeys = new Set<string>();
+  let checked = 0;
+  let reason: string | null = null;
+
+  for (const member of candidates.slice(0, stepLimit)) {
+    if (!hasStepBudget(options.deadline, 4_500)) {
+      reason = "step_budget_exhausted";
+      break;
+    }
+
+    try {
+      const raider = await fetchRaiderCharacter(
+        normalizeBattleNetRegion(member.region),
+        member.realmSlug,
+        member.name,
+      );
+      const next = applyRaiderIoPayload(member, raider, updatedAt);
+      updates.set(member.key, next);
+      changedMemberKeys.add(member.key);
+      checked += 1;
+    } catch {
+      updates.set(member.key, { ...member, raiderIoUpdatedAt: updatedAt });
+      changedMemberKeys.add(member.key);
+      checked += 1;
+    }
+  }
+
+  return {
+    members: replaceMembersByKey(members, updates),
+    changedMemberKeys,
+    checked,
+    remaining: progressRemainingFromCandidates(totalCandidates, checked),
+    totalCandidates,
+    skipped: checked === 0,
+    reason: checked === 0 ? reason || "not_processed" : reason,
+  };
+}
+
+async function enrichGuildMembersWithWarcraftLogsStep(
+  members: GuildRosterMember[],
+  options: { force?: boolean; deadline: number },
+): Promise<GuildRosterApiStepResult> {
+  if (!members.length) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      ...emptyProgress("empty_roster"),
+    };
+  }
+
+  const settings = await getGuildRosterWarcraftLogsSettings().catch(() => ({
+    enabled: true,
+    memberLimit: 0,
+    concurrency: 0,
+    maxConcurrency: 1,
+  }));
+  if (!settings.enabled) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      ...emptyProgress("disabled"),
+    };
+  }
+
+  const limit = guildRosterWclMemberLimit(members.length, settings.memberLimit);
+  const selected = members.slice(0, limit);
+  const candidates = staleFirst(
+    selected.filter(
+      (member) => !storedWclSnapshotFreshForBatch(member.warcraftLogs, options.force),
+    ),
+    (member) => member.warcraftLogs?.updatedAt,
+  );
+  const totalCandidates = candidates.length;
+  const stepLimit = guildRosterWclStepLimit(totalCandidates);
+  if (!stepLimit || !totalCandidates) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      checked: 0,
+      remaining: totalCandidates,
+      totalCandidates,
+      skipped: true,
+      reason: totalCandidates ? "step_limit_zero" : "fresh",
+    };
+  }
+
+  const updates = new Map<string, GuildRosterMember>();
+  const changedMemberKeys = new Set<string>();
+  let checked = 0;
+  let reason: string | null = null;
+
+  for (const member of candidates.slice(0, stepLimit)) {
+    if (!hasStepBudget(options.deadline, 13_000)) {
+      reason = "step_budget_exhausted";
+      break;
+    }
+
+    try {
+      const summary = await fetchWarcraftLogsCharacterSummary({
+        region: member.region,
+        realmSlug: member.realmSlug,
+        name: member.name,
+        mode: "roster",
+      });
+      const warcraftLogs = buildWarcraftLogsRosterSnapshot(member, summary);
+      const next = { ...member, warcraftLogs };
+      updates.set(member.key, next);
+      changedMemberKeys.add(member.key);
+      checked += 1;
+
+      if (member.ownerProfileId) {
+        await saveProfileCharacterWarcraftLogsSnapshot({
+          profileId: member.ownerProfileId,
+          characterKey: member.key,
+          region: member.region,
+          realmSlug: member.realmSlug,
+          name: member.name,
+          warcraftLogs,
+        }).catch(() => false);
+      }
+    } catch {
+      const failed: GuildRosterWarcraftLogsSnapshot = {
+        status: "error",
+        updatedAt: nowIso(),
+        profileUrl: null,
+        activeRole: member.role,
+        primaryMetric: null,
+        hps: null,
+        dps: null,
+        tankDps: null,
+        tankHps: null,
+        error: "Warcraft Logs step failed",
+      };
+      updates.set(member.key, { ...member, warcraftLogs: failed });
+      changedMemberKeys.add(member.key);
+      checked += 1;
+    }
+  }
+
+  return {
+    members: replaceMembersByKey(members, updates),
+    changedMemberKeys,
+    checked,
+    remaining: progressRemainingFromCandidates(totalCandidates, checked),
+    totalCandidates,
+    skipped: checked === 0,
+    reason: checked === 0 ? reason || "not_processed" : reason,
+  };
+}
+
+function syncJobDoc() {
+  if (!hasFirebaseProfileConfig()) return null;
+  return getFirebaseAdminDb().collection(CACHE_COLLECTION).doc(SYNC_JOB_DOCUMENT);
+}
+
+function isSyncJob(value: any): value is GuildRosterSyncJob {
+  return Boolean(
+    value &&
+      typeof value.id === "string" &&
+      ["running", "completed", "failed"].includes(value.status) &&
+      typeof value.phase === "string" &&
+      value.processed &&
+      typeof value.updatedAt === "string",
+  );
+}
+
+async function readGuildRosterSyncJob(): Promise<GuildRosterSyncJob | null> {
+  if (globalThis.__mistblossomGuildRosterSyncJob)
+    return globalThis.__mistblossomGuildRosterSyncJob;
+  const doc = syncJobDoc();
+  if (!doc) return null;
+  const snapshot = await doc.get().catch(() => null);
+  const data = snapshot?.exists ? snapshot.data() : null;
+  const job = isSyncJob(data) ? data : null;
+  if (job) globalThis.__mistblossomGuildRosterSyncJob = job;
+  return job;
+}
+
+async function writeGuildRosterSyncJob(job: GuildRosterSyncJob) {
+  const next = stripUndefined(job);
+  globalThis.__mistblossomGuildRosterSyncJob = next;
+  const doc = syncJobDoc();
+  if (doc) await doc.set(next, { merge: false }).catch(() => null);
+  return next;
+}
+
+function syncJobStale(job: GuildRosterSyncJob | null) {
+  if (!job || job.status !== "running") return true;
+  const updatedAt = Date.parse(job.updatedAt || "");
+  if (!Number.isFinite(updatedAt)) return true;
+  const ttlMs = readIntegerEnv("GUILD_ROSTER_SYNC_JOB_TTL_SECONDS", 30 * 60, 5 * 60, 6 * 60 * 60) * 1000;
+  return Date.now() - updatedAt > ttlMs;
+}
+
+function createGuildRosterSyncJob(options: {
+  forceRoster?: boolean;
+  includeWarcraftLogs?: boolean;
+  forceWarcraftLogs?: boolean;
+  cached?: CachedRoster | null;
+}): GuildRosterSyncJob {
+  const now = nowIso();
+  const hasCache = Boolean(options.cached?.members?.length);
+  return {
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+    status: "running",
+    phase: options.forceRoster || !hasCache ? "roster" : "raiderio",
+    requestedAt: now,
+    updatedAt: now,
+    completedAt: null,
+    forceRoster: Boolean(options.forceRoster),
+    includeWarcraftLogs: options.includeWarcraftLogs !== false,
+    forceWarcraftLogs: Boolean(options.forceWarcraftLogs),
+    totalMembers: options.cached?.members?.length || 0,
+    processed: { roster: 0, raiderIo: 0, warcraftLogs: 0 },
+    errors: [],
+    lastMemberKey: null,
+  };
+}
+
+async function getOrCreateGuildRosterSyncJob(
+  options: {
+    forceRoster?: boolean;
+    includeWarcraftLogs?: boolean;
+    forceWarcraftLogs?: boolean;
+    continueSync?: boolean;
+  },
+  cached: CachedRoster | null,
+) {
+  const existing = await readGuildRosterSyncJob().catch(() => null);
+  const cacheNeedsRosterRefresh = !cached || !isFresh(cached);
+  const shouldRefreshRoster = Boolean(options.forceRoster || cacheNeedsRosterRefresh);
+
+  if (options.forceRoster || syncJobStale(existing)) {
+    return writeGuildRosterSyncJob(
+      createGuildRosterSyncJob({
+        forceRoster: shouldRefreshRoster,
+        includeWarcraftLogs: options.includeWarcraftLogs,
+        forceWarcraftLogs: options.forceWarcraftLogs,
+        cached,
+      }),
+    );
+  }
+
+  if (existing?.status === "running") return existing;
+
+  if (options.continueSync || cacheNeedsRosterRefresh) {
+    return writeGuildRosterSyncJob(
+      createGuildRosterSyncJob({
+        forceRoster: shouldRefreshRoster,
+        includeWarcraftLogs: options.includeWarcraftLogs,
+        forceWarcraftLogs: options.forceWarcraftLogs,
+        cached,
+      }),
+    );
+  }
+
+  return existing;
+}
+
+function completedJob(job: GuildRosterSyncJob, phase: GuildRosterSyncPhase = "completed") {
+  const now = nowIso();
+  return {
+    ...job,
+    status: phase === "failed" ? "failed" : "completed",
+    phase,
+    updatedAt: now,
+    completedAt: now,
+  } satisfies GuildRosterSyncJob;
+}
+
+async function advanceGuildRosterSyncStep(
+  job: GuildRosterSyncJob,
+  cached: CachedRoster | null,
+): Promise<{
+  cache: CachedRoster | null;
+  job: GuildRosterSyncJob;
+  rosterProgress: { refreshed: boolean; source: string };
+  raiderIoProgress: GuildRosterApiBatchProgress;
+  warcraftLogsProgress: GuildRosterApiBatchProgress;
+}> {
+  const deadline = Date.now() + guildRosterStepBudgetMs();
+  let currentCache = cached;
+  let currentJob = job;
+  let rosterProgress = { refreshed: false, source: currentCache?.source || "cache" };
+  let raiderIoProgress: GuildRosterApiBatchProgress = emptyProgress("not_current_phase");
+  let warcraftLogsProgress: GuildRosterApiBatchProgress = emptyProgress("not_current_phase");
+
+  try {
+    if (currentJob.status !== "running") {
+      return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+    }
+
+    if (currentJob.phase === "roster") {
+      const next = await refreshGuildRosterAndCache(currentCache);
+      if (!next) throw new Error("Battle.net roster cache write failed");
+      currentCache = next;
+      currentJob = {
+        ...currentJob,
+        phase: "raiderio",
+        totalMembers: next.members.length,
+        processed: { ...currentJob.processed, roster: next.members.length },
+        updatedAt: nowIso(),
+      };
+      rosterProgress = { refreshed: true, source: next.source };
+      await writeGuildRosterSyncJob(currentJob);
+      return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+    }
+
+    if (!currentCache) {
+      currentJob = { ...currentJob, phase: "roster", updatedAt: nowIso() };
+      await writeGuildRosterSyncJob(currentJob);
+      return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+    }
+
+    if (currentJob.phase === "raiderio") {
+      const step = await enrichGuildMembersWithRaiderIoStep(currentCache.members, nowIso(), {
+        force: false,
+        deadline,
+      });
+      raiderIoProgress = {
+        checked: step.checked,
+        remaining: step.remaining,
+        totalCandidates: step.totalCandidates,
+        skipped: step.skipped,
+        reason: step.reason ?? null,
+      };
+
+      if (step.checked > 0) {
+        currentCache = await writeCachedRoster(
+          {
+            members: sortMembers(step.members),
+            stats: { ...currentCache.stats, updatedAt: nowIso() },
+            source: `${LIVE_SOURCE} • Raider.IO step`,
+            error: currentCache.error || null,
+          },
+          { changedMemberKeys: step.changedMemberKeys },
+        );
+      }
+
+      const nextPhase: GuildRosterSyncPhase = step.remaining > 0
+        ? "raiderio"
+        : currentJob.includeWarcraftLogs
+          ? "warcraftlogs"
+          : "completed";
+      currentJob = {
+        ...currentJob,
+        phase: nextPhase,
+        status: nextPhase === "completed" ? "completed" : "running",
+        totalMembers: currentCache?.members.length || currentJob.totalMembers,
+        processed: {
+          ...currentJob.processed,
+          raiderIo: currentJob.processed.raiderIo + step.checked,
+        },
+        lastMemberKey: Array.from(step.changedMemberKeys).at(-1) || currentJob.lastMemberKey || null,
+        updatedAt: nowIso(),
+        completedAt: nextPhase === "completed" ? nowIso() : null,
+      };
+      await writeGuildRosterSyncJob(currentJob);
+      return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+    }
+
+    if (currentJob.phase === "warcraftlogs") {
+      const step = await enrichGuildMembersWithWarcraftLogsStep(currentCache.members, {
+        force: false,
+        deadline,
+      });
+      warcraftLogsProgress = {
+        checked: step.checked,
+        remaining: step.remaining,
+        totalCandidates: step.totalCandidates,
+        skipped: step.skipped,
+        reason: step.reason ?? null,
+      };
+
+      if (step.checked > 0) {
+        currentCache = await writeCachedRoster(
+          {
+            members: sortMembers(step.members),
+            stats: { ...currentCache.stats, updatedAt: nowIso() },
+            source: `${LIVE_SOURCE} • WCL step`,
+            error: currentCache.error || null,
+          },
+          { changedMemberKeys: step.changedMemberKeys },
+        );
+      }
+
+      const nextPhase: GuildRosterSyncPhase = step.remaining > 0 ? "warcraftlogs" : "completed";
+      currentJob = {
+        ...currentJob,
+        phase: nextPhase,
+        status: nextPhase === "completed" ? "completed" : "running",
+        totalMembers: currentCache?.members.length || currentJob.totalMembers,
+        processed: {
+          ...currentJob.processed,
+          warcraftLogs: currentJob.processed.warcraftLogs + step.checked,
+        },
+        lastMemberKey: Array.from(step.changedMemberKeys).at(-1) || currentJob.lastMemberKey || null,
+        updatedAt: nowIso(),
+        completedAt: nextPhase === "completed" ? nowIso() : null,
+      };
+      await writeGuildRosterSyncJob(currentJob);
+      return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+    }
+
+    if (currentJob.phase === "completed") {
+      currentJob = completedJob(currentJob);
+      await writeGuildRosterSyncJob(currentJob);
+    }
+
+    return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "unknown");
+    currentJob = {
+      ...currentJob,
+      status: "failed",
+      phase: "failed",
+      updatedAt: nowIso(),
+      completedAt: nowIso(),
+      errors: [...(currentJob.errors || []).slice(-9), message],
+    };
+    await writeGuildRosterSyncJob(currentJob);
+    return { cache: currentCache, job: currentJob, rosterProgress, raiderIoProgress, warcraftLogsProgress };
+  }
+}
+
 export async function refreshGuildRosterApiBatch(options: {
   forceRoster?: boolean;
   includeWarcraftLogs?: boolean;
   forceWarcraftLogs?: boolean;
+  continueSync?: boolean;
 } = {}): Promise<GuildRosterLoadResult & { refresh: GuildRosterRefreshProgress }> {
   let cached = await readCachedRoster().catch(() => null);
-  let rosterRefreshed = false;
+  const shouldStart = options.forceRoster || options.continueSync || !cached || !isFresh(cached);
+  let job = shouldStart
+    ? await getOrCreateGuildRosterSyncJob(options, cached)
+    : await readGuildRosterSyncJob().catch(() => null);
 
-  if (!cached || options.forceRoster || !isFresh(cached)) {
-    const next = await refreshGuildRosterAndCache(cached).catch(() => null);
-    if (next) {
-      cached = next;
-      rosterRefreshed = true;
-    }
+  let rosterProgress = { refreshed: false, source: cached?.source || "cache" };
+  let raiderIoProgress: GuildRosterApiBatchProgress = emptyProgress("served_from_cache");
+  let warcraftLogsProgress: GuildRosterApiBatchProgress = emptyProgress("served_from_cache");
+
+  if (job?.status === "running" && shouldStart) {
+    const step = await advanceGuildRosterSyncStep(job, cached);
+    cached = step.cache || cached;
+    job = step.job;
+    rosterProgress = step.rosterProgress;
+    raiderIoProgress = step.raiderIoProgress;
+    warcraftLogsProgress = step.warcraftLogsProgress;
   }
 
   if (!cached) {
@@ -1238,75 +1699,27 @@ export async function refreshGuildRosterApiBatch(options: {
       members: [],
       stats: fallbackStats(),
       source: "stored-cache-missing",
-      error: "Склад гільдії ще не має кешу. Повторіть оновлення після налаштування Battle.net/Firebase.",
+      error: "Склад гільдії ще не має кешу. Запустіть синхронізацію складу.",
     };
     return {
       ...fallback,
       refresh: {
-        roster: { refreshed: rosterRefreshed, source: fallback.source },
+        roster: rosterProgress,
         raiderIo: emptyProgress("cache_missing"),
         warcraftLogs: emptyProgress("cache_missing"),
+        sync: syncProgress(job),
       },
     };
   }
 
-  let warcraftLogsProgress: GuildRosterApiBatchProgress = emptyProgress(
-    "disabled_for_request",
-  );
-  let finalCache = cached;
-
-  if (options.includeWarcraftLogs !== false) {
-    const wclBatch = await enrichGuildMembersWithWarcraftLogs(cached.members, {
-      force: options.forceWarcraftLogs,
-    }).catch((error) => ({
-      members: cached?.members || [],
-      checked: 0,
-      remaining: 0,
-      totalCandidates: 0,
-      skipped: true,
-      reason: error instanceof Error ? error.message : "wcl_failed",
-    }));
-
-    warcraftLogsProgress = {
-      checked: wclBatch.checked,
-      remaining: wclBatch.remaining,
-      totalCandidates: wclBatch.totalCandidates,
-      skipped: wclBatch.skipped,
-      reason: wclBatch.reason ?? null,
-    };
-
-    if (wclBatch.checked > 0) {
-      const updatedStats = {
-        ...cached.stats,
-        updatedAt: new Date().toISOString(),
-      };
-      const written = await writeCachedRoster({
-        members: sortMembers(wclBatch.members),
-        stats: updatedStats,
-        source: `${LIVE_SOURCE} • WCL batch`,
-        error: cached.error || null,
-      }).catch(() => null);
-      if (written) finalCache = written;
-    }
-  }
-
-  const publicRoster = publicFromCache(finalCache);
+  const publicRoster = publicFromCache(cached);
   return {
     ...publicRoster,
     refresh: {
-      roster: { refreshed: rosterRefreshed, source: publicRoster.source },
-      // Raider.IO is refreshed inside the roster batch. Expose the remaining count
-      // from cached timestamps so UI can show that this refresh is chunked.
-      raiderIo: {
-        checked: rosterRefreshed ? 1 : 0,
-        remaining: finalCache.members.filter(
-          (member) => !raiderIoSnapshotFresh(member),
-        ).length,
-        totalCandidates: finalCache.members.length,
-        skipped: !rosterRefreshed,
-        reason: rosterRefreshed ? null : "served_from_cache",
-      },
+      roster: { ...rosterProgress, source: publicRoster.source },
+      raiderIo: raiderIoProgress,
       warcraftLogs: warcraftLogsProgress,
+      sync: syncProgress(job),
     },
   };
 }

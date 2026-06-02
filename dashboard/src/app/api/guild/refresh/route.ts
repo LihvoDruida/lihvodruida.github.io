@@ -7,11 +7,14 @@ import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const revalidate = 0;
+export const maxDuration = 30;
 
 type GuildRefreshBody = {
   force?: unknown;
   wcl?: unknown;
   forceWcl?: unknown;
+  continue?: unknown;
+  includeMembers?: unknown;
 };
 
 function truthy(value: unknown) {
@@ -32,10 +35,10 @@ export async function POST(request: NextRequest) {
 
   const ip = getClientIp(request);
   const actor = session?.profileId || session?.id || ip;
-  const limit = checkRateLimit(`guild-roster-refresh:${actor}`, 30, 15 * 60 * 1000);
+  const limit = checkRateLimit(`guild-roster-refresh:${actor}`, 2400, 30 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
-  const globalLimit = checkRateLimit("guild-roster-refresh:global", 120, 15 * 60 * 1000);
+  const globalLimit = checkRateLimit("guild-roster-refresh:global", 6000, 30 * 60 * 1000);
   if (!globalLimit.ok) return rateLimitResponse(globalLimit.resetAt);
 
   try {
@@ -43,10 +46,13 @@ export async function POST(request: NextRequest) {
     const forceRefresh = truthy(body?.force);
     const includeWarcraftLogs = body?.wcl === undefined ? true : truthy(body.wcl);
     const forceWarcraftLogs = truthy(body?.forceWcl);
+    const continueSync = truthy(body?.continue);
+    const includeMembers = body?.includeMembers === undefined ? true : truthy(body.includeMembers);
     const roster = await refreshGuildRosterApiBatch({
       forceRoster: forceRefresh,
       includeWarcraftLogs,
       forceWarcraftLogs,
+      continueSync,
     });
 
     logDashboardEvent("info", "guild.roster.refreshed", request, {
@@ -61,11 +67,11 @@ export async function POST(request: NextRequest) {
       memberCount: roster.members.length,
       updatedAt: roster.stats.updatedAt,
       source: roster.source,
-      members: roster.members,
-      stats: roster.stats,
+      ...(includeMembers ? { members: roster.members, stats: roster.stats } : {}),
       error: roster.error || null,
       refresh: roster.refresh,
       hasMore:
+        roster.refresh.sync.status === "running" ||
         roster.refresh.raiderIo.remaining > 0 ||
         roster.refresh.warcraftLogs.remaining > 0,
     }, { headers: noStoreHeaders() });

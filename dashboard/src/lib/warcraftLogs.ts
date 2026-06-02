@@ -3066,6 +3066,7 @@ async function fetchRecentReportRecords(input: {
   region: string;
   recentReportLimit?: number;
   timeoutMs?: number;
+  retries?: number;
 }) {
   async function request(enhanced: boolean) {
     return apiFetchJson<WarcraftLogsGraphqlResponse>(
@@ -3074,7 +3075,7 @@ async function fetchRecentReportRecords(input: {
         method: "POST",
         label: `Warcraft Logs recent reports ${input.name}${enhanced ? " enhanced" : " basic"}`,
         timeoutMs: input.timeoutMs ?? warcraftLogsTimeoutMs(),
-        retries: warcraftLogsRetryCount(),
+        retries: input.retries ?? warcraftLogsRetryCount(),
         retryMethods: ["POST"],
         headers: {
           Authorization: `Bearer ${input.token}`,
@@ -3143,6 +3144,7 @@ async function fetchReportFightTables(input: {
   sourceId: number;
   fights: WarcraftLogsReportFightSeed[];
   timeoutMs?: number;
+  retries?: number;
 }) {
   if (!input.fights.length) return null;
 
@@ -3164,7 +3166,7 @@ async function fetchReportFightTables(input: {
         method: "POST",
         label: `Warcraft Logs report boss tables ${input.reportCode} ${attempt.mode}${attempt.enhanced ? " enhanced" : " basic"}`,
         timeoutMs: input.timeoutMs ?? warcraftLogsTimeoutMs(),
-        retries: warcraftLogsRetryCount(),
+        retries: input.retries ?? warcraftLogsRetryCount(),
         retryMethods: ["POST"],
         headers: {
           Authorization: `Bearer ${input.token}`,
@@ -3270,6 +3272,7 @@ async function fetchRecentRaidBossPulls(input: {
   reportFightTableLimit?: number;
   reportTableConcurrency?: number;
   timeoutMs?: number;
+  retries?: number;
 }) {
   const knownBosses = knownRaidBossIds(input.metricSummaries);
 
@@ -3278,6 +3281,7 @@ async function fetchRecentRaidBossPulls(input: {
       ...input,
       recentReportLimit: input.recentReportLimit,
       timeoutMs: input.timeoutMs,
+      retries: input.retries,
     });
     const startedAt = Date.now();
 
@@ -3359,6 +3363,7 @@ async function fetchRecentRaidBossPulls(input: {
           sourceId: actor.id,
           fights,
           timeoutMs: input.timeoutMs,
+          retries: input.retries,
         });
         if (!tableResult?.report) {
           return {
@@ -4680,16 +4685,19 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
   const requestTimeoutMs = rosterMode
     ? readIntegerEnv(
         "WARCRAFTLOGS_ROSTER_REQUEST_TIMEOUT_MS",
-        5_000,
+        3_500,
         1_500,
-        20_000,
+        12_000,
       )
     : warcraftLogsTimeoutMs();
+  const requestRetries = rosterMode
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REQUEST_RETRIES", 0, 0, 2)
+    : warcraftLogsRetryCount();
   const recentReportLimit = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_RECENT_REPORT_LIMIT", 3, 1, 12)
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_RECENT_REPORT_LIMIT", 2, 1, 8)
     : warcraftLogsRecentReportLimit(credentials);
   const reportFightTableLimit = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_FIGHT_TABLE_LIMIT", 8, 3, 24)
+    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_FIGHT_TABLE_LIMIT", 5, 3, 16)
     : warcraftLogsReportFightTableLimit(credentials);
   const reportTableConcurrency = rosterMode
     ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_TABLE_CONCURRENCY", 1, 1, 2)
@@ -4750,7 +4758,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
           method: "POST",
           label: `Warcraft Logs character ${input.name} ${attempt.label}`,
           timeoutMs: requestTimeoutMs,
-          retries: warcraftLogsRetryCount(),
+          retries: requestRetries,
           retryMethods: ["POST"],
           headers: {
             Authorization: `Bearer ${token}`,
@@ -4854,6 +4862,7 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
           reportFightTableLimit,
           reportTableConcurrency,
           timeoutMs: requestTimeoutMs,
+          retries: requestRetries,
         })
       : emptyReportPullsResult();
     const metricSummaries = normalizeAllMetricSummaries(
