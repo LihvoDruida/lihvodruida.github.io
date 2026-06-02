@@ -63,6 +63,11 @@ export default async function AccessDeniedPage({
         primaryLabel="До мого профілю"
         secondaryHref="/"
         secondaryLabel="До доступних розділів"
+        details={[
+          "Права беруться з Discord-ролі та групи доступу в панелі.",
+          "Якщо роль щойно змінили — вийди й увійди через Discord ще раз.",
+          "Закриті розділи не показуються в меню й не виконують важкі запити.",
+        ]}
       />
     </>
   );

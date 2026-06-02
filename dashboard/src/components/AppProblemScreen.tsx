@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   isTransientClientStreamError,
   sendClientErrorReport,
 } from "@/components/ClientErrorReporter";
+import {
+  PROBLEM_STATES,
+  TRANSIENT_STREAM_PROBLEM,
+  type ProblemKind,
+} from "@/lib/pageState";
 
-type ProblemKind = "technical" | "quota" | "access" | "auth" | "not-found";
 type ErrorReportSource = "manual" | "window-error" | "unhandled-rejection" | "react-error-boundary";
 
 type Props = {
@@ -23,60 +27,17 @@ type Props = {
   secondaryHref?: string;
   secondaryLabel?: string;
   reportContext?: ErrorReportSource;
+  details?: string[];
 };
-
-function kindDefaults(kind: ProblemKind) {
-  if (kind === "quota") {
-    return {
-      eyebrow: "Firebase protection",
-      title: "Тимчасова технічна помилка",
-      message:
-        "Сховище тимчасово обмежене або перевищило квоту. Сайт зупинив важкі читання й записи, щоб не добивати Firebase-ліміти.",
-      primaryLabel: "Оновити сторінку",
-    };
-  }
-
-  if (kind === "access") {
-    return {
-      eyebrow: "Access policy",
-      title: "Немає доступу до розділу",
-      message:
-        "Поточна група доступу не має потрібного дозволу для цієї сторінки. Перевір Discord-роль або звернись до адміністратора груп доступу.",
-      primaryLabel: "До профілю",
-    };
-  }
-
-  if (kind === "auth") {
-    return {
-      eyebrow: "Authorization required",
-      title: "Потрібен повторний вхід",
-      message:
-        "Сесія застаріла або права доступу змінилися. Увійди через Discord ще раз, щоб оновити групу та дозволи.",
-      primaryLabel: "Увійти",
-    };
-  }
-
-  if (kind === "not-found") {
-    return {
-      eyebrow: "404",
-      title: "Сторінку не знайдено",
-      message:
-        "Адреса неправильна, сторінку перенесли або профіль більше недоступний.",
-      primaryLabel: "До панелі",
-    };
-  }
-
-  return {
-    eyebrow: "Technical issue",
-    title: "Тимчасова технічна помилка",
-    message:
-      "Сторінка не змогла безпечно отримати дані. Ми не запускаємо додаткові важкі запити, щоб не збільшувати навантаження. Спробуй повторити пізніше або онови сторінку.",
-    primaryLabel: "Повторити",
-  };
-}
 
 function reloadPage() {
   if (typeof window !== "undefined") window.location.reload();
+}
+
+function shortDigest(value?: string) {
+  const digest = String(value || "").trim();
+  if (!digest) return "";
+  return digest.length > 18 ? digest.slice(0, 18) : digest;
 }
 
 export default function AppProblemScreen({
@@ -90,46 +51,58 @@ export default function AppProblemScreen({
   primaryHref,
   primaryLabel,
   secondaryHref = "/",
-  secondaryLabel = "До панелі",
+  secondaryLabel,
   reportContext,
+  details,
 }: Props) {
-  const rawMessage = error?.message || "";
-  const transient = isTransientClientStreamError(rawMessage);
-  const effectiveKind = transient ? "technical" : kind;
-  const defaults = kindDefaults(effectiveKind);
-  const finalEyebrow = eyebrow || (transient ? "Connection interrupted" : defaults.eyebrow);
-  const finalTitle = title || (transient ? "Зʼєднання перервалося під час відкриття сторінки" : defaults.title);
-  const finalMessage = message || (transient
-    ? "Це схоже на обрив браузерного stream-запиту. Дані не змінювались. Онови сторінку або натисни повторити."
-    : defaults.message);
-  const finalDigest = digest || error?.digest;
+  const transient = isTransientClientStreamError(error?.message || "");
+  const state = transient ? TRANSIENT_STREAM_PROBLEM : PROBLEM_STATES[kind];
+  const finalDigest = shortDigest(digest || error?.digest);
+  const finalEyebrow = eyebrow || state.eyebrow;
+  const finalTitle = title || state.title;
+  const finalMessage = message || state.message;
+  const primaryButtonLabel = primaryLabel || state.primaryLabel;
+  const secondaryButtonLabel = secondaryLabel || state.secondaryLabel || "До панелі";
+  const primaryAction = reset || reloadPage;
+  const safeDetails = useMemo(
+    () => (details || []).map((item) => item.trim()).filter(Boolean).slice(0, 4),
+    [details],
+  );
 
   useEffect(() => {
     if (error) sendClientErrorReport(error, reportContext || "react-error-boundary");
   }, [error, reportContext]);
 
-  const primaryButtonLabel = primaryLabel || defaults.primaryLabel;
-  const primaryAction = reset || reloadPage;
-
   return (
-    <main className="container">
-      <section
-        className={`dashboard-shell content-shell error-shell error-shell--${effectiveKind}`}
-        aria-label={finalTitle}
-      >
-        <article className="panel app-error-panel">
-          <span className="eyebrow">{finalEyebrow}</span>
-          <h1>{finalTitle}</h1>
-          <p>{finalMessage}</p>
-          {finalDigest ? <small>Код: {finalDigest}</small> : null}
-          <div className="form-actions">
+    <main className={`app-state-page app-problem-page app-problem-page--${transient ? "technical" : kind}`}>
+      <section className="app-state-shell app-problem-shell" aria-labelledby="app-problem-title">
+        <article className="panel app-problem-card">
+          <div className="app-problem-card__header">
+            <span className="app-state-eyebrow">{finalEyebrow}</span>
+            {finalDigest ? <code>Код: {finalDigest}</code> : null}
+          </div>
+
+          <div className="app-problem-card__body">
+            <h1 id="app-problem-title">{finalTitle}</h1>
+            <p>{finalMessage}</p>
+          </div>
+
+          {safeDetails.length > 0 ? (
+            <ul className="app-problem-details" aria-label="Що перевірити">
+              {safeDetails.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div className="app-problem-actions">
             {primaryHref ? (
               <Link className="btn primary" href={primaryHref}>{primaryButtonLabel}</Link>
             ) : (
               <button className="btn primary" type="button" onClick={primaryAction}>{primaryButtonLabel}</button>
             )}
             {secondaryHref ? (
-              <Link className="btn subtle" href={secondaryHref}>{secondaryLabel}</Link>
+              <Link className="btn subtle" href={secondaryHref}>{secondaryButtonLabel}</Link>
             ) : (
               <button className="btn subtle" type="button" onClick={reloadPage}>Оновити сторінку</button>
             )}

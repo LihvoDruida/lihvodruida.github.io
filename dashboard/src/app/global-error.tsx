@@ -13,7 +13,16 @@ export default function GlobalError({
   return (
     <html lang="uk">
       <body>
-        <AppProblemScreen error={error} reset={reset} secondaryHref={undefined} />
+        <AppProblemScreen
+          error={error}
+          reset={reset}
+          secondaryHref="/"
+          secondaryLabel="До панелі"
+          details={[
+            "Це глобальний збій оболонки панелі.",
+            "Повторити — перезапустить рендер сторінки.",
+          ]}
+        />
       </body>
     </html>
   );

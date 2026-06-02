@@ -17768,7 +17768,7 @@ main.container {
   white-space: nowrap;
 }
 
-/* Admin overview + resilient client error states */
+/* Admin overview status card */
 .admin-overview-status-card {
   grid-column: 1 / -1;
   margin: 0;
@@ -17776,30 +17776,6 @@ main.container {
 
 .admin-overview-status-card.integration-status-panel {
   min-height: auto;
-}
-
-.error-shell {
-  min-height: min(72vh, 720px);
-  display: grid;
-  place-items: center;
-}
-
-.app-error-panel {
-  max-width: 720px;
-  width: 100%;
-  display: grid;
-  gap: 14px;
-  text-align: left;
-}
-
-.app-error-panel h1 {
-  margin: 0;
-}
-
-.app-error-panel p,
-.app-error-panel small {
-  margin: 0;
-  color: var(--text-muted, rgba(245, 235, 215, 0.72));
 }
 
 button[aria-busy="true"],
@@ -19641,112 +19617,176 @@ button[aria-busy="true"]::after,
   }
 }
 
-/* vNext: align dashboard footer and footer-linked legal pages with the shared page gutters. */
+/* Shared footer, loading and problem-state pages */
 .app-footer {
-  box-sizing: border-box !important;
-  width: min(100%, var(--dash-page-max, 1280px)) !important;
-  max-width: var(--dash-page-max, 1280px) !important;
-  margin-inline: auto !important;
-  padding-inline: var(--dash-page-gutter, clamp(18px, 3vw, 34px)) !important;
+  box-sizing: border-box;
+  width: min(100%, var(--dash-page-max, 1280px));
+  max-width: var(--dash-page-max, 1280px);
+  margin: clamp(18px, 3vh, 30px) auto max(18px, env(safe-area-inset-bottom));
+  padding-inline: var(--dash-page-gutter, clamp(18px, 3vw, 34px));
 }
 
 .app-footer__inner {
-  width: 100% !important;
-  min-width: 0 !important;
+  width: 100%;
+  min-width: 0;
 }
 
 .legal-page {
-  box-sizing: border-box !important;
-  width: min(100%, var(--dash-page-max, 1280px)) !important;
-  max-width: var(--dash-page-max, 1280px) !important;
-  padding-inline: var(--dash-page-gutter, clamp(18px, 3vw, 34px)) !important;
+  box-sizing: border-box;
+  width: min(100%, var(--dash-page-max, 1280px));
+  max-width: var(--dash-page-max, 1280px);
+  padding-inline: var(--dash-page-gutter, clamp(18px, 3vw, 34px));
 }
 
 .legal-shell {
-  width: 100% !important;
-  max-width: 100% !important;
-  justify-self: stretch !important;
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
 }
 
 .legal-card > :where(h2, p) {
   max-width: 980px;
 }
 
-@media (max-width: 760px) {
-  .app-footer,
-  .legal-page {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding-inline: var(--dash-page-gutter, clamp(13px, 4vw, 18px)) !important;
-  }
-}
-
-/* vNext: lightweight, gutter-aligned dashboard loading screen. */
-.app-loading-page {
-  box-sizing: border-box !important;
-  width: min(100%, var(--dash-page-max, 1280px)) !important;
-  min-height: calc(100svh - var(--safe-top, 0px) - var(--safe-bottom, 0px));
-  display: grid !important;
-  place-items: center;
-  margin-inline: auto !important;
-  padding-inline: var(--dash-page-gutter, clamp(18px, 3vw, 34px)) !important;
-  padding-block: clamp(24px, 7vh, 72px) !important;
-}
-
-.app-loading-shell {
-  width: min(100%, 720px) !important;
-  max-width: 720px !important;
-  display: grid !important;
-  gap: 12px !important;
+.app-state-page {
+  box-sizing: border-box;
+  width: min(100%, var(--dash-page-max, 1280px));
+  max-width: var(--dash-page-max, 1280px);
+  min-height: calc(100svh - 122px - var(--safe-top, 0px) - var(--safe-bottom, 0px));
+  display: grid;
+  align-items: center;
   margin-inline: auto;
+  padding: clamp(22px, 6vh, 74px) var(--dash-page-gutter, clamp(18px, 3vw, 34px));
+  position: relative;
+  z-index: 1;
 }
 
+.app-state-shell {
+  width: min(100%, 760px);
+  justify-self: center;
+  display: grid;
+  gap: 14px;
+}
+
+.app-state-eyebrow {
+  color: rgba(248, 218, 135, 0.86);
+  font-size: clamp(0.72rem, 1vw, 0.82rem);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.app-problem-card,
 .app-loading-card {
   position: relative;
   isolation: isolate;
-  min-height: 0 !important;
-  display: grid !important;
+  overflow: hidden;
+  display: grid;
+  gap: clamp(14px, 2vw, 18px);
+  padding: clamp(18px, 3vw, 28px);
+  border-radius: clamp(20px, 3vw, 28px);
+}
+
+.app-problem-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-problem-card__header code {
+  max-width: 100%;
+  padding: 5px 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(232, 220, 202, 0.7);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-problem-card__body {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-problem-card h1,
+.app-loading-copy h1 {
+  margin: 0;
+  color: var(--gold-bright, #f8da87);
+  font-family: var(--font-display, var(--font-mist-display));
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.app-problem-card p,
+.app-loading-copy p {
+  max-width: 66ch;
+  margin: 0;
+  color: rgba(232, 220, 202, 0.74);
+  font-size: clamp(0.95rem, 1.45vw, 1.05rem);
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.app-problem-details {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.app-problem-details li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  color: rgba(232, 220, 202, 0.72);
+  font-size: 0.88rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.app-problem-details li::before {
+  content: "•";
+  color: rgba(248, 218, 135, 0.82);
+}
+
+.app-problem-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-loading-card {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: clamp(14px, 2.2vw, 20px) !important;
-  padding: clamp(18px, 3vw, 26px) !important;
-  overflow: hidden;
-  border: 1px solid rgba(248, 218, 135, 0.18);
-  border-radius: 24px;
   background:
-    radial-gradient(
-      circle at 88% 14%,
-      rgba(248, 218, 135, 0.12),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.064),
-      rgba(255, 255, 255, 0.026)
-    ),
-    rgba(16, 17, 20, 0.88);
-  box-shadow:
-    0 22px 70px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    radial-gradient(circle at 88% 12%, rgba(248, 218, 135, 0.13), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.064), rgba(255, 255, 255, 0.026)),
+    rgba(16, 17, 20, 0.9);
 }
 
 .app-loading-mark {
-  width: clamp(46px, 7vw, 60px) !important;
-  height: clamp(46px, 7vw, 60px) !important;
-  flex: 0 0 auto;
+  width: clamp(48px, 7vw, 64px);
+  height: clamp(48px, 7vw, 64px);
   display: grid;
   place-items: center;
   border: 1px solid rgba(248, 218, 135, 0.34);
-  border-radius: 18px;
-  background: linear-gradient(
-    135deg,
-    rgba(248, 218, 135, 0.26),
-    rgba(119, 101, 255, 0.14)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 12px 34px rgba(0, 0, 0, 0.26);
-  transform: translateZ(0);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(248, 218, 135, 0.26), rgba(119, 101, 255, 0.14));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 34px rgba(0, 0, 0, 0.26);
   animation: appLoadingMark 1.35s ease-in-out infinite;
 }
 
@@ -19756,52 +19796,38 @@ button[aria-busy="true"]::after,
   height: 42%;
   border-radius: 999px;
   background: rgba(248, 218, 135, 0.92);
-  box-shadow:
-    0 0 0 7px rgba(248, 218, 135, 0.12),
-    0 0 24px rgba(248, 218, 135, 0.38);
+  box-shadow: 0 0 0 7px rgba(248, 218, 135, 0.12), 0 0 24px rgba(248, 218, 135, 0.38);
 }
 
 .app-loading-copy {
   min-width: 0;
-  display: grid !important;
-  gap: 7px !important;
+  display: grid;
+  gap: 7px;
 }
 
-.app-loading-eyebrow {
-  color: rgba(248, 218, 135, 0.78);
-  font-size: clamp(0.72rem, 1.2vw, 0.82rem);
-  font-weight: 950;
-  letter-spacing: 0.12em;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
-.app-loading-copy h1 {
-  margin: 0;
-  color: var(--gold-bright, #f8da87);
-  font-family: var(--font-display);
-  font-size: clamp(1.55rem, 4vw, 2.55rem);
-  line-height: 1.14;
-  letter-spacing: 0.012em;
-  text-wrap: balance;
-}
-
-.app-loading-copy p {
-  max-width: 58ch;
-  margin: 0;
-  color: rgba(232, 220, 202, 0.7);
-  font-size: clamp(0.88rem, 1.4vw, 1rem);
-  font-weight: 700;
-  line-height: 1.45;
+.app-loading-current {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 2px;
+  padding: 7px 10px;
+  overflow: hidden;
+  border: 1px solid rgba(89, 214, 141, 0.22);
+  border-radius: 999px;
+  background: rgba(89, 214, 141, 0.08);
+  color: rgba(218, 255, 231, 0.88);
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-loading-progress {
-  height: 6px;
+  height: 7px;
   overflow: hidden;
   border: 1px solid rgba(248, 218, 135, 0.14);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.045);
-  transform: translateZ(0);
 }
 
 .app-loading-progress::before {
@@ -19810,19 +19836,14 @@ button[aria-busy="true"]::after,
   width: 38%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    rgba(248, 218, 135, 0.2),
-    rgba(248, 218, 135, 0.84),
-    rgba(248, 218, 135, 0.22)
-  );
+  background: linear-gradient(90deg, rgba(248, 218, 135, 0.18), rgba(248, 218, 135, 0.86), rgba(248, 218, 135, 0.2));
   transform: translateX(-105%);
   animation: appLoadingProgress 1.25s ease-in-out infinite;
 }
 
 .app-loading-steps {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin: 0;
   padding: 0;
@@ -19831,41 +19852,52 @@ button[aria-busy="true"]::after,
 
 .app-loading-steps li {
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.035);
-  color: rgba(232, 220, 202, 0.72);
-  font-size: 0.78rem;
-  font-weight: 900;
-  line-height: 1.2;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: rgba(232, 220, 202, 0.66);
 }
 
-.app-loading-steps li::before {
+.app-loading-steps li strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(248, 218, 135, 0.82);
+  font-size: 0.82rem;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+.app-loading-steps li strong::before {
   content: "•";
-  color: rgba(248, 218, 135, 0.72);
-  font-size: 1rem;
-  line-height: 1;
+  color: currentColor;
 }
 
-.app-loading-steps li.is-ready {
+.app-loading-steps li span {
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 720;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+}
+
+.app-loading-steps li.is-done {
   border-color: rgba(89, 214, 141, 0.26);
   background: rgba(89, 214, 141, 0.08);
-  color: rgba(236, 255, 243, 0.86);
+  color: rgba(236, 255, 243, 0.72);
 }
 
-.app-loading-steps li.is-ready::before {
+.app-loading-steps li.is-done strong::before {
   content: "✓";
-  color: rgba(89, 214, 141, 0.95);
-  font-size: 0.86rem;
+}
+
+.app-loading-steps li.is-active {
+  border-color: rgba(248, 218, 135, 0.3);
+  background: rgba(248, 218, 135, 0.095);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 @keyframes appLoadingMark {
@@ -19892,40 +19924,51 @@ button[aria-busy="true"]::after,
 @media (prefers-reduced-motion: reduce) {
   .app-loading-mark,
   .app-loading-progress::before {
-    animation: none !important;
+    animation: none;
   }
 }
 
 @media (max-width: 760px) {
-  .app-loading-page {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: calc(100svh - var(--safe-top, 0px) - var(--safe-bottom, 0px));
-    padding-inline: var(--dash-page-gutter, clamp(13px, 4vw, 18px)) !important;
-    padding-block: clamp(18px, 8vh, 42px) !important;
+  .app-footer,
+  .legal-page,
+  .app-state-page {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: var(--dash-page-gutter, clamp(13px, 4vw, 18px));
   }
 
-  .app-loading-shell {
-    min-height: 0 !important;
-    gap: 12px !important;
+  .app-state-page {
+    min-height: calc(100svh - 112px - var(--safe-top, 0px) - var(--safe-bottom, 0px));
+    padding-block: clamp(18px, 7vh, 44px);
+  }
+
+  .app-footer {
+    margin-top: 18px;
   }
 
   .app-loading-card {
     grid-template-columns: auto minmax(0, 1fr);
-    padding: 16px !important;
-    border-radius: 22px;
-  }
-
-  .app-loading-copy h1 {
-    font-size: clamp(1.4rem, 8vw, 2rem);
   }
 
   .app-loading-steps {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 520px) {
+  .app-problem-card__header,
+  .app-problem-actions,
+  .app-footer__inner,
+  .app-footer__brand,
+  .app-footer__links {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .app-problem-actions .btn {
+    width: 100%;
+  }
+
   .app-loading-card {
     grid-template-columns: 1fr;
     text-align: center;
@@ -19935,8 +19978,12 @@ button[aria-busy="true"]::after,
     justify-self: center;
   }
 
-  .app-loading-copy p {
-    margin-inline: auto;
+  .app-loading-current {
+    justify-self: center;
+  }
+
+  .app-loading-steps {
+    grid-template-columns: 1fr;
   }
 }
 
