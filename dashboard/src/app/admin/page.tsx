@@ -491,9 +491,39 @@ export default async function AdminOverviewPage() {
                   />
                 </label>
                 <label className="admin-policy-input">
+                  <span>Battle.net profile крок</span>
+                  <small>
+                    Скільки персонажів оновлювати з Battle.net Profile API за один HTTP-крок: avatar, item level, spec і роль.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterBattleNetStepSize"
+                    min={0}
+                    max={100}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterBattleNetStepSize}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Battle.net profile TTL, секунд</span>
+                  <small>
+                    Скільки тримати Battle.net snapshot персонажа перед повторним оновленням.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterBattleNetTtlSeconds"
+                    min={300}
+                    max={604800}
+                    step={300}
+                    defaultValue={apiSettings.guildRosterBattleNetTtlSeconds}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
                   <span>Raider.IO крок</span>
                   <small>
-                    Скільки персонажів Raider.IO обробляти за один HTTP-крок.
+                    Скільки персонажів Raider.IO обробляти за один HTTP-крок. Raider.IO тут дає тільки M+ score і profile URL.
                   </small>
                   <input
                     type="number"

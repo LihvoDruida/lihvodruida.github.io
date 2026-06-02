@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     });
 
     const warningReasons = [
+      roster.refresh.battleNet.reason,
       roster.refresh.raiderIo.reason,
       roster.refresh.warcraftLogs.reason,
     ].filter((reason): reason is string => Boolean(reason && !["served_from_cache", "not_current_phase", "fresh", "disabled"].includes(reason)));
@@ -104,6 +105,7 @@ export async function POST(request: NextRequest) {
       refresh: roster.refresh,
       hasMore:
         roster.refresh.sync.status === "running" ||
+        roster.refresh.battleNet.remaining > 0 ||
         roster.refresh.raiderIo.remaining > 0 ||
         roster.refresh.warcraftLogs.remaining > 0,
     }, { headers: noStoreHeaders() });

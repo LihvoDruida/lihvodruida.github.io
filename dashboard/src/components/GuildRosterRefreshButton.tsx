@@ -18,9 +18,15 @@ type GuildRosterRefreshPayload = {
       totalMembers?: number;
       processed?: {
         roster?: number;
+        battleNet?: number;
         raiderIo?: number;
         warcraftLogs?: number;
       };
+    };
+    battleNet?: {
+      remaining?: number;
+      checked?: number;
+      totalCandidates?: number;
     };
     raiderIo?: {
       remaining?: number;
@@ -63,6 +69,7 @@ function wait(ms: number) {
 
 function phaseLabel(phase?: string) {
   if (phase === "roster") return "Battle.net склад";
+  if (phase === "battlenet") return "Battle.net профілі";
   if (phase === "raiderio") return "Raider.IO";
   if (phase === "warcraftlogs") return "Warcraft Logs";
   if (phase === "completed") return "завершено";
@@ -93,6 +100,7 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         force: step === 0,
         continue: step > 0,
         wcl: true,
+        forceWcl: step === 0,
         includeMembers: false,
       },
       retries: 0,
@@ -132,6 +140,10 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         });
 
         const sync = payload.refresh?.sync;
+        const battleNetLeft = Math.max(
+          0,
+          Number(payload.refresh?.battleNet?.remaining || 0),
+        );
         const rioLeft = Math.max(
           0,
           Number(payload.refresh?.raiderIo?.remaining || 0),
@@ -139,6 +151,10 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         const wclLeft = Math.max(
           0,
           Number(payload.refresh?.warcraftLogs?.remaining || 0),
+        );
+        const processedBattleNet = Math.max(
+          0,
+          Number(sync?.processed?.battleNet || 0),
         );
         const processedRio = Math.max(
           0,
@@ -154,7 +170,7 @@ export default function GuildRosterRefreshButton({ settings }: Props) {
         );
 
         setMessage(
-          `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Raider.IO ${processedRio}/${total}, WCL ${processedWcl}/${total}. Залишилось: Raider.IO ${rioLeft}, WCL ${wclLeft}.`,
+          `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Battle.net ${processedBattleNet}/${total}, Raider.IO ${processedRio}/${total}, WCL ${processedWcl}/${total}. Залишилось: Battle.net ${battleNetLeft}, Raider.IO ${rioLeft}, WCL ${wclLeft}.`,
         );
 
         if (

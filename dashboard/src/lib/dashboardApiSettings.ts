@@ -23,6 +23,8 @@ const DEFAULT_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS = 22_000;
 const DEFAULT_GUILD_ROSTER_SYNC_JOB_TTL_SECONDS = 30 * 60;
 const DEFAULT_GUILD_ROSTER_SHARDED_CACHE_ENABLED = true;
 const DEFAULT_GUILD_ROSTER_SHARDED_CACHE_THRESHOLD = 150;
+const DEFAULT_GUILD_ROSTER_BATTLENET_STEP_SIZE = 8;
+const DEFAULT_GUILD_ROSTER_BATTLENET_TTL_SECONDS = 21_600;
 const DEFAULT_GUILD_ROSTER_RAIDERIO_STEP_SIZE = 5;
 const DEFAULT_GUILD_ROSTER_RAIDERIO_TTL_SECONDS = 21_600;
 const DEFAULT_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED = true;
@@ -72,6 +74,8 @@ export type DashboardApiSettings = {
   guildRosterSyncJobTtlSeconds: number;
   guildRosterShardedCacheEnabled: boolean;
   guildRosterShardedCacheThreshold: number;
+  guildRosterBattleNetStepSize: number;
+  guildRosterBattleNetTtlSeconds: number;
   guildRosterRaiderIoStepSize: number;
   guildRosterRaiderIoTtlSeconds: number;
   guildRosterClientDrivenSyncEnabled: boolean;
@@ -125,6 +129,8 @@ type DashboardApiSettingsInput = Partial<
     | "guildRosterSyncJobTtlSeconds"
     | "guildRosterShardedCacheEnabled"
     | "guildRosterShardedCacheThreshold"
+    | "guildRosterBattleNetStepSize"
+    | "guildRosterBattleNetTtlSeconds"
     | "guildRosterRaiderIoStepSize"
     | "guildRosterRaiderIoTtlSeconds"
     | "guildRosterClientDrivenSyncEnabled"
@@ -312,6 +318,24 @@ function envGuildRosterShardedCacheThreshold() {
     DEFAULT_GUILD_ROSTER_SHARDED_CACHE_THRESHOLD,
     1,
     1000,
+  );
+}
+
+function envGuildRosterBattleNetStepSize() {
+  return integerEnv(
+    "GUILD_ROSTER_BATTLENET_STEP_SIZE",
+    DEFAULT_GUILD_ROSTER_BATTLENET_STEP_SIZE,
+    0,
+    100,
+  );
+}
+
+function envGuildRosterBattleNetTtlSeconds() {
+  return integerEnv(
+    "GUILD_ROSTER_BATTLENET_TTL_SECONDS",
+    DEFAULT_GUILD_ROSTER_BATTLENET_TTL_SECONDS,
+    300,
+    604_800,
   );
 }
 
@@ -632,6 +656,8 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     guildRosterSyncJobTtlSeconds: envGuildRosterSyncJobTtlSeconds(),
     guildRosterShardedCacheEnabled: envGuildRosterShardedCacheEnabled(),
     guildRosterShardedCacheThreshold: envGuildRosterShardedCacheThreshold(),
+    guildRosterBattleNetStepSize: envGuildRosterBattleNetStepSize(),
+    guildRosterBattleNetTtlSeconds: envGuildRosterBattleNetTtlSeconds(),
     guildRosterRaiderIoStepSize: envGuildRosterRaiderIoStepSize(),
     guildRosterRaiderIoTtlSeconds: envGuildRosterRaiderIoTtlSeconds(),
     guildRosterClientDrivenSyncEnabled: envGuildRosterClientDrivenSyncEnabled(),
@@ -774,6 +800,18 @@ function normalizeSettings(
       fallback.guildRosterShardedCacheThreshold,
       1,
       1000,
+    ),
+    guildRosterBattleNetStepSize: integerValue(
+      data?.guildRosterBattleNetStepSize,
+      fallback.guildRosterBattleNetStepSize,
+      0,
+      100,
+    ),
+    guildRosterBattleNetTtlSeconds: integerValue(
+      data?.guildRosterBattleNetTtlSeconds,
+      fallback.guildRosterBattleNetTtlSeconds,
+      300,
+      604_800,
     ),
     guildRosterRaiderIoStepSize: integerValue(
       data?.guildRosterRaiderIoStepSize,
@@ -936,6 +974,8 @@ export async function setDashboardApiSettings(
     guildRosterSyncJobTtlSeconds: settings.guildRosterSyncJobTtlSeconds,
     guildRosterShardedCacheEnabled: settings.guildRosterShardedCacheEnabled,
     guildRosterShardedCacheThreshold: settings.guildRosterShardedCacheThreshold,
+    guildRosterBattleNetStepSize: settings.guildRosterBattleNetStepSize,
+    guildRosterBattleNetTtlSeconds: settings.guildRosterBattleNetTtlSeconds,
     guildRosterRaiderIoStepSize: settings.guildRosterRaiderIoStepSize,
     guildRosterRaiderIoTtlSeconds: settings.guildRosterRaiderIoTtlSeconds,
     guildRosterClientDrivenSyncEnabled:
@@ -1026,6 +1066,8 @@ export async function getGuildRosterSyncSettings() {
     syncJobTtlSeconds: settings.guildRosterSyncJobTtlSeconds,
     shardedCacheEnabled: settings.guildRosterShardedCacheEnabled,
     shardedCacheThreshold: settings.guildRosterShardedCacheThreshold,
+    battleNetStepSize: settings.guildRosterBattleNetStepSize,
+    battleNetTtlSeconds: settings.guildRosterBattleNetTtlSeconds,
     raiderIoStepSize: settings.guildRosterRaiderIoStepSize,
     raiderIoTtlSeconds: settings.guildRosterRaiderIoTtlSeconds,
     clientDrivenSyncEnabled: settings.guildRosterClientDrivenSyncEnabled,
@@ -1070,7 +1112,7 @@ export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const rosterWcl = settings.guildRosterWclEnabled
     ? `WCL roster: ${settings.guildRosterWclMemberLimit > 0 ? settings.guildRosterWclMemberLimit : "усі"}; крок ${settings.guildRosterWclStepSize}; timeout ${settings.warcraftLogsRosterRequestTimeoutMs}мс`
     : "WCL roster: вимкнено";
-  const rosterSync = `Guild roster: ${settings.guildRosterMemberLimit} перс.; Raider.IO крок ${settings.guildRosterRaiderIoStepSize}; бюджет ${settings.guildRosterRefreshStepBudgetMs}мс; client ${settings.guildRosterClientDrivenSyncEnabled ? "ON" : "OFF"}`;
+  const rosterSync = `Guild roster: ${settings.guildRosterMemberLimit} перс.; Battle.net крок ${settings.guildRosterBattleNetStepSize}; Raider.IO крок ${settings.guildRosterRaiderIoStepSize}; бюджет ${settings.guildRosterRefreshStepBudgetMs}мс; client ${settings.guildRosterClientDrivenSyncEnabled ? "ON" : "OFF"}`;
   const apiDebug = `API logs: debug ${settings.dashboardApiDebugAuditLogs ? "ON" : "OFF"}, warnings ${settings.dashboardApiWarningAuditLogs ? "ON" : "OFF"}`;
   return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${wcl}; ${wclDebug}; ${apiDebug}; WCL reports: ${settings.warcraftLogsRecentReportLimit}/${settings.warcraftLogsReportFightTableLimit}; ${rosterSync}; ${rosterWcl}.`;
 }

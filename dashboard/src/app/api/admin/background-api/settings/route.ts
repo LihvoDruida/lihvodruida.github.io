@@ -201,6 +201,10 @@ export async function POST(request: NextRequest) {
         guildRosterShardedCacheThreshold: form.get(
           "guildRosterShardedCacheThreshold",
         ),
+        guildRosterBattleNetStepSize: form.get("guildRosterBattleNetStepSize"),
+        guildRosterBattleNetTtlSeconds: form.get(
+          "guildRosterBattleNetTtlSeconds",
+        ),
         guildRosterRaiderIoStepSize: form.get("guildRosterRaiderIoStepSize"),
         guildRosterRaiderIoTtlSeconds: form.get(
           "guildRosterRaiderIoTtlSeconds",

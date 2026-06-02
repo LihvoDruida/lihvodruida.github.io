@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { apiFetchJson } from "@/lib/apiHttp";
 import {
   fetchBattleNetApplicationData,
+  fetchBattleNetCharacterSnapshot,
   getDefaultBattleNetRegion,
   guildStatusFromRank,
   normalizeBattleNetRegion,
@@ -27,6 +28,7 @@ import {
 } from "@/lib/profiles";
 import {
   buildBattleNetCharacterKey,
+  normalizeBattleNetNameSlug,
   normalizeCharacterKey,
 } from "@/lib/wowCharacters";
 import {
@@ -63,6 +65,7 @@ export type GuildRosterMember = {
   avatarUrl: string | null;
   profileUrl: string | null;
   itemLevel: number;
+  battleNetUpdatedAt?: string | null;
   scores: Record<GuildScoreSegment, number>;
   scoreColors: Partial<Record<GuildScoreSegment, string>>;
   hasRaiderIo: boolean;
@@ -96,6 +99,7 @@ export type GuildRosterLoadOptions = {
 
 export type GuildRosterSyncPhase =
   | "roster"
+  | "battlenet"
   | "raiderio"
   | "warcraftlogs"
   | "completed"
@@ -116,6 +120,7 @@ export type GuildRosterSyncJob = {
   totalMembers: number;
   processed: {
     roster: number;
+    battleNet: number;
     raiderIo: number;
     warcraftLogs: number;
   };
@@ -130,6 +135,7 @@ export type GuildRosterSyncProgress = {
   totalMembers: number;
   processed: {
     roster: number;
+    battleNet: number;
     raiderIo: number;
     warcraftLogs: number;
   };
@@ -153,7 +159,7 @@ const CACHE_COLLECTION = "guildRuntimeCache";
 const CACHE_DOCUMENT = "guildRoster";
 const CACHE_MEMBERS_COLLECTION = "members";
 const SYNC_JOB_DOCUMENT = "guildRosterSyncJob";
-const LIVE_SOURCE = "Battle.net Guild Roster API + Raider.IO Character API";
+const LIVE_SOURCE = "Battle.net Guild/Profile API + Raider.IO M+ API + Warcraft Logs API";
 
 const CLASS_ID_FALLBACK: Record<number, string> = {
   1: "Warrior",
@@ -438,7 +444,7 @@ function storedWclSnapshotFresh(
   ttlSeconds?: number,
 ) {
   const normalized = normalizeWarcraftLogsStoredSnapshot(snapshot);
-  if (!normalized?.updatedAt) return false;
+  if (!normalized?.updatedAt || normalized.status !== "ready") return false;
   const updatedAt = Date.parse(normalized.updatedAt);
   if (!Number.isFinite(updatedAt)) return false;
   const effectiveTtlSeconds = Number.isFinite(ttlSeconds)
@@ -611,6 +617,8 @@ function mergePreviousMemberSnapshot(
     avatarUrl: member.avatarUrl || previous.avatarUrl || null,
     profileUrl: member.profileUrl || previous.profileUrl || null,
     itemLevel: member.itemLevel || previous.itemLevel || 0,
+    battleNetUpdatedAt:
+      member.battleNetUpdatedAt || previous.battleNetUpdatedAt || null,
     scores: nextScores,
     scoreColors: nextScoreColors,
     hasRaiderIo:
@@ -629,6 +637,44 @@ function raiderIoSnapshotFresh(member: GuildRosterMember, ttlSeconds = 21_600) {
   return timestampAgeMs(member.raiderIoUpdatedAt) < effectiveTtlSeconds * 1000;
 }
 
+function battleNetSnapshotFresh(member: GuildRosterMember, ttlSeconds = 21_600) {
+  const effectiveTtlSeconds = Math.max(
+    300,
+    Math.min(604_800, Math.floor(Number(ttlSeconds) || 21_600)),
+  );
+  return timestampAgeMs(member.battleNetUpdatedAt) < effectiveTtlSeconds * 1000;
+}
+
+function applyBattleNetCharacterSnapshot(
+  member: GuildRosterMember,
+  snapshot: Awaited<ReturnType<typeof fetchBattleNetCharacterSnapshot>>,
+  updatedAt: string,
+): GuildRosterMember {
+  if (!snapshot) {
+    return { ...member, battleNetUpdatedAt: updatedAt };
+  }
+
+  const role = normalizeRole(snapshot.activeSpecRole);
+  return {
+    ...member,
+    name: cleanText(snapshot.name) || member.name,
+    realmSlug: cleanText(snapshot.realmSlug) || member.realmSlug,
+    realmName: cleanText(snapshot.realmName || member.realmName).toUpperCase(),
+    className: cleanText(snapshot.className) || member.className,
+    raceName: cleanText(snapshot.raceName) || member.raceName,
+    faction: normalizeFaction(snapshot.faction || member.faction),
+    gender: cleanText(snapshot.genderName) || member.gender,
+    specName: cleanText(snapshot.activeSpecName) || member.specName,
+    role: role !== "unknown" ? role : member.role,
+    avatarUrl: cleanText(snapshot.avatarUrl) || member.avatarUrl || null,
+    itemLevel: Math.round(parsePositiveNumber(snapshot.itemLevel) || member.itemLevel || 0),
+    guildStatus: snapshot.guildStatus || member.guildStatus,
+    guildStatusLabel: snapshot.guildStatusLabel || member.guildStatusLabel,
+    rank: snapshot.guildRank ?? member.rank,
+    battleNetUpdatedAt: updatedAt,
+  };
+}
+
 function applyRaiderIoPayload(
   member: GuildRosterMember,
   raider: RaiderIoCharacterPayload | null,
@@ -643,26 +689,12 @@ function applyRaiderIoPayload(
 
   const scores = buildScores(raider);
   const profileUrl = cleanText(raider.profile_url) || member.profileUrl || null;
-  const avatarUrl =
-    cleanText(raider.thumbnail_url || raider.avatar_url) ||
-    member.avatarUrl ||
-    null;
 
   return {
     ...member,
-    className: cleanText(raider.class) || member.className,
-    raceName: cleanText(raider.race) || member.raceName,
-    faction: normalizeFaction(raider.faction || member.faction),
-    specName: cleanText(raider.active_spec_name) || member.specName,
-    role:
-      normalizeRole(raider.active_spec_role) !== "unknown"
-        ? normalizeRole(raider.active_spec_role)
-        : member.role,
-    avatarUrl,
+    // Raider.IO is intentionally limited to Mythic+ score and Raider.IO link.
+    // Battle.net remains the source of truth for class/spec/role/avatar/ilvl.
     profileUrl,
-    itemLevel: Math.round(
-      parsePositiveNumber(raider.gear?.item_level_equipped) || member.itemLevel,
-    ),
     scores,
     scoreColors: buildScoreColors(raider),
     hasRaiderIo: Boolean(profileUrl || hasUsefulScores(scores)),
@@ -701,7 +733,7 @@ function rosterRaceName(character: any) {
 
 function buildMemberFromSources(input: {
   rosterEntry: any;
-  raider: RaiderIoCharacterPayload | null;
+  raider?: RaiderIoCharacterPayload | null;
   region: BattleNetRegion;
   fallbackRealmSlug: string;
   fallbackRealmName: string;
@@ -709,42 +741,27 @@ function buildMemberFromSources(input: {
   index: number;
 }): GuildRosterMember | null {
   const character = input.rosterEntry?.character || input.rosterEntry || {};
-  const raider = input.raider;
-  const name = cleanText(character.name || raider?.name);
+  const name = cleanText(character.name);
   if (!name) return null;
 
   const realmSlug =
     slugify(
       character.realm?.slug ||
         character.realm?.name ||
-        raider?.realm ||
         input.fallbackRealmSlug,
     ) || input.fallbackRealmSlug;
   const realmName = cleanText(
     character.realm?.name ||
-      raider?.realm ||
       input.fallbackRealmName ||
       realmSlug,
   ).toUpperCase();
-  const className = cleanText(
-    raider?.class || rosterClassName(character) || "Unknown",
-  );
-  const raceName = cleanText(
-    raider?.race || rosterRaceName(character) || "Unknown",
-  );
-  const specName = cleanText(raider?.active_spec_name || "Unknown");
-  const role = normalizeRole(
-    raider?.active_spec_role || character.active_spec?.role || character.role,
-  );
-  const scores = buildScores(raider);
-  const profileUrl = cleanText(raider?.profile_url) || null;
-  const avatarUrl =
-    cleanText(
-      raider?.thumbnail_url ||
-        raider?.avatar_url ||
-        character.avatarUrl ||
-        character.avatar,
-    ) || null;
+  const className = cleanText(rosterClassName(character) || "Unknown");
+  const raceName = cleanText(rosterRaceName(character) || "Unknown");
+  const specName = cleanText(character.active_spec?.name || "Unknown");
+  const role = normalizeRole(character.active_spec?.role || character.role);
+  const scores = buildScores(null);
+  const profileUrl = null;
+  const avatarUrl = cleanText(character.avatarUrl || character.avatar) || null;
 
   const rankInfo = guildStatusFromRank(input.rosterEntry?.rank);
 
@@ -765,13 +782,12 @@ function buildMemberFromSources(input: {
     className,
     raceName,
     faction: normalizeFaction(
-      raider?.faction ||
-        character.faction?.type ||
+      character.faction?.type ||
         character.faction ||
         input.fallbackFaction,
     ),
     gender: cleanText(
-      raider?.gender || character.gender?.type || character.gender || "",
+      character.gender?.type || character.gender || "",
     ),
     specName,
     role,
@@ -779,17 +795,13 @@ function buildMemberFromSources(input: {
     profileUrl,
     itemLevel: Math.round(
       parsePositiveNumber(
-        raider?.gear?.item_level_equipped ||
-          character.itemLevel ||
-          character.item_level ||
-          character.ilvl,
+        character.itemLevel || character.item_level || character.ilvl,
       ),
     ),
+    battleNetUpdatedAt: null,
     scores,
-    scoreColors: buildScoreColors(raider),
-    hasRaiderIo: Boolean(
-      profileUrl || Object.values(scores).some((score) => score > 0),
-    ),
+    scoreColors: buildScoreColors(null),
+    hasRaiderIo: false,
   };
 }
 
@@ -847,15 +859,16 @@ async function fetchLiveGuildRoster(
   const config = getGuildConfig();
   const updatedAt = new Date().toISOString();
 
+  const guildNamespace = { namespace: `dynamic-${config.region}` };
   const [guildSummary, roster, raiderGuild] = await Promise.all([
     fetchBattleNetApplicationData(
       `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}`,
-      undefined,
+      guildNamespace,
       config.region,
     ),
     fetchBattleNetApplicationData(
       `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
-      undefined,
+      guildNamespace,
       config.region,
     ),
     fetchRaiderGuild(config.region, config.realmSlug, config.guildName),
@@ -1180,6 +1193,7 @@ export type GuildRosterRefreshProgress = {
     refreshed: boolean;
     source: string;
   };
+  battleNet: GuildRosterApiBatchProgress;
   raiderIo: GuildRosterApiBatchProgress;
   warcraftLogs: GuildRosterApiBatchProgress;
   sync: GuildRosterSyncProgress;
@@ -1209,7 +1223,7 @@ function syncProgress(
       status: "idle",
       phase: "idle",
       totalMembers: 0,
-      processed: { roster: 0, raiderIo: 0, warcraftLogs: 0 },
+      processed: { roster: 0, battleNet: 0, raiderIo: 0, warcraftLogs: 0 },
       updatedAt: null,
       completedAt: null,
     };
@@ -1241,6 +1255,19 @@ function guildRosterStepBudgetMs(
 
 function hasStepBudget(deadline: number, reserveMs: number) {
   return Date.now() + reserveMs < deadline;
+}
+
+function guildRosterBattleNetStepLimit(
+  total: number,
+  settings?: Pick<GuildRosterRuntimeSettings, "battleNetStepSize"> | null,
+) {
+  return Math.min(
+    Math.max(0, total),
+    Math.max(
+      0,
+      Math.min(100, Math.floor(Number(settings?.battleNetStepSize ?? 8))),
+    ),
+  );
 }
 
 function guildRosterRaiderIoStepLimit(
@@ -1279,6 +1306,101 @@ function progressRemainingFromCandidates(
   checked: number,
 ) {
   return Math.max(0, totalCandidates - Math.max(0, checked));
+}
+
+async function enrichGuildMembersWithBattleNetStep(
+  members: GuildRosterMember[],
+  updatedAt: string,
+  options: {
+    force?: boolean;
+    deadline: number;
+    settings?: GuildRosterRuntimeSettings | null;
+  },
+): Promise<GuildRosterApiStepResult> {
+  if (!members.length) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      ...emptyProgress("empty_roster"),
+    };
+  }
+
+  const candidates = staleFirst(
+    members.filter(
+      (member) =>
+        options.force ||
+        !battleNetSnapshotFresh(
+          member,
+          options.settings?.battleNetTtlSeconds,
+        ),
+    ),
+    (member) => member.battleNetUpdatedAt,
+  );
+  const totalCandidates = candidates.length;
+  const stepLimit = guildRosterBattleNetStepLimit(
+    totalCandidates,
+    options.settings,
+  );
+  if (!stepLimit || !totalCandidates) {
+    return {
+      members,
+      changedMemberKeys: new Set(),
+      checked: 0,
+      remaining: totalCandidates,
+      totalCandidates,
+      skipped: true,
+      reason: totalCandidates ? "step_limit_zero" : "fresh",
+    };
+  }
+
+  const updates = new Map<string, GuildRosterMember>();
+  const changedMemberKeys = new Set<string>();
+  let checked = 0;
+  let reason: string | null = null;
+
+  for (const member of candidates.slice(0, stepLimit)) {
+    if (!hasStepBudget(options.deadline, 6_000)) {
+      reason = "step_budget_exhausted";
+      break;
+    }
+
+    try {
+      const snapshot = await fetchBattleNetCharacterSnapshot({
+        region: normalizeBattleNetRegion(member.region),
+        realmSlug: member.realmSlug,
+        name: member.name,
+        normalizedName: normalizeBattleNetNameSlug(member.name),
+      });
+      const next = applyBattleNetCharacterSnapshot(member, snapshot, updatedAt);
+      updates.set(member.key, next);
+      changedMemberKeys.add(member.key);
+      checked += 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error || "unknown");
+      updates.set(member.key, { ...member, battleNetUpdatedAt: updatedAt });
+      changedMemberKeys.add(member.key);
+      checked += 1;
+      if (options.settings?.warningAuditLogs !== false) {
+        await recordDashboardSystemLog("warning", "guild.roster.battlenet.member_failed", {
+          summary: `Battle.net профіль не оновив ${member.name}`,
+          character: member.name,
+          realmSlug: member.realmSlug,
+          region: member.region,
+          error: message,
+        }, { persist: true });
+      }
+    }
+  }
+
+  return {
+    members: replaceMembersByKey(members, updates),
+    changedMemberKeys,
+    checked,
+    remaining: progressRemainingFromCandidates(totalCandidates, checked),
+    totalCandidates,
+    skipped: checked === 0,
+    reason: checked === 0 ? reason || "not_processed" : reason,
+  };
 }
 
 async function enrichGuildMembersWithRaiderIoStep(
@@ -1464,6 +1586,34 @@ async function enrichGuildMembersWithWarcraftLogsStep(
             mode: "roster",
           });
           const warcraftLogs = buildWarcraftLogsRosterSnapshot(member, summary);
+          const hasMetric = Boolean(
+            warcraftLogs.primaryMetric?.pulls ||
+              warcraftLogs.hps?.pulls ||
+              warcraftLogs.dps?.pulls ||
+              warcraftLogs.tankDps?.pulls ||
+              warcraftLogs.tankHps?.pulls,
+          );
+          if (settings?.warningAuditLogs !== false && summary.status !== "ready") {
+            await recordDashboardSystemLog("warning", "guild.roster.wcl.member_status", {
+              summary: `Warcraft Logs не дав ready для ${member.name}`,
+              character: member.name,
+              realmSlug: member.realmSlug,
+              region: member.region,
+              role: member.role,
+              status: summary.status,
+              error: summary.error || null,
+              profileUrl: summary.profileUrl || null,
+            }, { persist: true });
+          } else if (settings?.debugAuditLogs && !hasMetric) {
+            await recordDashboardSystemLog("debug", "guild.roster.wcl.member_no_metric", {
+              summary: `Warcraft Logs ready без DPS/HPS для ${member.name}`,
+              character: member.name,
+              realmSlug: member.realmSlug,
+              region: member.region,
+              role: member.role,
+              coverage: summary.sourceCoverage,
+            }, { debugEnabled: true, persist: true });
+          }
 
           if (member.ownerProfileId) {
             await saveProfileCharacterWarcraftLogsSnapshot({
@@ -1552,14 +1702,35 @@ function isSyncJob(value: any): value is GuildRosterSyncJob {
   );
 }
 
+function normalizeSyncJob(job: GuildRosterSyncJob): GuildRosterSyncJob {
+  return {
+    ...job,
+    phase:
+      job.phase === "roster" ||
+      job.phase === "battlenet" ||
+      job.phase === "raiderio" ||
+      job.phase === "warcraftlogs" ||
+      job.phase === "completed" ||
+      job.phase === "failed"
+        ? job.phase
+        : "battlenet",
+    processed: {
+      roster: Number(job.processed?.roster || 0),
+      battleNet: Number(job.processed?.battleNet || 0),
+      raiderIo: Number(job.processed?.raiderIo || 0),
+      warcraftLogs: Number(job.processed?.warcraftLogs || 0),
+    },
+  };
+}
+
 async function readGuildRosterSyncJob(): Promise<GuildRosterSyncJob | null> {
   if (globalThis.__mistblossomGuildRosterSyncJob)
-    return globalThis.__mistblossomGuildRosterSyncJob;
+    return normalizeSyncJob(globalThis.__mistblossomGuildRosterSyncJob);
   const doc = syncJobDoc();
   if (!doc) return null;
   const snapshot = await doc.get().catch(() => null);
   const data = snapshot?.exists ? snapshot.data() : null;
-  const job = isSyncJob(data) ? data : null;
+  const job = isSyncJob(data) ? normalizeSyncJob(data) : null;
   if (job) globalThis.__mistblossomGuildRosterSyncJob = job;
   return job;
 }
@@ -1598,7 +1769,7 @@ function createGuildRosterSyncJob(options: {
   return {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
     status: "running",
-    phase: options.forceRoster || !hasCache ? "roster" : "raiderio",
+    phase: options.forceRoster || !hasCache ? "roster" : "battlenet",
     requestedAt: now,
     updatedAt: now,
     completedAt: null,
@@ -1606,7 +1777,7 @@ function createGuildRosterSyncJob(options: {
     includeWarcraftLogs: options.includeWarcraftLogs !== false,
     forceWarcraftLogs: Boolean(options.forceWarcraftLogs),
     totalMembers: options.cached?.members?.length || 0,
-    processed: { roster: 0, raiderIo: 0, warcraftLogs: 0 },
+    processed: { roster: 0, battleNet: 0, raiderIo: 0, warcraftLogs: 0 },
     errors: [],
     lastMemberKey: null,
   };
@@ -1677,6 +1848,7 @@ async function advanceGuildRosterSyncStep(
   cache: CachedRoster | null;
   job: GuildRosterSyncJob;
   rosterProgress: { refreshed: boolean; source: string };
+  battleNetProgress: GuildRosterApiBatchProgress;
   raiderIoProgress: GuildRosterApiBatchProgress;
   warcraftLogsProgress: GuildRosterApiBatchProgress;
 }> {
@@ -1687,6 +1859,8 @@ async function advanceGuildRosterSyncStep(
     refreshed: false,
     source: currentCache?.source || "cache",
   };
+  let battleNetProgress: GuildRosterApiBatchProgress =
+    emptyProgress("not_current_phase");
   let raiderIoProgress: GuildRosterApiBatchProgress =
     emptyProgress("not_current_phase");
   let warcraftLogsProgress: GuildRosterApiBatchProgress =
@@ -1698,6 +1872,7 @@ async function advanceGuildRosterSyncStep(
         cache: currentCache,
         job: currentJob,
         rosterProgress,
+        battleNetProgress,
         raiderIoProgress,
         warcraftLogsProgress,
       };
@@ -1709,7 +1884,7 @@ async function advanceGuildRosterSyncStep(
       currentCache = next;
       currentJob = {
         ...currentJob,
-        phase: "raiderio",
+        phase: "battlenet",
         totalMembers: next.members.length,
         processed: { ...currentJob.processed, roster: next.members.length },
         updatedAt: nowIso(),
@@ -1720,6 +1895,7 @@ async function advanceGuildRosterSyncStep(
         cache: currentCache,
         job: currentJob,
         rosterProgress,
+        battleNetProgress,
         raiderIoProgress,
         warcraftLogsProgress,
       };
@@ -1732,6 +1908,66 @@ async function advanceGuildRosterSyncStep(
         cache: currentCache,
         job: currentJob,
         rosterProgress,
+        battleNetProgress,
+        raiderIoProgress,
+        warcraftLogsProgress,
+      };
+    }
+
+    if (currentJob.phase === "battlenet") {
+      const step = await enrichGuildMembersWithBattleNetStep(
+        currentCache.members,
+        nowIso(),
+        {
+          force: currentJob.forceRoster,
+          deadline,
+          settings,
+        },
+      );
+      battleNetProgress = {
+        checked: step.checked,
+        remaining: step.remaining,
+        totalCandidates: step.totalCandidates,
+        skipped: step.skipped,
+        reason: step.reason ?? null,
+      };
+
+      if (step.checked > 0) {
+        currentCache = await writeCachedRoster(
+          {
+            members: sortMembers(step.members),
+            stats: { ...currentCache.stats, updatedAt: nowIso() },
+            source: `${LIVE_SOURCE} • Battle.net profile step`,
+            error: currentCache.error || null,
+          },
+          { changedMemberKeys: step.changedMemberKeys, settings },
+        );
+      }
+
+      const nextPhase: GuildRosterSyncPhase =
+        step.remaining > 0 ? "battlenet" : "raiderio";
+      currentJob = {
+        ...currentJob,
+        phase: nextPhase,
+        status: "running",
+        totalMembers: currentCache?.members.length || currentJob.totalMembers,
+        processed: {
+          ...currentJob.processed,
+          battleNet: currentJob.processed.battleNet + step.checked,
+        },
+        lastMemberKey:
+          Array.from(step.changedMemberKeys).at(-1) ||
+          currentJob.lastMemberKey ||
+          null,
+        updatedAt: nowIso(),
+        completedAt: null,
+      };
+      await writeGuildRosterSyncJob(currentJob);
+      return {
+        cache: currentCache,
+        job: currentJob,
+        rosterProgress,
+        battleNetProgress,
         raiderIoProgress,
         warcraftLogsProgress,
       };
@@ -1742,7 +1978,7 @@ async function advanceGuildRosterSyncStep(
         currentCache.members,
         nowIso(),
         {
-          force: false,
+          force: currentJob.forceRoster,
           deadline,
           settings,
         },
@@ -1794,6 +2030,7 @@ async function advanceGuildRosterSyncStep(
         cache: currentCache,
         job: currentJob,
         rosterProgress,
+        battleNetProgress,
         raiderIoProgress,
         warcraftLogsProgress,
       };
@@ -1803,7 +2040,7 @@ async function advanceGuildRosterSyncStep(
       const step = await enrichGuildMembersWithWarcraftLogsStep(
         currentCache.members,
         {
-          force: false,
+          force: currentJob.forceWarcraftLogs,
           deadline,
           settings,
         },
@@ -1851,6 +2088,7 @@ async function advanceGuildRosterSyncStep(
         cache: currentCache,
         job: currentJob,
         rosterProgress,
+        battleNetProgress,
         raiderIoProgress,
         warcraftLogsProgress,
       };
@@ -1865,6 +2103,7 @@ async function advanceGuildRosterSyncStep(
       cache: currentCache,
       job: currentJob,
       rosterProgress,
+      battleNetProgress,
       raiderIoProgress,
       warcraftLogsProgress,
     };
@@ -1892,6 +2131,7 @@ async function advanceGuildRosterSyncStep(
       cache: currentCache,
       job: currentJob,
       rosterProgress,
+      battleNetProgress,
       raiderIoProgress,
       warcraftLogsProgress,
     };
@@ -1915,6 +2155,8 @@ export async function refreshGuildRosterApiBatch(
     : await readGuildRosterSyncJob().catch(() => null);
 
   let rosterProgress = { refreshed: false, source: cached?.source || "cache" };
+  let battleNetProgress: GuildRosterApiBatchProgress =
+    emptyProgress("served_from_cache");
   let raiderIoProgress: GuildRosterApiBatchProgress =
     emptyProgress("served_from_cache");
   let warcraftLogsProgress: GuildRosterApiBatchProgress =
@@ -1925,6 +2167,7 @@ export async function refreshGuildRosterApiBatch(
     cached = step.cache || cached;
     job = step.job;
     rosterProgress = step.rosterProgress;
+    battleNetProgress = step.battleNetProgress;
     raiderIoProgress = step.raiderIoProgress;
     warcraftLogsProgress = step.warcraftLogsProgress;
   }
@@ -1940,6 +2183,7 @@ export async function refreshGuildRosterApiBatch(
       ...fallback,
       refresh: {
         roster: rosterProgress,
+        battleNet: emptyProgress("cache_missing"),
         raiderIo: emptyProgress("cache_missing"),
         warcraftLogs: emptyProgress("cache_missing"),
         sync: syncProgress(job),
@@ -1952,6 +2196,7 @@ export async function refreshGuildRosterApiBatch(
     ...publicRoster,
     refresh: {
       roster: { ...rosterProgress, source: publicRoster.source },
+      battleNet: battleNetProgress,
       raiderIo: raiderIoProgress,
       warcraftLogs: warcraftLogsProgress,
       sync: syncProgress(job),

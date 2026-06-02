@@ -512,16 +512,26 @@ function SegmentBadges({
 
 function DataSourceStatus({ member }: { member: GuildRosterMember }) {
   const wcl = member.warcraftLogs;
+  const bnetProfileReady = Boolean(
+    member.battleNetUpdatedAt ||
+      member.itemLevel > 0 ||
+      member.avatarUrl ||
+      member.specName !== "Unknown" ||
+      member.role !== "unknown",
+  );
   const wclReady = Boolean(wcl && wcl.status === "ready");
   const wclHasMetric = memberWclDps(member) > 0 || memberWclHps(member) > 0;
   return (
     <div className="guild-member-source-row" aria-label="Джерела даних персонажа">
       <span className="is-ready">Battle.net: склад</span>
+      <span className={bnetProfileReady ? "is-ready" : "is-pending"}>
+        Профіль BNet: {bnetProfileReady ? "готово" : "очікує"}
+      </span>
       <span className={member.hasRaiderIo ? "is-ready" : "is-pending"}>
-        Raider.IO: {member.hasRaiderIo ? "готово" : "очікує"}
+        Raider.IO: {member.hasRaiderIo ? "M+" : "очікує"}
       </span>
       <span className={wclHasMetric ? "is-ready" : wclReady ? "is-empty" : "is-pending"}>
-        WCL: {wclHasMetric ? "DPS/HPS" : wclReady ? "без pull" : "очікує"}
+        WCL: {wclHasMetric ? "DPS/HPS" : wclReady ? "без pull" : wcl?.status === "error" ? "помилка" : "очікує"}
       </span>
     </div>
   );
