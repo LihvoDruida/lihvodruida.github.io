@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-02 19:42:55'
+  updated_at: '2026-06-02 22:24:23'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13775
-      region: 6033
+      world: 13777
+      region: 6034
       realm: 49
     mythic:
-      world: 7173
-      region: 3112
+      world: 7179
+      region: 3115
       realm: 22
   sporefall:
     normal:
@@ -3981,7 +3981,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokuha
-    item_level_equipped: 269
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
         score: 1836.4
@@ -7468,11 +7468,11 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3380.7
-        color: '#9c3ded'
+        score: 3425.2
+        color: '#a937e8'
       dps:
-        score: 3380.7
-        color: '#9c3ded'
+        score: 3425.2
+        color: '#a937e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -7483,8 +7483,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3380.7
-        color: '#9c3ded'
+        score: 3425.2
+        color: '#a937e8'
       spec_2:
         score: 0
         color: '#ffffff'
