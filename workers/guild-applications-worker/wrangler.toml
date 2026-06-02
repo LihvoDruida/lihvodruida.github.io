@@ -15,6 +15,11 @@ ADMIN_DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
 DASHBOARD_PROFILE_LOOKUP_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup"
 RAID_RULES_URL = "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024"
 ALLOW_DEBUG_QUERY = "0"
+PUBLIC_API_CACHE_TTL_SECONDS = "120"
+PUBLIC_API_APPLICATIONS_CACHE_SECONDS = "90"
+PUBLIC_API_RULES_STATS_CACHE_SECONDS = "60"
+PUBLIC_API_SIGNUPS_CACHE_SECONDS = "45"
+PUBLIC_API_DISCORD_CHANNELS_CACHE_SECONDS = "900"
 
 
 # Set these via `wrangler secret put ...` in production:
@@ -39,3 +44,17 @@ ALLOW_DEBUG_QUERY = "0"
 # id = "paste_kv_namespace_id_here"
 # Optional for raid announcement buttons when the Discord Interaction Endpoint points to this Worker:
 # DASHBOARD_RAID_ACTION_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/{raidId}/discord-action"
+
+# Public API edge cache. Create once:
+# wrangler kv namespace create PUBLIC_API_CACHE
+# Then paste the returned id below.
+# [[kv_namespaces]]
+# binding = "PUBLIC_API_CACHE"
+# id = "paste_public_api_cache_namespace_id_here"
+# Optional tuning:
+# PUBLIC_API_CACHE_TOKEN should be stored via `wrangler secret put PUBLIC_API_CACHE_TOKEN`.
+# PUBLIC_API_CACHE_TTL_SECONDS = "120"
+# PUBLIC_API_APPLICATIONS_CACHE_SECONDS = "90"
+# PUBLIC_API_RULES_STATS_CACHE_SECONDS = "60"
+# PUBLIC_API_SIGNUPS_CACHE_SECONDS = "45"
+# PUBLIC_API_DISCORD_CHANNELS_CACHE_SECONDS = "900"

@@ -1,4 +1,7 @@
 const DEFAULT_CACHE_SECONDS = 0;
+const DEFAULT_PUBLIC_API_CACHE_SECONDS = 120;
+const MAX_PUBLIC_API_CACHE_SECONDS = 86_400;
+const PUBLIC_API_CACHE_PREFIX = "public-api";
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 24;
 const DEFAULT_FILTERED_LIST_PAGES = 3;
@@ -8,7 +11,7 @@ let battleNetAuthCache = { accessToken: "", expiresAt: 0, region: "" };
 let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -148,6 +151,7 @@ function envDiagnostics(env) {
     discord_public_key: Boolean(env.DISCORD_PUBLIC_KEY),
     discord_guild_id: Boolean(env.DISCORD_GUILD_ID),
     rules_stats_binding: hasValidRulesStatsBinding(env),
+    public_api_cache_binding: hasValidPublicApiCacheBinding(env),
     dashboard_profile_lookup_endpoint: Boolean(String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_DASHBOARD_URL || "").trim()),
     internal_profile_lookup_token: Boolean(String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || "").trim()),
     cf_access_client_id: Boolean(String(env.CF_ACCESS_CLIENT_ID || env.CLOUDFLARE_ACCESS_CLIENT_ID || "").trim()),
@@ -366,6 +370,227 @@ function hasValidRulesStatsBinding(env) {
   return Boolean(getRulesStatsKv(env));
 }
 
+function getPublicApiCacheKv(env) {
+  const kv = env.PUBLIC_API_CACHE || null;
+  if (!kv || typeof kv.get !== "function" || typeof kv.put !== "function") return null;
+  return kv;
+}
+
+function hasPublicApiCacheBinding(env) {
+  return Boolean(env.PUBLIC_API_CACHE);
+}
+
+function hasValidPublicApiCacheBinding(env) {
+  return Boolean(getPublicApiCacheKv(env));
+}
+
+function publicApiCacheVersion(env) {
+  return cleanText(env.PUBLIC_API_CACHE_VERSION || "v1", 40).replace(/[^A-Za-z0-9_.:-]/g, "_") || "v1";
+}
+
+function publicApiCacheTtlSeconds(env, name, fallback = DEFAULT_PUBLIC_API_CACHE_SECONDS) {
+  const raw = env[name] ?? env.PUBLIC_API_CACHE_TTL_SECONDS ?? fallback;
+  const parsed = parseInt(String(raw || ""), 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(0, Math.min(parsed, MAX_PUBLIC_API_CACHE_SECONDS));
+}
+
+function publicApiCacheEnabled(env) {
+  return !envFlag(env, "PUBLIC_API_CACHE_DISABLED", false);
+}
+
+function normalizePublicApiCacheKeyInput(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, ":")
+    .replace(/[^A-Za-z0-9:._/=-]/g, "_")
+    .replace(/:{2,}/g, ":")
+    .slice(0, 180);
+}
+
+async function publicApiCacheStorageKey(env, key) {
+  const normalized = normalizePublicApiCacheKeyInput(key) || "unknown";
+  if (normalized.length <= 150) return `${PUBLIC_API_CACHE_PREFIX}:${publicApiCacheVersion(env)}:${normalized}`;
+  return `${PUBLIC_API_CACHE_PREFIX}:${publicApiCacheVersion(env)}:sha256:${await sha256Hex(normalized)}`;
+}
+
+function cacheableSearch(url) {
+  const copy = new URL(url.toString());
+  copy.searchParams.delete("debug");
+  copy.searchParams.delete("diag");
+  copy.searchParams.sort?.();
+  return copy.searchParams.toString();
+}
+
+async function publicApiHttpCacheKey(env, request, namespace) {
+  const url = new URL(request.url);
+  const search = cacheableSearch(url);
+  return publicApiCacheStorageKey(env, `worker:${namespace}:${url.pathname}${search ? `?${search}` : ""}`);
+}
+
+function responseWithCacheHeaders(body, status, origin, cacheState, ttlSeconds, extraHeaders = {}) {
+  const headers = buildCorsHeaders(origin, status);
+  headers["Cache-Control"] = ttlSeconds > 0
+    ? `public, max-age=${Math.min(ttlSeconds, 300)}, stale-while-revalidate=${Math.min(Math.max(ttlSeconds, 60), 3600)}`
+    : "no-store";
+  headers["X-Mistblossom-Worker-Cache"] = cacheState;
+  for (const [key, value] of Object.entries(extraHeaders || {})) headers[key] = String(value);
+  return new Response(body, { status, headers });
+}
+
+async function withPublicApiHttpCache(request, env, ctx, options, handler) {
+  const origin = allowedOrigin(request, env) || "null";
+  const debug = isDebugResponseEnabled(request, env);
+  const ttlSeconds = publicApiCacheTtlSeconds(env, options.ttlEnv || "PUBLIC_API_CACHE_TTL_SECONDS", options.ttlSeconds || DEFAULT_PUBLIC_API_CACHE_SECONDS);
+  const kv = getPublicApiCacheKv(env);
+
+  if (request.method !== "GET" || debug || ttlSeconds <= 0 || !publicApiCacheEnabled(env) || !kv) {
+    const response = await handler();
+    response.headers.set("X-Mistblossom-Worker-Cache", kv ? "BYPASS" : "DISABLED");
+    return response;
+  }
+
+  const key = await publicApiHttpCacheKey(env, request, options.namespace || "default");
+  try {
+    const cached = await kv.get(key, { type: "json" });
+    if (cached && cached.kind === "http-json" && typeof cached.body === "string") {
+      return responseWithCacheHeaders(cached.body, Number(cached.status || 200), origin, "HIT", ttlSeconds, {
+        "X-Mistblossom-Worker-Cache-Key": key.slice(0, 120),
+        "X-Mistblossom-Worker-Cache-At": cached.cachedAt || "",
+      });
+    }
+  } catch (error) {
+    logWorkerEvent("warn", "public_cache.http_read_failed", { namespace: options.namespace, message: error?.message });
+  }
+
+  const response = await handler();
+  const cloned = response.clone();
+  if (response.ok) {
+    const body = await cloned.text().catch(() => "");
+    if (body && body.length <= parsePositiveInt(env.PUBLIC_API_CACHE_MAX_BODY_BYTES, 512_000, 16_384, 2_000_000)) {
+      const entry = {
+        kind: "http-json",
+        status: response.status,
+        body,
+        tags: Array.isArray(options.tags) ? options.tags.slice(0, 12) : [],
+        cachedAt: new Date().toISOString(),
+      };
+      const write = kv.put(key, JSON.stringify(entry), { expirationTtl: ttlSeconds }).catch((error) => {
+        logWorkerEvent("warn", "public_cache.http_write_failed", { namespace: options.namespace, message: error?.message });
+      });
+      if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(write); else await write;
+    }
+  }
+  response.headers.set("X-Mistblossom-Worker-Cache", "MISS");
+  return response;
+}
+
+async function deletePublicApiCacheKey(env, key) {
+  const kv = getPublicApiCacheKv(env);
+  if (!kv || typeof kv.delete !== "function") return { ok: false, deleted: 0, reason: "missing-kv-binding" };
+  const storageKey = await publicApiCacheStorageKey(env, key);
+  await kv.delete(storageKey);
+  return { ok: true, deleted: 1, key: storageKey };
+}
+
+async function deletePublicApiCachePrefix(env, prefix, maxKeys = 1000) {
+  const kv = getPublicApiCacheKv(env);
+  if (!kv || typeof kv.list !== "function" || typeof kv.delete !== "function") return { ok: false, deleted: 0, reason: "missing-kv-binding" };
+  const storagePrefix = `${PUBLIC_API_CACHE_PREFIX}:${publicApiCacheVersion(env)}:${normalizePublicApiCacheKeyInput(prefix)}`;
+  let deleted = 0;
+  let cursor;
+  do {
+    const page = await kv.list({ prefix: storagePrefix, cursor, limit: 1000 });
+    const keys = Array.isArray(page?.keys) ? page.keys : [];
+    await Promise.all(keys.map((item) => item?.name ? kv.delete(item.name).then(() => { deleted += 1; }) : null));
+    cursor = page?.list_complete ? undefined : page?.cursor;
+    if (deleted >= maxKeys) break;
+  } while (cursor);
+  return { ok: true, deleted, prefix: storagePrefix };
+}
+
+async function putPublicApiValue(env, key, value, ttlSeconds, tags = []) {
+  const kv = getPublicApiCacheKv(env);
+  if (!kv) return { ok: false, reason: "missing-kv-binding" };
+  const storageKey = await publicApiCacheStorageKey(env, key);
+  const ttl = Math.max(60, Math.min(Number(ttlSeconds || env.PUBLIC_API_CACHE_TTL_SECONDS || 300), MAX_PUBLIC_API_CACHE_SECONDS));
+  const entry = {
+    kind: "json-value",
+    value,
+    tags: Array.isArray(tags) ? tags.slice(0, 20).map((item) => String(item).slice(0, 80)) : [],
+    cachedAt: new Date().toISOString(),
+  };
+  await kv.put(storageKey, JSON.stringify(entry), { expirationTtl: ttl });
+  return { ok: true, key: storageKey, ttlSeconds: ttl };
+}
+
+async function getPublicApiValue(env, key) {
+  const kv = getPublicApiCacheKv(env);
+  if (!kv) return { ok: false, hit: false, reason: "missing-kv-binding" };
+  const storageKey = await publicApiCacheStorageKey(env, key);
+  const entry = await kv.get(storageKey, { type: "json" }).catch(() => null);
+  if (!entry || entry.kind !== "json-value") return { ok: true, hit: false, key: storageKey };
+  return { ok: true, hit: true, key: storageKey, value: entry.value, cachedAt: entry.cachedAt || null, tags: entry.tags || [] };
+}
+
+async function invalidatePublicApiCache(env, options = {}) {
+  const tasks = [];
+  for (const key of Array.isArray(options.keys) ? options.keys : []) tasks.push(deletePublicApiCacheKey(env, key));
+  for (const prefix of Array.isArray(options.prefixes) ? options.prefixes : []) tasks.push(deletePublicApiCachePrefix(env, prefix));
+  if (!tasks.length && options.prefix) tasks.push(deletePublicApiCachePrefix(env, options.prefix));
+  if (!tasks.length && options.key) tasks.push(deletePublicApiCacheKey(env, options.key));
+  const results = await Promise.allSettled(tasks);
+  const deleted = results.reduce((sum, item) => sum + (item.status === "fulfilled" ? Number(item.value?.deleted || 0) : 0), 0);
+  return { ok: results.every((item) => item.status === "fulfilled"), deleted, results: results.map((item) => item.status === "fulfilled" ? item.value : { ok: false, error: item.reason?.message || String(item.reason || "failed") }) };
+}
+
+async function invalidateApplicationCaches(env, ctx) {
+  const task = invalidatePublicApiCache(env, { prefixes: ["worker:applications", "dashboard:applications"] })
+    .then((result) => logWorkerEvent("info", "public_cache.applications_invalidated", { deleted: result.deleted }))
+    .catch((error) => logWorkerEvent("warn", "public_cache.applications_invalidate_failed", { message: error?.message }));
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(task); else await task;
+}
+
+async function handlePublicApiCache(request, env) {
+  const origin = allowedOrigin(request, env) || "null";
+  const tokens = publicApiCacheTokens(env);
+  if (!tokens.length || !(await verifyAnyBearerOrStatsToken(request, tokens))) {
+    return json({ ok: false, error: "Forbidden" }, 403, origin);
+  }
+  if (!hasValidPublicApiCacheBinding(env)) {
+    return json({ ok: false, hit: false, error: "PUBLIC_API_CACHE KV binding is missing." }, 501, origin);
+  }
+
+  const url = new URL(request.url);
+  if (request.method === "GET") {
+    const key = cleanText(url.searchParams.get("key"), 240);
+    if (!key) return json({ ok: false, error: "key_required" }, 400, origin);
+    return json(await getPublicApiValue(env, key), 200, origin);
+  }
+
+  if (request.method === "POST" || request.method === "PUT") {
+    const body = await request.json().catch(() => null);
+    const key = cleanText(body?.key, 240);
+    if (!key) return json({ ok: false, error: "key_required" }, 400, origin);
+    return json(await putPublicApiValue(env, key, body?.value ?? null, body?.ttlSeconds || body?.ttl_seconds || undefined, body?.tags || []), 200, origin);
+  }
+
+  if (request.method === "DELETE") {
+    const key = cleanText(url.searchParams.get("key"), 240);
+    const prefix = cleanText(url.searchParams.get("prefix"), 240);
+    const body = request.headers.get("content-length") ? await request.json().catch(() => null) : null;
+    const result = await invalidatePublicApiCache(env, {
+      key: key || body?.key,
+      prefix: prefix || body?.prefix,
+      keys: body?.keys,
+      prefixes: body?.prefixes,
+    });
+    return json(result, 200, origin);
+  }
+
+  return json({ ok: false, error: "method_not_allowed" }, 405, origin);
+}
+
 function rulesStatsKey(guildId, suffix) {
   return `rules:${snowflake(guildId) || "global"}:${suffix}`;
 }
@@ -402,7 +627,16 @@ function defaultAllowedOrigins(env) {
 }
 
 function statsAuthToken(env) {
-  return String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
+  return String(env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || env.PUBLIC_API_CACHE_TOKEN || "").trim();
+}
+
+function publicApiCacheTokens(env) {
+  return Array.from(new Set([
+    env.PUBLIC_API_CACHE_TOKEN,
+    env.DISCORD_RULES_STATS_TOKEN,
+    env.INTERNAL_PROFILE_LOOKUP_TOKEN,
+    env.WORKER_STATS_TOKEN,
+  ].map((value) => String(value || "").trim()).filter(Boolean)));
 }
 
 async function sha256Hex(value) {
@@ -672,6 +906,8 @@ async function recordRaidRulesSignup(env, guildId, userId, userLabel, profile) {
 
   await kv.put(raidRulesKey(cleanGuildId, `user:${cleanUserId}`), JSON.stringify(signup));
   await kv.put(raidRulesKey(cleanGuildId, "updated_at"), signedAt);
+  await invalidatePublicApiCache(env, { prefixes: ["worker:raid-rules-stats", "worker:raid-rules-signups"] })
+    .catch((error) => logWorkerEvent("warn", "public_cache.raid_rules_invalidate_failed", { message: error?.message }));
   return { ok: true, signup };
 }
 
@@ -962,6 +1198,7 @@ async function recordRulesDecision(env, guildId, userId, action) {
 
   await kv.put(userKey, normalizedAction);
   await kv.put(rulesStatsKey(cleanGuildId, "updated_at"), new Date().toISOString());
+  await invalidatePublicApiCache(env, { prefixes: ["worker:rules-stats"] }).catch((error) => logWorkerEvent("warn", "public_cache.rules_invalidate_failed", { message: error?.message }));
 
   return { ok: true };
 }
@@ -2975,6 +3212,7 @@ async function handleApplicationInteraction(interaction, env, customId) {
 
   try {
     await updateApplicationIssueStatus(env, issueNumber, status, moderator);
+    await invalidateApplicationCaches(env, null);
   } catch (error) {
     return ephemeral(
       `Не вдалося змінити статус заявки: ${limitText(error?.message, 160, "невідома помилка")}`
@@ -3549,6 +3787,8 @@ async function createApplication(request, env, ctx) {
       discord = await completeDiscordNotification(env, cleanPayload, issue);
     }
 
+    await invalidateApplicationCaches(env, ctx);
+
     logWorkerEvent("info", "application.create.done", {
       storage: "firebase",
       issueNumber: issue.number,
@@ -3625,17 +3865,17 @@ export default {
       }
 
       if (url.pathname === "/api/discord-rules-stats" && request.method === "GET") {
-        response = await handleRulesStats(request, env);
+        response = await withPublicApiHttpCache(request, env, ctx, { namespace: "rules-stats", ttlEnv: "PUBLIC_API_RULES_STATS_CACHE_SECONDS", ttlSeconds: 60, tags: ["rules"] }, () => handleRulesStats(request, env));
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
       if (url.pathname === "/api/discord-raid-rules-stats" && request.method === "GET") {
-        response = await handleRaidRulesStats(request, env);
+        response = await withPublicApiHttpCache(request, env, ctx, { namespace: "raid-rules-stats", ttlEnv: "PUBLIC_API_RULES_STATS_CACHE_SECONDS", ttlSeconds: 60, tags: ["rules", "raid-rules"] }, () => handleRaidRulesStats(request, env));
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
       if (url.pathname === "/api/discord-raid-rules-signups" && request.method === "GET") {
-        response = await handleRaidRulesSignups(request, env);
+        response = await withPublicApiHttpCache(request, env, ctx, { namespace: "raid-rules-signups", ttlEnv: "PUBLIC_API_SIGNUPS_CACHE_SECONDS", ttlSeconds: 45, tags: ["rules", "raid-rules"] }, () => handleRaidRulesSignups(request, env));
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
@@ -3645,7 +3885,12 @@ export default {
       }
 
       if (url.pathname === "/api/discord-guild-channels" && request.method === "GET") {
-        response = await handleDiscordGuildChannels(request, env);
+        response = await withPublicApiHttpCache(request, env, ctx, { namespace: "discord-channels", ttlEnv: "PUBLIC_API_DISCORD_CHANNELS_CACHE_SECONDS", ttlSeconds: 900, tags: ["discord"] }, () => handleDiscordGuildChannels(request, env));
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/public-cache") {
+        response = await handlePublicApiCache(request, env);
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
@@ -3677,7 +3922,7 @@ export default {
       }
 
       if (request.method === "GET") {
-        response = await listApplications(request, env);
+        response = await withPublicApiHttpCache(request, env, ctx, { namespace: "applications", ttlEnv: "PUBLIC_API_APPLICATIONS_CACHE_SECONDS", ttlSeconds: 90, tags: ["applications"] }, () => listApplications(request, env));
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 

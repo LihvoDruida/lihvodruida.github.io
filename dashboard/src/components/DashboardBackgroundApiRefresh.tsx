@@ -14,7 +14,7 @@ import {
 type RefreshState = "idle" | "checking" | "paused" | "offline";
 
 const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 60_000;
-const BACKGROUND_MUTATION_REFRESH_MIN_MS = 15_000;
+const BACKGROUND_MUTATION_REFRESH_MIN_MS = 1_500;
 let lastBackgroundRefreshAt = 0;
 let activeBackgroundRefresh: Promise<void> | null = null;
 type DataMutationEvent = CustomEvent<DashboardDataMutationDetail>;
@@ -99,7 +99,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
     function schedule(delay = refreshMinMs, reason = "interval") {
       clearTimer();
       if (cancelled) return;
-      timer = window.setTimeout(() => void refresh(reason), Math.max(5_000, delay));
+      timer = window.setTimeout(() => void refresh(reason), Math.max(reason.startsWith("mutation") || reason.includes("raid") ? 750 : 5_000, delay));
     }
 
     async function refresh(reason: string, options: { force?: boolean; scope?: DashboardDataMutationDetail["scope"] } = {}) {

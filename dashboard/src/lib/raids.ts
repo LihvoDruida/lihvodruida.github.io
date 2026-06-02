@@ -1,5 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
+import { invalidatePublicCacheKey, invalidatePublicCachePrefix, publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
 import { getRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
 import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
 import { getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
@@ -709,10 +710,57 @@ export function hasRaidStorage() {
   return hasFirebaseProfileConfig();
 }
 
+function raidListPublicCacheKey(limit: number) {
+  return publicCacheKey(["dashboard", "raids", "list", String(limit)]);
+}
+
+function raidItemPublicCacheKey(raidId: string) {
+  return publicCacheKey(["dashboard", "raids", "item", cleanRaidId(raidId)]);
+}
+
+async function writeRaidListPublicCache(limit: number, raids: RaidItem[]) {
+  return writePublicCache(raidListPublicCacheKey(limit), raids, {
+    ttlSeconds: Math.max(30, Math.min(900, Number(process.env.PUBLIC_API_RAIDS_CACHE_SECONDS || process.env.RAID_LIST_CACHE_TTL_SECONDS || 60))),
+    tags: ["raids", "firebase-offload"],
+  });
+}
+
+async function writeRaidItemPublicCache(raid: RaidItem | null) {
+  if (!raid?.id) return { ok: false, skipped: true };
+  return writePublicCache(raidItemPublicCacheKey(raid.id), raid, {
+    ttlSeconds: Math.max(30, Math.min(900, Number(process.env.PUBLIC_API_RAIDS_CACHE_SECONDS || process.env.RAID_ITEM_CACHE_TTL_MS || 60_000) / 1000 || 60)),
+    tags: ["raids", `raid:${raid.id}`, "firebase-offload"],
+  });
+}
+
+async function readRaidListPublicCache(limit: number) {
+  const cached = await readPublicCache<RaidItem[]>(raidListPublicCacheKey(limit), { timeoutMs: 900 });
+  return cached.hit && Array.isArray(cached.value) ? cached.value.map((item) => normalizeRaid(item.id, item)) : null;
+}
+
+async function readRaidItemPublicCache(raidId: string) {
+  const cached = await readPublicCache<RaidItem>(raidItemPublicCacheKey(raidId), { timeoutMs: 900 });
+  return cached.hit && cached.value ? normalizeRaid(cached.value.id || raidId, cached.value) : null;
+}
+
+async function invalidateRaidPublicCaches(raidId?: string | null) {
+  const id = cleanRaidId(raidId);
+  await Promise.all([
+    invalidatePublicCachePrefix(publicCacheKey(["dashboard", "raids", "list"])),
+    id ? invalidatePublicCacheKey(raidItemPublicCacheKey(id)) : Promise.resolve({ ok: true }),
+  ]).catch((error) => {
+    logDashboardEvent("warn", "raids.public_cache_invalidate_failed", undefined, {
+      raidId: id || null,
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+  });
+}
+
 function clearRaidRuntimeCaches(raidId?: string | null) {
   const id = cleanRaidId(raidId);
   if (id) clearRuntimeCachedValue(`raid:${id}`);
   clearRuntimeCachedValuesByPrefix("raids:list:");
+  void invalidateRaidPublicCaches(id).catch(() => null);
 }
 
 function raidWriteErrorMessage(error: unknown) {
@@ -724,16 +772,20 @@ function raidWriteErrorMessage(error: unknown) {
 }
 
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
-  if (!hasRaidStorage()) return [];
   const safeLimit = Math.max(1, Math.min(100, limit));
+  const edgeCached = await readRaidListPublicCache(safeLimit).catch(() => null);
+  if (edgeCached) return edgeCached;
+  if (!hasRaidStorage()) return [];
   return firebaseRead(
     "raid",
     `raids:list:${safeLimit}`,
     async () => {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
       const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
-      return raids
+      const sorted = raids
         .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+      await writeRaidListPublicCache(safeLimit, sorted).catch(() => null);
+      return sorted;
     },
     {
       ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidListCacheTtlMs || process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
@@ -747,14 +799,19 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
 
 export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const id = cleanRaidId(raidId);
-  if (!id || !hasRaidStorage()) return null;
+  if (!id) return null;
+  const edgeCached = await readRaidItemPublicCache(id).catch(() => null);
+  if (edgeCached) return edgeCached;
+  if (!hasRaidStorage()) return null;
   return firebaseRead(
     "raid",
     `raid:${id}`,
     async () => {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
       if (!snapshot.exists) return null;
-      return normalizeRaid(snapshot.id, snapshot.data() || {});
+      const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+      await writeRaidItemPublicCache(raid).catch(() => null);
+      return raid;
     },
     {
       ttlMs: Math.max(10_000, Math.min(120_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidItemCacheTtlMs || process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
@@ -1624,8 +1681,11 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
     { timeoutMs: 5_000, logEvent: "raids.signup_write_failed" },
   );
 
+  await invalidateRaidPublicCaches(id);
   const updated = await getRaid(id);
   if (!updated) throw new Error("Рейд не знайдено після оновлення.");
+  await writeRaidItemPublicCache(updated).catch(() => null);
+  await invalidatePublicCachePrefix(publicCacheKey(["dashboard", "raids", "list"])).catch(() => null);
   return updated;
 }
 

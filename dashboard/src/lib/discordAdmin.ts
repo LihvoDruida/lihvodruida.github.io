@@ -800,6 +800,10 @@ export async function fetchDiscordTextChannels() {
   const guildId = getDiscordGuildId();
   const fallbackChannelId = getDiscordDefaultChannelId();
 
+  if (discordGuildChannelsEndpoint() && workerRelayToken()) {
+    return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
+  }
+
   if (!getBotToken()) {
     if (discordGuildChannelsEndpoint() && workerRelayToken()) {
       return fetchDiscordTextChannelsViaWorker(fallbackChannelId);

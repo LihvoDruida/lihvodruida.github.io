@@ -18,6 +18,7 @@ import {
 } from "@/lib/concurrency";
 import { getGuildRosterSyncSettings } from "@/lib/dashboardApiSettings";
 import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
+import { publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
 import { resilientRead, resilientWrite, getRuntimeCachedValue, runtimeCircuitOpen } from "@/lib/runtimeResilience";
 import {
   getFirebaseAdminDb,
@@ -1680,7 +1681,40 @@ function cachedRosterFromShardedPayload(
   } satisfies CachedRoster);
 }
 
+function guildRosterPublicCacheKey(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null) {
+  const region = cleanText(settings?.region || getDefaultBattleNetRegion() || "eu").toLowerCase();
+  const realm = cleanText(settings?.realm || DEFAULT_GUILD_REALM).toLowerCase();
+  const guild = cleanText(settings?.guildName || DEFAULT_GUILD_NAME).toLowerCase();
+  return publicCacheKey(["dashboard", "guild-roster", region, realm, guild]);
+}
+
+async function readCloudflareCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null): Promise<CachedRoster | null> {
+  const cached = await readPublicCache<CachedRoster>(guildRosterPublicCacheKey(settings), { timeoutMs: 1200 });
+  if (!cached.hit || !isCachedRoster(cached.value)) return null;
+  const value = stripUndefined({
+    ...cached.value,
+    source: cached.value.source?.includes("Cloudflare KV") ? cached.value.source : `${cached.value.source || LIVE_SOURCE} • Cloudflare KV`,
+  } satisfies CachedRoster);
+  globalThis.__mistblossomGuildRosterCache = value;
+  return value;
+}
+
+async function writeCloudflareCachedRoster(cache: CachedRoster, settings?: GuildRosterRuntimeSettings | null) {
+  const ttlSeconds = Math.max(300, Math.min(Number(settings?.cacheTtlSeconds || process.env.GUILD_ROSTER_CACHE_TTL_SECONDS || 1800), 24 * 60 * 60));
+  return writePublicCache(guildRosterPublicCacheKey(settings), cache, {
+    ttlSeconds,
+    tags: ["guild-roster", "firebase-offload"],
+  });
+}
+
 async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null): Promise<CachedRoster | null> {
+  if (globalThis.__mistblossomGuildRosterCache && isFresh(globalThis.__mistblossomGuildRosterCache, Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))))) {
+    return globalThis.__mistblossomGuildRosterCache;
+  }
+
+  const cloudflare = await readCloudflareCachedRoster(settings).catch(() => null);
+  if (cloudflare) return cloudflare;
+
   const records = await readGuildRosterRecords(settings).catch(() => null);
   if (records) return records;
   if (globalThis.__mistblossomGuildRosterCache)
@@ -1817,6 +1851,7 @@ async function writeCachedRoster(
   } satisfies CachedRoster);
 
   globalThis.__mistblossomGuildRosterCache = cache;
+  await writeCloudflareCachedRoster(cache, options.settings).catch(() => null);
 
   if (hasFirebaseProfileConfig()) {
     await resilientWrite(

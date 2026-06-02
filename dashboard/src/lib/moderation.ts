@@ -10,6 +10,7 @@ import {
   notifyDiscordStatusChange,
 } from "./discord";
 import { mapConcurrentSettled } from "@/lib/concurrency";
+import { invalidatePublicCachePrefix } from "@/lib/cloudflarePublicCache";
 
 export async function moderateApplication(params: {
   issueNumber: number;
@@ -38,6 +39,11 @@ export async function moderateApplication(params: {
   });
 
   let discordNotify: unknown = null;
+
+  await Promise.all([
+    invalidatePublicCachePrefix("worker:applications"),
+    invalidatePublicCachePrefix("dashboard:applications"),
+  ]).catch(() => null);
 
   if (!discordEdit?.ok) {
     discordNotify = await notifyDiscordStatusChange({

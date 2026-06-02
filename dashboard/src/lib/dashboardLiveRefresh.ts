@@ -38,6 +38,15 @@ export function notifyDashboardDataChanged(detail: DashboardDataMutationDetail =
 
   const payload = buildMutationDetail(detail);
   window.dispatchEvent(new CustomEvent<DashboardDataMutationDetail>(DASHBOARD_DATA_MUTATED_EVENT, { detail: payload }));
+  if (payload.scope === "raids") {
+    window.dispatchEvent(new CustomEvent("dashboard:raid-updated", {
+      detail: {
+        raidId: payload.resourceId,
+        revision: payload.revision,
+        source: payload.source || "site",
+      },
+    }));
+  }
 
   try {
     window.localStorage.setItem(DASHBOARD_LAST_MUTATION_STORAGE_KEY, JSON.stringify(payload));
