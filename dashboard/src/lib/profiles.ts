@@ -53,7 +53,7 @@ import {
 } from "@/lib/permissions";
 import { listAccessGroups } from "@/lib/accessGroups";
 import type { AccessGroup } from "@/lib/accessGroupSchema";
-import { resilientRead, resilientWrite, getRuntimeCachedValue, setRuntimeCachedValue } from "@/lib/runtimeResilience";
+import { resilientRead, resilientWrite, getRuntimeCachedValue, setRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
 
 export {
   deleteDashboardProfileById,
@@ -1063,6 +1063,7 @@ export async function upsertProfileFromSession(session: DashboardSession) {
     { merge: true },
   );
 
+  clearProfileRuntimeCaches(profileId);
   return { profile, stored: true };
 }
 
@@ -1340,6 +1341,14 @@ async function characterProfileLinksCacheTtlMs() {
 
 export function clearCharacterProfileLinksCache() {
   globalThis.__mistblossomCharacterProfileLinksCache = undefined;
+  clearRuntimeCachedValue("profile-character-links");
+}
+
+function clearProfileRuntimeCaches(profileId?: string | null, options: { characterLinks?: boolean } = {}) {
+  const cleanId = String(profileId || "").trim();
+  if (cleanId) clearRuntimeCachedValue(`profile:${cleanId}`);
+  clearRuntimeCachedValuesByPrefix("profiles:list:");
+  if (options.characterLinks) clearCharacterProfileLinksCache();
 }
 
 function characterProfileLinkKeys(character: ProfileCharacter) {
@@ -1416,7 +1425,7 @@ export async function saveProfileCharacterWarcraftLogsSnapshot(input: {
     },
     { merge: true },
   );
-  clearCharacterProfileLinksCache();
+  clearProfileRuntimeCaches(cleanProfileId, { characterLinks: true });
   return true;
 }
 
@@ -2179,7 +2188,7 @@ async function refreshProfileExternalDataInternal(
     },
     { merge: true },
   );
-  clearCharacterProfileLinksCache();
+  clearProfileRuntimeCaches(profile.profileId, { characterLinks: true });
 
   const snapshot = await ref.get().catch(() => null);
   return {
@@ -2383,7 +2392,7 @@ export async function addProfileCharacter(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+  const result = await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
     const profile = normalizeProfile(profileId, snapshot.data() || {});
@@ -2410,9 +2419,10 @@ export async function addProfileCharacter(
       { merge: true },
     );
 
-    clearCharacterProfileLinksCache();
     return { added: true, key: cleanKey };
   });
+  if (result.added) clearProfileRuntimeCaches(profileId, { characterLinks: true });
+  return result;
 }
 
 export async function addProfileCharacters(
@@ -2485,7 +2495,7 @@ export async function addProfileCharacters(
     );
   });
 
-  if (addedKeys.length) clearCharacterProfileLinksCache();
+  if (addedKeys.length) clearProfileRuntimeCaches(profileId, { characterLinks: true });
 
   return {
     requested,
@@ -2545,7 +2555,7 @@ export async function removeProfileCharacter(
 
     transaction.set(ref, updatePayload, { merge: true });
   });
-  clearCharacterProfileLinksCache();
+  clearProfileRuntimeCaches(profileId, { characterLinks: true });
 }
 
 export async function setMainProfileCharacter(
@@ -2581,6 +2591,7 @@ export async function setMainProfileCharacter(
 
     transaction.set(ref, updatePayload, { merge: true });
   });
+  clearProfileRuntimeCaches(profileId, { characterLinks: true });
 }
 
 export function normalizeProfilePreferredName(value: unknown) {
@@ -2857,6 +2868,7 @@ export async function setProfilePreferredName(
     { merge: true },
   );
 
+  clearProfileRuntimeCaches(profileId, { characterLinks: true });
   return preferredName;
 }
 
@@ -2878,6 +2890,7 @@ export async function setProfilePublicNameMode(
     { merge: true },
   );
 
+  clearProfileRuntimeCaches(profileId, { characterLinks: true });
   return publicNameMode;
 }
 
@@ -2899,6 +2912,7 @@ export async function setProfileGrammaticalGender(
     { merge: true },
   );
 
+  clearProfileRuntimeCaches(profileId);
   return grammaticalGender;
 }
 
@@ -2935,6 +2949,7 @@ export async function markProfileDiscordNicknameSynced(
       },
       { merge: true },
     );
+  clearProfileRuntimeCaches(profileId);
 }
 
 export async function setProfileNicknameCharacters(
@@ -2951,7 +2966,7 @@ export async function setProfileNicknameCharacters(
     .collection("dashboardProfiles")
     .doc(profileId);
 
-  return getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+  const selected = await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) throw new Error("Профіль не знайдено.");
 
@@ -2974,6 +2989,8 @@ export async function setProfileNicknameCharacters(
 
     return selected;
   });
+  clearProfileRuntimeCaches(profileId, { characterLinks: true });
+  return selected;
 }
 
 export async function setProfileRaidRolePreference(
@@ -3012,6 +3029,7 @@ export async function setProfileRaidRolePreference(
 
     transaction.set(ref, updatePayload, { merge: true });
   });
+  clearProfileRuntimeCaches(profileId);
 }
 
 export function getProfileRaidRole(

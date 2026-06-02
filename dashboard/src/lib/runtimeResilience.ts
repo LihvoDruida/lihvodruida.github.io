@@ -159,6 +159,17 @@ export function setRuntimeCachedValue<T>(key: string, value: T) {
   return value;
 }
 
+export function clearRuntimeCachedValue(key: string) {
+  valueCache().delete(circuitKey(key));
+}
+
+export function clearRuntimeCachedValuesByPrefix(prefix: string) {
+  const cleanPrefix = circuitKey(prefix);
+  for (const key of valueCache().keys()) {
+    if (key.startsWith(cleanPrefix)) valueCache().delete(key);
+  }
+}
+
 export async function resilientRead<T>(
   key: string,
   loader: () => Promise<T>,

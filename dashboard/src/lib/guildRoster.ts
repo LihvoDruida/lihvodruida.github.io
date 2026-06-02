@@ -221,6 +221,7 @@ declare global {
   var __mistblossomGuildRosterMemberWarningLoggedAt: Map<string, number> | undefined;
   var __mistblossomRaiderIoRateLimitState: { blockedUntil: number; reason: string; loggedAt?: number } | undefined;
   var __mistblossomRaiderIoLastRequestAt: number | undefined;
+  var __mistblossomGuildRosterChunkReadyByDocId: Set<string> | undefined;
 }
 
 function cleanText(value: unknown, fallback = "") {
@@ -1327,22 +1328,24 @@ function guildRosterCacheWriteBatchSize(
   return Math.max(1, Math.min(250, Math.floor(parsed)));
 }
 
-function guildRosterRecordsChunkSize() {
-  const parsed = Number(process.env.GUILD_ROSTER_RECORDS_CHUNK_SIZE || 64);
+function guildRosterRecordsChunkSize(
+  settings?: Pick<GuildRosterRuntimeSettings, "recordsChunkSize"> | null,
+) {
+  const parsed = Number(settings?.recordsChunkSize || 64);
   if (!Number.isFinite(parsed)) return 64;
   return Math.max(25, Math.min(120, Math.floor(parsed)));
 }
 
-function guildRosterLegacyMemberDocsReadEnabled() {
-  return /^(1|true|yes|on)$/i.test(
-    String(process.env.GUILD_ROSTER_READ_LEGACY_MEMBER_DOCS || ""),
-  );
+function guildRosterLegacyMemberDocsReadEnabled(
+  settings?: Pick<GuildRosterRuntimeSettings, "readLegacyMemberDocs"> | null,
+) {
+  return Boolean(settings?.readLegacyMemberDocs);
 }
 
-function guildRosterLegacyMemberDocsWriteEnabled() {
-  return /^(1|true|yes|on)$/i.test(
-    String(process.env.GUILD_ROSTER_WRITE_LEGACY_MEMBER_DOCS || ""),
-  );
+function guildRosterLegacyMemberDocsWriteEnabled(
+  settings?: Pick<GuildRosterRuntimeSettings, "writeLegacyMemberDocs"> | null,
+) {
+  return Boolean(settings?.writeLegacyMemberDocs);
 }
 
 function guildRosterChunkDocId(index: number) {
@@ -1380,8 +1383,8 @@ function readGuildRosterChunkCount(data: any) {
 function normalizeMembersFromChunkData(data: any) {
   const rows = Array.isArray(data?.members) ? data.members : [];
   return rows
-    .map((item) => normalizeMemberRecord(item))
-    .filter((member): member is GuildRosterMember => Boolean(member?.key));
+    .map((item: unknown) => normalizeMemberRecord(item))
+    .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
 }
 
 function memberDocId(
@@ -1489,7 +1492,14 @@ function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[])
 }
 
 async function readGuildRosterRecords(
-  settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheReadTtlMs"> | null,
+  settings?: Pick<
+    GuildRosterRuntimeSettings,
+    | "region"
+    | "realm"
+    | "guildName"
+    | "cacheReadTtlMs"
+    | "readLegacyMemberDocs"
+  > | null,
 ): Promise<CachedRoster | null> {
   if (!hasFirebaseProfileConfig()) return null;
 
@@ -1512,16 +1522,16 @@ async function readGuildRosterRecords(
           doc.collection(GUILD_RECORDS_CHUNKS_COLLECTION).doc(guildRosterChunkDocId(index)),
         );
         const chunkSnapshots = await getFirebaseAdminDb().getAll(...refs);
-        members = chunkSnapshots.flatMap((item) => normalizeMembersFromChunkData(item.data() || {}));
+        members = chunkSnapshots.flatMap((item: { data: () => unknown }) => normalizeMembersFromChunkData(item.data() || {}));
         markGuildRosterChunkStoreReady(recordsDocId);
-      } else if (guildRosterLegacyMemberDocsReadEnabled()) {
+      } else if (guildRosterLegacyMemberDocsReadEnabled(settings)) {
         const memberSnapshots = await doc
           .collection(GUILD_RECORDS_MEMBERS_COLLECTION)
           .limit(1100)
           .get();
         members = memberSnapshots.docs
-          .map((item) => normalizeMemberRecord(item.data()))
-          .filter((member): member is GuildRosterMember => Boolean(member?.key));
+          .map((item: { data: () => unknown }) => normalizeMemberRecord(item.data()))
+          .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
       }
 
       const cache = buildRosterFromFirebaseRecords(data, members);
@@ -1548,7 +1558,7 @@ async function writeGuildRosterRecords(
   const recordsDocId = guildRecordsDocId(options.settings);
   const doc = guildRecordsDoc(options.settings);
   const changedKeys = options.changedMemberKeys;
-  const recordChunkSize = guildRosterRecordsChunkSize();
+  const recordChunkSize = guildRosterRecordsChunkSize(options.settings);
   const memberChunks = chunkArray(cache.members, recordChunkSize);
   const updatedAtIso = new Date().toISOString();
   const shouldWriteAllChunks =
@@ -1614,7 +1624,7 @@ async function writeGuildRosterRecords(
 
   markGuildRosterChunkStoreReady(recordsDocId);
 
-  if (!guildRosterLegacyMemberDocsWriteEnabled()) return true;
+  if (!guildRosterLegacyMemberDocsWriteEnabled(options.settings)) return true;
 
   const membersToWrite = changedKeys?.size
     ? cache.members.filter((member) => changedKeys.has(member.key))
@@ -1660,7 +1670,7 @@ function cachedRosterFromShardedPayload(
   } satisfies CachedRoster);
 }
 
-async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheReadTtlMs"> | null): Promise<CachedRoster | null> {
+async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null): Promise<CachedRoster | null> {
   const records = await readGuildRosterRecords(settings).catch(() => null);
   if (records) return records;
   if (globalThis.__mistblossomGuildRosterCache)
@@ -1682,14 +1692,14 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
         return legacyCache;
       }
 
-      if (data.payloadSharded && guildRosterLegacyMemberDocsReadEnabled()) {
+      if (data.payloadSharded && guildRosterLegacyMemberDocsReadEnabled(settings)) {
         const memberSnapshots = await doc
           .collection(CACHE_MEMBERS_COLLECTION)
           .limit(1100)
           .get();
         const members = memberSnapshots.docs
-          .map((item) => item.data()?.member)
-          .filter((member): member is GuildRosterMember => Boolean(member?.key));
+          .map((item: { data: () => { member?: unknown } }) => item.data()?.member)
+          .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
         const cache = cachedRosterFromShardedPayload(data, members);
         if (cache) {
           globalThis.__mistblossomGuildRosterCache = cache;
@@ -1773,7 +1783,7 @@ async function writeMemberDocs(
     const activeDocIds = new Set(members.map((member) => memberDocId(member)));
     const existing = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
     const staleDocs = existing.docs.filter(
-      (item) => !activeDocIds.has(item.id),
+      (item: { id: string }) => !activeDocIds.has(item.id),
     );
     for (let index = 0; index < staleDocs.length; index += chunkSize) {
       const batch = getFirebaseAdminDb().batch();

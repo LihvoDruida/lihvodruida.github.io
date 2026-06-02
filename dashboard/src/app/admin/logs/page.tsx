@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { listAdminAuditLogs } from "@/lib/accessGroups";
 import { canManageGroups, canViewAdminLogs } from "@/lib/permissions";
 import { getAdminAuditDiscordPolicy, statusOptions } from "@/lib/adminAuditNotifications";
+import { getAuditLogRuntimeSettings } from "@/lib/dashboardApiSettings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -81,15 +82,16 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canViewAdminLogs(user)) {
-    redirect(user.profileId ? `/profile/${user.profileId}` : "/profile");
+    redirect("/access-denied?reason=logs&from=/admin/logs");
     throw new Error("Access denied");
   }
 
   const params = await searchParams;
   const limit = cleanLimit(params.limit);
-  const [logs, discordPolicy] = await Promise.all([
+  const [logs, discordPolicy, auditSettings] = await Promise.all([
     listAdminAuditLogs(limit),
     getAdminAuditDiscordPolicy(),
+    getAuditLogRuntimeSettings(),
   ]);
   const failed = logs.filter((item) => item.status === "error").length;
   const warnings = logs.filter((item) => item.status === "warning").length;
@@ -117,12 +119,14 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               { label: "WARNING", value: warnings.toLocaleString("uk-UA") },
               { label: "ERROR", value: failed.toLocaleString("uk-UA") },
               { label: "LIMIT", value: limit.toLocaleString("uk-UA") },
+              { label: "CACHE", value: `${Math.round(auditSettings.readCacheTtlMs / 1000)}с` },
+              { label: "DEDUPE", value: `${Math.round(auditSettings.dedupeWindowMs / 1000)}с` },
               { label: "MIRROR", value: discordPolicy.minStatus.toUpperCase() },
             ]}
           />
         </header>
 
-        <AdminTabs active="logs" />
+        <AdminTabs active="logs" user={user} />
 
         <section className="panel admin-log-toolbar admin-log-toolbar--settings" aria-label="Параметри журналу">
           <form className="admin-log-limit-form" method="get">
@@ -141,7 +145,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               </div>
               <span className={`status-pill ${discordPolicy.enabled ? "success" : "neutral"}`}>{discordPolicy.enabled ? "Увімкнено" : "Вимкнено"}</span>
             </div>
-            <p className="profile-card-lead">Кожен запис із /admin/logs може дублюватися в окремий Discord-канал як markdown embed. Ці параметри зберігаються напряму з цієї сторінки у Firebase, без ADMIN_LOGS_DISCORD_* env. Токени, cookie, email і приватні поля обрізаються перед відправкою.</p>
+            <p className="profile-card-lead">Кожен запис із /admin/logs може дублюватися в окремий Discord-канал як markdown embed. Discord mirror зберігається на цій сторінці, а читання, dedupe і prune журналу керуються в /admin → Фоновий API та автооновлення. Токени, cookie, email і приватні поля обрізаються перед записом.</p>
             <div className="admin-log-discord-grid">
               <label className="toggle-row admin-log-toggle-row">
                 <input type="checkbox" name="enabled" value="1" defaultChecked={discordPolicy.enabled} disabled={!canEditLogSettings} />
@@ -166,6 +170,8 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
               <span><strong>{discordPolicySourceLabel(discordPolicy.source)}</strong><small>Джерело налаштувань</small></span>
               <span><strong>{discordPolicy.minStatus}</strong><small>Мінімальний рівень</small></span>
               <span><strong>{discordPolicy.includeSystemLogs ? "Так" : "Ні"}</strong><small>System logs</small></span>
+              <span><strong>{Math.round(auditSettings.readCacheTtlMs / 1000)}с</strong><small>Read cache</small></span>
+              <span><strong>{Math.round(auditSettings.dedupeWindowMs / 1000)}с</strong><small>Dedupe</small></span>
             </div>
             <button className="btn primary" type="submit" disabled={!canEditLogSettings}>Зберегти Discord-дублювання</button>
             {!canEditLogSettings ? <small className="muted-note">Змінювати ці параметри може тільки адміністратор із правом керування групами.</small> : null}

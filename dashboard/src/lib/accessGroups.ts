@@ -3,8 +3,9 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import { logDashboardEvent } from "@/lib/security";
-import { getRuntimeCachedValue, setRuntimeCachedValue, resilientRead, resilientWrite, runtimeCircuitOpen, logThrottled, safeErrorText } from "@/lib/runtimeResilience";
+import { getRuntimeCachedValue, setRuntimeCachedValue, clearRuntimeCachedValue, resilientRead, resilientWrite, runtimeCircuitOpen, logThrottled, safeErrorText } from "@/lib/runtimeResilience";
 import { publishAdminAuditToDiscord, type AdminAuditNotificationInput } from "@/lib/adminAuditNotifications";
+import { getAuditLogRuntimeSettings } from "@/lib/dashboardApiSettings";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import {
   DASHBOARD_PERMISSION_KEYS,
@@ -416,6 +417,8 @@ declare global {
   var __mistblossomAdminAuditFallback: AdminAuditLogItem[] | undefined;
   // eslint-disable-next-line no-var
   var __mistblossomAdminAuditPrunedAt: number | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomAdminAuditDedupe: Map<string, number> | undefined;
 }
 
 function fallbackAuditLogs() {
@@ -490,7 +493,7 @@ function auditSummary(action: string, details: Record<string, unknown>) {
 
 function normalizeAuditLog(id: string, raw: Record<string, unknown>): AdminAuditLogItem {
   const details = raw.details && typeof raw.details === "object" && !Array.isArray(raw.details)
-    ? raw.details as Record<string, unknown>
+    ? compactAuditDetails(raw.details as Record<string, unknown>)
     : {};
   return {
     id,
@@ -506,9 +509,100 @@ function normalizeAuditLog(id: string, raw: Record<string, unknown>): AdminAudit
   };
 }
 
+function auditDedupeMap() {
+  const map = globalThis.__mistblossomAdminAuditDedupe || new Map<string, number>();
+  globalThis.__mistblossomAdminAuditDedupe = map;
+  return map;
+}
+
+function compactAuditValue(value: unknown, depth = 0): unknown {
+  if (value === null || value === undefined) return undefined;
+  if (depth > 4) return "[max-depth]";
+
+  if (typeof value === "string") {
+    const redacted = value
+      .replace(/ghp_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/github_pat_[A-Za-z0-9_]+/g, "[redacted]")
+      .replace(/Bot\s+[A-Za-z0-9._-]+/g, "Bot [redacted]")
+      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]")
+      .replace(/-----BEGIN [^-]+-----[\s\S]*?-----END [^-]+-----/g, "[redacted-private-key]");
+    return redacted.slice(0, depth === 0 ? 500 : 320);
+  }
+
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value === "boolean") return value;
+  if (value instanceof Date) return value.toISOString();
+
+  if (Array.isArray(value)) {
+    const limit = depth <= 1 ? 12 : 6;
+    return value
+      .slice(0, limit)
+      .map((item) => compactAuditValue(item, depth + 1))
+      .filter((item) => item !== undefined);
+  }
+
+  if (typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>).slice(0, 32)) {
+      if (/token|secret|password|authorization|cookie|signature|privateKey|raw|html|body|stack/i.test(key)) {
+        result[key] = "[redacted]";
+        continue;
+      }
+      const next = compactAuditValue(item, depth + 1);
+      if (next !== undefined) result[key] = next;
+    }
+    return result;
+  }
+
+  return String(value).slice(0, 240);
+}
+
+function compactAuditDetails(details: Record<string, unknown>) {
+  const compacted = compactAuditValue(details) as Record<string, unknown> | undefined;
+  return compacted && typeof compacted === "object" && !Array.isArray(compacted)
+    ? compacted
+    : {};
+}
+
+function auditFingerprint(item: Pick<AdminAuditLogItem, "action" | "actorId" | "status" | "summary" | "details">) {
+  const details = item.details || {};
+  const identity = {
+    action: item.action,
+    actorId: item.actorId,
+    status: item.status,
+    summary: item.summary,
+    groupId: details.groupId,
+    profileId: details.profileId,
+    userId: details.userId,
+    jobId: details.jobId,
+    reason: details.reason,
+    error: details.error,
+  };
+  return JSON.stringify(identity).slice(0, 900);
+}
+
+function shouldSkipDuplicateAudit(item: AdminAuditLogItem, dedupeWindowMs: number) {
+  const windowMs = Math.max(0, Math.min(600_000, Math.floor(Number(dedupeWindowMs) || 0)));
+  if (!windowMs) return false;
+  const fingerprint = auditFingerprint(item);
+  const map = auditDedupeMap();
+  const now = Date.now();
+  for (const [key, expiresAt] of map) {
+    if (expiresAt <= now) map.delete(key);
+  }
+  const previousExpiresAt = map.get(fingerprint) || 0;
+  if (previousExpiresAt > now) return true;
+  map.set(fingerprint, now + windowMs);
+  return false;
+}
+
+function clearAdminAuditListCache() {
+  clearRuntimeCachedValue("admin-audit-logs:250");
+}
+
 async function pruneAdminAuditLogs(max = 500) {
   if (!hasFirebaseProfileConfig()) return;
-  const safeMax = Math.max(50, Math.min(500, Math.floor(Number(max) || 500)));
+  const safeMax = Math.max(100, Math.min(1000, Math.floor(Number(max) || 500)));
   const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(safeMax + 80).get().catch(() => null);
   if (!snapshot || snapshot.docs.length <= safeMax) return;
   const batch = getFirebaseAdminDb().batch();
@@ -521,46 +615,86 @@ export async function listAdminAuditLogs(limitInput: unknown = 100) {
   const fallback = fallbackAuditLogs().slice(0, limit);
   if (!hasFirebaseProfileConfig()) return fallback;
 
-  const snapshot = await auditCollectionRef().orderBy("createdAt", "desc").limit(limit).get().catch((error) => {
-    logDashboardEvent("error", "admin.audit.read_failed", undefined, {
-      error: error instanceof Error ? error.message : String(error || "unknown"),
-    });
-    return null;
-  });
-  if (!snapshot) return fallback;
+  const settings = await getAuditLogRuntimeSettings().catch(() => ({
+    readCacheTtlMs: 30_000,
+    maxStored: 500,
+  }));
+  const maxStored = Math.max(100, Math.min(1000, Math.floor(Number(settings.maxStored) || 500)));
+  const cachedLimit = 250;
 
-  const stored = snapshot.docs.map((doc: any) => normalizeAuditLog(doc.id, doc.data() || {}));
-  if (stored.length >= limit) return stored;
+  const stored = await resilientRead<AdminAuditLogItem[]>(
+    "admin-audit-logs:250",
+    async () => {
+      const snapshot = await auditCollectionRef()
+        .orderBy("createdAt", "desc")
+        .limit(cachedLimit)
+        .get();
+      return snapshot.docs.map((doc: any) => normalizeAuditLog(doc.id, doc.data() || {}));
+    },
+    {
+      ttlMs: Math.max(10_000, Math.min(120_000, Number(settings.readCacheTtlMs) || 30_000)),
+      timeoutMs: 2_500,
+      circuitKey: "firebase-audit-read",
+      circuitTtlMs: 120_000,
+      fallback: () => getRuntimeCachedValue<AdminAuditLogItem[]>("admin-audit-logs:250", 10 * 60_000) || fallback,
+      logEvent: "admin.audit.read_failed",
+    },
+  );
 
   const seen = new Set(stored.map((item) => item.id));
-  return [...stored, ...fallback.filter((item) => !seen.has(item.id))].slice(0, limit);
+  const merged = [
+    ...stored,
+    ...fallback.filter((item) => !seen.has(item.id)),
+  ].slice(0, Math.max(limit, Math.min(maxStored, cachedLimit)));
+  return merged.slice(0, limit);
 }
 
 export async function recordAdminAudit(action: string, viewer: DashboardSession, details: Record<string, unknown> = {}) {
-  const status = auditStatus(details.status);
+  const auditSettings = await getAuditLogRuntimeSettings().catch(() => ({
+    dedupeWindowMs: 120_000,
+    maxStored: 500,
+  }));
+  const compactDetails = compactAuditDetails(details);
+  const status = auditStatus(compactDetails.status);
   const createdAtIso = new Date().toISOString();
+  const actorName = viewer.name || viewer.login || null;
+  const baseRaw = {
+    action,
+    actorId: viewer.id,
+    actorName,
+    actorGroupId: viewer.groupId || null,
+    isServerOwner: Boolean(viewer.isServerOwner),
+    status,
+    details: compactAuditDetails({
+      ...compactDetails,
+      status,
+      auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory",
+    }),
+    createdAtIso,
+  };
   const fallbackItem: AdminAuditLogItem = normalizeAuditLog(
     `local-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
-    {
-      action,
-      actorId: viewer.id,
-      actorName: viewer.name || viewer.login || null,
-      actorGroupId: viewer.groupId || null,
-      isServerOwner: Boolean(viewer.isServerOwner),
-      status,
-      details: { ...details, status, auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory" },
-      createdAtIso,
-    },
+    baseRaw,
   );
+
+  if (shouldSkipDuplicateAudit(fallbackItem, auditSettings.dedupeWindowMs)) {
+    logThrottled(
+      "debug",
+      "admin.audit.duplicate_skipped",
+      { action, actorId: viewer.id, status },
+      60_000,
+    );
+    return false;
+  }
 
   const payload = {
     action,
     actorId: viewer.id,
-    actorName: viewer.name || viewer.login || null,
+    actorName,
     actorGroupId: viewer.groupId || null,
     isServerOwner: Boolean(viewer.isServerOwner),
     status,
-    details: { ...details, status },
+    details: compactAuditDetails({ ...compactDetails, status }),
     createdAt: FieldValue.serverTimestamp(),
     createdAtIso,
   };
@@ -568,7 +702,7 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
   if (!hasFirebaseProfileConfig()) {
     pushFallbackAdminAudit(fallbackItem);
     await mirrorAuditLogToDiscord(fallbackItem);
-    logDashboardEvent("warn", "admin.audit.unconfigured", undefined, { action, actorId: viewer.id, status });
+    logThrottled("warn", "admin.audit.unconfigured", { action, actorId: viewer.id, status }, 5 * 60_000);
     return false;
   }
 
@@ -577,13 +711,14 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     async () => {
       const ref = await auditCollectionRef().add(payload);
       const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+      clearAdminAuditListCache();
       void mirrorAuditLogToDiscord(storedItem);
       const now = Date.now();
       if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
         globalThis.__mistblossomAdminAuditPrunedAt = now;
-        void pruneAdminAuditLogs(500);
+        void pruneAdminAuditLogs(auditSettings.maxStored);
       }
-      logDashboardEvent("info", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
+      logDashboardEvent("debug", "admin.audit.recorded", undefined, { action, actorId: viewer.id, status });
       return true;
     },
     {
@@ -600,6 +735,7 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
           },
         };
         pushFallbackAdminAudit(memoryItem);
+        clearAdminAuditListCache();
         return false;
       },
     },
@@ -607,21 +743,41 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
 }
 
 export async function recordSystemAudit(action: string, details: Record<string, unknown> = {}) {
-  const status = auditStatus(details.status);
+  const auditSettings = await getAuditLogRuntimeSettings().catch(() => ({
+    dedupeWindowMs: 120_000,
+    maxStored: 500,
+  }));
+  const compactDetails = compactAuditDetails(details);
+  const status = auditStatus(compactDetails.status);
   const createdAtIso = new Date().toISOString();
+  const baseRaw = {
+    action,
+    actorId: "system",
+    actorName: "System",
+    actorGroupId: null,
+    isServerOwner: false,
+    status,
+    details: compactAuditDetails({
+      ...compactDetails,
+      status,
+      auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory",
+    }),
+    createdAtIso,
+  };
   const fallbackItem: AdminAuditLogItem = normalizeAuditLog(
     `system-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
-    {
-      action,
-      actorId: "system",
-      actorName: "System",
-      actorGroupId: null,
-      isServerOwner: false,
-      status,
-      details: { ...details, status, auditStorage: hasFirebaseProfileConfig() ? "firestore" : "memory" },
-      createdAtIso,
-    },
+    baseRaw,
   );
+
+  if (shouldSkipDuplicateAudit(fallbackItem, auditSettings.dedupeWindowMs)) {
+    logThrottled(
+      "debug",
+      "admin.audit.system_duplicate_skipped",
+      { action, status },
+      60_000,
+    );
+    return false;
+  }
 
   const payload = {
     action,
@@ -630,7 +786,7 @@ export async function recordSystemAudit(action: string, details: Record<string, 
     actorGroupId: null,
     isServerOwner: false,
     status,
-    details: { ...details, status },
+    details: compactAuditDetails({ ...compactDetails, status }),
     createdAt: FieldValue.serverTimestamp(),
     createdAtIso,
   };
@@ -638,7 +794,7 @@ export async function recordSystemAudit(action: string, details: Record<string, 
   if (!hasFirebaseProfileConfig()) {
     pushFallbackAdminAudit(fallbackItem);
     await mirrorAuditLogToDiscord(fallbackItem);
-    logDashboardEvent("warn", "admin.audit.system_unconfigured", undefined, { action, status });
+    logThrottled("warn", "admin.audit.system_unconfigured", { action, status }, 5 * 60_000);
     return false;
   }
 
@@ -647,13 +803,14 @@ export async function recordSystemAudit(action: string, details: Record<string, 
     async () => {
       const ref = await auditCollectionRef().add(payload);
       const storedItem = normalizeAuditLog(ref.id, { ...payload, createdAtIso });
+      clearAdminAuditListCache();
       void mirrorAuditLogToDiscord(storedItem);
       const now = Date.now();
       if (now - (globalThis.__mistblossomAdminAuditPrunedAt || 0) > ADMIN_AUDIT_PRUNE_TTL_MS) {
         globalThis.__mistblossomAdminAuditPrunedAt = now;
-        void pruneAdminAuditLogs(500);
+        void pruneAdminAuditLogs(auditSettings.maxStored);
       }
-      logDashboardEvent("info", "admin.audit.system_recorded", undefined, { action, status });
+      logDashboardEvent("debug", "admin.audit.system_recorded", undefined, { action, status });
       return true;
     },
     {
@@ -670,9 +827,9 @@ export async function recordSystemAudit(action: string, details: Record<string, 
           },
         };
         pushFallbackAdminAudit(memoryItem);
+        clearAdminAuditListCache();
         return false;
       },
     },
   );
 }
-

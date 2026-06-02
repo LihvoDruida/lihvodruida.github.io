@@ -27,7 +27,8 @@ async function setActionToast(tone: "success" | "info" | "warning" | "error", ti
 async function saveGroupAction(formData: FormData) {
   "use server";
   const user = await getSession();
-  if (!user || !canManageGroups(user)) { redirect("/login"); throw new Error("Access denied"); }
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
+  if (!canManageGroups(user)) { redirect("/access-denied?reason=groups&from=/admin/groups"); throw new Error("Access denied"); }
 
   const isUpdate = Boolean(formData.get("currentId"));
   let targetUrl = `/admin/groups?${isUpdate ? "updated" : "created"}=${encodeURIComponent("Групу доступу збережено у Firebase.")}`;
@@ -66,7 +67,8 @@ async function saveGroupAction(formData: FormData) {
 async function deleteGroupAction(formData: FormData) {
   "use server";
   const user = await getSession();
-  if (!user || !canManageGroups(user)) { redirect("/login"); throw new Error("Access denied"); }
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
+  if (!canManageGroups(user)) { redirect("/access-denied?reason=groups&from=/admin/groups"); throw new Error("Access denied"); }
   const groupId = String(formData.get("groupId") || "");
   let targetUrl = `/admin/groups?deleted=${encodeURIComponent("Групу доступу видалено.")}`;
   try {
@@ -90,7 +92,8 @@ async function deleteGroupAction(formData: FormData) {
 async function impersonateAction(formData: FormData) {
   "use server";
   const user = await getSession();
-  if (!user?.isServerOwner) { redirect("/admin/groups"); throw new Error("Access denied"); }
+  if (!user) { redirect("/login"); throw new Error("Login required"); }
+  if (!user.isServerOwner) { redirect("/access-denied?reason=groups&from=/admin/groups"); throw new Error("Access denied"); }
   let targetUrl = user.profileId ? `/profile/${user.profileId}` : "/";
   try {
     const group = await getAccessGroup(String(formData.get("groupId") || ""));
@@ -116,7 +119,7 @@ async function impersonateAction(formData: FormData) {
 export default async function AdminGroupsPage() {
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
-  if (!canManageGroups(user)) { redirect(user.profileId ? `/profile/${user.profileId}` : "/profile"); throw new Error("Access denied"); }
+  if (!canManageGroups(user)) { redirect("/access-denied?reason=groups&from=/admin/groups"); throw new Error("Access denied"); }
 
   const groups = await listAccessGroups();
 
@@ -144,7 +147,7 @@ export default async function AdminGroupsPage() {
             ]}
           />
         </header>
-        <AdminTabs active="groups" />
+        <AdminTabs active="groups" user={user} />
         <AccessGroupsManager
           groups={groups}
           isServerOwner={Boolean(user.isServerOwner)}

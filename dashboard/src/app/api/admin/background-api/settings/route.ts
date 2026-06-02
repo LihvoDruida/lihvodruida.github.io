@@ -55,6 +55,11 @@ function safeAdminRedirectUrl(request: NextRequest) {
   }
 }
 
+
+function formFlag(form: { getAll(name: string): unknown[] }, name: string) {
+  return form.getAll(name).some((value: unknown) => String(value) === "1") ? "1" : "0";
+}
+
 function adminResponse(request: NextRequest, input: ResponseInput) {
   const payload = {
     ok: input.ok,
@@ -163,32 +168,16 @@ export async function POST(request: NextRequest) {
           "clearWarcraftLogsClientSecret",
         ),
         warcraftLogsBaseUrl: form.get("warcraftLogsBaseUrl"),
-        warcraftLogsDebugAuditLogs: form
-          .getAll("warcraftLogsDebugAuditLogs")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
-        dashboardApiDebugAuditLogs: form
-          .getAll("dashboardApiDebugAuditLogs")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
-        dashboardApiWarningAuditLogs: form
-          .getAll("dashboardApiWarningAuditLogs")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
+        warcraftLogsDebugAuditLogs: formFlag(form, "warcraftLogsDebugAuditLogs"),
+        dashboardApiDebugAuditLogs: formFlag(form, "dashboardApiDebugAuditLogs"),
+        dashboardApiWarningAuditLogs: formFlag(form, "dashboardApiWarningAuditLogs"),
         guildRosterRegion: form.get("guildRosterRegion"),
         guildRosterRealm: form.get("guildRosterRealm"),
         guildRosterName: form.get("guildRosterName"),
         guildRosterCacheTtlSeconds: form.get("guildRosterCacheTtlSeconds"),
         guildRosterCacheReadTtlMs: form.get("guildRosterCacheReadTtlMs"),
         guildRosterCacheWriteBatchSize: form.get("guildRosterCacheWriteBatchSize"),
-        guildRosterCacheDeleteStaleMembers: form
-          .getAll("guildRosterCacheDeleteStaleMembers")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
+        guildRosterCacheDeleteStaleMembers: formFlag(form, "guildRosterCacheDeleteStaleMembers"),
         guildRosterRefreshConcurrency: form.get("guildRosterRefreshConcurrency"),
         guildRosterRefreshMaxConcurrency: form.get("guildRosterRefreshMaxConcurrency"),
         raiderIoRequestTimeoutMs: form.get("raiderIoRequestTimeoutMs"),
@@ -202,6 +191,12 @@ export async function POST(request: NextRequest) {
         profileCharacterLinksCacheTtlMs: form.get("profileCharacterLinksCacheTtlMs"),
         raidListCacheTtlMs: form.get("raidListCacheTtlMs"),
         raidItemCacheTtlMs: form.get("raidItemCacheTtlMs"),
+        guildRosterRecordsChunkSize: form.get("guildRosterRecordsChunkSize"),
+        guildRosterReadLegacyMemberDocs: formFlag(form, "guildRosterReadLegacyMemberDocs"),
+        guildRosterWriteLegacyMemberDocs: formFlag(form, "guildRosterWriteLegacyMemberDocs"),
+        auditLogReadCacheTtlMs: form.get("auditLogReadCacheTtlMs"),
+        auditLogDedupeWindowMs: form.get("auditLogDedupeWindowMs"),
+        auditLogMaxStored: form.get("auditLogMaxStored"),
         raiderIoCharacterCacheTtlMs: form.get("raiderIoCharacterCacheTtlMs"),
         warcraftLogsCharacterCacheTtlMs: form.get(
           "warcraftLogsCharacterCacheTtlMs",
@@ -217,11 +212,7 @@ export async function POST(request: NextRequest) {
           "guildRosterRefreshStepBudgetMs",
         ),
         guildRosterSyncJobTtlSeconds: form.get("guildRosterSyncJobTtlSeconds"),
-        guildRosterShardedCacheEnabled: form
-          .getAll("guildRosterShardedCacheEnabled")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
+        guildRosterShardedCacheEnabled: formFlag(form, "guildRosterShardedCacheEnabled"),
         guildRosterShardedCacheThreshold: form.get(
           "guildRosterShardedCacheThreshold",
         ),
@@ -233,21 +224,13 @@ export async function POST(request: NextRequest) {
         guildRosterRaiderIoTtlSeconds: form.get(
           "guildRosterRaiderIoTtlSeconds",
         ),
-        guildRosterClientDrivenSyncEnabled: form
-          .getAll("guildRosterClientDrivenSyncEnabled")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
+        guildRosterClientDrivenSyncEnabled: formFlag(form, "guildRosterClientDrivenSyncEnabled"),
         guildRosterClientStepDelayMs: form.get("guildRosterClientStepDelayMs"),
         guildRosterClientRequestTimeoutMs: form.get(
           "guildRosterClientRequestTimeoutMs",
         ),
         guildRosterClientMaxSteps: form.get("guildRosterClientMaxSteps"),
-        guildRosterWclEnabled: form
-          .getAll("guildRosterWclEnabled")
-          .some((value) => String(value) === "1")
-          ? "1"
-          : "0",
+        guildRosterWclEnabled: formFlag(form, "guildRosterWclEnabled"),
         guildRosterWclMemberLimit: form.get("guildRosterWclMemberLimit"),
         guildRosterWclStepSize: form.get("guildRosterWclStepSize"),
         guildRosterWclConcurrency: form.get("guildRosterWclConcurrency"),

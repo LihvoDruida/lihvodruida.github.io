@@ -41,7 +41,7 @@ export default async function AdminOverviewPage() {
     !canManageDiscordMembers(user) &&
     !canViewAdminLogs(user)
   ) {
-    redirect(user.profileId ? `/profile/${user.profileId}` : "/profile");
+    redirect("/access-denied?reason=admin&from=/admin");
     throw new Error("Access denied");
   }
 
@@ -159,7 +159,7 @@ export default async function AdminOverviewPage() {
           />
         </header>
 
-        <AdminTabs active="overview" />
+        <AdminTabs active="overview" user={user} />
 
         <section
           className="admin-overview-grid admin-overview-grid--security"
@@ -409,7 +409,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Guild write batch size</span>
-                  <small>Скільки member-docs писати за один Firestore batch.</small>
+                  <small>Скільки chunk-docs писати за один Firestore batch.</small>
                   <input
                     type="number"
                     name="guildRosterCacheWriteBatchSize"
@@ -419,6 +419,47 @@ export default async function AdminOverviewPage() {
                     defaultValue={apiSettings.guildRosterCacheWriteBatchSize}
                     disabled={!canEditApiSettings}
                   />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Guild records chunk size</span>
+                  <small>Скільки персонажів тримати в одному Firebase chunk-документі.</small>
+                  <input
+                    type="number"
+                    name="guildRosterRecordsChunkSize"
+                    min={25}
+                    max={120}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterRecordsChunkSize}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <input type="hidden" name="guildRosterReadLegacyMemberDocs" value="0" />
+                <label className="admin-policy-toggle admin-policy-toggle--danger">
+                  <input
+                    type="checkbox"
+                    name="guildRosterReadLegacyMemberDocs"
+                    value="1"
+                    defaultChecked={apiSettings.guildRosterReadLegacyMemberDocs}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Дозволити legacy читання member-docs</strong>
+                    <small>Тільки для міграції. У бойовому режимі вимкнено, щоб не спалювати Firebase reads.</small>
+                  </span>
+                </label>
+                <input type="hidden" name="guildRosterWriteLegacyMemberDocs" value="0" />
+                <label className="admin-policy-toggle admin-policy-toggle--danger">
+                  <input
+                    type="checkbox"
+                    name="guildRosterWriteLegacyMemberDocs"
+                    value="1"
+                    defaultChecked={apiSettings.guildRosterWriteLegacyMemberDocs}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Дублювати запис у legacy member-docs</strong>
+                    <small>Не вмикати постійно. Основне сховище тепер chunked records.</small>
+                  </span>
                 </label>
                 <label className="admin-policy-input">
                   <span>Guild refresh concurrency</span>
@@ -603,6 +644,45 @@ export default async function AdminOverviewPage() {
                       Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO/WCL і падіння sync job потрапляють у глобальний журнал.
                     </small>
                   </span>
+                </label>
+                <label className="admin-policy-input">
+                  <span>Audit read cache TTL, мс</span>
+                  <small>Кеш читання /admin/logs, щоб сторінка не читала Firebase при кожному відкритті.</small>
+                  <input
+                    type="number"
+                    name="auditLogReadCacheTtlMs"
+                    min={10000}
+                    max={120000}
+                    step={5000}
+                    defaultValue={apiSettings.auditLogReadCacheTtlMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Audit dedupe window, мс</span>
+                  <small>Однакові системні помилки в цьому вікні не дублюються у Firebase.</small>
+                  <input
+                    type="number"
+                    name="auditLogDedupeWindowMs"
+                    min={0}
+                    max={600000}
+                    step={10000}
+                    defaultValue={apiSettings.auditLogDedupeWindowMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Audit max stored</span>
+                  <small>Скільки останніх записів тримати у Firestore після автоматичного prune.</small>
+                  <input
+                    type="number"
+                    name="auditLogMaxStored"
+                    min={100}
+                    max={1000}
+                    step={50}
+                    defaultValue={apiSettings.auditLogMaxStored}
+                    disabled={!canEditApiSettings}
+                  />
                 </label>
               </fieldset>
 

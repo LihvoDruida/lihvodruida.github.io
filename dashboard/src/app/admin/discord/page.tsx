@@ -71,7 +71,7 @@ export default async function AdminDiscordPage() {
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageDiscordMembers(user)) {
-    redirect(user.profileId ? `/profile/${user.profileId}` : "/profile");
+    redirect("/access-denied?reason=discord&from=/admin/discord");
     throw new Error("Access denied");
   }
 
@@ -149,7 +149,7 @@ export default async function AdminDiscordPage() {
           />
         </header>
 
-        <AdminTabs active="discord" />
+        <AdminTabs active="discord" user={user} />
 
         <section className="panel discord-management-section discord-management-section--status" aria-label="Стан Discord-підключення">
           <SectionHeader
