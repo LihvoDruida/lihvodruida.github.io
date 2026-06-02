@@ -4683,24 +4683,19 @@ export async function fetchWarcraftLogsCharacterSummary(input: {
     input.mode === "roster" ? "roster" : "full";
   const rosterMode = summaryMode === "roster";
   const requestTimeoutMs = rosterMode
-    ? readIntegerEnv(
-        "WARCRAFTLOGS_ROSTER_REQUEST_TIMEOUT_MS",
-        3_500,
-        1_500,
-        12_000,
-      )
+    ? credentials.rosterRequestTimeoutMs
     : warcraftLogsTimeoutMs();
   const requestRetries = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REQUEST_RETRIES", 0, 0, 2)
+    ? credentials.rosterRequestRetries
     : warcraftLogsRetryCount();
   const recentReportLimit = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_RECENT_REPORT_LIMIT", 2, 1, 8)
+    ? credentials.rosterRecentReportLimit
     : warcraftLogsRecentReportLimit(credentials);
   const reportFightTableLimit = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_FIGHT_TABLE_LIMIT", 5, 3, 16)
+    ? credentials.rosterReportFightTableLimit
     : warcraftLogsReportFightTableLimit(credentials);
   const reportTableConcurrency = rosterMode
-    ? readIntegerEnv("WARCRAFTLOGS_ROSTER_REPORT_TABLE_CONCURRENCY", 1, 1, 2)
+    ? credentials.rosterReportTableConcurrency
     : undefined;
   const profileUrl = characterUrl({
     region,

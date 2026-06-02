@@ -168,6 +168,16 @@ export async function POST(request: NextRequest) {
           .some((value) => String(value) === "1")
           ? "1"
           : "0",
+        dashboardApiDebugAuditLogs: form
+          .getAll("dashboardApiDebugAuditLogs")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
+        dashboardApiWarningAuditLogs: form
+          .getAll("dashboardApiWarningAuditLogs")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
         raiderIoCharacterCacheTtlMs: form.get("raiderIoCharacterCacheTtlMs"),
         warcraftLogsCharacterCacheTtlMs: form.get(
           "warcraftLogsCharacterCacheTtlMs",
@@ -178,14 +188,60 @@ export async function POST(request: NextRequest) {
         warcraftLogsReportFightTableLimit: form.get(
           "warcraftLogsReportFightTableLimit",
         ),
+        guildRosterMemberLimit: form.get("guildRosterMemberLimit"),
+        guildRosterRefreshStepBudgetMs: form.get(
+          "guildRosterRefreshStepBudgetMs",
+        ),
+        guildRosterSyncJobTtlSeconds: form.get("guildRosterSyncJobTtlSeconds"),
+        guildRosterShardedCacheEnabled: form
+          .getAll("guildRosterShardedCacheEnabled")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
+        guildRosterShardedCacheThreshold: form.get(
+          "guildRosterShardedCacheThreshold",
+        ),
+        guildRosterRaiderIoStepSize: form.get("guildRosterRaiderIoStepSize"),
+        guildRosterRaiderIoTtlSeconds: form.get(
+          "guildRosterRaiderIoTtlSeconds",
+        ),
+        guildRosterClientDrivenSyncEnabled: form
+          .getAll("guildRosterClientDrivenSyncEnabled")
+          .some((value) => String(value) === "1")
+          ? "1"
+          : "0",
+        guildRosterClientStepDelayMs: form.get("guildRosterClientStepDelayMs"),
+        guildRosterClientRequestTimeoutMs: form.get(
+          "guildRosterClientRequestTimeoutMs",
+        ),
+        guildRosterClientMaxSteps: form.get("guildRosterClientMaxSteps"),
         guildRosterWclEnabled: form
           .getAll("guildRosterWclEnabled")
           .some((value) => String(value) === "1")
           ? "1"
           : "0",
         guildRosterWclMemberLimit: form.get("guildRosterWclMemberLimit"),
+        guildRosterWclStepSize: form.get("guildRosterWclStepSize"),
         guildRosterWclConcurrency: form.get("guildRosterWclConcurrency"),
         guildRosterWclMaxConcurrency: form.get("guildRosterWclMaxConcurrency"),
+        guildRosterProfileWclTtlSeconds: form.get(
+          "guildRosterProfileWclTtlSeconds",
+        ),
+        warcraftLogsRosterRequestTimeoutMs: form.get(
+          "warcraftLogsRosterRequestTimeoutMs",
+        ),
+        warcraftLogsRosterRequestRetries: form.get(
+          "warcraftLogsRosterRequestRetries",
+        ),
+        warcraftLogsRosterRecentReportLimit: form.get(
+          "warcraftLogsRosterRecentReportLimit",
+        ),
+        warcraftLogsRosterReportFightTableLimit: form.get(
+          "warcraftLogsRosterReportFightTableLimit",
+        ),
+        warcraftLogsRosterReportTableConcurrency: form.get(
+          "warcraftLogsRosterReportTableConcurrency",
+        ),
       },
       session,
     );

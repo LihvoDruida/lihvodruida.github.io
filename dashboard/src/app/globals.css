@@ -20012,3 +20012,83 @@ a.is-submitting[aria-busy="true"] {
 .guild-wcl-badge--tank strong {
   color: #8bbfff;
 }
+
+/* Guild roster live API refresh + source-aware cards. */
+.guild-roster-summary {
+  grid-template-columns: minmax(180px, 1fr) repeat(4, minmax(92px, auto));
+}
+
+.guild-member-card {
+  grid-template-columns: 84px minmax(0, 1fr) minmax(240px, 0.72fr);
+  gap: 18px;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.guild-member-source-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.guild-member-source-row span {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.guild-member-source-row .is-ready {
+  border-color: rgba(78, 255, 99, 0.22);
+  background: rgba(78, 255, 99, 0.08);
+  color: #9bffa7;
+}
+
+.guild-member-source-row .is-empty {
+  border-color: rgba(214, 168, 79, 0.25);
+  background: rgba(214, 168, 79, 0.08);
+  color: var(--gold-bright);
+}
+
+.guild-member-source-row .is-pending {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
+}
+
+.guild-wcl-badges--muted span {
+  min-width: min(100%, 320px);
+}
+
+.guild-wcl-badges--muted strong {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 980px) {
+  .guild-roster-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .guild-roster-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .guild-member-source-row span {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

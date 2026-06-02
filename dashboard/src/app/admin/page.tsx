@@ -136,6 +136,14 @@ export default async function AdminOverviewPage() {
                   : "OFF",
               },
               {
+                label: "API LOG",
+                value: apiSettings.dashboardApiDebugAuditLogs
+                  ? "DEBUG"
+                  : apiSettings.dashboardApiWarningAuditLogs
+                    ? "WARN"
+                    : "OFF",
+              },
+              {
                 label: "WCL LOG",
                 value: apiSettings.warcraftLogsDebugAuditLogs ? "ON" : "OFF",
               },
@@ -195,9 +203,7 @@ export default async function AdminOverviewPage() {
                   {Math.round(apiSettings.backgroundRefreshMinSeconds / 60)} хв
                 </span>
                 <span>
-                  {apiSettings.source === "firestore"
-                    ? "панель"
-                    : "запасне"}
+                  {apiSettings.source === "firestore" ? "панель" : "запасне"}
                 </span>
                 <span>
                   {apiSettings.warcraftLogsClientSecretConfigured
@@ -223,9 +229,7 @@ export default async function AdminOverviewPage() {
                 <legend>Інтервали оновлення</legend>
                 <label className="admin-policy-input">
                   <span>Глобальний фоновий refresh, секунд</span>
-                  <small>
-                    Як часто оновлювати загальні дані сторінок.
-                  </small>
+                  <small>Як часто оновлювати загальні дані сторінок.</small>
                   <input
                     type="number"
                     name="backgroundRefreshMinSeconds"
@@ -238,9 +242,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Профіль / Battle.net + Raider.IO, секунд</span>
-                  <small>
-                    Як часто оновлювати дані персонажів у профілі.
-                  </small>
+                  <small>Як часто оновлювати дані персонажів у профілі.</small>
                   <input
                     type="number"
                     name="profileViewRefreshMinSeconds"
@@ -253,9 +255,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Batch-refresh усіх профілів, секунд</span>
-                  <small>
-                    Як часто запускати оновлення всіх профілів.
-                  </small>
+                  <small>Як часто запускати оновлення всіх профілів.</small>
                   <input
                     type="number"
                     name="profileExternalRefreshMinSeconds"
@@ -272,9 +272,7 @@ export default async function AdminOverviewPage() {
                 <legend>Ліміти та паралельність</legend>
                 <label className="admin-policy-input">
                   <span>Batch limit профілів</span>
-                  <small>
-                    Скільки профілів обробляти за один запуск.
-                  </small>
+                  <small>Скільки профілів обробляти за один запуск.</small>
                   <input
                     type="number"
                     name="profileExternalRefreshBatchLimit"
@@ -288,7 +286,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Паралельність персонажів</span>
                   <small>
-                    0 = автоматично. Вища паралельність може впиратися в ліміти API.
+                    0 = автоматично. Вища паралельність може впиратися в ліміти
+                    API.
                   </small>
                   <input
                     type="number"
@@ -319,9 +318,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Паралельність batch-профілів</span>
-                  <small>
-                    0 = автоматично для оновлення всіх профілів.
-                  </small>
+                  <small>0 = автоматично для оновлення всіх профілів.</small>
                   <input
                     type="number"
                     name="profileExternalRefreshConcurrency"
@@ -334,9 +331,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Макс. batch-паралельність</span>
-                  <small>
-                    Верхня межа одночасних профілів.
-                  </small>
+                  <small>Верхня межа одночасних профілів.</small>
                   <input
                     type="number"
                     name="profileExternalRefreshMaxConcurrency"
@@ -355,7 +350,9 @@ export default async function AdminOverviewPage() {
                 <legend>Кеш та обсяг даних</legend>
                 <label className="admin-policy-input">
                   <span>Кеш Raider.IO, мс</span>
-                  <small>Скільки тримати відповідь по персонажу в памʼяті сервера.</small>
+                  <small>
+                    Скільки тримати відповідь по персонажу в памʼяті сервера.
+                  </small>
                   <input
                     type="number"
                     name="raiderIoCharacterCacheTtlMs"
@@ -368,7 +365,9 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Кеш Warcraft Logs, мс</span>
-                  <small>Скільки тримати зібрану WCL-статистику персонажа.</small>
+                  <small>
+                    Скільки тримати зібрану WCL-статистику персонажа.
+                  </small>
                   <input
                     type="number"
                     name="warcraftLogsCharacterCacheTtlMs"
@@ -381,7 +380,9 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>WCL звітів</span>
-                  <small>Скільки останніх рейдових звітів переглядати для персонажа.</small>
+                  <small>
+                    Скільки останніх рейдових звітів переглядати для персонажа.
+                  </small>
                   <input
                     type="number"
                     name="warcraftLogsRecentReportLimit"
@@ -405,6 +406,229 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                 </label>
+                <input type="hidden" name="dashboardApiDebugAuditLogs" value="0" />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="dashboardApiDebugAuditLogs"
+                    value="1"
+                    defaultChecked={apiSettings.dashboardApiDebugAuditLogs}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Глобальний debug API у журналі</strong>
+                    <small>
+                      Записує детальні кроки guild/API sync у /admin/logs. Вмикай тимчасово, бо для великої гільдії це багато записів.
+                    </small>
+                  </span>
+                </label>
+                <input type="hidden" name="dashboardApiWarningAuditLogs" value="0" />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="dashboardApiWarningAuditLogs"
+                    value="1"
+                    defaultChecked={apiSettings.dashboardApiWarningAuditLogs}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Записувати warning/error API у журнал</strong>
+                    <small>
+                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO/WCL і падіння sync job потрапляють у глобальний журнал.
+                    </small>
+                  </span>
+                </label>
+              </fieldset>
+
+              <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
+                <legend>Склад гільдії: покрокова синхронізація</legend>
+                <label className="admin-policy-input">
+                  <span>Ліміт персонажів складу</span>
+                  <small>
+                    Максимум персонажів, які читаються з Battle.net roster. Для
+                    великої гільдії став 1000.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterMemberLimit"
+                    min={1}
+                    max={1000}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterMemberLimit}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Бюджет одного API-кроку, мс</span>
+                  <small>
+                    Скільки часу сервер може витратити на один короткий крок.
+                    Безпечніше тримати нижче 30 секунд.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterRefreshStepBudgetMs"
+                    min={5000}
+                    max={38000}
+                    step={1000}
+                    defaultValue={apiSettings.guildRosterRefreshStepBudgetMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>TTL sync job, секунд</span>
+                  <small>
+                    Через скільки секунд завислий job вважається застарілим і
+                    може бути створений заново.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterSyncJobTtlSeconds"
+                    min={300}
+                    max={21600}
+                    step={60}
+                    defaultValue={apiSettings.guildRosterSyncJobTtlSeconds}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raider.IO крок</span>
+                  <small>
+                    Скільки персонажів Raider.IO обробляти за один HTTP-крок.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterRaiderIoStepSize"
+                    min={0}
+                    max={100}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterRaiderIoStepSize}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Raider.IO TTL, секунд</span>
+                  <small>
+                    Скільки тримати Raider.IO snapshot персонажа перед повторною
+                    перевіркою.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterRaiderIoTtlSeconds"
+                    min={300}
+                    max={604800}
+                    step={300}
+                    defaultValue={apiSettings.guildRosterRaiderIoTtlSeconds}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <input
+                  type="hidden"
+                  name="guildRosterShardedCacheEnabled"
+                  value="0"
+                />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="guildRosterShardedCacheEnabled"
+                    value="1"
+                    defaultChecked={apiSettings.guildRosterShardedCacheEnabled}
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Sharded cache для великого складу</strong>
+                    <small>
+                      Зберігає кожного персонажа окремим документом, щоб не
+                      роздувати один Firestore-документ.
+                    </small>
+                  </span>
+                </label>
+                <label className="admin-policy-input">
+                  <span>Поріг sharded cache</span>
+                  <small>
+                    Починати окремі документи, коли склад має стільки персонажів
+                    або більше.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterShardedCacheThreshold"
+                    min={1}
+                    max={1000}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterShardedCacheThreshold}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <input
+                  type="hidden"
+                  name="guildRosterClientDrivenSyncEnabled"
+                  value="0"
+                />
+                <label className="admin-policy-toggle">
+                  <input
+                    type="checkbox"
+                    name="guildRosterClientDrivenSyncEnabled"
+                    value="1"
+                    defaultChecked={
+                      apiSettings.guildRosterClientDrivenSyncEnabled
+                    }
+                    disabled={!canEditApiSettings}
+                  />
+                  <span>
+                    <strong>Клієнтський цикл синхронізації</strong>
+                    <small>
+                      Браузер адміністратора послідовно викликає короткі
+                      API-кроки. Токени й запис у Firebase залишаються тільки на
+                      сервері.
+                    </small>
+                  </span>
+                </label>
+                <label className="admin-policy-input">
+                  <span>Пауза між клієнтськими кроками, мс</span>
+                  <small>
+                    Менше значення швидше, але може сильніше впиратися у
+                    зовнішні API.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterClientStepDelayMs"
+                    min={0}
+                    max={5000}
+                    step={50}
+                    defaultValue={apiSettings.guildRosterClientStepDelayMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Timeout клієнтського кроку, мс</span>
+                  <small>
+                    Скільки браузер чекає відповідь одного /api/guild/refresh
+                    кроку.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterClientRequestTimeoutMs"
+                    min={5000}
+                    max={60000}
+                    step={1000}
+                    defaultValue={apiSettings.guildRosterClientRequestTimeoutMs}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>Макс. клієнтських кроків</span>
+                  <small>
+                    Запобіжник, щоб браузер не крутив синхронізацію нескінченно.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterClientMaxSteps"
+                    min={1}
+                    max={10000}
+                    step={10}
+                    defaultValue={apiSettings.guildRosterClientMaxSteps}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
               </fieldset>
 
               <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">
@@ -421,14 +645,17 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Показувати HPS/DPS зі WCL у списку складу</strong>
                     <small>
-                      Дані записуються в guildRuntimeCache → guildRoster → payload.members[].warcraftLogs і читаються зі збереженого кешу.
+                      Дані записуються в guildRuntimeCache → guildRoster →
+                      payload.members[].warcraftLogs і читаються зі збереженого
+                      кешу.
                     </small>
                   </span>
                 </label>
                 <label className="admin-policy-input">
                   <span>WCL персонажів у складі</span>
                   <small>
-                    0 = обробляти весь склад. Для великих ростерів краще ставити 40–120, щоб не впиратися в rate limits.
+                    0 = обробляти весь склад. Для великих ростерів краще ставити
+                    40–120, щоб не впиратися в rate limits.
                   </small>
                   <input
                     type="number"
@@ -443,7 +670,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>WCL паралельність складу</span>
                   <small>
-                    0 = автоматично. Це кількість одночасних WCL-запитів під час оновлення guildRoster cache.
+                    0 = автоматично. Це кількість одночасних WCL-запитів під час
+                    оновлення guildRoster cache.
                   </small>
                   <input
                     type="number"
@@ -458,7 +686,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Макс. WCL паралельність складу</span>
                   <small>
-                    Верхня межа для автоматичного режиму та ручної паралельності.
+                    Верхня межа для автоматичного режиму та ручної
+                    паралельності.
                   </small>
                   <input
                     type="number"
@@ -470,16 +699,157 @@ export default async function AdminOverviewPage() {
                     disabled={!canEditApiSettings}
                   />
                 </label>
+                <label className="admin-policy-input">
+                  <span>WCL крок складу</span>
+                  <small>
+                    Скільки персонажів WCL обробляти за один HTTP-крок. Для
+                    стабільності 1–2.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterWclStepSize"
+                    min={0}
+                    max={20}
+                    step={1}
+                    defaultValue={apiSettings.guildRosterWclStepSize}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL snapshot TTL, секунд</span>
+                  <small>
+                    Скільки тримати збережений DPS/HPS snapshot персонажа перед
+                    повторною перевіркою.
+                  </small>
+                  <input
+                    type="number"
+                    name="guildRosterProfileWclTtlSeconds"
+                    min={300}
+                    max={604800}
+                    step={300}
+                    defaultValue={apiSettings.guildRosterProfileWclTtlSeconds}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL roster timeout, мс</span>
+                  <small>
+                    Timeout одного Warcraft Logs GraphQL-запиту у roster mode.
+                  </small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRosterRequestTimeoutMs"
+                    min={1500}
+                    max={12000}
+                    step={500}
+                    defaultValue={
+                      apiSettings.warcraftLogsRosterRequestTimeoutMs
+                    }
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL roster retries</span>
+                  <small>
+                    Повторні спроби для WCL roster-запитів. 0 — найменший ризик
+                    timeout.
+                  </small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRosterRequestRetries"
+                    min={0}
+                    max={2}
+                    step={1}
+                    defaultValue={apiSettings.warcraftLogsRosterRequestRetries}
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL recent reports для складу</span>
+                  <small>
+                    Скільки останніх report перевіряти в легкому roster mode.
+                  </small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRosterRecentReportLimit"
+                    min={1}
+                    max={8}
+                    step={1}
+                    defaultValue={
+                      apiSettings.warcraftLogsRosterRecentReportLimit
+                    }
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL boss fights у report</span>
+                  <small>
+                    Скільки boss-fight seed брати з одного report у roster mode.
+                  </small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRosterReportFightTableLimit"
+                    min={3}
+                    max={16}
+                    step={1}
+                    defaultValue={
+                      apiSettings.warcraftLogsRosterReportFightTableLimit
+                    }
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
+                <label className="admin-policy-input">
+                  <span>WCL report table concurrency</span>
+                  <small>
+                    Паралельність читання tables всередині одного WCL-персонажа
+                    у roster mode.
+                  </small>
+                  <input
+                    type="number"
+                    name="warcraftLogsRosterReportTableConcurrency"
+                    min={1}
+                    max={2}
+                    step={1}
+                    defaultValue={
+                      apiSettings.warcraftLogsRosterReportTableConcurrency
+                    }
+                    disabled={!canEditApiSettings}
+                  />
+                </label>
                 <div className="admin-policy-hint admin-policy-hint--split">
                   <strong>Поточний стан WCL для складу</strong>
                   <small>
-                    Режим: {apiSettings.guildRosterWclEnabled ? "увімкнено" : "вимкнено"}
+                    Режим:{" "}
+                    {apiSettings.guildRosterWclEnabled
+                      ? "увімкнено"
+                      : "вимкнено"}
                   </small>
                   <small>
-                    Ліміт персонажів: {apiSettings.guildRosterWclMemberLimit > 0 ? apiSettings.guildRosterWclMemberLimit : "усі"}
+                    Ліміт персонажів:{" "}
+                    {apiSettings.guildRosterWclMemberLimit > 0
+                      ? apiSettings.guildRosterWclMemberLimit
+                      : "усі"}
                   </small>
                   <small>
-                    Паралельність: {apiSettings.guildRosterWclConcurrency > 0 ? apiSettings.guildRosterWclConcurrency : "auto"} / max {apiSettings.guildRosterWclMaxConcurrency}
+                    Паралельність:{" "}
+                    {apiSettings.guildRosterWclConcurrency > 0
+                      ? apiSettings.guildRosterWclConcurrency
+                      : "auto"}{" "}
+                    / max {apiSettings.guildRosterWclMaxConcurrency}
+                  </small>
+                  <small>
+                    Крок: {apiSettings.guildRosterWclStepSize}; TTL:{" "}
+                    {Math.round(
+                      apiSettings.guildRosterProfileWclTtlSeconds / 60,
+                    )}{" "}
+                    хв
+                  </small>
+                  <small>
+                    GraphQL: timeout{" "}
+                    {apiSettings.warcraftLogsRosterRequestTimeoutMs}мс, retries{" "}
+                    {apiSettings.warcraftLogsRosterRequestRetries}, reports{" "}
+                    {apiSettings.warcraftLogsRosterRecentReportLimit}, fights{" "}
+                    {apiSettings.warcraftLogsRosterReportFightTableLimit}
                   </small>
                 </div>
               </fieldset>
@@ -489,7 +859,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Client ID</span>
                   <small>
-                    Можна зберігати тут. Якщо поле порожнє, система використає запасне значення з деплою.
+                    Можна зберігати тут. Якщо поле порожнє, система використає
+                    запасне значення з деплою.
                   </small>
                   <input
                     name="warcraftLogsClientId"
@@ -503,7 +874,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Client Secret</span>
                   <small>
-                    Секрет не показується повторно. Вводь його тільки для встановлення або заміни.
+                    Секрет не показується повторно. Вводь його тільки для
+                    встановлення або заміни.
                   </small>
                   <input
                     type="password"
@@ -521,7 +893,8 @@ export default async function AdminOverviewPage() {
                 <label className="admin-policy-input">
                   <span>Warcraft Logs Base URL</span>
                   <small>
-                    Залиш стандартну адресу, якщо немає окремої причини змінювати.
+                    Залиш стандартну адресу, якщо немає окремої причини
+                    змінювати.
                   </small>
                   <input
                     name="warcraftLogsBaseUrl"
@@ -548,7 +921,8 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Увімкнути тимчасовий WCL debug audit log</strong>
                     <small>
-                      Тимчасово записує сирі відповіді та розбір даних у загальні логи. Після перевірки вимкни.
+                      Тимчасово записує сирі відповіді та розбір даних у
+                      загальні логи. Після перевірки вимкни.
                     </small>
                   </span>
                 </label>
@@ -562,7 +936,8 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Очистити збережений Client Secret у панелі</strong>
                     <small>
-                      Очищає секрет із панелі. Запасне значення з деплою не чіпається.
+                      Очищає секрет із панелі. Запасне значення з деплою не
+                      чіпається.
                     </small>
                   </span>
                 </label>
@@ -589,19 +964,22 @@ export default async function AdminOverviewPage() {
                       : "відсутній"}
                   </small>
                   <small>
-                    Debug audit log: {apiSettings.warcraftLogsDebugAuditLogs
+                    Debug audit log:{" "}
+                    {apiSettings.warcraftLogsDebugAuditLogs
                       ? "увімкнено"
                       : "вимкнено"}
                   </small>
                   <small>
-                    Обсяг: {apiSettings.warcraftLogsRecentReportLimit} звітів / {apiSettings.warcraftLogsReportFightTableLimit} боїв
+                    Обсяг: {apiSettings.warcraftLogsRecentReportLimit} звітів /{" "}
+                    {apiSettings.warcraftLogsReportFightTableLimit} боїв
                   </small>
                 </div>
               </fieldset>
 
               <footer className="admin-policy-footer">
                 <small>
-                  Секрет зберігається тільки на сервері. Логи перевірки вмикай тимчасово.
+                  Секрет зберігається тільки на сервері. Логи перевірки вмикай
+                  тимчасово.
                 </small>
                 <button
                   className="btn primary"
