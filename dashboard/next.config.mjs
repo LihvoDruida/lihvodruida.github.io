@@ -6,6 +6,11 @@ const hstsValue =
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  typescript: {
+    // The production build runs `npm run typecheck` before Next starts.
+    // This avoids a second Next.js TypeScript worker pass that can stall in CI.
+    ignoreBuildErrors: true,
+  },
   experimental: {
     cpus: 2,
     workerThreads: false,

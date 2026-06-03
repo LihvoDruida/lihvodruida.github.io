@@ -1016,7 +1016,7 @@ function rosterSourceUsesProfileSeed(source?: string | null) {
   return /profile[-_\s]?seed|збережених профілів|saved profiles/i.test(String(source || ""));
 }
 
-function isAuthoritativeGuildRosterCache(cache: CachedRoster | null | undefined) {
+function isAuthoritativeGuildRosterCache(cache: CachedRoster | null | undefined): cache is CachedRoster {
   return Boolean(cache?.members?.length && !rosterSourceUsesProfileSeed(cache.source));
 }
 
@@ -1319,7 +1319,7 @@ function normalizeMemberRecord(data: any): GuildRosterMember | null {
   } satisfies GuildRosterMember);
 }
 
-function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[]) {
+function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[]): CachedRoster | null {
   if (!members.length) return null;
   const config = getGuildConfig({
     region: data?.region,
@@ -1569,8 +1569,8 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
 
   const records = await readGuildRosterRecords(settings).catch(() => null);
   if (records) return records;
-  if (isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache))
-    return globalThis.__mistblossomGuildRosterCache;
+  const runtimeCache = globalThis.__mistblossomGuildRosterCache;
+  if (isAuthoritativeGuildRosterCache(runtimeCache)) return runtimeCache;
   if (!hasFirebaseProfileConfig()) return null;
 
   return resilientRead(

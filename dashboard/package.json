@@ -5,7 +5,7 @@
   "packageManager": "npm@11.15.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run typecheck && node scripts/next-build.cjs",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -18,7 +18,8 @@
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "yaml": "2.9.0"
+    "yaml": "2.9.0",
+    "node-domexception": "file:vendor/node-domexception"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.5",
@@ -32,7 +33,11 @@
     "typescript": "6.0.3"
   },
   "engines": {
-    "node": "24.x",
-    "npm": "11.x"
+    "node": ">=22 <25",
+    "npm": ">=10 <12"
+  },
+  "overrides": {
+    "uuid": "11.1.0",
+    "node-domexception": "file:vendor/node-domexception"
   }
 }
