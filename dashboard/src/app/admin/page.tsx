@@ -366,7 +366,7 @@ export default async function AdminOverviewPage() {
                 </label>
                 <label className="admin-policy-input">
                   <span>Guild read cache TTL, мс</span>
-                  <small>In-memory кеш читання guildRuntimeCache.</small>
+                  <small>Швидкий серверний кеш читання складу без повторного звернення до Firebase.</small>
                   <input
                     type="number"
                     name="guildRosterCacheReadTtlMs"
@@ -571,7 +571,7 @@ export default async function AdminOverviewPage() {
                   <span>
                     <strong>Надсилати warning/error API у Discord-журнал</strong>
                     <small>
-                      Таймаути, вичерпаний бюджет кроку, часткові помилки Raider.IO і падіння sync job йдуть у Discord-журнал без запису в dashboardAdminAudit.
+                      Таймаути, вичерпаний бюджет кроку, часткові помилки зовнішніх сервісів і падіння sync job йдуть у Discord-журнал без запису у Firebase.
                     </small>
                   </span>
                 </label>

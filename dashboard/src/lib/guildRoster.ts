@@ -152,7 +152,7 @@ const GUILD_RECORDS_CHUNKS_COLLECTION = "memberChunks";
 const GUILD_RECORDS_CHUNK_FORMAT_VERSION = 2;
 const GUILD_RECORDS_MAX_CHUNKS = 80;
 const SYNC_JOB_DOCUMENT = "guildRosterSyncJob";
-const LIVE_SOURCE = "Battle.net Guild/Profile API + Raider.IO M+ API";
+const LIVE_SOURCE = "guild-roster-live-sync";
 
 const CLASS_ID_FALLBACK: Record<number, string> = {
   1: "Warrior",
@@ -1146,7 +1146,7 @@ async function fetchLiveGuildRoster(
   return {
     members,
     stats,
-    source: `${LIVE_SOURCE} • live`,
+    source: "live-sync",
     error: null,
   };
 }
@@ -1448,7 +1448,7 @@ function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[])
       configuredGuildName: config.guildName,
       configuredRealmSlug: config.realmSlug,
     }),
-    source: cleanText(data?.source) || `${LIVE_SOURCE} • Firebase records`,
+    source: cleanText(data?.source) || "firebase-records",
     error: typeof data?.error === "string" ? data.error : null,
     cachedAt: cleanText(data?.cachedAt || data?.updatedAtIso) || new Date().toISOString(),
     authoritativeRoster: true,
@@ -1578,7 +1578,7 @@ async function writeGuildRosterRecords(
       authoritativeRoster: true,
       rosterSource: "battlenet-guild-roster",
       stats: cache.stats,
-      source: `${LIVE_SOURCE} • Firebase records`,
+      source: "firebase-records",
       error: cache.error || null,
       memberCount: cache.members.length,
       cachedAt: cache.cachedAt,
@@ -1766,7 +1766,7 @@ async function writeCachedRoster(
 ) {
   const cache = stripUndefined({
     ...result,
-    source: `${LIVE_SOURCE} • Firebase records`,
+    source: "firebase-records",
     cachedAt: new Date().toISOString(),
     authoritativeRoster: true,
     fingerprint: guildRosterFingerprint(result),
@@ -1819,7 +1819,7 @@ function publicFromCache(cache: CachedRoster): GuildRosterLoadResult {
   return {
     members: cache.members,
     stats: cache.stats,
-    source: cache.source || `${LIVE_SOURCE} • Firebase records`,
+    source: cache.source || "firebase-records",
     error: cache.error || null,
   };
 }
@@ -2528,7 +2528,7 @@ async function advanceGuildRosterSyncStep(
           {
             members: sortMembers(step.members),
             stats: { ...currentCache.stats, updatedAt: nowIso() },
-            source: `${LIVE_SOURCE} • Battle.net profile step`,
+            source: "battle-net-profile-step",
             error: currentCache.error || null,
           },
           { changedMemberKeys: step.changedMemberKeys, settings },
@@ -2591,7 +2591,7 @@ async function advanceGuildRosterSyncStep(
           {
             members: sortMembers(step.members),
             stats: { ...currentCache.stats, updatedAt: nowIso() },
-            source: `${LIVE_SOURCE} • Raider.IO step`,
+            source: "raider-io-step",
             error: currentCache.error || null,
           },
           { changedMemberKeys: step.changedMemberKeys, settings },

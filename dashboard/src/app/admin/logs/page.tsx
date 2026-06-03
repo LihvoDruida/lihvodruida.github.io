@@ -106,7 +106,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
             <span className="eyebrow">Mistblossom Vanguard • Журнал</span>
             <h1>Журнал дій</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Останні адміністративні дії читаються з Discord-каналу журналу. Firebase-колекція dashboardAdminAudit більше не використовується для читання або запису логів.</p>
+            <p className="lead">Останні адміністративні дії читаються з Discord-каналу журналу. Firebase більше не використовується для зберігання журналу.</p>
           </div>
           <HeroSidePanel
             ariaLabel="Огляд журналу дій"
@@ -212,7 +212,7 @@ export default async function AdminLogsPage({ searchParams }: { searchParams: Pr
           )) : (
             <article className="panel admin-log-row admin-log-row--info">
               <strong>Журнал порожній</strong>
-              <p>Записи зʼявляться після першої дії, яку бот опублікує в Discord-канал журналу. Firebase-читання для dashboardAdminAudit не виконується.</p>
+              <p>Записи зʼявляться після першої дії, яку бот опублікує в Discord-канал журналу.</p>
             </article>
           )}
         </section>
