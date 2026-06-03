@@ -17,6 +17,7 @@ type GuildRefreshBody = {
   includeMembers?: unknown;
   debug?: unknown;
   cacheOnly?: unknown;
+  soft?: unknown;
 };
 
 function truthy(value: unknown) {
@@ -50,12 +51,14 @@ export async function POST(request: NextRequest) {
     const includeMembers = body?.includeMembers === undefined ? false : truthy(body.includeMembers);
     const debugRequested = truthy(body?.debug) || request.headers.get("x-dashboard-debug") === "1";
     const cacheOnly = truthy(body?.cacheOnly);
+    const softSync = truthy(body?.soft);
     const apiSettings = await getDashboardApiSettings().catch(() => null);
     const debugAuditEnabled = Boolean(debugRequested || apiSettings?.dashboardApiDebugAuditLogs);
     const roster = await refreshGuildRosterApiBatch({
       forceRoster: forceRefresh,
       continueSync,
       cacheOnly,
+      softSync,
     });
 
     const warningReasons = [
@@ -81,6 +84,7 @@ export async function POST(request: NextRequest) {
         continueSync,
         includeMembers,
         cacheOnly,
+        softSync,
         refresh: roster.refresh,
         warningReasons,
         error: syncError,

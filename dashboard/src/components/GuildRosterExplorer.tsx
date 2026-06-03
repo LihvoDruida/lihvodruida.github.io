@@ -107,6 +107,16 @@ function formatNumber(value: number, digits = 0) {
   return formatStableNumber(value, digits);
 }
 
+function formatRosterDate(value?: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("uk-UA", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
 function uniqueSorted(values: string[]) {
   return Array.from(
     new Set(values.map((value) => value.trim()).filter(Boolean)),
@@ -470,28 +480,6 @@ function SegmentBadges({
   );
 }
 
-function DataSourceStatus({ member }: { member: GuildRosterMember }) {
-  const bnetProfileReady = Boolean(
-    member.battleNetUpdatedAt ||
-      member.itemLevel > 0 ||
-      member.avatarUrl ||
-      member.specName !== "Unknown" ||
-      member.role !== "unknown",
-  );
-
-  return (
-    <div className="guild-member-source-row" aria-label="Джерела даних персонажа">
-      <span className="is-ready">Battle.net: склад</span>
-      <span className={bnetProfileReady ? "is-ready" : "is-pending"}>
-        Профіль BNet: {bnetProfileReady ? "готово" : "очікує"}
-      </span>
-      <span className={member.hasRaiderIo ? "is-ready" : "is-pending"}>
-        Raider.IO: {member.hasRaiderIo ? "M+" : "очікує"}
-      </span>
-    </div>
-  );
-}
-
 export default function GuildRosterExplorer({
   members,
   stats,
@@ -506,12 +494,12 @@ export default function GuildRosterExplorer({
     key: "guild-roster",
     scope: "guild",
     initialData: initialRoster,
-    minIntervalMs: 10 * 60 * 1000,
+    minIntervalMs: 30 * 60 * 1000,
     request: () => ({
       url: "/api/guild/refresh",
       method: "POST",
       headers: { "X-Dashboard-Action": "guild-roster-cache-sync" },
-      json: { cacheOnly: true, includeMembers: true },
+      json: { soft: true, includeMembers: true },
       select: (payload) => {
         const data = payload as Partial<GuildRosterLivePayload> | null;
         return {
@@ -747,11 +735,11 @@ export default function GuildRosterExplorer({
     if (isStorageLimited) {
       return (
         <section className="guild-roster-empty panel app-error-panel" aria-live="polite">
-          <span className="eyebrow">Firebase quota guard</span>
-          <h2>Тимчасова технічна помилка</h2>
+          <span className="eyebrow">Тимчасовий захист</span>
+          <h2>Склад тимчасово недоступний</h2>
           <p>
-            Сховище Firebase зараз недоступне або вперлося в ліміти. Сайт
-            зупинив важкі читання складу, щоб не збільшувати перевищення квоти.
+            Сторінка не може безпечно отримати склад зараз. Ми не запускаємо
+            додаткові важкі запити, щоб не погіршити ситуацію.
           </p>
           {liveError ? <small>{liveError}</small> : null}
           <div className="form-actions">
@@ -769,11 +757,11 @@ export default function GuildRosterExplorer({
 
     return (
       <section className="guild-roster-empty panel">
-        <h2>Дані складу гільдії ще не завантажені</h2>
+        <h2>Дані складу ще готуються</h2>
         <p>
-          Сторінка читає тільки нормалізовані Firebase-записи. Live-збір не
-          запускається під час render, щоб не роздувати API та Firebase-ліміти.
-          Запусти покрокову синхронізацію через кнопку “Оновити склад”.
+          Склад формується з офіційного списку гільдії та оновлюється
+          покроково. Запусти оновлення або зачекай, поки фонова синхронізація
+          завершить підготовку.
         </p>
         {liveError ? <small>{liveError}</small> : null}
       </section>
@@ -936,9 +924,9 @@ export default function GuildRosterExplorer({
               </label>
 
               <div className="guild-filter-source">
-                <span>Джерело: {liveSource}</span>
+                <span>Дані складу оновлюються фоново.</span>
                 {liveStats.updatedAt ? (
-                  <span>Оновлено: {liveStats.updatedAt}</span>
+                  <span>Останнє оновлення: {formatRosterDate(liveStats.updatedAt)}</span>
                 ) : null}
               </div>
             </div>
@@ -1025,7 +1013,6 @@ export default function GuildRosterExplorer({
                       <p>
                         {member.specName} {member.className} • {member.raceName}
                       </p>
-                      <DataSourceStatus member={member} />
                       <div className="guild-member-score">
                         <div className="guild-member-score-block guild-member-score-block--rio">
                           <small>RAIDER.IO M+</small>

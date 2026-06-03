@@ -1359,6 +1359,12 @@ function profileCharacterLinksScanFallbackEnabled() {
   return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
 }
 
+function profileCharacterLinksScanFallbackLimit() {
+  const value = Number(process.env.PROFILE_CHARACTER_LINKS_SCAN_LIMIT || 250);
+  if (!Number.isFinite(value)) return 250;
+  return Math.max(50, Math.min(500, Math.floor(value)));
+}
+
 type CharacterProfileLinksCacheEntry = {
   checkedAt: number;
   links: Map<string, CharacterProfileLink>;
@@ -1550,7 +1556,7 @@ async function scanCharacterProfileLinksFromProfiles() {
   >();
   const snapshot = await getFirebaseAdminDb()
     .collection("dashboardProfiles")
-    .limit(1000)
+    .limit(profileCharacterLinksScanFallbackLimit())
     .get();
   const profiles = snapshot.docs.map((doc: any) =>
     normalizeProfile(doc.id, doc.data() || {}),

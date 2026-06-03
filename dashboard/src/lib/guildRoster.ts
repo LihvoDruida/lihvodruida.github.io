@@ -133,6 +133,7 @@ export type GuildRosterSyncProgress = {
 type CachedRoster = GuildRosterLoadResult & {
   cachedAt: string;
   authoritativeRoster?: boolean;
+  fingerprint?: string;
 };
 
 type RaiderIoCharacterPayload = Record<string, any>;
@@ -1187,6 +1188,70 @@ function stripUndefined<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function stableRosterMemberFingerprint(member: GuildRosterMember) {
+  return {
+    key: member.key,
+    ownerProfileId: member.ownerProfileId || null,
+    rank: member.rank ?? null,
+    guildStatus: member.guildStatus || null,
+    name: member.name,
+    realmSlug: member.realmSlug,
+    region: member.region,
+    className: member.className,
+    raceName: member.raceName,
+    faction: member.faction,
+    specName: member.specName,
+    role: member.role,
+    avatarUrl: member.avatarUrl || null,
+    profileUrl: member.profileUrl || null,
+    itemLevel: member.itemLevel || 0,
+    scores: member.scores,
+    hasRaiderIo: member.hasRaiderIo,
+  };
+}
+
+function guildRosterFingerprint(result: Pick<GuildRosterLoadResult, "members" | "stats">) {
+  return createHash("sha1")
+    .update(JSON.stringify({
+      memberCount: result.members.length,
+      stats: {
+        guildName: result.stats.guildName,
+        guildRealm: result.stats.guildRealm,
+        guildFaction: result.stats.guildFaction,
+        memberCount: result.stats.memberCount,
+        maxRioAll: result.stats.maxRioAll,
+        maxItemLevel: result.stats.maxItemLevel,
+        averageRioAll: Math.round((result.stats.averageRioAll || 0) * 10) / 10,
+        averageItemLevel: Math.round((result.stats.averageItemLevel || 0) * 10) / 10,
+      },
+      members: sortMembers(result.members).map(stableRosterMemberFingerprint),
+    }))
+    .digest("hex");
+}
+
+function changedGuildRosterMemberKeys(previous: CachedRoster | null | undefined, next: GuildRosterLoadResult) {
+  const changed = new Set<string>();
+  const previousByKey = new Map(
+    (previous?.members || []).map((member) => [
+      member.key,
+      JSON.stringify(stableRosterMemberFingerprint(member)),
+    ]),
+  );
+  const nextKeys = new Set<string>();
+
+  for (const member of next.members) {
+    nextKeys.add(member.key);
+    const previousMember = previousByKey.get(member.key);
+    const nextMember = JSON.stringify(stableRosterMemberFingerprint(member));
+    if (!previousMember || previousMember !== nextMember) changed.add(member.key);
+  }
+
+  for (const member of previous?.members || []) {
+    if (!nextKeys.has(member.key)) changed.add(member.key);
+  }
+  return changed;
+}
+
 function isFresh(cache: CachedRoster | null, ttlMs = cacheTtlMs()) {
   if (!cache?.cachedAt) return false;
   const cachedAt = Date.parse(cache.cachedAt);
@@ -1387,6 +1452,24 @@ function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[])
     error: typeof data?.error === "string" ? data.error : null,
     cachedAt: cleanText(data?.cachedAt || data?.updatedAtIso) || new Date().toISOString(),
     authoritativeRoster: true,
+    fingerprint: cleanText(data?.fingerprint) || guildRosterFingerprint({
+      members,
+      stats: data?.stats || buildStats({
+        guildSummary: {
+          name: cleanText(data?.guildName) || config.guildName,
+          realm: {
+            slug: cleanText(data?.realmSlug) || config.realmSlug,
+            name: cleanText(data?.realmName) || config.realmSlug,
+          },
+          faction: { type: cleanText(data?.guildFaction) || "Alliance" },
+        },
+        raiderGuild: null,
+        members,
+        updatedAt: updatedAt || new Date().toISOString(),
+        configuredGuildName: config.guildName,
+        configuredRealmSlug: config.realmSlug,
+      }),
+    }),
   } satisfies CachedRoster);
 }
 
@@ -1396,6 +1479,7 @@ async function readGuildRosterRecords(
     | "region"
     | "realm"
     | "guildName"
+    | "cacheTtlSeconds"
     | "cacheReadTtlMs"
     | "readLegacyMemberDocs"
   > | null,
@@ -1460,19 +1544,22 @@ async function writeGuildRosterRecords(
   const recordChunkSize = guildRosterRecordsChunkSize(options.settings);
   const memberChunks = chunkArray(cache.members, recordChunkSize);
   const updatedAtIso = new Date().toISOString();
+  const changedKeysProvided = changedKeys instanceof Set;
   const shouldWriteAllChunks =
     options.fullMemberRewrite ||
-    !changedKeys?.size ||
+    !changedKeysProvided ||
     !guildRosterChunkStoreReady(recordsDocId);
   const changedChunkIndexes = shouldWriteAllChunks
     ? new Set(memberChunks.map((_, index) => index))
-    : new Set(
-        memberChunks
-          .map((chunk, index) =>
-            chunk.some((member) => changedKeys?.has(member.key)) ? index : -1,
-          )
-          .filter((index) => index >= 0),
-      );
+    : changedKeys.size === 0
+      ? new Set<number>()
+      : new Set(
+          memberChunks
+            .map((chunk, index) =>
+              chunk.some((member) => changedKeys.has(member.key)) ? index : -1,
+            )
+            .filter((index) => index >= 0),
+        );
   const previousChunkCount = options.fullMemberRewrite
     ? await doc
         .get()
@@ -1495,6 +1582,7 @@ async function writeGuildRosterRecords(
       error: cache.error || null,
       memberCount: cache.members.length,
       cachedAt: cache.cachedAt,
+      fingerprint: cache.fingerprint || guildRosterFingerprint(cache),
       memberChunks: {
         version: GUILD_RECORDS_CHUNK_FORMAT_VERSION,
         collection: GUILD_RECORDS_CHUNKS_COLLECTION,
@@ -1551,7 +1639,7 @@ async function writeGuildRosterRecords(
 
   if (!guildRosterLegacyMemberDocsWriteEnabled(options.settings)) return true;
 
-  const membersToWrite = changedKeys?.size
+  const membersToWrite = changedKeysProvided
     ? cache.members.filter((member) => changedKeys.has(member.key))
     : cache.members;
   const memberBatchSize = guildRosterCacheWriteBatchSize(options.settings);
@@ -1609,7 +1697,10 @@ async function readCloudflareCachedRoster(settings?: Pick<GuildRosterRuntimeSett
   return value;
 }
 
-async function writeCloudflareCachedRoster(cache: CachedRoster, settings?: GuildRosterRuntimeSettings | null) {
+async function writeCloudflareCachedRoster(
+  cache: CachedRoster,
+  settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheTtlSeconds"> | null,
+) {
   const ttlSeconds = Math.max(300, Math.min(Number(settings?.cacheTtlSeconds || process.env.GUILD_ROSTER_CACHE_TTL_SECONDS || 1800), 24 * 60 * 60));
   return writePublicCache(guildRosterPublicCacheKey(settings), cache, {
     ttlSeconds,
@@ -1617,18 +1708,25 @@ async function writeCloudflareCachedRoster(cache: CachedRoster, settings?: Guild
   });
 }
 
-async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null): Promise<CachedRoster | null> {
+async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheTtlSeconds" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null): Promise<CachedRoster | null> {
   if (globalThis.__mistblossomGuildRosterCache &&
     isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache) &&
     isFresh(globalThis.__mistblossomGuildRosterCache, Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))))) {
     return globalThis.__mistblossomGuildRosterCache;
   }
 
+  // Display priority is Firebase records: the site reads the last authoritative
+  // stored roster first. Cloudflare KV is a fallback/offload layer, not the
+  // source of truth for the visible guild roster.
+  const records = await readGuildRosterRecords(settings).catch(() => null);
+  if (records) {
+    void writeCloudflareCachedRoster(records, settings).catch(() => null);
+    return records;
+  }
+
   const cloudflare = await readCloudflareCachedRoster(settings).catch(() => null);
   if (cloudflare) return cloudflare;
 
-  const records = await readGuildRosterRecords(settings).catch(() => null);
-  if (records) return records;
   if (isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache))
     return globalThis.__mistblossomGuildRosterCache;
   // Deprecated guildRuntimeCache/members is intentionally not read anymore.
@@ -1671,6 +1769,7 @@ async function writeCachedRoster(
     source: `${LIVE_SOURCE} • Firebase records`,
     cachedAt: new Date().toISOString(),
     authoritativeRoster: true,
+    fingerprint: guildRosterFingerprint(result),
   } satisfies CachedRoster);
 
   globalThis.__mistblossomGuildRosterCache = cache;
@@ -1693,6 +1792,7 @@ async function writeCachedRoster(
               error: cache.error || null,
               cachedAt: cache.cachedAt,
               memberCount: cache.members.length,
+              fingerprint: cache.fingerprint || guildRosterFingerprint(cache),
               primaryStore: GUILD_RECORDS_COLLECTION,
               recordsDocId: guildRecordsDocId(options.settings),
             }),
@@ -1729,8 +1829,21 @@ async function refreshGuildRosterAndCache(
   settings?: GuildRosterRuntimeSettings | null,
 ) {
   const live = await fetchLiveGuildRoster({ previous, settings });
+  const changedMemberKeys = changedGuildRosterMemberKeys(previous, live);
+  const previousKeys = new Set((previous?.members || []).map((member) => member.key));
+  const nextKeys = new Set(live.members.map((member) => member.key));
+  const membershipChanged =
+    !previous ||
+    previous.members.length !== live.members.length ||
+    Array.from(previousKeys).some((key) => !nextKeys.has(key)) ||
+    Array.from(nextKeys).some((key) => !previousKeys.has(key));
+
   try {
-    return await writeCachedRoster(live, { fullMemberRewrite: true, settings });
+    return await writeCachedRoster(live, {
+      changedMemberKeys,
+      fullMemberRewrite: membershipChanged,
+      settings,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error || "unknown");
     await recordDashboardSystemLog(
@@ -2248,7 +2361,7 @@ async function getOrCreateGuildRosterSyncJob(
   settings?: GuildRosterRuntimeSettings | null,
 ) {
   const existing = await readGuildRosterSyncJob().catch(() => null);
-  const cacheNeedsRosterRefresh = !cached || !isFresh(cached);
+  const cacheNeedsRosterRefresh = !cached || !isFresh(cached, cacheTtlMs(settings));
   const shouldRefreshRoster = Boolean(
     options.forceRoster || cacheNeedsRosterRefresh,
   );
@@ -2564,6 +2677,7 @@ export async function refreshGuildRosterApiBatch(
     forceRoster?: boolean;
     continueSync?: boolean;
     cacheOnly?: boolean;
+    softSync?: boolean;
   } = {},
 ): Promise<GuildRosterLoadResult & { refresh: GuildRosterRefreshProgress }> {
   const settings = await getGuildRosterSyncSettings().catch(() => null);
@@ -2587,11 +2701,19 @@ export async function refreshGuildRosterApiBatch(
     };
   }
 
-  const shouldStart =
-    options.forceRoster || options.continueSync || !cached || !isFresh(cached, cacheTtlMs(settings));
+  const existingJob = await readGuildRosterSyncJob().catch(() => null);
+  const cacheFresh = Boolean(cached && isFresh(cached, cacheTtlMs(settings)));
+  const hasRunningJob = existingJob?.status === "running";
+  const shouldStart = Boolean(
+    options.forceRoster ||
+      options.continueSync ||
+      hasRunningJob ||
+      !cached ||
+      !cacheFresh,
+  );
   let job = shouldStart
     ? await getOrCreateGuildRosterSyncJob(options, cached, settings)
-    : await readGuildRosterSyncJob().catch(() => null);
+    : existingJob;
   const isActiveRequest = shouldStart || job?.status === "running";
 
   let rosterProgress = { refreshed: false, source: cached?.source || "Firebase records" };

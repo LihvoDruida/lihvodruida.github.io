@@ -64,9 +64,9 @@ function wait(ms: number) {
 }
 
 function phaseLabel(phase?: string) {
-  if (phase === "roster") return "Battle.net склад";
-  if (phase === "battlenet") return "Battle.net профілі";
-  if (phase === "raiderio") return "Raider.IO";
+  if (phase === "roster") return "оновлення списку";
+  if (phase === "battlenet") return "оновлення деталей";
+  if (phase === "raiderio") return "оновлення прогресу";
   if (phase === "completed") return "завершено";
   if (phase === "failed") return "помилка";
   return "очікування";
@@ -110,11 +110,7 @@ export default function GuildRosterRefreshButton({
     const runId = runIdRef.current + 1;
     runIdRef.current = runId;
     setState("loading");
-    setMessage(
-      clientDrivenSyncEnabled
-        ? "Запускаю покрокову синхронізацію з браузера без 45s timeout…"
-        : "Запускаю один серверний крок синхронізації…",
-    );
+    setMessage("Оновлюю склад у фоні. Поточні дані залишаються доступними.");
 
     try {
       let payload: GuildRosterRefreshPayload | null = null;
@@ -160,14 +156,16 @@ export default function GuildRosterRefreshButton({
           Number(sync?.totalMembers || payload.memberCount || 0),
         );
 
+        const processedTotal = Math.max(processedBattleNet, processedRio);
+        const remainingTotal = Math.max(battleNetLeft, rioLeft);
         setMessage(
-          `Синхронізація: ${phaseLabel(sync?.phase)}. Склад: ${payload.memberCount ?? 0}. Battle.net ${processedBattleNet}/${total}, Raider.IO ${processedRio}/${total}. Залишилось: Battle.net ${battleNetLeft}, Raider.IO ${rioLeft}.`,
+          `Оновлення: ${phaseLabel(sync?.phase)}. Оброблено ${processedTotal}/${total}. Залишилось приблизно ${remainingTotal}.`,
         );
 
         if (rioRateLimited) {
           const seconds = Number(rioReason.split(":")[1]?.replace("s", ""));
           setMessage(
-            `Raider.IO тимчасово обмежив запити. Дані, які вже отримані, збережено. Продовжити можна приблизно через ${Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds / 60)) : 15} хв.`,
+            `Зовнішній сервіс тимчасово обмежив запити. Уже отримані дані збережено. Продовжити можна приблизно через ${Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds / 60)) : 15} хв.`,
           );
           break;
         }
@@ -193,9 +191,9 @@ export default function GuildRosterRefreshButton({
       setMessage(
         payload?.hasMore
           ? clientDrivenSyncEnabled
-            ? `Досягнуто ліміт кроків (${maxSteps}). Дані збережені, але синхронізація ще має продовження. Збільш ліміт у налаштуваннях або натисни “Оновити склад” ще раз.`
-            : `Перший крок виконано: Firebase-записів персонажів ${payload?.memberCount ?? 0}. Увімкни клієнтський цикл або натискай повторно для продовження.`
-          : `Готово: склад синхронізовано, персонажів: ${payload?.memberCount ?? 0}.`,
+            ? `Досягнуто ліміт кроків (${maxSteps}). Частину даних уже збережено, натисни “Оновити склад” ще раз для продовження.`
+            : `Перший крок виконано: збережено ${payload?.memberCount ?? 0} персонажів. Натисни ще раз для продовження.`
+          : `Готово: склад оновлено, персонажів: ${payload?.memberCount ?? 0}.`,
       );
       notifyDashboardDataChanged({
         scope: "guild",
@@ -218,7 +216,7 @@ export default function GuildRosterRefreshButton({
     if (!autoStartMissingRecords || autoStartedRef.current || state !== "idle")
       return;
     autoStartedRef.current = true;
-    setMessage("Firebase-записів складу ще немає. Запускаю первинну синхронізацію…");
+    setMessage("Створюю перші записи складу. Поточна сторінка оновиться автоматично.");
     const timer = window.setTimeout(() => {
       void refreshRoster();
     }, 350);
