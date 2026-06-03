@@ -237,6 +237,7 @@ export async function refreshDashboardApiResource<T = unknown>(keyInput: string,
     return record.state;
   }).catch((error) => {
     const checkedAt = Date.now();
+    writeStoredCheckedAt(record.key, checkedAt);
     updateRecord(record, {
       status: (error as Error)?.name === "AbortError" ? "offline" : "error",
       error: error instanceof Error ? error.message : "Не вдалося оновити дані.",
@@ -304,8 +305,12 @@ export function useDashboardApiResource<T>(options: DashboardApiResourceOptions<
     };
   }, [getOptions, key]);
 
-  const refresh = useCallback((reason = "manual", refreshOptions: { force?: boolean } = {}) => {
-    return refreshDashboardApiResource<T>(key, { reason, force: refreshOptions.force });
+  const refresh = useCallback((reason = "manual", refreshOptions: { force?: boolean; scope?: DashboardDataScope } = {}) => {
+    return refreshDashboardApiResource<T>(key, {
+      reason,
+      force: refreshOptions.force,
+      scope: refreshOptions.scope,
+    });
   }, [key]);
 
   return { ...state, refresh };

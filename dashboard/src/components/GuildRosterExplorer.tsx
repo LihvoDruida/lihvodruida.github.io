@@ -3,7 +3,6 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type CSSProperties,
   type ChangeEvent,
@@ -115,6 +114,7 @@ function formatRosterDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Europe/Kyiv",
   }).format(date);
 }
 
@@ -515,16 +515,6 @@ export default function GuildRosterExplorer({
       },
     }),
   });
-  const forcedInitialRefreshRef = useRef(false);
-
-  useEffect(() => {
-    if (forcedInitialRefreshRef.current) return;
-    forcedInitialRefreshRef.current = true;
-    const timer = window.setTimeout(() => {
-      void rosterResource.refresh("guild-page-open", { force: true });
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [rosterResource.refresh]);
 
   const liveMembers = rosterResource.data.members.length
     ? rosterResource.data.members

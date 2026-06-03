@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import type { GuildRosterMember, GuildRosterStats } from "@/lib/guildRoster";
 import { useDashboardApiResource } from "@/lib/dashboardBackgroundApi";
 
@@ -24,6 +24,7 @@ function formatDate(value?: string | null) {
   return new Intl.DateTimeFormat("uk-UA", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Europe/Kyiv",
   }).format(date);
 }
 
@@ -64,17 +65,8 @@ export default function GuildRosterLiveHeroStats({
         };
       },
     }),
+    refreshOnMount: false,
   });
-  const forcedInitialRefreshRef = useRef(false);
-
-  useEffect(() => {
-    if (forcedInitialRefreshRef.current) return;
-    forcedInitialRefreshRef.current = true;
-    const timer = window.setTimeout(() => {
-      void rosterResource.refresh("guild-hero-open", { force: true });
-    }, 650);
-    return () => window.clearTimeout(timer);
-  }, [rosterResource.refresh]);
 
   const liveMembers = rosterResource.data.members.length
     ? rosterResource.data.members

@@ -13,6 +13,13 @@ type ClientErrorPayload = {
     | "manual";
   pathname: string;
   userAgent: string;
+  filename?: string;
+};
+
+type NormalizedClientError = {
+  message: string;
+  stack: string;
+  filename: string;
 };
 
 function errorMessage(value: unknown) {
@@ -30,14 +37,69 @@ function errorStack(value: unknown) {
   return "";
 }
 
-export function isIgnorableClientError(message: string) {
-  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(
-    message,
+function normalizeError(
+  value: unknown,
+  event?: ErrorEvent | PromiseRejectionEvent,
+): NormalizedClientError {
+  const message = errorMessage(value).slice(0, 500);
+  const stack = errorStack(value).slice(0, 4000);
+  const filename =
+    event && "filename" in event && typeof event.filename === "string"
+      ? event.filename.slice(0, 500)
+      : "";
+
+  return { message, stack, filename };
+}
+
+function isExtensionSource(value: string) {
+  return /(?:^|\s|\()(?:(?:chrome|moz|safari-web)-extension):\/\//i.test(value);
+}
+
+export function isIgnorableClientError(
+  message: string,
+  stack = "",
+  filename = "",
+) {
+  const combined = `${message}\n${stack}\n${filename}`;
+
+  return (
+    /Could not establish connection\. Receiving end does not exist/i.test(
+      message,
+    ) ||
+    /A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received/i.test(
+      message,
+    ) ||
+    /The message port closed before a response was received/i.test(message) ||
+    /Unchecked runtime\.lastError/i.test(message) ||
+    /Extension context invalidated/i.test(message) ||
+    /ResizeObserver loop (?:completed with undelivered notifications|limit exceeded)/i.test(
+      message,
+    ) ||
+    /Connection closed\.?|Error in input stream/i.test(message) ||
+    /Script error\.?/i.test(message) ||
+    isExtensionSource(combined)
   );
 }
 
 export function isTransientClientStreamError(message: string) {
   return /Connection closed\.?|Error in input stream/i.test(message);
+}
+
+function shouldShowVisibleToast(normalized: NormalizedClientError) {
+  if (
+    isIgnorableClientError(
+      normalized.message,
+      normalized.stack,
+      normalized.filename,
+    )
+  )
+    return false;
+
+  // Do not scare users with a global error toast for expected background API
+  // refresh failures. Components that own those requests render local status.
+  if (/Dashboard background API/i.test(normalized.message)) return false;
+
+  return true;
 }
 
 async function reportClientError(payload: ClientErrorPayload) {
@@ -62,12 +124,16 @@ export function sendClientErrorReport(
   source: ClientErrorPayload["source"] = "manual",
 ) {
   if (typeof window === "undefined") return;
-  const message = errorMessage(error).slice(0, 500);
-  if (!message || isIgnorableClientError(message)) return;
+  const normalized = normalizeError(error);
+  if (
+    !normalized.message ||
+    isIgnorableClientError(normalized.message, normalized.stack)
+  )
+    return;
 
   void reportClientError({
-    message,
-    stack: errorStack(error).slice(0, 4000),
+    message: normalized.message,
+    stack: normalized.stack,
     source,
     pathname: window.location.pathname + window.location.search,
     userAgent: navigator.userAgent,
@@ -78,16 +144,41 @@ export default function ClientErrorReporter() {
   const reported = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    function emit(error: unknown, source: ClientErrorPayload["source"]) {
-      const message = errorMessage(error).slice(0, 500);
-      if (!message || isIgnorableClientError(message)) return;
+    function emit(
+      error: unknown,
+      source: ClientErrorPayload["source"],
+      event?: ErrorEvent | PromiseRejectionEvent,
+    ) {
+      const normalized = normalizeError(error, event);
+      if (!normalized.message) return;
 
-      const key = `${source}:${window.location.pathname}:${message}`;
+      if (
+        isIgnorableClientError(
+          normalized.message,
+          normalized.stack,
+          normalized.filename,
+        )
+      ) {
+        event?.preventDefault();
+        return;
+      }
+
+      const key = `${source}:${window.location.pathname}:${normalized.message}`;
       if (reported.current.has(key)) return;
       reported.current.add(key);
       window.setTimeout(() => reported.current.delete(key), 60_000);
 
-      sendClientErrorReport(error, source);
+      void reportClientError({
+        message: normalized.message,
+        stack: normalized.stack,
+        source,
+        pathname: window.location.pathname + window.location.search,
+        userAgent: navigator.userAgent,
+        filename: normalized.filename,
+      });
+
+      if (!shouldShowVisibleToast(normalized)) return;
+
       dispatchDashboardToast({
         tone: "error",
         title: "Технічний збій",
@@ -98,16 +189,11 @@ export default function ClientErrorReporter() {
     }
 
     function onError(event: ErrorEvent) {
-      emit(event.error || event.message, "window-error");
+      emit(event.error || event.message, "window-error", event);
     }
 
     function onUnhandledRejection(event: PromiseRejectionEvent) {
-      const message = errorMessage(event.reason);
-      if (isIgnorableClientError(message)) {
-        event.preventDefault();
-        return;
-      }
-      emit(event.reason, "unhandled-rejection");
+      emit(event.reason, "unhandled-rejection", event);
     }
 
     window.addEventListener("error", onError);

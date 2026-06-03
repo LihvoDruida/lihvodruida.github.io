@@ -27,9 +27,18 @@ function cleanStack(value: unknown) {
     .slice(0, 4000);
 }
 
-function isIgnorableClientErrorMessage(message: string) {
-  return /Could not establish connection\. Receiving end does not exist|Extension context invalidated|ResizeObserver loop completed with undelivered notifications|Connection closed\.?|Error in input stream/i.test(
-    message,
+function isIgnorableClientErrorMessage(message: string, stack = "", filename = "") {
+  const combined = `${message}\n${stack}\n${filename}`;
+  return (
+    /Could not establish connection\. Receiving end does not exist/i.test(message) ||
+    /A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received/i.test(message) ||
+    /The message port closed before a response was received/i.test(message) ||
+    /Unchecked runtime\.lastError/i.test(message) ||
+    /Extension context invalidated/i.test(message) ||
+    /ResizeObserver loop (?:completed with undelivered notifications|limit exceeded)/i.test(message) ||
+    /Connection closed\.?|Error in input stream/i.test(message) ||
+    /Script error\.?/i.test(message) ||
+    /(?:^|\s|\()(?:(?:chrome|moz|safari-web)-extension):\/\//i.test(combined)
   );
 }
 
@@ -61,7 +70,9 @@ export async function POST(request: NextRequest) {
         { ok: false, error: "Empty client error." },
         { status: 400, headers: noStoreHeaders() },
       );
-    if (isIgnorableClientErrorMessage(message)) {
+    const stack = cleanStack(data?.stack);
+    const filename = clean(data?.filename, 500);
+    if (isIgnorableClientErrorMessage(message, stack, filename)) {
       return NextResponse.json(
         { ok: true, ignored: true },
         { headers: noStoreHeaders() },
@@ -75,7 +86,8 @@ export async function POST(request: NextRequest) {
       source: clean(data?.source, 80) || "client",
       pathname: clean(data?.pathname, 240),
       userAgent: clean(data?.userAgent, 240),
-      stack: cleanStack(data?.stack),
+      stack,
+      filename,
       ip,
     };
 
