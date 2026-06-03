@@ -15,9 +15,11 @@ type GuildRefreshBody = {
   force?: unknown;
   continue?: unknown;
   includeMembers?: unknown;
+  includeStats?: unknown;
   debug?: unknown;
   cacheOnly?: unknown;
   soft?: unknown;
+  bypassCache?: unknown;
 };
 
 function truthy(value: unknown) {
@@ -49,9 +51,11 @@ export async function POST(request: NextRequest) {
     const forceRefresh = truthy(body?.force);
     const continueSync = truthy(body?.continue);
     const includeMembers = body?.includeMembers === undefined ? false : truthy(body.includeMembers);
+    const includeStats = truthy(body?.includeStats) || includeMembers;
     const debugRequested = truthy(body?.debug) || request.headers.get("x-dashboard-debug") === "1";
     const cacheOnly = truthy(body?.cacheOnly);
     const softSync = truthy(body?.soft);
+    const bypassCache = truthy(body?.bypassCache) || cacheOnly || softSync;
     const apiSettings = await getDashboardApiSettings().catch(() => null);
     const debugAuditEnabled = Boolean(debugRequested || apiSettings?.dashboardApiDebugAuditLogs);
     const roster = await refreshGuildRosterApiBatch({
@@ -59,6 +63,7 @@ export async function POST(request: NextRequest) {
       continueSync,
       cacheOnly,
       softSync,
+      bypassCache,
     });
 
     const warningReasons = [
@@ -83,8 +88,10 @@ export async function POST(request: NextRequest) {
         forceRefresh,
         continueSync,
         includeMembers,
+        includeStats,
         cacheOnly,
         softSync,
+        bypassCache,
         refresh: roster.refresh,
         warningReasons,
         error: syncError,
@@ -104,7 +111,8 @@ export async function POST(request: NextRequest) {
       memberCount: roster.members.length,
       updatedAt: roster.stats.updatedAt,
       source: roster.source,
-      ...(includeMembers ? { members: roster.members, stats: roster.stats } : {}),
+      ...(includeStats ? { stats: roster.stats } : {}),
+      ...(includeMembers ? { members: roster.members } : {}),
       error: roster.error || syncError || null,
       refresh: roster.refresh,
       hasMore:

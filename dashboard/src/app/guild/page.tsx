@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import AppProblemScreen from "@/components/AppProblemScreen";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import GuildRosterExplorer from "@/components/GuildRosterExplorer";
+import GuildRosterLiveHeroStats from "@/components/GuildRosterLiveHeroStats";
 import GuildRosterRefreshButton from "@/components/GuildRosterRefreshButton";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
 import { loadGuildRosterData } from "@/lib/guildRoster";
@@ -22,16 +23,6 @@ export const metadata = buildPageMetadata({
   path: "/guild",
   keywords: ["склад гільдії", "рейдери WoW", "Raider.IO", "item level"],
 });
-
-function formatDate(value?: string | null) {
-  if (!value) return "оновлення очікується";
-  const date = new Date(value.replace(" ", "T"));
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("uk-UA", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
 
 export default async function GuildRosterPage() {
   if (!(await isAuthenticated())) {
@@ -137,51 +128,12 @@ export default async function GuildRosterPage() {
           </div>
 
           <div className="guild-hero-side" aria-label="Огляд складу гільдії">
-            <div className="guild-hero-summary">
-              <section className="guild-hero-summary__block">
-                <span className="guild-hero-summary__label">ГІЛЬДІЯ</span>
-                <strong>{roster.stats.guildName}</strong>
-                <p>{roster.stats.guildRealm}</p>
-              </section>
-
-              <section className="guild-hero-summary__block">
-                <span className="guild-hero-summary__label">СКЛАД</span>
-                <strong>
-                  {roster.stats.memberCount.toLocaleString("uk-UA")} персонажів
-                </strong>
-                <p>Оновлено: {formatDate(roster.stats.updatedAt)}</p>
-              </section>
-            </div>
-
-            <div
-              className="guild-hero-stats"
-              aria-label="Коротка статистика складу"
-            >
-              <div className="guild-hero-stat-card">
-                <span>СЕР. RIO</span>
-                <strong>
-                  {Math.round(roster.stats.averageRioAll || 0).toLocaleString(
-                    "uk-UA",
-                  )}
-                </strong>
-              </div>
-              <div className="guild-hero-stat-card">
-                <span>СЕР. ILVL</span>
-                <strong>
-                  {Math.round(
-                    roster.stats.averageItemLevel || 0,
-                  ).toLocaleString("uk-UA")}
-                </strong>
-              </div>
-              <div className="guild-hero-stat-card">
-                <span>МАКС. RIO</span>
-                <strong>
-                  {Math.round(roster.stats.maxRioAll || 0).toLocaleString(
-                    "uk-UA",
-                  )}
-                </strong>
-              </div>
-            </div>
+            <GuildRosterLiveHeroStats
+              members={members}
+              stats={roster.stats}
+              source={roster.source}
+              error={roster.error}
+            />
 
             <div className="guild-hero-actions">
               <GuildRosterRefreshButton

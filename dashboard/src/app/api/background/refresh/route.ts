@@ -71,7 +71,7 @@ async function resolveIntegrationStatus() {
 }
 
 async function resolveGuildRoster() {
-  const roster = await loadStoredGuildRosterData();
+  const roster = await loadStoredGuildRosterData({ bypassCache: true });
   return {
     memberCount: roster.members.length,
     updatedAt: roster.stats.updatedAt,

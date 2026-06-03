@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type ChangeEvent,
@@ -494,12 +495,12 @@ export default function GuildRosterExplorer({
     key: "guild-roster",
     scope: "guild",
     initialData: initialRoster,
-    minIntervalMs: 30 * 60 * 1000,
+    minIntervalMs: 10 * 60 * 1000,
     request: () => ({
       url: "/api/guild/refresh",
       method: "POST",
       headers: { "X-Dashboard-Action": "guild-roster-cache-sync" },
-      json: { soft: true, includeMembers: true },
+      json: { cacheOnly: true, includeMembers: true, bypassCache: true },
       select: (payload) => {
         const data = payload as Partial<GuildRosterLivePayload> | null;
         return {
@@ -514,6 +515,17 @@ export default function GuildRosterExplorer({
       },
     }),
   });
+  const forcedInitialRefreshRef = useRef(false);
+
+  useEffect(() => {
+    if (forcedInitialRefreshRef.current) return;
+    forcedInitialRefreshRef.current = true;
+    const timer = window.setTimeout(() => {
+      void rosterResource.refresh("guild-page-open", { force: true });
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [rosterResource.refresh]);
+
   const liveMembers = rosterResource.data.members.length
     ? rosterResource.data.members
     : members;

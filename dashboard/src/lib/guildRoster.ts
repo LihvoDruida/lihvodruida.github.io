@@ -19,7 +19,13 @@ import {
 import { getGuildRosterSyncSettings } from "@/lib/dashboardApiSettings";
 import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
 import { publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
-import { resilientRead, resilientWrite, getRuntimeCachedValue, runtimeCircuitOpen } from "@/lib/runtimeResilience";
+import {
+  clearRuntimeCachedValue,
+  getRuntimeCachedValue,
+  resilientRead,
+  resilientWrite,
+  runtimeCircuitOpen,
+} from "@/lib/runtimeResilience";
 import {
   getFirebaseAdminDb,
   hasFirebaseProfileConfig,
@@ -36,6 +42,13 @@ import {
 } from "@/lib/wowCharacters";
 export type GuildScoreSegment = "all" | "dps" | "healer" | "tank";
 export type GuildRosterRole = "tank" | "healer" | "dps" | "unknown";
+export type GuildRosterExternalSource = "battleNet" | "raiderIo";
+
+export type GuildRosterExternalError = {
+  message: string;
+  failedAt: string;
+  nextRetryAt?: string | null;
+};
 
 export type GuildRosterMember = {
   key: string;
@@ -58,6 +71,7 @@ export type GuildRosterMember = {
   profileUrl: string | null;
   itemLevel: number;
   battleNetUpdatedAt?: string | null;
+  externalErrors?: Partial<Record<GuildRosterExternalSource, GuildRosterExternalError>>;
   scores: Record<GuildScoreSegment, number>;
   scoreColors: Partial<Record<GuildScoreSegment, string>>;
   hasRaiderIo: boolean;
@@ -86,6 +100,7 @@ export type GuildRosterLoadResult = {
 
 export type GuildRosterLoadOptions = {
   forceRefresh?: boolean;
+  bypassCache?: boolean;
 };
 
 export type GuildRosterSyncPhase =
@@ -576,6 +591,65 @@ function updatedSince(value: string | null | undefined, since?: string | null) {
   return valueTime + 2_000 >= sinceTime;
 }
 
+function memberFailureCooldownMs() {
+  return (
+    Math.max(
+      300,
+      Math.min(
+        86_400,
+        readIntegerEnv("GUILD_ROSTER_MEMBER_FAILURE_COOLDOWN_SECONDS", 1_800, 300, 86_400),
+      ),
+    ) * 1000
+  );
+}
+
+function externalFailureActive(
+  member: GuildRosterMember,
+  source: GuildRosterExternalSource,
+) {
+  const error = member.externalErrors?.[source];
+  if (!error) return false;
+
+  const nextRetryAt = Date.parse(error.nextRetryAt || "");
+  if (Number.isFinite(nextRetryAt) && nextRetryAt > Date.now()) return true;
+
+  const failedAt = Date.parse(error.failedAt || "");
+  return Number.isFinite(failedAt) && Date.now() - failedAt < memberFailureCooldownMs();
+}
+
+function withExternalFailure(
+  member: GuildRosterMember,
+  source: GuildRosterExternalSource,
+  message: string,
+  failedAt: string,
+): GuildRosterMember {
+  const nextRetryAt = new Date(Date.parse(failedAt) + memberFailureCooldownMs()).toISOString();
+  return stripUndefined({
+    ...member,
+    externalErrors: {
+      ...(member.externalErrors || {}),
+      [source]: {
+        message: cleanText(message, "external refresh failed").slice(0, 500),
+        failedAt,
+        nextRetryAt,
+      },
+    },
+  });
+}
+
+function withoutExternalFailure(
+  member: GuildRosterMember,
+  source: GuildRosterExternalSource,
+): GuildRosterMember {
+  if (!member.externalErrors?.[source]) return member;
+  const nextErrors = { ...(member.externalErrors || {}) };
+  delete nextErrors[source];
+  return stripUndefined({
+    ...member,
+    externalErrors: Object.keys(nextErrors).length ? nextErrors : undefined,
+  });
+}
+
 function battleNetSnapshotFreshForBatch(
   member: GuildRosterMember,
   options: {
@@ -584,6 +658,7 @@ function battleNetSnapshotFreshForBatch(
     jobRequestedAt?: string | null;
   } = {},
 ) {
+  if (externalFailureActive(member, "battleNet")) return true;
   if (options.force) {
     return updatedSince(member.battleNetUpdatedAt, options.jobRequestedAt);
   }
@@ -598,6 +673,7 @@ function raiderIoSnapshotFreshForBatch(
     jobRequestedAt?: string | null;
   } = {},
 ) {
+  if (externalFailureActive(member, "raiderIo")) return true;
   if (options.force) {
     return updatedSince(member.raiderIoUpdatedAt, options.jobRequestedAt);
   }
@@ -761,6 +837,7 @@ function mergePreviousMemberSnapshot(
     itemLevel: member.itemLevel || previous.itemLevel || 0,
     battleNetUpdatedAt:
       member.battleNetUpdatedAt || previous.battleNetUpdatedAt || null,
+    externalErrors: member.externalErrors || previous.externalErrors || undefined,
     scores: nextScores,
     scoreColors: nextScoreColors,
     hasRaiderIo:
@@ -796,8 +873,9 @@ function applyBattleNetCharacterSnapshot(
   }
 
   const role = normalizeRole(snapshot.activeSpecRole);
+  const cleanMember = withoutExternalFailure(member, "battleNet");
   return {
-    ...member,
+    ...cleanMember,
     name: cleanText(snapshot.name) || member.name,
     realmSlug: cleanText(snapshot.realmSlug) || member.realmSlug,
     realmName: cleanText(snapshot.realmName || member.realmName).toUpperCase(),
@@ -831,8 +909,10 @@ function applyRaiderIoPayload(
   const scores = buildScores(raider);
   const profileUrl = cleanText(raider.profile_url) || member.profileUrl || null;
 
+  const cleanMember = withoutExternalFailure(member, "raiderIo");
+
   return {
-    ...member,
+    ...cleanMember,
     // Raider.IO is intentionally limited to Mythic+ score and Raider.IO link.
     // Battle.net remains the source of truth for class/spec/role/avatar/ilvl.
     profileUrl,
@@ -975,6 +1055,24 @@ function buildStats(input: {
     guildFaction: normalizeFaction(faction.type || faction.name),
     profileUrl:
       cleanText(input.raiderGuild?.profile_url || guild.profile_url) || null,
+    maxRioAll: Math.max(0, ...members.map((member) => member.scores.all)),
+    maxItemLevel: Math.max(0, ...members.map((member) => member.itemLevel)),
+    averageRioAll: average(members.map((member) => member.scores.all)),
+    averageItemLevel: average(members.map((member) => member.itemLevel)),
+  };
+}
+
+
+
+function recomputeGuildRosterStats(
+  base: GuildRosterStats,
+  members: GuildRosterMember[],
+  updatedAt?: string | null,
+): GuildRosterStats {
+  return {
+    ...base,
+    updatedAt: updatedAt || base.updatedAt || null,
+    memberCount: members.length,
     maxRioAll: Math.max(0, ...members.map((member) => member.scores.all)),
     maxItemLevel: Math.max(0, ...members.map((member) => member.itemLevel)),
     averageRioAll: average(members.map((member) => member.scores.all)),
@@ -1416,6 +1514,10 @@ function normalizeMemberRecord(data: any): GuildRosterMember | null {
     profileUrl: cleanText(raw.profileUrl) || null,
     itemLevel: Math.round(parsePositiveNumber(raw.itemLevel) || 0),
     battleNetUpdatedAt: cleanText(raw.battleNetUpdatedAt) || null,
+    externalErrors:
+      raw.externalErrors && typeof raw.externalErrors === "object"
+        ? raw.externalErrors
+        : undefined,
     scores,
     scoreColors: raw.scoreColors && typeof raw.scoreColors === "object" ? raw.scoreColors : {},
     hasRaiderIo: Boolean(raw.hasRaiderIo || raw.profileUrl || hasUsefulScores(scores)),
@@ -1431,46 +1533,46 @@ function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[])
     guildName: data?.guildName,
   });
   const updatedAt = cleanText(data?.updatedAtIso || data?.cachedAt) || null;
-  return stripUndefined({
-    members: sortMembers(members),
-    stats: data?.stats || buildStats({
-      guildSummary: {
-        name: cleanText(data?.guildName) || config.guildName,
-        realm: {
-          slug: cleanText(data?.realmSlug) || config.realmSlug,
-          name: cleanText(data?.realmName) || config.realmSlug,
-        },
-        faction: { type: cleanText(data?.guildFaction) || "Alliance" },
+  const sortedMembers = sortMembers(members);
+  const fallbackStats = buildStats({
+    guildSummary: {
+      name: cleanText(data?.guildName) || config.guildName,
+      realm: {
+        slug: cleanText(data?.realmSlug) || config.realmSlug,
+        name: cleanText(data?.realmName) || config.realmSlug,
       },
-      raiderGuild: null,
-      members,
-      updatedAt: updatedAt || new Date().toISOString(),
-      configuredGuildName: config.guildName,
-      configuredRealmSlug: config.realmSlug,
-    }),
+      faction: { type: cleanText(data?.guildFaction) || "Alliance" },
+    },
+    raiderGuild: null,
+    members: sortedMembers,
+    updatedAt: updatedAt || new Date().toISOString(),
+    configuredGuildName: config.guildName,
+    configuredRealmSlug: config.realmSlug,
+  });
+  const stats = recomputeGuildRosterStats(
+    data?.stats || fallbackStats,
+    sortedMembers,
+    updatedAt || fallbackStats.updatedAt,
+  );
+
+  return stripUndefined({
+    members: sortedMembers,
+    stats,
     source: cleanText(data?.source) || "firebase-records",
     error: typeof data?.error === "string" ? data.error : null,
     cachedAt: cleanText(data?.cachedAt || data?.updatedAtIso) || new Date().toISOString(),
     authoritativeRoster: true,
     fingerprint: cleanText(data?.fingerprint) || guildRosterFingerprint({
-      members,
-      stats: data?.stats || buildStats({
-        guildSummary: {
-          name: cleanText(data?.guildName) || config.guildName,
-          realm: {
-            slug: cleanText(data?.realmSlug) || config.realmSlug,
-            name: cleanText(data?.realmName) || config.realmSlug,
-          },
-          faction: { type: cleanText(data?.guildFaction) || "Alliance" },
-        },
-        raiderGuild: null,
-        members,
-        updatedAt: updatedAt || new Date().toISOString(),
-        configuredGuildName: config.guildName,
-        configuredRealmSlug: config.realmSlug,
-      }),
+      members: sortedMembers,
+      stats,
     }),
   } satisfies CachedRoster);
+}
+
+function guildRosterRecordsRuntimeCacheKey(
+  settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null,
+) {
+  return `guild-roster-records:${guildRecordsDocId(settings)}`;
 }
 
 async function readGuildRosterRecords(
@@ -1483,11 +1585,12 @@ async function readGuildRosterRecords(
     | "cacheReadTtlMs"
     | "readLegacyMemberDocs"
   > | null,
+  options: { bypassCache?: boolean } = {},
 ): Promise<CachedRoster | null> {
   if (!hasFirebaseProfileConfig()) return null;
 
   const recordsDocId = guildRecordsDocId(settings);
-  const cacheKey = `guild-roster-records:${recordsDocId}`;
+  const cacheKey = guildRosterRecordsRuntimeCacheKey(settings);
 
   return resilientRead<CachedRoster | null>(
     cacheKey,
@@ -1529,6 +1632,7 @@ async function readGuildRosterRecords(
       circuitTtlMs: 300_000,
       fallback: () => getRuntimeCachedValue<CachedRoster | null>(cacheKey, 24 * 60 * 60 * 1000) || null,
       logEvent: "guild.roster.records_read_failed",
+      bypassCache: Boolean(options.bypassCache),
     },
   );
 }
@@ -1709,8 +1813,11 @@ async function writeCloudflareCachedRoster(
   });
 }
 
-async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheTtlSeconds" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null): Promise<CachedRoster | null> {
-  if (globalThis.__mistblossomGuildRosterCache &&
+async function readCachedRoster(
+  settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName" | "cacheTtlSeconds" | "cacheReadTtlMs" | "readLegacyMemberDocs"> | null,
+  options: { bypassCache?: boolean } = {},
+): Promise<CachedRoster | null> {
+  if (!options.bypassCache && globalThis.__mistblossomGuildRosterCache &&
     isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache) &&
     isFresh(globalThis.__mistblossomGuildRosterCache, Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))))) {
     return globalThis.__mistblossomGuildRosterCache;
@@ -1719,13 +1826,13 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
   // Display priority is Firebase records: the site reads the last authoritative
   // stored roster first. Cloudflare KV is a fallback/offload layer, not the
   // source of truth for the visible guild roster.
-  const records = await readGuildRosterRecords(settings).catch(() => null);
+  const records = await readGuildRosterRecords(settings, { bypassCache: options.bypassCache }).catch(() => null);
   if (records) {
     void writeCloudflareCachedRoster(records, settings).catch(() => null);
     return records;
   }
 
-  const cloudflare = await readCloudflareCachedRoster(settings).catch(() => null);
+  const cloudflare = options.bypassCache ? null : await readCloudflareCachedRoster(settings).catch(() => null);
   if (cloudflare) return cloudflare;
 
   if (isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache))
@@ -1774,6 +1881,7 @@ async function writeCachedRoster(
   } satisfies CachedRoster);
 
   globalThis.__mistblossomGuildRosterCache = cache;
+  clearRuntimeCachedValue(guildRosterRecordsRuntimeCacheKey(options.settings));
   await writeCloudflareCachedRoster(cache, options.settings).catch(() => null);
 
   if (hasFirebaseProfileConfig()) {
@@ -2094,17 +2202,24 @@ async function enrichGuildMembersWithBattleNetStep(
       checked += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error || "unknown");
-      updates.set(member.key, { ...member, battleNetUpdatedAt: updatedAt });
+      updates.set(member.key, {
+        ...withExternalFailure(member, "battleNet", message, updatedAt),
+        battleNetUpdatedAt: updatedAt,
+      });
       changedMemberKeys.add(member.key);
       checked += 1;
-      if (options.settings?.warningAuditLogs !== false) {
+      if (
+        options.settings?.warningAuditLogs !== false &&
+        shouldLogMemberWarning(`battlenet:${member.key}:${message}`, memberFailureCooldownMs())
+      ) {
         await recordDashboardSystemLog("warning", "guild.roster.battlenet.member_failed", {
-          summary: `Battle.net профіль не оновив ${member.name}`,
+          summary: `Battle.net профіль не оновив ${member.name}. Повтор буде після cooldown, щоб не спамити логами.`,
           character: member.name,
           realmSlug: member.realmSlug,
           region: member.region,
+          nextRetryAt: new Date(Date.parse(updatedAt) + memberFailureCooldownMs()).toISOString(),
           error: message,
-        }, { persist: true });
+        }, { persist: false });
       }
     }
   }
@@ -2208,17 +2323,24 @@ async function enrichGuildMembersWithRaiderIoStep(
       }
 
       const message = error instanceof Error ? error.message : String(error || "unknown");
-      updates.set(member.key, { ...member, raiderIoUpdatedAt: updatedAt });
+      updates.set(member.key, {
+        ...withExternalFailure(member, "raiderIo", message, updatedAt),
+        raiderIoUpdatedAt: updatedAt,
+      });
       changedMemberKeys.add(member.key);
       checked += 1;
-      if (options.settings?.warningAuditLogs !== false) {
+      if (
+        options.settings?.warningAuditLogs !== false &&
+        shouldLogMemberWarning(`raiderio:${member.key}:${message}`, memberFailureCooldownMs())
+      ) {
         await recordDashboardSystemLog("warning", "guild.roster.raiderio.member_failed", {
-          summary: `Raider.IO не оновив ${member.name}`,
+          summary: `Raider.IO не оновив ${member.name}. Повтор буде після cooldown, щоб не спамити логами.`,
           character: member.name,
           realmSlug: member.realmSlug,
           region: member.region,
+          nextRetryAt: new Date(Date.parse(updatedAt) + memberFailureCooldownMs()).toISOString(),
           error: message,
-        }, { persist: true });
+        }, { persist: false });
       }
     }
   }
@@ -2272,8 +2394,10 @@ function normalizeSyncJob(job: GuildRosterSyncJob): GuildRosterSyncJob {
   };
 }
 
-async function readGuildRosterSyncJob(): Promise<GuildRosterSyncJob | null> {
-  if (globalThis.__mistblossomGuildRosterSyncJob)
+async function readGuildRosterSyncJob(
+  options: { bypassCache?: boolean } = {},
+): Promise<GuildRosterSyncJob | null> {
+  if (!options.bypassCache && globalThis.__mistblossomGuildRosterSyncJob)
     return normalizeSyncJob(globalThis.__mistblossomGuildRosterSyncJob);
   const doc = syncJobDoc();
   if (!doc) return null;
@@ -2293,6 +2417,7 @@ async function readGuildRosterSyncJob(): Promise<GuildRosterSyncJob | null> {
       circuitTtlMs: 90_000,
       fallback: () => globalThis.__mistblossomGuildRosterSyncJob ? normalizeSyncJob(globalThis.__mistblossomGuildRosterSyncJob) : null,
       logEvent: "guild.roster.sync_job_read_failed",
+      bypassCache: Boolean(options.bypassCache),
     },
   );
 }
@@ -2361,7 +2486,7 @@ async function getOrCreateGuildRosterSyncJob(
   cached: CachedRoster | null,
   settings?: GuildRosterRuntimeSettings | null,
 ) {
-  const existing = await readGuildRosterSyncJob().catch(() => null);
+  const existing = await readGuildRosterSyncJob({ bypassCache: Boolean(options.forceRoster || options.continueSync) }).catch(() => null);
   const cacheNeedsRosterRefresh = !cached || !isFresh(cached, cacheTtlMs(settings));
   const shouldRefreshRoster = Boolean(
     options.forceRoster || cacheNeedsRosterRefresh,
@@ -2528,7 +2653,7 @@ async function advanceGuildRosterSyncStep(
         currentCache = await writeCachedRoster(
           {
             members: sortMembers(step.members),
-            stats: { ...currentCache.stats, updatedAt: nowIso() },
+            stats: recomputeGuildRosterStats(currentCache.stats, step.members, nowIso()),
             source: "battle-net-profile-step",
             error: currentCache.error || null,
           },
@@ -2591,7 +2716,7 @@ async function advanceGuildRosterSyncStep(
         currentCache = await writeCachedRoster(
           {
             members: sortMembers(step.members),
-            stats: { ...currentCache.stats, updatedAt: nowIso() },
+            stats: recomputeGuildRosterStats(currentCache.stats, step.members, nowIso()),
             source: "raider-io-step",
             error: currentCache.error || null,
           },
@@ -2679,13 +2804,15 @@ export async function refreshGuildRosterApiBatch(
     continueSync?: boolean;
     cacheOnly?: boolean;
     softSync?: boolean;
+    bypassCache?: boolean;
   } = {},
 ): Promise<GuildRosterLoadResult & { refresh: GuildRosterRefreshProgress }> {
   const settings = await getGuildRosterSyncSettings().catch(() => null);
-  let cached = await readCachedRoster(settings).catch(() => null);
+  const bypassCache = Boolean(options.bypassCache || options.cacheOnly || options.continueSync || options.forceRoster || options.softSync);
+  let cached = await readCachedRoster(settings, { bypassCache }).catch(() => null);
 
   if (options.cacheOnly) {
-    const existingJob = await readGuildRosterSyncJob().catch(() => null);
+    const existingJob = await readGuildRosterSyncJob({ bypassCache: Boolean(options.cacheOnly || options.softSync) }).catch(() => null);
     const activeJob = existingJob?.status === "running" ? existingJob : null;
     const base = cached
       ? publicFromCache(cached)
@@ -2702,7 +2829,7 @@ export async function refreshGuildRosterApiBatch(
     };
   }
 
-  const existingJob = await readGuildRosterSyncJob().catch(() => null);
+  const existingJob = await readGuildRosterSyncJob({ bypassCache: Boolean(options.forceRoster || options.continueSync || options.softSync) }).catch(() => null);
   const cacheFresh = Boolean(cached && isFresh(cached, cacheTtlMs(settings)));
   const hasRunningJob = existingJob?.status === "running";
   const shouldStart = Boolean(
@@ -2757,9 +2884,11 @@ export async function refreshGuildRosterApiBatch(
   };
 }
 
-export async function loadStoredGuildRosterData(): Promise<GuildRosterLoadResult> {
+export async function loadStoredGuildRosterData(
+  options: { bypassCache?: boolean } = {},
+): Promise<GuildRosterLoadResult> {
   const settings = await getGuildRosterSyncSettings().catch(() => null);
-  const cached = await readCachedRoster(settings).catch(() => null);
+  const cached = await readCachedRoster(settings, { bypassCache: options.bypassCache }).catch(() => null);
   if (cached) return publicFromCache(cached);
 
   return emptyGuildRosterFallback("У Firebase ще немає нормалізованих записів складу гільдії.");
@@ -2770,7 +2899,7 @@ export async function loadGuildRosterData(
 ): Promise<GuildRosterLoadResult> {
   void options;
   const settings = await getGuildRosterSyncSettings().catch(() => null);
-  const cached = await readCachedRoster(settings).catch(() => null);
+  const cached = await readCachedRoster(settings, { bypassCache: options.bypassCache }).catch(() => null);
 
   if (cached) return publicFromCache(cached);
 
