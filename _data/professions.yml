@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 04:15:25'
+  updated_at: '2026-06-03 12:43:44'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1351,6 +1351,23 @@ characters:
       - name: Midnight Fishing
         learned_points: 31
         max_points: 300
+- name: Sandora
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Sandora
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 8
+        max_points: 100
 - name: Regin
   region: eu
   realm: doomhammer
@@ -7782,7 +7799,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 18
+        learned_points: 19
         max_points: 100
     secondaries: []
 - name: Рейла
@@ -7833,20 +7850,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Sandora
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-  professions:
-    primaries: []
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Fishing
-        learned_points: 8
-        max_points: 100
