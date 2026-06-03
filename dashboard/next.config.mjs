@@ -7,8 +7,8 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typescript: {
-    // The production build runs `npm run typecheck` before Next starts.
-    // This avoids a second Next.js TypeScript worker pass that can stall in CI.
+    // `npm run build` runs `npm run typecheck` before Next starts.
+    // Avoid a second TypeScript worker pass in Vercel builds.
     ignoreBuildErrors: true,
   },
   experimental: {

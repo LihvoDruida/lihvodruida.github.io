@@ -407,7 +407,7 @@ export async function fetchBattleNetGuildRankMap(regionInput?: string | null): P
   const roster = await bnetFetch(
     accessToken,
     `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
-    { namespace: `dynamic-${config.region}` },
+    { namespace: `profile-${config.region}` },
     config.region,
   );
   const members = Array.isArray(roster?.members) ? roster.members : [];

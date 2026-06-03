@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DashboardRole, DashboardSession } from "@/lib/auth";
 import { createStableProfileId } from "@/lib/profileIds";
@@ -1353,30 +1352,17 @@ export type CharacterProfileLink = {
   displayName: string;
 };
 
+const PROFILE_CHARACTER_LINKS_COLLECTION = "dashboardProfileCharacterLinks";
+
+function profileCharacterLinksScanFallbackEnabled() {
+  const raw = process.env.PROFILE_CHARACTER_LINKS_SCAN_FALLBACK;
+  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+}
+
 type CharacterProfileLinksCacheEntry = {
   checkedAt: number;
   links: Map<string, CharacterProfileLink>;
 };
-
-const PROFILE_CHARACTER_LINKS_COLLECTION = "dashboardProfileCharacterLinks";
-const PROFILE_CHARACTER_LINKS_MAX_DOCS = 5000;
-
-function profileCharacterLinkDocId(linkKey: string) {
-  return createHash("sha1").update(linkKey.toLowerCase()).digest("hex");
-}
-
-function normalizeProfileCharacterLinkDoc(data: any): [string, CharacterProfileLink] | null {
-  const linkKey = normalizeCharacterKey(data?.linkKey) || cleanString(data?.linkKey, 300);
-  const profileId = cleanString(data?.profileId, 80);
-  if (!linkKey || !/^id[a-f0-9]{16,40}$/.test(profileId)) return null;
-  return [
-    linkKey,
-    {
-      profileId,
-      displayName: cleanString(data?.displayName, 120) || "Учасник",
-    },
-  ];
-}
 
 declare global {
   // eslint-disable-next-line no-var
@@ -1407,7 +1393,7 @@ function clearProfileRuntimeCaches(profileId?: string | null, options: { charact
   clearRuntimeCachedValuesByPrefix("profiles:list:");
   if (options.characterLinks) {
     clearCharacterProfileLinksCache();
-    if (cleanId) void refreshProfileCharacterLinkIndex(cleanId).catch(() => false);
+    if (cleanId) void syncCharacterProfileLinksForProfileId(cleanId).catch(() => null);
   }
 }
 
@@ -1450,38 +1436,114 @@ function characterProfileLinkKeys(character: ProfileCharacter) {
   return keys;
 }
 
-async function readProfileCharacterLinkIndexByRefs(
-  linkKeys: string[],
-): Promise<Map<string, CharacterProfileLink>> {
-  const links = new Map<string, CharacterProfileLink>();
-  if (!linkKeys.length || !hasFirebaseProfileConfig()) return links;
+function normalizeCharacterProfileLinkData(data: any): CharacterProfileLink | null {
+  const profileId = cleanString(data?.profileId, 80);
+  const displayName = cleanProfileName(data?.displayName || data?.profileDisplayName || "", 64);
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId)) return null;
+  return { profileId, displayName: displayName || "Учасник" };
+}
 
+function characterProfileLinkDocId(keyInput: unknown) {
+  const normalized = normalizeCharacterKey(keyInput);
+  return normalized ? normalized.replace(/\//g, ":") : "";
+}
+
+function buildProfileCharacterLinkDocuments(profile: DashboardProfile) {
+  const displayName = getProfilePublicName(profile);
+  const docs = new Map<string, Record<string, unknown>>();
+  for (const character of profile.characters || []) {
+    for (const key of characterProfileLinkKeys(character)) {
+      const docId = characterProfileLinkDocId(key);
+      if (!docId) continue;
+      docs.set(docId, {
+        key: docId,
+        profileId: profile.profileId,
+        displayName,
+        characterName: character.name,
+        normalizedName: character.normalizedName,
+        realmSlug: character.realmSlug,
+        realmName: character.realmName,
+        region: character.region || "eu",
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    }
+  }
+  return docs;
+}
+
+async function syncCharacterProfileLinksForProfileId(profileId: string) {
+  if (!/^id[a-f0-9]{16,40}$/.test(profileId) || !hasFirebaseProfileConfig()) return;
   const db = getFirebaseAdminDb();
-  const uniqueKeys = Array.from(
-    new Set(
-      linkKeys
-        .map((key) => normalizeCharacterKey(key) || cleanString(key, 300))
-        .filter(Boolean),
-    ),
-  ).slice(0, 1500);
+  const profileRef = db.collection("dashboardProfiles").doc(profileId);
+  const snapshot = await profileRef.get();
+  const profile = snapshot.exists ? normalizeProfile(profileId, snapshot.data() || {}) : null;
+  const nextDocs = profile ? buildProfileCharacterLinkDocuments(profile) : new Map<string, Record<string, unknown>>();
+  const existing = await db
+    .collection(PROFILE_CHARACTER_LINKS_COLLECTION)
+    .where("profileId", "==", profileId)
+    .limit(500)
+    .get();
+  const nextIds = new Set(nextDocs.keys());
+  const writes: Array<{ type: "delete"; ref: any } | { type: "set"; ref: any; data: Record<string, unknown> }> = [];
 
-  for (let index = 0; index < uniqueKeys.length; index += 100) {
-    const slice = uniqueKeys.slice(index, index + 100);
-    const refs = slice.map((key) =>
-      db.collection(PROFILE_CHARACTER_LINKS_COLLECTION).doc(profileCharacterLinkDocId(key)),
-    );
-    const docs = await db.getAll(...refs);
-    docs.forEach((doc: any) => {
-      if (!doc.exists) return;
-      const normalized = normalizeProfileCharacterLinkDoc(doc.data() || {});
-      if (normalized) links.set(normalized[0], normalized[1]);
+  for (const doc of existing.docs) {
+    if (!nextIds.has(doc.id)) writes.push({ type: "delete", ref: doc.ref });
+  }
+  for (const [docId, data] of nextDocs) {
+    writes.push({
+      type: "set",
+      ref: db.collection(PROFILE_CHARACTER_LINKS_COLLECTION).doc(docId),
+      data,
     });
   }
 
+  for (let index = 0; index < writes.length; index += 400) {
+    const batch = db.batch();
+    for (const item of writes.slice(index, index + 400)) {
+      if (item.type === "delete") batch.delete(item.ref);
+      else batch.set(item.ref, item.data, { merge: true });
+    }
+    await batch.commit();
+  }
+
+  clearCharacterProfileLinksCache();
+}
+
+async function readCharacterProfileLinksFromIndex(keys?: Iterable<string>) {
+  const links = new Map<string, CharacterProfileLink>();
+  const db = getFirebaseAdminDb();
+  const normalizedKeys = Array.from(
+    new Set(Array.from(keys || []).map(characterProfileLinkDocId).filter(Boolean)),
+  );
+
+  if (normalizedKeys.length) {
+    for (let index = 0; index < normalizedKeys.length; index += 300) {
+      const refs = normalizedKeys
+        .slice(index, index + 300)
+        .map((key) => db.collection(PROFILE_CHARACTER_LINKS_COLLECTION).doc(key));
+      const snapshots = await db.getAll(...refs);
+      for (let itemIndex = 0; itemIndex < snapshots.length; itemIndex += 1) {
+        const snapshot = snapshots[itemIndex];
+        if (!snapshot.exists) continue;
+        const link = normalizeCharacterProfileLinkData(snapshot.data() || {});
+        if (link) links.set(normalizedKeys[index + itemIndex], link);
+      }
+    }
+    return links;
+  }
+
+  const snapshot = await db
+    .collection(PROFILE_CHARACTER_LINKS_COLLECTION)
+    .limit(5000)
+    .get();
+  for (const doc of snapshot.docs) {
+    const link = normalizeCharacterProfileLinkData(doc.data() || {});
+    if (link) links.set(doc.id, link);
+  }
   return links;
 }
 
-async function buildProfileCharacterLinksByScanningProfiles() {
+async function scanCharacterProfileLinksFromProfiles() {
   const contenders = new Map<
     string,
     { link: CharacterProfileLink; profileIds: Set<string>; duplicate: boolean }
@@ -1498,10 +1560,15 @@ async function buildProfileCharacterLinksByScanningProfiles() {
     const displayName = getProfilePublicName(profile);
     for (const character of profile.characters) {
       for (const key of characterProfileLinkKeys(character)) {
-        const existing = contenders.get(key);
+        const docId = characterProfileLinkDocId(key);
+        if (!docId) continue;
+        const existing = contenders.get(docId);
         if (!existing) {
-          contenders.set(key, {
-            link: { profileId: profile.profileId, displayName },
+          contenders.set(docId, {
+            link: {
+              profileId: profile.profileId,
+              displayName,
+            },
             profileIds: new Set([profile.profileId]),
             duplicate: false,
           });
@@ -1521,107 +1588,6 @@ async function buildProfileCharacterLinksByScanningProfiles() {
   return links;
 }
 
-export async function refreshProfileCharacterLinkIndex(profileId: string) {
-  const cleanProfileId = String(profileId || "").trim();
-  if (!/^id[a-f0-9]{16,40}$/.test(cleanProfileId) || !hasFirebaseProfileConfig()) return false;
-
-  const db = getFirebaseAdminDb();
-  const profileRef = db.collection("dashboardProfiles").doc(cleanProfileId);
-  const [profileSnapshot, oldLinksSnapshot] = await Promise.all([
-    profileRef.get().catch(() => null),
-    db
-      .collection(PROFILE_CHARACTER_LINKS_COLLECTION)
-      .where("profileId", "==", cleanProfileId)
-      .limit(300)
-      .get()
-      .catch(() => null),
-  ]);
-
-  const profile = profileSnapshot?.exists
-    ? normalizeProfile(cleanProfileId, profileSnapshot.data() || {})
-    : null;
-  const displayName = profile ? getProfilePublicName(profile) : "Учасник";
-  const nextLinks = new Map<string, Record<string, unknown>>();
-
-  if (profile) {
-    for (const character of profile.characters) {
-      for (const linkKey of characterProfileLinkKeys(character)) {
-        nextLinks.set(linkKey, {
-          linkKey,
-          profileId: profile.profileId,
-          displayName,
-          characterKey: character.key,
-          characterName: character.name,
-          realmSlug: character.realmSlug,
-          realmName: character.realmName || character.realmSlug,
-          region: character.region || "eu",
-          updatedAt: FieldValue.serverTimestamp(),
-        });
-      }
-    }
-  }
-
-  const oldDocs = oldLinksSnapshot?.docs || [];
-  const nextDocIds = new Set(Array.from(nextLinks.keys()).map(profileCharacterLinkDocId));
-  const batch = db.batch();
-  let operations = 0;
-
-  for (const doc of oldDocs) {
-    if (!nextDocIds.has(doc.id)) {
-      batch.delete(doc.ref);
-      operations += 1;
-    }
-  }
-
-  for (const [linkKey, data] of nextLinks) {
-    batch.set(
-      db.collection(PROFILE_CHARACTER_LINKS_COLLECTION).doc(profileCharacterLinkDocId(linkKey)),
-      data,
-      { merge: true },
-    );
-    operations += 1;
-  }
-
-  if (operations) await batch.commit();
-  clearCharacterProfileLinksCache();
-  return true;
-}
-
-export async function listCharacterProfileLinksForKeys(
-  keys: Iterable<string>,
-) {
-  const emptyLinks = new Map<string, CharacterProfileLink>();
-  if (!hasFirebaseProfileConfig()) return emptyLinks;
-  const normalizedKeys = Array.from(
-    new Set(
-      Array.from(keys || [])
-        .map((key) => normalizeCharacterKey(key) || cleanString(key, 300))
-        .filter(Boolean),
-    ),
-  );
-  if (!normalizedKeys.length) return emptyLinks;
-
-  const cacheHash = createHash("sha1")
-    .update(normalizedKeys.slice().sort().join("\n"))
-    .digest("hex")
-    .slice(0, 16);
-  const cached = globalThis.__mistblossomCharacterProfileLinksCache;
-  const ttlMs = await characterProfileLinksCacheTtlMs();
-
-  return resilientRead(
-    `profile-character-links:keys:${cacheHash}`,
-    () => readProfileCharacterLinkIndexByRefs(normalizedKeys),
-    {
-      ttlMs,
-      timeoutMs: 2_500,
-      circuitKey: "firebase-profile-read",
-      circuitTtlMs: 90_000,
-      fallback: () => cached ? new Map(cached.links) : emptyLinks,
-      logEvent: "profiles.character_links_index_read_failed",
-    },
-  );
-}
-
 export async function listCharacterProfileLinks() {
   const emptyLinks = new Map<string, CharacterProfileLink>();
   if (!hasFirebaseProfileConfig()) return emptyLinks;
@@ -1635,22 +1601,10 @@ export async function listCharacterProfileLinks() {
   return resilientRead(
     "profile-character-links",
     async () => {
-      const links = new Map<string, CharacterProfileLink>();
-      const snapshot = await getFirebaseAdminDb()
-        .collection(PROFILE_CHARACTER_LINKS_COLLECTION)
-        .limit(PROFILE_CHARACTER_LINKS_MAX_DOCS)
-        .get();
-
-      for (const doc of snapshot.docs) {
-        const normalized = normalizeProfileCharacterLinkDoc(doc.data() || {});
-        if (normalized) links.set(normalized[0], normalized[1]);
+      let links = await readCharacterProfileLinksFromIndex();
+      if (!links.size && profileCharacterLinksScanFallbackEnabled()) {
+        links = await scanCharacterProfileLinksFromProfiles();
       }
-
-      if (!links.size && process.env.PROFILE_CHARACTER_LINKS_SCAN_FALLBACK === "1") {
-        const scanned = await buildProfileCharacterLinksByScanningProfiles();
-        for (const [key, link] of scanned) links.set(key, link);
-      }
-
       globalThis.__mistblossomCharacterProfileLinksCache = {
         checkedAt: Date.now(),
         links: new Map(links),
@@ -1659,8 +1613,8 @@ export async function listCharacterProfileLinks() {
     },
     {
       ttlMs,
-      timeoutMs: 2_500,
-      circuitKey: "firebase-profile-read",
+      timeoutMs: 3_500,
+      circuitKey: "firebase-profile-links-read",
       circuitTtlMs: 90_000,
       fallback: () => cached ? new Map(cached.links) : emptyLinks,
       logEvent: "profiles.character_links_read_failed",
@@ -1668,6 +1622,58 @@ export async function listCharacterProfileLinks() {
   );
 }
 
+export async function listCharacterProfileLinksForKeys(keysInput: Iterable<string>) {
+  const emptyLinks = new Map<string, CharacterProfileLink>();
+  if (!hasFirebaseProfileConfig()) return emptyLinks;
+  const keys = Array.from(new Set(Array.from(keysInput || []).map(characterProfileLinkDocId).filter(Boolean)));
+  if (!keys.length) return emptyLinks;
+
+  const cached = globalThis.__mistblossomCharacterProfileLinksCache;
+  const ttlMs = await characterProfileLinksCacheTtlMs();
+  if (cached && Date.now() - cached.checkedAt < ttlMs) {
+    const subset = new Map<string, CharacterProfileLink>();
+    for (const key of keys) {
+      const link = cached.links.get(key);
+      if (link) subset.set(key, link);
+    }
+    return subset;
+  }
+
+  return resilientRead(
+    `profile-character-links:${keys.length}:${keys.slice(0, 20).join("|")}`,
+    async () => {
+      let links = await readCharacterProfileLinksFromIndex(keys);
+      if (!links.size && profileCharacterLinksScanFallbackEnabled()) {
+        const scanned = await scanCharacterProfileLinksFromProfiles();
+        globalThis.__mistblossomCharacterProfileLinksCache = {
+          checkedAt: Date.now(),
+          links: new Map(scanned),
+        };
+        links = new Map(keys.flatMap((key) => {
+          const link = scanned.get(key);
+          return link ? [[key, link] as [string, CharacterProfileLink]] : [];
+        }));
+      }
+      return links;
+    },
+    {
+      ttlMs,
+      timeoutMs: 2_500,
+      circuitKey: "firebase-profile-links-read",
+      circuitTtlMs: 90_000,
+      fallback: () => {
+        if (!cached) return emptyLinks;
+        const subset = new Map<string, CharacterProfileLink>();
+        for (const key of keys) {
+          const link = cached.links.get(key);
+          if (link) subset.set(key, link);
+        }
+        return subset;
+      },
+      logEvent: "profiles.character_links_read_failed",
+    },
+  );
+}
 
 export type ProfileCharacterConflict = {
   profileId: string;

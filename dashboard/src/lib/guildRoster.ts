@@ -31,6 +31,7 @@ import {
 import {
   buildBattleNetCharacterKey,
   normalizeBattleNetNameSlug,
+  normalizeBattleNetRealmSlug,
   normalizeCharacterKey,
 } from "@/lib/wowCharacters";
 export type GuildScoreSegment = "all" | "dps" | "healer" | "tank";
@@ -131,6 +132,7 @@ export type GuildRosterSyncProgress = {
 
 type CachedRoster = GuildRosterLoadResult & {
   cachedAt: string;
+  authoritativeRoster?: boolean;
 };
 
 type RaiderIoCharacterPayload = Record<string, any>;
@@ -143,7 +145,6 @@ const DEFAULT_GUILD_NAME = "Mistblossom Vanguard";
 const DEFAULT_GUILD_REALM = "terokkar";
 const CACHE_COLLECTION = "guildRuntimeCache";
 const CACHE_DOCUMENT = "guildRoster";
-const CACHE_MEMBERS_COLLECTION = "members";
 const GUILD_RECORDS_COLLECTION = "guildRosterRecords";
 const GUILD_RECORDS_MEMBERS_COLLECTION = "members";
 const GUILD_RECORDS_CHUNKS_COLLECTION = "memberChunks";
@@ -619,13 +620,10 @@ async function enrichGuildMembersWithProfileLinks(
   members: GuildRosterMember[],
 ) {
   if (!members.length || !hasFirebaseProfileConfig()) return members;
-
   const lookupKeys = new Set<string>();
   for (const member of members) {
     for (const key of memberProfileLookupKeys(member)) lookupKeys.add(key);
   }
-  if (!lookupKeys.size) return members;
-
   const links = await listCharacterProfileLinksForKeys(lookupKeys).catch(
     () => new Map<string, CharacterProfileLink>(),
   );
@@ -992,32 +990,74 @@ function sortMembers(members: GuildRosterMember[]) {
   );
 }
 
-function scoresFromProfileRaiderIo(snapshot: any): Record<GuildScoreSegment, number> {
-  const source = snapshot?.currentScores || {};
-  return SEGMENTS.reduce((acc, segment) => {
-    const entry = source[segment] || source[segment.toUpperCase?.()];
-    const value = typeof entry === "object" && entry ? entry.score : entry;
-    acc[segment] = parsePositiveNumber(value);
-    return acc;
-  }, {} as Record<GuildScoreSegment, number>);
+function battleNetApiErrorMessage(error: unknown) {
+  if (error instanceof ApiHttpError) {
+    return `${error.message || `HTTP ${error.status}`} (${error.status})`;
+  }
+  return error instanceof Error ? error.message : String(error || "unknown");
 }
 
-function scoreColorsFromProfileRaiderIo(snapshot: any): Partial<Record<GuildScoreSegment, string>> {
-  const source = snapshot?.currentScores || {};
-  return SEGMENTS.reduce((acc, segment) => {
-    const entry = source[segment] || source[segment.toUpperCase?.()];
-    const color = cleanText(entry && typeof entry === "object" ? entry.color : "");
-    if (/^#[0-9a-f]{6}$/i.test(color)) acc[segment] = color;
-    return acc;
-  }, {} as Partial<Record<GuildScoreSegment, string>>);
+function isBattleNetNotFound(error: unknown) {
+  return error instanceof ApiHttpError && error.status === 404;
 }
 
-function rosterSourceUsesProfileSeed(source?: string | null) {
-  return /profile[-_\s]?seed|збережених профілів|saved profiles/i.test(String(source || ""));
+function uniqueNonEmpty(values: Array<string | null | undefined>) {
+  return Array.from(new Set(values.map((value) => cleanText(value).toLowerCase()).filter(Boolean)));
 }
 
-function isAuthoritativeGuildRosterCache(cache: CachedRoster | null | undefined): cache is CachedRoster {
-  return Boolean(cache?.members?.length && !rosterSourceUsesProfileSeed(cache.source));
+function guildEndpointCandidates(config: ReturnType<typeof getGuildConfig>) {
+  const realmCandidates = uniqueNonEmpty([
+    normalizeBattleNetRealmSlug(config.realmSlug),
+    slugify(config.realmSlug),
+    DEFAULT_GUILD_REALM,
+  ]);
+  const guildCandidates = uniqueNonEmpty([
+    normalizeBattleNetNameSlug(config.guildName),
+    config.guildSlug,
+    slugify(config.guildName),
+  ]);
+
+  const candidates: Array<{ realmSlug: string; guildSlug: string }> = [];
+  for (const realmSlug of realmCandidates) {
+    for (const guildSlug of guildCandidates) {
+      if (realmSlug && guildSlug) candidates.push({ realmSlug, guildSlug });
+    }
+  }
+  return candidates;
+}
+
+async function fetchBattleNetGuildDataWithFallback(
+  config: ReturnType<typeof getGuildConfig>,
+  suffix: "" | "/roster",
+  settings?: GuildRosterRuntimeSettings | null,
+) {
+  const attempts = guildEndpointCandidates(config);
+  const errors: string[] = [];
+  for (const attempt of attempts) {
+    try {
+      return {
+        data: await fetchBattleNetApplicationData(
+          `/data/wow/guild/${encodeURIComponent(attempt.realmSlug)}/${encodeURIComponent(attempt.guildSlug)}${suffix}`,
+          { namespace: `profile-${config.region}` },
+          config.region,
+          {
+            timeoutMs: settings?.battleNetRequestTimeoutMs,
+            retries: settings?.battleNetRequestRetries,
+          },
+        ),
+        realmSlug: attempt.realmSlug,
+        guildSlug: attempt.guildSlug,
+      };
+    } catch (error) {
+      const message = battleNetApiErrorMessage(error);
+      errors.push(`${attempt.realmSlug}/${attempt.guildSlug}${suffix}: ${message}`);
+      if (!isBattleNetNotFound(error)) throw error;
+    }
+  }
+
+  throw new Error(
+    `Battle.net не знайшов guild roster. Перевір назву гільдії, realm і region. Спроби: ${errors.slice(0, 6).join("; ")}`,
+  );
 }
 
 async function fetchLiveGuildRoster(
@@ -1029,28 +1069,19 @@ async function fetchLiveGuildRoster(
   const config = getGuildConfig(options.settings);
   const updatedAt = new Date().toISOString();
 
-  const guildNamespace = { namespace: `dynamic-${config.region}` };
-  const [guildSummary, roster, raiderGuild] = await Promise.all([
-    fetchBattleNetApplicationData(
-      `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}`,
-      guildNamespace,
-      config.region,
-      {
-        timeoutMs: options.settings?.battleNetRequestTimeoutMs,
-        retries: options.settings?.battleNetRequestRetries,
-      },
+  const rosterResponse = await fetchBattleNetGuildDataWithFallback(
+    config,
+    "/roster",
+    options.settings,
+  );
+  const [summaryResponse, raiderGuild] = await Promise.all([
+    fetchBattleNetGuildDataWithFallback(config, "", options.settings).catch(
+      () => null,
     ),
-    fetchBattleNetApplicationData(
-      `/data/wow/guild/${encodeURIComponent(config.realmSlug)}/${encodeURIComponent(config.guildSlug)}/roster`,
-      guildNamespace,
-      config.region,
-      {
-        timeoutMs: options.settings?.battleNetRequestTimeoutMs,
-        retries: options.settings?.battleNetRequestRetries,
-      },
-    ),
-    fetchRaiderGuild(config.region, config.realmSlug, config.guildName, options.settings),
+    fetchRaiderGuild(config.region, rosterResponse.realmSlug, config.guildName, options.settings),
   ]);
+  const roster = rosterResponse.data;
+  const guildSummary = summaryResponse?.data || roster?.guild || null;
 
   const guildBlock = roster?.guild || guildSummary || {};
   const fallbackRealmSlug =
@@ -1142,6 +1173,14 @@ function isCachedRoster(value: any): value is CachedRoster {
     value.stats &&
     typeof value.cachedAt === "string",
   );
+}
+
+function isAuthoritativeGuildRosterCache(value: any): value is CachedRoster {
+  if (!isCachedRoster(value) || value.authoritativeRoster !== true) return false;
+  const source = cleanText(value.source).toLowerCase();
+  return !source.includes("profile-seed") &&
+    !source.includes("battle.net-fallback") &&
+    !source.includes("stale-roster-fallback");
 }
 
 function stripUndefined<T>(value: T): T {
@@ -1319,8 +1358,8 @@ function normalizeMemberRecord(data: any): GuildRosterMember | null {
   } satisfies GuildRosterMember);
 }
 
-function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[]): CachedRoster | null {
-  if (!members.length) return null;
+function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[]) {
+  if (!members.length || data?.authoritativeRoster !== true) return null;
   const config = getGuildConfig({
     region: data?.region,
     realm: data?.realmSlug || data?.realm,
@@ -1347,6 +1386,7 @@ function buildRosterFromFirebaseRecords(data: any, members: GuildRosterMember[])
     source: cleanText(data?.source) || `${LIVE_SOURCE} • Firebase records`,
     error: typeof data?.error === "string" ? data.error : null,
     cachedAt: cleanText(data?.cachedAt || data?.updatedAtIso) || new Date().toISOString(),
+    authoritativeRoster: true,
   } satisfies CachedRoster);
 }
 
@@ -1394,8 +1434,7 @@ async function readGuildRosterRecords(
       }
 
       const cache = buildRosterFromFirebaseRecords(data, members);
-      if (!isAuthoritativeGuildRosterCache(cache)) return null;
-      globalThis.__mistblossomGuildRosterCache = cache;
+      if (cache) globalThis.__mistblossomGuildRosterCache = cache;
       return cache;
     },
     {
@@ -1434,6 +1473,14 @@ async function writeGuildRosterRecords(
           )
           .filter((index) => index >= 0),
       );
+  const previousChunkCount = options.fullMemberRewrite
+    ? await doc
+        .get()
+        .then((snapshot: any) =>
+          snapshot.exists ? readGuildRosterChunkCount(snapshot.data() || {}) : 0,
+        )
+        .catch(() => 0)
+    : 0;
 
   await doc.set(
     stripUndefined({
@@ -1441,6 +1488,8 @@ async function writeGuildRosterRecords(
       realmSlug: config.realmSlug,
       guildName: config.guildName,
       guildKey: recordsDocId,
+      authoritativeRoster: true,
+      rosterSource: "battlenet-guild-roster",
       stats: cache.stats,
       source: `${LIVE_SOURCE} • Firebase records`,
       error: cache.error || null,
@@ -1482,6 +1531,22 @@ async function writeGuildRosterRecords(
     await batch.commit();
   }
 
+  if (options.fullMemberRewrite && previousChunkCount > memberChunks.length) {
+    const staleChunkIndexes = Array.from(
+      { length: previousChunkCount - memberChunks.length },
+      (_, index) => memberChunks.length + index,
+    );
+    for (let index = 0; index < staleChunkIndexes.length; index += chunkBatchSize) {
+      const batch = getFirebaseAdminDb().batch();
+      for (const chunkIndex of staleChunkIndexes.slice(index, index + chunkBatchSize)) {
+        batch.delete(
+          doc.collection(GUILD_RECORDS_CHUNKS_COLLECTION).doc(guildRosterChunkDocId(chunkIndex)),
+        );
+      }
+      await batch.commit();
+    }
+  }
+
   markGuildRosterChunkStoreReady(recordsDocId);
 
   if (!guildRosterLegacyMemberDocsWriteEnabled(options.settings)) return true;
@@ -1512,22 +1577,18 @@ async function writeGuildRosterRecords(
     await batch.commit();
   }
 
-  return true;
-}
+  if (options.fullMemberRewrite && options.settings?.cacheDeleteStaleMembers) {
+    const activeDocIds = new Set(cache.members.map((member) => memberDocId(member)));
+    const existing = await doc.collection(GUILD_RECORDS_MEMBERS_COLLECTION).limit(1500).get();
+    const staleDocs = existing.docs.filter((item: { id: string }) => !activeDocIds.has(item.id));
+    for (let index = 0; index < staleDocs.length; index += memberBatchSize) {
+      const batch = getFirebaseAdminDb().batch();
+      for (const item of staleDocs.slice(index, index + memberBatchSize)) batch.delete(item.ref);
+      await batch.commit();
+    }
+  }
 
-function cachedRosterFromShardedPayload(
-  data: any,
-  members: GuildRosterMember[],
-): CachedRoster | null {
-  const meta = data?.payloadSharded;
-  if (!meta || !meta.stats || typeof meta.cachedAt !== "string") return null;
-  return stripUndefined({
-    members: sortMembers(members),
-    stats: meta.stats,
-    source: cleanText(meta.source) || `${LIVE_SOURCE} • Firebase records`,
-    error: typeof meta.error === "string" ? meta.error : null,
-    cachedAt: meta.cachedAt,
-  } satisfies CachedRoster);
+  return true;
 }
 
 function guildRosterPublicCacheKey(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null) {
@@ -1539,8 +1600,7 @@ function guildRosterPublicCacheKey(settings?: Pick<GuildRosterRuntimeSettings, "
 
 async function readCloudflareCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "region" | "realm" | "guildName"> | null): Promise<CachedRoster | null> {
   const cached = await readPublicCache<CachedRoster>(guildRosterPublicCacheKey(settings), { timeoutMs: 1200 });
-  if (!cached.hit || !isCachedRoster(cached.value)) return null;
-  if (rosterSourceUsesProfileSeed(cached.value.source)) return null;
+  if (!cached.hit || !isAuthoritativeGuildRosterCache(cached.value)) return null;
   const value = stripUndefined({
     ...cached.value,
     source: cached.value.source?.includes("Cloudflare KV") ? cached.value.source : `${cached.value.source || LIVE_SOURCE} • Cloudflare KV`,
@@ -1569,50 +1629,11 @@ async function readCachedRoster(settings?: Pick<GuildRosterRuntimeSettings, "reg
 
   const records = await readGuildRosterRecords(settings).catch(() => null);
   if (records) return records;
-  const runtimeCache = globalThis.__mistblossomGuildRosterCache;
-  if (isAuthoritativeGuildRosterCache(runtimeCache)) return runtimeCache;
-  if (!hasFirebaseProfileConfig()) return null;
-
-  return resilientRead(
-    "guild-roster-cache",
-    async () => {
-      const doc = getFirebaseAdminDb()
-        .collection(CACHE_COLLECTION)
-        .doc(CACHE_DOCUMENT);
-      const snapshot = await doc.get();
-      if (!snapshot.exists) return null;
-      const data = snapshot.data() || {};
-      const legacyCache = data.payload;
-      if (isCachedRoster(legacyCache) && isAuthoritativeGuildRosterCache(legacyCache)) {
-        globalThis.__mistblossomGuildRosterCache = legacyCache;
-        return legacyCache;
-      }
-
-      // Deprecated per-member runtime cache is intentionally not read here.
-      // It costs one Firestore read per member and can reintroduce non-authoritative
-      // profile-seeded data into the guild roster. The active stores are:
-      // 1) Cloudflare KV public snapshot, 2) guildRosterRecords/memberChunks.
-      void data.payloadSharded;
-      void CACHE_MEMBERS_COLLECTION;
-      void guildRosterLegacyMemberDocsReadEnabled;
-
-      return null;
-    },
-    {
-      ttlMs: Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))),
-      timeoutMs: 4_000,
-      circuitKey: "firebase-guild-roster-read",
-      circuitTtlMs: 120_000,
-      fallback: () => {
-        const cachedFallback = getRuntimeCachedValue<CachedRoster | null>("guild-roster-cache", 24 * 60 * 60 * 1000);
-        if (isAuthoritativeGuildRosterCache(cachedFallback)) return cachedFallback;
-        return isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache)
-          ? globalThis.__mistblossomGuildRosterCache || null
-          : null;
-      },
-      logEvent: "guild.roster.cache_read_failed",
-    },
-  );
+  if (isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache))
+    return globalThis.__mistblossomGuildRosterCache;
+  // Deprecated guildRuntimeCache/members is intentionally not read anymore.
+  // It caused large collection scans and could resurrect non-authoritative profile-seed rosters.
+  return null;
 }
 
 function firebaseGuildRosterStorageLimited() {
@@ -1631,7 +1652,7 @@ function emptyGuildRosterFallback(message?: string): GuildRosterLoadResult {
     source: storageLimited ? "firebase-temporary-unavailable" : "firebase-records-missing",
     error: storageLimited
       ? message || "Тимчасова технічна помилка: сховище Firebase недоступне або перевищило ліміти. Сайт зупинив важкі Firebase-запити, щоб не збільшувати перевищення квоти."
-      : message || "Firebase-записи складу ще створюються. Синхронізація створює склад тільки з Battle.net guild roster; персонажі з профілів не додаються до складу.",
+      : message || "Firebase-записи складу ще створюються. Синхронізація створює склад тільки з Battle.net guild roster; профільні персонажі не використовуються як джерело складу.",
   };
 }
 
@@ -1641,54 +1662,6 @@ type CachedRosterWriteOptions = {
   settings?: GuildRosterRuntimeSettings | null;
 };
 
-async function writeMemberDocs(
-  members: GuildRosterMember[],
-  options: CachedRosterWriteOptions = {},
-) {
-  if (!hasFirebaseProfileConfig()) return;
-  if (!members.length && !options.fullMemberRewrite) return;
-
-  const doc = getFirebaseAdminDb()
-    .collection(CACHE_COLLECTION)
-    .doc(CACHE_DOCUMENT);
-  const changedKeys = options.changedMemberKeys;
-  const membersToWrite = changedKeys?.size
-    ? members.filter((member) => changedKeys.has(member.key))
-    : members;
-  const chunkSize = guildRosterCacheWriteBatchSize(options.settings);
-
-  for (let index = 0; index < membersToWrite.length; index += chunkSize) {
-    const batch = getFirebaseAdminDb().batch();
-    for (const member of membersToWrite.slice(index, index + chunkSize)) {
-      batch.set(
-        doc.collection(CACHE_MEMBERS_COLLECTION).doc(memberDocId(member)),
-        {
-          key: member.key,
-          battleNetKey: memberBattleNetKey(member),
-          member: stripUndefined(member),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-    }
-    await batch.commit();
-  }
-
-  if (options.fullMemberRewrite && options.settings?.cacheDeleteStaleMembers) {
-    const activeDocIds = new Set(members.map((member) => memberDocId(member)));
-    const existing = await doc.collection(CACHE_MEMBERS_COLLECTION).get();
-    const staleDocs = existing.docs.filter(
-      (item: { id: string }) => !activeDocIds.has(item.id),
-    );
-    for (let index = 0; index < staleDocs.length; index += chunkSize) {
-      const batch = getFirebaseAdminDb().batch();
-      for (const item of staleDocs.slice(index, index + chunkSize))
-        batch.delete(item.ref);
-      await batch.commit();
-    }
-  }
-}
-
 async function writeCachedRoster(
   result: GuildRosterLoadResult,
   options: CachedRosterWriteOptions = {},
@@ -1697,6 +1670,7 @@ async function writeCachedRoster(
     ...result,
     source: `${LIVE_SOURCE} • Firebase records`,
     cachedAt: new Date().toISOString(),
+    authoritativeRoster: true,
   } satisfies CachedRoster);
 
   globalThis.__mistblossomGuildRosterCache = cache;
@@ -2363,57 +2337,35 @@ async function advanceGuildRosterSyncStep(
         };
         rosterProgress = { refreshed: true, source: next.source };
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error || "unknown");
-        if (!currentCache?.members.length) {
-          const friendly = message === "Not Found"
-            ? `Battle.net не знайшов гільдію ${getGuildConfig(settings).guildName} на ${getGuildConfig(settings).realmSlug}-${getGuildConfig(settings).region}. Перевір назву, realm і region у Керуванні → Фоновий API. Склад гільдії більше не створюється з персонажів профілю.`
-            : message;
-          currentJob = {
-            ...currentJob,
-            status: "failed",
-            phase: "failed",
-            updatedAt: nowIso(),
-            completedAt: nowIso(),
-            errors: [...(currentJob.errors || []).slice(-9), friendly],
-          };
-          rosterProgress = { refreshed: false, source: "Battle.net roster unavailable" };
-          await writeGuildRosterSyncJob(currentJob);
-          return {
-            cache: currentCache,
-            job: currentJob,
-            rosterProgress,
-            battleNetProgress,
-            raiderIoProgress,
-          };
-        }
+        const message = battleNetApiErrorMessage(error);
+        const friendly = message.includes("Battle.net не знайшов")
+          ? message
+          : `Battle.net guild roster refresh failed: ${message}`;
 
         await recordDashboardSystemLog(
-          "warning",
-          "guild.roster.roster_refresh_cache_fallback",
+          currentCache?.members.length ? "warning" : "error",
+          "guild.roster.roster_refresh_failed",
           {
             summary:
-              "Battle.net guild roster refresh failed. Continuing sync with the last cached roster.",
-            error: message,
-            memberCount: currentCache.members.length,
-            source: currentCache.source,
+              "Battle.net roster не оновився. Склад гільдії не будується з профілів і не продовжує синхронізацію по застарілому списку.",
+            error: friendly,
+            cachedMemberCount: currentCache?.members.length || 0,
+            source: currentCache?.source || "none",
           },
           { persist: settings?.warningAuditLogs !== false },
         );
 
         currentJob = {
           ...currentJob,
-          phase: "battlenet",
-          totalMembers: currentCache.members.length,
-          processed: {
-            ...currentJob.processed,
-            roster: currentCache.members.length,
-          },
+          status: "failed",
+          phase: "failed",
           updatedAt: nowIso(),
+          completedAt: nowIso(),
+          errors: [...(currentJob.errors || []).slice(-9), friendly],
         };
         rosterProgress = {
           refreshed: false,
-          source: `${currentCache.source} • stale-roster-fallback`,
+          source: "Battle.net roster unavailable",
         };
       }
 
@@ -2702,6 +2654,6 @@ export async function loadGuildRosterData(
   return emptyGuildRosterFallback(
     firebaseGuildRosterStorageLimited()
       ? "Тимчасова технічна помилка: сховище Firebase недоступне або перевищило ліміти. Сайт не запускає додаткові важкі читання, щоб не добивати квоту."
-      : "У Firebase/KV ще немає нормалізованого Battle.net-складу або він тимчасово недоступний. Сторінка не створює склад із профілів; синхронізація має отримати roster з Battle.net.",
+      : "У Firebase ще немає нормалізованих записів складу або вони тимчасово недоступні. Сторінка не запускає live-збір під час render; синхронізація створює записи покроково.",
   );
 }
