@@ -1,6 +1,9 @@
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { buildPageMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = buildPageMetadata({
   title: "Умови використання",
   description: "Умови використання гільдійної панелі Mistblossom Vanguard для профілів, рейдів, Discord-ролей і правил.",

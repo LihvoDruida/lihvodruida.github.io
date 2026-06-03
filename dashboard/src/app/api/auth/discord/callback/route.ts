@@ -52,6 +52,10 @@ import {
 import { deleteDashboardProfilesByDiscordUserId } from "@/lib/profileCleanup";
 import { safeDashboardReturnPath } from "@/lib/dashboardRedirects";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 
 const OAUTH_NONCE_COOKIE_MAX_AGE = 60 * 10;

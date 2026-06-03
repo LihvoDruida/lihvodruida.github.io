@@ -10,6 +10,8 @@ import {
   verifyInternalBearerToken,
 } from "@/lib/security";
 
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 

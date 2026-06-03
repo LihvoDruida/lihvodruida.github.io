@@ -1,6 +1,9 @@
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { buildPageMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = buildPageMetadata({
   title: "Політика конфіденційності",
   description: "Політика конфіденційності гільдійної панелі Mistblossom Vanguard: Discord, Battle.net, профілі, рейди, правила та заявки.",

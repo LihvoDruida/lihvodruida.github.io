@@ -3,6 +3,10 @@ import { getSession } from "@/lib/auth";
 import { clearProfileBattleNetCandidates } from "@/lib/profiles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, noStoreHeaders, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   const tooLarge = assertRequestBodySize(request, 8 * 1024);
   if (tooLarge) return tooLarge;

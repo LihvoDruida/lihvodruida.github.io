@@ -4,6 +4,8 @@ import { isDashboardStaff } from "@/lib/permissions";
 import { getIntegrationStatusSummary } from "@/lib/integrationStatus";
 import { noStoreHeaders, unauthorizedResponse } from "@/lib/security";
 
+export const runtime = "nodejs";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 

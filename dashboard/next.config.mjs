@@ -13,7 +13,6 @@ const nextConfig = {
   },
   experimental: {
     cpus: 2,
-    workerThreads: false,
   },
 
   images: {

@@ -4,6 +4,8 @@ import { canManageApplications, canViewApplicationBattleTag, canViewApplications
 import { listApplicationFilterOptions, listApplications, sanitizeApplicationsForMentorViewer } from "@/lib/github";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage, unauthorizedResponse } from "@/lib/security";
 
+export const runtime = "nodejs";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 

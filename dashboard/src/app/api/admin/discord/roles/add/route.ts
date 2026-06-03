@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 
 import { adminDiscordResponse, auditDiscordAdmin, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 

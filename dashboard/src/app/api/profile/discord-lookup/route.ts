@@ -11,6 +11,10 @@ import {
   verifyInternalBearerToken,
 } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const INTERNAL_LOOKUP_TOKENS = ["INTERNAL_PROFILE_LOOKUP_TOKEN"];
 
 export async function GET(request: NextRequest) {

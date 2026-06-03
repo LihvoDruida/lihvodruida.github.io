@@ -5,6 +5,10 @@ import { normalizeWowRole } from "@/lib/wowRoles";
 import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, logDashboardEvent, rateLimitResponse, safeErrorMessage, verifyTrustedOrigin } from "@/lib/security";
 import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function redirectToProfile(request: NextRequest, profileId: string, status: string, returnTo?: string) {
   return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }

@@ -29,6 +29,10 @@ import {
   verifyTrustedOrigin,
 } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function redirectToToken(request: NextRequest, token: string, status: string) {
   const url = new URL("/rules/accept", request.url);
   if (token) url.searchParams.set("rt", token);

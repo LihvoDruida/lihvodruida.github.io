@@ -5,6 +5,10 @@ import { assertRequestBodySize, checkRateLimit, forbiddenResponse, getClientIp, 
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { profileActionReturnTo, redirectToProfileAction } from "@/lib/profileActionRedirects";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function redirectToSettings(request: NextRequest, profileId: string, status: string, returnTo?: string) {
   return redirectToProfileAction(request, profileId, "characterStatus", status, returnTo, `/profile/${profileId}/settings`);
 }

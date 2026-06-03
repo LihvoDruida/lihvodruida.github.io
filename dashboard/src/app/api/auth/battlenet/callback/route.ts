@@ -25,6 +25,10 @@ import {
 import { checkGeoAccess } from "@/lib/geoAccessPolicy";
 import { safeDashboardReturnPath } from "@/lib/dashboardRedirects";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getOAuthStateParts(state: string) {
   return String(state || "").split(".");
 }

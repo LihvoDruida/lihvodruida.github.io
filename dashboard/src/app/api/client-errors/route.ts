@@ -9,6 +9,10 @@ import {
   safeErrorMessage,
 } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function clean(value: unknown, limit = 500) {
   return String(value || "")
     .replace(/[\u0000-\u001f\u007f]/g, " ")

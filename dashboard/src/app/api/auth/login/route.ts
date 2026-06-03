@@ -12,6 +12,10 @@ import {
   verifyTrustedOrigin,
 } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function redirectTo(request: NextRequest, path: string) {
   const response = NextResponse.redirect(new URL(path, request.url), 303);
   for (const [key, value] of Object.entries(noStoreHeaders())) response.headers.set(key, value);

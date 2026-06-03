@@ -21,6 +21,10 @@ import {
   parseEmbedJson,
 } from "@/lib/discordAdmin";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function safeReturnTo(value: FormDataEntryValue | string | null | undefined) {
   const path = String(value || "").trim();
   if (!path || path.startsWith("//") || path.includes("://")) return "/discord";

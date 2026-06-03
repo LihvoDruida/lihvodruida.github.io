@@ -11,6 +11,9 @@ import { rulesLoginUrl } from "@/lib/rulesOnboarding";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 
 type InteractionResponse = {

@@ -13,6 +13,10 @@ import {
   parseDiscordMessageRef,
 } from "@/lib/discordAdmin";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, { status, headers: noStoreHeaders() });
 }

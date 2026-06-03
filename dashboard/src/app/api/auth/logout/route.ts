@@ -8,6 +8,10 @@ import {
 } from "@/lib/session";
 import { logDashboardEvent, noStoreHeaders } from "@/lib/security";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const LOGIN_NEXT_COOKIE = "__Host-mistblossom_next";
 
 function expireAuthCookies(response: NextResponse) {

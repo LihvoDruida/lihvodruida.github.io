@@ -17,6 +17,10 @@ import {
 import { checkGeoAccess } from "@/lib/geoAccessPolicy";
 import { safeDashboardReturnPath } from "@/lib/dashboardRedirects";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function encodeNextPath(path: string) {
   return Buffer.from(path, "utf8").toString("base64url");
 }

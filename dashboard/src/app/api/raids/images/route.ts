@@ -4,6 +4,8 @@ import { canManageRaids } from "@/lib/permissions";
 import { listRaidImageAssets } from "@/lib/raidImages";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 

@@ -5,6 +5,10 @@ import { fetchDiscordGuildMemberSnapshot, fetchDiscordGuildSnapshot } from "@/li
 import { noStoreHeaders } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session?.impersonatedBy || session.provider !== "discord") {

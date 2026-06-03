@@ -7,6 +7,8 @@ import { saveAndMaybePublishRaid } from "@/lib/raids";
 import { assertRequestBodySize, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 

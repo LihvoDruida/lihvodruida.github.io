@@ -83,7 +83,12 @@ if (exists('package-lock.json')) {
 
 warn(/"installCommand"\s*:\s*"[^"]*--prefer-offline/.test(read('vercel.json')), 'Vercel installCommand should use --prefer-offline to reuse cache and avoid slow online metadata checks.');
 if (exists('.npmrc')) warn(/prefer-offline=true/.test(read('.npmrc')), '.npmrc should keep prefer-offline=true so local and Vercel installs reuse cache.');
-warn(/"build"\s*:\s*"npm run typecheck && npm run inspect:ci && node scripts\/next-build\.cjs"/.test(read('package.json')), 'Build script should run typecheck + inspect:ci before next build.');
+const packageJsonText = read('package.json');
+warn(
+  /"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && node scripts\/next-build\.cjs"/.test(packageJsonText) &&
+    /"build:vercel"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs && node scripts\/inspect-ci\.cjs && node scripts\/next-build\.cjs"/.test(packageJsonText),
+  'Vercel build should stay fast while build:ci keeps full typecheck + inspect gates.',
+);
 warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for Vercel progress and timeout diagnostics.');
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {

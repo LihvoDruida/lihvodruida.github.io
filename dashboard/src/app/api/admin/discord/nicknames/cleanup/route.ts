@@ -3,6 +3,8 @@ import { NextRequest } from "next/server";
 import { auditDiscordAdmin, adminDiscordResponse, discordAdminError, requireDiscordAdmin } from "@/lib/adminDiscordRoute";
 import { removeRolesFromMembersWithInvalidNicknames } from "@/lib/discordMemberManagement";
 
+export const revalidate = 0;
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
