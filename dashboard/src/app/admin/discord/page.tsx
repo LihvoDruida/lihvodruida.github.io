@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
@@ -69,7 +68,6 @@ function InfoChip({ title, text }: { title: string; text: string }) {
 }
 
 export default async function AdminDiscordPage() {
-  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageDiscordMembers(user)) {

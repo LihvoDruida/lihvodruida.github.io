@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { getStoredSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
@@ -92,7 +91,6 @@ export default async function LoginPage({
     reauth?: string;
   }>;
 }) {
-  await connection();
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
   const forceFreshLogin =

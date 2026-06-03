@@ -81,23 +81,17 @@ if (exists('package-lock.json')) {
   }
 }
 
-warn(/"installCommand"\s*:\s*"[^"]*--prefer-offline/.test(read('vercel.json')), 'Vercel installCommand should use --prefer-offline to reuse cache and avoid slow online metadata checks.');
-if (exists('.npmrc')) warn(/prefer-offline=true/.test(read('.npmrc')), '.npmrc should keep prefer-offline=true so local and Vercel installs reuse cache.');
 const packageJsonText = read('package.json');
-warn(
-  /"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && node scripts\/remove-legacy-middleware\.cjs && next build --turbopack"/.test(packageJsonText) &&
-    /"build:vercel"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs && next build --turbopack"/.test(packageJsonText),
-  'Vercel build should call Next directly with Turbopack while build:ci keeps full typecheck + inspect gates.',
-);
-warn(
-  /"installCommand"\s*:\s*"npm install [^"]*--prefer-offline/.test(read('vercel.json')) && !/--omit=dev/.test(read('vercel.json')),
-  'Vercel installCommand should keep dev dependencies available and use --prefer-offline for stable Next/Vercel builds.',
-);
-warn(
-  /"node"\s*:\s*"22\.x"/.test(packageJsonText),
-  'package.json engines.node should pin Vercel to Node 22.x to avoid Node 24/npm 11 engine drift.',
-);
-warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for Vercel progress and timeout diagnostics.');
+warn(!exists('vercel.json'), 'vercel.json should be absent so Vercel auto-detects Next.js framework, install command, build command, and output directory.');
+warn(!exists('.nvmrc') && !exists('.node-version'), 'Node version should be selected in Vercel Project Settings, not pinned by .nvmrc or .node-version.');
+warn(!/"engines"\s*:/.test(packageJsonText), 'package.json should not pin engines when the project intentionally follows Vercel Project Settings Node.js version.');
+warn(!/"packageManager"\s*:/.test(packageJsonText), 'package.json should not pin packageManager when Vercel should auto-select npm from package-lock.json.');
+if (exists('.npmrc')) warn(/prefer-offline=true/.test(read('.npmrc')), '.npmrc should keep prefer-offline=true so local and Vercel installs reuse cache.');
+warn(/"prebuild"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs"/.test(packageJsonText), 'prebuild should run the middleware cleanup before the default Vercel npm run build.');
+warn(/"build"\s*:\s*"next build"/.test(packageJsonText), 'build should stay on plain next build so Next/Vercel can use their automatic Next 16 defaults.');
+warn(!/"build:vercel"\s*:/.test(packageJsonText), 'build:vercel should be removed; Vercel should use the default npm run build script.');
+warn(/"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && npm run build"/.test(packageJsonText), 'build:ci should keep full local/CI gates without changing the Vercel default build path.');
+warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for progress and timeout diagnostics.');
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');

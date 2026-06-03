@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileCandidateBulkActions from "@/components/ProfileCandidateBulkActions";
 import ProfileCandidateExpiryTimer from "@/components/ProfileCandidateExpiryTimer";
@@ -187,7 +186,6 @@ export default async function ProfilePage({
   params: Promise<{ profileId: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await connection();
   const session = await getSession();
   const nicknamePolicy = await getGuildNicknamePolicy();
   if (!session) {

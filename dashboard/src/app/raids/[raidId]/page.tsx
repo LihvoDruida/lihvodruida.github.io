@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids, canViewRaidRoster } from "@/lib/permissions";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById } from "@/lib/profiles";
@@ -25,7 +24,6 @@ export async function generateMetadata({ params }: { params: Promise<{ raidId: s
 
 export default async function RaidDetailsPage({
   params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
-  await connection();
   const user = await getSession();
   const canManage = canManageRaids(user);
   const canSeeRoster = canViewRaidRoster(user);

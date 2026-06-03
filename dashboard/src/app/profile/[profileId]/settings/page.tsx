@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import ProfileNameControls from "@/components/ProfileNameControls";
 import { buildPageMetadata } from "@/lib/seo";
@@ -408,7 +407,6 @@ export default async function ProfileSettingsPage({
   params: Promise<{ profileId: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await connection();
   const session = await getSession();
   if (!session) {
     redirect("/login");

@@ -11,10 +11,6 @@ const nextConfig = {
     // Use `npm run verify` or `npm run build:ci` before merging when a strict gate is needed.
     ignoreBuildErrors: true,
   },
-  experimental: {
-    cpus: 1,
-  },
-
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.discordapp.com" },

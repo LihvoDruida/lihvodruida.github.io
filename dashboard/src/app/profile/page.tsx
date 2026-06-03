@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { redirect } from "next/navigation";
@@ -15,7 +14,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ProfileRedirectPage() {
-  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   redirect(await getOwnProfilePath(user));

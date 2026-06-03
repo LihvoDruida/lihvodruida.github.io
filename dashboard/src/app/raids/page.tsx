@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
@@ -30,7 +29,6 @@ export default async function RaidsListPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await connection();
   const user = await getSession();
   if (!user) {
     redirect("/login");

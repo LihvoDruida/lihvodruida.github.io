@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -118,7 +117,6 @@ async function impersonateAction(formData: FormData) {
 }
 
 export default async function AdminGroupsPage() {
-  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageGroups(user)) { redirect("/access-denied?reason=groups&from=/admin/groups"); throw new Error("Access denied"); }

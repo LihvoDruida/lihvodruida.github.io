@@ -137,20 +137,10 @@ SECURITY_REQUIRE_CLOUDFLARE=false
 ## 5. Production deploy on Vercel
 
 1. Import the repo into Vercel.
-2. Framework preset: Next.js.
-3. Node.js version: `22.x`. It is pinned in `package.json`, `.nvmrc`, and `.node-version` to avoid npm 11 / EBADENGINE drift on Vercel.
-4. Install command:
-
-```bash
-npm install --no-audit --no-fund --prefer-offline --progress=false
-```
-
-5. Build command:
-
-```bash
-npm run build:vercel
-```
-
+2. Framework preset: Next.js or Auto-detect.
+3. Node.js version in Vercel Project Settings: `24.x`. The repo no longer contains `engines`, `.nvmrc`, `.node-version`, or `packageManager`, so it does not fight the settings Vercel automatically provides.
+4. Install Command: leave empty / Auto. Vercel will detect npm from `package-lock.json`.
+5. Build Command: leave empty / Auto. Vercel will use the standard `npm run build`, and `prebuild` will run the legacy middleware cleanup automatically.
 6. Do not set a manual output directory for Next.js.
 7. Add production environment variables.
 8. Add domain:

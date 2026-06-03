@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession, type DashboardSession } from "@/lib/auth";
@@ -237,7 +236,6 @@ export default async function RulesAcceptPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await connection();
   const params = await searchParams;
   const token = String(
     Array.isArray(params.rt) ? params.rt[0] : params.rt || "",

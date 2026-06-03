@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
@@ -32,7 +31,6 @@ export const metadata = buildPageMetadata({
 });
 
 export default async function AdminOverviewPage() {
-  await connection();
   const user = await getSession();
   if (!user) {
     redirect("/login");
