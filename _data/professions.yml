@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 12:43:44'
+  updated_at: '2026-06-03 19:52:01'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1285,7 +1285,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 162
+        learned_points: 263
         max_points: 300
 - name: Yokusir
   region: eu

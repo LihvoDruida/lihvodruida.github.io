@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 12:43:44'
+  updated_at: '2026-06-03 19:52:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -58,16 +58,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13845
+      world: 13846
       region: 6161
       realm: 56
     heroic:
-      world: 13809
-      region: 6036
+      world: 13824
+      region: 6045
       realm: 49
     mythic:
-      world: 7207
-      region: 3115
+      world: 7219
+      region: 3126
       realm: 22
   sporefall:
     normal:
@@ -261,7 +261,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3702
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -2497,7 +2497,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/234/187484138-avatar.jpg?alt=/wow/static/images/2d/avatar/31-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Arthasright
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3390.9
@@ -3305,7 +3305,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/153/188651417-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Riney
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 0
@@ -3672,14 +3672,14 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3101.5
-        color: '#2a6dde'
+        score: 3120.2
+        color: '#3e6ae0'
       dps:
         score: 1971.8
         color: '#70ff54'
       healer:
-        score: 3101.5
-        color: '#2a6dde'
+        score: 3120.2
+        color: '#3e6ae0'
       tank:
         score: 0
         color: '#ffffff'
@@ -3693,8 +3693,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 3101.5
-        color: '#2a6dde'
+        score: 3120.2
+        color: '#3e6ae0'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -6113,7 +6113,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3323.8
@@ -6685,7 +6685,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3333.2
@@ -7309,7 +7309,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -7520,10 +7520,10 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3425.2
+        score: 3442.1
         color: '#a937e8'
       dps:
-        score: 3425.2
+        score: 3442.1
         color: '#a937e8'
       healer:
         score: 0
@@ -7535,7 +7535,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3425.2
+        score: 3442.1
         color: '#a937e8'
       spec_2:
         score: 0
@@ -7909,7 +7909,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3049.5
@@ -7961,7 +7961,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3095.5
@@ -8065,7 +8065,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2982.7
@@ -8325,7 +8325,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
         score: 2746.4
