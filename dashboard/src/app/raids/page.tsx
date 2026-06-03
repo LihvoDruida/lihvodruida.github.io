@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
@@ -25,10 +26,11 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function RaidsListPage({
-  searchParams,
+    searchParams,
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  await connection();
   const user = await getSession();
   if (!user) {
     redirect("/login");

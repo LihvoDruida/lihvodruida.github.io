@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { performance } = require('node:perf_hooks');
 
@@ -8,18 +10,25 @@ process.env.NEXT_TELEMETRY_DISABLED = process.env.NEXT_TELEMETRY_DISABLED || '1'
 
 const timeoutMs = Number.parseInt(process.env.NEXT_BUILD_TIMEOUT_MS || '900000', 10);
 const heartbeatMs = Number.parseInt(process.env.NEXT_BUILD_HEARTBEAT_MS || '15000', 10);
-const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const bundler = String(process.env.NEXT_BUILD_BUNDLER || 'webpack').toLowerCase();
+const root = process.cwd();
+const nextBin = path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next');
+const command = process.execPath;
+const bundler = String(process.env.NEXT_BUILD_BUNDLER || 'turbopack').toLowerCase();
 const bundlerArg = bundler === 'turbopack' || bundler === 'turbo' ? '--turbopack' : '--webpack';
-const args = ['next', 'build', bundlerArg];
+const args = [nextBin, 'build', bundlerArg];
 const startedAt = performance.now();
 
 function elapsedSeconds() {
   return Math.round((performance.now() - startedAt) / 1000);
 }
 
+if (!fs.existsSync(nextBin)) {
+  console.error(`[next-build] failed: Next.js binary not found at ${nextBin}. Run npm install before building.`);
+  process.exit(1);
+}
+
 console.log(`[next-build] start: ${command} ${args.join(' ')}`);
-console.log(`[next-build] node=${process.version} bundler=${bundlerArg.replace('--', '')} timeout=${Math.round(timeoutMs / 1000)}s`);
+console.log(`[next-build] node=${process.version} npm_agent=${process.env.npm_config_user_agent || 'unknown'} bundler=${bundlerArg.replace('--', '')} timeout=${Math.round(timeoutMs / 1000)}s`);
 
 const child = spawn(command, args, {
   stdio: 'inherit',

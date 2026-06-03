@@ -1,14 +1,23 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { performance } = require('node:perf_hooks');
 
 const timeoutMs = Number.parseInt(process.env.TYPECHECK_TIMEOUT_MS || '180000', 10);
 const heartbeatMs = Number.parseInt(process.env.TYPECHECK_HEARTBEAT_MS || '15000', 10);
 const startedAt = performance.now();
-const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const args = ['tsc', '-p', 'tsconfig.typecheck.json', '--noEmit', '--pretty', 'false'];
+const root = process.cwd();
+const tscBin = path.join(root, 'node_modules', 'typescript', 'bin', 'tsc');
+const command = process.execPath;
+const args = [tscBin, '-p', 'tsconfig.typecheck.json', '--noEmit', '--pretty', 'false'];
+
+if (!fs.existsSync(tscBin)) {
+  console.error(`[typecheck] failed: TypeScript binary not found at ${tscBin}. Run npm install with dev dependencies before verify/build:ci.`);
+  process.exit(1);
+}
 
 console.log(`[typecheck] start: ${command} ${args.join(' ')}`);
 

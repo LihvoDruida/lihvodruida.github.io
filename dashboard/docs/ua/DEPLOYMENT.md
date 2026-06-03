@@ -16,7 +16,7 @@ Mistblossom Vanguard Dashboard — приватна панель керуван�
 
 ## 2. Технології
 
-- Next.js 15 App Router;
+- Next.js 16 App Router;
 - React 19;
 - TypeScript;
 - Firebase Admin SDK / Firestore;
@@ -138,27 +138,34 @@ SECURITY_REQUIRE_CLOUDFLARE=false
 
 1. Імпортуй repo у Vercel.
 2. Framework preset: Next.js.
-3. Build command:
+3. Node.js version: `22.x`. Це зафіксовано в `package.json`, `.nvmrc` і `.node-version`, щоб не ловити npm 11 / EBADENGINE на Vercel.
+4. Install command:
 
 ```bash
-npm run build
+npm install --no-audit --no-fund --prefer-offline --progress=false
 ```
 
-4. Output directory не задавати вручну для Next.js.
-5. Додай production env variables.
-6. Додай domain:
+5. Build command:
+
+```bash
+npm run build:vercel
+```
+
+6. Output directory не задавати вручну для Next.js.
+7. Додай production env variables.
+8. Додай domain:
 
 ```text
 admin.lihvodruida.pp.ua
 ```
 
-7. Перевір `DASHBOARD_ALLOWED_HOSTS`:
+9. Перевір `DASHBOARD_ALLOWED_HOSTS`:
 
 ```env
 DASHBOARD_ALLOWED_HOSTS=admin.lihvodruida.pp.ua
 ```
 
-8. Перевір canonical URLs:
+10. Перевір canonical URLs:
 
 ```env
 DASHBOARD_URL=https://admin.lihvodruida.pp.ua
@@ -215,7 +222,18 @@ GET https://admin.lihvodruida.pp.ua/api/profile/discord-lookup?discord_id=...
 Authorization: Bearer <INTERNAL_PROFILE_LOOKUP_TOKEN>
 ```
 
-## 8. Post-deploy checklist
+## 8. Локальні перевірки перед merge
+
+Для повної локальної/CI-перевірки запускай:
+
+```bash
+npm run verify
+npm run build:ci
+```
+
+Vercel deploy навмисно не запускає `typecheck` і `lint`, щоб production deployment не витрачав хвилини на дубльовані перевірки.
+
+## 9. Post-deploy checklist
 
 ### Login
 

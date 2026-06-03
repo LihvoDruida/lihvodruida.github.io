@@ -16,7 +16,7 @@ Mistblossom Vanguard Dashboard is a private guild administration panel. It handl
 
 ## 2. Stack
 
-- Next.js 15 App Router;
+- Next.js 16 App Router;
 - React 19;
 - TypeScript;
 - Firebase Admin SDK / Firestore;
@@ -138,27 +138,34 @@ SECURITY_REQUIRE_CLOUDFLARE=false
 
 1. Import the repo into Vercel.
 2. Framework preset: Next.js.
-3. Build command:
+3. Node.js version: `22.x`. It is pinned in `package.json`, `.nvmrc`, and `.node-version` to avoid npm 11 / EBADENGINE drift on Vercel.
+4. Install command:
 
 ```bash
-npm run build
+npm install --no-audit --no-fund --prefer-offline --progress=false
 ```
 
-4. Do not set a manual output directory for Next.js.
-5. Add production environment variables.
-6. Add domain:
+5. Build command:
+
+```bash
+npm run build:vercel
+```
+
+6. Do not set a manual output directory for Next.js.
+7. Add production environment variables.
+8. Add domain:
 
 ```text
 admin.lihvodruida.pp.ua
 ```
 
-7. Check `DASHBOARD_ALLOWED_HOSTS`:
+9. Check `DASHBOARD_ALLOWED_HOSTS`:
 
 ```env
 DASHBOARD_ALLOWED_HOSTS=admin.lihvodruida.pp.ua
 ```
 
-8. Check canonical URLs:
+10. Check canonical URLs:
 
 ```env
 DASHBOARD_URL=https://admin.lihvodruida.pp.ua
@@ -215,7 +222,18 @@ GET https://admin.lihvodruida.pp.ua/api/profile/discord-lookup?discord_id=...
 Authorization: Bearer <INTERNAL_PROFILE_LOOKUP_TOKEN>
 ```
 
-## 8. Post-deploy checklist
+## 8. Local checks before merge
+
+For full local/CI validation, run:
+
+```bash
+npm run verify
+npm run build:ci
+```
+
+Vercel deploy intentionally skips `typecheck` and `lint`, so production deployment does not spend minutes on duplicated checks.
+
+## 9. Post-deploy checklist
 
 ### Login
 

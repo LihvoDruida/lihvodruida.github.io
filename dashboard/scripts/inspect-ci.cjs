@@ -85,9 +85,17 @@ warn(/"installCommand"\s*:\s*"[^"]*--prefer-offline/.test(read('vercel.json')), 
 if (exists('.npmrc')) warn(/prefer-offline=true/.test(read('.npmrc')), '.npmrc should keep prefer-offline=true so local and Vercel installs reuse cache.');
 const packageJsonText = read('package.json');
 warn(
-  /"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && node scripts\/next-build\.cjs"/.test(packageJsonText) &&
-    /"build:vercel"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs && node scripts\/inspect-ci\.cjs && node scripts\/next-build\.cjs"/.test(packageJsonText),
-  'Vercel build should stay fast while build:ci keeps full typecheck + inspect gates.',
+  /"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && node scripts\/remove-legacy-middleware\.cjs && next build --turbopack"/.test(packageJsonText) &&
+    /"build:vercel"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs && next build --turbopack"/.test(packageJsonText),
+  'Vercel build should call Next directly with Turbopack while build:ci keeps full typecheck + inspect gates.',
+);
+warn(
+  /"installCommand"\s*:\s*"npm install [^"]*--prefer-offline/.test(read('vercel.json')) && !/--omit=dev/.test(read('vercel.json')),
+  'Vercel installCommand should keep dev dependencies available and use --prefer-offline for stable Next/Vercel builds.',
+);
+warn(
+  /"node"\s*:\s*"22\.x"/.test(packageJsonText),
+  'package.json engines.node should pin Vercel to Node 22.x to avoid Node 24/npm 11 engine drift.',
 );
 warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for Vercel progress and timeout diagnostics.');
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');

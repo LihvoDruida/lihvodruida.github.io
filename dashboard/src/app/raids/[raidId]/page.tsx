@@ -1,51 +1,31 @@
+import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids, canViewRaidRoster } from "@/lib/permissions";
 import { getMainCharacter, getProfileByDiscordUserId, getProfileById } from "@/lib/profiles";
-import { getRaid, hasRaidStorage, raidLiveRevision, resolveRaidThumbnailUrl, type RaidDifficulty } from "@/lib/raids";
+import { getRaid, hasRaidStorage, raidLiveRevision } from "@/lib/raids";
 import RaidLiveSync from "@/components/RaidLiveSync";
 import { RaidAnnouncementPreview, RaidAttendanceActions, RaidManageActions, RaidPageShell, RaidUnavailableState, RosterSideList, StatusNotice } from "@/components/RaidViews";
-import { buildPageMetadata, compactText } from "@/lib/seo";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function raidDifficultyLabel(value: RaidDifficulty) {
-  if (value === "mythic") return "Міфік";
-  if (value === "normal") return "Нормал";
-  return "Героїк";
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ raidId: string }> }) {
   const { raidId } = await params;
-  const raid = await getRaid(raidId).catch(() => null);
   const path = `/raids/${encodeURIComponent(raidId)}`;
 
-  if (!raid || (raid.status !== "published" && raid.status !== "closed")) {
-    return buildPageMetadata({
-      title: "Сторінка рейду",
-      description: "Сторінка рейду Mistblossom Vanguard з записом, статусом участі, складом і посиланням на правила.",
-      path,
-      keywords: ["сторінка рейду", "запис на рейд", "рейд WoW"],
-    });
-  }
-
-  const difficulty = raidDifficultyLabel(raid.difficulty);
-  const date = [raid.date, raid.time].filter(Boolean).join(" о ");
-  const description = compactText(
-    `${date ? `${date}. ` : ""}${raid.description || "Запис на рейд, склад групи, правила та статус участі для учасників Mistblossom Vanguard."}`,
-  );
-
   return buildPageMetadata({
-    title: `${raid.title} • ${difficulty}`,
-    description,
+    title: "Сторінка рейду",
+    description: "Сторінка рейду Mistblossom Vanguard з записом, статусом участі, складом і посиланням на правила.",
     path,
-    image: resolveRaidThumbnailUrl(raid, { absolute: false }),
-    keywords: ["рейд Mistblossom Vanguard", difficulty, "запис на рейд", "World of Warcraft"],
+    keywords: ["сторінка рейду", "запис на рейд", "рейд WoW"],
   });
 }
 
-export default async function RaidDetailsPage({ params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function RaidDetailsPage({
+  params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   const canManage = canManageRaids(user);
   const canSeeRoster = canViewRaidRoster(user);

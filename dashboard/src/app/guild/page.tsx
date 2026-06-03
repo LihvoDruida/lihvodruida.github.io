@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import AppProblemScreen from "@/components/AppProblemScreen";
 import DashboardIdentity from "@/components/DashboardIdentity";
@@ -34,6 +35,7 @@ function formatDate(value?: string | null) {
 }
 
 export default async function GuildRosterPage() {
+  await connection();
   if (!(await isAuthenticated())) {
     redirect("/login");
     throw new Error("Login required");

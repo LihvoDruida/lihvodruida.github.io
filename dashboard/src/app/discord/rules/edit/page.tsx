@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import DiscordEmbedEditor from "@/components/DiscordEmbedEditor";
@@ -25,7 +26,9 @@ export const metadata = buildPageMetadata({
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function EditDiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function EditDiscordRulesPage({
+  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
 

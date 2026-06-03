@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import AuthorSuggestionChips from "@/components/AuthorSuggestionChips";
 import ContentImageField from "@/components/ContentImageField";
@@ -325,7 +326,9 @@ function ContentLibraryGroup({
   );
 }
 
-export default async function ContentPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function ContentPage({
+  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageSiteContent(user)) redirect(await getOwnProfilePath(user));

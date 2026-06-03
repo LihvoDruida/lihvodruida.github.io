@@ -7,12 +7,12 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typescript: {
-    // `npm run build` runs `npm run typecheck` before Next starts.
-    // Avoid a second TypeScript worker pass in Vercel builds.
+    // Vercel deploy intentionally skips the expensive TypeScript worker.
+    // Use `npm run verify` or `npm run build:ci` before merging when a strict gate is needed.
     ignoreBuildErrors: true,
   },
   experimental: {
-    cpus: 2,
+    cpus: 1,
   },
 
   images: {

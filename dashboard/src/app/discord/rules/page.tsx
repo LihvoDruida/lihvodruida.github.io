@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
@@ -334,7 +335,9 @@ function uniqueMessages(messages: DiscordEditableMessage[]) {
   return result.sort((a, b) => Date.parse(b.editedAt || b.createdAt || "") - Date.parse(a.editedAt || a.createdAt || ""));
 }
 
-export default async function DiscordRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function DiscordRulesPage({
+  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
 

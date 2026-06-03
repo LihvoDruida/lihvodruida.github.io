@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { getStoredSession } from "@/lib/auth";
 import { getGuildBranding } from "@/lib/branding";
 import { redirect } from "next/navigation";
@@ -81,7 +82,7 @@ function discordStartPath(nextPath: string, forceFreshLogin: boolean) {
 }
 
 export default async function LoginPage({
-  searchParams,
+    searchParams,
 }: {
   searchParams: Promise<{
     error?: string;
@@ -91,6 +92,7 @@ export default async function LoginPage({
     reauth?: string;
   }>;
 }) {
+  await connection();
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
   const forceFreshLogin =

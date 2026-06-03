@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import AppProblemScreen from "@/components/AppProblemScreen";
 import DashboardIdentity from "@/components/DashboardIdentity";
@@ -37,10 +38,11 @@ function safeReturnPath(value?: string) {
 }
 
 export default async function AccessDeniedPage({
-  searchParams,
+    searchParams,
 }: {
   searchParams: Promise<{ reason?: string; from?: string }>;
 }) {
+  await connection();
   const [user, params] = await Promise.all([getSession(), searchParams]);
   if (!user) {
     redirect(`/login?next=${encodeURIComponent(safeReturnPath(params.from))}&reauth=1`);

@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
@@ -19,7 +20,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function EditRaidPage({ params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function EditRaidPage({
+  params, searchParams }: { params: Promise<{ raidId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canManageRaids(user)) redirect(await getOwnProfilePath(user));

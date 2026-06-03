@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import ApplicationStatusActions from "@/components/ApplicationStatusActions";
 import ApplicationFilters from "@/components/ApplicationFilters";
 import { redirect } from "next/navigation";
@@ -141,7 +142,9 @@ function RaiderIoPanel({ item }: { item: ApplicationItem }) {
   );
 }
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function DashboardPage({
+  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   if (!(await isAuthenticated())) { redirect("/login"); throw new Error("Login required"); }
   const user = await getSessionUser();
   if (!user) { redirect("/login"); throw new Error("Login required"); }

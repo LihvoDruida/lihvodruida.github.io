@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
@@ -87,7 +88,9 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
   );
 }
 
-export default async function ProfilesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function ProfilesPage({
+  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await connection();
   const user = await getSession();
   if (!user) { redirect("/login"); throw new Error("Login required"); }
   if (!canViewProfiles(user)) redirect(await getOwnProfilePath(user));
