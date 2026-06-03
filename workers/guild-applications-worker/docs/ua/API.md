@@ -414,7 +414,7 @@ Worker не дозволяє `@everyone`, `@here` або unrestricted user menti
 
 ## `GET /api/discord-guild-channels`
 
-Повертає список Discord text/news channels для dashboard.
+Повертає список Discord text/news channels для dashboard. Можна передати `?guild_id=<id>`; якщо `DISCORD_GUILD_ID` у Worker не заданий, endpoint використає цей параметр. Якщо Discord API тимчасово недоступний, але заданий `DISCORD_RAID_CHANNEL_ID` або `DISCORD_CHANNEL_ID`, endpoint поверне fallback-канал із полем `warning` замість жорсткої помилки.
 
 ### Auth
 
@@ -440,7 +440,8 @@ Worker не дозволяє `@everyone`, `@here` або unrestricted user menti
     }
   ],
   "suggestedChannelId": "123456789012345678",
-  "suggestedRulesChannelId": "123456789012345678"
+  "suggestedRulesChannelId": "123456789012345678",
+  "warning": null
 }
 ```
 

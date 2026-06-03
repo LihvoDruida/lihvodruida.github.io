@@ -414,7 +414,7 @@ The Worker never enables `@everyone`, `@here`, or unrestricted user mentions. Ro
 
 ## `GET /api/discord-guild-channels`
 
-Returns Discord text/news channels for the dashboard.
+Returns Discord text/news channels for the dashboard. You can pass `?guild_id=<id>`; if `DISCORD_GUILD_ID` is not set in the Worker, the endpoint uses that query value. If Discord API is temporarily unavailable but `DISCORD_RAID_CHANNEL_ID` or `DISCORD_CHANNEL_ID` is configured, the endpoint returns the fallback channel with a `warning` field instead of hard-failing.
 
 ### Auth
 
@@ -440,7 +440,8 @@ Same auth as `/api/discord-raid-message`.
     }
   ],
   "suggestedChannelId": "123456789012345678",
-  "suggestedRulesChannelId": "123456789012345678"
+  "suggestedRulesChannelId": "123456789012345678",
+  "warning": null
 }
 ```
 

@@ -417,15 +417,35 @@ type DiscordRolesCacheEntry = {
   roles: DiscordRoleOption[];
 };
 
+export type DiscordTextChannelsSnapshot = {
+  guild: DiscordGuildSnapshot | null;
+  channels: DiscordTextChannel[];
+  suggestedRulesChannelId: string;
+  warning?: string | null;
+};
+
+type DiscordChannelsCacheEntry = {
+  checkedAt: number;
+  snapshot: DiscordTextChannelsSnapshot;
+};
+
 declare global {
   // eslint-disable-next-line no-var
   var __mistblossomDiscordRolesCache: Map<string, DiscordRolesCacheEntry> | undefined;
+  // eslint-disable-next-line no-var
+  var __mistblossomDiscordChannelsCache: Map<string, DiscordChannelsCacheEntry> | undefined;
   // eslint-disable-next-line no-var
   var __mistblossomDiscordRouteCooldowns: Map<string, number> | undefined;
 }
 
 function discordRolesCacheTtlMs() {
   const parsed = Number(process.env.DISCORD_ROLES_CACHE_SECONDS || 300);
+  if (!Number.isFinite(parsed)) return 300_000;
+  return Math.max(30, Math.min(1800, Math.floor(parsed))) * 1000;
+}
+
+function discordChannelsCacheTtlMs() {
+  const parsed = Number(process.env.DISCORD_CHANNELS_CACHE_SECONDS || process.env.DISCORD_ROLES_CACHE_SECONDS || 300);
   if (!Number.isFinite(parsed)) return 300_000;
   return Math.max(30, Math.min(1800, Math.floor(parsed))) * 1000;
 }
@@ -875,55 +895,72 @@ export async function fetchDiscordGuildSnapshot(): Promise<DiscordGuildSnapshot>
   };
 }
 
-export async function fetchDiscordTextChannels() {
-  const guildId = getDiscordGuildId();
-  const fallbackChannelId = getDiscordDefaultChannelId();
-
-  if (discordGuildChannelsEndpoint() && workerRelayToken()) {
-    return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
-  }
-
-  if (!getBotToken()) {
-    if (discordGuildChannelsEndpoint() && workerRelayToken()) {
-      return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
-    }
-    if (fallbackChannelId) {
-      return {
-        guild: null,
-        channels: [{ id: fallbackChannelId, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
-        suggestedRulesChannelId: fallbackChannelId,
-      };
-    }
-    throw new Error("Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.");
-  }
-
-  if (!guildId) {
-    if (discordGuildChannelsEndpoint() && workerRelayToken()) {
-      return fetchDiscordTextChannelsViaWorker(fallbackChannelId);
-    }
-    if (fallbackChannelId) {
-      return {
-        guild: null,
-        channels: [{ id: fallbackChannelId, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[],
-        suggestedRulesChannelId: fallbackChannelId,
-      };
-    }
-    throw new Error("Discord-сервер не підключений до панелі.");
-  }
-
-  const [guild, channels] = await Promise.all([
-    fetchDiscordGuildSnapshot().catch(() => null),
-    discordApi<any[]>(`/guilds/${guildId}/channels`),
-  ]);
-
-  return normalizeDiscordTextChannels(channels, guild, fallbackChannelId);
+function fallbackDiscordTextChannels(fallbackChannelId = "", guild: DiscordGuildSnapshot | null = null, warning?: string | null): DiscordTextChannelsSnapshot {
+  const fallback = snowflake(fallbackChannelId);
+  return {
+    guild,
+    channels: fallback ? [{ id: fallback, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] : [],
+    suggestedRulesChannelId: fallback || "",
+    warning: warning || null,
+  };
 }
 
-async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
+function discordChannelsCacheKey(guildId: string, fallbackChannelId: string) {
+  const source = discordGuildChannelsEndpoint() && workerRelayToken() ? "worker" : getBotToken() ? "bot" : "fallback";
+  return `${source}:${guildId || "no-guild"}:${fallbackChannelId || "no-default"}`;
+}
+
+export async function fetchDiscordTextChannels(): Promise<DiscordTextChannelsSnapshot> {
+  const guildId = getDiscordGuildId();
+  const fallbackChannelId = getDiscordDefaultChannelId();
+  const cacheKey = discordChannelsCacheKey(guildId, fallbackChannelId);
+  const cache = globalThis.__mistblossomDiscordChannelsCache || new Map<string, DiscordChannelsCacheEntry>();
+  globalThis.__mistblossomDiscordChannelsCache = cache;
+  const cached = cache.get(cacheKey);
+  const ttlMs = discordChannelsCacheTtlMs();
+  if (cached && Date.now() - cached.checkedAt < ttlMs) return cached.snapshot;
+
+  try {
+    let snapshot: DiscordTextChannelsSnapshot;
+
+    if (discordGuildChannelsEndpoint() && workerRelayToken()) {
+      snapshot = await fetchDiscordTextChannelsViaWorker(fallbackChannelId);
+    } else if (!getBotToken()) {
+      if (!fallbackChannelId) throw new Error("Публікація в Discord тимчасово недоступна. Спробуй пізніше або звернись до гільдмайстра.");
+      snapshot = fallbackDiscordTextChannels(fallbackChannelId);
+    } else if (!guildId) {
+      if (!fallbackChannelId) throw new Error("Discord-сервер не підключений до панелі.");
+      snapshot = fallbackDiscordTextChannels(fallbackChannelId);
+    } else {
+      const [guild, channels] = await Promise.all([
+        fetchDiscordGuildSnapshot().catch(() => null),
+        discordApi<any[]>(`/guilds/${guildId}/channels`),
+      ]);
+      snapshot = normalizeDiscordTextChannels(channels, guild, fallbackChannelId);
+    }
+
+    cache.set(cacheKey, { checkedAt: Date.now(), snapshot });
+    return snapshot;
+  } catch (error) {
+    const warning = error instanceof Error ? error.message : String(error || "Discord channels unavailable");
+    if (cached?.snapshot?.channels?.length) {
+      return { ...cached.snapshot, warning };
+    }
+    const fallback = fallbackDiscordTextChannels(fallbackChannelId, null, warning);
+    if (fallback.channels.length) return fallback;
+    throw error;
+  }
+}
+
+async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = ""): Promise<DiscordTextChannelsSnapshot> {
   const endpoint = discordGuildChannelsEndpoint();
   if (!endpoint) throw new Error("Список Discord-каналів тимчасово недоступний. Спробуй пізніше або звернись до гільдмайстра.");
 
-  const response = await fetch(endpoint, {
+  const url = new URL(endpoint);
+  const guildId = getDiscordGuildId();
+  if (guildId && !url.searchParams.has("guild_id")) url.searchParams.set("guild_id", guildId);
+
+  const response = await fetch(url.toString(), {
     method: "GET",
     headers: workerRelayHeaders(),
     cache: "no-store",
@@ -943,10 +980,12 @@ async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = "") {
     rules_channel_id: guildRaw.rules_channel_id ? String(guildRaw.rules_channel_id) : null,
   } : null;
 
-  return normalizeDiscordTextChannels(Array.isArray(data.channels) ? data.channels : [], guild, String(data.suggestedRulesChannelId || data.suggestedChannelId || fallbackChannelId || ""));
+  const snapshot = normalizeDiscordTextChannels(Array.isArray(data.channels) ? data.channels : [], guild, String(data.suggestedRulesChannelId || data.suggestedChannelId || fallbackChannelId || ""));
+  const warning = typeof data.warning === "string" && data.warning.trim() ? data.warning.trim().slice(0, 240) : null;
+  return warning ? { ...snapshot, warning } : snapshot;
 }
 
-function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapshot | null, fallbackChannelId = "") {
+function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapshot | null, fallbackChannelId = ""): DiscordTextChannelsSnapshot {
   const textChannels: DiscordTextChannel[] = channels
     .filter((channel) => channel && (channel.type === 0 || channel.type === 5))
     .map((channel) => ({
@@ -974,6 +1013,7 @@ function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapsh
     guild,
     channels: textChannels.length > 0 ? textChannels : fallback ? [{ id: fallback, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[] : [],
     suggestedRulesChannelId: rulesByGuild?.id || rulesByName?.id || fallback || textChannels[0]?.id || "",
+    warning: null,
   };
 }
 

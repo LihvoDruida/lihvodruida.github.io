@@ -28,14 +28,17 @@ export default async function EditRaidPage({
   const { raidId } = await params;
   const query = await searchParams;
   const raid = await getRaid(raidId);
+  const discordEnabled = hasDiscordEmbedConfig();
   let channels: Array<{ id: string; name: string }> = [];
   let roles: Array<{ id: string; name: string; color: number; position: number; managed: boolean }> = [];
-  if (hasDiscordEmbedConfig()) {
+  let channelWarning = "";
+  if (discordEnabled) {
     const [channelsResult, roleData] = await Promise.all([
       fetchDiscordTextChannels().catch(() => null),
       fetchDiscordRoles().catch(() => []),
     ]);
     channels = channelsResult?.channels || [];
+    channelWarning = channelsResult?.warning || "";
     roles = roleData;
   }
 
@@ -47,11 +50,12 @@ export default async function EditRaidPage({
     >
       <StatusNotice params={query} />
       {!hasRaidStorage() ? <div className="notice panel error-note raid-notice">Збереження рейдів тимчасово недоступне. Спробуй пізніше або звернись до гільдмайстра.</div> : null}
-      {!hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Зміни можна зберегти й опублікувати пізніше.</div> : null}
+      {!discordEnabled ? <div className="notice panel error-note raid-notice">Публікація в Discord тимчасово недоступна. Зміни можна зберегти й опублікувати пізніше.</div> : null}
+      {discordEnabled && channelWarning ? <div className="notice panel warning-note raid-notice">Список Discord-каналів прочитано з попередженням: {channelWarning}</div> : null}
 
       {raid ? (
         <section className="raid-editor-layout">
-          <RaidForm raid={raid} channels={channels} roles={roles} />
+          <RaidForm raid={raid} channels={channels} roles={roles} discordEnabled={discordEnabled} />
           <div className="raid-preview-column">
             <RaidEditorLivePreview initialRaid={raid} />
             <RosterSideList raid={raid} />

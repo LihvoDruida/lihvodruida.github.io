@@ -89,6 +89,8 @@ export type RaidItem = {
   createdAt?: string | null;
   updatedAt?: string | null;
   publishedAt?: string | null;
+  closedAt?: string | null;
+  closedReason?: "manual" | "auto" | null;
 };
 
 export type RaidParty = {
@@ -308,11 +310,38 @@ function raidDateTimeToUtcMs(input: Pick<RaidItem, "date" | "time"> | Record<str
 
 function isRaidDateTimeExpired(input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>) {
   const startsAt = raidDateTimeToUtcMs(input);
+  // Autoclose is intentionally tied to the scheduled start moment.
+  // There is no post-start grace delay: when the raid time arrives, signups close.
   return startsAt !== null && Date.now() >= startsAt;
 }
 
-export function isRaidClosed(raid: Pick<RaidItem, "status" | "date" | "time">) {
-  return raid.status === "closed" || (raid.status === "published" && isRaidDateTimeExpired(raid));
+function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
+  const reason = cleanString(value, 20).toLowerCase();
+  if (reason === "manual") return "manual";
+  if (reason === "auto") return "auto";
+  return null;
+}
+
+export function isRaidAutoCloseDue(raid: Pick<RaidItem, "status" | "date" | "time"> | Record<string, unknown>) {
+  const status = (raid as Record<string, unknown>).status === "published" || (raid as Record<string, unknown>).status === "closed"
+    ? String((raid as Record<string, unknown>).status)
+    : "draft";
+  return status !== "draft" && isRaidDateTimeExpired(raid);
+}
+
+export function isRaidClosed(raid: Pick<RaidItem, "status" | "date" | "time"> & { closedReason?: string | null }) {
+  if (raid.status === "closed") {
+    const reason = cleanRaidClosedReason(raid.closedReason);
+    if (reason === "manual") return true;
+    if (reason === "auto") return isRaidDateTimeExpired(raid);
+
+    // Legacy compatibility: older records may have `status: "closed"` without
+    // `closedReason`. Keep them closed only when the scheduled start is already
+    // reached; before that, normalize them back to published.
+    return raidDateTimeToUtcMs(raid) === null || isRaidDateTimeExpired(raid);
+  }
+
+  return raid.status === "published" && isRaidDateTimeExpired(raid);
 }
 
 function profileMainLabel(profile?: DashboardProfile | null) {
@@ -352,6 +381,12 @@ function cleanOptionalMaxPlayers(value: unknown) {
   const num = Number(raw);
   if (!Number.isFinite(num) || num <= 0) return null;
   return Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(num)));
+}
+
+
+function cleanSnowflakeId(value: unknown) {
+  const text = cleanString(value, 32);
+  return /^\d{16,25}$/.test(text) ? text : "";
 }
 
 function cleanSnowflakeIds(values: unknown, max = 20) {
@@ -425,7 +460,10 @@ function normalizeSignup(value: unknown): RaidSignup | null {
 
 function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
   const rawStatus = data.status === "published" ? "published" : data.status === "closed" ? "closed" : "draft";
-  const status = rawStatus === "published" && isRaidDateTimeExpired(data) ? "closed" : rawStatus;
+  const closedReason = cleanRaidClosedReason(data.closedReason || data.closed_reason);
+  const status = rawStatus === "closed" && !isRaidClosed({ status: rawStatus, date: data.date as string, time: data.time as string, closedReason })
+    ? "published"
+    : rawStatus;
   const signups = Array.isArray(data.signups)
     ? data.signups.map(normalizeSignup).filter(Boolean) as RaidSignup[]
     : [];
@@ -461,6 +499,8 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
     publishedAt: timestampToIso(data.publishedAt),
+    closedAt: timestampToIso(data.closedAt),
+    closedReason,
   };
 }
 
@@ -763,6 +803,24 @@ function clearRaidRuntimeCaches(raidId?: string | null) {
   void invalidateRaidPublicCaches(id).catch(() => null);
 }
 
+const raidAutoCloseSyncInFlight = new Set<string>();
+
+function scheduleRaidAutoCloseSync(raid: RaidItem, source: string) {
+  if (raid.status !== "published" || !isRaidAutoCloseDue(raid) || raidAutoCloseSyncInFlight.has(raid.id)) return;
+  raidAutoCloseSyncInFlight.add(raid.id);
+  void syncAutoClosedRaid(raid)
+    .catch((error) => {
+      console.warn("[raids] Failed to persist auto-closed raid", {
+        raidId: raid.id,
+        source,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    })
+    .finally(() => {
+      raidAutoCloseSyncInFlight.delete(raid.id);
+    });
+}
+
 function raidWriteErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || "");
   if (/збереження|write|permission|quota|firestore|firebase|timed out|timeout|resource/i.test(message)) {
@@ -774,17 +832,26 @@ function raidWriteErrorMessage(error: unknown) {
 export async function listRaids(limit = 60): Promise<RaidItem[]> {
   const safeLimit = Math.max(1, Math.min(100, limit));
   const edgeCached = await readRaidListPublicCache(safeLimit).catch(() => null);
-  if (edgeCached) return edgeCached;
+  if (edgeCached) {
+    edgeCached.forEach((raid) => scheduleRaidAutoCloseSync(raid, "public-list-cache"));
+    return edgeCached;
+  }
   if (!hasRaidStorage()) return [];
   return firebaseRead<RaidItem[]>(
     "raid",
     `raids:list:${safeLimit}`,
     async () => {
-      const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
+      let snapshot: any;
+      try {
+        snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).orderBy("date", "desc").limit(safeLimit).get();
+      } catch {
+        snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
+      }
       const raidDocs = snapshot.docs as Array<{ id: string; data: () => Record<string, unknown> | undefined }>;
       const raids: RaidItem[] = raidDocs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
       const sorted = raids
         .sort((a: RaidItem, b: RaidItem) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+      sorted.forEach((raid) => scheduleRaidAutoCloseSync(raid, "firebase-list-read"));
       await writeRaidListPublicCache(safeLimit, sorted).catch(() => null);
       return sorted;
     },
@@ -802,7 +869,10 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const id = cleanRaidId(raidId);
   if (!id) return null;
   const edgeCached = await readRaidItemPublicCache(id).catch(() => null);
-  if (edgeCached) return edgeCached;
+  if (edgeCached) {
+    scheduleRaidAutoCloseSync(edgeCached, "public-item-cache");
+    return edgeCached;
+  }
   if (!hasRaidStorage()) return null;
   return firebaseRead(
     "raid",
@@ -811,6 +881,7 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
       if (!snapshot.exists) return null;
       const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+      scheduleRaidAutoCloseSync(raid, "firebase-item-read");
       await writeRaidItemPublicCache(raid).catch(() => null);
       return raid;
     },
@@ -825,13 +896,14 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
 }
 
 async function syncAutoClosedRaid(raid: RaidItem) {
-  if (raid.status !== "closed" || !hasRaidStorage()) return;
+  if (!isRaidAutoCloseDue(raid) || raid.closedReason === "manual" || !hasRaidStorage()) return;
+  if (raid.status === "closed" && raid.closedReason === "auto") return;
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:auto-close`,
     async () => {
       const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
-      await ref.set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      await ref.set({ status: "closed", closedReason: "auto", closedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       clearRaidRuntimeCaches(raid.id);
     },
     {
@@ -849,12 +921,12 @@ export async function closeRaid(raidId: string) {
   const raid = await getRaid(raidId);
   if (!raid) throw new Error("Рейд не знайдено.");
   if (raid.status === "draft") throw new Error("Чернетку не можна закрити. Її можна видалити або опублікувати.");
-  const closed: RaidItem = { ...raid, status: "closed" };
+  const closed: RaidItem = { ...raid, status: "closed", closedReason: "manual", closedAt: new Date().toISOString() };
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:close`,
     async () => {
-      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", closedReason: "manual", closedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       clearRaidRuntimeCaches(raid.id);
     },
     { timeoutMs: 3_000, logEvent: "raids.close_write_failed" },
@@ -1021,7 +1093,7 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     consumables: cleanConsumables(form.get("consumables")),
     lootMode: cleanLootMode(form.get("lootMode")),
     composition: normalizeComposition(composition),
-    channelId: cleanString(form.get("channelId"), 32),
+    channelId: cleanSnowflakeId(form.get("channelId")),
   };
 }
 
@@ -1067,10 +1139,12 @@ export async function saveRaidFromForm(form: FormData, user: DashboardSession, p
       const snapshot = await ref.get();
       const existingRaid = snapshot.exists ? normalizeRaid(snapshot.id, snapshot.data() || {}) : null;
       validateRaidPayload(payload, existingRaid);
+      const nextStatus = snapshot.exists ? existingRaid?.status || "draft" : "draft";
 
       await ref.set({
         ...payload,
-        status: snapshot.exists ? snapshot.get("status") || "draft" : "draft",
+        status: nextStatus,
+        ...(nextStatus === "closed" ? {} : { closedAt: null, closedReason: null }),
         updatedAt: FieldValue.serverTimestamp(),
         ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), signups: [] }),
       }, { merge: true });
@@ -1498,7 +1572,7 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
   const components = buildRaidAttendanceComponents(raid.id, { disabled: closed, full: !closed && isRaidRegistrationFull(raid) });
-  const targetChannelId = cleanString(channelId || raid.channelId || getDiscordDefaultChannelId(), 32);
+  const targetChannelId = cleanSnowflakeId(channelId || raid.channelId || getDiscordDefaultChannelId());
   if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
 
   let message: any;
@@ -1556,6 +1630,8 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
     async () => {
       await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
         status: closed ? "closed" : "published",
+        closedReason: closed ? "auto" : null,
+        closedAt: closed ? FieldValue.serverTimestamp() : null,
         channelId: nextChannelId,
         messageId: nextMessageId,
         messageUrl,
@@ -1576,8 +1652,19 @@ export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSes
   if (action === "publish") {
     const wasDiscordPublished = Boolean(raid.channelId && raid.messageId && raid.status !== "draft");
     const result = await publishOrUpdateRaid(raid, form.get("channelId") ? cleanString(form.get("channelId"), 32) : raid.channelId);
-    const nextStatus = isRaidClosed({ ...raid, ...result, status: "published" }) ? "closed" as const : "published" as const;
-    return { raid: { ...raid, status: nextStatus, ...result }, published: result.messageUrl, discordAction: wasDiscordPublished ? "updated" as const : "created" as const };
+    const shouldAutoClose = isRaidClosed({ ...raid, ...result, status: "published" });
+    const nextStatus = shouldAutoClose ? "closed" as const : "published" as const;
+    return {
+      raid: {
+        ...raid,
+        status: nextStatus,
+        closedReason: shouldAutoClose ? "auto" as const : null,
+        closedAt: shouldAutoClose ? new Date().toISOString() : null,
+        ...result,
+      },
+      published: result.messageUrl,
+      discordAction: wasDiscordPublished ? "updated" as const : "created" as const,
+    };
   }
   return { raid, published: null, discordAction: null };
 }

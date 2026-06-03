@@ -2357,9 +2357,34 @@ async function handleDiscordGuildChannels(request, env) {
     return json({ ok: false, error: "DISCORD_BOT_TOKEN is missing in Worker." }, 500, origin);
   }
 
-  const guildId = snowflake(env.DISCORD_GUILD_ID || "");
+  const url = new URL(request.url);
+  const guildId = snowflake(
+    url.searchParams.get("guild_id") ||
+    url.searchParams.get("guildId") ||
+    env.DISCORD_GUILD_ID ||
+    env.DISCORD_SERVER_ID ||
+    env.GUILD_ID ||
+    ""
+  );
+  const fallbackChannelId = snowflake(
+    env.DISCORD_RAID_CHANNEL_ID ||
+    env.RAID_DISCORD_CHANNEL_ID ||
+    env.DISCORD_CHANNEL_ID ||
+    env.GUILD_APPLICATIONS_DISCORD_CHANNEL_ID ||
+    ""
+  );
+  const fallbackChannels = (warning = "") => ({
+    ok: true,
+    guild: guildId ? { id: guildId, name: "Discord guild", rules_channel_id: null } : null,
+    channels: fallbackChannelId ? [{ id: fallbackChannelId, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] : [],
+    suggestedChannelId: fallbackChannelId || "",
+    suggestedRulesChannelId: fallbackChannelId || "",
+    warning: warning || null,
+  });
+
   if (!guildId) {
     logWorkerEvent("error", "discord_channels.guild_missing");
+    if (fallbackChannelId) return json(fallbackChannels("DISCORD_GUILD_ID is missing in Worker; returned fallback channel."), 200, origin);
     return json({ ok: false, error: "DISCORD_GUILD_ID is missing in Worker." }, 500, origin);
   }
 
@@ -2375,14 +2400,24 @@ async function handleDiscordGuildChannels(request, env) {
   try { guild = guildRaw ? JSON.parse(guildRaw) : null; } catch { guild = null; }
   try { channels = channelsRaw ? JSON.parse(channelsRaw) : null; } catch { channels = null; }
 
-  if (!guildResponse.ok || !channelsResponse.ok || !Array.isArray(channels)) {
+  if (!channelsResponse.ok || !Array.isArray(channels)) {
     logWorkerEvent("warn", "discord_channels.fetch_failed", {
       guildStatus: guildResponse.status,
       channelsStatus: channelsResponse.status,
       guildRaw: guildRaw.slice(0, 160),
       channelsRaw: channelsRaw.slice(0, 160),
+      hasFallbackChannel: Boolean(fallbackChannelId),
     });
+    if (fallbackChannelId) return json(fallbackChannels("Не вдалося отримати список Discord-каналів; повернуто fallback-канал."), 200, origin);
     return json({ ok: false, error: "Не вдалося отримати список Discord-каналів." }, 500, origin);
+  }
+
+  if (!guildResponse.ok) {
+    logWorkerEvent("warn", "discord_channels.guild_fetch_failed", {
+      guildStatus: guildResponse.status,
+      guildRaw: guildRaw.slice(0, 160),
+    });
+    guild = null;
   }
 
   const textChannels = channels
@@ -2397,6 +2432,11 @@ async function handleDiscordGuildChannels(request, env) {
     .filter((channel) => snowflake(channel.id))
     .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name, "uk"));
 
+  if (!textChannels.length && fallbackChannelId) {
+    return json(fallbackChannels("Discord API повернув порожній список каналів; повернуто fallback-канал."), 200, origin);
+  }
+
+  const fallbackById = fallbackChannelId ? textChannels.find((channel) => channel.id === fallbackChannelId) : null;
   const raidByName = textChannels.find((channel) => {
     const name = channel.name.toLowerCase();
     return name.includes("raid") || name.includes("рейд") || name.includes("анонс") || name.includes("announce") || name.includes("оголош");
@@ -2410,8 +2450,9 @@ async function handleDiscordGuildChannels(request, env) {
       rules_channel_id: guild.rules_channel_id ? String(guild.rules_channel_id) : null,
     } : null,
     channels: textChannels,
-    suggestedChannelId: raidByName?.id || textChannels[0]?.id || "",
-    suggestedRulesChannelId: raidByName?.id || textChannels[0]?.id || "",
+    suggestedChannelId: raidByName?.id || fallbackById?.id || textChannels[0]?.id || "",
+    suggestedRulesChannelId: raidByName?.id || fallbackById?.id || textChannels[0]?.id || "",
+    warning: guildResponse.ok ? null : "Список каналів прочитано, але дані guild недоступні.",
   }, 200, origin);
 }
 

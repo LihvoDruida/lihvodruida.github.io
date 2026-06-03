@@ -74,6 +74,8 @@
 | `DISCORD_RULES_STATS_TOKEN` | optional shared secret | Shared token dashboard ↔ Worker. |
 | `WORKER_STATS_TOKEN` | optional shared alias | Alias shared token. |
 | `DISCORD_RAID_MESSAGE_ENDPOINT` | optional | Worker endpoint для публікації/оновлення рейдових повідомлень. |
+| `DISCORD_GUILD_CHANNELS_ENDPOINT` | optional | Worker endpoint для читання списку текстових каналів. Dashboard додає `guild_id`, а якщо endpoint недоступний, використовує `DISCORD_CHANNEL_ID` або ручний ID у формі рейду. |
+| `DISCORD_CHANNELS_CACHE_SECONDS` | optional | TTL кешу списку Discord-каналів. За замовчуванням: `300`. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Concurrency видачі Discord ролей. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max concurrency видачі Discord ролей. |
 
@@ -162,6 +164,9 @@
 | `DISCORD_RAID_RULES_URL` | alias | Legacy alias для правил рейдів. |
 | `RAID_TIME_ZONE` | required | Timezone рейдів, наприклад `Europe/Kyiv`. |
 | `NEXT_PUBLIC_RAID_TIME_ZONE` | required public | Public timezone для UI. |
+| Автозакриття рейдів | built-in | Рейд автоматично вважається закритим у момент старту за `RAID_TIME_ZONE`; окремої затримки після старту немає. |
+| `RAID_LIST_CACHE_TTL_MS` | optional | TTL кешу списку рейдів. |
+| `RAID_ITEM_CACHE_TTL_MS` | optional | TTL кешу окремого рейду. |
 
 ## Практичні правила
 

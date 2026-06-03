@@ -422,7 +422,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
   );
 }
 
-export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | null; channels: RaidChannelOption[]; roles?: RaidRoleOption[] }) {
+export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: { raid?: RaidItem | null; channels: RaidChannelOption[]; roles?: RaidRoleOption[]; discordEnabled?: boolean }) {
   const defaultComposition = raid ? raidAutoCompositionLabel(raid).replace(/\s/g, "") : "2/2/6";
   const channelOptions = raid?.channelId && !channels.some((channel) => channel.id === raid.channelId)
     ? [{ id: raid.channelId, name: "поточний канал" }, ...channels]
@@ -430,7 +430,7 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
   const selectedMentionRoleIds = Array.from(new Set((raid?.mentionRoleIds || []).filter(Boolean)));
   const isExistingRaid = Boolean(raid?.id);
   const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
-  const canPublish = channelOptions.length > 0 && !(raid ? isRaidClosed(raid) : false);
+  const canPublish = discordEnabled && !(raid ? isRaidClosed(raid) : false);
   const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти без публікації" : "Зберегти чернетку";
   const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
@@ -480,9 +480,23 @@ export function RaidForm({ raid, channels, roles = [] }: { raid?: RaidItem | nul
 
         <div className="raid-form-section raid-form-section--two">
           <label className="field-label">Канал Discord
-            <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""}>
-              {channelOptions.length ? channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>) : <option value="">Discord-канали недоступні</option>}
-            </select>
+            {channelOptions.length ? (
+              <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""}>
+                {channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
+              </select>
+            ) : (
+              <input
+                className="input"
+                name="channelId"
+                inputMode="numeric"
+                pattern="[0-9]{16,25}"
+                placeholder="ID текстового каналу Discord"
+                defaultValue={raid?.channelId || ""}
+                disabled={!discordEnabled}
+                required={discordEnabled}
+              />
+            )}
+            {!channelOptions.length ? <small>Список каналів не прочитався автоматично. Встав ID каналу вручну або задай DISCORD_CHANNEL_ID / DISCORD_GUILD_CHANNELS_ENDPOINT у змінних середовища.</small> : null}
           </label>
           <label className="field-label">Розхідники
             <select className="select" name="consumables" defaultValue={raid?.consumables || "own"}>
