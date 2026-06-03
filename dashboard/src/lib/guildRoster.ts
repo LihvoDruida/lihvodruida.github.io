@@ -71,6 +71,9 @@ export type GuildRosterMember = {
   profileUrl: string | null;
   itemLevel: number;
   battleNetUpdatedAt?: string | null;
+  battleNetProfileStatus?: "ok" | "profileUnavailable" | null;
+  battleNetProfileStatusReason?: string | null;
+  battleNetProfileStatusUpdatedAt?: string | null;
   externalErrors?: Partial<Record<GuildRosterExternalSource, GuildRosterExternalError>>;
   scores: Record<GuildScoreSegment, number>;
   scoreColors: Partial<Record<GuildScoreSegment, string>>;
@@ -650,6 +653,21 @@ function withoutExternalFailure(
   });
 }
 
+function withBattleNetProfileUnavailable(
+  member: GuildRosterMember,
+  updatedAt: string,
+): GuildRosterMember {
+  const cleanMember = withoutExternalFailure(member, "battleNet");
+  return stripUndefined({
+    ...cleanMember,
+    battleNetUpdatedAt: updatedAt,
+    battleNetProfileStatus: "profileUnavailable",
+    battleNetProfileStatusReason:
+      "Battle.net profile unavailable. Possible causes: privacy settings, inactive/renamed/transferred character, wrong realm/region, or Blizzard API indexing delay.",
+    battleNetProfileStatusUpdatedAt: updatedAt,
+  });
+}
+
 function battleNetSnapshotFreshForBatch(
   member: GuildRosterMember,
   options: {
@@ -720,6 +738,34 @@ async function enrichGuildMembersWithProfileLinks(
       ownerDisplayName: link.displayName,
     };
   });
+}
+
+async function hydrateCachedRosterProfileLinks(
+  cache: CachedRoster | null,
+): Promise<CachedRoster | null> {
+  if (!cache?.members?.length || !hasFirebaseProfileConfig()) return cache;
+
+  const members = await enrichGuildMembersWithProfileLinks(cache.members).catch(
+    () => cache.members,
+  );
+  const changed = members.some((member, index) => {
+    const previous = cache.members[index];
+    return (
+      member.ownerProfileId !== previous?.ownerProfileId ||
+      member.ownerDisplayName !== previous?.ownerDisplayName
+    );
+  });
+  if (!changed) return cache;
+
+  const next = stripUndefined({
+    ...cache,
+    members,
+    source: cache.source?.includes("profile-links-live")
+      ? cache.source
+      : `${cache.source || "firebase-records"} • profile-links-live`,
+  } satisfies CachedRoster);
+  globalThis.__mistblossomGuildRosterCache = next;
+  return next;
 }
 
 type GuildRosterApiBatchProgress = {
@@ -869,7 +915,7 @@ function applyBattleNetCharacterSnapshot(
   updatedAt: string,
 ): GuildRosterMember {
   if (!snapshot) {
-    return { ...member, battleNetUpdatedAt: updatedAt };
+    return withBattleNetProfileUnavailable(member, updatedAt);
   }
 
   const role = normalizeRole(snapshot.activeSpecRole);
@@ -891,6 +937,9 @@ function applyBattleNetCharacterSnapshot(
     guildStatusLabel: snapshot.guildStatusLabel || member.guildStatusLabel,
     rank: snapshot.guildRank ?? member.rank,
     battleNetUpdatedAt: updatedAt,
+    battleNetProfileStatus: "ok",
+    battleNetProfileStatusReason: null,
+    battleNetProfileStatusUpdatedAt: updatedAt,
   };
 }
 
@@ -1514,6 +1563,16 @@ function normalizeMemberRecord(data: any): GuildRosterMember | null {
     profileUrl: cleanText(raw.profileUrl) || null,
     itemLevel: Math.round(parsePositiveNumber(raw.itemLevel) || 0),
     battleNetUpdatedAt: cleanText(raw.battleNetUpdatedAt) || null,
+    battleNetProfileStatus:
+      raw.battleNetProfileStatus === "profileUnavailable"
+        ? "profileUnavailable"
+        : raw.battleNetProfileStatus === "ok"
+          ? "ok"
+          : null,
+    battleNetProfileStatusReason:
+      cleanText(raw.battleNetProfileStatusReason) || null,
+    battleNetProfileStatusUpdatedAt:
+      cleanText(raw.battleNetProfileStatusUpdatedAt) || null,
     externalErrors:
       raw.externalErrors && typeof raw.externalErrors === "object"
         ? raw.externalErrors
@@ -1820,7 +1879,7 @@ async function readCachedRoster(
   if (!options.bypassCache && globalThis.__mistblossomGuildRosterCache &&
     isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache) &&
     isFresh(globalThis.__mistblossomGuildRosterCache, Math.max(30_000, Math.min(300_000, Number(settings?.cacheReadTtlMs || process.env.GUILD_ROSTER_CACHE_READ_TTL_MS || 60_000))))) {
-    return globalThis.__mistblossomGuildRosterCache;
+    return hydrateCachedRosterProfileLinks(globalThis.__mistblossomGuildRosterCache);
   }
 
   // Display priority is Firebase records: the site reads the last authoritative
@@ -1828,15 +1887,16 @@ async function readCachedRoster(
   // source of truth for the visible guild roster.
   const records = await readGuildRosterRecords(settings, { bypassCache: options.bypassCache }).catch(() => null);
   if (records) {
-    void writeCloudflareCachedRoster(records, settings).catch(() => null);
-    return records;
+    const linkedRecords = await hydrateCachedRosterProfileLinks(records);
+    void writeCloudflareCachedRoster(linkedRecords || records, settings).catch(() => null);
+    return linkedRecords || records;
   }
 
   const cloudflare = options.bypassCache ? null : await readCloudflareCachedRoster(settings).catch(() => null);
-  if (cloudflare) return cloudflare;
+  if (cloudflare) return hydrateCachedRosterProfileLinks(cloudflare);
 
   if (isAuthoritativeGuildRosterCache(globalThis.__mistblossomGuildRosterCache))
-    return globalThis.__mistblossomGuildRosterCache;
+    return hydrateCachedRosterProfileLinks(globalThis.__mistblossomGuildRosterCache);
   // Deprecated guildRuntimeCache/members is intentionally not read anymore.
   // It caused large collection scans and could resurrect non-authoritative profile-seed rosters.
   return null;
@@ -2213,7 +2273,7 @@ async function enrichGuildMembersWithBattleNetStep(
         shouldLogMemberWarning(`battlenet:${member.key}:${message}`, memberFailureCooldownMs())
       ) {
         await recordDashboardSystemLog("warning", "guild.roster.battlenet.member_failed", {
-          summary: `Battle.net профіль не оновив ${member.name}. Повтор буде після cooldown, щоб не спамити логами.`,
+          summary: `Battle.net profile refresh temporarily failed for ${member.name}. This is a transient API/sync issue, not a ban signal.`,
           character: member.name,
           realmSlug: member.realmSlug,
           region: member.region,

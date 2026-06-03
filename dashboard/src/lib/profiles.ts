@@ -1356,7 +1356,14 @@ const PROFILE_CHARACTER_LINKS_COLLECTION = "dashboardProfileCharacterLinks";
 
 function profileCharacterLinksScanFallbackEnabled() {
   const raw = process.env.PROFILE_CHARACTER_LINKS_SCAN_FALLBACK;
-  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+  if (raw === undefined || raw === null || raw === "") return true;
+  return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
+}
+
+function profileCharacterLinksReadRepairEnabled() {
+  const raw = process.env.PROFILE_CHARACTER_LINKS_READ_REPAIR;
+  if (raw === undefined || raw === null || raw === "") return true;
+  return ["1", "true", "yes", "on"].includes(String(raw).toLowerCase());
 }
 
 function profileCharacterLinksScanFallbackLimit() {
@@ -1391,6 +1398,7 @@ async function characterProfileLinksCacheTtlMs() {
 export function clearCharacterProfileLinksCache() {
   globalThis.__mistblossomCharacterProfileLinksCache = undefined;
   clearRuntimeCachedValue("profile-character-links");
+  clearRuntimeCachedValuesByPrefix("profile-character-links:");
 }
 
 function clearProfileRuntimeCaches(profileId?: string | null, options: { characterLinks?: boolean } = {}) {
@@ -1549,6 +1557,47 @@ async function readCharacterProfileLinksFromIndex(keys?: Iterable<string>) {
   return links;
 }
 
+async function repairCharacterProfileLinksIndex(
+  links: Map<string, CharacterProfileLink>,
+) {
+  if (!links.size || !profileCharacterLinksReadRepairEnabled()) return;
+  const db = getFirebaseAdminDb();
+  const entries = Array.from(links.entries()).filter(([key, link]) =>
+    Boolean(characterProfileLinkDocId(key) && link?.profileId),
+  );
+  for (let index = 0; index < entries.length; index += 400) {
+    const batch = db.batch();
+    for (const [key, link] of entries.slice(index, index + 400)) {
+      const docId = characterProfileLinkDocId(key);
+      if (!docId) continue;
+      batch.set(
+        db.collection(PROFILE_CHARACTER_LINKS_COLLECTION).doc(docId),
+        {
+          key: docId,
+          profileId: link.profileId,
+          displayName: link.displayName || "Учасник",
+          repairedFromProfileScan: true,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+    await batch.commit();
+  }
+}
+
+function subsetCharacterProfileLinks(
+  links: Map<string, CharacterProfileLink>,
+  keys: string[],
+) {
+  const subset = new Map<string, CharacterProfileLink>();
+  for (const key of keys) {
+    const link = links.get(key);
+    if (link) subset.set(key, link);
+  }
+  return subset;
+}
+
 async function scanCharacterProfileLinksFromProfiles() {
   const contenders = new Map<
     string,
@@ -1610,6 +1659,7 @@ export async function listCharacterProfileLinks() {
       let links = await readCharacterProfileLinksFromIndex();
       if (!links.size && profileCharacterLinksScanFallbackEnabled()) {
         links = await scanCharacterProfileLinksFromProfiles();
+        await repairCharacterProfileLinksIndex(links).catch(() => null);
       }
       globalThis.__mistblossomCharacterProfileLinksCache = {
         checkedAt: Date.now(),
@@ -1637,29 +1687,30 @@ export async function listCharacterProfileLinksForKeys(keysInput: Iterable<strin
   const cached = globalThis.__mistblossomCharacterProfileLinksCache;
   const ttlMs = await characterProfileLinksCacheTtlMs();
   if (cached && Date.now() - cached.checkedAt < ttlMs) {
-    const subset = new Map<string, CharacterProfileLink>();
-    for (const key of keys) {
-      const link = cached.links.get(key);
-      if (link) subset.set(key, link);
-    }
-    return subset;
+    const subset = subsetCharacterProfileLinks(cached.links, keys);
+    if (subset.size === keys.length) return subset;
   }
 
   return resilientRead(
-    `profile-character-links:${keys.length}:${keys.slice(0, 20).join("|")}`,
+    `profile-character-links:v2:${keys.length}:${keys.slice(0, 20).join("|")}`,
     async () => {
       let links = await readCharacterProfileLinksFromIndex(keys);
-      if (!links.size && profileCharacterLinksScanFallbackEnabled()) {
+      const missingKeys = keys.filter((key) => !links.has(key));
+
+      if (missingKeys.length && profileCharacterLinksScanFallbackEnabled()) {
         const scanned = await scanCharacterProfileLinksFromProfiles();
         globalThis.__mistblossomCharacterProfileLinksCache = {
           checkedAt: Date.now(),
           links: new Map(scanned),
         };
-        links = new Map(keys.flatMap((key) => {
-          const link = scanned.get(key);
-          return link ? [[key, link] as [string, CharacterProfileLink]] : [];
-        }));
+
+        const repairedLinks = subsetCharacterProfileLinks(scanned, missingKeys);
+        if (repairedLinks.size) {
+          await repairCharacterProfileLinksIndex(repairedLinks).catch(() => null);
+          links = new Map([...links, ...repairedLinks]);
+        }
       }
+
       return links;
     },
     {

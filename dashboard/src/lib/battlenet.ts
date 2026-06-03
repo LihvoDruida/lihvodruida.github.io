@@ -1,11 +1,31 @@
 import { createHash } from "crypto";
-import { apiFetchJson } from "@/lib/apiHttp";
+import { ApiHttpError, apiFetchJson } from "@/lib/apiHttp";
 import { getDashboardUrl } from "@/lib/oauth";
 import { getAdaptiveConcurrency, mapConcurrent, readIntegerEnv } from "@/lib/concurrency";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug } from "@/lib/wowCharacters";
 import { resolveWowCharacterRole, type WowCharacterRole } from "@/lib/wowRoles";
 
 export type BattleNetRegion = "us" | "eu" | "kr" | "tw";
+
+export type BattleNetProfileUnavailableReason =
+  | "not_found"
+  | "forbidden";
+
+export function isBattleNetCharacterProfileUnavailableError(error: unknown) {
+  return (
+    error instanceof ApiHttpError &&
+    (error.status === 404 || error.status === 403)
+  );
+}
+
+export function battleNetProfileUnavailableReason(
+  error: unknown,
+): BattleNetProfileUnavailableReason | null {
+  if (!(error instanceof ApiHttpError)) return null;
+  if (error.status === 404) return "not_found";
+  if (error.status === 403) return "forbidden";
+  return null;
+}
 
 const ALL_BATTLE_NET_REGIONS: BattleNetRegion[] = ["eu", "us", "kr", "tw"];
 export const BATTLE_NET_REGIONS: BattleNetRegion[] = ALL_BATTLE_NET_REGIONS;
@@ -670,8 +690,25 @@ export async function fetchBattleNetCharacterSnapshot(
   if (!realmSlug || !nameSlug) return null;
 
   const accessToken = await fetchBattleNetApplicationToken(region);
-  const [details, media, guildRankMap] = await Promise.all([
-    bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`, undefined, region),
+  let details: any = null;
+  try {
+    details = await bnetFetch(
+      accessToken,
+      `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}`,
+      undefined,
+      region,
+    );
+  } catch (error) {
+    // Battle.net/WoW does not expose a dedicated "banned" state for a
+    // character profile. A 404/403 can mean an inactive, renamed, transferred,
+    // private, low-level or not-yet-indexed character, while the character may
+    // still exist in the guild roster endpoint. Treat it as a soft
+    // profile-unavailable state instead of a hard sync failure.
+    if (isBattleNetCharacterProfileUnavailableError(error)) return null;
+    throw error;
+  }
+
+  const [media, guildRankMap] = await Promise.all([
     bnetFetch(accessToken, `/profile/wow/character/${encodeURIComponent(realmSlug)}/${encodeURIComponent(nameSlug)}/character-media`, undefined, region).catch(() => null),
     input.guildRankInfo || input.skipGuildRankMap
       ? Promise.resolve(new Map<string, BattleNetGuildRankInfo>())
