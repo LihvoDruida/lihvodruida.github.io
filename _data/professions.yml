@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 19:52:01'
+  updated_at: '2026-06-03 22:29:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 159
+  member_count: 160
 characters:
 - name: Бреинор
   region: eu
@@ -5545,7 +5545,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 71
+        learned_points: 72
         max_points: 100
     - name: Jewelcrafting
       id: 755
@@ -7850,3 +7850,11 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+- name: Zanziwolf
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
