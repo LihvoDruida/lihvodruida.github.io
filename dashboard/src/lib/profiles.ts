@@ -2596,7 +2596,7 @@ export async function addProfileCharacter(
   const ref = getFirebaseAdminDb()
     .collection("dashboardProfiles")
     .doc(profileId);
-  const result = await writeProfileStorage(
+  const result = await writeProfileStorage<{ added: boolean; reason?: "duplicate"; key: string }>(
     `profile:${profileId}:character-add:${cleanKey}`,
     () => getFirebaseAdminDb().runTransaction(async (transaction: any) => {
       const snapshot = await transaction.get(ref);

@@ -776,14 +776,15 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
   const edgeCached = await readRaidListPublicCache(safeLimit).catch(() => null);
   if (edgeCached) return edgeCached;
   if (!hasRaidStorage()) return [];
-  return firebaseRead(
+  return firebaseRead<RaidItem[]>(
     "raid",
     `raids:list:${safeLimit}`,
     async () => {
       const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
-      const raids = snapshot.docs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
+      const raidDocs = snapshot.docs as Array<{ id: string; data: () => Record<string, unknown> | undefined }>;
+      const raids: RaidItem[] = raidDocs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
       const sorted = raids
-        .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
+        .sort((a: RaidItem, b: RaidItem) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
       await writeRaidListPublicCache(safeLimit, sorted).catch(() => null);
       return sorted;
     },

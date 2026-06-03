@@ -1512,9 +1512,10 @@ async function readGuildRosterRecords(
           .collection(GUILD_RECORDS_MEMBERS_COLLECTION)
           .limit(1100)
           .get();
-        members = memberSnapshots.docs
-          .map((item: { data: () => unknown }) => normalizeMemberRecord(item.data()))
-          .filter((member): member is GuildRosterMember => Boolean(member?.key));
+        const memberDocs = memberSnapshots.docs as Array<{ data: () => unknown }>;
+        members = memberDocs
+          .map((item) => normalizeMemberRecord(item.data()))
+          .filter((member: GuildRosterMember | null): member is GuildRosterMember => Boolean(member?.key));
       }
 
       const cache = buildRosterFromFirebaseRecords(data, members);

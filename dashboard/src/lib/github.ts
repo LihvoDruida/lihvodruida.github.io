@@ -880,17 +880,18 @@ function mapFirebaseApplicationDoc(doc: any): ApplicationItem {
   return item;
 }
 
-async function listFirebaseApplicationsBase() {
+async function listFirebaseApplicationsBase(): Promise<ApplicationItem[]> {
   const db = getFirebaseAdminDb();
   const collection = db.collection(applicationsCollectionName());
   const limit = Math.max(1, Math.min(Number(process.env.FIREBASE_APPLICATIONS_LIST_LIMIT || 300), 1000));
-  const snapshot = await collection.orderBy("createdAtMs", "desc").limit(limit).get().catch(async (error) => {
-    if (String(error?.message || "").toLowerCase().includes("createdatms")) {
+  const snapshot = await collection.orderBy("createdAtMs", "desc").limit(limit).get().catch(async (error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (message.toLowerCase().includes("createdatms")) {
       return collection.limit(limit).get();
     }
     throw error;
   });
-  return snapshot.docs.map(mapFirebaseApplicationDoc);
+  return snapshot.docs.map((doc: unknown) => mapFirebaseApplicationDoc(doc));
 }
 
 async function findFirebaseApplicationDoc(issueNumber: number) {
@@ -958,9 +959,9 @@ export async function listApplications(params?: URLSearchParams) {
 
   items = [...items].sort((a, b) => timestampForApplicationSort(b, sort) - timestampForApplicationSort(a, sort));
 
-  const { results } = await mapConcurrent(
+  const { results } = await mapConcurrent<ApplicationItem, ApplicationItem>(
     items,
-    async (item) => {
+    async (item: ApplicationItem): Promise<ApplicationItem> => {
       if (item.raider_io_error) return item;
       if (item.raider_io && hasRaiderIoRaidRows(item.raider_io)) return item;
 
