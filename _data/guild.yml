@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-02 22:24:23'
+  updated_at: '2026-06-03 04:15:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6160
       realm: 56
     heroic:
-      world: 13777
-      region: 6034
+      world: 13799
+      region: 6035
       realm: 49
     mythic:
-      world: 7179
+      world: 7202
       region: 3115
       realm: 22
   sporefall:
@@ -265,10 +265,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3702
-        color: '#d54ea8'
+        color: '#d44daa'
       dps:
         score: 3702
-        color: '#d54ea8'
+        color: '#d44daa'
       healer:
         score: 0
         color: '#ffffff'
@@ -283,7 +283,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3702
-        color: '#d54ea8'
+        color: '#d44daa'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1041,14 +1041,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3125
-        color: '#3e6ae0'
+        score: 3168.1
+        color: '#4c67e1'
       dps:
-        score: 3125
-        color: '#3e6ae0'
+        score: 3168.1
+        color: '#4c67e1'
       healer:
         score: 0
         color: '#ffffff'
@@ -1062,8 +1062,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3125
-        color: '#3e6ae0'
+        score: 3168.1
+        color: '#4c67e1'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2137,10 +2137,10 @@ members:
     mythic_plus_scores:
       all:
         score: 3510.1
-        color: '#b83dd6'
+        color: '#b73cd7'
       dps:
         score: 3510.1
-        color: '#b83dd6'
+        color: '#b73cd7'
       healer:
         score: 0
         color: '#ffffff'
@@ -2149,7 +2149,7 @@ members:
         color: '#ffffff'
       spec_0:
         score: 3510.1
-        color: '#b83dd6'
+        color: '#b73cd7'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3568,11 +3568,11 @@ members:
     item_level_equipped: 262
     mythic_plus_scores:
       all:
-        score: 2063.4
-        color: '#62ff47'
+        score: 2089.2
+        color: '#5fff43'
       dps:
-        score: 2063.4
-        color: '#62ff47'
+        score: 2089.2
+        color: '#5fff43'
       healer:
         score: 0
         color: '#ffffff'
@@ -3586,8 +3586,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2063.4
-        color: '#62ff47'
+        score: 2089.2
+        color: '#5fff43'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6273,7 +6273,7 @@ members:
     mythic_plus_scores:
       all:
         score: 3616.5
-        color: '#cc47b9'
+        color: '#cb47bb'
       dps:
         score: 0
         color: '#ffffff'
@@ -6282,7 +6282,7 @@ members:
         color: '#ffffff'
       tank:
         score: 3616.5
-        color: '#cc47b9'
+        color: '#cb47bb'
       spec_0:
         score: 0
         color: '#ffffff'
@@ -6291,7 +6291,7 @@ members:
         color: '#ffffff'
       spec_2:
         score: 3616.5
-        color: '#cc47b9'
+        color: '#cb47bb'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7257,7 +7257,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3007.8
