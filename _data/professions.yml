@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 11:17:18'
+  updated_at: '2026-06-04 15:18:37'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 160
+  member_count: 158
 characters:
 - name: Бреинор
   region: eu
@@ -1367,32 +1367,6 @@ characters:
         max_points: 300
       - name: Dragon Isles Fishing
         learned_points: 8
-        max_points: 100
-- name: Regin
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Regin
-  professions:
-    primaries:
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 97
-        max_points: 100
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Fishing
-        learned_points: 7
         max_points: 100
 - name: Darthkenobi
   region: eu
@@ -3199,32 +3173,6 @@ characters:
         learned_points: 100
         max_points: 100
     secondaries: []
-- name: Riney
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Riney
-  professions:
-    primaries:
-    - name: Engineering
-      id: 202
-      tiers:
-      - name: Classic Engineering
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Engineering
-        learned_points: 40
-        max_points: 100
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 1
-        max_points: 300
 - name: Ragnarøøk
   region: eu
   realm: burning-legion

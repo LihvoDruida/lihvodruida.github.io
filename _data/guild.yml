@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 11:17:18'
+  updated_at: '2026-06-04 15:18:37'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,8 +15,8 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 160
-  achievement_points: 580
+  member_count: 158
+  achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
   tier-mn-1:
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13852
-      region: 6056
+      world: 13854
+      region: 6057
       realm: 49
     mythic:
-      world: 7248
+      world: 7254
       region: 3135
       realm: 22
   sporefall:
@@ -1148,11 +1148,11 @@ members:
     item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 600
-        color: '#e5ffda'
+        score: 630
+        color: '#e4ffd8'
       dps:
-        score: 600
-        color: '#e5ffda'
+        score: 630
+        color: '#e4ffd8'
       healer:
         score: 0
         color: '#ffffff'
@@ -1160,8 +1160,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 600
-        color: '#e5ffda'
+        score: 630
+        color: '#e4ffd8'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -1302,58 +1302,6 @@ members:
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
     item_level_equipped: 253
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Regin
-    id: 184963280
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 1
-      name: Warrior
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Arms
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Regin
-    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 0
@@ -3283,58 +3231,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
-  character:
-    name: Riney
-    id: 188651417
-    level: 90
-    realm:
-      id: 505
-      slug: doomhammer
-    playable_class:
-      id: 3
-      name: Hunter
-    playable_race:
-      id: 29
-      name: Void Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Marksmanship
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/153/188651417-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
-    profile_url: https://raider.io/characters/eu/doomhammer/Riney
-    item_level_equipped: 280
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 3
   character:
     name: Ragnarøøk
@@ -5052,19 +4948,19 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3185
+        score: 3190.2
         color: '#5864e2'
       dps:
         score: 994.8
         color: '#cbffb8'
       healer:
-        score: 3185
+        score: 3190.2
         color: '#5864e2'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3185
+        score: 3190.2
         color: '#5864e2'
       spec_1:
         score: 0
@@ -8193,8 +8089,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Devourer
-      role: DPS
+      name: Vengeance
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
     item_level_equipped: 281
