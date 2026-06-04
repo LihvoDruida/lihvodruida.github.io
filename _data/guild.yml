@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 22:29:59'
+  updated_at: '2026-06-04 04:08:26'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13835
+      world: 13846
       region: 6053
       realm: 49
     mythic:
-      world: 7230
+      world: 7246
       region: 3135
       realm: 22
   sporefall:

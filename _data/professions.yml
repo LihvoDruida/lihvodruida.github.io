@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-03 22:29:59'
+  updated_at: '2026-06-04 04:08:26'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1443,7 +1443,7 @@ characters:
         learned_points: 24
         max_points: 100
       - name: Midnight Herbalism
-        learned_points: 4
+        learned_points: 5
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6497,7 +6497,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 268
+        learned_points: 274
         max_points: 300
 - name: Кеенди
   region: eu
