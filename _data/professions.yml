@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 15:18:37'
+  updated_at: '2026-06-04 21:43:22'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7755,7 +7755,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 19
+        learned_points: 20
         max_points: 100
     secondaries: []
 - name: Рейла
