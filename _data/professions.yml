@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 04:08:26'
+  updated_at: '2026-06-04 11:17:18'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3362,7 +3362,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 80
+        learned_points: 82
         max_points: 100
     - name: Leatherworking
       id: 165
@@ -4175,6 +4175,14 @@ characters:
       - name: Midnight Fishing
         learned_points: 300
         max_points: 300
+- name: Zanziwolf
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: null
+  professions:
+    primaries: []
+    secondaries: []
 - name: Котто
   region: eu
   realm: gordunni
@@ -7850,11 +7858,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Zanziwolf
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: null
-  professions:
-    primaries: []
-    secondaries: []

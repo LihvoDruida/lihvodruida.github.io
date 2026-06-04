@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 04:08:26'
+  updated_at: '2026-06-04 11:17:18'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13846
-      region: 6053
+      world: 13852
+      region: 6056
       realm: 49
     mythic:
-      world: 7246
+      world: 7248
       region: 3135
       realm: 22
   sporefall:
@@ -1439,7 +1439,7 @@ members:
   character:
     name: Umbramind
     id: 185040389
-    level: 84
+    level: 85
     realm:
       id: 1415
       slug: terokkar
@@ -4323,6 +4323,34 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
+- rank: 4
+  character:
+    name: Zanziwolf
+    id: 190458262
+    level: 21
+    realm:
+      id: 1306
+      slug: tarren-mill
+    playable_class:
+      id: 4
+      name: null
+    playable_race:
+      id: 22
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
+      professions: blizzard
 - rank: 3
   character:
     name: Котто
@@ -5541,11 +5569,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 286
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3424.1
-        color: '#a335ee'
+        score: 3455.9
+        color: '#ae39e2'
       dps:
         score: 1147.4
         color: '#c0ffaa'
@@ -5553,11 +5581,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3424.1
-        color: '#a335ee'
+        score: 3455.9
+        color: '#ae39e2'
       spec_0:
-        score: 3424.1
-        color: '#a335ee'
+        score: 3455.9
+        color: '#ae39e2'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6948,11 +6976,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3426.9
-        color: '#a937e8'
+        score: 3458.7
+        color: '#ae39e2'
       dps:
-        score: 3426.9
-        color: '#a937e8'
+        score: 3458.7
+        color: '#ae39e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -6966,8 +6994,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3426.9
-        color: '#a937e8'
+        score: 3458.7
+        color: '#ae39e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7309,7 +7337,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -8354,32 +8382,4 @@ members:
     sources:
       roster: blizzard
       enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Zanziwolf
-    id: 190458262
-    level: 17
-    realm:
-      id: 1306
-      slug: tarren-mill
-    playable_class:
-      id: 4
-      name: null
-    playable_race:
-      id: 22
-      name: null
-    faction:
-      type: ALLIANCE
-    gender: null
-    active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
-    sources:
-      roster: blizzard
-      enrichment: null
       professions: blizzard
