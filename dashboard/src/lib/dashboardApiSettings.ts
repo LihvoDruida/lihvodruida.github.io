@@ -50,6 +50,7 @@ const DEFAULT_PROFILE_LIST_CACHE_TTL_MS = 120_000;
 const DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS = 300_000;
 const DEFAULT_RAID_LIST_CACHE_TTL_MS = 60_000;
 const DEFAULT_RAID_ITEM_CACHE_TTL_MS = 60_000;
+const DEFAULT_RAID_DISCORD_DELETE_AFTER_START_HOURS = 4;
 const DEFAULT_GUILD_ROSTER_RECORDS_CHUNK_SIZE = 64;
 const DEFAULT_GUILD_ROSTER_READ_LEGACY_MEMBER_DOCS = false;
 const DEFAULT_GUILD_ROSTER_WRITE_LEGACY_MEMBER_DOCS = false;
@@ -131,6 +132,7 @@ export type DashboardApiSettings = {
   profileCharacterLinksCacheTtlMs: number;
   raidListCacheTtlMs: number;
   raidItemCacheTtlMs: number;
+  raidDiscordDeleteAfterStartHours: number;
   guildRosterRecordsChunkSize: number;
   guildRosterReadLegacyMemberDocs: boolean;
   guildRosterWriteLegacyMemberDocs: boolean;
@@ -291,6 +293,10 @@ function envRaidItemCacheTtlMs() {
   return integerEnv("RAID_ITEM_CACHE_TTL_MS", DEFAULT_RAID_ITEM_CACHE_TTL_MS, 10_000, 120_000);
 }
 
+function envRaidDiscordDeleteAfterStartHours() {
+  return integerEnv("RAID_DISCORD_DELETE_AFTER_START_HOURS", DEFAULT_RAID_DISCORD_DELETE_AFTER_START_HOURS, 0, 168);
+}
+
 function envGuildRosterRecordsChunkSize() {
   return integerEnv("GUILD_ROSTER_RECORDS_CHUNK_SIZE", DEFAULT_GUILD_ROSTER_RECORDS_CHUNK_SIZE, 25, 120);
 }
@@ -429,6 +435,7 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
     profileCharacterLinksCacheTtlMs: envProfileCharacterLinksCacheTtlMs(),
     raidListCacheTtlMs: envRaidListCacheTtlMs(),
     raidItemCacheTtlMs: envRaidItemCacheTtlMs(),
+    raidDiscordDeleteAfterStartHours: envRaidDiscordDeleteAfterStartHours(),
     guildRosterRecordsChunkSize: envGuildRosterRecordsChunkSize(),
     guildRosterReadLegacyMemberDocs: envGuildRosterReadLegacyMemberDocs(),
     guildRosterWriteLegacyMemberDocs: envGuildRosterWriteLegacyMemberDocs(),
@@ -497,6 +504,7 @@ function normalizeSettings(
     profileCharacterLinksCacheTtlMs: integerValue(data?.profileCharacterLinksCacheTtlMs, fallback.profileCharacterLinksCacheTtlMs, 30_000, 600_000),
     raidListCacheTtlMs: integerValue(data?.raidListCacheTtlMs, fallback.raidListCacheTtlMs, 30_000, 300_000),
     raidItemCacheTtlMs: integerValue(data?.raidItemCacheTtlMs, fallback.raidItemCacheTtlMs, 10_000, 120_000),
+    raidDiscordDeleteAfterStartHours: integerValue(data?.raidDiscordDeleteAfterStartHours, fallback.raidDiscordDeleteAfterStartHours, 0, 168),
     guildRosterRecordsChunkSize: integerValue(data?.guildRosterRecordsChunkSize, fallback.guildRosterRecordsChunkSize, 25, 120),
     guildRosterReadLegacyMemberDocs: booleanValue(data?.guildRosterReadLegacyMemberDocs, fallback.guildRosterReadLegacyMemberDocs),
     guildRosterWriteLegacyMemberDocs: booleanValue(data?.guildRosterWriteLegacyMemberDocs, fallback.guildRosterWriteLegacyMemberDocs),
@@ -596,6 +604,7 @@ export async function setDashboardApiSettings(input: DashboardApiSettingsInput, 
     profileCharacterLinksCacheTtlMs: settings.profileCharacterLinksCacheTtlMs,
     raidListCacheTtlMs: settings.raidListCacheTtlMs,
     raidItemCacheTtlMs: settings.raidItemCacheTtlMs,
+    raidDiscordDeleteAfterStartHours: settings.raidDiscordDeleteAfterStartHours,
     guildRosterRecordsChunkSize: settings.guildRosterRecordsChunkSize,
     guildRosterReadLegacyMemberDocs: settings.guildRosterReadLegacyMemberDocs,
     guildRosterWriteLegacyMemberDocs: settings.guildRosterWriteLegacyMemberDocs,
@@ -689,6 +698,7 @@ export async function getSiteRuntimeSettings() {
     profileCharacterLinksCacheTtlMs: settings.profileCharacterLinksCacheTtlMs,
     raidListCacheTtlMs: settings.raidListCacheTtlMs,
     raidItemCacheTtlMs: settings.raidItemCacheTtlMs,
+    raidDiscordDeleteAfterStartHours: settings.raidDiscordDeleteAfterStartHours,
     auditLogReadCacheTtlMs: settings.auditLogReadCacheTtlMs,
     auditLogDedupeWindowMs: settings.auditLogDedupeWindowMs,
     auditLogMaxStored: settings.auditLogMaxStored,
@@ -711,7 +721,7 @@ export async function getAuditLogRuntimeSettings() {
 export function dashboardApiSettingsSummary(settings: DashboardApiSettings) {
   const rosterSync = `Guild roster: ${settings.guildRosterName}-${settings.guildRosterRealm}-${settings.guildRosterRegion}; ${settings.guildRosterMemberLimit} перс.; Battle.net крок ${settings.guildRosterBattleNetStepSize}; Raider.IO крок ${settings.guildRosterRaiderIoStepSize}; cooldown ${settings.raiderIoRateLimitCooldownSeconds}с; кеш ${settings.guildRosterCacheTtlSeconds}с; бюджет ${settings.guildRosterRefreshStepBudgetMs}мс; client ${settings.guildRosterClientDrivenSyncEnabled ? "ON" : "OFF"}`;
   const apiDebug = `Discord audit: debug ${settings.dashboardApiDebugAuditLogs ? "ON" : "OFF"}, warnings ${settings.dashboardApiWarningAuditLogs ? "ON" : "OFF"}, read cache ${Math.round(settings.auditLogReadCacheTtlMs / 1000)}с, dedupe ${Math.round(settings.auditLogDedupeWindowMs / 1000)}с`;
-  return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${apiDebug}; ${rosterSync}; chunks ${settings.guildRosterRecordsChunkSize}; legacy read ${settings.guildRosterReadLegacyMemberDocs ? "ON" : "OFF"}; legacy write ${settings.guildRosterWriteLegacyMemberDocs ? "ON" : "OFF"}.`;
+  return `Оновлення: ${Math.round(settings.backgroundRefreshMinSeconds / 60)} хв; Discord-рейди видаляються через ${settings.raidDiscordDeleteAfterStartHours} год після старту; персонажі: ${Math.round(settings.profileViewRefreshMinSeconds / 60)} хв; batch: ${settings.profileExternalRefreshBatchLimit}; ${apiDebug}; ${rosterSync}; chunks ${settings.guildRosterRecordsChunkSize}; legacy read ${settings.guildRosterReadLegacyMemberDocs ? "ON" : "OFF"}; legacy write ${settings.guildRosterWriteLegacyMemberDocs ? "ON" : "OFF"}.`;
 }
 
 export function dashboardApiSettingsMinBackgroundRefreshSeconds() {

@@ -163,6 +163,8 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `NEXT_PUBLIC_RAID_RULES_URL` | alias public | Public alias for raid rules. |
 | `DISCORD_RAID_RULES_URL` | alias | Legacy alias for raid rules. |
 | `RAID_TIME_ZONE` | required | Raid timezone, for example `Europe/Kyiv`. |
+| `RAID_LIFECYCLE_SECRET` | optional | Bearer token for `/api/raids/lifecycle` cron/manual job. Falls back to `CRON_SECRET` or `INTERNAL_API_TOKEN`. |
+| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Hours after raid start before the Discord announcement is deleted. The raid record remains in the dashboard archive. Default `4`. |
 | `NEXT_PUBLIC_RAID_TIME_ZONE` | required public | Public timezone for UI. |
 | Raid autoclose | built-in | A raid is automatically considered closed at the scheduled start time using `RAID_TIME_ZONE`; there is no post-start grace delay. |
 | `RAID_LIST_CACHE_TTL_MS` | optional | Raid list cache TTL. |

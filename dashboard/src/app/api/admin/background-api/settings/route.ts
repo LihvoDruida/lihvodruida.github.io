@@ -184,6 +184,7 @@ export async function POST(request: NextRequest) {
         profileCharacterLinksCacheTtlMs: form.get("profileCharacterLinksCacheTtlMs"),
         raidListCacheTtlMs: form.get("raidListCacheTtlMs"),
         raidItemCacheTtlMs: form.get("raidItemCacheTtlMs"),
+        raidDiscordDeleteAfterStartHours: form.get("raidDiscordDeleteAfterStartHours"),
         guildRosterRecordsChunkSize: form.get("guildRosterRecordsChunkSize"),
         guildRosterReadLegacyMemberDocs: formFlag(form, "guildRosterReadLegacyMemberDocs"),
         guildRosterWriteLegacyMemberDocs: formFlag(form, "guildRosterWriteLegacyMemberDocs"),

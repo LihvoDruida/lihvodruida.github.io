@@ -521,6 +521,11 @@ export default async function AdminOverviewPage() {
                   <span>Raid item cache, мс</span>
                   <input type="number" name="raidItemCacheTtlMs" min={10000} max={120000} step={5000} defaultValue={apiSettings.raidItemCacheTtlMs} disabled={!canEditApiSettings} />
                 </label>
+                <label className="admin-policy-input">
+                  <span>Видалення рейду з Discord після старту, годин</span>
+                  <small>Рейд у панелі лишається в архіві. Видаляється тільки Discord-повідомлення після date + time + заданий інтервал.</small>
+                  <input type="number" name="raidDiscordDeleteAfterStartHours" min={0} max={168} step={1} defaultValue={apiSettings.raidDiscordDeleteAfterStartHours} disabled={!canEditApiSettings} />
+                </label>
               </fieldset>
 
               <fieldset className="admin-policy-fieldset admin-policy-fieldset--compact">

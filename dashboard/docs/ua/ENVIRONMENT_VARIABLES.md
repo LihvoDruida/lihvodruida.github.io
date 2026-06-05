@@ -163,6 +163,8 @@
 | `NEXT_PUBLIC_RAID_RULES_URL` | alias public | Public alias для правил рейдів. |
 | `DISCORD_RAID_RULES_URL` | alias | Legacy alias для правил рейдів. |
 | `RAID_TIME_ZONE` | required | Timezone рейдів, наприклад `Europe/Kyiv`. |
+| `RAID_LIFECYCLE_SECRET` | optional | Bearer token для `/api/raids/lifecycle` cron/manual job. Може використовувати `CRON_SECRET` або `INTERNAL_API_TOKEN`. |
+| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Через скільки годин після старту видаляти Discord-оголошення рейду. Запис рейду залишається в архіві панелі. За замовчуванням `4`. |
 | `NEXT_PUBLIC_RAID_TIME_ZONE` | required public | Public timezone для UI. |
 | Автозакриття рейдів | built-in | Рейд автоматично вважається закритим у момент старту за `RAID_TIME_ZONE`; окремої затримки після старту немає. |
 | `RAID_LIST_CACHE_TTL_MS` | optional | TTL кешу списку рейдів. |

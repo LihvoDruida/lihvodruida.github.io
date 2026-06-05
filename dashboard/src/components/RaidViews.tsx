@@ -386,6 +386,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
             <small>👥 {counts.roster} / {capacity}{canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}</small>
             {raid.minItemLevel ? <small>👙 Мін. ilvl: {raid.minItemLevel}</small> : null}
             {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
+            {raid.discordDeletedAt ? <small>🧹 Discord-повідомлення прибрано</small> : null}
           </span>
           <span className="raid-list-progress" aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}>
             <span style={{ width: `${Math.min(100, Math.round((counts.roster / Math.max(1, capacity)) * 100))}%` }} />
@@ -553,7 +554,7 @@ export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: 
           <strong>{raid.status === "draft" ? "Видалення чернетки" : "Видалення рейду"}</strong>
           <p>{raid.status === "draft"
             ? "Чернетка зникне зі списку рейдів."
-            : "Автовидалення вимкнене: опубліковані й закриті рейди залишаються в архіві, доки ти не видалиш їх вручну."}</p>
+            : "З панелі рейд видаляється тільки вручну. Автоматично після старту прибирається лише Discord-повідомлення, а архів у панелі зберігається."}</p>
           <button className="btn danger" type="submit">{raid.status === "draft" ? "Видалити чернетку" : "Видалити рейд"}</button>
         </form>
       ) : null}
