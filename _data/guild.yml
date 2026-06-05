@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-04 21:43:22'
+  updated_at: '2026-06-05 03:54:42'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13873
-      region: 6073
+      world: 13895
+      region: 6075
       realm: 49
     mythic:
-      world: 6963
-      region: 2986
+      world: 6981
+      region: 2989
       realm: 20
   sporefall:
     normal:
@@ -212,11 +212,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3417
-        color: '#a335ee'
+        score: 3430.8
+        color: '#a937e8'
       dps:
-        score: 3417
-        color: '#a335ee'
+        score: 3430.8
+        color: '#a937e8'
       healer:
         score: 0
         color: '#ffffff'
@@ -230,8 +230,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3417
-        color: '#a335ee'
+        score: 3430.8
+        color: '#a937e8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3981,7 +3981,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3066.8
@@ -4223,7 +4223,7 @@ members:
   character:
     name: Zanziwolf
     id: 190458262
-    level: 21
+    level: 27
     realm:
       id: 1306
       slug: tarren-mill
@@ -5260,14 +5260,14 @@ members:
     item_level_equipped: 281
     mythic_plus_scores:
       all:
-        score: 3058.5
-        color: '#2175d8'
+        score: 3078.6
+        color: '#0070dd'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3058.5
-        color: '#2175d8'
+        score: 3078.6
+        color: '#0070dd'
       tank:
         score: 0
         color: '#ffffff'
@@ -5278,8 +5278,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3058.5
-        color: '#2175d8'
+        score: 3078.6
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7628,13 +7628,13 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3025.3
+        score: 3040.6
         color: '#2175d8'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3025.3
+        score: 3040.6
         color: '#2175d8'
       tank:
         score: 0
@@ -7649,7 +7649,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 3025.3
+        score: 3040.6
         color: '#2175d8'
     sources:
       roster: blizzard
