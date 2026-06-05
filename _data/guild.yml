@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-05 17:57:04'
+  updated_at: '2026-06-05 21:27:35'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13911
-      region: 6080
+      world: 13928
+      region: 6095
       realm: 49
     mythic:
-      world: 6987
-      region: 2989
+      world: 6989
+      region: 2990
       realm: 20
   sporefall:
     normal:
@@ -261,14 +261,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/19/172370451-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Silpo
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3702
-        color: '#d44daa'
+        score: 3716.6
+        color: '#d74fa4'
       dps:
-        score: 3702
-        color: '#d44daa'
+        score: 3716.6
+        color: '#d74fa4'
       healer:
         score: 0
         color: '#ffffff'
@@ -282,8 +282,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3702
-        color: '#d44daa'
+        score: 3716.6
+        color: '#d74fa4'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5257,7 +5257,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 282
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3225
@@ -5884,11 +5884,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3171.6
-        color: '#5864e2'
+        score: 3211.2
+        color: '#6361e4'
       dps:
-        score: 3171.6
-        color: '#5864e2'
+        score: 3211.2
+        color: '#6361e4'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -5896,11 +5896,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3171.6
-        color: '#5864e2'
+        score: 3211.2
+        color: '#6361e4'
       spec_1:
-        score: 2063.4
-        color: '#65ff4a'
+        score: 2075
+        color: '#62ff46'
       spec_2:
         score: 165.8
         color: '#ffffff'
@@ -6037,13 +6037,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
-        score: 3323.8
+        score: 3334.6
         color: '#8e4aea'
       dps:
-        score: 3323.8
+        score: 3334.6
         color: '#8e4aea'
       healer:
         score: 0
@@ -6058,7 +6058,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3323.8
+        score: 3334.6
         color: '#8e4aea'
       spec_3:
         score: 0
@@ -7441,7 +7441,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/178/265652402-avatar.jpg?alt=/wow/static/images/2d/avatar/91-0.jpg
     profile_url: https://raider.io/characters/eu/eversong/Корукк
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3442.1
