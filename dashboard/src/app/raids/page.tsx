@@ -11,6 +11,7 @@ import {
 } from "@/components/RaidViews";
 import { buildPageMetadata } from "@/lib/seo";
 import { recordDashboardSystemLog } from "@/lib/dashboardSystemLogs";
+import RaidArchiveLoadMore from "@/components/RaidArchiveLoadMore";
 
 export const runtime = "nodejs";
 export const metadata = buildPageMetadata({
@@ -67,11 +68,6 @@ export default async function RaidsListPage({
   const visibleTotal = canManage
     ? raids.length
     : activeRaids.length + closedRaids.length;
-  const requestedArchiveLimit = Number(params.archive || params.archiveLimit || 6);
-  const archiveLimit = Math.max(6, Math.min(100, Number.isFinite(requestedArchiveLimit) ? Math.floor(requestedArchiveLimit) : 6));
-  const visibleClosedRaids = closedRaids.slice(0, archiveLimit);
-  const nextArchiveLimit = Math.min(closedRaids.length, archiveLimit + 6);
-  const archiveMoreHref = `/raids?archive=${nextArchiveLimit}`;
 
   return (
     <RaidPageShell
@@ -155,24 +151,19 @@ export default async function RaidsListPage({
             </div>
           </div>
         </div>
-        <div className="raid-manager-list raid-manager-list--archive">
-          {visibleClosedRaids.length ? (
-            visibleClosedRaids.map((raid) => (
+        {closedRaids.length ? (
+          <RaidArchiveLoadMore step={6} total={closedRaids.length}>
+            {closedRaids.map((raid) => (
               <RaidListCard key={raid.id} raid={raid} canManage={canManage} />
-            ))
-          ) : (
+            ))}
+          </RaidArchiveLoadMore>
+        ) : (
+          <div className="raid-manager-list raid-manager-list--archive">
             <p className="raid-empty">
               Минулі рейди з’являться тут після завершення.
             </p>
-          )}
-        </div>
-        {closedRaids.length > visibleClosedRaids.length ? (
-          <div className="raid-archive-more-row">
-            <a className="btn subtle raid-archive-more-button" href={archiveMoreHref}>
-              Ще {Math.min(6, closedRaids.length - visibleClosedRaids.length)}
-            </a>
           </div>
-        ) : null}
+        )}
       </section>
     </RaidPageShell>
   );
