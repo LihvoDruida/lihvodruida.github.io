@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-05 14:54:57'
+  updated_at: '2026-06-05 17:57:04'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1804,7 +1804,7 @@ characters:
   region: eu
   realm: tarren-mill
   realm_slug: tarren-mill
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
   professions:
     primaries:
     - name: Tailoring
@@ -2952,7 +2952,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 7
+        learned_points: 14
         max_points: 100
     - name: Alchemy
       id: 171
