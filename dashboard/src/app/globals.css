@@ -20863,3 +20863,113 @@ body {
     height: 56px;
   }
 }
+
+/* Raid meta cards cleanup — fixes cramped desktop cards and keeps the RaidStats-like dark style. */
+.raid-page .raid-preview-card {
+  border-radius: 22px;
+}
+
+.raid-page .raid-preview-meta {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 176px), 1fr));
+  gap: 12px;
+  margin: 20px 0 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(125, 160, 210, 0.14);
+  align-items: stretch;
+}
+
+.raid-page .raid-preview-card .raid-preview-meta span {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 9px;
+  padding: 14px 15px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 160, 210, 0.17);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(23, 29, 43, 0.92), rgba(9, 12, 19, 0.9)),
+    radial-gradient(circle at 18% 0%, rgba(79, 156, 255, 0.12), transparent 62%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 12px 32px rgba(0, 0, 0, 0.22);
+  color: #f0f5ff;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.24;
+  word-break: break-word;
+}
+
+.raid-page .raid-preview-card .raid-preview-meta span::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(79, 156, 255, 0.72), transparent 72%);
+  opacity: 0.74;
+}
+
+.raid-page .raid-preview-card .raid-preview-meta strong {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  min-width: 0;
+  color: #8fc4ff;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.raid-page .raid-preview-card .raid-preview-meta small {
+  display: block;
+  max-width: 100%;
+  margin-top: 2px;
+  color: rgba(201, 215, 234, 0.74);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.015em;
+}
+
+.raid-page .raid-preview-card .raid-preview-meta span:has(small) {
+  justify-content: flex-start;
+}
+
+@media (min-width: 1100px) {
+  .raid-page .raid-preview-meta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .raid-page .raid-preview-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin: 16px 0 14px;
+    padding-top: 14px;
+  }
+
+  .raid-page .raid-preview-card .raid-preview-meta span {
+    min-height: 98px;
+    padding: 12px 13px !important;
+    border-radius: 15px !important;
+    font-size: 0.98rem;
+  }
+
+  .raid-page .raid-preview-card .raid-preview-meta strong {
+    font-size: 0.7rem !important;
+  }
+
+  .raid-page .raid-preview-card .raid-preview-meta small {
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-width: 460px) {
+  .raid-page .raid-preview-meta {
+    grid-template-columns: 1fr !important;
+  }
+}
