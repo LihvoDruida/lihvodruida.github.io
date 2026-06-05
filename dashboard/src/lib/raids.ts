@@ -1571,15 +1571,24 @@ export function decodeRaidCharacterSelectCustomId(customId: string, values?: unk
   return { raidId: match[1], action: cleanSignupStatus(match[2]), characterKey };
 }
 
-export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean } = false) {
+export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean; signed?: boolean } = false) {
   const disabled = typeof options === "boolean" ? options : Boolean(options.disabled);
   const full = typeof options === "object" && Boolean(options.full);
+  const signed = typeof options === "object" && Boolean(options.signed);
   const activeJoinDisabled = disabled || full;
+  const signupLabel = disabled
+    ? "Підписатися"
+    : full
+      ? "Заповнено"
+      : signed
+        ? "Змінити персонажа"
+        : "Підписатися";
+
   return [
     {
       type: 1,
       components: [
-        { type: 2, style: 3, label: full && !disabled ? "Заповнено" : "Підписатися", emoji: { name: "✅" }, custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
+        { type: 2, style: 3, label: signupLabel, emoji: { name: "✅" }, custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
         { type: 2, style: 2, label: "Пропустити", emoji: { name: "↩️" }, custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
         { type: 2, style: 4, label: full && !disabled ? "Ліміт досягнуто" : "Затримаюсь", emoji: { name: "🕒" }, custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
       ],
@@ -1626,6 +1635,8 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
 
   if (!options.length) return [];
 
+  const isCharacterChange = Boolean(selectedCharacterKey && action !== "skipped");
+
   return [
     {
       type: 1,
@@ -1633,7 +1644,11 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
         {
           type: 3,
           custom_id: buildRaidCharacterSelectCustomId(raidId, action),
-          placeholder: action === "late" ? "Ким позначити запізнення?" : "Ким підписатися на рейд?",
+          placeholder: isCharacterChange
+            ? "Змінити персонажа рейду"
+            : action === "late"
+              ? "Ким позначити запізнення?"
+              : "Ким підписатися на рейд?",
           min_values: 1,
           max_values: 1,
           options,
@@ -1664,7 +1679,11 @@ function isMissingDiscordMessageError(error: unknown) {
 export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | null) {
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
-  const components = buildRaidAttendanceComponents(raid.id, { disabled: closed, full: !closed && isRaidRegistrationFull(raid) });
+  const components = buildRaidAttendanceComponents(raid.id, {
+    disabled: closed,
+    full: !closed && isRaidRegistrationFull(raid),
+    signed: !closed && raidActiveRosterSize(raid) > 0,
+  });
   const targetChannelId = cleanSnowflakeId(channelId || raid.channelId || getDiscordDefaultChannelId());
   if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
 
@@ -1902,6 +1921,7 @@ async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Discor
   const components = buildRaidAttendanceComponents(raid.id, {
     disabled: false,
     full: isRaidRegistrationFull(raid),
+    signed: raidActiveRosterSize(raid) > 0,
   });
 
   await editDiscordRaidMessage({
@@ -1997,6 +2017,8 @@ export async function handleRaidDiscordAction(params: {
 
     const requestedCharacter = resolveProfileCharacterSelection(profile, params.characterKey);
     const eligibleCharacters = raidEligibleSignupCharacters(raid, profile);
+    const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
+    const isCharacterChange = Boolean(currentSignup && isActiveSignupStatus(currentSignup.status));
     if (requestedCharacter && isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)) {
       const blockedSignup = signupFromProfile(params.action, params.userId, params.userName, profile, requestedCharacter.key);
       return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
@@ -2004,11 +2026,12 @@ export async function handleRaidDiscordAction(params: {
     selectedCharacter = requestedCharacter;
 
     if (!selectedCharacter && eligibleCharacters.length > 0) {
-      const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
       const hiddenCount = profile.characters.length - eligibleCharacters.length;
       return {
         ok: true,
-        content: `🎯 Обери персонажа, яким хочеш записатися на рейд. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`,
+        content: isCharacterChange
+          ? `🔁 Ти вже записаний на рейд${currentSignup?.characterName ? ` як ${currentSignup.characterName}` : ""}. Обери персонажа, на якого потрібно змінити запис. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`
+          : `🎯 Обери персонажа, яким хочеш записатися на рейд. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`,
         components: buildRaidCharacterSelectComponents(raid.id, params.action, profile, currentSignup?.characterKey || null, raid),
         requiresCharacterSelection: true,
       };
