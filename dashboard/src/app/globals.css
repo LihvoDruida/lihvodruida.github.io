@@ -21400,36 +21400,3 @@ body {
     grid-template-columns: 1fr;
   }
 }
-
-/* Raid list surface cleanup: remove the extra heavy dark slab from the raids page.
-   The page background now stays visible, while individual raid cards keep their
-   readable surface and actions. */
-.raid-page .raid-list-page-panel,
-.raid-page .raid-list-page-panel--archive {
-  border-color: rgba(111, 132, 164, 0.18);
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-.raid-page .raid-list-page-panel::before,
-.raid-page .raid-list-page-panel--archive::before {
-  display: none;
-}
-
-.raid-page .raid-list-page-head,
-.raid-page .raid-list-page-head--archive {
-  border-bottom-color: rgba(111, 132, 164, 0.16);
-  background: transparent;
-}
-
-.raid-page .raid-manager-list,
-.raid-page .raid-manager-list--archive,
-.raid-page .raid-archive-dynamic {
-  background: transparent;
-}
-
-.raid-page .raid-list-summary span,
-.raid-page .raid-archive-status {
-  background: rgba(19, 28, 43, 0.52);
-}
