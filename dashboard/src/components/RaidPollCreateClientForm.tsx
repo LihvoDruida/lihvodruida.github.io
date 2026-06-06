@@ -3,7 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
-import { RAID_POLL_CLOSE_OPTIONS, raidPollDescription, type RaidPollDifficulty } from "@/lib/raidPolls";
+import { RAID_POLL_CLOSE_OPTIONS, raidPollDescription, type RaidPollDifficulty } from "@/lib/raidPollShared";
 
 export type RaidPollCreateChannel = {
   id: string;

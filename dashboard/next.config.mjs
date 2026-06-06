@@ -6,6 +6,9 @@ const hstsValue =
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    cpus: 2,
+  },
   typescript: {
     // Vercel deploy intentionally skips the expensive TypeScript worker.
     // Use `npm run verify` or `npm run build:ci` before merging when a strict gate is needed.
