@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-06 17:17:40'
+  updated_at: '2026-06-06 21:07:11'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13962
-      region: 6096
+      world: 13970
+      region: 6101
       realm: 49
     mythic:
-      world: 7000
-      region: 2992
+      world: 7005
+      region: 2994
       realm: 20
   sporefall:
     normal:
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1387,7 +1387,7 @@ members:
   character:
     name: Umbramind
     id: 185040389
-    level: 85
+    level: 86
     realm:
       id: 1415
       slug: terokkar
@@ -3308,10 +3308,10 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3010.4
+        score: 3015.6
         color: '#307ad3'
       dps:
-        score: 3010.4
+        score: 3015.6
         color: '#307ad3'
       healer:
         score: 0
@@ -3326,7 +3326,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3010.4
+        score: 3015.6
         color: '#307ad3'
       spec_3:
         score: 0
@@ -3461,7 +3461,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 279
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 2877.3
@@ -4223,7 +4223,7 @@ members:
   character:
     name: Zanziwolf
     id: 190458262
-    level: 30
+    level: 32
     realm:
       id: 1306
       slug: tarren-mill
@@ -5465,7 +5465,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3455.9
@@ -5795,8 +5795,8 @@ members:
         score: 1870.8
         color: '#7eff62'
       spec_1:
-        score: 2756.3
-        color: '#5fb198'
+        score: 2785.5
+        color: '#5da6a3'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -5877,11 +5877,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3211.2
@@ -5899,8 +5899,8 @@ members:
         score: 3211.2
         color: '#6361e4'
       spec_1:
-        score: 2075
-        color: '#62ff46'
+        score: 2568.3
+        color: '#59d56c'
       spec_2:
         score: 165.8
         color: '#ffffff'
@@ -6037,7 +6037,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 291
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3334.6
@@ -7233,7 +7233,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3007.8
@@ -7628,14 +7628,14 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3094.8
-        color: '#0070dd'
+        score: 3136.7
+        color: '#3e6ae0'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3094.8
-        color: '#0070dd'
+        score: 3136.7
+        color: '#3e6ae0'
       tank:
         score: 0
         color: '#ffffff'
@@ -7649,8 +7649,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 3094.8
-        color: '#0070dd'
+        score: 3136.7
+        color: '#3e6ae0'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -7729,7 +7729,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 2885.6
