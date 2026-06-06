@@ -1771,3 +1771,137 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Registration inline editor compact profile controls. */
+.rules-registration-editor .profile-name-panel,
+.rules-registration-editor .profile-name-section,
+.rules-registration-editor .profile-display-mode-section,
+.rules-registration-editor .profile-discord-standard,
+.rules-registration-editor .profile-raid-role-box,
+.rules-registration-editor .profile-gender-box,
+.rules-registration-editor .profile-candidates-box {
+  gap: 10px !important;
+}
+
+.rules-registration-editor .profile-name-section,
+.rules-registration-editor .profile-display-mode-section,
+.rules-registration-editor .profile-discord-standard,
+.rules-registration-editor .profile-raid-role-box,
+.rules-registration-editor .profile-gender-box,
+.rules-registration-editor .profile-candidates-box {
+  padding: 12px !important;
+  border-radius: 15px !important;
+  background: rgba(5, 10, 18, 0.38) !important;
+}
+
+.rules-registration-editor .profile-name-edit-form--always input,
+.rules-registration-editor .profile-icon-action,
+.rules-registration-editor .profile-nick-sync-button,
+.rules-registration-editor .profile-bnet-cta {
+  min-height: 38px !important;
+  border-radius: 12px !important;
+}
+
+.rules-registration-editor .profile-name-edit-form--always input {
+  font-size: 0.9rem !important;
+  padding-inline: 11px !important;
+}
+
+.rules-registration-editor .profile-field-hint,
+.rules-registration-editor .profile-name-section__head small,
+.rules-registration-editor .profile-discord-standard__identity small,
+.rules-registration-editor .profile-display-mode-option small,
+.rules-registration-editor .profile-raid-role-option small,
+.rules-registration-editor .profile-gender-option small,
+.rules-registration-editor .profile-nickname-character-option small,
+.rules-registration-editor .profile-nickname-hint {
+  font-size: 0.74rem !important;
+  line-height: 1.3 !important;
+}
+
+.rules-registration-editor .profile-name-section__head,
+.rules-registration-editor .profile-discord-standard__head {
+  gap: 10px !important;
+}
+
+.rules-registration-editor .profile-display-mode-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.rules-registration-editor .profile-gender-form,
+.rules-registration-editor .profile-raid-role-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.rules-registration-editor .profile-display-mode-option,
+.rules-registration-editor .profile-raid-role-option,
+.rules-registration-editor .profile-gender-option,
+.rules-registration-editor .profile-nickname-character-option {
+  min-height: 54px !important;
+  gap: 8px !important;
+  padding: 10px !important;
+  border-radius: 13px !important;
+}
+
+.rules-registration-editor .profile-display-mode-option strong,
+.rules-registration-editor .profile-raid-role-option strong,
+.rules-registration-editor .profile-gender-option strong,
+.rules-registration-editor .profile-nickname-character-option strong {
+  font-size: 0.84rem !important;
+}
+
+.rules-registration-editor .profile-gender-option em {
+  margin-top: 4px !important;
+  font-size: 0.7rem !important;
+}
+
+.rules-registration-editor .profile-gender-form .btn,
+.rules-registration-editor .profile-raid-role-form .btn,
+.rules-registration-editor .profile-nickname-character-form .btn,
+.rules-registration-editor .profile-candidate-bulk-buttons .btn {
+  min-height: 38px !important;
+  border-radius: 12px !important;
+}
+
+.rules-registration-editor .profile-nickname-preview,
+.rules-registration-editor .profile-server-nickname,
+.rules-registration-editor .profile-empty-characters,
+.rules-registration-editor .profile-candidates-box {
+  border-radius: 14px !important;
+}
+
+.rules-registration-editor .profile-character-list {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+  gap: 10px !important;
+  padding-bottom: 0 !important;
+}
+
+.rules-registration-editor .profile-candidate-groups,
+.rules-registration-editor .profile-nickname-character-list {
+  gap: 8px !important;
+}
+
+@media (max-width: 720px) {
+  .rules-registration-editor .profile-display-mode-form,
+  .rules-registration-editor .profile-gender-form,
+  .rules-registration-editor .profile-raid-role-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rules-registration-editor .profile-name-section__head,
+  .rules-registration-editor .profile-discord-standard__head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .rules-registration-editor .profile-nick-sync-button,
+  .rules-registration-editor .profile-discord-nick-form,
+  .rules-registration-editor .profile-gender-form .btn,
+  .rules-registration-editor .profile-raid-role-form .btn,
+  .rules-registration-editor .profile-nickname-character-form .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
