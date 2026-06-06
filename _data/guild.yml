@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-06 06:54:52'
+  updated_at: '2026-06-06 17:17:40'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -58,16 +58,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13846
+      world: 13847
       region: 6161
       realm: 56
     heroic:
-      world: 13948
-      region: 6095
+      world: 13962
+      region: 6096
       realm: 49
     mythic:
-      world: 6995
-      region: 2990
+      world: 7000
+      region: 2992
       realm: 20
   sporefall:
     normal:
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1041,14 +1041,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3209.8
-        color: '#6361e4'
+        score: 3227.2
+        color: '#6d5de5'
       dps:
-        score: 3209.8
-        color: '#6361e4'
+        score: 3227.2
+        color: '#6d5de5'
       healer:
         score: 0
         color: '#ffffff'
@@ -1062,8 +1062,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3209.8
-        color: '#6361e4'
+        score: 3227.2
+        color: '#6d5de5'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2084,7 +2084,7 @@ members:
     item_level_equipped: 274
     mythic_plus_scores:
       all:
-        score: 3006.8
+        score: 3007.8
         color: '#307ad3'
       dps:
         score: 0
@@ -2093,7 +2093,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3006.8
+        score: 3007.8
         color: '#307ad3'
       spec_0:
         score: 0
@@ -2102,7 +2102,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3006.8
+        score: 3007.8
         color: '#307ad3'
       spec_3:
         score: 0
@@ -3305,13 +3305,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3007.2
+        score: 3010.4
         color: '#307ad3'
       dps:
-        score: 3007.2
+        score: 3010.4
         color: '#307ad3'
       healer:
         score: 0
@@ -3326,7 +3326,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3007.2
+        score: 3010.4
         color: '#307ad3'
       spec_3:
         score: 0
@@ -3513,14 +3513,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2097.5
-        color: '#62ff46'
+        score: 2285.7
+        color: '#3eff25'
       dps:
-        score: 2097.5
-        color: '#62ff46'
+        score: 2285.7
+        color: '#3eff25'
       healer:
         score: 0
         color: '#ffffff'
@@ -3534,8 +3534,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2097.5
-        color: '#62ff46'
+        score: 2285.7
+        color: '#3eff25'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3561,8 +3561,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 290
@@ -5260,14 +5260,14 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3257.1
-        color: '#7659e6'
+        score: 3308.5
+        color: '#864fe9'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3257.1
-        color: '#7659e6'
+        score: 3308.5
+        color: '#864fe9'
       tank:
         score: 0
         color: '#ffffff'
@@ -5278,8 +5278,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3257.1
-        color: '#7659e6'
+        score: 3308.5
+        color: '#864fe9'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5985,14 +5985,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3109.2
-        color: '#2a6dde'
+        score: 3176.3
+        color: '#5864e2'
       dps:
-        score: 3109.2
-        color: '#2a6dde'
+        score: 3176.3
+        color: '#5864e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -6003,11 +6003,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3109.2
-        color: '#2a6dde'
+        score: 3176.3
+        color: '#5864e2'
       spec_2:
-        score: 625.9
-        color: '#e4ffd8'
+        score: 854.6
+        color: '#d4ffc3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7829,8 +7829,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Shadow
-      role: DPS
+      name: Discipline
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
     item_level_equipped: 286

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-06 06:54:52'
+  updated_at: '2026-06-06 17:17:40'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1001,7 +1001,7 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Midnight Alchemy
-        learned_points: 77
+        learned_points: 86
         max_points: 100
     secondaries:
     - name: Archaeology
