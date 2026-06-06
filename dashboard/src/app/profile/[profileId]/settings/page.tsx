@@ -400,8 +400,78 @@ function NicknameCharactersForm({
   );
 }
 
+function setupStepAnchor(key: string) {
+  if (key === "profile_name" || key === "profile_display_mode") {
+    return "#profile-name-settings";
+  }
+  if (key === "profile_gender") return "#profile-gender-settings";
+  return "#profile-settings-overview";
+}
+
+function ProfileSettingsCompletionPanel({
+  status,
+}: {
+  status: ReturnType<typeof profileSettingsSetupStatus>;
+}) {
+  const completed = status.steps.filter((step) => step.complete).length;
+  const total = Math.max(1, status.steps.length);
+  const progress = Math.round((completed / total) * 100);
+
+  return (
+    <section
+      className={`profile-setup-progress-panel${status.complete ? " is-complete" : " is-missing"}`}
+      aria-label="Стан заповнення профілю"
+    >
+      <div className="profile-setup-progress-panel__head">
+        <span className="profile-setup-progress-panel__icon" aria-hidden="true">
+          {status.complete ? "✓" : "!"}
+        </span>
+        <span>
+          <strong>
+            {status.complete
+              ? "Реєстраційні дані заповнені"
+              : "Потрібно виправити або доповнити дані"}
+          </strong>
+          <small>
+            {status.complete
+              ? "Профіль має валідне імʼя, звертання і формат відображення."
+              : `Не вистачає: ${status.missing.map((step) => step.title).join(", ")}.`}
+          </small>
+        </span>
+        <span className="profile-count-pill">
+          {completed}/{status.steps.length}
+        </span>
+      </div>
+      <div
+        className="profile-setup-progress-panel__bar"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+        aria-valuetext={`${completed} з ${status.steps.length}`}
+      >
+        <span style={{ width: `${progress}%` }} />
+      </div>
+      <div className="profile-setup-progress-panel__steps" role="list">
+        {status.steps.map((step) => (
+          <a
+            className={`profile-setup-progress-step${step.complete ? " is-complete" : " is-missing"}`}
+            href={setupStepAnchor(step.key)}
+            role="listitem"
+            key={step.key}
+          >
+            <span aria-hidden="true">{step.complete ? "✓" : "!"}</span>
+            <strong>{step.title}</strong>
+            <small>{step.description}</small>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function ProfileSettingsPage({
-    params,
+  params,
   searchParams,
 }: {
   params: Promise<{ profileId: string }>;
@@ -543,6 +613,12 @@ export default async function ProfileSettingsPage({
   const isSetupEntry =
     String(Array.isArray(query.setup) ? query.setup[0] : query.setup || "") ===
       "1" || setupStatus.missing.length > 0;
+  const setupCompleteCount = setupStatus.steps.filter(
+    (step) => step.complete,
+  ).length;
+  const settingsPageTitle = isSetupEntry
+    ? "Реєстрація профілю"
+    : "Налаштування профілю";
   const guildStatus = guildStatusLabel(profile.role);
   const accountStatusLabel = guildStatus;
   const savedCharacterCount = profile.characters.length;
@@ -585,6 +661,9 @@ export default async function ProfileSettingsPage({
                 aria-label="Стан профілю"
               >
                 <span>☘ {savedCharacterCount} перс.</span>
+                <span>
+                  ✓ {setupCompleteCount}/{setupStatus.steps.length}
+                </span>
                 <span>⚔ {wowRoleLabel(selectedRaidRole)}</span>
               </div>
             </div>
@@ -631,13 +710,14 @@ export default async function ProfileSettingsPage({
             >
               <div>
                 <span className="eyebrow">
-                  Mistblossom Vanguard • Налаштування
+                  Mistblossom Vanguard •{" "}
+                  {isSetupEntry ? "Реєстрація" : "Налаштування"}
                 </span>
-                <h1>Налаштування профілю</h1>
+                <h1>{settingsPageTitle}</h1>
                 <p>
-                  Тут керується те, як профіль виглядає в панелі й Discord:
-                  імʼя, формат відображення, серверний nickname, два альти для
-                  шаблону та роль для рейдів.
+                  Всі базові дані вводяться тут: імʼя, формат відображення,
+                  звертання, Discord nickname, альти для шаблону та роль для
+                  рейдів. Некоректні або неповні поля підсвічуються нижче.
                 </p>
               </div>
               <span className="profile-account-header__badge">
@@ -717,6 +797,8 @@ export default async function ProfileSettingsPage({
               </div>
             </section>
 
+            <ProfileSettingsCompletionPanel status={setupStatus} />
+
             {storageWarning ? (
               <div
                 className="login-alert profile-storage-warning"
@@ -762,7 +844,7 @@ export default async function ProfileSettingsPage({
                   <small>
                     {setupStatus.complete
                       ? "Тепер можна перейти до профілю, Battle.net і персонажів."
-                      : `Не вистачає: ${setupStatus.missing.map((step) => step.title).join(", ")}. Старі профілі спочатку відкриваються тут, щоб привести дані до нового стандарту.`}
+                      : `Не вистачає: ${setupStatus.missing.map((step) => step.title).join(", ")}. Заповни або виправ ці поля прямо на цій сторінці.`}
                   </small>
                 </span>
                 {setupStatus.complete ? (

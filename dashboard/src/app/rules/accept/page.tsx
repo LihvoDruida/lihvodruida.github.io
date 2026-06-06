@@ -104,16 +104,22 @@ function StepList({
   profile,
   nicknameTemplate,
   nextStepKey,
+  token,
 }: {
   profile: DashboardProfile | null;
   nicknameTemplate: string;
   nextStepKey?: string | null;
+  token: string;
 }) {
   const status = rulesOnboardingStatus(profile, nicknameTemplate);
   return (
     <div className="rules-onboarding-steps" role="list">
       {status.steps.map((step) => {
         const isNext = !step.complete && step.key === nextStepKey;
+        const actionHref =
+          !step.complete && step.href
+            ? appendRulesReturnParams(step.href, token)
+            : "";
         return (
           <article
             className={[
@@ -133,6 +139,11 @@ function StepList({
               <strong>{step.title}</strong>
               <small>{step.description}</small>
             </span>
+            {actionHref ? (
+              <a className="rules-onboarding-step__action" href={actionHref}>
+                {isNext ? "Виправити зараз" : onboardingActionLabel(step.key)}
+              </a>
+            ) : null}
           </article>
         );
       })}
@@ -232,7 +243,7 @@ function onboardingActionLabel(stepKey?: string | null) {
 }
 
 export default async function RulesAcceptPage({
-    searchParams,
+  searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
@@ -336,7 +347,7 @@ export default async function RulesAcceptPage({
               <h2>
                 {status.complete
                   ? "Профіль готовий"
-                  : "Потрібно доповнити профіль"}
+                  : "Дані неповні або некоректні"}
               </h2>
             </div>
             <span
@@ -369,10 +380,21 @@ export default async function RulesAcceptPage({
                 profile={profile}
                 nicknameTemplate={nicknamePolicy.template}
               />
+              {!status.complete ? (
+                <div className="rules-onboarding-data-warning" role="status">
+                  <strong>Реєстрація ще не готова</strong>
+                  <small>
+                    Заповни або виправ позначені пункти. Для імені, звертання та
+                    формату відкривається сторінка редагування; для персонажів —
+                    профіль із Battle.net.
+                  </small>
+                </div>
+              ) : null}
               <StepList
                 profile={profile}
                 nicknameTemplate={nicknamePolicy.template}
                 nextStepKey={nextMissingStep?.key}
+                token={token}
               />
 
               <div className="rules-onboarding-role-box">

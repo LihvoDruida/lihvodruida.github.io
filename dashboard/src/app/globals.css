@@ -16594,6 +16594,7 @@ main.container {
 .rules-onboarding-login,
 .rules-onboarding-role-box,
 .rules-onboarding-progress,
+.rules-onboarding-data-warning,
 .rules-onboarding-final-action {
   min-width: 0;
   border: 1px solid var(--rules-soft-border);
@@ -16614,6 +16615,26 @@ main.container {
   display: grid;
   gap: 7px;
   padding: clamp(14px, 1.8vw, 18px);
+}
+
+.rules-onboarding-data-warning {
+  display: grid;
+  gap: 4px;
+  padding: clamp(13px, 1.8vw, 17px);
+  border-color: rgba(255, 190, 88, 0.34);
+  background:
+    radial-gradient(circle at 0 0, rgba(255, 190, 88, 0.12), transparent 46%),
+    var(--rules-soft-bg);
+}
+
+.rules-onboarding-data-warning strong {
+  color: #ffe4ad;
+  font-weight: 950;
+}
+
+.rules-onboarding-data-warning small {
+  color: rgba(235, 224, 205, 0.74);
+  line-height: 1.45;
 }
 
 .rules-onboarding-progress {
@@ -16709,7 +16730,7 @@ main.container {
 
 .rules-onboarding-step {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 34px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -16768,6 +16789,28 @@ main.container {
   overflow-wrap: anywhere;
 }
 
+.rules-onboarding-step__action {
+  align-self: center;
+  padding: 8px 11px;
+  border: 1px solid rgba(214, 168, 79, 0.28);
+  border-radius: 999px;
+  background: rgba(214, 168, 79, 0.10);
+  color: #ffe3a5;
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.rules-onboarding-step__action:hover,
+.rules-onboarding-step__action:focus-visible {
+  border-color: rgba(255, 217, 139, 0.56);
+  background: rgba(214, 168, 79, 0.16);
+  transform: translateY(-1px);
+  outline: none;
+}
+
 .rules-onboarding-final-action {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
@@ -16815,6 +16858,11 @@ main.container {
     grid-template-columns: 30px minmax(0, 1fr);
     gap: 10px;
     padding: 11px;
+  }
+
+  .rules-onboarding-step__action {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .rules-onboarding-step__state {
@@ -21399,4 +21447,37 @@ body {
   .raid-page .raid-manage-actions {
     grid-template-columns: 1fr;
   }
+}
+
+/* Raid list surface cleanup: remove the extra heavy dark slab from the raids page.
+   The page background now stays visible, while individual raid cards keep their
+   readable surface and actions. */
+.raid-page .raid-list-page-panel,
+.raid-page .raid-list-page-panel--archive {
+  border-color: rgba(111, 132, 164, 0.18);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.raid-page .raid-list-page-panel::before,
+.raid-page .raid-list-page-panel--archive::before {
+  display: none;
+}
+
+.raid-page .raid-list-page-head,
+.raid-page .raid-list-page-head--archive {
+  border-bottom-color: rgba(111, 132, 164, 0.16);
+  background: transparent;
+}
+
+.raid-page .raid-manager-list,
+.raid-page .raid-manager-list--archive,
+.raid-page .raid-archive-dynamic {
+  background: transparent;
+}
+
+.raid-page .raid-list-summary span,
+.raid-page .raid-archive-status {
+  background: rgba(19, 28, 43, 0.52);
 }

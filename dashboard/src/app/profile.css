@@ -213,6 +213,21 @@
   font-weight: 950;
 }
 
+.profile-account-header__actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-account-header__actions .btn {
+  min-height: 38px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 .profile-account-overview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
@@ -302,6 +317,19 @@
   color: var(--profile-green);
 }
 
+.profile-name-status-pill.is-warning,
+.profile-count-pill.is-warning {
+  border-color: rgba(255, 190, 93, 0.34);
+  background: rgba(255, 190, 93, 0.11);
+  color: #ffdca3;
+}
+
+.profile-count-pill.is-ok {
+  border-color: rgba(94, 215, 133, 0.38);
+  background: rgba(94, 215, 133, 0.13);
+  color: var(--profile-green);
+}
+
 .profile-storage-warning {
   border-color: rgba(236, 202, 126, 0.24);
 }
@@ -350,6 +378,150 @@
 .profile-setup-callout.is-warning .profile-setup-callout__icon {
   background: rgba(255, 190, 93, 0.12);
   color: #ffd69b;
+}
+
+.profile-setup-progress-panel {
+  display: grid;
+  gap: 12px;
+  padding: clamp(14px, 1.8vw, 18px);
+  border: 1px solid var(--profile-line);
+  border-radius: var(--profile-radius-xl);
+  background:
+    radial-gradient(circle at 0 0, rgba(236, 202, 126, 0.10), transparent 44%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.profile-setup-progress-panel.is-missing {
+  border-color: rgba(255, 190, 93, 0.30);
+}
+
+.profile-setup-progress-panel.is-complete {
+  border-color: rgba(94, 215, 133, 0.28);
+}
+
+.profile-setup-progress-panel__head {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-setup-progress-panel__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 190, 93, 0.28);
+  border-radius: 15px;
+  background: rgba(255, 190, 93, 0.10);
+  color: #ffd69b;
+  font-weight: 950;
+}
+
+.profile-setup-progress-panel.is-complete .profile-setup-progress-panel__icon {
+  border-color: rgba(94, 215, 133, 0.32);
+  background: rgba(94, 215, 133, 0.12);
+  color: var(--profile-green);
+}
+
+.profile-setup-progress-panel__head strong {
+  display: block;
+  color: var(--profile-text);
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+.profile-setup-progress-panel__head small {
+  display: block;
+  margin-top: 4px;
+  color: var(--profile-muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.profile-setup-progress-panel__bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.profile-setup-progress-panel__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(236, 202, 126, 0.9), rgba(94, 215, 133, 0.88));
+}
+
+.profile-setup-progress-panel__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+}
+
+.profile-setup-progress-step {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 15px;
+  background: rgba(4, 9, 17, 0.36);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.profile-setup-progress-step:hover,
+.profile-setup-progress-step:focus-visible {
+  border-color: rgba(236, 202, 126, 0.42);
+  background: rgba(236, 202, 126, 0.08);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.profile-setup-progress-step > span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  color: #ffd69b;
+  font-weight: 950;
+}
+
+.profile-setup-progress-step.is-complete {
+  border-color: rgba(94, 215, 133, 0.24);
+  background: rgba(55, 136, 87, 0.10);
+}
+
+.profile-setup-progress-step.is-complete > span {
+  color: var(--profile-green);
+}
+
+.profile-setup-progress-step strong,
+.profile-setup-progress-step small {
+  grid-column: 2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-setup-progress-step strong {
+  color: var(--profile-text);
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.18;
+}
+
+.profile-setup-progress-step small {
+  color: var(--profile-muted-soft);
+  font-size: 0.77rem;
+  line-height: 1.35;
 }
 
 .profile-card {
@@ -583,6 +755,56 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 8px;
+}
+
+.profile-name-edit-form--always {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.profile-name-edit-form--always input {
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgba(214, 176, 92, 0.22);
+  border-radius: 14px;
+  background: rgba(4, 9, 17, 0.54);
+  color: var(--profile-text);
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 850;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.profile-name-edit-form--always input:focus-visible {
+  border-color: rgba(236, 202, 126, 0.55);
+  background: rgba(9, 15, 24, 0.74);
+  box-shadow: 0 0 0 3px rgba(236, 202, 126, 0.10);
+}
+
+.profile-name-edit-form--always.is-invalid input {
+  border-color: rgba(255, 190, 93, 0.52);
+}
+
+.profile-field-hint {
+  grid-column: 1 / -1;
+  margin-top: -2px;
+  color: var(--profile-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.38;
+}
+
+.profile-field-hint.is-warning {
+  color: #ffd69b;
+}
+
+.profile-field-hint.is-pending {
+  color: #ffe4a5;
+}
+
+.profile-field-hint.is-ok {
+  color: rgba(189, 244, 200, 0.82);
 }
 
 .profile-icon-action,
@@ -1427,9 +1649,14 @@
   }
 
   .profile-account-header__badge,
+  .profile-account-header__actions,
   .profile-rules-return-callout .btn,
   .profile-setup-callout .btn {
     justify-self: start;
+  }
+
+  .profile-account-header__actions {
+    justify-content: flex-start;
   }
 
   .profile-account-overview,
@@ -1441,6 +1668,16 @@
   .profile-raid-card__meta,
   .profile-directory-toolbar {
     grid-template-columns: 1fr;
+  }
+
+
+  .profile-setup-progress-panel__head,
+  .profile-setup-progress-panel__steps {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-setup-progress-panel__head .profile-count-pill {
+    justify-self: start;
   }
 
   .profile-name-edit-form {
