@@ -1905,3 +1905,9 @@
     justify-content: center !important;
   }
 }
+
+
+/* Raid signup order polish */
+.profile-raid-card__meta span:first-child strong {
+  font-variant-numeric: tabular-nums;
+}

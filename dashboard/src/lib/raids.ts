@@ -2029,7 +2029,7 @@ function compositionLongLabel(raid: RaidAutoInput) {
 
 function raidSignupNumberLabel(item?: Pick<RaidSignup, "signupNumber"> | null) {
   const number = cleanOptionalSignupNumber(item?.signupNumber);
-  return number ? `№${number}` : null;
+  return number ? `#${number}` : null;
 }
 
 function signupName(item?: RaidSignup | null) {

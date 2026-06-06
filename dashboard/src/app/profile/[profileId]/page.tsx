@@ -145,8 +145,8 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
       <div className="profile-raid-card__meta">
         {item.signup.signupNumber ? (
           <span>
-            <strong>№{item.signup.signupNumber}</strong>
-            <small>Номер запису</small>
+            <strong>#{item.signup.signupNumber}</strong>
+            <small>Порядок запису</small>
           </span>
         ) : null}
         <span>

@@ -308,8 +308,9 @@ function SignupAvatar({ item }: { item?: RaidSignup | null }) {
 
 function SignupNumberBadge({ item }: { item?: Pick<RaidSignup, "signupNumber"> | null }) {
   const number = Number(item?.signupNumber || 0);
-  const label = Number.isFinite(number) && number > 0 ? `№${Math.floor(number)}` : "—";
-  return <span className={`raid-signup-order${label === "—" ? " raid-signup-order--empty" : ""}`} title={label === "—" ? "Місце ще не зайняте" : `Порядковий номер запису: ${label}`}>{label}</span>;
+  const label = Number.isFinite(number) && number > 0 ? `${Math.floor(number)}.` : "—";
+  const title = Number.isFinite(number) && number > 0 ? `Порядковий номер запису: #${Math.floor(number)}` : "Місце ще не зайняте";
+  return <span className={`raid-signup-order${label === "—" ? " raid-signup-order--empty" : ""}`} title={title}>{label}</span>;
 }
 
 function raidPartyRoleLabel(role: RaidCharacterRole) {
