@@ -6,7 +6,7 @@
 
 Потік даних:
 
-1. Офіцер відкриває `/polls/new`.
+1. Офіцер відкриває `/discord` або `/polls/new`. Основна форма створення інтегрована в Discord Hub як блок `Створення рейд-голосування`.
 2. Сайт створює документ у Firestore `dashboardRaidPolls`.
 3. Сайт публікує Discord embed через наявний Discord Admin/Worker relay.
 4. Учасники голосують у Discord через select-menu:
@@ -60,14 +60,17 @@
 
 ### `POST /api/polls`
 
-Site-only form action. Creates Firestore document and publishes Discord message.
+Site-only endpoint. Creates Firestore document and publishes Discord message. Supports both legacy `FormData` submits from `/polls/new` and JSON submits from `/discord`.
 
-Fields:
+Fields/body:
 
 - `title`
 - `difficulty`
+- `description`
 - `closeAfterMinutes`
 - `channelId`
+
+JSON response mode is selected by `Accept: application/json` or `Content-Type: application/json` and returns `{ ok, pollId, redirectTo, poll }`.
 
 ### `GET /api/polls`
 

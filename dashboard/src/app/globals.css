@@ -22431,3 +22431,69 @@ body {
     min-width: 360px;
   }
 }
+
+/* Discord hub raid-poll creator */
+.discord-hub-card--poll {
+  border-color: rgba(199, 146, 64, 0.32);
+  background:
+    radial-gradient(circle at top right, rgba(199, 146, 64, 0.18), transparent 36%),
+    linear-gradient(180deg, rgba(15, 24, 40, 0.95), rgba(8, 13, 24, 0.88));
+}
+
+.discord-raid-poll-section {
+  margin: 0 0 44px;
+  scroll-margin-top: 92px;
+}
+
+.discord-raid-poll-form {
+  margin-top: 16px;
+}
+
+.discord-raid-poll-form .raid-form-heading h2 {
+  margin: 4px 0 6px;
+  color: #f2eadc;
+  font-size: clamp(24px, 3.2vw, 36px);
+  line-height: 1.08;
+}
+
+.discord-raid-poll-alert {
+  margin: 0;
+}
+
+.discord-raid-poll-static-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.discord-raid-poll-static-grid > div {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid rgba(188, 141, 72, 0.24);
+  border-radius: 14px;
+  background: rgba(4, 7, 10, 0.56);
+}
+
+.discord-raid-poll-static-grid strong {
+  color: #d9c08e;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.discord-raid-poll-static-grid span {
+  color: rgba(242, 234, 220, 0.82);
+  line-height: 1.45;
+}
+
+.discord-raid-poll-form .btn[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.78;
+}
+
+@media (max-width: 760px) {
+  .discord-raid-poll-static-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -108,15 +108,16 @@ export function RaidPollCreateForm({ channels, discordEnabled }: { channels: Pol
 
       <label>
         <span>Discord-канал</span>
-        <select name="channelId" required disabled={!discordEnabled} defaultValue={channels[0]?.id || ""}>
-          {channels.length ? channels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>) : <option value="">Канал не знайдено</option>}
-        </select>
+        <input name="channelId" required disabled={!discordEnabled} defaultValue={channels[0]?.id || ""} list="raid-poll-create-channels" placeholder="123456789012345678" />
+        <datalist id="raid-poll-create-channels">
+          {channels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
+        </datalist>
       </label>
 
-      <div className="raid-poll-static-copy">
-        <strong>Опис у Discord</strong>
-        <p>{raidPollDescription()}</p>
-      </div>
+      <label>
+        <span>Опис у Discord</span>
+        <textarea name="description" required maxLength={900} defaultValue={raidPollDescription()} />
+      </label>
 
       <div className="raid-poll-option-preview" aria-label="Опції рейд-пулу">
         <div>

@@ -55,6 +55,14 @@ export type RaidPollVoteResult = {
   closed?: boolean;
 };
 
+export type RaidPollCreateInput = {
+  title?: unknown;
+  difficulty?: unknown;
+  description?: unknown;
+  channelId?: unknown;
+  closeAfterMinutes?: unknown;
+};
+
 const RAID_POLL_COLLECTION = "dashboardRaidPolls";
 const RAID_POLL_ACTION_PREFIX = "mbv1:poll";
 const RAID_POLL_DESCRIPTION = "Будь ласка, оберіть дні та час, коли ви готові взяти участь у гільдійському рейді. Голос враховується для формування основного складу.";
@@ -94,6 +102,11 @@ const DIFFICULTY_COLORS: Record<RaidPollDifficulty, number> = {
 
 function cleanString(value: unknown, max = 300) {
   return Array.from(String(value || "").replace(/\r\n/g, "\n").trim()).slice(0, max).join("");
+}
+
+function cleanPollDescription(value: unknown) {
+  const description = cleanString(value, 900);
+  return description.length >= 20 ? description : RAID_POLL_DESCRIPTION;
 }
 
 function cleanSnowflake(value: unknown) {
@@ -435,25 +448,26 @@ export async function listRaidPolls(limit = 100) {
   );
 }
 
-export async function saveRaidPollFromForm(form: FormData, user: DashboardSession) {
+export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: DashboardSession) {
   if (!hasRaidPollStorage()) throw new Error(firebaseUnavailableMessage("raid", "write"));
 
-  const title = cleanString(form.get("title"), 160);
+  const title = cleanString(input.title, 160);
   if (title.length < 3) throw new Error("Вкажи назву рейду для голосування.");
 
-  const difficulty = cleanDifficulty(form.get("difficulty"));
-  const closeAfterMinutes = cleanCloseAfterMinutes(form.get("closeAfterMinutes"));
+  const difficulty = cleanDifficulty(input.difficulty);
+  const closeAfterMinutes = cleanCloseAfterMinutes(input.closeAfterMinutes);
+  const description = cleanPollDescription(input.description);
   const now = new Date();
   const nowIso = now.toISOString();
   const closesAtMs = now.getTime() + closeAfterMinutes * 60 * 1000;
   const id = newPollId();
-  const channelId = cleanSnowflake(form.get("channelId")) || getDiscordDefaultChannelId();
+  const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
 
   const basePoll: RaidPollItem = {
     id,
     title,
     difficulty,
-    description: RAID_POLL_DESCRIPTION,
+    description,
     status: "open",
     closeAfterMinutes,
     closesAt: new Date(closesAtMs).toISOString(),
@@ -495,6 +509,16 @@ export async function saveRaidPollFromForm(form: FormData, user: DashboardSessio
   }, { logEvent: "raid_polls.publish_ref_failed" });
 
   return publishedPoll;
+}
+
+export async function saveRaidPollFromForm(form: FormData, user: DashboardSession) {
+  return saveRaidPollFromInput({
+    title: form.get("title"),
+    difficulty: form.get("difficulty"),
+    description: form.get("description"),
+    channelId: form.get("channelId"),
+    closeAfterMinutes: form.get("closeAfterMinutes"),
+  }, user);
 }
 
 export async function closeDueRaidPoll(input: RaidPollItem) {

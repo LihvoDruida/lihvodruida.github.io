@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
-import { canManageGeneralEmbeds, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
-import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { canManageGeneralEmbeds, canManageRaids, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
+import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { buildPageMetadata } from "@/lib/seo";
+import DiscordRaidPollForm from "@/components/DiscordRaidPollForm";
+import { hasRaidPollStorage, raidPollDescription } from "@/lib/raidPolls";
 
 export const metadata = buildPageMetadata({
   title: "Discord-повідомлення",
@@ -47,7 +49,14 @@ export default async function DiscordHubPage({
   const canUseGeneralEmbeds = canManageGeneralEmbeds(user);
   const canEditRules = canManageRulesEmbeds(user);
   const canViewRules = canViewRulesStats(user);
-  if (!canUseGeneralEmbeds && !canViewRules) redirect(await getOwnProfilePath(user));
+  const canCreateRaidPolls = canManageRaids(user);
+  if (!canUseGeneralEmbeds && !canViewRules && !canCreateRaidPolls) redirect(await getOwnProfilePath(user));
+
+  const discordEnabled = hasDiscordEmbedConfig();
+  const channelResult = discordEnabled && canCreateRaidPolls ? await fetchDiscordTextChannels().catch(() => null) : null;
+  const pollChannels = channelResult?.channels || [];
+  const pollDefaultChannelId = pollChannels[0]?.id || channelResult?.suggestedRulesChannelId || "";
+  const raidPollsReady = canCreateRaidPolls && discordEnabled && hasRaidPollStorage();
 
   return (
     <main className="container">
@@ -58,7 +67,7 @@ export default async function DiscordHubPage({
             <div className="eyebrow">Mistblossom Vanguard • Discord</div>
             <div className="content-hero-status-row" aria-label="Стан Discord редактора">
               <span className="content-mode-pill content-mode-pill--library">{hierarchyTitle(user.role)}</span>
-              <span className="content-hero-path">{canViewRules ? "Статистика правил • Звичайні повідомлення" : "Звичайні повідомлення"}</span>
+              <span className="content-hero-path">{canCreateRaidPolls ? "Рейд-голосування • Discord повідомлення" : canViewRules ? "Статистика правил • Звичайні повідомлення" : "Звичайні повідомлення"}</span>
             </div>
             <h1>Discord-повідомлення</h1>
             <span className="hero-accent" aria-hidden="true" />
@@ -73,22 +82,22 @@ export default async function DiscordHubPage({
             ariaLabel="Огляд Discord-повідомлень"
             summary={[
               { label: "ДОСТУП", value: hierarchyTitle(user.role), note: "Дії залежать від ролі" },
-              { label: "РОЗДІЛ", value: canViewRules ? "Правила + повідомлення" : "Повідомлення", note: hasDiscordEmbedConfig() ? "Discord API налаштовано" : "Discord API недоступний" },
+              { label: "РОЗДІЛ", value: canCreateRaidPolls ? "Пули + повідомлення" : canViewRules ? "Правила + повідомлення" : "Повідомлення", note: discordEnabled ? "Discord API налаштовано" : "Discord API недоступний" },
             ]}
             stats={[
               { label: "EMBEDS", value: canUseGeneralEmbeds ? "ON" : "—" },
               { label: "RULES", value: canEditRules ? "EDIT" : canViewRules ? "VIEW" : "—" },
-              { label: "CONFIG", value: hasDiscordEmbedConfig() ? "OK" : "ERR" },
+              { label: "CONFIG", value: discordEnabled ? "OK" : "ERR" },
             ]}
           />
         </header>
       <StatusNotice params={params} />
-      {!canUseGeneralEmbeds ? (
+      {!canUseGeneralEmbeds && !canCreateRaidPolls ? (
         <div className="notice panel">Твоя роль не має доступу до Discord-дій.</div>
-      ) : !hasDiscordEmbedConfig() ? (
+      ) : !discordEnabled ? (
         <div className="notice panel error-note">Публікація в Discord тимчасово недоступна.</div>
       ) : (
-        <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules ? "" : "discord-hub-grid--single"}`} aria-label="Розділи Discord-повідомлень">
+        <section className={`discord-hub-grid discord-hub-grid--compact ${canViewRules || canCreateRaidPolls ? "" : "discord-hub-grid--single"}`} aria-label="Розділи Discord-повідомлень">
           {canViewRules ? (
             <a className="panel discord-hub-card discord-hub-card--rules" href="/discord/rules">
               <span className="eyebrow">Статистика правил • {hierarchyTitle(user.role)}</span>
@@ -105,6 +114,15 @@ export default async function DiscordHubPage({
             <span className="btn primary">Відкрити рейди</span>
           </a>
 
+          {canCreateRaidPolls ? (
+            <a className="panel discord-hub-card discord-hub-card--poll" href="#raid-poll-create">
+              <span className="eyebrow">Рейд-голосування • {hierarchyTitle(user.role)}</span>
+              <strong>Raid Polls</strong>
+              <p>Створення голосування за дні та час рейду з публікацією в Discord і результатами на сайті.</p>
+              <span className="btn subtle">Створити пул</span>
+            </a>
+          ) : null}
+
           <a className="panel discord-hub-card" href="/discord/embed">
             <span className="eyebrow">Звичайні повідомлення • {hierarchyTitle(user.role)}</span>
             <strong>Звичайні повідомлення</strong>
@@ -113,6 +131,20 @@ export default async function DiscordHubPage({
           </a>
         </section>
       )}
+
+      {canCreateRaidPolls ? (
+        <section id="raid-poll-create" className="discord-raid-poll-section" aria-label="Створення рейд-голосування Discord">
+          {channelResult?.warning ? <div className="notice panel warning-note discord-notice">Список Discord-каналів завантажено з попередженням: {channelResult.warning}</div> : null}
+          {!hasRaidPollStorage() ? <div className="notice panel error-note discord-notice">Firebase для рейд-голосувань не налаштований.</div> : null}
+          {!discordEnabled ? <div className="notice panel error-note discord-notice">Discord API тимчасово недоступний.</div> : null}
+          <DiscordRaidPollForm
+            channels={pollChannels}
+            defaultChannelId={pollDefaultChannelId}
+            defaultDescription={raidPollDescription()}
+            disabled={!raidPollsReady}
+          />
+        </section>
+      ) : null}
       </section>
     </main>
   );

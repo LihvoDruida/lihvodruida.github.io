@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
-import { listRaidPolls, saveRaidPollFromForm } from "@/lib/raidPolls";
+import { listRaidPolls, saveRaidPollFromForm, saveRaidPollFromInput, type RaidPollCreateInput } from "@/lib/raidPolls";
 import { assertRequestBodySize, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -23,6 +23,26 @@ function redirectWithToast(path: string, toast?: ToastInput) {
   return response;
 }
 
+function wantsJson(request: NextRequest) {
+  const accept = request.headers.get("accept") || "";
+  const contentType = request.headers.get("content-type") || "";
+  return accept.includes("application/json") || contentType.includes("application/json");
+}
+
+function jsonError(message: string, status = 400) {
+  return NextResponse.json({ ok: false, error: message }, { status, headers: noStoreHeaders() });
+}
+
+async function readCreateInput(request: NextRequest): Promise<{ input?: RaidPollCreateInput; form?: FormData }> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Некоректне JSON-тіло запиту.");
+    return { input: body as RaidPollCreateInput };
+  }
+  return { form: await request.formData() };
+}
+
 export async function GET() {
   const user = await getSession();
   if (!user || !canViewRaidDirectory(user)) {
@@ -36,8 +56,10 @@ export async function POST(request: NextRequest) {
   const tooLarge = assertRequestBodySize(request, 32 * 1024);
   if (tooLarge) return tooLarge;
 
+  const jsonMode = wantsJson(request);
   const user = await getSession();
   if (!user || !canManageRaids(user)) {
+    if (jsonMode) return jsonError("Твоя роль не має доступу до створення рейд-пулів.", 403);
     return redirectWithToast("/polls", {
       tone: "error",
       title: "Доступ заборонено",
@@ -47,8 +69,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const form = await request.formData();
-    const poll = await saveRaidPollFromForm(form, user);
+    const { input, form } = await readCreateInput(request);
+    const poll = input ? await saveRaidPollFromInput(input, user) : await saveRaidPollFromForm(form as FormData, user);
     logDashboardEvent("info", "raid_polls.created", request, {
       pollId: poll.id,
       actorId: user.id,
@@ -63,6 +85,16 @@ export async function POST(request: NextRequest) {
       channelId: poll.channelId || null,
       messageId: poll.messageId || null,
     }).catch(() => false);
+
+    if (jsonMode) {
+      return NextResponse.json({
+        ok: true,
+        pollId: poll.id,
+        redirectTo: `/polls/${encodeURIComponent(poll.id)}`,
+        poll,
+      }, { status: 201, headers: noStoreHeaders() });
+    }
+
     return redirectWithToast(`/polls/${encodeURIComponent(poll.id)}`, {
       tone: "success",
       title: "Рейд-пул створено",
@@ -77,6 +109,9 @@ export async function POST(request: NextRequest) {
       summary: `Рейд-пул не створено: ${message}`,
       error: error instanceof Error ? error.message : String(error || ""),
     }).catch(() => false);
+
+    if (jsonMode) return jsonError(message, 400);
+
     return redirectWithToast("/polls/new", {
       tone: "error",
       title: "Рейд-пул не створено",
