@@ -3465,6 +3465,7 @@ ${warning}`;
     warning,
     blockedByMinItemLevel: Boolean(data?.blockedByMinItemLevel || String(content).includes("Запис заблоковано")),
     blockedByMaxPlayers: Boolean(data?.blockedByMaxPlayers),
+    blockedByRegistrationLock: Boolean(data?.blockedByRegistrationLock),
     blockedByProfile: shouldAttachHelp,
   };
 }
@@ -3521,6 +3522,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
       has_item_level_warning: Boolean(result.warning),
       blocked_by_min_item_level: result.blockedByMinItemLevel,
       blocked_by_max_players: result.blockedByMaxPlayers,
+      blocked_by_registration_lock: result.blockedByRegistrationLock,
       blocked_by_profile: result.blockedByProfile,
       has_components: result.components.length > 0,
     });

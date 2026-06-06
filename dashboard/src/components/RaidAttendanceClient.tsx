@@ -25,6 +25,8 @@ type RaidAttendanceClientProps = {
   viewerAlreadyActive: boolean;
   activeJoinDisabled: boolean;
   skipDisabled: boolean;
+  registrationLocked?: boolean;
+  registrationLockMessage?: string;
   showRequirement: boolean;
   requirementTitle: string;
   requirementMessage: string;
@@ -64,6 +66,8 @@ export default function RaidAttendanceClient({
   viewerAlreadyActive,
   activeJoinDisabled,
   skipDisabled,
+  registrationLocked = false,
+  registrationLockMessage = "",
   showRequirement,
   requirementTitle,
   requirementMessage,
@@ -163,6 +167,13 @@ export default function RaidAttendanceClient({
 
   return (
     <div className="raid-attendance-stack">
+      {registrationLocked && registrationLockMessage ? (
+        <div className="raid-action-requirement" role="note">
+          <strong>Запис заблоковано</strong>
+          <span>{registrationLockMessage}</span>
+        </div>
+      ) : null}
+
       {showRequirement ? (
         <div className="raid-action-requirement" role="note">
           <strong>{requirementTitle}</strong>
@@ -178,8 +189,8 @@ export default function RaidAttendanceClient({
       {needsCharacterChoice ? (
         <label className="raid-character-picker">
           <span>Персонаж для запису</span>
-          <select className="select" value={characterKey} onChange={(event) => setCharacterKey(event.target.value)} disabled={closed || Boolean(busyAction)} required>
-            <option value="">Спочатку вибери персонажа</option>
+          <select className="select" value={characterKey} onChange={(event) => setCharacterKey(event.target.value)} disabled={closed || registrationLocked || Boolean(busyAction)} required>
+            <option value="">Змінити персонажа рейду</option>
             {characterOptions.map((character) => (
               <option key={character.key} value={character.key}>{character.label}</option>
             ))}

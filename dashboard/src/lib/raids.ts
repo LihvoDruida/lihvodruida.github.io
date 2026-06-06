@@ -71,6 +71,8 @@ export type RaidItem = {
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
   maxPlayers?: number | null;
+  registrationLockEnabled?: boolean | null;
+  registrationLockMinutesBefore?: number | null;
   imageUrl?: string | null;
   thumbnailUrl?: string | null;
   mentionRoleIds?: string[];
@@ -108,6 +110,8 @@ const RAID_COLLECTION = "dashboardRaids";
 const DEFAULT_RAID_IMAGE = "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
 const RAID_ACTION_PREFIX = "mbv1:raid";
 const MAX_RAID_PLAYERS = 80;
+const DEFAULT_RAID_REGISTRATION_LOCK_MINUTES = 60;
+const MAX_RAID_REGISTRATION_LOCK_MINUTES = 7 * 24 * 60;
 const RAID_THUMBNAIL_ASSET_PATHS: Record<RaidDifficulty, string> = {
   normal: "/assets/raid-thumbnails/normal.png",
   heroic: "/assets/raid-thumbnails/heroic.png",
@@ -398,6 +402,13 @@ function cleanOptionalMaxPlayers(value: unknown) {
   return Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(num)));
 }
 
+function cleanRegistrationLockMinutes(value: unknown, fallback = DEFAULT_RAID_REGISTRATION_LOCK_MINUTES) {
+  const raw = cleanString(value, 16).replace(",", ".");
+  const parsed = raw ? Number(raw) : fallback;
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.max(1, Math.min(MAX_RAID_REGISTRATION_LOCK_MINUTES, Math.floor(parsed)));
+}
+
 
 function cleanSnowflakeId(value: unknown) {
   const text = cleanString(value, 32);
@@ -496,6 +507,10 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
     minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
     maxPlayers: cleanOptionalMaxPlayers(data.maxPlayers ?? data.max_players ?? data.registrationLimit),
+    registrationLockEnabled: cleanBoolean(data.registrationLockEnabled ?? data.registration_lock_enabled ?? data.lockRegistrationBeforeStartEnabled ?? data.lock_registration_before_start_enabled),
+    registrationLockMinutesBefore: cleanBoolean(data.registrationLockEnabled ?? data.registration_lock_enabled ?? data.lockRegistrationBeforeStartEnabled ?? data.lock_registration_before_start_enabled)
+      ? cleanRegistrationLockMinutes(data.registrationLockMinutesBefore ?? data.registration_lock_minutes_before ?? data.lockRegistrationMinutesBefore ?? data.lock_registration_minutes_before)
+      : null,
     imageUrl,
     thumbnailUrl: resolveRaidThumbnailUrl({ difficulty, thumbnailUrl: data.thumbnailUrl as string | null, imageUrl }),
     mentionRoleIds: cleanSnowflakeIds(data.mentionRoleIds ?? data.mention_role_ids),
@@ -658,6 +673,90 @@ export function raidDisplayCapacity(raid: RaidAutoInput & Pick<RaidItem, "maxPla
 export function isRaidRegistrationFull(raid: Pick<RaidItem, "maxPlayers" | "signups">) {
   const limit = raidRegistrationLimit(raid);
   return limit !== null && raidActiveRosterSize(raid) >= limit;
+}
+
+type RaidRegistrationLockInput = Pick<RaidItem, "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore">;
+
+export function raidRegistrationLockMinutesBefore(raid: Pick<RaidItem, "registrationLockEnabled" | "registrationLockMinutesBefore">) {
+  if (!raid.registrationLockEnabled) return null;
+  return cleanRegistrationLockMinutes(raid.registrationLockMinutesBefore);
+}
+
+export function raidRegistrationLockDeadlineMs(raid: RaidRegistrationLockInput) {
+  const minutesBefore = raidRegistrationLockMinutesBefore(raid);
+  if (!minutesBefore) return null;
+  const startsAt = raidDateTimeToUtcMs(raid);
+  if (startsAt === null) return null;
+  return startsAt - minutesBefore * 60 * 1000;
+}
+
+export function isRaidRegistrationLocked(raid: RaidRegistrationLockInput) {
+  const deadline = raidRegistrationLockDeadlineMs(raid);
+  return deadline !== null && Date.now() >= deadline;
+}
+
+export function raidRegistrationLockDurationLabel(minutes: number | null | undefined) {
+  const safeMinutes = cleanRegistrationLockMinutes(minutes);
+  if (safeMinutes % (24 * 60) === 0) {
+    const days = safeMinutes / (24 * 60);
+    return `${days} ${days === 1 ? "день" : days >= 2 && days <= 4 ? "дні" : "днів"}`;
+  }
+  if (safeMinutes % 60 === 0) {
+    const hours = safeMinutes / 60;
+    return `${hours} ${hours === 1 ? "годину" : hours >= 2 && hours <= 4 ? "години" : "годин"}`;
+  }
+  return `${safeMinutes} хв`;
+}
+
+function raidRegistrationLockAbsoluteLabel(deadlineMs: number) {
+  try {
+    return new Intl.DateTimeFormat("uk-UA", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: String(process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv"),
+    }).format(new Date(deadlineMs));
+  } catch {
+    return new Date(deadlineMs).toISOString().slice(0, 16).replace("T", " ");
+  }
+}
+
+export function raidRegistrationLockSummary(raid: RaidRegistrationLockInput) {
+  const minutesBefore = raidRegistrationLockMinutesBefore(raid);
+  if (!minutesBefore) {
+    return { enabled: false, locked: false, minutesBefore: null, deadlineMs: null, label: "Вимкнено", detail: "Запис автоматично закриється тільки зі стартом рейду." };
+  }
+
+  const deadlineMs = raidRegistrationLockDeadlineMs(raid);
+  const duration = raidRegistrationLockDurationLabel(minutesBefore);
+  if (deadlineMs === null) {
+    return { enabled: true, locked: false, minutesBefore, deadlineMs: null, label: `За ${duration} до старту`, detail: "Дедлайн буде розраховано після коректної дати та часу рейду." };
+  }
+
+  const locked = Date.now() >= deadlineMs;
+  const deadlineLabel = raidRegistrationLockAbsoluteLabel(deadlineMs);
+  return {
+    enabled: true,
+    locked,
+    minutesBefore,
+    deadlineMs,
+    label: locked ? `Закрито з ${deadlineLabel}` : `Закриється ${deadlineLabel}`,
+    detail: `Автоблокування за ${duration} до старту рейду.`,
+  };
+}
+
+function raidRegistrationLockDiscordValue(raid: RaidRegistrationLockInput) {
+  const summary = raidRegistrationLockSummary(raid);
+  if (!summary.enabled) return "Вимкнено";
+  if (summary.deadlineMs === null) return `${summary.label}\n${summary.detail}`;
+  const timestamp = Math.floor(summary.deadlineMs / 1000);
+  return `${summary.locked ? "🔒 Запис заблоковано" : "🔓 Запис відкрито"}\n${summary.detail}\n<t:${timestamp}:f> • <t:${timestamp}:R>`;
+}
+
+function raidRegistrationLockBlockMessage(raid: RaidRegistrationLockInput & Pick<RaidItem, "title" | "difficulty">, action: RaidSignupStatus) {
+  if (action === "skipped") return null;
+  const summary = raidRegistrationLockSummary(raid);
+  if (!summary.locked) return null;
+  return `🔒 Запис і зміна персонажа для ${raidTitle(raid)} вже заблоковані. ${summary.detail} Дедлайн: ${summary.label}. Якщо потрібна заміна — звернись до РЛ або офіцера.`;
 }
 
 function isActiveSignupStatus(status?: RaidSignupStatus | string | null) {
@@ -1166,6 +1265,10 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
   const difficulty = cleanDifficulty(form.get("difficulty"));
   const imageUrl = cleanUrl(form.get("imageUrl"));
   const thumbnailUrl = cleanUrl(form.get("thumbnailUrl"));
+  const registrationLockEnabled = cleanBoolean(form.get("registrationLockEnabled"));
+  const registrationLockMinutesBefore = registrationLockEnabled
+    ? cleanRegistrationLockMinutes(form.get("registrationLockMinutesBefore"))
+    : null;
 
   return {
     title: cleanString(form.get("title"), 120) || "Рейд",
@@ -1176,6 +1279,8 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
     maxPlayers: cleanOptionalMaxPlayers(form.get("maxPlayers")),
+    registrationLockEnabled,
+    registrationLockMinutesBefore,
     imageUrl,
     thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
     mentionRoleIds: cleanSnowflakeIds(form.getAll("mentionRoleIds")),
@@ -1511,6 +1616,11 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     ...(minItemLevelValue ? [{ name: "👙 Мін. ilvl", value: minItemLevelValue, inline: true }] : []),
     ...(averageItemLevel ? [{ name: "📊 Середній ilvl", value: `${averageItemLevel}`, inline: true }] : []),
     {
+      name: "🔐 Блокування запису",
+      value: raidRegistrationLockDiscordValue(raid),
+      inline: true,
+    },
+    {
       name: "⚔️ Ролі",
       value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
       inline: false,
@@ -1571,17 +1681,26 @@ export function decodeRaidCharacterSelectCustomId(customId: string, values?: unk
   return { raidId: match[1], action: cleanSignupStatus(match[2]), characterKey };
 }
 
-export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean; signed?: boolean } = false) {
+export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean; signed?: boolean; personalized?: boolean; registrationLocked?: boolean } = false) {
   const disabled = typeof options === "boolean" ? options : Boolean(options.disabled);
   const full = typeof options === "object" && Boolean(options.full);
-  const signed = typeof options === "object" && Boolean(options.signed);
-  const activeJoinDisabled = disabled || full;
+  const registrationLocked = typeof options === "object" && Boolean(options.registrationLocked);
+  const personalized = typeof options === "object" && Boolean(options.personalized);
+  const signed = personalized && typeof options === "object" && Boolean(options.signed);
+
+  // Discord рендерить components публічного повідомлення однаково для всіх глядачів.
+  // Тому персональний напис “Змінити персонажа” дозволений лише там, де ми точно
+  // будуємо приватну/ephemeral відповідь для конкретного користувача. У глобальному
+  // embed кнопка лишається нейтральною, а реальний стан перевіряється на сервері.
+  const activeJoinDisabled = disabled || registrationLocked || (personalized && full && !signed);
   const signupLabel = disabled
     ? "Підписатися"
-    : full
-      ? "Заповнено"
+    : registrationLocked
+      ? "Запис закрито"
       : signed
         ? "Змінити персонажа"
+        : full && personalized
+          ? "Заповнено"
         : "Підписатися";
 
   return [
@@ -1590,7 +1709,7 @@ export function buildRaidAttendanceComponents(raidId: string, options: boolean |
       components: [
         { type: 2, style: 3, label: signupLabel, emoji: { name: "✅" }, custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
         { type: 2, style: 2, label: "Пропустити", emoji: { name: "↩️" }, custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
-        { type: 2, style: 4, label: full && !disabled ? "Ліміт досягнуто" : "Затримаюсь", emoji: { name: "🕒" }, custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
+        { type: 2, style: 4, label: "Затримаюсь", emoji: { name: "🕒" }, custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
       ],
     },
   ];
@@ -1635,7 +1754,7 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
 
   if (!options.length) return [];
 
-  const isCharacterChange = Boolean(selectedCharacterKey && action !== "skipped");
+  void selectedCharacterKey;
 
   return [
     {
@@ -1644,11 +1763,9 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
         {
           type: 3,
           custom_id: buildRaidCharacterSelectCustomId(raidId, action),
-          placeholder: isCharacterChange
-            ? "Змінити персонажа рейду"
-            : action === "late"
-              ? "Ким позначити запізнення?"
-              : "Ким підписатися на рейд?",
+          placeholder: action === "skipped"
+            ? "Позначити пропуск рейду"
+            : "Змінити персонажа рейду",
           min_values: 1,
           max_values: 1,
           options,
@@ -1682,7 +1799,9 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   const components = buildRaidAttendanceComponents(raid.id, {
     disabled: closed,
     full: !closed && isRaidRegistrationFull(raid),
-    signed: !closed && raidActiveRosterSize(raid) > 0,
+    registrationLocked: !closed && isRaidRegistrationLocked(raid),
+    signed: false,
+    personalized: false,
   });
   const targetChannelId = cleanSnowflakeId(channelId || raid.channelId || getDiscordDefaultChannelId());
   if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
@@ -1868,6 +1987,8 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
         const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
         if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
         if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
+        const lockBlock = raidRegistrationLockBlockMessage(raid, signup.status);
+        if (lockBlock) throw new Error(lockBlock);
         const block = raidMinItemLevelBlockMessage(raid, signup);
         if (block) throw new Error(block);
         const fullBlock = raidRegistrationFullMessage(raid, signup.discordId, signup.status);
@@ -1921,7 +2042,9 @@ async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Discor
   const components = buildRaidAttendanceComponents(raid.id, {
     disabled: false,
     full: isRaidRegistrationFull(raid),
-    signed: raidActiveRosterSize(raid) > 0,
+    registrationLocked: isRaidRegistrationLocked(raid),
+    signed: false,
+    personalized: false,
   });
 
   await editDiscordRaidMessage({
@@ -1998,6 +2121,8 @@ export async function handleRaidDiscordAction(params: {
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
   if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+  const lockBlock = raidRegistrationLockBlockMessage(raid, params.action);
+  if (lockBlock) return { ok: false, content: lockBlock, warning: null, blockedByRegistrationLock: true };
   const fullBlock = raidRegistrationFullMessage(raid, params.userId, params.action);
   if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
 
@@ -2078,6 +2203,8 @@ export async function handleRaidSessionAction(params: {
   if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
   if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+  const lockBlock = raidRegistrationLockBlockMessage(raid, params.action);
+  if (lockBlock) return { ok: false, content: lockBlock, warning: null, blockedByRegistrationLock: true };
 
   const discordId = params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id) ? params.user.id : "";
   if (!discordId) {
@@ -2168,6 +2295,8 @@ export function raidLiveRevision(raid: RaidItem) {
     raid.channelId || "",
     raid.messageId || "",
     raid.raidLeaderName || "",
+    raid.registrationLockEnabled ? "lock-on" : "lock-off",
+    raid.registrationLockMinutesBefore ?? "",
     raid.signups?.length || 0,
     signupsSignature,
   ].join("::");

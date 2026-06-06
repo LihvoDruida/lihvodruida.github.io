@@ -20,7 +20,9 @@ import {
   raidDisplayCapacity,
   dashboardRaidRulesUrl,
   isRaidRegistrationFull,
+  isRaidRegistrationLocked,
   raidRegistrationLimit,
+  raidRegistrationLockSummary,
   raidConsumablesLabel,
   raidLootLabel,
   raidRosterCounts,
@@ -225,6 +227,8 @@ function characterSignupOption(character: DashboardProfile["characters"][number]
 export function RaidAttendanceActions({ raid, user, profile = null, hasMainCharacter = null }: { raid: RaidItem; user?: DashboardSession | null; profile?: DashboardProfile | null; hasMainCharacter?: boolean | null }) {
   const closed = isRaidClosed(raid) || raid.status !== "published";
   const full = isRaidRegistrationFull(raid);
+  const registrationLocked = isRaidRegistrationLocked(raid);
+  const registrationLock = raidRegistrationLockSummary(raid);
   const viewerDiscordId = user?.provider === "discord" && /^\d{16,25}$/.test(user.id) ? user.id : "";
   const viewerSignup = viewerDiscordId ? raid.signups.find((item) => item.discordId === viewerDiscordId) : null;
   const viewerAlreadyActive = viewerSignup?.status === "going" || viewerSignup?.status === "late";
@@ -232,7 +236,7 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
   const characterOptions = allCharacters
     .filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character))
     .map((character) => characterSignupOption(character, raid));
-  const selectedCharacterKey = "";
+  const selectedCharacterKey = viewerSignup?.characterKey || "";
   const hiddenByMinItemLevel = Math.max(0, allCharacters.length - characterOptions.length);
   const hasAnyCharacter = characterOptions.length > 0;
   const needsLogin = !user;
@@ -240,11 +244,13 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
   const needsEligibleCharacter = Boolean(viewerDiscordId && allCharacters.length > 0 && !characterOptions.length && raid.minItemLevelRequired && raid.minItemLevel);
   const needsCharacter = Boolean(viewerDiscordId && !hasAnyCharacter);
   const canSubmitAnyAction = Boolean(user && viewerDiscordId);
-  const activeJoinDisabled = closed || needsLogin || needsDiscordLogin || needsCharacter || (full && !viewerAlreadyActive);
+  const activeJoinDisabled = closed || registrationLocked || needsLogin || needsDiscordLogin || needsCharacter || (full && !viewerAlreadyActive);
   const skipDisabled = closed || !canSubmitAnyAction;
   const title = closed
     ? "Запис на цей рейд уже вимкнено."
-    : needsLogin
+    : registrationLocked
+      ? "Запис і зміна персонажа вже заблоковані за дедлайном рейду."
+      : needsLogin
       ? "Спочатку увійди через Discord."
       : needsDiscordLogin
         ? "Для запису потрібен Discord-вхід."
@@ -270,6 +276,8 @@ export function RaidAttendanceActions({ raid, user, profile = null, hasMainChara
       viewerAlreadyActive={Boolean(viewerAlreadyActive)}
       activeJoinDisabled={activeJoinDisabled}
       skipDisabled={skipDisabled}
+      registrationLocked={registrationLocked}
+      registrationLockMessage={registrationLock.enabled ? `${registrationLock.label}. ${registrationLock.detail}` : ""}
       showRequirement={showRequirement}
       requirementTitle={requirementTitle}
       requirementMessage={requirementMessage}
@@ -311,6 +319,7 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions, showRost
   const averageItemLevel = raidAverageItemLevel(raid);
   const parties = buildRaidParties(raid);
   const closed = isRaidClosed(raid);
+  const registrationLock = raidRegistrationLockSummary(raid);
   return (
     <section className={`panel raid-preview-card${closed ? " is-closed" : ""}`} aria-label="Оголошення рейду">
       <div className="raid-preview-accent" aria-hidden="true" />
@@ -335,9 +344,11 @@ export function RaidAnnouncementPreview({ raid, actions, manageActions, showRost
         {showRosterDetails && raid.minItemLevel ? <span><strong>👙 Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
         {showRosterDetails && averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
         <span><strong>👥 Записано</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
+        {registrationLock.enabled ? <span><strong>🔐 Дедлайн запису</strong>{registrationLock.label}<small>{registrationLock.detail}</small></span> : null}
       </div>
       {showRosterDetails && raid.minItemLevel ? <div className="raid-ilvl-notice">👙 Мінімальний ilvl для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
       {raidRegistrationLimit(raid) ? <div className={`raid-ilvl-notice${isRaidRegistrationFull(raid) ? " is-blocked" : ""}`}>👥 Максимум гравців для цього рейду: <strong>{raidRegistrationLimit(raid)}</strong>. {isRaidRegistrationFull(raid) ? "Ліміт досягнуто — нові записи недоступні." : "Після досягнення ліміту нові записи будуть заблоковані."}</div> : null}
+      {registrationLock.enabled ? <div className={`raid-ilvl-notice${registrationLock.locked ? " is-blocked" : ""}`}>🔐 Блокування запису: <strong>{registrationLock.label}</strong>. {registrationLock.locked ? "Запис і зміна персонажа вже недоступні." : registrationLock.detail}</div> : null}
       {actions || (
         <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
           <span className="raid-action raid-action--go">✓ Підписатися</span>
@@ -370,6 +381,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
   const statusClass = raidStatusClass(raid);
   const capacity = raidDisplayCapacity(raid);
   const closed = isRaidClosed(raid);
+  const registrationLock = raidRegistrationLockSummary(raid);
   return (
     <article className={`raid-list-item raid-list-item--${statusClass}`}>
       <a className="raid-list-main-link" href={`/raids/${encodeURIComponent(raid.id)}`} aria-label={`Відкрити рейд ${raidTitle(raid)}`}>
@@ -385,6 +397,7 @@ export function RaidListCard({ raid, canManage = true }: { raid: RaidItem; canMa
             {raid.raidLeaderName ? <small>🧭 РЛ: {raid.raidLeaderName}</small> : null}
             <small>👥 {counts.roster} / {capacity}{canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}</small>
             {raid.minItemLevel ? <small>👙 Мін. ilvl: {raid.minItemLevel}</small> : null}
+            {registrationLock.enabled ? <small>🔐 {registrationLock.label}</small> : null}
             {averageItemLevel ? <small>📊 Середній ilvl: {averageItemLevel}</small> : null}
             {raid.discordDeletedAt ? <small>🧹 Discord-повідомлення прибрано</small> : null}
           </span>
@@ -476,6 +489,20 @@ export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: 
           <label className="field-label">Максимум гравців
             <input className="input" type="number" name="maxPlayers" min="1" max="80" step="1" placeholder="Напр. 20" defaultValue={raid?.maxPlayers || ""} />
             <small>Порожньо — без жорсткого ліміту. Коли активних записів стане стільки ж, нові “Підписатися” і “Затримаюсь” будуть заблоковані.</small>
+          </label>
+          <label className="raid-checkbox-line">
+            <input type="checkbox" name="registrationLockEnabled" value="1" defaultChecked={Boolean(raid?.registrationLockEnabled)} />
+            <span>Блокувати запис за X часу до старту рейду</span>
+          </label>
+          <label className="field-label">Коли закрити запис
+            <select className="select" name="registrationLockMinutesBefore" defaultValue={String(raid?.registrationLockMinutesBefore || 60)}>
+              <option value="30">За 30 хв</option>
+              <option value="60">За 1 год</option>
+              <option value="120">За 2 год</option>
+              <option value="180">За 3 год</option>
+              <option value="1440">За 1 день</option>
+            </select>
+            <small>Після дедлайну “Підписатися”, “Затримаюсь” і зміна персонажа будуть відхилятися. “Пропустити” лишається доступним до старту, щоб не тримати зайве місце.</small>
           </label>
         </div>
 
@@ -623,6 +650,8 @@ export function makePreviewRaid(user: DashboardSession, createdByName?: string):
     lootMode: "ms-os",
     composition: { tanks: 2, healers: 2, dps: 6 },
     maxPlayers: null,
+    registrationLockEnabled: false,
+    registrationLockMinutesBefore: null,
     mentionRoleIds: [],
     status: "draft",
     signups: [],

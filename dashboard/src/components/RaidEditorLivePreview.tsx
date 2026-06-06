@@ -191,6 +191,42 @@ function isRaidRegistrationFull(raid: Pick<RaidItem, "maxPlayers" | "signups">) 
   return limit !== null && activeSignups(raid).length >= limit;
 }
 
+function cleanRegistrationLockMinutes(value: FormDataEntryValue | number | null | undefined) {
+  const parsed = Number(String(value || "60").replace(",", ".").trim());
+  if (!Number.isFinite(parsed) || parsed <= 0) return 60;
+  return Math.max(1, Math.min(7 * 24 * 60, Math.floor(parsed)));
+}
+
+function raidRegistrationLockDurationLabel(minutes: number | null | undefined) {
+  const safeMinutes = cleanRegistrationLockMinutes(minutes);
+  if (safeMinutes % (24 * 60) === 0) {
+    const days = safeMinutes / (24 * 60);
+    return `${days} ${days === 1 ? "день" : days >= 2 && days <= 4 ? "дні" : "днів"}`;
+  }
+  if (safeMinutes % 60 === 0) {
+    const hours = safeMinutes / 60;
+    return `${hours} ${hours === 1 ? "годину" : hours >= 2 && hours <= 4 ? "години" : "годин"}`;
+  }
+  return `${safeMinutes} хв`;
+}
+
+function previewRegistrationLockSummary(raid: Pick<RaidItem, "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore">) {
+  if (!raid.registrationLockEnabled) return { enabled: false, locked: false, label: "Вимкнено", detail: "" };
+  const minutesBefore = cleanRegistrationLockMinutes(raid.registrationLockMinutesBefore);
+  const duration = raidRegistrationLockDurationLabel(minutesBefore);
+  const startsAt = new Date(`${raid.date || todayIso()}T${raid.time || DEFAULT_RAID_TIME}:00`).getTime();
+  if (!Number.isFinite(startsAt)) return { enabled: true, locked: false, label: `За ${duration} до старту`, detail: "Дедлайн буде розраховано після коректної дати та часу." };
+  const deadlineMs = startsAt - minutesBefore * 60 * 1000;
+  const locked = Date.now() >= deadlineMs;
+  const deadlineLabel = new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(new Date(deadlineMs));
+  return {
+    enabled: true,
+    locked,
+    label: locked ? `Закрито з ${deadlineLabel}` : `Закриється ${deadlineLabel}`,
+    detail: `Автоблокування за ${duration} до старту рейду.`,
+  };
+}
+
 function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
   const going = raid.signups.filter((item) => item.status === "going");
   const late = raid.signups.filter((item) => item.status === "late");
@@ -401,6 +437,8 @@ function readRaidFromForm(initialRaid: RaidItem, form: HTMLFormElement): RaidIte
   const difficulty = cleanDifficulty(formData.get("difficulty"));
   const minItemLevel = cleanPositiveNumber(formData.get("minItemLevel"));
   const maxPlayers = cleanPositiveNumber(formData.get("maxPlayers"), MAX_RAID_PLAYERS);
+  const registrationLockEnabled = Boolean(form.querySelector<HTMLInputElement>('input[name="registrationLockEnabled"]')?.checked);
+  const registrationLockMinutesBefore = registrationLockEnabled ? cleanRegistrationLockMinutes(formData.get("registrationLockMinutesBefore")) : null;
   const minItemLevelRequired = Boolean(form.querySelector<HTMLInputElement>('input[name="minItemLevelRequired"]')?.checked);
   const mentionRoleIds = Array.from(new Set(formData.getAll("mentionRoleIds").map((value) => String(value || "").trim()).filter(Boolean)));
   const title = cleanText(formData.get("title"), DEFAULT_RAID_TITLE);
@@ -426,6 +464,8 @@ function readRaidFromForm(initialRaid: RaidItem, form: HTMLFormElement): RaidIte
     minItemLevel,
     minItemLevelRequired,
     maxPlayers,
+    registrationLockEnabled,
+    registrationLockMinutesBefore,
     composition: raidAutoComposition({ ...initialRaid, difficulty }),
   };
 }
@@ -467,6 +507,7 @@ export default function RaidEditorLivePreview({ initialRaid }: RaidEditorLivePre
   const thumbnailUrl = resolvePreviewThumbnailUrl(raid);
   const registrationLimit = raidRegistrationLimit(raid);
   const registrationFull = isRaidRegistrationFull(raid);
+  const registrationLock = previewRegistrationLockSummary(raid);
 
   return (
     <section className={`panel raid-preview-card${closed ? " is-closed" : ""}`} aria-label="Живе превʼю оголошення рейду">
@@ -492,9 +533,11 @@ export default function RaidEditorLivePreview({ initialRaid }: RaidEditorLivePre
         {raid.minItemLevel ? <span><strong>👙 Мін. ilvl</strong>{raid.minItemLevel}<small>{raid.minItemLevelRequired ? "Блокує запис нижче порогу" : "Лише попередження"}</small></span> : null}
         {averageItemLevel ? <span><strong>📊 Середній ilvl</strong>{averageItemLevel}<small>За активними учасниками рейду</small></span> : null}
         <span><strong>👥 Записано</strong>{counts.roster} / {raidDisplayCapacity(raid)}<small>{raid.maxPlayers ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}` : raidAutoCompositionLabel(raid)}</small></span>
+        {registrationLock.enabled ? <span><strong>🔐 Дедлайн запису</strong>{registrationLock.label}<small>{registrationLock.detail}</small></span> : null}
       </div>
       {raid.minItemLevel ? <div className="raid-ilvl-notice">👙 Мінімальний ilvl для цього рейду: <strong>{raid.minItemLevel}</strong>. {raid.minItemLevelRequired ? "Якщо персонаж нижче порогу, система заблокує запис." : "Якщо персонаж нижче порогу, система покаже попередження, але не блокує запис."}</div> : null}
       {registrationLimit ? <div className={`raid-ilvl-notice${registrationFull ? " is-blocked" : ""}`}>👥 Максимум гравців для цього рейду: <strong>{registrationLimit}</strong>. {registrationFull ? "Ліміт досягнуто — нові записи недоступні." : "Після досягнення ліміту нові записи будуть заблоковані."}</div> : null}
+      {registrationLock.enabled ? <div className={`raid-ilvl-notice${registrationLock.locked ? " is-blocked" : ""}`}>🔐 Блокування запису: <strong>{registrationLock.label}</strong>. {registrationLock.locked ? "Запис і зміна персонажа вже недоступні." : registrationLock.detail}</div> : null}
       <div className={`raid-preview-buttons${closed ? " is-disabled" : ""}`} aria-hidden="true">
         <span className="raid-action raid-action--go">✓ Підписатися</span>
         <span className="raid-action raid-action--skip">↩ Пропустити</span>
