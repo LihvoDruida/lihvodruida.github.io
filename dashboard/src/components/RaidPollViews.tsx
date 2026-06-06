@@ -83,32 +83,74 @@ export function RaidPollCreateForm({ channels, discordEnabled }: { channels: Pol
   return <RaidPollCreateClientForm channels={channels} defaultChannelId={channels[0]?.id || ""} disabled={!discordEnabled} />;
 }
 
+function shortPollId(id: string) {
+  return id.length > 12 ? `${id.slice(0, 6)}…${id.slice(-4)}` : id;
+}
+
+function pollCloseLabel(poll: RaidPollItem) {
+  if (poll.status === "closed") return poll.closedAt ? formatDateTime(poll.closedAt) : "Завершено";
+  return formatDateTime(poll.closesAtMs);
+}
+
+function bestDaySummary(poll: RaidPollItem) {
+  const counts = pollVoteCounts(poll);
+  const activeDays = pollDays(poll);
+  const best = activeDays
+    .map((day) => ({ day, count: counts.days[day.value] }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count || activeDays.findIndex((day) => day.value === a.day.value) - activeDays.findIndex((day) => day.value === b.day.value))[0];
+  return best ? `${best.day.label} · ${best.count}` : "—";
+}
+
 export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
   const counts = pollVoteCounts(poll);
+  const activeDays = pollDays(poll);
+  const canClose = canManage && poll.status === "open";
   return (
-    <article className="raid-list-card raid-poll-card">
-      <div className="raid-list-card-main">
-        <div className="raid-list-card-topline">
-          <span className={`raid-status-pill ${statusClass(poll)}`}>{raidPollStatusLabel(poll)}</span>
-          <span>{raidPollDifficultyLabel(poll.difficulty)}</span>
-        </div>
-        <h3><a href={`/polls/${encodeURIComponent(poll.id)}`}>{poll.title}</a></h3>
-        <p>{poll.description}</p>
-        <div className="raid-list-card-meta">
-          <span>Закриття: {formatDateTime(poll.closesAtMs)}</span>
-          <span>Голосів: {counts.total}</span>
-          <span>ID: {poll.id}</span>
-        </div>
+    <article className={`raid-poll-list-card raid-poll-list-card--${poll.status}`}>
+      <div className="raid-poll-list-card__status" aria-label={`Статус: ${raidPollStatusLabel(poll)}`}>
+        {poll.status === "open" ? "Активний" : "Архівний"}
       </div>
-      <div className="raid-list-card-actions">
-        <a className="btn subtle" href={`/polls/${encodeURIComponent(poll.id)}`}>Деталі</a>
+
+      <div className="raid-poll-list-card__body">
+        <header className="raid-poll-list-card__header">
+          <div className="raid-poll-list-card__badges">
+            <span className={`raid-poll-difficulty-badge raid-poll-difficulty-badge--${poll.difficulty}`}>{raidPollDifficultyLabel(poll.difficulty)}</span>
+            <span className="raid-poll-id-chip">ID: {shortPollId(poll.id)}</span>
+          </div>
+          <h3><a href={`/polls/${encodeURIComponent(poll.id)}`}>{poll.title}</a></h3>
+          <p>{poll.description}</p>
+        </header>
+
+        <div className="raid-poll-day-chips" aria-label="Дні рейд-пулу">
+          {activeDays.map((day) => <span key={day.value}>{day.label}</span>)}
+        </div>
+
+        <dl className="raid-poll-card-metrics">
+          <div>
+            <dt>Проголосували</dt>
+            <dd>{counts.total} {counts.total === 1 ? "гравець" : "гравців"}</dd>
+          </div>
+          <div>
+            <dt>{poll.status === "open" ? "Закривається" : "Завершено"}</dt>
+            <dd>{pollCloseLabel(poll)}</dd>
+          </div>
+          <div>
+            <dt>Найкращий день</dt>
+            <dd>{bestDaySummary(poll)}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <footer className="raid-poll-list-card__actions">
+        <a className="btn subtle raid-poll-primary-action" href={`/polls/${encodeURIComponent(poll.id)}`}>Переглянути результати</a>
         {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Discord</a> : null}
-        {canManage && poll.status === "open" ? (
+        {canClose ? (
           <form action={`/api/polls/${encodeURIComponent(poll.id)}/close`} method="post" data-confirm-message="Закрити рейд-пул зараз?">
             <button className="btn danger" type="submit">Закрити</button>
           </form>
         ) : null}
-      </div>
+      </footer>
     </article>
   );
 }

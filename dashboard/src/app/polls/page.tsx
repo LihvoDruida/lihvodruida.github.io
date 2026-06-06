@@ -40,33 +40,44 @@ export default async function PollsPage() {
       {!hasRaidPollStorage() ? <div className="notice panel error-note raid-notice">Рейд-пули тимчасово недоступні: Firebase не налаштований.</div> : null}
       {canManage && !hasDiscordEmbedConfig() ? <div className="notice panel error-note raid-notice">Публікація рейд-пулів у Discord недоступна: не налаштовано bot token або worker relay.</div> : null}
 
-      <section className="panel raid-list-page-panel">
-        <div className="raid-list-page-head">
+      <section className="panel raid-poll-command-strip" aria-label="Стан синхронізації рейд-пулів">
+        <div className="raid-poll-sync-node" aria-hidden="true">↻</div>
+        <div>
+          <strong>Вузол синхронізації Discord Live Active</strong>
+          <p>Worker готовий приймати interactions, Firebase зберігає голоси, сайт показує актуальні результати без ручного оновлення.</p>
+        </div>
+        <div className="raid-poll-command-log" aria-label="Системний статус">dashboardRaidPolls</div>
+      </section>
+
+      <section className="panel raid-list-page-panel raid-poll-list-section raid-poll-list-section--active">
+        <div className="raid-list-page-head raid-poll-list-head">
           <div>
+            <span className="raid-poll-section-kicker">Live polls</span>
             <h2>Активні голосування</h2>
-            <p>Відкриті рейд-пули, де учасники ще можуть змінювати свої відповіді.</p>
-            <div className="raid-list-summary" aria-label="Статистика рейд-пулів">
+            <p>Відкриті рейд-пули, де учасники ще можуть змінювати день, час, персонажа або поставити «Не можу».</p>
+            <div className="raid-list-summary raid-poll-list-summary" aria-label="Статистика рейд-пулів">
               <span>Активні: {openPolls.length}</span>
               <span>Архів: {closedPolls.length}</span>
               <span>Усього: {polls.length}</span>
             </div>
           </div>
-          {canManage ? <a className="btn primary" href="/polls/new">＋ Створити рейд-пул</a> : null}
+          {canManage ? <a className="btn primary raid-poll-create-button" href="/polls/new">＋ Створити рейд-пул</a> : null}
         </div>
-        <div className="raid-manager-list">
-          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty">Активних рейд-пулів поки немає.</p>}
+        <div className="raid-manager-list raid-poll-card-grid">
+          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
         </div>
       </section>
 
-      <section className="panel raid-list-page-panel raid-list-page-panel--archive">
-        <div className="raid-list-page-head raid-list-page-head--archive">
+      <section className="panel raid-list-page-panel raid-list-page-panel--archive raid-poll-list-section raid-poll-list-section--archive">
+        <div className="raid-list-page-head raid-list-page-head--archive raid-poll-list-head">
           <div>
+            <span className="raid-poll-section-kicker">Archive</span>
             <h2>Архівні голосування</h2>
-            <p>Закриті рейд-пули з фінальними результатами та списком учасників.</p>
+            <p>Закриті рейд-пули з фінальними результатами, персонажами та історією відповідей.</p>
           </div>
         </div>
-        <div className="raid-manager-list raid-manager-list--archive">
-          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty">Архів порожній.</p>}
+        <div className="raid-manager-list raid-manager-list--archive raid-poll-card-grid raid-poll-card-grid--archive">
+          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
         </div>
       </section>
     </RaidPollPageShell>

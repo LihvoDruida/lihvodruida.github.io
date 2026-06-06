@@ -22968,3 +22968,487 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Raid Polls v3: polished index cards and compact command layout */
+.raid-poll-page .raid-dashboard-hero {
+  min-height: 0;
+  padding: clamp(18px, 2.6vw, 32px) !important;
+  background:
+    radial-gradient(circle at 6% 0%, rgba(34, 197, 94, 0.10), transparent 30%),
+    radial-gradient(circle at 92% 12%, rgba(20, 184, 166, 0.08), transparent 34%),
+    linear-gradient(135deg, rgba(3, 12, 10, 0.92), rgba(5, 10, 18, 0.94)) !important;
+  border-color: rgba(74, 222, 128, 0.16) !important;
+}
+
+.raid-poll-page .dashboard-hero__copy h1 {
+  max-width: 760px;
+  font-size: clamp(2.05rem, 5vw, 4.25rem);
+  line-height: 0.96;
+}
+
+.raid-poll-page .dashboard-hero__copy .lead {
+  max-width: 760px;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.raid-poll-command-strip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(210px, auto);
+  gap: 14px;
+  align-items: center;
+  padding: 16px 18px !important;
+  border-color: rgba(34, 197, 94, 0.18) !important;
+  background:
+    linear-gradient(90deg, rgba(22, 163, 74, 0.12), rgba(2, 6, 12, 0.58) 48%, rgba(8, 13, 24, 0.68)) !important;
+}
+
+.raid-poll-sync-node {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  border: 1px solid rgba(74, 222, 128, 0.24);
+  background: rgba(22, 101, 52, 0.22);
+  color: #34d399;
+  font-size: 1.25rem;
+  box-shadow: inset 0 0 22px rgba(34, 197, 94, 0.08), 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.raid-poll-command-strip strong {
+  display: block;
+  color: #dcfce7;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+}
+
+.raid-poll-command-strip p {
+  margin: 3px 0 0;
+  color: rgba(167, 243, 208, 0.76);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.raid-poll-command-log {
+  min-width: 0;
+  border: 1px solid rgba(34, 197, 94, 0.12);
+  border-radius: 12px;
+  background: rgba(1, 7, 7, 0.72);
+  padding: 11px 13px;
+  color: #facc15;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.raid-poll-list-section {
+  padding: clamp(18px, 2vw, 26px) !important;
+  border-color: rgba(148, 163, 184, 0.13) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.07), transparent 32%),
+    linear-gradient(180deg, rgba(8, 13, 24, 0.88), rgba(3, 8, 14, 0.88)) !important;
+}
+
+.raid-poll-list-section--archive {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(148, 163, 184, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(10, 15, 24, 0.82), rgba(4, 7, 13, 0.9)) !important;
+}
+
+.raid-poll-list-head {
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.raid-poll-list-head h2 {
+  margin-top: 3px;
+  letter-spacing: -0.02em;
+}
+
+.raid-poll-section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 999px;
+  background: rgba(22, 101, 52, 0.15);
+  padding: 5px 9px;
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.raid-poll-list-section--archive .raid-poll-section-kicker {
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.32);
+  color: rgba(203, 213, 225, 0.9);
+}
+
+.raid-poll-list-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.raid-poll-list-summary span {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.34);
+  padding: 6px 10px;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.raid-poll-create-button {
+  min-height: 44px;
+  padding-inline: 20px !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #10b981, #22c55e) !important;
+  color: #02130c !important;
+  box-shadow: 0 16px 30px rgba(16, 185, 129, 0.18);
+}
+
+.raid-poll-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px !important;
+}
+
+.raid-poll-card-grid--archive .raid-poll-list-card {
+  opacity: 0.9;
+}
+
+.raid-poll-list-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 16px;
+  min-width: 0;
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px solid rgba(74, 222, 128, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.12), transparent 32%),
+    radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.08), transparent 36%),
+    linear-gradient(180deg, rgba(6, 18, 14, 0.92), rgba(4, 9, 14, 0.95));
+  padding: clamp(18px, 2vw, 24px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.raid-poll-list-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(74, 222, 128, 0.3);
+  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.3);
+}
+
+.raid-poll-list-card--closed {
+  border-color: rgba(148, 163, 184, 0.14);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(148, 163, 184, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(8, 13, 20, 0.92), rgba(4, 8, 14, 0.95));
+}
+
+.raid-poll-list-card__status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 96px;
+  border-bottom-left-radius: 18px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(34, 197, 94, 0.88));
+  padding: 9px 14px;
+  color: #02130c;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.raid-poll-list-card--closed .raid-poll-list-card__status {
+  background: rgba(30, 41, 59, 0.9);
+  color: rgba(203, 213, 225, 0.9);
+}
+
+.raid-poll-list-card__body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding-right: 92px;
+}
+
+.raid-poll-list-card__header {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.raid-poll-list-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.raid-poll-difficulty-badge,
+.raid-poll-id-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.raid-poll-id-chip {
+  border: 1px solid rgba(34, 197, 94, 0.14);
+  background: rgba(3, 12, 10, 0.44);
+  color: #34d399;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  text-transform: none;
+}
+
+.raid-poll-difficulty-badge--normal {
+  border: 1px solid rgba(96, 165, 250, 0.26);
+  background: rgba(30, 64, 175, 0.26);
+  color: #bfdbfe;
+}
+
+.raid-poll-difficulty-badge--heroic {
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(146, 64, 14, 0.26);
+  color: #fde68a;
+}
+
+.raid-poll-difficulty-badge--mythic {
+  border: 1px solid rgba(248, 113, 113, 0.34);
+  background: rgba(127, 29, 29, 0.26);
+  color: #fecaca;
+}
+
+.raid-poll-list-card h3 {
+  margin: 0;
+  color: #e5e7eb;
+  font-size: clamp(1.12rem, 2vw, 1.45rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.raid-poll-list-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.raid-poll-list-card h3 a:hover {
+  color: #bbf7d0;
+  text-decoration: none;
+}
+
+.raid-poll-list-card p {
+  display: -webkit-box;
+  min-height: 3.05em;
+  margin: 0;
+  overflow: hidden;
+  color: rgba(167, 243, 208, 0.72);
+  line-height: 1.52;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.raid-poll-list-card--closed p {
+  color: rgba(203, 213, 225, 0.68);
+}
+
+.raid-poll-day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.raid-poll-day-chips span {
+  border: 1px solid rgba(74, 222, 128, 0.14);
+  border-radius: 999px;
+  background: rgba(20, 83, 45, 0.28);
+  padding: 7px 11px;
+  color: #bbf7d0;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.raid-poll-list-card--closed .raid-poll-day-chips span {
+  border-color: rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.45);
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.raid-poll-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.raid-poll-card-metrics div {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 14px;
+  background: rgba(2, 8, 12, 0.42);
+  padding: 10px 11px;
+}
+
+.raid-poll-card-metrics dt {
+  margin: 0 0 4px;
+  color: rgba(148, 163, 184, 0.82);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.raid-poll-card-metrics dd {
+  margin: 0;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.raid-poll-list-card__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 9px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.raid-poll-list-card__actions form,
+.raid-poll-list-card__actions .btn,
+.raid-poll-list-card__actions button {
+  min-width: 0;
+}
+
+.raid-poll-list-card__actions .btn,
+.raid-poll-list-card__actions button.btn {
+  min-height: 38px;
+  justify-content: center;
+  border-radius: 12px !important;
+  font-size: 0.86rem;
+}
+
+.raid-poll-primary-action {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(74, 222, 128, 0.2) !important;
+  color: #bbf7d0 !important;
+}
+
+.raid-poll-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  border: 1px dashed rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.28);
+  padding: 24px;
+  color: rgba(203, 213, 225, 0.76);
+  text-align: center;
+}
+
+.raid-poll-results--smart {
+  border-color: rgba(74, 222, 128, 0.14) !important;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(7, 13, 20, 0.92), rgba(3, 8, 14, 0.94)) !important;
+}
+
+.raid-poll-detail-head {
+  display: flex;
+  justify-content: space-between;
+}
+
+.raid-poll-summary-grid--smart > div {
+  background: rgba(2, 8, 12, 0.48);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+.raid-poll-day-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 32%),
+    rgba(2, 8, 12, 0.48);
+}
+
+@media (max-width: 1120px) {
+  .raid-poll-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-list-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .raid-poll-command-strip,
+  .raid-poll-list-head,
+  .raid-poll-list-card__actions,
+  .raid-poll-card-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-command-log {
+    text-align: left;
+  }
+
+  .raid-poll-list-card__body {
+    padding-right: 0;
+  }
+
+  .raid-poll-list-card__status {
+    position: static;
+    width: max-content;
+    min-width: 0;
+    border-radius: 999px;
+    padding: 7px 10px;
+    order: -1;
+  }
+
+  .raid-poll-page .dashboard-hero__copy h1 {
+    font-size: clamp(2rem, 12vw, 3.1rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .raid-poll-command-strip,
+  .raid-poll-list-section,
+  .raid-poll-list-card {
+    padding: 14px !important;
+  }
+
+  .raid-poll-list-card__badges,
+  .raid-poll-day-chips,
+  .raid-poll-list-summary {
+    gap: 6px;
+  }
+
+  .raid-poll-difficulty-badge,
+  .raid-poll-id-chip,
+  .raid-poll-day-chips span {
+    font-size: 0.72rem;
+  }
+}
