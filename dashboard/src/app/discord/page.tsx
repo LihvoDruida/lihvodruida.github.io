@@ -3,11 +3,9 @@ import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
 import { canManageGeneralEmbeds, canManageRaids, canManageRulesEmbeds, canViewRulesStats, hierarchyTitle } from "@/lib/permissions";
-import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { buildPageMetadata } from "@/lib/seo";
-import DiscordRaidPollForm from "@/components/DiscordRaidPollForm";
-import { hasRaidPollStorage, raidPollDescription } from "@/lib/raidPolls";
 
 export const metadata = buildPageMetadata({
   title: "Discord-повідомлення",
@@ -53,10 +51,6 @@ export default async function DiscordHubPage({
   if (!canUseGeneralEmbeds && !canViewRules && !canCreateRaidPolls) redirect(await getOwnProfilePath(user));
 
   const discordEnabled = hasDiscordEmbedConfig();
-  const channelResult = discordEnabled && canCreateRaidPolls ? await fetchDiscordTextChannels().catch(() => null) : null;
-  const pollChannels = channelResult?.channels || [];
-  const pollDefaultChannelId = pollChannels[0]?.id || channelResult?.suggestedRulesChannelId || "";
-  const raidPollsReady = canCreateRaidPolls && discordEnabled && hasRaidPollStorage();
 
   return (
     <main className="container">
@@ -115,11 +109,11 @@ export default async function DiscordHubPage({
           </a>
 
           {canCreateRaidPolls ? (
-            <a className="panel discord-hub-card discord-hub-card--poll" href="#raid-poll-create">
+            <a className="panel discord-hub-card discord-hub-card--poll" href="/polls">
               <span className="eyebrow">Рейд-голосування • {hierarchyTitle(user.role)}</span>
               <strong>Raid Polls</strong>
               <p>Створення голосування за дні та час рейду з публікацією в Discord і результатами на сайті.</p>
-              <span className="btn subtle">Створити пул</span>
+              <span className="btn subtle">Відкрити пули</span>
             </a>
           ) : null}
 
@@ -132,19 +126,6 @@ export default async function DiscordHubPage({
         </section>
       )}
 
-      {canCreateRaidPolls ? (
-        <section id="raid-poll-create" className="discord-raid-poll-section" aria-label="Створення рейд-голосування Discord">
-          {channelResult?.warning ? <div className="notice panel warning-note discord-notice">Список Discord-каналів завантажено з попередженням: {channelResult.warning}</div> : null}
-          {!hasRaidPollStorage() ? <div className="notice panel error-note discord-notice">Firebase для рейд-голосувань не налаштований.</div> : null}
-          {!discordEnabled ? <div className="notice panel error-note discord-notice">Discord API тимчасово недоступний.</div> : null}
-          <DiscordRaidPollForm
-            channels={pollChannels}
-            defaultChannelId={pollDefaultChannelId}
-            defaultDescription={raidPollDescription()}
-            disabled={!raidPollsReady}
-          />
-        </section>
-      ) : null}
       </section>
     </main>
   );

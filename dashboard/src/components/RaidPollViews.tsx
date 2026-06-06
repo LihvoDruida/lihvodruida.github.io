@@ -1,17 +1,16 @@
 import type { ReactNode } from "react";
+import RaidPollCreateClientForm from "@/components/RaidPollCreateClientForm";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import type { DashboardSession } from "@/lib/auth";
 import { hierarchyTitle } from "@/lib/permissions";
 import {
-  RAID_POLL_CLOSE_OPTIONS,
   RAID_POLL_DAYS,
   RAID_POLL_TIMES,
   pollVoteCounts,
   pollVotersForDay,
   raidPollDayFullLabel,
   raidPollDifficultyLabel,
-  raidPollDescription,
   raidPollStatusLabel,
   raidPollTitle,
   type RaidPollItem,
@@ -74,68 +73,7 @@ export function RaidPollPageShell({ user, title, description, children }: { user
 }
 
 export function RaidPollCreateForm({ channels, discordEnabled }: { channels: PollChannelOption[]; discordEnabled: boolean }) {
-  return (
-    <form className="panel raid-form raid-poll-form" action="/api/polls" method="post">
-      <div className="raid-form-section-head">
-        <div>
-          <h2>Створити рейд-пул</h2>
-          <p>Створення проходить тільки через сайт. Discord отримає готове повідомлення з select-menu для голосування.</p>
-        </div>
-        <span className="raid-status-pill published">Новий пул</span>
-      </div>
-
-      <label>
-        <span>Назва рейду</span>
-        <input name="title" required minLength={3} maxLength={160} placeholder="Наприклад: Палац Неруб'ар" />
-      </label>
-
-      <div className="raid-form-grid two">
-        <label>
-          <span>Складність</span>
-          <select name="difficulty" defaultValue="heroic">
-            <option value="normal">Нормал</option>
-            <option value="heroic">Героїк</option>
-            <option value="mythic">Міфік</option>
-          </select>
-        </label>
-        <label>
-          <span>Таймер закриття</span>
-          <select name="closeAfterMinutes" defaultValue="720">
-            {RAID_POLL_CLOSE_OPTIONS.map((option) => <option key={option.minutes} value={option.minutes}>{option.label}</option>)}
-          </select>
-        </label>
-      </div>
-
-      <label>
-        <span>Discord-канал</span>
-        <input name="channelId" required disabled={!discordEnabled} defaultValue={channels[0]?.id || ""} list="raid-poll-create-channels" placeholder="123456789012345678" />
-        <datalist id="raid-poll-create-channels">
-          {channels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
-        </datalist>
-      </label>
-
-      <label>
-        <span>Опис у Discord</span>
-        <textarea name="description" required maxLength={900} defaultValue={raidPollDescription()} />
-      </label>
-
-      <div className="raid-poll-option-preview" aria-label="Опції рейд-пулу">
-        <div>
-          <strong>Дні</strong>
-          <p>{RAID_POLL_DAYS.map((day) => day.label).join(" • ")}</p>
-        </div>
-        <div>
-          <strong>Час</strong>
-          <p>{RAID_POLL_TIMES.join(" • ")}</p>
-        </div>
-      </div>
-
-      <div className="raid-form-actions">
-        <a className="btn subtle" href="/polls">До списку</a>
-        <button className="btn primary" type="submit" disabled={!discordEnabled}>Створити й опублікувати</button>
-      </div>
-    </form>
-  );
+  return <RaidPollCreateClientForm channels={channels} defaultChannelId={channels[0]?.id || ""} disabled={!discordEnabled} />;
 }
 
 export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
