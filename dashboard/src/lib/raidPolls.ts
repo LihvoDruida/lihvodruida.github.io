@@ -4,9 +4,11 @@ import { getMainCharacter, getProfileByDiscordUserId, type DashboardProfile, typ
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
+import { clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
 import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
 import {
   createDiscordRaidMessage,
+  deleteDiscordRaidMessage,
   discordMessageUrl,
   editDiscordRaidMessage,
   getDiscordDefaultChannelId,
@@ -66,6 +68,19 @@ const RAID_POLL_COLLECTION = "dashboardRaidPolls";
 const RAID_POLL_ACTION_PREFIX = "mbv1:poll";
 const RAID_POLL_LIST_CACHE_KEY = "raid-polls:list:v1";
 const RAID_POLL_CACHE_TTL_MS = 20_000;
+const RAID_POLL_GET_CACHE_PREFIX = "raid-poll:";
+
+function clearRaidPollRuntimeCaches(pollId?: string | null) {
+  const id = cleanString(pollId, 80);
+  if (id) clearRuntimeCachedValue(`${RAID_POLL_GET_CACHE_PREFIX}${id}`);
+  clearRuntimeCachedValuesByPrefix(`${RAID_POLL_LIST_CACHE_KEY}:`);
+}
+
+function isMissingDiscordMessageError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /404|unknown message|10008/i.test(message);
+}
+
 
 const DIFFICULTY_LABELS: Record<RaidPollDifficulty, string> = {
   normal: "Нормал",
@@ -555,7 +570,7 @@ async function publishPollDiscordMessage(poll: RaidPollItem, channelIdInput?: st
   return { channelId: finalChannelId, messageId, messageUrl: discordMessageUrl(finalChannelId, messageId) };
 }
 
-export async function getRaidPoll(pollId: string, options: { closeDue?: boolean } = {}) {
+export async function getRaidPoll(pollId: string, options: { closeDue?: boolean; bypassCache?: boolean } = {}) {
   if (!hasRaidPollStorage()) return null;
   const poll = await firebaseRead<RaidPollItem | null>(
     "raid",
@@ -565,7 +580,7 @@ export async function getRaidPoll(pollId: string, options: { closeDue?: boolean 
       if (!snap.exists) return null;
       return normalizeRaidPoll(snap.id, snap.data() || {});
     },
-    { ttlMs: 10_000, fallback: () => null, logEvent: "raid_polls.read_failed" },
+    { ttlMs: 10_000, fallback: () => null, logEvent: "raid_polls.read_failed", bypassCache: options.bypassCache },
   );
   if (poll && options.closeDue !== false) return closeDueRaidPoll(poll);
   return poll;
@@ -639,6 +654,7 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
     });
     return true;
   }, { logEvent: "raid_polls.create_failed" });
+  clearRaidPollRuntimeCaches(id);
 
   const published = await publishPollDiscordMessage(basePoll, channelId);
   const publishedPoll = { ...basePoll, ...published, updatedAt: new Date().toISOString() };
@@ -652,6 +668,7 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
     });
     return true;
   }, { logEvent: "raid_polls.publish_ref_failed" });
+  clearRaidPollRuntimeCaches(id);
 
   return publishedPoll;
 }
@@ -711,6 +728,7 @@ export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = 
     });
   }, { logEvent: "raid_polls.close_failed" });
 
+  clearRaidPollRuntimeCaches(updated.id);
   await editPollDiscordMessage(updated).catch(() => null);
   return updated;
 }
@@ -762,6 +780,20 @@ function normalizeVoteScheduleForPoll(poll: RaidPollItem, schedule: RaidPollSche
   return next;
 }
 
+function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "character", existing: RaidPollVote | undefined) {
+  if (kind === "character") return false;
+  return !existing?.characterKey && !existing?.characterName;
+}
+
+function dedupeSchedulePatch(schedule: RaidPollSchedule) {
+  const next: RaidPollSchedule = {};
+  for (const day of RAID_POLL_DAYS) {
+    const value = schedule[day.value];
+    if (value) next[day.value] = value;
+  }
+  return next;
+}
+
 export async function handleRaidPollDiscordVote(params: {
   pollId: string;
   kind: "days" | "time" | "schedule" | "character";
@@ -781,7 +813,7 @@ export async function handleRaidPollDiscordVote(params: {
 
   const nowIso = new Date().toISOString();
   let changedPoll: RaidPollItem | null = null;
-  const profile = params.kind === "character" ? await getProfileByDiscordUserId(userId).catch(() => null) : null;
+  const profile = await getProfileByDiscordUserId(userId).catch(() => null);
   const selectedCharacter = params.kind === "character" ? voteCharacterPayload(profile, params.values[0] || "main") : null;
 
   if (params.kind === "character" && !selectedCharacter) {
@@ -833,7 +865,7 @@ export async function handleRaidPollDiscordVote(params: {
 
       let nextSchedule: RaidPollSchedule = { ...previousSchedule };
       if (params.kind === "schedule") {
-        nextSchedule = { ...nextSchedule, ...parseScheduleValues(params.values) };
+        nextSchedule = dedupeSchedulePatch({ ...nextSchedule, ...parseScheduleValues(params.values) });
       } else if (params.kind === "days") {
         const legacyDays = cleanPollDays(params.values);
         const fallbackTime = previousVote.selectedTime || firstTimeFromSchedule(previousSchedule) || "19:00";
@@ -847,6 +879,7 @@ export async function handleRaidPollDiscordVote(params: {
       }
 
       nextSchedule = normalizeVoteScheduleForPoll(poll, nextSchedule);
+      const autoCharacter = shouldAutoAttachMainCharacter(params.kind, existing) ? voteCharacterPayload(profile, "main") : null;
       const nextSelectedDays = activeDaysFromSchedule(nextSchedule);
       const nextSelectedTime = firstTimeFromSchedule(nextSchedule);
       const nextVote: RaidPollVote = {
@@ -857,6 +890,7 @@ export async function handleRaidPollDiscordVote(params: {
         selectedDays: nextSelectedDays,
         selectedTime: nextSelectedTime,
         schedule: nextSchedule,
+        ...(autoCharacter || {}),
         ...(selectedCharacter || {}),
         updatedAt: nowIso,
       };
@@ -890,11 +924,52 @@ export async function handleRaidPollDiscordVote(params: {
     });
   }, { logEvent: "raid_polls.vote_failed" });
 
-  if (changedPoll) {
-    await editPollDiscordMessage(changedPoll).catch(() => null);
+  if (result.poll) {
+    clearRaidPollRuntimeCaches(result.poll.id);
+    await editPollDiscordMessage(result.poll).catch(() => null);
   }
 
   return result;
+}
+
+export async function deleteRaidPoll(pollId: string) {
+  if (!hasRaidPollStorage()) throw new Error(firebaseUnavailableMessage("raid", "write"));
+
+  const ref = pollRef(pollId);
+  const snap = await ref.get();
+  if (!snap.exists) throw new Error("Рейд-пул не знайдено або його вже видалено.");
+
+  const poll = normalizeRaidPoll(snap.id, snap.data() || {});
+  let discordDeleted = false;
+  let discordDeleteFailed = false;
+
+  if (poll.channelId && poll.messageId) {
+    try {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: poll.channelId, messageId: poll.messageId },
+        auditReason: `Raid poll manually deleted from dashboard: ${poll.id}`,
+      });
+      discordDeleted = true;
+    } catch (error) {
+      if (isMissingDiscordMessageError(error)) {
+        discordDeleted = true;
+      } else {
+        discordDeleteFailed = true;
+        console.warn("[raidPolls] Failed to delete Discord poll message", {
+          pollId: poll.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
+  await firebaseWrite("raid", `raid-poll:delete:${poll.id}`, async () => {
+    await ref.delete();
+    return true;
+  }, { logEvent: "raid_polls.delete_failed" });
+
+  clearRaidPollRuntimeCaches(poll.id);
+  return { poll, discordDeleted, discordDeleteFailed };
 }
 
 export function raidPollDayLabel(value: RaidPollDay) {

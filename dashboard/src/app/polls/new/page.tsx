@@ -48,10 +48,10 @@ export default async function NewPollPage() {
           </div>
           <p>Команди Discord для створення немає. Ця сторінка створює пул, бот публікує embed і приймає вибір учасників.</p>
           <div className="raid-poll-help-steps">
-            <span>1. Дні вибираються multi-select меню.</span>
-            <span>2. Час вибирається окремим dropdown.</span>
-            <span>3. Новий вибір замінює попередній голос користувача.</span>
-            <span>4. Після дедлайну components вимикаються, а embed показує фінальний результат.</span>
+            <span>1. Сайт створює Firebase-запис і Discord embed.</span>
+            <span>2. У Discord гравець обирає персонажа зі свого dashboard-профілю.</span>
+            <span>3. Для кожного дня можна вибрати окремий час або “Не можу”.</span>
+            <span>4. Кожна дія редагує попередній голос користувача, а сайт підтягує зміни через live sync.</span>
           </div>
           <div className="raid-poll-help-actions">
             <a className="btn subtle" href="/discord">Discord Hub</a>

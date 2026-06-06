@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import RaidPollCreateClientForm from "@/components/RaidPollCreateClientForm";
+import RaidPollDeleteButton from "@/components/RaidPollDeleteButton";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import type { DashboardSession } from "@/lib/auth";
@@ -247,6 +248,7 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
             <button className="btn danger" type="submit">Закрити голосування</button>
           </form>
         ) : null}
+        {canManage ? <RaidPollDeleteButton pollId={poll.id} pollTitle={poll.title} /> : null}
       </div>
     </section>
   );
