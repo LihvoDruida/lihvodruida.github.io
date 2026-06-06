@@ -40,8 +40,12 @@ function cleanIdempotencyKey(value: unknown) {
   return /^[A-Za-z0-9:._-]{12,220}$/.test(key) ? key : "";
 }
 
-function cleanKind(value: unknown): "days" | "time" {
-  return String(value || "").trim().toLowerCase() === "time" ? "time" : "days";
+function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" {
+  const kind = String(value || "").trim().toLowerCase();
+  if (kind === "time") return "time";
+  if (kind === "schedule") return "schedule";
+  if (kind === "character") return "character";
+  return "days";
 }
 
 function cleanValues(value: unknown) {

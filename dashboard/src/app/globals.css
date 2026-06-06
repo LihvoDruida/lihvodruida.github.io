@@ -22660,3 +22660,311 @@ body {
   }
 }
 
+
+/* Raid Polls v2: smart day/time matrix + profile character votes */
+.raid-poll-results--smart {
+  overflow: hidden;
+  padding: clamp(18px, 2vw, 26px) !important;
+}
+
+.raid-poll-detail-head {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.raid-poll-summary-grid--smart {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.raid-poll-smart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.65fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.raid-poll-table-card--wide,
+.raid-poll-discord-sync-card {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.raid-poll-card-headline {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.raid-poll-card-headline h3 {
+  margin: 0;
+}
+
+.raid-poll-card-headline p {
+  margin: 0;
+  color: rgba(190, 202, 220, 0.76);
+  line-height: 1.5;
+}
+
+.raid-poll-day-matrix {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.raid-poll-day-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(2, 6, 12, 0.36);
+}
+
+.raid-poll-day-card header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.raid-poll-day-card header > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(212, 163, 79, 0.12);
+  border: 1px solid rgba(212, 163, 79, 0.2);
+}
+
+.raid-poll-day-card strong {
+  color: #f8fafc;
+}
+
+.raid-poll-day-card small,
+.raid-poll-day-card em {
+  color: rgba(190, 202, 220, 0.72);
+}
+
+.raid-poll-day-stats,
+.raid-poll-time-row,
+.raid-poll-vote-schedule,
+.raid-poll-sync-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.raid-poll-day-stats span,
+.raid-poll-time-row span,
+.raid-poll-vote-schedule span,
+.raid-poll-sync-metrics span {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 6px 9px;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.84rem;
+}
+
+.raid-poll-time-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.raid-poll-time-row span.has-votes,
+.raid-poll-vote-schedule span.is-ready {
+  border-color: rgba(74, 222, 128, 0.28);
+  background: rgba(22, 101, 52, 0.18);
+  color: #dcfce7;
+}
+
+.raid-poll-vote-schedule span.is-absent {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(127, 29, 29, 0.22);
+  color: #fee2e2;
+}
+
+.raid-poll-time-row b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+}
+
+.raid-poll-day-voters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.raid-poll-day-voters span {
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.44);
+  padding: 6px 8px;
+  color: rgba(241, 245, 249, 0.9);
+  font-size: 0.86rem;
+}
+
+.raid-poll-day-voters b {
+  color: #fde68a;
+}
+
+.raid-poll-day-absent {
+  border-top: 1px solid rgba(248, 113, 113, 0.16);
+  padding-top: 10px;
+  color: rgba(254, 226, 226, 0.86);
+  font-size: 0.86rem;
+}
+
+.raid-poll-voters--cards {
+  gap: 10px;
+}
+
+.raid-poll-voter--smart {
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.8fr);
+  align-items: start;
+  overflow: hidden;
+}
+
+.raid-poll-character-badge {
+  display: grid;
+  gap: 3px;
+  border-left: 3px solid var(--raid-poll-class-color, #94a3b8);
+  padding-left: 10px;
+}
+
+.raid-poll-character-badge strong {
+  color: var(--raid-poll-class-color, #f8fafc);
+}
+
+.raid-poll-character-badge small {
+  color: rgba(190, 202, 220, 0.76);
+}
+
+.raid-poll-vote-schedule strong {
+  margin-right: 6px;
+}
+
+.raid-poll-discord-sync-card {
+  display: grid;
+  gap: 14px;
+}
+
+.raid-poll-sync-metrics span {
+  display: grid;
+  gap: 4px;
+  border-radius: 14px;
+}
+
+.raid-poll-live-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  margin: -6px 0 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 7px 11px;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.84rem;
+}
+
+.raid-poll-live-sync > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+}
+
+.raid-poll-live-sync--syncing > span {
+  background: #fbbf24;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.55);
+}
+
+.raid-poll-live-sync--error > span {
+  background: #f87171;
+  box-shadow: 0 0 16px rgba(248, 113, 113, 0.55);
+}
+
+.raid-poll-days-field {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.raid-poll-days-field legend {
+  color: rgba(244, 234, 219, 0.92);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.raid-poll-day-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.raid-poll-day-toggle {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(214, 184, 118, 0.2);
+  border-radius: 13px;
+  background: rgba(2, 6, 12, 0.58);
+  color: rgba(242, 234, 220, 0.74);
+  padding: 9px 7px;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.raid-poll-day-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 156, 0.45);
+}
+
+.raid-poll-day-toggle.is-selected {
+  border-color: rgba(125, 211, 156, 0.7);
+  background: rgba(22, 101, 52, 0.22);
+  color: #ecfdf5;
+}
+
+.raid-poll-day-toggle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(190, 202, 220, 0.72);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 1080px) {
+  .raid-poll-smart-layout,
+  .raid-poll-summary-grid--smart {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-day-matrix {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-day-toggle-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .raid-poll-voter--smart {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-day-toggle-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

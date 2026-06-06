@@ -2,14 +2,26 @@ export type RaidPollStatus = "open" | "closed";
 export type RaidPollDifficulty = "normal" | "heroic" | "mythic";
 export type RaidPollDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 export type RaidPollTime = "19:00" | "19:30" | "20:00" | "20:30" | "21:00";
+export type RaidPollAvailability = RaidPollTime | "absent";
+export type RaidPollSchedule = Partial<Record<RaidPollDay, RaidPollAvailability>>;
+export type RaidPollRole = "tank" | "healer" | "dps";
 
 export type RaidPollVote = {
   discordId: string;
   discordName: string;
   guildId: string;
   guildName: string;
+  /** Legacy fields kept for old Discord messages and already-saved documents. */
   selectedDays: RaidPollDay[];
   selectedTime: RaidPollTime | null;
+  /** New smart per-day schedule. Each day can be a concrete time or explicit absence. */
+  schedule: RaidPollSchedule;
+  characterKey?: string | null;
+  characterName?: string | null;
+  characterClass?: string | null;
+  characterRole?: RaidPollRole | null;
+  characterRealm?: string | null;
+  characterRegion?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -30,6 +42,7 @@ export type RaidPollItem = {
   channelId?: string | null;
   messageId?: string | null;
   messageUrl?: string | null;
+  days: RaidPollDay[];
   votes: RaidPollVote[];
   createdAt: string;
   updatedAt: string;
@@ -40,6 +53,7 @@ export type RaidPollVoteResult = {
   content: string;
   poll?: RaidPollItem;
   closed?: boolean;
+  components?: unknown[];
 };
 
 export type RaidPollCreateInput = {
@@ -48,6 +62,7 @@ export type RaidPollCreateInput = {
   description?: unknown;
   channelId?: unknown;
   closeAfterMinutes?: unknown;
+  days?: unknown;
 };
 
 export const RAID_POLL_DESCRIPTION = "Будь ласка, оберіть дні та час, коли ви готові взяти участь у гільдійському рейді. Голос враховується для формування основного складу.";
@@ -64,6 +79,8 @@ export const RAID_POLL_DAYS: Array<{ value: RaidPollDay; label: string; fullLabe
 
 export const RAID_POLL_TIMES: RaidPollTime[] = ["19:00", "19:30", "20:00", "20:30", "21:00"];
 
+export const RAID_POLL_AVAILABILITY_OPTIONS: RaidPollAvailability[] = [...RAID_POLL_TIMES, "absent"];
+
 export const RAID_POLL_CLOSE_OPTIONS: Array<{ minutes: number; label: string }> = [
   { minutes: 120, label: "2 години" },
   { minutes: 720, label: "12 годин" },
@@ -71,6 +88,53 @@ export const RAID_POLL_CLOSE_OPTIONS: Array<{ minutes: number; label: string }> 
   { minutes: 2880, label: "48 годин" },
 ];
 
+export const RAID_POLL_SCHEDULE_GROUPS: Array<{ key: "a" | "b" | "c"; label: string; days: RaidPollDay[] }> = [
+  { key: "a", label: "Пн-Ср", days: ["mon", "tue", "wed"] },
+  { key: "b", label: "Чт-Пт", days: ["thu", "fri"] },
+  { key: "c", label: "Сб-Нд", days: ["sat", "sun"] },
+];
+
+export const RAID_POLL_CHARACTER_SELECTOR_OPTIONS = [
+  { value: "main", label: "Основний персонаж профілю", description: "Бере головного персонажа з dashboard-профілю" },
+  { value: "alt_1", label: "Альт #1 з профілю", description: "Перший персонаж після основного" },
+  { value: "alt_2", label: "Альт #2 з профілю", description: "Другий персонаж після основного" },
+  { value: "alt_3", label: "Альт #3 з профілю", description: "Третій персонаж після основного" },
+  { value: "alt_4", label: "Альт #4 з профілю", description: "Четвертий персонаж після основного" },
+];
+
+export const RAID_POLL_CLASS_COLORS: Record<string, string> = {
+  deathknight: "#C41E3A",
+  demonhunter: "#A330C9",
+  druid: "#FF7C0A",
+  evoker: "#33937F",
+  hunter: "#AAD372",
+  mage: "#3FC7EB",
+  monk: "#00FF98",
+  paladin: "#F48CBA",
+  priest: "#FFFFFF",
+  rogue: "#FFF468",
+  shaman: "#0070DE",
+  warlock: "#8788EE",
+  warrior: "#C69B6D",
+};
+
 export function raidPollDescription() {
   return RAID_POLL_DESCRIPTION;
+}
+
+export function raidPollAvailabilityLabel(value: RaidPollAvailability | null | undefined) {
+  if (!value) return "—";
+  return value === "absent" ? "Не можу" : value;
+}
+
+export function raidPollRoleLabel(role: RaidPollRole | null | undefined) {
+  if (role === "tank") return "Танк";
+  if (role === "healer") return "Цілитель";
+  if (role === "dps") return "ДД";
+  return "Роль не визначена";
+}
+
+export function raidPollClassColor(className: string | null | undefined) {
+  const key = String(className || "").toLowerCase().replace(/[^a-z]/g, "");
+  return RAID_POLL_CLASS_COLORS[key] || "#94a3b8";
 }

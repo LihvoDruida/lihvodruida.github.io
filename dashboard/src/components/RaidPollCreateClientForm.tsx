@@ -3,7 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
-import { RAID_POLL_CLOSE_OPTIONS, raidPollDescription, type RaidPollDifficulty } from "@/lib/raidPollShared";
+import { RAID_POLL_CLOSE_OPTIONS, RAID_POLL_DAYS, raidPollDescription, type RaidPollDay, type RaidPollDifficulty } from "@/lib/raidPollShared";
 
 export type RaidPollCreateChannel = {
   id: string;
@@ -55,6 +55,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
   const [channelId, setChannelId] = useState(initialChannelId);
   const [closeAfterMinutes, setCloseAfterMinutes] = useState(720);
   const [description, setDescription] = useState(defaultDescription);
+  const [selectedDays, setSelectedDays] = useState<RaidPollDay[]>(RAID_POLL_DAYS.map((day) => day.value));
   const [pending, setPending] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
@@ -74,6 +75,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
     setChannelId(initialChannelId);
     setCloseAfterMinutes(720);
     setDescription(defaultDescription);
+    setSelectedDays(RAID_POLL_DAYS.map((day) => day.value));
     setFieldError("");
   }
 
@@ -86,10 +88,23 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
     if (!DIFFICULTIES.some((option) => option.value === difficulty)) return "Вибери коректну складність рейду.";
     if (!looksLikeDiscordChannelId(normalizedChannelId)) return "Вкажи коректний Discord Channel ID.";
     if (!RAID_POLL_CLOSE_OPTIONS.some((option) => option.minutes === closeAfterMinutes)) return "Вибери коректний таймер закриття голосування.";
+    if (!selectedDays.length) return "Вибери хоча б один день рейд-тижня.";
     if (normalizedDescription.length < 20) return "Опис занадто короткий. Залиши зрозумілий текст для учасників.";
     if (normalizedDescription.length > 900) return "Опис занадто довгий. Максимум — 900 символів.";
     return "";
   }
+
+
+  function toggleDay(day: RaidPollDay) {
+    setSelectedDays((current) => {
+      if (current.includes(day)) return current.filter((item) => item !== day);
+      return RAID_POLL_DAYS.map((item) => item.value).filter((item) => item === day || current.includes(item));
+    });
+  }
+
+  const selectedDayLabel = selectedDays.length === RAID_POLL_DAYS.length
+    ? "Пн • Вт • Ср • Чт • Пт • Сб • Нд"
+    : RAID_POLL_DAYS.filter((day) => selectedDays.includes(day.value)).map((day) => day.label).join(" • ") || "Дні не вибрано";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -127,6 +142,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
           description: description.trim(),
           channelId: clean(channelId),
           closeAfterMinutes,
+          days: selectedDays,
         }),
       });
 
@@ -224,6 +240,26 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
           <small>Поточний вибір: {channelLabel}. Можна вибрати канал зі списку або вставити Channel ID вручну.</small>
         </label>
 
+        <fieldset className="raid-poll-field raid-poll-field--wide raid-poll-days-field">
+          <legend>Дні рейд-тижня</legend>
+          <div className="raid-poll-day-toggle-grid">
+            {RAID_POLL_DAYS.map((day) => (
+              <button
+                key={day.value}
+                className={`raid-poll-day-toggle ${selectedDays.includes(day.value) ? "is-selected" : ""}`}
+                type="button"
+                onClick={() => toggleDay(day.value)}
+                disabled={pending || disabled}
+                aria-pressed={selectedDays.includes(day.value)}
+              >
+                <strong>{day.label}</strong>
+                <span>{day.fullLabel}</span>
+              </button>
+            ))}
+          </div>
+          <small>У Discord для кожного вибраного дня буде окрема опція часу або «Не можу».</small>
+        </fieldset>
+
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-description">
           <span>Опис у Discord</span>
           <textarea
@@ -242,11 +278,11 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
       <div className="raid-poll-create-preview" aria-label="Налаштування голосування">
         <div>
           <strong>Дні голосування</strong>
-          <span>Пн • Вт • Ср • Чт • Пт • Сб • Нд</span>
+          <span>{selectedDayLabel}</span>
         </div>
         <div>
           <strong>Час рейду</strong>
-          <span>19:00 • 19:30 • 20:00 • 20:30 • 21:00</span>
+          <span>Для кожного дня: 19:00 • 19:30 • 20:00 • 20:30 • 21:00 • Не можу</span>
         </div>
         <div>
           <strong>Закриття</strong>

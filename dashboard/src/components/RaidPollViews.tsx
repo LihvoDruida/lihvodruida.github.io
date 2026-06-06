@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import RaidPollCreateClientForm from "@/components/RaidPollCreateClientForm";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
@@ -7,12 +7,18 @@ import { hierarchyTitle } from "@/lib/permissions";
 import {
   RAID_POLL_DAYS,
   RAID_POLL_TIMES,
+  pollAbsentVotersForDay,
   pollVoteCounts,
   pollVotersForDay,
+  raidPollAvailabilityLabel,
+  raidPollClassColor,
   raidPollDayFullLabel,
   raidPollDifficultyLabel,
+  raidPollRoleLabel,
   raidPollStatusLabel,
   raidPollTitle,
+  raidPollVoteSchedule,
+  type RaidPollDay,
   type RaidPollItem,
 } from "@/lib/raidPolls";
 
@@ -106,11 +112,40 @@ export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollIt
   );
 }
 
+function pollDays(poll: RaidPollItem) {
+  const active = poll.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value);
+  return RAID_POLL_DAYS.filter((day) => active.includes(day.value));
+}
+
+function bestTimeForDay(poll: RaidPollItem, day: RaidPollDay) {
+  const counts = pollVoteCounts(poll).dayTimes[day];
+  const best = RAID_POLL_TIMES
+    .map((time) => ({ time, count: counts[time] || 0 }))
+    .sort((a, b) => b.count - a.count || RAID_POLL_TIMES.indexOf(a.time) - RAID_POLL_TIMES.indexOf(b.time))[0];
+  return best && best.count > 0 ? `${best.time} · ${best.count}` : "—";
+}
+
+function voteDisplayName(vote: RaidPollItem["votes"][number]) {
+  return vote.characterName || vote.discordName || "Гравець";
+}
+
+function VoteCharacterBadge({ vote }: { vote: RaidPollItem["votes"][number] }) {
+  const classColor = raidPollClassColor(vote.characterClass);
+  const style = { "--raid-poll-class-color": classColor } as CSSProperties;
+  return (
+    <span className="raid-poll-character-badge" style={style}>
+      <strong>{voteDisplayName(vote)}</strong>
+      <small>{[vote.characterClass, vote.characterRole ? raidPollRoleLabel(vote.characterRole) : null].filter(Boolean).join(" • ") || vote.discordName}</small>
+    </span>
+  );
+}
+
 export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
   const counts = pollVoteCounts(poll);
+  const activeDays = pollDays(poll);
   return (
-    <section className="panel raid-poll-results">
-      <div className="raid-form-section-head">
+    <section className="panel raid-poll-results raid-poll-results--smart">
+      <div className="raid-form-section-head raid-poll-detail-head">
         <div>
           <h2>{raidPollTitle(poll)}</h2>
           <p>{poll.description}</p>
@@ -118,53 +153,90 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <span className={`raid-status-pill ${statusClass(poll)}`}>{raidPollStatusLabel(poll)}</span>
       </div>
 
-      <div className="raid-poll-summary-grid">
+      <div className="raid-poll-summary-grid raid-poll-summary-grid--smart">
         <div><strong>{counts.total}</strong><span>Проголосували</span></div>
         <div><strong>{formatDateTime(poll.closesAtMs)}</strong><span>Закриття</span></div>
         <div><strong>{raidPollDifficultyLabel(poll.difficulty)}</strong><span>Складність</span></div>
+        <div><strong>{activeDays.map((day) => day.label).join(" • ")}</strong><span>Дні пулу</span></div>
       </div>
 
-      <div className="raid-poll-results-grid">
-        <div className="raid-poll-table-card">
-          <h3>Результат за днями</h3>
-          <table className="raid-poll-table">
-            <thead><tr><th>День</th><th>Голоси</th><th>Нікнейми</th></tr></thead>
-            <tbody>
-              {RAID_POLL_DAYS.map((day) => {
-                const voters = pollVotersForDay(poll, day.value);
-                return (
-                  <tr key={day.value}>
-                    <td>{raidPollDayFullLabel(day.value)}</td>
-                    <td><strong>{counts.days[day.value]}</strong></td>
-                    <td>{voters.length ? voters.map((vote) => vote.discordName).join(", ") : "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="raid-poll-table-card">
-          <h3>Результат за часом</h3>
-          <table className="raid-poll-table">
-            <thead><tr><th>Час</th><th>Голоси</th></tr></thead>
-            <tbody>
-              {RAID_POLL_TIMES.map((time) => <tr key={time}><td>{time}</td><td><strong>{counts.times[time]}</strong></td></tr>)}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="raid-poll-voters">
-        <h3>Усі голоси</h3>
-        {poll.votes.length ? poll.votes.map((vote) => (
-          <div className="raid-poll-voter" key={vote.discordId}>
-            <strong>{vote.discordName}</strong>
-            <span>{vote.selectedDays.length ? vote.selectedDays.map(raidPollDayFullLabel).join(", ") : "Дні не вибрано"}</span>
-            <span>{vote.selectedTime || "Час не вибрано"}</span>
-            <small>{vote.guildName} • {formatDateTime(vote.updatedAt)}</small>
+      <div className="raid-poll-smart-layout">
+        <div className="raid-poll-table-card raid-poll-table-card--wide">
+          <div className="raid-poll-card-headline">
+            <h3>Розумна матриця день / час</h3>
+            <p>Для кожного дня видно доступних, тих хто поставив «Не можу», найсильніший час і конкретних персонажів.</p>
           </div>
-        )) : <p className="raid-empty">Голосів поки немає.</p>}
+          <div className="raid-poll-day-matrix">
+            {activeDays.map((day) => {
+              const available = pollVotersForDay(poll, day.value);
+              const absent = pollAbsentVotersForDay(poll, day.value);
+              return (
+                <article className="raid-poll-day-card" key={day.value}>
+                  <header>
+                    <span>{day.emoji}</span>
+                    <div>
+                      <strong>{raidPollDayFullLabel(day.value)}</strong>
+                      <small>Найкращий час: {bestTimeForDay(poll, day.value)}</small>
+                    </div>
+                  </header>
+                  <div className="raid-poll-day-stats">
+                    <span><strong>{counts.days[day.value]}</strong> можуть</span>
+                    <span><strong>{counts.absent[day.value]}</strong> не можуть</span>
+                  </div>
+                  <div className="raid-poll-time-row" aria-label={`Голоси за часом для ${day.fullLabel}`}>
+                    {RAID_POLL_TIMES.map((time) => (
+                      <span key={time} className={counts.dayTimes[day.value][time] ? "has-votes" : ""}>{time}<b>{counts.dayTimes[day.value][time]}</b></span>
+                    ))}
+                  </div>
+                  <div className="raid-poll-day-voters">
+                    {available.length ? available.map((vote) => {
+                      const schedule = raidPollVoteSchedule(vote);
+                      return <span key={vote.discordId}>{voteDisplayName(vote)} <b>{raidPollAvailabilityLabel(schedule[day.value])}</b></span>;
+                    }) : <em>Доступних поки немає</em>}
+                  </div>
+                  {absent.length ? (
+                    <div className="raid-poll-day-absent">
+                      <strong>Не можуть:</strong> {absent.map(voteDisplayName).join(", ")}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <aside className="raid-poll-table-card raid-poll-discord-sync-card">
+          <div className="raid-poll-card-headline">
+            <h3>Discord sync</h3>
+            <p>Публічний embed оновлюється після кожного interaction. Сайт оновлює RSC-дані у фоні без повного перезавантаження вкладки.</p>
+          </div>
+          <div className="raid-poll-sync-metrics">
+            <span><strong>{poll.messageId ? "ON" : "—"}</strong>Message</span>
+            <span><strong>{poll.updatedAt ? formatDateTime(poll.updatedAt) : "—"}</strong>Оновлено</span>
+          </div>
+          {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord</a> : null}
+        </aside>
+      </div>
+
+      <div className="raid-poll-voters raid-poll-voters--cards">
+        <h3>Усі голоси</h3>
+        {poll.votes.length ? poll.votes.map((vote) => {
+          const schedule = raidPollVoteSchedule(vote);
+          return (
+            <div className="raid-poll-voter raid-poll-voter--smart" key={vote.discordId}>
+              <VoteCharacterBadge vote={vote} />
+              <div className="raid-poll-vote-schedule">
+                {activeDays.map((day) => (
+                  <span key={day.value} className={schedule[day.value] === "absent" ? "is-absent" : schedule[day.value] ? "is-ready" : ""}>
+                    <strong>{day.label}</strong>
+                    {raidPollAvailabilityLabel(schedule[day.value])}
+                  </span>
+                ))}
+              </div>
+              <small>{vote.guildName} • Discord: {vote.discordName} • {formatDateTime(vote.updatedAt)}</small>
+            </div>
+          );
+        }) : <p className="raid-empty">Голосів поки немає.</p>}
       </div>
 
       <div className="raid-form-actions">

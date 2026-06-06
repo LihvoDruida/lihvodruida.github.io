@@ -4,6 +4,7 @@ import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { getRaidPoll, hasRaidPollStorage } from "@/lib/raidPolls";
 import { RaidPollPageShell, RaidPollResults } from "@/components/RaidPollViews";
+import RaidPollLiveSync from "@/components/RaidPollLiveSync";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
@@ -39,7 +40,10 @@ export default async function PollDetailsPage({ params }: { params: Promise<{ po
       description="Повний результат голосування: дні, час, список учасників і Discord-повідомлення."
     >
       {!hasRaidPollStorage() ? <div className="notice panel error-note raid-notice">Рейд-пули тимчасово недоступні: Firebase не налаштований.</div> : null}
-      {poll ? <RaidPollResults poll={poll} canManage={canManage} /> : <section className="panel raid-member-panel"><h2>Рейд-пул не знайдено</h2><p>Перевір посилання або повернись до списку.</p><a className="btn subtle" href="/polls">До списку</a></section>}
+      {poll ? <>
+        <RaidPollLiveSync pollId={poll.id} initialRevision={`${poll.status}:${poll.updatedAt}:${poll.votes.length}`} />
+        <RaidPollResults poll={poll} canManage={canManage} />
+      </> : <section className="panel raid-member-panel"><h2>Рейд-пул не знайдено</h2><p>Перевір посилання або повернись до списку.</p><a className="btn subtle" href="/polls">До списку</a></section>}
     </RaidPollPageShell>
   );
 }

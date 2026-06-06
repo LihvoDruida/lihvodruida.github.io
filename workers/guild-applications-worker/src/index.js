@@ -3414,11 +3414,15 @@ function decodeRaidCharacterSelectCustomId(customId, values) {
 
 function decodeRaidPollCustomId(customId, values) {
   const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
+  const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character):([A-Za-z0-9_-]{8,80})$/);
+  const match = legacyMatch || smartMatch;
   if (!match) return null;
   const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
   if (!selected.length) return null;
-  return { pollId: match[2], kind: match[1], values: selected };
+  const rawKind = match[1];
+  const kind = rawKind.startsWith("schedule_") ? "schedule" : rawKind;
+  return { pollId: match[2], kind, group: rawKind.startsWith("schedule_") ? rawKind.slice("schedule_".length) : "", values: selected };
 }
 
 function dashboardRaidPollVoteEndpoint(env, pollId) {
@@ -3461,6 +3465,7 @@ async function raidPollProxyContent(interaction, env, pollAction) {
       },
       body: JSON.stringify({
         kind: pollAction.kind,
+        group: pollAction.group || "",
         values: pollAction.values,
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
