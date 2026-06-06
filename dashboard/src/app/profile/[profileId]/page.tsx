@@ -143,6 +143,12 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
         </span>
       </a>
       <div className="profile-raid-card__meta">
+        {item.signup.signupNumber ? (
+          <span>
+            <strong>№{item.signup.signupNumber}</strong>
+            <small>Номер запису</small>
+          </span>
+        ) : null}
         <span>
           <strong>
             {raidSignupStatusLabel(

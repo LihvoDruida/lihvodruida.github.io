@@ -306,6 +306,12 @@ function SignupAvatar({ item }: { item?: RaidSignup | null }) {
   return <span className="raid-signup-avatar raid-signup-avatar--empty" aria-hidden="true">{(item.characterName || item.discordName || "A").charAt(0)}</span>;
 }
 
+function SignupNumberBadge({ item }: { item?: Pick<RaidSignup, "signupNumber"> | null }) {
+  const number = Number(item?.signupNumber || 0);
+  const label = Number.isFinite(number) && number > 0 ? `№${Math.floor(number)}` : "—";
+  return <span className={`raid-signup-order${label === "—" ? " raid-signup-order--empty" : ""}`} title={label === "—" ? "Місце ще не зайняте" : `Порядковий номер запису: ${label}`}>{label}</span>;
+}
+
 function raidPartyRoleLabel(role: RaidCharacterRole) {
   if (role === "tank") return "Танк";
   if (role === "healer") return "Хіл";
@@ -406,6 +412,7 @@ function RoleRow({ label, item, role, raid }: { label: string; item?: RaidSignup
   return (
     <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${item?.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${issue?.startsWith("⛔") ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
+      <SignupNumberBadge item={item} />
       <span className="raid-role-label">{label}</span>
       <SignupAvatar item={item} />
       <span className="raid-party-member-copy">

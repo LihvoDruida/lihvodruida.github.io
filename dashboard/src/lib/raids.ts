@@ -1,13 +1,44 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
-import { invalidatePublicCacheBatch, invalidatePublicCachePrefix, publicCacheKey, readPublicCache, writePublicCache } from "@/lib/cloudflarePublicCache";
-import { getRuntimeCachedValue, clearRuntimeCachedValue, clearRuntimeCachedValuesByPrefix } from "@/lib/runtimeResilience";
-import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
+import {
+  invalidatePublicCacheBatch,
+  invalidatePublicCachePrefix,
+  publicCacheKey,
+  readPublicCache,
+  writePublicCache,
+} from "@/lib/cloudflarePublicCache";
+import {
+  getRuntimeCachedValue,
+  clearRuntimeCachedValue,
+  clearRuntimeCachedValuesByPrefix,
+} from "@/lib/runtimeResilience";
+import {
+  firebaseRead,
+  firebaseWrite,
+  firebaseUnavailableMessage,
+} from "@/lib/firebaseAccess";
 import { getSiteRuntimeSettings } from "@/lib/dashboardApiSettings";
 import type { DashboardSession } from "@/lib/auth";
-import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-import { getMainCharacter, getProfileByDiscordUserId, getProfileById, getProfilePublicName, cleanProfileGrammaticalGender, profileGenderedText, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter, type ProfileGrammaticalGender } from "@/lib/profiles";
-import { normalizeCharacterKey, pickWowAvatarImageUrl } from "@/lib/wowCharacters";
+import {
+  getFirebaseAdminDb,
+  hasFirebaseProfileConfig,
+} from "@/lib/firebaseAdmin";
+import {
+  getMainCharacter,
+  getProfileByDiscordUserId,
+  getProfileById,
+  getProfilePublicName,
+  cleanProfileGrammaticalGender,
+  profileGenderedText,
+  refreshProfileCharactersForRaidSignup,
+  type DashboardProfile,
+  type ProfileCharacter,
+  type ProfileGrammaticalGender,
+} from "@/lib/profiles";
+import {
+  normalizeCharacterKey,
+  pickWowAvatarImageUrl,
+} from "@/lib/wowCharacters";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import {
   createDiscordRaidMessage,
@@ -21,7 +52,11 @@ import {
 
 export type RaidDifficulty = "normal" | "heroic" | "mythic";
 export type RaidConsumables = "own" | "guild";
-export type RaidLootMode = "ms-os" | "free-roll" | "soft-reserve" | "loot-council";
+export type RaidLootMode =
+  | "ms-os"
+  | "free-roll"
+  | "soft-reserve"
+  | "loot-council";
 export type RaidSignupStatus = "going" | "late" | "skipped";
 export type RaidCharacterRole = "tank" | "healer" | "dps";
 
@@ -33,6 +68,7 @@ export type RaidComposition = {
 
 export type RaidSignup = {
   discordId: string;
+  signupNumber?: number | null;
   discordName: string;
   profileId?: string | null;
   characterKey?: string | null;
@@ -107,7 +143,8 @@ export type RaidParty = {
 };
 
 const RAID_COLLECTION = "dashboardRaids";
-const DEFAULT_RAID_IMAGE = "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
+const DEFAULT_RAID_IMAGE =
+  "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
 const RAID_ACTION_PREFIX = "mbv1:raid";
 const MAX_RAID_PLAYERS = 80;
 const DEFAULT_RAID_REGISTRATION_LOCK_MINUTES = 60;
@@ -146,12 +183,16 @@ function timestampToIso(value: unknown) {
   if (!value) return null;
   if (typeof value === "string") return value;
   const maybeTimestamp = value as { toDate?: () => Date } | null;
-  if (maybeTimestamp && typeof maybeTimestamp.toDate === "function") return maybeTimestamp.toDate().toISOString();
+  if (maybeTimestamp && typeof maybeTimestamp.toDate === "function")
+    return maybeTimestamp.toDate().toISOString();
   return null;
 }
 
 function cleanString(value: unknown, max = 300) {
-  return String(value || "").replace(/\r\n/g, "\n").trim().slice(0, max);
+  return String(value || "")
+    .replace(/\r\n/g, "\n")
+    .trim()
+    .slice(0, max);
 }
 
 function cleanUrl(value: unknown) {
@@ -167,7 +208,14 @@ function cleanUrl(value: unknown) {
 }
 
 function dashboardBaseUrl() {
-  return String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
+  return String(
+    process.env.ADMIN_DASHBOARD_URL ||
+      process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL ||
+      process.env.DASHBOARD_URL ||
+      process.env.NEXT_PUBLIC_DASHBOARD_URL ||
+      process.env.NEXTAUTH_URL ||
+      "https://admin.lihvodruida.pp.ua",
+  ).replace(/\/$/, "");
 }
 
 function absoluteDashboardAssetUrl(path: string) {
@@ -185,7 +233,11 @@ export function dashboardProfileUrl() {
 
 export function dashboardLoginUrl(nextPath = "/profile") {
   const url = new URL("/login", `${dashboardBaseUrl()}/`);
-  if (nextPath) url.searchParams.set("next", nextPath.startsWith("/") ? nextPath : `/${nextPath}`);
+  if (nextPath)
+    url.searchParams.set(
+      "next",
+      nextPath.startsWith("/") ? nextPath : `/${nextPath}`,
+    );
   url.searchParams.set("error", "session_required");
   return url.toString();
 }
@@ -193,9 +245,9 @@ export function dashboardLoginUrl(nextPath = "/profile") {
 export function dashboardRaidRulesUrl() {
   const value = String(
     process.env.RAID_RULES_URL ||
-    process.env.NEXT_PUBLIC_RAID_RULES_URL ||
-    process.env.DISCORD_RAID_RULES_URL ||
-    "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024"
+      process.env.NEXT_PUBLIC_RAID_RULES_URL ||
+      process.env.DISCORD_RAID_RULES_URL ||
+      "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024",
   ).trim();
   return value || dashboardProfileUrl();
 }
@@ -209,7 +261,8 @@ export function raidActionHelpComponents(raidId?: string | null) {
     discordLinkButton("Відкрити профіль", dashboardProfileUrl()),
     discordLinkButton("Правила рейду", dashboardRaidRulesUrl()),
   ];
-  if (raidId) buttons.push(discordLinkButton("Сторінка рейду", dashboardRaidUrl(raidId)));
+  if (raidId)
+    buttons.push(discordLinkButton("Сторінка рейду", dashboardRaidUrl(raidId)));
   return [{ type: 1, components: buttons.slice(0, 5) }];
 }
 
@@ -227,22 +280,37 @@ function raidActionHelpText(reason: "login" | "main") {
 }
 
 export function defaultRaidThumbnailPath(difficulty: RaidDifficulty) {
-  return RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic;
+  return (
+    RAID_THUMBNAIL_ASSET_PATHS[difficulty] || RAID_THUMBNAIL_ASSET_PATHS.heroic
+  );
 }
 
-export function resolveRaidThumbnailUrl(input: { difficulty?: RaidDifficulty | string | null; thumbnailUrl?: string | null; imageUrl?: string | null }, options?: { absolute?: boolean }) {
+export function resolveRaidThumbnailUrl(
+  input: {
+    difficulty?: RaidDifficulty | string | null;
+    thumbnailUrl?: string | null;
+    imageUrl?: string | null;
+  },
+  options?: { absolute?: boolean },
+) {
   const explicitThumb = cleanUrl(input.thumbnailUrl);
   if (explicitThumb) return explicitThumb;
   const explicitImage = cleanUrl(input.imageUrl);
   if (explicitImage) return explicitImage;
   const difficulty = cleanDifficulty(input.difficulty);
   const assetPath = defaultRaidThumbnailPath(difficulty);
-  return options?.absolute === false ? assetPath : absoluteDashboardAssetUrl(assetPath);
+  return options?.absolute === false
+    ? assetPath
+    : absoluteDashboardAssetUrl(assetPath);
 }
 
 function cleanDifficulty(value: unknown): RaidDifficulty {
   const key = cleanString(value, 20).toLowerCase();
-  return key === "mythic" || key === "міфік" ? "mythic" : key === "normal" || key === "нормал" ? "normal" : "heroic";
+  return key === "mythic" || key === "міфік"
+    ? "mythic"
+    : key === "normal" || key === "нормал"
+      ? "normal"
+      : "heroic";
 }
 
 function cleanConsumables(value: unknown): RaidConsumables {
@@ -267,7 +335,12 @@ function cleanSignupStatus(value: unknown): RaidSignupStatus {
 function cleanRole(value: unknown): RaidCharacterRole {
   const key = cleanString(value, 30).toLowerCase();
   if (["tank", "танк"].some((item) => key.includes(item))) return "tank";
-  if (["heal", "healer", "healing", "хіл", "лікар"].some((item) => key.includes(item))) return "healer";
+  if (
+    ["heal", "healer", "healing", "хіл", "лікар"].some((item) =>
+      key.includes(item),
+    )
+  )
+    return "healer";
   return "dps";
 }
 
@@ -283,7 +356,9 @@ function timezoneOffsetMs(date: Date, timeZone: string) {
       second: "2-digit",
       hour12: false,
     }).formatToParts(date);
-    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const values = Object.fromEntries(
+      parts.map((part) => [part.type, part.value]),
+    );
     const asUtc = Date.UTC(
       Number(values.year),
       Number(values.month) - 1,
@@ -298,9 +373,12 @@ function timezoneOffsetMs(date: Date, timeZone: string) {
   }
 }
 
-function raidDateTimeToUtcMs(input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>) {
+function raidDateTimeToUtcMs(
+  input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>,
+) {
   const date = cleanString((input as Record<string, unknown>).date, 20);
-  const time = cleanString((input as Record<string, unknown>).time, 20) || "00:00";
+  const time =
+    cleanString((input as Record<string, unknown>).time, 20) || "00:00";
   const dateMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const timeMatch = time.match(/^(\d{2}):(\d{2})/);
   if (!dateMatch || !timeMatch) return null;
@@ -310,11 +388,17 @@ function raidDateTimeToUtcMs(input: Pick<RaidItem, "date" | "time"> | Record<str
   const hh = Number(timeMatch[1]);
   const mm = Number(timeMatch[2]);
   const guess = new Date(Date.UTC(y, m - 1, d, hh, mm, 0));
-  const timeZone = String(process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv");
+  const timeZone = String(
+    process.env.RAID_TIME_ZONE ||
+      process.env.NEXT_PUBLIC_RAID_TIME_ZONE ||
+      "Europe/Kyiv",
+  );
   return guess.getTime() - timezoneOffsetMs(guess, timeZone);
 }
 
-function isRaidDateTimeExpired(input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>) {
+function isRaidDateTimeExpired(
+  input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>,
+) {
   const startsAt = raidDateTimeToUtcMs(input);
   // Autoclose is intentionally tied to the scheduled start moment.
   // There is no post-start grace delay: when the raid time arrives, signups close.
@@ -327,10 +411,14 @@ export function raidDiscordDeleteAfterStartHoursFromSettings(value: unknown) {
   return Math.max(0, Math.min(168, Math.floor(parsed)));
 }
 
-function raidDiscordDeleteDue(raid: Pick<RaidItem, "date" | "time" | "status"> | Record<string, unknown>, delayHours = 4) {
+function raidDiscordDeleteDue(
+  raid: Pick<RaidItem, "date" | "time" | "status"> | Record<string, unknown>,
+  delayHours = 4,
+) {
   const startsAt = raidDateTimeToUtcMs(raid);
   if (startsAt === null) return false;
-  const safeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
+  const safeDelayHours =
+    raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
   return Date.now() >= startsAt + safeDelayHours * 60 * 60 * 1000;
 }
 
@@ -341,14 +429,22 @@ function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
   return null;
 }
 
-export function isRaidAutoCloseDue(raid: Pick<RaidItem, "status" | "date" | "time"> | Record<string, unknown>) {
-  const status = (raid as Record<string, unknown>).status === "published" || (raid as Record<string, unknown>).status === "closed"
-    ? String((raid as Record<string, unknown>).status)
-    : "draft";
+export function isRaidAutoCloseDue(
+  raid: Pick<RaidItem, "status" | "date" | "time"> | Record<string, unknown>,
+) {
+  const status =
+    (raid as Record<string, unknown>).status === "published" ||
+    (raid as Record<string, unknown>).status === "closed"
+      ? String((raid as Record<string, unknown>).status)
+      : "draft";
   return status !== "draft" && isRaidDateTimeExpired(raid);
 }
 
-export function isRaidClosed(raid: Pick<RaidItem, "status" | "date" | "time"> & { closedReason?: string | null }) {
+export function isRaidClosed(
+  raid: Pick<RaidItem, "status" | "date" | "time"> & {
+    closedReason?: string | null;
+  },
+) {
   if (raid.status === "closed") {
     const reason = cleanRaidClosedReason(raid.closedReason);
     if (reason === "manual") return true;
@@ -402,13 +498,26 @@ function cleanOptionalMaxPlayers(value: unknown) {
   return Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(num)));
 }
 
-function cleanRegistrationLockMinutes(value: unknown, fallback = DEFAULT_RAID_REGISTRATION_LOCK_MINUTES) {
+function cleanOptionalSignupNumber(value: unknown) {
+  const raw = cleanString(value, 16).replace(",", ".");
+  if (!raw) return null;
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return null;
+  return Math.max(1, Math.min(9999, Math.floor(num)));
+}
+
+function cleanRegistrationLockMinutes(
+  value: unknown,
+  fallback = DEFAULT_RAID_REGISTRATION_LOCK_MINUTES,
+) {
   const raw = cleanString(value, 16).replace(",", ".");
   const parsed = raw ? Number(raw) : fallback;
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
-  return Math.max(1, Math.min(MAX_RAID_REGISTRATION_LOCK_MINUTES, Math.floor(parsed)));
+  return Math.max(
+    1,
+    Math.min(MAX_RAID_REGISTRATION_LOCK_MINUTES, Math.floor(parsed)),
+  );
 }
-
 
 function cleanSnowflakeId(value: unknown) {
   const text = cleanString(value, 32);
@@ -417,16 +526,26 @@ function cleanSnowflakeId(value: unknown) {
 
 function cleanSnowflakeIds(values: unknown, max = 20) {
   const rawValues = Array.isArray(values) ? values : values ? [values] : [];
-  return Array.from(new Set(rawValues
-    .map((value) => cleanString(value, 32))
-    .filter((value) => /^\d{16,25}$/.test(value))))
-    .slice(0, max);
+  return Array.from(
+    new Set(
+      rawValues
+        .map((value) => cleanString(value, 32))
+        .filter((value) => /^\d{16,25}$/.test(value)),
+    ),
+  ).slice(0, max);
 }
 
 function cleanBoolean(value: unknown) {
   if (value === true) return true;
   const key = cleanString(value, 20).toLowerCase();
-  return key === "1" || key === "true" || key === "on" || key === "yes" || key === "required" || key === "block";
+  return (
+    key === "1" ||
+    key === "true" ||
+    key === "on" ||
+    key === "yes" ||
+    key === "required" ||
+    key === "block"
+  );
 }
 
 function normalizeSignup(value: unknown): RaidSignup | null {
@@ -437,7 +556,14 @@ function normalizeSignup(value: unknown): RaidSignup | null {
 
   const ilvl = Number(item.itemLevel);
   const activeSpecId = Number(item.activeSpecId || item.active_spec_id);
-  const activeSpecName = cleanString(item.activeSpecName || item.active_spec_name || item.specName || item.spec_name, 80) || null;
+  const activeSpecName =
+    cleanString(
+      item.activeSpecName ||
+        item.active_spec_name ||
+        item.specName ||
+        item.spec_name,
+      80,
+    ) || null;
   const className = cleanString(item.className, 80) || null;
   const resolvedRole = resolveWowCharacterRole({
     className,
@@ -445,19 +571,29 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
     activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
   });
-  const grammaticalGender = cleanProfileGrammaticalGender(item.grammaticalGender || item.grammatical_gender || item.gender);
+  const grammaticalGender = cleanProfileGrammaticalGender(
+    item.grammaticalGender || item.grammatical_gender || item.gender,
+  );
   const rawVerifiedGuild = item.verifiedGuild ?? item.verified_guild;
-  const verifiedGuild = typeof rawVerifiedGuild === "boolean"
-    ? rawVerifiedGuild
-    : String(rawVerifiedGuild || "").toLowerCase() === "false"
-      ? false
-      : true;
+  const verifiedGuild =
+    typeof rawVerifiedGuild === "boolean"
+      ? rawVerifiedGuild
+      : String(rawVerifiedGuild || "").toLowerCase() === "false"
+        ? false
+        : true;
   const level = Number(item.level);
   return {
     discordId,
+    signupNumber: cleanOptionalSignupNumber(
+      item.signupNumber ??
+        item.signup_number ??
+        item.orderNumber ??
+        item.signupOrder,
+    ),
     discordName: cleanString(item.discordName, 100) || "Discord user",
     profileId: cleanString(item.profileId, 80) || null,
-    characterKey: normalizeCharacterKey(item.characterKey || item.character_key) || null,
+    characterKey:
+      normalizeCharacterKey(item.characterKey || item.character_key) || null,
     status: cleanSignupStatus(item.status),
     role: resolvedRole,
     grammaticalGender,
@@ -467,7 +603,9 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     region: cleanString(item.region, 12) || null,
     className,
     activeSpecName,
-    activeSpecId: Number.isFinite(activeSpecId) ? Math.floor(activeSpecId) : null,
+    activeSpecId: Number.isFinite(activeSpecId)
+      ? Math.floor(activeSpecId)
+      : null,
     level: Number.isFinite(level) && level > 0 ? Math.floor(level) : null,
     raceName: cleanString(item.raceName, 80) || null,
     faction: cleanString(item.faction, 80) || null,
@@ -478,21 +616,38 @@ function normalizeSignup(value: unknown): RaidSignup | null {
     profileUrl: cleanUrl(item.profileUrl),
     verifiedGuild,
     guildName: cleanString(item.guildName || item.guild_name, 120) || null,
-    guildRealmSlug: cleanString(item.guildRealmSlug || item.guild_realm_slug, 120) || null,
+    guildRealmSlug:
+      cleanString(item.guildRealmSlug || item.guild_realm_slug, 120) || null,
     signedAt: timestampToIso(item.signedAt) || null,
     updatedAt: timestampToIso(item.updatedAt) || null,
   };
 }
 
 function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
-  const rawStatus = data.status === "published" ? "published" : data.status === "closed" ? "closed" : "draft";
-  const closedReason = cleanRaidClosedReason(data.closedReason || data.closed_reason);
-  const status = rawStatus === "closed" && !isRaidClosed({ status: rawStatus, date: data.date as string, time: data.time as string, closedReason })
-    ? "published"
-    : rawStatus;
-  const signups = Array.isArray(data.signups)
-    ? data.signups.map(normalizeSignup).filter(Boolean) as RaidSignup[]
-    : [];
+  const rawStatus =
+    data.status === "published"
+      ? "published"
+      : data.status === "closed"
+        ? "closed"
+        : "draft";
+  const closedReason = cleanRaidClosedReason(
+    data.closedReason || data.closed_reason,
+  );
+  const status =
+    rawStatus === "closed" &&
+    !isRaidClosed({
+      status: rawStatus,
+      date: data.date as string,
+      time: data.time as string,
+      closedReason,
+    })
+      ? "published"
+      : rawStatus;
+  const signups = normalizeRaidSignupNumbers(
+    Array.isArray(data.signups)
+      ? (data.signups.map(normalizeSignup).filter(Boolean) as RaidSignup[])
+      : [],
+  );
 
   const difficulty = cleanDifficulty(data.difficulty);
   const imageUrl = cleanUrl(data.imageUrl);
@@ -503,21 +658,59 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     difficulty,
     date: cleanString(data.date, 20),
     time: cleanString(data.time, 20),
-    description: cleanString(data.description, 4096) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
-    minItemLevel: cleanOptionalItemLevel(data.minItemLevel || data.min_item_level),
-    minItemLevelRequired: cleanBoolean(data.minItemLevelRequired ?? data.min_item_level_required ?? data.blockBelowMinItemLevel),
-    maxPlayers: cleanOptionalMaxPlayers(data.maxPlayers ?? data.max_players ?? data.registrationLimit),
-    registrationLockEnabled: cleanBoolean(data.registrationLockEnabled ?? data.registration_lock_enabled ?? data.lockRegistrationBeforeStartEnabled ?? data.lock_registration_before_start_enabled),
-    registrationLockMinutesBefore: cleanBoolean(data.registrationLockEnabled ?? data.registration_lock_enabled ?? data.lockRegistrationBeforeStartEnabled ?? data.lock_registration_before_start_enabled)
-      ? cleanRegistrationLockMinutes(data.registrationLockMinutesBefore ?? data.registration_lock_minutes_before ?? data.lockRegistrationMinutesBefore ?? data.lock_registration_minutes_before)
+    description:
+      cleanString(data.description, 4096) ||
+      "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    minItemLevel: cleanOptionalItemLevel(
+      data.minItemLevel || data.min_item_level,
+    ),
+    minItemLevelRequired: cleanBoolean(
+      data.minItemLevelRequired ??
+        data.min_item_level_required ??
+        data.blockBelowMinItemLevel,
+    ),
+    maxPlayers: cleanOptionalMaxPlayers(
+      data.maxPlayers ?? data.max_players ?? data.registrationLimit,
+    ),
+    registrationLockEnabled: cleanBoolean(
+      data.registrationLockEnabled ??
+        data.registration_lock_enabled ??
+        data.lockRegistrationBeforeStartEnabled ??
+        data.lock_registration_before_start_enabled,
+    ),
+    registrationLockMinutesBefore: cleanBoolean(
+      data.registrationLockEnabled ??
+        data.registration_lock_enabled ??
+        data.lockRegistrationBeforeStartEnabled ??
+        data.lock_registration_before_start_enabled,
+    )
+      ? cleanRegistrationLockMinutes(
+          data.registrationLockMinutesBefore ??
+            data.registration_lock_minutes_before ??
+            data.lockRegistrationMinutesBefore ??
+            data.lock_registration_minutes_before,
+        )
       : null,
     imageUrl,
-    thumbnailUrl: resolveRaidThumbnailUrl({ difficulty, thumbnailUrl: data.thumbnailUrl as string | null, imageUrl }),
-    mentionRoleIds: cleanSnowflakeIds(data.mentionRoleIds ?? data.mention_role_ids),
+    thumbnailUrl: resolveRaidThumbnailUrl({
+      difficulty,
+      thumbnailUrl: data.thumbnailUrl as string | null,
+      imageUrl,
+    }),
+    mentionRoleIds: cleanSnowflakeIds(
+      data.mentionRoleIds ?? data.mention_role_ids,
+    ),
     createdByDiscordId: cleanString(data.createdByDiscordId, 32),
     createdByName: cleanString(data.createdByName, 120) || "@Raid Lead",
     createdByMain: cleanString(data.createdByMain, 160) || null,
-    raidLeaderName: cleanString(data.raidLeaderName || data.raid_leader_name || data.raidLeadName || data.raid_lead_name, 120) || null,
+    raidLeaderName:
+      cleanString(
+        data.raidLeaderName ||
+          data.raid_leader_name ||
+          data.raidLeadName ||
+          data.raid_lead_name,
+        120,
+      ) || null,
     consumables: cleanConsumables(data.consumables),
     lootMode: cleanLootMode(data.lootMode),
     composition: normalizeComposition(data.composition),
@@ -525,8 +718,12 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     channelId: cleanString(data.channelId, 32) || null,
     messageId: cleanString(data.messageId, 32) || null,
     messageUrl: cleanUrl(data.messageUrl),
-    discordDeletedAt: timestampToIso(data.discordDeletedAt || data.discord_deleted_at),
-    discordDeleteReason: cleanRaidClosedReason(data.discordDeleteReason || data.discord_delete_reason),
+    discordDeletedAt: timestampToIso(
+      data.discordDeletedAt || data.discord_deleted_at,
+    ),
+    discordDeleteReason: cleanRaidClosedReason(
+      data.discordDeleteReason || data.discord_delete_reason,
+    ),
     signups,
     createdAt: timestampToIso(data.createdAt),
     updatedAt: timestampToIso(data.updatedAt),
@@ -553,7 +750,9 @@ export function raidLootLabel(value: RaidLootMode) {
 }
 
 export function raidCapacity(raid: Pick<RaidItem, "composition">) {
-  return raid.composition.tanks + raid.composition.healers + raid.composition.dps;
+  return (
+    raid.composition.tanks + raid.composition.healers + raid.composition.dps
+  );
 }
 
 export function raidCompositionLabel(raid: Pick<RaidItem, "composition">) {
@@ -563,7 +762,9 @@ export function raidCompositionLabel(raid: Pick<RaidItem, "composition">) {
 type RaidAutoInput = Pick<RaidItem, "difficulty" | "composition" | "signups">;
 
 export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
-  return raid.signups.filter((item) => item.status === "going" || item.status === "late").length;
+  return raid.signups.filter(
+    (item) => item.status === "going" || item.status === "late",
+  ).length;
 }
 
 const BASE_RAID_COMPOSITION_TIERS: RaidComposition[] = [
@@ -581,7 +782,9 @@ function compositionCapacity(composition: RaidComposition) {
   return composition.tanks + composition.healers + composition.dps;
 }
 
-function normalizeRoleDemand(value?: Partial<RaidComposition> | null): RaidComposition | null {
+function normalizeRoleDemand(
+  value?: Partial<RaidComposition> | null,
+): RaidComposition | null {
   if (!value) return null;
   return {
     tanks: Math.max(0, Math.floor(Number(value.tanks) || 0)),
@@ -590,21 +793,29 @@ function normalizeRoleDemand(value?: Partial<RaidComposition> | null): RaidCompo
   };
 }
 
-function compositionWithTankOverflow(composition: RaidComposition, roleDemand?: RaidComposition | null): RaidComposition {
+function compositionWithTankOverflow(
+  composition: RaidComposition,
+  roleDemand?: RaidComposition | null,
+): RaidComposition {
   if (!roleDemand || roleDemand.tanks <= composition.tanks) return composition;
   return { ...composition, tanks: roleDemand.tanks };
 }
 
-function compositionFitsRoster(composition: RaidComposition, activeSize: number, roleDemand?: RaidComposition | null) {
+function compositionFitsRoster(
+  composition: RaidComposition,
+  activeSize: number,
+  roleDemand?: RaidComposition | null,
+) {
   const target = compositionWithTankOverflow(composition, roleDemand);
   if (activeSize > compositionCapacity(target)) return false;
   if (!roleDemand) return true;
-  return roleDemand.healers <= target.healers
-    && roleDemand.dps <= target.dps;
+  return roleDemand.healers <= target.healers && roleDemand.dps <= target.dps;
 }
 
 function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
-  const active = signups.filter((item) => item.status === "going" || item.status === "late");
+  const active = signups.filter(
+    (item) => item.status === "going" || item.status === "late",
+  );
   return {
     tanks: active.filter((item) => item.role === "tank").length,
     healers: active.filter((item) => item.role === "healer").length,
@@ -612,19 +823,28 @@ function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
   };
 }
 
-export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficulty, roleDemand?: Partial<RaidComposition> | null): RaidComposition {
+export function autoRaidCompositionForSize(
+  size: number,
+  difficulty: RaidDifficulty,
+  roleDemand?: Partial<RaidComposition> | null,
+): RaidComposition {
   const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
   const demand = normalizeRoleDemand(roleDemand);
-  const baseTiers = difficulty === "mythic"
-    ? MYTHIC_RAID_COMPOSITION_TIERS
-    : BASE_RAID_COMPOSITION_TIERS;
+  const baseTiers =
+    difficulty === "mythic"
+      ? MYTHIC_RAID_COMPOSITION_TIERS
+      : BASE_RAID_COMPOSITION_TIERS;
 
   for (const tier of baseTiers) {
-    if (compositionFitsRoster(tier, activeSize, demand)) return compositionWithTankOverflow(tier, demand);
+    if (compositionFitsRoster(tier, activeSize, demand))
+      return compositionWithTankOverflow(tier, demand);
   }
 
   if (difficulty === "mythic") {
-    let mythicOverflow = compositionWithTankOverflow({ ...baseTiers[baseTiers.length - 1] }, demand);
+    let mythicOverflow = compositionWithTankOverflow(
+      { ...baseTiers[baseTiers.length - 1] },
+      demand,
+    );
     if (demand) {
       mythicOverflow = {
         tanks: Math.max(mythicOverflow.tanks, demand.tanks),
@@ -638,14 +858,23 @@ export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficu
       : mythicOverflow;
   }
 
-  let dynamicTier = compositionWithTankOverflow({ ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] }, demand);
+  let dynamicTier = compositionWithTankOverflow(
+    { ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] },
+    demand,
+  );
   let guard = 0;
-  while (!compositionFitsRoster(dynamicTier, activeSize, demand) && guard < 20) {
-    dynamicTier = compositionWithTankOverflow({
-      tanks: dynamicTier.tanks,
-      healers: dynamicTier.healers + 2,
-      dps: dynamicTier.dps + 8,
-    }, demand);
+  while (
+    !compositionFitsRoster(dynamicTier, activeSize, demand) &&
+    guard < 20
+  ) {
+    dynamicTier = compositionWithTankOverflow(
+      {
+        tanks: dynamicTier.tanks,
+        healers: dynamicTier.healers + 2,
+        dps: dynamicTier.dps + 8,
+      },
+      demand,
+    );
     guard += 1;
   }
   return dynamicTier;
@@ -653,7 +882,11 @@ export function autoRaidCompositionForSize(size: number, difficulty: RaidDifficu
 
 export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
   const activeSize = raidActiveRosterSize(raid);
-  return autoRaidCompositionForSize(activeSize, raid.difficulty, activeRoleDemand(raid.signups));
+  return autoRaidCompositionForSize(
+    activeSize,
+    raid.difficulty,
+    activeRoleDemand(raid.signups),
+  );
 }
 
 export function raidAutoCapacity(raid: RaidAutoInput) {
@@ -663,26 +896,42 @@ export function raidAutoCapacity(raid: RaidAutoInput) {
 
 export function raidRegistrationLimit(raid: Pick<RaidItem, "maxPlayers">) {
   const limit = Number(raid.maxPlayers || 0);
-  return Number.isFinite(limit) && limit > 0 ? Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(limit))) : null;
+  return Number.isFinite(limit) && limit > 0
+    ? Math.max(1, Math.min(MAX_RAID_PLAYERS, Math.floor(limit)))
+    : null;
 }
 
-export function raidDisplayCapacity(raid: RaidAutoInput & Pick<RaidItem, "maxPlayers">) {
+export function raidDisplayCapacity(
+  raid: RaidAutoInput & Pick<RaidItem, "maxPlayers">,
+) {
   return raidRegistrationLimit(raid) ?? raidAutoCapacity(raid);
 }
 
-export function isRaidRegistrationFull(raid: Pick<RaidItem, "maxPlayers" | "signups">) {
+export function isRaidRegistrationFull(
+  raid: Pick<RaidItem, "maxPlayers" | "signups">,
+) {
   const limit = raidRegistrationLimit(raid);
   return limit !== null && raidActiveRosterSize(raid) >= limit;
 }
 
-type RaidRegistrationLockInput = Pick<RaidItem, "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore">;
+type RaidRegistrationLockInput = Pick<
+  RaidItem,
+  "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
+>;
 
-export function raidRegistrationLockMinutesBefore(raid: Pick<RaidItem, "registrationLockEnabled" | "registrationLockMinutesBefore">) {
+export function raidRegistrationLockMinutesBefore(
+  raid: Pick<
+    RaidItem,
+    "registrationLockEnabled" | "registrationLockMinutesBefore"
+  >,
+) {
   if (!raid.registrationLockEnabled) return null;
   return cleanRegistrationLockMinutes(raid.registrationLockMinutesBefore);
 }
 
-export function raidRegistrationLockDeadlineMs(raid: RaidRegistrationLockInput) {
+export function raidRegistrationLockDeadlineMs(
+  raid: RaidRegistrationLockInput,
+) {
   const minutesBefore = raidRegistrationLockMinutesBefore(raid);
   if (!minutesBefore) return null;
   const startsAt = raidDateTimeToUtcMs(raid);
@@ -695,7 +944,9 @@ export function isRaidRegistrationLocked(raid: RaidRegistrationLockInput) {
   return deadline !== null && Date.now() >= deadline;
 }
 
-export function raidRegistrationLockDurationLabel(minutes: number | null | undefined) {
+export function raidRegistrationLockDurationLabel(
+  minutes: number | null | undefined,
+) {
   const safeMinutes = cleanRegistrationLockMinutes(minutes);
   if (safeMinutes % (24 * 60) === 0) {
     const days = safeMinutes / (24 * 60);
@@ -713,7 +964,11 @@ function raidRegistrationLockAbsoluteLabel(deadlineMs: number) {
     return new Intl.DateTimeFormat("uk-UA", {
       dateStyle: "medium",
       timeStyle: "short",
-      timeZone: String(process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv"),
+      timeZone: String(
+        process.env.RAID_TIME_ZONE ||
+          process.env.NEXT_PUBLIC_RAID_TIME_ZONE ||
+          "Europe/Kyiv",
+      ),
     }).format(new Date(deadlineMs));
   } catch {
     return new Date(deadlineMs).toISOString().slice(0, 16).replace("T", " ");
@@ -723,13 +978,27 @@ function raidRegistrationLockAbsoluteLabel(deadlineMs: number) {
 export function raidRegistrationLockSummary(raid: RaidRegistrationLockInput) {
   const minutesBefore = raidRegistrationLockMinutesBefore(raid);
   if (!minutesBefore) {
-    return { enabled: false, locked: false, minutesBefore: null, deadlineMs: null, label: "Вимкнено", detail: "Запис автоматично закриється тільки зі стартом рейду." };
+    return {
+      enabled: false,
+      locked: false,
+      minutesBefore: null,
+      deadlineMs: null,
+      label: "Вимкнено",
+      detail: "Запис автоматично закриється тільки зі стартом рейду.",
+    };
   }
 
   const deadlineMs = raidRegistrationLockDeadlineMs(raid);
   const duration = raidRegistrationLockDurationLabel(minutesBefore);
   if (deadlineMs === null) {
-    return { enabled: true, locked: false, minutesBefore, deadlineMs: null, label: `За ${duration} до старту`, detail: "Дедлайн буде розраховано після коректної дати та часу рейду." };
+    return {
+      enabled: true,
+      locked: false,
+      minutesBefore,
+      deadlineMs: null,
+      label: `За ${duration} до старту`,
+      detail: "Дедлайн буде розраховано після коректної дати та часу рейду.",
+    };
   }
 
   const locked = Date.now() >= deadlineMs;
@@ -739,7 +1008,9 @@ export function raidRegistrationLockSummary(raid: RaidRegistrationLockInput) {
     locked,
     minutesBefore,
     deadlineMs,
-    label: locked ? `Закрито з ${deadlineLabel}` : `Закриється ${deadlineLabel}`,
+    label: locked
+      ? `Закрито з ${deadlineLabel}`
+      : `Закриється ${deadlineLabel}`,
     detail: `Автоблокування за ${duration} до старту рейду.`,
   };
 }
@@ -752,7 +1023,10 @@ function raidRegistrationLockDiscordValue(raid: RaidRegistrationLockInput) {
   return `${summary.locked ? "🔒 Запис заблоковано" : "🔓 Запис відкрито"}\n${summary.detail}\n<t:${timestamp}:f> • <t:${timestamp}:R>`;
 }
 
-function raidRegistrationLockBlockMessage(raid: RaidRegistrationLockInput & Pick<RaidItem, "title" | "difficulty">, action: RaidSignupStatus) {
+function raidRegistrationLockBlockMessage(
+  raid: RaidRegistrationLockInput & Pick<RaidItem, "title" | "difficulty">,
+  action: RaidSignupStatus,
+) {
   if (action === "skipped") return null;
   const summary = raidRegistrationLockSummary(raid);
   if (!summary.locked) return null;
@@ -763,11 +1037,67 @@ function isActiveSignupStatus(status?: RaidSignupStatus | string | null) {
   return status === "going" || status === "late";
 }
 
-function hasActiveSignupForDiscord(raid: Pick<RaidItem, "signups">, discordId: string) {
-  return raid.signups.some((item) => item.discordId === discordId && isActiveSignupStatus(item.status));
+function hasActiveSignupForDiscord(
+  raid: Pick<RaidItem, "signups">,
+  discordId: string,
+) {
+  return raid.signups.some(
+    (item) => item.discordId === discordId && isActiveSignupStatus(item.status),
+  );
 }
 
-function raidRegistrationFullMessage(raid: Pick<RaidItem, "maxPlayers" | "signups" | "title" | "difficulty">, discordId: string, action: RaidSignupStatus) {
+function nextRaidSignupNumber(signups: RaidSignup[]) {
+  const maxNumber = signups.reduce(
+    (max, item) =>
+      Math.max(max, cleanOptionalSignupNumber(item.signupNumber) || 0),
+    0,
+  );
+  return Math.min(9999, maxNumber + 1);
+}
+
+function signupNumberFallbackSortValue(signup: RaidSignup, index: number) {
+  const signedAt = Date.parse(signup.signedAt || signup.updatedAt || "");
+  return Number.isFinite(signedAt) ? signedAt : index;
+}
+
+function normalizeRaidSignupNumbers(signups: RaidSignup[]) {
+  const used = new Set<number>();
+  const normalized = signups.map((signup) => {
+    const number = cleanOptionalSignupNumber(signup.signupNumber);
+    if (number && !used.has(number)) {
+      used.add(number);
+      return { ...signup, signupNumber: number };
+    }
+    return { ...signup, signupNumber: null };
+  });
+
+  const missingActive = normalized
+    .map((signup, index) => ({ signup, index }))
+    .filter(
+      ({ signup }) =>
+        !signup.signupNumber && isActiveSignupStatus(signup.status),
+    )
+    .sort(
+      (a, b) =>
+        signupNumberFallbackSortValue(a.signup, a.index) -
+        signupNumberFallbackSortValue(b.signup, b.index),
+    );
+
+  let nextNumber = 1;
+  for (const item of missingActive) {
+    while (used.has(nextNumber)) nextNumber += 1;
+    item.signup.signupNumber = Math.min(9999, nextNumber);
+    used.add(item.signup.signupNumber);
+  }
+
+  return normalized;
+}
+
+function raidRegistrationFullMessage(
+  raid: Pick<RaidItem, "maxPlayers" | "signups" | "title" | "difficulty">,
+  discordId: string,
+  action: RaidSignupStatus,
+) {
   if (action === "skipped") return null;
   const limit = raidRegistrationLimit(raid);
   if (limit === null) return null;
@@ -791,7 +1121,8 @@ export function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
     skipped: skipped.length,
     roster: going.length + late.length,
     tanks: [...going, ...late].filter((item) => item.role === "tank").length,
-    healers: [...going, ...late].filter((item) => item.role === "healer").length,
+    healers: [...going, ...late].filter((item) => item.role === "healer")
+      .length,
     dps: [...going, ...late].filter((item) => item.role === "dps").length,
   };
 }
@@ -803,11 +1134,20 @@ export function raidAverageItemLevel(raid: Pick<RaidItem, "signups">) {
     .filter((value) => Number.isFinite(value) && value > 0);
 
   if (!values.length) return null;
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+  return Math.round(
+    values.reduce((sum, value) => sum + value, 0) / values.length,
+  );
 }
 
-type RaidMinimumPolicy = Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">;
-type RaidItemLevelSubject = Pick<RaidSignup, "itemLevel" | "status"> | Pick<ProfileCharacter, "itemLevel"> | null | undefined;
+type RaidMinimumPolicy = Pick<
+  RaidItem,
+  "minItemLevel" | "minItemLevelRequired"
+>;
+type RaidItemLevelSubject =
+  | Pick<RaidSignup, "itemLevel" | "status">
+  | Pick<ProfileCharacter, "itemLevel">
+  | null
+  | undefined;
 
 function raidMinimumItemLevel(raid: Pick<RaidItem, "minItemLevel">) {
   const minimum = Number(raid.minItemLevel || 0);
@@ -820,34 +1160,63 @@ function raidSubjectItemLevel(subject: RaidItemLevelSubject) {
 }
 
 function isSkippedItemLevelSubject(subject: RaidItemLevelSubject) {
-  return Boolean(subject && "status" in subject && subject.status === "skipped");
+  return Boolean(
+    subject && "status" in subject && subject.status === "skipped",
+  );
 }
 
-export function isRaidSubjectBelowMinItemLevel(raid: Pick<RaidItem, "minItemLevel">, subject: RaidItemLevelSubject) {
+export function isRaidSubjectBelowMinItemLevel(
+  raid: Pick<RaidItem, "minItemLevel">,
+  subject: RaidItemLevelSubject,
+) {
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(subject);
   return Boolean(required && current !== null && current < required);
 }
 
-export function isRaidSubjectBlockedByMinItemLevel(raid: RaidMinimumPolicy, subject: RaidItemLevelSubject) {
+export function isRaidSubjectBlockedByMinItemLevel(
+  raid: RaidMinimumPolicy,
+  subject: RaidItemLevelSubject,
+) {
   const required = raidMinimumItemLevel(raid);
-  if (!raid.minItemLevelRequired || !required || isSkippedItemLevelSubject(subject)) return false;
+  if (
+    !raid.minItemLevelRequired ||
+    !required ||
+    isSkippedItemLevelSubject(subject)
+  )
+    return false;
   const current = raidSubjectItemLevel(subject);
   return current === null || current < required;
 }
 
-export function isRaidSubjectWarnedByMinItemLevel(raid: RaidMinimumPolicy, subject: RaidItemLevelSubject) {
+export function isRaidSubjectWarnedByMinItemLevel(
+  raid: RaidMinimumPolicy,
+  subject: RaidItemLevelSubject,
+) {
   const required = raidMinimumItemLevel(raid);
-  if (raid.minItemLevelRequired || !required || isSkippedItemLevelSubject(subject)) return false;
+  if (
+    raid.minItemLevelRequired ||
+    !required ||
+    isSkippedItemLevelSubject(subject)
+  )
+    return false;
   return isRaidSubjectBelowMinItemLevel(raid, subject);
 }
 
-export function raidEligibleSignupCharacters(raid: RaidMinimumPolicy, profile?: Pick<DashboardProfile, "characters"> | null) {
+export function raidEligibleSignupCharacters(
+  raid: RaidMinimumPolicy,
+  profile?: Pick<DashboardProfile, "characters"> | null,
+) {
   const characters = profile?.characters || [];
-  return characters.filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character));
+  return characters.filter(
+    (character) => !isRaidSubjectBlockedByMinItemLevel(raid, character),
+  );
 }
 
-export function raidSignupCharacterMinimumNote(raid: RaidMinimumPolicy, character: Pick<ProfileCharacter, "itemLevel">) {
+export function raidSignupCharacterMinimumNote(
+  raid: RaidMinimumPolicy,
+  character: Pick<ProfileCharacter, "itemLevel">,
+) {
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(character);
   if (!required) return null;
@@ -876,7 +1245,17 @@ function raidItemPublicCacheKey(raidId: string) {
 
 async function writeRaidListPublicCache(limit: number, raids: RaidItem[]) {
   return writePublicCache(raidListPublicCacheKey(limit), raids, {
-    ttlSeconds: Math.max(30, Math.min(900, Number(process.env.PUBLIC_API_RAIDS_CACHE_SECONDS || process.env.RAID_LIST_CACHE_TTL_SECONDS || 60))),
+    ttlSeconds: Math.max(
+      30,
+      Math.min(
+        900,
+        Number(
+          process.env.PUBLIC_API_RAIDS_CACHE_SECONDS ||
+            process.env.RAID_LIST_CACHE_TTL_SECONDS ||
+            60,
+        ),
+      ),
+    ),
     tags: ["raids", "firebase-offload"],
   });
 }
@@ -884,19 +1263,39 @@ async function writeRaidListPublicCache(limit: number, raids: RaidItem[]) {
 async function writeRaidItemPublicCache(raid: RaidItem | null) {
   if (!raid?.id) return { ok: false, skipped: true };
   return writePublicCache(raidItemPublicCacheKey(raid.id), raid, {
-    ttlSeconds: Math.max(30, Math.min(900, Number(process.env.PUBLIC_API_RAIDS_CACHE_SECONDS || process.env.RAID_ITEM_CACHE_TTL_MS || 60_000) / 1000 || 60)),
+    ttlSeconds: Math.max(
+      30,
+      Math.min(
+        900,
+        Number(
+          process.env.PUBLIC_API_RAIDS_CACHE_SECONDS ||
+            process.env.RAID_ITEM_CACHE_TTL_MS ||
+            60_000,
+        ) / 1000 || 60,
+      ),
+    ),
     tags: ["raids", `raid:${raid.id}`, "firebase-offload"],
   });
 }
 
 async function readRaidListPublicCache(limit: number) {
-  const cached = await readPublicCache<RaidItem[]>(raidListPublicCacheKey(limit), { timeoutMs: 900 });
-  return cached.hit && Array.isArray(cached.value) ? cached.value.map((item) => normalizeRaid(item.id, item)) : null;
+  const cached = await readPublicCache<RaidItem[]>(
+    raidListPublicCacheKey(limit),
+    { timeoutMs: 900 },
+  );
+  return cached.hit && Array.isArray(cached.value)
+    ? cached.value.map((item) => normalizeRaid(item.id, item))
+    : null;
 }
 
 async function readRaidItemPublicCache(raidId: string) {
-  const cached = await readPublicCache<RaidItem>(raidItemPublicCacheKey(raidId), { timeoutMs: 900 });
-  return cached.hit && cached.value ? normalizeRaid(cached.value.id || raidId, cached.value) : null;
+  const cached = await readPublicCache<RaidItem>(
+    raidItemPublicCacheKey(raidId),
+    { timeoutMs: 900 },
+  );
+  return cached.hit && cached.value
+    ? normalizeRaid(cached.value.id || raidId, cached.value)
+    : null;
 }
 
 async function invalidateRaidPublicCaches(raidId?: string | null) {
@@ -905,10 +1304,16 @@ async function invalidateRaidPublicCaches(raidId?: string | null) {
     prefixes: [publicCacheKey(["dashboard", "raids", "list"])],
     keys: id ? [raidItemPublicCacheKey(id)] : [],
   }).catch((error) => {
-    logDashboardEvent("warn", "raids.public_cache_invalidate_failed", undefined, {
-      raidId: id || null,
-      message: error instanceof Error ? error.message : String(error || "unknown"),
-    });
+    logDashboardEvent(
+      "warn",
+      "raids.public_cache_invalidate_failed",
+      undefined,
+      {
+        raidId: id || null,
+        message:
+          error instanceof Error ? error.message : String(error || "unknown"),
+      },
+    );
   });
 }
 
@@ -922,9 +1327,20 @@ function clearRaidRuntimeCaches(raidId?: string | null) {
 const raidLifecycleSyncInFlight = new Set<string>();
 
 function scheduleRaidAutoCloseSync(raid: RaidItem, source: string) {
-  const needsStatusSync = raid.status === "published" && isRaidAutoCloseDue(raid);
-  const canDeleteDiscordMessage = Boolean(raid.channelId && raid.messageId && raid.status !== "draft" && !raid.discordDeletedAt && isRaidDateTimeExpired(raid));
-  if ((!needsStatusSync && !canDeleteDiscordMessage) || raidLifecycleSyncInFlight.has(raid.id)) return;
+  const needsStatusSync =
+    raid.status === "published" && isRaidAutoCloseDue(raid);
+  const canDeleteDiscordMessage = Boolean(
+    raid.channelId &&
+    raid.messageId &&
+    raid.status !== "draft" &&
+    !raid.discordDeletedAt &&
+    isRaidDateTimeExpired(raid),
+  );
+  if (
+    (!needsStatusSync && !canDeleteDiscordMessage) ||
+    raidLifecycleSyncInFlight.has(raid.id)
+  )
+    return;
 
   raidLifecycleSyncInFlight.add(raid.id);
   void syncRaidLifecycleAfterRead(raid)
@@ -942,7 +1358,11 @@ function scheduleRaidAutoCloseSync(raid: RaidItem, source: string) {
 
 function raidWriteErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || "");
-  if (/збереження|write|permission|quota|firestore|firebase|timed out|timeout|resource/i.test(message)) {
+  if (
+    /збереження|write|permission|quota|firestore|firebase|timed out|timeout|resource/i.test(
+      message,
+    )
+  ) {
     return firebaseUnavailableMessage("raid", "write");
   }
   return message || "Запис на рейд тимчасово недоступний. Спробуй пізніше.";
@@ -952,7 +1372,9 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
   const safeLimit = Math.max(1, Math.min(100, limit));
   const edgeCached = await readRaidListPublicCache(safeLimit).catch(() => null);
   if (edgeCached) {
-    edgeCached.forEach((raid) => scheduleRaidAutoCloseSync(raid, "public-list-cache"));
+    edgeCached.forEach((raid) =>
+      scheduleRaidAutoCloseSync(raid, "public-list-cache"),
+    );
     return edgeCached;
   }
   if (!hasRaidStorage()) return [];
@@ -962,23 +1384,56 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
     async () => {
       let snapshot: any;
       try {
-        snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).orderBy("date", "desc").limit(safeLimit).get();
+        snapshot = await getFirebaseAdminDb()
+          .collection(RAID_COLLECTION)
+          .orderBy("date", "desc")
+          .limit(safeLimit)
+          .get();
       } catch {
-        snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).limit(safeLimit).get();
+        snapshot = await getFirebaseAdminDb()
+          .collection(RAID_COLLECTION)
+          .limit(safeLimit)
+          .get();
       }
-      const raidDocs = snapshot.docs as Array<{ id: string; data: () => Record<string, unknown> | undefined }>;
-      const raids: RaidItem[] = raidDocs.map((doc) => normalizeRaid(doc.id, doc.data() || {}));
-      const sorted = raids
-        .sort((a: RaidItem, b: RaidItem) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) || (Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || "")));
-      sorted.forEach((raid) => scheduleRaidAutoCloseSync(raid, "firebase-list-read"));
+      const raidDocs = snapshot.docs as Array<{
+        id: string;
+        data: () => Record<string, unknown> | undefined;
+      }>;
+      const raids: RaidItem[] = raidDocs.map((doc) =>
+        normalizeRaid(doc.id, doc.data() || {}),
+      );
+      const sorted = raids.sort(
+        (a: RaidItem, b: RaidItem) =>
+          `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`) ||
+          Date.parse(b.updatedAt || b.createdAt || "") -
+            Date.parse(a.updatedAt || a.createdAt || ""),
+      );
+      sorted.forEach((raid) =>
+        scheduleRaidAutoCloseSync(raid, "firebase-list-read"),
+      );
       await writeRaidListPublicCache(safeLimit, sorted).catch(() => null);
       return sorted;
     },
     {
-      ttlMs: Math.max(30_000, Math.min(300_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidListCacheTtlMs || process.env.RAID_LIST_CACHE_TTL_MS || 60_000))),
+      ttlMs: Math.max(
+        30_000,
+        Math.min(
+          300_000,
+          Number(
+            (await getSiteRuntimeSettings().catch(() => null))
+              ?.raidListCacheTtlMs ||
+              process.env.RAID_LIST_CACHE_TTL_MS ||
+              60_000,
+          ),
+        ),
+      ),
       timeoutMs: 3_000,
       circuitTtlMs: 90_000,
-      fallback: () => getRuntimeCachedValue<RaidItem[]>(`raids:list:${safeLimit}`, 24 * 60 * 60 * 1000) || [],
+      fallback: () =>
+        getRuntimeCachedValue<RaidItem[]>(
+          `raids:list:${safeLimit}`,
+          24 * 60 * 60 * 1000,
+        ) || [],
       logEvent: "raids.list_read_failed",
     },
   );
@@ -997,7 +1452,10 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
     "raid",
     `raid:${id}`,
     async () => {
-      const snapshot = await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(id).get();
+      const snapshot = await getFirebaseAdminDb()
+        .collection(RAID_COLLECTION)
+        .doc(id)
+        .get();
       if (!snapshot.exists) return null;
       const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
       scheduleRaidAutoCloseSync(raid, "firebase-item-read");
@@ -1005,19 +1463,44 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
       return raid;
     },
     {
-      ttlMs: Math.max(10_000, Math.min(120_000, Number((await getSiteRuntimeSettings().catch(() => null))?.raidItemCacheTtlMs || process.env.RAID_ITEM_CACHE_TTL_MS || 30_000))),
+      ttlMs: Math.max(
+        10_000,
+        Math.min(
+          120_000,
+          Number(
+            (await getSiteRuntimeSettings().catch(() => null))
+              ?.raidItemCacheTtlMs ||
+              process.env.RAID_ITEM_CACHE_TTL_MS ||
+              30_000,
+          ),
+        ),
+      ),
       timeoutMs: 2_500,
       circuitTtlMs: 90_000,
-      fallback: () => getRuntimeCachedValue<RaidItem | null>(`raid:${id}`, 24 * 60 * 60 * 1000),
+      fallback: () =>
+        getRuntimeCachedValue<RaidItem | null>(
+          `raid:${id}`,
+          24 * 60 * 60 * 1000,
+        ),
       logEvent: "raids.item_read_failed",
     },
   );
 }
 
 async function syncRaidLifecycleAfterRead(raid: RaidItem) {
-  const settings = await getSiteRuntimeSettings().catch(() => ({ raidDiscordDeleteAfterStartHours: 4 }));
-  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(settings?.raidDiscordDeleteAfterStartHours);
-  const deleteDue = Boolean(raid.channelId && raid.messageId && raid.status !== "draft" && !raid.discordDeletedAt && raidDiscordDeleteDue(raid, delayHours));
+  const settings = await getSiteRuntimeSettings().catch(() => ({
+    raidDiscordDeleteAfterStartHours: 4,
+  }));
+  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    settings?.raidDiscordDeleteAfterStartHours,
+  );
+  const deleteDue = Boolean(
+    raid.channelId &&
+    raid.messageId &&
+    raid.status !== "draft" &&
+    !raid.discordDeletedAt &&
+    raidDiscordDeleteDue(raid, delayHours),
+  );
 
   // If the Discord deletion window has already arrived, do not republish/edit the
   // message while persisting the closed status. The archive record is kept in
@@ -1026,15 +1509,31 @@ async function syncRaidLifecycleAfterRead(raid: RaidItem) {
   await syncRaidDiscordDeletionAfterStart(raid, delayHours);
 }
 
-async function syncAutoClosedRaid(raid: RaidItem, options: { syncDiscord?: boolean } = {}) {
-  if (!isRaidAutoCloseDue(raid) || raid.closedReason === "manual" || !hasRaidStorage()) return;
+async function syncAutoClosedRaid(
+  raid: RaidItem,
+  options: { syncDiscord?: boolean } = {},
+) {
+  if (
+    !isRaidAutoCloseDue(raid) ||
+    raid.closedReason === "manual" ||
+    !hasRaidStorage()
+  )
+    return;
   if (raid.status === "closed" && raid.closedReason === "auto") return;
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:auto-close`,
     async () => {
       const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
-      await ref.set({ status: "closed", closedReason: "auto", closedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      await ref.set(
+        {
+          status: "closed",
+          closedReason: "auto",
+          closedAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
       clearRaidRuntimeCaches(raid.id);
     },
     {
@@ -1044,14 +1543,29 @@ async function syncAutoClosedRaid(raid: RaidItem, options: { syncDiscord?: boole
     },
   );
   if (options.syncDiscord !== false && raid.channelId && raid.messageId) {
-    await publishOrUpdateRaid({ ...raid, status: "closed", closedReason: "auto" }, raid.channelId).catch(() => null);
+    await publishOrUpdateRaid(
+      { ...raid, status: "closed", closedReason: "auto" },
+      raid.channelId,
+    ).catch(() => null);
   }
 }
 
-async function syncRaidDiscordDeletionAfterStart(raid: RaidItem, configuredDelayHours?: number) {
-  if (!hasRaidStorage() || !raid.channelId || !raid.messageId || raid.status === "draft" || raid.discordDeletedAt) return;
+async function syncRaidDiscordDeletionAfterStart(
+  raid: RaidItem,
+  configuredDelayHours?: number,
+) {
+  if (
+    !hasRaidStorage() ||
+    !raid.channelId ||
+    !raid.messageId ||
+    raid.status === "draft" ||
+    raid.discordDeletedAt
+  )
+    return;
 
-  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(configuredDelayHours ?? 4);
+  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    configuredDelayHours ?? 4,
+  );
   if (!raidDiscordDeleteDue(raid, delayHours)) return;
 
   let deleted = false;
@@ -1079,13 +1593,16 @@ async function syncRaidDiscordDeletionAfterStart(raid: RaidItem, configuredDelay
     "raid",
     `raid:${raid.id}:discord-auto-delete`,
     async () => {
-      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-        discordDeletedAt: FieldValue.serverTimestamp(),
-        discordDeleteReason: "auto",
-        messageId: null,
-        messageUrl: null,
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set(
+        {
+          discordDeletedAt: FieldValue.serverTimestamp(),
+          discordDeleteReason: "auto",
+          messageId: null,
+          messageUrl: null,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
       clearRaidRuntimeCaches(raid.id);
     },
     {
@@ -1096,9 +1613,11 @@ async function syncRaidDiscordDeletionAfterStart(raid: RaidItem, configuredDelay
   );
 }
 
-
 export async function syncRaidLifecycleBatch(limit = 100) {
-  const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 100)));
+  const safeLimit = Math.max(
+    1,
+    Math.min(100, Math.floor(Number(limit) || 100)),
+  );
   const raids = await listRaids(safeLimit);
   let checked = 0;
   for (const raid of raids) {
@@ -1112,13 +1631,32 @@ export async function syncRaidLifecycleBatch(limit = 100) {
 export async function closeRaid(raidId: string) {
   const raid = await getRaid(raidId);
   if (!raid) throw new Error("Рейд не знайдено.");
-  if (raid.status === "draft") throw new Error("Чернетку не можна закрити. Її можна видалити або опублікувати.");
-  const closed: RaidItem = { ...raid, status: "closed", closedReason: "manual", closedAt: new Date().toISOString() };
+  if (raid.status === "draft")
+    throw new Error(
+      "Чернетку не можна закрити. Її можна видалити або опублікувати.",
+    );
+  const closed: RaidItem = {
+    ...raid,
+    status: "closed",
+    closedReason: "manual",
+    closedAt: new Date().toISOString(),
+  };
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:close`,
     async () => {
-      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({ status: "closed", closedReason: "manual", closedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      await getFirebaseAdminDb()
+        .collection(RAID_COLLECTION)
+        .doc(raid.id)
+        .set(
+          {
+            status: "closed",
+            closedReason: "manual",
+            closedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       clearRaidRuntimeCaches(raid.id);
     },
     { timeoutMs: 3_000, logEvent: "raids.close_write_failed" },
@@ -1130,7 +1668,13 @@ export async function closeRaid(raidId: string) {
       await publishOrUpdateRaid(closed, closed.channelId);
     } catch (error) {
       discordSynced = false;
-      console.warn("[raids] Failed to disable Discord buttons while closing raid", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+      console.warn(
+        "[raids] Failed to disable Discord buttons while closing raid",
+        {
+          raidId: raid.id,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      );
     }
   }
 
@@ -1155,10 +1699,13 @@ export async function deleteRaid(raidId: string) {
         discordDeleted = true;
       } else {
         discordDeleteFailed = true;
-        console.warn("[raids] Failed to delete Discord raid message during manual raid deletion", {
-          raidId: raid.id,
-          message: error instanceof Error ? error.message : String(error),
-        });
+        console.warn(
+          "[raids] Failed to delete Discord raid message during manual raid deletion",
+          {
+            raidId: raid.id,
+            message: error instanceof Error ? error.message : String(error),
+          },
+        );
       }
     }
   }
@@ -1167,7 +1714,10 @@ export async function deleteRaid(raidId: string) {
     "raid",
     `raid:${raid.id}:delete`,
     async () => {
-      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).delete();
+      await getFirebaseAdminDb()
+        .collection(RAID_COLLECTION)
+        .doc(raid.id)
+        .delete();
       clearRaidRuntimeCaches(raid.id);
     },
     { timeoutMs: 3_000, logEvent: "raids.delete_write_failed" },
@@ -1182,45 +1732,90 @@ export type ProfileRaidSignup = {
   signup: RaidSignup;
 };
 
-function signupMatchesProfile(signup: RaidSignup, profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId">) {
+function signupMatchesProfile(
+  signup: RaidSignup,
+  profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId">,
+) {
   if (signup.profileId && signup.profileId === profile.profileId) return true;
-  if (profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId || "")) {
+  if (
+    profile.provider === "discord" &&
+    /^\d{16,25}$/.test(profile.providerUserId || "")
+  ) {
     return signup.discordId === profile.providerUserId;
   }
   return false;
 }
 
-export async function listProfileRaidSignups(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId" | "grammaticalGender">, limit = 80): Promise<ProfileRaidSignup[]> {
+export async function listProfileRaidSignups(
+  profile: Pick<
+    DashboardProfile,
+    "profileId" | "provider" | "providerUserId" | "grammaticalGender"
+  >,
+  limit = 80,
+): Promise<ProfileRaidSignup[]> {
   if (!profile?.profileId || !hasRaidStorage()) return [];
 
   const raids = await listRaids(Math.max(20, Math.min(120, limit)));
   const items: ProfileRaidSignup[] = [];
   for (const raid of raids) {
     if (raid.status !== "published" || isRaidClosed(raid)) continue;
-    const signup = raid.signups.find((item) => signupMatchesProfile(item, profile));
+    const signup = raid.signups.find((item) =>
+      signupMatchesProfile(item, profile),
+    );
     if (!signup) continue;
-    items.push({ raid, signup: { ...signup, grammaticalGender: profile.grammaticalGender } });
+    items.push({
+      raid,
+      signup: { ...signup, grammaticalGender: profile.grammaticalGender },
+    });
   }
-  return items.sort((a, b) => `${b.raid.date} ${b.raid.time}`.localeCompare(`${a.raid.date} ${a.raid.time}`));
+  return items.sort((a, b) =>
+    `${b.raid.date} ${b.raid.time}`.localeCompare(
+      `${a.raid.date} ${a.raid.time}`,
+    ),
+  );
 }
 
-export async function syncRaidSignupGenderForProfile(profile: Pick<DashboardProfile, "profileId" | "provider" | "providerUserId" | "grammaticalGender">, limit = 120) {
-  if (!profile?.profileId || !hasRaidStorage()) return { updatedRaids: 0, updatedSignups: 0 };
+export async function syncRaidSignupGenderForProfile(
+  profile: Pick<
+    DashboardProfile,
+    "profileId" | "provider" | "providerUserId" | "grammaticalGender"
+  >,
+  limit = 120,
+) {
+  if (!profile?.profileId || !hasRaidStorage())
+    return { updatedRaids: 0, updatedSignups: 0 };
 
   const raids = await listRaids(Math.max(20, Math.min(120, limit)));
   let updatedRaids = 0;
   let updatedSignups = 0;
-  const discordId = profile.provider === "discord" && /^\d{16,25}$/.test(profile.providerUserId || "") ? profile.providerUserId : "";
+  const discordId =
+    profile.provider === "discord" &&
+    /^\d{16,25}$/.test(profile.providerUserId || "")
+      ? profile.providerUserId
+      : "";
 
   for (const raid of raids) {
-    if (raid.status !== "published" || isRaidClosed(raid) || !raid.signups.length) continue;
+    if (
+      raid.status !== "published" ||
+      isRaidClosed(raid) ||
+      !raid.signups.length
+    )
+      continue;
     let changed = false;
     const nextSignups = raid.signups.map((signup) => {
-      const matches = signup.profileId === profile.profileId || Boolean(discordId && signup.discordId === discordId);
-      if (!matches || signup.grammaticalGender === profile.grammaticalGender) return signup;
+      const matches =
+        signup.profileId === profile.profileId ||
+        Boolean(discordId && signup.discordId === discordId);
+      if (!matches || signup.grammaticalGender === profile.grammaticalGender)
+        return signup;
       changed = true;
       updatedSignups += 1;
-      return { ...signup, profileId: signup.profileId || profile.profileId, grammaticalGender: profile.grammaticalGender, updatedAt: new Date().toISOString() };
+      return {
+        ...signup,
+        profileId: signup.profileId || profile.profileId,
+        grammaticalGender: profile.grammaticalGender,
+        updatedAt: new Date().toISOString(),
+      };
     });
 
     if (!changed) continue;
@@ -1228,10 +1823,13 @@ export async function syncRaidSignupGenderForProfile(profile: Pick<DashboardProf
       "raid",
       `raid:${raid.id}:gender-sync`,
       async () => {
-        await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-          signups: nextSignups,
-          updatedAt: FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set(
+          {
+            signups: nextSignups,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
         clearRaidRuntimeCaches(raid.id);
       },
       {
@@ -1251,11 +1849,21 @@ function cleanRaidId(value: unknown) {
   return /^[A-Za-z0-9_-]{8,80}$/.test(text) ? text : "";
 }
 
-export function formRaidPayload(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
+export function formRaidPayload(
+  form: FormData,
+  user: DashboardSession,
+  profile?: DashboardProfile | null,
+) {
   const compositionText = cleanString(form.get("composition"), 40);
-  const compositionParts = compositionText.match(/(\d+)\s*[\/\\|:-]\s*(\d+)\s*[\/\\|:-]\s*(\d+)/);
+  const compositionParts = compositionText.match(
+    /(\d+)\s*[\/\\|:-]\s*(\d+)\s*[\/\\|:-]\s*(\d+)/,
+  );
   const composition = compositionParts
-    ? { tanks: Number(compositionParts[1]), healers: Number(compositionParts[2]), dps: Number(compositionParts[3]) }
+    ? {
+        tanks: Number(compositionParts[1]),
+        healers: Number(compositionParts[2]),
+        dps: Number(compositionParts[3]),
+      }
     : {
         tanks: Number(form.get("tanks") || 2),
         healers: Number(form.get("healers") || 2),
@@ -1265,7 +1873,9 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
   const difficulty = cleanDifficulty(form.get("difficulty"));
   const imageUrl = cleanUrl(form.get("imageUrl"));
   const thumbnailUrl = cleanUrl(form.get("thumbnailUrl"));
-  const registrationLockEnabled = cleanBoolean(form.get("registrationLockEnabled"));
+  const registrationLockEnabled = cleanBoolean(
+    form.get("registrationLockEnabled"),
+  );
   const registrationLockMinutesBefore = registrationLockEnabled
     ? cleanRegistrationLockMinutes(form.get("registrationLockMinutesBefore"))
     : null;
@@ -1275,17 +1885,22 @@ export function formRaidPayload(form: FormData, user: DashboardSession, profile?
     difficulty,
     date: cleanString(form.get("date"), 20),
     time: cleanString(form.get("time"), 20),
-    description: cleanString(form.get("description"), 4096) || "Будьте готові до рейду та перевірте спорядження заздалегідь.",
+    description:
+      cleanString(form.get("description"), 4096) ||
+      "Будьте готові до рейду та перевірте спорядження заздалегідь.",
     minItemLevel: cleanOptionalItemLevel(form.get("minItemLevel")),
     minItemLevelRequired: cleanBoolean(form.get("minItemLevelRequired")),
     maxPlayers: cleanOptionalMaxPlayers(form.get("maxPlayers")),
     registrationLockEnabled,
     registrationLockMinutesBefore,
     imageUrl,
-    thumbnailUrl: thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
+    thumbnailUrl:
+      thumbnailUrl || resolveRaidThumbnailUrl({ difficulty, imageUrl }),
     mentionRoleIds: cleanSnowflakeIds(form.getAll("mentionRoleIds")),
     createdByDiscordId: user.provider === "discord" ? user.id : "",
-    createdByName: profile ? getProfilePublicName(profile) : user.name || user.login || "Raid Lead",
+    createdByName: profile
+      ? getProfilePublicName(profile)
+      : user.name || user.login || "Raid Lead",
     createdByMain: profileMainLabel(profile),
     raidLeaderName: cleanString(form.get("raidLeaderName"), 120) || null,
     consumables: cleanConsumables(form.get("consumables")),
@@ -1299,7 +1914,9 @@ function isValidRaidDate(value: string) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return false;
   const date = new Date(value + "T00:00:00Z");
-  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  return (
+    Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
 }
 
 function isValidRaidTime(value: string) {
@@ -1310,21 +1927,34 @@ function isValidRaidTime(value: string) {
   return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
 }
 
-function validateRaidPayload(payload: ReturnType<typeof formRaidPayload>, existingRaid?: RaidItem | null) {
+function validateRaidPayload(
+  payload: ReturnType<typeof formRaidPayload>,
+  existingRaid?: RaidItem | null,
+) {
   if (payload.title.length < 2) throw new Error("Вкажи назву рейду.");
-  if (!isValidRaidDate(payload.date)) throw new Error("Вкажи коректну дату рейду.");
-  if (!isValidRaidTime(payload.time)) throw new Error("Вкажи коректний час рейду.");
-  if (!payload.description.trim()) throw new Error("Додай короткий опис рейду.");
+  if (!isValidRaidDate(payload.date))
+    throw new Error("Вкажи коректну дату рейду.");
+  if (!isValidRaidTime(payload.time))
+    throw new Error("Вкажи коректний час рейду.");
+  if (!payload.description.trim())
+    throw new Error("Додай короткий опис рейду.");
 
   const limit = raidRegistrationLimit({ maxPlayers: payload.maxPlayers });
   const activeCount = existingRaid ? raidActiveRosterSize(existingRaid) : 0;
   if (limit !== null && activeCount > limit) {
-    throw new Error(`Ліміт гравців не може бути меншим за поточний активний запис (${activeCount}). Спочатку закрий зайві записи або збільш ліміт.`);
+    throw new Error(
+      `Ліміт гравців не може бути меншим за поточний активний запис (${activeCount}). Спочатку закрий зайві записи або збільш ліміт.`,
+    );
   }
 }
 
-export async function saveRaidFromForm(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
-  if (!hasRaidStorage()) throw new Error("Збереження рейдів тимчасово недоступне.");
+export async function saveRaidFromForm(
+  form: FormData,
+  user: DashboardSession,
+  profile?: DashboardProfile | null,
+) {
+  if (!hasRaidStorage())
+    throw new Error("Збереження рейдів тимчасово недоступне.");
 
   const raidId = cleanRaidId(form.get("raidId"));
   const payload = formRaidPayload(form, user, profile);
@@ -1333,19 +1963,32 @@ export async function saveRaidFromForm(form: FormData, user: DashboardSession, p
     raidId ? `raid:${raidId}:save` : "raid:new:save",
     async () => {
       const db = getFirebaseAdminDb();
-      const ref = raidId ? db.collection(RAID_COLLECTION).doc(raidId) : db.collection(RAID_COLLECTION).doc();
+      const ref = raidId
+        ? db.collection(RAID_COLLECTION).doc(raidId)
+        : db.collection(RAID_COLLECTION).doc();
       const snapshot = await ref.get();
-      const existingRaid = snapshot.exists ? normalizeRaid(snapshot.id, snapshot.data() || {}) : null;
+      const existingRaid = snapshot.exists
+        ? normalizeRaid(snapshot.id, snapshot.data() || {})
+        : null;
       validateRaidPayload(payload, existingRaid);
-      const nextStatus = snapshot.exists ? existingRaid?.status || "draft" : "draft";
+      const nextStatus = snapshot.exists
+        ? existingRaid?.status || "draft"
+        : "draft";
 
-      await ref.set({
-        ...payload,
-        status: nextStatus,
-        ...(nextStatus === "closed" ? {} : { closedAt: null, closedReason: null }),
-        updatedAt: FieldValue.serverTimestamp(),
-        ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp(), signups: [] }),
-      }, { merge: true });
+      await ref.set(
+        {
+          ...payload,
+          status: nextStatus,
+          ...(nextStatus === "closed"
+            ? {}
+            : { closedAt: null, closedReason: null }),
+          updatedAt: FieldValue.serverTimestamp(),
+          ...(snapshot.exists
+            ? {}
+            : { createdAt: FieldValue.serverTimestamp(), signups: [] }),
+        },
+        { merge: true },
+      );
 
       const saved = await ref.get();
       clearRaidRuntimeCaches(ref.id);
@@ -1357,10 +2000,15 @@ export async function saveRaidFromForm(form: FormData, user: DashboardSession, p
 
 function dateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
   if (!raid.date && !raid.time) return "Дата уточнюється";
-  return [raid.date || "Дата уточнюється", raid.time || ""].filter(Boolean).join(" ");
+  return [raid.date || "Дата уточнюється", raid.time || ""]
+    .filter(Boolean)
+    .join(" ");
 }
 
-function discordTimestamp(raid: Pick<RaidItem, "date" | "time">, style: "t" | "T" | "d" | "D" | "f" | "F" | "R" = "F") {
+function discordTimestamp(
+  raid: Pick<RaidItem, "date" | "time">,
+  style: "t" | "T" | "d" | "D" | "f" | "F" | "R" = "F",
+) {
   const startsAt = raidDateTimeToUtcMs(raid);
   if (startsAt === null) return null;
   return `<t:${Math.floor(startsAt / 1000)}:${style}>`;
@@ -1379,18 +2027,26 @@ function compositionLongLabel(raid: RaidAutoInput) {
   return `${composition.tanks} танки / ${composition.healers} хіли / ${composition.dps} дд`;
 }
 
+function raidSignupNumberLabel(item?: Pick<RaidSignup, "signupNumber"> | null) {
+  const number = cleanOptionalSignupNumber(item?.signupNumber);
+  return number ? `№${number}` : null;
+}
+
 function signupName(item?: RaidSignup | null) {
   if (!item) return "—";
   const name = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` • ${item.activeSpecName}` : "";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel} ilvl` : "";
   const late = item.status === "late" ? " 🕒" : "";
-  return `${name}${spec}${ilvl}${late}`;
+  const number = raidSignupNumberLabel(item);
+  return `${number ? `${number} — ` : ""}${name}${spec}${ilvl}${late}`;
 }
 
 function truncateDiscordField(value: string, max = 1024) {
   const text = value.trim();
-  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 20)).trimEnd()}\n…`;
+  return text.length <= max
+    ? text
+    : `${text.slice(0, Math.max(0, max - 20)).trimEnd()}\n…`;
 }
 
 function roleSortWeight(item: RaidSignup) {
@@ -1400,12 +2056,24 @@ function roleSortWeight(item: RaidSignup) {
 }
 
 function signupSort(a: RaidSignup, b: RaidSignup) {
-  return roleSortWeight(a) - roleSortWeight(b)
-    || String(a.characterName || a.discordName).localeCompare(String(b.characterName || b.discordName), "uk");
+  const aNumber =
+    cleanOptionalSignupNumber(a.signupNumber) || Number.MAX_SAFE_INTEGER;
+  const bNumber =
+    cleanOptionalSignupNumber(b.signupNumber) || Number.MAX_SAFE_INTEGER;
+  return (
+    roleSortWeight(a) - roleSortWeight(b) ||
+    aNumber - bNumber ||
+    String(a.characterName || a.discordName).localeCompare(
+      String(b.characterName || b.discordName),
+      "uk",
+    )
+  );
 }
 
 function rosterForGroups(raid: Pick<RaidItem, "signups">) {
-  const active = raid.signups.filter((item) => item.status === "going" || item.status === "late").sort(signupSort);
+  const active = raid.signups
+    .filter((item) => item.status === "going" || item.status === "late")
+    .sort(signupSort);
   return {
     tanks: active.filter((item) => item.role === "tank"),
     healers: active.filter((item) => item.role === "healer"),
@@ -1430,23 +2098,42 @@ function partyFlexRoleCount(party: RaidParty, role: RaidCharacterRole) {
   return party.dps.filter((item) => item.role === role).length;
 }
 
-function pickParty(parties: RaidParty[], predicate: (party: RaidParty) => boolean) {
-  const candidates = parties.filter((party) => partyCapacity(party) > 0 && predicate(party));
-  return candidates.sort((a, b) => partyMembersCount(a) - partyMembersCount(b) || a.index - b.index)[0] || null;
+function pickParty(
+  parties: RaidParty[],
+  predicate: (party: RaidParty) => boolean,
+) {
+  const candidates = parties.filter(
+    (party) => partyCapacity(party) > 0 && predicate(party),
+  );
+  return (
+    candidates.sort(
+      (a, b) =>
+        partyMembersCount(a) - partyMembersCount(b) || a.index - b.index,
+    )[0] || null
+  );
 }
 
 function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
-  const preferences: Array<(party: RaidParty) => boolean> = member.role === "dps"
-    ? [
-        (party) => Boolean(party.tank && party.healer) && partyFlexRoleCount(party, "dps") < 3,
-        (party) => Boolean(party.tank || party.healer) && partyFlexRoleCount(party, "dps") < 4,
-        () => true,
-      ]
-    : [
-        (party) => Boolean(party.tank && party.healer) && partyMembersCount(party) < RAID_PARTY_SIZE,
-        (party) => Boolean(party.tank || party.healer) && partyMembersCount(party) < RAID_PARTY_SIZE,
-        () => true,
-      ];
+  const preferences: Array<(party: RaidParty) => boolean> =
+    member.role === "dps"
+      ? [
+          (party) =>
+            Boolean(party.tank && party.healer) &&
+            partyFlexRoleCount(party, "dps") < 3,
+          (party) =>
+            Boolean(party.tank || party.healer) &&
+            partyFlexRoleCount(party, "dps") < 4,
+          () => true,
+        ]
+      : [
+          (party) =>
+            Boolean(party.tank && party.healer) &&
+            partyMembersCount(party) < RAID_PARTY_SIZE,
+          (party) =>
+            Boolean(party.tank || party.healer) &&
+            partyMembersCount(party) < RAID_PARTY_SIZE,
+          () => true,
+        ];
 
   for (const predicate of preferences) {
     const party = pickParty(parties, predicate);
@@ -1458,11 +2145,22 @@ function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
   return false;
 }
 
-export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "composition" | "signups">): RaidParty[] {
+export function buildRaidParties(
+  raid: Pick<RaidItem, "difficulty" | "composition" | "signups">,
+): RaidParty[] {
   const roster = rosterForGroups(raid);
   const visibleRosterSize = roster.active.length;
-  const groupCount = Math.max(1, Math.min(MAX_RAID_PARTIES, Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE)));
-  const parties: RaidParty[] = Array.from({ length: groupCount }, (_, index) => ({ index: index + 1, dps: [], late: [], members: [] }));
+  const groupCount = Math.max(
+    1,
+    Math.min(
+      MAX_RAID_PARTIES,
+      Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE),
+    ),
+  );
+  const parties: RaidParty[] = Array.from(
+    { length: groupCount },
+    (_, index) => ({ index: index + 1, dps: [], late: [], members: [] }),
+  );
 
   const tanks = [...roster.tanks];
   for (const party of parties) {
@@ -1480,7 +2178,9 @@ export function buildRaidParties(raid: Pick<RaidItem, "difficulty" | "compositio
   }
 
   for (const party of parties) {
-    party.members = [party.tank, party.healer, ...party.dps].filter(Boolean) as RaidSignup[];
+    party.members = [party.tank, party.healer, ...party.dps].filter(
+      Boolean,
+    ) as RaidSignup[];
     party.late = party.members.filter((item) => item.status === "late");
   }
 
@@ -1491,23 +2191,45 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` ${item.activeSpecName}` : "";
-  const markers = [item.status === "late" ? "🕒" : null, item.verifiedGuild === false ? "🤝" : null].filter(Boolean);
+  const markers = [
+    item.status === "late" ? "🕒" : null,
+    item.verifiedGuild === false ? "🤝" : null,
+  ].filter(Boolean);
   const prefix = markers.length ? `${markers.join(" ")} ` : "";
-  const text = `${prefix}${base}${spec}`.trim();
-  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+  const number = raidSignupNumberLabel(item);
+  const text = `${number ? `${number} — ` : ""}${prefix}${base}${spec}`.trim();
+  return text.length <= max
+    ? text
+    : `${text.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
-function isSignupBelowRaidMinimum(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null) {
+function isSignupBelowRaidMinimum(
+  item?: RaidSignup | null,
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+) {
   const minimum = Number(raid?.minItemLevel || 0);
   const current = Number(item?.itemLevel || 0);
-  return Boolean(item && item.status !== "skipped" && Number.isFinite(minimum) && minimum > 0 && Number.isFinite(current) && current > 0 && current < minimum);
+  return Boolean(
+    item &&
+    item.status !== "skipped" &&
+    Number.isFinite(minimum) &&
+    minimum > 0 &&
+    Number.isFinite(current) &&
+    current > 0 &&
+    current < minimum,
+  );
 }
 
-function isSignupNonGuildCharacter(item?: Pick<RaidSignup, "verifiedGuild"> | null) {
+function isSignupNonGuildCharacter(
+  item?: Pick<RaidSignup, "verifiedGuild"> | null,
+) {
   return Boolean(item && item.verifiedGuild === false);
 }
 
-function discordSignupMarkers(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null) {
+function discordSignupMarkers(
+  item?: RaidSignup | null,
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+) {
   if (!item) return "";
   const markers = [
     isSignupBelowRaidMinimum(item, raid) ? "⚠️" : null,
@@ -1517,34 +2239,67 @@ function discordSignupMarkers(item?: RaidSignup | null, raid?: Pick<RaidItem, "m
   return markers.length ? `${markers.join(" ")} ` : "";
 }
 
-function compactSignupDiscordLine(item?: RaidSignup | null, raid?: Pick<RaidItem, "minItemLevel"> | null, max = 48) {
+function compactSignupDiscordLine(
+  item?: RaidSignup | null,
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+  max = 48,
+) {
   if (!item) return "—";
   const base = item.characterName || item.discordName || "Гравець";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel}` : "";
-  const value = `${discordSignupMarkers(item, raid)}${base}${ilvl}`.trim();
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+  const number = raidSignupNumberLabel(item);
+  const value =
+    `${number ? `${number} — ` : ""}${discordSignupMarkers(item, raid)}${base}${ilvl}`.trim();
+  return value.length <= max
+    ? value
+    : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
 }
 
-function compactSignupDiscordLines(items: RaidSignup[], raid?: Pick<RaidItem, "minItemLevel"> | null, max = 44) {
+function compactSignupDiscordLines(
+  items: RaidSignup[],
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+  max = 44,
+) {
   return items.length
-    ? items.map((item) => `• ${compactSignupDiscordLine(item, raid, max)}`).join("\n")
+    ? items
+        .map((item) => `• ${compactSignupDiscordLine(item, raid, max)}`)
+        .join("\n")
     : "—";
 }
 
-function partyDiscordText(party: RaidParty, raid?: Pick<RaidItem, "minItemLevel"> | null) {
-  const tanks = [party.tank, ...party.dps.filter((item) => item.role === "tank")].filter(Boolean) as RaidSignup[];
-  const healers = [party.healer, ...party.dps.filter((item) => item.role === "healer")].filter(Boolean) as RaidSignup[];
+function partyDiscordText(
+  party: RaidParty,
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+) {
+  const tanks = [
+    party.tank,
+    ...party.dps.filter((item) => item.role === "tank"),
+  ].filter(Boolean) as RaidSignup[];
+  const healers = [
+    party.healer,
+    ...party.dps.filter((item) => item.role === "healer"),
+  ].filter(Boolean) as RaidSignup[];
   const dps = party.dps.filter((item) => item.role === "dps");
   const sections = [
-    tanks.length ? `**Танк**\n${compactSignupDiscordLines(tanks, raid, 42)}` : null,
-    healers.length ? `**Хіл**\n${compactSignupDiscordLines(healers, raid, 42)}` : null,
+    tanks.length
+      ? `**Танк**\n${compactSignupDiscordLines(tanks, raid, 42)}`
+      : null,
+    healers.length
+      ? `**Хіл**\n${compactSignupDiscordLines(healers, raid, 42)}`
+      : null,
     dps.length ? `**ДД**\n${compactSignupDiscordLines(dps, raid, 40)}` : null,
   ].filter(Boolean) as string[];
 
-  return truncateDiscordField(sections.length ? sections.join("\n\n") : "—", 700);
+  return truncateDiscordField(
+    sections.length ? sections.join("\n\n") : "—",
+    700,
+  );
 }
 
-function compactDiscordFields(fields: Array<{ name: string; value: string; inline?: boolean }>, maxTotal = 5600) {
+function compactDiscordFields(
+  fields: Array<{ name: string; value: string; inline?: boolean }>,
+  maxTotal = 5600,
+) {
   const result: Array<{ name: string; value: string; inline?: boolean }> = [];
   let total = 0;
   for (const field of fields.slice(0, 25)) {
@@ -1565,7 +2320,8 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const allParties = buildRaidParties(raid);
   const parties = allParties.slice(0, 8);
   const imageUrl = raid.imageUrl || undefined;
-  const thumbUrl = resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
+  const thumbUrl =
+    resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
   const registrationLimit = raidRegistrationLimit(raid);
@@ -1574,17 +2330,29 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const rosterValue = [
     `${counts.roster} / ${displayCapacity}`,
     compositionLongLabel(raid),
-    registrationLimit ? (registrationFull ? "🔒 Ліміт запису досягнуто" : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`) : null,
-  ].filter(Boolean).join("\n");
+    registrationLimit
+      ? registrationFull
+        ? "🔒 Ліміт запису досягнуто"
+        : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const minItemLevelPolicyText = raid.minItemLevelRequired
     ? "⛔ Запис блокується, якщо персонаж нижче порогу"
     : "⚠️ Лише попередження, запис не блокується";
-  const minItemLevelValue = raid.minItemLevel ? `${raid.minItemLevel}\n${minItemLevelPolicyText}` : null;
+  const minItemLevelValue = raid.minItemLevel
+    ? `${raid.minItemLevel}\n${minItemLevelPolicyText}`
+    : null;
   const description = truncateDiscordField(raid.description, 4096);
   const rawFields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: "📌 Статус",
-      value: closed ? "Закрито — запис вимкнено" : raid.status === "draft" ? "Чернетка" : "Запис відкрито",
+      value: closed
+        ? "Закрито — запис вимкнено"
+        : raid.status === "draft"
+          ? "Чернетка"
+          : "Запис відкрито",
       inline: true,
     },
     {
@@ -1597,7 +2365,9 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: raid.createdByName,
       inline: true,
     },
-    ...(raid.raidLeaderName ? [{ name: "🧭 РЛ", value: raid.raidLeaderName, inline: true }] : []),
+    ...(raid.raidLeaderName
+      ? [{ name: "🧭 РЛ", value: raid.raidLeaderName, inline: true }]
+      : []),
     {
       name: "🧪 Розхідники",
       value: raidConsumablesLabel(raid.consumables),
@@ -1613,8 +2383,18 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: rosterValue,
       inline: true,
     },
-    ...(minItemLevelValue ? [{ name: "👙 Мін. ilvl", value: minItemLevelValue, inline: true }] : []),
-    ...(averageItemLevel ? [{ name: "📊 Середній ilvl", value: `${averageItemLevel}`, inline: true }] : []),
+    ...(minItemLevelValue
+      ? [{ name: "👙 Мін. ilvl", value: minItemLevelValue, inline: true }]
+      : []),
+    ...(averageItemLevel
+      ? [
+          {
+            name: "📊 Середній ilvl",
+            value: `${averageItemLevel}`,
+            inline: true,
+          },
+        ]
+      : []),
     {
       name: "🔐 Блокування запису",
       value: raidRegistrationLockDiscordValue(raid),
@@ -1631,10 +2411,19 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       inline: true,
     })),
     ...(omittedParties > 0
-      ? [{ name: "Ще групи", value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`, inline: false }]
+      ? [
+          {
+            name: "Ще групи",
+            value: `Ще ${omittedParties} паті доступно на сторінці рейду:\n${dashboardRaidUrl(raid.id)}`,
+            inline: false,
+          },
+        ]
       : []),
   ];
-  const fieldsBudget = Math.max(1200, 5800 - description.length - raidTitle(raid).length);
+  const fieldsBudget = Math.max(
+    1200,
+    5800 - description.length - raidTitle(raid).length,
+  );
   const fields = compactDiscordFields(rawFields, fieldsBudget);
 
   const embed = normalizeDiscordEmbed({
@@ -1645,7 +2434,9 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
     image: imageUrl ? { url: imageUrl } : undefined,
     fields,
-    footer: { text: "Склад рейду оновлюється автоматично після кожної заявки." },
+    footer: {
+      text: "Склад рейду оновлюється автоматично після кожної заявки.",
+    },
     timestamp: new Date().toISOString(),
   });
 
@@ -1656,43 +2447,74 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   };
 }
 
-export function buildRaidAttendanceCustomId(raidId: string, action: RaidSignupStatus) {
+export function buildRaidAttendanceCustomId(
+  raidId: string,
+  action: RaidSignupStatus,
+) {
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
   const customId = `${RAID_ACTION_PREFIX}:${id}:${safeAction}`;
-  if (!id || customId.length > 100) throw new Error("Некоректний ID рейду для Discord-кнопки.");
+  if (!id || customId.length > 100)
+    throw new Error("Некоректний ID рейду для Discord-кнопки.");
   return customId;
 }
 
 export function decodeRaidAttendanceCustomId(customId: string) {
   const value = cleanString(customId, 120);
-  const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  const match = value.match(
+    /^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/,
+  );
   if (!match) return null;
   return { raidId: match[1], action: cleanSignupStatus(match[2]) };
 }
 
-export function decodeRaidCharacterSelectCustomId(customId: string, values?: unknown) {
+export function decodeRaidCharacterSelectCustomId(
+  customId: string,
+  values?: unknown,
+) {
   const value = cleanString(customId, 120);
-  const match = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  const match = value.match(
+    /^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/,
+  );
   if (!match) return null;
   const selectedValues = Array.isArray(values) ? values : [];
   const characterKey = cleanString(selectedValues[0], 260);
   if (!characterKey) return null;
-  return { raidId: match[1], action: cleanSignupStatus(match[2]), characterKey };
+  return {
+    raidId: match[1],
+    action: cleanSignupStatus(match[2]),
+    characterKey,
+  };
 }
 
-export function buildRaidAttendanceComponents(raidId: string, options: boolean | { disabled?: boolean; full?: boolean; signed?: boolean; personalized?: boolean; registrationLocked?: boolean } = false) {
-  const disabled = typeof options === "boolean" ? options : Boolean(options.disabled);
+export function buildRaidAttendanceComponents(
+  raidId: string,
+  options:
+    | boolean
+    | {
+        disabled?: boolean;
+        full?: boolean;
+        signed?: boolean;
+        personalized?: boolean;
+        registrationLocked?: boolean;
+      } = false,
+) {
+  const disabled =
+    typeof options === "boolean" ? options : Boolean(options.disabled);
   const full = typeof options === "object" && Boolean(options.full);
-  const registrationLocked = typeof options === "object" && Boolean(options.registrationLocked);
-  const personalized = typeof options === "object" && Boolean(options.personalized);
-  const signed = personalized && typeof options === "object" && Boolean(options.signed);
+  const registrationLocked =
+    typeof options === "object" && Boolean(options.registrationLocked);
+  const personalized =
+    typeof options === "object" && Boolean(options.personalized);
+  const signed =
+    personalized && typeof options === "object" && Boolean(options.signed);
 
   // Discord рендерить components публічного повідомлення однаково для всіх глядачів.
   // Тому персональний напис “Змінити персонажа” дозволений лише там, де ми точно
   // будуємо приватну/ephemeral відповідь для конкретного користувача. У глобальному
   // embed кнопка лишається нейтральною, а реальний стан перевіряється на сервері.
-  const activeJoinDisabled = disabled || registrationLocked || (personalized && full && !signed);
+  const activeJoinDisabled =
+    disabled || registrationLocked || (personalized && full && !signed);
   const signupLabel = disabled
     ? "Підписатися"
     : registrationLocked
@@ -1701,26 +2523,50 @@ export function buildRaidAttendanceComponents(raidId: string, options: boolean |
         ? "Змінити персонажа"
         : full && personalized
           ? "Заповнено"
-        : "Підписатися";
+          : "Підписатися";
 
   return [
     {
       type: 1,
       components: [
-        { type: 2, style: 3, label: signupLabel, emoji: { name: "✅" }, custom_id: buildRaidAttendanceCustomId(raidId, "going"), disabled: activeJoinDisabled },
-        { type: 2, style: 2, label: "Пропустити", emoji: { name: "↩️" }, custom_id: buildRaidAttendanceCustomId(raidId, "skipped"), disabled },
-        { type: 2, style: 4, label: "Затримаюсь", emoji: { name: "🕒" }, custom_id: buildRaidAttendanceCustomId(raidId, "late"), disabled: activeJoinDisabled },
+        {
+          type: 2,
+          style: 3,
+          label: signupLabel,
+          emoji: { name: "✅" },
+          custom_id: buildRaidAttendanceCustomId(raidId, "going"),
+          disabled: activeJoinDisabled,
+        },
+        {
+          type: 2,
+          style: 2,
+          label: "Пропустити",
+          emoji: { name: "↩️" },
+          custom_id: buildRaidAttendanceCustomId(raidId, "skipped"),
+          disabled,
+        },
+        {
+          type: 2,
+          style: 4,
+          label: "Затримаюсь",
+          emoji: { name: "🕒" },
+          custom_id: buildRaidAttendanceCustomId(raidId, "late"),
+          disabled: activeJoinDisabled,
+        },
       ],
     },
   ];
 }
 
-
-export function buildRaidCharacterSelectCustomId(raidId: string, action: RaidSignupStatus) {
+export function buildRaidCharacterSelectCustomId(
+  raidId: string,
+  action: RaidSignupStatus,
+) {
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
   const customId = `mbv1:rc:${id}:${safeAction}`;
-  if (!id || customId.length > 100) throw new Error("Некоректний ID рейду для Discord-вибору персонажа.");
+  if (!id || customId.length > 100)
+    throw new Error("Некоректний ID рейду для Discord-вибору персонажа.");
   return customId;
 }
 
@@ -1730,24 +2576,47 @@ function raidCharacterOptionLabel(character: ProfileCharacter) {
   return `${prefix}${character.name} • ${realm}`.slice(0, 100);
 }
 
-function raidCharacterOptionDescription(character: ProfileCharacter, raid?: RaidMinimumPolicy | null) {
-  const minimumNote = raid ? raidSignupCharacterMinimumNote(raid, character) : null;
-  return [
-    minimumNote || null,
-    character.verifiedGuild ? "Гільдійний" : "Інший персонаж",
-    character.activeSpecName || null,
-    character.className || null,
-    character.itemLevel ? `${character.itemLevel} ilvl` : null,
-  ].filter(Boolean).join(" • ").slice(0, 100) || "Персонаж Battle.net";
+function raidCharacterOptionDescription(
+  character: ProfileCharacter,
+  raid?: RaidMinimumPolicy | null,
+) {
+  const minimumNote = raid
+    ? raidSignupCharacterMinimumNote(raid, character)
+    : null;
+  return (
+    [
+      minimumNote || null,
+      character.verifiedGuild ? "Гільдійний" : "Інший персонаж",
+      character.activeSpecName || null,
+      character.className || null,
+      character.itemLevel ? `${character.itemLevel} ilvl` : null,
+    ]
+      .filter(Boolean)
+      .join(" • ")
+      .slice(0, 100) || "Персонаж Battle.net"
+  );
 }
 
-export function buildRaidCharacterSelectComponents(raidId: string, action: RaidSignupStatus, profile: DashboardProfile, selectedCharacterKey?: string | null, raid?: RaidMinimumPolicy | null) {
+export function buildRaidCharacterSelectComponents(
+  raidId: string,
+  action: RaidSignupStatus,
+  profile: DashboardProfile,
+  selectedCharacterKey?: string | null,
+  raid?: RaidMinimumPolicy | null,
+) {
   const options = profile.characters
     .map((character, index) => ({ character, index }))
-    .filter(({ character }) => !raid || !isRaidSubjectBlockedByMinItemLevel(raid, character))
+    .filter(
+      ({ character }) =>
+        !raid || !isRaidSubjectBlockedByMinItemLevel(raid, character),
+    )
     .slice(0, 25)
     .map(({ character, index }) => ({
-      label: `${raid && isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : ""}${raidCharacterOptionLabel(character)}`.slice(0, 100),
+      label:
+        `${raid && isRaidSubjectWarnedByMinItemLevel(raid, character) ? "⚠️ " : ""}${raidCharacterOptionLabel(character)}`.slice(
+          0,
+          100,
+        ),
       description: raidCharacterOptionDescription(character, raid),
       value: `c${index}`,
     }));
@@ -1763,9 +2632,10 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
         {
           type: 3,
           custom_id: buildRaidCharacterSelectCustomId(raidId, action),
-          placeholder: action === "skipped"
-            ? "Позначити пропуск рейду"
-            : "Змінити персонажа рейду",
+          placeholder:
+            action === "skipped"
+              ? "Позначити пропуск рейду"
+              : "Змінити персонажа рейду",
           min_values: 1,
           max_values: 1,
           options,
@@ -1775,7 +2645,10 @@ export function buildRaidCharacterSelectComponents(raidId: string, action: RaidS
   ];
 }
 
-function resolveProfileCharacterSelection(profile: DashboardProfile | null | undefined, characterKey?: unknown): ProfileCharacter | null {
+function resolveProfileCharacterSelection(
+  profile: DashboardProfile | null | undefined,
+  characterKey?: unknown,
+): ProfileCharacter | null {
   if (!profile?.characters?.length) return null;
   const raw = cleanString(characterKey, 260);
   if (!raw) return null;
@@ -1785,7 +2658,11 @@ function resolveProfileCharacterSelection(profile: DashboardProfile | null | und
     if (byIndex) return byIndex;
   }
   const cleanKey = normalizeCharacterKey(raw);
-  return cleanKey ? profile.characters.find((item) => normalizeCharacterKey(item.key) === cleanKey) || null : null;
+  return cleanKey
+    ? profile.characters.find(
+        (item) => normalizeCharacterKey(item.key) === cleanKey,
+      ) || null
+    : null;
 }
 
 function isMissingDiscordMessageError(error: unknown) {
@@ -1793,7 +2670,10 @@ function isMissingDiscordMessageError(error: unknown) {
   return /404|unknown message|10008/i.test(message);
 }
 
-export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | null) {
+export async function publishOrUpdateRaid(
+  raid: RaidItem,
+  channelId?: string | null,
+) {
   const payload = buildRaidDiscordPayload(raid);
   const closed = isRaidClosed(raid);
   const components = buildRaidAttendanceComponents(raid.id, {
@@ -1803,15 +2683,25 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
     signed: false,
     personalized: false,
   });
-  const targetChannelId = cleanSnowflakeId(channelId || raid.channelId || getDiscordDefaultChannelId());
-  if (!targetChannelId) throw new Error("Канал Discord для рейду не вибрано. Вибери канал у формі рейду.");
+  const targetChannelId = cleanSnowflakeId(
+    channelId || raid.channelId || getDiscordDefaultChannelId(),
+  );
+  if (!targetChannelId)
+    throw new Error(
+      "Канал Discord для рейду не вибрано. Вибери канал у формі рейду.",
+    );
 
   let message: any;
   const hasExistingMessage = Boolean(raid.channelId && raid.messageId);
-  const canEditExisting = Boolean(hasExistingMessage && targetChannelId === raid.channelId);
+  const canEditExisting = Boolean(
+    hasExistingMessage && targetChannelId === raid.channelId,
+  );
 
   if (canEditExisting && raid.channelId && raid.messageId) {
-    const existingRef: DiscordMessageRef = { channelId: raid.channelId, messageId: raid.messageId };
+    const existingRef: DiscordMessageRef = {
+      channelId: raid.channelId,
+      messageId: raid.messageId,
+    };
     try {
       message = await editDiscordRaidMessage({
         ref: existingRef,
@@ -1842,33 +2732,56 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
       auditReason: `Raid published: ${raid.id}`,
     });
 
-    if (hasExistingMessage && raid.channelId && raid.messageId && raid.channelId !== targetChannelId) {
+    if (
+      hasExistingMessage &&
+      raid.channelId &&
+      raid.messageId &&
+      raid.channelId !== targetChannelId
+    ) {
       await deleteDiscordRaidMessage({
         ref: { channelId: raid.channelId, messageId: raid.messageId },
         auditReason: `Raid moved to another channel: ${raid.id}`,
-      }).catch((error) => console.warn("[raids] Failed to delete old Discord raid message", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) }));
+      }).catch((error) =>
+        console.warn("[raids] Failed to delete old Discord raid message", {
+          raidId: raid.id,
+          message: error instanceof Error ? error.message : String(error),
+        }),
+      );
     }
   }
 
   const nextChannelId = String(message?.channel_id || targetChannelId);
   const nextMessageId = String(message?.id || "");
-  if (!nextChannelId || !nextMessageId) throw new Error("Discord не підтвердив повідомлення. Перевір канал і повтори дію.");
+  if (!nextChannelId || !nextMessageId)
+    throw new Error(
+      "Discord не підтвердив повідомлення. Перевір канал і повтори дію.",
+    );
   const messageUrl = discordMessageUrl(nextChannelId, nextMessageId);
 
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:publish-state`,
     async () => {
-      await getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id).set({
-        status: closed ? "closed" : "published",
-        closedReason: closed ? (raid.closedReason === "manual" ? "manual" : "auto") : null,
-        closedAt: closed ? FieldValue.serverTimestamp() : null,
-        channelId: nextChannelId,
-        messageId: nextMessageId,
-        messageUrl,
-        publishedAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      await getFirebaseAdminDb()
+        .collection(RAID_COLLECTION)
+        .doc(raid.id)
+        .set(
+          {
+            status: closed ? "closed" : "published",
+            closedReason: closed
+              ? raid.closedReason === "manual"
+                ? "manual"
+                : "auto"
+              : null,
+            closedAt: closed ? FieldValue.serverTimestamp() : null,
+            channelId: nextChannelId,
+            messageId: nextMessageId,
+            messageUrl,
+            publishedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       clearRaidRuntimeCaches(raid.id);
     },
     { timeoutMs: 3_000, logEvent: "raids.publish_state_write_failed" },
@@ -1877,30 +2790,52 @@ export async function publishOrUpdateRaid(raid: RaidItem, channelId?: string | n
   return { channelId: nextChannelId, messageId: nextMessageId, messageUrl };
 }
 
-export async function saveAndMaybePublishRaid(form: FormData, user: DashboardSession, profile?: DashboardProfile | null) {
+export async function saveAndMaybePublishRaid(
+  form: FormData,
+  user: DashboardSession,
+  profile?: DashboardProfile | null,
+) {
   const raid = await saveRaidFromForm(form, user, profile);
   const action = cleanString(form.get("action"), 40);
   if (action === "publish") {
-    const wasDiscordPublished = Boolean(raid.channelId && raid.messageId && raid.status !== "draft");
-    const result = await publishOrUpdateRaid(raid, form.get("channelId") ? cleanString(form.get("channelId"), 32) : raid.channelId);
-    const shouldAutoClose = isRaidClosed({ ...raid, ...result, status: "published" });
-    const nextStatus = shouldAutoClose ? "closed" as const : "published" as const;
+    const wasDiscordPublished = Boolean(
+      raid.channelId && raid.messageId && raid.status !== "draft",
+    );
+    const result = await publishOrUpdateRaid(
+      raid,
+      form.get("channelId")
+        ? cleanString(form.get("channelId"), 32)
+        : raid.channelId,
+    );
+    const shouldAutoClose = isRaidClosed({
+      ...raid,
+      ...result,
+      status: "published",
+    });
+    const nextStatus = shouldAutoClose
+      ? ("closed" as const)
+      : ("published" as const);
     return {
       raid: {
         ...raid,
         status: nextStatus,
-        closedReason: shouldAutoClose ? "auto" as const : null,
+        closedReason: shouldAutoClose ? ("auto" as const) : null,
         closedAt: shouldAutoClose ? new Date().toISOString() : null,
         ...result,
       },
       published: result.messageUrl,
-      discordAction: wasDiscordPublished ? "updated" as const : "created" as const,
+      discordAction: wasDiscordPublished
+        ? ("updated" as const)
+        : ("created" as const),
     };
   }
   return { raid, published: null, discordAction: null };
 }
 
-async function refreshProfileBeforeRaidSignup(profile: DashboardProfile | null, context: { raidId: string; userId: string }) {
+async function refreshProfileBeforeRaidSignup(
+  profile: DashboardProfile | null,
+  context: { raidId: string; userId: string },
+) {
   if (!profile?.characters?.length) return profile;
   try {
     return await refreshProfileCharactersForRaidSignup(profile);
@@ -1915,54 +2850,87 @@ async function refreshProfileBeforeRaidSignup(profile: DashboardProfile | null, 
   }
 }
 
-function resolveRaidSignupCharacter(profile?: DashboardProfile | null, characterKey?: unknown): ProfileCharacter | null {
+function resolveRaidSignupCharacter(
+  profile?: DashboardProfile | null,
+  characterKey?: unknown,
+): ProfileCharacter | null {
   if (!profile?.characters?.length) return null;
   const cleanKey = normalizeCharacterKey(characterKey);
   if (cleanKey) {
-    const selected = profile.characters.find((item) => normalizeCharacterKey(item.key) === cleanKey);
+    const selected = profile.characters.find(
+      (item) => normalizeCharacterKey(item.key) === cleanKey,
+    );
     if (selected) return selected;
   }
   return getMainCharacter(profile);
 }
 
-function resolveRaidSignupRole(profile: DashboardProfile | null | undefined, character: ProfileCharacter | null): RaidCharacterRole {
+function resolveRaidSignupRole(
+  profile: DashboardProfile | null | undefined,
+  character: ProfileCharacter | null,
+): RaidCharacterRole {
   if (!character) return "dps";
-  const manualRole = profile?.raidRolePreference?.characterKey === character.key ? profile?.raidRolePreference?.role : null;
-  return manualRole || resolveWowCharacterRole({
-    className: character.className,
-    activeSpecName: character.activeSpecName,
-    activeSpecId: character.activeSpecId,
-    activeSpecRole: character.activeSpecRole,
-  });
+  const manualRole =
+    profile?.raidRolePreference?.characterKey === character.key
+      ? profile?.raidRolePreference?.role
+      : null;
+  return (
+    manualRole ||
+    resolveWowCharacterRole({
+      className: character.className,
+      activeSpecName: character.activeSpecName,
+      activeSpecId: character.activeSpecId,
+      activeSpecRole: character.activeSpecRole,
+    })
+  );
 }
 
-function signupFromProfile(status: RaidSignupStatus, userId: string, userName: string, profile?: DashboardProfile | null, characterKey?: unknown): RaidSignup {
+function signupFromProfile(
+  status: RaidSignupStatus,
+  userId: string,
+  userName: string,
+  profile?: DashboardProfile | null,
+  characterKey?: unknown,
+): RaidSignup {
   const character = resolveRaidSignupCharacter(profile, characterKey);
   const role = resolveRaidSignupRole(profile, character);
   const now = new Date().toISOString();
 
   return {
     discordId: userId,
-    discordName: profile ? getProfilePublicName(profile) : userName || "Discord user",
+    discordName: profile
+      ? getProfilePublicName(profile)
+      : userName || "Discord user",
     profileId: profile?.profileId || null,
     characterKey: character?.key || null,
     status,
     role,
-    grammaticalGender: cleanProfileGrammaticalGender(profile?.grammaticalGender),
+    grammaticalGender: cleanProfileGrammaticalGender(
+      profile?.grammaticalGender,
+    ),
     characterName: character?.name || null,
     realmName: character?.realmName || character?.realmSlug || null,
     realmSlug: character?.realmSlug || null,
     region: character?.region || "eu",
     className: character?.className || null,
     activeSpecName: character?.activeSpecName || null,
-    activeSpecId: Number.isFinite(Number(character?.activeSpecId)) ? Number(character?.activeSpecId) : null,
-    level: Number.isFinite(Number(character?.level)) ? Number(character?.level) : null,
+    activeSpecId: Number.isFinite(Number(character?.activeSpecId))
+      ? Number(character?.activeSpecId)
+      : null,
+    level: Number.isFinite(Number(character?.level))
+      ? Number(character?.level)
+      : null,
     raceName: character?.raceName || null,
     faction: character?.faction || null,
-    avatarUrl: pickWowAvatarImageUrl(character?.avatarUrl, character?.renderUrl),
+    avatarUrl: pickWowAvatarImageUrl(
+      character?.avatarUrl,
+      character?.renderUrl,
+    ),
     renderUrl: character?.renderUrl || null,
     mediaUrl: character?.mediaUrl || null,
-    itemLevel: Number.isFinite(Number(character?.itemLevel)) ? Number(character?.itemLevel) : null,
+    itemLevel: Number.isFinite(Number(character?.itemLevel))
+      ? Number(character?.itemLevel)
+      : null,
     profileUrl: character?.profileUrl || null,
     verifiedGuild: character ? Boolean(character.verifiedGuild) : null,
     guildName: character?.guildName || null,
@@ -1974,7 +2942,8 @@ function signupFromProfile(status: RaidSignupStatus, userId: string, userName: s
 
 export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   const id = cleanRaidId(raidId);
-  if (!id || !hasRaidStorage()) throw new Error("Рейд не знайдено або збереження тимчасово недоступне.");
+  if (!id || !hasRaidStorage())
+    throw new Error("Рейд не знайдено або збереження тимчасово недоступне.");
 
   await firebaseWrite(
     "raid",
@@ -1985,17 +2954,54 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
         const snapshot = await transaction.get(ref);
         if (!snapshot.exists) throw new Error("Рейд не знайдено.");
         const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
-        if (isRaidClosed(raid)) throw new Error("Рейд уже закритий, запис вимкнено.");
-        if (raid.status !== "published") throw new Error("Запис доступний тільки для опублікованого рейду.");
+        if (isRaidClosed(raid))
+          throw new Error("Рейд уже закритий, запис вимкнено.");
+        if (raid.status !== "published")
+          throw new Error("Запис доступний тільки для опублікованого рейду.");
         const lockBlock = raidRegistrationLockBlockMessage(raid, signup.status);
         if (lockBlock) throw new Error(lockBlock);
         const block = raidMinItemLevelBlockMessage(raid, signup);
         if (block) throw new Error(block);
-        const fullBlock = raidRegistrationFullMessage(raid, signup.discordId, signup.status);
+        const fullBlock = raidRegistrationFullMessage(
+          raid,
+          signup.discordId,
+          signup.status,
+        );
         if (fullBlock) throw new Error(fullBlock);
-        const nextSignups = raid.signups.filter((item) => item.discordId !== signup.discordId);
-        nextSignups.push({ ...signup, updatedAt: new Date().toISOString(), signedAt: signup.signedAt || new Date().toISOString() });
-        transaction.set(ref, { signups: nextSignups, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+        const existingSignup =
+          raid.signups.find((item) => item.discordId === signup.discordId) ||
+          null;
+        const nextSignups = raid.signups.filter(
+          (item) => item.discordId !== signup.discordId,
+        );
+        const now = new Date().toISOString();
+        const becomesActive = isActiveSignupStatus(signup.status);
+        const existingNumber = cleanOptionalSignupNumber(
+          existingSignup?.signupNumber,
+        );
+        const signupNumber = becomesActive
+          ? existingNumber || nextRaidSignupNumber(nextSignups)
+          : existingNumber;
+        const signedAt =
+          existingSignup &&
+          (isActiveSignupStatus(existingSignup.status) || existingNumber)
+            ? existingSignup.signedAt || signup.signedAt || now
+            : signup.signedAt || now;
+
+        nextSignups.push({
+          ...signup,
+          signupNumber,
+          signedAt,
+          updatedAt: now,
+        });
+        transaction.set(
+          ref,
+          {
+            signups: normalizeRaidSignupNumbers(nextSignups),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       });
       clearRaidRuntimeCaches(id);
     },
@@ -2006,7 +3012,9 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   const updated = await getRaid(id);
   if (!updated) throw new Error("Рейд не знайдено після оновлення.");
   await writeRaidItemPublicCache(updated).catch(() => null);
-  await invalidatePublicCachePrefix(publicCacheKey(["dashboard", "raids", "list"])).catch(() => null);
+  await invalidatePublicCachePrefix(
+    publicCacheKey(["dashboard", "raids", "list"]),
+  ).catch(() => null);
   return updated;
 }
 
@@ -2017,24 +3025,35 @@ type DiscordMessageRefInput = {
   message_id?: string | null;
 };
 
-function cleanDiscordMessageRef(input?: DiscordMessageRefInput | null): DiscordMessageRef | null {
+function cleanDiscordMessageRef(
+  input?: DiscordMessageRefInput | null,
+): DiscordMessageRef | null {
   const channelId = cleanString(input?.channelId || input?.channel_id, 32);
   const messageId = cleanString(input?.messageId || input?.message_id, 32);
   return channelId && messageId ? { channelId, messageId } : null;
 }
 
-async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: DiscordMessageRefInput | null) {
+async function editCurrentRaidDiscordMessage(
+  raid: RaidItem,
+  messageRef?: DiscordMessageRefInput | null,
+) {
   if (raid.status !== "published") return false;
 
   // Важливо: під час вибору персонажа Discord надсилає ref на приватне ephemeral-повідомлення
   // з select-menu, а не на основний публічний embed рейду. Якщо редагувати цей ref першим,
   // синхронізація падає і користувач бачить "Discord-повідомлення не оновилося автоматично".
   // Тому основне джерело істини — messageId/channelId, збережені в документі рейду.
-  const storedRef = cleanDiscordMessageRef({ channelId: raid.channelId, messageId: raid.messageId });
+  const storedRef = cleanDiscordMessageRef({
+    channelId: raid.channelId,
+    messageId: raid.messageId,
+  });
   const fallbackRef = cleanDiscordMessageRef(messageRef);
   const ref = storedRef || fallbackRef;
   if (!ref) {
-    console.warn("[raids] Discord message sync skipped: raid has no stored message ref", { raidId: raid.id });
+    console.warn(
+      "[raids] Discord message sync skipped: raid has no stored message ref",
+      { raidId: raid.id },
+    );
     return false;
   }
 
@@ -2059,18 +3078,31 @@ async function editCurrentRaidDiscordMessage(raid: RaidItem, messageRef?: Discor
   return true;
 }
 
-async function syncRaidDiscordAfterSignup(raid: RaidItem, messageRef?: DiscordMessageRefInput | null) {
+async function syncRaidDiscordAfterSignup(
+  raid: RaidItem,
+  messageRef?: DiscordMessageRefInput | null,
+) {
   try {
     return await editCurrentRaidDiscordMessage(raid, messageRef);
   } catch (error) {
-    console.warn("[raids] Discord message sync after signup failed", { raidId: raid.id, message: error instanceof Error ? error.message : String(error) });
+    console.warn("[raids] Discord message sync after signup failed", {
+      raidId: raid.id,
+      message: error instanceof Error ? error.message : String(error),
+    });
     return false;
   }
 }
 
 export function raidMinItemLevelBlockMessage(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
-  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status" | "grammaticalGender"> | null,
+  signup?: Pick<
+    RaidSignup,
+    | "itemLevel"
+    | "characterName"
+    | "discordName"
+    | "status"
+    | "grammaticalGender"
+  > | null,
 ) {
   if (!isRaidSubjectBlockedByMinItemLevel(raid, signup)) return null;
 
@@ -2085,27 +3117,56 @@ export function raidMinItemLevelBlockMessage(
 
 export function raidMinItemLevelWarning(
   raid: Pick<RaidItem, "minItemLevel" | "minItemLevelRequired">,
-  signup?: Pick<RaidSignup, "itemLevel" | "characterName" | "discordName" | "status" | "grammaticalGender"> | null,
+  signup?: Pick<
+    RaidSignup,
+    | "itemLevel"
+    | "characterName"
+    | "discordName"
+    | "status"
+    | "grammaticalGender"
+  > | null,
 ) {
   if (!isRaidSubjectWarnedByMinItemLevel(raid, signup)) return null;
   const required = raidMinimumItemLevel(raid);
   const current = raidSubjectItemLevel(signup);
   const name = signup?.characterName || signup?.discordName || "Персонаж";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записали");
+  const signedText = profileGenderedText(
+    signup?.grammaticalGender,
+    "Ти записаний",
+    "Ти записана",
+    "Тебе записали",
+  );
   return `⚠️ ${name}: item level ${current} нижче мінімального порогу ${required}. ${signedText}, але краще підняти спорядження перед рейдом.`;
 }
 
-function attendanceSuccessText(action: RaidSignupStatus, raid: RaidItem, signup?: RaidSignup | null, discordSynced = true) {
+function attendanceSuccessText(
+  action: RaidSignupStatus,
+  raid: RaidItem,
+  signup?: RaidSignup | null,
+  discordSynced = true,
+) {
   const syncText = discordSynced
     ? "Склад Discord оновлено."
     : "Запис збережено, але Discord-повідомлення не оновилося автоматично. Офіцер може натиснути “Оновити Discord”.";
-  if (action === "skipped") return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
+  if (action === "skipped")
+    return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
-  const characterText = signup?.characterName ? ` як ${signup.characterName}` : "";
-  const signedText = profileGenderedText(signup?.grammaticalGender, "Ти записаний", "Ти записана", "Тебе записали");
-  const base = action === "late"
-    ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}. ${syncText}`
-    : `✅ ${signedText} на ${raidTitle(raid)}${characterText}. ${syncText}`;
+  const characterText = signup?.characterName
+    ? ` як ${signup.characterName}`
+    : "";
+  const signupNumberText = raidSignupNumberLabel(signup)
+    ? ` Номер запису: ${raidSignupNumberLabel(signup)}.`
+    : "";
+  const signedText = profileGenderedText(
+    signup?.grammaticalGender,
+    "Ти записаний",
+    "Ти записана",
+    "Тебе записали",
+  );
+  const base =
+    action === "late"
+      ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}.${signupNumberText} ${syncText}`
+      : `✅ ${signedText} на ${raidTitle(raid)}${characterText}.${signupNumberText} ${syncText}`;
   return warning ? `${base}\n\n${warning}` : base;
 }
 
@@ -2118,19 +3179,44 @@ export async function handleRaidDiscordAction(params: {
   messageRef?: DiscordMessageRefInput | null;
 }) {
   const raid = await getRaid(params.raidId);
-  if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
-  if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
-  if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+  if (!raid)
+    return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (isRaidClosed(raid))
+    return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
+  if (raid.status !== "published")
+    return {
+      ok: false,
+      content: "❌ Запис доступний тільки для опублікованого рейду.",
+    };
   const lockBlock = raidRegistrationLockBlockMessage(raid, params.action);
-  if (lockBlock) return { ok: false, content: lockBlock, warning: null, blockedByRegistrationLock: true };
-  const fullBlock = raidRegistrationFullMessage(raid, params.userId, params.action);
-  if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
+  if (lockBlock)
+    return {
+      ok: false,
+      content: lockBlock,
+      warning: null,
+      blockedByRegistrationLock: true,
+    };
+  const fullBlock = raidRegistrationFullMessage(
+    raid,
+    params.userId,
+    params.action,
+  );
+  if (fullBlock)
+    return {
+      ok: false,
+      content: fullBlock,
+      warning: null,
+      blockedByMaxPlayers: true,
+    };
 
   let profile: DashboardProfile | null = null;
   let selectedCharacter: ProfileCharacter | null = null;
   if (params.action !== "skipped") {
     profile = await getProfileByDiscordUserId(params.userId);
-    profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: params.userId });
+    profile = await refreshProfileBeforeRaidSignup(profile, {
+      raidId: raid.id,
+      userId: params.userId,
+    });
     if (!profile || !profile.characters.length) {
       return {
         ok: false,
@@ -2140,13 +3226,36 @@ export async function handleRaidDiscordAction(params: {
       };
     }
 
-    const requestedCharacter = resolveProfileCharacterSelection(profile, params.characterKey);
+    const requestedCharacter = resolveProfileCharacterSelection(
+      profile,
+      params.characterKey,
+    );
     const eligibleCharacters = raidEligibleSignupCharacters(raid, profile);
-    const currentSignup = raid.signups.find((item) => item.discordId === params.userId);
-    const isCharacterChange = Boolean(currentSignup && isActiveSignupStatus(currentSignup.status));
-    if (requestedCharacter && isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)) {
-      const blockedSignup = signupFromProfile(params.action, params.userId, params.userName, profile, requestedCharacter.key);
-      return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
+    const currentSignup = raid.signups.find(
+      (item) => item.discordId === params.userId,
+    );
+    const isCharacterChange = Boolean(
+      currentSignup && isActiveSignupStatus(currentSignup.status),
+    );
+    if (
+      requestedCharacter &&
+      isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)
+    ) {
+      const blockedSignup = signupFromProfile(
+        params.action,
+        params.userId,
+        params.userName,
+        profile,
+        requestedCharacter.key,
+      );
+      return {
+        ok: false,
+        content:
+          raidMinItemLevelBlockMessage(raid, blockedSignup) ||
+          "⛔ Цей персонаж не проходить мінімальний item level для рейду.",
+        warning: null,
+        blockedByMinItemLevel: true,
+      };
     }
     selectedCharacter = requestedCharacter;
 
@@ -2157,16 +3266,25 @@ export async function handleRaidDiscordAction(params: {
         content: isCharacterChange
           ? `🔁 Ти вже записаний на рейд${currentSignup?.characterName ? ` як ${currentSignup.characterName}` : ""}. Обери персонажа, на якого потрібно змінити запис. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`
           : `🎯 Обери персонажа, яким хочеш записатися на рейд. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`,
-        components: buildRaidCharacterSelectComponents(raid.id, params.action, profile, currentSignup?.characterKey || null, raid),
+        components: buildRaidCharacterSelectComponents(
+          raid.id,
+          params.action,
+          profile,
+          currentSignup?.characterKey || null,
+          raid,
+        ),
         requiresCharacterSelection: true,
       };
     }
     if (!selectedCharacter) {
       const minimum = raidMinimumItemLevel(raid);
-      const content = profile.characters.length && raid.minItemLevelRequired && minimum
-        ? `⛔ Немає доступних персонажів для запису: потрібен мінімум ${minimum} ilvl. Персонажі нижче порогу не показуються і не можуть бути записані.`
-        : raidActionHelpText("main");
-      const allBlocked = Boolean(profile.characters.length && raid.minItemLevelRequired && minimum);
+      const content =
+        profile.characters.length && raid.minItemLevelRequired && minimum
+          ? `⛔ Немає доступних персонажів для запису: потрібен мінімум ${minimum} ilvl. Персонажі нижче порогу не показуються і не можуть бути записані.`
+          : raidActionHelpText("main");
+      const allBlocked = Boolean(
+        profile.characters.length && raid.minItemLevelRequired && minimum,
+      );
       return {
         ok: false,
         content,
@@ -2179,18 +3297,54 @@ export async function handleRaidDiscordAction(params: {
     profile = await getProfileByDiscordUserId(params.userId).catch(() => null);
   }
 
-  const signup = signupFromProfile(params.action, params.userId, params.userName, profile, selectedCharacter?.key || params.characterKey);
+  const signup = signupFromProfile(
+    params.action,
+    params.userId,
+    params.userName,
+    profile,
+    selectedCharacter?.key || params.characterKey,
+  );
   const block = raidMinItemLevelBlockMessage(raid, signup);
-  if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
+  if (block)
+    return {
+      ok: false,
+      content: block,
+      warning: null,
+      blockedByMinItemLevel: true,
+    };
   let updated: RaidItem;
   try {
     updated = await recordRaidSignup(raid.id, signup);
   } catch (error) {
-    return { ok: false, content: raidWriteErrorMessage(error), warning: null, storageReadOnly: true };
+    return {
+      ok: false,
+      content: raidWriteErrorMessage(error),
+      warning: null,
+      storageReadOnly: true,
+    };
   }
-  const discordSynced = await syncRaidDiscordAfterSignup(updated, params.messageRef);
-  const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
+  const discordSynced = await syncRaidDiscordAfterSignup(
+    updated,
+    params.messageRef,
+  );
+  const warning =
+    params.action === "skipped"
+      ? null
+      : raidMinItemLevelWarning(updated, signup);
+  const updatedSignup =
+    updated.signups.find((item) => item.discordId === signup.discordId) || signup;
+  return {
+    ok: true,
+    content: attendanceSuccessText(
+      params.action,
+      updated,
+      updatedSignup,
+      discordSynced,
+    ),
+    warning,
+    raid: updated,
+    discordSynced,
+  };
 }
 
 export async function handleRaidSessionAction(params: {
@@ -2200,13 +3354,28 @@ export async function handleRaidSessionAction(params: {
   characterKey?: string | null;
 }) {
   const raid = await getRaid(params.raidId);
-  if (!raid) return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
-  if (isRaidClosed(raid)) return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
-  if (raid.status !== "published") return { ok: false, content: "❌ Запис доступний тільки для опублікованого рейду." };
+  if (!raid)
+    return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  if (isRaidClosed(raid))
+    return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
+  if (raid.status !== "published")
+    return {
+      ok: false,
+      content: "❌ Запис доступний тільки для опублікованого рейду.",
+    };
   const lockBlock = raidRegistrationLockBlockMessage(raid, params.action);
-  if (lockBlock) return { ok: false, content: lockBlock, warning: null, blockedByRegistrationLock: true };
+  if (lockBlock)
+    return {
+      ok: false,
+      content: lockBlock,
+      warning: null,
+      blockedByRegistrationLock: true,
+    };
 
-  const discordId = params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id) ? params.user.id : "";
+  const discordId =
+    params.user.provider === "discord" && /^\d{16,25}$/.test(params.user.id)
+      ? params.user.id
+      : "";
   if (!discordId) {
     return {
       ok: false,
@@ -2216,7 +3385,13 @@ export async function handleRaidSessionAction(params: {
     };
   }
   const fullBlock = raidRegistrationFullMessage(raid, discordId, params.action);
-  if (fullBlock) return { ok: false, content: fullBlock, warning: null, blockedByMaxPlayers: true };
+  if (fullBlock)
+    return {
+      ok: false,
+      content: fullBlock,
+      warning: null,
+      blockedByMaxPlayers: true,
+    };
 
   let profile: DashboardProfile | null = null;
   if (params.user.profileId) {
@@ -2228,17 +3403,44 @@ export async function handleRaidSessionAction(params: {
 
   let selectedCharacter: ProfileCharacter | null = null;
   if (params.action !== "skipped") {
-    profile = await refreshProfileBeforeRaidSignup(profile, { raidId: raid.id, userId: discordId });
-    const requestedCharacter = resolveProfileCharacterSelection(profile, params.characterKey);
+    profile = await refreshProfileBeforeRaidSignup(profile, {
+      raidId: raid.id,
+      userId: discordId,
+    });
+    const requestedCharacter = resolveProfileCharacterSelection(
+      profile,
+      params.characterKey,
+    );
     const eligibleCharacters = raidEligibleSignupCharacters(raid, profile);
-    if (requestedCharacter && isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)) {
-      const blockedSignup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, requestedCharacter.key);
-      return { ok: false, content: raidMinItemLevelBlockMessage(raid, blockedSignup) || "⛔ Цей персонаж не проходить мінімальний item level для рейду.", warning: null, blockedByMinItemLevel: true };
+    if (
+      requestedCharacter &&
+      isRaidSubjectBlockedByMinItemLevel(raid, requestedCharacter)
+    ) {
+      const blockedSignup = signupFromProfile(
+        params.action,
+        discordId,
+        params.user.name || params.user.login || "Discord user",
+        profile,
+        requestedCharacter.key,
+      );
+      return {
+        ok: false,
+        content:
+          raidMinItemLevelBlockMessage(raid, blockedSignup) ||
+          "⛔ Цей персонаж не проходить мінімальний item level для рейду.",
+        warning: null,
+        blockedByMinItemLevel: true,
+      };
     }
     selectedCharacter = requestedCharacter;
     if (!profile || !profile.characters.length || !selectedCharacter) {
       const minimum = raidMinimumItemLevel(raid);
-      const allBlocked = Boolean(profile?.characters.length && raid.minItemLevelRequired && minimum && eligibleCharacters.length === 0);
+      const allBlocked = Boolean(
+        profile?.characters.length &&
+        raid.minItemLevelRequired &&
+        minimum &&
+        eligibleCharacters.length === 0,
+      );
       return {
         ok: false,
         content: !profile
@@ -2257,35 +3459,76 @@ export async function handleRaidSessionAction(params: {
     }
   }
 
-  const signup = signupFromProfile(params.action, discordId, params.user.name || params.user.login || "Discord user", profile, selectedCharacter?.key || params.characterKey);
+  const signup = signupFromProfile(
+    params.action,
+    discordId,
+    params.user.name || params.user.login || "Discord user",
+    profile,
+    selectedCharacter?.key || params.characterKey,
+  );
   const block = raidMinItemLevelBlockMessage(raid, signup);
-  if (block) return { ok: false, content: block, warning: null, blockedByMinItemLevel: true };
+  if (block)
+    return {
+      ok: false,
+      content: block,
+      warning: null,
+      blockedByMinItemLevel: true,
+    };
   let updated: RaidItem;
   try {
     updated = await recordRaidSignup(raid.id, signup);
   } catch (error) {
-    return { ok: false, content: raidWriteErrorMessage(error), warning: null, storageReadOnly: true };
+    return {
+      ok: false,
+      content: raidWriteErrorMessage(error),
+      warning: null,
+      storageReadOnly: true,
+    };
   }
   const discordSynced = await syncRaidDiscordAfterSignup(updated);
-  const warning = params.action === "skipped" ? null : raidMinItemLevelWarning(updated, signup);
-  return { ok: true, content: attendanceSuccessText(params.action, updated, signup, discordSynced), warning, raid: updated, discordSynced };
+  const warning =
+    params.action === "skipped"
+      ? null
+      : raidMinItemLevelWarning(updated, signup);
+  const updatedSignup =
+    updated.signups.find((item) => item.discordId === signup.discordId) ||
+    signup;
+  return {
+    ok: true,
+    content: attendanceSuccessText(
+      params.action,
+      updated,
+      updatedSignup,
+      discordSynced,
+    ),
+    warning,
+    raid: updated,
+    discordSynced,
+  };
 }
 
 export function raidLiveRevision(raid: RaidItem) {
   const signupsSignature = [...(raid.signups || [])]
-    .sort((a, b) => `${a.discordId}:${a.characterName || ""}`.localeCompare(`${b.discordId}:${b.characterName || ""}`))
-    .map((item) => [
-      item.discordId,
-      item.characterKey || "",
-      item.status,
-      item.role,
-      item.characterName || "",
-      item.realmSlug || item.realmName || "",
-      item.itemLevel ?? "",
-      item.grammaticalGender || "unspecified",
-      item.verifiedGuild === false ? "other" : "guild",
-      item.updatedAt || item.signedAt || "",
-    ].join("~"))
+    .sort((a, b) =>
+      `${a.discordId}:${a.characterName || ""}`.localeCompare(
+        `${b.discordId}:${b.characterName || ""}`,
+      ),
+    )
+    .map((item) =>
+      [
+        item.discordId,
+        item.characterKey || "",
+        item.signupNumber ?? "",
+        item.status,
+        item.role,
+        item.characterName || "",
+        item.realmSlug || item.realmName || "",
+        item.itemLevel ?? "",
+        item.grammaticalGender || "unspecified",
+        item.verifiedGuild === false ? "other" : "guild",
+        item.updatedAt || item.signedAt || "",
+      ].join("~"),
+    )
     .join("|");
 
   return [

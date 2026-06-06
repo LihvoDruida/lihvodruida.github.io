@@ -112,6 +112,12 @@ function SignupAvatar({ item }: { item?: RaidSignup | null }) {
   return <span className="raid-signup-avatar raid-signup-avatar--empty" aria-hidden="true">{(item.characterName || item.discordName || "A").charAt(0)}</span>;
 }
 
+function SignupNumberBadge({ item }: { item?: Pick<RaidSignup, "signupNumber"> | null }) {
+  const number = Number(item?.signupNumber || 0);
+  const label = Number.isFinite(number) && number > 0 ? `№${Math.floor(number)}` : "—";
+  return <span className={`raid-signup-order${label === "—" ? " raid-signup-order--empty" : ""}`} title={label === "—" ? "Місце ще не зайняте" : `Порядковий номер запису: ${label}`}>{label}</span>;
+}
+
 function raidStatusLabel(raid: RaidItem) {
   if (isRaidClosed(raid)) return "Закрито";
   return raid.status === "published" ? "Опубліковано" : "Чернетка";
@@ -135,6 +141,7 @@ function RoleRow({ label, item, role, minItemLevel, minItemLevelRequired, showIt
   return (
     <div className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${item?.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${block ? " is-blocked" : ""}`}>
       <span className="raid-role-icon" aria-hidden="true">{role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}</span>
+      <SignupNumberBadge item={item} />
       <span className="raid-role-label">{label}</span>
       <SignupAvatar item={item} />
       <span className="raid-party-member-copy">
@@ -171,7 +178,8 @@ function RosterBlock({ title, items, empty = "Поки порожньо", showIt
           : null;
         return (
           <div className={`raid-roster-member${item.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}`} key={`${title}-${item.discordId}`}>
-            <span>{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
+            <SignupNumberBadge item={item} />
+            <span className="raid-roster-role-icon">{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
             <SignupAvatar item={item} />
             <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
             <small>{signupSpecLabel(item) || item.discordName}</small>
