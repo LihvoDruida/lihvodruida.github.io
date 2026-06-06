@@ -3412,6 +3412,113 @@ function decodeRaidCharacterSelectCustomId(customId, values) {
   return { raidId: match[1], action: match[2], characterKey: selected };
 }
 
+function decodeRaidPollCustomId(customId, values) {
+  const value = String(customId || "").trim();
+  const match = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
+  if (!match) return null;
+  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
+  if (!selected.length) return null;
+  return { pollId: match[2], kind: match[1], values: selected };
+}
+
+function dashboardRaidPollVoteEndpoint(env, pollId) {
+  const explicit = String(env.DASHBOARD_RAID_POLL_VOTE_ENDPOINT || env.DASHBOARD_POLL_VOTE_ENDPOINT || "").trim();
+  if (explicit) return explicit.replace("{pollId}", encodeURIComponent(pollId));
+  try {
+    return new URL("/api/polls/" + encodeURIComponent(pollId) + "/vote", dashboardAuthUrl(env)).toString();
+  } catch {
+    return "https://admin.lihvodruida.pp.ua/api/polls/" + encodeURIComponent(pollId) + "/vote";
+  }
+}
+
+function normalizeRaidPollProxyResult(data) {
+  const content = String(data?.content || "Голос оброблено.").trim();
+  return {
+    ok: Boolean(data?.ok),
+    closed: Boolean(data?.closed),
+    content: limitText(content, 1800, "Голос оброблено."),
+  };
+}
+
+async function raidPollProxyContent(interaction, env, pollAction) {
+  const token = String(env.INTERNAL_PROFILE_LOOKUP_TOKEN || env.DISCORD_RULES_STATS_TOKEN || env.WORKER_STATS_TOKEN || "").trim();
+  if (!token) {
+    logWorkerEvent("warn", "raid_poll.proxy.missing_token", { pollId: pollAction.pollId });
+    return {
+      ok: false,
+      content: "❌ Голосування тимчасово недоступне: серверний зв’язок із панеллю не налаштований. Звернись до гільдмайстра.",
+    };
+  }
+
+  try {
+    const idempotencyKey = `discord-raid-poll:${pollAction.pollId}:${getDiscordUserId(interaction)}:${pollAction.kind}:${pollAction.values.join(".")}:${interaction?.id || Date.now()}`;
+    const { response, raw } = await fetchDashboardText(env, dashboardRaidPollVoteEndpoint(env, pollAction.pollId), token, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "x-worker-stats-token": token,
+        "x-idempotency-key": idempotencyKey,
+      },
+      body: JSON.stringify({
+        kind: pollAction.kind,
+        values: pollAction.values,
+        userId: getDiscordUserId(interaction),
+        userName: getDiscordUserLabel(interaction),
+        guildId: getInteractionGuildId(interaction, env),
+        guildName: env.DISCORD_GUILD_NAME || env.GUILD_NAME || "Discord server",
+        channelId: getRaidInteractionMessageRef(interaction).channelId,
+        messageId: getRaidInteractionMessageRef(interaction).messageId,
+        source: "discord-interaction-worker",
+      }),
+    }, { timeoutMs: 9000, retries: 1 });
+
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+    if (!response.ok || !data) {
+      logWorkerEvent("warn", "raid_poll.proxy.bad_response", { pollId: pollAction.pollId, status: response.status, raw: raw.slice(0, 180) });
+      return { ok: false, content: "❌ Не вдалося зберегти голос. Спробуй пізніше або звернись до офіцера." };
+    }
+
+    const result = normalizeRaidPollProxyResult(data);
+    logWorkerEvent(result.ok ? "info" : "warn", "raid_poll.proxy.done", {
+      pollId: pollAction.pollId,
+      kind: pollAction.kind,
+      ok: result.ok,
+      closed: result.closed,
+      values: pollAction.values.length,
+    });
+    return result;
+  } catch (error) {
+    logWorkerEvent("error", "raid_poll.proxy.failed", { pollId: pollAction.pollId, kind: pollAction.kind, message: error?.message });
+    return { ok: false, content: "❌ Не вдалося зберегти голос. Спробуй пізніше або звернись до офіцера." };
+  }
+}
+
+async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
+  if (isInteractionRateLimited(interaction, "raid-poll")) {
+    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
+  }
+
+  if (ctx && typeof ctx.waitUntil === "function") {
+    ctx.waitUntil((async () => {
+      try {
+        const result = await raidPollProxyContent(interaction, env, pollAction);
+        await editOriginalInteractionResponse(interaction, result.content, []);
+      } catch (error) {
+        logWorkerEvent("error", "raid_poll.deferred.failed", {
+          pollId: pollAction.pollId,
+          kind: pollAction.kind,
+          message: error?.message,
+        });
+      }
+    })());
+    return deferredEphemeral();
+  }
+
+  const result = await raidPollProxyContent(interaction, env, pollAction);
+  return finishRulesDecision(interaction, result.content);
+}
+
 function dashboardRaidActionEndpoint(env, raidId) {
   const explicit = String(env.DASHBOARD_RAID_ACTION_ENDPOINT || "").trim();
   if (explicit) return explicit.replace("{raidId}", encodeURIComponent(raidId));
@@ -3602,6 +3709,9 @@ async function handleDiscordInteraction(request, env, ctx) {
 
   const applicationResult = await handleApplicationInteraction(interaction, env, customId);
   if (applicationResult) return applicationResult;
+
+  const raidPollAction = decodeRaidPollCustomId(customId, interaction?.data?.values);
+  if (raidPollAction) return handleRaidPollInteraction(interaction, env, raidPollAction, ctx);
 
   const raidCharacterSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
   if (raidCharacterSelectAction) return handleRaidAnnouncementInteraction(interaction, env, raidCharacterSelectAction, ctx);
