@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-05 21:27:35'
+  updated_at: '2026-06-06 06:54:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3461,7 +3461,7 @@ characters:
         learned_points: 1
         max_points: 200
       - name: Midnight Fishing
-        learned_points: 37
+        learned_points: 41
         max_points: 300
 - name: Travka
   region: eu

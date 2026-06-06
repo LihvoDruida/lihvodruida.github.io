@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-05 21:27:35'
+  updated_at: '2026-06-06 06:54:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13928
+      world: 13948
       region: 6095
       realm: 49
     mythic:
-      world: 6989
+      world: 6995
       region: 2990
       realm: 20
   sporefall:
@@ -3461,13 +3461,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 277
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2871.4
+        score: 2877.3
         color: '#5597b3'
       dps:
-        score: 2871.4
+        score: 2877.3
         color: '#5597b3'
       healer:
         score: 0
@@ -3482,7 +3482,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2871.4
+        score: 2877.3
         color: '#5597b3'
       spec_3:
         score: 0
@@ -4223,7 +4223,7 @@ members:
   character:
     name: Zanziwolf
     id: 190458262
-    level: 27
+    level: 30
     realm:
       id: 1306
       slug: tarren-mill
@@ -5260,14 +5260,14 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3225
-        color: '#6d5de5'
+        score: 3257.1
+        color: '#7659e6'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3225
-        color: '#6d5de5'
+        score: 3257.1
+        color: '#7659e6'
       tank:
         score: 0
         color: '#ffffff'
@@ -5278,8 +5278,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3225
-        color: '#6d5de5'
+        score: 3257.1
+        color: '#7659e6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5985,13 +5985,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3103.6
+        score: 3109.2
         color: '#2a6dde'
       dps:
-        score: 3103.6
+        score: 3109.2
         color: '#2a6dde'
       healer:
         score: 0
@@ -6003,11 +6003,11 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3103.6
+        score: 3109.2
         color: '#2a6dde'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 625.9
+        color: '#e4ffd8'
       spec_3:
         score: 0
         color: '#ffffff'
