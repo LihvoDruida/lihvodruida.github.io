@@ -113,6 +113,18 @@ function cleanSnowflake(value: unknown) {
   return /^\d{16,25}$/.test(text) ? text : "";
 }
 
+function cleanSnowflakeIds(values: unknown) {
+  const list = Array.isArray(values) ? values : typeof values === "string" ? values.split(/[\s,]+/) : [];
+  return Array.from(new Set(list.map(cleanSnowflake).filter(Boolean))).slice(0, 25);
+}
+
+function cleanBoolean(value: unknown) {
+  if (value === true) return true;
+  if (typeof value === "number") return value === 1;
+  const text = cleanString(value, 20).toLowerCase();
+  return text === "1" || text === "true" || text === "yes" || text === "on" || text === "так";
+}
+
 function cleanDifficulty(value: unknown): RaidPollDifficulty {
   const key = cleanString(value, 40).toLowerCase();
   if (key === "normal" || key === "нормал") return "normal";
@@ -306,6 +318,78 @@ export function dashboardPollUrl(pollId: string) {
   return `${dashboardBaseUrl()}/polls/${encodeURIComponent(pollId)}`;
 }
 
+function raidPollTimeZone() {
+  return String(process.env.RAID_POLL_TIME_ZONE || process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv");
+}
+
+function timezoneOffsetMs(date: Date, timeZone: string) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const asUtc = Date.UTC(
+      Number(values.year),
+      Number(values.month) - 1,
+      Number(values.day),
+      Number(values.hour === "24" ? "0" : values.hour),
+      Number(values.minute),
+      Number(values.second),
+    );
+    return asUtc - date.getTime();
+  } catch {
+    return 0;
+  }
+}
+
+function zonedDateTimeToUtcMs(year: number, month: number, day: number, hour: number, minute: number, timeZone = raidPollTimeZone()) {
+  const guess = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+  return guess.getTime() - timezoneOffsetMs(guess, timeZone);
+}
+
+function localDateParts(date: Date, timeZone = raidPollTimeZone()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+    weekday: String(values.weekday || ""),
+  };
+}
+
+function nextWeeklyMondayNoonMs(fromMs = Date.now()) {
+  const timeZone = raidPollTimeZone();
+  const local = localDateParts(new Date(fromMs), timeZone);
+  for (let addDays = 0; addDays <= 14; addDays += 1) {
+    const localCandidateDate = new Date(Date.UTC(local.year, local.month - 1, local.day + addDays, 12, 0, 0));
+    const year = localCandidateDate.getUTCFullYear();
+    const month = localCandidateDate.getUTCMonth() + 1;
+    const day = localCandidateDate.getUTCDate();
+    const candidateMs = zonedDateTimeToUtcMs(year, month, day, 12, 0, timeZone);
+    const candidateLocal = localDateParts(new Date(candidateMs), timeZone);
+    if (candidateLocal.weekday === "Mon" && candidateMs > fromMs + 60_000) return candidateMs;
+  }
+  return fromMs + 7 * 24 * 60 * 60 * 1000;
+}
+
+function nextWeeklyMondayNoonIso(fromMs = Date.now()) {
+  return new Date(nextWeeklyMondayNoonMs(fromMs)).toISOString();
+}
+
 export function hasRaidPollStorage() {
   return hasFirebaseProfileConfig();
 }
@@ -363,9 +447,14 @@ export function normalizeRaidPoll(id: string, data: Record<string, unknown>): Ra
   const closeAfterMinutes = cleanCloseAfterMinutes(data.closeAfterMinutes || data.close_after_minutes);
   const createdAt = safeIso(data.createdAt || data.created_at, now);
   const closesAtMs = safeMs(data.closesAtMs || data.closes_at_ms, Date.parse(createdAt) + closeAfterMinutes * 60 * 1000);
-  const status = cleanString(data.status, 20).toLowerCase() === "closed" || closesAtMs <= Date.now() && cleanString(data.status, 20).toLowerCase() !== "open"
-    ? "closed"
-    : cleanString(data.status, 20).toLowerCase() === "closed" ? "closed" : "open";
+  // Важливо: не закриваємо обʼєкт тільки під час normalize.
+  // Інакше closeDueRaidPoll() бачить already closed і не PATCH-ить Discord,
+  // через що публічна кнопка "Проголосувати" лишається активною у старому embed.
+  const status = cleanString(data.status, 20).toLowerCase() === "closed" ? "closed" : "open";
+  const autoRepeatWeekly = cleanBoolean(data.autoRepeatWeekly ?? data.auto_repeat_weekly ?? data.repeatWeekly ?? data.repeat_weekly);
+  const repeatNextAtMs = autoRepeatWeekly
+    ? safeMs(data.repeatNextAtMs ?? data.repeat_next_at_ms, nextWeeklyMondayNoonMs(Date.parse(createdAt) || Date.now()))
+    : null;
 
   return {
     id,
@@ -383,6 +472,12 @@ export function normalizeRaidPoll(id: string, data: Record<string, unknown>): Ra
     channelId: cleanSnowflake(data.channelId || data.channel_id) || null,
     messageId: cleanSnowflake(data.messageId || data.message_id) || null,
     messageUrl: cleanString(data.messageUrl || data.message_url, 2048) || null,
+    mentionRoleIds: cleanSnowflakeIds(data.mentionRoleIds ?? data.mention_role_ids),
+    autoRepeatWeekly,
+    repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
+    repeatNextAtMs,
+    repeatSeriesId: cleanString(data.repeatSeriesId || data.repeat_series_id, 80) || (autoRepeatWeekly ? id : null),
+    repeatedFromPollId: cleanString(data.repeatedFromPollId || data.repeated_from_poll_id, 80) || null,
     days: cleanPollDays(data.days).length ? cleanPollDays(data.days) : RAID_POLL_DAYS.map((day) => day.value),
     votes: normalizeVotes(data),
     createdAt,
@@ -729,6 +824,7 @@ export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
     content: closed ? "🔒 **Голосування завершено. Фінальний результат нижче.**" : "🗳️ **Рейд-пул відкрито. Натисніть кнопку, оберіть персонажа/роль/розклад і підтвердьте голос.**",
     embed,
     components: buildRaidPollDiscordComponents(poll),
+    mentionRoleIds: cleanSnowflakeIds(poll.mentionRoleIds || []),
   };
 }
 
@@ -884,6 +980,7 @@ async function editPollDiscordMessage(poll: RaidPollItem) {
     content: payload.content,
     embed: payload.embed,
     components: payload.components,
+    mentionRoleIds: payload.mentionRoleIds,
     auditReason: `Raid poll sync: ${poll.id}`,
   });
 }
@@ -904,6 +1001,7 @@ async function publishOrUpdatePollDiscordMessage(poll: RaidPollItem, channelIdIn
         content: payload.content,
         embed: payload.embed,
         components: payload.components,
+        mentionRoleIds: payload.mentionRoleIds,
         auditReason: `Raid poll updated: ${poll.id}`,
       }) as Record<string, unknown>;
     } catch (error) {
@@ -913,6 +1011,7 @@ async function publishOrUpdatePollDiscordMessage(poll: RaidPollItem, channelIdIn
         content: payload.content,
         embed: payload.embed,
         components: payload.components,
+        mentionRoleIds: payload.mentionRoleIds,
         auditReason: `Raid poll republished after missing message: ${poll.id}`,
       }) as Record<string, unknown>;
     }
@@ -922,6 +1021,7 @@ async function publishOrUpdatePollDiscordMessage(poll: RaidPollItem, channelIdIn
       content: payload.content,
       embed: payload.embed,
       components: payload.components,
+      mentionRoleIds: payload.mentionRoleIds,
       auditReason: hasExistingMessage ? `Raid poll moved to another channel: ${poll.id}` : `Raid poll created from dashboard: ${poll.id}`,
     }) as Record<string, unknown>;
 
@@ -1010,6 +1110,10 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
   const closesAtMs = now.getTime() + closeAfterMinutes * 60 * 1000;
   const id = newPollId();
   const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
+  const mentionRoleIds = cleanSnowflakeIds(input.mentionRoleIds);
+  const autoRepeatWeekly = cleanBoolean(input.autoRepeatWeekly);
+  const repeatNextAtMs = autoRepeatWeekly ? nextWeeklyMondayNoonMs(now.getTime()) : null;
+  const repeatSeriesId = autoRepeatWeekly ? id : null;
 
   const basePoll: RaidPollItem = {
     id,
@@ -1027,6 +1131,12 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
     channelId: channelId || null,
     messageId: null,
     messageUrl: null,
+    mentionRoleIds,
+    autoRepeatWeekly,
+    repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
+    repeatNextAtMs,
+    repeatSeriesId,
+    repeatedFromPollId: null,
     days: activeDays,
     votes: [],
     createdAt: nowIso,
@@ -1037,6 +1147,12 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
     await pollRef(id).set({
       ...basePoll,
       days: activeDays,
+      mentionRoleIds,
+      autoRepeatWeekly,
+      repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
+      repeatNextAtMs,
+      repeatSeriesId,
+      repeatedFromPollId: null,
       votes: [],
       votesByDiscordId: {},
       createdAtMs: now.getTime(),
@@ -1075,6 +1191,8 @@ export async function saveRaidPollFromForm(form: FormData, user: DashboardSessio
     channelId: form.get("channelId"),
     closeAfterMinutes: form.get("closeAfterMinutes"),
     days: form.getAll("days"),
+    mentionRoleIds: form.getAll("mentionRoleIds"),
+    autoRepeatWeekly: form.get("autoRepeatWeekly"),
   }, user);
 }
 
@@ -1089,6 +1207,8 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
   const days = cleanPollDays(input.days);
   const activeDays = days.length ? days : RAID_POLL_DAYS.map((day) => day.value);
   const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
+  const mentionRoleIds = cleanSnowflakeIds(input.mentionRoleIds);
+  const autoRepeatWeekly = cleanBoolean(input.autoRepeatWeekly);
   if (!channelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
 
   const updatedAt = new Date().toISOString();
@@ -1111,6 +1231,11 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
         closesAt: new Date(closesAtMs).toISOString(),
         closesAtMs,
         channelId,
+        mentionRoleIds,
+        autoRepeatWeekly,
+        repeatNextAt: autoRepeatWeekly ? previous.repeatNextAt || nextWeeklyMondayNoonIso(Date.now()) : null,
+        repeatNextAtMs: autoRepeatWeekly ? previous.repeatNextAtMs || nextWeeklyMondayNoonMs(Date.now()) : null,
+        repeatSeriesId: autoRepeatWeekly ? previous.repeatSeriesId || previous.id : null,
         days: activeDays,
         updatedAt,
       };
@@ -1122,6 +1247,11 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
         closesAt: next.closesAt,
         closesAtMs,
         channelId,
+        mentionRoleIds,
+        autoRepeatWeekly,
+        repeatNextAt: autoRepeatWeekly ? previous.repeatNextAt || nextWeeklyMondayNoonIso(Date.now()) : null,
+        repeatNextAtMs: autoRepeatWeekly ? previous.repeatNextAtMs || nextWeeklyMondayNoonMs(Date.now()) : null,
+        repeatSeriesId: autoRepeatWeekly ? previous.repeatSeriesId || previous.id : null,
         days: activeDays,
         updatedAt,
         updatedAtMs: Date.now(),
@@ -1144,7 +1274,170 @@ export async function updateRaidPollFromForm(pollId: string, form: FormData) {
     channelId: form.get("channelId"),
     closeAfterMinutes: form.get("closeAfterMinutes"),
     days: form.getAll("days"),
+    mentionRoleIds: form.getAll("mentionRoleIds"),
+    autoRepeatWeekly: form.get("autoRepeatWeekly"),
   });
+}
+
+async function markRaidPollRepeatFailed(pollId: string, message: string) {
+  await firebaseWrite("raid", `raid-poll:repeat-failed:${pollId}`, async () => {
+    await pollRef(pollId).update({
+      repeatLockedAtMs: FieldValue.delete(),
+      repeatLockId: FieldValue.delete(),
+      repeatLastError: cleanString(message, 400),
+      repeatLastErrorAt: new Date().toISOString(),
+      updatedAtMs: Date.now(),
+    });
+    return true;
+  }, { logEvent: "raid_polls.repeat_unlock_failed" }).catch(() => null);
+}
+
+async function claimRaidPollRepeat(pollId: string, nowMs: number, lockId: string) {
+  return firebaseWrite<RaidPollItem | null>("raid", `raid-poll:repeat-claim:${pollId}:${lockId}`, async () => {
+    const ref = pollRef(pollId);
+    return getFirebaseAdminDb().runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return null;
+      const raw = snap.data() || {};
+      const poll = normalizeRaidPoll(snap.id, raw);
+      if (!poll.autoRepeatWeekly || !poll.repeatNextAtMs || poll.repeatNextAtMs > nowMs) return null;
+
+      const existingLockAt = safeMs((raw as Record<string, unknown>).repeatLockedAtMs, 0);
+      if (existingLockAt && nowMs - existingLockAt < 5 * 60 * 1000) return null;
+
+      tx.update(ref, {
+        repeatLockedAtMs: nowMs,
+        repeatLockId: lockId,
+        updatedAt: new Date(nowMs).toISOString(),
+        updatedAtMs: nowMs,
+      });
+      return poll;
+    });
+  }, { logEvent: "raid_polls.repeat_claim_failed" });
+}
+
+async function createRepeatedRaidPoll(template: RaidPollItem) {
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const id = newPollId();
+  const closesAtMs = now.getTime() + template.closeAfterMinutes * 60 * 1000;
+  const repeatNextAtMs = nextWeeklyMondayNoonMs(now.getTime());
+  const repeatSeriesId = template.repeatSeriesId || template.id;
+  const nextPoll: RaidPollItem = {
+    ...template,
+    id,
+    status: "open",
+    closesAt: new Date(closesAtMs).toISOString(),
+    closesAtMs,
+    closedAt: null,
+    closedReason: null,
+    messageId: null,
+    messageUrl: null,
+    votes: [],
+    autoRepeatWeekly: true,
+    repeatNextAt: new Date(repeatNextAtMs).toISOString(),
+    repeatNextAtMs,
+    repeatSeriesId,
+    repeatedFromPollId: template.id,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+
+  await firebaseWrite("raid", `raid-poll:repeat-create:${template.id}:${id}`, async () => {
+    await pollRef(id).set({
+      ...nextPoll,
+      votes: [],
+      votesByDiscordId: {},
+      voteDraftsByDiscordId: {},
+      createdAtMs: now.getTime(),
+      updatedAtMs: now.getTime(),
+      repeatedAt: nowIso,
+    });
+    return true;
+  }, { logEvent: "raid_polls.repeat_create_failed" });
+  clearRaidPollRuntimeCaches(id);
+
+  let published: { channelId: string; messageId: string; messageUrl: string } | null = null;
+  try {
+    published = await publishOrUpdatePollDiscordMessage(nextPoll, template.channelId);
+    const updatedAt = await savePollDiscordRef(id, published);
+    const publishedPoll = { ...nextPoll, ...published, updatedAt };
+    const deleteResult = await deleteRaidPoll(template.id).catch(async (error) => {
+      await firebaseWrite("raid", `raid-poll:repeat-old-disable:${template.id}`, async () => {
+        await pollRef(template.id).update({
+          autoRepeatWeekly: false,
+          repeatNextAt: null,
+          repeatNextAtMs: null,
+          repeatReplacedByPollId: id,
+          status: "closed",
+          closedAt: nowIso,
+          closedReason: "auto",
+          updatedAt: nowIso,
+          updatedAtMs: now.getTime(),
+        });
+        return true;
+      }, { logEvent: "raid_polls.repeat_old_disable_failed" }).catch(() => null);
+      console.warn("[raidPolls] Failed to delete repeated old poll", {
+        pollId: template.id,
+        newPollId: id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return { discordDeleted: false, discordDeleteFailed: true };
+    });
+    return { poll: publishedPoll, oldPollId: template.id, discordDeleted: Boolean(deleteResult?.discordDeleted), discordDeleteFailed: Boolean(deleteResult?.discordDeleteFailed) };
+  } catch (error) {
+    if (published?.channelId && published?.messageId) {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: published.channelId, messageId: published.messageId },
+        auditReason: `Rollback failed repeated raid poll create: ${id}`,
+      }).catch(() => null);
+    }
+    await pollRef(id).delete().catch(() => null);
+    clearRaidPollRuntimeCaches(id);
+    throw error;
+  }
+}
+
+export async function repeatDueRaidPolls() {
+  if (!hasRaidPollStorage()) return { checked: 0, repeated: 0, deleted: 0, failed: 0 };
+  const nowMs = Date.now();
+  const snap = await getFirebaseAdminDb()
+    .collection(RAID_POLL_COLLECTION)
+    .where("autoRepeatWeekly", "==", true)
+    .limit(50)
+    .get();
+
+  let checked = 0;
+  let repeated = 0;
+  let deleted = 0;
+  let failed = 0;
+
+  for (const doc of snap.docs) {
+    const poll = normalizeRaidPoll(doc.id, doc.data() || {});
+    if (!poll.repeatNextAtMs || poll.repeatNextAtMs > nowMs) continue;
+    checked += 1;
+    const lockId = randomUUID();
+    const claimed = await claimRaidPollRepeat(doc.id, nowMs, lockId).catch((error) => {
+      failed += 1;
+      console.warn("[raidPolls] Failed to claim repeated poll", { pollId: doc.id, message: error instanceof Error ? error.message : String(error) });
+      return null;
+    });
+    if (!claimed) continue;
+
+    await createRepeatedRaidPoll(claimed)
+      .then((result) => {
+        repeated += 1;
+        if (result.discordDeleted) deleted += 1;
+        if (result.discordDeleteFailed) failed += 1;
+      })
+      .catch(async (error) => {
+        failed += 1;
+        await markRaidPollRepeatFailed(claimed.id, error instanceof Error ? error.message : String(error));
+        console.warn("[raidPolls] Failed to repeat raid poll", { pollId: claimed.id, message: error instanceof Error ? error.message : String(error) });
+      });
+  }
+
+  return { checked, repeated, deleted, failed };
 }
 
 export async function closeDueRaidPoll(input: RaidPollItem) {
@@ -1153,7 +1446,7 @@ export async function closeDueRaidPoll(input: RaidPollItem) {
 }
 
 export async function closeDueRaidPolls() {
-  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, failed: 0 };
+  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, repeatedChecked: 0, repeated: 0, deleted: 0, failed: 0 };
   const snap = await getFirebaseAdminDb()
     .collection(RAID_POLL_COLLECTION)
     .where("status", "==", "open")
@@ -1170,7 +1463,19 @@ export async function closeDueRaidPolls() {
         console.warn("[raidPolls] Failed to close due poll", { pollId: doc.id, message: error instanceof Error ? error.message : String(error) });
       });
   }
-  return { checked: snap.docs.length, closed, failed };
+  const repeated = await repeatDueRaidPolls().catch((error) => {
+    failed += 1;
+    console.warn("[raidPolls] Failed to repeat due polls", { message: error instanceof Error ? error.message : String(error) });
+    return { checked: 0, repeated: 0, deleted: 0, failed: 0 };
+  });
+  return {
+    checked: snap.docs.length,
+    closed,
+    repeatedChecked: repeated.checked,
+    repeated: repeated.repeated,
+    deleted: repeated.deleted,
+    failed: failed + repeated.failed,
+  };
 }
 
 export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = "manual", options: { silentIfClosed?: boolean } = {}) {

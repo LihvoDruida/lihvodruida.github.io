@@ -4244,6 +4244,9 @@ async function runRaidPollCloseDueCron(env, reason = "scheduled") {
       reason,
       checked: data.checked || 0,
       closed: data.closed || 0,
+      repeatedChecked: data.repeatedChecked || 0,
+      repeated: data.repeated || 0,
+      deleted: data.deleted || 0,
       failed: data.failed || 0,
     });
     return data;

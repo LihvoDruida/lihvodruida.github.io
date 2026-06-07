@@ -23797,3 +23797,37 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Raid Polls: Discord role mentions + weekly repeat */
+.raid-poll-roles-field {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.raid-poll-roles-field legend {
+  color: rgba(244, 234, 219, 0.92);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.raid-poll-muted-box {
+  padding: 13px 14px;
+  border: 1px dashed rgba(214, 184, 118, 0.26);
+  border-radius: 15px;
+  background: rgba(4, 8, 14, 0.48);
+}
+
+.raid-poll-muted-box strong {
+  color: rgba(244, 234, 219, 0.92);
+}
+
+.raid-poll-repeat-toggle {
+  align-items: center;
+  margin: 0;
+}
+
+.raid-poll-repeat-toggle span {
+  color: rgba(242, 234, 220, 0.86);
+  line-height: 1.45;
+}

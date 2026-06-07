@@ -4,6 +4,7 @@ import RaidPollDeleteButton from "@/components/RaidPollDeleteButton";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import type { DashboardSession } from "@/lib/auth";
+import type { DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { hierarchyTitle } from "@/lib/permissions";
 import {
   RAID_POLL_DAYS,
@@ -81,12 +82,12 @@ export function RaidPollPageShell({ user, title, description, children }: { user
   );
 }
 
-export function RaidPollCreateForm({ channels, discordEnabled }: { channels: PollChannelOption[]; discordEnabled: boolean }) {
-  return <RaidPollCreateClientForm channels={channels} defaultChannelId={channels[0]?.id || ""} disabled={!discordEnabled} />;
+export function RaidPollCreateForm({ channels, roles = [], discordEnabled }: { channels: PollChannelOption[]; roles?: DiscordRoleOption[]; discordEnabled: boolean }) {
+  return <RaidPollCreateClientForm channels={channels} roles={roles} defaultChannelId={channels[0]?.id || ""} disabled={!discordEnabled} />;
 }
 
-export function RaidPollEditForm({ poll, channels, discordEnabled }: { poll: RaidPollItem; channels: PollChannelOption[]; discordEnabled: boolean }) {
-  return <RaidPollCreateClientForm poll={poll} channels={channels} defaultChannelId={poll.channelId || channels[0]?.id || ""} disabled={!discordEnabled} />;
+export function RaidPollEditForm({ poll, channels, roles = [], discordEnabled }: { poll: RaidPollItem; channels: PollChannelOption[]; roles?: DiscordRoleOption[]; discordEnabled: boolean }) {
+  return <RaidPollCreateClientForm poll={poll} channels={channels} roles={roles} defaultChannelId={poll.channelId || channels[0]?.id || ""} disabled={!discordEnabled} />;
 }
 
 function shortPollId(id: string) {

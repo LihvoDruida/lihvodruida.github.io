@@ -43,6 +43,13 @@ export type RaidPollItem = {
   channelId?: string | null;
   messageId?: string | null;
   messageUrl?: string | null;
+  mentionRoleIds: string[];
+  /** Якщо увімкнено, cron щопонеділка о 12:00 створює новий ідентичний пул і прибирає попередній. */
+  autoRepeatWeekly: boolean;
+  repeatNextAt?: string | null;
+  repeatNextAtMs?: number | null;
+  repeatSeriesId?: string | null;
+  repeatedFromPollId?: string | null;
   days: RaidPollDay[];
   votes: RaidPollVote[];
   createdAt: string;
@@ -64,6 +71,8 @@ export type RaidPollCreateInput = {
   channelId?: unknown;
   closeAfterMinutes?: unknown;
   days?: unknown;
+  mentionRoleIds?: unknown;
+  autoRepeatWeekly?: unknown;
 };
 
 export type RaidPollUpdateInput = RaidPollCreateInput;

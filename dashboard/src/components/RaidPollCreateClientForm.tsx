@@ -3,6 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
+import { RolePicker, type DiscordRoleOption } from "@/components/DiscordEmbedEditor";
 import { RAID_POLL_CLOSE_OPTIONS, RAID_POLL_DAYS, raidPollDescription, type RaidPollDay, type RaidPollDifficulty, type RaidPollItem } from "@/lib/raidPollShared";
 
 export type RaidPollCreateChannel = {
@@ -12,6 +13,7 @@ export type RaidPollCreateChannel = {
 
 type RaidPollCreateClientFormProps = {
   channels: RaidPollCreateChannel[];
+  roles?: DiscordRoleOption[];
   defaultChannelId?: string;
   disabled?: boolean;
   poll?: RaidPollItem | null;
@@ -46,7 +48,7 @@ function errorFromPayload(data: unknown, fallback: string) {
   return typeof message === "string" && message.trim() ? message.trim() : fallback;
 }
 
-export default function RaidPollCreateClientForm({ channels, defaultChannelId = "", disabled = false, poll = null }: RaidPollCreateClientFormProps) {
+export default function RaidPollCreateClientForm({ channels, roles = [], defaultChannelId = "", disabled = false, poll = null }: RaidPollCreateClientFormProps) {
   const router = useRouter();
   const channelOptions = poll?.channelId && !channels.some((channel) => channel.id === poll.channelId)
     ? [{ id: poll.channelId, name: "поточний канал" }, ...channels]
@@ -61,6 +63,8 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
   const [closeAfterMinutes, setCloseAfterMinutes] = useState(poll?.closeAfterMinutes || 720);
   const [description, setDescription] = useState(poll?.description || defaultDescription);
   const [selectedDays, setSelectedDays] = useState<RaidPollDay[]>(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
+  const [mentionRoleIds, setMentionRoleIds] = useState<string[]>(poll?.mentionRoleIds || []);
+  const [autoRepeatWeekly, setAutoRepeatWeekly] = useState(Boolean(poll?.autoRepeatWeekly));
   const [pending, setPending] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
@@ -81,6 +85,8 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
     setCloseAfterMinutes(poll?.closeAfterMinutes || 720);
     setDescription(poll?.description || defaultDescription);
     setSelectedDays(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
+    setMentionRoleIds(poll?.mentionRoleIds || []);
+    setAutoRepeatWeekly(Boolean(poll?.autoRepeatWeekly));
     setFieldError("");
   }
 
@@ -148,6 +154,8 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
           channelId: clean(channelId),
           closeAfterMinutes,
           days: selectedDays,
+          mentionRoleIds,
+          autoRepeatWeekly,
         }),
       });
 
@@ -273,6 +281,36 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
           <small>У Discord для кожного вибраного дня буде окрема опція часу або «Не можу».</small>
         </fieldset>
 
+        {roles.length ? (
+          <fieldset className="raid-poll-field raid-poll-field--wide raid-poll-roles-field">
+            <legend>Тег ролей у Discord</legend>
+            <RolePicker
+              roles={roles}
+              selectedRoleIds={mentionRoleIds}
+              onChange={setMentionRoleIds}
+              fieldName="mentionRoleIds"
+              ariaLabel="Ролі, які будуть згадані у рейд-пулі"
+              emptyLabel="Ролі ще не вибрані"
+              helperText="Вибрані ролі будуть тегнуті над Discord embed рейд-пулу так само, як у рейдах та звичайних embed."
+            />
+          </fieldset>
+        ) : (
+          <div className="raid-poll-field raid-poll-field--wide raid-poll-muted-box">
+            <strong>Тег ролей у Discord</strong>
+            <small>Список ролей не завантажився. Пул можна створити без тегів або перевірити Discord API / worker relay.</small>
+          </div>
+        )}
+
+        <label className="raid-checkbox-line raid-poll-field raid-poll-field--wide raid-poll-repeat-toggle">
+          <input
+            type="checkbox"
+            checked={autoRepeatWeekly}
+            onChange={(event) => setAutoRepeatWeekly(event.target.checked)}
+            disabled={pending || disabled}
+          />
+          <span>Автоматично повторювати щотижня в понеділок о 12:00. Старий Discord-пул буде видалено, новий створиться з такими самими налаштуваннями.</span>
+        </label>
+
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-description">
           <span>Опис у Discord</span>
           <textarea
@@ -296,6 +334,14 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
         <div>
           <strong>Час рейду</strong>
           <span>Для кожного дня: 19:00 • 19:30 • 20:00 • 20:30 • 21:00 • Не можу</span>
+        </div>
+        <div>
+          <strong>Теги ролей</strong>
+          <span>{mentionRoleIds.length ? `${mentionRoleIds.length} рол.` : "Без тегів"}</span>
+        </div>
+        <div>
+          <strong>Автоповтор</strong>
+          <span>{autoRepeatWeekly ? "Щопонеділка о 12:00" : "Вимкнено"}</span>
         </div>
         <div>
           <strong>Закриття</strong>

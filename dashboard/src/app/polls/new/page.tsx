@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
 import { getOwnProfilePath } from "@/lib/profiles";
-import { fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import { fetchDiscordRoles, fetchDiscordTextChannels, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasRaidPollStorage } from "@/lib/raidPolls";
 import { RaidPollCreateForm, RaidPollPageShell } from "@/components/RaidPollViews";
 import { buildPageMetadata } from "@/lib/seo";
@@ -27,7 +27,12 @@ export default async function NewPollPage() {
   if (!canManageRaids(user)) redirect(await getOwnProfilePath(user));
 
   const discordEnabled = hasDiscordEmbedConfig();
-  const channelResult = discordEnabled ? await fetchDiscordTextChannels().catch(() => null) : null;
+  const [channelResult, roles] = discordEnabled
+    ? await Promise.all([
+        fetchDiscordTextChannels().catch(() => null),
+        fetchDiscordRoles().catch(() => []),
+      ])
+    : [null, []];
   const suggestedChannelId = channelResult?.suggestedChannelId || "";
   const rawChannels = channelResult?.channels || [];
   const channels = suggestedChannelId
@@ -47,7 +52,7 @@ export default async function NewPollPage() {
       {!discordEnabled ? <div className="notice panel error-note raid-notice">Discord-публікація недоступна: перевір bot token або worker relay.</div> : null}
       {channelResult?.warning ? <div className="notice panel warning-note raid-notice">Список каналів прочитано з попередженням: {channelResult.warning}</div> : null}
       <section className="raid-poll-create-layout" aria-label="Створення рейд-пулу">
-        <RaidPollCreateForm channels={channels} discordEnabled={discordEnabled && hasRaidPollStorage()} />
+        <RaidPollCreateForm channels={channels} roles={roles} discordEnabled={discordEnabled && hasRaidPollStorage()} />
         <aside className="panel raid-poll-help-card">
           <div className="raid-poll-help-card__head">
             <span className="eyebrow">Логіка роботи</span>
