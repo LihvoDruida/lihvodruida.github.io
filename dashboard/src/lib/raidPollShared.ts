@@ -3,7 +3,8 @@ export type RaidPollDifficulty = "normal" | "heroic" | "mythic";
 export type RaidPollDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 export type RaidPollTime = "19:00" | "19:30" | "20:00" | "20:30" | "21:00";
 export type RaidPollAvailability = RaidPollTime | "absent";
-export type RaidPollSchedule = Partial<Record<RaidPollDay, RaidPollAvailability>>;
+export type RaidPollScheduleValue = RaidPollAvailability | RaidPollTime[];
+export type RaidPollSchedule = Partial<Record<RaidPollDay, RaidPollScheduleValue>>;
 export type RaidPollRole = "tank" | "healer" | "dps";
 
 export type RaidPollVote = {
@@ -14,7 +15,7 @@ export type RaidPollVote = {
   /** Legacy fields kept for old Discord messages and already-saved documents. */
   selectedDays: RaidPollDay[];
   selectedTime: RaidPollTime | null;
-  /** New smart per-day schedule. Each day can be a concrete time or explicit absence. */
+  /** New smart per-day schedule. Each day can be one/multiple concrete times or explicit absence. */
   schedule: RaidPollSchedule;
   characterKey?: string | null;
   characterName?: string | null;
@@ -130,8 +131,9 @@ export function raidPollDescription() {
   return RAID_POLL_DESCRIPTION;
 }
 
-export function raidPollAvailabilityLabel(value: RaidPollAvailability | null | undefined) {
+export function raidPollAvailabilityLabel(value: RaidPollScheduleValue | null | undefined) {
   if (!value) return "—";
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
   return value === "absent" ? "Не можу" : value;
 }
 

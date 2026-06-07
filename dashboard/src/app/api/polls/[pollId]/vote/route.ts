@@ -52,7 +52,12 @@ function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" |
 }
 
 function cleanValues(value: unknown) {
-  return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
+  return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 25) : [];
+}
+
+function cleanScheduleGroup(value: unknown) {
+  const group = String(value || "").trim().toLowerCase();
+  return group === "a" || group === "b" || group === "c" ? group : "";
 }
 
 function cleanSnowflake(value: unknown) {
@@ -93,6 +98,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ po
     const result = await handleRaidPollDiscordVote({
       pollId,
       kind: cleanKind(body?.kind),
+      group: cleanScheduleGroup(body?.group),
       values: cleanValues(body?.values),
       userId,
       userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",

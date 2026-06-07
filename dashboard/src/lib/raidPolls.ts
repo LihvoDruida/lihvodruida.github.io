@@ -38,6 +38,7 @@ export type {
   RaidPollItem,
   RaidPollRole,
   RaidPollSchedule,
+  RaidPollScheduleValue,
   RaidPollStatus,
   RaidPollTime,
   RaidPollVote,
@@ -61,6 +62,7 @@ import {
   type RaidPollItem,
   type RaidPollRole,
   type RaidPollSchedule,
+  type RaidPollScheduleValue,
   type RaidPollStatus,
   type RaidPollTime,
   type RaidPollVote,
@@ -145,12 +147,43 @@ function cleanPollAvailability(value: unknown): RaidPollAvailability | null {
   return cleanPollTime(text);
 }
 
+function uniquePollTimes(values: unknown[]): RaidPollTime[] {
+  const times = values.map(cleanPollTime).filter(Boolean) as RaidPollTime[];
+  return RAID_POLL_TIMES.filter((time) => times.includes(time));
+}
+
+function compactScheduleValue(value: RaidPollScheduleValue | null | undefined): RaidPollScheduleValue | null {
+  if (!value) return null;
+  if (Array.isArray(value)) {
+    const times = uniquePollTimes(value);
+    if (!times.length) return null;
+    return times.length === 1 ? times[0] : times;
+  }
+  return cleanPollAvailability(value);
+}
+
+function scheduleTimes(value: RaidPollScheduleValue | null | undefined): RaidPollTime[] {
+  if (!value || value === "absent") return [];
+  if (Array.isArray(value)) return uniquePollTimes(value);
+  return cleanPollTime(value) ? [value] : [];
+}
+
+function scheduleHasTime(schedule: RaidPollSchedule, day: RaidPollDay, time: RaidPollTime) {
+  return scheduleTimes(schedule[day]).includes(time);
+}
+
+function cleanPollScheduleValue(value: unknown): RaidPollScheduleValue | null {
+  if (Array.isArray(value)) return compactScheduleValue(value);
+  const availability = cleanPollAvailability(value);
+  return availability || null;
+}
+
 function cleanPollSchedule(value: unknown): RaidPollSchedule {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const raw = value as Record<string, unknown>;
   const schedule: RaidPollSchedule = {};
   for (const day of RAID_POLL_DAYS) {
-    const availability = cleanPollAvailability(raw[day.value]);
+    const availability = cleanPollScheduleValue(raw[day.value]);
     if (availability) schedule[day.value] = availability;
   }
   return schedule;
@@ -165,26 +198,46 @@ function scheduleFromLegacy(selectedDays: RaidPollDay[], selectedTime: RaidPollT
 function activeDaysFromSchedule(schedule: RaidPollSchedule) {
   return RAID_POLL_DAYS
     .map((day) => day.value)
-    .filter((day): day is RaidPollDay => Boolean(schedule[day] && schedule[day] !== "absent"));
+    .filter((day): day is RaidPollDay => scheduleTimes(schedule[day]).length > 0);
 }
 
 function firstTimeFromSchedule(schedule: RaidPollSchedule): RaidPollTime | null {
   for (const day of RAID_POLL_DAYS) {
-    const value = schedule[day.value];
-    if (value && value !== "absent") return value;
+    const [first] = scheduleTimes(schedule[day.value]);
+    if (first) return first;
   }
   return null;
 }
 
 function parseScheduleValues(values: unknown): RaidPollSchedule {
-  const schedule: RaidPollSchedule = {};
+  const timesByDay = new Map<RaidPollDay, Set<RaidPollTime>>();
+  const absentDays = new Set<RaidPollDay>();
   const list = Array.isArray(values) ? values : String(values || "").split(",");
+
   for (const item of list) {
     const text = cleanString(item, 32);
-    const [dayRaw, availabilityRaw] = text.split(":");
-    const day = cleanPollDay(dayRaw);
-    const availability = cleanPollAvailability(availabilityRaw);
-    if (day && availability) schedule[day] = availability;
+    const separatorIndex = text.indexOf(":");
+    if (separatorIndex <= 0) continue;
+    const day = cleanPollDay(text.slice(0, separatorIndex));
+    const availability = cleanPollAvailability(text.slice(separatorIndex + 1));
+    if (!day || !availability) continue;
+
+    if (availability === "absent") {
+      if (!timesByDay.get(day)?.size) absentDays.add(day);
+      continue;
+    }
+
+    absentDays.delete(day);
+    const existing = timesByDay.get(day) || new Set<RaidPollTime>();
+    existing.add(availability);
+    timesByDay.set(day, existing);
+  }
+
+  const schedule: RaidPollSchedule = {};
+  for (const day of RAID_POLL_DAYS) {
+    const times = RAID_POLL_TIMES.filter((time) => timesByDay.get(day.value)?.has(time));
+    if (times.length) schedule[day.value] = times.length === 1 ? times[0] : times;
+    else if (absentDays.has(day.value)) schedule[day.value] = "absent";
   }
   return schedule;
 }
@@ -360,10 +413,15 @@ export function pollVoteCounts(poll: Pick<RaidPollItem, "votes">) {
       if (!value) continue;
       if (value === "absent") {
         absent[day.value] += 1;
-      } else {
-        days[day.value] += 1;
-        times[value] += 1;
-        dayTimes[day.value][value] += 1;
+        continue;
+      }
+
+      const selectedTimes = scheduleTimes(value);
+      if (!selectedTimes.length) continue;
+      days[day.value] += 1;
+      for (const time of selectedTimes) {
+        times[time] += 1;
+        dayTimes[day.value][time] += 1;
       }
     }
   }
@@ -374,8 +432,7 @@ export function pollVoteCounts(poll: Pick<RaidPollItem, "votes">) {
 export function pollVotersForDay(poll: Pick<RaidPollItem, "votes">, day: RaidPollDay) {
   return poll.votes.filter((vote) => {
     const schedule = vote.schedule && Object.keys(vote.schedule).length ? vote.schedule : scheduleFromLegacy(vote.selectedDays, vote.selectedTime);
-    const value = schedule[day];
-    return Boolean(value && value !== "absent");
+    return scheduleTimes(schedule[day]).length > 0;
   });
 }
 
@@ -425,7 +482,7 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
   for (const day of RAID_POLL_DAYS) {
     if (!activeSet.has(day.value)) continue;
     for (const time of RAID_POLL_TIMES) {
-      const voters = poll.votes.filter((vote) => raidPollVoteSchedule(vote)[day.value] === time);
+      const voters = poll.votes.filter((vote) => scheduleHasTime(raidPollVoteSchedule(vote), day.value, time));
       let tanks = 0;
       let healers = 0;
       let dps = 0;
@@ -722,12 +779,18 @@ function roleSelectOptions(draft: RaidPollVoteDraft) {
   }));
 }
 
+function isScheduleOptionDefault(schedule: RaidPollSchedule, day: RaidPollDay, availability: RaidPollAvailability) {
+  const value = schedule[day];
+  if (availability === "absent") return value === "absent";
+  return scheduleTimes(value).includes(availability);
+}
+
 function scheduleSelectOptionsWithDefaults(days: RaidPollDay[], draft: RaidPollVoteDraft) {
   return days.flatMap((day) => RAID_POLL_AVAILABILITY_OPTIONS.map((availability) => ({
     label: scheduleOptionLabel(day, availability),
     value: `${day}:${availability}`,
     description: scheduleOptionDescription(day, availability).slice(0, 100),
-    default: draft.schedule[day] === availability,
+    default: isScheduleOptionDefault(draft.schedule, day, availability),
   })));
 }
 
@@ -788,7 +851,7 @@ function buildRaidPollVoteDraftComponents(poll: Pick<RaidPollItem, "id" | "statu
           custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_${group.key}:${poll.id}`,
           placeholder: `3) ${group.label}: час або «Не можу»`,
           min_values: 1,
-          max_values: groupDays.length,
+          max_values: Math.min(25, scheduleSelectOptionsWithDefaults(groupDays, draft).length),
           disabled,
           options: scheduleSelectOptionsWithDefaults(groupDays, draft),
         },
@@ -1252,10 +1315,17 @@ function normalizeVoteScheduleForPoll(poll: RaidPollItem, schedule: RaidPollSche
   const next: RaidPollSchedule = {};
   for (const day of RAID_POLL_DAYS) {
     if (!allowed.has(day.value)) continue;
-    const value = schedule[day.value];
+    const value = compactScheduleValue(schedule[day.value]);
     if (value) next[day.value] = value;
   }
   return next;
+}
+
+
+function scheduleGroupDays(groupKey: string | null | undefined, poll: Pick<RaidPollItem, "days">): RaidPollDay[] {
+  const active = new Set((poll.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value)) as RaidPollDay[]);
+  const group = RAID_POLL_PRIVATE_SCHEDULE_GROUPS.find((item) => item.key === groupKey);
+  return (group?.days || []).filter((day) => active.has(day));
 }
 
 function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "character" | "character_prompt", existing: RaidPollVote | undefined) {
@@ -1266,7 +1336,7 @@ function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "cha
 function dedupeSchedulePatch(schedule: RaidPollSchedule) {
   const next: RaidPollSchedule = {};
   for (const day of RAID_POLL_DAYS) {
-    const value = schedule[day.value];
+    const value = compactScheduleValue(schedule[day.value]);
     if (value) next[day.value] = value;
   }
   return next;
@@ -1275,6 +1345,7 @@ function dedupeSchedulePatch(schedule: RaidPollSchedule) {
 export async function handleRaidPollDiscordVote(params: {
   pollId: string;
   kind: "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit";
+  group?: string | null;
   values: string[];
   userId: string;
   userName: string;
@@ -1404,7 +1475,11 @@ export async function handleRaidPollDiscordVote(params: {
           roleSelected: true,
         };
       } else if (params.kind === "schedule") {
-        const nextSchedule = normalizeVoteScheduleForPoll(poll, dedupeSchedulePatch({ ...draft.schedule, ...parseScheduleValues(params.values) }));
+        const patch = parseScheduleValues(params.values);
+        const groupDays = scheduleGroupDays(params.group, poll);
+        const nextDraftSchedule: RaidPollSchedule = { ...draft.schedule };
+        for (const day of groupDays) delete nextDraftSchedule[day];
+        const nextSchedule = normalizeVoteScheduleForPoll(poll, dedupeSchedulePatch({ ...nextDraftSchedule, ...patch }));
         draft = {
           ...draft,
           schedule: nextSchedule,

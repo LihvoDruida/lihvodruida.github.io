@@ -3436,7 +3436,7 @@ function decodeRaidPollCustomId(customId, values) {
   const match = legacyMatch || smartMatch;
   if (!match) return null;
   const rawKind = match[1];
-  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
+  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 25) : [];
   if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit") return null;
   const kind = rawKind.startsWith("schedule_") ? "schedule" : rawKind;
   return { pollId: match[2], kind, group: rawKind.startsWith("schedule_") ? rawKind.slice("schedule_".length) : "", values: selected };
