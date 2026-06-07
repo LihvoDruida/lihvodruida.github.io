@@ -2519,11 +2519,20 @@ export async function refreshProfileCharactersForRaidSignup(
       ? Math.min(profile.characters.length, 1 + Math.floor(restLimitRaw))
       : profile.characters.length
     : 0;
+  const minSpacingSeconds = readBoundedIntegerEnv(
+    ["BATTLENET_SIGNUP_REFRESH_MIN_SECONDS", "RAID_SIGNUP_PROFILE_REFRESH_MIN_SECONDS"],
+    180,
+    0,
+    3600,
+  );
+  const force = ["1", "true", "yes", "on"].includes(
+    String(process.env.BATTLENET_SIGNUP_REFRESH_FORCE || "").trim().toLowerCase(),
+  );
   const result = await refreshProfileExternalData(profile, {
     reason: "raid_signup",
     maxCharacters,
-    minSpacingSeconds: 0,
-    force: true,
+    minSpacingSeconds,
+    force,
   });
   return result.profile;
 }

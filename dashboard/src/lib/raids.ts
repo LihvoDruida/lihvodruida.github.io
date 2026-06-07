@@ -1,5 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { logDashboardEvent } from "@/lib/security";
+import { mapConcurrentSettled } from "@/lib/concurrency";
 import {
   invalidatePublicCacheBatch,
   invalidatePublicCachePrefix,
@@ -1361,6 +1362,29 @@ function clearRaidRuntimeCaches(raidId?: string | null) {
 
 const raidLifecycleSyncInFlight = new Set<string>();
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomRaidDiscordSyncEntries:
+    | Map<string, { dirty: boolean; promise: Promise<boolean> }>
+    | undefined;
+}
+
+function raidDiscordSyncEntries() {
+  const map = globalThis.__mistblossomRaidDiscordSyncEntries || new Map<string, { dirty: boolean; promise: Promise<boolean> }>();
+  globalThis.__mistblossomRaidDiscordSyncEntries = map;
+  return map;
+}
+
+function raidDiscordSyncDebounceMs() {
+  const value = Number(process.env.RAID_DISCORD_SYNC_DEBOUNCE_MS || 350);
+  if (!Number.isFinite(value)) return 350;
+  return Math.max(0, Math.min(Math.floor(value), 2_000));
+}
+
+function waitMs(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
+}
+
 function scheduleRaidAutoCloseSync(raid: RaidItem, source: string) {
   const needsStatusSync =
     raid.status === "published" && isRaidAutoCloseDue(raid);
@@ -1788,38 +1812,49 @@ export async function syncRaidLifecycleBatch(limit = 100) {
     Math.min(100, Math.floor(Number(limit) || 100)),
   );
   const raids = await listRaidsForLifecycle(safeLimit);
-  let checked = 0;
+  const mapped = await mapConcurrentSettled(
+    raids,
+    async (raid) => syncRaidLifecycleAfterRead(raid),
+    {
+      envKey: "RAID_LIFECYCLE_CONCURRENCY",
+      maxEnvKey: "RAID_LIFECYCLE_MAX_CONCURRENCY",
+      profile: "write",
+      min: 1,
+      max: 4,
+      failFast: false,
+    },
+  );
+
   let autoClosed = 0;
   let discordDeleted = 0;
   const errors: Array<{ raidId: string; title: string; message: string }> = [];
 
-  for (const raid of raids) {
-    checked += 1;
-    try {
-      const result = await syncRaidLifecycleAfterRead(raid);
-      if (result.autoClosed) autoClosed += 1;
-      if (result.discordDeleted) discordDeleted += 1;
-    } catch (error) {
-      errors.push({
-        raidId: raid.id,
-        title: raid.title || raid.id,
-        message:
-          error instanceof Error ? error.message : String(error || "unknown"),
-      });
-      console.warn("[raids] Lifecycle item failed", {
-        raidId: raid.id,
-        title: raid.title || raid.id,
-        message: error instanceof Error ? error.message : String(error),
-      });
+  for (const item of mapped.results) {
+    if (item.ok) {
+      if (item.value.autoClosed) autoClosed += 1;
+      if (item.value.discordDeleted) discordDeleted += 1;
+      continue;
     }
+    errors.push({
+      raidId: item.item.id,
+      title: item.item.title || item.item.id,
+      message: item.error instanceof Error ? item.error.message : String(item.error || "unknown"),
+    });
+    console.warn("[raids] Lifecycle item failed", {
+      raidId: item.item.id,
+      title: item.item.title || item.item.id,
+      message: item.error instanceof Error ? item.error.message : String(item.error),
+    });
   }
 
   return {
-    checked,
+    checked: raids.length,
     total: raids.length,
     autoClosed,
     discordDeleted,
     failed: errors.length,
+    concurrency: mapped.meta.concurrency,
+    durationMs: mapped.meta.durationMs,
     errors: errors.slice(0, 20),
   };
 }
@@ -4265,12 +4300,14 @@ async function editCurrentRaidDiscordMessage(
   return true;
 }
 
-async function syncRaidDiscordAfterSignup(
+async function runLatestRaidDiscordSignupSync(
   raid: RaidItem,
   messageRef?: DiscordMessageRefInput | null,
 ) {
   try {
-    return await editCurrentRaidDiscordMessage(raid, messageRef);
+    await waitMs(raidDiscordSyncDebounceMs());
+    const latest = await getRaid(raid.id).catch(() => null);
+    return await editCurrentRaidDiscordMessage(latest || raid, messageRef);
   } catch (error) {
     console.warn("[raids] Discord message sync after signup failed", {
       raidId: raid.id,
@@ -4278,6 +4315,44 @@ async function syncRaidDiscordAfterSignup(
     });
     return false;
   }
+}
+
+async function syncRaidDiscordAfterSignup(
+  raid: RaidItem,
+  messageRef?: DiscordMessageRefInput | null,
+) {
+  const id = cleanRaidId(raid.id);
+  if (!id) return false;
+  const entries = raidDiscordSyncEntries();
+  const existing = entries.get(id);
+  if (existing) {
+    existing.dirty = true;
+    return existing.promise;
+  }
+
+  const entry: { dirty: boolean; promise: Promise<boolean> } = {
+    dirty: false,
+    promise: Promise.resolve(false),
+  };
+  entry.promise = (async () => {
+    let result = false;
+    do {
+      entry.dirty = false;
+      result = await runLatestRaidDiscordSignupSync(raid, messageRef);
+    } while (entry.dirty);
+    return result;
+  })().finally(() => {
+    entries.delete(id);
+  });
+  entries.set(id, entry);
+  return entry.promise;
+}
+
+export async function syncRaidDiscordSignupUpdate(
+  raid: RaidItem,
+  messageRef?: DiscordMessageRefInput | null,
+) {
+  return syncRaidDiscordAfterSignup(raid, messageRef);
 }
 
 export function raidMinItemLevelBlockMessage(
@@ -4330,11 +4405,13 @@ function attendanceSuccessText(
   action: RaidSignupStatus,
   raid: RaidItem,
   signup?: RaidSignup | null,
-  discordSynced = true,
+  discordSynced: boolean | "queued" = true,
 ) {
-  const syncText = discordSynced
-    ? "Склад Discord оновлено."
-    : "Запис збережено, але Discord-повідомлення не оновилося автоматично. Офіцер може натиснути “Оновити Discord”.";
+  const syncText = discordSynced === "queued"
+    ? "Запис збережено. Discord оновлюється у фоні."
+    : discordSynced
+      ? "Склад Discord оновлено."
+      : "Запис збережено, але Discord-повідомлення не оновилося автоматично. Офіцер може натиснути “Оновити Discord”.";
   if (action === "skipped")
     return `👌 Позначено, що ти пропускаєш: ${raidTitle(raid)}. ${syncText}`;
   const warning = raidMinItemLevelWarning(raid, signup);
@@ -4366,6 +4443,7 @@ export async function handleRaidDiscordAction(params: {
   signupRole?: RaidCharacterRole | null;
   commit?: boolean;
   messageRef?: DiscordMessageRefInput | null;
+  syncDiscord?: boolean;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid)
@@ -4539,10 +4617,12 @@ export async function handleRaidDiscordAction(params: {
       storageReadOnly: true,
     };
   }
-  const discordSynced = await syncRaidDiscordAfterSignup(
-    updated,
-    params.messageRef,
-  );
+  const discordSynced = params.syncDiscord === false
+    ? "queued"
+    : await syncRaidDiscordAfterSignup(
+      updated,
+      params.messageRef,
+    );
   const warning =
     params.action === "skipped"
       ? null
@@ -4570,6 +4650,7 @@ export async function handleRaidSessionAction(params: {
   action: RaidSignupStatus;
   user: DashboardSession;
   characterKey?: string | null;
+  syncDiscord?: boolean;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid)
@@ -4703,7 +4784,9 @@ export async function handleRaidSessionAction(params: {
       storageReadOnly: true,
     };
   }
-  const discordSynced = await syncRaidDiscordAfterSignup(updated);
+  const discordSynced = params.syncDiscord === false
+    ? "queued"
+    : await syncRaidDiscordAfterSignup(updated);
   const warning =
     params.action === "skipped"
       ? null

@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { handleRaidDiscordAction, type RaidCharacterRole, type RaidSignupStatus } from "@/lib/raids";
+import { after, NextRequest, NextResponse } from "next/server";
+import { handleRaidDiscordAction, syncRaidDiscordSignupUpdate, type RaidCharacterRole, type RaidSignupStatus } from "@/lib/raids";
 import {
   assertRequestBodySize,
   checkRateLimit,
-  getClientIp,
   logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
@@ -67,13 +66,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
   const tooLarge = assertRequestBodySize(request, 16 * 1024);
   if (tooLarge) return tooLarge;
 
-  const ip = getClientIp(request);
-  const limit = checkRateLimit(`raid-discord-action:${ip}`, 90, 10 * 60 * 1000);
-  if (!limit.ok) {
-    logDashboardEvent("warn", "raids.discord_action.rate_limited", request, { resetAt: limit.resetAt });
-    return NextResponse.json({ ok: false, content: "Rate limited" }, { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))) }) });
-  }
-
   const auth = await verifyInternalBearerToken(request, INTERNAL_RAID_ACTION_TOKENS, { minLength: 24 });
   if (!auth.ok) {
     logDashboardEvent("warn", "raids.discord_action.forbidden", request, { reason: auth.reason });
@@ -89,6 +81,20 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
 
     if (!userId) {
       return NextResponse.json({ ok: false, content: "Invalid Discord user id" }, { status: 400, headers: noStoreHeaders() });
+    }
+
+    const limit = checkRateLimit(`raid-discord-action:${raidId}:${userId}`, 45, 5 * 60 * 1000);
+    if (!limit.ok) {
+      logDashboardEvent("warn", "raids.discord_action.rate_limited", request, { raidId, userId, resetAt: limit.resetAt });
+      return NextResponse.json(
+        { ok: false, content: "⏳ Забагато дій саме від тебе. Зачекай кілька секунд і повтори." },
+        {
+          status: 429,
+          headers: noStoreHeaders({
+            "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
+          }),
+        },
+      );
     }
 
     const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
@@ -111,7 +117,15 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
         channelId,
         messageId,
       },
+      syncDiscord: false,
     });
+    if (result.ok && "raid" in result && result.raid) {
+      const raidToSync = result.raid;
+      const messageRef = { channelId, messageId };
+      after(async () => {
+        await syncRaidDiscordSignupUpdate(raidToSync, messageRef);
+      });
+    }
     if (idempotencyKey) {
       idempotencyCache().set(idempotencyKey, { value: result, expiresAt: Date.now() + 90_000 });
     }

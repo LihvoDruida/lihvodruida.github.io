@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { handleRaidSessionAction, raidLiveRevision, type RaidSignupStatus } from "@/lib/raids";
+import { handleRaidSessionAction, raidLiveRevision, syncRaidDiscordSignupUpdate, type RaidSignupStatus } from "@/lib/raids";
 import { assertRequestBodySize, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -80,17 +80,24 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
 
   try {
     const { action, characterKey } = await readAttendanceInput(request);
-    const result = await handleRaidSessionAction({ raidId, action, user, characterKey });
+    const result = await handleRaidSessionAction({ raidId, action, user, characterKey, syncDiscord: false });
 
     if (!result.ok) {
       if (jsonMode) return jsonToast({ ok: false, tone: "error", title: "Запис не оновлено", message: result.content || "Дію не виконано." });
       return redirectToRaid(raidId, { tone: "error", title: "Запис не оновлено", message: result.content || "Дію не виконано.", ttl: 8200 });
     }
 
+    if ("raid" in result && result.raid) {
+      const raidToSync = result.raid;
+      after(async () => {
+        await syncRaidDiscordSignupUpdate(raidToSync);
+      });
+    }
+
     const successMessage = result.content || (action === "going"
-      ? "Тебе записано на рейд. Склад оновлено."
+      ? "Тебе записано на рейд. Склад оновлюється."
       : action === "late"
-        ? "Позначено, що ти затримаєшся. Склад оновлено."
+        ? "Позначено, що ти затримаєшся. Склад оновлюється."
         : "Позначено, що ти пропускаєш рейд.");
 
     const tone = successMessage.includes("⚠️") ? "warning" : "success";

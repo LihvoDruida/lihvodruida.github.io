@@ -10,6 +10,7 @@ let firebaseAuthCache = { accessToken: "", expiresAt: 0 };
 let battleNetAuthCache = { accessToken: "", expiresAt: 0, region: "" };
 let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 let discordRouteCooldowns = new Map();
+let workerCronGuards = new Map();
 
 
 const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache", "/api/raids/lifecycle", "/api/polls/close-due"]);
@@ -173,6 +174,43 @@ function parsePositiveInt(value, fallback, min, max) {
   const number = parseInt(String(value || ""), 10);
   if (!Number.isFinite(number)) return fallback;
   return Math.min(Math.max(number, min), max);
+}
+
+function readDurationMs(env, names, fallback, min, max) {
+  for (const name of names) {
+    const raw = env && env[name] !== undefined ? env[name] : undefined;
+    if (raw === undefined || raw === null || raw === "") continue;
+    const number = Number(raw);
+    if (Number.isFinite(number)) return Math.max(min, Math.min(Math.floor(number), max));
+  }
+  return Math.max(min, Math.min(Math.floor(fallback), max));
+}
+
+async function runWorkerCronGuarded(env, key, reason, minIntervalMs, task) {
+  const now = Date.now();
+  const entry = workerCronGuards.get(key) || { lastStartedAt: 0, inFlight: null, lastResult: null };
+
+  if (entry.inFlight) {
+    logWorkerEvent("info", `${key}.skipped`, { reason, skipped: "in_flight" });
+    return { ok: true, skipped: true, reason: "in_flight", ...(entry.lastResult || {}) };
+  }
+
+  if (entry.lastStartedAt && now - entry.lastStartedAt < minIntervalMs) {
+    logWorkerEvent("info", `${key}.skipped`, { reason, skipped: "cooldown", cooldownMs: minIntervalMs });
+    return { ok: true, skipped: true, reason: "cooldown", ...(entry.lastResult || {}) };
+  }
+
+  entry.lastStartedAt = now;
+  entry.inFlight = Promise.resolve().then(task);
+  workerCronGuards.set(key, entry);
+  try {
+    const result = await entry.inFlight;
+    entry.lastResult = result || null;
+    return result;
+  } finally {
+    entry.inFlight = null;
+    workerCronGuards.set(key, entry);
+  }
 }
 
 async function runMeasured(event, details, task, level = "info") {
@@ -4178,6 +4216,14 @@ async function createApplication(request, env, ctx) {
   }
 }
 
+function raidLifecycleCronMinIntervalMs(env) {
+  return readDurationMs(env, ["WORKER_RAID_LIFECYCLE_MIN_INTERVAL_MS", "RAID_LIFECYCLE_CRON_MIN_INTERVAL_MS"], 55_000, 0, 10 * 60_000);
+}
+
+function raidPollCloseDueCronMinIntervalMs(env) {
+  return readDurationMs(env, ["WORKER_RAID_POLL_CLOSE_DUE_MIN_INTERVAL_MS", "RAID_POLL_CLOSE_DUE_CRON_MIN_INTERVAL_MS"], 20_000, 0, 5 * 60_000);
+}
+
 function dashboardRaidLifecycleEndpoint(env) {
   const explicit = String(env.DASHBOARD_RAID_LIFECYCLE_ENDPOINT || "").trim();
   if (explicit) return explicit;
@@ -4199,7 +4245,7 @@ function dashboardRaidLifecycleToken(env) {
   ).trim();
 }
 
-async function runRaidLifecycleCron(env, reason = "scheduled") {
+async function runRaidLifecycleCronUnsafe(env, reason = "scheduled") {
   const token = dashboardRaidLifecycleToken(env);
   if (!token) {
     logWorkerEvent("warn", "raid_lifecycle.missing_token", { reason });
@@ -4237,6 +4283,16 @@ async function runRaidLifecycleCron(env, reason = "scheduled") {
   }
 }
 
+async function runRaidLifecycleCron(env, reason = "scheduled") {
+  return runWorkerCronGuarded(
+    env,
+    "raid_lifecycle",
+    reason,
+    raidLifecycleCronMinIntervalMs(env),
+    () => runRaidLifecycleCronUnsafe(env, reason),
+  );
+}
+
 function dashboardRaidPollCloseDueEndpoint(env) {
   const explicit = String(env.DASHBOARD_RAID_POLL_CLOSE_DUE_ENDPOINT || env.DASHBOARD_POLL_CLOSE_DUE_ENDPOINT || "").trim();
   if (explicit) return explicit;
@@ -4258,7 +4314,7 @@ function dashboardRaidPollCloseDueToken(env) {
   ).trim();
 }
 
-async function runRaidPollCloseDueCron(env, reason = "scheduled") {
+async function runRaidPollCloseDueCronUnsafe(env, reason = "scheduled") {
   const token = dashboardRaidPollCloseDueToken(env);
   if (!token) {
     logWorkerEvent("warn", "raid_poll_close_due.missing_token", { reason });
@@ -4295,6 +4351,16 @@ async function runRaidPollCloseDueCron(env, reason = "scheduled") {
     logWorkerEvent("error", "raid_poll_close_due.failed", { reason, message: error?.message });
     return { ok: false, error: error?.message || "unknown" };
   }
+}
+
+async function runRaidPollCloseDueCron(env, reason = "scheduled") {
+  return runWorkerCronGuarded(
+    env,
+    "raid_poll_close_due",
+    reason,
+    raidPollCloseDueCronMinIntervalMs(env),
+    () => runRaidPollCloseDueCronUnsafe(env, reason),
+  );
 }
 
 export default {
