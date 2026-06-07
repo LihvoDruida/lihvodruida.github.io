@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-06 21:07:11'
+  updated_at: '2026-06-07 04:03:20'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 158
+  member_count: 157
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6161
       realm: 56
     heroic:
-      world: 13970
-      region: 6101
+      world: 13984
+      region: 6103
       realm: 49
     mythic:
-      world: 7005
+      world: 7015
       region: 2994
       realm: 20
   sporefall:
@@ -3308,11 +3308,11 @@ members:
     item_level_equipped: 285
     mythic_plus_scores:
       all:
-        score: 3015.6
-        color: '#307ad3'
+        score: 3043.8
+        color: '#2175d8'
       dps:
-        score: 3015.6
-        color: '#307ad3'
+        score: 3043.8
+        color: '#2175d8'
       healer:
         score: 0
         color: '#ffffff'
@@ -3326,8 +3326,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3015.6
-        color: '#307ad3'
+        score: 3043.8
+        color: '#2175d8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5988,10 +5988,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3176.3
+        score: 3188
         color: '#5864e2'
       dps:
-        score: 3176.3
+        score: 3188
         color: '#5864e2'
       healer:
         score: 0
@@ -6003,7 +6003,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3176.3
+        score: 3188
         color: '#5864e2'
       spec_2:
         score: 854.6
@@ -7236,14 +7236,14 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3007.8
-        color: '#307ad3'
+        score: 3021.8
+        color: '#2175d8'
       dps:
         score: 3007.8
         color: '#307ad3'
       healer:
-        score: 2397.3
-        color: '#1eff00'
+        score: 2462.9
+        color: '#42ef40'
       tank:
         score: 0
         color: '#ffffff'
@@ -7257,8 +7257,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2397.3
-        color: '#1eff00'
+        score: 2462.9
+        color: '#42ef40'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -7992,11 +7992,11 @@ members:
     item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 2982.7
-        color: '#3a7fce'
+        score: 3016.3
+        color: '#307ad3'
       dps:
-        score: 2982.7
-        color: '#3a7fce'
+        score: 3016.3
+        color: '#307ad3'
       healer:
         score: 0
         color: '#ffffff'
@@ -8010,8 +8010,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2982.7
-        color: '#3a7fce'
+        score: 3016.3
+        color: '#307ad3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8116,58 +8116,6 @@ members:
       spec_2:
         score: 2828.4
         color: '#5ba1a8'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Рейла
-    id: 266162439
-    level: 80
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 7
-      name: Shaman
-    playable_race:
-      id: 86
-      name: Haranir
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Restoration
-      role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/7/266162439-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Рейла
-    item_level_equipped: 76
-    mythic_plus_scores:
-      all:
-        score: 0
-        color: '#ffffff'
-      dps:
-        score: 0
-        color: '#ffffff'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 0
-        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
