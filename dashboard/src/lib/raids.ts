@@ -2724,9 +2724,13 @@ export function decodeRaidCharacterSelectCustomId(
   values?: unknown,
 ) {
   const value = cleanString(customId, 120);
-  const match = value.match(
+  const legacyMatch = value.match(
     /^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/,
   );
+  const panelMatch = value.match(
+    /^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|late):(tank|healer|dps)$/,
+  );
+  const match = legacyMatch || panelMatch;
   if (!match) return null;
   const selectedValues = Array.isArray(values) ? values : [];
   const characterKey = cleanString(selectedValues[0], 260);
@@ -2735,6 +2739,8 @@ export function decodeRaidCharacterSelectCustomId(
     raidId: match[1],
     action: cleanSignupStatus(match[2]),
     characterKey,
+    signupRole: panelMatch ? cleanRoleStrict(panelMatch[3]) : null,
+    commit: false,
   };
 }
 
@@ -2751,7 +2757,7 @@ export function buildRaidRoleSelectCustomId(
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
   const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
-  const customId = `mbv1:rr:${id}:${safeAction}:${safeCharacterKey}`;
+  const customId = `mbv1:rsr:${id}:${safeAction}:${safeCharacterKey}`;
   if (!id || !safeCharacterKey || customId.length > 100)
     throw new Error("Некоректний ID рейду або персонажа для Discord-вибору ролі.");
   return customId;
@@ -2762,9 +2768,13 @@ export function decodeRaidRoleSelectCustomId(
   values?: unknown,
 ) {
   const value = cleanString(customId, 120);
-  const match = value.match(
+  const panelMatch = value.match(
+    /^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/,
+  );
+  const legacyMatch = value.match(
     /^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/,
   );
+  const match = panelMatch || legacyMatch;
   if (!match) return null;
   const selectedValues = Array.isArray(values) ? values : [];
   const signupRole = cleanRoleStrict(selectedValues[0]);
@@ -2774,6 +2784,38 @@ export function decodeRaidRoleSelectCustomId(
     action: cleanSignupStatus(match[2]),
     characterKey: match[3],
     signupRole,
+    commit: false,
+  };
+}
+
+export function buildRaidSignupSubmitCustomId(
+  raidId: string,
+  action: RaidSignupStatus,
+  characterKey: string,
+  signupRole: RaidCharacterRole,
+) {
+  const id = cleanRaidId(raidId);
+  const safeAction = cleanSignupStatus(action);
+  const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
+  const safeRole = cleanRoleStrict(signupRole);
+  const customId = `mbv1:rss:${id}:${safeAction}:${safeCharacterKey}:${safeRole || "dps"}`;
+  if (!id || !safeCharacterKey || customId.length > 100)
+    throw new Error("Некоректний ID рейду, персонажа або ролі для Discord-підтвердження.");
+  return customId;
+}
+
+export function decodeRaidSignupSubmitCustomId(customId: string) {
+  const value = cleanString(customId, 120);
+  const match = value.match(
+    /^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/,
+  );
+  if (!match) return null;
+  return {
+    raidId: match[1],
+    action: cleanSignupStatus(match[2]),
+    characterKey: match[3],
+    signupRole: cleanRoleStrict(match[4]),
+    commit: true,
   };
 }
 
@@ -2851,10 +2893,14 @@ export function buildRaidAttendanceComponents(
 export function buildRaidCharacterSelectCustomId(
   raidId: string,
   action: RaidSignupStatus,
+  selectedRole?: RaidCharacterRole | null,
 ) {
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
-  const customId = `mbv1:rc:${id}:${safeAction}`;
+  const role = cleanRoleStrict(selectedRole);
+  const customId = role && safeAction !== "skipped"
+    ? `mbv1:rsc:${id}:${safeAction}:${role}`
+    : `mbv1:rc:${id}:${safeAction}`;
   if (!id || customId.length > 100)
     throw new Error("Некоректний ID рейду для Discord-вибору персонажа.");
   return customId;
@@ -2893,7 +2939,10 @@ export function buildRaidCharacterSelectComponents(
   profile: DashboardProfile,
   selectedCharacterKey?: string | null,
   raid?: RaidMinimumPolicy | null,
+  selectedRole?: RaidCharacterRole | null,
 ) {
+  const selectedCharacter = resolveProfileCharacterSelection(profile, selectedCharacterKey);
+  const selectedKey = normalizeCharacterKey(selectedCharacter?.key || "");
   const options = profile.characters
     .map((character, index) => ({ character, index }))
     .filter(
@@ -2909,11 +2958,10 @@ export function buildRaidCharacterSelectComponents(
         ),
       description: raidCharacterOptionDescription(character, raid),
       value: `c${index}`,
+      default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
     }));
 
   if (!options.length) return [];
-
-  void selectedCharacterKey;
 
   return [
     {
@@ -2921,11 +2969,11 @@ export function buildRaidCharacterSelectComponents(
       components: [
         {
           type: 3,
-          custom_id: buildRaidCharacterSelectCustomId(raidId, action),
+          custom_id: buildRaidCharacterSelectCustomId(raidId, action, selectedRole),
           placeholder:
             action === "skipped"
               ? "Позначити пропуск рейду"
-              : "Змінити персонажа рейду",
+              : "1) Обери персонажа рейду",
           min_values: 1,
           max_values: 1,
           options,
@@ -2936,10 +2984,32 @@ export function buildRaidCharacterSelectComponents(
 }
 
 
+function raidRoleLabel(role: RaidCharacterRole) {
+  if (role === "tank") return "Танк";
+  if (role === "healer") return "Хіл";
+  return "ДД / DPS";
+}
+
 function raidRoleOptionDescription(role: RaidCharacterRole) {
   if (role === "tank") return "Записати персонажа у колонку Tanks";
   if (role === "healer") return "Записати персонажа у колонку Healers";
   return "Записати персонажа у колонку DPS";
+}
+
+function raidRoleSelectOptions(selectedRole?: RaidCharacterRole | null) {
+  const roles: Array<{ role: RaidCharacterRole; label: string; emoji: string }> = [
+    { role: "tank", label: "Танк", emoji: "🛡️" },
+    { role: "healer", label: "Хіл", emoji: "💚" },
+    { role: "dps", label: "ДД / DPS", emoji: "⚔️" },
+  ];
+
+  return roles.map(({ role, label, emoji }) => ({
+    label,
+    value: role,
+    description: raidRoleOptionDescription(role),
+    emoji: { name: emoji },
+    default: selectedRole === role,
+  }));
 }
 
 export function buildRaidRoleSelectComponents(
@@ -2951,12 +3021,6 @@ export function buildRaidRoleSelectComponents(
   const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
   if (!safeCharacterKey || action === "skipped") return [];
 
-  const roles: Array<{ role: RaidCharacterRole; label: string; emoji: string }> = [
-    { role: "tank", label: "Танк", emoji: "🛡️" },
-    { role: "healer", label: "Хіл", emoji: "💚" },
-    { role: "dps", label: "ДД / DPS", emoji: "⚔️" },
-  ];
-
   return [
     {
       type: 1,
@@ -2964,17 +3028,105 @@ export function buildRaidRoleSelectComponents(
         {
           type: 3,
           custom_id: buildRaidRoleSelectCustomId(raidId, action, safeCharacterKey),
-          placeholder: "Обери роль для рейду",
+          placeholder: "2) Обери роль для рейду",
           min_values: 1,
           max_values: 1,
-          options: roles.map(({ role, label, emoji }) => ({
-            label,
-            value: role,
-            description: raidRoleOptionDescription(role),
-            emoji: { name: emoji },
-            default: selectedRole === role,
-          })),
+          options: raidRoleSelectOptions(selectedRole),
         },
+      ],
+    },
+  ];
+}
+
+function raidCharacterSelectionToken(
+  profile: DashboardProfile,
+  selectedCharacterKey?: string | null,
+) {
+  const selected = resolveProfileCharacterSelection(profile, selectedCharacterKey);
+  if (!selected) return cleanRaidRoleSelectCharacterKey(selectedCharacterKey || "");
+  const selectedKey = normalizeCharacterKey(selected.key);
+  const index = profile.characters.findIndex(
+    (character) => normalizeCharacterKey(character.key) === selectedKey,
+  );
+  return index >= 0 ? `c${index}` : cleanRaidRoleSelectCharacterKey(selected.key);
+}
+
+function buildDisabledRaidRoleSelectRow(raidId: string, action: RaidSignupStatus) {
+  const id = cleanRaidId(raidId);
+  const safeAction = cleanSignupStatus(action);
+  return {
+    type: 1,
+    components: [
+      {
+        type: 3,
+        custom_id: `mbv1:rsr:${id}:${safeAction}:none`,
+        placeholder: "2) Спочатку обери персонажа",
+        min_values: 1,
+        max_values: 1,
+        disabled: true,
+        options: raidRoleSelectOptions(null),
+      },
+    ],
+  };
+}
+
+export function buildRaidSignupPanelComponents(
+  raidId: string,
+  action: RaidSignupStatus,
+  profile: DashboardProfile,
+  selectedCharacterKey?: string | null,
+  selectedRole?: RaidCharacterRole | null,
+  raid?: RaidMinimumPolicy | null,
+) {
+  const selectedCharacter = resolveProfileCharacterSelection(profile, selectedCharacterKey);
+  const characterToken = raidCharacterSelectionToken(profile, selectedCharacterKey);
+  const effectiveRole = selectedCharacter
+    ? cleanRoleStrict(selectedRole) || resolveRaidSignupRole(profile, selectedCharacter)
+    : null;
+
+  const rows: Array<Record<string, unknown>> = [];
+  rows.push(...buildRaidCharacterSelectComponents(raidId, action, profile, selectedCharacterKey, raid, effectiveRole));
+  if (selectedCharacter && characterToken) {
+    rows.push(...buildRaidRoleSelectComponents(raidId, action, characterToken, effectiveRole));
+  } else {
+    rows.push(buildDisabledRaidRoleSelectRow(raidId, action));
+  }
+
+  const canSubmit = Boolean(selectedCharacter && characterToken && effectiveRole);
+  rows.push({
+    type: 1,
+    components: [
+      {
+        type: 2,
+        style: canSubmit ? 3 : 2,
+        label: action === "late" ? "Записатися із запізненням" : "Записатися",
+        custom_id: canSubmit
+          ? buildRaidSignupSubmitCustomId(raidId, action, characterToken, effectiveRole || "dps")
+          : buildRaidAttendanceCustomId(raidId, action),
+        disabled: !canSubmit,
+      },
+      { type: 2, style: 5, label: "Деталі рейду", url: dashboardRaidUrl(raidId) },
+    ],
+  });
+
+  return rows.slice(0, 5);
+}
+
+export function buildRaidSignupSuccessComponents(
+  raidId: string,
+  action: RaidSignupStatus,
+) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 2,
+          label: action === "late" ? "Змінити запис" : "Змінити персонажа / роль",
+          custom_id: buildRaidAttendanceCustomId(raidId, action),
+        },
+        { type: 2, style: 5, label: "Відкрити рейд", url: dashboardRaidUrl(raidId) },
       ],
     },
   ];
@@ -3533,6 +3685,7 @@ export async function handleRaidDiscordAction(params: {
   userName: string;
   characterKey?: string | null;
   signupRole?: RaidCharacterRole | null;
+  commit?: boolean;
   messageRef?: DiscordMessageRefInput | null;
 }) {
   const raid = await getRaid(params.raidId);
@@ -3619,32 +3772,38 @@ export async function handleRaidDiscordAction(params: {
 
     if (!selectedCharacter && eligibleCharacters.length > 0) {
       const hiddenCount = profile.characters.length - eligibleCharacters.length;
+      const selectedKey = currentSignup?.characterKey || null;
+      const selectedRole = currentSignup?.role || null;
       return {
         ok: true,
         content: isCharacterChange
-          ? `🔁 Ти вже записаний на рейд${currentSignup?.characterName ? ` як ${currentSignup.characterName}` : ""}. Обери персонажа, на якого потрібно змінити запис. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`
-          : `🎯 Обери персонажа, яким хочеш записатися на рейд. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Це приватний вибір — інші його не бачать."}`,
-        components: buildRaidCharacterSelectComponents(
+          ? `🔁 Приватний пульт запису. Ти вже записаний на рейд${currentSignup?.characterName ? ` як ${currentSignup.characterName}` : ""}. Обери персонажа й роль в цьому ж повідомленні, потім натисни підтвердження. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : ""}`
+          : `🎯 Приватний пульт запису на рейд. Обери персонажа, перевір роль і натисни підтвердження. ${hiddenCount > 0 ? `Персонажі нижче мінімального ilvl (${raid.minItemLevel}) приховані.` : "Інші учасники цей вибір не бачать."}`,
+        components: buildRaidSignupPanelComponents(
           raid.id,
           params.action,
           profile,
-          currentSignup?.characterKey || null,
+          selectedKey,
+          selectedRole,
           raid,
         ),
         requiresCharacterSelection: true,
       };
     }
-    if (selectedCharacter && !cleanRoleStrict(params.signupRole)) {
+    const selectedSignupRole = cleanRoleStrict(params.signupRole) || (selectedCharacter ? resolveRaidSignupRole(profile, selectedCharacter) : null);
+    if (selectedCharacter && !params.commit) {
       return {
         ok: true,
-        content: `🎭 Обери роль для рейду персонажу ${selectedCharacter.name}. Саме ця роль визначить колонку в Discord: Tanks / Healers / DPS.`,
-        components: buildRaidRoleSelectComponents(
+        content: `🎯 Приватний пульт запису на рейд. Персонаж: **${selectedCharacter.name}**${selectedCharacter.realmName || selectedCharacter.realmSlug ? ` • ${selectedCharacter.realmName || selectedCharacter.realmSlug}` : ""}. Роль: **${selectedSignupRole ? raidRoleLabel(selectedSignupRole) : "не вибрано"}**. Натисни кнопку підтвердження, щоб запис зарахувався.`,
+        components: buildRaidSignupPanelComponents(
           raid.id,
           params.action,
+          profile,
           cleanRaidRoleSelectCharacterKey(params.characterKey) || selectedCharacter.key || "",
-          resolveRaidSignupRole(profile, selectedCharacter),
+          selectedSignupRole,
+          raid,
         ),
-        requiresRoleSelection: true,
+        requiresConfirmation: true,
       };
     }
     if (!selectedCharacter) {
@@ -3713,6 +3872,7 @@ export async function handleRaidDiscordAction(params: {
       updatedSignup,
       discordSynced,
     ),
+    components: buildRaidSignupSuccessComponents(updated.id, params.action),
     warning,
     raid: updated,
     discordSynced,

@@ -908,6 +908,25 @@ export function buildRaidPollDiscordComponents(poll: Pick<RaidPollItem, "id" | "
   ];
 }
 
+function buildRaidPollSubmittedComponents(poll: Pick<RaidPollItem, "id" | "status" | "closesAtMs" | "days">) {
+  const disabled = poll.status === "closed" || poll.closesAtMs <= Date.now();
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 2,
+          custom_id: `${RAID_POLL_ACTION_PREFIX}_character_prompt:${poll.id}`,
+          label: disabled ? "Голосування завершено" : "Змінити голос",
+          disabled,
+        },
+        { type: 2, style: 5, label: "Деталі на сайті", url: dashboardPollUrl(poll.id) },
+      ],
+    },
+  ];
+}
+
 function roleSelectOptions(draft: RaidPollVoteDraft) {
   return RAID_POLL_ROLE_OPTIONS.map((role) => ({
     label: `${role.emoji} ${role.label}`.slice(0, 100),
@@ -1958,7 +1977,7 @@ export async function handleRaidPollDiscordVote(params: {
         ok: true,
         poll: changedPoll,
         content: submittedVoteContent(finalVote, poll),
-        components: profile ? buildRaidPollVoteDraftComponents(poll, profile, submittedDraft) : [],
+        components: buildRaidPollSubmittedComponents(changedPoll),
       };
     });
   }, { logEvent: "raid_polls.vote_failed" });
