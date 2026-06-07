@@ -420,6 +420,7 @@ type DiscordRolesCacheEntry = {
 export type DiscordTextChannelsSnapshot = {
   guild: DiscordGuildSnapshot | null;
   channels: DiscordTextChannel[];
+  suggestedChannelId: string;
   suggestedRulesChannelId: string;
   warning?: string | null;
 };
@@ -900,6 +901,7 @@ function fallbackDiscordTextChannels(fallbackChannelId = "", guild: DiscordGuild
   return {
     guild,
     channels: fallback ? [{ id: fallback, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] : [],
+    suggestedChannelId: fallback || "",
     suggestedRulesChannelId: fallback || "",
     warning: warning || null,
   };
@@ -980,12 +982,22 @@ async function fetchDiscordTextChannelsViaWorker(fallbackChannelId = ""): Promis
     rules_channel_id: guildRaw.rules_channel_id ? String(guildRaw.rules_channel_id) : null,
   } : null;
 
-  const snapshot = normalizeDiscordTextChannels(Array.isArray(data.channels) ? data.channels : [], guild, String(data.suggestedRulesChannelId || data.suggestedChannelId || fallbackChannelId || ""));
+  const snapshot = normalizeDiscordTextChannels(
+    Array.isArray(data.channels) ? data.channels : [],
+    guild,
+    String(data.suggestedRulesChannelId || fallbackChannelId || ""),
+    String(data.suggestedChannelId || fallbackChannelId || ""),
+  );
   const warning = typeof data.warning === "string" && data.warning.trim() ? data.warning.trim().slice(0, 240) : null;
   return warning ? { ...snapshot, warning } : snapshot;
 }
 
-function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapshot | null, fallbackChannelId = ""): DiscordTextChannelsSnapshot {
+function normalizeDiscordTextChannels(
+  channels: any[],
+  guild: DiscordGuildSnapshot | null,
+  fallbackChannelId = "",
+  suggestedRaidChannelId = "",
+): DiscordTextChannelsSnapshot {
   const textChannels: DiscordTextChannel[] = channels
     .filter((channel) => channel && (channel.type === 0 || channel.type === 5))
     .map((channel) => ({
@@ -1007,11 +1019,30 @@ function normalizeDiscordTextChannels(channels: any[], guild: DiscordGuildSnapsh
     return name.includes("rules") || name.includes("rule") || name.includes("правил") || name.includes("pravyl") || name.includes("правила");
   });
 
+  const raidById = snowflake(suggestedRaidChannelId)
+    ? textChannels.find((channel) => channel.id === snowflake(suggestedRaidChannelId))
+    : undefined;
+  const raidByName = textChannels.find((channel) => {
+    const name = channel.name.toLowerCase();
+    return (
+      name.includes("raid") ||
+      name.includes("рейд") ||
+      name.includes("анонс") ||
+      name.includes("announce") ||
+      name.includes("оголош")
+    );
+  });
   const fallback = snowflake(fallbackChannelId);
+  const fallbackById = fallback
+    ? textChannels.find((channel) => channel.id === fallback)
+    : undefined;
+  const suggestedChannelId =
+    raidById?.id || raidByName?.id || fallbackById?.id || fallback || textChannels[0]?.id || "";
 
   return {
     guild,
     channels: textChannels.length > 0 ? textChannels : fallback ? [{ id: fallback, name: "канал за замовчуванням", type: 0, position: 0, parent_id: null }] as DiscordTextChannel[] : [],
+    suggestedChannelId,
     suggestedRulesChannelId: rulesByGuild?.id || rulesByName?.id || fallback || textChannels[0]?.id || "",
     warning: null,
   };

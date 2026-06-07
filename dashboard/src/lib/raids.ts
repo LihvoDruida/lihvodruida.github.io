@@ -456,12 +456,28 @@ function raidClosedAtUtcMs(raid: Pick<RaidItem, "closedAt" | "date" | "time">) {
 function raidDiscordDeleteDue(
   raid: Pick<RaidItem, "date" | "time" | "status" | "closedAt"> | Record<string, unknown>,
   delayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv(),
+  delayAfterStartHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
   if ((raid as Record<string, unknown>).status !== "closed") return false;
-  const closedAt = raidClosedAtUtcMs(raid as Pick<RaidItem, "closedAt" | "date" | "time">);
+
+  const startsAt = raidDateTimeToUtcMs(raid);
+  if (startsAt === null) return false;
+
+  const closedAt = raidClosedAtUtcMs(
+    raid as Pick<RaidItem, "closedAt" | "date" | "time">,
+  );
   if (closedAt === null) return false;
-  const safeDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromSettings(delayMinutes);
-  return Date.now() >= closedAt + safeDelayMinutes * 60 * 1000;
+
+  const safeDelayMinutes =
+    raidDiscordDeleteAfterCloseMinutesFromSettings(delayMinutes);
+  const safeDelayAfterStartHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    delayAfterStartHours,
+  );
+  const deleteAfterStartAt =
+    startsAt + safeDelayAfterStartHours * 60 * 60 * 1000;
+  const deleteAfterCloseAt = closedAt + safeDelayMinutes * 60 * 1000;
+
+  return Date.now() >= Math.max(deleteAfterStartAt, deleteAfterCloseAt);
 }
 
 function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
@@ -1538,7 +1554,16 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
   );
 }
 
-async function syncRaidLifecycleAfterRead(raid: RaidItem) {
+type RaidLifecycleSyncResult = {
+  raidId: string;
+  status: RaidItem["status"];
+  autoClosed: boolean;
+  discordDeleted: boolean;
+};
+
+async function syncRaidLifecycleAfterRead(
+  raid: RaidItem,
+): Promise<RaidLifecycleSyncResult> {
   const settings = await getSiteRuntimeSettings().catch(() => ({
     raidDiscordDeleteAfterStartHours: 4,
   }));
@@ -1552,11 +1577,27 @@ async function syncRaidLifecycleAfterRead(raid: RaidItem) {
     closeDelayHours,
   });
 
-  // If the raid was closed in this pass, keep the disabled Discord announcement
-  // visible for at least one cleanup window before deleting it.
-  if (!closedNow) {
-    await syncRaidDiscordDeletionAfterClose(raid, deleteDelayMinutes);
-  }
+  const lifecycleRaid: RaidItem = closedNow
+    ? {
+        ...raid,
+        status: "closed",
+        closedReason: "auto",
+        closedAt: new Date().toISOString(),
+      }
+    : raid;
+
+  const discordDeleted = await syncRaidDiscordDeletionAfterClose(
+    lifecycleRaid,
+    deleteDelayMinutes,
+    closeDelayHours,
+  );
+
+  return {
+    raidId: raid.id,
+    status: lifecycleRaid.status,
+    autoClosed: closedNow,
+    discordDeleted,
+  };
 }
 
 async function syncAutoClosedRaid(
@@ -1634,6 +1675,7 @@ async function syncAutoClosedRaid(
 async function syncRaidDiscordDeletionAfterClose(
   raid: RaidItem,
   configuredDelayMinutes?: number,
+  configuredAfterStartHours?: number,
 ) {
   if (
     !hasRaidStorage() ||
@@ -1642,18 +1684,23 @@ async function syncRaidDiscordDeletionAfterClose(
     raid.status !== "closed" ||
     raid.discordDeletedAt
   )
-    return;
+    return false;
 
   const delayMinutes = raidDiscordDeleteAfterCloseMinutesFromSettings(
     configuredDelayMinutes ?? 60,
   );
-  if (!raidDiscordDeleteDue(raid, delayMinutes)) return;
+  const delayAfterStartHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    configuredAfterStartHours ?? raidAutoCloseDelayHoursFromEnv(),
+  );
+  if (!raidDiscordDeleteDue(raid, delayMinutes, delayAfterStartHours)) {
+    return false;
+  }
 
   let deleted = false;
   try {
     await deleteDiscordRaidMessage({
       ref: { channelId: raid.channelId, messageId: raid.messageId },
-      auditReason: `Raid auto-deleted from Discord ${delayMinutes}m after close: ${raid.id}`,
+      auditReason: `Raid auto-deleted from Discord after start+close buffers: ${raid.id}`,
     });
     deleted = true;
   } catch (error) {
@@ -1662,14 +1709,15 @@ async function syncRaidDiscordDeletionAfterClose(
     } else {
       console.warn("[raids] Failed to auto-delete closed Discord raid message", {
         raidId: raid.id,
+        delayAfterStartHours,
         delayMinutes,
         message: error instanceof Error ? error.message : String(error),
       });
-      return;
+      return false;
     }
   }
 
-  if (!deleted) return;
+  if (!deleted) return false;
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:discord-auto-delete`,
@@ -1692,6 +1740,62 @@ async function syncRaidDiscordDeletionAfterClose(
       fallback: () => undefined,
     },
   );
+  return true;
+}
+
+async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
+  if (!hasRaidStorage()) return [];
+  const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 100)));
+  const db = getFirebaseAdminDb();
+  const docsById = new Map<
+    string,
+    { id: string; data: () => Record<string, unknown> | undefined }
+  >();
+
+  try {
+    const [publishedSnapshot, closedSnapshot] = await Promise.all([
+      db.collection(RAID_COLLECTION)
+        .where("status", "==", "published")
+        .limit(safeLimit)
+        .get(),
+      db.collection(RAID_COLLECTION)
+        .where("status", "==", "closed")
+        .limit(safeLimit)
+        .get(),
+    ]);
+    for (const doc of [...publishedSnapshot.docs, ...closedSnapshot.docs]) {
+      docsById.set(doc.id, doc);
+    }
+  } catch (error) {
+    console.warn("[raids] Lifecycle status query failed; falling back to date scan", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    try {
+      const snapshot = await db
+        .collection(RAID_COLLECTION)
+        .orderBy("date", "asc")
+        .limit(Math.max(safeLimit, Math.min(200, safeLimit * 2)))
+        .get();
+      for (const doc of snapshot.docs) docsById.set(doc.id, doc);
+    } catch {
+      const snapshot = await db
+        .collection(RAID_COLLECTION)
+        .limit(Math.max(safeLimit, Math.min(200, safeLimit * 2)))
+        .get();
+      for (const doc of snapshot.docs) docsById.set(doc.id, doc);
+    }
+  }
+
+  return Array.from(docsById.values())
+    .map((doc) => normalizeRaid(doc.id, doc.data() || {}))
+    .filter((raid) => raid.status === "published" || raid.status === "closed")
+    .sort(
+      (a, b) =>
+        `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`) ||
+        Date.parse(a.updatedAt || a.createdAt || "") -
+          Date.parse(b.updatedAt || b.createdAt || ""),
+    )
+    .slice(0, safeLimit);
 }
 
 export async function syncRaidLifecycleBatch(limit = 100) {
@@ -1699,14 +1803,40 @@ export async function syncRaidLifecycleBatch(limit = 100) {
     1,
     Math.min(100, Math.floor(Number(limit) || 100)),
   );
-  const raids = await listRaids(safeLimit);
+  const raids = await listRaidsForLifecycle(safeLimit);
   let checked = 0;
+  let autoClosed = 0;
+  let discordDeleted = 0;
+  const errors: Array<{ raidId: string; title: string; message: string }> = [];
+
   for (const raid of raids) {
-    if (raid.status === "draft") continue;
     checked += 1;
-    await syncRaidLifecycleAfterRead(raid);
+    try {
+      const result = await syncRaidLifecycleAfterRead(raid);
+      if (result.autoClosed) autoClosed += 1;
+      if (result.discordDeleted) discordDeleted += 1;
+    } catch (error) {
+      errors.push({
+        raidId: raid.id,
+        title: raid.title || raid.id,
+        message: error instanceof Error ? error.message : String(error || "unknown"),
+      });
+      console.warn("[raids] Lifecycle item failed", {
+        raidId: raid.id,
+        title: raid.title || raid.id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
-  return { checked, total: raids.length };
+
+  return {
+    checked,
+    total: raids.length,
+    autoClosed,
+    discordDeleted,
+    failed: errors.length,
+    errors: errors.slice(0, 20),
+  };
 }
 
 export async function closeRaid(raidId: string) {
@@ -1716,35 +1846,60 @@ export async function closeRaid(raidId: string) {
     throw new Error(
       "Чернетку не можна закрити. Її можна видалити або опублікувати.",
     );
-  const closed: RaidItem = {
-    ...raid,
-    status: "closed",
-    closedReason: "manual",
-    closedAt: new Date().toISOString(),
-  };
+
+  let closed: RaidItem = raid.status === "closed"
+    ? raid
+    : {
+        ...raid,
+        status: "closed",
+        closedReason: "manual",
+        closedAt: raid.closedAt || new Date().toISOString(),
+      };
+
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:close`,
     async () => {
-      await getFirebaseAdminDb()
-        .collection(RAID_COLLECTION)
-        .doc(raid.id)
-        .set(
+      const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
+      await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) throw new Error("Рейд не знайдено.");
+        const current = normalizeRaid(snapshot.id, snapshot.data() || {});
+        if (current.status === "draft") {
+          throw new Error(
+            "Чернетку не можна закрити. Її можна видалити або опублікувати.",
+          );
+        }
+
+        if (current.status === "closed") {
+          closed = current;
+          return;
+        }
+
+        closed = {
+          ...current,
+          status: "closed",
+          closedReason: "manual",
+          closedAt: current.closedAt || new Date().toISOString(),
+        };
+        transaction.set(
+          ref,
           {
             status: "closed",
             closedReason: "manual",
-            closedAt: FieldValue.serverTimestamp(),
+            ...(current.closedAt ? {} : { closedAt: FieldValue.serverTimestamp() }),
             updatedAt: FieldValue.serverTimestamp(),
           },
           { merge: true },
         );
+      });
       clearRaidRuntimeCaches(raid.id);
     },
     { timeoutMs: 3_000, logEvent: "raids.close_write_failed" },
   );
 
   let discordSynced = true;
-  if (closed.channelId && closed.messageId) {
+  if (closed.channelId && closed.messageId && !closed.discordDeletedAt) {
     try {
       await publishOrUpdateRaid(closed, closed.channelId);
     } catch (error) {
@@ -2959,6 +3114,8 @@ export async function publishOrUpdateRaid(
                 ? {}
                 : { closedAt: null }),
             discordCloseSyncedAt: closed ? FieldValue.serverTimestamp() : null,
+            discordDeletedAt: null,
+            discordDeleteReason: null,
             channelId: nextChannelId,
             messageId: nextMessageId,
             messageUrl,

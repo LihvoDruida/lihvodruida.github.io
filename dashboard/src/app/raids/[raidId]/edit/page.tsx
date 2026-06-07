@@ -37,7 +37,14 @@ export default async function EditRaidPage({
       fetchDiscordTextChannels().catch(() => null),
       fetchDiscordRoles().catch(() => []),
     ]);
-    channels = channelsResult?.channels || [];
+    const suggestedChannelId = channelsResult?.suggestedChannelId || "";
+    const rawChannels = channelsResult?.channels || [];
+    channels = suggestedChannelId
+      ? [
+          ...rawChannels.filter((channel) => channel.id === suggestedChannelId),
+          ...rawChannels.filter((channel) => channel.id !== suggestedChannelId),
+        ]
+      : rawChannels;
     channelWarning = channelsResult?.warning || "";
     roles = roleData;
   }

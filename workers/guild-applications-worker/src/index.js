@@ -4180,7 +4180,14 @@ async function runRaidLifecycleCron(env, reason = "scheduled") {
       logWorkerEvent("warn", "raid_lifecycle.bad_response", { status: response.status, raw: raw.slice(0, 180), reason });
       return { ok: false, status: response.status };
     }
-    logWorkerEvent("info", "raid_lifecycle.done", { reason, checked: data.checked, total: data.total });
+    logWorkerEvent("info", "raid_lifecycle.done", {
+      reason,
+      checked: data.checked,
+      total: data.total,
+      autoClosed: data.autoClosed || 0,
+      discordDeleted: data.discordDeleted || 0,
+      failed: data.failed || 0,
+    });
     return data;
   } catch (error) {
     logWorkerEvent("error", "raid_lifecycle.failed", { reason, message: error?.message });
@@ -4251,7 +4258,7 @@ export default {
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
-      if (url.pathname === "/api/raids/lifecycle" && request.method === "POST") {
+      if (url.pathname === "/api/raids/lifecycle" && (request.method === "GET" || request.method === "POST")) {
         const result = await runRaidLifecycleCron(env, "manual-worker-endpoint");
         response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
         return withTelemetryHeaders(response, requestId, startedAt);
