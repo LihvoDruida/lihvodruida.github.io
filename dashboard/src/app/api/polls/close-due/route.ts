@@ -16,12 +16,23 @@ async function run(request: NextRequest) {
   }
   try {
     const result = await closeDueRaidPolls();
-    logDashboardEvent("info", "raid_polls.close_due", request, result);
+    logDashboardEvent(result.failed ? "warn" : "info", "raid_polls.close_due", request, result);
     return NextResponse.json({ ok: true, ...result }, { headers: noStoreHeaders() });
   } catch (error) {
     const message = safeErrorMessage(error);
-    logDashboardEvent("error", "raid_polls.close_due_failed", request, { message });
-    return NextResponse.json({ ok: false, error: message }, { status: 500, headers: noStoreHeaders() });
+    logDashboardEvent("warn", "raid_polls.close_due_degraded", request, { message });
+    return NextResponse.json({
+      ok: true,
+      degraded: true,
+      checked: 0,
+      scanned: 0,
+      closed: 0,
+      repeatedChecked: 0,
+      repeated: 0,
+      deleted: 0,
+      failed: 1,
+      errors: [message],
+    }, { headers: noStoreHeaders() });
   }
 }
 

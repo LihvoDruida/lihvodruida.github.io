@@ -1536,35 +1536,64 @@ export async function closeDueRaidPoll(input: RaidPollItem) {
 }
 
 export async function closeDueRaidPolls() {
-  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, repeatedChecked: 0, repeated: 0, deleted: 0, failed: 0 };
-  const snap = await getFirebaseAdminDb()
-    .collection(RAID_POLL_COLLECTION)
-    .where("status", "==", "open")
-    .where("closesAtMs", "<=", Date.now())
-    .limit(20)
-    .get();
-  let closed = 0;
+  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, repeatedChecked: 0, repeated: 0, deleted: 0, failed: 0, errors: [] as string[] };
+
+  const nowMs = Date.now();
+  let openPolls: RaidPollItem[] = [];
   let failed = 0;
-  for (const doc of snap.docs) {
-    await closeRaidPoll(doc.id, "auto", { silentIfClosed: true })
+  const errors: string[] = [];
+
+  try {
+    // Не використовуємо composite query status + closesAtMs. У проді це легко ламається без
+    // Firestore composite-index і перетворює кожний cron у 500. Беремо відкриті пули
+    // невеликим батчем і фільтруємо due-стан у коді.
+    const snap = await getFirebaseAdminDb()
+      .collection(RAID_POLL_COLLECTION)
+      .where("status", "==", "open")
+      .limit(80)
+      .get();
+    openPolls = snap.docs.map((doc) => normalizeRaidPoll(doc.id, doc.data() || {}));
+  } catch (error) {
+    failed += 1;
+    const message = error instanceof Error ? error.message : String(error || "unknown");
+    errors.push(message.slice(0, 220));
+    console.warn("[raidPolls] Failed to read due polls", { message });
+  }
+
+  let closed = 0;
+  const duePolls = openPolls
+    .filter((poll) => poll.status !== "closed" && poll.closesAtMs <= nowMs)
+    .sort((a, b) => a.closesAtMs - b.closesAtMs)
+    .slice(0, 20);
+
+  for (const poll of duePolls) {
+    await closeRaidPoll(poll.id, "auto", { silentIfClosed: true })
       .then(() => { closed += 1; })
       .catch((error) => {
         failed += 1;
-        console.warn("[raidPolls] Failed to close due poll", { pollId: doc.id, message: error instanceof Error ? error.message : String(error) });
+        const message = error instanceof Error ? error.message : String(error || "unknown");
+        errors.push(`${poll.id}: ${message}`.slice(0, 220));
+        console.warn("[raidPolls] Failed to close due poll", { pollId: poll.id, message });
       });
   }
+
   const repeated = await repeatDueRaidPolls().catch((error) => {
     failed += 1;
-    console.warn("[raidPolls] Failed to repeat due polls", { message: error instanceof Error ? error.message : String(error) });
+    const message = error instanceof Error ? error.message : String(error || "unknown");
+    errors.push(`repeat: ${message}`.slice(0, 220));
+    console.warn("[raidPolls] Failed to repeat due polls", { message });
     return { checked: 0, repeated: 0, deleted: 0, failed: 0 };
   });
+
   return {
-    checked: snap.docs.length,
+    checked: duePolls.length,
+    scanned: openPolls.length,
     closed,
     repeatedChecked: repeated.checked,
     repeated: repeated.repeated,
     deleted: repeated.deleted,
     failed: failed + repeated.failed,
+    errors: errors.slice(0, 8),
   };
 }
 

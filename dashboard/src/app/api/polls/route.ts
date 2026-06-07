@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
       messageId: poll.messageId || "",
     });
     await recordAdminAudit("raid_polls.create", user, {
+      auditId: `raid_polls.create:${poll.id}`,
       status: "success",
       summary: `Рейд-пул створено: ${poll.title}.`,
       pollId: poll.id,
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
     const message = safeErrorMessage(error);
     logDashboardEvent("error", "raid_polls.create_failed", request, { actorId: user.id, message });
     await recordAdminAudit("raid_polls.create_failed", user, {
+      auditId: `raid_polls.create_failed:${Date.now().toString(36)}`,
       status: "error",
       summary: `Рейд-пул не створено: ${message}`,
       error: error instanceof Error ? error.message : String(error || ""),

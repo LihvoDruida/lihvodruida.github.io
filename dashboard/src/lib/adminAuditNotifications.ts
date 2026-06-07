@@ -438,7 +438,7 @@ function detailFields(details: Record<string, unknown>) {
     if (fields.length >= 8) return fields;
   }
 
-  const previewKeys = Object.keys(details).filter((key) => !used.has(key) && !/token|secret|password|authorization|cookie|signature/i.test(key));
+  const previewKeys = Object.keys(details).filter((key) => !used.has(key) && !/token|secret|password|authorization|cookie|signature|auditId|auditKey/i.test(key));
   for (const key of previewKeys.slice(0, 4)) {
     const rawValue = details[key];
     if (rawValue === null || rawValue === undefined || rawValue === "") continue;
@@ -458,6 +458,48 @@ function dashboardLogUrl() {
   } catch {
     return "";
   }
+}
+
+function auditDuplicateIdentity(item: AdminAuditNotificationInput) {
+  const details = item.details || {};
+  return JSON.stringify({
+    id: item.id,
+    action: item.action,
+    status: item.status,
+    summary: item.summary,
+    pollId: details.pollId || null,
+    raidId: details.raidId || null,
+    messageId: details.messageId || null,
+    channelId: details.channelId || null,
+  });
+}
+
+function sameAuditNotification(a: AdminAuditNotificationInput, b: AdminAuditNotificationInput) {
+  if (a.id && b.id && a.id === b.id) return true;
+  const aDetails = a.details || {};
+  const bDetails = b.details || {};
+  const samePrimaryRef = Boolean(
+    (aDetails.pollId && aDetails.pollId === bDetails.pollId) ||
+    (aDetails.raidId && aDetails.raidId === bDetails.raidId) ||
+    (aDetails.messageId && aDetails.messageId === bDetails.messageId)
+  );
+  return Boolean(
+    samePrimaryRef &&
+    a.action === b.action &&
+    a.status === b.status &&
+    String(a.summary || "") === String(b.summary || "")
+  );
+}
+
+async function recentDiscordAuditAlreadyExists(item: AdminAuditNotificationInput) {
+  const recent = await listAdminAuditLogsFromDiscord(40, { cacheTtlMs: 1_000 }).catch(() => []);
+  const cutoff = Date.now() - 10 * 60_000;
+  const identity = auditDuplicateIdentity(item);
+  return recent.some((entry) => {
+    const createdAtMs = Date.parse(entry.createdAt || "");
+    if (Number.isFinite(createdAtMs) && createdAtMs < cutoff) return false;
+    return auditDuplicateIdentity(entry) === identity || sameAuditNotification(item, entry);
+  });
 }
 
 function auditEmbed(item: AdminAuditNotificationInput) {
@@ -492,6 +534,15 @@ export async function publishAdminAuditToDiscord(item: AdminAuditNotificationInp
   if (!process.env.DISCORD_BOT_TOKEN) return { skipped: true, reason: "DISCORD_BOT_TOKEN is missing" };
 
   try {
+    if (await recentDiscordAuditAlreadyExists(item)) {
+      logDashboardEvent("debug", "admin.audit.discord_duplicate_skipped", undefined, {
+        action: item.action,
+        status: item.status,
+        id: item.id,
+      });
+      return { skipped: true, reason: "duplicate" };
+    }
+
     const payload = await discordApi<{ id?: string }>(`/channels/${policy.channelId}/messages`, {
       method: "POST",
       body: JSON.stringify({
@@ -499,7 +550,25 @@ export async function publishAdminAuditToDiscord(item: AdminAuditNotificationInp
         embeds: [auditEmbed(item)],
       }),
     });
-    return { ok: true, channelId: policy.channelId, messageId: payload?.id || null };
+    const messageId = payload?.id || null;
+    const cached = globalThis.__mistblossomAdminAuditDiscordMessagesCache;
+    if (cached?.channelId === policy.channelId) {
+      cached.items = [
+        {
+          ...item,
+          details: {
+            ...(item.details || {}),
+            auditStorage: "discord",
+            discordChannelId: policy.channelId,
+            discordMessageId: messageId,
+          },
+          createdAt: item.createdAt || new Date().toISOString(),
+        },
+        ...cached.items,
+      ].slice(0, 250);
+      cached.cachedAt = Date.now();
+    }
+    return { ok: true, channelId: policy.channelId, messageId };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Discord API error" };
   }

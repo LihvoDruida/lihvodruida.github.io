@@ -4241,7 +4241,7 @@ async function runRaidPollCloseDueCron(env, reason = "scheduled") {
         authorization: `Bearer ${token}`,
         "x-worker-stats-token": token,
       },
-    }, { timeoutMs: 12000, retries: 1 });
+    }, { timeoutMs: 12000, retries: 0 });
     let data = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
     if (!response.ok || !data?.ok) {

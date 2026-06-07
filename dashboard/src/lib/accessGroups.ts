@@ -581,9 +581,16 @@ function compactAuditDetails(details: Record<string, unknown>) {
     : {};
 }
 
-function auditFingerprint(item: Pick<AdminAuditLogItem, "action" | "actorId" | "status" | "summary" | "details">) {
+function cleanAuditId(value: unknown) {
+  const text = String(value || "").trim();
+  return /^[A-Za-z0-9:._-]{8,120}$/.test(text) ? text : "";
+}
+
+function auditFingerprint(item: Pick<AdminAuditLogItem, "id" | "action" | "actorId" | "status" | "summary" | "details">) {
   const details = item.details || {};
   const identity = {
+    id: cleanAuditId(item.id),
+    auditId: cleanAuditId(details.auditId),
     action: item.action,
     actorId: item.actorId,
     status: item.status,
@@ -591,11 +598,15 @@ function auditFingerprint(item: Pick<AdminAuditLogItem, "action" | "actorId" | "
     groupId: details.groupId,
     profileId: details.profileId,
     userId: details.userId,
+    pollId: details.pollId,
+    raidId: details.raidId,
+    messageId: details.messageId,
+    channelId: details.channelId,
     jobId: details.jobId,
     reason: details.reason,
     error: details.error,
   };
-  return JSON.stringify(identity).slice(0, 900);
+  return JSON.stringify(identity).slice(0, 1200);
 }
 
 function shouldSkipDuplicateAudit(item: AdminAuditLogItem, dedupeWindowMs: number) {
@@ -692,8 +703,9 @@ export async function recordAdminAudit(action: string, viewer: DashboardSession,
     }),
     createdAtIso,
   };
+  const stableAuditId = cleanAuditId(compactDetails.auditId) || cleanAuditId(compactDetails.auditKey);
   const auditItem: AdminAuditLogItem = normalizeAuditLog(
-    `discord-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
+    stableAuditId || `discord-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
     baseRaw,
   );
 
@@ -740,8 +752,9 @@ export async function recordSystemAudit(action: string, details: Record<string, 
     }),
     createdAtIso,
   };
+  const stableAuditId = cleanAuditId(compactDetails.auditId) || cleanAuditId(compactDetails.auditKey);
   const auditItem: AdminAuditLogItem = normalizeAuditLog(
-    `system-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
+    stableAuditId || `system-${createdAtIso}-${Math.random().toString(36).slice(2, 8)}`,
     baseRaw,
   );
 
