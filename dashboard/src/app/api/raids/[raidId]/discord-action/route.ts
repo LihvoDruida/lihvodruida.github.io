@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleRaidDiscordAction, type RaidSignupStatus } from "@/lib/raids";
+import { handleRaidDiscordAction, type RaidCharacterRole, type RaidSignupStatus } from "@/lib/raids";
 import {
   assertRequestBodySize,
   checkRateLimit,
@@ -43,6 +43,14 @@ function cleanIdempotencyKey(value: unknown) {
 
 function cleanAction(value: unknown): RaidSignupStatus {
   return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
+}
+
+function cleanSignupRole(value: unknown): RaidCharacterRole | null {
+  const role = String(value || "").trim().toLowerCase();
+  if (role === "tank") return "tank";
+  if (role === "healer" || role === "heal") return "healer";
+  if (role === "dps" || role === "dd") return "dps";
+  return null;
 }
 
 function cleanDiscordId(value: unknown) {
@@ -97,6 +105,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
       userId,
       userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
       characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
+      signupRole: cleanSignupRole(body?.signupRole || body?.signup_role || body?.role),
       messageRef: {
         channelId,
         messageId,

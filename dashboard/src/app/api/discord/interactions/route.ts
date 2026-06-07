@@ -8,7 +8,7 @@ import {
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
 import { rulesLoginUrl } from "@/lib/rulesOnboarding";
-import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents } from "@/lib/raids";
+import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, decodeRaidRoleSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents, type RaidCharacterRole } from "@/lib/raids";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -121,6 +121,15 @@ function getInteractionMessageRef(interaction: any) {
 }
 
 
+function cleanRaidSignupRole(value: unknown): RaidCharacterRole | null {
+  const role = String(value || "").trim().toLowerCase();
+  if (role === "tank") return "tank";
+  if (role === "healer") return "healer";
+  if (role === "dps") return "dps";
+  return null;
+}
+
+
 function mainCharacterLabel(character: any) {
   const name = String(character?.name || "").trim();
   const realm = String(character?.realmName || character?.realmSlug || "").trim();
@@ -157,8 +166,9 @@ export async function POST(request: NextRequest) {
   }
 
   const customId = String(interaction?.data?.custom_id || "");
+  const raidRoleAction = decodeRaidRoleSelectCustomId(customId, interaction?.data?.values);
   const raidSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
-  const raidAction = raidSelectAction || decodeRaidAttendanceCustomId(customId);
+  const raidAction = raidRoleAction || raidSelectAction || decodeRaidAttendanceCustomId(customId);
   const parsed = raidAction ? null : decodeRulesCustomId(customId);
   if (!raidAction && !parsed) {
     logDashboardEvent("warn", "discord.rules.unknown_custom_id", request, { customId: customId.slice(0, 24) });
@@ -177,6 +187,7 @@ export async function POST(request: NextRequest) {
         userId,
         userName,
         characterKey: "characterKey" in raidAction ? String(raidAction.characterKey || "") : null,
+        signupRole: "signupRole" in raidAction ? cleanRaidSignupRole(raidAction.signupRole) : null,
         messageRef: getInteractionMessageRef(interaction),
       });
       logDashboardEvent(result.ok ? "info" : "warn", "discord.raid.action", request, { raidId: raidAction.raidId, action: raidAction.action, userId, ok: result.ok });

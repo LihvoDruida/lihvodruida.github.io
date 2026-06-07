@@ -12,7 +12,7 @@ let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 let discordRouteCooldowns = new Map();
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache", "/api/raids/lifecycle"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -3412,6 +3412,23 @@ function decodeRaidCharacterSelectCustomId(customId, values) {
   return { raidId: match[1], action: match[2], characterKey: selected };
 }
 
+function cleanRaidSignupRole(value) {
+  const role = String(value || "").trim().toLowerCase();
+  if (role === "tank") return "tank";
+  if (role === "healer" || role === "heal") return "healer";
+  if (role === "dps" || role === "dd") return "dps";
+  return "";
+}
+
+function decodeRaidRoleSelectCustomId(customId, values) {
+  const value = String(customId || "").trim();
+  const match = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
+  if (!match) return null;
+  const selected = Array.isArray(values) ? cleanRaidSignupRole(values[0]) : "";
+  if (!selected) return null;
+  return { raidId: match[1], action: match[2], characterKey: match[3], signupRole: selected };
+}
+
 function decodeRaidPollCustomId(customId, values) {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
@@ -3534,7 +3551,14 @@ function dashboardRaidActionEndpoint(env, raidId) {
   }
 }
 
+function isEphemeralInteractionMessage(interaction) {
+  return Boolean(Number(interaction?.message?.flags || 0) & 64);
+}
+
 function getRaidInteractionMessageRef(interaction) {
+  // Component interactions inside private select menus point to ephemeral messages.
+  // Those must never be used as the public raid announcement target.
+  if (isEphemeralInteractionMessage(interaction)) return { channelId: "", messageId: "" };
   const channelId = snowflake(interaction?.channel_id || interaction?.message?.channel_id);
   const messageId = snowflake(interaction?.message?.id);
   return { channelId, messageId };
@@ -3593,7 +3617,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
   }
 
   try {
-    const idempotencyKey = `discord-raid:${raidAction.raidId}:${getDiscordUserId(interaction)}:${raidAction.action}:${raidAction.characterKey || "main"}:${interaction?.id || Date.now()}`;
+    const idempotencyKey = `discord-raid:${raidAction.raidId}:${getDiscordUserId(interaction)}:${raidAction.action}:${raidAction.characterKey || "main"}:${raidAction.signupRole || "auto"}:${interaction?.id || Date.now()}`;
     const { response, raw } = await fetchDashboardText(env, dashboardRaidActionEndpoint(env, raidAction.raidId), token, {
       method: "POST",
       headers: {
@@ -3604,6 +3628,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
       body: JSON.stringify({
         action: raidAction.action,
         characterKey: raidAction.characterKey || "",
+        signupRole: raidAction.signupRole || "",
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
         guildId: getInteractionGuildId(interaction, env),
@@ -3644,6 +3669,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         raidId: raidAction.raidId,
         action: raidAction.action,
         characterKey: raidAction.characterKey || "",
+        signupRole: raidAction.signupRole || "",
         userId: getDiscordUserId(interaction),
       });
     } else if (result.warning) {
@@ -3651,6 +3677,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         raidId: raidAction.raidId,
         action: raidAction.action,
         characterKey: raidAction.characterKey || "",
+        signupRole: raidAction.signupRole || "",
         userId: getDiscordUserId(interaction),
       });
     }
@@ -3717,6 +3744,9 @@ async function handleDiscordInteraction(request, env, ctx) {
 
   const raidPollAction = decodeRaidPollCustomId(customId, interaction?.data?.values);
   if (raidPollAction) return handleRaidPollInteraction(interaction, env, raidPollAction, ctx);
+
+  const raidRoleSelectAction = decodeRaidRoleSelectCustomId(customId, interaction?.data?.values);
+  if (raidRoleSelectAction) return handleRaidAnnouncementInteraction(interaction, env, raidRoleSelectAction, ctx);
 
   const raidCharacterSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
   if (raidCharacterSelectAction) return handleRaidAnnouncementInteraction(interaction, env, raidCharacterSelectAction, ctx);
@@ -4106,6 +4136,58 @@ async function createApplication(request, env, ctx) {
   }
 }
 
+function dashboardRaidLifecycleEndpoint(env) {
+  const explicit = String(env.DASHBOARD_RAID_LIFECYCLE_ENDPOINT || "").trim();
+  if (explicit) return explicit;
+  try {
+    return new URL("/api/raids/lifecycle?limit=100", dashboardAuthUrl(env)).toString();
+  } catch {
+    return "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100";
+  }
+}
+
+function dashboardRaidLifecycleToken(env) {
+  return String(
+    env.RAID_LIFECYCLE_SECRET ||
+    env.CRON_SECRET ||
+    env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
+    env.DISCORD_RULES_STATS_TOKEN ||
+    env.WORKER_STATS_TOKEN ||
+    ""
+  ).trim();
+}
+
+async function runRaidLifecycleCron(env, reason = "scheduled") {
+  const token = dashboardRaidLifecycleToken(env);
+  if (!token) {
+    logWorkerEvent("warn", "raid_lifecycle.missing_token", { reason });
+    return { ok: false, error: "missing lifecycle token" };
+  }
+
+  const endpoint = dashboardRaidLifecycleEndpoint(env);
+  try {
+    const { response, raw } = await fetchDashboardText(env, endpoint, token, {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+        "x-worker-stats-token": token,
+      },
+    }, { timeoutMs: 14000, retries: 1 });
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+    if (!response.ok || !data?.ok) {
+      logWorkerEvent("warn", "raid_lifecycle.bad_response", { status: response.status, raw: raw.slice(0, 180), reason });
+      return { ok: false, status: response.status };
+    }
+    logWorkerEvent("info", "raid_lifecycle.done", { reason, checked: data.checked, total: data.total });
+    return data;
+  } catch (error) {
+    logWorkerEvent("error", "raid_lifecycle.failed", { reason, message: error?.message });
+    return { ok: false, error: error?.message || "unknown" };
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const startedAt = nowMs();
@@ -4166,6 +4248,12 @@ export default {
 
       if (url.pathname === "/api/public-cache") {
         response = await handlePublicApiCache(request, env);
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/raids/lifecycle" && request.method === "POST") {
+        const result = await runRaidLifecycleCron(env, "manual-worker-endpoint");
+        response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
@@ -4243,5 +4331,9 @@ export default {
         ms: elapsedMs(startedAt),
       });
     }
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runRaidLifecycleCron(env, "cloudflare-cron"));
   },
 };

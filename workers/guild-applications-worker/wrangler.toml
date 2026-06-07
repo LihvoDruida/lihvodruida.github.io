@@ -5,6 +5,11 @@ compatibility_date = "2026-04-18"
 [observability]
 enabled = true
 
+[triggers]
+# Runs raid lifecycle often enough that the dashboard closes raids at the configured threshold
+# even after Worker/Vercel restarts. The handler is idempotent; Firestore is the source of truth.
+crons = ["* * * * *"]
+
 [vars]
 GITHUB_OWNER = "LihvoDruida"
 GITHUB_REPO = "lihvodruida.github.io"
@@ -24,6 +29,9 @@ PUBLIC_API_CACHE_ALLOW_SHARED_TOKEN = "0"
 PUBLIC_API_CACHE_VERSION = "v1"
 DISCORD_API_TIMEOUT_MS = "14000"
 DASHBOARD_API_TIMEOUT_MS = "9000"
+RAID_DISCORD_DELETE_AFTER_START_HOURS = "4"
+RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES = "60"
+DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100"
 
 
 # Set these via `wrangler secret put ...` in production:
@@ -35,6 +43,7 @@ DASHBOARD_API_TIMEOUT_MS = "9000"
 # CF_ACCESS_CLIENT_ID        # Cloudflare Access Service Auth, if admin dashboard is protected
 # CF_ACCESS_CLIENT_SECRET    # Cloudflare Access Service Auth, if admin dashboard is protected
 # DISCORD_RULES_STATS_TOKEN  # Optional shared token for dashboard stats/signups reads
+# RAID_LIFECYCLE_SECRET    # Same value as dashboard RAID_LIFECYCLE_SECRET/CRON_SECRET for scheduled raid lifecycle
 
 # Rules accept/decline counters and raid-rules signup list. Create once:
 # wrangler kv namespace create RULES_STATS
@@ -66,3 +75,6 @@ DASHBOARD_API_TIMEOUT_MS = "9000"
 # PUBLIC_API_CACHE_VERSION = "v1"
 # DISCORD_API_TIMEOUT_MS = "14000"
 # DASHBOARD_API_TIMEOUT_MS = "9000"
+# RAID_DISCORD_DELETE_AFTER_START_HOURS = "4"
+# RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES = "60"
+# DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100"

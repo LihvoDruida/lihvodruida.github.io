@@ -125,6 +125,7 @@ export type RaidItem = {
   messageUrl?: string | null;
   discordDeletedAt?: string | null;
   discordDeleteReason?: "manual" | "auto" | null;
+  discordCloseSyncedAt?: string | null;
   signups: RaidSignup[];
   createdAt?: string | null;
   updatedAt?: string | null;
@@ -333,6 +334,10 @@ function cleanSignupStatus(value: unknown): RaidSignupStatus {
 }
 
 function cleanRole(value: unknown): RaidCharacterRole {
+  return cleanRoleStrict(value) || "dps";
+}
+
+function cleanRoleStrict(value: unknown): RaidCharacterRole | null {
   const key = cleanString(value, 30).toLowerCase();
   if (["tank", "танк"].some((item) => key.includes(item))) return "tank";
   if (
@@ -341,7 +346,9 @@ function cleanRole(value: unknown): RaidCharacterRole {
     )
   )
     return "healer";
-  return "dps";
+  if (["dps", "dd", "дд", "damage"].some((item) => key.includes(item)))
+    return "dps";
+  return null;
 }
 
 function timezoneOffsetMs(date: Date, timeZone: string) {
@@ -396,12 +403,10 @@ function raidDateTimeToUtcMs(
   return guess.getTime() - timezoneOffsetMs(guess, timeZone);
 }
 
-function isRaidDateTimeExpired(
+function isRaidDateTimeStarted(
   input: Pick<RaidItem, "date" | "time"> | Record<string, unknown>,
 ) {
   const startsAt = raidDateTimeToUtcMs(input);
-  // Autoclose is intentionally tied to the scheduled start moment.
-  // There is no post-start grace delay: when the raid time arrives, signups close.
   return startsAt !== null && Date.now() >= startsAt;
 }
 
@@ -411,15 +416,52 @@ export function raidDiscordDeleteAfterStartHoursFromSettings(value: unknown) {
   return Math.max(0, Math.min(168, Math.floor(parsed)));
 }
 
-function raidDiscordDeleteDue(
-  raid: Pick<RaidItem, "date" | "time" | "status"> | Record<string, unknown>,
-  delayHours = 4,
+function raidAutoCloseDelayHoursFromEnv() {
+  return raidDiscordDeleteAfterStartHoursFromSettings(
+    process.env.RAID_DISCORD_DELETE_AFTER_START_HOURS,
+  );
+}
+
+function raidAutoCloseDue(
+  raid: Pick<RaidItem, "date" | "time"> | Record<string, unknown>,
+  delayHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
   const startsAt = raidDateTimeToUtcMs(raid);
   if (startsAt === null) return false;
-  const safeDelayHours =
-    raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
+  const safeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
   return Date.now() >= startsAt + safeDelayHours * 60 * 60 * 1000;
+}
+
+function raidDiscordDeleteAfterCloseMinutesFromSettings(value: unknown) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 60;
+  return Math.max(0, Math.min(7 * 24 * 60, Math.floor(parsed)));
+}
+
+function raidDiscordDeleteAfterCloseMinutesFromEnv() {
+  return raidDiscordDeleteAfterCloseMinutesFromSettings(
+    process.env.RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES,
+  );
+}
+
+function raidClosedAtUtcMs(raid: Pick<RaidItem, "closedAt" | "date" | "time">) {
+  const closedAt = Date.parse(String(raid.closedAt || ""));
+  if (Number.isFinite(closedAt)) return closedAt;
+
+  const startsAt = raidDateTimeToUtcMs(raid);
+  if (startsAt === null) return null;
+  return startsAt + raidAutoCloseDelayHoursFromEnv() * 60 * 60 * 1000;
+}
+
+function raidDiscordDeleteDue(
+  raid: Pick<RaidItem, "date" | "time" | "status" | "closedAt"> | Record<string, unknown>,
+  delayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv(),
+) {
+  if ((raid as Record<string, unknown>).status !== "closed") return false;
+  const closedAt = raidClosedAtUtcMs(raid as Pick<RaidItem, "closedAt" | "date" | "time">);
+  if (closedAt === null) return false;
+  const safeDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromSettings(delayMinutes);
+  return Date.now() >= closedAt + safeDelayMinutes * 60 * 1000;
 }
 
 function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
@@ -431,13 +473,14 @@ function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
 
 export function isRaidAutoCloseDue(
   raid: Pick<RaidItem, "status" | "date" | "time"> | Record<string, unknown>,
+  delayHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
   const status =
     (raid as Record<string, unknown>).status === "published" ||
     (raid as Record<string, unknown>).status === "closed"
       ? String((raid as Record<string, unknown>).status)
       : "draft";
-  return status !== "draft" && isRaidDateTimeExpired(raid);
+  return status !== "draft" && raidAutoCloseDue(raid, delayHours);
 }
 
 export function isRaidClosed(
@@ -448,15 +491,15 @@ export function isRaidClosed(
   if (raid.status === "closed") {
     const reason = cleanRaidClosedReason(raid.closedReason);
     if (reason === "manual") return true;
-    if (reason === "auto") return isRaidDateTimeExpired(raid);
+    if (reason === "auto") return raidAutoCloseDue(raid);
 
     // Legacy compatibility: older records may have `status: "closed"` without
-    // `closedReason`. Keep them closed only when the scheduled start is already
-    // reached; before that, normalize them back to published.
-    return raidDateTimeToUtcMs(raid) === null || isRaidDateTimeExpired(raid);
+    // `closedReason`. Keep them closed only after the configured post-start
+    // lifecycle window, not at the raid start moment.
+    return raidDateTimeToUtcMs(raid) === null || raidAutoCloseDue(raid);
   }
 
-  return raid.status === "published" && isRaidDateTimeExpired(raid);
+  return raid.status === "published" && raidAutoCloseDue(raid);
 }
 
 function profileMainLabel(profile?: DashboardProfile | null) {
@@ -565,12 +608,17 @@ function normalizeSignup(value: unknown): RaidSignup | null {
       80,
     ) || null;
   const className = cleanString(item.className, 80) || null;
-  const resolvedRole = resolveWowCharacterRole({
-    className,
-    activeSpecName,
-    activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
-    activeSpecRole: item.activeSpecRole || item.active_spec_role || item.role,
-  });
+  const explicitRole = cleanRoleStrict(
+    item.role || item.signupRole || item.raidRole || item.raid_role,
+  );
+  const resolvedRole =
+    explicitRole ||
+    resolveWowCharacterRole({
+      className,
+      activeSpecName,
+      activeSpecId: Number.isFinite(activeSpecId) ? activeSpecId : null,
+      activeSpecRole: item.activeSpecRole || item.active_spec_role,
+    });
   const grammaticalGender = cleanProfileGrammaticalGender(
     item.grammaticalGender || item.grammatical_gender || item.gender,
   );
@@ -723,6 +771,9 @@ function normalizeRaid(id: string, data: Record<string, unknown>): RaidItem {
     ),
     discordDeleteReason: cleanRaidClosedReason(
       data.discordDeleteReason || data.discord_delete_reason,
+    ),
+    discordCloseSyncedAt: timestampToIso(
+      data.discordCloseSyncedAt || data.discord_close_synced_at,
     ),
     signups,
     createdAt: timestampToIso(data.createdAt),
@@ -1332,9 +1383,9 @@ function scheduleRaidAutoCloseSync(raid: RaidItem, source: string) {
   const canDeleteDiscordMessage = Boolean(
     raid.channelId &&
     raid.messageId &&
-    raid.status !== "draft" &&
+    raid.status === "closed" &&
     !raid.discordDeletedAt &&
-    isRaidDateTimeExpired(raid),
+    raidDiscordDeleteDue(raid),
   );
   if (
     (!needsStatusSync && !canDeleteDiscordMessage) ||
@@ -1491,50 +1542,67 @@ async function syncRaidLifecycleAfterRead(raid: RaidItem) {
   const settings = await getSiteRuntimeSettings().catch(() => ({
     raidDiscordDeleteAfterStartHours: 4,
   }));
-  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+  const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(
     settings?.raidDiscordDeleteAfterStartHours,
   );
-  const deleteDue = Boolean(
-    raid.channelId &&
-    raid.messageId &&
-    raid.status !== "draft" &&
-    !raid.discordDeletedAt &&
-    raidDiscordDeleteDue(raid, delayHours),
-  );
+  const deleteDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv();
 
-  // If the Discord deletion window has already arrived, do not republish/edit the
-  // message while persisting the closed status. The archive record is kept in
-  // Firebase; only the Discord message is removed.
-  await syncAutoClosedRaid(raid, { syncDiscord: !deleteDue });
-  await syncRaidDiscordDeletionAfterStart(raid, delayHours);
+  const closedNow = await syncAutoClosedRaid(raid, {
+    syncDiscord: true,
+    closeDelayHours,
+  });
+
+  // If the raid was closed in this pass, keep the disabled Discord announcement
+  // visible for at least one cleanup window before deleting it.
+  if (!closedNow) {
+    await syncRaidDiscordDeletionAfterClose(raid, deleteDelayMinutes);
+  }
 }
 
 async function syncAutoClosedRaid(
   raid: RaidItem,
-  options: { syncDiscord?: boolean } = {},
+  options: { syncDiscord?: boolean; closeDelayHours?: number } = {},
 ) {
+  const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    options.closeDelayHours ?? raidAutoCloseDelayHoursFromEnv(),
+  );
   if (
-    !isRaidAutoCloseDue(raid) ||
+    !isRaidAutoCloseDue(raid, closeDelayHours) ||
     raid.closedReason === "manual" ||
     !hasRaidStorage()
   )
-    return;
-  if (raid.status === "closed" && raid.closedReason === "auto") return;
+    return false;
+  if (raid.status === "closed" && raid.closedReason === "auto") return false;
+
+  let closed = false;
   await firebaseWrite(
     "raid",
     `raid:${raid.id}:auto-close`,
     async () => {
       const ref = getFirebaseAdminDb().collection(RAID_COLLECTION).doc(raid.id);
-      await ref.set(
-        {
-          status: "closed",
-          closedReason: "auto",
-          closedAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-      clearRaidRuntimeCaches(raid.id);
+      await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) return;
+        const current = normalizeRaid(snapshot.id, snapshot.data() || {});
+        if (current.status === "draft" || current.closedReason === "manual")
+          return;
+        if (!isRaidAutoCloseDue(current, closeDelayHours)) return;
+        if (current.status === "closed" && current.closedReason === "auto")
+          return;
+
+        transaction.set(
+          ref,
+          {
+            status: "closed",
+            closedReason: "auto",
+            closedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
+        closed = true;
+      });
+      if (closed) clearRaidRuntimeCaches(raid.id);
     },
     {
       timeoutMs: 3_000,
@@ -1542,46 +1610,59 @@ async function syncAutoClosedRaid(
       fallback: () => undefined,
     },
   );
-  if (options.syncDiscord !== false && raid.channelId && raid.messageId) {
+
+  if (closed && options.syncDiscord !== false && raid.channelId && raid.messageId) {
     await publishOrUpdateRaid(
-      { ...raid, status: "closed", closedReason: "auto" },
+      {
+        ...raid,
+        status: "closed",
+        closedReason: "auto",
+        closedAt: new Date().toISOString(),
+      },
       raid.channelId,
-    ).catch(() => null);
+    ).catch((error) => {
+      console.warn("[raids] Failed to sync Discord message after auto-close", {
+        raidId: raid.id,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    });
   }
+
+  return closed;
 }
 
-async function syncRaidDiscordDeletionAfterStart(
+async function syncRaidDiscordDeletionAfterClose(
   raid: RaidItem,
-  configuredDelayHours?: number,
+  configuredDelayMinutes?: number,
 ) {
   if (
     !hasRaidStorage() ||
     !raid.channelId ||
     !raid.messageId ||
-    raid.status === "draft" ||
+    raid.status !== "closed" ||
     raid.discordDeletedAt
   )
     return;
 
-  const delayHours = raidDiscordDeleteAfterStartHoursFromSettings(
-    configuredDelayHours ?? 4,
+  const delayMinutes = raidDiscordDeleteAfterCloseMinutesFromSettings(
+    configuredDelayMinutes ?? 60,
   );
-  if (!raidDiscordDeleteDue(raid, delayHours)) return;
+  if (!raidDiscordDeleteDue(raid, delayMinutes)) return;
 
   let deleted = false;
   try {
     await deleteDiscordRaidMessage({
       ref: { channelId: raid.channelId, messageId: raid.messageId },
-      auditReason: `Raid auto-deleted from Discord after ${delayHours}h: ${raid.id}`,
+      auditReason: `Raid auto-deleted from Discord ${delayMinutes}m after close: ${raid.id}`,
     });
     deleted = true;
   } catch (error) {
     if (isMissingDiscordMessageError(error)) {
       deleted = true;
     } else {
-      console.warn("[raids] Failed to auto-delete Discord raid message", {
+      console.warn("[raids] Failed to auto-delete closed Discord raid message", {
         raidId: raid.id,
-        delayHours,
+        delayMinutes,
         message: error instanceof Error ? error.message : String(error),
       });
       return;
@@ -2014,6 +2095,13 @@ function discordTimestamp(
   return `<t:${Math.floor(startsAt / 1000)}:${style}>`;
 }
 
+
+function discordTimestampLabel(value?: string | null) {
+  const ms = Date.parse(String(value || ""));
+  if (!Number.isFinite(ms)) return "—";
+  const seconds = Math.floor(ms / 1000);
+  return `<t:${seconds}:f> • <t:${seconds}:R>`;
+}
 function discordDateTimeLabel(raid: Pick<RaidItem, "date" | "time">) {
   const full = discordTimestamp(raid, "F");
   const relative = discordTimestamp(raid, "R");
@@ -2349,7 +2437,13 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     {
       name: "📌 Статус",
       value: closed
-        ? "Закрито — запис вимкнено"
+        ? [
+            "🔒 Рейд закрито — запис вимкнено",
+            raid.closedAt ? `Закрито: ${discordTimestampLabel(raid.closedAt)}` : null,
+            raid.closedReason === "manual" ? "Причина: вручну" : "Причина: авто lifecycle",
+          ]
+            .filter(Boolean)
+            .join("\n")
         : raid.status === "draft"
           ? "Чернетка"
           : "Запис відкрито",
@@ -2435,7 +2529,9 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     image: imageUrl ? { url: imageUrl } : undefined,
     fields,
     footer: {
-      text: "Склад рейду оновлюється автоматично після кожної заявки.",
+      text: closed
+        ? "🔒 Рейд закрито. Кнопки Discord вимкнені, нові записи заблоковані."
+        : "Склад рейду оновлюється автоматично після кожної заявки.",
     },
     timestamp: new Date().toISOString(),
   });
@@ -2484,6 +2580,45 @@ export function decodeRaidCharacterSelectCustomId(
     raidId: match[1],
     action: cleanSignupStatus(match[2]),
     characterKey,
+  };
+}
+
+function cleanRaidRoleSelectCharacterKey(value: unknown) {
+  const key = cleanString(value, 260);
+  return /^[A-Za-z0-9._-]{1,64}$/.test(key) ? key : "";
+}
+
+export function buildRaidRoleSelectCustomId(
+  raidId: string,
+  action: RaidSignupStatus,
+  characterKey: string,
+) {
+  const id = cleanRaidId(raidId);
+  const safeAction = cleanSignupStatus(action);
+  const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
+  const customId = `mbv1:rr:${id}:${safeAction}:${safeCharacterKey}`;
+  if (!id || !safeCharacterKey || customId.length > 100)
+    throw new Error("Некоректний ID рейду або персонажа для Discord-вибору ролі.");
+  return customId;
+}
+
+export function decodeRaidRoleSelectCustomId(
+  customId: string,
+  values?: unknown,
+) {
+  const value = cleanString(customId, 120);
+  const match = value.match(
+    /^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/,
+  );
+  if (!match) return null;
+  const selectedValues = Array.isArray(values) ? values : [];
+  const signupRole = cleanRoleStrict(selectedValues[0]);
+  if (!signupRole) return null;
+  return {
+    raidId: match[1],
+    action: cleanSignupStatus(match[2]),
+    characterKey: match[3],
+    signupRole,
   };
 }
 
@@ -2645,6 +2780,51 @@ export function buildRaidCharacterSelectComponents(
   ];
 }
 
+
+function raidRoleOptionDescription(role: RaidCharacterRole) {
+  if (role === "tank") return "Записати персонажа у колонку Tanks";
+  if (role === "healer") return "Записати персонажа у колонку Healers";
+  return "Записати персонажа у колонку DPS";
+}
+
+export function buildRaidRoleSelectComponents(
+  raidId: string,
+  action: RaidSignupStatus,
+  characterKey: string,
+  selectedRole?: RaidCharacterRole | null,
+) {
+  const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
+  if (!safeCharacterKey || action === "skipped") return [];
+
+  const roles: Array<{ role: RaidCharacterRole; label: string; emoji: string }> = [
+    { role: "tank", label: "Танк", emoji: "🛡️" },
+    { role: "healer", label: "Хіл", emoji: "💚" },
+    { role: "dps", label: "ДД / DPS", emoji: "⚔️" },
+  ];
+
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: buildRaidRoleSelectCustomId(raidId, action, safeCharacterKey),
+          placeholder: "Обери роль для рейду",
+          min_values: 1,
+          max_values: 1,
+          options: roles.map(({ role, label, emoji }) => ({
+            label,
+            value: role,
+            description: raidRoleOptionDescription(role),
+            emoji: { name: emoji },
+            default: selectedRole === role,
+          })),
+        },
+      ],
+    },
+  ];
+}
+
 function resolveProfileCharacterSelection(
   profile: DashboardProfile | null | undefined,
   characterKey?: unknown,
@@ -2773,7 +2953,12 @@ export async function publishOrUpdateRaid(
                 ? "manual"
                 : "auto"
               : null,
-            closedAt: closed ? FieldValue.serverTimestamp() : null,
+            ...(closed && !raid.closedAt
+              ? { closedAt: FieldValue.serverTimestamp() }
+              : closed
+                ? {}
+                : { closedAt: null }),
+            discordCloseSyncedAt: closed ? FieldValue.serverTimestamp() : null,
             channelId: nextChannelId,
             messageId: nextMessageId,
             messageUrl,
@@ -2891,9 +3076,10 @@ function signupFromProfile(
   userName: string,
   profile?: DashboardProfile | null,
   characterKey?: unknown,
+  forcedRole?: unknown,
 ): RaidSignup {
   const character = resolveRaidSignupCharacter(profile, characterKey);
-  const role = resolveRaidSignupRole(profile, character);
+  const role = cleanRoleStrict(forcedRole) || resolveRaidSignupRole(profile, character);
   const now = new Date().toISOString();
 
   return {
@@ -2976,6 +3162,19 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
         );
         const now = new Date().toISOString();
         const becomesActive = isActiveSignupStatus(signup.status);
+        const signupCharacterKey = normalizeCharacterKey(signup.characterKey);
+        if (becomesActive && signupCharacterKey) {
+          const duplicate = nextSignups.find(
+            (item) =>
+              isActiveSignupStatus(item.status) &&
+              normalizeCharacterKey(item.characterKey) === signupCharacterKey,
+          );
+          if (duplicate) {
+            throw new Error(
+              `Персонаж ${signup.characterName || duplicate.characterName || "уже"} вже записаний на цей рейд. Один персонаж не може бути записаний двічі.`,
+            );
+          }
+        }
         const existingNumber = cleanOptionalSignupNumber(
           existingSignup?.signupNumber,
         );
@@ -3176,11 +3375,13 @@ export async function handleRaidDiscordAction(params: {
   userId: string;
   userName: string;
   characterKey?: string | null;
+  signupRole?: RaidCharacterRole | null;
   messageRef?: DiscordMessageRefInput | null;
 }) {
   const raid = await getRaid(params.raidId);
   if (!raid)
     return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
+  await syncRaidLifecycleAfterRead(raid).catch(() => undefined);
   if (isRaidClosed(raid))
     return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published")
@@ -3276,6 +3477,19 @@ export async function handleRaidDiscordAction(params: {
         requiresCharacterSelection: true,
       };
     }
+    if (selectedCharacter && !cleanRoleStrict(params.signupRole)) {
+      return {
+        ok: true,
+        content: `🎭 Обери роль для рейду персонажу ${selectedCharacter.name}. Саме ця роль визначить колонку в Discord: Tanks / Healers / DPS.`,
+        components: buildRaidRoleSelectComponents(
+          raid.id,
+          params.action,
+          cleanRaidRoleSelectCharacterKey(params.characterKey) || selectedCharacter.key || "",
+          resolveRaidSignupRole(profile, selectedCharacter),
+        ),
+        requiresRoleSelection: true,
+      };
+    }
     if (!selectedCharacter) {
       const minimum = raidMinimumItemLevel(raid);
       const content =
@@ -3303,6 +3517,7 @@ export async function handleRaidDiscordAction(params: {
     params.userName,
     profile,
     selectedCharacter?.key || params.characterKey,
+    params.signupRole,
   );
   const block = raidMinItemLevelBlockMessage(raid, signup);
   if (block)
