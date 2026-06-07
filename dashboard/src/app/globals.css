@@ -23984,3 +23984,171 @@ body {
   opacity: 0.72;
   font-weight: 600;
 }
+
+/* Raid global bench priority / grey list */
+.raid-list-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.raid-greylist-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.raid-greylist-head {
+  align-items: flex-start;
+}
+
+.raid-greylist-form {
+  display: grid;
+  gap: 18px;
+}
+
+.raid-greylist-enabled {
+  align-items: flex-start;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.36);
+}
+
+.raid-greylist-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.raid-greylist-box {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  padding: 16px;
+  background: rgba(2, 6, 23, 0.24);
+}
+
+.raid-greylist-box-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.raid-greylist-box-head strong {
+  color: rgba(248, 250, 252, 0.96);
+}
+
+.raid-greylist-box-head small,
+.raid-greylist-selected p,
+.raid-greylist-selected li,
+.raid-greylist-member small {
+  color: rgba(203, 213, 225, 0.72);
+}
+
+.raid-greylist-roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  max-height: 620px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.raid-greylist-member {
+  display: grid;
+  grid-template-columns: auto 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.34);
+  cursor: pointer;
+}
+
+.raid-greylist-member:hover {
+  border-color: rgba(148, 163, 184, 0.32);
+  background: rgba(30, 41, 59, 0.42);
+}
+
+.raid-greylist-member input {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.raid-greylist-member img,
+.raid-greylist-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.raid-greylist-avatar {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: rgba(248, 250, 252, 0.9);
+}
+
+.raid-greylist-member span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.raid-greylist-member strong,
+.raid-greylist-member small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.raid-greylist-manual {
+  min-height: 280px;
+  resize: vertical;
+}
+
+.raid-greylist-selected {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  padding-top: 12px;
+}
+
+.raid-greylist-selected ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.raid-greylist-actions {
+  justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+  .raid-list-head-actions {
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .raid-list-head-actions .btn {
+    flex: 1 1 180px;
+  }
+
+  .raid-greylist-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-greylist-roster {
+    max-height: 520px;
+  }
+}

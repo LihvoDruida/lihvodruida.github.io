@@ -128,6 +128,7 @@ export type RaidItem = {
   discordDeleteReason?: "manual" | "auto" | null;
   discordCloseSyncedAt?: string | null;
   signups: RaidSignup[];
+  benchPriority?: RaidBenchPrioritySettings | null;
   createdAt?: string | null;
   updatedAt?: string | null;
   publishedAt?: string | null;
@@ -152,6 +153,20 @@ export type RaidBench = {
   late: RaidSignup[];
 };
 
+export type RaidBenchPrioritySettings = {
+  enabled: boolean;
+  characterKeys: string[];
+  manualNames: string[];
+  updatedAt?: string | null;
+  updatedByDiscordId?: string | null;
+  updatedByName?: string | null;
+};
+
+export type RaidBenchPriorityMatch = {
+  matched: boolean;
+  reason?: "characterKey" | "manualName" | null;
+};
+
 export type RaidGroupLayout = {
   parties: RaidParty[];
   bench: RaidBench;
@@ -163,6 +178,9 @@ export type RaidGroupLayout = {
 };
 
 const RAID_COLLECTION = "dashboardRaids";
+const RAID_SETTINGS_COLLECTION = "dashboardRaidSettings";
+const RAID_BENCH_PRIORITY_DOCUMENT = "globalBenchPriority";
+const RAID_BENCH_PRIORITY_CACHE_KEY = "raids:bench-priority:global";
 const RAID_ACTION_PREFIX = "mbv1:raid";
 const MAX_RAID_PLAYERS = 80;
 const DEFAULT_RAID_REGISTRATION_LOCK_MINUTES = 60;
@@ -584,6 +602,263 @@ function cleanOptionalSignupNumber(value: unknown) {
   return Math.max(1, Math.min(9999, Math.floor(num)));
 }
 
+const EMPTY_RAID_BENCH_PRIORITY_SETTINGS: RaidBenchPrioritySettings = {
+  enabled: true,
+  characterKeys: [],
+  manualNames: [],
+  updatedAt: null,
+  updatedByDiscordId: null,
+  updatedByName: null,
+};
+
+function normalizeBenchPriorityName(value: unknown) {
+  return cleanString(value, 80)
+    .normalize("NFC")
+    .replace(/[ʼ’`]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function benchPriorityNameKey(value: unknown) {
+  return normalizeBenchPriorityName(value)
+    .toLocaleLowerCase("uk")
+    .replace(/[ʼ’'`]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "")
+    .trim();
+}
+
+function splitBenchPriorityManualNames(value: unknown) {
+  const raw = cleanString(value, 8000);
+  const names = raw
+    .split(/[\n,;]+/g)
+    .map(normalizeBenchPriorityName)
+    .filter((name) => name.length >= 2);
+  const seen = new Set<string>();
+  return names.filter((name) => {
+    const key = benchPriorityNameKey(name);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 400);
+}
+
+function cleanBenchPriorityCharacterKeys(values: unknown) {
+  const rawValues = Array.isArray(values) ? values : values ? [values] : [];
+  const keys = rawValues
+    .map((value) => normalizeCharacterKey(value))
+    .filter(Boolean) as string[];
+  return Array.from(new Set(keys)).slice(0, 800);
+}
+
+function cleanBenchPriorityEnabled(value: unknown, fallback = true) {
+  if (typeof value === "boolean") return value;
+  if (value === undefined || value === null || value === "") return fallback;
+  const key = cleanString(value, 20).toLowerCase();
+  if (["0", "false", "off", "no", "disabled"].includes(key)) return false;
+  if (["1", "true", "on", "yes", "enabled"].includes(key)) return true;
+  return fallback;
+}
+
+function normalizeRaidBenchPrioritySettings(
+  data?: Record<string, unknown> | null,
+): RaidBenchPrioritySettings {
+  if (!data) return { ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS };
+  return {
+    enabled: cleanBenchPriorityEnabled(data.enabled, true),
+    characterKeys: cleanBenchPriorityCharacterKeys(
+      data.characterKeys ?? data.character_keys,
+    ),
+    manualNames: splitBenchPriorityManualNames(
+      Array.isArray(data.manualNames ?? data.manual_names)
+        ? (data.manualNames ?? data.manual_names)
+        : String(data.manualNames ?? data.manual_names ?? ""),
+    ),
+    updatedAt: timestampToIso(data.updatedAt) || null,
+    updatedByDiscordId: cleanString(data.updatedByDiscordId, 32) || null,
+    updatedByName: cleanString(data.updatedByName, 120) || null,
+  };
+}
+
+function raidBenchPriorityHasRules(
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  return Boolean(
+    settings?.enabled &&
+      (settings.characterKeys.length > 0 || settings.manualNames.length > 0),
+  );
+}
+
+export function raidBenchPriorityMatch(
+  signup: Pick<
+    RaidSignup,
+    | "characterKey"
+    | "characterName"
+    | "discordName"
+    | "realmName"
+    | "realmSlug"
+    | "region"
+  > | null | undefined,
+  settings?: RaidBenchPrioritySettings | null,
+): RaidBenchPriorityMatch {
+  if (!signup || !raidBenchPriorityHasRules(settings)) return { matched: false };
+
+  const characterKey = normalizeCharacterKey(signup.characterKey);
+  if (characterKey && settings?.characterKeys.includes(characterKey)) {
+    return { matched: true, reason: "characterKey" };
+  }
+
+  const manualKeys = new Set(
+    (settings?.manualNames || [])
+      .map((name) => benchPriorityNameKey(name))
+      .filter(Boolean),
+  );
+  if (!manualKeys.size) return { matched: false };
+
+  const name = normalizeBenchPriorityName(signup.characterName || signup.discordName);
+  const realm = normalizeBenchPriorityName(signup.realmSlug || signup.realmName);
+  const region = normalizeBenchPriorityName(signup.region);
+  const candidates = [
+    name,
+    realm ? `${name}-${realm}` : "",
+    realm ? `${name} ${realm}` : "",
+    region && realm ? `${name}-${realm}-${region}` : "",
+    region && realm ? `${name} ${realm} ${region}` : "",
+  ]
+    .map((value) => benchPriorityNameKey(value))
+    .filter(Boolean);
+
+  return candidates.some((key) => manualKeys.has(key))
+    ? { matched: true, reason: "manualName" }
+    : { matched: false };
+}
+
+function raidBenchPriorityWeight(
+  signup: RaidSignup,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  return raidBenchPriorityMatch(signup, settings).matched ? 1 : 0;
+}
+
+function raidBenchPriorityActiveCount(
+  raid: Pick<RaidItem, "signups" | "benchPriority">,
+) {
+  const settings = raid.benchPriority || null;
+  if (!raidBenchPriorityHasRules(settings)) return 0;
+  return raid.signups.filter(
+    (item) =>
+      isActiveSignupStatus(item.status) &&
+      raidBenchPriorityMatch(item, settings).matched,
+  ).length;
+}
+
+function raidRegistrationAvailableSlots(
+  raid: Pick<RaidItem, "maxPlayers" | "signups" | "benchPriority">,
+) {
+  const limit = raidRegistrationLimit(raid);
+  if (limit === null) return null;
+  const activeCount = raidActiveRosterSize(raid);
+  const replaceableCount = raidBenchPriorityActiveCount(raid);
+  return Math.max(0, limit - activeCount + replaceableCount);
+}
+
+function stripRaidBenchPriorityForCache(raid: RaidItem): RaidItem {
+  const { benchPriority: _benchPriority, ...cacheValue } = raid;
+  return cacheValue as RaidItem;
+}
+
+export async function getRaidBenchPrioritySettings(
+  options: { bypassCache?: boolean } = {},
+): Promise<RaidBenchPrioritySettings> {
+  if (!hasRaidStorage()) return { ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS };
+
+  return firebaseRead<RaidBenchPrioritySettings>(
+    "raid",
+    RAID_BENCH_PRIORITY_CACHE_KEY,
+    async () => {
+      const snapshot = await getFirebaseAdminDb()
+        .collection(RAID_SETTINGS_COLLECTION)
+        .doc(RAID_BENCH_PRIORITY_DOCUMENT)
+        .get();
+      if (!snapshot.exists) return { ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS };
+      return normalizeRaidBenchPrioritySettings(snapshot.data() || {});
+    },
+    {
+      ttlMs: 30_000,
+      timeoutMs: 2_500,
+      circuitTtlMs: 90_000,
+      bypassCache: Boolean(options.bypassCache),
+      fallback: () =>
+        getRuntimeCachedValue<RaidBenchPrioritySettings>(
+          RAID_BENCH_PRIORITY_CACHE_KEY,
+          24 * 60 * 60 * 1000,
+        ) || { ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS },
+      logEvent: "raids.bench_priority_read_failed",
+    },
+  );
+}
+
+async function attachRaidBenchPrioritySettings(
+  raid: RaidItem | null,
+): Promise<RaidItem | null> {
+  if (!raid) return null;
+  const benchPriority = await getRaidBenchPrioritySettings().catch(
+    () => ({ ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS }),
+  );
+  return { ...raid, benchPriority };
+}
+
+async function attachRaidBenchPrioritySettingsToList(
+  raids: RaidItem[],
+): Promise<RaidItem[]> {
+  const benchPriority = await getRaidBenchPrioritySettings().catch(
+    () => ({ ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS }),
+  );
+  return raids.map((raid) => ({ ...raid, benchPriority }));
+}
+
+export async function saveRaidBenchPrioritySettingsFromForm(
+  form: FormData,
+  user: DashboardSession,
+) {
+  if (!hasRaidStorage())
+    throw new Error("Збереження сірого списку тимчасово недоступне.");
+
+  const enabled = cleanBoolean(form.get("enabled"));
+  const characterKeys = cleanBenchPriorityCharacterKeys(
+    form.getAll("characterKeys"),
+  );
+  const manualNames = splitBenchPriorityManualNames(form.get("manualNames"));
+
+  const payload = {
+    enabled,
+    characterKeys,
+    manualNames,
+    updatedByDiscordId: user.provider === "discord" ? user.id : "",
+    updatedByName: user.name || user.login || user.id || "Адміністратор",
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  const saved = await firebaseWrite(
+    "raid",
+    "raids:bench-priority:save",
+    async () => {
+      const ref = getFirebaseAdminDb()
+        .collection(RAID_SETTINGS_COLLECTION)
+        .doc(RAID_BENCH_PRIORITY_DOCUMENT);
+      await ref.set(payload, { merge: true });
+      clearRuntimeCachedValue(RAID_BENCH_PRIORITY_CACHE_KEY);
+      clearRuntimeCachedValuesByPrefix("raid:");
+      clearRuntimeCachedValuesByPrefix("raids:list:");
+      await invalidateRaidPublicCaches(null).catch(() => null);
+      const snapshot = await ref.get();
+      return normalizeRaidBenchPrioritySettings(snapshot.data() || {});
+    },
+    { timeoutMs: 4_000, logEvent: "raids.bench_priority_write_failed" },
+  );
+
+  return saved;
+}
+
 function cleanRegistrationLockMinutes(
   value: unknown,
   fallback = DEFAULT_RAID_REGISTRATION_LOCK_MINUTES,
@@ -848,7 +1123,7 @@ export function raidCompositionLabel(raid: Pick<RaidItem, "composition">) {
 type RaidAutoInput = Pick<
   RaidItem,
   "difficulty" | "composition" | "signups" | "maxPlayers"
->;
+> & { benchPriority?: RaidBenchPrioritySettings | null };
 
 export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   return raid.signups.filter(
@@ -942,10 +1217,10 @@ export function raidDisplayCapacity(
 }
 
 export function isRaidRegistrationFull(
-  raid: Pick<RaidItem, "maxPlayers" | "signups">,
+  raid: Pick<RaidItem, "maxPlayers" | "signups" | "benchPriority">,
 ) {
-  const limit = raidRegistrationLimit(raid);
-  return limit !== null && raidActiveRosterSize(raid) >= limit;
+  const slots = raidRegistrationAvailableSlots(raid);
+  return slots !== null && slots <= 0;
 }
 
 type RaidRegistrationLockInput = Pick<
@@ -1128,15 +1403,30 @@ function normalizeRaidSignupNumbers(signups: RaidSignup[]) {
 }
 
 function raidRegistrationFullMessage(
-  raid: Pick<RaidItem, "maxPlayers" | "signups" | "title" | "difficulty">,
+  raid: Pick<
+    RaidItem,
+    "maxPlayers" | "signups" | "title" | "difficulty" | "benchPriority"
+  >,
   discordId: string,
   action: RaidSignupStatus,
+  candidate?: RaidSignup | null,
 ) {
   if (action === "skipped") return null;
   const limit = raidRegistrationLimit(raid);
   if (limit === null) return null;
-  if (raidActiveRosterSize(raid) < limit) return null;
+  const activeCount = raidActiveRosterSize(raid);
+  if (activeCount < limit) return null;
   if (discordId && hasActiveSignupForDiscord(raid, discordId)) return null;
+
+  const replaceableCount = raidBenchPriorityActiveCount(raid);
+  const alreadyOverflowing = Math.max(0, activeCount - limit);
+  const hasReplacementSeat = replaceableCount > alreadyOverflowing;
+  const candidateIsBenchPriority = candidate
+    ? raidBenchPriorityMatch(candidate, raid.benchPriority).matched
+    : false;
+
+  if (hasReplacementSeat && !candidateIsBenchPriority) return null;
+
   return `🔒 Ліміт запису на ${raidTitle(raid)} досягнуто (${limit}/${limit}). Нові записи вже недоступні.`;
 }
 
@@ -1278,7 +1568,8 @@ function raidItemPublicCacheKey(raidId: string) {
 }
 
 async function writeRaidListPublicCache(limit: number, raids: RaidItem[]) {
-  return writePublicCache(raidListPublicCacheKey(limit), raids, {
+  const cacheRaids = raids.map(stripRaidBenchPriorityForCache);
+  return writePublicCache(raidListPublicCacheKey(limit), cacheRaids, {
     ttlSeconds: Math.max(
       30,
       Math.min(
@@ -1296,7 +1587,10 @@ async function writeRaidListPublicCache(limit: number, raids: RaidItem[]) {
 
 async function writeRaidItemPublicCache(raid: RaidItem | null) {
   if (!raid?.id) return { ok: false, skipped: true };
-  return writePublicCache(raidItemPublicCacheKey(raid.id), raid, {
+  return writePublicCache(
+    raidItemPublicCacheKey(raid.id),
+    stripRaidBenchPriorityForCache(raid),
+    {
     ttlSeconds: Math.max(
       30,
       Math.min(
@@ -1309,7 +1603,8 @@ async function writeRaidItemPublicCache(raid: RaidItem | null) {
       ),
     ),
     tags: ["raids", `raid:${raid.id}`, "firebase-offload"],
-  });
+    },
+  );
 }
 
 async function readRaidListPublicCache(limit: number) {
@@ -1432,10 +1727,10 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
     edgeCached.forEach((raid) =>
       scheduleRaidAutoCloseSync(raid, "public-list-cache"),
     );
-    return edgeCached;
+    return attachRaidBenchPrioritySettingsToList(edgeCached);
   }
   if (!hasRaidStorage()) return [];
-  return firebaseRead<RaidItem[]>(
+  const raids = await firebaseRead<RaidItem[]>(
     "raid",
     `raids:list:${safeLimit}`,
     async () => {
@@ -1494,6 +1789,7 @@ export async function listRaids(limit = 60): Promise<RaidItem[]> {
       logEvent: "raids.list_read_failed",
     },
   );
+  return attachRaidBenchPrioritySettingsToList(raids);
 }
 
 export async function getRaid(raidId: string): Promise<RaidItem | null> {
@@ -1502,10 +1798,10 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
   const edgeCached = await readRaidItemPublicCache(id).catch(() => null);
   if (edgeCached) {
     scheduleRaidAutoCloseSync(edgeCached, "public-item-cache");
-    return edgeCached;
+    return attachRaidBenchPrioritySettings(edgeCached);
   }
   if (!hasRaidStorage()) return null;
-  return firebaseRead(
+  const raid = await firebaseRead(
     "raid",
     `raid:${id}`,
     async () => {
@@ -1542,6 +1838,7 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
       logEvent: "raids.item_read_failed",
     },
   );
+  return attachRaidBenchPrioritySettings(raid);
 }
 
 type RaidLifecycleSyncResult = {
@@ -2553,8 +2850,12 @@ function pickFirstBySpecPriority(
   return null;
 }
 
-function selectTanksForComposition(tanks: RaidSignup[], limit: number) {
-  const pool = [...tanks].sort(signupRosterOrder);
+function selectTanksForComposition(
+  tanks: RaidSignup[],
+  limit: number,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  const pool = [...tanks].sort((a, b) => signupCompositionOrder(a, b, settings));
   const selected: RaidSignup[] = [];
   const mainTank = pickFirstBySpecPriority(pool, [
     { classToken: "druid", specs: ["Guardian"] },
@@ -2581,8 +2882,12 @@ function selectTanksForComposition(tanks: RaidSignup[], limit: number) {
   return selected;
 }
 
-function selectHealersForComposition(healers: RaidSignup[], limit: number) {
-  const pool = [...healers].sort(signupRosterOrder);
+function selectHealersForComposition(
+  healers: RaidSignup[],
+  limit: number,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  const pool = [...healers].sort((a, b) => signupCompositionOrder(a, b, settings));
   const selected: RaidSignup[] = [];
   const requiredSlots = [
     { classToken: "paladin", specs: ["Holy"] },
@@ -2599,7 +2904,11 @@ function selectHealersForComposition(healers: RaidSignup[], limit: number) {
     if (picked) selected.push(picked);
   }
 
-  const fill = takeClassBalanced(pool, Math.max(0, limit - selected.length));
+  const fill = takeClassBalanced(
+    pool,
+    Math.max(0, limit - selected.length),
+    settings,
+  );
   selected.push(...fill);
   return selected.slice(0, limit);
 }
@@ -2699,8 +3008,12 @@ function pickBuffProvider(
   return picked || null;
 }
 
-function selectDpsForComposition(dps: RaidSignup[], limit: number) {
-  const pool = [...dps].sort(signupRosterOrder);
+function selectDpsForComposition(
+  dps: RaidSignup[],
+  limit: number,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  const pool = [...dps].sort((a, b) => signupCompositionOrder(a, b, settings));
   const selected: RaidSignup[] = [];
 
   for (const buff of RAID_CRITICAL_BUFFS) {
@@ -2726,6 +3039,8 @@ function selectDpsForComposition(dps: RaidSignup[], limit: number) {
       const aRangePenalty = dpsRangeType(a) === preferredRange ? 0 : 1;
       const bRangePenalty = dpsRangeType(b) === preferredRange ? 0 : 1;
       return (
+        raidBenchPriorityWeight(a, settings) -
+          raidBenchPriorityWeight(b, settings) ||
         aRangePenalty - bRangePenalty ||
         (classCounts.get(signupClassKey(a)) || 0) -
           (classCounts.get(signupClassKey(b)) || 0) ||
@@ -2772,16 +3087,34 @@ function signupRosterOrder(a: RaidSignup, b: RaidSignup) {
   );
 }
 
-function takeClassBalanced(candidates: RaidSignup[], limit: number) {
-  const pool = [...candidates].sort(signupRosterOrder);
+function signupCompositionOrder(
+  a: RaidSignup,
+  b: RaidSignup,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  return (
+    raidBenchPriorityWeight(a, settings) -
+      raidBenchPriorityWeight(b, settings) || signupRosterOrder(a, b)
+  );
+}
+
+function takeClassBalanced(
+  candidates: RaidSignup[],
+  limit: number,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  const pool = [...candidates].sort((a, b) => signupCompositionOrder(a, b, settings));
   const selected: RaidSignup[] = [];
   const classCounts = new Map<string, number>();
 
   while (selected.length < limit && pool.length) {
     pool.sort(
       (a, b) =>
+        raidBenchPriorityWeight(a, settings) -
+          raidBenchPriorityWeight(b, settings) ||
         (classCounts.get(signupClassKey(a)) || 0) -
-          (classCounts.get(signupClassKey(b)) || 0) || signupRosterOrder(a, b),
+          (classCounts.get(signupClassKey(b)) || 0) ||
+        signupRosterOrder(a, b),
     );
     const member = pool.shift();
     if (!member) break;
@@ -2798,8 +3131,15 @@ function raidLayoutTargetSize(raid: RaidAutoInput) {
   return limit ?? raidActiveRosterSize(raid);
 }
 
-function createEmptyRaidBench(members: RaidSignup[] = []): RaidBench {
-  const sortedMembers = [...members].sort(signupSort);
+function createEmptyRaidBench(
+  members: RaidSignup[] = [],
+  settings?: RaidBenchPrioritySettings | null,
+): RaidBench {
+  const sortedMembers = [...members].sort(
+    (a, b) =>
+      raidBenchPriorityWeight(b, settings) -
+        raidBenchPriorityWeight(a, settings) || signupSort(a, b),
+  );
   return {
     members: sortedMembers,
     tanks: sortedMembers.filter((item) => item.role === "tank"),
@@ -2895,13 +3235,12 @@ function finalizeParties(parties: RaidParty[]) {
   return parties.sort((a, b) => a.index - b.index);
 }
 
-export function buildRaidGroupLayout(
-  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
-): RaidGroupLayout {
+export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
   const roster = rosterForGroups(raid);
   const targetSize = raidLayoutTargetSize(raid);
   const composition = raidAutoComposition(raid);
   const benchEnabled = raidRegistrationLimit(raid) !== null;
+  const benchPriority = raid.benchPriority || null;
   const groupCount = Math.max(
     1,
     Math.min(
@@ -2919,25 +3258,37 @@ export function buildRaidGroupLayout(
     }),
   );
 
-  const tanks = [...roster.tanks].sort(signupRosterOrder);
-  const healers = [...roster.healers].sort(signupRosterOrder);
-  const dps = [...roster.dps].sort(signupRosterOrder);
+  const tanks = [...roster.tanks].sort((a, b) =>
+    signupCompositionOrder(a, b, benchPriority),
+  );
+  const healers = [...roster.healers].sort((a, b) =>
+    signupCompositionOrder(a, b, benchPriority),
+  );
+  const dps = [...roster.dps].sort((a, b) =>
+    signupCompositionOrder(a, b, benchPriority),
+  );
 
   const selectedTanks = selectTanksForComposition(
     tanks,
-    benchEnabled ? composition.tanks : Math.max(composition.tanks, Math.min(2, tanks.length)),
+    benchEnabled
+      ? composition.tanks
+      : Math.max(composition.tanks, Math.min(2, tanks.length)),
+    benchPriority,
   );
   const surplusTanks = tanks.filter((item) => !selectedTanks.includes(item));
   const selectedHealers = selectHealersForComposition(
     healers,
-    benchEnabled ? composition.healers : Math.max(composition.healers, healers.length),
+    benchEnabled
+      ? composition.healers
+      : Math.max(composition.healers, healers.length),
+    benchPriority,
   );
   const surplusHealers = healers.filter(
     (item) => !selectedHealers.includes(item),
   );
   const selectedDps = benchEnabled
-    ? selectDpsForComposition(dps, composition.dps)
-    : selectDpsForComposition(dps, dps.length);
+    ? selectDpsForComposition(dps, composition.dps, benchPriority)
+    : selectDpsForComposition(dps, dps.length, benchPriority);
   const surplusDps = dps.filter((item) => !selectedDps.includes(item));
 
   for (const tank of selectedTanks) assignTankToParty(parties, tank);
@@ -2980,7 +3331,7 @@ export function buildRaidGroupLayout(
 
   return {
     parties: finalizeParties(parties),
-    bench: createEmptyRaidBench(benchMembers),
+    bench: createEmptyRaidBench(benchMembers, benchPriority),
     composition,
     targetSize,
     benchEnabled,
@@ -2989,15 +3340,11 @@ export function buildRaidGroupLayout(
   };
 }
 
-export function buildRaidParties(
-  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
-): RaidParty[] {
+export function buildRaidParties(raid: RaidAutoInput): RaidParty[] {
   return buildRaidGroupLayout(raid).parties;
 }
 
-export function buildRaidBench(
-  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
-): RaidBench {
+export function buildRaidBench(raid: RaidAutoInput): RaidBench {
   return buildRaidGroupLayout(raid).bench;
 }
 
@@ -4157,6 +4504,10 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
   if (!id || !hasRaidStorage())
     throw new Error("Рейд не знайдено або збереження тимчасово недоступне.");
 
+  const benchPriority = await getRaidBenchPrioritySettings().catch(
+    () => ({ ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS }),
+  );
+
   await firebaseWrite(
     "raid",
     `raid:${id}:signup:${signup.discordId}`,
@@ -4165,7 +4516,10 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
       await getFirebaseAdminDb().runTransaction(async (transaction: any) => {
         const snapshot = await transaction.get(ref);
         if (!snapshot.exists) throw new Error("Рейд не знайдено.");
-        const raid = normalizeRaid(snapshot.id, snapshot.data() || {});
+        const raid = {
+          ...normalizeRaid(snapshot.id, snapshot.data() || {}),
+          benchPriority,
+        };
         if (isRaidClosed(raid))
           throw new Error("Рейд уже закритий, запис вимкнено.");
         if (raid.status !== "published")
@@ -4178,6 +4532,7 @@ export async function recordRaidSignup(raidId: string, signup: RaidSignup) {
           raid,
           signup.discordId,
           signup.status,
+          signup,
         );
         if (fullBlock) throw new Error(fullBlock);
         const existingSignup =

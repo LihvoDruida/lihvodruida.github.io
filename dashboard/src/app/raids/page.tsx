@@ -118,9 +118,14 @@ export default async function RaidsListPage({
             </div>
           </div>
           {canManage ? (
-            <a className="btn primary" href="/raids/new">
-              ＋ Створити рейд
-            </a>
+            <div className="raid-list-head-actions">
+              <a className="btn subtle" href="/raids/bench-priority">
+                🩶 Сірий список
+              </a>
+              <a className="btn primary" href="/raids/new">
+                ＋ Створити рейд
+              </a>
+            </div>
           ) : null}
         </div>
         <div className="raid-manager-list">
