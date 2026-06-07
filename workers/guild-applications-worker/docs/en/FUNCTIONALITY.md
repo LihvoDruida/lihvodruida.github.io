@@ -205,7 +205,7 @@ The Worker allows only origins from:
 - `PUBLIC_SITE_URL`;
 - `ADMIN_DASHBOARD_URL`;
 - `DASHBOARD_URL`;
-- hardcoded URL fallbacks are removed; configure `ALLOWED_ORIGINS` and `DASHBOARD_URL` explicitly.
+- hardcoded fallbacks `https://lihvodruida.pp.ua` and `https://admin.lihvodruida.pp.ua`.
 
 Stats/message endpoints can additionally require a token:
 

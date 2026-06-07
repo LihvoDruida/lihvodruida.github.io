@@ -110,8 +110,8 @@ GITHUB_REPO = "lihvodruida.github.io"
 GUILD_APPLICATIONS_LABEL = "guild-application"
 ALLOWED_ORIGINS = "https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https://admin.lihvodruida.pp.ua"
 DISCORD_ALLOWED_ROLES = ""
-DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
 ADMIN_DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
+DASHBOARD_PROFILE_LOOKUP_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup"
 RAID_RULES_URL = "https://discord.com/channels/<guild>/<channel>/<message>"
 ALLOW_DEBUG_QUERY = "0"
 ```
@@ -152,8 +152,8 @@ If `admin.lihvodruida.pp.ua` is protected by Cloudflare Access:
 2. Add a policy that allows this Service Token to access:
 
 ```text
-DASHBOARD_URL + /api/profile/discord-lookup
-DASHBOARD_URL + /api/raids/*/discord-action
+https://admin.lihvodruida.pp.ua/api/profile/discord-lookup
+https://admin.lihvodruida.pp.ua/api/raids/*/discord-action
 ```
 
 3. Add secrets to the Worker:
@@ -267,35 +267,3 @@ wrangler rollback
 ```
 
 Before rollback, verify that the problem is not caused by secrets/vars. Rolling back code will not fix incorrect environment configuration.
-
-## Worker state KV and raid lifecycle
-
-The Worker should have a state KV binding for production-safe cooldowns and idempotency:
-
-```bash
-wrangler kv namespace create WORKER_STATE
-```
-
-Add the returned id as a `WORKER_STATE` binding in `wrangler.toml`. The code falls back to `RULES_STATS` / `PUBLIC_API_CACHE` / memory for development, but production should use `WORKER_STATE`.
-
-Raid lifecycle is scheduled through Cloudflare Cron (`* * * * *`) and can also be manually triggered through the Worker endpoint:
-
-```text
-POST /api/raids/lifecycle
-Authorization: Bearer <RAID_LIFECYCLE_SECRET>
-```
-
-The Worker first reads a dashboard plan from:
-
-```text
-GET /api/raids/lifecycle?mode=plan&limit=100
-```
-
-Then it calls dashboard lifecycle actions one raid at a time. Closing and Discord cleanup are separated:
-
-- raid close: at the raid registration deadline (`registrationLockMinutesBefore`) or at start time when no lock is configured;
-- Discord message deletion: only after `RAID_DISCORD_DELETE_AFTER_START_HOURS` from the scheduled start and only if the raid is already `closed`;
-- `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` adds an extra post-close buffer before deleting the Discord message;
-- the Firebase raid document is never deleted by lifecycle cleanup and remains in the dashboard archive.
-
-Use the same `RAID_LIFECYCLE_SECRET` on Worker and dashboard. Dashboard mutations are idempotent and use Firestore state as the source of truth, so Worker restarts and repeated cron runs are safe.

@@ -416,44 +416,20 @@ export function raidDiscordDeleteAfterStartHoursFromSettings(value: unknown) {
   return Math.max(0, Math.min(168, Math.floor(parsed)));
 }
 
-function raidDiscordDeleteAfterStartHoursFromEnv() {
+function raidAutoCloseDelayHoursFromEnv() {
   return raidDiscordDeleteAfterStartHoursFromSettings(
     process.env.RAID_DISCORD_DELETE_AFTER_START_HOURS,
   );
 }
 
-function raidAutoCloseDeadlineMs(
-  raid:
-    | (Pick<
-        RaidItem,
-        "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-      > & Partial<Pick<RaidItem, "status">>)
-    | Record<string, unknown>,
+function raidAutoCloseDue(
+  raid: Pick<RaidItem, "date" | "time"> | Record<string, unknown>,
+  delayHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
   const startsAt = raidDateTimeToUtcMs(raid);
-  if (startsAt === null) return null;
-  const registrationLockEnabled = Boolean(
-    (raid as Record<string, unknown>).registrationLockEnabled,
-  );
-  const minutesBefore = registrationLockEnabled
-    ? cleanRegistrationLockMinutes(
-        (raid as Record<string, unknown>).registrationLockMinutesBefore,
-        0,
-      )
-    : 0;
-  return startsAt - minutesBefore * 60 * 1000;
-}
-
-function raidAutoCloseDue(
-  raid:
-    | (Pick<
-        RaidItem,
-        "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-      > & Partial<Pick<RaidItem, "status">>)
-    | Record<string, unknown>,
-) {
-  const deadline = raidAutoCloseDeadlineMs(raid);
-  return deadline !== null && Date.now() >= deadline;
+  if (startsAt === null) return false;
+  const safeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
+  return Date.now() >= startsAt + safeDelayHours * 60 * 60 * 1000;
 }
 
 function raidDiscordDeleteAfterCloseMinutesFromSettings(value: unknown) {
@@ -468,48 +444,24 @@ function raidDiscordDeleteAfterCloseMinutesFromEnv() {
   );
 }
 
-function raidClosedAtUtcMs(
-  raid: Pick<
-    RaidItem,
-    "closedAt" | "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-  >,
-) {
+function raidClosedAtUtcMs(raid: Pick<RaidItem, "closedAt" | "date" | "time">) {
   const closedAt = Date.parse(String(raid.closedAt || ""));
   if (Number.isFinite(closedAt)) return closedAt;
 
-  return raidAutoCloseDeadlineMs(raid);
+  const startsAt = raidDateTimeToUtcMs(raid);
+  if (startsAt === null) return null;
+  return startsAt + raidAutoCloseDelayHoursFromEnv() * 60 * 60 * 1000;
 }
 
 function raidDiscordDeleteDue(
-  raid:
-    | Pick<
-        RaidItem,
-        | "date"
-        | "time"
-        | "status"
-        | "closedAt"
-        | "registrationLockEnabled"
-        | "registrationLockMinutesBefore"
-      >
-    | Record<string, unknown>,
+  raid: Pick<RaidItem, "date" | "time" | "status" | "closedAt"> | Record<string, unknown>,
   delayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv(),
-  delayHours = raidDiscordDeleteAfterStartHoursFromEnv(),
 ) {
   if ((raid as Record<string, unknown>).status !== "closed") return false;
-  const startsAt = raidDateTimeToUtcMs(raid);
-  if (startsAt === null) return false;
-  const closedAt = raidClosedAtUtcMs(
-    raid as Pick<
-      RaidItem,
-      "closedAt" | "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-    >,
-  );
+  const closedAt = raidClosedAtUtcMs(raid as Pick<RaidItem, "closedAt" | "date" | "time">);
   if (closedAt === null) return false;
   const safeDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromSettings(delayMinutes);
-  const safeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
-  const deleteAfterStartAt = startsAt + safeDelayHours * 60 * 60 * 1000;
-  const deleteAfterCloseAt = closedAt + safeDelayMinutes * 60 * 1000;
-  return Date.now() >= Math.max(deleteAfterStartAt, deleteAfterCloseAt);
+  return Date.now() >= closedAt + safeDelayMinutes * 60 * 1000;
 }
 
 function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
@@ -520,39 +472,31 @@ function cleanRaidClosedReason(value: unknown): "manual" | "auto" | null {
 }
 
 export function isRaidAutoCloseDue(
-  raid:
-    | (Pick<
-        RaidItem,
-        "status" | "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-      >)
-    | Record<string, unknown>,
+  raid: Pick<RaidItem, "status" | "date" | "time"> | Record<string, unknown>,
+  delayHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
   const status =
     (raid as Record<string, unknown>).status === "published" ||
     (raid as Record<string, unknown>).status === "closed"
       ? String((raid as Record<string, unknown>).status)
       : "draft";
-  return status !== "draft" && raidAutoCloseDue(raid);
+  return status !== "draft" && raidAutoCloseDue(raid, delayHours);
 }
 
 export function isRaidClosed(
-  raid: Pick<
-    RaidItem,
-    "status" | "date" | "time" | "registrationLockEnabled" | "registrationLockMinutesBefore"
-  > & {
-    closedAt?: string | null;
+  raid: Pick<RaidItem, "status" | "date" | "time"> & {
     closedReason?: string | null;
   },
 ) {
   if (raid.status === "closed") {
     const reason = cleanRaidClosedReason(raid.closedReason);
     if (reason === "manual") return true;
-    if (reason === "auto") return Boolean(raid.closedAt) || raidAutoCloseDue(raid);
+    if (reason === "auto") return raidAutoCloseDue(raid);
 
     // Legacy compatibility: older records may have `status: "closed"` without
-    // `closedReason`. Keep them closed when a closed timestamp exists or when
-    // the current lifecycle deadline has passed.
-    return Boolean((raid as Partial<RaidItem>).closedAt) || raidDateTimeToUtcMs(raid) === null || raidAutoCloseDue(raid);
+    // `closedReason`. Keep them closed only after the configured post-start
+    // lifecycle window, not at the raid start moment.
+    return raidDateTimeToUtcMs(raid) === null || raidAutoCloseDue(raid);
   }
 
   return raid.status === "published" && raidAutoCloseDue(raid);
@@ -1595,9 +1539,18 @@ export async function getRaid(raidId: string): Promise<RaidItem | null> {
 }
 
 async function syncRaidLifecycleAfterRead(raid: RaidItem) {
+  const settings = await getSiteRuntimeSettings().catch(() => ({
+    raidDiscordDeleteAfterStartHours: 4,
+  }));
+  const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    settings?.raidDiscordDeleteAfterStartHours,
+  );
   const deleteDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv();
 
-  const closedNow = await syncAutoClosedRaid(raid, { syncDiscord: true });
+  const closedNow = await syncAutoClosedRaid(raid, {
+    syncDiscord: true,
+    closeDelayHours,
+  });
 
   // If the raid was closed in this pass, keep the disabled Discord announcement
   // visible for at least one cleanup window before deleting it.
@@ -1608,10 +1561,13 @@ async function syncRaidLifecycleAfterRead(raid: RaidItem) {
 
 async function syncAutoClosedRaid(
   raid: RaidItem,
-  options: { syncDiscord?: boolean } = {},
+  options: { syncDiscord?: boolean; closeDelayHours?: number } = {},
 ) {
+  const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(
+    options.closeDelayHours ?? raidAutoCloseDelayHoursFromEnv(),
+  );
   if (
-    !isRaidAutoCloseDue(raid) ||
+    !isRaidAutoCloseDue(raid, closeDelayHours) ||
     raid.closedReason === "manual" ||
     !hasRaidStorage()
   )
@@ -1630,7 +1586,7 @@ async function syncAutoClosedRaid(
         const current = normalizeRaid(snapshot.id, snapshot.data() || {});
         if (current.status === "draft" || current.closedReason === "manual")
           return;
-        if (!isRaidAutoCloseDue(current)) return;
+        if (!isRaidAutoCloseDue(current, closeDelayHours)) return;
         if (current.status === "closed" && current.closedReason === "auto")
           return;
 
@@ -1738,147 +1694,19 @@ async function syncRaidDiscordDeletionAfterClose(
   );
 }
 
-async function listRaidLifecycleCandidates(limit = 100) {
+export async function syncRaidLifecycleBatch(limit = 100) {
   const safeLimit = Math.max(
     1,
     Math.min(100, Math.floor(Number(limit) || 100)),
   );
-  if (!hasRaidStorage()) return [];
-  const snapshot = await getFirebaseAdminDb()
-    .collection(RAID_COLLECTION)
-    .orderBy("date", "desc")
-    .limit(safeLimit)
-    .get();
-  return (snapshot.docs as Array<{ id: string; data: () => Record<string, unknown> | undefined }>)
-    .map((doc) => normalizeRaid(doc.id, doc.data() || {}))
-    .filter((raid) => raid.status !== "draft");
-}
-
-function raidDiscordDeleteEligibleAtMs(raid: RaidItem) {
-  const startsAt = raidDateTimeToUtcMs(raid);
-  const closedAt = raidClosedAtUtcMs(raid);
-  if (startsAt === null || closedAt === null) return null;
-  const deleteAfterStartAt =
-    startsAt + raidDiscordDeleteAfterStartHoursFromEnv() * 60 * 60 * 1000;
-  const deleteAfterCloseAt =
-    closedAt + raidDiscordDeleteAfterCloseMinutesFromEnv() * 60 * 1000;
-  return Math.max(deleteAfterStartAt, deleteAfterCloseAt);
-}
-
-function isoOrNull(ms: number | null) {
-  return ms === null ? null : new Date(ms).toISOString();
-}
-
-function raidLifecyclePlanItem(raid: RaidItem) {
-  const startsAt = raidDateTimeToUtcMs(raid);
-  const closeEligibleAt = raidAutoCloseDeadlineMs(raid);
-  const discordDeleteEligibleAt = raidDiscordDeleteEligibleAtMs(raid);
-  const closeDue = raid.status === "published" && isRaidAutoCloseDue(raid);
-  const deleteDiscordDue = Boolean(
-    raid.status === "closed" &&
-      raid.channelId &&
-      raid.messageId &&
-      !raid.discordDeletedAt &&
-      raidDiscordDeleteDue(raid),
-  );
-
-  return {
-    id: raid.id,
-    title: raid.title,
-    status: raid.status,
-    closedAt: raid.closedAt || null,
-    closedReason: raid.closedReason || null,
-    date: raid.date,
-    time: raid.time,
-    registrationLockEnabled: Boolean(raid.registrationLockEnabled),
-    registrationLockMinutesBefore: raid.registrationLockMinutesBefore ?? null,
-    channelId: raid.channelId || null,
-    messageId: raid.messageId || null,
-    messageUrl: raid.messageUrl || null,
-    discordDeletedAt: raid.discordDeletedAt || null,
-    discordDeleteReason: raid.discordDeleteReason || null,
-    startsAt: isoOrNull(startsAt),
-    closeEligibleAt: isoOrNull(closeEligibleAt),
-    discordDeleteEligibleAt: isoOrNull(discordDeleteEligibleAt),
-    closeDue,
-    deleteDiscordDue,
-  };
-}
-
-export async function getRaidLifecyclePlan(limit = 100) {
-  const raids = await listRaidLifecycleCandidates(limit);
-  return {
-    total: raids.length,
-    items: raids.map(raidLifecyclePlanItem),
-  };
-}
-
-export async function runRaidLifecycleAction(
-  action: "close" | "delete-discord",
-  raidId: string,
-) {
-  const id = cleanRaidId(raidId);
-  if (!id) throw new Error("Некоректний ID рейду.");
-  const raid = await getRaid(id);
-  if (!raid) throw new Error("Рейд не знайдено.");
-  if (raid.status === "draft") return { id, action, changed: false, reason: "draft" };
-
-  if (action === "close") {
-    const changed = await syncAutoClosedRaid(raid, { syncDiscord: true });
-    return { id, action, changed, reason: changed ? "closed" : "not-due-or-already-closed" };
-  }
-
-  if (action === "delete-discord") {
-    const beforeDeletedAt = raid.discordDeletedAt || null;
-    await syncRaidDiscordDeletionAfterClose(
-      raid,
-      raidDiscordDeleteAfterCloseMinutesFromEnv(),
-    );
-    const after = await getRaid(id);
-    const changed = Boolean(!beforeDeletedAt && after?.discordDeletedAt);
-    return {
-      id,
-      action,
-      changed,
-      reason: changed ? "discord-message-deleted" : "not-due-or-already-deleted",
-    };
-  }
-
-  throw new Error("Невідома lifecycle-дія.");
-}
-
-export async function syncRaidLifecycleBatch(limit = 100) {
-  const raids = await listRaidLifecycleCandidates(limit);
+  const raids = await listRaids(safeLimit);
   let checked = 0;
-  let closed = 0;
-  let discordDeleted = 0;
-  const errors: Array<{ raidId: string; message: string }> = [];
-
   for (const raid of raids) {
+    if (raid.status === "draft") continue;
     checked += 1;
-    try {
-      const wasClosed = await syncAutoClosedRaid(raid, { syncDiscord: true });
-      if (wasClosed) {
-        closed += 1;
-        continue;
-      }
-      const beforeDeletedAt = raid.discordDeletedAt || null;
-      await syncRaidDiscordDeletionAfterClose(
-        raid,
-        raidDiscordDeleteAfterCloseMinutesFromEnv(),
-      );
-      if (!beforeDeletedAt) {
-        const after = await getRaid(raid.id);
-        if (after?.discordDeletedAt) discordDeleted += 1;
-      }
-    } catch (error) {
-      errors.push({
-        raidId: raid.id,
-        message: error instanceof Error ? error.message : String(error || "unknown"),
-      });
-    }
+    await syncRaidLifecycleAfterRead(raid);
   }
-  return { checked, total: raids.length, closed, discordDeleted, errors };
+  return { checked, total: raids.length };
 }
 
 export async function closeRaid(raidId: string) {

@@ -164,8 +164,8 @@
 | `DISCORD_RAID_RULES_URL` | alias | Legacy alias для правил рейдів. |
 | `RAID_TIME_ZONE` | required | Timezone рейдів, наприклад `Europe/Kyiv`. |
 | `RAID_LIFECYCLE_SECRET` | optional | Bearer token для `/api/raids/lifecycle` cron/manual job. Може використовувати `CRON_SECRET` або `INTERNAL_API_TOKEN`. |
-| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Через скільки годин після старту Discord-оголошення рейду можна видалити. Рейд має вже бути `closed`. За замовчуванням `4`. |
-| `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` | optional | Додатковий буфер у хвилинах після `closedAt` перед cleanup Discord-оголошення. Запис рейду залишається в архіві панелі. За замовчуванням `60`. |
+| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Через скільки годин після старту автоматично закривати рейд і вимикати Discord-кнопки. За замовчуванням `4`. |
+| `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` | optional | Через скільки хвилин після закриття можна видаляти Discord-оголошення. Запис рейду залишається в архіві панелі. За замовчуванням `60`. |
 | `NEXT_PUBLIC_RAID_TIME_ZONE` | required public | Public timezone для UI. |
 | Автозакриття рейдів | built-in | Рейд автоматично вважається закритим у момент старту за `RAID_TIME_ZONE`; окремої затримки після старту немає. |
 | `RAID_LIST_CACHE_TTL_MS` | optional | TTL кешу списку рейдів. |
@@ -181,10 +181,3 @@
 
 > ID ролей доступу більше не налаштовуються в env. Групи dashboard, Discord role ID та права керуються у Firebase на `/admin/groups`.
 
-
-## Додаткові змінні для Worker / raid integration
-
-- `RAID_LIFECYCLE_SECRET` має збігатися з Worker secret, який Cloudflare Cron використовує для `/api/raids/lifecycle`.
-- `RAID_DISCORD_DELETE_AFTER_START_HOURS=4` керує тільки cleanup Discord-повідомлення після старту, а не часом закриття рейду.
-- `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES=60` додає буфер після закриття перед опційним cleanup Discord-повідомлення.
-- Idempotency для Discord raid action зберігається у Firestore collection `dashboardWorkerIdempotency`; додаткова env-змінна не потрібна.

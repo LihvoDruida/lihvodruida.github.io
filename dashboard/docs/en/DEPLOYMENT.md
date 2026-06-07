@@ -334,7 +334,3 @@ and Worker sends:
 ```http
 Authorization: Bearer <token>
 ```
-
-## Discord raid action idempotency
-
-The dashboard route `/api/raids/[raidId]/discord-action` now stores idempotency reservations/responses in Firestore collection `dashboardWorkerIdempotency`. This makes repeated Discord interaction retries safe across Vercel restarts. No manual schema setup is required; the collection is created lazily.
