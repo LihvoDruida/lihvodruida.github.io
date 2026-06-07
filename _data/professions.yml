@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-07 13:55:36'
+  updated_at: '2026-06-07 21:15:47'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 159
+  member_count: 162
 characters:
 - name: Бреинор
   region: eu
@@ -1580,7 +1580,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Herbalism
-        learned_points: 13
+        learned_points: 17
         max_points: 100
     - name: Alchemy
       id: 171
@@ -6612,7 +6612,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Моннал
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -7895,3 +7895,66 @@ characters:
       - name: Dragon Isles Fishing
         learned_points: 7
         max_points: 100
+- name: Грекулес
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Грекулес
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Blacksmithing
+        learned_points: 71
+        max_points: 105
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 5
+        max_points: 300
+- name: Zanzimond
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimond
+  professions:
+    primaries: []
+    secondaries: []
+- name: Zanziholic
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanziholic
+  professions:
+    primaries: []
+    secondaries: []
