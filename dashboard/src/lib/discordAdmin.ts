@@ -64,13 +64,7 @@ function workerApiEndpoint(path: string, explicitEnvKey: string) {
   const explicit = String(process.env[explicitEnvKey] || "").trim();
   if (explicit) return explicit;
 
-  const workerBase = String(
-    process.env.GUILD_APPLICATIONS_WORKER_URL ||
-    process.env.NEXT_PUBLIC_GUILD_APPLICATIONS_WORKER_URL ||
-    process.env.WORKER_BASE_URL ||
-    ""
-  ).trim();
-  const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || workerBase || DEFAULT_WORKER_ENDPOINT).trim();
+  const interactions = String(process.env.DISCORD_INTERACTIONS_ENDPOINT || DEFAULT_WORKER_ENDPOINT).trim();
   if (!interactions) return "";
 
   if (/\/api\/discord-interactions\/?$/i.test(interactions)) {

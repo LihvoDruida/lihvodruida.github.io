@@ -74,7 +74,7 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_RULES_STATS_TOKEN` | optional shared secret | Shared token between dashboard and Worker. |
 | `WORKER_STATS_TOKEN` | optional shared alias | Shared token alias. |
 | `DISCORD_RAID_MESSAGE_ENDPOINT` | optional | Worker endpoint for publishing/updating raid messages. |
-| `DISCORD_GUILD_CHANNELS_ENDPOINT` | optional | Worker endpoint for reading text channels. The dashboard passes `guild_id`; raid/poll forms only use channels returned by Discord. Manual Channel ID fallback is disabled. |
+| `DISCORD_GUILD_CHANNELS_ENDPOINT` | optional | Worker endpoint for reading text channels. The dashboard passes `guild_id`; if the endpoint is unavailable, the dashboard falls back to `DISCORD_CHANNEL_ID` or a manual channel ID in the raid form. |
 | `DISCORD_CHANNELS_CACHE_SECONDS` | optional | Discord channel list cache TTL. Default: `300`. |
 | `DISCORD_ROLE_ASSIGN_CONCURRENCY` | optional | Discord role assignment concurrency. |
 | `DISCORD_ROLE_ASSIGN_MAX_CONCURRENCY` | optional | Max Discord role assignment concurrency. |

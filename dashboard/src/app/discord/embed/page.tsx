@@ -94,12 +94,12 @@ export default async function GeneralDiscordEmbedPage({
       ) : !hasDiscordEmbedConfig() ? (
         <div className="notice panel error-note">Публікація в Discord тимчасово недоступна.</div>
       ) : configError && !messageParam ? (
-        <div className="notice panel error-note">Не вдалося завантажити дані Discord: {configError || "канали недоступні"}.</div>
+        <div className="notice panel error-note">Не вдалося завантажити дані Discord. Спробуй оновити сторінку.</div>
       ) : channels.length === 0 ? (
         <div className="notice panel error-note">Не знайдено текстових каналів для вибору.</div>
       ) : (
         <>
-          {configError ? <div className="notice panel error-note">Не вдалося завантажити дані Discord: {configError}.</div> : null}
+          {configError ? <div className="notice panel error-note">Не вдалося завантажити дані Discord. Спробуй оновити сторінку.</div> : null}
           <DiscordEmbedEditor
             mode="general"
             editorMode={editMode ? "edit" : "create"}

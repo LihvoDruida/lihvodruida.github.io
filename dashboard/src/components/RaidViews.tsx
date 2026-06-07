@@ -455,8 +455,7 @@ export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: 
   const selectedMentionRoleIds = Array.from(new Set((raid?.mentionRoleIds || []).filter(Boolean)));
   const isExistingRaid = Boolean(raid?.id);
   const isDiscordPublished = Boolean(raid?.channelId && raid?.messageId && raid?.status !== "draft");
-  const hasDiscordChannels = channelOptions.length > 0;
-  const canPublish = discordEnabled && hasDiscordChannels && !(raid ? isRaidClosed(raid) : false);
+  const canPublish = discordEnabled && !(raid ? isRaidClosed(raid) : false);
   const saveLabel = isExistingRaid && raid?.status !== "draft" ? "Зберегти без публікації" : "Зберегти чернетку";
   const publishLabel = isDiscordPublished ? "Оновити Discord" : "Опублікувати в Discord";
   return (
@@ -520,20 +519,23 @@ export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: 
 
         <div className="raid-form-section raid-form-section--two">
           <label className="field-label">Канал Discord
-            <select
-              className="select"
-              name="channelId"
-              defaultValue={raid?.channelId || channelOptions[0]?.id || ""}
-              disabled={!discordEnabled || !hasDiscordChannels}
-              required={discordEnabled && hasDiscordChannels}
-            >
-              {hasDiscordChannels ? (
-                channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)
-              ) : (
-                <option value="">Канали Discord не завантажились</option>
-              )}
-            </select>
-            {!hasDiscordChannels ? <small>Сайт має підтягувати канали з Discord автоматично. Перевір DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, GUILD_APPLICATIONS_WORKER_URL / DISCORD_GUILD_CHANNELS_ENDPOINT і спільний Worker token.</small> : null}
+            {channelOptions.length ? (
+              <select className="select" name="channelId" defaultValue={raid?.channelId || channelOptions[0]?.id || ""}>
+                {channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
+              </select>
+            ) : (
+              <input
+                className="input"
+                name="channelId"
+                inputMode="numeric"
+                pattern="[0-9]{16,25}"
+                placeholder="ID текстового каналу Discord"
+                defaultValue={raid?.channelId || ""}
+                disabled={!discordEnabled}
+                required={discordEnabled}
+              />
+            )}
+            {!channelOptions.length ? <small>Список каналів не прочитався автоматично. Встав ID каналу вручну або задай DISCORD_CHANNEL_ID / DISCORD_GUILD_CHANNELS_ENDPOINT у змінних середовища.</small> : null}
           </label>
           <label className="field-label">Розхідники
             <select className="select" name="consumables" defaultValue={raid?.consumables || "own"}>
@@ -571,7 +573,7 @@ export function RaidForm({ raid, channels, roles = [], discordEnabled = true }: 
 
         <div className="raid-form-actions">
           <button className="btn subtle" name="action" value="save" type="submit">{saveLabel}</button>
-          <button className="btn primary" formAction="/api/raids/publish" name="action" value="publish" type="submit" disabled={!canPublish}>{hasDiscordChannels ? publishLabel : "Канали Discord недоступні"}</button>
+          <button className="btn primary" formAction="/api/raids/publish" name="action" value="publish" type="submit" disabled={!canPublish}>{publishLabel}</button>
         </div>
         <div className="raid-form-links">
           {raid?.id ? <a className="raid-message-link" href={`/raids/${encodeURIComponent(raid.id)}`}>Відкрити сторінку рейду</a> : null}

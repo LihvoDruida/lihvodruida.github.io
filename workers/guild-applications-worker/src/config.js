@@ -20,25 +20,6 @@ function cleanPositiveInt(value, fallback, min, max) {
   return Math.max(min, Math.min(Math.floor(number), max));
 }
 
-function endpointWithPlaceholder(base, pathTemplate, placeholder = "{raidId}") {
-  if (!base) return "";
-  const marker = "__MISTBLOSSOM_PLACEHOLDER__";
-  try {
-    const url = new URL(String(pathTemplate || "/").replaceAll(placeholder, marker), `${base}/`);
-    return url.toString().replaceAll(marker, placeholder);
-  } catch {
-    return "";
-  }
-}
-
-function normalizeRaidActionEndpoint(value) {
-  const endpoint = cleanUrl(String(value || "").replace("{raidId}", "__RAID_ID__"))
-    .replace("__RAID_ID__", "{raidId}")
-    .replace("%7BraidId%7D", "{raidId}")
-    .replace("%7braidId%7d", "{raidId}");
-  return endpoint;
-}
-
 function envValue(env, primary, aliases = []) {
   const value = String(env?.[primary] || "").trim();
   if (value) return value;
@@ -81,8 +62,8 @@ export function getConfig(env) {
 
   const profileLookupEndpoint = cleanUrl(envValue(env, "DASHBOARD_PROFILE_LOOKUP_ENDPOINT", ["ADMIN_PROFILE_LOOKUP_ENDPOINT"])) ||
     (base ? new URL("/api/profile/discord-lookup", `${base}/`).toString() : "");
-  const raidActionEndpointTemplate = normalizeRaidActionEndpoint(env?.DASHBOARD_RAID_ACTION_ENDPOINT) ||
-    endpointWithPlaceholder(base, "/api/raids/{raidId}/discord-action");
+  const raidActionEndpointTemplate = cleanUrl(String(env?.DASHBOARD_RAID_ACTION_ENDPOINT || "").replace("{raidId}", "__RAID_ID__")).replace("__RAID_ID__", "{raidId}") ||
+    (base ? new URL("/api/raids/{raidId}/discord-action", `${base}/`).toString() : "");
   const raidLifecycleEndpoint = cleanUrl(envValue(env, "DASHBOARD_RAID_LIFECYCLE_ENDPOINT")) ||
     (base ? new URL("/api/raids/lifecycle?limit=100", `${base}/`).toString() : "");
 
@@ -112,11 +93,7 @@ export function dashboardUrl(env, path = "/") {
 export function dashboardRaidActionEndpoint(env, raidId) {
   const template = getConfig(env).raidActionEndpointTemplate;
   if (!template) throw new Error("DASHBOARD_RAID_ACTION_ENDPOINT or DASHBOARD_URL is required.");
-  const encodedRaidId = encodeURIComponent(String(raidId || ""));
-  return template
-    .replace("{raidId}", encodedRaidId)
-    .replace("%7BraidId%7D", encodedRaidId)
-    .replace("%7braidId%7d", encodedRaidId);
+  return template.replace("{raidId}", encodeURIComponent(String(raidId || "")));
 }
 
 export function dashboardRaidLifecycleEndpoint(env) {

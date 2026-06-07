@@ -35,6 +35,10 @@ function clean(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function looksLikeDiscordChannelId(value: string) {
+  return /^\d{16,25}$/.test(value.trim());
+}
+
 function errorFromPayload(data: unknown, fallback: string) {
   if (!data || typeof data !== "object") return fallback;
   const message = (data as Record<string, unknown>).error || (data as Record<string, unknown>).message;
@@ -55,12 +59,9 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
   const [pending, setPending] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
-  const hasDiscordChannels = channels.length > 0;
-  const formDisabled = disabled || !hasDiscordChannels;
-
   const channelLabel = useMemo(() => {
     const found = channels.find((channel) => channel.id === channelId);
-    return found ? `#${found.name}` : "Канал не вибрано";
+    return found ? `#${found.name}` : channelId ? "Ручний Channel ID" : "Канал не вибрано";
   }, [channels, channelId]);
 
   const closeLabel = useMemo(
@@ -85,7 +86,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
     if (normalizedTitle.length < 3) return "Вкажи назву рейду мінімум з 3 символів.";
     if (!DIFFICULTIES.some((option) => option.value === difficulty)) return "Вибери коректну складність рейду.";
-    if (!channels.some((channel) => channel.id === normalizedChannelId)) return "Вибери Discord-канал зі списку, який підтягнув сайт.";
+    if (!looksLikeDiscordChannelId(normalizedChannelId)) return "Вкажи коректний Discord Channel ID.";
     if (!RAID_POLL_CLOSE_OPTIONS.some((option) => option.minutes === closeAfterMinutes)) return "Вибери коректний таймер закриття голосування.";
     if (!selectedDays.length) return "Вибери хоча б один день рейд-тижня.";
     if (normalizedDescription.length < 20) return "Опис занадто короткий. Залиши зрозумілий текст для учасників.";
@@ -107,7 +108,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending || formDisabled) return;
+    if (pending || disabled) return;
 
     const validationMessage = validate();
     if (validationMessage) {
@@ -184,7 +185,6 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
       {fieldError ? <div className="notice error-note raid-poll-create-alert">{fieldError}</div> : null}
       {disabled ? <div className="notice warning-note raid-poll-create-alert">Створення тимчасово недоступне: перевір Firebase або Discord API конфігурацію.</div> : null}
-      {!hasDiscordChannels ? <div className="notice error-note raid-poll-create-alert">Discord-канали не завантажились. Ручний Channel ID вимкнено: потрібно виправити Worker / Discord конфігурацію, щоб сайт підтягнув реальний список каналів.</div> : null}
 
       <div className="raid-poll-form-grid">
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-title">
@@ -198,7 +198,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
             maxLength={160}
             placeholder="Наприклад: Палац Неруб'ар"
             required
-            disabled={pending || formDisabled}
+            disabled={pending || disabled}
           />
           <datalist id="raid-poll-popular-raids">
             {POPULAR_RAIDS.map((raid) => <option key={raid} value={raid} />)}
@@ -207,7 +207,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
         <label className="raid-poll-field" htmlFor="raid-poll-difficulty">
           <span>Складність</span>
-          <select id="raid-poll-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as RaidPollDifficulty)} disabled={pending || formDisabled} required>
+          <select id="raid-poll-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as RaidPollDifficulty)} disabled={pending || disabled} required>
             {DIFFICULTIES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
           <small>{DIFFICULTIES.find((option) => option.value === difficulty)?.hint}</small>
@@ -215,7 +215,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
         <label className="raid-poll-field" htmlFor="raid-poll-close-after">
           <span>Таймер закриття</span>
-          <select id="raid-poll-close-after" value={closeAfterMinutes} onChange={(event) => setCloseAfterMinutes(Number(event.target.value))} disabled={pending || formDisabled} required>
+          <select id="raid-poll-close-after" value={closeAfterMinutes} onChange={(event) => setCloseAfterMinutes(Number(event.target.value))} disabled={pending || disabled} required>
             {RAID_POLL_CLOSE_OPTIONS.map((option) => <option key={option.minutes} value={option.minutes}>{option.label}</option>)}
           </select>
           <small>Після дедлайну Discord-компоненти вимикаються.</small>
@@ -223,20 +223,21 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-channel-id">
           <span>Discord-канал публікації</span>
-          <select
+          <input
             id="raid-poll-channel-id"
+            list="raid-poll-discord-channels"
             value={channelId}
             onChange={(event) => setChannelId(event.target.value)}
+            inputMode="numeric"
+            pattern="\d{16,25}"
+            placeholder="123456789012345678"
             required
-            disabled={pending || formDisabled}
-          >
-            {hasDiscordChannels ? (
-              channels.map((channel) => <option key={channel.id} value={channel.id}>{`#${channel.name}`}</option>)
-            ) : (
-              <option value="">Канали Discord не завантажились</option>
-            )}
-          </select>
-          <small>Поточний вибір: {channelLabel}. Канал можна вибрати тільки зі списку Discord.</small>
+            disabled={pending || disabled}
+          />
+          <datalist id="raid-poll-discord-channels">
+            {channels.map((channel) => <option key={channel.id} value={channel.id}>{`#${channel.name}`}</option>)}
+          </datalist>
+          <small>Поточний вибір: {channelLabel}. Можна вибрати канал зі списку або вставити Channel ID вручну.</small>
         </label>
 
         <fieldset className="raid-poll-field raid-poll-field--wide raid-poll-days-field">
@@ -248,7 +249,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
                 className={`raid-poll-day-toggle ${selectedDays.includes(day.value) ? "is-selected" : ""}`}
                 type="button"
                 onClick={() => toggleDay(day.value)}
-                disabled={pending || formDisabled}
+                disabled={pending || disabled}
                 aria-pressed={selectedDays.includes(day.value)}
               >
                 <strong>{day.label}</strong>
@@ -268,7 +269,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
             rows={5}
             maxLength={900}
             required
-            disabled={pending || formDisabled}
+            disabled={pending || disabled}
           />
           <small>{description.trim().length}/900 символів. Текст буде в embed-повідомленні.</small>
         </label>
@@ -291,8 +292,8 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
       <div className="raid-form-actions raid-poll-create-actions">
         <a className="btn subtle" href="/polls">До списку</a>
-        <button className="btn primary" type="submit" disabled={pending || formDisabled} aria-busy={pending ? "true" : "false"}>
-          {pending ? "Створюємо..." : hasDiscordChannels ? "Створити й опублікувати" : "Канали Discord недоступні"}
+        <button className="btn primary" type="submit" disabled={pending || disabled} aria-busy={pending ? "true" : "false"}>
+          {pending ? "Створюємо..." : "Створити й опублікувати"}
         </button>
       </div>
     </form>
