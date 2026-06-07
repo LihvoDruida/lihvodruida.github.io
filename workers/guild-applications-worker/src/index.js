@@ -24,7 +24,7 @@ let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 let discordRouteCooldowns = new Map();
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache", "/api/raids/lifecycle"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/discord/channels", "/api/public-cache", "/api/raids/lifecycle"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -2310,6 +2310,13 @@ async function handleDiscordGuildChannels(request, env) {
     const name = channel.name.toLowerCase();
     return name.includes("raid") || name.includes("рейд") || name.includes("анонс") || name.includes("announce") || name.includes("оголош");
   });
+  const rulesByGuild = guild?.rules_channel_id
+    ? textChannels.find((channel) => channel.id === String(guild.rules_channel_id))
+    : null;
+  const rulesByName = textChannels.find((channel) => {
+    const name = channel.name.toLowerCase();
+    return name.includes("rules") || name.includes("rule") || name.includes("правил") || name.includes("pravyl") || name.includes("правила");
+  });
 
   return json({
     ok: true,
@@ -2320,7 +2327,7 @@ async function handleDiscordGuildChannels(request, env) {
     } : null,
     channels: textChannels,
     suggestedChannelId: raidByName?.id || fallbackById?.id || textChannels[0]?.id || "",
-    suggestedRulesChannelId: raidByName?.id || fallbackById?.id || textChannels[0]?.id || "",
+    suggestedRulesChannelId: rulesByGuild?.id || rulesByName?.id || fallbackById?.id || textChannels[0]?.id || "",
     warning: guildResponse.ok ? null : "Список каналів прочитано, але дані guild недоступні.",
   }, 200, origin);
 }
@@ -4012,7 +4019,7 @@ export default {
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
-      if (url.pathname === "/api/discord-guild-channels" && request.method === "GET") {
+      if ((url.pathname === "/api/discord-guild-channels" || url.pathname === "/api/discord/channels") && request.method === "GET") {
         response = await withPublicApiHttpCache(request, env, ctx, { namespace: "discord-channels", ttlEnv: "PUBLIC_API_DISCORD_CHANNELS_CACHE_SECONDS", ttlSeconds: 900, tags: ["discord"] }, () => handleDiscordGuildChannels(request, env));
         return withTelemetryHeaders(response, requestId, startedAt);
       }
