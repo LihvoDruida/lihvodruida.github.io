@@ -88,7 +88,8 @@ warn(!/"engines"\s*:/.test(packageJsonText), 'package.json should not pin engine
 warn(!/"packageManager"\s*:/.test(packageJsonText), 'package.json should not pin packageManager when Vercel should auto-select npm from package-lock.json.');
 if (exists('.npmrc')) warn(/prefer-offline=true/.test(read('.npmrc')), '.npmrc should keep prefer-offline=true so local and Vercel installs reuse cache.');
 warn(/"prebuild"\s*:\s*"node scripts\/remove-legacy-middleware\.cjs"/.test(packageJsonText), 'prebuild should run the middleware cleanup before the default Vercel npm run build.');
-warn(/"build"\s*:\s*"next build"/.test(packageJsonText), 'build should stay on plain next build so Next/Vercel can use their automatic Next 16 defaults.');
+warn(/"build"\s*:\s*"node scripts\/next-build\.cjs"/.test(packageJsonText), 'build should use scripts/next-build.cjs to disable telemetry consistently and keep Vercel builds deterministic.');
+warn(exists('scripts/next-build.cjs'), 'scripts/next-build.cjs should exist because package.json build points to it.');
 warn(!/"build:vercel"\s*:/.test(packageJsonText), 'build:vercel should be removed; Vercel should use the default npm run build script.');
 warn(/"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && npm run build"/.test(packageJsonText), 'build:ci should keep full local/CI gates without changing the Vercel default build path.');
 warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for progress and timeout diagnostics.');

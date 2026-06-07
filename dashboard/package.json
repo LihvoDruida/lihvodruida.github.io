@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/remove-legacy-middleware.cjs",
-    "build": "next build",
+    "build": "node scripts/next-build.cjs",
     "start": "next start",
     "typecheck": "node scripts/typecheck.cjs",
     "lint": "eslint .",
