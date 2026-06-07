@@ -62,9 +62,12 @@ export function normalizeCharacterKey(value: unknown) {
   const raw = normalizeWowLookupText(value, 260);
   if (!raw) return "";
 
-  const parts = raw.split(":");
-  if (parts.length !== 3) return "";
+  const parts = raw.split(":").map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 3) return "";
 
+  // Старі записи складу гільдії зберігали ключ як region:realm:name:id.
+  // Для рейдів потрібна стабільна Battle.net-форма region:realm:name,
+  // інакше вибір із сірого списку губиться під час save/read.
   const [regionInput, realmInput, nameInput] = parts;
   return buildBattleNetCharacterKey(regionInput, realmInput, nameInput);
 }

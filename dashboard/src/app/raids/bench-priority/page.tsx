@@ -7,6 +7,7 @@ import {
   getRaidBenchPrioritySettings,
   hasRaidStorage,
 } from "@/lib/raids";
+import { buildBattleNetCharacterKey, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { RaidPageShell, StatusNotice } from "@/components/RaidViews";
 import RaidBenchPriorityManager, {
   type RaidBenchPriorityRosterMember,
@@ -43,7 +44,7 @@ export default async function RaidBenchPriorityPage({
     loadStoredGuildRosterData().catch(() => null),
   ]);
   const rosterMembers = (roster?.members || [])
-    .filter((member) => member.key && member.name)
+    .filter((member) => member.name && (member.key || member.realmSlug))
     .sort((a, b) =>
       a.name.localeCompare(b.name, "uk") ||
       String(a.realmName || a.realmSlug).localeCompare(
@@ -51,21 +52,33 @@ export default async function RaidBenchPriorityPage({
         "uk",
       ),
     );
+  const benchRosterMembers = rosterMembers
+    .map<RaidBenchPriorityRosterMember | null>((member) => {
+      const canonicalKey =
+        buildBattleNetCharacterKey(
+          member.region || "eu",
+          member.realmSlug || member.realmName,
+          member.name,
+        ) || normalizeCharacterKey(member.key);
+      if (!canonicalKey) return null;
+      return {
+        key: canonicalKey,
+        sourceKey: member.key || null,
+        name: member.name,
+        region: member.region,
+        realmName: member.realmName,
+        realmSlug: member.realmSlug,
+        className: member.className,
+        specName: member.specName,
+        itemLevel: member.itemLevel,
+        avatarUrl: member.avatarUrl,
+        ownerDisplayName: member.ownerDisplayName,
+      } satisfies RaidBenchPriorityRosterMember;
+    })
+    .filter((member): member is RaidBenchPriorityRosterMember => member !== null);
+  const rosterKeySet = new Set(benchRosterMembers.map((member) => member.key));
   const missingSelectedKeys = (settings?.characterKeys || []).filter(
-    (key) => !rosterMembers.some((member) => member.key === key),
-  );
-  const benchRosterMembers: RaidBenchPriorityRosterMember[] = rosterMembers.map(
-    (member) => ({
-      key: member.key,
-      name: member.name,
-      realmName: member.realmName,
-      realmSlug: member.realmSlug,
-      className: member.className,
-      specName: member.specName,
-      itemLevel: member.itemLevel,
-      avatarUrl: member.avatarUrl,
-      ownerDisplayName: member.ownerDisplayName,
-    }),
+    (key) => !rosterKeySet.has(normalizeCharacterKey(key) || key),
   );
 
   return (

@@ -35,6 +35,8 @@ import {
   raidSignupCharacterMinimumNote,
   isRaidSubjectBlockedByMinItemLevel,
   isRaidSubjectWarnedByMinItemLevel,
+  raidBenchPriorityMatch,
+  type RaidBenchPrioritySettings,
   type RaidCharacterRole,
   type RaidItem,
   type RaidParty,
@@ -71,10 +73,11 @@ export function StatusNotice({
 
 function signupMarkers(
   item?: RaidSignup | null,
-  options?: { hasItemLevelIssue?: boolean },
+  options?: { hasItemLevelIssue?: boolean; isBenchPriority?: boolean },
 ) {
   if (!item) return "";
   return [
+    options?.isBenchPriority ? "❌" : null,
     options?.hasItemLevelIssue ? "⚠️" : null,
     item.status === "late" ? "🕒" : null,
     item.verifiedGuild === false ? "🤝" : null,
@@ -85,17 +88,32 @@ function signupMarkers(
 
 export function signupDisplayName(
   item?: RaidSignup | null,
-  options?: { showItemLevel?: boolean; hasItemLevelIssue?: boolean },
+  options?: {
+    showItemLevel?: boolean;
+    hasItemLevelIssue?: boolean;
+    isBenchPriority?: boolean;
+  },
 ) {
   if (!item) return "—";
   const name = item.characterName || item.discordName || "Гравець";
   const showItemLevel = options?.showItemLevel !== false;
   const markers = signupMarkers(item, {
     hasItemLevelIssue: options?.hasItemLevelIssue,
+    isBenchPriority: options?.isBenchPriority,
   });
   const value =
     showItemLevel && item.itemLevel ? `${name} • ${item.itemLevel}` : name;
   return markers ? `${markers} ${value}` : value;
+}
+
+function shouldShowBenchPriorityMarker(
+  item: RaidSignup | null | undefined,
+  benchPriority: RaidBenchPrioritySettings | null | undefined,
+  enabled: boolean,
+) {
+  return Boolean(
+    enabled && item && raidBenchPriorityMatch(item, benchPriority).matched,
+  );
 }
 
 function signupSpecLabel(item?: RaidSignup | null) {
@@ -202,6 +220,7 @@ function RoleRow({
   minItemLevel,
   minItemLevelRequired,
   showItemLevel = true,
+  isBenchPriority = false,
 }: {
   label: string;
   item?: RaidSignup | null;
@@ -209,6 +228,7 @@ function RoleRow({
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
   showItemLevel?: boolean;
+  isBenchPriority?: boolean;
 }) {
   const block =
     showItemLevel && item
@@ -237,6 +257,7 @@ function RoleRow({
           {signupDisplayName(item, {
             showItemLevel,
             hasItemLevelIssue: Boolean(issue),
+            isBenchPriority,
           })}
         </strong>
         {item ? <small>{signupSpecLabel(item)}</small> : null}
@@ -252,11 +273,15 @@ function PartyCard({
   minItemLevel,
   minItemLevelRequired,
   showItemLevel = true,
+  benchPriority = null,
+  showBenchPriorityMarkers = false,
 }: {
   party: RaidParty;
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
   showItemLevel?: boolean;
+  benchPriority?: RaidBenchPrioritySettings | null;
+  showBenchPriorityMarkers?: boolean;
 }) {
   const hasMembers = party.members.length > 0;
   return (
@@ -270,6 +295,11 @@ function PartyCard({
           minItemLevel={minItemLevel}
           minItemLevelRequired={minItemLevelRequired}
           showItemLevel={showItemLevel}
+          isBenchPriority={shouldShowBenchPriorityMarker(
+            party.tank,
+            benchPriority,
+            showBenchPriorityMarkers,
+          )}
         />
       ) : null}
       {party.healer ? (
@@ -280,6 +310,11 @@ function PartyCard({
           minItemLevel={minItemLevel}
           minItemLevelRequired={minItemLevelRequired}
           showItemLevel={showItemLevel}
+          isBenchPriority={shouldShowBenchPriorityMarker(
+            party.healer,
+            benchPriority,
+            showBenchPriorityMarkers,
+          )}
         />
       ) : null}
       {party.dps.length ? (
@@ -292,6 +327,11 @@ function PartyCard({
             minItemLevel={minItemLevel}
             minItemLevelRequired={minItemLevelRequired}
             showItemLevel={showItemLevel}
+            isBenchPriority={shouldShowBenchPriorityMarker(
+              member,
+              benchPriority,
+              showBenchPriorityMarkers,
+            )}
           />
         ))
       ) : !hasMembers ? (
@@ -313,11 +353,15 @@ function BenchCard({
   minItemLevel,
   minItemLevelRequired,
   showItemLevel = true,
+  benchPriority = null,
+  showBenchPriorityMarkers = false,
 }: {
   members: RaidSignup[];
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
   showItemLevel?: boolean;
+  benchPriority?: RaidBenchPrioritySettings | null;
+  showBenchPriorityMarkers?: boolean;
 }) {
   if (!members.length) return null;
   return (
@@ -332,6 +376,11 @@ function BenchCard({
           minItemLevel={minItemLevel}
           minItemLevelRequired={minItemLevelRequired}
           showItemLevel={showItemLevel}
+          isBenchPriority={shouldShowBenchPriorityMarker(
+            member,
+            benchPriority,
+            showBenchPriorityMarkers,
+          )}
         />
       ))}
     </article>
@@ -345,6 +394,8 @@ function RosterBlock({
   showItemLevel = true,
   minItemLevel,
   minItemLevelRequired,
+  benchPriority = null,
+  showBenchPriorityMarkers = false,
 }: {
   title: string;
   items: RaidSignup[];
@@ -352,6 +403,8 @@ function RosterBlock({
   showItemLevel?: boolean;
   minItemLevel?: number | null;
   minItemLevelRequired?: boolean | null;
+  benchPriority?: RaidBenchPrioritySettings | null;
+  showBenchPriorityMarkers?: boolean;
 }) {
   return (
     <div className="raid-roster-block">
@@ -368,9 +421,14 @@ function RosterBlock({
                 item,
               )
             : null;
+          const isBenchPriority = shouldShowBenchPriorityMarker(
+            item,
+            benchPriority,
+            showBenchPriorityMarkers,
+          );
           return (
             <div
-              className={`raid-roster-member${item.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}`}
+              className={`raid-roster-member${item.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${isBenchPriority ? " is-bench-priority" : ""}`}
               key={`${title}-${item.discordId}`}
             >
               <SignupNumberBadge item={item} />
@@ -387,6 +445,7 @@ function RosterBlock({
                   {signupDisplayName(item, {
                     showItemLevel,
                     hasItemLevelIssue: Boolean(issue),
+                    isBenchPriority,
                   })}
                 </strong>
                 <small>{signupSpecLabel(item) || item.discordName}</small>
@@ -407,9 +466,11 @@ function RosterBlock({
 export function RosterSideList({
   raid,
   showItemLevel = true,
+  showBenchPriorityMarkers = true,
 }: {
   raid: RaidItem;
   showItemLevel?: boolean;
+  showBenchPriorityMarkers?: boolean;
 }) {
   const composition = raidAutoComposition(raid);
   const grouped = {
@@ -440,6 +501,8 @@ export function RosterSideList({
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
       />
       <RosterBlock
         title={`Хіли (${grouped.healers.length}/${composition.healers})`}
@@ -447,6 +510,8 @@ export function RosterSideList({
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
       />
       <RosterBlock
         title={`ДД (${grouped.dps.length}/${composition.dps})`}
@@ -454,6 +519,8 @@ export function RosterSideList({
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
       />
       <RosterBlock
         title={`Затримаюсь (${grouped.late.length})`}
@@ -462,6 +529,8 @@ export function RosterSideList({
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
       />
       <RosterBlock
         title={`Пропускають (${grouped.skipped.length})`}
@@ -470,6 +539,8 @@ export function RosterSideList({
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
       />
     </aside>
   );
@@ -654,12 +725,14 @@ export function RaidAnnouncementPreview({
   manageActions,
   showRosterDetails = true,
   showMemberItemLevels = true,
+  showBenchPriorityMarkers = showMemberItemLevels,
 }: {
   raid: RaidItem;
   actions?: ReactNode;
   manageActions?: ReactNode;
   showRosterDetails?: boolean;
   showMemberItemLevels?: boolean;
+  showBenchPriorityMarkers?: boolean;
 }) {
   const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
@@ -833,6 +906,8 @@ export function RaidAnnouncementPreview({
                 minItemLevel={raid.minItemLevel}
                 minItemLevelRequired={raid.minItemLevelRequired}
                 showItemLevel={showMemberItemLevels}
+                benchPriority={raid.benchPriority || null}
+                showBenchPriorityMarkers={showBenchPriorityMarkers}
               />
             ))}
             <BenchCard
@@ -840,6 +915,8 @@ export function RaidAnnouncementPreview({
               minItemLevel={raid.minItemLevel}
               minItemLevelRequired={raid.minItemLevelRequired}
               showItemLevel={showMemberItemLevels}
+              benchPriority={raid.benchPriority || null}
+              showBenchPriorityMarkers={showBenchPriorityMarkers}
             />
           </div>
         </>

@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 
 export type RaidBenchPriorityRosterMember = {
   key: string;
+  sourceKey?: string | null;
   name: string;
+  region?: string | null;
   realmName?: string | null;
   realmSlug?: string | null;
   className?: string | null;
@@ -48,8 +50,10 @@ function memberLabel(member: RaidBenchPriorityRosterMember) {
 function memberSearchText(member: RaidBenchPriorityRosterMember) {
   return normalizeSearch([
     member.name,
+    member.region,
     member.realmName,
     member.realmSlug,
+    member.sourceKey,
     member.className,
     member.specName,
     member.ownerDisplayName,

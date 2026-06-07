@@ -64,7 +64,13 @@ export default async function RaidDetailsPage({
               {visibleRaid.messageUrl ? <a className="btn subtle" href={visibleRaid.messageUrl} target="_blank" rel="noreferrer">Відкрити повідомлення в Discord</a> : null}
             </div>
           </div>
-          {canSeeRoster ? <RosterSideList raid={visibleRaid} showItemLevel={canManage} /> : null}
+          {canSeeRoster ? (
+            <RosterSideList
+              raid={visibleRaid}
+              showItemLevel={canManage}
+              showBenchPriorityMarkers={canManage}
+            />
+          ) : null}
         </section>
       ) : <RaidUnavailableState canManage={canManage} />}
     </RaidPageShell>

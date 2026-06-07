@@ -10,6 +10,7 @@ import {
 } from "@/lib/cloudflarePublicCache";
 import {
   getRuntimeCachedValue,
+  setRuntimeCachedValue,
   clearRuntimeCachedValue,
   clearRuntimeCachedValuesByPrefix,
 } from "@/lib/runtimeResilience";
@@ -883,7 +884,9 @@ export async function saveRaidBenchPrioritySettingsFromForm(
       clearRuntimeCachedValuesByPrefix("raids:list:");
       await invalidateRaidPublicCaches(null).catch(() => null);
       const snapshot = await ref.get();
-      return normalizeRaidBenchPrioritySettings(snapshot.data() || {});
+      const savedSettings = normalizeRaidBenchPrioritySettings(snapshot.data() || {});
+      setRuntimeCachedValue(RAID_BENCH_PRIORITY_CACHE_KEY, savedSettings);
+      return savedSettings;
     },
     { timeoutMs: 4_000, logEvent: "raids.bench_priority_write_failed" },
   );
