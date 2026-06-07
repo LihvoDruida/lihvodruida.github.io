@@ -28,7 +28,14 @@ export default async function NewPollPage() {
 
   const discordEnabled = hasDiscordEmbedConfig();
   const channelResult = discordEnabled ? await fetchDiscordTextChannels().catch(() => null) : null;
-  const channels = channelResult?.channels || [];
+  const suggestedChannelId = channelResult?.suggestedChannelId || "";
+  const rawChannels = channelResult?.channels || [];
+  const channels = suggestedChannelId
+    ? [
+        ...rawChannels.filter((channel) => channel.id === suggestedChannelId),
+        ...rawChannels.filter((channel) => channel.id !== suggestedChannelId),
+      ]
+    : rawChannels;
 
   return (
     <RaidPollPageShell

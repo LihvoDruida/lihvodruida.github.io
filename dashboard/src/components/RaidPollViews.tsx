@@ -83,6 +83,10 @@ export function RaidPollCreateForm({ channels, discordEnabled }: { channels: Pol
   return <RaidPollCreateClientForm channels={channels} defaultChannelId={channels[0]?.id || ""} disabled={!discordEnabled} />;
 }
 
+export function RaidPollEditForm({ poll, channels, discordEnabled }: { poll: RaidPollItem; channels: PollChannelOption[]; discordEnabled: boolean }) {
+  return <RaidPollCreateClientForm poll={poll} channels={channels} defaultChannelId={poll.channelId || channels[0]?.id || ""} disabled={!discordEnabled} />;
+}
+
 function shortPollId(id: string) {
   return id.length > 12 ? `${id.slice(0, 6)}…${id.slice(-4)}` : id;
 }
@@ -145,6 +149,7 @@ export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollIt
       <footer className="raid-poll-list-card__actions">
         <a className="btn subtle raid-poll-primary-action" href={`/polls/${encodeURIComponent(poll.id)}`}>Переглянути результати</a>
         {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Discord</a> : null}
+        {canManage ? <a className="btn subtle" href={`/polls/${encodeURIComponent(poll.id)}/edit`}>Редагувати</a> : null}
         {canClose ? (
           <form action={`/api/polls/${encodeURIComponent(poll.id)}/close`} method="post" data-confirm-message="Закрити рейд-пул зараз?">
             <button className="btn danger" type="submit">Закрити</button>
@@ -285,6 +290,7 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
       <div className="raid-form-actions">
         <a className="btn subtle" href="/polls">До списку пулів</a>
         {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord</a> : null}
+        {canManage ? <a className="btn subtle" href={`/polls/${encodeURIComponent(poll.id)}/edit`}>Редагувати</a> : null}
         {canManage && poll.status === "open" ? (
           <form action={`/api/polls/${encodeURIComponent(poll.id)}/close`} method="post" data-confirm-message="Закрити рейд-пул зараз?">
             <button className="btn danger" type="submit">Закрити голосування</button>

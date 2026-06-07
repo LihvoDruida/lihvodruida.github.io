@@ -4195,6 +4195,63 @@ async function runRaidLifecycleCron(env, reason = "scheduled") {
   }
 }
 
+function dashboardRaidPollCloseDueEndpoint(env) {
+  const explicit = String(env.DASHBOARD_RAID_POLL_CLOSE_DUE_ENDPOINT || env.DASHBOARD_POLL_CLOSE_DUE_ENDPOINT || "").trim();
+  if (explicit) return explicit;
+  try {
+    return new URL("/api/polls/close-due", dashboardAuthUrl(env)).toString();
+  } catch {
+    return "https://admin.lihvodruida.pp.ua/api/polls/close-due";
+  }
+}
+
+function dashboardRaidPollCloseDueToken(env) {
+  return String(
+    env.RAID_LIFECYCLE_SECRET ||
+    env.CRON_SECRET ||
+    env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
+    env.DISCORD_RULES_STATS_TOKEN ||
+    env.WORKER_STATS_TOKEN ||
+    ""
+  ).trim();
+}
+
+async function runRaidPollCloseDueCron(env, reason = "scheduled") {
+  const token = dashboardRaidPollCloseDueToken(env);
+  if (!token) {
+    logWorkerEvent("warn", "raid_poll_close_due.missing_token", { reason });
+    return { ok: false, error: "missing poll close-due token" };
+  }
+
+  const endpoint = dashboardRaidPollCloseDueEndpoint(env);
+  try {
+    const { response, raw } = await fetchDashboardText(env, endpoint, token, {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+        "x-worker-stats-token": token,
+      },
+    }, { timeoutMs: 12000, retries: 1 });
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+    if (!response.ok || !data?.ok) {
+      logWorkerEvent("warn", "raid_poll_close_due.bad_response", { status: response.status, raw: raw.slice(0, 180), reason });
+      return { ok: false, status: response.status };
+    }
+    logWorkerEvent("info", "raid_poll_close_due.done", {
+      reason,
+      checked: data.checked || 0,
+      closed: data.closed || 0,
+      failed: data.failed || 0,
+    });
+    return data;
+  } catch (error) {
+    logWorkerEvent("error", "raid_poll_close_due.failed", { reason, message: error?.message });
+    return { ok: false, error: error?.message || "unknown" };
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const startedAt = nowMs();
@@ -4260,6 +4317,12 @@ export default {
 
       if (url.pathname === "/api/raids/lifecycle" && (request.method === "GET" || request.method === "POST")) {
         const result = await runRaidLifecycleCron(env, "manual-worker-endpoint");
+        response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
+        return withTelemetryHeaders(response, requestId, startedAt);
+      }
+
+      if (url.pathname === "/api/polls/close-due" && (request.method === "GET" || request.method === "POST")) {
+        const result = await runRaidPollCloseDueCron(env, "manual-worker-endpoint");
         response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
         return withTelemetryHeaders(response, requestId, startedAt);
       }
@@ -4342,5 +4405,6 @@ export default {
 
   async scheduled(event, env, ctx) {
     ctx.waitUntil(runRaidLifecycleCron(env, "cloudflare-cron"));
+    ctx.waitUntil(runRaidPollCloseDueCron(env, "cloudflare-cron"));
   },
 };

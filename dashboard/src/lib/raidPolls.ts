@@ -31,6 +31,7 @@ export {
 export type {
   RaidPollAvailability,
   RaidPollCreateInput,
+  RaidPollUpdateInput,
   RaidPollDay,
   RaidPollDifficulty,
   RaidPollItem,
@@ -53,6 +54,7 @@ import {
   raidPollRoleLabel,
   type RaidPollAvailability,
   type RaidPollCreateInput,
+  type RaidPollUpdateInput,
   type RaidPollDay,
   type RaidPollDifficulty,
   type RaidPollItem,
@@ -553,21 +555,76 @@ async function editPollDiscordMessage(poll: RaidPollItem) {
   });
 }
 
-async function publishPollDiscordMessage(poll: RaidPollItem, channelIdInput?: string | null) {
-  const channelId = cleanSnowflake(channelIdInput) || cleanSnowflake(poll.channelId) || getDiscordDefaultChannelId();
-  if (!channelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
+async function publishOrUpdatePollDiscordMessage(poll: RaidPollItem, channelIdInput?: string | null) {
+  const targetChannelId = cleanSnowflake(channelIdInput) || cleanSnowflake(poll.channelId) || getDiscordDefaultChannelId();
+  if (!targetChannelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
+
   const payload = buildRaidPollDiscordPayload(poll);
-  const message = await createDiscordRaidMessage({
-    channelId,
-    content: payload.content,
-    embed: payload.embed,
-    components: payload.components,
-    auditReason: `Raid poll created from dashboard: ${poll.id}`,
-  });
-  const messageId = cleanSnowflake((message as Record<string, unknown>)?.id || (message as Record<string, unknown>)?.message_id);
-  const finalChannelId = cleanSnowflake((message as Record<string, unknown>)?.channel_id || channelId);
-  if (!messageId || !finalChannelId) throw new Error("Discord не підтвердив створення повідомлення рейд-пулу.");
+  const hasExistingMessage = Boolean(poll.channelId && poll.messageId);
+  const canEditExisting = Boolean(hasExistingMessage && poll.channelId === targetChannelId);
+  let message: Record<string, unknown> | null = null;
+
+  if (canEditExisting && poll.channelId && poll.messageId) {
+    try {
+      message = await editDiscordRaidMessage({
+        ref: { channelId: poll.channelId, messageId: poll.messageId },
+        content: payload.content,
+        embed: payload.embed,
+        components: payload.components,
+        auditReason: `Raid poll updated: ${poll.id}`,
+      }) as Record<string, unknown>;
+    } catch (error) {
+      if (!isMissingDiscordMessageError(error)) throw error;
+      message = await createDiscordRaidMessage({
+        channelId: targetChannelId,
+        content: payload.content,
+        embed: payload.embed,
+        components: payload.components,
+        auditReason: `Raid poll republished after missing message: ${poll.id}`,
+      }) as Record<string, unknown>;
+    }
+  } else {
+    message = await createDiscordRaidMessage({
+      channelId: targetChannelId,
+      content: payload.content,
+      embed: payload.embed,
+      components: payload.components,
+      auditReason: hasExistingMessage ? `Raid poll moved to another channel: ${poll.id}` : `Raid poll created from dashboard: ${poll.id}`,
+    }) as Record<string, unknown>;
+
+    if (hasExistingMessage && poll.channelId && poll.messageId && poll.channelId !== targetChannelId) {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: poll.channelId, messageId: poll.messageId },
+        auditReason: `Raid poll moved to another channel: ${poll.id}`,
+      }).catch((error) => {
+        console.warn("[raidPolls] Failed to delete old Discord poll message", {
+          pollId: poll.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      });
+    }
+  }
+
+  const messageId = cleanSnowflake(message?.id || message?.message_id || poll.messageId);
+  const finalChannelId = cleanSnowflake(message?.channel_id || targetChannelId);
+  if (!messageId || !finalChannelId) throw new Error("Discord не підтвердив повідомлення рейд-пулу.");
   return { channelId: finalChannelId, messageId, messageUrl: discordMessageUrl(finalChannelId, messageId) };
+}
+
+async function savePollDiscordRef(pollId: string, ref: { channelId: string; messageId: string; messageUrl: string }) {
+  const updatedAt = new Date().toISOString();
+  await firebaseWrite("raid", `raid-poll:discord-ref:${pollId}`, async () => {
+    await pollRef(pollId).update({
+      channelId: ref.channelId,
+      messageId: ref.messageId,
+      messageUrl: ref.messageUrl,
+      updatedAt,
+      updatedAtMs: Date.now(),
+    });
+    return true;
+  }, { logEvent: "raid_polls.discord_ref_failed" });
+  clearRaidPollRuntimeCaches(pollId);
+  return updatedAt;
 }
 
 export async function getRaidPoll(pollId: string, options: { closeDue?: boolean; bypassCache?: boolean } = {}) {
@@ -656,21 +713,25 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
   }, { logEvent: "raid_polls.create_failed" });
   clearRaidPollRuntimeCaches(id);
 
-  const published = await publishPollDiscordMessage(basePoll, channelId);
-  const publishedPoll = { ...basePoll, ...published, updatedAt: new Date().toISOString() };
-  await firebaseWrite("raid", `raid-poll:publish:${id}`, async () => {
-    await pollRef(id).update({
-      channelId: published.channelId,
-      messageId: published.messageId,
-      messageUrl: published.messageUrl,
-      updatedAt: publishedPoll.updatedAt,
-      updatedAtMs: Date.now(),
-    });
-    return true;
-  }, { logEvent: "raid_polls.publish_ref_failed" });
-  clearRaidPollRuntimeCaches(id);
-
-  return publishedPoll;
+  let published: { channelId: string; messageId: string; messageUrl: string } | null = null;
+  try {
+    published = await publishOrUpdatePollDiscordMessage(basePoll, channelId);
+    const updatedAt = await savePollDiscordRef(id, published);
+    return { ...basePoll, ...published, updatedAt };
+  } catch (error) {
+    if (published?.channelId && published?.messageId) {
+      await deleteDiscordRaidMessage({
+        ref: { channelId: published.channelId, messageId: published.messageId },
+        auditReason: `Rollback failed raid poll create: ${id}`,
+      }).catch(() => null);
+    }
+    await firebaseWrite("raid", `raid-poll:create-rollback:${id}`, async () => {
+      await pollRef(id).delete().catch(() => null);
+      return true;
+    }, { logEvent: "raid_polls.create_rollback_failed" }).catch(() => null);
+    clearRaidPollRuntimeCaches(id);
+    throw error;
+  }
 }
 
 export async function saveRaidPollFromForm(form: FormData, user: DashboardSession) {
@@ -684,13 +745,82 @@ export async function saveRaidPollFromForm(form: FormData, user: DashboardSessio
   }, user);
 }
 
+export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpdateInput) {
+  if (!hasRaidPollStorage()) throw new Error(firebaseUnavailableMessage("raid", "write"));
+
+  const title = cleanString(input.title, 160);
+  if (title.length < 3) throw new Error("Вкажи назву рейду для голосування.");
+  const difficulty = cleanDifficulty(input.difficulty);
+  const closeAfterMinutes = cleanCloseAfterMinutes(input.closeAfterMinutes);
+  const description = cleanPollDescription(input.description);
+  const days = cleanPollDays(input.days);
+  const activeDays = days.length ? days : RAID_POLL_DAYS.map((day) => day.value);
+  const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
+  if (!channelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
+
+  const updatedAt = new Date().toISOString();
+  const updatedPoll = await firebaseWrite<RaidPollItem>("raid", `raid-poll:update:${pollId}`, async () => {
+    const ref = pollRef(pollId);
+    return getFirebaseAdminDb().runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) throw new Error("Рейд-пул не знайдено.");
+      const previous = normalizeRaidPoll(snap.id, snap.data() || {});
+      const createdAtMs = Date.parse(previous.createdAt);
+      const closesAtMs = previous.status === "closed"
+        ? previous.closesAtMs
+        : (Number.isFinite(createdAtMs) ? createdAtMs : Date.now()) + closeAfterMinutes * 60 * 1000;
+      const next: RaidPollItem = {
+        ...previous,
+        title,
+        difficulty,
+        description,
+        closeAfterMinutes,
+        closesAt: new Date(closesAtMs).toISOString(),
+        closesAtMs,
+        channelId,
+        days: activeDays,
+        updatedAt,
+      };
+      tx.update(ref, {
+        title,
+        difficulty,
+        description,
+        closeAfterMinutes,
+        closesAt: next.closesAt,
+        closesAtMs,
+        channelId,
+        days: activeDays,
+        updatedAt,
+        updatedAtMs: Date.now(),
+      });
+      return next;
+    });
+  }, { logEvent: "raid_polls.update_failed" });
+
+  clearRaidPollRuntimeCaches(updatedPoll.id);
+  const published = await publishOrUpdatePollDiscordMessage(updatedPoll, channelId);
+  const discordUpdatedAt = await savePollDiscordRef(updatedPoll.id, published);
+  return { ...updatedPoll, ...published, updatedAt: discordUpdatedAt };
+}
+
+export async function updateRaidPollFromForm(pollId: string, form: FormData) {
+  return updateRaidPollFromInput(pollId, {
+    title: form.get("title"),
+    difficulty: form.get("difficulty"),
+    description: form.get("description"),
+    channelId: form.get("channelId"),
+    closeAfterMinutes: form.get("closeAfterMinutes"),
+    days: form.getAll("days"),
+  });
+}
+
 export async function closeDueRaidPoll(input: RaidPollItem) {
   if (input.status === "closed" || input.closesAtMs > Date.now()) return input;
   return closeRaidPoll(input.id, "auto", { silentIfClosed: true });
 }
 
 export async function closeDueRaidPolls() {
-  if (!hasRaidPollStorage()) return 0;
+  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, failed: 0 };
   const snap = await getFirebaseAdminDb()
     .collection(RAID_POLL_COLLECTION)
     .where("status", "==", "open")
@@ -698,10 +828,16 @@ export async function closeDueRaidPolls() {
     .limit(20)
     .get();
   let closed = 0;
+  let failed = 0;
   for (const doc of snap.docs) {
-    await closeRaidPoll(doc.id, "auto", { silentIfClosed: true }).then(() => { closed += 1; }).catch(() => null);
+    await closeRaidPoll(doc.id, "auto", { silentIfClosed: true })
+      .then(() => { closed += 1; })
+      .catch((error) => {
+        failed += 1;
+        console.warn("[raidPolls] Failed to close due poll", { pollId: doc.id, message: error instanceof Error ? error.message : String(error) });
+      });
   }
-  return closed;
+  return { checked: snap.docs.length, closed, failed };
 }
 
 export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = "manual", options: { silentIfClosed?: boolean } = {}) {
@@ -713,10 +849,7 @@ export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = 
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error("Рейд-пул не знайдено.");
       const poll = normalizeRaidPoll(snap.id, snap.data() || {});
-      if (poll.status === "closed") {
-        if (options.silentIfClosed) return poll;
-        throw new Error("Рейд-пул уже закритий.");
-      }
+      if (poll.status === "closed") return poll;
       tx.update(ref, {
         status: "closed",
         closedAt,

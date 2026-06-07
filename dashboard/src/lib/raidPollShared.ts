@@ -65,6 +65,8 @@ export type RaidPollCreateInput = {
   days?: unknown;
 };
 
+export type RaidPollUpdateInput = RaidPollCreateInput;
+
 export const RAID_POLL_DESCRIPTION = "Будь ласка, оберіть дні та час, коли ви готові взяти участь у гільдійському рейді. Голос враховується для формування основного складу.";
 
 export const RAID_POLL_DAYS: Array<{ value: RaidPollDay; label: string; fullLabel: string; emoji: string }> = [

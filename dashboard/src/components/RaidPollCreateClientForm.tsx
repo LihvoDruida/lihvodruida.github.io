@@ -3,7 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
-import { RAID_POLL_CLOSE_OPTIONS, RAID_POLL_DAYS, raidPollDescription, type RaidPollDay, type RaidPollDifficulty } from "@/lib/raidPollShared";
+import { RAID_POLL_CLOSE_OPTIONS, RAID_POLL_DAYS, raidPollDescription, type RaidPollDay, type RaidPollDifficulty, type RaidPollItem } from "@/lib/raidPollShared";
 
 export type RaidPollCreateChannel = {
   id: string;
@@ -14,6 +14,7 @@ type RaidPollCreateClientFormProps = {
   channels: RaidPollCreateChannel[];
   defaultChannelId?: string;
   disabled?: boolean;
+  poll?: RaidPollItem | null;
 };
 
 const POPULAR_RAIDS = [
@@ -45,24 +46,28 @@ function errorFromPayload(data: unknown, fallback: string) {
   return typeof message === "string" && message.trim() ? message.trim() : fallback;
 }
 
-export default function RaidPollCreateClientForm({ channels, defaultChannelId = "", disabled = false }: RaidPollCreateClientFormProps) {
+export default function RaidPollCreateClientForm({ channels, defaultChannelId = "", disabled = false, poll = null }: RaidPollCreateClientFormProps) {
   const router = useRouter();
-  const initialChannelId = defaultChannelId || channels[0]?.id || "";
+  const channelOptions = poll?.channelId && !channels.some((channel) => channel.id === poll.channelId)
+    ? [{ id: poll.channelId, name: "поточний канал" }, ...channels]
+    : channels;
+  const initialChannelId = poll?.channelId || defaultChannelId || channelOptions[0]?.id || "";
   const defaultDescription = raidPollDescription();
+  const isEdit = Boolean(poll?.id);
 
-  const [title, setTitle] = useState("");
-  const [difficulty, setDifficulty] = useState<RaidPollDifficulty>("heroic");
+  const [title, setTitle] = useState(poll?.title || "");
+  const [difficulty, setDifficulty] = useState<RaidPollDifficulty>(poll?.difficulty || "heroic");
   const [channelId, setChannelId] = useState(initialChannelId);
-  const [closeAfterMinutes, setCloseAfterMinutes] = useState(720);
-  const [description, setDescription] = useState(defaultDescription);
-  const [selectedDays, setSelectedDays] = useState<RaidPollDay[]>(RAID_POLL_DAYS.map((day) => day.value));
+  const [closeAfterMinutes, setCloseAfterMinutes] = useState(poll?.closeAfterMinutes || 720);
+  const [description, setDescription] = useState(poll?.description || defaultDescription);
+  const [selectedDays, setSelectedDays] = useState<RaidPollDay[]>(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
   const [pending, setPending] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
   const channelLabel = useMemo(() => {
-    const found = channels.find((channel) => channel.id === channelId);
+    const found = channelOptions.find((channel) => channel.id === channelId);
     return found ? `#${found.name}` : channelId ? "Ручний Channel ID" : "Канал не вибрано";
-  }, [channels, channelId]);
+  }, [channelOptions, channelId]);
 
   const closeLabel = useMemo(
     () => RAID_POLL_CLOSE_OPTIONS.find((option) => option.minutes === closeAfterMinutes)?.label || `${closeAfterMinutes} хв`,
@@ -70,12 +75,12 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
   );
 
   function resetForm() {
-    setTitle("");
-    setDifficulty("heroic");
+    setTitle(poll?.title || "");
+    setDifficulty(poll?.difficulty || "heroic");
     setChannelId(initialChannelId);
-    setCloseAfterMinutes(720);
-    setDescription(defaultDescription);
-    setSelectedDays(RAID_POLL_DAYS.map((day) => day.value));
+    setCloseAfterMinutes(poll?.closeAfterMinutes || 720);
+    setDescription(poll?.description || defaultDescription);
+    setSelectedDays(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
     setFieldError("");
   }
 
@@ -86,7 +91,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
     if (normalizedTitle.length < 3) return "Вкажи назву рейду мінімум з 3 символів.";
     if (!DIFFICULTIES.some((option) => option.value === difficulty)) return "Вибери коректну складність рейду.";
-    if (!looksLikeDiscordChannelId(normalizedChannelId)) return "Вкажи коректний Discord Channel ID.";
+    if (!looksLikeDiscordChannelId(normalizedChannelId)) return "Вибери коректний Discord-канал.";
     if (!RAID_POLL_CLOSE_OPTIONS.some((option) => option.minutes === closeAfterMinutes)) return "Вибери коректний таймер закриття голосування.";
     if (!selectedDays.length) return "Вибери хоча б один день рейд-тижня.";
     if (normalizedDescription.length < 20) return "Опис занадто короткий. Залиши зрозумілий текст для учасників.";
@@ -121,18 +126,18 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
     setFieldError("");
     dispatchDashboardToast({
       tone: "info",
-      title: "Створюємо рейд-пул",
-      message: "Зберігаємо голосування у Firebase і публікуємо Discord-повідомлення.",
+      title: isEdit ? "Оновлюємо рейд-пул" : "Створюємо рейд-пул",
+      message: isEdit ? "Зберігаємо зміни у Firebase і синхронізуємо Discord-повідомлення." : "Зберігаємо голосування у Firebase і публікуємо Discord-повідомлення.",
       ttl: 3600,
     });
 
     try {
-      const response = await fetch("/api/polls", {
-        method: "POST",
+      const response = await fetch(isEdit && poll?.id ? `/api/polls/${encodeURIComponent(poll.id)}` : "/api/polls", {
+        method: isEdit ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          "X-Dashboard-Action": "create-raid-poll",
+          "X-Dashboard-Action": isEdit ? "update-raid-poll" : "create-raid-poll",
         },
         credentials: "same-origin",
         cache: "no-store",
@@ -148,7 +153,7 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
       const data = await response.json().catch(() => ({ error: "Сервер повернув неочікувану відповідь." }));
       if (!response.ok || data?.error || data?.ok === false) {
-        throw new Error(errorFromPayload(data, "Не вдалося створити рейд-пул."));
+        throw new Error(errorFromPayload(data, isEdit ? "Не вдалося оновити рейд-пул." : "Не вдалося створити рейд-пул."));
       }
 
       const pollId = typeof data?.pollId === "string" ? data.pollId : typeof data?.poll?.id === "string" ? data.poll.id : "";
@@ -156,17 +161,17 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
       dispatchDashboardToast({
         tone: "success",
-        title: "Рейд-пул створено",
-        message: "Пул опубліковано в Discord. Учасники вже можуть голосувати.",
+        title: isEdit ? "Рейд-пул оновлено" : "Рейд-пул створено",
+        message: isEdit ? "Зміни збережено, Discord-повідомлення синхронізовано." : "Пул опубліковано в Discord. Учасники вже можуть голосувати.",
         ttl: 6200,
       });
-      resetForm();
+      if (!isEdit) resetForm();
       router.push(redirectTo);
       router.refresh();
     } catch (error) {
-      const message = dashboardErrorMessage(error, "Не вдалося створити рейд-пул.");
+      const message = dashboardErrorMessage(error, isEdit ? "Не вдалося оновити рейд-пул." : "Не вдалося створити рейд-пул.");
       setFieldError(message);
-      dispatchDashboardToast({ tone: "error", title: "Рейд-пул не створено", message, ttl: 8200 });
+      dispatchDashboardToast({ tone: "error", title: isEdit ? "Рейд-пул не оновлено" : "Рейд-пул не створено", message, ttl: 8200 });
     } finally {
       setPending(false);
     }
@@ -176,11 +181,11 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
     <form className="panel raid-poll-create-panel" onSubmit={submit} noValidate>
       <div className="raid-poll-create-head">
         <div>
-          <span className="eyebrow">Новий рейд-пул</span>
-          <h2>Створити голосування</h2>
-          <p>Сайт є джерелом правди: він створює запис у Firebase, публікує Discord embed і відкриває голосування через select-menu.</p>
+          <span className="eyebrow">{isEdit ? "Редагування рейд-пулу" : "Новий рейд-пул"}</span>
+          <h2>{isEdit ? "Редагувати голосування" : "Створити голосування"}</h2>
+          <p>{isEdit ? "Зміни зберігаються у Firebase і одразу оновлюють або переносять Discord embed у вибраний канал." : "Сайт є джерелом правди: він створює запис у Firebase, публікує Discord embed і відкриває голосування через select-menu."}</p>
         </div>
-        <span className="raid-status-pill published">Site → Discord</span>
+        <span className="raid-status-pill published">{isEdit ? "Firebase ↔ Discord" : "Site → Discord"}</span>
       </div>
 
       {fieldError ? <div className="notice error-note raid-poll-create-alert">{fieldError}</div> : null}
@@ -223,21 +228,29 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
 
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-channel-id">
           <span>Discord-канал публікації</span>
-          <input
-            id="raid-poll-channel-id"
-            list="raid-poll-discord-channels"
-            value={channelId}
-            onChange={(event) => setChannelId(event.target.value)}
-            inputMode="numeric"
-            pattern="\d{16,25}"
-            placeholder="123456789012345678"
-            required
-            disabled={pending || disabled}
-          />
-          <datalist id="raid-poll-discord-channels">
-            {channels.map((channel) => <option key={channel.id} value={channel.id}>{`#${channel.name}`}</option>)}
-          </datalist>
-          <small>Поточний вибір: {channelLabel}. Можна вибрати канал зі списку або вставити Channel ID вручну.</small>
+          {channelOptions.length ? (
+            <select
+              id="raid-poll-channel-id"
+              value={channelId}
+              onChange={(event) => setChannelId(event.target.value)}
+              required
+              disabled={pending || disabled}
+            >
+              {channelOptions.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
+            </select>
+          ) : (
+            <input
+              id="raid-poll-channel-id"
+              value={channelId}
+              onChange={(event) => setChannelId(event.target.value)}
+              inputMode="numeric"
+              pattern="\d{16,25}"
+              placeholder="ID текстового каналу Discord"
+              required
+              disabled={pending || disabled}
+            />
+          )}
+          <small>{channelOptions.length ? `Поточний вибір: ${channelLabel}. Список каналів підтягнуто з Discord так само, як у рейдах та embed-редакторі.` : "Список каналів не прочитався автоматично. Встав ID каналу вручну або перевір DISCORD_GUILD_CHANNELS_ENDPOINT."}</small>
         </label>
 
         <fieldset className="raid-poll-field raid-poll-field--wide raid-poll-days-field">
@@ -291,9 +304,9 @@ export default function RaidPollCreateClientForm({ channels, defaultChannelId = 
       </div>
 
       <div className="raid-form-actions raid-poll-create-actions">
-        <a className="btn subtle" href="/polls">До списку</a>
+        <a className="btn subtle" href={isEdit && poll?.id ? `/polls/${encodeURIComponent(poll.id)}` : "/polls"}>{isEdit ? "Скасувати" : "До списку"}</a>
         <button className="btn primary" type="submit" disabled={pending || disabled} aria-busy={pending ? "true" : "false"}>
-          {pending ? "Створюємо..." : "Створити й опублікувати"}
+          {pending ? (isEdit ? "Оновлюємо..." : "Створюємо...") : (isEdit ? "Зберегти й оновити Discord" : "Створити й опублікувати")}
         </button>
       </div>
     </form>

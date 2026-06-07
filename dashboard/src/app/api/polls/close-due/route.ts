@@ -1,20 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { closeDueRaidPolls } from "@/lib/raidPolls";
-import { noStoreHeaders, safeErrorMessage, verifyInternalBearerToken } from "@/lib/security";
+import { logDashboardEvent, noStoreHeaders, safeErrorMessage, verifyInternalBearerToken } from "@/lib/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const INTERNAL_POLL_CRON_TOKENS = ["WORKER_STATS_TOKEN", "INTERNAL_PROFILE_LOOKUP_TOKEN", "DISCORD_RULES_STATS_TOKEN"];
+const INTERNAL_POLL_CRON_TOKENS = ["RAID_LIFECYCLE_SECRET", "CRON_SECRET", "WORKER_STATS_TOKEN", "INTERNAL_PROFILE_LOOKUP_TOKEN", "DISCORD_RULES_STATS_TOKEN"];
 
-export async function POST(request: NextRequest) {
+async function run(request: NextRequest) {
   const auth = await verifyInternalBearerToken(request, INTERNAL_POLL_CRON_TOKENS, { minLength: 24 });
   if (!auth.ok) return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403, headers: noStoreHeaders() });
   try {
-    const closed = await closeDueRaidPolls();
-    return NextResponse.json({ ok: true, closed }, { headers: noStoreHeaders() });
+    const result = await closeDueRaidPolls();
+    logDashboardEvent("info", "raid_polls.close_due", request, result);
+    return NextResponse.json({ ok: true, ...result }, { headers: noStoreHeaders() });
   } catch (error) {
-    return NextResponse.json({ ok: false, error: safeErrorMessage(error) }, { status: 500, headers: noStoreHeaders() });
+    const message = safeErrorMessage(error);
+    logDashboardEvent("error", "raid_polls.close_due_failed", request, { message });
+    return NextResponse.json({ ok: false, error: message }, { status: 500, headers: noStoreHeaders() });
   }
+}
+
+export async function GET(request: NextRequest) {
+  return run(request);
+}
+
+export async function POST(request: NextRequest) {
+  return run(request);
 }
