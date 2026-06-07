@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-07 10:31:05'
+  updated_at: '2026-06-07 13:55:36'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 157
+  member_count: 159
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -58,15 +58,15 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13847
+      world: 13848
       region: 6161
       realm: 56
     heroic:
-      world: 13989
+      world: 13992
       region: 6103
       realm: 49
     mythic:
-      world: 7020
+      world: 7023
       region: 2994
       realm: 20
   sporefall:
@@ -264,11 +264,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3716.6
-        color: '#d74fa4'
+        score: 3748.2
+        color: '#da519e'
       dps:
-        score: 3716.6
-        color: '#d74fa4'
+        score: 3748.2
+        color: '#da519e'
       healer:
         score: 0
         color: '#ffffff'
@@ -282,8 +282,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3716.6
-        color: '#d74fa4'
+        score: 3748.2
+        color: '#da519e'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8220,6 +8220,110 @@ members:
       spec_2:
         score: 2746.4
         color: '#5fb198'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Сумраки
+    id: 264134744
+    level: 90
+    realm:
+      id: 1925
+      slug: eversong
+    playable_class:
+      id: 12
+      name: Demon Hunter
+    playable_race:
+      id: 4
+      name: Night Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Vengeance
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/264134744-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
+    profile_url: https://raider.io/characters/eu/eversong/Сумраки
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2092.1
+        color: '#62ff46'
+      dps:
+        score: 1003.6
+        color: '#c9ffb5'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 1978.4
+        color: '#6fff53'
+      spec_0:
+        score: 1003.6
+        color: '#c9ffb5'
+      spec_1:
+        score: 1978.4
+        color: '#6fff53'
+      spec_2:
+        score: 0
+        color: '#ffffff'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Regin
+    id: 184963280
+    level: 90
+    realm:
+      id: 505
+      slug: doomhammer
+    playable_class:
+      id: 1
+      name: Warrior
+    playable_race:
+      id: 29
+      name: Void Elf
+    faction:
+      type: ALLIANCE
+    gender: female
+    active_spec:
+      name: Arms
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Regin
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 0
+        color: '#ffffff'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 0
+        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
