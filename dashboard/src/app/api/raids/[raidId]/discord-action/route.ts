@@ -1,5 +1,7 @@
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { handleRaidDiscordAction, type RaidCharacterRole, type RaidSignupStatus } from "@/lib/raids";
+import { getFirebaseAdminDb } from "@/lib/firebaseAdmin";
 import {
   assertRequestBodySize,
   checkRateLimit,
@@ -21,19 +23,57 @@ const INTERNAL_RAID_ACTION_TOKENS = [
   "INTERNAL_PROFILE_LOOKUP_TOKEN",
 ];
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __mistblossomRaidDiscordActionIdempotency: Map<string, { value: unknown; expiresAt: number }> | undefined;
+const IDEMPOTENCY_COLLECTION = "dashboardWorkerIdempotency";
+const IDEMPOTENCY_TTL_MS = 2 * 60 * 1000;
+
+function idempotencyDocId(key: string) {
+  return createHash("sha256").update(key).digest("hex");
 }
 
-function idempotencyCache() {
-  const map = globalThis.__mistblossomRaidDiscordActionIdempotency || new Map<string, { value: unknown; expiresAt: number }>();
-  globalThis.__mistblossomRaidDiscordActionIdempotency = map;
+type IdempotencyReservation =
+  | { state: "none" }
+  | { state: "hit"; value: unknown }
+  | { state: "processing" };
+
+async function reserveIdempotencyKey(key: string): Promise<IdempotencyReservation> {
+  if (!key) return { state: "none" };
+  const db = getFirebaseAdminDb();
+  const ref = db.collection(IDEMPOTENCY_COLLECTION).doc(idempotencyDocId(key));
   const now = Date.now();
-  if (map.size > 500) {
-    for (const [key, item] of map) if (item.expiresAt <= now) map.delete(key);
-  }
-  return map;
+  const expiresAt = now + IDEMPOTENCY_TTL_MS;
+
+  return db.runTransaction(async (transaction) => {
+    const snap = await transaction.get(ref);
+    if (snap.exists) {
+      const data = snap.data() || {};
+      if (Number(data.expiresAtMs || 0) > now && data.response) {
+        return { state: "hit", value: data.response };
+      }
+      if (Number(data.expiresAtMs || 0) > now && data.status === "processing") {
+        return { state: "processing" };
+      }
+    }
+
+    transaction.set(ref, {
+      keyHash: idempotencyDocId(key),
+      status: "processing",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      expiresAtMs: expiresAt,
+    });
+    return { state: "none" };
+  });
+}
+
+async function storeIdempotencyResponse(key: string, value: unknown) {
+  if (!key) return;
+  const db = getFirebaseAdminDb();
+  await db.collection(IDEMPOTENCY_COLLECTION).doc(idempotencyDocId(key)).set({
+    status: "done",
+    response: value,
+    updatedAt: new Date().toISOString(),
+    expiresAtMs: Date.now() + IDEMPOTENCY_TTL_MS,
+  }, { merge: true });
 }
 
 function cleanIdempotencyKey(value: unknown) {
@@ -93,9 +133,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
 
     const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
     if (idempotencyKey) {
-      const cached = idempotencyCache().get(idempotencyKey);
-      if (cached && cached.expiresAt > Date.now()) {
-        return NextResponse.json(cached.value, { headers: noStoreHeaders({ "X-Mistblossom-Idempotency": "HIT" }) });
+      const reservation = await reserveIdempotencyKey(idempotencyKey);
+      if (reservation.state === "hit") {
+        return NextResponse.json(reservation.value, { headers: noStoreHeaders({ "X-Mistblossom-Idempotency": "HIT" }) });
+      }
+      if (reservation.state === "processing") {
+        return NextResponse.json({ ok: false, content: "Запит уже обробляється. Натисни ще раз за кілька секунд, якщо Discord не оновив відповідь." }, { status: 409, headers: noStoreHeaders({ "X-Mistblossom-Idempotency": "PROCESSING" }) });
       }
     }
 
@@ -111,9 +154,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
         messageId,
       },
     });
-    if (idempotencyKey) {
-      idempotencyCache().set(idempotencyKey, { value: result, expiresAt: Date.now() + 90_000 });
-    }
+    if (idempotencyKey) await storeIdempotencyResponse(idempotencyKey, result);
     return NextResponse.json(result, { headers: noStoreHeaders(idempotencyKey ? { "X-Mistblossom-Idempotency": "MISS" } : undefined) });
   } catch (error) {
     const message = safeErrorMessage(error);

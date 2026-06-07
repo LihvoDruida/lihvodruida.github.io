@@ -110,8 +110,8 @@ GITHUB_REPO = "lihvodruida.github.io"
 GUILD_APPLICATIONS_LABEL = "guild-application"
 ALLOWED_ORIGINS = "https://lihvodruida.pp.ua,https://www.lihvodruida.pp.ua,https://admin.lihvodruida.pp.ua"
 DISCORD_ALLOWED_ROLES = ""
+DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
 ADMIN_DASHBOARD_URL = "https://admin.lihvodruida.pp.ua"
-DASHBOARD_PROFILE_LOOKUP_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup"
 RAID_RULES_URL = "https://discord.com/channels/<guild>/<channel>/<message>"
 ALLOW_DEBUG_QUERY = "0"
 ```
@@ -152,8 +152,8 @@ Dashboard має використовувати `DISCORD_RULES_STATS_TOKEN`, к�
 2. Додай policy, яка дозволяє цьому Service Token доступ до:
 
 ```text
-https://admin.lihvodruida.pp.ua/api/profile/discord-lookup
-https://admin.lihvodruida.pp.ua/api/raids/*/discord-action
+DASHBOARD_URL + /api/profile/discord-lookup
+DASHBOARD_URL + /api/raids/*/discord-action
 ```
 
 3. Додай secrets у Worker:
@@ -267,3 +267,35 @@ wrangler rollback
 ```
 
 Перед rollback переконайся, що проблема не в secrets/vars, бо rollback коду не виправить неправильний env.
+
+## Worker state KV і raid lifecycle
+
+Для production-безпечних cooldown/idempotency Worker має мати KV binding стану:
+
+```bash
+wrangler kv namespace create WORKER_STATE
+```
+
+Додай отриманий id як `WORKER_STATE` binding у `wrangler.toml`. Для development код має fallback на `RULES_STATS` / `PUBLIC_API_CACHE` / memory, але production має використовувати `WORKER_STATE`.
+
+Raid lifecycle запускається через Cloudflare Cron (`* * * * *`) і може запускатися вручну через Worker endpoint:
+
+```text
+POST /api/raids/lifecycle
+Authorization: Bearer <RAID_LIFECYCLE_SECRET>
+```
+
+Worker спочатку читає план із dashboard:
+
+```text
+GET /api/raids/lifecycle?mode=plan&limit=100
+```
+
+Потім викликає dashboard lifecycle actions окремо для кожного рейду. Закриття і cleanup Discord розділені:
+
+- закриття рейду: у дедлайн запису (`registrationLockMinutesBefore`) або в час старту, якщо дедлайн не налаштовано;
+- видалення Discord-повідомлення: тільки після `RAID_DISCORD_DELETE_AFTER_START_HOURS` від запланованого старту і тільки якщо рейд уже `closed`;
+- `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` додає додатковий буфер після закриття перед видаленням Discord-повідомлення;
+- Firebase-документ рейду lifecycle не видаляє, він залишається в архіві dashboard.
+
+`RAID_LIFECYCLE_SECRET` має бути однаковим у Worker і dashboard. Dashboard-мутації ідемпотентні та використовують Firestore як source of truth, тому рестарти Worker і повторні cron-запуски безпечні.

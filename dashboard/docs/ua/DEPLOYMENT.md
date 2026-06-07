@@ -334,3 +334,7 @@ INTERNAL_PROFILE_LOOKUP_TOKEN=...
 ```http
 Authorization: Bearer <token>
 ```
+
+## Idempotency для Discord raid actions
+
+Dashboard route `/api/raids/[raidId]/discord-action` тепер зберігає idempotency reservations/responses у Firestore collection `dashboardWorkerIdempotency`. Повторні Discord interaction retries безпечні після рестартів Vercel. Ручна підготовка схеми не потрібна; collection створюється ліниво.

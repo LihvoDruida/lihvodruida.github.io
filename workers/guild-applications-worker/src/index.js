@@ -1,3 +1,15 @@
+import { getConfig, dashboardUrl as configuredDashboardUrl, dashboardRaidActionEndpoint as configuredDashboardRaidActionEndpoint, dashboardRaidLifecycleEndpoint as configuredDashboardRaidLifecycleEndpoint } from "./config.js";
+import { json as secureJson, buildCorsHeaders as secureCorsHeaders, optionsResponse } from "./middleware.js";
+import { verifyDiscordRequest as verifyDiscordRequestStrict, verifyBearerOrStatsToken as verifyBearerOrStatsTokenStrict, securityHeaders } from "./security.js";
+import { getFirebaseAccessToken as getFirebaseAccessTokenKv } from "./firebase-utils.js";
+import { isKvRateLimited } from "./kv-utils.js";
+import { discordApiFetch as discordApiFetchKv } from "./discord-utils.js";
+import { decodeRaidAttendanceCustomId as decodeRaidAttendanceCustomIdV2, decodeRaidCharacterSelectCustomId as decodeRaidCharacterSelectCustomIdV2, decodeRaidRoleSelectCustomId as decodeRaidRoleSelectCustomIdV2, getRaidInteractionMessageRef as getRaidInteractionMessageRefV2, fetchRaidDashboardAction } from "./raid-announcements.js";
+import { runRaidLifecycle, dashboardRaidLifecycleToken as dashboardRaidLifecycleTokenModule } from "./raid-lifecycle.js";
+import { allocateSequentialApplicationNumber as allocateSequentialApplicationNumberModule, rememberAllocatedApplicationNumber } from "./applications.js";
+
+const WORKER_BOOT_TIME = await Promise.resolve(new Date().toISOString());
+
 const DEFAULT_CACHE_SECONDS = 0;
 const DEFAULT_PUBLIC_API_CACHE_SECONDS = 120;
 const MAX_PUBLIC_API_CACHE_SECONDS = 86_400;
@@ -305,18 +317,14 @@ function hasAllowedDiscordRole(interaction, env) {
   return memberRoles.some((roleId) => allowedRoles.has(roleId));
 }
 
-function isInteractionRateLimited(interaction, scope = "global") {
+async function isInteractionRateLimited(interaction, scope = "global", env = null) {
   const userId = getDiscordUserId(interaction);
+  if (env) return isKvRateLimited(env, `${scope}:${userId}`, INTERACTION_COOLDOWN_MS);
+
+  // Development fallback only; production handlers pass env and use KV.
   const cacheKey = `${scope}:${userId}`;
   const now = Date.now();
   const last = interactionCooldowns.get(cacheKey) || 0;
-
-  if (interactionCooldowns.size > 500) {
-    for (const [key, timestamp] of interactionCooldowns) {
-      if (now - timestamp > 60_000) interactionCooldowns.delete(key);
-    }
-  }
-
   if (now - last < INTERACTION_COOLDOWN_MS) return true;
   interactionCooldowns.set(cacheKey, now);
   return false;
@@ -349,21 +357,11 @@ function timeoutMs(value, fallback, min = 500, max = 30_000) {
 }
 
 function buildCorsHeaders(corsOrigin, status = 200) {
-  return {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": corsOrigin || "null",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
-    "Vary": "Origin",
-  };
+  return secureCorsHeaders(corsOrigin, status);
 }
 
 function json(data, status = 200, corsOrigin = "*") {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: buildCorsHeaders(corsOrigin, status),
-  });
+  return secureJson(data, status, corsOrigin);
 }
 
 
@@ -617,8 +615,6 @@ function defaultAllowedOrigins(env) {
     env.PUBLIC_SITE_URL,
     env.ADMIN_DASHBOARD_URL,
     env.DASHBOARD_URL,
-    "https://lihvodruida.pp.ua",
-    "https://admin.lihvodruida.pp.ua",
   ];
 
   const origins = new Set();
@@ -667,13 +663,7 @@ function constantTimeEqual(a, b) {
 }
 
 async function verifyBearerOrStatsToken(request, expected) {
-  if (!expected) return true;
-  const auth = request.headers.get("Authorization") || request.headers.get("authorization") || "";
-  const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  const provided = bearer || String(request.headers.get("X-Worker-Stats-Token") || request.headers.get("x-worker-stats-token") || "").trim();
-  if (!provided) return false;
-  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected)]);
-  return constantTimeEqual(left, right);
+  return verifyBearerOrStatsTokenStrict(request, expected);
 }
 
 async function assertWorkerReadAccess(request, env, scope) {
@@ -693,17 +683,13 @@ async function assertWorkerReadAccess(request, env, scope) {
 }
 
 function dashboardAuthUrl(env) {
-  const raw = String(env.ADMIN_DASHBOARD_URL || env.DASHBOARD_URL || "https://admin.lihvodruida.pp.ua/").trim() || "https://admin.lihvodruida.pp.ua/";
+  const raw = getConfig(env).dashboardUrl;
+  if (!raw) throw new Error("DASHBOARD_URL або ADMIN_DASHBOARD_URL не налаштовано.");
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
 function dashboardUrl(env, path = "/") {
-  try {
-    return new URL(path.startsWith("/") ? path : `/${path}`, dashboardAuthUrl(env)).toString();
-  } catch {
-    const base = dashboardAuthUrl(env).replace(/\/$/, "");
-    return `${base}${path.startsWith("/") ? path : `/${path}`}`;
-  }
+  return configuredDashboardUrl(env, path);
 }
 
 function dashboardProfileUrl(env) {
@@ -729,7 +715,7 @@ function dashboardLoginUrl(env, nextPath = "/profile") {
 function dashboardRaidRulesUrl(env) {
   const explicit = String(env.RAID_RULES_URL || env.DISCORD_RAID_RULES_URL || env.NEXT_PUBLIC_RAID_RULES_URL || "").trim();
   if (explicit) return explicit;
-  return "https://discord.com/channels/1449767281453301865/1498719949550784540/1498732894326227024";
+  return dashboardUrl(env, "/discord/rules");
 }
 
 function discordLinkButton(label, url) {
@@ -778,13 +764,7 @@ function raidActionHelpText(env, reason, raidId) {
 }
 
 function dashboardProfileLookupEndpoint(env) {
-  const explicit = String(env.DASHBOARD_PROFILE_LOOKUP_ENDPOINT || env.ADMIN_PROFILE_LOOKUP_ENDPOINT || "").trim();
-  if (explicit) return explicit;
-  try {
-    return new URL("/api/profile/discord-lookup", dashboardAuthUrl(env)).toString();
-  } catch {
-    return "https://admin.lihvodruida.pp.ua/api/profile/discord-lookup";
-  }
+  return getConfig(env).profileLookupEndpoint;
 }
 
 function dashboardProfileLookupHeaders(env, token) {
@@ -1293,7 +1273,7 @@ function allowedOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
   const configured = defaultAllowedOrigins(env);
 
-  if (!origin) return configured[0] || "https://lihvodruida.pp.ua";
+  if (!origin) return configured[0] || "null";
   return configured.includes(origin) ? origin : "";
 }
 
@@ -1929,44 +1909,13 @@ function hexToBytes(hex) {
 }
 
 async function verifyDiscordRequest(request, env, rawBody) {
-  const publicKey = String(env.DISCORD_PUBLIC_KEY || "").trim();
-  if (!publicKey) return false;
-
-  const signature = request.headers.get("X-Signature-Ed25519") || "";
-  const timestamp = request.headers.get("X-Signature-Timestamp") || "";
-  if (!signature || !timestamp) return false;
-
-  const timestampMs = Number(timestamp) * 1000;
-  const skewMs = Math.abs(Date.now() - timestampMs);
-  if (!Number.isFinite(timestampMs) || skewMs > 5 * 60 * 1000) {
-    logWorkerEvent("warn", "discord.signature.timestamp_rejected", { skewMs });
-    return false;
-  }
-
-  try {
-    const key = await crypto.subtle.importKey(
-      "raw",
-      hexToBytes(publicKey),
-      { name: "Ed25519", namedCurve: "Ed25519" },
-      false,
-      ["verify"]
-    );
-
-    return crypto.subtle.verify(
-      { name: "Ed25519" },
-      key,
-      hexToBytes(signature),
-      new TextEncoder().encode(timestamp + rawBody)
-    );
-  } catch {
-    return false;
-  }
+  return verifyDiscordRequestStrict(request, env, rawBody);
 }
 
 function discordInteractionResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8" },
+    headers: securityHeaders({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }),
   });
 }
 
@@ -2088,87 +2037,7 @@ async function waitForDiscordRoute(routeKey) {
 }
 
 async function discordApiFetch(env, path, init = {}) {
-  const startedAt = nowMs();
-  const method = String(init.method || "GET").toUpperCase();
-  const routeKey = discordRouteKey(path, method);
-  const maxAttempts = method === "GET" ? 4 : 5;
-  const timeout = timeoutMs(env.DISCORD_API_TIMEOUT_MS, method === "GET" ? 10_000 : 14_000, 2_000, 45_000);
-
-  let lastResponse = null;
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    await waitForDiscordRoute(routeKey);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const response = await fetch(`https://discord.com/api/v10${path}`, {
-        ...init,
-        headers: {
-          Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
-          "Content-Type": "application/json; charset=utf-8",
-          ...(init.headers || {}),
-        },
-        signal: controller.signal,
-      });
-      lastResponse = response;
-
-      if (String(env.DEBUG_LOGS || "").trim() === "1" || !response.ok) {
-        logWorkerEvent(response.ok ? "info" : "warn", "discord.fetch", {
-          method,
-          path: sanitizeApiPathForLog(path),
-          status: response.status,
-          ok: response.ok,
-          attempt: attempt + 1,
-          ms: elapsedMs(startedAt),
-        });
-      }
-
-      if (response.status === 429) {
-        const raw = await response.clone().text().catch(() => "");
-        let json = null;
-        try { json = raw ? JSON.parse(raw) : null; } catch { json = null; }
-        const delay = discordRetryAfterMs(response, json, attempt);
-        discordRouteCooldowns.set(routeKey, Date.now() + delay);
-        if (attempt < maxAttempts - 1) {
-          await sleep(delay);
-          continue;
-        }
-      } else if (shouldRetryDiscordStatus(response.status) && attempt < maxAttempts - 1) {
-        await sleep(discordRetryAfterMs(response, null, attempt));
-        continue;
-      }
-
-      return response;
-    } catch (error) {
-      if ((error?.name === "AbortError" || /fetch failed|network|ECONNRESET|ETIMEDOUT/i.test(String(error?.message || error))) && attempt < maxAttempts - 1) {
-        await sleep(500 + attempt * 650);
-        continue;
-      }
-      logWorkerEvent("warn", "discord.fetch.exception", { method, path: sanitizeApiPathForLog(path), message: error?.message || String(error), ms: elapsedMs(startedAt) });
-      throw error;
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  return lastResponse || new Response(JSON.stringify({ message: "Discord API failed" }), { status: 503 });
-}
-
-function discordRaidMessageTokens(env) {
-  return Array.from(new Set([
-    env.DISCORD_RULES_STATS_TOKEN,
-    env.INTERNAL_PROFILE_LOOKUP_TOKEN,
-    env.WORKER_STATS_TOKEN,
-  ].map((value) => String(value || "").trim()).filter(Boolean)));
-}
-
-async function verifyAnyBearerOrStatsToken(request, expectedTokens) {
-  const tokens = Array.isArray(expectedTokens) ? expectedTokens.filter(Boolean) : [];
-  if (!tokens.length) return true;
-  for (const token of tokens) {
-    if (await verifyBearerOrStatsToken(request, token)) return true;
-  }
-  return false;
+  return discordApiFetchKv(env, path, init);
 }
 
 function safeDiscordButton(button) {
@@ -2554,28 +2423,7 @@ async function createFirebaseJwt(env) {
 }
 
 async function getFirebaseAccessToken(env) {
-  if (firebaseAuthCache.accessToken && firebaseAuthCache.expiresAt > Date.now() + 60_000) {
-    return firebaseAuthCache.accessToken;
-  }
-  const assertion = await createFirebaseJwt(env);
-  const body = new URLSearchParams({
-    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-    assertion,
-  });
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body,
-  });
-  const data = await response.json().catch(() => null);
-  if (!response.ok || !data?.access_token) {
-    throw new Error(data?.error_description || data?.error || `Firebase auth HTTP ${response.status}`);
-  }
-  firebaseAuthCache = {
-    accessToken: data.access_token,
-    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 3600) - 60) * 1000,
-  };
-  return firebaseAuthCache.accessToken;
+  return getFirebaseAccessTokenKv(env);
 }
 
 function firestoreBaseUrl(env) {
@@ -2836,7 +2684,13 @@ async function readMaxFirebaseApplicationNumber(env) {
 }
 
 async function allocateSequentialApplicationNumber(env) {
-  return (await readMaxFirebaseApplicationNumber(env)) + 1;
+  return allocateSequentialApplicationNumberModule(env, {
+    firebaseFetch,
+    firestoreBaseUrl,
+    firestoreFields,
+    parseFirestoreFields,
+    readMaxFirebaseApplicationNumber,
+  });
 }
 
 async function createFirestoreApplicationDocument(env, docId, data) {
@@ -2963,6 +2817,7 @@ async function createFirebaseApplication(env, payload, verification) {
 
     try {
       const document = await createFirestoreApplicationDocument(env, docId, data);
+      await rememberAllocatedApplicationNumber(env, number);
       return {
         id: docId,
         ...data,
@@ -3291,7 +3146,7 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
     return rulesConfirmationResponse(effectiveRulesAction);
   }
 
-  if (isInteractionRateLimited(interaction, "rules")) {
+  if (await isInteractionRateLimited(interaction, "rules", env)) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
@@ -3363,7 +3218,7 @@ async function handleApplicationInteraction(interaction, env, customId) {
     return ephemeral("⛔ У вас немає прав для зміни статусу заявки.");
   }
 
-  if (isInteractionRateLimited(interaction, "application")) {
+  if (await isInteractionRateLimited(interaction, "application", env)) {
     return ephemeral("⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
@@ -3397,19 +3252,11 @@ async function handleApplicationInteraction(interaction, env, customId) {
 
 
 function decodeRaidAttendanceCustomId(customId) {
-  const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
-  if (!match) return null;
-  return { raidId: match[1], action: match[2], characterKey: "" };
+  return decodeRaidAttendanceCustomIdV2(customId);
 }
 
 function decodeRaidCharacterSelectCustomId(customId, values) {
-  const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
-  if (!match) return null;
-  const selected = Array.isArray(values) ? String(values[0] || "").trim() : "";
-  if (!selected) return null;
-  return { raidId: match[1], action: match[2], characterKey: selected };
+  return decodeRaidCharacterSelectCustomIdV2(customId, values);
 }
 
 function cleanRaidSignupRole(value) {
@@ -3421,12 +3268,7 @@ function cleanRaidSignupRole(value) {
 }
 
 function decodeRaidRoleSelectCustomId(customId, values) {
-  const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
-  if (!match) return null;
-  const selected = Array.isArray(values) ? cleanRaidSignupRole(values[0]) : "";
-  if (!selected) return null;
-  return { raidId: match[1], action: match[2], characterKey: match[3], signupRole: selected };
+  return decodeRaidRoleSelectCustomIdV2(customId, values);
 }
 
 function decodeRaidPollCustomId(customId, values) {
@@ -3445,11 +3287,7 @@ function decodeRaidPollCustomId(customId, values) {
 function dashboardRaidPollVoteEndpoint(env, pollId) {
   const explicit = String(env.DASHBOARD_RAID_POLL_VOTE_ENDPOINT || env.DASHBOARD_POLL_VOTE_ENDPOINT || "").trim();
   if (explicit) return explicit.replace("{pollId}", encodeURIComponent(pollId));
-  try {
-    return new URL("/api/polls/" + encodeURIComponent(pollId) + "/vote", dashboardAuthUrl(env)).toString();
-  } catch {
-    return "https://admin.lihvodruida.pp.ua/api/polls/" + encodeURIComponent(pollId) + "/vote";
-  }
+  return dashboardUrl(env, "/api/polls/" + encodeURIComponent(pollId) + "/vote");
 }
 
 function normalizeRaidPollProxyResult(data) {
@@ -3517,7 +3355,7 @@ async function raidPollProxyContent(interaction, env, pollAction) {
 }
 
 async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
-  if (isInteractionRateLimited(interaction, "raid-poll")) {
+  if (await isInteractionRateLimited(interaction, "raid-poll", env)) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
@@ -3542,13 +3380,7 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
 }
 
 function dashboardRaidActionEndpoint(env, raidId) {
-  const explicit = String(env.DASHBOARD_RAID_ACTION_ENDPOINT || "").trim();
-  if (explicit) return explicit.replace("{raidId}", encodeURIComponent(raidId));
-  try {
-    return new URL("/api/raids/" + encodeURIComponent(raidId) + "/discord-action", dashboardAuthUrl(env)).toString();
-  } catch {
-    return "https://admin.lihvodruida.pp.ua/api/raids/" + encodeURIComponent(raidId) + "/discord-action";
-  }
+  return configuredDashboardRaidActionEndpoint(env, raidId);
 }
 
 function isEphemeralInteractionMessage(interaction) {
@@ -3556,12 +3388,7 @@ function isEphemeralInteractionMessage(interaction) {
 }
 
 function getRaidInteractionMessageRef(interaction) {
-  // Component interactions inside private select menus point to ephemeral messages.
-  // Those must never be used as the public raid announcement target.
-  if (isEphemeralInteractionMessage(interaction)) return { channelId: "", messageId: "" };
-  const channelId = snowflake(interaction?.channel_id || interaction?.message?.channel_id);
-  const messageId = snowflake(interaction?.message?.id);
-  return { channelId, messageId };
+  return getRaidInteractionMessageRefV2(interaction);
 }
 
 function raidAnnouncementProxyFallback(env, raidId, reason = "later") {
@@ -3617,31 +3444,14 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
   }
 
   try {
-    const idempotencyKey = `discord-raid:${raidAction.raidId}:${getDiscordUserId(interaction)}:${raidAction.action}:${raidAction.characterKey || "main"}:${raidAction.signupRole || "auto"}:${interaction?.id || Date.now()}`;
-    const { response, raw } = await fetchDashboardText(env, dashboardRaidActionEndpoint(env, raidAction.raidId), token, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-        "x-worker-stats-token": token,
-        "x-idempotency-key": idempotencyKey,
-      },
-      body: JSON.stringify({
-        action: raidAction.action,
-        characterKey: raidAction.characterKey || "",
-        signupRole: raidAction.signupRole || "",
-        userId: getDiscordUserId(interaction),
-        userName: getDiscordUserLabel(interaction),
-        guildId: getInteractionGuildId(interaction, env),
-        channelId: getRaidInteractionMessageRef(interaction).channelId,
-        messageId: getRaidInteractionMessageRef(interaction).messageId,
-        source: "discord-interaction-worker",
-      }),
-    }, { timeoutMs: 9000, retries: 1 });
+    const dashboardResult = await fetchRaidDashboardAction(env, interaction, raidAction, fetchDashboardText, token, getDiscordUserLabel, getInteractionGuildId);
+    const raw = dashboardResult.raw || "";
+    const response = { ok: Boolean(dashboardResult.responseOk), status: Number(dashboardResult.responseStatus || 0) };
     let data = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
     if (!response.ok || !data) {
-      logWorkerEvent("warn", "raid_announcement.proxy.bad_response", { raidId: raidAction.raidId, status: response.status, raw: raw.slice(0, 180) });
+      logWorkerEvent("warn", "raid_announcement.proxy.bad_response", { raidId: raidAction.raidId, status: response.status, raw: raw.slice(0, 180), idempotencyHit: Boolean(dashboardResult.idempotencyHit) });
       if (response.status === 401 || response.status === 403) {
         return {
           content: "❌ Запис на рейд тимчасово недоступний: панель не прийняла серверний запит. Звернись до гільдмайстра.",
@@ -3690,7 +3500,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 }
 
 async function handleRaidAnnouncementInteraction(interaction, env, raidAction, ctx) {
-  if (isInteractionRateLimited(interaction, "raid-announcement")) {
+  if (await isInteractionRateLimited(interaction, "raid-announcement", env)) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
@@ -4137,55 +3947,24 @@ async function createApplication(request, env, ctx) {
 }
 
 function dashboardRaidLifecycleEndpoint(env) {
-  const explicit = String(env.DASHBOARD_RAID_LIFECYCLE_ENDPOINT || "").trim();
-  if (explicit) return explicit;
-  try {
-    return new URL("/api/raids/lifecycle?limit=100", dashboardAuthUrl(env)).toString();
-  } catch {
-    return "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100";
-  }
+  return configuredDashboardRaidLifecycleEndpoint(env);
 }
 
 function dashboardRaidLifecycleToken(env) {
-  return String(
-    env.RAID_LIFECYCLE_SECRET ||
-    env.CRON_SECRET ||
-    env.INTERNAL_PROFILE_LOOKUP_TOKEN ||
-    env.DISCORD_RULES_STATS_TOKEN ||
-    env.WORKER_STATS_TOKEN ||
-    ""
-  ).trim();
+  return dashboardRaidLifecycleTokenModule(env);
 }
 
-async function runRaidLifecycleCron(env, reason = "scheduled") {
-  const token = dashboardRaidLifecycleToken(env);
-  if (!token) {
-    logWorkerEvent("warn", "raid_lifecycle.missing_token", { reason });
-    return { ok: false, error: "missing lifecycle token" };
-  }
+async function runRaidLifecycleCron(env, reason = "scheduled", options = {}) {
+  return runRaidLifecycle(env, reason, options);
+}
 
-  const endpoint = dashboardRaidLifecycleEndpoint(env);
-  try {
-    const { response, raw } = await fetchDashboardText(env, endpoint, token, {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${token}`,
-        "x-worker-stats-token": token,
-      },
-    }, { timeoutMs: 14000, retries: 1 });
-    let data = null;
-    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
-    if (!response.ok || !data?.ok) {
-      logWorkerEvent("warn", "raid_lifecycle.bad_response", { status: response.status, raw: raw.slice(0, 180), reason });
-      return { ok: false, status: response.status };
-    }
-    logWorkerEvent("info", "raid_lifecycle.done", { reason, checked: data.checked, total: data.total });
-    return data;
-  } catch (error) {
-    logWorkerEvent("error", "raid_lifecycle.failed", { reason, message: error?.message });
-    return { ok: false, error: error?.message || "unknown" };
-  }
+function isRaidLifecycleRequestAuthorized(request, env) {
+  const token = dashboardRaidLifecycleToken(env);
+  if (!token) return false;
+  const authorization = String(request.headers.get("authorization") || "").trim();
+  const bearer = authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
+  const statsToken = String(request.headers.get("x-worker-stats-token") || "").trim();
+  return bearer === token || statsToken === token;
 }
 
 export default {
@@ -4201,6 +3980,7 @@ export default {
         path: url.pathname,
         query: url.search ? url.search.slice(0, 500) : "",
         origin: request.headers.get("Origin") || "",
+        bootTime: WORKER_BOOT_TIME,
       });
     }
 
@@ -4208,16 +3988,7 @@ export default {
 
     try {
       if (request.method === "OPTIONS") {
-        response = new Response(null, {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin": allowedOrigin(request, env) || "null",
-            "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Worker-Stats-Token",
-            "Cache-Control": "no-store",
-            "Vary": "Origin",
-          },
-        });
+        response = optionsResponse(allowedOrigin(request, env) || "null");
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 
@@ -4252,8 +4023,21 @@ export default {
       }
 
       if (url.pathname === "/api/raids/lifecycle" && request.method === "POST") {
-        const result = await runRaidLifecycleCron(env, "manual-worker-endpoint");
-        response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
+        if (!isRaidLifecycleRequestAuthorized(request, env)) {
+          response = json({ ok: false, error: "Unauthorized", requestId }, 401, allowedOrigin(request, env) || "null");
+          return withTelemetryHeaders(response, requestId, startedAt);
+        }
+
+        const body = await request.clone().json().catch(() => ({}));
+        const reason = String(body?.reason || url.searchParams.get("reason") || "manual-worker-endpoint").slice(0, 80);
+        const lifecyclePromise = runRaidLifecycleCron(env, reason, { requestId });
+        if (ctx && typeof ctx.waitUntil === "function") {
+          ctx.waitUntil(lifecyclePromise);
+          response = json({ ok: true, queued: true, requestId, reason }, 202, allowedOrigin(request, env) || "null");
+        } else {
+          const result = await lifecyclePromise;
+          response = json(result, result?.ok ? 200 : 500, allowedOrigin(request, env) || "null");
+        }
         return withTelemetryHeaders(response, requestId, startedAt);
       }
 

@@ -34,6 +34,7 @@ English documentation is available in [`README.md`](README.md) and [`docs/en`](d
 | `/api/discord-raid-rules-signups` | `GET` | Список підписантів правил рейду з main-персонажем. |
 | `/api/discord-raid-message` | `POST` | Створення, редагування або видалення Discord-повідомлень рейду через Worker. |
 | `/api/discord-guild-channels` | `GET` | Список Discord text/news каналів для селекторів у dashboard. |
+| `/api/raids/lifecycle` | `POST` | Ручний запуск ідемпотентного raid lifecycle runner. Потребує `RAID_LIFECYCLE_SECRET`. |
 
 ## Швидке розгортання
 
@@ -90,3 +91,30 @@ wrangler deploy
 - `DISCORD_RULES_STATS_TOKEN`, спільний із dashboard, для захисту stats/message endpoints.
 
 Повна таблиця змінних: [docs/ua/VARIABLES.md](docs/ua/VARIABLES.md).
+
+## Модульний Worker runtime 2026
+
+Entrypoint залишається `src/index.js`, але критична логіка винесена в окремі ES-модулі:
+
+- `src/config.js` — валідація конфігурації та побудова dashboard endpoint-ів.
+- `src/security.js` — Discord signature verification, token checks і security headers.
+- `src/middleware.js` — CORS/security response helpers.
+- `src/discord-utils.js` — Discord REST client з KV-backed route cooldowns.
+- `src/firebase-utils.js` — Firebase OAuth/Firestore helpers з KV token cache.
+- `src/raid-announcements.js` — raid custom_id decoding, idempotency і dashboard proxy helpers.
+- `src/raid-lifecycle.js` — scheduled lifecycle trigger для dashboard `/api/raids/lifecycle`.
+- `src/rules-interactions.js` — cooldown helpers для rules interactions.
+- `src/applications.js` — helper для application sequence high-water mark.
+- `src/kv-utils.js` і `src/logger.js` — спільний state/logging шар.
+
+Створи окремий KV namespace для стану Worker:
+
+```bash
+wrangler kv namespace create WORKER_STATE
+```
+
+Після цього додай namespace id у `wrangler.toml`. `WORKER_STATE` зберігає короткоживучі cooldowns, idempotency results, Firebase OAuth token cache і application sequence high-water mark. `RULES_STATS` лишається для лічильників правил і може бути fallback під час міграції.
+
+`DASHBOARD_URL` — канонічний base URL dashboard. Змінні `DASHBOARD_PROFILE_LOOKUP_ENDPOINT`, `DASHBOARD_RAID_ACTION_ENDPOINT` і `DASHBOARD_RAID_LIFECYCLE_ENDPOINT` тепер опційні override-и; якщо вони порожні, Worker будує endpoint-и від `DASHBOARD_URL`.
+
+Нумерація заявок тепер використовує Firestore transaction counter у `dashboardCounters/applicationNumbers`. KV лишається тільки high-water fallback; створення Firestore-документа все ще повторює спробу при конфлікті для сумісності з існуючими даними.

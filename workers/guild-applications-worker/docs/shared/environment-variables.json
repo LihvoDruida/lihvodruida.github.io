@@ -1,0 +1,79 @@
+[
+  {
+    "name": "DASHBOARD_URL",
+    "required": true,
+    "scope": "Worker",
+    "description_en": "Canonical admin dashboard base URL. Worker derives dashboard API endpoints from this value.",
+    "description_ua": "Канонічний base URL адмін-панелі. Worker будує dashboard API endpoints від цього значення."
+  },
+  {
+    "name": "ADMIN_DASHBOARD_URL",
+    "required": false,
+    "scope": "Worker",
+    "description_en": "Optional alias kept for dashboard links during migration; DASHBOARD_URL is preferred.",
+    "description_ua": "Опційний alias для міграції посилань панелі; пріоритет має DASHBOARD_URL."
+  },
+  {
+    "name": "INTERNAL_PROFILE_LOOKUP_TOKEN",
+    "required": true,
+    "scope": "Worker + Dashboard",
+    "description_en": "Server-to-server token used by the Worker when calling protected dashboard endpoints.",
+    "description_ua": "Server-to-server токен для викликів захищених endpoint-ів dashboard з Worker."
+  },
+  {
+    "name": "DISCORD_PUBLIC_KEY",
+    "required": true,
+    "scope": "Worker",
+    "description_en": "Discord application public key for Ed25519 interaction verification. Timestamp skew is limited by DISCORD_SIGNATURE_MAX_SKEW_SECONDS.",
+    "description_ua": "Публічний ключ Discord application для Ed25519-перевірки interactions. Timestamp skew обмежується DISCORD_SIGNATURE_MAX_SKEW_SECONDS."
+  },
+  {
+    "name": "DISCORD_BOT_TOKEN",
+    "required": true,
+    "scope": "Worker",
+    "description_en": "Bot token for Discord REST calls. Store as Wrangler secret only.",
+    "description_ua": "Bot token для Discord REST. Зберігати тільки як Wrangler secret."
+  },
+  {
+    "name": "WORKER_STATE",
+    "required": true,
+    "scope": "KV binding",
+    "description_en": "KV namespace binding for cooldowns, idempotency, Firebase auth token cache and application sequence high-water mark.",
+    "description_ua": "KV namespace binding для cooldowns, idempotency, кешу Firebase auth token і application sequence high-water mark."
+  },
+  {
+    "name": "RULES_STATS",
+    "required": false,
+    "scope": "KV binding",
+    "description_en": "KV namespace for rules decisions and raid-rules signups. Worker can use it as fallback state KV.",
+    "description_ua": "KV namespace для рішень по правилах і підписів рейдових правил. Worker може використовувати його як fallback state KV."
+  },
+  {
+    "name": "RAID_LIFECYCLE_SECRET",
+    "required": true,
+    "scope": "Worker + Dashboard",
+    "description_en": "Shared secret for scheduled /api/raids/lifecycle calls.",
+    "description_ua": "Спільний секрет для scheduled викликів /api/raids/lifecycle."
+  },
+  {
+    "name": "RAID_DISCORD_DELETE_AFTER_START_HOURS",
+    "required": false,
+    "scope": "Dashboard",
+    "description_en": "Raid closes this many hours after the raid start time. Default/current expected value: 4.",
+    "description_ua": "Рейд закривається через стільки годин після старту. Очікуване значення: 4."
+  },
+  {
+    "name": "RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES",
+    "required": false,
+    "scope": "Dashboard",
+    "description_en": "Optional Discord message cleanup delay after the raid was closed.",
+    "description_ua": "Опційна затримка cleanup Discord-повідомлення після закриття рейду."
+  },
+  {
+    "name": "DISCORD_SIGNATURE_MAX_SKEW_SECONDS",
+    "required": false,
+    "scope": "Worker",
+    "description_en": "Maximum accepted Discord interaction signature timestamp skew. Default: 120 seconds.",
+    "description_ua": "Максимально допустиме відхилення timestamp Discord interaction signature. Типово: 120 секунд."
+  }
+]

@@ -3,3 +3,4 @@ _site/*
 *.pyc
 *.zip
 *.example
+/workers/guild-applications-worker/guild-applications

@@ -164,8 +164,8 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 | `DISCORD_RAID_RULES_URL` | alias | Legacy alias for raid rules. |
 | `RAID_TIME_ZONE` | required | Raid timezone, for example `Europe/Kyiv`. |
 | `RAID_LIFECYCLE_SECRET` | optional | Bearer token for `/api/raids/lifecycle` cron/manual job. Falls back to `CRON_SECRET` or `INTERNAL_API_TOKEN`. |
-| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Hours after raid start before the raid is auto-closed and Discord buttons are disabled. Default `4`. |
-| `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` | optional | Minutes after close before the Discord announcement can be deleted. The raid record remains in the dashboard archive. Default `60`. |
+| `RAID_DISCORD_DELETE_AFTER_START_HOURS` | optional | Hours after raid start before the Discord raid announcement may be deleted. The raid must already be `closed`. Default `4`. |
+| `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES` | optional | Extra buffer in minutes after `closedAt` before Discord announcement cleanup is allowed. The raid record remains in the dashboard archive. Default `60`. |
 | `NEXT_PUBLIC_RAID_TIME_ZONE` | required public | Public timezone for UI. |
 | Raid autoclose | built-in | A raid is automatically considered closed at the scheduled start time using `RAID_TIME_ZONE`; there is no post-start grace delay. |
 | `RAID_LIST_CACHE_TTL_MS` | optional | Raid list cache TTL. |
@@ -181,3 +181,10 @@ Put values into Worker only when Worker actually owns the corresponding responsi
 
 > Access role IDs are no longer configured in env. Manage dashboard groups, a single Discord role ID and permissions in Firebase from `/admin/groups`.
 
+
+## Worker / raid integration additions
+
+- `RAID_LIFECYCLE_SECRET` must match the Worker secret used by Cloudflare Cron for `/api/raids/lifecycle`.
+- `RAID_DISCORD_DELETE_AFTER_START_HOURS=4` controls only Discord message cleanup after the configured raid start time, not the raid close time.
+- `RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES=60` adds a post-close buffer before optional Discord message cleanup.
+- Discord raid action idempotency is persisted in Firestore collection `dashboardWorkerIdempotency`; no extra environment variable is required.
