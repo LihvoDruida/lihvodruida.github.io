@@ -3589,10 +3589,6 @@ async function raidPollProxyContent(interaction, env, pollAction) {
 }
 
 async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
-  if (isInteractionRateLimited(interaction, "raid-poll")) {
-    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
-  }
-
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
@@ -3765,10 +3761,6 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 }
 
 async function handleRaidAnnouncementInteraction(interaction, env, raidAction, ctx) {
-  if (isInteractionRateLimited(interaction, "raid-announcement")) {
-    return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
-  }
-
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
 
   if (ctx && typeof ctx.waitUntil === "function") {

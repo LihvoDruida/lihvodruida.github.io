@@ -163,8 +163,6 @@ export type RaidGroupLayout = {
 };
 
 const RAID_COLLECTION = "dashboardRaids";
-const DEFAULT_RAID_IMAGE =
-  "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
 const RAID_ACTION_PREFIX = "mbv1:raid";
 const MAX_RAID_PLAYERS = 80;
 const DEFAULT_RAID_REGISTRATION_LOCK_MINUTES = 60;
@@ -3064,8 +3062,14 @@ function compactSignupDiscordLine(
   const base = item.characterName || item.discordName || "Гравець";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel}` : "";
   const number = raidSignupNumberLabel(item);
-  const value =
-    `${number ? `${number} — ` : ""}${discordSignupMarkers(item, raid)}${base}${ilvl}`.trim();
+  const markers = discordSignupMarkers(item, raid).trim();
+  const value = [
+    number || null,
+    markers || null,
+    base,
+  ]
+    .filter(Boolean)
+    .join(" • ") + ilvl;
   return value.length <= max
     ? value
     : `${value.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
@@ -3078,7 +3082,7 @@ function compactSignupDiscordLines(
 ) {
   return items.length
     ? items
-        .map((item) => `• ${compactSignupDiscordLine(item, raid, max)}`)
+        .map((item) => compactSignupDiscordLine(item, raid, max))
         .join("\n")
     : "—";
 }
@@ -3185,9 +3189,6 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const parties = allParties.slice(0, 8);
   const bench = layout.bench;
   const warnings = layout.warnings;
-  const imageUrl = raid.imageUrl || undefined;
-  const thumbUrl =
-    resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
   const registrationLimit = raidRegistrationLimit(raid);
@@ -3322,8 +3323,6 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     url: dashboardRaidUrl(raid.id),
     description,
     color: DIFFICULTY_COLORS[raid.difficulty],
-    thumbnail: thumbUrl ? { url: thumbUrl } : undefined,
-    image: imageUrl ? { url: imageUrl } : undefined,
     fields,
     footer: {
       text: closed

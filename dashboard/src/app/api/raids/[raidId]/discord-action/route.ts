@@ -78,23 +78,29 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
     const userId = cleanDiscordId(body?.userId || body?.user_id);
     const channelId = cleanDiscordMessageId(body?.channelId || body?.channel_id);
     const messageId = cleanDiscordMessageId(body?.messageId || body?.message_id);
+    const action = cleanAction(body?.action);
+    const commit = Boolean(body?.commit);
 
     if (!userId) {
       return NextResponse.json({ ok: false, content: "Invalid Discord user id" }, { status: 400, headers: noStoreHeaders() });
     }
 
-    const limit = checkRateLimit(`raid-discord-action:${raidId}:${userId}`, 45, 5 * 60 * 1000);
-    if (!limit.ok) {
-      logDashboardEvent("warn", "raids.discord_action.rate_limited", request, { raidId, userId, resetAt: limit.resetAt });
-      return NextResponse.json(
-        { ok: false, content: "⏳ Забагато дій саме від тебе. Зачекай кілька секунд і повтори." },
-        {
-          status: 429,
-          headers: noStoreHeaders({
-            "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
-          }),
-        },
-      );
+    // Вибір персонажа/ролі лише оновлює приватний Discord-пульт і не має ловити cooldown.
+    // Rate-limit залишаємо тільки на реальний запис/пропуск, щоб різні користувачі та швидкі select-дії не блокували одне одного.
+    if (commit || action === "skipped") {
+      const limit = checkRateLimit(`raid-discord-action:${raidId}:${userId}:commit`, 120, 5 * 60 * 1000);
+      if (!limit.ok) {
+        logDashboardEvent("warn", "raids.discord_action.rate_limited", request, { raidId, userId, resetAt: limit.resetAt });
+        return NextResponse.json(
+          { ok: false, content: "⏳ Забагато підтверджень саме від тебе. Зачекай кілька секунд і повтори." },
+          {
+            status: 429,
+            headers: noStoreHeaders({
+              "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
+            }),
+          },
+        );
+      }
     }
 
     const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
@@ -107,12 +113,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
 
     const result = await handleRaidDiscordAction({
       raidId,
-      action: cleanAction(body?.action),
+      action,
       userId,
       userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
       characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
       signupRole: cleanSignupRole(body?.signupRole || body?.signup_role || body?.role),
-      commit: Boolean(body?.commit),
+      commit,
       messageRef: {
         channelId,
         messageId,
