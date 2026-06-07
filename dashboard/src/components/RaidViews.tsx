@@ -182,9 +182,11 @@ function RosterBlock({ title, items, empty = "Поки порожньо", showIt
             <SignupNumberBadge item={item} />
             <span className="raid-roster-role-icon">{item.role === "tank" ? "🛡" : item.role === "healer" ? "✚" : "⚔"}</span>
             <SignupAvatar item={item} />
-            <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
-            <small>{signupSpecLabel(item) || item.discordName}</small>
-            {signupExtraLabel(item) ? <small>{signupExtraLabel(item)}</small> : null}
+            <span className="raid-roster-member-copy">
+              <strong>{signupDisplayName(item, { showItemLevel, hasItemLevelIssue: Boolean(issue) })}</strong>
+              <small>{signupSpecLabel(item) || item.discordName}</small>
+              {signupExtraLabel(item) ? <small>{signupExtraLabel(item)}</small> : null}
+            </span>
           </div>
         );
       }) : <p>{empty}</p>}

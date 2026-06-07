@@ -120,20 +120,17 @@ export function wowSpecRoleByName(value: unknown): WowCharacterRole | null {
   return ROLE_BY_SPEC_KEY[key] || null;
 }
 
-export function resolveWowCharacterRole(input: {
-  activeSpecRole?: unknown;
+export function resolveWowSpecRole(input: {
   activeSpecId?: unknown;
   activeSpecName?: unknown;
   className?: unknown;
-}): WowCharacterRole {
-  const explicitRole = normalizeWowRole(input.activeSpecRole);
-  if (explicitRole) return explicitRole;
-
+}): WowCharacterRole | null {
   const roleById = wowSpecRoleById(input.activeSpecId);
   if (roleById) return roleById;
 
   const specKey = normalizeKey(input.activeSpecName);
   const classKey = normalizeKey(input.className);
+  if (!specKey) return null;
 
   // Blizzard can return localized names. Keep a defensive keyword pass for
   // Ukrainian/Russian clients and for names that arrive with class suffixes.
@@ -154,6 +151,21 @@ export function resolveWowCharacterRole(input: {
     && (specKey.includes("protection") || specKey.includes("защита") || specKey.includes("захист"))) {
     return "tank";
   }
+
+  return null;
+}
+
+export function resolveWowCharacterRole(input: {
+  activeSpecRole?: unknown;
+  activeSpecId?: unknown;
+  activeSpecName?: unknown;
+  className?: unknown;
+}): WowCharacterRole {
+  const roleBySpec = resolveWowSpecRole(input);
+  if (roleBySpec) return roleBySpec;
+
+  const explicitRole = normalizeWowRole(input.activeSpecRole);
+  if (explicitRole) return explicitRole;
 
   return "dps";
 }
