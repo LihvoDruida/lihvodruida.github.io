@@ -143,6 +143,24 @@ export type RaidParty = {
   members: RaidSignup[];
 };
 
+export type RaidBench = {
+  members: RaidSignup[];
+  tanks: RaidSignup[];
+  healers: RaidSignup[];
+  dps: RaidSignup[];
+  late: RaidSignup[];
+};
+
+export type RaidGroupLayout = {
+  parties: RaidParty[];
+  bench: RaidBench;
+  composition: RaidComposition;
+  targetSize: number;
+  benchEnabled: boolean;
+  warnings: string[];
+  missingCriticalBuffs: string[];
+};
+
 const RAID_COLLECTION = "dashboardRaids";
 const DEFAULT_RAID_IMAGE =
   "https://lihvodruida.pp.ua/assets/img-content/raid.webp";
@@ -428,7 +446,8 @@ function raidAutoCloseDue(
 ) {
   const startsAt = raidDateTimeToUtcMs(raid);
   if (startsAt === null) return false;
-  const safeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
+  const safeDelayHours =
+    raidDiscordDeleteAfterStartHoursFromSettings(delayHours);
   return Date.now() >= startsAt + safeDelayHours * 60 * 60 * 1000;
 }
 
@@ -454,7 +473,9 @@ function raidClosedAtUtcMs(raid: Pick<RaidItem, "closedAt" | "date" | "time">) {
 }
 
 function raidDiscordDeleteDue(
-  raid: Pick<RaidItem, "date" | "time" | "status" | "closedAt"> | Record<string, unknown>,
+  raid:
+    | Pick<RaidItem, "date" | "time" | "status" | "closedAt">
+    | Record<string, unknown>,
   delayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv(),
   delayAfterStartHours = raidAutoCloseDelayHoursFromEnv(),
 ) {
@@ -470,9 +491,8 @@ function raidDiscordDeleteDue(
 
   const safeDelayMinutes =
     raidDiscordDeleteAfterCloseMinutesFromSettings(delayMinutes);
-  const safeDelayAfterStartHours = raidDiscordDeleteAfterStartHoursFromSettings(
-    delayAfterStartHours,
-  );
+  const safeDelayAfterStartHours =
+    raidDiscordDeleteAfterStartHoursFromSettings(delayAfterStartHours);
   const deleteAfterStartAt =
     startsAt + safeDelayAfterStartHours * 60 * 60 * 1000;
   const deleteAfterCloseAt = closedAt + safeDelayMinutes * 60 * 1000;
@@ -826,7 +846,10 @@ export function raidCompositionLabel(raid: Pick<RaidItem, "composition">) {
   return `${raid.composition.tanks} / ${raid.composition.healers} / ${raid.composition.dps}`;
 }
 
-type RaidAutoInput = Pick<RaidItem, "difficulty" | "composition" | "signups">;
+type RaidAutoInput = Pick<
+  RaidItem,
+  "difficulty" | "composition" | "signups" | "maxPlayers"
+>;
 
 export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   return raid.signups.filter(
@@ -834,49 +857,13 @@ export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   ).length;
 }
 
-const BASE_RAID_COMPOSITION_TIERS: RaidComposition[] = [
-  { tanks: 2, healers: 2, dps: 6 },
-  { tanks: 2, healers: 4, dps: 14 },
-  { tanks: 2, healers: 6, dps: 22 },
-];
+const RAID_PARTY_SIZE = 5;
+const MAX_RAID_PARTIES = 40;
+const MAX_RAID_HEALERS = 5;
 
-const MYTHIC_RAID_COMPOSITION_TIERS: RaidComposition[] = [
-  { tanks: 2, healers: 2, dps: 6 },
-  { tanks: 2, healers: 4, dps: 14 },
-];
 
 function compositionCapacity(composition: RaidComposition) {
   return composition.tanks + composition.healers + composition.dps;
-}
-
-function normalizeRoleDemand(
-  value?: Partial<RaidComposition> | null,
-): RaidComposition | null {
-  if (!value) return null;
-  return {
-    tanks: Math.max(0, Math.floor(Number(value.tanks) || 0)),
-    healers: Math.max(0, Math.floor(Number(value.healers) || 0)),
-    dps: Math.max(0, Math.floor(Number(value.dps) || 0)),
-  };
-}
-
-function compositionWithTankOverflow(
-  composition: RaidComposition,
-  roleDemand?: RaidComposition | null,
-): RaidComposition {
-  if (!roleDemand || roleDemand.tanks <= composition.tanks) return composition;
-  return { ...composition, tanks: roleDemand.tanks };
-}
-
-function compositionFitsRoster(
-  composition: RaidComposition,
-  activeSize: number,
-  roleDemand?: RaidComposition | null,
-) {
-  const target = compositionWithTankOverflow(composition, roleDemand);
-  if (activeSize > compositionCapacity(target)) return false;
-  if (!roleDemand) return true;
-  return roleDemand.healers <= target.healers && roleDemand.dps <= target.dps;
 }
 
 function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
@@ -890,67 +877,48 @@ function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
   };
 }
 
+function clampRaidTargetSize(size: number) {
+  const targetSize = Math.floor(Number.isFinite(size) ? size : 0);
+  return Math.max(0, Math.min(MAX_RAID_PLAYERS, targetSize));
+}
+
+function healerSlotsForSize(targetSize: number, tanks: number) {
+  if (targetSize <= tanks) return 0;
+  if (targetSize < RAID_PARTY_SIZE) return targetSize - tanks >= 2 ? 1 : 0;
+  const partyHealers = Math.ceil(targetSize / RAID_PARTY_SIZE);
+  const minimumHealers = targetSize >= 10 ? 2 : 1;
+  return Math.max(
+    0,
+    Math.min(targetSize - tanks, MAX_RAID_HEALERS, Math.max(minimumHealers, partyHealers)),
+  );
+}
+
 export function autoRaidCompositionForSize(
   size: number,
   difficulty: RaidDifficulty,
   roleDemand?: Partial<RaidComposition> | null,
 ): RaidComposition {
-  const activeSize = Math.max(0, Math.floor(Number.isFinite(size) ? size : 0));
-  const demand = normalizeRoleDemand(roleDemand);
-  const baseTiers =
-    difficulty === "mythic"
-      ? MYTHIC_RAID_COMPOSITION_TIERS
-      : BASE_RAID_COMPOSITION_TIERS;
+  void difficulty;
+  void roleDemand;
 
-  for (const tier of baseTiers) {
-    if (compositionFitsRoster(tier, activeSize, demand))
-      return compositionWithTankOverflow(tier, demand);
-  }
+  const targetSize = clampRaidTargetSize(size);
+  if (targetSize <= 0) return { tanks: 0, healers: 0, dps: 0 };
 
-  if (difficulty === "mythic") {
-    let mythicOverflow = compositionWithTankOverflow(
-      { ...baseTiers[baseTiers.length - 1] },
-      demand,
-    );
-    if (demand) {
-      mythicOverflow = {
-        tanks: Math.max(mythicOverflow.tanks, demand.tanks),
-        healers: Math.max(mythicOverflow.healers, demand.healers),
-        dps: Math.max(mythicOverflow.dps, demand.dps),
-      };
-    }
-    const missingCapacity = activeSize - compositionCapacity(mythicOverflow);
-    return missingCapacity > 0
-      ? { ...mythicOverflow, dps: mythicOverflow.dps + missingCapacity }
-      : mythicOverflow;
-  }
-
-  let dynamicTier = compositionWithTankOverflow(
-    { ...BASE_RAID_COMPOSITION_TIERS[BASE_RAID_COMPOSITION_TIERS.length - 1] },
-    demand,
-  );
-  let guard = 0;
-  while (
-    !compositionFitsRoster(dynamicTier, activeSize, demand) &&
-    guard < 20
-  ) {
-    dynamicTier = compositionWithTankOverflow(
-      {
-        tanks: dynamicTier.tanks,
-        healers: dynamicTier.healers + 2,
-        dps: dynamicTier.dps + 8,
-      },
-      demand,
-    );
-    guard += 1;
-  }
-  return dynamicTier;
+  const tanks = targetSize >= 2 ? Math.min(2, targetSize) : targetSize;
+  const healers = healerSlotsForSize(targetSize, tanks);
+  return {
+    tanks,
+    healers,
+    dps: Math.max(0, targetSize - tanks - healers),
+  };
 }
 
 export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
+  const limit = raidRegistrationLimit(raid);
   const activeSize = raidActiveRosterSize(raid);
+  const targetSize = limit ?? activeSize;
   return autoRaidCompositionForSize(
-    activeSize,
+    targetSize,
     raid.difficulty,
     activeRoleDemand(raid.signups),
   );
@@ -1652,7 +1620,12 @@ async function syncAutoClosedRaid(
     },
   );
 
-  if (closed && options.syncDiscord !== false && raid.channelId && raid.messageId) {
+  if (
+    closed &&
+    options.syncDiscord !== false &&
+    raid.channelId &&
+    raid.messageId
+  ) {
     await publishOrUpdateRaid(
       {
         ...raid,
@@ -1707,12 +1680,15 @@ async function syncRaidDiscordDeletionAfterClose(
     if (isMissingDiscordMessageError(error)) {
       deleted = true;
     } else {
-      console.warn("[raids] Failed to auto-delete closed Discord raid message", {
-        raidId: raid.id,
-        delayAfterStartHours,
-        delayMinutes,
-        message: error instanceof Error ? error.message : String(error),
-      });
+      console.warn(
+        "[raids] Failed to auto-delete closed Discord raid message",
+        {
+          raidId: raid.id,
+          delayAfterStartHours,
+          delayMinutes,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      );
       return false;
     }
   }
@@ -1745,7 +1721,10 @@ async function syncRaidDiscordDeletionAfterClose(
 
 async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
-  const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 100)));
+  const safeLimit = Math.max(
+    1,
+    Math.min(100, Math.floor(Number(limit) || 100)),
+  );
   const db = getFirebaseAdminDb();
   const docsById = new Map<
     string,
@@ -1754,11 +1733,13 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
 
   try {
     const [publishedSnapshot, closedSnapshot] = await Promise.all([
-      db.collection(RAID_COLLECTION)
+      db
+        .collection(RAID_COLLECTION)
         .where("status", "==", "published")
         .limit(safeLimit)
         .get(),
-      db.collection(RAID_COLLECTION)
+      db
+        .collection(RAID_COLLECTION)
         .where("status", "==", "closed")
         .limit(safeLimit)
         .get(),
@@ -1767,9 +1748,12 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
       docsById.set(doc.id, doc);
     }
   } catch (error) {
-    console.warn("[raids] Lifecycle status query failed; falling back to date scan", {
-      message: error instanceof Error ? error.message : String(error),
-    });
+    console.warn(
+      "[raids] Lifecycle status query failed; falling back to date scan",
+      {
+        message: error instanceof Error ? error.message : String(error),
+      },
+    );
     try {
       const snapshot = await db
         .collection(RAID_COLLECTION)
@@ -1819,7 +1803,8 @@ export async function syncRaidLifecycleBatch(limit = 100) {
       errors.push({
         raidId: raid.id,
         title: raid.title || raid.id,
-        message: error instanceof Error ? error.message : String(error || "unknown"),
+        message:
+          error instanceof Error ? error.message : String(error || "unknown"),
       });
       console.warn("[raids] Lifecycle item failed", {
         raidId: raid.id,
@@ -1847,14 +1832,15 @@ export async function closeRaid(raidId: string) {
       "Чернетку не можна закрити. Її можна видалити або опублікувати.",
     );
 
-  let closed: RaidItem = raid.status === "closed"
-    ? raid
-    : {
-        ...raid,
-        status: "closed",
-        closedReason: "manual",
-        closedAt: raid.closedAt || new Date().toISOString(),
-      };
+  let closed: RaidItem =
+    raid.status === "closed"
+      ? raid
+      : {
+          ...raid,
+          status: "closed",
+          closedReason: "manual",
+          closedAt: raid.closedAt || new Date().toISOString(),
+        };
 
   await firebaseWrite(
     "raid",
@@ -1887,7 +1873,9 @@ export async function closeRaid(raidId: string) {
           {
             status: "closed",
             closedReason: "manual",
-            ...(current.closedAt ? {} : { closedAt: FieldValue.serverTimestamp() }),
+            ...(current.closedAt
+              ? {}
+              : { closedAt: FieldValue.serverTimestamp() }),
             updatedAt: FieldValue.serverTimestamp(),
           },
           { merge: true },
@@ -2250,7 +2238,6 @@ function discordTimestamp(
   return `<t:${Math.floor(startsAt / 1000)}:${style}>`;
 }
 
-
 function discordTimestampLabel(value?: string | null) {
   const ms = Date.parse(String(value || ""));
   if (!Number.isFinite(ms)) return "—";
@@ -2326,9 +2313,6 @@ function rosterForGroups(raid: Pick<RaidItem, "signups">) {
   };
 }
 
-const RAID_PARTY_SIZE = 5;
-const MAX_RAID_PARTIES = 40;
-
 function partyMembersCount(party: RaidParty) {
   return (party.tank ? 1 : 0) + (party.healer ? 1 : 0) + party.dps.length;
 }
@@ -2388,46 +2372,600 @@ function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
   return false;
 }
 
-export function buildRaidParties(
-  raid: Pick<RaidItem, "difficulty" | "composition" | "signups">,
-): RaidParty[] {
-  const roster = rosterForGroups(raid);
-  const visibleRosterSize = roster.active.length;
-  const groupCount = Math.max(
-    1,
-    Math.min(
-      MAX_RAID_PARTIES,
-      Math.ceil(Math.max(1, visibleRosterSize) / RAID_PARTY_SIZE),
-    ),
+function signupClassKey(item?: RaidSignup | null) {
+  return (
+    String(item?.className || "unknown")
+      .trim()
+      .toLowerCase() || "unknown"
   );
-  const parties: RaidParty[] = Array.from(
-    { length: groupCount },
-    (_, index) => ({ index: index + 1, dps: [], late: [], members: [] }),
+}
+
+function normalizeWowKey(value?: string | null) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+const CLASS_TOKEN_BY_SPEC_ID: Record<number, string> = {
+  62: "mage",
+  63: "mage",
+  64: "mage",
+  65: "paladin",
+  66: "paladin",
+  70: "paladin",
+  71: "warrior",
+  72: "warrior",
+  73: "warrior",
+  102: "druid",
+  103: "druid",
+  104: "druid",
+  105: "druid",
+  250: "deathknight",
+  251: "deathknight",
+  252: "deathknight",
+  253: "hunter",
+  254: "hunter",
+  255: "hunter",
+  256: "priest",
+  257: "priest",
+  258: "priest",
+  259: "rogue",
+  260: "rogue",
+  261: "rogue",
+  262: "shaman",
+  263: "shaman",
+  264: "shaman",
+  265: "warlock",
+  266: "warlock",
+  267: "warlock",
+  268: "monk",
+  269: "monk",
+  270: "monk",
+  577: "demonhunter",
+  581: "demonhunter",
+  1467: "evoker",
+  1468: "evoker",
+  1473: "evoker",
+};
+
+const SPEC_TOKEN_BY_SPEC_ID: Record<number, string> = {
+  62: "arcane",
+  63: "fire",
+  64: "frost",
+  65: "holy",
+  66: "protection",
+  70: "retribution",
+  71: "arms",
+  72: "fury",
+  73: "protection",
+  102: "balance",
+  103: "feral",
+  104: "guardian",
+  105: "restoration",
+  250: "blood",
+  251: "frost",
+  252: "unholy",
+  253: "beastmastery",
+  254: "marksmanship",
+  255: "survival",
+  256: "discipline",
+  257: "holy",
+  258: "shadow",
+  259: "assassination",
+  260: "outlaw",
+  261: "subtlety",
+  262: "elemental",
+  263: "enhancement",
+  264: "restoration",
+  265: "affliction",
+  266: "demonology",
+  267: "destruction",
+  268: "brewmaster",
+  269: "windwalker",
+  270: "mistweaver",
+  577: "havoc",
+  581: "vengeance",
+  1467: "devastation",
+  1468: "preservation",
+  1473: "augmentation",
+};
+
+function signupSpecId(item?: RaidSignup | null) {
+  const specId = Number(item?.activeSpecId || 0);
+  return Number.isFinite(specId) && specId > 0 ? Math.floor(specId) : null;
+}
+
+function signupClassToken(item?: RaidSignup | null) {
+  const specId = signupSpecId(item);
+  if (specId && CLASS_TOKEN_BY_SPEC_ID[specId])
+    return CLASS_TOKEN_BY_SPEC_ID[specId];
+  const token = normalizeWowKey(item?.className);
+  if (token === "deathknight") return "deathknight";
+  if (token === "demonhunter") return "demonhunter";
+  return token || "unknown";
+}
+
+function signupSpecToken(item?: RaidSignup | null) {
+  const specId = signupSpecId(item);
+  if (specId && SPEC_TOKEN_BY_SPEC_ID[specId])
+    return SPEC_TOKEN_BY_SPEC_ID[specId];
+  return normalizeWowKey(item?.activeSpecName) || "unknown";
+}
+
+function signupMatches(
+  item: RaidSignup,
+  classToken: string,
+  specs?: string[],
+) {
+  if (signupClassToken(item) !== classToken) return false;
+  if (!specs?.length) return true;
+  const spec = signupSpecToken(item);
+  return specs.some((value) => normalizeWowKey(value) === spec);
+}
+
+function pickFirstBySpecPriority(
+  pool: RaidSignup[],
+  priorities: Array<{ classToken: string; specs?: string[] }>,
+) {
+  for (const priority of priorities) {
+    const index = pool.findIndex((item) =>
+      signupMatches(item, priority.classToken, priority.specs),
+    );
+    if (index >= 0) {
+      const [picked] = pool.splice(index, 1);
+      return picked || null;
+    }
+  }
+  return null;
+}
+
+function selectTanksForComposition(tanks: RaidSignup[], limit: number) {
+  const pool = [...tanks].sort(signupRosterOrder);
+  const selected: RaidSignup[] = [];
+  const mainTank = pickFirstBySpecPriority(pool, [
+    { classToken: "druid", specs: ["Guardian"] },
+    { classToken: "monk", specs: ["Brewmaster"] },
+  ]);
+  if (mainTank && selected.length < limit) selected.push(mainTank);
+
+  const offTank = pickFirstBySpecPriority(pool, [
+    { classToken: "deathknight", specs: ["Blood"] },
+    { classToken: "paladin", specs: ["Protection"] },
+  ]);
+  if (offTank && selected.length < limit) selected.push(offTank);
+
+  while (selected.length < limit && pool.length) {
+    const next = pickFirstBySpecPriority(pool, [
+      { classToken: "druid", specs: ["Guardian"] },
+      { classToken: "monk", specs: ["Brewmaster"] },
+      { classToken: "deathknight", specs: ["Blood"] },
+      { classToken: "paladin", specs: ["Protection"] },
+    ]);
+    selected.push(next || (pool.shift() as RaidSignup));
+  }
+
+  return selected;
+}
+
+function selectHealersForComposition(healers: RaidSignup[], limit: number) {
+  const pool = [...healers].sort(signupRosterOrder);
+  const selected: RaidSignup[] = [];
+  const requiredSlots = [
+    { classToken: "paladin", specs: ["Holy"] },
+    { classToken: "druid", specs: ["Restoration"] },
+    { classToken: "priest", specs: ["Holy"] },
+    { classToken: "shaman", specs: ["Restoration"] },
+    { classToken: "priest", specs: ["Discipline"] },
+    { classToken: "evoker", specs: ["Preservation"] },
+  ];
+
+  for (const priority of requiredSlots) {
+    if (selected.length >= limit) break;
+    const picked = pickFirstBySpecPriority(pool, [priority]);
+    if (picked) selected.push(picked);
+  }
+
+  const fill = takeClassBalanced(pool, Math.max(0, limit - selected.length));
+  selected.push(...fill);
+  return selected.slice(0, limit);
+}
+
+type DpsRangeType = "melee" | "ranged";
+
+function dpsRangeType(item: RaidSignup): DpsRangeType {
+  const classToken = signupClassToken(item);
+  const specToken = signupSpecToken(item);
+
+  if (classToken === "hunter") return specToken === "survival" ? "melee" : "ranged";
+  if (classToken === "druid") return specToken === "feral" ? "melee" : "ranged";
+  if (classToken === "shaman") return specToken === "enhancement" ? "melee" : "ranged";
+  if (classToken === "priest") return "ranged";
+  if (classToken === "mage" || classToken === "warlock" || classToken === "evoker")
+    return "ranged";
+  if (
+    classToken === "warrior" ||
+    classToken === "rogue" ||
+    classToken === "deathknight" ||
+    classToken === "demonhunter" ||
+    classToken === "monk" ||
+    classToken === "paladin"
+  )
+    return "melee";
+
+  return "ranged";
+}
+
+function dpsTierTwoScore(item: RaidSignup) {
+  const classToken = signupClassToken(item);
+  const specToken = signupSpecToken(item);
+  if (
+    classToken === "hunter" ||
+    (classToken === "druid" && specToken === "balance") ||
+    (classToken === "shaman" && specToken === "elemental")
+  )
+    return 0;
+  if (
+    classToken === "rogue" ||
+    classToken === "deathknight" ||
+    (classToken === "paladin" && specToken === "retribution")
+  )
+    return 1;
+  return 2;
+}
+
+const RAID_CRITICAL_BUFFS: Array<{
+  label: string;
+  match: (item: RaidSignup) => boolean;
+}> = [
+  {
+    label: "Battle Shout — Warrior",
+    match: (item) => signupClassToken(item) === "warrior",
+  },
+  {
+    label: "Arcane Intellect — Mage",
+    match: (item) => signupClassToken(item) === "mage",
+  },
+  {
+    label: "Power Word: Fortitude — Priest",
+    match: (item) => signupClassToken(item) === "priest",
+  },
+  {
+    label: "Chaos Brand — Demon Hunter",
+    match: (item) => signupClassToken(item) === "demonhunter",
+  },
+  {
+    label: "Warlock utility — Healthstone/Gateway/Summon",
+    match: (item) => signupClassToken(item) === "warlock",
+  },
+  {
+    label: "Evoker raid buff",
+    match: (item) => signupClassToken(item) === "evoker",
+  },
+  {
+    label: "Monk/Druid aura",
+    match: (item) => {
+      const classToken = signupClassToken(item);
+      const specToken = signupSpecToken(item);
+      return (
+        (classToken === "monk" && specToken === "windwalker") ||
+        (classToken === "druid" &&
+          (specToken === "balance" || specToken === "feral"))
+      );
+    },
+  },
+];
+
+function pickBuffProvider(
+  pool: RaidSignup[],
+  match: (item: RaidSignup) => boolean,
+) {
+  const index = pool.findIndex(match);
+  if (index < 0) return null;
+  const [picked] = pool.splice(index, 1);
+  return picked || null;
+}
+
+function selectDpsForComposition(dps: RaidSignup[], limit: number) {
+  const pool = [...dps].sort(signupRosterOrder);
+  const selected: RaidSignup[] = [];
+
+  for (const buff of RAID_CRITICAL_BUFFS) {
+    if (selected.length >= limit) break;
+    const picked = pickBuffProvider(pool, buff.match);
+    if (picked) selected.push(picked);
+  }
+
+  const targetMelee = Math.round(limit * (6 / 14));
+  const classCounts = new Map<string, number>();
+  for (const member of selected) {
+    const key = signupClassKey(member);
+    classCounts.set(key, (classCounts.get(key) || 0) + 1);
+  }
+
+  while (selected.length < limit && pool.length) {
+    const currentMelee = selected.filter(
+      (item) => dpsRangeType(item) === "melee",
+    ).length;
+    const preferredRange: DpsRangeType =
+      currentMelee < targetMelee ? "melee" : "ranged";
+    pool.sort((a, b) => {
+      const aRangePenalty = dpsRangeType(a) === preferredRange ? 0 : 1;
+      const bRangePenalty = dpsRangeType(b) === preferredRange ? 0 : 1;
+      return (
+        aRangePenalty - bRangePenalty ||
+        (classCounts.get(signupClassKey(a)) || 0) -
+          (classCounts.get(signupClassKey(b)) || 0) ||
+        dpsTierTwoScore(a) - dpsTierTwoScore(b) ||
+        signupRosterOrder(a, b)
+      );
+    });
+    const member = pool.shift();
+    if (!member) break;
+    selected.push(member);
+    const key = signupClassKey(member);
+    classCounts.set(key, (classCounts.get(key) || 0) + 1);
+  }
+
+  return selected.slice(0, limit);
+}
+
+function missingCriticalBuffs(members: RaidSignup[]) {
+  return RAID_CRITICAL_BUFFS.filter(
+    (buff) => !members.some((member) => buff.match(member)),
+  ).map((buff) => buff.label);
+}
+
+function signupRosterOrder(a: RaidSignup, b: RaidSignup) {
+  const aNumber =
+    cleanOptionalSignupNumber(a.signupNumber) || Number.MAX_SAFE_INTEGER;
+  const bNumber =
+    cleanOptionalSignupNumber(b.signupNumber) || Number.MAX_SAFE_INTEGER;
+  const aPriority = a.verifiedGuild === false ? 1 : 0;
+  const bPriority = b.verifiedGuild === false ? 1 : 0;
+  const aSigned = Date.parse(a.signedAt || a.updatedAt || "");
+  const bSigned = Date.parse(b.signedAt || b.updatedAt || "");
+  const signedDelta =
+    (Number.isFinite(aSigned) ? aSigned : Number.MAX_SAFE_INTEGER) -
+    (Number.isFinite(bSigned) ? bSigned : Number.MAX_SAFE_INTEGER);
+  return (
+    aPriority - bPriority ||
+    aNumber - bNumber ||
+    signedDelta ||
+    String(a.characterName || a.discordName).localeCompare(
+      String(b.characterName || b.discordName),
+      "uk",
+    )
   );
+}
 
-  const tanks = [...roster.tanks];
+function takeClassBalanced(candidates: RaidSignup[], limit: number) {
+  const pool = [...candidates].sort(signupRosterOrder);
+  const selected: RaidSignup[] = [];
+  const classCounts = new Map<string, number>();
+
+  while (selected.length < limit && pool.length) {
+    pool.sort(
+      (a, b) =>
+        (classCounts.get(signupClassKey(a)) || 0) -
+          (classCounts.get(signupClassKey(b)) || 0) || signupRosterOrder(a, b),
+    );
+    const member = pool.shift();
+    if (!member) break;
+    selected.push(member);
+    const key = signupClassKey(member);
+    classCounts.set(key, (classCounts.get(key) || 0) + 1);
+  }
+
+  return selected;
+}
+
+function raidLayoutTargetSize(raid: RaidAutoInput) {
+  const limit = raidRegistrationLimit(raid);
+  return limit ?? raidActiveRosterSize(raid);
+}
+
+function createEmptyRaidBench(members: RaidSignup[] = []): RaidBench {
+  const sortedMembers = [...members].sort(signupSort);
+  return {
+    members: sortedMembers,
+    tanks: sortedMembers.filter((item) => item.role === "tank"),
+    healers: sortedMembers.filter((item) => item.role === "healer"),
+    dps: sortedMembers.filter((item) => item.role === "dps"),
+    late: sortedMembers.filter((item) => item.status === "late"),
+  };
+}
+
+function assignTankToParty(parties: RaidParty[], tank: RaidSignup) {
+  const number = cleanOptionalSignupNumber(tank.signupNumber);
+  const preferredIndexes = number
+    ? number % 2 === 0
+      ? [2, 1]
+      : [1, 2]
+    : [1, 2];
+  const preferred = preferredIndexes
+    .map((index) => parties.find((party) => party.index === index))
+    .filter(Boolean) as RaidParty[];
+  const target = [...preferred, ...parties].find(
+    (party) => !party.tank && partyCapacity(party) > 0,
+  );
+  if (target) {
+    target.tank = tank;
+    return true;
+  }
+  return placeFlexMember(parties, tank);
+}
+
+function assignHealersToParties(parties: RaidParty[], healers: RaidSignup[]) {
+  const pool = [...healers].sort(signupRosterOrder);
+  const usedByParity = new Map<"odd" | "even", Set<string>>([
+    ["odd", new Set<string>()],
+    ["even", new Set<string>()],
+  ]);
+
   for (const party of parties) {
-    party.tank = tanks.shift() || null;
+    if (!pool.length) break;
+    if (party.healer || partyCapacity(party) <= 0) continue;
+    const parity = party.index % 2 === 0 ? "even" : "odd";
+    const used = usedByParity.get(parity) || new Set<string>();
+    const distinctIndex = pool.findIndex(
+      (member) => !used.has(signupClassKey(member)),
+    );
+    const index = distinctIndex >= 0 ? distinctIndex : 0;
+    const [healer] = pool.splice(index, 1);
+    if (!healer) continue;
+    party.healer = healer;
+    used.add(signupClassKey(healer));
+    usedByParity.set(parity, used);
   }
 
-  const healers = [...roster.healers];
-  for (const party of parties) {
-    party.healer = healers.shift() || null;
-  }
+  return pool;
+}
 
-  const flexPool = [...roster.dps, ...healers, ...tanks];
-  for (const member of flexPool) {
-    placeFlexMember(parties, member);
+function assignDpsToParties(parties: RaidParty[], dps: RaidSignup[]) {
+  const pool = [...dps].sort(signupRosterOrder);
+  for (const member of pool) {
+    const memberClass = signupClassKey(member);
+    const target = parties
+      .filter((party) => partyCapacity(party) > 0)
+      .sort((a, b) => {
+        const aHasClass =
+          a.members
+            .concat(a.dps)
+            .some((item) => signupClassKey(item) === memberClass) ||
+          signupClassKey(a.tank) === memberClass ||
+          signupClassKey(a.healer) === memberClass;
+        const bHasClass =
+          b.members
+            .concat(b.dps)
+            .some((item) => signupClassKey(item) === memberClass) ||
+          signupClassKey(b.tank) === memberClass ||
+          signupClassKey(b.healer) === memberClass;
+        return (
+          Number(aHasClass) - Number(bHasClass) ||
+          partyFlexRoleCount(a, "dps") - partyFlexRoleCount(b, "dps") ||
+          partyMembersCount(a) - partyMembersCount(b) ||
+          a.index - b.index
+        );
+      })[0];
+    if (target) target.dps.push(member);
   }
+}
 
+function finalizeParties(parties: RaidParty[]) {
   for (const party of parties) {
     party.members = [party.tank, party.healer, ...party.dps].filter(
       Boolean,
     ) as RaidSignup[];
     party.late = party.members.filter((item) => item.status === "late");
   }
-
   return parties.sort((a, b) => a.index - b.index);
+}
+
+export function buildRaidGroupLayout(
+  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
+): RaidGroupLayout {
+  const roster = rosterForGroups(raid);
+  const targetSize = raidLayoutTargetSize(raid);
+  const composition = raidAutoComposition(raid);
+  const benchEnabled = raidRegistrationLimit(raid) !== null;
+  const groupCount = Math.max(
+    1,
+    Math.min(
+      MAX_RAID_PARTIES,
+      Math.ceil(Math.max(1, targetSize) / RAID_PARTY_SIZE),
+    ),
+  );
+  const parties: RaidParty[] = Array.from(
+    { length: groupCount },
+    (_, index) => ({
+      index: index + 1,
+      dps: [],
+      late: [],
+      members: [],
+    }),
+  );
+
+  const tanks = [...roster.tanks].sort(signupRosterOrder);
+  const healers = [...roster.healers].sort(signupRosterOrder);
+  const dps = [...roster.dps].sort(signupRosterOrder);
+
+  const selectedTanks = selectTanksForComposition(
+    tanks,
+    benchEnabled ? composition.tanks : Math.max(composition.tanks, Math.min(2, tanks.length)),
+  );
+  const surplusTanks = tanks.filter((item) => !selectedTanks.includes(item));
+  const selectedHealers = selectHealersForComposition(
+    healers,
+    benchEnabled ? composition.healers : Math.max(composition.healers, healers.length),
+  );
+  const surplusHealers = healers.filter(
+    (item) => !selectedHealers.includes(item),
+  );
+  const selectedDps = benchEnabled
+    ? selectDpsForComposition(dps, composition.dps)
+    : selectDpsForComposition(dps, dps.length);
+  const surplusDps = dps.filter((item) => !selectedDps.includes(item));
+
+  for (const tank of selectedTanks) assignTankToParty(parties, tank);
+  const unplacedHealers = assignHealersToParties(parties, selectedHealers);
+  for (const healer of unplacedHealers) placeFlexMember(parties, healer);
+  assignDpsToParties(parties, selectedDps);
+
+  const benchMembers = benchEnabled
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps]
+    : [];
+  if (!benchEnabled) {
+    for (const member of [...surplusTanks, ...surplusHealers])
+      placeFlexMember(parties, member);
+  }
+
+  const selectedMembers = [
+    ...selectedTanks,
+    ...selectedHealers,
+    ...selectedDps,
+  ];
+  const missingBuffs = missingCriticalBuffs(selectedMembers);
+  const safeDpsCapacity = Math.max(
+    0,
+    Math.min(roster.dps.length, roster.healers.length * 5),
+  );
+  const warnings = [
+    roster.tanks.length < composition.tanks
+      ? `Не вистачає танків: ${roster.tanks.length}/${composition.tanks}`
+      : null,
+    roster.healers.length < composition.healers
+      ? `Не вистачає хілів: ${roster.healers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
+      : null,
+    roster.dps.length < composition.dps
+      ? `Не вистачає ДД: ${roster.dps.length}/${composition.dps}`
+      : null,
+    missingBuffs.length
+      ? `Втрачені критичні бафи: ${missingBuffs.join(", ")}`
+      : null,
+  ].filter(Boolean) as string[];
+
+  return {
+    parties: finalizeParties(parties),
+    bench: createEmptyRaidBench(benchMembers),
+    composition,
+    targetSize,
+    benchEnabled,
+    warnings,
+    missingCriticalBuffs: missingBuffs,
+  };
+}
+
+export function buildRaidParties(
+  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
+): RaidParty[] {
+  return buildRaidGroupLayout(raid).parties;
+}
+
+export function buildRaidBench(
+  raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
+): RaidBench {
+  return buildRaidGroupLayout(raid).bench;
 }
 
 function compactSignupName(item?: RaidSignup | null, max = 42) {
@@ -2539,6 +3077,53 @@ function partyDiscordText(
   );
 }
 
+function raidBenchDiscordText(
+  bench: RaidBench,
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+) {
+  if (!bench.members.length) return "—";
+  const sections = [
+    bench.tanks.length
+      ? `**Танки**\n${compactSignupDiscordLines(bench.tanks, raid, 42)}`
+      : null,
+    bench.healers.length
+      ? `**Хіли**\n${compactSignupDiscordLines(bench.healers, raid, 42)}`
+      : null,
+    bench.dps.length
+      ? `**ДД**\n${compactSignupDiscordLines(bench.dps, raid, 40)}`
+      : null,
+  ].filter(Boolean) as string[];
+
+  return truncateDiscordField(sections.join("\n\n"), 900);
+}
+
+function twoColumnPartyDiscordFields(
+  parties: RaidParty[],
+  raid?: Pick<RaidItem, "minItemLevel"> | null,
+) {
+  const fields: Array<{ name: string; value: string; inline?: boolean }> = [];
+  for (let index = 0; index < parties.length; index += 2) {
+    const left = parties[index];
+    const right = parties[index + 1];
+    if (left) {
+      fields.push({
+        name: `Паті ${left.index}`,
+        value: partyDiscordText(left, raid),
+        inline: true,
+      });
+    }
+    if (right) {
+      fields.push({
+        name: `Паті ${right.index}`,
+        value: partyDiscordText(right, raid),
+        inline: true,
+      });
+    }
+    fields.push({ name: "\u200B", value: "\u200B", inline: true });
+  }
+  return fields;
+}
+
 function compactDiscordFields(
   fields: Array<{ name: string; value: string; inline?: boolean }>,
   maxTotal = 5600,
@@ -2559,9 +3144,12 @@ function compactDiscordFields(
 export function buildRaidDiscordPayload(raid: RaidItem) {
   const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
-  const composition = raidAutoComposition(raid);
-  const allParties = buildRaidParties(raid);
+  const layout = buildRaidGroupLayout(raid);
+  const composition = layout.composition;
+  const allParties = layout.parties;
   const parties = allParties.slice(0, 8);
+  const bench = layout.bench;
+  const warnings = layout.warnings;
   const imageUrl = raid.imageUrl || undefined;
   const thumbUrl =
     resolveRaidThumbnailUrl(raid, { absolute: true }) || DEFAULT_RAID_IMAGE;
@@ -2578,6 +3166,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
         ? "🔒 Ліміт запису досягнуто"
         : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`
       : null,
+    bench.members.length ? `🪑 Лава запасних: ${bench.members.length}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -2594,8 +3183,12 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: closed
         ? [
             "🔒 Рейд закрито — запис вимкнено",
-            raid.closedAt ? `Закрито: ${discordTimestampLabel(raid.closedAt)}` : null,
-            raid.closedReason === "manual" ? "Причина: вручну" : "Причина: авто lifecycle",
+            raid.closedAt
+              ? `Закрито: ${discordTimestampLabel(raid.closedAt)}`
+              : null,
+            raid.closedReason === "manual"
+              ? "Причина: вручну"
+              : "Причина: авто lifecycle",
           ]
             .filter(Boolean)
             .join("\n")
@@ -2654,11 +3247,25 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
       value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
       inline: false,
     },
-    ...parties.map((party) => ({
-      name: `Паті ${party.index}`,
-      value: partyDiscordText(party, raid),
-      inline: true,
-    })),
+    ...(warnings.length
+      ? [
+          {
+            name: "⚠️ Валідація складу",
+            value: truncateDiscordField(warnings.map((item) => `• ${item}`).join("\n"), 900),
+            inline: false,
+          },
+        ]
+      : []),
+    ...twoColumnPartyDiscordFields(parties, raid),
+    ...(bench.members.length
+      ? [
+          {
+            name: "🪑 Лава запасних",
+            value: raidBenchDiscordText(bench, raid),
+            inline: false,
+          },
+        ]
+      : []),
     ...(omittedParties > 0
       ? [
           {
@@ -2759,7 +3366,9 @@ export function buildRaidRoleSelectCustomId(
   const safeCharacterKey = cleanRaidRoleSelectCharacterKey(characterKey);
   const customId = `mbv1:rsr:${id}:${safeAction}:${safeCharacterKey}`;
   if (!id || !safeCharacterKey || customId.length > 100)
-    throw new Error("Некоректний ID рейду або персонажа для Discord-вибору ролі.");
+    throw new Error(
+      "Некоректний ID рейду або персонажа для Discord-вибору ролі.",
+    );
   return customId;
 }
 
@@ -2800,7 +3409,9 @@ export function buildRaidSignupSubmitCustomId(
   const safeRole = cleanRoleStrict(signupRole);
   const customId = `mbv1:rss:${id}:${safeAction}:${safeCharacterKey}:${safeRole || "dps"}`;
   if (!id || !safeCharacterKey || customId.length > 100)
-    throw new Error("Некоректний ID рейду, персонажа або ролі для Discord-підтвердження.");
+    throw new Error(
+      "Некоректний ID рейду, персонажа або ролі для Discord-підтвердження.",
+    );
   return customId;
 }
 
@@ -2898,9 +3509,10 @@ export function buildRaidCharacterSelectCustomId(
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
   const role = cleanRoleStrict(selectedRole);
-  const customId = role && safeAction !== "skipped"
-    ? `mbv1:rsc:${id}:${safeAction}:${role}`
-    : `mbv1:rc:${id}:${safeAction}`;
+  const customId =
+    role && safeAction !== "skipped"
+      ? `mbv1:rsc:${id}:${safeAction}:${role}`
+      : `mbv1:rc:${id}:${safeAction}`;
   if (!id || customId.length > 100)
     throw new Error("Некоректний ID рейду для Discord-вибору персонажа.");
   return customId;
@@ -2941,7 +3553,10 @@ export function buildRaidCharacterSelectComponents(
   raid?: RaidMinimumPolicy | null,
   selectedRole?: RaidCharacterRole | null,
 ) {
-  const selectedCharacter = resolveProfileCharacterSelection(profile, selectedCharacterKey);
+  const selectedCharacter = resolveProfileCharacterSelection(
+    profile,
+    selectedCharacterKey,
+  );
   const selectedKey = normalizeCharacterKey(selectedCharacter?.key || "");
   const options = profile.characters
     .map((character, index) => ({ character, index }))
@@ -2958,7 +3573,9 @@ export function buildRaidCharacterSelectComponents(
         ),
       description: raidCharacterOptionDescription(character, raid),
       value: `c${index}`,
-      default: Boolean(selectedKey && normalizeCharacterKey(character.key) === selectedKey),
+      default: Boolean(
+        selectedKey && normalizeCharacterKey(character.key) === selectedKey,
+      ),
     }));
 
   if (!options.length) return [];
@@ -2969,7 +3586,11 @@ export function buildRaidCharacterSelectComponents(
       components: [
         {
           type: 3,
-          custom_id: buildRaidCharacterSelectCustomId(raidId, action, selectedRole),
+          custom_id: buildRaidCharacterSelectCustomId(
+            raidId,
+            action,
+            selectedRole,
+          ),
           placeholder:
             action === "skipped"
               ? "Позначити пропуск рейду"
@@ -2982,7 +3603,6 @@ export function buildRaidCharacterSelectComponents(
     },
   ];
 }
-
 
 function raidRoleLabel(role: RaidCharacterRole) {
   if (role === "tank") return "Танк";
@@ -2997,7 +3617,11 @@ function raidRoleOptionDescription(role: RaidCharacterRole) {
 }
 
 function raidRoleSelectOptions(selectedRole?: RaidCharacterRole | null) {
-  const roles: Array<{ role: RaidCharacterRole; label: string; emoji: string }> = [
+  const roles: Array<{
+    role: RaidCharacterRole;
+    label: string;
+    emoji: string;
+  }> = [
     { role: "tank", label: "Танк", emoji: "🛡️" },
     { role: "healer", label: "Хіл", emoji: "💚" },
     { role: "dps", label: "ДД / DPS", emoji: "⚔️" },
@@ -3027,7 +3651,11 @@ export function buildRaidRoleSelectComponents(
       components: [
         {
           type: 3,
-          custom_id: buildRaidRoleSelectCustomId(raidId, action, safeCharacterKey),
+          custom_id: buildRaidRoleSelectCustomId(
+            raidId,
+            action,
+            safeCharacterKey,
+          ),
           placeholder: "2) Обери роль для рейду",
           min_values: 1,
           max_values: 1,
@@ -3042,16 +3670,25 @@ function raidCharacterSelectionToken(
   profile: DashboardProfile,
   selectedCharacterKey?: string | null,
 ) {
-  const selected = resolveProfileCharacterSelection(profile, selectedCharacterKey);
-  if (!selected) return cleanRaidRoleSelectCharacterKey(selectedCharacterKey || "");
+  const selected = resolveProfileCharacterSelection(
+    profile,
+    selectedCharacterKey,
+  );
+  if (!selected)
+    return cleanRaidRoleSelectCharacterKey(selectedCharacterKey || "");
   const selectedKey = normalizeCharacterKey(selected.key);
   const index = profile.characters.findIndex(
     (character) => normalizeCharacterKey(character.key) === selectedKey,
   );
-  return index >= 0 ? `c${index}` : cleanRaidRoleSelectCharacterKey(selected.key);
+  return index >= 0
+    ? `c${index}`
+    : cleanRaidRoleSelectCharacterKey(selected.key);
 }
 
-function buildDisabledRaidRoleSelectRow(raidId: string, action: RaidSignupStatus) {
+function buildDisabledRaidRoleSelectRow(
+  raidId: string,
+  action: RaidSignupStatus,
+) {
   const id = cleanRaidId(raidId);
   const safeAction = cleanSignupStatus(action);
   return {
@@ -3078,21 +3715,46 @@ export function buildRaidSignupPanelComponents(
   selectedRole?: RaidCharacterRole | null,
   raid?: RaidMinimumPolicy | null,
 ) {
-  const selectedCharacter = resolveProfileCharacterSelection(profile, selectedCharacterKey);
-  const characterToken = raidCharacterSelectionToken(profile, selectedCharacterKey);
+  const selectedCharacter = resolveProfileCharacterSelection(
+    profile,
+    selectedCharacterKey,
+  );
+  const characterToken = raidCharacterSelectionToken(
+    profile,
+    selectedCharacterKey,
+  );
   const effectiveRole = selectedCharacter
-    ? cleanRoleStrict(selectedRole) || resolveRaidSignupRole(profile, selectedCharacter)
+    ? cleanRoleStrict(selectedRole) ||
+      resolveRaidSignupRole(profile, selectedCharacter)
     : null;
 
   const rows: Array<Record<string, unknown>> = [];
-  rows.push(...buildRaidCharacterSelectComponents(raidId, action, profile, selectedCharacterKey, raid, effectiveRole));
+  rows.push(
+    ...buildRaidCharacterSelectComponents(
+      raidId,
+      action,
+      profile,
+      selectedCharacterKey,
+      raid,
+      effectiveRole,
+    ),
+  );
   if (selectedCharacter && characterToken) {
-    rows.push(...buildRaidRoleSelectComponents(raidId, action, characterToken, effectiveRole));
+    rows.push(
+      ...buildRaidRoleSelectComponents(
+        raidId,
+        action,
+        characterToken,
+        effectiveRole,
+      ),
+    );
   } else {
     rows.push(buildDisabledRaidRoleSelectRow(raidId, action));
   }
 
-  const canSubmit = Boolean(selectedCharacter && characterToken && effectiveRole);
+  const canSubmit = Boolean(
+    selectedCharacter && characterToken && effectiveRole,
+  );
   rows.push({
     type: 1,
     components: [
@@ -3101,11 +3763,21 @@ export function buildRaidSignupPanelComponents(
         style: canSubmit ? 3 : 2,
         label: action === "late" ? "Записатися із запізненням" : "Записатися",
         custom_id: canSubmit
-          ? buildRaidSignupSubmitCustomId(raidId, action, characterToken, effectiveRole || "dps")
+          ? buildRaidSignupSubmitCustomId(
+              raidId,
+              action,
+              characterToken,
+              effectiveRole || "dps",
+            )
           : buildRaidAttendanceCustomId(raidId, action),
         disabled: !canSubmit,
       },
-      { type: 2, style: 5, label: "Деталі рейду", url: dashboardRaidUrl(raidId) },
+      {
+        type: 2,
+        style: 5,
+        label: "Деталі рейду",
+        url: dashboardRaidUrl(raidId),
+      },
     ],
   });
 
@@ -3123,10 +3795,16 @@ export function buildRaidSignupSuccessComponents(
         {
           type: 2,
           style: 2,
-          label: action === "late" ? "Змінити запис" : "Змінити персонажа / роль",
+          label:
+            action === "late" ? "Змінити запис" : "Змінити персонажа / роль",
           custom_id: buildRaidAttendanceCustomId(raidId, action),
         },
-        { type: 2, style: 5, label: "Відкрити рейд", url: dashboardRaidUrl(raidId) },
+        {
+          type: 2,
+          style: 5,
+          label: "Відкрити рейд",
+          url: dashboardRaidUrl(raidId),
+        },
       ],
     },
   ];
@@ -3388,7 +4066,8 @@ function signupFromProfile(
   forcedRole?: unknown,
 ): RaidSignup {
   const character = resolveRaidSignupCharacter(profile, characterKey);
-  const role = cleanRoleStrict(forcedRole) || resolveRaidSignupRole(profile, character);
+  const role =
+    cleanRoleStrict(forcedRole) || resolveRaidSignupRole(profile, character);
   const now = new Date().toISOString();
 
   return {
@@ -3790,7 +4469,11 @@ export async function handleRaidDiscordAction(params: {
         requiresCharacterSelection: true,
       };
     }
-    const selectedSignupRole = cleanRoleStrict(params.signupRole) || (selectedCharacter ? resolveRaidSignupRole(profile, selectedCharacter) : null);
+    const selectedSignupRole =
+      cleanRoleStrict(params.signupRole) ||
+      (selectedCharacter
+        ? resolveRaidSignupRole(profile, selectedCharacter)
+        : null);
     if (selectedCharacter && !params.commit) {
       return {
         ok: true,
@@ -3799,7 +4482,9 @@ export async function handleRaidDiscordAction(params: {
           raid.id,
           params.action,
           profile,
-          cleanRaidRoleSelectCharacterKey(params.characterKey) || selectedCharacter.key || "",
+          cleanRaidRoleSelectCharacterKey(params.characterKey) ||
+            selectedCharacter.key ||
+            "",
           selectedSignupRole,
           raid,
         ),
@@ -3863,7 +4548,8 @@ export async function handleRaidDiscordAction(params: {
       ? null
       : raidMinItemLevelWarning(updated, signup);
   const updatedSignup =
-    updated.signups.find((item) => item.discordId === signup.discordId) || signup;
+    updated.signups.find((item) => item.discordId === signup.discordId) ||
+    signup;
   return {
     ok: true,
     content: attendanceSuccessText(

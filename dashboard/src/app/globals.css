@@ -23961,3 +23961,26 @@ body {
     justify-self: stretch;
   }
 }
+
+/* Raid bench / standby roster */
+.raid-bench-card {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--panel-2, #111827) 88%, rgba(255, 255, 255, 0.06));
+}
+
+.raid-bench-card h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.raid-bench-card .raid-party-row {
+  opacity: 0.94;
+}
+
+.raid-bench-card .raid-role-label::after {
+  content: " запас";
+  opacity: 0.72;
+  font-weight: 600;
+}
