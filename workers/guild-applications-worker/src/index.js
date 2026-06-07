@@ -3409,11 +3409,19 @@ function decodeRaidAttendanceCustomId(customId) {
 
 function decodeRaidCharacterSelectCustomId(customId, values) {
   const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  const legacyMatch = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  const panelMatch = value.match(/^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|late):(tank|healer|dps)$/);
+  const match = legacyMatch || panelMatch;
   if (!match) return null;
   const selected = Array.isArray(values) ? String(values[0] || "").trim() : "";
   if (!selected) return null;
-  return { raidId: match[1], action: match[2], characterKey: selected };
+  return {
+    raidId: match[1],
+    action: match[2],
+    characterKey: selected,
+    signupRole: panelMatch ? cleanRaidSignupRole(match[3]) : "",
+    commit: false,
+  };
 }
 
 function cleanRaidSignupRole(value) {
@@ -3426,11 +3434,32 @@ function cleanRaidSignupRole(value) {
 
 function decodeRaidRoleSelectCustomId(customId, values) {
   const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
+  const panelMatch = value.match(/^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
+  const legacyMatch = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
+  const match = panelMatch || legacyMatch;
   if (!match) return null;
   const selected = Array.isArray(values) ? cleanRaidSignupRole(values[0]) : "";
   if (!selected) return null;
-  return { raidId: match[1], action: match[2], characterKey: match[3], signupRole: selected };
+  return {
+    raidId: match[1],
+    action: match[2],
+    characterKey: match[3],
+    signupRole: selected,
+    commit: false,
+  };
+}
+
+function decodeRaidSignupSubmitCustomId(customId) {
+  const value = String(customId || "").trim();
+  const match = value.match(/^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/);
+  if (!match) return null;
+  return {
+    raidId: match[1],
+    action: match[2],
+    characterKey: match[3],
+    signupRole: cleanRaidSignupRole(match[4]),
+    commit: true,
+  };
 }
 
 function decodeRaidPollCustomId(customId, values) {
@@ -3636,6 +3665,7 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
         action: raidAction.action,
         characterKey: raidAction.characterKey || "",
         signupRole: raidAction.signupRole || "",
+        commit: Boolean(raidAction.commit),
         userId: getDiscordUserId(interaction),
         userName: getDiscordUserLabel(interaction),
         guildId: getInteractionGuildId(interaction, env),
@@ -3716,7 +3746,7 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
         });
       }
     })());
-    return deferredEphemeral();
+    return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
   const result = await raidAnnouncementProxyContent(interaction, env, raidAction);
@@ -3753,6 +3783,9 @@ async function handleDiscordInteraction(request, env, ctx) {
 
   const raidPollAction = decodeRaidPollCustomId(customId, interaction?.data?.values);
   if (raidPollAction) return handleRaidPollInteraction(interaction, env, raidPollAction, ctx);
+
+  const raidSubmitAction = decodeRaidSignupSubmitCustomId(customId);
+  if (raidSubmitAction) return handleRaidAnnouncementInteraction(interaction, env, raidSubmitAction, ctx);
 
   const raidRoleSelectAction = decodeRaidRoleSelectCustomId(customId, interaction?.data?.values);
   if (raidRoleSelectAction) return handleRaidAnnouncementInteraction(interaction, env, raidRoleSelectAction, ctx);

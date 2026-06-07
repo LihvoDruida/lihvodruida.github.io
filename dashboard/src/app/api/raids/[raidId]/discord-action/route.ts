@@ -106,6 +106,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
       userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
       characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
       signupRole: cleanSignupRole(body?.signupRole || body?.signup_role || body?.role),
+      commit: Boolean(body?.commit),
       messageRef: {
         channelId,
         messageId,
