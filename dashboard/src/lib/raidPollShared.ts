@@ -2,6 +2,8 @@ export type RaidPollStatus = "open" | "closed";
 export type RaidPollDifficulty = "normal" | "heroic" | "mythic";
 export type RaidPollDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 export type RaidPollTime = "19:00" | "19:30" | "20:00" | "20:30" | "21:00";
+export const RAID_POLL_REPEAT_TIMES = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"] as const;
+export type RaidPollRepeatTime = typeof RAID_POLL_REPEAT_TIMES[number];
 export type RaidPollAvailability = RaidPollTime | "absent";
 export type RaidPollScheduleValue = RaidPollAvailability | RaidPollTime[];
 export type RaidPollSchedule = Partial<Record<RaidPollDay, RaidPollScheduleValue>>;
@@ -44,8 +46,10 @@ export type RaidPollItem = {
   messageId?: string | null;
   messageUrl?: string | null;
   mentionRoleIds: string[];
-  /** Якщо увімкнено, cron щопонеділка о 12:00 створює новий ідентичний пул і прибирає попередній. */
+  /** Якщо увімкнено, cron у вибраний день і час створює новий ідентичний пул і прибирає попередній. */
   autoRepeatWeekly: boolean;
+  repeatWeeklyDay?: RaidPollDay | null;
+  repeatWeeklyTime?: RaidPollRepeatTime | null;
   repeatNextAt?: string | null;
   repeatNextAtMs?: number | null;
   repeatSeriesId?: string | null;
@@ -73,6 +77,8 @@ export type RaidPollCreateInput = {
   days?: unknown;
   mentionRoleIds?: unknown;
   autoRepeatWeekly?: unknown;
+  repeatWeeklyDay?: unknown;
+  repeatWeeklyTime?: unknown;
 };
 
 export type RaidPollUpdateInput = RaidPollCreateInput;

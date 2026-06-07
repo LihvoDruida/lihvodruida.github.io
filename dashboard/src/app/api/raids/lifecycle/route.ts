@@ -22,8 +22,18 @@ function integerParam(value: string | null, fallback: number, min: number, max: 
 }
 
 export async function GET(request: NextRequest) {
-  const token = await verifyInternalBearerToken(request, ["RAID_LIFECYCLE_SECRET", "CRON_SECRET", "INTERNAL_API_TOKEN"], { minLength: 24 });
-  if (!token.ok) return unauthorizedResponse();
+  const token = await verifyInternalBearerToken(request, [
+    "RAID_LIFECYCLE_SECRET",
+    "CRON_SECRET",
+    "INTERNAL_API_TOKEN",
+    "INTERNAL_PROFILE_LOOKUP_TOKEN",
+    "DISCORD_RULES_STATS_TOKEN",
+    "WORKER_STATS_TOKEN",
+  ], { minLength: 24 });
+  if (!token.ok) {
+    logDashboardEvent("warn", "raids.lifecycle.forbidden", request, { reason: token.reason, envName: token.envName || null });
+    return unauthorizedResponse();
+  }
 
   const ip = getClientIp(request);
   const limitState = checkRateLimit(`raids-lifecycle:${ip}`, 12, 60 * 60 * 1000);

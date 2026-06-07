@@ -13,7 +13,14 @@ export const revalidate = 0;
 type ToastInput = { tone?: "info" | "success" | "warning" | "error"; title: string; message?: string; ttl?: number };
 
 function appBaseUrl() {
-  return process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const configured = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").trim();
+  try {
+    const url = new URL(configured || "https://admin.lihvodruida.pp.ua");
+    if (url.hostname.endsWith(".vercel.app")) return "https://admin.lihvodruida.pp.ua";
+    return url.origin;
+  } catch {
+    return "https://admin.lihvodruida.pp.ua";
+  }
 }
 
 function redirectWithToast(path: string, toast?: ToastInput) {

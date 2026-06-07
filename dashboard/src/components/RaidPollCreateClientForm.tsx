@@ -4,7 +4,16 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
 import { RolePicker, type DiscordRoleOption } from "@/components/DiscordEmbedEditor";
-import { RAID_POLL_CLOSE_OPTIONS, RAID_POLL_DAYS, raidPollDescription, type RaidPollDay, type RaidPollDifficulty, type RaidPollItem } from "@/lib/raidPollShared";
+import {
+  RAID_POLL_CLOSE_OPTIONS,
+  RAID_POLL_DAYS,
+  RAID_POLL_REPEAT_TIMES,
+  raidPollDescription,
+  type RaidPollDay,
+  type RaidPollDifficulty,
+  type RaidPollItem,
+  type RaidPollRepeatTime,
+} from "@/lib/raidPollShared";
 
 export type RaidPollCreateChannel = {
   id: string;
@@ -65,6 +74,8 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
   const [selectedDays, setSelectedDays] = useState<RaidPollDay[]>(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
   const [mentionRoleIds, setMentionRoleIds] = useState<string[]>(poll?.mentionRoleIds || []);
   const [autoRepeatWeekly, setAutoRepeatWeekly] = useState(Boolean(poll?.autoRepeatWeekly));
+  const [repeatWeeklyDay, setRepeatWeeklyDay] = useState<RaidPollDay>(poll?.repeatWeeklyDay || "mon");
+  const [repeatWeeklyTime, setRepeatWeeklyTime] = useState<RaidPollRepeatTime>(poll?.repeatWeeklyTime || "12:00");
   const [pending, setPending] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
@@ -87,6 +98,8 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
     setSelectedDays(poll?.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value));
     setMentionRoleIds(poll?.mentionRoleIds || []);
     setAutoRepeatWeekly(Boolean(poll?.autoRepeatWeekly));
+    setRepeatWeeklyDay(poll?.repeatWeeklyDay || "mon");
+    setRepeatWeeklyTime(poll?.repeatWeeklyTime || "12:00");
     setFieldError("");
   }
 
@@ -156,6 +169,8 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
           days: selectedDays,
           mentionRoleIds,
           autoRepeatWeekly,
+          repeatWeeklyDay,
+          repeatWeeklyTime,
         }),
       });
 
@@ -301,15 +316,43 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
           </div>
         )}
 
-        <label className="raid-checkbox-line raid-poll-field raid-poll-field--wide raid-poll-repeat-toggle">
-          <input
-            type="checkbox"
-            checked={autoRepeatWeekly}
-            onChange={(event) => setAutoRepeatWeekly(event.target.checked)}
-            disabled={pending || disabled}
-          />
-          <span>Автоматично повторювати щотижня в понеділок о 12:00. Старий Discord-пул буде видалено, новий створиться з такими самими налаштуваннями.</span>
-        </label>
+        <fieldset className="raid-poll-field raid-poll-field--wide raid-poll-repeat-card">
+          <legend>Автоповтор голосування</legend>
+          <label className="raid-checkbox-line raid-poll-repeat-toggle">
+            <input
+              type="checkbox"
+              checked={autoRepeatWeekly}
+              onChange={(event) => setAutoRepeatWeekly(event.target.checked)}
+              disabled={pending || disabled}
+            />
+            <span>Щотижня створювати новий ідентичний пул, а попередній Discord-пул автоматично прибирати.</span>
+          </label>
+          <div className="raid-poll-repeat-grid" aria-disabled={!autoRepeatWeekly}>
+            <label className="raid-poll-field" htmlFor="raid-poll-repeat-day">
+              <span>День повтору</span>
+              <select
+                id="raid-poll-repeat-day"
+                value={repeatWeeklyDay}
+                onChange={(event) => setRepeatWeeklyDay(event.target.value as RaidPollDay)}
+                disabled={pending || disabled || !autoRepeatWeekly}
+              >
+                {RAID_POLL_DAYS.map((day) => <option key={day.value} value={day.value}>{day.fullLabel}</option>)}
+              </select>
+            </label>
+            <label className="raid-poll-field" htmlFor="raid-poll-repeat-time">
+              <span>Час повтору</span>
+              <select
+                id="raid-poll-repeat-time"
+                value={repeatWeeklyTime}
+                onChange={(event) => setRepeatWeeklyTime(event.target.value as RaidPollRepeatTime)}
+                disabled={pending || disabled || !autoRepeatWeekly}
+              >
+                {RAID_POLL_REPEAT_TIMES.map((time) => <option key={time} value={time}>{time}</option>)}
+              </select>
+            </label>
+          </div>
+          <small>Час рахується у часовій зоні рейдів: Europe/Kyiv. Для старих пулів лишається fallback: понеділок 12:00.</small>
+        </fieldset>
 
         <label className="raid-poll-field raid-poll-field--wide" htmlFor="raid-poll-description">
           <span>Опис у Discord</span>
@@ -341,7 +384,7 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
         </div>
         <div>
           <strong>Автоповтор</strong>
-          <span>{autoRepeatWeekly ? "Щопонеділка о 12:00" : "Вимкнено"}</span>
+          <span>{autoRepeatWeekly ? `${RAID_POLL_DAYS.find((day) => day.value === repeatWeeklyDay)?.fullLabel || "Понеділок"} о ${repeatWeeklyTime}` : "Вимкнено"}</span>
         </div>
         <div>
           <strong>Закриття</strong>

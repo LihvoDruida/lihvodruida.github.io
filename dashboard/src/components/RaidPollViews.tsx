@@ -21,6 +21,7 @@ import {
   raidPollSlotSummary,
   raidPollStatusLabel,
   raidPollTitle,
+  raidPollRepeatScheduleLabel,
   raidPollVoteSchedule,
   type RaidPollDay,
   type RaidPollItem,
@@ -118,6 +119,7 @@ export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollIt
           <div className="raid-poll-list-card__badges">
             <span className={`raid-poll-difficulty-badge raid-poll-difficulty-badge--${poll.difficulty}`}>{raidPollDifficultyLabel(poll.difficulty)}</span>
             <span className="raid-poll-id-chip">ID: {shortPollId(poll.id)}</span>
+            {poll.autoRepeatWeekly ? <span className="raid-poll-repeat-chip">↻ {raidPollRepeatScheduleLabel(poll)}</span> : null}
           </div>
           <h3><a href={`/polls/${encodeURIComponent(poll.id)}`}>{poll.title}</a></h3>
           <p>{poll.description}</p>
@@ -139,6 +141,10 @@ export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollIt
           <div>
             <dt>Найкращий день</dt>
             <dd>{bestDaySummary(poll)}</dd>
+          </div>
+          <div>
+            <dt>Автоповтор</dt>
+            <dd>{raidPollRepeatScheduleLabel(poll)}</dd>
           </div>
         </dl>
       </div>
@@ -205,6 +211,7 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <div><strong>{formatDateTime(poll.closesAtMs)}</strong><span>Закриття</span></div>
         <div><strong>{raidPollDifficultyLabel(poll.difficulty)}</strong><span>Складність</span></div>
         <div><strong>{activeDays.map((day) => day.label).join(" • ")}</strong><span>Дні пулу</span></div>
+        <div><strong>{raidPollRepeatScheduleLabel(poll)}</strong><span>Автоповтор</span></div>
       </div>
 
       <section className="raid-poll-recommendation-card" aria-label="Рекомендований день та час рейду">
@@ -274,11 +281,12 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <aside className="raid-poll-table-card raid-poll-discord-sync-card">
           <div className="raid-poll-card-headline">
             <h3>Discord sync</h3>
-            <p>Публічний embed оновлюється після кожного interaction. Сайт оновлює RSC-дані у фоні без повного перезавантаження вкладки.</p>
+            <p>Публічний embed оновлюється після підтвердження голосу. Приватний Discord-пульт користувача не плодиться — кнопки й select оновлюють той самий ephemeral flow.</p>
           </div>
           <div className="raid-poll-sync-metrics">
             <span><strong>{poll.messageId ? "ON" : "—"}</strong>Message</span>
             <span><strong>{poll.updatedAt ? formatDateTime(poll.updatedAt) : "—"}</strong>Оновлено</span>
+            <span><strong>{poll.autoRepeatWeekly ? "ON" : "—"}</strong>Repeat</span>
           </div>
           {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord</a> : null}
         </aside>

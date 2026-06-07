@@ -23831,3 +23831,133 @@ body {
   color: rgba(242, 234, 220, 0.86);
   line-height: 1.45;
 }
+
+/* Raid Polls v3: configurable repeat schedule + compact modern surfaces */
+.raid-poll-repeat-card {
+  border: 1px solid rgba(214, 184, 118, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.08), transparent 34%),
+    rgba(3, 8, 14, 0.56);
+  padding: 14px;
+  margin: 0;
+}
+
+.raid-poll-repeat-card legend {
+  padding: 0 6px;
+  color: rgba(244, 234, 219, 0.94);
+  font-weight: 900;
+}
+
+.raid-poll-repeat-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 0.55fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.raid-poll-repeat-grid[aria-disabled="true"] {
+  opacity: 0.58;
+}
+
+.raid-poll-repeat-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 999px;
+  background: rgba(20, 83, 45, 0.24);
+  padding: 5px 9px;
+  color: #bbf7d0;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.raid-poll-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)) !important;
+  gap: 14px !important;
+}
+
+.raid-poll-list-card {
+  min-height: 260px;
+  padding: clamp(15px, 1.6vw, 20px);
+  border-radius: 20px;
+}
+
+.raid-poll-list-card__body {
+  gap: 11px;
+}
+
+.raid-poll-list-card h3 {
+  font-size: clamp(1.05rem, 1.7vw, 1.28rem);
+}
+
+.raid-poll-card-metrics,
+.raid-poll-summary-grid--smart {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+
+.raid-poll-card-metrics dd,
+.raid-poll-summary-grid strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.raid-poll-list-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.raid-poll-list-card__actions .btn,
+.raid-poll-list-card__actions button.btn,
+.raid-poll-list-card__actions form {
+  flex: 1 1 132px;
+}
+
+.raid-poll-results--smart {
+  padding: clamp(14px, 1.8vw, 22px) !important;
+}
+
+.raid-poll-recommendation-card {
+  margin: 10px 0;
+}
+
+.raid-poll-smart-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.raid-poll-discord-sync-card {
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  align-items: center;
+}
+
+.raid-poll-discord-sync-card .btn {
+  justify-self: end;
+}
+
+.raid-poll-day-matrix {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.raid-poll-day-card {
+  gap: 10px;
+  padding: 12px;
+}
+
+.raid-poll-voter--smart {
+  grid-template-columns: minmax(150px, 0.55fr) minmax(0, 1fr);
+  padding: 11px 12px;
+}
+
+@media (max-width: 720px) {
+  .raid-poll-repeat-grid,
+  .raid-poll-discord-sync-card,
+  .raid-poll-voter--smart {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-poll-discord-sync-card .btn {
+    justify-self: stretch;
+  }
+}

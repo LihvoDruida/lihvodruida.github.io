@@ -24,6 +24,7 @@ export {
   RAID_POLL_DESCRIPTION,
   RAID_POLL_ROLE_OPTIONS,
   RAID_POLL_SCHEDULE_GROUPS,
+  RAID_POLL_REPEAT_TIMES,
   RAID_POLL_TIMES,
   raidPollAvailabilityLabel,
   raidPollClassColor,
@@ -36,6 +37,7 @@ export type {
   RaidPollDay,
   RaidPollDifficulty,
   RaidPollItem,
+  RaidPollRepeatTime,
   RaidPollRole,
   RaidPollSchedule,
   RaidPollScheduleValue,
@@ -51,6 +53,7 @@ import {
   RAID_POLL_DESCRIPTION,
   RAID_POLL_ROLE_OPTIONS,
   RAID_POLL_SCHEDULE_GROUPS,
+  RAID_POLL_REPEAT_TIMES,
   RAID_POLL_TIMES,
   raidPollAvailabilityLabel,
   raidPollRoleLabel,
@@ -58,6 +61,7 @@ import {
   type RaidPollCreateInput,
   type RaidPollUpdateInput,
   type RaidPollDay,
+  type RaidPollRepeatTime,
   type RaidPollDifficulty,
   type RaidPollItem,
   type RaidPollRole,
@@ -146,6 +150,15 @@ function cleanPollDay(value: unknown): RaidPollDay | null {
 function cleanPollDays(values: unknown): RaidPollDay[] {
   const list = Array.isArray(values) ? values : String(values || "").split(",");
   return Array.from(new Set(list.map(cleanPollDay).filter(Boolean) as RaidPollDay[]));
+}
+
+function cleanRepeatWeeklyDay(value: unknown): RaidPollDay {
+  return cleanPollDay(value) || "mon";
+}
+
+function cleanRepeatWeeklyTime(value: unknown): RaidPollRepeatTime {
+  const text = cleanString(value, 8);
+  return RAID_POLL_REPEAT_TIMES.includes(text as RaidPollRepeatTime) ? text as RaidPollRepeatTime : "12:00";
 }
 
 function cleanPollTime(value: unknown): RaidPollTime | null {
@@ -311,7 +324,14 @@ export function raidPollStatusLabel(poll: Pick<RaidPollItem, "status" | "closesA
 }
 
 function dashboardBaseUrl() {
-  return String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").replace(/\/$/, "");
+  const configured = String(process.env.ADMIN_DASHBOARD_URL || process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || process.env.DASHBOARD_URL || process.env.NEXT_PUBLIC_DASHBOARD_URL || process.env.NEXTAUTH_URL || "https://admin.lihvodruida.pp.ua").trim();
+  try {
+    const url = new URL(configured || "https://admin.lihvodruida.pp.ua");
+    if (url.hostname.endsWith(".vercel.app")) return "https://admin.lihvodruida.pp.ua";
+    return url.origin;
+  } catch {
+    return "https://admin.lihvodruida.pp.ua";
+  }
 }
 
 export function dashboardPollUrl(pollId: string) {
@@ -371,23 +391,41 @@ function localDateParts(date: Date, timeZone = raidPollTimeZone()) {
   };
 }
 
-function nextWeeklyMondayNoonMs(fromMs = Date.now()) {
+const WEEKDAY_SHORT_BY_POLL_DAY: Record<RaidPollDay, string> = {
+  mon: "Mon",
+  tue: "Tue",
+  wed: "Wed",
+  thu: "Thu",
+  fri: "Fri",
+  sat: "Sat",
+  sun: "Sun",
+};
+
+function nextWeeklyRepeatMs(fromMs = Date.now(), repeatDay: RaidPollDay = "mon", repeatTime: RaidPollRepeatTime = "12:00") {
   const timeZone = raidPollTimeZone();
   const local = localDateParts(new Date(fromMs), timeZone);
+  const [hourText, minuteText] = cleanRepeatWeeklyTime(repeatTime).split(":");
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const targetWeekday = WEEKDAY_SHORT_BY_POLL_DAY[cleanRepeatWeeklyDay(repeatDay)] || "Mon";
+
   for (let addDays = 0; addDays <= 14; addDays += 1) {
-    const localCandidateDate = new Date(Date.UTC(local.year, local.month - 1, local.day + addDays, 12, 0, 0));
+    const localCandidateDate = new Date(Date.UTC(local.year, local.month - 1, local.day + addDays, hour, minute, 0));
     const year = localCandidateDate.getUTCFullYear();
     const month = localCandidateDate.getUTCMonth() + 1;
     const day = localCandidateDate.getUTCDate();
-    const candidateMs = zonedDateTimeToUtcMs(year, month, day, 12, 0, timeZone);
+    const candidateMs = zonedDateTimeToUtcMs(year, month, day, hour, minute, timeZone);
     const candidateLocal = localDateParts(new Date(candidateMs), timeZone);
-    if (candidateLocal.weekday === "Mon" && candidateMs > fromMs + 60_000) return candidateMs;
+    if (candidateLocal.weekday === targetWeekday && candidateMs > fromMs + 60_000) return candidateMs;
   }
   return fromMs + 7 * 24 * 60 * 60 * 1000;
 }
 
-function nextWeeklyMondayNoonIso(fromMs = Date.now()) {
-  return new Date(nextWeeklyMondayNoonMs(fromMs)).toISOString();
+export function raidPollRepeatScheduleLabel(poll: Pick<RaidPollItem, "autoRepeatWeekly" | "repeatWeeklyDay" | "repeatWeeklyTime">) {
+  if (!poll.autoRepeatWeekly) return "Вимкнено";
+  const day = cleanRepeatWeeklyDay(poll.repeatWeeklyDay);
+  const time = cleanRepeatWeeklyTime(poll.repeatWeeklyTime);
+  return `${dayFullLabel(day)} о ${time}`;
 }
 
 export function hasRaidPollStorage() {
@@ -452,8 +490,10 @@ export function normalizeRaidPoll(id: string, data: Record<string, unknown>): Ra
   // через що публічна кнопка "Проголосувати" лишається активною у старому embed.
   const status = cleanString(data.status, 20).toLowerCase() === "closed" ? "closed" : "open";
   const autoRepeatWeekly = cleanBoolean(data.autoRepeatWeekly ?? data.auto_repeat_weekly ?? data.repeatWeekly ?? data.repeat_weekly);
+  const repeatWeeklyDay = autoRepeatWeekly ? cleanRepeatWeeklyDay(data.repeatWeeklyDay ?? data.repeat_weekly_day ?? data.repeatDay ?? data.repeat_day) : null;
+  const repeatWeeklyTime = autoRepeatWeekly ? cleanRepeatWeeklyTime(data.repeatWeeklyTime ?? data.repeat_weekly_time ?? data.repeatTime ?? data.repeat_time) : null;
   const repeatNextAtMs = autoRepeatWeekly
-    ? safeMs(data.repeatNextAtMs ?? data.repeat_next_at_ms, nextWeeklyMondayNoonMs(Date.parse(createdAt) || Date.now()))
+    ? safeMs(data.repeatNextAtMs ?? data.repeat_next_at_ms, nextWeeklyRepeatMs(Date.parse(createdAt) || Date.now(), repeatWeeklyDay || "mon", repeatWeeklyTime || "12:00"))
     : null;
 
   return {
@@ -474,6 +514,8 @@ export function normalizeRaidPoll(id: string, data: Record<string, unknown>): Ra
     messageUrl: cleanString(data.messageUrl || data.message_url, 2048) || null,
     mentionRoleIds: cleanSnowflakeIds(data.mentionRoleIds ?? data.mention_role_ids),
     autoRepeatWeekly,
+    repeatWeeklyDay,
+    repeatWeeklyTime,
     repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
     repeatNextAtMs,
     repeatSeriesId: cleanString(data.repeatSeriesId || data.repeat_series_id, 80) || (autoRepeatWeekly ? id : null),
@@ -1112,7 +1154,9 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
   const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
   const mentionRoleIds = cleanSnowflakeIds(input.mentionRoleIds);
   const autoRepeatWeekly = cleanBoolean(input.autoRepeatWeekly);
-  const repeatNextAtMs = autoRepeatWeekly ? nextWeeklyMondayNoonMs(now.getTime()) : null;
+  const repeatWeeklyDay = autoRepeatWeekly ? cleanRepeatWeeklyDay(input.repeatWeeklyDay) : null;
+  const repeatWeeklyTime = autoRepeatWeekly ? cleanRepeatWeeklyTime(input.repeatWeeklyTime) : null;
+  const repeatNextAtMs = autoRepeatWeekly ? nextWeeklyRepeatMs(now.getTime(), repeatWeeklyDay || "mon", repeatWeeklyTime || "12:00") : null;
   const repeatSeriesId = autoRepeatWeekly ? id : null;
 
   const basePoll: RaidPollItem = {
@@ -1133,6 +1177,8 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
     messageUrl: null,
     mentionRoleIds,
     autoRepeatWeekly,
+    repeatWeeklyDay,
+    repeatWeeklyTime,
     repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
     repeatNextAtMs,
     repeatSeriesId,
@@ -1149,6 +1195,8 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
       days: activeDays,
       mentionRoleIds,
       autoRepeatWeekly,
+      repeatWeeklyDay,
+      repeatWeeklyTime,
       repeatNextAt: repeatNextAtMs ? new Date(repeatNextAtMs).toISOString() : null,
       repeatNextAtMs,
       repeatSeriesId,
@@ -1193,6 +1241,8 @@ export async function saveRaidPollFromForm(form: FormData, user: DashboardSessio
     days: form.getAll("days"),
     mentionRoleIds: form.getAll("mentionRoleIds"),
     autoRepeatWeekly: form.get("autoRepeatWeekly"),
+    repeatWeeklyDay: form.get("repeatWeeklyDay"),
+    repeatWeeklyTime: form.get("repeatWeeklyTime"),
   }, user);
 }
 
@@ -1209,6 +1259,8 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
   const channelId = cleanSnowflake(input.channelId) || getDiscordDefaultChannelId();
   const mentionRoleIds = cleanSnowflakeIds(input.mentionRoleIds);
   const autoRepeatWeekly = cleanBoolean(input.autoRepeatWeekly);
+  const repeatWeeklyDay = autoRepeatWeekly ? cleanRepeatWeeklyDay(input.repeatWeeklyDay) : null;
+  const repeatWeeklyTime = autoRepeatWeekly ? cleanRepeatWeeklyTime(input.repeatWeeklyTime) : null;
   if (!channelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
 
   const updatedAt = new Date().toISOString();
@@ -1222,6 +1274,13 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
       const closesAtMs = previous.status === "closed"
         ? previous.closesAtMs
         : (Number.isFinite(createdAtMs) ? createdAtMs : Date.now()) + closeAfterMinutes * 60 * 1000;
+      const repeatConfigChanged = previous.repeatWeeklyDay !== repeatWeeklyDay || previous.repeatWeeklyTime !== repeatWeeklyTime || previous.autoRepeatWeekly !== autoRepeatWeekly;
+      const nextRepeatAtMs = autoRepeatWeekly
+        ? repeatConfigChanged || !previous.repeatNextAtMs
+          ? nextWeeklyRepeatMs(Date.now(), repeatWeeklyDay || "mon", repeatWeeklyTime || "12:00")
+          : previous.repeatNextAtMs
+        : null;
+      const nextRepeatAt = nextRepeatAtMs ? new Date(nextRepeatAtMs).toISOString() : null;
       const next: RaidPollItem = {
         ...previous,
         title,
@@ -1233,8 +1292,10 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
         channelId,
         mentionRoleIds,
         autoRepeatWeekly,
-        repeatNextAt: autoRepeatWeekly ? previous.repeatNextAt || nextWeeklyMondayNoonIso(Date.now()) : null,
-        repeatNextAtMs: autoRepeatWeekly ? previous.repeatNextAtMs || nextWeeklyMondayNoonMs(Date.now()) : null,
+        repeatWeeklyDay,
+        repeatWeeklyTime,
+        repeatNextAt: nextRepeatAt,
+        repeatNextAtMs: nextRepeatAtMs,
         repeatSeriesId: autoRepeatWeekly ? previous.repeatSeriesId || previous.id : null,
         days: activeDays,
         updatedAt,
@@ -1249,8 +1310,10 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
         channelId,
         mentionRoleIds,
         autoRepeatWeekly,
-        repeatNextAt: autoRepeatWeekly ? previous.repeatNextAt || nextWeeklyMondayNoonIso(Date.now()) : null,
-        repeatNextAtMs: autoRepeatWeekly ? previous.repeatNextAtMs || nextWeeklyMondayNoonMs(Date.now()) : null,
+        repeatWeeklyDay,
+        repeatWeeklyTime,
+        repeatNextAt: nextRepeatAt,
+        repeatNextAtMs: nextRepeatAtMs,
         repeatSeriesId: autoRepeatWeekly ? previous.repeatSeriesId || previous.id : null,
         days: activeDays,
         updatedAt,
@@ -1276,6 +1339,8 @@ export async function updateRaidPollFromForm(pollId: string, form: FormData) {
     days: form.getAll("days"),
     mentionRoleIds: form.getAll("mentionRoleIds"),
     autoRepeatWeekly: form.get("autoRepeatWeekly"),
+    repeatWeeklyDay: form.get("repeatWeeklyDay"),
+    repeatWeeklyTime: form.get("repeatWeeklyTime"),
   });
 }
 
@@ -1321,7 +1386,9 @@ async function createRepeatedRaidPoll(template: RaidPollItem) {
   const nowIso = now.toISOString();
   const id = newPollId();
   const closesAtMs = now.getTime() + template.closeAfterMinutes * 60 * 1000;
-  const repeatNextAtMs = nextWeeklyMondayNoonMs(now.getTime());
+  const repeatWeeklyDay = template.repeatWeeklyDay || "mon";
+  const repeatWeeklyTime = template.repeatWeeklyTime || "12:00";
+  const repeatNextAtMs = nextWeeklyRepeatMs(now.getTime(), repeatWeeklyDay, repeatWeeklyTime);
   const repeatSeriesId = template.repeatSeriesId || template.id;
   const nextPoll: RaidPollItem = {
     ...template,
@@ -1335,6 +1402,8 @@ async function createRepeatedRaidPoll(template: RaidPollItem) {
     messageUrl: null,
     votes: [],
     autoRepeatWeekly: true,
+    repeatWeeklyDay,
+    repeatWeeklyTime,
     repeatNextAt: new Date(repeatNextAtMs).toISOString(),
     repeatNextAtMs,
     repeatSeriesId,
@@ -1366,6 +1435,8 @@ async function createRepeatedRaidPoll(template: RaidPollItem) {
       await firebaseWrite("raid", `raid-poll:repeat-old-disable:${template.id}`, async () => {
         await pollRef(template.id).update({
           autoRepeatWeekly: false,
+          repeatWeeklyDay: null,
+          repeatWeeklyTime: null,
           repeatNextAt: null,
           repeatNextAtMs: null,
           repeatReplacedByPollId: id,
@@ -1830,7 +1901,7 @@ export async function handleRaidPollDiscordVote(params: {
         return {
           ok: true,
           poll,
-          content: draftSavedContent(draft, poll),
+          content: params.kind === "character_prompt" ? draftPromptContent(draft, poll) : draftSavedContent(draft, poll),
           components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft) : [],
         };
       }

@@ -26,12 +26,10 @@ export function bearerTokenFromRequest(request: Request | NextRequest) {
   return match?.[1]?.trim() || request.headers.get("x-worker-stats-token")?.trim() || "";
 }
 
-function configuredSecretFromEnv(names: string[]) {
-  for (const name of names) {
-    const value = String(process.env[name] || "").trim();
-    if (value) return { name, value };
-  }
-  return null;
+function configuredSecretsFromEnv(names: string[], minLength: number) {
+  return names
+    .map((name) => ({ name, value: String(process.env[name] || "").trim() }))
+    .filter((secret) => secret.value.length >= minLength);
 }
 
 export async function verifyInternalBearerToken(
@@ -40,8 +38,8 @@ export async function verifyInternalBearerToken(
   options: { minLength?: number } = {},
 ) {
   const minLength = options.minLength ?? 24;
-  const expected = configuredSecretFromEnv(envNames);
-  if (!expected || expected.value.length < minLength) {
+  const expectedSecrets = configuredSecretsFromEnv(envNames, minLength);
+  if (!expectedSecrets.length) {
     return { ok: false, reason: "server_token_not_configured" as const };
   }
 
@@ -50,13 +48,16 @@ export async function verifyInternalBearerToken(
     return { ok: false, reason: "missing_or_short_token" as const };
   }
 
-  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected.value)]);
-  const ok = constantTimeEqual(left, right);
+  const providedHash = await sha256Hex(provided);
+  const expectedHashes = await Promise.all(
+    expectedSecrets.map(async (secret) => ({ name: secret.name, hash: await sha256Hex(secret.value) })),
+  );
+  const matched = expectedHashes.find((secret) => constantTimeEqual(providedHash, secret.hash));
 
   return {
-    ok,
-    reason: ok ? "ok" as const : "token_mismatch" as const,
-    envName: expected.name,
+    ok: Boolean(matched),
+    reason: matched ? "ok" as const : "token_mismatch" as const,
+    envName: matched?.name || expectedSecrets.map((secret) => secret.name).join(","),
   };
 }
 

@@ -3101,6 +3101,10 @@ function deferredEphemeral() {
   });
 }
 
+function deferredMessageUpdate() {
+  return discordInteractionResponse({ type: 6 });
+}
+
 async function editOriginalInteractionResponse(interaction, content, components = []) {
   const applicationId = snowflake(interaction?.application_id);
   const token = String(interaction?.token || "").trim();
@@ -3522,6 +3526,8 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
 
+  const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
       try {
@@ -3535,7 +3541,7 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
         });
       }
     })());
-    return deferredEphemeral();
+    return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
   const result = await raidPollProxyContent(interaction, env, pollAction);
@@ -3694,6 +3700,8 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
   if (isInteractionRateLimited(interaction, "raid-announcement")) {
     return finishRulesDecision(interaction, "⏳ Зачекай кілька секунд перед наступною дією.");
   }
+
+  const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
