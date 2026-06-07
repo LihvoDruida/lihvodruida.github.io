@@ -22676,6 +22676,74 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+
+.raid-poll-recommendation-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.8fr);
+  gap: 14px;
+  align-items: stretch;
+  margin: 16px 0;
+  border: 1px solid rgba(212, 163, 79, 0.2);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(212, 163, 79, 0.13), rgba(15, 23, 42, 0.5));
+  padding: clamp(14px, 2vw, 18px);
+}
+
+.raid-poll-recommendation-card h3,
+.raid-poll-recommendation-card p {
+  margin: 0;
+}
+
+.raid-poll-recommendation-card p {
+  color: rgba(226, 232, 240, 0.76);
+  line-height: 1.5;
+}
+
+.raid-poll-best-slot {
+  display: grid;
+  gap: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(248, 250, 252, 0.12);
+  background: rgba(2, 6, 12, 0.26);
+  padding: 14px;
+}
+
+.raid-poll-best-slot strong {
+  color: #fde68a;
+}
+
+.raid-poll-best-slot span {
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.88rem;
+}
+
+.raid-poll-slot-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.raid-poll-slot-list span,
+.raid-poll-slot-list em {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.44);
+  padding: 7px 10px;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.86rem;
+}
+
+.raid-poll-slot-list span.is-best {
+  border-color: rgba(212, 163, 79, 0.34);
+  background: rgba(212, 163, 79, 0.14);
+  color: #fef3c7;
+}
+
+.raid-poll-slot-list b {
+  margin-right: 4px;
+}
+
 .raid-poll-smart-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.65fr);
@@ -23721,5 +23789,11 @@ body {
     width: 36px !important;
     min-width: 36px !important;
     height: 36px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .raid-poll-recommendation-card {
+    grid-template-columns: 1fr;
   }
 }

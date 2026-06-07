@@ -3432,12 +3432,12 @@ function decodeRaidRoleSelectCustomId(customId, values) {
 function decodeRaidPollCustomId(customId, values) {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
-  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt):([A-Za-z0-9_-]{8,80})$/);
   const match = legacyMatch || smartMatch;
   if (!match) return null;
-  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
-  if (!selected.length) return null;
   const rawKind = match[1];
+  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
+  if (!selected.length && rawKind !== "character_prompt") return null;
   const kind = rawKind.startsWith("schedule_") ? "schedule" : rawKind;
   return { pollId: match[2], kind, group: rawKind.startsWith("schedule_") ? rawKind.slice("schedule_".length) : "", values: selected };
 }
@@ -3458,6 +3458,7 @@ function normalizeRaidPollProxyResult(data) {
     ok: Boolean(data?.ok),
     closed: Boolean(data?.closed),
     content: limitText(content, 1800, "Голос оброблено."),
+    components: safeDiscordComponents(data?.components),
   };
 }
 
@@ -3525,7 +3526,7 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
     ctx.waitUntil((async () => {
       try {
         const result = await raidPollProxyContent(interaction, env, pollAction);
-        await editOriginalInteractionResponse(interaction, result.content, []);
+        await editOriginalInteractionResponse(interaction, result.content, result.components || []);
       } catch (error) {
         logWorkerEvent("error", "raid_poll.deferred.failed", {
           pollId: pollAction.pollId,
@@ -3538,7 +3539,7 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
   }
 
   const result = await raidPollProxyContent(interaction, env, pollAction);
-  return finishRulesDecision(interaction, result.content);
+  return finishRulesDecision(interaction, result.content, result.components || []);
 }
 
 function dashboardRaidActionEndpoint(env, raidId) {

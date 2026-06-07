@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import type { DashboardSession } from "@/lib/auth";
-import { getMainCharacter, getProfileByDiscordUserId, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
+import { getMainCharacter, getProfileByDiscordUserId, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
 import { normalizeCharacterKey } from "@/lib/wowCharacters";
 import { firebaseRead, firebaseWrite, firebaseUnavailableMessage } from "@/lib/firebaseAccess";
@@ -18,7 +18,6 @@ import {
 
 export {
   RAID_POLL_AVAILABILITY_OPTIONS,
-  RAID_POLL_CHARACTER_SELECTOR_OPTIONS,
   RAID_POLL_CLOSE_OPTIONS,
   RAID_POLL_DAYS,
   RAID_POLL_DESCRIPTION,
@@ -44,7 +43,6 @@ export type {
 } from "@/lib/raidPollShared";
 import {
   RAID_POLL_AVAILABILITY_OPTIONS,
-  RAID_POLL_CHARACTER_SELECTOR_OPTIONS,
   RAID_POLL_CLOSE_OPTIONS,
   RAID_POLL_DAYS,
   RAID_POLL_DESCRIPTION,
@@ -190,7 +188,7 @@ function parseScheduleValues(values: unknown): RaidPollSchedule {
 
 function cleanCharacterSelector(value: unknown) {
   const text = cleanString(value, 260);
-  if (/^alt_[1-9][0-9]?$/.test(text) || text === "main") return text;
+  if (/^c\d{1,2}$/i.test(text) || /^alt_[1-9][0-9]?$/.test(text) || text === "main") return text;
   const key = normalizeCharacterKey(text);
   return key || text;
 }
@@ -389,19 +387,98 @@ export function raidPollVoteSchedule(vote: RaidPollVote) {
   return vote.schedule && Object.keys(vote.schedule).length ? vote.schedule : scheduleFromLegacy(vote.selectedDays, vote.selectedTime);
 }
 
+export type RaidPollSlotRecommendation = {
+  day: RaidPollDay;
+  time: RaidPollTime;
+  total: number;
+  tanks: number;
+  healers: number;
+  dps: number;
+  unknown: number;
+  voters: RaidPollVote[];
+  score: number;
+};
+
+function roleBucket(role: RaidPollRole | null | undefined) {
+  if (role === "tank") return "tanks";
+  if (role === "healer") return "healers";
+  if (role === "dps") return "dps";
+  return "unknown";
+}
+
+function raidPollSlotScore(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total">) {
+  // Головна ціль голосувалки — знайти слот, де реально можна зібрати рейд.
+  // Тому 2 танки важливіші за загальну кількість, далі йдуть хіли, потім сумарний онлайн.
+  const tankCore = Math.min(item.tanks, 2);
+  const completeTankCore = item.tanks >= 2 ? 1 : 0;
+  return completeTankCore * 1_000_000 + tankCore * 100_000 + item.healers * 10_000 + item.total * 100 + item.dps * 10 - item.unknown;
+}
+
+export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "votes">, limit = 6): RaidPollSlotRecommendation[] {
+  const active = poll.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value);
+  const activeSet = new Set(active);
+  const rows: RaidPollSlotRecommendation[] = [];
+
+  for (const day of RAID_POLL_DAYS) {
+    if (!activeSet.has(day.value)) continue;
+    for (const time of RAID_POLL_TIMES) {
+      const voters = poll.votes.filter((vote) => raidPollVoteSchedule(vote)[day.value] === time);
+      let tanks = 0;
+      let healers = 0;
+      let dps = 0;
+      let unknown = 0;
+      for (const vote of voters) {
+        const bucket = roleBucket(vote.characterRole);
+        if (bucket === "tanks") tanks += 1;
+        else if (bucket === "healers") healers += 1;
+        else if (bucket === "dps") dps += 1;
+        else unknown += 1;
+      }
+      const total = voters.length;
+      rows.push({
+        day: day.value,
+        time,
+        total,
+        tanks,
+        healers,
+        dps,
+        unknown,
+        voters,
+        score: raidPollSlotScore({ tanks, healers, dps, unknown, total }),
+      });
+    }
+  }
+
+  return rows
+    .filter((item) => item.total > 0)
+    .sort((a, b) =>
+      b.score - a.score ||
+      Math.min(b.tanks, 2) - Math.min(a.tanks, 2) ||
+      b.healers - a.healers ||
+      b.total - a.total ||
+      RAID_POLL_DAYS.findIndex((day) => day.value === a.day) - RAID_POLL_DAYS.findIndex((day) => day.value === b.day) ||
+      RAID_POLL_TIMES.indexOf(a.time) - RAID_POLL_TIMES.indexOf(b.time),
+    )
+    .slice(0, Math.max(1, Math.min(20, Math.floor(limit))));
+}
+
+export function raidPollBestSlot(poll: Pick<RaidPollItem, "days" | "votes">) {
+  return raidPollSlotRecommendations(poll, 1)[0] || null;
+}
+
+export function raidPollSlotSummary(slot: RaidPollSlotRecommendation | null | undefined) {
+  if (!slot) return "Ще немає достатніх голосів.";
+  return `${dayLabel(slot.day)} ${slot.time} — ${slot.tanks}/2 танки • ${slot.healers} хіли • ${slot.dps} ДД • всього ${slot.total}`;
+}
+
 function formatDiscordTimestamp(ms: number) {
   const stamp = Math.floor(ms / 1000);
   return `<t:${stamp}:f> • <t:${stamp}:R>`;
 }
 
 function topDaySummary(poll: RaidPollItem) {
-  const counts = pollVoteCounts(poll);
-  const sorted = RAID_POLL_DAYS
-    .map((day) => ({ day: day.value, count: counts.days[day.value] }))
-    .sort((a, b) => b.count - a.count || RAID_POLL_DAYS.findIndex((day) => day.value === a.day) - RAID_POLL_DAYS.findIndex((day) => day.value === b.day));
-  const best = sorted.filter((item) => item.count > 0 && item.count === sorted[0]?.count);
-  if (!best.length) return "Ще немає голосів.";
-  return best.map((item) => `${dayLabel(item.day)} — ${item.count}`).join(" • ");
+  const best = raidPollBestSlot(poll);
+  return raidPollSlotSummary(best);
 }
 
 function pollActiveDays(poll: Pick<RaidPollItem, "days">) {
@@ -454,7 +531,7 @@ export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
     { name: "🗓️ Голоси за днями", value: dayCountsDiscordValue(poll), inline: true },
     { name: "⏰ Голоси за часом", value: timeCountsDiscordValue(poll), inline: true },
     { name: "👥 Проголосували", value: `${counts.total}`, inline: true },
-    { name: "🏆 Найкращий день зараз", value: topDaySummary(poll), inline: false },
+    { name: "🧠 Рекомендований день/час", value: topDaySummary(poll), inline: false },
     { name: "🧾 Останні голоси", value: votersDiscordValue(poll), inline: false },
   ];
 
@@ -508,13 +585,11 @@ export function buildRaidPollDiscordComponents(poll: Pick<RaidPollItem, "id" | "
       type: 1,
       components: [
         {
-          type: 3,
-          custom_id: `${RAID_POLL_ACTION_PREFIX}_character:${poll.id}`,
-          placeholder: disabled ? "Голосування завершено" : "Обрати персонажа з dashboard-профілю",
-          min_values: 1,
-          max_values: 1,
+          type: 2,
+          style: 2,
+          custom_id: `${RAID_POLL_ACTION_PREFIX}_character_prompt:${poll.id}`,
+          label: disabled ? "Голосування завершено" : "Обрати / змінити персонажа",
           disabled,
-          options: RAID_POLL_CHARACTER_SELECTOR_OPTIONS,
         },
       ],
     },
@@ -873,30 +948,105 @@ function orderedProfileCharacters(profile: DashboardProfile | null | undefined) 
   return main ? [main, ...rest] : rest;
 }
 
+function pollCharacterOptionLabel(character: ProfileCharacter, index: number) {
+  const realm = character.realmName || character.realmSlug || "realm";
+  const prefix = index === 0 ? "★ " : character.verifiedGuild ? "" : "🤝 ";
+  return `${prefix}${character.name || "Персонаж"} • ${realm}`.slice(0, 100);
+}
+
+function pollCharacterOptionDescription(character: ProfileCharacter) {
+  return ([
+    character.verifiedGuild ? "Гільдійний" : "Інший персонаж",
+    character.activeSpecName || null,
+    character.className || null,
+    character.itemLevel ? `${character.itemLevel} ilvl` : null,
+  ].filter(Boolean).join(" • ").slice(0, 100) || "Персонаж Battle.net");
+}
+
+function buildRaidPollCharacterSelectComponents(pollId: string, profile: DashboardProfile, selectedCharacterKey?: string | null) {
+  const options = orderedProfileCharacters(profile)
+    .slice(0, 25)
+    .map((character, index) => ({
+      label: pollCharacterOptionLabel(character, index),
+      description: pollCharacterOptionDescription(character),
+      value: `c${index}`,
+      default: selectedCharacterKey ? normalizeCharacterKey(character.key) === normalizeCharacterKey(selectedCharacterKey) : index === 0,
+    }));
+
+  if (!options.length) return [];
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: `${RAID_POLL_ACTION_PREFIX}_character:${pollId}`,
+          placeholder: "Обери персонажа з dashboard-профілю",
+          min_values: 1,
+          max_values: 1,
+          options,
+        },
+      ],
+    },
+  ];
+}
+
+function profileLinkComponents() {
+  return [
+    {
+      type: 1,
+      components: [
+        { type: 2, style: 5, label: "Відкрити dashboard-профіль", url: `${dashboardBaseUrl()}/profile` },
+      ],
+    },
+  ];
+}
+
 function resolvePollProfileCharacter(profile: DashboardProfile | null, selectorInput: unknown) {
   const selector = cleanCharacterSelector(selectorInput || "main");
   const characters = orderedProfileCharacters(profile);
   if (!characters.length) return null;
   if (selector === "main") return characters[0] || null;
+  const characterIndexMatch = selector.match(/^c(\d{1,2})$/i);
+  if (characterIndexMatch) return characters[Number(characterIndexMatch[1])] || null;
   const altMatch = selector.match(/^alt_(\d+)$/);
   if (altMatch) return characters[Math.max(1, Number(altMatch[1]))] || null;
   const key = normalizeCharacterKey(selector);
   return key ? characters.find((character) => normalizeCharacterKey(character.key) === key) || null : null;
 }
 
+async function refreshProfileBeforePollVote(profile: DashboardProfile | null, context: { pollId: string; userId: string }) {
+  if (!profile?.characters?.length) return profile;
+  try {
+    return await refreshProfileCharactersForRaidSignup(profile);
+  } catch (error) {
+    console.warn("[raidPolls] Battle.net character refresh before poll vote failed", {
+      pollId: context.pollId,
+      userId: context.userId,
+      profileId: profile.profileId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return profile;
+  }
+}
+
 function voteCharacterPayload(profile: DashboardProfile | null, selector: unknown) {
   const character = resolvePollProfileCharacter(profile, selector);
   if (!character) return null;
+  const manualRole = profile?.raidRolePreference?.characterKey === character.key ? profile.raidRolePreference?.role : null;
+  const resolvedRole = manualRole === "tank" || manualRole === "healer" || manualRole === "dps"
+    ? manualRole
+    : resolveWowCharacterRole({
+        className: character.className,
+        activeSpecName: character.activeSpecName,
+        activeSpecId: character.activeSpecId,
+        activeSpecRole: character.activeSpecRole,
+      });
   return {
     characterKey: character.key || null,
     characterName: character.name || null,
     characterClass: character.className || null,
-    characterRole: resolveWowCharacterRole({
-      className: character.className,
-      activeSpecName: character.activeSpecName,
-      activeSpecId: character.activeSpecId,
-      activeSpecRole: character.activeSpecRole,
-    }),
+    characterRole: resolvedRole,
     characterRealm: character.realmName || character.realmSlug || null,
     characterRegion: character.region || "eu",
   } satisfies Pick<RaidPollVote, "characterKey" | "characterName" | "characterClass" | "characterRole" | "characterRealm" | "characterRegion">;
@@ -913,8 +1063,8 @@ function normalizeVoteScheduleForPoll(poll: RaidPollItem, schedule: RaidPollSche
   return next;
 }
 
-function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "character", existing: RaidPollVote | undefined) {
-  if (kind === "character") return false;
+function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "character" | "character_prompt", existing: RaidPollVote | undefined) {
+  if (kind === "character" || kind === "character_prompt") return false;
   return !existing?.characterKey && !existing?.characterName;
 }
 
@@ -929,7 +1079,7 @@ function dedupeSchedulePatch(schedule: RaidPollSchedule) {
 
 export async function handleRaidPollDiscordVote(params: {
   pollId: string;
-  kind: "days" | "time" | "schedule" | "character";
+  kind: "days" | "time" | "schedule" | "character" | "character_prompt";
   values: string[];
   userId: string;
   userName: string;
@@ -946,13 +1096,42 @@ export async function handleRaidPollDiscordVote(params: {
 
   const nowIso = new Date().toISOString();
   let changedPoll: RaidPollItem | null = null;
-  const profile = await getProfileByDiscordUserId(userId).catch(() => null);
+  let profile = await getProfileByDiscordUserId(userId).catch(() => null);
+  profile = await refreshProfileBeforePollVote(profile, { pollId: params.pollId, userId });
+
+  if (params.kind === "character_prompt") {
+    const poll = await getRaidPoll(params.pollId, { bypassCache: true });
+    if (!poll) return { ok: false, content: "❌ Рейд-пул не знайдено або його було видалено." };
+    if (poll.status === "closed" || poll.closesAtMs <= Date.now()) {
+      return { ok: false, closed: true, poll, content: "🔒 Голосування вже завершено. Персонажа змінити не можна." };
+    }
+    if (!profile?.characters?.length) {
+      return {
+        ok: false,
+        poll,
+        content: "⚠️ Не знайшов персонажів у твоєму dashboard-профілі. Відкрий профіль, привʼяжи Battle.net і додай персонажів, тоді повернись до голосування.",
+        components: profileLinkComponents(),
+      };
+    }
+
+    const existing = poll.votes.find((vote) => vote.discordId === userId);
+    return {
+      ok: true,
+      poll,
+      content: existing?.characterName
+        ? `🎯 Поточний персонаж: **${existing.characterName}**. Обери іншого персонажа зі свого dashboard-профілю.`
+        : "🎯 Обери персонажа зі свого dashboard-профілю. Це приватний вибір, інші бачать лише підсумок у публічному embed.",
+      components: buildRaidPollCharacterSelectComponents(poll.id, profile, existing?.characterKey || null),
+    };
+  }
+
   const selectedCharacter = params.kind === "character" ? voteCharacterPayload(profile, params.values[0] || "main") : null;
 
   if (params.kind === "character" && !selectedCharacter) {
     return {
       ok: false,
       content: "⚠️ Не знайшов персонажа у твоєму dashboard-профілі. Привʼяжи Battle.net/персонажів на сайті або обери інший пункт персонажа.",
+      components: profileLinkComponents(),
     };
   }
 

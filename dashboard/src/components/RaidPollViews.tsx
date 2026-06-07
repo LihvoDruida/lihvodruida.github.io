@@ -16,6 +16,8 @@ import {
   raidPollDayFullLabel,
   raidPollDifficultyLabel,
   raidPollRoleLabel,
+  raidPollSlotRecommendations,
+  raidPollSlotSummary,
   raidPollStatusLabel,
   raidPollTitle,
   raidPollVoteSchedule,
@@ -97,13 +99,7 @@ function pollCloseLabel(poll: RaidPollItem) {
 }
 
 function bestDaySummary(poll: RaidPollItem) {
-  const counts = pollVoteCounts(poll);
-  const activeDays = pollDays(poll);
-  const best = activeDays
-    .map((day) => ({ day, count: counts.days[day.value] }))
-    .filter((item) => item.count > 0)
-    .sort((a, b) => b.count - a.count || activeDays.findIndex((day) => day.value === a.day.value) - activeDays.findIndex((day) => day.value === b.day.value))[0];
-  return best ? `${best.day.label} · ${best.count}` : "—";
+  return raidPollSlotSummary(raidPollSlotRecommendations(poll, 1)[0] || null);
 }
 
 export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
@@ -191,6 +187,8 @@ function VoteCharacterBadge({ vote }: { vote: RaidPollItem["votes"][number] }) {
 export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
   const counts = pollVoteCounts(poll);
   const activeDays = pollDays(poll);
+  const recommendations = raidPollSlotRecommendations(poll, 5);
+  const bestSlot = recommendations[0] || null;
   return (
     <section className="panel raid-poll-results raid-poll-results--smart">
       <div className="raid-form-section-head raid-poll-detail-head">
@@ -207,6 +205,25 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <div><strong>{raidPollDifficultyLabel(poll.difficulty)}</strong><span>Складність</span></div>
         <div><strong>{activeDays.map((day) => day.label).join(" • ")}</strong><span>Дні пулу</span></div>
       </div>
+
+      <section className="raid-poll-recommendation-card" aria-label="Рекомендований день та час рейду">
+        <div>
+          <span className="eyebrow">Smart priority</span>
+          <h3>Рекомендований слот</h3>
+          <p>Розрахунок не тупо бере найбільшу кількість голосів: спочатку шукає слот із 2 танками, потім сильніший пул хілів, потім загальну кількість доступних.</p>
+        </div>
+        <div className="raid-poll-best-slot">
+          <strong>{raidPollSlotSummary(bestSlot)}</strong>
+          <span>{bestSlot ? `Пріоритет: танки ${bestSlot.tanks}/2 → хіли ${bestSlot.healers} → усього ${bestSlot.total}` : "Потрібні голоси з персонажами, щоб зʼявився нормальний розрахунок."}</span>
+        </div>
+        <div className="raid-poll-slot-list">
+          {recommendations.length ? recommendations.map((slot, index) => (
+            <span key={`${slot.day}:${slot.time}`} className={index === 0 ? "is-best" : ""}>
+              <b>{index + 1}</b> {raidPollSlotSummary(slot)}
+            </span>
+          )) : <em>Поки немає доступних слотів.</em>}
+        </div>
+      </section>
 
       <div className="raid-poll-smart-layout">
         <div className="raid-poll-table-card raid-poll-table-card--wide">

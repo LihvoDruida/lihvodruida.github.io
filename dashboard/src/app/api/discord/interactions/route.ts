@@ -9,6 +9,7 @@ import {
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
 import { rulesLoginUrl } from "@/lib/rulesOnboarding";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, decodeRaidRoleSelectCustomId, handleRaidDiscordAction, raidActionHelpComponents, type RaidCharacterRole } from "@/lib/raids";
+import { handleRaidPollDiscordVote } from "@/lib/raidPolls";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -129,6 +130,24 @@ function cleanRaidSignupRole(value: unknown): RaidCharacterRole | null {
   return null;
 }
 
+type RaidPollDiscordKind = "days" | "time" | "schedule" | "character" | "character_prompt";
+
+function decodeRaidPollCustomId(customId: string, values: unknown): { pollId: string; kind: RaidPollDiscordKind; values: string[] } | null {
+  const value = String(customId || "").trim();
+  const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt):([A-Za-z0-9_-]{8,80})$/);
+  const match = legacyMatch || smartMatch;
+  if (!match) return null;
+  const rawKind = match[1];
+  const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
+  if (!selected.length && rawKind !== "character_prompt") return null;
+  return {
+    pollId: match[2],
+    kind: rawKind.startsWith("schedule_") ? "schedule" : (rawKind as RaidPollDiscordKind),
+    values: selected,
+  };
+}
+
 
 function mainCharacterLabel(character: any) {
   const name = String(character?.name || "").trim();
@@ -169,8 +188,9 @@ export async function POST(request: NextRequest) {
   const raidRoleAction = decodeRaidRoleSelectCustomId(customId, interaction?.data?.values);
   const raidSelectAction = decodeRaidCharacterSelectCustomId(customId, interaction?.data?.values);
   const raidAction = raidRoleAction || raidSelectAction || decodeRaidAttendanceCustomId(customId);
-  const parsed = raidAction ? null : decodeRulesCustomId(customId);
-  if (!raidAction && !parsed) {
+  const pollAction = raidAction ? null : decodeRaidPollCustomId(customId, interaction?.data?.values);
+  const parsed = raidAction || pollAction ? null : decodeRulesCustomId(customId);
+  if (!raidAction && !pollAction && !parsed) {
     logDashboardEvent("warn", "discord.rules.unknown_custom_id", request, { customId: customId.slice(0, 24) });
     return ephemeral("Ця кнопка не належить панелі Mistblossom або вже застаріла.");
   }
@@ -178,6 +198,27 @@ export async function POST(request: NextRequest) {
   const guildId = String(interaction?.guild_id || getDiscordGuildId() || "");
   const userId = getInteractionUserId(interaction);
   const userName = getInteractionUserName(interaction);
+
+  if (pollAction) {
+    try {
+      const messageRef = getInteractionMessageRef(interaction);
+      const result = await handleRaidPollDiscordVote({
+        pollId: pollAction.pollId,
+        kind: pollAction.kind,
+        values: pollAction.values,
+        userId,
+        userName,
+        guildId,
+        guildName: String(interaction?.guild?.name || "Discord server"),
+        messageRef,
+      });
+      logDashboardEvent(result.ok ? "info" : "warn", "discord.raid_poll.action", request, { pollId: pollAction.pollId, kind: pollAction.kind, userId, ok: result.ok });
+      return finishDecision(interaction, result.content, result.components || []);
+    } catch (error) {
+      logDashboardEvent("error", "discord.raid_poll.action_failed", request, { message: safeErrorMessage(error), pollId: pollAction.pollId, kind: pollAction.kind, userId });
+      return ephemeral("❌ Не вдалося зберегти голос. Спробуй пізніше або звернись до офіцера.");
+    }
+  }
 
   if (raidAction) {
     try {
