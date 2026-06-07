@@ -3317,6 +3317,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     5800 - description.length - raidTitle(raid).length,
   );
   const fields = compactDiscordFields(rawFields, fieldsBudget);
+  const discordAnnouncementImageUrl = cleanUrl(raid.imageUrl);
 
   const embed = normalizeDiscordEmbed({
     title: closed ? `${raidTitle(raid)} • Закрито` : raidTitle(raid),
@@ -3324,6 +3325,9 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     description,
     color: DIFFICULTY_COLORS[raid.difficulty],
     fields,
+    image: discordAnnouncementImageUrl
+      ? { url: discordAnnouncementImageUrl }
+      : undefined,
     footer: {
       text: closed
         ? "🔒 Рейд закрито. Кнопки Discord вимкнені, нові записи заблоковані."
