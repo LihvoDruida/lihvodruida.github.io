@@ -130,17 +130,17 @@ function cleanRaidSignupRole(value: unknown): RaidCharacterRole | null {
   return null;
 }
 
-type RaidPollDiscordKind = "days" | "time" | "schedule" | "character" | "character_prompt";
+type RaidPollDiscordKind = "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit";
 
 function decodeRaidPollCustomId(customId: string, values: unknown): { pollId: string; kind: RaidPollDiscordKind; values: string[] } | null {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
-  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
   const match = legacyMatch || smartMatch;
   if (!match) return null;
   const rawKind = match[1];
   const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
-  if (!selected.length && rawKind !== "character_prompt") return null;
+  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit") return null;
   return {
     pollId: match[2],
     kind: rawKind.startsWith("schedule_") ? "schedule" : (rawKind as RaidPollDiscordKind),

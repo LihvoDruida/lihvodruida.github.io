@@ -12,7 +12,7 @@ let geoAccessPolicyCache = { policy: null, expiresAt: 0 };
 let discordRouteCooldowns = new Map();
 
 
-const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache", "/api/raids/lifecycle"]);
+const PATHS = new Set(["/", "/api/guild-applications", "/api/discord-interactions", "/api/discord-rules-stats", "/api/discord-raid-rules-stats", "/api/discord-raid-rules-signups", "/api/discord-raid-message", "/api/discord-guild-channels", "/api/public-cache", "/api/raids/lifecycle", "/api/polls/close-due"]);
 const DEFAULT_LABEL = "guild-application";
 const DEFAULT_REVIEW_LABEL = "status:review";
 
@@ -3432,12 +3432,12 @@ function decodeRaidRoleSelectCustomId(customId, values) {
 function decodeRaidPollCustomId(customId, values) {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
-  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
   const match = legacyMatch || smartMatch;
   if (!match) return null;
   const rawKind = match[1];
   const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
-  if (!selected.length && rawKind !== "character_prompt") return null;
+  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit") return null;
   const kind = rawKind.startsWith("schedule_") ? "schedule" : rawKind;
   return { pollId: match[2], kind, group: rawKind.startsWith("schedule_") ? rawKind.slice("schedule_".length) : "", values: selected };
 }

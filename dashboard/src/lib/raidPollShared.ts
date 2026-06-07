@@ -83,6 +83,12 @@ export const RAID_POLL_TIMES: RaidPollTime[] = ["19:00", "19:30", "20:00", "20:3
 
 export const RAID_POLL_AVAILABILITY_OPTIONS: RaidPollAvailability[] = [...RAID_POLL_TIMES, "absent"];
 
+export const RAID_POLL_ROLE_OPTIONS: Array<{ value: RaidPollRole; label: string; description: string; emoji: string }> = [
+  { value: "tank", label: "Танк", description: "Йду як танк", emoji: "🛡️" },
+  { value: "healer", label: "Хіл", description: "Йду як цілитель", emoji: "💚" },
+  { value: "dps", label: "ДД", description: "Йду як боєць шкоди", emoji: "⚔️" },
+];
+
 export const RAID_POLL_CLOSE_OPTIONS: Array<{ minutes: number; label: string }> = [
   { minutes: 120, label: "2 години" },
   { minutes: 720, label: "12 годин" },

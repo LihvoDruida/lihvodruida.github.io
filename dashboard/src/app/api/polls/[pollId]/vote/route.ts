@@ -40,12 +40,14 @@ function cleanIdempotencyKey(value: unknown) {
   return /^[A-Za-z0-9:._-]{12,220}$/.test(key) ? key : "";
 }
 
-function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" | "character_prompt" {
+function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit" {
   const kind = String(value || "").trim().toLowerCase();
   if (kind === "time") return "time";
   if (kind === "schedule") return "schedule";
   if (kind === "character") return "character";
   if (kind === "character_prompt") return "character_prompt";
+  if (kind === "role") return "role";
+  if (kind === "submit") return "submit";
   return "days";
 }
 

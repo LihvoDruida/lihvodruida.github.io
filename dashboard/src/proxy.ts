@@ -43,7 +43,10 @@ function isInternalBearerApiPath(pathname: string) {
   return (
     pathname === "/api/profile/discord-lookup" ||
     pathname === "/api/admin/profiles/refresh-external-data" ||
-    /^\/api\/raids\/[^/]+\/discord-action$/.test(pathname)
+    pathname === "/api/raids/lifecycle" ||
+    pathname === "/api/polls/close-due" ||
+    /^\/api\/raids\/[^/]+\/discord-action$/.test(pathname) ||
+    /^\/api\/polls\/[^/]+\/vote$/.test(pathname)
   );
 }
 
