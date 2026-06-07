@@ -167,6 +167,11 @@ export type RaidBenchPriorityMatch = {
   reason?: "characterKey" | "manualName" | null;
 };
 
+export type RaidBenchPrioritySaveResult = {
+  settings: RaidBenchPrioritySettings;
+  changed: boolean;
+};
+
 export type RaidGroupLayout = {
   parties: RaidParty[];
   bench: RaidBench;
@@ -659,6 +664,27 @@ function cleanBenchPriorityEnabled(value: unknown, fallback = true) {
   return fallback;
 }
 
+function sameBenchPriorityList(a: string[], b: string[]) {
+  if (a.length !== b.length) return false;
+  const left = [...a].sort();
+  const right = [...b].sort();
+  return left.every((value, index) => value === right[index]);
+}
+
+function sameRaidBenchPrioritySettings(
+  current: RaidBenchPrioritySettings,
+  next: Pick<RaidBenchPrioritySettings, "enabled" | "characterKeys" | "manualNames">,
+) {
+  return (
+    current.enabled === next.enabled &&
+    sameBenchPriorityList(current.characterKeys || [], next.characterKeys || []) &&
+    sameBenchPriorityList(
+      (current.manualNames || []).map((name) => benchPriorityNameKey(name)),
+      (next.manualNames || []).map((name) => benchPriorityNameKey(name)),
+    )
+  );
+}
+
 function normalizeRaidBenchPrioritySettings(
   data?: Record<string, unknown> | null,
 ): RaidBenchPrioritySettings {
@@ -819,20 +845,26 @@ async function attachRaidBenchPrioritySettingsToList(
 export async function saveRaidBenchPrioritySettingsFromForm(
   form: FormData,
   user: DashboardSession,
-) {
+): Promise<RaidBenchPrioritySaveResult> {
   if (!hasRaidStorage())
     throw new Error("Збереження сірого списку тимчасово недоступне.");
 
-  const enabled = cleanBoolean(form.get("enabled"));
+  const enabled = cleanBenchPriorityEnabled(form.get("enabled"), false);
   const characterKeys = cleanBenchPriorityCharacterKeys(
     form.getAll("characterKeys"),
   );
   const manualNames = splitBenchPriorityManualNames(form.get("manualNames"));
+  const nextSettings = { enabled, characterKeys, manualNames };
+
+  const current = await getRaidBenchPrioritySettings({ bypassCache: true }).catch(
+    () => ({ ...EMPTY_RAID_BENCH_PRIORITY_SETTINGS }),
+  );
+  if (sameRaidBenchPrioritySettings(current, nextSettings)) {
+    return { settings: current, changed: false };
+  }
 
   const payload = {
-    enabled,
-    characterKeys,
-    manualNames,
+    ...nextSettings,
     updatedByDiscordId: user.provider === "discord" ? user.id : "",
     updatedByName: user.name || user.login || user.id || "Адміністратор",
     updatedAt: FieldValue.serverTimestamp(),
@@ -856,7 +888,7 @@ export async function saveRaidBenchPrioritySettingsFromForm(
     { timeoutMs: 4_000, logEvent: "raids.bench_priority_write_failed" },
   );
 
-  return saved;
+  return { settings: saved, changed: true };
 }
 
 function cleanRegistrationLockMinutes(

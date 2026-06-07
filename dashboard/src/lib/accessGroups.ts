@@ -588,9 +588,9 @@ function cleanAuditId(value: unknown) {
 
 function auditFingerprint(item: Pick<AdminAuditLogItem, "id" | "action" | "actorId" | "status" | "summary" | "details">) {
   const details = item.details || {};
+  const stableAuditId = cleanAuditId(details.auditId) || cleanAuditId(details.auditKey);
   const identity = {
-    id: cleanAuditId(item.id),
-    auditId: cleanAuditId(details.auditId),
+    stableAuditId: stableAuditId || null,
     action: item.action,
     actorId: item.actorId,
     status: item.status,

@@ -24152,3 +24152,128 @@ body {
     max-height: 520px;
   }
 }
+
+.raid-greylist-toolbar-head {
+  align-items: flex-start;
+}
+
+.raid-greylist-toolbar-head > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.raid-greylist-mini-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.raid-greylist-mini-actions .btn,
+.raid-greylist-box-head > .btn {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+.raid-greylist-search {
+  display: grid;
+  gap: 7px;
+}
+
+.raid-greylist-search span {
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.raid-greylist-search input {
+  width: 100%;
+}
+
+.raid-greylist-state-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  color: rgba(203, 213, 225, 0.74);
+  font-size: 0.84rem;
+}
+
+.link-button {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: rgba(147, 197, 253, 0.96);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.link-button:hover {
+  color: rgba(191, 219, 254, 1);
+}
+
+.link-button.danger {
+  color: rgba(252, 165, 165, 0.96);
+}
+
+.link-button.danger:hover {
+  color: rgba(254, 202, 202, 1);
+}
+
+.raid-greylist-member.is-selected {
+  border-color: rgba(234, 179, 8, 0.52);
+  background: rgba(113, 63, 18, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.14);
+}
+
+.raid-greylist-member.is-selected strong {
+  color: rgba(254, 243, 199, 0.98);
+}
+
+.raid-greylist-manual {
+  width: 100%;
+  min-height: 320px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: rgba(248, 250, 252, 0.94);
+  background: rgba(2, 6, 23, 0.7);
+}
+
+.raid-greylist-manual::placeholder {
+  color: rgba(148, 163, 184, 0.62);
+}
+
+.raid-greylist-selected li {
+  overflow-wrap: anywhere;
+}
+
+.raid-greylist-selected li:has(.link-button) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .raid-greylist-toolbar-head {
+    display: grid;
+  }
+
+  .raid-greylist-mini-actions {
+    justify-content: stretch;
+  }
+
+  .raid-greylist-mini-actions .btn,
+  .raid-greylist-box-head > .btn {
+    flex: 1 1 140px;
+  }
+}

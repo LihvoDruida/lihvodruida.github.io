@@ -363,6 +363,8 @@ function actionTitle(action: string) {
     "raids.close_failed": "Рейд: помилка закриття",
     "raids.delete": "Рейд: видалено",
     "raids.delete_failed": "Рейд: помилка видалення",
+    "raids.bench_priority.save": "Рейди: сірий список збережено",
+    "raids.bench_priority.save_failed": "Рейди: помилка сірого списку",
     "access_group.upsert": "Права: групу збережено",
     "access_group.delete": "Права: групу видалено",
     "access_group.impersonate": "Права: перегляд як група",
@@ -423,7 +425,7 @@ function detailFields(details: Record<string, unknown>) {
   const preferred = [
     "checked", "checkedProfiles", "checkedDiscordProfiles", "checkedDiscordMembers", "targets", "targetProfilesTotal",
     "changed", "deletedProfilesTotal", "removedRoles", "addedRoles", "failed", "errorsTotal", "raidId", "issueNumber",
-    "issueNumbers", "status", "path", "kind", "channelId", "messageId", "durationMs", "concurrency",
+    "issueNumbers", "status", "enabled", "characterKeys", "manualNames", "path", "kind", "channelId", "messageId", "durationMs", "concurrency",
   ];
   const used = new Set<string>();
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [];

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
@@ -33,6 +34,24 @@ function appBaseUrl() {
   );
 }
 
+
+function benchPriorityAuditKey(userId: string, settings: {
+  enabled: boolean;
+  characterKeys: string[];
+  manualNames: string[];
+}) {
+  const hash = createHash("sha256")
+    .update(JSON.stringify({
+      enabled: settings.enabled,
+      characterKeys: [...settings.characterKeys].sort(),
+      manualNames: [...settings.manualNames].sort(),
+    }))
+    .digest("hex")
+    .slice(0, 24);
+  const actor = String(userId || "user").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32) || "user";
+  return `raids:bench-priority:${actor}:${hash}`;
+}
+
 function redirectWithToast(path: string, toast?: ToastInput) {
   const url = new URL(path, appBaseUrl());
   const response = NextResponse.redirect(url, {
@@ -59,15 +78,28 @@ export async function POST(request: NextRequest) {
 
   try {
     const form = await request.formData();
-    const settings = await saveRaidBenchPrioritySettingsFromForm(form, user);
+    const result = await saveRaidBenchPrioritySettingsFromForm(form, user);
+    const settings = result.settings;
     logDashboardEvent("info", "raids.bench_priority.saved", request, {
       actorId: user.id,
       actorRole: user.role,
       enabled: settings.enabled,
       characterKeys: settings.characterKeys.length,
       manualNames: settings.manualNames.length,
+      changed: result.changed,
     });
+
+    if (!result.changed) {
+      return redirectWithToast("/raids/bench-priority", {
+        tone: "info",
+        title: "Без змін",
+        message: "Сірий список уже має такі самі налаштування, повторний запис не створювався.",
+        ttl: 5200,
+      });
+    }
+
     await recordAdminAudit("raids.bench_priority.save", user, {
+      auditKey: benchPriorityAuditKey(user.id, settings),
       status: "success",
       summary: `Сірий список рейдів оновлено: ${settings.characterKeys.length} зі складу, ${settings.manualNames.length} вручну.`,
       enabled: settings.enabled,
