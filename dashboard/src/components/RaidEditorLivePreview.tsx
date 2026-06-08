@@ -367,10 +367,8 @@ function signupSpecLabel(item?: RaidSignup | null) {
   const spec = item.activeSpecName
     ? `${item.activeSpecName}${item.className ? ` • ${item.className}` : ""}`
     : item.className || "";
-  const role =
-    item.role === "tank" ? "Танк" : item.role === "healer" ? "Хіл" : "ДД";
   const guildLabel = item.verifiedGuild === false ? "Інший персонаж" : "";
-  return [spec, role, guildLabel].filter(Boolean).join(" • ");
+  return [spec, guildLabel].filter(Boolean).join(" • ");
 }
 
 function signupExtraLabel(item?: RaidSignup | null) {
@@ -426,18 +424,36 @@ function SignupNumberBadge({
   item?: Pick<RaidSignup, "signupNumber"> | null;
 }) {
   const number = Number(item?.signupNumber || 0);
-  const label =
-    Number.isFinite(number) && number > 0 ? `${Math.floor(number)}.` : "—";
-  const title =
-    Number.isFinite(number) && number > 0
-      ? `Порядковий номер запису: #${Math.floor(number)}`
-      : "Місце ще не зайняте";
+  const hasNumber = Number.isFinite(number) && number > 0;
+  const label = hasNumber ? `${Math.floor(number)}` : "";
+  const title = hasNumber
+    ? `Порядковий номер запису: ${Math.floor(number)}`
+    : "Місце ще не зайняте";
   return (
     <span
-      className={`raid-signup-order${label === "—" ? " raid-signup-order--empty" : ""}`}
+      className={`raid-signup-order${label ? "" : " raid-signup-order--empty"}`}
       title={title}
     >
       {label}
+    </span>
+  );
+}
+
+function RoleMarkerStack({
+  item,
+  role,
+  iconClassName = "raid-role-icon",
+}: {
+  item?: Pick<RaidSignup, "signupNumber"> | null;
+  role: RaidCharacterRole;
+  iconClassName?: string;
+}) {
+  return (
+    <span className="raid-signup-side" aria-hidden="true">
+      <SignupNumberBadge item={item} />
+      <span className={iconClassName}>
+        {role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}
+      </span>
     </span>
   );
 }
@@ -1120,12 +1136,9 @@ function RoleRow({
   return (
     <div
       className={`raid-party-row raid-party-row--${role}${item?.status === "late" ? " is-late" : ""}${item?.verifiedGuild === false ? " is-non-guild" : ""}${issue ? " is-undergeared" : ""}${issue?.startsWith("⛔") ? " is-blocked" : ""}`}
+      aria-label={`${label}: ${signupDisplayName(item, { hasItemLevelIssue: Boolean(issue) })}`}
     >
-      <span className="raid-role-icon" aria-hidden="true">
-        {role === "tank" ? "🛡" : role === "healer" ? "✚" : "⚔"}
-      </span>
-      <SignupNumberBadge item={item} />
-      <span className="raid-role-label">{label}</span>
+      <RoleMarkerStack item={item} role={role} />
       <SignupAvatar item={item} />
       <span className="raid-party-member-copy">
         <strong>

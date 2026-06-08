@@ -20101,3 +20101,168 @@ main.container {
     background-color: rgba(8, 14, 25, 0.95) !important;
   }
 }
+
+/* Raid signup composition final alignment: order number stacked above role icon. */
+.raid-signup-side {
+  width: 30px !important;
+  min-width: 30px !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  align-self: center !important;
+  justify-self: center !important;
+  line-height: 1 !important;
+}
+
+.raid-signup-side .raid-signup-order {
+  width: auto !important;
+  min-width: 0 !important;
+  height: 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #f0d28a !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+.raid-signup-side .raid-signup-order--empty {
+  visibility: hidden !important;
+}
+
+.raid-signup-side .raid-role-icon,
+.raid-signup-side .raid-roster-role-icon {
+  width: 22px !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: rgba(0, 0, 0, 0.32) !important;
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+}
+
+.raid-party-row {
+  grid-template-columns: 30px 36px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 10px !important;
+  row-gap: 0 !important;
+  min-height: 58px !important;
+  padding: 9px 11px !important;
+}
+
+.raid-party-row > .raid-signup-side {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+
+.raid-party-row > .raid-signup-avatar,
+.raid-party-row > .raid-signup-avatar--empty {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  align-self: center !important;
+  justify-self: center !important;
+}
+
+.raid-party-row > .raid-party-member-copy {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  align-self: center !important;
+}
+
+.raid-party-row > .raid-role-label {
+  display: none !important;
+}
+
+.raid-roster-member {
+  grid-template-columns: 30px 42px minmax(0, 1fr) !important;
+  grid-template-areas: "stack avatar copy" !important;
+  align-items: center !important;
+  column-gap: 10px !important;
+  row-gap: 0 !important;
+  padding: 10px 12px !important;
+}
+
+.raid-roster-member > .raid-signup-side {
+  grid-area: stack !important;
+}
+
+.raid-roster-member > .raid-signup-avatar,
+.raid-roster-member > .raid-signup-avatar--empty {
+  grid-area: avatar !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  align-self: center !important;
+  justify-self: center !important;
+}
+
+.raid-roster-member > .raid-roster-member-copy {
+  grid-area: copy !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding-left: 0 !important;
+}
+
+@media (max-width: 760px) {
+  .raid-signup-side {
+    width: 28px !important;
+    min-width: 28px !important;
+    gap: 3px !important;
+  }
+
+  .raid-signup-side .raid-signup-order {
+    height: 13px !important;
+    font-size: 0.66rem !important;
+  }
+
+  .raid-signup-side .raid-role-icon,
+  .raid-signup-side .raid-roster-role-icon {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .raid-party-row {
+    grid-template-columns: 28px 34px minmax(0, 1fr) !important;
+    column-gap: 8px !important;
+    min-height: 54px !important;
+    padding: 8px 9px !important;
+  }
+
+  .raid-party-row > .raid-signup-avatar,
+  .raid-party-row > .raid-signup-avatar--empty {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+  }
+
+  .raid-roster-member {
+    grid-template-columns: 28px 38px minmax(0, 1fr) !important;
+    grid-template-areas: "stack avatar copy" !important;
+    column-gap: 8px !important;
+    padding: 9px 10px !important;
+  }
+
+  .raid-roster-member > .raid-signup-avatar,
+  .raid-roster-member > .raid-signup-avatar--empty {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+  }
+}
