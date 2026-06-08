@@ -14,8 +14,8 @@ import {
 
 type RefreshState = "idle" | "checking" | "paused" | "offline";
 
-const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 60_000;
-const BACKGROUND_MUTATION_REFRESH_MIN_MS = 1_500;
+const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 120_000;
+const BACKGROUND_MUTATION_REFRESH_MIN_MS = 2_500;
 let lastBackgroundRefreshAt = 0;
 let activeBackgroundRefresh: Promise<void> | null = null;
 type DataMutationEvent = CustomEvent<DashboardDataMutationDetail>;
@@ -103,7 +103,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
       timer = window.setTimeout(() => void refresh(reason), Math.max(reason.startsWith("mutation") || reason.includes("raid") ? 750 : 5_000, delay));
     }
 
-    async function refresh(reason: string, options: { force?: boolean; scope?: DashboardDataMutationDetail["scope"] } = {}) {
+    async function refresh(reason: string, options: { force?: boolean; scope?: DashboardDataMutationDetail["scope"]; resourceId?: string } = {}) {
       if (cancelled) return;
 
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
@@ -138,7 +138,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
 
       setState("checking");
       inFlightRef.current = true;
-      activeBackgroundRefresh = refreshDashboardApiResources({ reason, force: options.force, scope: options.scope })
+      activeBackgroundRefresh = refreshDashboardApiResources({ reason, force: options.force, scope: options.scope, resourceId: options.resourceId })
         .catch(() => undefined)
         .then(() => undefined);
       await activeBackgroundRefresh;
@@ -163,14 +163,14 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
 
     function onDataMutated(event: Event) {
       const detail = (event as DataMutationEvent).detail || {};
-      void refresh(detail.scope ? `mutation:${detail.scope}` : "mutation", { force: true, scope: detail.scope });
+      void refresh(detail.scope ? `mutation:${detail.scope}` : "mutation", { force: true, scope: detail.scope, resourceId: detail.resourceId });
     }
 
     function onStorage(event: StorageEvent) {
       if (event.key !== DASHBOARD_LAST_MUTATION_STORAGE_KEY || !event.newValue) return;
       try {
         const detail = JSON.parse(event.newValue) as DashboardDataMutationDetail;
-        void refresh("cross-tab-mutation", { force: true, scope: detail.scope });
+        void refresh("cross-tab-mutation", { force: true, scope: detail.scope, resourceId: detail.resourceId });
       } catch {
         void refresh("cross-tab-mutation", { force: true });
       }
@@ -181,7 +181,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
       mutationBroadcast = new BroadcastChannel(DASHBOARD_MUTATION_BROADCAST_CHANNEL);
       mutationBroadcast.onmessage = (event) => {
         const detail = (event.data || {}) as DashboardDataMutationDetail;
-        void refresh("broadcast-mutation", { force: true, scope: detail.scope });
+        void refresh("broadcast-mutation", { force: true, scope: detail.scope, resourceId: detail.resourceId });
       };
     }
 

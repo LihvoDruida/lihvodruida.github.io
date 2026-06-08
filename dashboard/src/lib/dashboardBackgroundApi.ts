@@ -5,6 +5,8 @@ import { dashboardApiJson } from "@/lib/dashboardApiClient";
 import type { DashboardDataScope } from "@/lib/dashboardLiveRefresh";
 
 export const DASHBOARD_BACKGROUND_REFRESH_MIN_MS = 10 * 60 * 1000;
+const DASHBOARD_BACKGROUND_RESOURCE_FLOOR_MS = 60 * 1000;
+const DASHBOARD_BACKGROUND_RESOURCE_CONCURRENCY = 2;
 export const DASHBOARD_BACKGROUND_API_REFRESHED_EVENT = "dashboard:background-api-refreshed";
 
 export type DashboardBackgroundStatus = "idle" | "checking" | "updated" | "skipped" | "offline" | "error";
@@ -41,6 +43,7 @@ type RefreshOptions = {
   reason?: string;
   force?: boolean;
   scope?: DashboardDataScope;
+  resourceId?: string;
 };
 
 type ResourceRecord<T = unknown> = {
@@ -110,7 +113,26 @@ function writeStoredCheckedAt(key: string, checkedAt: number) {
 function minIntervalMs(value?: number) {
   const number = Number(value);
   const clean = Number.isFinite(number) ? Math.floor(number) : DASHBOARD_BACKGROUND_REFRESH_MIN_MS;
-  return Math.max(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, clean);
+  return Math.max(DASHBOARD_BACKGROUND_RESOURCE_FLOOR_MS, clean);
+}
+
+function cleanResourceId(value: unknown) {
+  return String(value || "").trim().toLowerCase().slice(0, 160);
+}
+
+function resourceMatchesId(record: ResourceRecord, resourceId?: string) {
+  const id = cleanResourceId(resourceId);
+  if (!id) return true;
+  return record.key.toLowerCase().includes(id);
+}
+
+async function settleInSmallBatches<T>(items: T[], worker: (item: T) => Promise<unknown>) {
+  const results: PromiseSettledResult<unknown>[] = [];
+  for (let index = 0; index < items.length; index += DASHBOARD_BACKGROUND_RESOURCE_CONCURRENCY) {
+    const batch = items.slice(index, index + DASHBOARD_BACKGROUND_RESOURCE_CONCURRENCY);
+    results.push(...await Promise.allSettled(batch.map(worker)));
+  }
+  return results;
 }
 
 function optionScopes(scope?: DashboardDataScope | DashboardDataScope[]) {
@@ -253,8 +275,12 @@ export async function refreshDashboardApiResource<T = unknown>(keyInput: string,
 }
 
 export async function refreshDashboardApiResources(options: RefreshOptions = {}) {
-  const selected = Array.from(records.values()).filter((record) => scopeMatches(record, options.scope));
-  const results = await Promise.allSettled(selected.map((record) => refreshDashboardApiResource(record.key, options)));
+  const selected = Array.from(records.values()).filter(
+    (record) => scopeMatches(record, options.scope) && resourceMatchesId(record, options.resourceId),
+  );
+  const results = await settleInSmallBatches(selected, (record) =>
+    refreshDashboardApiResource(record.key, options),
+  );
   return results;
 }
 

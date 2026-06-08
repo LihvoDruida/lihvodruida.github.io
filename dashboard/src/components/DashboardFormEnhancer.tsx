@@ -425,9 +425,28 @@ function mutationScopeFromAction(action: string): DashboardDataScope {
   if (action.includes("/discord/")) return "discord";
   if (action.includes("/guild/")) return "guild";
   if (action.includes("/profile/")) return "profile";
-  if (action.includes("/raids")) return "raids";
+  if (action.includes("/raids") || action.includes("/polls")) return "raids";
   if (action.includes("/auth/")) return "session";
   return "unknown";
+}
+
+
+function mutationResourceIdFromResponse(data: unknown) {
+  if (!data || typeof data !== "object") return undefined;
+  const record = data as Record<string, unknown>;
+  const direct = record.raidId || record.pollId || record.resourceId || record.id;
+  if (typeof direct === "string" && direct.trim()) return direct.trim();
+  const raid = record.raid && typeof record.raid === "object" ? record.raid as Record<string, unknown> : null;
+  if (typeof raid?.id === "string" && raid.id.trim()) return raid.id.trim();
+  const poll = record.poll && typeof record.poll === "object" ? record.poll as Record<string, unknown> : null;
+  if (typeof poll?.id === "string" && poll.id.trim()) return poll.id.trim();
+  return undefined;
+}
+
+function mutationRevisionFromResponse(data: unknown) {
+  if (!data || typeof data !== "object") return undefined;
+  const revision = (data as Record<string, unknown>).revision;
+  return typeof revision === "string" && revision.trim() ? revision.trim() : undefined;
 }
 
 function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
@@ -541,6 +560,8 @@ export default function DashboardFormEnhancer() {
           }
           notifyDashboardDataChanged({
             scope: mutationScopeFromAction(action),
+            resourceId: mutationResourceIdFromResponse(data),
+            revision: mutationRevisionFromResponse(data),
             action,
             source: "form-enhancer",
           });

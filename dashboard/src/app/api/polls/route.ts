@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
-import { listRaidPolls, saveRaidPollFromForm, saveRaidPollFromInput, type RaidPollCreateInput } from "@/lib/raidPolls";
+import { listRaidPolls, raidPollLiveRevision, saveRaidPollFromForm, saveRaidPollFromInput, type RaidPollCreateInput } from "@/lib/raidPolls";
 import { assertRequestBodySize, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 import { dashboardToastCookie } from "@/lib/serverToasts";
 
@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
         pollId: poll.id,
         redirectTo: `/polls/${encodeURIComponent(poll.id)}`,
         poll,
+        revision: raidPollLiveRevision(poll),
       }, { status: 201, headers: noStoreHeaders() });
     }
 

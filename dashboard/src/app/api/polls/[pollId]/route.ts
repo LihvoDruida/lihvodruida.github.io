@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordAdminAudit } from "@/lib/accessGroups";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
-import { deleteRaidPoll, getRaidPoll, updateRaidPollFromForm, updateRaidPollFromInput, type RaidPollUpdateInput } from "@/lib/raidPolls";
+import { deleteRaidPoll, getRaidPoll, raidPollLiveRevision, updateRaidPollFromForm, updateRaidPollFromInput, type RaidPollUpdateInput } from "@/lib/raidPolls";
 import { assertRequestBodySize, logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -35,9 +35,9 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ po
     return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403, headers: noStoreHeaders() });
   }
   const { pollId } = await context.params;
-  const poll = await getRaidPoll(pollId, { bypassCache: true });
+  const poll = await getRaidPoll(pollId);
   if (!poll) return NextResponse.json({ ok: false, error: "Poll not found" }, { status: 404, headers: noStoreHeaders() });
-  return NextResponse.json({ ok: true, poll }, { headers: noStoreHeaders() });
+  return NextResponse.json({ ok: true, poll, revision: raidPollLiveRevision(poll) }, { headers: noStoreHeaders() });
 }
 
 async function updatePoll(request: NextRequest, context: { params: Promise<{ pollId: string }> }) {
@@ -69,7 +69,7 @@ async function updatePoll(request: NextRequest, context: { params: Promise<{ pol
       messageId: poll.messageId || null,
     }).catch(() => false);
 
-    return NextResponse.json({ ok: true, pollId: poll.id, redirectTo: `/polls/${encodeURIComponent(poll.id)}`, poll }, { headers: noStoreHeaders() });
+    return NextResponse.json({ ok: true, pollId: poll.id, redirectTo: `/polls/${encodeURIComponent(poll.id)}`, poll, revision: raidPollLiveRevision(poll) }, { headers: noStoreHeaders() });
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("error", "raid_polls.update_failed", request, { pollId, actorId: user.id, message });

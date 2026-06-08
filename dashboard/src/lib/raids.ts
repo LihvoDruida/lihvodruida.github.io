@@ -810,7 +810,7 @@ export async function getRaidBenchPrioritySettings(
       return normalizeRaidBenchPrioritySettings(snapshot.data() || {});
     },
     {
-      ttlMs: 30_000,
+      ttlMs: 5 * 60_000,
       timeoutMs: 2_500,
       circuitTtlMs: 90_000,
       bypassCache: Boolean(options.bypassCache),

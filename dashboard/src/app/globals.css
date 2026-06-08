@@ -17795,9 +17795,29 @@ a.is-submitting[aria-busy="true"] {
   box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
 }
 
-.raid-poll-live-sync--syncing > span {
+.raid-poll-live-sync--syncing > span,
+.raid-poll-live-sync--checking > span {
   background: #fbbf24;
   box-shadow: 0 0 16px rgba(251, 191, 36, 0.55);
+}
+
+.raid-poll-live-sync--updated > span {
+  background: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
+}
+
+.raid-poll-live-sync--offline > span,
+.raid-poll-live-sync--skipped > span {
+  background: #94a3b8;
+  box-shadow: 0 0 12px rgba(148, 163, 184, 0.35);
+}
+
+.raid-poll-live-sync strong {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  padding: 2px 7px;
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 0.78rem;
 }
 
 .raid-poll-live-sync--error > span {

@@ -80,7 +80,8 @@ import {
 const RAID_POLL_COLLECTION = "dashboardRaidPolls";
 const RAID_POLL_ACTION_PREFIX = "mbv1:poll";
 const RAID_POLL_LIST_CACHE_KEY = "raid-polls:list:v1";
-const RAID_POLL_CACHE_TTL_MS = 20_000;
+const RAID_POLL_CACHE_TTL_MS = 60_000;
+const RAID_POLL_GET_CACHE_TTL_MS = 60_000;
 const RAID_POLL_GET_CACHE_PREFIX = "raid-poll:";
 
 function clearRaidPollRuntimeCaches(pollId?: string | null) {
@@ -1125,6 +1126,31 @@ async function savePollDiscordRef(pollId: string, ref: { channelId: string; mess
   return updatedAt;
 }
 
+
+export function raidPollLiveRevision(poll: Pick<RaidPollItem, "id" | "status" | "updatedAt" | "closedAt" | "votes">) {
+  const votesSignature = [...(poll.votes || [])]
+    .sort((a, b) => String(a.discordId || "").localeCompare(String(b.discordId || "")))
+    .map((vote) => [
+      vote.discordId || "",
+      vote.characterKey || "",
+      vote.characterName || "",
+      vote.characterRole || "",
+      vote.characterClass || "",
+      JSON.stringify(raidPollVoteSchedule(vote)),
+      vote.updatedAt || vote.createdAt || "",
+    ].join("~"))
+    .join("|");
+
+  return [
+    poll.id || "",
+    poll.status || "",
+    poll.updatedAt || "",
+    poll.closedAt || "",
+    poll.votes?.length || 0,
+    votesSignature,
+  ].join("::");
+}
+
 export async function getRaidPoll(pollId: string, options: { closeDue?: boolean; bypassCache?: boolean } = {}) {
   if (!hasRaidPollStorage()) return null;
   const poll = await firebaseRead<RaidPollItem | null>(
@@ -1135,7 +1161,7 @@ export async function getRaidPoll(pollId: string, options: { closeDue?: boolean;
       if (!snap.exists) return null;
       return normalizeRaidPoll(snap.id, snap.data() || {});
     },
-    { ttlMs: 10_000, fallback: () => null, logEvent: "raid_polls.read_failed", bypassCache: options.bypassCache },
+    { ttlMs: RAID_POLL_GET_CACHE_TTL_MS, fallback: () => null, logEvent: "raid_polls.read_failed", bypassCache: options.bypassCache },
   );
   if (poll && options.closeDue !== false) return closeDueRaidPoll(poll);
   return poll;
