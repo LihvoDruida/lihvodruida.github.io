@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canManageRaids } from "@/lib/permissions";
-import { getRaid, isRaidClosed, raidDisplayCapacity, raidLiveRevision, raidRosterCounts, raidTitle } from "@/lib/raids";
+import { buildRaidGroupLayout, getRaid, isRaidClosed, raidDisplayCapacity, raidGroupLayoutSlotCounts, raidLiveRevision, raidRosterCounts, raidTitle } from "@/lib/raids";
 import { noStoreHeaders } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -19,6 +19,8 @@ export async function GET(_request: Request, context: { params: Promise<{ raidId
   }
 
   const counts = raidRosterCounts(raid);
+  const layout = buildRaidGroupLayout(raid);
+  const layoutCounts = raidGroupLayoutSlotCounts(layout);
   return NextResponse.json({
     ok: true,
     id: raid.id,
@@ -27,9 +29,9 @@ export async function GET(_request: Request, context: { params: Promise<{ raidId
     closed: isRaidClosed(raid),
     revision: raidLiveRevision(raid),
     updatedAt: raid.updatedAt || null,
-    roster: counts.roster,
-    capacity: raidDisplayCapacity(raid),
-    late: counts.late,
+    roster: layoutCounts.roster,
+    capacity: layout.targetSize || raidDisplayCapacity(raid),
+    late: layoutCounts.late,
     skipped: counts.skipped,
   }, { headers: noStoreHeaders() });
 }

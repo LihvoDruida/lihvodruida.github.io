@@ -54,8 +54,8 @@ function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
 
 function actionLabel(action: RaidSignupStatus, busyAction: RaidSignupStatus | null, full: boolean, viewerAlreadyActive: boolean) {
   if (busyAction === action) return "Оновлюємо...";
-  if (action === "going") return full && !viewerAlreadyActive ? "✓ Заповнено" : viewerAlreadyActive ? "✓ Змінити персонажа" : "✓ Підписатися";
-  if (action === "late") return full && !viewerAlreadyActive ? "✕ Ліміт" : "🕒 Затримаюсь";
+  if (action === "going") return full && !viewerAlreadyActive ? "✓ У лаву запасних" : viewerAlreadyActive ? "✓ Змінити персонажа" : "✓ Підписатися";
+  if (action === "late") return "🕒 Затримаюсь";
   return "↩ Пропустити";
 }
 

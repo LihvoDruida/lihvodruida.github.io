@@ -1037,9 +1037,25 @@ function finalizePreviewParties(parties: RaidParty[]) {
   return parties;
 }
 
+function previewSlotCounts(parties: RaidParty[]) {
+  const tanks = parties.filter((party) => Boolean(party.tank)).length;
+  const healers = parties.filter((party) => Boolean(party.healer)).length;
+  const dps = parties.reduce((sum, party) => sum + party.dps.length, 0);
+  return { roster: tanks + healers + dps, tanks, healers, dps };
+}
+
+function selectPreviewFlexFillers(candidates: RaidSignup[], limit: number) {
+  if (limit <= 0) return [];
+  const roleWeight = (item: RaidSignup) =>
+    item.role === "dps" ? 0 : item.role === "healer" ? 1 : 2;
+  return [...candidates]
+    .sort((a, b) => roleWeight(a) - roleWeight(b) || signupRosterOrder(a, b))
+    .slice(0, limit);
+}
+
 function buildPreviewLayout(
   raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
-): { parties: RaidParty[]; bench: RaidSignup[]; warnings: string[] } {
+): { parties: RaidParty[]; bench: RaidSignup[]; warnings: string[]; targetSize: number } {
   const active = activeSignups(raid).sort(signupRosterOrder);
   const composition = raidAutoComposition(raid);
   const targetSize = raidCompositionTargetSize(raid);
@@ -1083,42 +1099,61 @@ function buildPreviewLayout(
     : selectDpsForComposition(dps, dps.length);
   const surplusDps = dps.filter((item) => !selectedDps.includes(item));
 
+  const baseSelectedMembers = [
+    ...selectedTanks,
+    ...selectedHealers,
+    ...selectedDps,
+  ];
+  const selectedFlex = benchEnabled
+    ? selectPreviewFlexFillers(
+        [...surplusDps, ...surplusHealers],
+        Math.max(0, targetSize - baseSelectedMembers.length),
+      )
+    : [];
+
   selectedTanks.forEach((tank) => assignTankToParty(parties, tank));
   assignHealersToParties(parties, selectedHealers).forEach((healer) =>
     placeFlexMember(parties, healer),
   );
   assignDpsToParties(parties, selectedDps);
+  selectedFlex.forEach((member) => placeFlexMember(parties, member));
 
   if (!benchEnabled)
     [...surplusTanks, ...surplusHealers].forEach((member) =>
       placeFlexMember(parties, member),
     );
   const bench = benchEnabled
-    ? [...surplusTanks, ...surplusHealers, ...surplusDps].sort(signupSort)
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps]
+        .filter((item) => !selectedFlex.includes(item))
+        .sort(signupSort)
     : [];
-  const selectedMembers = [
-    ...selectedTanks,
-    ...selectedHealers,
-    ...selectedDps,
-  ];
+  const selectedMembers = [...baseSelectedMembers, ...selectedFlex];
+  const filledSeats = selectedMembers.length;
+  const dpsSlotsFilled = Math.min(
+    composition.dps,
+    selectedDps.length + selectedFlex.length,
+  );
   const missingBuffs = missingCriticalBuffs(selectedMembers);
-  const safeDpsCapacity = Math.max(0, Math.min(dps.length, healers.length * 5));
+  const safeDpsCapacity = Math.max(
+    0,
+    Math.min(dps.length + selectedFlex.length, healers.length * 5),
+  );
   const warnings = [
-    tanks.length < composition.tanks
-      ? `Не вистачає танків: ${tanks.length}/${composition.tanks}`
+    selectedTanks.length < composition.tanks
+      ? `Не вистачає танків: ${selectedTanks.length}/${composition.tanks}`
       : null,
-    healers.length < composition.healers
-      ? `Не вистачає хілів: ${healers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
+    selectedHealers.length < composition.healers
+      ? `Не вистачає хілів: ${selectedHealers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
       : null,
-    dps.length < composition.dps
-      ? `Не вистачає ДД: ${dps.length}/${composition.dps}`
+    dpsSlotsFilled < composition.dps && filledSeats < targetSize
+      ? `Не вистачає ДД: ${dpsSlotsFilled}/${composition.dps}`
       : null,
     missingBuffs.length
       ? `Втрачені критичні бафи: ${missingBuffs.join(", ")}`
       : null,
   ].filter(Boolean) as string[];
 
-  return { parties: finalizePreviewParties(parties), bench, warnings };
+  return { parties: finalizePreviewParties(parties), bench, warnings, targetSize };
 }
 
 function RoleRow({
@@ -1317,16 +1352,19 @@ export default function RaidEditorLivePreview({
     };
   }, [initialRaid]);
 
-  const counts = useMemo(() => raidRosterCounts(raid), [raid]);
   const averageItemLevel = useMemo(() => raidAverageItemLevel(raid), [raid]);
   const layout = useMemo(() => buildPreviewLayout(raid), [raid]);
+  const slotCounts = useMemo(() => previewSlotCounts(layout.parties), [layout.parties]);
+  const layoutCapacity = layout.targetSize || raidDisplayCapacity(raid);
   const parties = layout.parties;
   const bench = layout.bench;
   const compositionWarnings = layout.warnings;
   const closed = raid.status === "closed";
   const thumbnailUrl = resolvePreviewThumbnailUrl(raid);
   const registrationLimit = raidRegistrationLimit(raid);
-  const registrationFull = isRaidRegistrationFull(raid);
+  const registrationFull = Boolean(
+    registrationLimit && slotCounts.roster >= layoutCapacity,
+  );
   const registrationLock = previewRegistrationLockSummary(raid);
 
   return (
@@ -1408,10 +1446,10 @@ export default function RaidEditorLivePreview({
         ) : null}
         <span>
           <strong>👥 Записано</strong>
-          {counts.roster} / {raidDisplayCapacity(raid)}
+          {slotCounts.roster} / {layoutCapacity}
           <small>
             {raid.maxPlayers
-              ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}`
+              ? `Основний склад: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}`
               : raidAutoCompositionLabel(raid)}
           </small>
         </span>
@@ -1433,14 +1471,11 @@ export default function RaidEditorLivePreview({
         </div>
       ) : null}
       {registrationLimit ? (
-        <div
-          className={`raid-ilvl-notice${registrationFull ? " is-blocked" : ""}`}
-        >
-          👥 Максимум гравців для цього рейду:{" "}
-          <strong>{registrationLimit}</strong>.{" "}
+        <div className="raid-ilvl-notice">
+          👥 Основний склад для цього рейду: <strong>{registrationLimit}</strong>.{" "}
           {registrationFull
-            ? "Ліміт досягнуто — нові записи недоступні."
-            : "Після досягнення ліміту нові записи будуть заблоковані."}
+            ? "Основний склад заповнений — наступні активні записи будуть відображені в лаві запасних."
+            : "Після заповнення основного складу нові активні записи підуть у лаву запасних, а не будуть заблоковані."}
         </div>
       ) : null}
       {registrationLock.enabled ? (
@@ -1472,7 +1507,7 @@ export default function RaidEditorLivePreview({
           <p>
             Паті будуються динамічно: максимум 2 танки на рейд, хіли масштабуються
             від кількості паті, ДД добираються за критичними бафами та балансом
-            мілі/рендж. Якщо є ліміт, зайві ролі йдуть у лаву запасних.
+            мілі/рендж. Якщо основний склад заповнено, зайві ролі йдуть у лаву запасних.
           </p>
         </div>
       </div>

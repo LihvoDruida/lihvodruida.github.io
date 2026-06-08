@@ -14,19 +14,18 @@ import { hierarchyTitle } from "@/lib/permissions";
 import { pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import {
   buildRaidGroupLayout,
+  raidGroupLayoutSlotCounts,
   isRaidClosed,
   raidAutoComposition,
   raidAutoCompositionLabel,
   raidAverageItemLevel,
   raidDisplayCapacity,
   dashboardRaidRulesUrl,
-  isRaidRegistrationFull,
   isRaidRegistrationLocked,
   raidRegistrationLimit,
   raidRegistrationLockSummary,
   raidConsumablesLabel,
   raidLootLabel,
-  raidRosterCounts,
   raidTitle,
   resolveRaidThumbnailUrl,
   raidMinItemLevelWarning,
@@ -500,13 +499,15 @@ export function RosterSideList({
     late: raid.signups.filter((item) => item.status === "late"),
     skipped: raid.signups.filter((item) => item.status === "skipped"),
   };
-  const counts = raidRosterCounts(raid);
+  const layout = buildRaidGroupLayout(raid);
+  const layoutCounts = raidGroupLayoutSlotCounts(layout);
+  const layoutCapacity = layout.targetSize || raidDisplayCapacity(raid);
   return (
     <aside className="raid-roster-panel panel">
       <div className="raid-roster-heading">
         <strong>Хто йде</strong>
         <span>
-          {counts.roster} / {raidDisplayCapacity(raid)}
+          {layoutCounts.roster} / {layoutCapacity}
         </span>
       </div>
       <RosterBlock
@@ -598,7 +599,12 @@ export function RaidAttendanceActions({
   hasMainCharacter?: boolean | null;
 }) {
   const closed = isRaidClosed(raid) || raid.status !== "published";
-  const full = isRaidRegistrationFull(raid);
+  const attendanceLayout = buildRaidGroupLayout(raid);
+  const attendanceCounts = raidGroupLayoutSlotCounts(attendanceLayout);
+  const attendanceCapacity = attendanceLayout.targetSize || raidDisplayCapacity(raid);
+  const mainRosterFull = Boolean(
+    raidRegistrationLimit(raid) && attendanceCounts.roster >= attendanceCapacity,
+  );
   const registrationLocked = isRaidRegistrationLocked(raid);
   const registrationLock = raidRegistrationLockSummary(raid);
   const viewerDiscordId =
@@ -634,8 +640,7 @@ export function RaidAttendanceActions({
     registrationLocked ||
     needsLogin ||
     needsDiscordLogin ||
-    needsCharacter ||
-    (full && !viewerAlreadyActive);
+    needsCharacter;
   const skipDisabled = closed || !canSubmitAnyAction;
   const title = closed
     ? "Запис на цей рейд уже вимкнено."
@@ -649,8 +654,8 @@ export function RaidAttendanceActions({
             ? `Немає персонажа з мінімальним item level ${raid.minItemLevel}. Персонажі нижче порогу приховані.`
             : needsCharacter
               ? "Спочатку додай хоча б одного персонажа Battle.net у профілі."
-              : activeJoinDisabled
-                ? "Ліміт гравців досягнуто. Нові записи недоступні."
+              : mainRosterFull && !viewerAlreadyActive
+                ? "Основний склад заповнений. Новий запис піде в лаву запасних, якщо місця в основі не звільняться."
                 : undefined;
   const showRequirement = needsLogin || needsDiscordLogin || needsCharacter;
   const requirementTitle =
@@ -669,7 +674,7 @@ export function RaidAttendanceActions({
     <RaidAttendanceClient
       raidId={raid.id}
       closed={closed}
-      full={full}
+      full={false}
       viewerAlreadyActive={Boolean(viewerAlreadyActive)}
       activeJoinDisabled={activeJoinDisabled}
       skipDisabled={skipDisabled}
@@ -748,15 +753,19 @@ export function RaidAnnouncementPreview({
   showMemberItemLevels?: boolean;
   showBenchPriorityMarkers?: boolean;
 }) {
-  const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
   const layout = buildRaidGroupLayout(raid);
+  const layoutCounts = raidGroupLayoutSlotCounts(layout);
+  const layoutCapacity = layout.targetSize || raidDisplayCapacity(raid);
   const parties = layout.parties;
   const oddParties = parties.filter((party) => party.index % 2 === 1);
   const evenParties = parties.filter((party) => party.index % 2 === 0);
   const bench = layout.bench;
   const compositionWarnings = layout.warnings;
   const closed = isRaidClosed(raid);
+  const mainRosterFull = Boolean(
+    raidRegistrationLimit(raid) && layoutCounts.roster >= layoutCapacity,
+  );
   const registrationLock = raidRegistrationLockSummary(raid);
   return (
     <section
@@ -841,10 +850,10 @@ export function RaidAnnouncementPreview({
         ) : null}
         <span>
           <strong>👥 Записано</strong>
-          {counts.roster} / {raidDisplayCapacity(raid)}
+          {layoutCounts.roster} / {layoutCapacity}
           <small>
             {raid.maxPlayers
-              ? `Ліміт запису: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}`
+              ? `Основний склад: ${raid.maxPlayers} • схема ${raidAutoCompositionLabel(raid)}`
               : raidAutoCompositionLabel(raid)}
           </small>
         </span>
@@ -866,14 +875,12 @@ export function RaidAnnouncementPreview({
         </div>
       ) : null}
       {raidRegistrationLimit(raid) ? (
-        <div
-          className={`raid-ilvl-notice${isRaidRegistrationFull(raid) ? " is-blocked" : ""}`}
-        >
-          👥 Максимум гравців для цього рейду:{" "}
+        <div className="raid-ilvl-notice">
+          👥 Основний склад для цього рейду:{" "}
           <strong>{raidRegistrationLimit(raid)}</strong>.{" "}
-          {isRaidRegistrationFull(raid)
-            ? "Ліміт досягнуто — нові записи недоступні."
-            : "Після досягнення ліміту нові записи будуть заблоковані."}
+          {mainRosterFull
+            ? "Основний склад заповнений — наступні активні записи будуть відображені в лаві запасних."
+            : "Після заповнення основного складу нові активні записи підуть у лаву запасних, а не будуть заблоковані."}
         </div>
       ) : null}
       {registrationLock.enabled ? (
@@ -909,8 +916,8 @@ export function RaidAnnouncementPreview({
               <p>
                 Паті будуються динамічно: максимум 2 танки на рейд, хіли
                 масштабуються від кількості паті, ДД добираються за критичними
-                бафами та балансом мілі/рендж. Якщо ліміт заповнено, зайві
-                танки/хіли/ДД переходять у лаву запасних.
+                бафами та балансом мілі/рендж. Якщо основний склад заповнено,
+                зайві танки/хіли/ДД переходять у лаву запасних.
               </p>
             </div>
           </div>
@@ -975,10 +982,11 @@ export function RaidListCard({
   raid: RaidItem;
   canManage?: boolean;
 }) {
-  const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
+  const layout = buildRaidGroupLayout(raid);
+  const layoutCounts = raidGroupLayoutSlotCounts(layout);
   const statusClass = raidStatusClass(raid);
-  const capacity = raidDisplayCapacity(raid);
+  const capacity = layout.targetSize || raidDisplayCapacity(raid);
   const closed = isRaidClosed(raid);
   const registrationLock = raidRegistrationLockSummary(raid);
   return (
@@ -1015,7 +1023,7 @@ export function RaidListCard({
               <small>🧭 РЛ: {raid.raidLeaderName}</small>
             ) : null}
             <small>
-              👥 {counts.roster} / {capacity}
+              👥 {layoutCounts.roster} / {capacity}
               {canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}
             </small>
             {raid.minItemLevel ? (
@@ -1033,11 +1041,11 @@ export function RaidListCard({
           </span>
           <span
             className="raid-list-progress"
-            aria-label={`Заповнення рейду ${counts.roster} з ${capacity}`}
+            aria-label={`Заповнення рейду ${layoutCounts.roster} з ${capacity}`}
           >
             <span
               style={{
-                width: `${Math.min(100, Math.round((counts.roster / Math.max(1, capacity)) * 100))}%`,
+                width: `${Math.min(100, Math.round((layoutCounts.roster / Math.max(1, capacity)) * 100))}%`,
               }}
             />
           </span>

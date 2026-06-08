@@ -183,6 +183,14 @@ export type RaidGroupLayout = {
   missingCriticalBuffs: string[];
 };
 
+export type RaidLayoutCounts = {
+  roster: number;
+  tanks: number;
+  healers: number;
+  dps: number;
+  late: number;
+};
+
 const RAID_COLLECTION = "dashboardRaids";
 const RAID_SETTINGS_COLLECTION = "dashboardRaidSettings";
 const RAID_BENCH_PRIORITY_DOCUMENT = "globalBenchPriority";
@@ -1446,23 +1454,15 @@ function raidRegistrationFullMessage(
   action: RaidSignupStatus,
   candidate?: RaidSignup | null,
 ) {
-  if (action === "skipped") return null;
-  const limit = raidRegistrationLimit(raid);
-  if (limit === null) return null;
-  const activeCount = raidActiveRosterSize(raid);
-  if (activeCount < limit) return null;
-  if (discordId && hasActiveSignupForDiscord(raid, discordId)) return null;
+  void raid;
+  void discordId;
+  void action;
+  void candidate;
 
-  const replaceableCount = raidBenchPriorityActiveCount(raid);
-  const alreadyOverflowing = Math.max(0, activeCount - limit);
-  const hasReplacementSeat = replaceableCount > alreadyOverflowing;
-  const candidateIsBenchPriority = candidate
-    ? raidBenchPriorityMatch(candidate, raid.benchPriority).matched
-    : false;
-
-  if (hasReplacementSeat && !candidateIsBenchPriority) return null;
-
-  return `🔒 Ліміт запису на ${raidTitle(raid)} досягнуто (${limit}/${limit}). Нові записи вже недоступні.`;
+  // Запис більше не блокується по maxPlayers.
+  // Ліміт тепер означає розмір основного складу, а всі зайві активні записи
+  // автоматично йдуть у лаву запасних у buildRaidGroupLayout().
+  return null;
 }
 
 export function raidAutoCompositionLabel(raid: RaidAutoInput) {
@@ -3270,6 +3270,58 @@ function finalizeParties(parties: RaidParty[]) {
   return parties.sort((a, b) => a.index - b.index);
 }
 
+function raidGroupLayoutMembers(layout: Pick<RaidGroupLayout, "parties">) {
+  return layout.parties.flatMap((party) => party.members);
+}
+
+export function raidGroupLayoutSlotCounts(
+  layout: Pick<RaidGroupLayout, "parties">,
+): RaidLayoutCounts {
+  const tanks = layout.parties.filter((party) => Boolean(party.tank)).length;
+  const healers = layout.parties.filter((party) => Boolean(party.healer)).length;
+  const dps = layout.parties.reduce((sum, party) => sum + party.dps.length, 0);
+  const members = raidGroupLayoutMembers(layout);
+  return {
+    roster: tanks + healers + dps,
+    tanks,
+    healers,
+    dps,
+    late: members.filter((item) => item.status === "late").length,
+  };
+}
+
+export function raidGroupLayoutRoleCounts(
+  layout: Pick<RaidGroupLayout, "parties">,
+): RaidLayoutCounts {
+  const members = raidGroupLayoutMembers(layout);
+  return {
+    roster: members.length,
+    tanks: members.filter((item) => item.role === "tank").length,
+    healers: members.filter((item) => item.role === "healer").length,
+    dps: members.filter((item) => item.role === "dps").length,
+    late: members.filter((item) => item.status === "late").length,
+  };
+}
+
+function selectFlexFillersForOpenSeats(
+  candidates: RaidSignup[],
+  limit: number,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  if (limit <= 0) return [];
+  const roleWeight = (item: RaidSignup) =>
+    item.role === "dps" ? 0 : item.role === "healer" ? 1 : 2;
+  return [...candidates]
+    .sort(
+      (a, b) =>
+        raidBenchPriorityWeight(a, settings) -
+          raidBenchPriorityWeight(b, settings) ||
+        roleWeight(a) - roleWeight(b) ||
+        signupRosterOrder(a, b),
+    )
+    .slice(0, limit);
+}
+
 export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
   const roster = rosterForGroups(raid);
   const targetSize = raidLayoutTargetSize(raid);
@@ -3326,38 +3378,58 @@ export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
     : selectDpsForComposition(dps, dps.length, benchPriority);
   const surplusDps = dps.filter((item) => !selectedDps.includes(item));
 
+  const baseSelectedMembers = [
+    ...selectedTanks,
+    ...selectedHealers,
+    ...selectedDps,
+  ];
+  const flexCandidates = benchEnabled
+    ? [...surplusDps, ...surplusHealers]
+    : [];
+  const selectedFlex = benchEnabled
+    ? selectFlexFillersForOpenSeats(
+        flexCandidates,
+        Math.max(0, targetSize - baseSelectedMembers.length),
+        benchPriority,
+      )
+    : [];
+
   for (const tank of selectedTanks) assignTankToParty(parties, tank);
   const unplacedHealers = assignHealersToParties(parties, selectedHealers);
   for (const healer of unplacedHealers) placeFlexMember(parties, healer);
   assignDpsToParties(parties, selectedDps);
+  for (const member of selectedFlex) placeFlexMember(parties, member);
 
   const benchMembers = benchEnabled
-    ? [...surplusTanks, ...surplusHealers, ...surplusDps]
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps].filter(
+        (item) => !selectedFlex.includes(item),
+      )
     : [];
   if (!benchEnabled) {
     for (const member of [...surplusTanks, ...surplusHealers])
       placeFlexMember(parties, member);
   }
 
-  const selectedMembers = [
-    ...selectedTanks,
-    ...selectedHealers,
-    ...selectedDps,
-  ];
+  const selectedMembers = [...baseSelectedMembers, ...selectedFlex];
+  const filledSeats = selectedMembers.length;
+  const dpsSlotsFilled = Math.min(
+    composition.dps,
+    selectedDps.length + selectedFlex.length,
+  );
   const missingBuffs = missingCriticalBuffs(selectedMembers);
   const safeDpsCapacity = Math.max(
     0,
-    Math.min(roster.dps.length, roster.healers.length * 5),
+    Math.min(roster.dps.length + selectedFlex.length, roster.healers.length * 5),
   );
   const warnings = [
-    roster.tanks.length < composition.tanks
-      ? `Не вистачає танків: ${roster.tanks.length}/${composition.tanks}`
+    selectedTanks.length < composition.tanks
+      ? `Не вистачає танків: ${selectedTanks.length}/${composition.tanks}`
       : null,
-    roster.healers.length < composition.healers
-      ? `Не вистачає хілів: ${roster.healers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
+    selectedHealers.length < composition.healers
+      ? `Не вистачає хілів: ${selectedHealers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
       : null,
-    roster.dps.length < composition.dps
-      ? `Не вистачає ДД: ${roster.dps.length}/${composition.dps}`
+    dpsSlotsFilled < composition.dps && filledSeats < targetSize
+      ? `Не вистачає ДД: ${dpsSlotsFilled}/${composition.dps}`
       : null,
     missingBuffs.length
       ? `Втрачені критичні бафи: ${missingBuffs.join(", ")}`
@@ -3563,9 +3635,9 @@ function compactDiscordFields(
 }
 
 export function buildRaidDiscordPayload(raid: RaidItem) {
-  const counts = raidRosterCounts(raid);
   const averageItemLevel = raidAverageItemLevel(raid);
   const layout = buildRaidGroupLayout(raid);
+  const slotCounts = raidGroupLayoutSlotCounts(layout);
   const composition = layout.composition;
   const allParties = layout.parties;
   const parties = allParties.slice(0, 8);
@@ -3574,15 +3646,12 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
   const closed = isRaidClosed(raid);
   const omittedParties = allParties.length - parties.length;
   const registrationLimit = raidRegistrationLimit(raid);
-  const displayCapacity = registrationLimit ?? raidAutoCapacity(raid);
-  const registrationFull = isRaidRegistrationFull(raid);
+  const displayCapacity = layout.targetSize || registrationLimit || raidAutoCapacity(raid);
   const rosterValue = [
-    `${counts.roster} / ${displayCapacity}`,
+    `${slotCounts.roster} / ${displayCapacity}`,
     compositionLongLabel(raid),
     registrationLimit
-      ? registrationFull
-        ? "🔒 Ліміт запису досягнуто"
-        : `Вільно місць: ${Math.max(0, registrationLimit - counts.roster)}`
+      ? `Вільно місць: ${Math.max(0, displayCapacity - slotCounts.roster)}`
       : null,
     bench.members.length ? `🪑 Лава запасних: ${bench.members.length}` : null,
   ]
@@ -3662,7 +3731,7 @@ export function buildRaidDiscordPayload(raid: RaidItem) {
     },
     {
       name: "⚔️ Ролі",
-      value: `${counts.tanks}/${composition.tanks} танки • ${counts.healers}/${composition.healers} хіли • ${counts.dps}/${composition.dps} дд`,
+      value: `${slotCounts.tanks}/${composition.tanks} танки • ${slotCounts.healers}/${composition.healers} хіли • ${slotCounts.dps}/${composition.dps} дд`,
       inline: false,
     },
     ...(warnings.length
@@ -3876,8 +3945,7 @@ export function buildRaidAttendanceComponents(
   // Тому персональний напис “Змінити персонажа” дозволений лише там, де ми точно
   // будуємо приватну/ephemeral відповідь для конкретного користувача. У глобальному
   // embed кнопка лишається нейтральною, а реальний стан перевіряється на сервері.
-  const activeJoinDisabled =
-    disabled || registrationLocked || (personalized && full && !signed);
+  const activeJoinDisabled = disabled || registrationLocked;
   const signupLabel = disabled
     ? "Підписатися"
     : registrationLocked
@@ -3885,7 +3953,7 @@ export function buildRaidAttendanceComponents(
       : signed
         ? "Змінити персонажа"
         : full && personalized
-          ? "Заповнено"
+          ? "У лаву запасних"
           : "Підписатися";
 
   return [
