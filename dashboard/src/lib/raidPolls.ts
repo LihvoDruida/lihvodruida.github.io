@@ -1205,8 +1205,24 @@ function formatDiscordTimestamp(ms: number) {
   return `<t:${stamp}:f> • <t:${stamp}:R>`;
 }
 
-function topDaySummary(poll: RaidPollItem) {
-  const slots = raidPollUniqueDayRecommendations(poll, [poll], 2);
+function activeRecommendationPolls(current: RaidPollItem, relatedPolls: RaidPollRecommendationContext[] = [current]) {
+  if (current.status === "closed" || current.closesAtMs <= Date.now()) return [current];
+
+  const nowMs = Date.now();
+  const byId = new Map<string, RaidPollRecommendationContext>();
+  for (const poll of relatedPolls) {
+    const id = cleanString(poll.id, 80);
+    if (!id) continue;
+    if (id !== current.id && poll.status === "closed") continue;
+    if (id !== current.id && Number(poll.closesAtMs || 0) > 0 && Number(poll.closesAtMs || 0) <= nowMs) continue;
+    byId.set(id, { ...poll, id });
+  }
+  byId.set(current.id, current);
+  return Array.from(byId.values());
+}
+
+function topDaySummary(poll: RaidPollItem, relatedPolls: RaidPollRecommendationContext[] = [poll]) {
+  const slots = raidPollUniqueDayRecommendations(poll, activeRecommendationPolls(poll, relatedPolls), 2);
   return slots.length ? slots.map((slot, index) => `${index + 1}) ${raidPollSlotSummary(slot)}`).join("\n") : raidPollSlotSummary(null);
 }
 
@@ -1255,7 +1271,7 @@ function votersDiscordValue(poll: RaidPollItem) {
     .slice(0, 1000);
 }
 
-export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
+export function buildRaidPollDiscordPayload(poll: RaidPollItem, relatedPolls: RaidPollRecommendationContext[] = [poll]) {
   const counts = pollVoteCounts(poll);
   const closed = poll.status === "closed" || poll.closesAtMs <= Date.now();
   const fields = [
@@ -1263,7 +1279,7 @@ export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
     { name: "🗓️ Голоси за днями", value: dayCountsDiscordValue(poll), inline: true },
     { name: "⏰ Голоси за часом", value: timeCountsDiscordValue(poll), inline: true },
     { name: "👥 Проголосували", value: `${counts.total}`, inline: true },
-    { name: "🧠 2 рекомендовані дні/час", value: topDaySummary(poll), inline: false },
+    { name: "🧠 2 рекомендовані дні/час", value: topDaySummary(poll, relatedPolls), inline: false },
     { name: "🧾 Останні 5 голосів", value: votersDiscordValue(poll), inline: false },
   ];
 
@@ -1538,9 +1554,52 @@ function buildRaidPollVoteDraftComponents(
   return rows;
 }
 
-async function editPollDiscordMessage(poll: RaidPollItem) {
+async function loadOpenRaidPollsForRecommendations(current?: RaidPollItem | null) {
+  if (!hasRaidPollStorage()) return current ? [current] : [];
+  const nowMs = Date.now();
+  const byId = new Map<string, RaidPollItem>();
+
+  try {
+    const polls = await listRaidPolls(120);
+    for (const poll of polls) {
+      if (poll.status !== "open") continue;
+      if (poll.closesAtMs <= nowMs) continue;
+      byId.set(poll.id, poll);
+    }
+  } catch (error) {
+    console.warn("[raidPolls] Failed to load related polls for recommendation allocation", {
+      message: error instanceof Error ? error.message : String(error || "unknown"),
+    });
+  }
+
+  if (current) {
+    if (current.status === "open" && current.closesAtMs > nowMs) {
+      byId.set(current.id, current);
+    } else if (!byId.has(current.id)) {
+      byId.set(current.id, current);
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
+async function syncOpenRaidPollDiscordRecommendations(current?: RaidPollItem | null) {
+  const polls = await loadOpenRaidPollsForRecommendations(current);
+  const openPolls = polls.filter((poll) => poll.status === "open" && poll.closesAtMs > Date.now());
+  for (const poll of openPolls) {
+    if (!poll.channelId || !poll.messageId) continue;
+    await editPollDiscordMessage(poll, openPolls).catch((error) => {
+      console.warn("[raidPolls] Failed to sync active poll recommendation message", {
+        pollId: poll.id,
+        message: error instanceof Error ? error.message : String(error || "unknown"),
+      });
+    });
+  }
+}
+
+async function editPollDiscordMessage(poll: RaidPollItem, relatedPolls?: RaidPollRecommendationContext[]) {
   if (!poll.channelId || !poll.messageId) return;
-  const payload = buildRaidPollDiscordPayload(poll);
+  const payload = buildRaidPollDiscordPayload(poll, relatedPolls || await loadOpenRaidPollsForRecommendations(poll));
   await editDiscordRaidMessage({
     ref: { channelId: poll.channelId, messageId: poll.messageId },
     content: payload.content,
@@ -1555,7 +1614,8 @@ async function publishOrUpdatePollDiscordMessage(poll: RaidPollItem, channelIdIn
   const targetChannelId = cleanSnowflake(channelIdInput) || cleanSnowflake(poll.channelId) || getDiscordDefaultChannelId();
   if (!targetChannelId) throw new Error("Discord-канал для рейд-пулу не вибрано.");
 
-  const payload = buildRaidPollDiscordPayload(poll);
+  const relatedPolls = await loadOpenRaidPollsForRecommendations(poll);
+  const payload = buildRaidPollDiscordPayload(poll, relatedPolls);
   const hasExistingMessage = Boolean(poll.channelId && poll.messageId);
   const canEditExisting = Boolean(hasExistingMessage && poll.channelId === targetChannelId);
   let message: Record<string, unknown> | null = null;
@@ -1762,7 +1822,9 @@ export async function saveRaidPollFromInput(input: RaidPollCreateInput, user: Da
   try {
     published = await publishOrUpdatePollDiscordMessage(basePoll, channelId);
     const updatedAt = await savePollDiscordRef(id, published);
-    return { ...basePoll, ...published, updatedAt };
+    const createdPoll = { ...basePoll, ...published, updatedAt };
+    await syncOpenRaidPollDiscordRecommendations(createdPoll).catch(() => null);
+    return createdPoll;
   } catch (error) {
     if (published?.channelId && published?.messageId) {
       await deleteDiscordRaidMessage({
@@ -1874,7 +1936,9 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
   clearRaidPollRuntimeCaches(updatedPoll.id);
   const published = await publishOrUpdatePollDiscordMessage(updatedPoll, channelId);
   const discordUpdatedAt = await savePollDiscordRef(updatedPoll.id, published);
-  return { ...updatedPoll, ...published, updatedAt: discordUpdatedAt };
+  const finalPoll = { ...updatedPoll, ...published, updatedAt: discordUpdatedAt };
+  await syncOpenRaidPollDiscordRecommendations(finalPoll).catch(() => null);
+  return finalPoll;
 }
 
 export async function updateRaidPollFromForm(pollId: string, form: FormData) {
@@ -2200,7 +2264,8 @@ export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = 
   }, { logEvent: "raid_polls.close_failed" });
 
   clearRaidPollRuntimeCaches(updated.id);
-  await editPollDiscordMessage(updated).catch(() => null);
+  await editPollDiscordMessage(updated, [updated]).catch(() => null);
+  await syncOpenRaidPollDiscordRecommendations(null).catch(() => null);
   return updated;
 }
 
@@ -2645,7 +2710,7 @@ export async function handleRaidPollDiscordVote(params: {
     clearRaidPollRuntimeCaches(result.poll.id);
   }
   if (changedPoll) {
-    await editPollDiscordMessage(changedPoll).catch(() => null);
+    await syncOpenRaidPollDiscordRecommendations(changedPoll).catch(() => null);
   }
 
   return result;
