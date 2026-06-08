@@ -24,10 +24,11 @@ const INTERNAL_POLL_ACTION_TOKENS = [
   "INTERNAL_PROFILE_LOOKUP_TOKEN",
 ];
 
-function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit" {
+function cleanKind(value: unknown): "days" | "time" | "schedule" | "schedule_page" | "character" | "character_prompt" | "role" | "submit" {
   const kind = String(value || "").trim().toLowerCase();
   if (kind === "time") return "time";
   if (kind === "schedule") return "schedule";
+  if (kind === "schedule_page") return "schedule_page";
   if (kind === "character") return "character";
   if (kind === "character_prompt") return "character_prompt";
   if (kind === "role") return "role";
@@ -41,7 +42,10 @@ function cleanValues(value: unknown) {
 
 function cleanScheduleGroup(value: unknown) {
   const group = String(value || "").trim().toLowerCase();
-  return group === "a" || group === "b" || group === "c" ? group : "";
+  if (group === "a" || group === "b" || group === "c") return group;
+  if (/^(mon|tue|wed|thu|fri|sat|sun)$/.test(group)) return group;
+  if (/^page_?\d{1,2}$/.test(group)) return group.replace(/^page_?(\d+)$/, "page_$1");
+  return "";
 }
 
 function cleanSnowflake(value: unknown) {

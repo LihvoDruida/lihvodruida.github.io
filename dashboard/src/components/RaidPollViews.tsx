@@ -218,11 +218,11 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <div>
           <span className="eyebrow">Smart priority</span>
           <h3>Рекомендований слот</h3>
-          <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Пріоритет: 2 танки → хіли → загальна кількість доступних.</p>
+          <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Пріоритет: мінімум 1 танк → більшість хілів за формулою 1 хіл на паті → максимум ДД.</p>
         </div>
         <div className="raid-poll-best-slot">
           <strong>{raidPollSlotSummary(bestSlot)}</strong>
-          <span>{bestSlot ? `Пріоритет: танки ${bestSlot.tanks}/2 → хіли ${bestSlot.healers} → усього ${bestSlot.total}` : "Потрібні голоси з персонажами, щоб зʼявився нормальний розрахунок."}</span>
+          <span>{bestSlot ? `Пріоритет: танки ${bestSlot.tanks}/${bestSlot.requiredTanks} → хіли ${bestSlot.healers}/${bestSlot.requiredHealers} ядро (${bestSlot.desiredHealers} на паті) → ДД ${bestSlot.effectiveDps}` : "Потрібні голоси з персонажами, щоб зʼявився нормальний розрахунок."}</span>
         </div>
         <div className="raid-poll-slot-list">
           {recommendations.length ? recommendations.map((slot, index) => (

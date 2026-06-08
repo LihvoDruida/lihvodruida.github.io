@@ -3512,14 +3512,19 @@ function decodeRaidSignupSubmitCustomId(customId) {
 function decodeRaidPollCustomId(customId, values) {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
-  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_(?:[abc]|mon|tue|wed|thu|fri|sat|sun)|schedule_page_\d{1,2}|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
   const match = legacyMatch || smartMatch;
   if (!match) return null;
   const rawKind = match[1];
   const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 25) : [];
-  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit") return null;
-  const kind = rawKind.startsWith("schedule_") ? "schedule" : rawKind;
-  return { pollId: match[2], kind, group: rawKind.startsWith("schedule_") ? rawKind.slice("schedule_".length) : "", values: selected };
+  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit" && !rawKind.startsWith("schedule_page_")) return null;
+  const kind = rawKind.startsWith("schedule_page_") ? "schedule_page" : rawKind.startsWith("schedule_") ? "schedule" : rawKind;
+  const group = rawKind.startsWith("schedule_page_")
+    ? rawKind.replace("schedule_page_", "page_")
+    : rawKind.startsWith("schedule_")
+      ? rawKind.slice("schedule_".length)
+      : "";
+  return { pollId: match[2], kind, group, values: selected };
 }
 
 function dashboardRaidPollVoteEndpoint(env, pollId) {

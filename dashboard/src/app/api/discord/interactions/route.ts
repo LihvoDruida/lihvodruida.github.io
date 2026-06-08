@@ -130,20 +130,26 @@ function cleanRaidSignupRole(value: unknown): RaidCharacterRole | null {
   return null;
 }
 
-type RaidPollDiscordKind = "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit";
+type RaidPollDiscordKind = "days" | "time" | "schedule" | "schedule_page" | "character" | "character_prompt" | "role" | "submit";
 
-function decodeRaidPollCustomId(customId: string, values: unknown): { pollId: string; kind: RaidPollDiscordKind; values: string[] } | null {
+function decodeRaidPollCustomId(customId: string, values: unknown): { pollId: string; kind: RaidPollDiscordKind; group?: string | null; values: string[] } | null {
   const value = String(customId || "").trim();
   const legacyMatch = value.match(/^mbv1:poll_(days|time):([A-Za-z0-9_-]{8,80})$/);
-  const smartMatch = value.match(/^mbv1:poll_(schedule_[abc]|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
+  const smartMatch = value.match(/^mbv1:poll_(schedule_(?:[abc]|mon|tue|wed|thu|fri|sat|sun)|schedule_page_\d{1,2}|character|character_prompt|role|submit):([A-Za-z0-9_-]{8,80})$/);
   const match = legacyMatch || smartMatch;
   if (!match) return null;
   const rawKind = match[1];
   const selected = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 10) : [];
-  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit") return null;
+  if (!selected.length && rawKind !== "character_prompt" && rawKind !== "submit" && !rawKind.startsWith("schedule_page_")) return null;
+  const group = rawKind.startsWith("schedule_page_")
+    ? rawKind.replace("schedule_page_", "page_")
+    : rawKind.startsWith("schedule_")
+      ? rawKind.replace("schedule_", "")
+      : null;
   return {
     pollId: match[2],
-    kind: rawKind.startsWith("schedule_") ? "schedule" : (rawKind as RaidPollDiscordKind),
+    kind: rawKind.startsWith("schedule_page_") ? "schedule_page" : rawKind.startsWith("schedule_") ? "schedule" : (rawKind as RaidPollDiscordKind),
+    group,
     values: selected,
   };
 }
@@ -206,6 +212,7 @@ export async function POST(request: NextRequest) {
       const result = await handleRaidPollDiscordVote({
         pollId: pollAction.pollId,
         kind: pollAction.kind,
+        group: pollAction.group,
         values: pollAction.values,
         userId,
         userName,

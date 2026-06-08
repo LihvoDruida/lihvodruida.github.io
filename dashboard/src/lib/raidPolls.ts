@@ -802,13 +802,54 @@ function noGuildCharactersContent() {
   return "⚠️ Голосувати можна тільки персонажем, який є учасником гільдії. У твоєму dashboard-профілі немає підтвердженого гільдійного персонажа. Додай/онови персонажа в профілі або звернись до офіцера.";
 }
 
-function raidPollSlotScore(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total">) {
-  // Голос "з 19:00" означає доступність на 19:00 і всі пізніші слоти цього дня.
-  // Головна ціль голосувалки — знайти слот, де реально можна зібрати рейд.
-  // Тому 2 танки важливіші за загальну кількість, далі йдуть хіли, потім сумарний онлайн.
-  const tankCore = Math.min(item.tanks, 2);
-  const completeTankCore = item.tanks >= 2 ? 1 : 0;
-  return completeTankCore * 1_000_000 + tankCore * 100_000 + item.healers * 10_000 + item.total * 100 + item.dps * 10 - item.unknown;
+const RAID_POLL_RECOMMENDATION_TANK_MINIMUM = 1;
+const RAID_POLL_RECOMMENDATION_MAX_TANKS = 2;
+const RAID_POLL_RECOMMENDATION_MAX_HEALERS = 5;
+
+function majorityRequired(value: number) {
+  const target = Math.max(0, Math.floor(value));
+  if (target <= 1) return target;
+  return Math.floor(target / 2) + 1;
+}
+
+function raidPollSlotFormation(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total">) {
+  // Та сама ідея, що у записі в рейд: склад не рахує зайві ролі як заміну бракуючій ролі.
+  // Для голосувалки критерій мʼякший: мінімум 1 танк, більшість потрібних хілів
+  // з формули 1 хіл на паті, а після цього максимальна кількість ДД.
+  const knownTotal = Math.max(0, item.tanks + item.healers + item.dps);
+  const parties = Math.max(1, Math.ceil(Math.max(knownTotal, item.total) / 5));
+  const desiredHealers = Math.max(1, Math.min(RAID_POLL_RECOMMENDATION_MAX_HEALERS, parties));
+  const requiredHealers = majorityRequired(desiredHealers);
+  const requiredTanks = RAID_POLL_RECOMMENDATION_TANK_MINIMUM;
+  const usableTanks = Math.min(item.tanks, RAID_POLL_RECOMMENDATION_MAX_TANKS);
+  const usableHealers = Math.min(item.healers, desiredHealers);
+  const effectiveDps = Math.max(0, item.dps);
+  const coreReady = item.tanks >= requiredTanks && item.healers >= requiredHealers;
+  return {
+    parties,
+    desiredHealers,
+    requiredHealers,
+    requiredTanks,
+    effectiveDps,
+    effectiveRaidSize: usableTanks + usableHealers + effectiveDps,
+    coreReady,
+  };
+}
+
+function raidPollSlotScore(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total" | "requiredTanks" | "requiredHealers" | "desiredHealers" | "effectiveDps" | "effectiveRaidSize" | "coreReady">) {
+  // Пріоритет: валідне рейд-ядро -> танк-мінімум -> більшість хілів -> максимум ДД -> більший склад.
+  const tankCore = Math.min(item.tanks, RAID_POLL_RECOMMENDATION_MAX_TANKS);
+  const healerMajority = Math.min(item.healers, item.requiredHealers);
+  const healerFullness = Math.min(item.healers, item.desiredHealers);
+  return (item.coreReady ? 10_000_000 : 0)
+    + Math.min(item.tanks, item.requiredTanks) * 1_000_000
+    + healerMajority * 250_000
+    + tankCore * 50_000
+    + item.effectiveDps * 10_000
+    + item.effectiveRaidSize * 1_000
+    + healerFullness * 100
+    + item.total * 10
+    - item.unknown;
 }
 
 export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "votes">, limit = 6): RaidPollSlotRecommendation[] {
@@ -832,6 +873,7 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
         else unknown += 1;
       }
       const total = voters.length;
+      const formation = raidPollSlotFormation({ tanks, healers, dps, unknown, total });
       rows.push({
         day: day.value,
         time,
@@ -840,8 +882,9 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
         healers,
         dps,
         unknown,
+        ...formation,
         voters,
-        score: raidPollSlotScore({ tanks, healers, dps, unknown, total }),
+        score: raidPollSlotScore({ tanks, healers, dps, unknown, total, ...formation }),
       });
     }
   }
@@ -850,9 +893,11 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
     .filter((item) => item.total > 0)
     .sort((a, b) =>
       b.score - a.score ||
-      Math.min(b.tanks, 2) - Math.min(a.tanks, 2) ||
-      b.healers - a.healers ||
-      b.total - a.total ||
+      Number(b.coreReady) - Number(a.coreReady) ||
+      Math.min(b.tanks, b.requiredTanks) - Math.min(a.tanks, a.requiredTanks) ||
+      Math.min(b.healers, b.requiredHealers) - Math.min(a.healers, a.requiredHealers) ||
+      b.effectiveDps - a.effectiveDps ||
+      b.effectiveRaidSize - a.effectiveRaidSize ||
       RAID_POLL_DAYS.findIndex((day) => day.value === a.day) - RAID_POLL_DAYS.findIndex((day) => day.value === b.day) ||
       RAID_POLL_TIMES.indexOf(a.time) - RAID_POLL_TIMES.indexOf(b.time),
     )
@@ -865,7 +910,8 @@ export function raidPollBestSlot(poll: Pick<RaidPollItem, "days" | "votes">) {
 
 export function raidPollSlotSummary(slot: RaidPollSlotRecommendation | null | undefined) {
   if (!slot) return "Ще немає достатніх голосів.";
-  return `${dayLabel(slot.day)} ${slot.time} — ${slot.tanks}/2 танки • ${slot.healers} хіли • ${slot.dps} ДД • всього ${slot.total}`;
+  const core = slot.coreReady ? "ядро готове" : "ядро не готове";
+  return `${dayLabel(slot.day)} ${slot.time} — ${slot.tanks}/${slot.requiredTanks} мін. танк • ${slot.healers}/${slot.requiredHealers} ядро хілів (${slot.desiredHealers} на паті) • ${slot.dps} ДД • ${core} • всього ${slot.total}`;
 }
 
 
@@ -874,9 +920,11 @@ type RaidPollVoteDraft = RaidPollVote & {
 };
 
 const RAID_POLL_PRIVATE_SCHEDULE_GROUPS: Array<{ key: "a" | "b"; label: string; days: RaidPollDay[] }> = [
+  // Legacy/API fallback. Новий Discord UI нижче показує кожен день окремим select-полем.
   { key: "a", label: "Пн-Чт", days: ["mon", "tue", "wed", "thu"] },
   { key: "b", label: "Пт-Нд", days: ["fri", "sat", "sun"] },
 ];
+const RAID_POLL_PRIVATE_DAY_PAGE_SIZE = 2;
 
 function baseDraftForUser(params: { userId: string; userName: string; guildId?: string | null; guildName?: string | null }, nowIso: string): RaidPollVoteDraft {
   return {
@@ -1035,9 +1083,12 @@ function timeCountsDiscordValue(poll: RaidPollItem) {
 function votersDiscordValue(poll: RaidPollItem) {
   if (!poll.votes.length) return "—";
   const days = pollActiveDays(poll).map((day) => day.value);
-  return poll.votes.slice(0, 12).map((vote) => {
-    return `• ${characterSummary(vote)}: ${scheduleSummary(raidPollVoteSchedule(vote), days)}`;
-  }).join("\n").slice(0, 1000);
+  return [...poll.votes]
+    .sort((a, b) => Date.parse(b.updatedAt || b.createdAt || "") - Date.parse(a.updatedAt || a.createdAt || ""))
+    .slice(0, 5)
+    .map((vote) => `• ${characterSummary(vote)}: ${scheduleSummary(raidPollVoteSchedule(vote), days)}`)
+    .join("\n")
+    .slice(0, 1000);
 }
 
 export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
@@ -1049,7 +1100,7 @@ export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
     { name: "⏰ Голоси за часом", value: timeCountsDiscordValue(poll), inline: true },
     { name: "👥 Проголосували", value: `${counts.total}`, inline: true },
     { name: "🧠 Рекомендований день/час", value: topDaySummary(poll), inline: false },
-    { name: "🧾 Останні голоси", value: votersDiscordValue(poll), inline: false },
+    { name: "🧾 Останні 5 голосів", value: votersDiscordValue(poll), inline: false },
   ];
 
   const embed = normalizeDiscordEmbed({
@@ -1151,7 +1202,49 @@ function scheduleSelectOptionsWithDefaults(days: RaidPollDay[], draft: RaidPollV
   })));
 }
 
-function buildRaidPollVoteDraftComponents(poll: Pick<RaidPollItem, "id" | "status" | "closesAtMs" | "days">, profile: DashboardProfile, draft: RaidPollVoteDraft, membership?: RaidPollGuildMembershipSnapshot | null) {
+function scheduleDaySelectOptions(day: RaidPollDay, draft: RaidPollVoteDraft) {
+  return RAID_POLL_AVAILABILITY_OPTIONS.map((availability) => ({
+    label: raidPollAvailabilityLabel(availability).slice(0, 100),
+    value: `${day}:${availability}`,
+    description: scheduleOptionDescription(day, availability).slice(0, 100),
+    default: isScheduleOptionDefault(draft.schedule, day, availability),
+  }));
+}
+
+function scheduleActiveDayValues(poll: Pick<RaidPollItem, "days">) {
+  return pollActiveDays(poll).map((day) => day.value);
+}
+
+function schedulePageCount(poll: Pick<RaidPollItem, "days">) {
+  return Math.max(1, Math.ceil(scheduleActiveDayValues(poll).length / RAID_POLL_PRIVATE_DAY_PAGE_SIZE));
+}
+
+function clampSchedulePage(page: unknown, poll: Pick<RaidPollItem, "days">) {
+  const count = schedulePageCount(poll);
+  const value = Math.floor(Number(page) || 0);
+  return Math.max(0, Math.min(count - 1, value));
+}
+
+function schedulePageForDay(day: RaidPollDay, poll: Pick<RaidPollItem, "days">) {
+  const index = scheduleActiveDayValues(poll).indexOf(day);
+  return index >= 0 ? Math.floor(index / RAID_POLL_PRIVATE_DAY_PAGE_SIZE) : 0;
+}
+
+function schedulePageFromGroup(group: string | null | undefined, poll: Pick<RaidPollItem, "days">) {
+  const day = cleanPollDay(group);
+  if (day) return schedulePageForDay(day, poll);
+  const pageMatch = cleanString(group, 24).match(/^page_(\d{1,2})$/i);
+  if (pageMatch) return clampSchedulePage(pageMatch[1], poll);
+  return clampSchedulePage(group, poll);
+}
+
+function buildRaidPollVoteDraftComponents(
+  poll: Pick<RaidPollItem, "id" | "status" | "closesAtMs" | "days">,
+  profile: DashboardProfile,
+  draft: RaidPollVoteDraft,
+  membership?: RaidPollGuildMembershipSnapshot | null,
+  schedulePageInput: unknown = 0,
+) {
   const disabled = poll.status === "closed" || poll.closesAtMs <= Date.now();
   const rows: Array<Record<string, unknown>> = [];
 
@@ -1196,29 +1289,57 @@ function buildRaidPollVoteDraftComponents(poll: Pick<RaidPollItem, "id" | "statu
     ],
   });
 
-  const activeDays = pollActiveDays(poll).map((day) => day.value);
-  for (const group of RAID_POLL_PRIVATE_SCHEDULE_GROUPS) {
-    const groupDays = group.days.filter((day) => activeDays.includes(day));
-    if (!groupDays.length) continue;
+  const activeDays = scheduleActiveDayValues(poll);
+  const pageCount = schedulePageCount(poll);
+  const schedulePage = clampSchedulePage(schedulePageInput, poll);
+  const pageDays = activeDays.slice(
+    schedulePage * RAID_POLL_PRIVATE_DAY_PAGE_SIZE,
+    schedulePage * RAID_POLL_PRIVATE_DAY_PAGE_SIZE + RAID_POLL_PRIVATE_DAY_PAGE_SIZE,
+  );
+
+  for (const day of pageDays) {
     rows.push({
       type: 1,
       components: [
         {
           type: 3,
-          custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_${group.key}:${poll.id}`,
-          placeholder: `3) ${group.label}: 1 варіант на день`,
+          custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_${day}:${poll.id}`,
+          placeholder: `3) ${dayFullLabel(day)}: обери один варіант`,
           min_values: 1,
-          max_values: groupDays.length,
+          max_values: 1,
           disabled,
-          options: scheduleSelectOptionsWithDefaults(groupDays, draft),
+          options: scheduleDaySelectOptions(day, draft),
         },
       ],
     });
   }
 
+  const previousPage = Math.max(0, schedulePage - 1);
+  const nextPage = Math.min(pageCount - 1, schedulePage + 1);
   rows.push({
     type: 1,
     components: [
+      {
+        type: 2,
+        style: 2,
+        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${previousPage}:${poll.id}`,
+        label: "◀ Дні",
+        disabled: disabled || schedulePage <= 0,
+      },
+      {
+        type: 2,
+        style: 2,
+        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${schedulePage}:${poll.id}`,
+        label: `Дні ${schedulePage + 1}/${pageCount}`,
+        disabled: true,
+      },
+      {
+        type: 2,
+        style: 2,
+        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${nextPage}:${poll.id}`,
+        label: "Дні ▶",
+        disabled: disabled || schedulePage >= pageCount - 1,
+      },
       {
         type: 2,
         style: isDraftReadyToSubmit(draft) && !disabled ? 3 : 2,
@@ -1226,7 +1347,7 @@ function buildRaidPollVoteDraftComponents(poll: Pick<RaidPollItem, "id" | "statu
         label: "Проголосувати",
         disabled: disabled || !isDraftReadyToSubmit(draft),
       },
-      { type: 2, style: 5, label: "Деталі на сайті", url: dashboardPollUrl(poll.id) },
+      { type: 2, style: 5, label: "Деталі", url: dashboardPollUrl(poll.id) },
     ],
   });
 
@@ -2001,11 +2122,13 @@ function normalizeVoteScheduleForPoll(poll: RaidPollItem, schedule: RaidPollSche
 
 function scheduleGroupDays(groupKey: string | null | undefined, poll: Pick<RaidPollItem, "days">): RaidPollDay[] {
   const active = new Set((poll.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value)) as RaidPollDay[]);
+  const directDay = cleanPollDay(groupKey);
+  if (directDay && active.has(directDay)) return [directDay];
   const group = RAID_POLL_PRIVATE_SCHEDULE_GROUPS.find((item) => item.key === groupKey);
   return (group?.days || []).filter((day) => active.has(day));
 }
 
-function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "character" | "character_prompt", existing: RaidPollVote | undefined) {
+function shouldAutoAttachMainCharacter(kind: "days" | "time" | "schedule" | "schedule_page" | "character" | "character_prompt", existing: RaidPollVote | undefined) {
   if (kind === "character" || kind === "character_prompt") return false;
   return !existing?.characterKey && !existing?.characterName;
 }
@@ -2021,7 +2144,7 @@ function dedupeSchedulePatch(schedule: RaidPollSchedule) {
 
 export async function handleRaidPollDiscordVote(params: {
   pollId: string;
-  kind: "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit";
+  kind: "days" | "time" | "schedule" | "schedule_page" | "character" | "character_prompt" | "role" | "submit";
   group?: string | null;
   values: string[];
   userId: string;
@@ -2058,10 +2181,11 @@ export async function handleRaidPollDiscordVote(params: {
     return { poll, draft, data: snap.data() || {} };
   };
 
-  if (params.kind === "character_prompt") {
+  if (params.kind === "character_prompt" || params.kind === "schedule_page") {
     const state = await readPollAndDraft();
     if (!state) return { ok: false, content: "❌ Рейд-пул не знайдено або його було видалено." };
     const { poll, draft } = state;
+    const schedulePage = params.kind === "schedule_page" ? schedulePageFromGroup(params.group, poll) : 0;
     if (poll.status === "closed" || poll.closesAtMs <= Date.now()) {
       return { ok: false, closed: true, poll, content: "🔒 Голосування вже завершено. Голос змінити не можна." };
     }
@@ -2084,7 +2208,7 @@ export async function handleRaidPollDiscordVote(params: {
       ok: true,
       poll,
       content: draftPromptContent(draft, poll),
-      components: buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents),
+      components: buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, schedulePage),
     };
   }
 
@@ -2178,7 +2302,7 @@ export async function handleRaidPollDiscordVote(params: {
             ok: false,
             poll,
             content: `⚠️ Для одного дня можна вибрати тільки один варіант часу або «Не можу». Виправ: ${days}. Якщо тобі зручно з 19:00, обери лише 19:00 — система сама врахує всі пізніші години.`,
-            components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents) : [],
+            components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, schedulePageFromGroup(params.group, poll)) : [],
           };
         }
         const patch = parsedSchedule.schedule;
@@ -2232,7 +2356,7 @@ export async function handleRaidPollDiscordVote(params: {
           ok: true,
           poll,
           content: params.kind === "character_prompt" ? draftPromptContent(draft, poll) : draftSavedContent(draft, poll),
-          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents) : [],
+          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, params.kind === "schedule" ? schedulePageFromGroup(params.group, poll) : 0) : [],
         };
       }
 
@@ -2241,7 +2365,7 @@ export async function handleRaidPollDiscordVote(params: {
           ok: false,
           poll,
           content: `⚠️ Голос ще не зараховано.\n${draftReadinessLines(draft, poll)}`,
-          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents) : [],
+          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, params.kind === "schedule" ? schedulePageFromGroup(params.group, poll) : 0) : [],
         };
       }
 
@@ -2250,7 +2374,7 @@ export async function handleRaidPollDiscordVote(params: {
           ok: false,
           poll,
           content: "⚠️ Голос не зараховано: вибраний персонаж не знайдений у складі гільдії. Обери гільдійного персонажа або онови профіль.",
-          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents) : [],
+          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, params.kind === "schedule" ? schedulePageFromGroup(params.group, poll) : 0) : [],
         };
       }
 
