@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-07 21:15:47'
+  updated_at: '2026-06-08 04:07:36'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 162
+  member_count: 163
 characters:
 - name: Бреинор
   region: eu
@@ -2303,7 +2303,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Cooking
-        learned_points: 88
+        learned_points: 89
         max_points: 100
     - name: Fishing
       id: 356
@@ -6350,7 +6350,7 @@ characters:
         learned_points: 300
         max_points: 300
       - name: Shadowlands Skinning
-        learned_points: 28
+        learned_points: 30
         max_points: 150
       - name: Dragon Isles Skinning
         learned_points: 100
@@ -6383,7 +6383,7 @@ characters:
         learned_points: 63
         max_points: 100
       - name: Khaz Algar Leatherworking
-        learned_points: 64
+        learned_points: 66
         max_points: 100
       - name: Midnight Leatherworking
         learned_points: 100
@@ -6414,7 +6414,7 @@ characters:
         learned_points: 157
         max_points: 300
       - name: Dragon Isles Cooking
-        learned_points: 59
+        learned_points: 62
         max_points: 100
       - name: Midnight Cooking
         learned_points: 100
@@ -6453,7 +6453,7 @@ characters:
         learned_points: 86
         max_points: 100
       - name: Midnight Fishing
-        learned_points: 290
+        learned_points: 294
         max_points: 300
 - name: Кеенди
   region: eu
@@ -6612,7 +6612,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Моннал
   professions:
     primaries:
     - name: Herbalism
@@ -7955,6 +7955,14 @@ characters:
   realm: tarren-mill
   realm_slug: tarren-mill
   profile_url: https://raider.io/characters/eu/tarren-mill/Zanziholic
+  professions:
+    primaries: []
+    secondaries: []
+- name: Zanzilight
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzilight
   professions:
     primaries: []
     secondaries: []
