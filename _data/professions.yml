@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-08 04:07:36'
+  updated_at: '2026-06-08 12:31:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1367,6 +1367,23 @@ characters:
         max_points: 300
       - name: Dragon Isles Fishing
         learned_points: 8
+        max_points: 100
+- name: Regin
+  region: eu
+  realm: doomhammer
+  realm_slug: doomhammer
+  profile_url: https://raider.io/characters/eu/doomhammer/Regin
+  professions:
+    primaries: []
+    secondaries:
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Fishing
+        learned_points: 7
         max_points: 100
 - name: Darthkenobi
   region: eu
@@ -2938,6 +2955,14 @@ characters:
         learned_points: 5
         max_points: 100
     secondaries: []
+- name: Zanziholic
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanziholic
+  professions:
+    primaries: []
+    secondaries: []
 - name: Demhunt
   region: eu
   realm: terokkar
@@ -3061,6 +3086,14 @@ characters:
         learned_points: 100
         max_points: 100
     secondaries: []
+- name: Zanzilight
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzilight
+  professions:
+    primaries: []
+    secondaries: []
 - name: Frrtiix
   region: eu
   realm: draenor
@@ -3086,6 +3119,14 @@ characters:
       - name: Midnight Herbalism
         learned_points: 31
         max_points: 105
+    secondaries: []
+- name: Zanzimond
+  region: eu
+  realm: tarren-mill
+  realm_slug: tarren-mill
+  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimond
+  professions:
+    primaries: []
     secondaries: []
 - name: Lishiystabb
   region: eu
@@ -7026,6 +7067,86 @@ characters:
       - name: Midnight Fishing
         learned_points: 173
         max_points: 300
+- name: Сумраки
+  region: eu
+  realm: eversong
+  realm_slug: eversong
+  profile_url: https://raider.io/characters/eu/eversong/Сумраки
+  professions:
+    primaries:
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 8
+        max_points: 300
+      - name: Khaz Algar Mining
+        learned_points: 2
+        max_points: 100
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    - name: Jewelcrafting
+      id: 755
+      tiers:
+      - name: Classic Jewelcrafting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Jewelcrafting
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Kul Tiran Cooking
+        learned_points: 1
+        max_points: 175
+      - name: Draenor Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 100
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
+      - name: Midnight Fishing
+        learned_points: 107
+        max_points: 300
 - name: Бафометище
   region: eu
   realm: eversong
@@ -7122,6 +7243,53 @@ characters:
         max_points: 300
       - name: Midnight Fishing
         learned_points: 98
+        max_points: 300
+- name: Грекулес
+  region: eu
+  realm: gordunni
+  realm_slug: gordunni
+  profile_url: https://raider.io/characters/eu/gordunni/Грекулес
+  professions:
+    primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 6
+        max_points: 305
+      - name: Midnight Blacksmithing
+        learned_points: 71
+        max_points: 105
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 2
+        max_points: 300
+      - name: Midnight Mining
+        learned_points: 100
+        max_points: 100
+    secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Cooking
+        learned_points: 1
+        max_points: 100
+    - name: Fishing
+      id: 356
+      tiers:
+      - name: Classic Fishing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Fishing
+        learned_points: 5
         max_points: 300
 - name: Корбус
   region: eu
@@ -7798,171 +7966,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Сумраки
-  region: eu
-  realm: eversong
-  realm_slug: eversong
-  profile_url: https://raider.io/characters/eu/eversong/Сумраки
-  professions:
-    primaries:
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 8
-        max_points: 300
-      - name: Khaz Algar Mining
-        learned_points: 2
-        max_points: 100
-      - name: Midnight Mining
-        learned_points: 100
-        max_points: 100
-    - name: Jewelcrafting
-      id: 755
-      tiers:
-      - name: Classic Jewelcrafting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Jewelcrafting
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Archaeology
-      id: 794
-      tiers: []
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Kul Tiran Cooking
-        learned_points: 1
-        max_points: 175
-      - name: Draenor Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Cooking
-        learned_points: 100
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Kul Tiran Fishing
-        learned_points: 1
-        max_points: 175
-      - name: Legion Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Draenor Fishing
-        learned_points: 1
-        max_points: 100
-      - name: Pandaria Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Cataclysm Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Northrend Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Outland Fishing
-        learned_points: 1
-        max_points: 75
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Shadowlands Fishing
-        learned_points: 1
-        max_points: 200
-      - name: Midnight Fishing
-        learned_points: 107
-        max_points: 300
-- name: Regin
-  region: eu
-  realm: doomhammer
-  realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Regin
-  professions:
-    primaries: []
-    secondaries:
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Fishing
-        learned_points: 7
-        max_points: 100
-- name: Грекулес
-  region: eu
-  realm: gordunni
-  realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Грекулес
-  professions:
-    primaries:
-    - name: Blacksmithing
-      id: 164
-      tiers:
-      - name: Classic Blacksmithing
-        learned_points: 6
-        max_points: 305
-      - name: Midnight Blacksmithing
-        learned_points: 71
-        max_points: 105
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 2
-        max_points: 300
-      - name: Midnight Mining
-        learned_points: 100
-        max_points: 100
-    secondaries:
-    - name: Cooking
-      id: 185
-      tiers:
-      - name: Classic Cooking
-        learned_points: 1
-        max_points: 300
-      - name: Khaz Algar Cooking
-        learned_points: 1
-        max_points: 100
-      - name: Midnight Cooking
-        learned_points: 1
-        max_points: 100
-    - name: Fishing
-      id: 356
-      tiers:
-      - name: Classic Fishing
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Fishing
-        learned_points: 5
-        max_points: 300
-- name: Zanzimond
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzimond
-  professions:
-    primaries: []
-    secondaries: []
-- name: Zanziholic
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Zanziholic
-  professions:
-    primaries: []
-    secondaries: []
-- name: Zanzilight
-  region: eu
-  realm: tarren-mill
-  realm_slug: tarren-mill
-  profile_url: https://raider.io/characters/eu/tarren-mill/Zanzilight
-  professions:
-    primaries: []
-    secondaries: []
