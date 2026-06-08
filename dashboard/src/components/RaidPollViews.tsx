@@ -218,7 +218,7 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <div>
           <span className="eyebrow">Smart priority</span>
           <h3>Рекомендований слот</h3>
-          <p>Розрахунок не тупо бере найбільшу кількість голосів: спочатку шукає слот із 2 танками, потім сильніший пул хілів, потім загальну кількість доступних.</p>
+          <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Пріоритет: 2 танки → хіли → загальна кількість доступних.</p>
         </div>
         <div className="raid-poll-best-slot">
           <strong>{raidPollSlotSummary(bestSlot)}</strong>
@@ -237,7 +237,7 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
         <div className="raid-poll-table-card raid-poll-table-card--wide">
           <div className="raid-poll-card-headline">
             <h3>Розумна матриця день / час</h3>
-            <p>Для кожного дня видно доступних, тих хто поставив «Не можу», найсильніший час і конкретних персонажів.</p>
+            <p>Для кожного дня видно доступних, тих хто поставив «Не можу», найсильніший час і конкретних персонажів. Один голос на день означає «з цього часу і пізніше».</p>
           </div>
           <div className="raid-poll-day-matrix">
             {activeDays.map((day) => {

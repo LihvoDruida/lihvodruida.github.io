@@ -1044,15 +1044,6 @@ function previewSlotCounts(parties: RaidParty[]) {
   return { roster: tanks + healers + dps, tanks, healers, dps };
 }
 
-function selectPreviewFlexFillers(candidates: RaidSignup[], limit: number) {
-  if (limit <= 0) return [];
-  const roleWeight = (item: RaidSignup) =>
-    item.role === "dps" ? 0 : item.role === "healer" ? 1 : 2;
-  return [...candidates]
-    .sort((a, b) => roleWeight(a) - roleWeight(b) || signupRosterOrder(a, b))
-    .slice(0, limit);
-}
-
 function buildPreviewLayout(
   raid: Pick<RaidItem, "difficulty" | "composition" | "signups" | "maxPlayers">,
 ): { parties: RaidParty[]; bench: RaidSignup[]; warnings: string[]; targetSize: number } {
@@ -1099,44 +1090,30 @@ function buildPreviewLayout(
     : selectDpsForComposition(dps, dps.length);
   const surplusDps = dps.filter((item) => !selectedDps.includes(item));
 
-  const baseSelectedMembers = [
+  const selectedMembers = [
     ...selectedTanks,
     ...selectedHealers,
     ...selectedDps,
   ];
-  const selectedFlex = benchEnabled
-    ? selectPreviewFlexFillers(
-        [...surplusDps, ...surplusHealers],
-        Math.max(0, targetSize - baseSelectedMembers.length),
-      )
-    : [];
 
   selectedTanks.forEach((tank) => assignTankToParty(parties, tank));
   assignHealersToParties(parties, selectedHealers).forEach((healer) =>
     placeFlexMember(parties, healer),
   );
   assignDpsToParties(parties, selectedDps);
-  selectedFlex.forEach((member) => placeFlexMember(parties, member));
 
   if (!benchEnabled)
     [...surplusTanks, ...surplusHealers].forEach((member) =>
       placeFlexMember(parties, member),
     );
   const bench = benchEnabled
-    ? [...surplusTanks, ...surplusHealers, ...surplusDps]
-        .filter((item) => !selectedFlex.includes(item))
-        .sort(signupSort)
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps].sort(signupSort)
     : [];
-  const selectedMembers = [...baseSelectedMembers, ...selectedFlex];
-  const filledSeats = selectedMembers.length;
-  const dpsSlotsFilled = Math.min(
-    composition.dps,
-    selectedDps.length + selectedFlex.length,
-  );
+  const dpsSlotsFilled = selectedDps.length;
   const missingBuffs = missingCriticalBuffs(selectedMembers);
   const safeDpsCapacity = Math.max(
     0,
-    Math.min(dps.length + selectedFlex.length, healers.length * 5),
+    Math.min(dps.length, healers.length * 5),
   );
   const warnings = [
     selectedTanks.length < composition.tanks
@@ -1145,7 +1122,7 @@ function buildPreviewLayout(
     selectedHealers.length < composition.healers
       ? `Не вистачає хілів: ${selectedHealers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
       : null,
-    dpsSlotsFilled < composition.dps && filledSeats < targetSize
+    dpsSlotsFilled < composition.dps
       ? `Не вистачає ДД: ${dpsSlotsFilled}/${composition.dps}`
       : null,
     missingBuffs.length

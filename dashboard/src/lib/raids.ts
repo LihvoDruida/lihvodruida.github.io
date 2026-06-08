@@ -3303,25 +3303,6 @@ export function raidGroupLayoutRoleCounts(
   };
 }
 
-function selectFlexFillersForOpenSeats(
-  candidates: RaidSignup[],
-  limit: number,
-  settings?: RaidBenchPrioritySettings | null,
-) {
-  if (limit <= 0) return [];
-  const roleWeight = (item: RaidSignup) =>
-    item.role === "dps" ? 0 : item.role === "healer" ? 1 : 2;
-  return [...candidates]
-    .sort(
-      (a, b) =>
-        raidBenchPriorityWeight(a, settings) -
-          raidBenchPriorityWeight(b, settings) ||
-        roleWeight(a) - roleWeight(b) ||
-        signupRosterOrder(a, b),
-    )
-    .slice(0, limit);
-}
-
 export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
   const roster = rosterForGroups(raid);
   const targetSize = raidLayoutTargetSize(raid);
@@ -3378,48 +3359,30 @@ export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
     : selectDpsForComposition(dps, dps.length, benchPriority);
   const surplusDps = dps.filter((item) => !selectedDps.includes(item));
 
-  const baseSelectedMembers = [
+  const selectedMembers = [
     ...selectedTanks,
     ...selectedHealers,
     ...selectedDps,
   ];
-  const flexCandidates = benchEnabled
-    ? [...surplusDps, ...surplusHealers]
-    : [];
-  const selectedFlex = benchEnabled
-    ? selectFlexFillersForOpenSeats(
-        flexCandidates,
-        Math.max(0, targetSize - baseSelectedMembers.length),
-        benchPriority,
-      )
-    : [];
 
   for (const tank of selectedTanks) assignTankToParty(parties, tank);
   const unplacedHealers = assignHealersToParties(parties, selectedHealers);
   for (const healer of unplacedHealers) placeFlexMember(parties, healer);
   assignDpsToParties(parties, selectedDps);
-  for (const member of selectedFlex) placeFlexMember(parties, member);
 
   const benchMembers = benchEnabled
-    ? [...surplusTanks, ...surplusHealers, ...surplusDps].filter(
-        (item) => !selectedFlex.includes(item),
-      )
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps]
     : [];
   if (!benchEnabled) {
     for (const member of [...surplusTanks, ...surplusHealers])
       placeFlexMember(parties, member);
   }
 
-  const selectedMembers = [...baseSelectedMembers, ...selectedFlex];
-  const filledSeats = selectedMembers.length;
-  const dpsSlotsFilled = Math.min(
-    composition.dps,
-    selectedDps.length + selectedFlex.length,
-  );
+  const dpsSlotsFilled = selectedDps.length;
   const missingBuffs = missingCriticalBuffs(selectedMembers);
   const safeDpsCapacity = Math.max(
     0,
-    Math.min(roster.dps.length + selectedFlex.length, roster.healers.length * 5),
+    Math.min(roster.dps.length, roster.healers.length * 5),
   );
   const warnings = [
     selectedTanks.length < composition.tanks
@@ -3428,7 +3391,7 @@ export function buildRaidGroupLayout(raid: RaidAutoInput): RaidGroupLayout {
     selectedHealers.length < composition.healers
       ? `Не вистачає хілів: ${selectedHealers.length}/${composition.healers}. Безпечний ДД-ліміт зараз: ${safeDpsCapacity}`
       : null,
-    dpsSlotsFilled < composition.dps && filledSeats < targetSize
+    dpsSlotsFilled < composition.dps
       ? `Не вистачає ДД: ${dpsSlotsFilled}/${composition.dps}`
       : null,
     missingBuffs.length

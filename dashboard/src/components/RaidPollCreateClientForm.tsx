@@ -293,7 +293,7 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
               </button>
             ))}
           </div>
-          <small>У Discord для кожного вибраного дня буде окрема опція часу або «Не можу».</small>
+          <small>У Discord для кожного вибраного дня дозволено тільки один варіант: найраніший зручний час або «Не можу».</small>
         </fieldset>
 
         {roles.length ? (
@@ -376,7 +376,7 @@ export default function RaidPollCreateClientForm({ channels, roles = [], default
         </div>
         <div>
           <strong>Час рейду</strong>
-          <span>Для кожного дня: 19:00 • 19:30 • 20:00 • 20:30 • 21:00 • Не можу</span>
+          <span>Один вибір на день: з 19:00 / з 19:30 / з 20:00 / з 20:30 / з 21:00 / Не можу</span>
         </div>
         <div>
           <strong>Теги ролей</strong>

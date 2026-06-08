@@ -1,9 +1,5 @@
 import "server-only";
 
-import { createHash, randomUUID } from "crypto";
-import { FieldValue, type Transaction } from "firebase-admin/firestore";
-import { getFirebaseAdminDb, hasFirebaseProfileConfig } from "@/lib/firebaseAdmin";
-
 type StoredAction<T> = {
   status: "pending" | "done";
   value?: T;
@@ -12,9 +8,6 @@ type StoredAction<T> = {
 
 type IdempotentActionStatus =
   | "SKIP"
-  | "MISS"
-  | "HIT"
-  | "PENDING"
   | "LOCAL_MISS"
   | "LOCAL_HIT"
   | "LOCAL_PENDING";
@@ -34,7 +27,6 @@ declare global {
     | undefined;
 }
 
-const IDEMPOTENCY_COLLECTION = "dashboardIdempotency";
 const DEFAULT_TTL_MS = 90_000;
 const MAX_LOCAL_ITEMS = 1000;
 
@@ -45,6 +37,15 @@ function localStore() {
   if (map.size > MAX_LOCAL_ITEMS) {
     for (const [key, item] of map) {
       if (item.expiresAt <= now) map.delete(key);
+    }
+    if (map.size > MAX_LOCAL_ITEMS) {
+      const overflow = map.size - MAX_LOCAL_ITEMS;
+      let removed = 0;
+      for (const key of map.keys()) {
+        map.delete(key);
+        removed += 1;
+        if (removed >= overflow) break;
+      }
     }
   }
   return map;
@@ -59,29 +60,8 @@ export function cleanIdempotencyKey(value: unknown) {
   return /^[A-Za-z0-9:._-]{12,220}$/.test(key) ? key : "";
 }
 
-function docId(namespace: string, key: string) {
-  return createHash("sha256").update(`${cleanNamespace(namespace)}:${key}`).digest("hex");
-}
-
 function localKey(namespace: string, key: string) {
   return `${cleanNamespace(namespace)}:${key}`;
-}
-
-function safeParse<T>(value: unknown): T | null {
-  if (typeof value !== "string" || !value) return null;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
-}
-
-function safeStringify(value: unknown) {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "";
-  }
 }
 
 async function runLocalIdempotent<T>(
@@ -124,84 +104,7 @@ export async function runIdempotentAction<T>({
   const safeTtlMs = Math.max(10_000, Math.min(10 * 60_000, Math.floor(ttlMs)));
   if (!cleanKey) return { value: await action(), status: "SKIP" };
 
-  if (!hasFirebaseProfileConfig()) {
-    return runLocalIdempotent(namespace, cleanKey, safeTtlMs, pendingValue, action);
-  }
-
-  const ownerId = randomUUID();
-  const now = Date.now();
-  const expiresAtMs = now + safeTtlMs;
-  const db = getFirebaseAdminDb();
-  const ref = db.collection(IDEMPOTENCY_COLLECTION).doc(docId(namespace, cleanKey));
-
-  let claim: { value: T; status: "MISS" | "HIT" | "PENDING" };
-  try {
-    claim = await db.runTransaction(async (tx: Transaction) => {
-      const snap = await tx.get(ref);
-      const data = snap.exists ? snap.data() || {} : {};
-      const existingExpiresAtMs = Number(data.expiresAtMs || 0);
-      if (snap.exists && existingExpiresAtMs > now) {
-        if (data.status === "done") {
-          const parsed = safeParse<T>(data.resultJson);
-          if (parsed !== null) return { value: parsed, status: "HIT" as const };
-        }
-        return { value: pendingValue, status: "PENDING" as const };
-      }
-
-      tx.set(ref, {
-        namespace: cleanNamespace(namespace),
-        keyPreview: cleanKey.slice(0, 120),
-        ownerId,
-        status: "pending",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-        expiresAtMs,
-      });
-      return { value: pendingValue, status: "MISS" as const };
-    });
-  } catch (error) {
-    console.warn("[idempotency] Distributed action claim failed; using local guard", {
-      namespace: cleanNamespace(namespace),
-      message: error instanceof Error ? error.message : String(error),
-    });
-    return runLocalIdempotent(namespace, cleanKey, safeTtlMs, pendingValue, action);
-  }
-
-  if (claim.status !== "MISS") return claim;
-
-  const itemKey = localKey(namespace, cleanKey);
-  const local = localStore();
-  local.set(itemKey, { status: "pending", expiresAt: expiresAtMs });
-
-  let value: T;
-  try {
-    value = await action();
-  } catch (error) {
-    local.delete(itemKey);
-    await ref.delete().catch(() => undefined);
-    throw error;
-  }
-
-  const resultJson = safeStringify(value);
-  const doneExpiresAtMs = Date.now() + safeTtlMs;
-  try {
-    await ref.set({
-      ownerId,
-      status: "done",
-      resultJson,
-      resultSize: resultJson.length,
-      updatedAt: FieldValue.serverTimestamp(),
-      expiresAtMs: doneExpiresAtMs,
-    }, { merge: true });
-  } catch (error) {
-    console.warn("[idempotency] Distributed action result write failed; keeping local result", {
-      namespace: cleanNamespace(namespace),
-      message: error instanceof Error ? error.message : String(error),
-    });
-  }
-
-  local.set(itemKey, { status: "done", value, expiresAt: doneExpiresAtMs });
-  return { value, status: "MISS" };
+  return runLocalIdempotent(namespace, cleanKey, safeTtlMs, pendingValue, action);
 }
 
 export function idempotencyHeader(status: IdempotentActionStatus) {

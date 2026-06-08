@@ -17,7 +17,7 @@ export type RaidPollVote = {
   /** Legacy fields kept for old Discord messages and already-saved documents. */
   selectedDays: RaidPollDay[];
   selectedTime: RaidPollTime | null;
-  /** New smart per-day schedule. Each day can be one/multiple concrete times or explicit absence. */
+  /** Smart per-day schedule. Each day stores one earliest available time or explicit absence. Arrays are accepted only as legacy data and normalized. */
   schedule: RaidPollSchedule;
   characterKey?: string | null;
   characterName?: string | null;
@@ -83,7 +83,7 @@ export type RaidPollCreateInput = {
 
 export type RaidPollUpdateInput = RaidPollCreateInput;
 
-export const RAID_POLL_DESCRIPTION = "Будь ласка, оберіть дні та час, коли ви готові взяти участь у гільдійському рейді. Голос враховується для формування основного складу.";
+export const RAID_POLL_DESCRIPTION = "Будь ласка, оберіть для кожного дня найраніший час, з якого ви готові бути в рейді, або позначте «Не можу». Якщо вказано 19:00, система рахує вас доступним/доступною і на всі пізніші слоти цього дня.";
 
 export const RAID_POLL_DAYS: Array<{ value: RaidPollDay; label: string; fullLabel: string; emoji: string }> = [
   { value: "mon", label: "Пн", fullLabel: "Понеділок", emoji: "1️⃣" },
@@ -148,8 +148,9 @@ export function raidPollDescription() {
 
 export function raidPollAvailabilityLabel(value: RaidPollScheduleValue | null | undefined) {
   if (!value) return "—";
-  if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
-  return value === "absent" ? "Не можу" : value;
+  const first = Array.isArray(value) ? value[0] : value;
+  if (!first) return "—";
+  return first === "absent" ? "Не можу" : `з ${first}`;
 }
 
 export function raidPollRoleLabel(role: RaidPollRole | null | undefined) {
