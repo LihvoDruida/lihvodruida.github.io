@@ -3157,11 +3157,12 @@ function finishRulesDecision(interaction, content, components = []) {
 }
 
 function deferredEphemeral() {
+  // Для Discord interaction type 5 найнадійніше віддавати тільки flags.
+  // Будь-яку фактичну відповідь/компоненти патчимо окремо через @original.
   return discordInteractionResponse({
     type: 5,
     data: {
       flags: 64,
-      allowed_mentions: { parse: [] },
     },
   });
 }
@@ -3696,23 +3697,17 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
   const task = raidPollProxyContent(interaction, env, pollAction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
-    const fast = await waitForFastInteractionResult(task, env);
-    if (fast.ready) {
-      if (fast.error) {
-        logWorkerEvent("error", "raid_poll.fast.failed", { pollId: pollAction.pollId, kind: pollAction.kind, message: fast.error?.message });
-        return interactionResultResponse(interaction, normalizeInteractionTaskError(fast.error, fallbackContent));
-      }
-      return interactionResultResponse(interaction, fast.result);
-    }
-
+    // Discord показує «Дія не вдалася», якщо interaction не ACK-нуто дуже швидко.
+    // Тому для рейд-пулів більше не чекаємо dashboard навіть 0.5–2 с:
+    // 1) одразу ACK;
+    // 2) у waitUntil зберігаємо/читаємо стан;
+    // 3) PATCH-имо original response з приватним пультом або оновленим пультом.
     deferAndPatchInteraction(interaction, task, ctx, {
       patchEvent: "raid_poll.deferred.patch",
       failedEvent: "raid_poll.deferred.failed",
       details: { pollId: pollAction.pollId, kind: pollAction.kind, updatePrivatePanel },
     }, fallbackContent);
 
-    // Повільні відповіді ACK-аємо без очікування dashboard.
-    // Публічний клік відкриває ephemeral thinking-response, приватний пульт — DEFERRED_UPDATE_MESSAGE.
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
@@ -3882,15 +3877,8 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
   const task = raidAnnouncementProxyContent(interaction, env, raidAction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
-    const fast = await waitForFastInteractionResult(task, env);
-    if (fast.ready) {
-      if (fast.error) {
-        logWorkerEvent("error", "raid_announcement.fast.failed", { raidId: raidAction.raidId, action: raidAction.action, message: fast.error?.message });
-        return interactionResultResponse(interaction, fallbackResult);
-      }
-      return interactionResultResponse(interaction, fast.result);
-    }
-
+    // Та сама логіка, що й у рейд-пулах: спочатку ACK, потім PATCH.
+    // Це прибирає Discord "Дія не вдалася" навіть під час cold start або повільного dashboard.
     deferAndPatchInteraction(interaction, task, ctx, {
       patchEvent: "raid_announcement.deferred.patch",
       failedEvent: "raid_announcement.deferred.failed",
