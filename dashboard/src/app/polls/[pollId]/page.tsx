@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { canManageRaids, canViewRaidDirectory } from "@/lib/permissions";
 import { getOwnProfilePath } from "@/lib/profiles";
-import { getRaidPoll, hasRaidPollStorage, raidPollLiveRevision } from "@/lib/raidPolls";
+import { getRaidPoll, hasRaidPollStorage, listRaidPolls, raidPollLiveRevision } from "@/lib/raidPolls";
 import { RaidPollPageShell, RaidPollResults } from "@/components/RaidPollViews";
 import RaidPollLiveSync from "@/components/RaidPollLiveSync";
 import { buildPageMetadata } from "@/lib/seo";
@@ -31,6 +31,7 @@ export default async function PollDetailsPage({ params }: { params: Promise<{ po
 
   const { pollId } = await params;
   const poll = await getRaidPoll(pollId).catch(() => null);
+  const relatedPolls = poll ? await listRaidPolls(120).catch(() => [poll]) : [];
   const canManage = canManageRaids(user);
 
   return (
@@ -42,7 +43,7 @@ export default async function PollDetailsPage({ params }: { params: Promise<{ po
       {!hasRaidPollStorage() ? <div className="notice panel error-note raid-notice">Рейд-пули тимчасово недоступні: Firebase не налаштований.</div> : null}
       {poll ? <>
         <RaidPollLiveSync pollId={poll.id} initialRevision={raidPollLiveRevision(poll)} />
-        <RaidPollResults poll={poll} canManage={canManage} />
+        <RaidPollResults poll={poll} relatedPolls={relatedPolls} canManage={canManage} />
       </> : <section className="panel raid-member-panel"><h2>Рейд-пул не знайдено</h2><p>Перевір посилання або повернись до списку.</p><a className="btn subtle" href="/polls">До списку</a></section>}
     </RaidPollPageShell>
   );

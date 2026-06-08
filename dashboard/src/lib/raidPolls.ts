@@ -21,6 +21,7 @@ import {
   normalizeDiscordEmbed,
   type DiscordMessageRef,
 } from "@/lib/discordAdmin";
+import { raidAlgorithmAnalyzePollSlot } from "@/lib/raidCompositionAlgorithm";
 
 export {
   RAID_POLL_AVAILABILITY_OPTIONS,
@@ -529,6 +530,8 @@ function normalizeVote(raw: unknown, discordIdFallback = ""): RaidPollVote | nul
     characterKey: cleanString(data.characterKey || data.character_key, 260) || null,
     characterName: cleanString(data.characterName || data.character_name || data.charName || data.char_name, 80) || null,
     characterClass: cleanString(data.characterClass || data.character_class || data.charClass || data.char_class, 80) || null,
+    characterSpecName: cleanString(data.characterSpecName || data.character_spec_name || data.activeSpecName || data.active_spec_name || data.specName || data.spec_name, 80) || null,
+    characterSpecId: Number.isFinite(Number(data.characterSpecId || data.character_spec_id || data.activeSpecId || data.active_spec_id || data.specId || data.spec_id)) ? Math.floor(Number(data.characterSpecId || data.character_spec_id || data.activeSpecId || data.active_spec_id || data.specId || data.spec_id)) : null,
     characterRole: cleanCharacterRole(data.characterRole || data.character_role || data.charRole || data.char_role),
     characterRealm: cleanString(data.characterRealm || data.character_realm || data.realmName || data.realm_name, 100) || null,
     characterRegion: cleanString(data.characterRegion || data.character_region || data.region, 12) || null,
@@ -752,13 +755,46 @@ export type RaidPollSlotRecommendation = {
   parties: number;
   desiredHealers: number;
   requiredHealers: number;
+  desiredTanks: number;
   requiredTanks: number;
+  minimumDps: number;
   effectiveDps: number;
   effectiveRaidSize: number;
   coreReady: boolean;
+  melee: number;
+  ranged: number;
+  rangeBalanceScore: number;
+  utilityScore: number;
+  missingUtility: string[];
   voters: RaidPollVote[];
   score: number;
 };
+
+export type RaidPollUniqueDayRecommendation = RaidPollSlotRecommendation & {
+  pollId: string;
+  pollTitle: string;
+};
+
+type RaidPollRecommendationContext = Pick<RaidPollItem, "id" | "title" | "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty" | "status" | "createdAt" | "closesAtMs">>;
+
+const RAID_POLL_MAX_SLOT_RECOMMENDATIONS = RAID_POLL_DAYS.length * RAID_POLL_TIMES.length;
+
+function raidPollDayIndex(day: RaidPollDay) {
+  return RAID_POLL_DAYS.findIndex((item) => item.value === day);
+}
+
+function compareRaidPollSlotRecommendations(a: RaidPollSlotRecommendation, b: RaidPollSlotRecommendation) {
+  return b.score - a.score ||
+    Number(b.coreReady) - Number(a.coreReady) ||
+    Math.min(b.tanks, b.requiredTanks) - Math.min(a.tanks, a.requiredTanks) ||
+    Math.min(b.healers, b.requiredHealers) - Math.min(a.healers, a.requiredHealers) ||
+    b.effectiveDps - a.effectiveDps ||
+    b.utilityScore - a.utilityScore ||
+    b.rangeBalanceScore - a.rangeBalanceScore ||
+    b.effectiveRaidSize - a.effectiveRaidSize ||
+    raidPollDayIndex(a.day) - raidPollDayIndex(b.day) ||
+    RAID_POLL_TIMES.indexOf(a.time) - RAID_POLL_TIMES.indexOf(b.time);
+}
 
 function roleBucket(role: RaidPollRole | null | undefined) {
   if (role === "tank") return "tanks";
@@ -854,57 +890,28 @@ function noGuildCharactersContent() {
   return "⚠️ Голосувати можна тільки персонажем, який є учасником гільдії. У твоєму dashboard-профілі немає підтвердженого гільдійного персонажа. Додай/онови персонажа в профілі або звернись до офіцера.";
 }
 
-const RAID_POLL_RECOMMENDATION_TANK_MINIMUM = 1;
-const RAID_POLL_RECOMMENDATION_MAX_TANKS = 2;
-const RAID_POLL_RECOMMENDATION_MAX_HEALERS = 5;
-
-function majorityRequired(value: number) {
-  const target = Math.max(0, Math.floor(value));
-  if (target <= 1) return target;
-  return Math.floor(target / 2) + 1;
+function raidPollSlotFormation(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total" | "voters"> & { difficulty?: RaidPollDifficulty | null }) {
+  return raidAlgorithmAnalyzePollSlot({
+    total: item.total,
+    tanks: item.tanks,
+    healers: item.healers,
+    dps: item.dps,
+    unknown: item.unknown,
+    difficulty: item.difficulty || "heroic",
+    members: item.voters.map((vote) => ({
+      role: vote.characterRole || null,
+      characterRole: vote.characterRole || null,
+      characterClass: vote.characterClass || null,
+      className: vote.characterClass || null,
+      characterSpecName: vote.characterSpecName || null,
+      activeSpecName: vote.characterSpecName || null,
+      characterSpecId: vote.characterSpecId || null,
+      activeSpecId: vote.characterSpecId || null,
+    })),
+  });
 }
 
-function raidPollSlotFormation(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total">) {
-  // Та сама ідея, що у записі в рейд: склад не рахує зайві ролі як заміну бракуючій ролі.
-  // Для голосувалки критерій мʼякший: мінімум 1 танк, більшість потрібних хілів
-  // з формули 1 хіл на паті, а після цього максимальна кількість ДД.
-  const knownTotal = Math.max(0, item.tanks + item.healers + item.dps);
-  const parties = Math.max(1, Math.ceil(Math.max(knownTotal, item.total) / 5));
-  const desiredHealers = Math.max(1, Math.min(RAID_POLL_RECOMMENDATION_MAX_HEALERS, parties));
-  const requiredHealers = majorityRequired(desiredHealers);
-  const requiredTanks = RAID_POLL_RECOMMENDATION_TANK_MINIMUM;
-  const usableTanks = Math.min(item.tanks, RAID_POLL_RECOMMENDATION_MAX_TANKS);
-  const usableHealers = Math.min(item.healers, desiredHealers);
-  const effectiveDps = Math.max(0, item.dps);
-  const coreReady = item.tanks >= requiredTanks && item.healers >= requiredHealers;
-  return {
-    parties,
-    desiredHealers,
-    requiredHealers,
-    requiredTanks,
-    effectiveDps,
-    effectiveRaidSize: usableTanks + usableHealers + effectiveDps,
-    coreReady,
-  };
-}
-
-function raidPollSlotScore(item: Pick<RaidPollSlotRecommendation, "tanks" | "healers" | "dps" | "unknown" | "total" | "requiredTanks" | "requiredHealers" | "desiredHealers" | "effectiveDps" | "effectiveRaidSize" | "coreReady">) {
-  // Пріоритет: валідне рейд-ядро -> танк-мінімум -> більшість хілів -> максимум ДД -> більший склад.
-  const tankCore = Math.min(item.tanks, RAID_POLL_RECOMMENDATION_MAX_TANKS);
-  const healerMajority = Math.min(item.healers, item.requiredHealers);
-  const healerFullness = Math.min(item.healers, item.desiredHealers);
-  return (item.coreReady ? 10_000_000 : 0)
-    + Math.min(item.tanks, item.requiredTanks) * 1_000_000
-    + healerMajority * 250_000
-    + tankCore * 50_000
-    + item.effectiveDps * 10_000
-    + item.effectiveRaidSize * 1_000
-    + healerFullness * 100
-    + item.total * 10
-    - item.unknown;
-}
-
-export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "votes">, limit = 6): RaidPollSlotRecommendation[] {
+export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty">>, limit = 6): RaidPollSlotRecommendation[] {
   const active = poll.days?.length ? poll.days : RAID_POLL_DAYS.map((day) => day.value);
   const activeSet = new Set(active);
   const rows: RaidPollSlotRecommendation[] = [];
@@ -925,7 +932,7 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
         else unknown += 1;
       }
       const total = voters.length;
-      const formation = raidPollSlotFormation({ tanks, healers, dps, unknown, total });
+      const formation = raidPollSlotFormation({ tanks, healers, dps, unknown, total, voters, difficulty: poll.difficulty || "heroic" });
       rows.push({
         day: day.value,
         time,
@@ -936,34 +943,137 @@ export function raidPollSlotRecommendations(poll: Pick<RaidPollItem, "days" | "v
         unknown,
         ...formation,
         voters,
-        score: raidPollSlotScore({ tanks, healers, dps, unknown, total, ...formation }),
       });
     }
   }
 
   return rows
     .filter((item) => item.total > 0)
-    .sort((a, b) =>
-      b.score - a.score ||
-      Number(b.coreReady) - Number(a.coreReady) ||
-      Math.min(b.tanks, b.requiredTanks) - Math.min(a.tanks, a.requiredTanks) ||
-      Math.min(b.healers, b.requiredHealers) - Math.min(a.healers, a.requiredHealers) ||
-      b.effectiveDps - a.effectiveDps ||
-      b.effectiveRaidSize - a.effectiveRaidSize ||
-      RAID_POLL_DAYS.findIndex((day) => day.value === a.day) - RAID_POLL_DAYS.findIndex((day) => day.value === b.day) ||
-      RAID_POLL_TIMES.indexOf(a.time) - RAID_POLL_TIMES.indexOf(b.time),
-    )
-    .slice(0, Math.max(1, Math.min(20, Math.floor(limit))));
+    .sort(compareRaidPollSlotRecommendations)
+    .slice(0, Math.max(1, Math.min(RAID_POLL_MAX_SLOT_RECOMMENDATIONS, Math.floor(limit))));
 }
 
-export function raidPollBestSlot(poll: Pick<RaidPollItem, "days" | "votes">) {
+export function raidPollDayRecommendations(poll: Pick<RaidPollItem, "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty">>, limit = 2): RaidPollSlotRecommendation[] {
+  const bestByDay = new Map<RaidPollDay, RaidPollSlotRecommendation>();
+  for (const slot of raidPollSlotRecommendations(poll, RAID_POLL_MAX_SLOT_RECOMMENDATIONS)) {
+    const current = bestByDay.get(slot.day);
+    if (!current || compareRaidPollSlotRecommendations(slot, current) < 0) bestByDay.set(slot.day, slot);
+  }
+  return Array.from(bestByDay.values())
+    .sort(compareRaidPollSlotRecommendations)
+    .slice(0, Math.max(1, Math.min(RAID_POLL_DAYS.length, Math.floor(limit))));
+}
+
+function raidPollContextMs(value: unknown) {
+  const num = Number(value || 0);
+  if (Number.isFinite(num) && num > 0) return num;
+  const ms = Date.parse(cleanString(value, 40));
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+function normalizePollRecommendationContext(poll: RaidPollRecommendationContext, index: number): RaidPollRecommendationContext & { id: string; title: string; contextOrder: number } {
+  const id = cleanString(poll.id, 80) || `poll-${index}`;
+  return {
+    ...poll,
+    id,
+    title: cleanString(poll.title, 160) || `Raid poll ${index + 1}`,
+    contextOrder: index,
+  };
+}
+
+function uniquePollRecommendationContexts(current: RaidPollRecommendationContext, allPolls: RaidPollRecommendationContext[]) {
+  const byId = new Map<string, RaidPollRecommendationContext>();
+  [...allPolls, current].forEach((poll, index) => {
+    const id = cleanString(poll.id, 80) || `poll-${index}`;
+    byId.set(id, { ...poll, id });
+  });
+  return Array.from(byId.values()).filter((poll) => poll.status !== "closed" || poll.id === current.id);
+}
+
+function comparePollCandidate(a: { pollOrder: number; candidate: RaidPollUniqueDayRecommendation }, b: { pollOrder: number; candidate: RaidPollUniqueDayRecommendation }) {
+  return compareRaidPollSlotRecommendations(a.candidate, b.candidate) || a.pollOrder - b.pollOrder || a.candidate.pollTitle.localeCompare(b.candidate.pollTitle, "uk");
+}
+
+export function raidPollUniqueDayRecommendationPlan(polls: RaidPollRecommendationContext[], limitPerPoll = 2): Record<string, RaidPollUniqueDayRecommendation[]> {
+  const normalized = polls.map(normalizePollRecommendationContext).filter((poll) => poll.status !== "closed");
+  const perPollLimit = Math.max(1, Math.min(RAID_POLL_DAYS.length, Math.floor(limitPerPoll)));
+  const plan: Record<string, RaidPollUniqueDayRecommendation[]> = {};
+  const usedDays = new Set<RaidPollDay>();
+  const candidatesByPoll = new Map<string, RaidPollUniqueDayRecommendation[]>();
+
+  const orderedPolls = normalized
+    .map((poll, index) => {
+      const candidates = raidPollDayRecommendations(poll, RAID_POLL_DAYS.length).map((slot) => ({ ...slot, pollId: poll.id, pollTitle: poll.title }));
+      candidatesByPoll.set(poll.id, candidates);
+      const best = candidates[0] || null;
+      return {
+        poll,
+        best,
+        order: raidPollContextMs(poll.closesAtMs) || raidPollContextMs(poll.createdAt) || index,
+      };
+    })
+    .filter((item) => item.best)
+    .sort((a, b) => compareRaidPollSlotRecommendations(a.best as RaidPollSlotRecommendation, b.best as RaidPollSlotRecommendation) || a.order - b.order || a.poll.title.localeCompare(b.poll.title, "uk"));
+
+  for (const item of orderedPolls) plan[item.poll.id] = [];
+
+  for (let round = 0; round < perPollLimit; round += 1) {
+    const roundCandidates: Array<{ pollId: string; pollOrder: number; candidate: RaidPollUniqueDayRecommendation }> = [];
+    orderedPolls.forEach((item, pollOrder) => {
+      const assigned = plan[item.poll.id] || [];
+      if (assigned.length > round) return;
+      for (const candidate of candidatesByPoll.get(item.poll.id) || []) {
+        if (usedDays.has(candidate.day)) continue;
+        if (assigned.some((slot) => slot.day === candidate.day)) continue;
+        roundCandidates.push({ pollId: item.poll.id, pollOrder, candidate });
+      }
+    });
+
+    roundCandidates.sort(comparePollCandidate);
+    let changed = false;
+    for (const row of roundCandidates) {
+      const assigned = plan[row.pollId] || [];
+      if (assigned.length > round || assigned.length >= perPollLimit) continue;
+      if (usedDays.has(row.candidate.day)) continue;
+      if (assigned.some((slot) => slot.day === row.candidate.day)) continue;
+      assigned.push(row.candidate);
+      plan[row.pollId] = assigned;
+      usedDays.add(row.candidate.day);
+      changed = true;
+    }
+    if (!changed) break;
+  }
+
+  return plan;
+}
+
+export function raidPollUniqueDayRecommendations(poll: RaidPollRecommendationContext, allPolls: RaidPollRecommendationContext[] = [poll], limit = 2): RaidPollUniqueDayRecommendation[] {
+  const pollId = cleanString(poll.id, 80);
+  if (!pollId) {
+    return raidPollDayRecommendations(poll, limit).map((slot) => ({ ...slot, pollId: "", pollTitle: cleanString(poll.title, 160) || "Raid poll" }));
+  }
+  if (poll.status === "closed") {
+    return raidPollDayRecommendations(poll, limit).map((slot) => ({ ...slot, pollId, pollTitle: cleanString(poll.title, 160) || "Raid poll" }));
+  }
+  const contexts = uniquePollRecommendationContexts(poll, allPolls);
+  const plan = raidPollUniqueDayRecommendationPlan(contexts, limit);
+  const planned = plan[pollId] || [];
+  if (planned.length) return planned.slice(0, Math.max(1, Math.min(RAID_POLL_DAYS.length, Math.floor(limit))));
+  const hasOtherActivePolls = contexts.some((context) => context.id !== pollId && context.status !== "closed");
+  if (hasOtherActivePolls) return [];
+  return raidPollDayRecommendations(poll, limit).map((slot) => ({ ...slot, pollId, pollTitle: cleanString(poll.title, 160) || "Raid poll" }));
+}
+
+export function raidPollBestSlot(poll: Pick<RaidPollItem, "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty">>) {
   return raidPollSlotRecommendations(poll, 1)[0] || null;
 }
 
 export function raidPollSlotSummary(slot: RaidPollSlotRecommendation | null | undefined) {
   if (!slot) return "Ще немає достатніх голосів.";
   const core = slot.coreReady ? "ядро готове" : "ядро не готове";
-  return `${dayLabel(slot.day)} ${slot.time} — ${slot.tanks}/${slot.requiredTanks} мін. танк • ${slot.healers}/${slot.requiredHealers} ядро хілів (${slot.desiredHealers} на паті) • ${slot.dps} ДД • ${core} • всього ${slot.total}`;
+  const tankTarget = slot.desiredTanks > slot.requiredTanks ? `, ціль ${slot.desiredTanks}` : "";
+  const utility = slot.utilityScore ? ` • utility ${slot.utilityScore}` : "";
+  return `${dayLabel(slot.day)} ${slot.time} — танки ${slot.tanks}/${slot.requiredTanks}${tankTarget} • хіли ${slot.healers}/${slot.requiredHealers} (ціль ${slot.desiredHealers}) • ДД ${slot.dps} (${slot.melee}/${slot.ranged})${utility} • ${core} • всього ${slot.total}`;
 }
 
 
@@ -990,6 +1100,8 @@ function baseDraftForUser(params: { userId: string; userName: string; guildId?: 
     characterKey: null,
     characterName: null,
     characterClass: null,
+    characterSpecName: null,
+    characterSpecId: null,
     characterRole: null,
     characterRealm: null,
     characterRegion: null,
@@ -1094,8 +1206,9 @@ function formatDiscordTimestamp(ms: number) {
 }
 
 function topDaySummary(poll: RaidPollItem) {
-  const best = raidPollBestSlot(poll);
-  return raidPollSlotSummary(best);
+  const slots = raidPollUniqueDayRecommendations(poll, [poll], 2);
+  return slots.length ? slots.map((slot, index) => `${index + 1}) ${raidPollSlotSummary(slot)}`).join("
+") : raidPollSlotSummary(null);
 }
 
 function pollActiveDays(poll: Pick<RaidPollItem, "days">) {
@@ -1151,7 +1264,7 @@ export function buildRaidPollDiscordPayload(poll: RaidPollItem) {
     { name: "🗓️ Голоси за днями", value: dayCountsDiscordValue(poll), inline: true },
     { name: "⏰ Голоси за часом", value: timeCountsDiscordValue(poll), inline: true },
     { name: "👥 Проголосували", value: `${counts.total}`, inline: true },
-    { name: "🧠 Рекомендований день/час", value: topDaySummary(poll), inline: false },
+    { name: "🧠 2 рекомендовані дні/час", value: topDaySummary(poll), inline: false },
     { name: "🧾 Останні 5 голосів", value: votersDiscordValue(poll), inline: false },
   ];
 
@@ -2203,10 +2316,12 @@ function voteCharacterPayload(profile: DashboardProfile | null, selector: unknow
     characterKey: character.key || null,
     characterName: character.name || null,
     characterClass: character.className || null,
+    characterSpecName: character.activeSpecName || null,
+    characterSpecId: Number.isFinite(Number(character.activeSpecId || 0)) && Number(character.activeSpecId || 0) > 0 ? Math.floor(Number(character.activeSpecId || 0)) : null,
     characterRole: resolvedRole,
     characterRealm: character.realmName || character.realmSlug || null,
     characterRegion: character.region || "eu",
-  } satisfies Pick<RaidPollVote, "characterKey" | "characterName" | "characterClass" | "characterRole" | "characterRealm" | "characterRegion">;
+  } satisfies Pick<RaidPollVote, "characterKey" | "characterName" | "characterClass" | "characterSpecName" | "characterSpecId" | "characterRole" | "characterRealm" | "characterRegion">;
 }
 
 function normalizeVoteScheduleForPoll(poll: RaidPollItem, schedule: RaidPollSchedule) {

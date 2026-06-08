@@ -51,6 +51,18 @@ import {
   normalizeDiscordEmbed,
   type DiscordMessageRef,
 } from "@/lib/discordAdmin";
+import {
+  RAID_ALGORITHM_MAX_RAID_PARTIES,
+  RAID_ALGORITHM_PARTY_SIZE,
+  RAID_ALGORITHM_UTILITY_RULES,
+  raidAlgorithmAutoCompositionForSize,
+  raidAlgorithmClassToken,
+  raidAlgorithmDpsRangeType,
+  raidAlgorithmDpsSecondaryScore,
+  raidAlgorithmMemberUtilityWeight,
+  raidAlgorithmRuleMatches,
+  raidAlgorithmUtilityChecklist,
+} from "@/lib/raidCompositionAlgorithm";
 
 export type RaidDifficulty = "normal" | "heroic" | "mythic";
 export type RaidConsumables = "own" | "guild";
@@ -1174,9 +1186,8 @@ export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   ).length;
 }
 
-const RAID_PARTY_SIZE = 5;
-const MAX_RAID_PARTIES = 40;
-const MAX_RAID_HEALERS = 5;
+const RAID_PARTY_SIZE = RAID_ALGORITHM_PARTY_SIZE;
+const MAX_RAID_PARTIES = RAID_ALGORITHM_MAX_RAID_PARTIES;
 
 
 function compositionCapacity(composition: RaidComposition) {
@@ -1194,40 +1205,12 @@ function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
   };
 }
 
-function clampRaidTargetSize(size: number) {
-  const targetSize = Math.floor(Number.isFinite(size) ? size : 0);
-  return Math.max(0, Math.min(MAX_RAID_PLAYERS, targetSize));
-}
-
-function healerSlotsForSize(targetSize: number, tanks: number) {
-  if (targetSize <= tanks) return 0;
-  if (targetSize < RAID_PARTY_SIZE) return targetSize - tanks >= 2 ? 1 : 0;
-  const partyHealers = Math.ceil(targetSize / RAID_PARTY_SIZE);
-  const minimumHealers = targetSize >= 10 ? 2 : 1;
-  return Math.max(
-    0,
-    Math.min(targetSize - tanks, MAX_RAID_HEALERS, Math.max(minimumHealers, partyHealers)),
-  );
-}
-
 export function autoRaidCompositionForSize(
   size: number,
   difficulty: RaidDifficulty,
   roleDemand?: Partial<RaidComposition> | null,
 ): RaidComposition {
-  void difficulty;
-  void roleDemand;
-
-  const targetSize = clampRaidTargetSize(size);
-  if (targetSize <= 0) return { tanks: 0, healers: 0, dps: 0 };
-
-  const tanks = targetSize >= 2 ? Math.min(2, targetSize) : targetSize;
-  const healers = healerSlotsForSize(targetSize, tanks);
-  return {
-    tanks,
-    healers,
-    dps: Math.max(0, targetSize - tanks - healers),
-  };
+  return raidAlgorithmAutoCompositionForSize(size, difficulty, roleDemand);
 }
 
 export function raidAutoComposition(raid: RaidAutoInput): RaidComposition {
@@ -2759,151 +2742,7 @@ function placeFlexMember(parties: RaidParty[], member: RaidSignup) {
 }
 
 function signupClassKey(item?: RaidSignup | null) {
-  return (
-    String(item?.className || "unknown")
-      .trim()
-      .toLowerCase() || "unknown"
-  );
-}
-
-function normalizeWowKey(value?: string | null) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
-}
-
-const CLASS_TOKEN_BY_SPEC_ID: Record<number, string> = {
-  62: "mage",
-  63: "mage",
-  64: "mage",
-  65: "paladin",
-  66: "paladin",
-  70: "paladin",
-  71: "warrior",
-  72: "warrior",
-  73: "warrior",
-  102: "druid",
-  103: "druid",
-  104: "druid",
-  105: "druid",
-  250: "deathknight",
-  251: "deathknight",
-  252: "deathknight",
-  253: "hunter",
-  254: "hunter",
-  255: "hunter",
-  256: "priest",
-  257: "priest",
-  258: "priest",
-  259: "rogue",
-  260: "rogue",
-  261: "rogue",
-  262: "shaman",
-  263: "shaman",
-  264: "shaman",
-  265: "warlock",
-  266: "warlock",
-  267: "warlock",
-  268: "monk",
-  269: "monk",
-  270: "monk",
-  577: "demonhunter",
-  581: "demonhunter",
-  1467: "evoker",
-  1468: "evoker",
-  1473: "evoker",
-};
-
-const SPEC_TOKEN_BY_SPEC_ID: Record<number, string> = {
-  62: "arcane",
-  63: "fire",
-  64: "frost",
-  65: "holy",
-  66: "protection",
-  70: "retribution",
-  71: "arms",
-  72: "fury",
-  73: "protection",
-  102: "balance",
-  103: "feral",
-  104: "guardian",
-  105: "restoration",
-  250: "blood",
-  251: "frost",
-  252: "unholy",
-  253: "beastmastery",
-  254: "marksmanship",
-  255: "survival",
-  256: "discipline",
-  257: "holy",
-  258: "shadow",
-  259: "assassination",
-  260: "outlaw",
-  261: "subtlety",
-  262: "elemental",
-  263: "enhancement",
-  264: "restoration",
-  265: "affliction",
-  266: "demonology",
-  267: "destruction",
-  268: "brewmaster",
-  269: "windwalker",
-  270: "mistweaver",
-  577: "havoc",
-  581: "vengeance",
-  1467: "devastation",
-  1468: "preservation",
-  1473: "augmentation",
-};
-
-function signupSpecId(item?: RaidSignup | null) {
-  const specId = Number(item?.activeSpecId || 0);
-  return Number.isFinite(specId) && specId > 0 ? Math.floor(specId) : null;
-}
-
-function signupClassToken(item?: RaidSignup | null) {
-  const specId = signupSpecId(item);
-  if (specId && CLASS_TOKEN_BY_SPEC_ID[specId])
-    return CLASS_TOKEN_BY_SPEC_ID[specId];
-  const token = normalizeWowKey(item?.className);
-  if (token === "deathknight") return "deathknight";
-  if (token === "demonhunter") return "demonhunter";
-  return token || "unknown";
-}
-
-function signupSpecToken(item?: RaidSignup | null) {
-  const specId = signupSpecId(item);
-  if (specId && SPEC_TOKEN_BY_SPEC_ID[specId])
-    return SPEC_TOKEN_BY_SPEC_ID[specId];
-  return normalizeWowKey(item?.activeSpecName) || "unknown";
-}
-
-function signupMatches(
-  item: RaidSignup,
-  classToken: string,
-  specs?: string[],
-) {
-  if (signupClassToken(item) !== classToken) return false;
-  if (!specs?.length) return true;
-  const spec = signupSpecToken(item);
-  return specs.some((value) => normalizeWowKey(value) === spec);
-}
-
-function pickFirstBySpecPriority(
-  pool: RaidSignup[],
-  priorities: Array<{ classToken: string; specs?: string[] }>,
-) {
-  for (const priority of priorities) {
-    const index = pool.findIndex((item) =>
-      signupMatches(item, priority.classToken, priority.specs),
-    );
-    if (index >= 0) {
-      const [picked] = pool.splice(index, 1);
-      return picked || null;
-    }
-  }
-  return null;
+  return raidAlgorithmClassToken(item);
 }
 
 function selectTanksForComposition(
@@ -2911,31 +2750,7 @@ function selectTanksForComposition(
   limit: number,
   settings?: RaidBenchPrioritySettings | null,
 ) {
-  const pool = [...tanks].sort((a, b) => signupCompositionOrder(a, b, settings));
-  const selected: RaidSignup[] = [];
-  const mainTank = pickFirstBySpecPriority(pool, [
-    { classToken: "druid", specs: ["Guardian"] },
-    { classToken: "monk", specs: ["Brewmaster"] },
-  ]);
-  if (mainTank && selected.length < limit) selected.push(mainTank);
-
-  const offTank = pickFirstBySpecPriority(pool, [
-    { classToken: "deathknight", specs: ["Blood"] },
-    { classToken: "paladin", specs: ["Protection"] },
-  ]);
-  if (offTank && selected.length < limit) selected.push(offTank);
-
-  while (selected.length < limit && pool.length) {
-    const next = pickFirstBySpecPriority(pool, [
-      { classToken: "druid", specs: ["Guardian"] },
-      { classToken: "monk", specs: ["Brewmaster"] },
-      { classToken: "deathknight", specs: ["Blood"] },
-      { classToken: "paladin", specs: ["Protection"] },
-    ]);
-    selected.push(next || (pool.shift() as RaidSignup));
-  }
-
-  return selected;
+  return takeClassBalanced(tanks, limit, settings);
 }
 
 function selectHealersForComposition(
@@ -2943,116 +2758,29 @@ function selectHealersForComposition(
   limit: number,
   settings?: RaidBenchPrioritySettings | null,
 ) {
-  const pool = [...healers].sort((a, b) => signupCompositionOrder(a, b, settings));
-  const selected: RaidSignup[] = [];
-  const requiredSlots = [
-    { classToken: "paladin", specs: ["Holy"] },
-    { classToken: "druid", specs: ["Restoration"] },
-    { classToken: "priest", specs: ["Holy"] },
-    { classToken: "shaman", specs: ["Restoration"] },
-    { classToken: "priest", specs: ["Discipline"] },
-    { classToken: "evoker", specs: ["Preservation"] },
-  ];
-
-  for (const priority of requiredSlots) {
-    if (selected.length >= limit) break;
-    const picked = pickFirstBySpecPriority(pool, [priority]);
-    if (picked) selected.push(picked);
-  }
-
-  const fill = takeClassBalanced(
-    pool,
-    Math.max(0, limit - selected.length),
-    settings,
-  );
-  selected.push(...fill);
-  return selected.slice(0, limit);
+  return takeClassBalanced(healers, limit, settings);
 }
 
 type DpsRangeType = "melee" | "ranged";
 
 function dpsRangeType(item: RaidSignup): DpsRangeType {
-  const classToken = signupClassToken(item);
-  const specToken = signupSpecToken(item);
-
-  if (classToken === "hunter") return specToken === "survival" ? "melee" : "ranged";
-  if (classToken === "druid") return specToken === "feral" ? "melee" : "ranged";
-  if (classToken === "shaman") return specToken === "enhancement" ? "melee" : "ranged";
-  if (classToken === "priest") return "ranged";
-  if (classToken === "mage" || classToken === "warlock" || classToken === "evoker")
-    return "ranged";
-  if (
-    classToken === "warrior" ||
-    classToken === "rogue" ||
-    classToken === "deathknight" ||
-    classToken === "demonhunter" ||
-    classToken === "monk" ||
-    classToken === "paladin"
-  )
-    return "melee";
-
-  return "ranged";
+  return raidAlgorithmDpsRangeType(item);
 }
 
 function dpsTierTwoScore(item: RaidSignup) {
-  const classToken = signupClassToken(item);
-  const specToken = signupSpecToken(item);
-  if (
-    classToken === "hunter" ||
-    (classToken === "druid" && specToken === "balance") ||
-    (classToken === "shaman" && specToken === "elemental")
-  )
-    return 0;
-  if (
-    classToken === "rogue" ||
-    classToken === "deathknight" ||
-    (classToken === "paladin" && specToken === "retribution")
-  )
-    return 1;
-  return 2;
+  return raidAlgorithmDpsSecondaryScore(item);
 }
 
 const RAID_CRITICAL_BUFFS: Array<{
   label: string;
   match: (item: RaidSignup) => boolean;
-}> = [
-  {
-    label: "Battle Shout — Warrior",
-    match: (item) => signupClassToken(item) === "warrior",
-  },
-  {
-    label: "Arcane Intellect — Mage",
-    match: (item) => signupClassToken(item) === "mage",
-  },
-  {
-    label: "Power Word: Fortitude — Priest",
-    match: (item) => signupClassToken(item) === "priest",
-  },
-  {
-    label: "Chaos Brand — Demon Hunter",
-    match: (item) => signupClassToken(item) === "demonhunter",
-  },
-  {
-    label: "Warlock utility — Healthstone/Gateway/Summon",
-    match: (item) => signupClassToken(item) === "warlock",
-  },
-  {
-    label: "Evoker raid buff",
-    match: (item) => signupClassToken(item) === "evoker",
-  },
-  {
-    label: "Monk/Druid aura",
-    match: (item) => {
-      const classToken = signupClassToken(item);
-      const specToken = signupSpecToken(item);
-      return (
-        (classToken === "monk" && specToken === "windwalker") ||
-        (classToken === "druid" &&
-          (specToken === "balance" || specToken === "feral"))
-      );
-    },
-  },
-];
+}> = RAID_ALGORITHM_UTILITY_RULES
+  .filter((rule) => rule.required || rule.key === "augmentation")
+  .sort((a, b) => a.selectionPriority - b.selectionPriority)
+  .map((rule) => ({
+    label: rule.label,
+    match: (item) => raidAlgorithmRuleMatches(rule, item),
+  }));
 
 function pickBuffProvider(
   pool: RaidSignup[],
@@ -3098,6 +2826,7 @@ function selectDpsForComposition(
         raidBenchPriorityWeight(a, settings) -
           raidBenchPriorityWeight(b, settings) ||
         aRangePenalty - bRangePenalty ||
+        raidAlgorithmMemberUtilityWeight(b, selected) - raidAlgorithmMemberUtilityWeight(a, selected) ||
         (classCounts.get(signupClassKey(a)) || 0) -
           (classCounts.get(signupClassKey(b)) || 0) ||
         dpsTierTwoScore(a) - dpsTierTwoScore(b) ||
@@ -3115,9 +2844,7 @@ function selectDpsForComposition(
 }
 
 function missingCriticalBuffs(members: RaidSignup[]) {
-  return RAID_CRITICAL_BUFFS.filter(
-    (buff) => !members.some((member) => buff.match(member)),
-  ).map((buff) => buff.label);
+  return raidAlgorithmUtilityChecklist(members).missingRequired;
 }
 
 function signupRosterOrder(a: RaidSignup, b: RaidSignup) {

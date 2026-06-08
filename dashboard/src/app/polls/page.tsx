@@ -64,7 +64,7 @@ export default async function PollsPage() {
           {canManage ? <a className="btn primary raid-poll-create-button" href="/polls/new">＋ Створити рейд-пул</a> : null}
         </div>
         <div className="raid-manager-list raid-poll-card-grid">
-          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
+          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={openPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
         </div>
       </section>
 
@@ -77,7 +77,7 @@ export default async function PollsPage() {
           </div>
         </div>
         <div className="raid-manager-list raid-manager-list--archive raid-poll-card-grid raid-poll-card-grid--archive">
-          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
+          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={[poll]} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
         </div>
       </section>
     </RaidPollPageShell>

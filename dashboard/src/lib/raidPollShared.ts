@@ -22,6 +22,8 @@ export type RaidPollVote = {
   characterKey?: string | null;
   characterName?: string | null;
   characterClass?: string | null;
+  characterSpecName?: string | null;
+  characterSpecId?: number | null;
   characterRole?: RaidPollRole | null;
   characterRealm?: string | null;
   characterRegion?: string | null;

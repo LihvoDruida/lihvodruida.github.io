@@ -17,8 +17,8 @@ import {
   raidPollDayFullLabel,
   raidPollDifficultyLabel,
   raidPollRoleLabel,
-  raidPollSlotRecommendations,
   raidPollSlotSummary,
+  raidPollUniqueDayRecommendations,
   raidPollStatusLabel,
   raidPollTitle,
   raidPollRepeatScheduleLabel,
@@ -100,11 +100,13 @@ function pollCloseLabel(poll: RaidPollItem) {
   return formatDateTime(poll.closesAtMs);
 }
 
-function bestDaySummary(poll: RaidPollItem) {
-  return raidPollSlotSummary(raidPollSlotRecommendations(poll, 1)[0] || null);
+function bestDaySummary(poll: RaidPollItem, relatedPolls: RaidPollItem[] = [poll]) {
+  const recommendations = raidPollUniqueDayRecommendations(poll, relatedPolls, 2);
+  if (!recommendations.length) return raidPollSlotSummary(null);
+  return recommendations.map((slot, index) => `${index + 1}) ${raidPollSlotSummary(slot)}`).join(" / ");
 }
 
-export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
+export function RaidPollListCard({ poll, canManage = false, relatedPolls = [poll] }: { poll: RaidPollItem; canManage?: boolean; relatedPolls?: RaidPollItem[] }) {
   const counts = pollVoteCounts(poll);
   const activeDays = pollDays(poll);
   const canClose = canManage && poll.status === "open";
@@ -139,8 +141,8 @@ export function RaidPollListCard({ poll, canManage = false }: { poll: RaidPollIt
             <dd>{pollCloseLabel(poll)}</dd>
           </div>
           <div>
-            <dt>Найкращий день</dt>
-            <dd>{bestDaySummary(poll)}</dd>
+            <dt>2 рекомендовані дні</dt>
+            <dd>{bestDaySummary(poll, relatedPolls)}</dd>
           </div>
           <div>
             <dt>Автоповтор</dt>
@@ -186,15 +188,15 @@ function VoteCharacterBadge({ vote }: { vote: RaidPollItem["votes"][number] }) {
   return (
     <span className="raid-poll-character-badge" style={style}>
       <strong>{voteDisplayName(vote)}</strong>
-      <small>{[vote.characterClass, vote.characterRole ? raidPollRoleLabel(vote.characterRole) : null].filter(Boolean).join(" • ") || vote.discordName}</small>
+      <small>{[vote.characterSpecName, vote.characterClass, vote.characterRole ? raidPollRoleLabel(vote.characterRole) : null].filter(Boolean).join(" • ") || vote.discordName}</small>
     </span>
   );
 }
 
-export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollItem; canManage?: boolean }) {
+export function RaidPollResults({ poll, canManage = false, relatedPolls = [poll] }: { poll: RaidPollItem; canManage?: boolean; relatedPolls?: RaidPollItem[] }) {
   const counts = pollVoteCounts(poll);
   const activeDays = pollDays(poll);
-  const recommendations = raidPollSlotRecommendations(poll, 5);
+  const recommendations = raidPollUniqueDayRecommendations(poll, relatedPolls, 2);
   const bestSlot = recommendations[0] || null;
   return (
     <section className="panel raid-poll-results raid-poll-results--smart">
@@ -217,19 +219,20 @@ export function RaidPollResults({ poll, canManage = false }: { poll: RaidPollIte
       <section className="raid-poll-recommendation-card" aria-label="Рекомендований день та час рейду">
         <div>
           <span className="eyebrow">Smart priority</span>
-          <h3>Рекомендований слот</h3>
-          <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Пріоритет: мінімум 1 танк → більшість хілів за формулою 1 хіл на паті → максимум ДД.</p>
+          <h3>2 рекомендовані слоти</h3>
+          <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Додатково активні голосування розводяться по різних днях: один і той самий день не пропонується різним рейд-пулам. Пріоритет: валідне ядро ролей → мінімум 1 танк і ціль 2 танки → більшість хілів за формулою 1 хіл на 4–5 ДД → максимум ДД → баланс melee/ranged ~40/60 → utility checklist.</p>
         </div>
         <div className="raid-poll-best-slot">
           <strong>{raidPollSlotSummary(bestSlot)}</strong>
-          <span>{bestSlot ? `Пріоритет: танки ${bestSlot.tanks}/${bestSlot.requiredTanks} → хіли ${bestSlot.healers}/${bestSlot.requiredHealers} ядро (${bestSlot.desiredHealers} на паті) → ДД ${bestSlot.effectiveDps}` : "Потрібні голоси з персонажами, щоб зʼявився нормальний розрахунок."}</span>
+          <span>{bestSlot ? `Пріоритет: танки ${bestSlot.tanks}/${bestSlot.requiredTanks} (ціль ${bestSlot.desiredTanks}) → хіли ${bestSlot.healers}/${bestSlot.requiredHealers} ядро (ціль ${bestSlot.desiredHealers}) → ДД ${bestSlot.effectiveDps} (${bestSlot.melee}/${bestSlot.ranged}) → utility ${bestSlot.utilityScore}` : "Потрібні голоси з персонажами, щоб зʼявився нормальний розрахунок."}</span>
         </div>
         <div className="raid-poll-slot-list">
           {recommendations.length ? recommendations.map((slot, index) => (
             <span key={`${slot.day}:${slot.time}`} className={index === 0 ? "is-best" : ""}>
               <b>{index + 1}</b> {raidPollSlotSummary(slot)}
             </span>
-          )) : <em>Поки немає доступних слотів.</em>}
+          )) : <em>Поки немає доступних унікальних слотів.</em>}
+          {recommendations.length === 1 ? <em>Другий день не запропоновано: усі інші сильні дні вже зайняті іншими активними рейд-пулами або не мають голосів.</em> : null}
         </div>
       </section>
 
