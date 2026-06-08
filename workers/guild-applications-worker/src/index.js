@@ -3152,6 +3152,24 @@ function deferredMessageUpdate() {
   return discordInteractionResponse({ type: 6 });
 }
 
+function sleepMs(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function discordInteractionImmediateWindowMs(env) {
+  const raw = Number(env?.DISCORD_INTERACTION_SYNC_REPLY_MS);
+  if (Number.isFinite(raw) && raw >= 500 && raw <= 2800) return Math.floor(raw);
+  return 2400;
+}
+
+function interactionResultResponse(interaction, result, componentsFallback = []) {
+  const content = result?.content || "Дію виконано.";
+  const components = Array.isArray(result?.components) ? result.components : componentsFallback;
+  return isEphemeralMessageInteraction(interaction)
+    ? updateInteractionMessage(content, components)
+    : ephemeral(content, components);
+}
+
 async function editOriginalInteractionResponse(interaction, content, components = []) {
   const applicationId = snowflake(interaction?.application_id);
   const token = String(interaction?.token || "").trim();
@@ -3604,12 +3622,41 @@ async function raidPollProxyContent(interaction, env, pollAction) {
 
 async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+  const task = raidPollProxyContent(interaction, env, pollAction);
+
+  const immediate = await Promise.race([
+    task.then((result) => ({ type: "result", result })).catch((error) => ({ type: "error", error })),
+    sleepMs(discordInteractionImmediateWindowMs(env)).then(() => ({ type: "timeout" })),
+  ]);
+
+  if (immediate.type === "result") {
+    return interactionResultResponse(interaction, immediate.result);
+  }
+
+  if (immediate.type === "error") {
+    logWorkerEvent("error", "raid_poll.immediate.failed", {
+      pollId: pollAction.pollId,
+      kind: pollAction.kind,
+      message: immediate.error?.message,
+    });
+    return interactionResultResponse(interaction, {
+      ok: false,
+      content: "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.",
+      components: [],
+    });
+  }
 
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
       try {
-        const result = await raidPollProxyContent(interaction, env, pollAction);
-        await editOriginalInteractionResponse(interaction, result.content, result.components || []);
+        const result = await task;
+        const patched = await editOriginalInteractionResponse(interaction, result.content, result.components || []);
+        logWorkerEvent(patched ? "info" : "warn", "raid_poll.deferred.patch", {
+          pollId: pollAction.pollId,
+          kind: pollAction.kind,
+          patched,
+          updatePrivatePanel,
+        });
       } catch (error) {
         logWorkerEvent("error", "raid_poll.deferred.failed", {
           pollId: pollAction.pollId,
@@ -3621,8 +3668,15 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
-  const result = await raidPollProxyContent(interaction, env, pollAction);
-  return finishRulesDecision(interaction, result.content, result.components || []);
+  const fallback = await task.catch((error) => {
+    logWorkerEvent("error", "raid_poll.fallback.failed", {
+      pollId: pollAction.pollId,
+      kind: pollAction.kind,
+      message: error?.message,
+    });
+    return { ok: false, content: "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.", components: [] };
+  });
+  return interactionResultResponse(interaction, fallback);
 }
 
 function dashboardRaidActionEndpoint(env, raidId) {
@@ -3776,12 +3830,37 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 
 async function handleRaidAnnouncementInteraction(interaction, env, raidAction, ctx) {
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+  const task = raidAnnouncementProxyContent(interaction, env, raidAction);
+
+  const immediate = await Promise.race([
+    task.then((result) => ({ type: "result", result })).catch((error) => ({ type: "error", error })),
+    sleepMs(discordInteractionImmediateWindowMs(env)).then(() => ({ type: "timeout" })),
+  ]);
+
+  if (immediate.type === "result") {
+    return interactionResultResponse(interaction, immediate.result);
+  }
+
+  if (immediate.type === "error") {
+    logWorkerEvent("error", "raid_announcement.immediate.failed", {
+      raidId: raidAction.raidId,
+      action: raidAction.action,
+      message: immediate.error?.message,
+    });
+    return interactionResultResponse(interaction, raidAnnouncementProxyFallback(env, raidAction.raidId));
+  }
 
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
       try {
-        const result = await raidAnnouncementProxyContent(interaction, env, raidAction);
-        await editOriginalInteractionResponse(interaction, result.content, result.components);
+        const result = await task;
+        const patched = await editOriginalInteractionResponse(interaction, result.content, result.components || []);
+        logWorkerEvent(patched ? "info" : "warn", "raid_announcement.deferred.patch", {
+          raidId: raidAction.raidId,
+          action: raidAction.action,
+          patched,
+          updatePrivatePanel,
+        });
       } catch (error) {
         logWorkerEvent("error", "raid_announcement.deferred.failed", {
           raidId: raidAction.raidId,
@@ -3793,8 +3872,15 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
-  const result = await raidAnnouncementProxyContent(interaction, env, raidAction);
-  return finishRulesDecision(interaction, result.content, result.components);
+  const fallback = await task.catch((error) => {
+    logWorkerEvent("error", "raid_announcement.fallback.failed", {
+      raidId: raidAction.raidId,
+      action: raidAction.action,
+      message: error?.message,
+    });
+    return raidAnnouncementProxyFallback(env, raidAction.raidId);
+  });
+  return interactionResultResponse(interaction, fallback);
 }
 
 async function handleDiscordInteraction(request, env, ctx) {
