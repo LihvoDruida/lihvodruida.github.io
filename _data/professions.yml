@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-08 12:31:02'
+  updated_at: '2026-06-08 18:27:39'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3773,7 +3773,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Pyatochka
+  profile_url: null
   professions:
     primaries:
     - name: Blacksmithing
@@ -4220,7 +4220,7 @@ characters:
   region: eu
   realm: ragnaros
   realm_slug: ragnaros
-  profile_url: https://raider.io/characters/eu/ragnaros/Lishiy
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -7781,7 +7781,7 @@ characters:
         learned_points: 29
         max_points: 100
       - name: Khaz Algar Enchanting
-        learned_points: 9
+        learned_points: 10
         max_points: 100
       - name: Midnight Enchanting
         learned_points: 96
