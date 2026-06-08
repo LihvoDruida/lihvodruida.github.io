@@ -3188,26 +3188,78 @@ function interactionResultResponse(interaction, result, componentsFallback = [])
     : ephemeral(content, components);
 }
 
-async function editOriginalInteractionResponse(interaction, content, components = []) {
+async function patchOriginalInteractionResponse(interaction, payload) {
   const applicationId = snowflake(interaction?.application_id);
   const token = String(interaction?.token || "").trim();
-  if (!applicationId || !token) return false;
+  if (!applicationId || !token) return { ok: false, status: 0, raw: "missing application/token" };
 
   const response = await fetch(`https://discord.com/api/v10/webhooks/${applicationId}/${token}/messages/@original`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({
-      content: limitText(content, 1900, "Дію виконано."),
-      components: safeDiscordComponents(components),
-      allowed_mentions: { parse: [] },
-    }),
+    body: JSON.stringify(payload),
   });
+  const raw = response.ok ? "" : await response.text().catch(() => "");
+  return { ok: response.ok, status: response.status, raw };
+}
 
-  if (!response.ok) {
-    const raw = await response.text().catch(() => "");
-    logWorkerEvent("warn", "discord.interaction.followup_failed", { status: response.status, raw: raw.slice(0, 160) });
+async function editOriginalInteractionResponse(interaction, content, components = []) {
+  const safeComponents = safeDiscordComponents(components);
+  const payload = {
+    content: limitText(content, 1900, "Дію виконано."),
+    components: safeComponents,
+    allowed_mentions: { parse: [] },
+  };
+
+  let result = await patchOriginalInteractionResponse(interaction, payload);
+
+  // Якщо Discord відхилив components, не залишаємо користувача у стані "thinking".
+  // Повторюємо PATCH без компонентів, щоб хоча б показати текст помилки/результату.
+  if (!result.ok && result.status === 400 && safeComponents.length) {
+    logWorkerEvent("warn", "discord.interaction.followup_components_rejected", {
+      status: result.status,
+      raw: String(result.raw || "").slice(0, 220),
+      componentRows: safeComponents.length,
+    });
+    result = await patchOriginalInteractionResponse(interaction, {
+      ...payload,
+      components: [],
+    });
   }
-  return response.ok;
+
+  if (!result.ok) {
+    logWorkerEvent("warn", "discord.interaction.followup_failed", { status: result.status, raw: String(result.raw || "").slice(0, 220) });
+  }
+  return result.ok;
+}
+
+async function waitForFastInteractionResult(task, env) {
+  const timeoutMs = Math.max(500, Math.min(discordInteractionImmediateWindowMs(env), 2200));
+  const timeout = sleepMs(timeoutMs).then(() => ({ ready: false }));
+  return Promise.race([
+    task.then((result) => ({ ready: true, result })).catch((error) => ({ ready: true, error })),
+    timeout,
+  ]);
+}
+
+function normalizeInteractionTaskError(error, fallbackContent) {
+  return {
+    ok: false,
+    content: limitText(error?.message || fallbackContent || "❌ Не вдалося обробити дію.", 1800, fallbackContent || "❌ Не вдалося обробити дію."),
+    components: [],
+  };
+}
+
+function deferAndPatchInteraction(interaction, task, ctx, meta, fallbackContent) {
+  ctx.waitUntil((async () => {
+    try {
+      const result = await task;
+      const patched = await editOriginalInteractionResponse(interaction, result.content, result.components || []);
+      logWorkerEvent(patched ? "info" : "warn", meta.patchEvent, { ...meta.details, patched });
+    } catch (error) {
+      logWorkerEvent("error", meta.failedEvent, { ...meta.details, message: error?.message });
+      await editOriginalInteractionResponse(interaction, fallbackContent, []).catch(() => false);
+    }
+  })());
 }
 
 function snowflakeToBase36(id) {
@@ -3640,31 +3692,27 @@ async function raidPollProxyContent(interaction, env, pollAction) {
 
 async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+  const fallbackContent = "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.";
   const task = raidPollProxyContent(interaction, env, pollAction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
-    ctx.waitUntil((async () => {
-      try {
-        const result = await task;
-        const patched = await editOriginalInteractionResponse(interaction, result.content, result.components || []);
-        logWorkerEvent(patched ? "info" : "warn", "raid_poll.deferred.patch", {
-          pollId: pollAction.pollId,
-          kind: pollAction.kind,
-          patched,
-          updatePrivatePanel,
-        });
-      } catch (error) {
-        logWorkerEvent("error", "raid_poll.deferred.failed", {
-          pollId: pollAction.pollId,
-          kind: pollAction.kind,
-          message: error?.message,
-        });
-        await editOriginalInteractionResponse(interaction, "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.", []).catch(() => false);
+    const fast = await waitForFastInteractionResult(task, env);
+    if (fast.ready) {
+      if (fast.error) {
+        logWorkerEvent("error", "raid_poll.fast.failed", { pollId: pollAction.pollId, kind: pollAction.kind, message: fast.error?.message });
+        return interactionResultResponse(interaction, normalizeInteractionTaskError(fast.error, fallbackContent));
       }
-    })());
+      return interactionResultResponse(interaction, fast.result);
+    }
 
-    // ACK одразу. Публічна кнопка відкриває приватну відповідь через type 5,
-    // а кліки всередині приватного пульта лише ACK-ають оновлення через type 6.
+    deferAndPatchInteraction(interaction, task, ctx, {
+      patchEvent: "raid_poll.deferred.patch",
+      failedEvent: "raid_poll.deferred.failed",
+      details: { pollId: pollAction.pollId, kind: pollAction.kind, updatePrivatePanel },
+    }, fallbackContent);
+
+    // Повільні відповіді ACK-аємо без очікування dashboard.
+    // Публічний клік відкриває ephemeral thinking-response, приватний пульт — DEFERRED_UPDATE_MESSAGE.
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
@@ -3674,7 +3722,7 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
       kind: pollAction.kind,
       message: error?.message,
     });
-    return { ok: false, content: "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.", components: [] };
+    return { ok: false, content: fallbackContent, components: [] };
   });
   return interactionResultResponse(interaction, fallback);
 }
@@ -3830,29 +3878,24 @@ async function raidAnnouncementProxyContent(interaction, env, raidAction) {
 
 async function handleRaidAnnouncementInteraction(interaction, env, raidAction, ctx) {
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+  const fallbackResult = raidAnnouncementProxyFallback(env, raidAction.raidId);
   const task = raidAnnouncementProxyContent(interaction, env, raidAction);
 
   if (ctx && typeof ctx.waitUntil === "function") {
-    ctx.waitUntil((async () => {
-      try {
-        const result = await task;
-        const patched = await editOriginalInteractionResponse(interaction, result.content, result.components || []);
-        logWorkerEvent(patched ? "info" : "warn", "raid_announcement.deferred.patch", {
-          raidId: raidAction.raidId,
-          action: raidAction.action,
-          patched,
-          updatePrivatePanel,
-        });
-      } catch (error) {
-        logWorkerEvent("error", "raid_announcement.deferred.failed", {
-          raidId: raidAction.raidId,
-          action: raidAction.action,
-          message: error?.message,
-        });
-        const fallback = raidAnnouncementProxyFallback(env, raidAction.raidId);
-        await editOriginalInteractionResponse(interaction, fallback.content, fallback.components || []).catch(() => false);
+    const fast = await waitForFastInteractionResult(task, env);
+    if (fast.ready) {
+      if (fast.error) {
+        logWorkerEvent("error", "raid_announcement.fast.failed", { raidId: raidAction.raidId, action: raidAction.action, message: fast.error?.message });
+        return interactionResultResponse(interaction, fallbackResult);
       }
-    })());
+      return interactionResultResponse(interaction, fast.result);
+    }
+
+    deferAndPatchInteraction(interaction, task, ctx, {
+      patchEvent: "raid_announcement.deferred.patch",
+      failedEvent: "raid_announcement.deferred.failed",
+      details: { raidId: raidAction.raidId, action: raidAction.action, updatePrivatePanel },
+    }, fallbackResult.content);
 
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
@@ -3863,7 +3906,7 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
       action: raidAction.action,
       message: error?.message,
     });
-    return raidAnnouncementProxyFallback(env, raidAction.raidId);
+    return fallbackResult;
   });
   return interactionResultResponse(interaction, fallback);
 }

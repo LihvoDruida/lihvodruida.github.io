@@ -134,11 +134,13 @@ export function proxy(request: NextRequest) {
   const host = getRequestHost(request);
 
   if (!isAllowedHost(host)) {
-    logDashboardEvent("warn", "proxy.host_rejected", request, {
+    const isSafeRedirect = request.method === "GET" || request.method === "HEAD";
+    logDashboardEvent(isSafeRedirect ? "debug" : "warn", "proxy.host_rejected", request, {
       blockedHost: host,
+      redirected: isSafeRedirect,
     });
 
-    if (request.method === "GET" || request.method === "HEAD") {
+    if (isSafeRedirect) {
       const target = new URL(
         request.nextUrl.pathname + request.nextUrl.search,
         getCanonicalDashboardOrigin(),

@@ -23,9 +23,13 @@ function cleanText(value: unknown, max = 240) {
 }
 
 function isAbortLikeError(error: unknown) {
-  const name = error instanceof Error ? error.name : "";
+  const asRecord = error && typeof error === "object" ? error as Record<string, unknown> : {};
+  const name = String(asRecord.name || "");
+  const code = String(asRecord.code || "");
   const message = error instanceof Error ? error.message : String(error || "");
-  return name === "AbortError" || /aborted|abort/i.test(message);
+  const cause = asRecord.cause ? String(asRecord.cause) : "";
+  const text = `${name} ${code} ${message} ${cause}`;
+  return /AbortError|ABORT_ERR|aborted|abort|operation was aborted|signal is aborted/i.test(text);
 }
 
 function positiveInt(value: unknown, fallback: number, min: number, max: number) {
