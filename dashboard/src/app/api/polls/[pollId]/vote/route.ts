@@ -3,12 +3,16 @@ import { handleRaidPollDiscordVote } from "@/lib/raidPolls";
 import {
   assertRequestBodySize,
   checkRateLimit,
-  getClientIp,
   logDashboardEvent,
   noStoreHeaders,
   safeErrorMessage,
   verifyInternalBearerToken,
 } from "@/lib/security";
+import {
+  cleanIdempotencyKey,
+  idempotencyHeader,
+  runIdempotentAction,
+} from "@/lib/idempotency";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,26 +23,6 @@ const INTERNAL_POLL_ACTION_TOKENS = [
   "WORKER_STATS_TOKEN",
   "INTERNAL_PROFILE_LOOKUP_TOKEN",
 ];
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __mistblossomRaidPollDiscordActionIdempotency: Map<string, { value: unknown; expiresAt: number }> | undefined;
-}
-
-function idempotencyCache() {
-  const map = globalThis.__mistblossomRaidPollDiscordActionIdempotency || new Map<string, { value: unknown; expiresAt: number }>();
-  globalThis.__mistblossomRaidPollDiscordActionIdempotency = map;
-  const now = Date.now();
-  if (map.size > 500) {
-    for (const [key, item] of map) if (item.expiresAt <= now) map.delete(key);
-  }
-  return map;
-}
-
-function cleanIdempotencyKey(value: unknown) {
-  const key = String(value || "").trim();
-  return /^[A-Za-z0-9:._-]{12,220}$/.test(key) ? key : "";
-}
 
 function cleanKind(value: unknown): "days" | "time" | "schedule" | "character" | "character_prompt" | "role" | "submit" {
   const kind = String(value || "").trim().toLowerCase();
@@ -69,12 +53,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ po
   const tooLarge = assertRequestBodySize(request, 16 * 1024);
   if (tooLarge) return tooLarge;
 
-  const ip = getClientIp(request);
-  const limit = checkRateLimit(`raid-poll-discord-action:${ip}`, 120, 10 * 60 * 1000);
-  if (!limit.ok) {
-    return NextResponse.json({ ok: false, content: "Rate limited" }, { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))) }) });
-  }
-
   const auth = await verifyInternalBearerToken(request, INTERNAL_POLL_ACTION_TOKENS, { minLength: 24 });
   if (!auth.ok) {
     logDashboardEvent("warn", "raid_polls.discord_vote.forbidden", request, { reason: auth.reason });
@@ -87,31 +65,42 @@ export async function POST(request: NextRequest, context: { params: Promise<{ po
     const userId = cleanSnowflake(body?.userId || body?.user_id);
     if (!userId) return NextResponse.json({ ok: false, content: "Invalid Discord user id" }, { status: 400, headers: noStoreHeaders() });
 
-    const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
-    if (idempotencyKey) {
-      const cached = idempotencyCache().get(idempotencyKey);
-      if (cached && cached.expiresAt > Date.now()) {
-        return NextResponse.json(cached.value, { headers: noStoreHeaders({ "X-Mistblossom-Idempotency": "HIT" }) });
-      }
+    const kind = cleanKind(body?.kind);
+    const limit = checkRateLimit(`raid-poll-discord-action:${pollId}:${userId}:${kind}`, kind === "submit" ? 80 : 220, 10 * 60 * 1000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { ok: false, content: "⏳ Забагато дій саме від тебе. Зачекай кілька секунд і повтори." },
+        { status: 429, headers: noStoreHeaders({ "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))) }) },
+      );
     }
 
-    const result = await handleRaidPollDiscordVote({
-      pollId,
-      kind: cleanKind(body?.kind),
-      group: cleanScheduleGroup(body?.group),
-      values: cleanValues(body?.values),
-      userId,
-      userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
-      guildId: cleanSnowflake(body?.guildId || body?.guild_id),
-      guildName: String(body?.guildName || body?.guild_name || "Discord server").trim().slice(0, 120) || "Discord server",
-      messageRef: {
-        channelId: cleanSnowflake(body?.channelId || body?.channel_id),
-        messageId: cleanSnowflake(body?.messageId || body?.message_id),
+    const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
+    const { value: result, status: idempotencyStatus } = await runIdempotentAction({
+      namespace: "raid-poll-discord-action",
+      key: idempotencyKey,
+      ttlMs: 90_000,
+      pendingValue: {
+        ok: false,
+        content: "⏳ Цей Discord-запит уже обробляється. Зачекай секунду й не натискай повторно.",
       },
+      action: () => handleRaidPollDiscordVote({
+        pollId,
+        kind,
+        group: cleanScheduleGroup(body?.group),
+        values: cleanValues(body?.values),
+        userId,
+        userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
+        guildId: cleanSnowflake(body?.guildId || body?.guild_id),
+        guildName: String(body?.guildName || body?.guild_name || "Discord server").trim().slice(0, 120) || "Discord server",
+        messageRef: {
+          channelId: cleanSnowflake(body?.channelId || body?.channel_id),
+          messageId: cleanSnowflake(body?.messageId || body?.message_id),
+        },
+      }),
     });
 
-    if (idempotencyKey) idempotencyCache().set(idempotencyKey, { value: result, expiresAt: Date.now() + 90_000 });
-    return NextResponse.json(result, { headers: noStoreHeaders(idempotencyKey ? { "X-Mistblossom-Idempotency": "MISS" } : undefined) });
+    const idempotency = idempotencyHeader(idempotencyStatus);
+    return NextResponse.json(result, { headers: noStoreHeaders(idempotency ? { "X-Mistblossom-Idempotency": idempotency } : undefined) });
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("error", "raid_polls.discord_vote.failed", request, { pollId, message });

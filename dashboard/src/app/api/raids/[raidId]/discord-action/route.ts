@@ -8,6 +8,11 @@ import {
   safeErrorMessage,
   verifyInternalBearerToken,
 } from "@/lib/security";
+import {
+  cleanIdempotencyKey,
+  idempotencyHeader,
+  runIdempotentAction,
+} from "@/lib/idempotency";
 
 export const revalidate = 0;
 
@@ -19,26 +24,6 @@ const INTERNAL_RAID_ACTION_TOKENS = [
   "WORKER_STATS_TOKEN",
   "INTERNAL_PROFILE_LOOKUP_TOKEN",
 ];
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __mistblossomRaidDiscordActionIdempotency: Map<string, { value: unknown; expiresAt: number }> | undefined;
-}
-
-function idempotencyCache() {
-  const map = globalThis.__mistblossomRaidDiscordActionIdempotency || new Map<string, { value: unknown; expiresAt: number }>();
-  globalThis.__mistblossomRaidDiscordActionIdempotency = map;
-  const now = Date.now();
-  if (map.size > 500) {
-    for (const [key, item] of map) if (item.expiresAt <= now) map.delete(key);
-  }
-  return map;
-}
-
-function cleanIdempotencyKey(value: unknown) {
-  const key = String(value || "").trim();
-  return /^[A-Za-z0-9:._-]{12,220}$/.test(key) ? key : "";
-}
 
 function cleanAction(value: unknown): RaidSignupStatus {
   return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
@@ -104,38 +89,41 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
     }
 
     const idempotencyKey = cleanIdempotencyKey(request.headers.get("x-idempotency-key"));
-    if (idempotencyKey) {
-      const cached = idempotencyCache().get(idempotencyKey);
-      if (cached && cached.expiresAt > Date.now()) {
-        return NextResponse.json(cached.value, { headers: noStoreHeaders({ "X-Mistblossom-Idempotency": "HIT" }) });
-      }
-    }
-
-    const result = await handleRaidDiscordAction({
-      raidId,
-      action,
-      userId,
-      userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
-      characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
-      signupRole: cleanSignupRole(body?.signupRole || body?.signup_role || body?.role),
-      commit,
-      messageRef: {
-        channelId,
-        messageId,
+    const { value: result, status: idempotencyStatus } = await runIdempotentAction({
+      namespace: "raid-discord-action",
+      key: idempotencyKey,
+      ttlMs: 90_000,
+      pendingValue: {
+        ok: false,
+        content: "⏳ Цей Discord-запит уже обробляється. Зачекай секунду й не натискай повторно.",
       },
-      syncDiscord: false,
+      action: async () => {
+        const actionResult = await handleRaidDiscordAction({
+          raidId,
+          action,
+          userId,
+          userName: String(body?.userName || body?.user_name || "Discord user").trim().slice(0, 120) || "Discord user",
+          characterKey: String(body?.characterKey || body?.character_key || "").trim().slice(0, 120) || null,
+          signupRole: cleanSignupRole(body?.signupRole || body?.signup_role || body?.role),
+          commit,
+          messageRef: {
+            channelId,
+            messageId,
+          },
+          syncDiscord: false,
+        });
+        if (actionResult.ok && "raid" in actionResult && actionResult.raid) {
+          const raidToSync = actionResult.raid;
+          const messageRef = { channelId, messageId };
+          after(async () => {
+            await syncRaidDiscordSignupUpdate(raidToSync, messageRef);
+          });
+        }
+        return actionResult;
+      },
     });
-    if (result.ok && "raid" in result && result.raid) {
-      const raidToSync = result.raid;
-      const messageRef = { channelId, messageId };
-      after(async () => {
-        await syncRaidDiscordSignupUpdate(raidToSync, messageRef);
-      });
-    }
-    if (idempotencyKey) {
-      idempotencyCache().set(idempotencyKey, { value: result, expiresAt: Date.now() + 90_000 });
-    }
-    return NextResponse.json(result, { headers: noStoreHeaders(idempotencyKey ? { "X-Mistblossom-Idempotency": "MISS" } : undefined) });
+    const idempotency = idempotencyHeader(idempotencyStatus);
+    return NextResponse.json(result, { headers: noStoreHeaders(idempotency ? { "X-Mistblossom-Idempotency": idempotency } : undefined) });
   } catch (error) {
     const message = safeErrorMessage(error);
     logDashboardEvent("error", "raids.discord_action.failed", request, { raidId, message });

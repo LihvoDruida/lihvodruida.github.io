@@ -2877,6 +2877,12 @@ async function allocateSequentialApplicationNumber(env) {
   return (await readMaxFirebaseApplicationNumber(env)) + 1;
 }
 
+const APPLICATION_SEQUENCE_ATTEMPTS = 12;
+
+function applicationSequenceBackoffMs(attempt) {
+  return Math.min(1600, 80 + attempt * 140 + Math.floor(Math.random() * 180));
+}
+
 async function createFirestoreApplicationDocument(env, docId, data) {
   const url = new URL(firestoreCollectionUrl(env));
   url.searchParams.set("documentId", docId);
@@ -2959,7 +2965,7 @@ async function createFirebaseApplication(env, payload, verification) {
   const rioData = normalizeRaiderIoForApplicationStorage(rioRawData);
   let lastError = null;
 
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  for (let attempt = 0; attempt < APPLICATION_SEQUENCE_ATTEMPTS; attempt += 1) {
     const number = await allocateSequentialApplicationNumber(env);
     const docId = `application-${number}`;
     const data = {
@@ -3019,6 +3025,9 @@ async function createFirebaseApplication(env, payload, verification) {
       lastError = error;
       if (isFirestoreAlreadyExistsError(error)) {
         logWorkerEvent("warn", "application.sequence.conflict", { number, attempt: attempt + 1 });
+        if (attempt + 1 < APPLICATION_SEQUENCE_ATTEMPTS) {
+          await sleep(applicationSequenceBackoffMs(attempt));
+        }
         continue;
       }
       throw error;

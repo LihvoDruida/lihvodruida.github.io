@@ -1,5 +1,9 @@
 import { randomUUID } from "crypto";
-import { FieldValue } from "firebase-admin/firestore";
+import {
+  FieldValue,
+  type QueryDocumentSnapshot,
+  type Transaction,
+} from "firebase-admin/firestore";
 import type { DashboardSession } from "@/lib/auth";
 import { getMainCharacter, getProfileByDiscordUserId, refreshProfileCharactersForRaidSignup, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { resolveWowCharacterRole } from "@/lib/wowRoles";
@@ -1149,7 +1153,7 @@ export async function listRaidPolls(limit = 100) {
         .orderBy("createdAtMs", "desc")
         .limit(Math.max(1, Math.min(200, Math.floor(limit))))
         .get();
-      return snap.docs.map((doc) => normalizeRaidPoll(doc.id, doc.data() || {}));
+      return snap.docs.map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}));
     },
     { ttlMs: RAID_POLL_CACHE_TTL_MS, fallback: () => [], logEvent: "raid_polls.list_failed" },
   );
@@ -1285,7 +1289,7 @@ export async function updateRaidPollFromInput(pollId: string, input: RaidPollUpd
   const updatedAt = new Date().toISOString();
   const updatedPoll = await firebaseWrite<RaidPollItem>("raid", `raid-poll:update:${pollId}`, async () => {
     const ref = pollRef(pollId);
-    return getFirebaseAdminDb().runTransaction(async (tx) => {
+    return getFirebaseAdminDb().runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error("Рейд-пул не знайдено.");
       const previous = normalizeRaidPoll(snap.id, snap.data() || {});
@@ -1379,7 +1383,7 @@ async function markRaidPollRepeatFailed(pollId: string, message: string) {
 async function claimRaidPollRepeat(pollId: string, nowMs: number, lockId: string) {
   return firebaseWrite<RaidPollItem | null>("raid", `raid-poll:repeat-claim:${pollId}:${lockId}`, async () => {
     const ref = pollRef(pollId);
-    return getFirebaseAdminDb().runTransaction(async (tx) => {
+    return getFirebaseAdminDb().runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) return null;
       const raw = snap.data() || {};
@@ -1552,7 +1556,7 @@ export async function closeDueRaidPolls() {
       .where("status", "==", "open")
       .limit(80)
       .get();
-    openPolls = snap.docs.map((doc) => normalizeRaidPoll(doc.id, doc.data() || {}));
+    openPolls = snap.docs.map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}));
   } catch (error) {
     failed += 1;
     const message = error instanceof Error ? error.message : String(error || "unknown");
@@ -1602,7 +1606,7 @@ export async function closeRaidPoll(pollId: string, reason: "manual" | "auto" = 
   const closedAt = new Date().toISOString();
   const updated = await firebaseWrite<RaidPollItem>("raid", `raid-poll:close:${pollId}:${reason}`, async () => {
     const ref = pollRef(pollId);
-    return getFirebaseAdminDb().runTransaction(async (tx) => {
+    return getFirebaseAdminDb().runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error("Рейд-пул не знайдено.");
       const poll = normalizeRaidPoll(snap.id, snap.data() || {});
@@ -1835,7 +1839,7 @@ export async function handleRaidPollDiscordVote(params: {
 
   const result = await firebaseWrite<RaidPollVoteResult>("raid", `raid-poll:vote:${params.pollId}:${userId}:${params.kind}`, async () => {
     const ref = pollRef(params.pollId);
-    return getFirebaseAdminDb().runTransaction(async (tx) => {
+    return getFirebaseAdminDb().runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) return { ok: false, content: "❌ Рейд-пул не знайдено або його було видалено." };
 
