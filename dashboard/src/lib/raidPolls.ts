@@ -1207,8 +1207,7 @@ function formatDiscordTimestamp(ms: number) {
 
 function topDaySummary(poll: RaidPollItem) {
   const slots = raidPollUniqueDayRecommendations(poll, [poll], 2);
-  return slots.length ? slots.map((slot, index) => `${index + 1}) ${raidPollSlotSummary(slot)}`).join("
-") : raidPollSlotSummary(null);
+  return slots.length ? slots.map((slot, index) => `${index + 1}) ${raidPollSlotSummary(slot)}`).join("\n") : raidPollSlotSummary(null);
 }
 
 function pollActiveDays(poll: Pick<RaidPollItem, "days">) {
