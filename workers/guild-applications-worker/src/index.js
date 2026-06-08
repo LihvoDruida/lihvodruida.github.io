@@ -2309,6 +2309,66 @@ function safeDiscordComponents(value) {
     .filter(Boolean);
 }
 
+function relaxedDiscordComponentsForPatch(value) {
+  const rows = safeDiscordComponents(value);
+  if (!rows.length) return [];
+
+  return rows
+    .map((row) => {
+      const components = [];
+      for (const component of row.components || []) {
+        if (!component || typeof component !== "object") continue;
+
+        if (Number(component.type) === 3) {
+          const options = Array.isArray(component.options)
+            ? component.options
+                .map((option) => {
+                  if (!option || typeof option !== "object") return null;
+                  const cleaned = {
+                    label: limitText(option.label, 100, "Варіант"),
+                    value: String(option.value || "").trim().slice(0, 100),
+                  };
+                  if (!cleaned.value) return null;
+                  const description = String(option.description || "").trim();
+                  if (description) cleaned.description = limitText(description, 100, "");
+                  return cleaned;
+                })
+                .filter(Boolean)
+                .slice(0, 25)
+            : [];
+          if (!options.length) continue;
+
+          components.push({
+            type: 3,
+            custom_id: String(component.custom_id || "").trim().slice(0, 100),
+            placeholder: limitText(component.placeholder, 100, "Зроби вибір"),
+            min_values: Math.min(1, options.length),
+            max_values: 1,
+            options,
+          });
+          continue;
+        }
+
+        if (Number(component.type) === 2) {
+          // Link buttons and disabled page-indicators are the least important controls
+          // and are the first candidates to trigger Discord validation edge-cases.
+          if (Number(component.style) === 5 || component.disabled === true) continue;
+          const customId = String(component.custom_id || "").trim().slice(0, 100);
+          if (!customId) continue;
+          components.push({
+            type: 2,
+            style: [1, 2, 3, 4].includes(Number(component.style)) ? Number(component.style) : 2,
+            label: limitText(component.label, 80, "Дія"),
+            custom_id: customId,
+          });
+        }
+      }
+      return components.length ? { type: 1, components: components.slice(0, 5) } : null;
+    })
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
 function cleanSnowflakeIds(values, max = 50) {
   const list = Array.isArray(values) ? values : [values];
   return Array.from(new Set(list.map(snowflake).filter(Boolean))).slice(0, max);
@@ -3213,16 +3273,34 @@ async function editOriginalInteractionResponse(interaction, content, components 
 
   let result = await patchOriginalInteractionResponse(interaction, payload);
 
-  // Якщо Discord відхилив components, не залишаємо користувача у стані "thinking".
-  // Повторюємо PATCH без компонентів, щоб хоча б показати текст помилки/результату.
+  // Якщо Discord відхилив повний набір components, не здаємося одразу.
+  // Спершу пробуємо спрощений payload без default/options edge-cases, link-кнопок
+  // і disabled індикаторів сторінки. Саме через це користувач бачив текст
+  // приватного пульта, але без можливості натиснути "Проголосувати".
   if (!result.ok && result.status === 400 && safeComponents.length) {
+    const relaxedComponents = relaxedDiscordComponentsForPatch(safeComponents);
     logWorkerEvent("warn", "discord.interaction.followup_components_rejected", {
       status: result.status,
       raw: String(result.raw || "").slice(0, 220),
       componentRows: safeComponents.length,
+      relaxedRows: relaxedComponents.length,
     });
+
+    if (relaxedComponents.length) {
+      result = await patchOriginalInteractionResponse(interaction, {
+        ...payload,
+        components: relaxedComponents,
+      });
+    }
+  }
+
+  // Останній fallback: краще показати зрозумілий текст, ніж лишити Discord thinking.
+  if (!result.ok && result.status === 400 && safeComponents.length) {
     result = await patchOriginalInteractionResponse(interaction, {
       ...payload,
+      content: limitText(`${payload.content}
+
+⚠️ Discord відхилив кнопки/меню. Натисни публічну кнопку голосування ще раз або відкрий деталі на сайті.`, 1900, payload.content),
       components: [],
     });
   }
@@ -3692,7 +3770,12 @@ async function raidPollProxyContent(interaction, env, pollAction) {
 }
 
 async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
-  const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
+  // Select-и, кнопка submit і пагінація існують тільки всередині приватного пульта.
+  // У деяких Discord component payload flags ephemeral-повідомлення не приходить,
+  // тому не можна покладатися лише на message.flags. Інакше кожен клік створює
+  // нове приватне повідомлення замість оновлення поточного, а старий пульт стає
+  // схожим на "непрацюючий".
+  const updatePrivatePanel = isEphemeralMessageInteraction(interaction) || pollAction.kind !== "character_prompt";
   const fallbackContent = "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.";
   const task = raidPollProxyContent(interaction, env, pollAction);
 

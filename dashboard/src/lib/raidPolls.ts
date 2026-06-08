@@ -1333,42 +1333,48 @@ function buildRaidPollVoteDraftComponents(
 
   const previousPage = Math.max(0, schedulePage - 1);
   const nextPage = Math.min(pageCount - 1, schedulePage + 1);
+  const footerButtons: Array<Record<string, unknown>> = [];
+  if (pageCount > 1) {
+    footerButtons.push({
+      type: 2,
+      style: 2,
+      custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${previousPage}:${poll.id}`,
+      label: "◀ Дні",
+      disabled: disabled || schedulePage <= 0,
+    });
+  }
+  footerButtons.push({
+    type: 2,
+    style: isDraftReadyToSubmit(draft) && !disabled ? 3 : 2,
+    custom_id: `${RAID_POLL_ACTION_PREFIX}_submit:${poll.id}`,
+    label: isDraftReadyToSubmit(draft) ? "Проголосувати / оновити голос" : "Проголосувати",
+    disabled: disabled || !isDraftReadyToSubmit(draft),
+  });
+  if (pageCount > 1) {
+    footerButtons.push({
+      type: 2,
+      style: 2,
+      custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${nextPage}:${poll.id}`,
+      label: "Дні ▶",
+      disabled: disabled || schedulePage >= pageCount - 1,
+    });
+  }
+  footerButtons.push({ type: 2, style: 5, label: `Деталі • ${schedulePage + 1}/${pageCount}`, url: dashboardPollUrl(poll.id) });
+
   rows.push({
     type: 1,
-    components: [
-      {
-        type: 2,
-        style: 2,
-        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${previousPage}:${poll.id}`,
-        label: "◀ Дні",
-        disabled: disabled || schedulePage <= 0,
-      },
-      {
-        type: 2,
-        style: 2,
-        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${schedulePage}:${poll.id}`,
-        label: `Дні ${schedulePage + 1}/${pageCount}`,
-        disabled: true,
-      },
-      {
-        type: 2,
-        style: 2,
-        custom_id: `${RAID_POLL_ACTION_PREFIX}_schedule_page_${nextPage}:${poll.id}`,
-        label: "Дні ▶",
-        disabled: disabled || schedulePage >= pageCount - 1,
-      },
-      {
-        type: 2,
-        style: isDraftReadyToSubmit(draft) && !disabled ? 3 : 2,
-        custom_id: `${RAID_POLL_ACTION_PREFIX}_submit:${poll.id}`,
-        label: "Проголосувати",
-        disabled: disabled || !isDraftReadyToSubmit(draft),
-      },
-      { type: 2, style: 5, label: "Деталі", url: dashboardPollUrl(poll.id) },
-    ],
+    components: footerButtons.slice(0, 5),
   });
 
-  return rows.slice(0, 5);
+  // Не обрізаємо останній рядок із submit-кнопкою. Якщо через майбутні зміни рядків
+  // стане більше 5, прибираємо зайві day-select-и перед footer-рядком, а не кнопку голосування.
+  if (rows.length > 5) {
+    const footer = rows[rows.length - 1];
+    const head = rows.slice(0, 2);
+    const middle = rows.slice(2, -1).slice(0, Math.max(0, 5 - head.length - 1));
+    return [...head, ...middle, footer].slice(0, 5);
+  }
+  return rows;
 }
 
 async function editPollDiscordMessage(poll: RaidPollItem) {
