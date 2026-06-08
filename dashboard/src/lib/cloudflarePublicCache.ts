@@ -22,6 +22,12 @@ function cleanText(value: unknown, max = 240) {
   return String(value || "").trim().slice(0, max);
 }
 
+function isAbortLikeError(error: unknown) {
+  const name = error instanceof Error ? error.name : "";
+  const message = error instanceof Error ? error.message : String(error || "");
+  return name === "AbortError" || /aborted|abort/i.test(message);
+}
+
 function positiveInt(value: unknown, fallback: number, min: number, max: number) {
   const number = Number(value);
   if (!Number.isFinite(number)) return fallback;
@@ -162,7 +168,8 @@ export async function writePublicCache(key: string, value: unknown, options: Pub
     if (!response.ok) return { ok: false, status: response.status, error: data?.error || `Cloudflare cache HTTP ${response.status}` };
     return data || { ok: true };
   } catch (error) {
-    logDashboardEvent("warn", "cloudflare_public_cache.write_failed", undefined, {
+    const aborted = isAbortLikeError(error);
+    logDashboardEvent(aborted ? "debug" : "warn", aborted ? "cloudflare_public_cache.write_aborted" : "cloudflare_public_cache.write_failed", undefined, {
       key: cleanText(key, 120),
       message: error instanceof Error ? error.message : String(error || "unknown"),
     });

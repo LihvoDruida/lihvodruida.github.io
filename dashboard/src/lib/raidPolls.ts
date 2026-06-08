@@ -704,6 +704,13 @@ export type RaidPollSlotRecommendation = {
   healers: number;
   dps: number;
   unknown: number;
+  parties: number;
+  desiredHealers: number;
+  requiredHealers: number;
+  requiredTanks: number;
+  effectiveDps: number;
+  effectiveRaidSize: number;
+  coreReady: boolean;
   voters: RaidPollVote[];
   score: number;
 };
@@ -1248,14 +1255,24 @@ function buildRaidPollVoteDraftComponents(
   const disabled = poll.status === "closed" || poll.closesAtMs <= Date.now();
   const rows: Array<Record<string, unknown>> = [];
 
-  const characterOptions = pollSelectableProfileCharacters(profile, membership)
-    .slice(0, 25)
-    .map((character, index) => ({
+  const characterOptions: Array<{ label: string; description: string; value: string; default: boolean }> = [];
+  const seenCharacterOptions = new Set<string>();
+  let characterDefaultAssigned = false;
+  const selectedCharacterKey = normalizeCharacterKey(draft.characterKey || "");
+  pollSelectableProfileCharacters(profile, membership).forEach((character, index) => {
+    if (characterOptions.length >= 25) return;
+    const optionKey = normalizeCharacterKey(character.key || "") || `${String(character.name || "").toLowerCase()}:${String(character.realmSlug || character.realmName || "").toLowerCase()}`;
+    if (optionKey && seenCharacterOptions.has(optionKey)) return;
+    if (optionKey) seenCharacterOptions.add(optionKey);
+    const isDefault = Boolean(selectedCharacterKey && !characterDefaultAssigned && normalizeCharacterKey(character.key) === selectedCharacterKey);
+    if (isDefault) characterDefaultAssigned = true;
+    characterOptions.push({
       label: pollCharacterOptionLabel(character, index),
       description: pollCharacterOptionDescription(character),
       value: `c${index}`,
-      default: draft.characterKey ? normalizeCharacterKey(character.key) === normalizeCharacterKey(draft.characterKey) : false,
-    }));
+      default: isDefault,
+    });
+  });
 
   if (characterOptions.length) {
     rows.push({
@@ -2365,7 +2382,7 @@ export async function handleRaidPollDiscordVote(params: {
           ok: false,
           poll,
           content: `⚠️ Голос ще не зараховано.\n${draftReadinessLines(draft, poll)}`,
-          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, params.kind === "schedule" ? schedulePageFromGroup(params.group, poll) : 0) : [],
+          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, 0) : [],
         };
       }
 
@@ -2374,7 +2391,7 @@ export async function handleRaidPollDiscordVote(params: {
           ok: false,
           poll,
           content: "⚠️ Голос не зараховано: вибраний персонаж не знайдений у складі гільдії. Обери гільдійного персонажа або онови профіль.",
-          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, params.kind === "schedule" ? schedulePageFromGroup(params.group, poll) : 0) : [],
+          components: profile ? buildRaidPollVoteDraftComponents(poll, profile, draft, membershipForComponents, 0) : [],
         };
       }
 

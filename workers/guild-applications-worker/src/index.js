@@ -2243,30 +2243,48 @@ function safeDiscordStringSelect(select) {
   if (!select || typeof select !== "object" || Array.isArray(select) || Number(select.type) !== 3) return null;
   const customId = String(select.custom_id || select.customId || "").trim().slice(0, 100);
   if (!customId) return null;
-  const options = Array.isArray(select.options)
-    ? select.options.slice(0, 25).map((option) => {
-        if (!option || typeof option !== "object" || Array.isArray(option)) return null;
-        const label = limitText(option.label, 100, "Персонаж");
-        const value = String(option.value || "").trim().slice(0, 100);
-        if (!value) return null;
-        const safe = { label, value };
-        const description = String(option.description || "").trim();
-        if (description) safe.description = limitText(description, 100, "");
-        if (typeof option.default === "boolean") safe.default = option.default;
-        return safe;
-      }).filter(Boolean)
-    : [];
+
+  const seenValues = new Set();
+  const rawOptions = Array.isArray(select.options) ? select.options : [];
+  const options = [];
+  for (const option of rawOptions) {
+    if (options.length >= 25) break;
+    if (!option || typeof option !== "object" || Array.isArray(option)) continue;
+    const label = limitText(option.label, 100, "Персонаж");
+    const value = String(option.value || "").trim().slice(0, 100);
+    if (!value || seenValues.has(value)) continue;
+    seenValues.add(value);
+    const safe = { label, value };
+    const description = String(option.description || "").trim();
+    if (description) safe.description = limitText(description, 100, "");
+    if (option.default === true) safe.default = true;
+    options.push(safe);
+  }
   if (!options.length) return null;
 
-  const minValues = Number(select.min_values ?? select.minValues ?? 1);
-  const maxValues = Number(select.max_values ?? select.maxValues ?? 1);
+  const requestedMin = Number(select.min_values ?? select.minValues ?? 1);
+  const requestedMax = Number(select.max_values ?? select.maxValues ?? 1);
+  const maxValues = Number.isFinite(requestedMax)
+    ? Math.max(1, Math.min(options.length, 25, Math.floor(requestedMax)))
+    : 1;
+  const minValues = Number.isFinite(requestedMin)
+    ? Math.max(0, Math.min(maxValues, Math.floor(requestedMin)))
+    : Math.min(1, maxValues);
+
+  let defaults = 0;
+  for (const option of options) {
+    if (option.default !== true) continue;
+    if (defaults < maxValues) defaults += 1;
+    else delete option.default;
+  }
+
   const safe = {
     type: 3,
     custom_id: customId,
     options,
     placeholder: limitText(select.placeholder, 100, "Вибери персонажа"),
-    min_values: Number.isFinite(minValues) ? Math.max(0, Math.min(25, Math.floor(minValues))) : 1,
-    max_values: Number.isFinite(maxValues) ? Math.max(1, Math.min(25, Math.floor(maxValues))) : 1,
+    min_values: minValues,
+    max_values: maxValues,
   };
   if (typeof select.disabled === "boolean") safe.disabled = select.disabled;
   return safe;
@@ -3624,28 +3642,6 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
   const task = raidPollProxyContent(interaction, env, pollAction);
 
-  const immediate = await Promise.race([
-    task.then((result) => ({ type: "result", result })).catch((error) => ({ type: "error", error })),
-    sleepMs(discordInteractionImmediateWindowMs(env)).then(() => ({ type: "timeout" })),
-  ]);
-
-  if (immediate.type === "result") {
-    return interactionResultResponse(interaction, immediate.result);
-  }
-
-  if (immediate.type === "error") {
-    logWorkerEvent("error", "raid_poll.immediate.failed", {
-      pollId: pollAction.pollId,
-      kind: pollAction.kind,
-      message: immediate.error?.message,
-    });
-    return interactionResultResponse(interaction, {
-      ok: false,
-      content: "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.",
-      components: [],
-    });
-  }
-
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
       try {
@@ -3663,8 +3659,12 @@ async function handleRaidPollInteraction(interaction, env, pollAction, ctx) {
           kind: pollAction.kind,
           message: error?.message,
         });
+        await editOriginalInteractionResponse(interaction, "❌ Не вдалося обробити голос. Спробуй ще раз або звернись до офіцера.", []).catch(() => false);
       }
     })());
+
+    // ACK одразу. Публічна кнопка відкриває приватну відповідь через type 5,
+    // а кліки всередині приватного пульта лише ACK-ають оновлення через type 6.
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
@@ -3832,24 +3832,6 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
   const updatePrivatePanel = isEphemeralMessageInteraction(interaction);
   const task = raidAnnouncementProxyContent(interaction, env, raidAction);
 
-  const immediate = await Promise.race([
-    task.then((result) => ({ type: "result", result })).catch((error) => ({ type: "error", error })),
-    sleepMs(discordInteractionImmediateWindowMs(env)).then(() => ({ type: "timeout" })),
-  ]);
-
-  if (immediate.type === "result") {
-    return interactionResultResponse(interaction, immediate.result);
-  }
-
-  if (immediate.type === "error") {
-    logWorkerEvent("error", "raid_announcement.immediate.failed", {
-      raidId: raidAction.raidId,
-      action: raidAction.action,
-      message: immediate.error?.message,
-    });
-    return interactionResultResponse(interaction, raidAnnouncementProxyFallback(env, raidAction.raidId));
-  }
-
   if (ctx && typeof ctx.waitUntil === "function") {
     ctx.waitUntil((async () => {
       try {
@@ -3867,8 +3849,11 @@ async function handleRaidAnnouncementInteraction(interaction, env, raidAction, c
           action: raidAction.action,
           message: error?.message,
         });
+        const fallback = raidAnnouncementProxyFallback(env, raidAction.raidId);
+        await editOriginalInteractionResponse(interaction, fallback.content, fallback.components || []).catch(() => false);
       }
     })());
+
     return updatePrivatePanel ? deferredMessageUpdate() : deferredEphemeral();
   }
 
