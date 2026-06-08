@@ -1885,8 +1885,9 @@ type RaidLifecycleSyncResult = {
 
 async function syncRaidLifecycleAfterRead(
   raid: RaidItem,
+  runtimeSettings?: { raidDiscordDeleteAfterStartHours?: number } | null,
 ): Promise<RaidLifecycleSyncResult> {
-  const settings = await getSiteRuntimeSettings().catch(() => ({
+  const settings = runtimeSettings || await getSiteRuntimeSettings().catch(() => ({
     raidDiscordDeleteAfterStartHours: 4,
   }));
   const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(
@@ -2077,8 +2078,9 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
   if (!hasRaidStorage()) return [];
   const safeLimit = Math.max(
     1,
-    Math.min(100, Math.floor(Number(limit) || 100)),
+    Math.min(50, Math.floor(Number(limit) || 20)),
   );
+  const perStatusLimit = Math.max(1, Math.ceil(safeLimit / 2));
   const db = getFirebaseAdminDb();
   const docsById = new Map<
     string,
@@ -2090,12 +2092,12 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
       db
         .collection(RAID_COLLECTION)
         .where("status", "==", "published")
-        .limit(safeLimit)
+        .limit(perStatusLimit)
         .get(),
       db
         .collection(RAID_COLLECTION)
         .where("status", "==", "closed")
-        .limit(safeLimit)
+        .limit(perStatusLimit)
         .get(),
     ]);
     for (const doc of [...publishedSnapshot.docs, ...closedSnapshot.docs]) {
@@ -2112,13 +2114,13 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
       const snapshot = await db
         .collection(RAID_COLLECTION)
         .orderBy("date", "asc")
-        .limit(Math.max(safeLimit, Math.min(200, safeLimit * 2)))
+        .limit(safeLimit)
         .get();
       for (const doc of snapshot.docs) docsById.set(doc.id, doc);
     } catch {
       const snapshot = await db
         .collection(RAID_COLLECTION)
-        .limit(Math.max(safeLimit, Math.min(200, safeLimit * 2)))
+        .limit(safeLimit)
         .get();
       for (const doc of snapshot.docs) docsById.set(doc.id, doc);
     }
@@ -2136,21 +2138,39 @@ async function listRaidsForLifecycle(limit: number): Promise<RaidItem[]> {
     .slice(0, safeLimit);
 }
 
+function raidLifecycleCandidates(raids: RaidItem[], settings: { raidDiscordDeleteAfterStartHours?: number } | null | undefined) {
+  const closeDelayHours = raidDiscordDeleteAfterStartHoursFromSettings(settings?.raidDiscordDeleteAfterStartHours ?? raidAutoCloseDelayHoursFromEnv());
+  const deleteDelayMinutes = raidDiscordDeleteAfterCloseMinutesFromEnv();
+  return raids.filter((raid) => {
+    if (raid.status === "published" && raid.closedReason !== "manual") {
+      return isRaidAutoCloseDue(raid, closeDelayHours);
+    }
+    if (raid.status !== "closed" || !raid.channelId || !raid.messageId || raid.discordDeletedAt) {
+      return false;
+    }
+    return raidDiscordDeleteDue(raid, deleteDelayMinutes, closeDelayHours);
+  });
+}
+
 export async function syncRaidLifecycleBatch(limit = 100) {
   const safeLimit = Math.max(
     1,
-    Math.min(100, Math.floor(Number(limit) || 100)),
+    Math.min(50, Math.floor(Number(limit) || 20)),
   );
+  const settings = await getSiteRuntimeSettings().catch(() => ({
+    raidDiscordDeleteAfterStartHours: 4,
+  }));
   const raids = await listRaidsForLifecycle(safeLimit);
+  const candidates = raidLifecycleCandidates(raids, settings);
   const mapped = await mapConcurrentSettled(
-    raids,
-    async (raid) => syncRaidLifecycleAfterRead(raid),
+    candidates,
+    async (raid) => syncRaidLifecycleAfterRead(raid, settings),
     {
       envKey: "RAID_LIFECYCLE_CONCURRENCY",
       maxEnvKey: "RAID_LIFECYCLE_MAX_CONCURRENCY",
       profile: "write",
       min: 1,
-      max: 4,
+      max: 2,
       failFast: false,
     },
   );
@@ -2178,7 +2198,8 @@ export async function syncRaidLifecycleBatch(limit = 100) {
   }
 
   return {
-    checked: raids.length,
+    checked: candidates.length,
+    scanned: raids.length,
     total: raids.length,
     autoClosed,
     discordDeleted,

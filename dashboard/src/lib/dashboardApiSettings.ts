@@ -16,17 +16,24 @@ const DASHBOARD_API_SETTINGS_DOC_ID = "backgroundApiPolicy";
 const MIN_BACKGROUND_REFRESH_SECONDS = 10 * 60;
 const MAX_REFRESH_SECONDS = 24 * 60 * 60;
 const DEFAULT_CHARACTER_CACHE_TTL_MS = 120_000;
+const DEFAULT_ECO_CHARACTER_CACHE_TTL_MS = 600_000;
 const MAX_CHARACTER_CACHE_TTL_MS = 900_000;
 const DEFAULT_GUILD_ROSTER_MEMBER_LIMIT = 1000;
 const DEFAULT_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS = 22_000;
+const DEFAULT_ECO_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS = 10_000;
 const DEFAULT_GUILD_ROSTER_SYNC_JOB_TTL_SECONDS = 30 * 60;
 const DEFAULT_GUILD_ROSTER_SHARDED_CACHE_ENABLED = true;
 const DEFAULT_GUILD_ROSTER_SHARDED_CACHE_THRESHOLD = 150;
 const DEFAULT_GUILD_ROSTER_BATTLENET_STEP_SIZE = 8;
+const DEFAULT_ECO_GUILD_ROSTER_BATTLENET_STEP_SIZE = 3;
 const DEFAULT_GUILD_ROSTER_BATTLENET_TTL_SECONDS = 21_600;
+const DEFAULT_ECO_GUILD_ROSTER_BATTLENET_TTL_SECONDS = 86_400;
 const DEFAULT_GUILD_ROSTER_RAIDERIO_STEP_SIZE = 5;
+const DEFAULT_ECO_GUILD_ROSTER_RAIDERIO_STEP_SIZE = 2;
 const DEFAULT_GUILD_ROSTER_RAIDERIO_TTL_SECONDS = 21_600;
+const DEFAULT_ECO_GUILD_ROSTER_RAIDERIO_TTL_SECONDS = 86_400;
 const DEFAULT_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED = true;
+const DEFAULT_ECO_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED = false;
 const DEFAULT_GUILD_ROSTER_CLIENT_STEP_DELAY_MS = 250;
 const DEFAULT_GUILD_ROSTER_CLIENT_REQUEST_TIMEOUT_MS = 40_000;
 const DEFAULT_GUILD_ROSTER_CLIENT_MAX_STEPS = 2_200;
@@ -34,11 +41,16 @@ const DEFAULT_DASHBOARD_API_DEBUG_AUDIT_LOGS = false;
 const DEFAULT_DASHBOARD_API_WARNING_AUDIT_LOGS = true;
 
 const DEFAULT_GUILD_ROSTER_CACHE_TTL_SECONDS = 1800;
+const DEFAULT_ECO_GUILD_ROSTER_CACHE_TTL_SECONDS = 21_600;
 const DEFAULT_GUILD_ROSTER_CACHE_READ_TTL_MS = 120_000;
+const DEFAULT_ECO_GUILD_ROSTER_CACHE_READ_TTL_MS = 300_000;
 const DEFAULT_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE = 50;
+const DEFAULT_ECO_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE = 25;
 const DEFAULT_GUILD_ROSTER_CACHE_DELETE_STALE_MEMBERS = false;
 const DEFAULT_GUILD_ROSTER_REFRESH_CONCURRENCY = 2;
+const DEFAULT_ECO_GUILD_ROSTER_REFRESH_CONCURRENCY = 1;
 const DEFAULT_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY = 6;
+const DEFAULT_ECO_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY = 2;
 const DEFAULT_RAIDERIO_REQUEST_TIMEOUT_MS = 10_000;
 const DEFAULT_RAIDERIO_REQUEST_RETRIES = 1;
 const DEFAULT_RAIDERIO_RATE_LIMIT_COOLDOWN_SECONDS = 900;
@@ -46,17 +58,24 @@ const DEFAULT_RAIDERIO_REQUEST_MIN_DELAY_MS = 350;
 const DEFAULT_BATTLENET_REQUEST_TIMEOUT_MS = 10_000;
 const DEFAULT_BATTLENET_REQUEST_RETRIES = 2;
 const DEFAULT_PROFILE_READ_CACHE_TTL_MS = 60_000;
+const DEFAULT_ECO_PROFILE_READ_CACHE_TTL_MS = 300_000;
 const DEFAULT_PROFILE_LIST_CACHE_TTL_MS = 120_000;
+const DEFAULT_ECO_PROFILE_LIST_CACHE_TTL_MS = 300_000;
 const DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS = 300_000;
+const DEFAULT_ECO_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS = 600_000;
 const DEFAULT_RAID_LIST_CACHE_TTL_MS = 60_000;
+const DEFAULT_ECO_RAID_LIST_CACHE_TTL_MS = 300_000;
 const DEFAULT_RAID_ITEM_CACHE_TTL_MS = 60_000;
+const DEFAULT_ECO_RAID_ITEM_CACHE_TTL_MS = 180_000;
 const DEFAULT_RAID_DISCORD_DELETE_AFTER_START_HOURS = 4;
 const DEFAULT_GUILD_ROSTER_RECORDS_CHUNK_SIZE = 64;
 const DEFAULT_GUILD_ROSTER_READ_LEGACY_MEMBER_DOCS = false;
 const DEFAULT_GUILD_ROSTER_WRITE_LEGACY_MEMBER_DOCS = false;
 const DEFAULT_AUDIT_LOG_READ_CACHE_TTL_MS = 30_000;
+const DEFAULT_ECO_AUDIT_LOG_READ_CACHE_TTL_MS = 120_000;
 const DEFAULT_AUDIT_LOG_DEDUPE_WINDOW_MS = 120_000;
 const DEFAULT_AUDIT_LOG_MAX_STORED = 500;
+const DEFAULT_ECO_AUDIT_LOG_MAX_STORED = 250;
 
 const SETTINGS_CACHE_TTL_MS = Math.max(
   60_000,
@@ -184,6 +203,26 @@ function booleanValue(value: unknown, fallback: boolean) {
   return fallback;
 }
 
+function envFlagValue(names: string[], fallback = false) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw !== undefined && raw !== null && raw !== "") return booleanValue(raw, fallback);
+  }
+  return fallback;
+}
+
+function firebaseEcoModeEnabled() {
+  return envFlagValue(["FIREBASE_ECO_MODE", "FIRESTORE_ECO_MODE", "DASHBOARD_ECO_MODE"], false);
+}
+
+function ecoFallback(normal: number, economy: number) {
+  return firebaseEcoModeEnabled() ? economy : normal;
+}
+
+function ecoFlagFallback(normal: boolean, economy: boolean) {
+  return firebaseEcoModeEnabled() ? economy : normal;
+}
+
 function truthyFormFlag(value: unknown) {
   return booleanValue(value, false);
 }
@@ -224,15 +263,15 @@ function envGuildRosterName() {
 }
 
 function envGuildRosterCacheTtlSeconds() {
-  return integerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", DEFAULT_GUILD_ROSTER_CACHE_TTL_SECONDS, 300, 86_400);
+  return integerEnv("GUILD_ROSTER_CACHE_TTL_SECONDS", ecoFallback(DEFAULT_GUILD_ROSTER_CACHE_TTL_SECONDS, DEFAULT_ECO_GUILD_ROSTER_CACHE_TTL_SECONDS), 300, 86_400);
 }
 
 function envGuildRosterCacheReadTtlMs() {
-  return integerEnv("GUILD_ROSTER_CACHE_READ_TTL_MS", DEFAULT_GUILD_ROSTER_CACHE_READ_TTL_MS, 30_000, 300_000);
+  return integerEnv("GUILD_ROSTER_CACHE_READ_TTL_MS", ecoFallback(DEFAULT_GUILD_ROSTER_CACHE_READ_TTL_MS, DEFAULT_ECO_GUILD_ROSTER_CACHE_READ_TTL_MS), 30_000, 300_000);
 }
 
 function envGuildRosterCacheWriteBatchSize() {
-  return integerEnv("GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE", DEFAULT_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE, 1, 250);
+  return integerEnv("GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE", ecoFallback(DEFAULT_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE, DEFAULT_ECO_GUILD_ROSTER_CACHE_WRITE_BATCH_SIZE), 1, 250);
 }
 
 function envGuildRosterCacheDeleteStaleMembers() {
@@ -242,11 +281,11 @@ function envGuildRosterCacheDeleteStaleMembers() {
 }
 
 function envGuildRosterRefreshMaxConcurrency() {
-  return integerEnv("GUILD_ROSTER_REFRESH_MAX_CONCURRENCY", DEFAULT_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY, 1, 12);
+  return integerEnv("GUILD_ROSTER_REFRESH_MAX_CONCURRENCY", ecoFallback(DEFAULT_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY, DEFAULT_ECO_GUILD_ROSTER_REFRESH_MAX_CONCURRENCY), 1, 12);
 }
 
 function envGuildRosterRefreshConcurrency() {
-  return integerEnv("GUILD_ROSTER_REFRESH_CONCURRENCY", DEFAULT_GUILD_ROSTER_REFRESH_CONCURRENCY, 1, envGuildRosterRefreshMaxConcurrency());
+  return integerEnv("GUILD_ROSTER_REFRESH_CONCURRENCY", ecoFallback(DEFAULT_GUILD_ROSTER_REFRESH_CONCURRENCY, DEFAULT_ECO_GUILD_ROSTER_REFRESH_CONCURRENCY), 1, envGuildRosterRefreshMaxConcurrency());
 }
 
 function envRaiderIoRequestTimeoutMs() {
@@ -274,23 +313,23 @@ function envBattleNetRequestRetries() {
 }
 
 function envProfileReadCacheTtlMs() {
-  return integerEnv("PROFILE_READ_CACHE_TTL_MS", DEFAULT_PROFILE_READ_CACHE_TTL_MS, 30_000, 300_000);
+  return integerEnv("PROFILE_READ_CACHE_TTL_MS", ecoFallback(DEFAULT_PROFILE_READ_CACHE_TTL_MS, DEFAULT_ECO_PROFILE_READ_CACHE_TTL_MS), 30_000, 300_000);
 }
 
 function envProfileListCacheTtlMs() {
-  return integerEnv("PROFILE_LIST_CACHE_TTL_MS", DEFAULT_PROFILE_LIST_CACHE_TTL_MS, 30_000, 300_000);
+  return integerEnv("PROFILE_LIST_CACHE_TTL_MS", ecoFallback(DEFAULT_PROFILE_LIST_CACHE_TTL_MS, DEFAULT_ECO_PROFILE_LIST_CACHE_TTL_MS), 30_000, 300_000);
 }
 
 function envProfileCharacterLinksCacheTtlMs() {
-  return integerEnv("PROFILE_CHARACTER_LINKS_CACHE_TTL_MS", DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS, 30_000, 600_000);
+  return integerEnv("PROFILE_CHARACTER_LINKS_CACHE_TTL_MS", ecoFallback(DEFAULT_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS, DEFAULT_ECO_PROFILE_CHARACTER_LINKS_CACHE_TTL_MS), 30_000, 600_000);
 }
 
 function envRaidListCacheTtlMs() {
-  return integerEnv("RAID_LIST_CACHE_TTL_MS", DEFAULT_RAID_LIST_CACHE_TTL_MS, 30_000, 300_000);
+  return integerEnv("RAID_LIST_CACHE_TTL_MS", ecoFallback(DEFAULT_RAID_LIST_CACHE_TTL_MS, DEFAULT_ECO_RAID_LIST_CACHE_TTL_MS), 30_000, 300_000);
 }
 
 function envRaidItemCacheTtlMs() {
-  return integerEnv("RAID_ITEM_CACHE_TTL_MS", DEFAULT_RAID_ITEM_CACHE_TTL_MS, 10_000, 120_000);
+  return integerEnv("RAID_ITEM_CACHE_TTL_MS", ecoFallback(DEFAULT_RAID_ITEM_CACHE_TTL_MS, DEFAULT_ECO_RAID_ITEM_CACHE_TTL_MS), 10_000, 300_000);
 }
 
 function envRaidDiscordDeleteAfterStartHours() {
@@ -314,7 +353,7 @@ function envGuildRosterWriteLegacyMemberDocs() {
 }
 
 function envAuditLogReadCacheTtlMs() {
-  return integerEnv("ADMIN_AUDIT_READ_CACHE_TTL_MS", DEFAULT_AUDIT_LOG_READ_CACHE_TTL_MS, 10_000, 120_000);
+  return integerEnv("ADMIN_AUDIT_READ_CACHE_TTL_MS", ecoFallback(DEFAULT_AUDIT_LOG_READ_CACHE_TTL_MS, DEFAULT_ECO_AUDIT_LOG_READ_CACHE_TTL_MS), 10_000, 120_000);
 }
 
 function envAuditLogDedupeWindowMs() {
@@ -322,11 +361,11 @@ function envAuditLogDedupeWindowMs() {
 }
 
 function envAuditLogMaxStored() {
-  return integerEnv("ADMIN_AUDIT_MAX_STORED", DEFAULT_AUDIT_LOG_MAX_STORED, 100, 1000);
+  return integerEnv("ADMIN_AUDIT_MAX_STORED", ecoFallback(DEFAULT_AUDIT_LOG_MAX_STORED, DEFAULT_ECO_AUDIT_LOG_MAX_STORED), 100, 1000);
 }
 
 function envRaiderIoCharacterCacheTtlMs() {
-  return integerEnv("RAIDERIO_CHARACTER_CACHE_TTL_MS", DEFAULT_CHARACTER_CACHE_TTL_MS, 0, MAX_CHARACTER_CACHE_TTL_MS);
+  return integerEnv("RAIDERIO_CHARACTER_CACHE_TTL_MS", ecoFallback(DEFAULT_CHARACTER_CACHE_TTL_MS, DEFAULT_ECO_CHARACTER_CACHE_TTL_MS), 0, MAX_CHARACTER_CACHE_TTL_MS);
 }
 
 function envGuildRosterMemberLimit() {
@@ -334,7 +373,7 @@ function envGuildRosterMemberLimit() {
 }
 
 function envGuildRosterRefreshStepBudgetMs() {
-  return integerEnv("GUILD_ROSTER_REFRESH_STEP_BUDGET_MS", DEFAULT_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS, 5_000, 38_000);
+  return integerEnv("GUILD_ROSTER_REFRESH_STEP_BUDGET_MS", ecoFallback(DEFAULT_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS, DEFAULT_ECO_GUILD_ROSTER_REFRESH_STEP_BUDGET_MS), 5_000, 38_000);
 }
 
 function envGuildRosterSyncJobTtlSeconds() {
@@ -352,30 +391,32 @@ function envGuildRosterShardedCacheThreshold() {
 }
 
 function envGuildRosterBattleNetStepSize() {
-  return integerEnv("GUILD_ROSTER_BATTLENET_STEP_SIZE", DEFAULT_GUILD_ROSTER_BATTLENET_STEP_SIZE, 0, 100);
+  return integerEnv("GUILD_ROSTER_BATTLENET_STEP_SIZE", ecoFallback(DEFAULT_GUILD_ROSTER_BATTLENET_STEP_SIZE, DEFAULT_ECO_GUILD_ROSTER_BATTLENET_STEP_SIZE), 0, 100);
 }
 
 function envGuildRosterBattleNetTtlSeconds() {
-  return integerEnv("GUILD_ROSTER_BATTLENET_TTL_SECONDS", DEFAULT_GUILD_ROSTER_BATTLENET_TTL_SECONDS, 300, 604_800);
+  return integerEnv("GUILD_ROSTER_BATTLENET_TTL_SECONDS", ecoFallback(DEFAULT_GUILD_ROSTER_BATTLENET_TTL_SECONDS, DEFAULT_ECO_GUILD_ROSTER_BATTLENET_TTL_SECONDS), 300, 604_800);
 }
 
 function envGuildRosterRaiderIoStepSize() {
+  const fallback = ecoFallback(DEFAULT_GUILD_ROSTER_RAIDERIO_STEP_SIZE, DEFAULT_ECO_GUILD_ROSTER_RAIDERIO_STEP_SIZE);
   return integerEnv(
     "GUILD_ROSTER_RAIDERIO_STEP_SIZE",
-    integerEnv("GUILD_ROSTER_RAIDERIO_BATCH_SIZE", DEFAULT_GUILD_ROSTER_RAIDERIO_STEP_SIZE, 0, 100),
+    integerEnv("GUILD_ROSTER_RAIDERIO_BATCH_SIZE", fallback, 0, 100),
     0,
     100,
   );
 }
 
 function envGuildRosterRaiderIoTtlSeconds() {
-  return integerEnv("GUILD_ROSTER_RAIDERIO_TTL_SECONDS", DEFAULT_GUILD_ROSTER_RAIDERIO_TTL_SECONDS, 300, 604_800);
+  return integerEnv("GUILD_ROSTER_RAIDERIO_TTL_SECONDS", ecoFallback(DEFAULT_GUILD_ROSTER_RAIDERIO_TTL_SECONDS, DEFAULT_ECO_GUILD_ROSTER_RAIDERIO_TTL_SECONDS), 300, 604_800);
 }
 
 function envGuildRosterClientDrivenSyncEnabled() {
   const raw = cleanText(process.env.GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED, 20);
-  if (!raw) return DEFAULT_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED;
-  return booleanValue(raw, DEFAULT_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED);
+  const fallback = ecoFlagFallback(DEFAULT_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED, DEFAULT_ECO_GUILD_ROSTER_CLIENT_DRIVEN_SYNC_ENABLED);
+  if (!raw) return fallback;
+  return booleanValue(raw, fallback);
 }
 
 function envGuildRosterClientStepDelayMs() {
@@ -391,9 +432,10 @@ function envGuildRosterClientMaxSteps() {
 }
 
 function defaultDashboardApiSettings(): DashboardApiSettings {
+  const backgroundRefreshFallbackSeconds = ecoFallback(MIN_BACKGROUND_REFRESH_SECONDS, 30 * 60);
   const backgroundRefreshMinSeconds = integerEnv(
     "DASHBOARD_BACKGROUND_REFRESH_MIN_SECONDS",
-    integerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", MIN_BACKGROUND_REFRESH_SECONDS, MIN_BACKGROUND_REFRESH_SECONDS, MAX_REFRESH_SECONDS),
+    integerEnv("PROFILE_VIEW_REFRESH_MIN_SECONDS", backgroundRefreshFallbackSeconds, MIN_BACKGROUND_REFRESH_SECONDS, MAX_REFRESH_SECONDS),
     MIN_BACKGROUND_REFRESH_SECONDS,
     MAX_REFRESH_SECONDS,
   );
@@ -407,8 +449,8 @@ function defaultDashboardApiSettings(): DashboardApiSettings {
   return {
     backgroundRefreshMinSeconds,
     profileViewRefreshMinSeconds,
-    profileExternalRefreshMinSeconds: integerEnv("PROFILE_EXTERNAL_REFRESH_MIN_SECONDS", 30 * 60, MIN_BACKGROUND_REFRESH_SECONDS, MAX_REFRESH_SECONDS),
-    profileExternalRefreshBatchLimit: integerEnv("PROFILE_EXTERNAL_REFRESH_BATCH_LIMIT", 50, 1, 500),
+    profileExternalRefreshMinSeconds: integerEnv("PROFILE_EXTERNAL_REFRESH_MIN_SECONDS", ecoFallback(30 * 60, 6 * 60 * 60), MIN_BACKGROUND_REFRESH_SECONDS, MAX_REFRESH_SECONDS),
+    profileExternalRefreshBatchLimit: integerEnv("PROFILE_EXTERNAL_REFRESH_BATCH_LIMIT", ecoFallback(50, 10), 1, 500),
     profileCharacterRefreshConcurrency: integerEnv("PROFILE_CHARACTER_REFRESH_CONCURRENCY", 0, 0, 8),
     profileCharacterRefreshMaxConcurrency: integerEnv("PROFILE_CHARACTER_REFRESH_MAX_CONCURRENCY", 8, 1, 8),
     profileExternalRefreshConcurrency: integerEnv("PROFILE_EXTERNAL_REFRESH_CONCURRENCY", 0, 0, 6),
@@ -503,7 +545,7 @@ function normalizeSettings(
     profileListCacheTtlMs: integerValue(data?.profileListCacheTtlMs, fallback.profileListCacheTtlMs, 30_000, 300_000),
     profileCharacterLinksCacheTtlMs: integerValue(data?.profileCharacterLinksCacheTtlMs, fallback.profileCharacterLinksCacheTtlMs, 30_000, 600_000),
     raidListCacheTtlMs: integerValue(data?.raidListCacheTtlMs, fallback.raidListCacheTtlMs, 30_000, 300_000),
-    raidItemCacheTtlMs: integerValue(data?.raidItemCacheTtlMs, fallback.raidItemCacheTtlMs, 10_000, 120_000),
+    raidItemCacheTtlMs: integerValue(data?.raidItemCacheTtlMs, fallback.raidItemCacheTtlMs, 10_000, 300_000),
     raidDiscordDeleteAfterStartHours: integerValue(data?.raidDiscordDeleteAfterStartHours, fallback.raidDiscordDeleteAfterStartHours, 0, 168),
     guildRosterRecordsChunkSize: integerValue(data?.guildRosterRecordsChunkSize, fallback.guildRosterRecordsChunkSize, 25, 120),
     guildRosterReadLegacyMemberDocs: booleanValue(data?.guildRosterReadLegacyMemberDocs, fallback.guildRosterReadLegacyMemberDocs),

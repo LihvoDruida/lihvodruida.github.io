@@ -4408,20 +4408,20 @@ async function createApplication(request, env, ctx) {
 }
 
 function raidLifecycleCronMinIntervalMs(env) {
-  return readDurationMs(env, ["WORKER_RAID_LIFECYCLE_MIN_INTERVAL_MS", "RAID_LIFECYCLE_CRON_MIN_INTERVAL_MS"], 55_000, 0, 10 * 60_000);
+  return readDurationMs(env, ["WORKER_RAID_LIFECYCLE_MIN_INTERVAL_MS", "RAID_LIFECYCLE_CRON_MIN_INTERVAL_MS"], 9 * 60_000, 60_000, 60 * 60_000);
 }
 
 function raidPollCloseDueCronMinIntervalMs(env) {
-  return readDurationMs(env, ["WORKER_RAID_POLL_CLOSE_DUE_MIN_INTERVAL_MS", "RAID_POLL_CLOSE_DUE_CRON_MIN_INTERVAL_MS"], 20_000, 0, 5 * 60_000);
+  return readDurationMs(env, ["WORKER_RAID_POLL_CLOSE_DUE_MIN_INTERVAL_MS", "RAID_POLL_CLOSE_DUE_CRON_MIN_INTERVAL_MS"], 9 * 60_000, 60_000, 60 * 60_000);
 }
 
 function dashboardRaidLifecycleEndpoint(env) {
   const explicit = String(env.DASHBOARD_RAID_LIFECYCLE_ENDPOINT || "").trim();
   if (explicit) return explicit;
   try {
-    return new URL("/api/raids/lifecycle?limit=100", dashboardAuthUrl(env)).toString();
+    return new URL("/api/raids/lifecycle?limit=20", dashboardAuthUrl(env)).toString();
   } catch {
-    return "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100";
+    return "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=20";
   }
 }
 
@@ -4706,7 +4706,9 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runRaidLifecycleCron(env, "cloudflare-cron"));
-    ctx.waitUntil(runRaidPollCloseDueCron(env, "cloudflare-cron"));
+    ctx.waitUntil((async () => {
+      await runRaidLifecycleCron(env, "cloudflare-cron");
+      await runRaidPollCloseDueCron(env, "cloudflare-cron");
+    })());
   },
 };

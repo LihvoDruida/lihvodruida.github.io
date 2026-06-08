@@ -81,11 +81,56 @@ import {
 const RAID_POLL_COLLECTION = "dashboardRaidPolls";
 const RAID_POLL_ACTION_PREFIX = "mbv1:poll";
 const RAID_POLL_LIST_CACHE_KEY = "raid-polls:list:v1";
-const RAID_POLL_CACHE_TTL_MS = 60_000;
-const RAID_POLL_GET_CACHE_TTL_MS = 60_000;
+const RAID_POLL_DEFAULT_CACHE_TTL_MS = 60_000;
+const RAID_POLL_DEFAULT_GET_CACHE_TTL_MS = 60_000;
 const RAID_POLL_GET_CACHE_PREFIX = "raid-poll:";
-const RAID_POLL_GUILD_MEMBERSHIP_CACHE_TTL_MS = 90_000;
+const RAID_POLL_DEFAULT_GUILD_MEMBERSHIP_CACHE_TTL_MS = 90_000;
 const RAID_POLL_VOTE_CLEANUP_DEFAULT_MIN_MS = 10 * 60_000;
+
+function envFlag(names: string[], fallback = false) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    return ["1", "true", "yes", "on"].includes(String(raw).trim().toLowerCase());
+  }
+  return fallback;
+}
+
+function raidPollEcoModeEnabled() {
+  return envFlag(["FIREBASE_ECO_MODE", "FIRESTORE_ECO_MODE", "DASHBOARD_ECO_MODE"], false);
+}
+
+function envDurationMs(names: string[], fallback: number, min: number, max: number) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    const number = Number(raw);
+    if (Number.isFinite(number)) return Math.max(min, Math.min(Math.floor(number), max));
+  }
+  return Math.max(min, Math.min(Math.floor(fallback), max));
+}
+
+function raidPollListCacheTtlMs() {
+  return envDurationMs(["RAID_POLL_LIST_CACHE_TTL_MS"], raidPollEcoModeEnabled() ? 300_000 : RAID_POLL_DEFAULT_CACHE_TTL_MS, 30_000, 600_000);
+}
+
+function raidPollItemCacheTtlMs() {
+  return envDurationMs(["RAID_POLL_ITEM_CACHE_TTL_MS"], raidPollEcoModeEnabled() ? 180_000 : RAID_POLL_DEFAULT_GET_CACHE_TTL_MS, 30_000, 600_000);
+}
+
+function raidPollGuildMembershipCacheTtlMs() {
+  return envDurationMs(["RAID_POLL_GUILD_MEMBERSHIP_CACHE_TTL_MS"], raidPollEcoModeEnabled() ? 600_000 : RAID_POLL_DEFAULT_GUILD_MEMBERSHIP_CACHE_TTL_MS, 60_000, 60 * 60_000);
+}
+
+function raidPollDueScanLimit() {
+  const fallback = raidPollEcoModeEnabled() ? 20 : 50;
+  const value = Number(process.env.RAID_POLL_CLOSE_DUE_SCAN_LIMIT || process.env.RAID_POLL_SCAN_LIMIT || fallback);
+  return Number.isFinite(value) ? Math.max(1, Math.min(Math.floor(value), 100)) : fallback;
+}
+
+function raidPollVoteCleanupOnIdleCron() {
+  return envFlag(["RAID_POLL_CLEANUP_ON_IDLE_CRON", "RAID_POLL_CLEANUP_ON_CRON"], !raidPollEcoModeEnabled());
+}
 
 function clearRaidPollRuntimeCaches(pollId?: string | null) {
   const id = cleanString(pollId, 80);
@@ -565,8 +610,8 @@ function raidPollVoteCleanupState() {
 }
 
 function raidPollVoteCleanupMinMs() {
-  const raw = Number(process.env.RAID_POLL_GUILD_VOTE_CLEANUP_MIN_MS || process.env.RAID_POLL_VOTE_CLEANUP_MIN_MS || RAID_POLL_VOTE_CLEANUP_DEFAULT_MIN_MS);
-  return Number.isFinite(raw) ? Math.max(60_000, Math.min(60 * 60_000, Math.floor(raw))) : RAID_POLL_VOTE_CLEANUP_DEFAULT_MIN_MS;
+  const fallback = raidPollEcoModeEnabled() ? 60 * 60_000 : RAID_POLL_VOTE_CLEANUP_DEFAULT_MIN_MS;
+  return envDurationMs(["RAID_POLL_GUILD_VOTE_CLEANUP_MIN_MS", "RAID_POLL_VOTE_CLEANUP_MIN_MS"], fallback, 60_000, 24 * 60 * 60_000);
 }
 
 function votesByDiscordId(votes: RaidPollVote[]) {
@@ -762,7 +807,7 @@ function characterRosterKey(input: {
 async function loadRaidPollGuildMembershipSnapshot(): Promise<RaidPollGuildMembershipSnapshot> {
   const state = raidPollGuildMembershipCacheState();
   const cached = state.__mistblossomRaidPollGuildMembership;
-  if (cached && Date.now() - cached.checkedAt < RAID_POLL_GUILD_MEMBERSHIP_CACHE_TTL_MS) {
+  if (cached && Date.now() - cached.checkedAt < raidPollGuildMembershipCacheTtlMs()) {
     return cached.snapshot;
   }
 
@@ -1504,7 +1549,7 @@ export async function getRaidPoll(pollId: string, options: { closeDue?: boolean;
       if (!snap.exists) return null;
       return normalizeRaidPoll(snap.id, snap.data() || {});
     },
-    { ttlMs: RAID_POLL_GET_CACHE_TTL_MS, fallback: () => null, logEvent: "raid_polls.read_failed", bypassCache: options.bypassCache },
+    { ttlMs: raidPollItemCacheTtlMs(), fallback: () => null, logEvent: "raid_polls.read_failed", bypassCache: options.bypassCache },
   );
   if (poll && options.closeDue !== false) return closeDueRaidPoll(poll);
   return poll;
@@ -1512,7 +1557,6 @@ export async function getRaidPoll(pollId: string, options: { closeDue?: boolean;
 
 export async function listRaidPolls(limit = 100) {
   if (!hasRaidPollStorage()) return [];
-  await closeDueRaidPolls().catch(() => null);
   return firebaseRead<RaidPollItem[]>(
     "raid",
     `${RAID_POLL_LIST_CACHE_KEY}:${limit}`,
@@ -1524,7 +1568,7 @@ export async function listRaidPolls(limit = 100) {
         .get();
       return snap.docs.map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}));
     },
-    { ttlMs: RAID_POLL_CACHE_TTL_MS, fallback: () => [], logEvent: "raid_polls.list_failed" },
+    { ttlMs: raidPollListCacheTtlMs(), fallback: () => [], logEvent: "raid_polls.list_failed" },
   );
 }
 
@@ -1868,21 +1912,36 @@ async function createRepeatedRaidPoll(template: RaidPollItem) {
   }
 }
 
-export async function repeatDueRaidPolls() {
+export async function repeatDueRaidPolls(options: { limit?: number } = {}) {
   if (!hasRaidPollStorage()) return { checked: 0, repeated: 0, deleted: 0, failed: 0 };
   const nowMs = Date.now();
-  const snap = await getFirebaseAdminDb()
-    .collection(RAID_POLL_COLLECTION)
-    .where("autoRepeatWeekly", "==", true)
-    .limit(50)
-    .get();
+  const limit = Math.max(1, Math.min(50, Math.floor(options.limit || (raidPollEcoModeEnabled() ? 10 : 25))));
+  let docs: QueryDocumentSnapshot[] = [];
+
+  try {
+    const snap = await getFirebaseAdminDb()
+      .collection(RAID_POLL_COLLECTION)
+      .where("autoRepeatWeekly", "==", true)
+      .where("repeatNextAtMs", "<=", nowMs)
+      .orderBy("repeatNextAtMs", "asc")
+      .limit(limit)
+      .get();
+    docs = snap.docs;
+  } catch {
+    const snap = await getFirebaseAdminDb()
+      .collection(RAID_POLL_COLLECTION)
+      .where("autoRepeatWeekly", "==", true)
+      .limit(limit)
+      .get();
+    docs = snap.docs;
+  }
 
   let checked = 0;
   let repeated = 0;
   let deleted = 0;
   let failed = 0;
 
-  for (const doc of snap.docs) {
+  for (const doc of docs) {
     const poll = normalizeRaidPoll(doc.id, doc.data() || {});
     if (!poll.repeatNextAtMs || poll.repeatNextAtMs > nowMs) continue;
     checked += 1;
@@ -1915,24 +1974,40 @@ export async function closeDueRaidPoll(input: RaidPollItem) {
   return closeRaidPoll(input.id, "auto", { silentIfClosed: true });
 }
 
-export async function closeDueRaidPolls() {
-  if (!hasRaidPollStorage()) return { checked: 0, closed: 0, repeatedChecked: 0, repeated: 0, deleted: 0, failed: 0, errors: [] as string[] };
+async function readDueRaidPolls(nowMs: number, limit: number) {
+  try {
+    const snap = await getFirebaseAdminDb()
+      .collection(RAID_POLL_COLLECTION)
+      .where("status", "==", "open")
+      .where("closesAtMs", "<=", nowMs)
+      .orderBy("closesAtMs", "asc")
+      .limit(limit)
+      .get();
+    return snap.docs.map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}));
+  } catch {
+    const snap = await getFirebaseAdminDb()
+      .collection(RAID_POLL_COLLECTION)
+      .where("status", "==", "open")
+      .limit(limit)
+      .get();
+    return snap.docs
+      .map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}))
+      .filter((poll: RaidPollItem) => poll.status !== "closed" && poll.closesAtMs <= nowMs)
+      .sort((a: RaidPollItem, b: RaidPollItem) => a.closesAtMs - b.closesAtMs);
+  }
+}
+
+export async function closeDueRaidPolls(options: { force?: boolean; cleanupVotes?: boolean } = {}) {
+  if (!hasRaidPollStorage()) return { checked: 0, scanned: 0, closed: 0, repeatedChecked: 0, repeated: 0, deleted: 0, voteCleanupChecked: 0, voteCleanupCleaned: 0, voteCleanupRemoved: 0, voteCleanupSkipped: true, voteCleanupReason: "storage_unavailable", failed: 0, errors: [] as string[] };
 
   const nowMs = Date.now();
-  let openPolls: RaidPollItem[] = [];
+  const limit = raidPollDueScanLimit();
+  let duePolls: RaidPollItem[] = [];
   let failed = 0;
   const errors: string[] = [];
 
   try {
-    // Не використовуємо composite query status + closesAtMs. У проді це легко ламається без
-    // Firestore composite-index і перетворює кожний cron у 500. Беремо відкриті пули
-    // невеликим батчем і фільтруємо due-стан у коді.
-    const snap = await getFirebaseAdminDb()
-      .collection(RAID_POLL_COLLECTION)
-      .where("status", "==", "open")
-      .limit(80)
-      .get();
-    openPolls = snap.docs.map((doc: QueryDocumentSnapshot) => normalizeRaidPoll(doc.id, doc.data() || {}));
+    duePolls = (await readDueRaidPolls(nowMs, limit)).slice(0, Math.min(limit, 20));
   } catch (error) {
     failed += 1;
     const message = error instanceof Error ? error.message : String(error || "unknown");
@@ -1940,22 +2015,21 @@ export async function closeDueRaidPolls() {
     console.warn("[raidPolls] Failed to read due polls", { message });
   }
 
+  const shouldCleanupVotes = options.cleanupVotes === true || (duePolls.length > 0 && !raidPollEcoModeEnabled()) || raidPollVoteCleanupOnIdleCron();
+  const voteCleanup = shouldCleanupVotes
+    ? await cleanupRaidPollVotesForGuildMembers({
+        pollIds: duePolls.map((poll) => poll.id),
+        limit: Math.max(1, Math.min(limit, 50)),
+        force: options.force,
+      }).catch((error) => {
+        failed += 1;
+        const message = error instanceof Error ? error.message : String(error || "unknown");
+        errors.push(`vote-cleanup: ${message}`.slice(0, 220));
+        return { checked: 0, cleaned: 0, removed: 0, skipped: true as const, reason: "failed" as const };
+      })
+    : { checked: 0, cleaned: 0, removed: 0, skipped: true as const, reason: "idle_eco" as const };
+
   let closed = 0;
-  const voteCleanup = await cleanupRaidPollVotesForGuildMembers({
-    pollIds: openPolls.map((poll) => poll.id),
-    limit: 80,
-  }).catch((error) => {
-    failed += 1;
-    const message = error instanceof Error ? error.message : String(error || "unknown");
-    errors.push(`vote-cleanup: ${message}`.slice(0, 220));
-    return { checked: 0, cleaned: 0, removed: 0, skipped: true as const, reason: "failed" as const };
-  });
-
-  const duePolls = openPolls
-    .filter((poll) => poll.status !== "closed" && poll.closesAtMs <= nowMs)
-    .sort((a, b) => a.closesAtMs - b.closesAtMs)
-    .slice(0, 20);
-
   for (const poll of duePolls) {
     await closeRaidPoll(poll.id, "auto", { silentIfClosed: true })
       .then(() => { closed += 1; })
@@ -1967,7 +2041,7 @@ export async function closeDueRaidPolls() {
       });
   }
 
-  const repeated = await repeatDueRaidPolls().catch((error) => {
+  const repeated = await repeatDueRaidPolls({ limit: raidPollEcoModeEnabled() ? 10 : 25 }).catch((error) => {
     failed += 1;
     const message = error instanceof Error ? error.message : String(error || "unknown");
     errors.push(`repeat: ${message}`.slice(0, 220));
@@ -1977,7 +2051,7 @@ export async function closeDueRaidPolls() {
 
   return {
     checked: duePolls.length,
-    scanned: openPolls.length,
+    scanned: duePolls.length,
     closed,
     repeatedChecked: repeated.checked,
     repeated: repeated.repeated,

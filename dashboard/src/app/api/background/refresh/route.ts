@@ -195,7 +195,8 @@ export async function POST(request: NextRequest) {
   if (!session) return unauthorizedResponse();
 
   const ip = getClientIp(request);
-  const limit = checkRateLimit(`background-api:${session.profileId || session.id}:${ip}`, 60, 10 * 60 * 1000);
+  const rateLimit = Number(process.env.DASHBOARD_BACKGROUND_API_RATE_LIMIT || 20);
+  const limit = checkRateLimit(`background-api:${session.profileId || session.id}:${ip}`, Number.isFinite(rateLimit) ? Math.max(5, Math.min(Math.floor(rateLimit), 60)) : 20, 10 * 60 * 1000);
   if (!limit.ok) return rateLimitResponse(limit.resetAt);
 
   const settings = await getDashboardApiSettings();

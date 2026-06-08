@@ -8,7 +8,7 @@ enabled = true
 [triggers]
 # Runs raid lifecycle often enough that the dashboard closes raids at the configured threshold
 # even after Worker/Vercel restarts. The handler is idempotent; Firestore is the source of truth.
-crons = ["* * * * *"]
+crons = ["*/10 * * * *"]
 
 [vars]
 GITHUB_OWNER = "LihvoDruida"
@@ -31,7 +31,10 @@ DISCORD_API_TIMEOUT_MS = "14000"
 DASHBOARD_API_TIMEOUT_MS = "9000"
 RAID_DISCORD_DELETE_AFTER_START_HOURS = "4"
 RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES = "60"
-DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100"
+FIREBASE_ECO_MODE = "1"
+WORKER_RAID_LIFECYCLE_MIN_INTERVAL_MS = "540000"
+WORKER_RAID_POLL_CLOSE_DUE_MIN_INTERVAL_MS = "540000"
+DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=20"
 
 
 # Set these via `wrangler secret put ...` in production:
@@ -77,4 +80,4 @@ DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/l
 # DASHBOARD_API_TIMEOUT_MS = "9000"
 # RAID_DISCORD_DELETE_AFTER_START_HOURS = "4"
 # RAID_DISCORD_DELETE_AFTER_CLOSE_MINUTES = "60"
-# DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=100"
+# DASHBOARD_RAID_LIFECYCLE_ENDPOINT = "https://admin.lihvodruida.pp.ua/api/raids/lifecycle?limit=20"

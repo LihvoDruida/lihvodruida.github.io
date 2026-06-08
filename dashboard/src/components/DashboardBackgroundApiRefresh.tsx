@@ -14,7 +14,7 @@ import {
 
 type RefreshState = "idle" | "checking" | "paused" | "offline";
 
-const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 120_000;
+const BACKGROUND_VISIBLE_REFRESH_MIN_MS = 10 * 60_000;
 const BACKGROUND_MUTATION_REFRESH_MIN_MS = 2_500;
 let lastBackgroundRefreshAt = 0;
 let activeBackgroundRefresh: Promise<void> | null = null;
@@ -125,7 +125,7 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
       }
 
       const now = Date.now();
-      const minSpacing = options.force ? BACKGROUND_MUTATION_REFRESH_MIN_MS : BACKGROUND_VISIBLE_REFRESH_MIN_MS;
+      const minSpacing = options.force ? BACKGROUND_MUTATION_REFRESH_MIN_MS : Math.max(BACKGROUND_VISIBLE_REFRESH_MIN_MS, refreshMinMs);
       if (inFlightRef.current || activeBackgroundRefresh) {
         setState("paused");
         schedule(minSpacing, reason);

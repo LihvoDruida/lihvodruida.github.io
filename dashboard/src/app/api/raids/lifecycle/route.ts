@@ -31,10 +31,25 @@ function lifecycleGuard() {
   return guard;
 }
 
+function envFlag(names: string[], fallback = false) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    return ["1", "true", "yes", "on"].includes(String(raw).trim().toLowerCase());
+  }
+  return fallback;
+}
+
 function lifecycleMinIntervalMs() {
-  const value = Number(process.env.RAID_LIFECYCLE_MIN_INTERVAL_MS || process.env.DASHBOARD_RAID_LIFECYCLE_MIN_INTERVAL_MS || 45_000);
-  if (!Number.isFinite(value)) return 45_000;
-  return Math.max(0, Math.min(Math.floor(value), 10 * 60_000));
+  const eco = envFlag(["FIREBASE_ECO_MODE", "FIRESTORE_ECO_MODE", "DASHBOARD_ECO_MODE"], false);
+  const fallback = eco ? 10 * 60_000 : 5 * 60_000;
+  const value = Number(process.env.RAID_LIFECYCLE_MIN_INTERVAL_MS || process.env.DASHBOARD_RAID_LIFECYCLE_MIN_INTERVAL_MS || fallback);
+  if (!Number.isFinite(value)) return fallback;
+  return Math.max(60_000, Math.min(Math.floor(value), 60 * 60_000));
+}
+
+function lifecycleDefaultLimit() {
+  return envFlag(["FIREBASE_ECO_MODE", "FIRESTORE_ECO_MODE", "DASHBOARD_ECO_MODE"], false) ? 20 : 40;
 }
 
 function wantsForceRun(request: NextRequest) {
@@ -77,7 +92,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const url = new URL(request.url);
-    const limit = integerParam(url.searchParams.get("limit"), 100, 1, 100);
+    const limit = integerParam(url.searchParams.get("limit"), lifecycleDefaultLimit(), 1, 50);
     guard.lastStartedAt = now;
     const promise = syncRaidLifecycleBatch(limit);
     guard.inFlight = promise;

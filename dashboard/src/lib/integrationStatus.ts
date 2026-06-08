@@ -23,6 +23,26 @@ function item(key: IntegrationStatusItem["key"], label: string, state: Integrati
   return { key, label, state, message, checkedAt };
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __mistblossomIntegrationStatusCache: { checkedAtMs: number; value: IntegrationStatusSummary } | undefined;
+}
+
+function envFlag(names: string[], fallback = false) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    return ["1", "true", "yes", "on"].includes(String(raw).trim().toLowerCase());
+  }
+  return fallback;
+}
+
+function integrationStatusCacheTtlMs() {
+  const fallback = envFlag(["FIREBASE_ECO_MODE", "FIRESTORE_ECO_MODE", "DASHBOARD_ECO_MODE"], false) ? 10 * 60_000 : 120_000;
+  const value = Number(process.env.INTEGRATION_STATUS_CACHE_TTL_MS || fallback);
+  return Number.isFinite(value) ? Math.max(60_000, Math.min(Math.floor(value), 60 * 60_000)) : fallback;
+}
+
 function safeMessage(error: unknown, fallback: string) {
   const message = error instanceof Error ? error.message : String(error || "");
   return (message || fallback).replace(/\s+/g, " ").trim().slice(0, 160) || fallback;
@@ -102,6 +122,9 @@ async function checkFirebaseWrites(checkedAt: string): Promise<IntegrationStatus
 }
 
 export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSummary> {
+  const cached = globalThis.__mistblossomIntegrationStatusCache;
+  if (cached && Date.now() - cached.checkedAtMs < integrationStatusCacheTtlMs()) return cached.value;
+
   const checkedAt = new Date().toISOString();
   const results = await Promise.allSettled([
     checkDiscord(checkedAt),
@@ -119,7 +142,7 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
     ["firebase-write", "Запис Firebase"],
   ];
 
-  return {
+  const value = {
     checkedAt,
     items: results.map((result, index) => {
       if (result.status === "fulfilled") return result.value;
@@ -127,4 +150,6 @@ export async function getIntegrationStatusSummary(): Promise<IntegrationStatusSu
       return item(key, label, "error", "перевірка не виконалась", checkedAt);
     }),
   };
+  globalThis.__mistblossomIntegrationStatusCache = { checkedAtMs: Date.now(), value };
+  return value;
 }

@@ -53,6 +53,28 @@ function cleanArea(area: FirebaseArea | string | undefined): FirebaseArea {
     : "generic";
 }
 
+function envFlag(names: string[], fallback = false) {
+  for (const name of names) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || raw === "") continue;
+    return ["1", "true", "yes", "on"].includes(String(raw).trim().toLowerCase());
+  }
+  return fallback;
+}
+
+function firebaseReadsDisabled() {
+  return envFlag(["FIREBASE_READS_DISABLED", "FIRESTORE_READS_DISABLED"], false);
+}
+
+function firebaseWritesDisabled() {
+  return envFlag([
+    "FIREBASE_WRITES_DISABLED",
+    "FIRESTORE_WRITES_DISABLED",
+    "FIREBASE_READ_ONLY_MODE",
+    "FIREBASE_ECO_READ_ONLY",
+  ], false);
+}
+
 export function firebaseCircuitKey(area: FirebaseArea | string, operation: FirebaseOperation) {
   return `firebase-${cleanArea(area)}-${operation}`;
 }
@@ -72,6 +94,19 @@ export function firebaseCapability(area: FirebaseArea | string, operation: Fireb
   }
 
   const key = firebaseCircuitKey(clean, operation);
+  const disabled = operation === "read" ? firebaseReadsDisabled() : firebaseWritesDisabled();
+  if (disabled) {
+    return {
+      configured: true,
+      available: false,
+      mode: "disabled" as const,
+      reason: operation === "read" ? "Firebase reads disabled by env." : "Firebase writes disabled by env.",
+      circuit: null,
+      circuitKey: key,
+      label: AREA_LABELS[clean],
+    };
+  }
+
   const circuit = getRuntimeCircuit(key);
   return {
     configured: true,
