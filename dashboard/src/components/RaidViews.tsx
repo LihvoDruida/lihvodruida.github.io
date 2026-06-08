@@ -382,22 +382,24 @@ function BenchCard({
   return (
     <article className="raid-party-card raid-bench-card">
       <h3>🪑 Лава запасних</h3>
-      {members.map((member, index) => (
-        <RoleRow
-          key={`bench-${member.discordId}-${member.characterName || member.discordName}-${index}`}
-          label={raidPartyRoleLabel(member.role)}
-          role={member.role}
-          item={member}
-          minItemLevel={minItemLevel}
-          minItemLevelRequired={minItemLevelRequired}
-          showItemLevel={showItemLevel}
-          isBenchPriority={shouldShowBenchPriorityMarker(
-            member,
-            benchPriority,
-            showBenchPriorityMarkers,
-          )}
-        />
-      ))}
+      <div className="raid-bench-members">
+        {members.map((member, index) => (
+          <RoleRow
+            key={`bench-${member.discordId}-${member.characterName || member.discordName}-${index}`}
+            label={raidPartyRoleLabel(member.role)}
+            role={member.role}
+            item={member}
+            minItemLevel={minItemLevel}
+            minItemLevelRequired={minItemLevelRequired}
+            showItemLevel={showItemLevel}
+            isBenchPriority={shouldShowBenchPriorityMarker(
+              member,
+              benchPriority,
+              showBenchPriorityMarkers,
+            )}
+          />
+        ))}
+      </div>
     </article>
   );
 }
@@ -750,6 +752,8 @@ export function RaidAnnouncementPreview({
   const averageItemLevel = raidAverageItemLevel(raid);
   const layout = buildRaidGroupLayout(raid);
   const parties = layout.parties;
+  const oddParties = parties.filter((party) => party.index % 2 === 1);
+  const evenParties = parties.filter((party) => party.index % 2 === 0);
   const bench = layout.bench;
   const compositionWarnings = layout.warnings;
   const closed = isRaidClosed(raid);
@@ -911,25 +915,44 @@ export function RaidAnnouncementPreview({
             </div>
           </div>
           <div className="raid-party-grid">
-            {parties.map((party) => (
-              <PartyCard
-                key={party.index}
-                party={party}
+            <div className="raid-party-layout">
+              <div className="raid-party-columns">
+                <div className="raid-party-column">
+                  {oddParties.map((party) => (
+                    <PartyCard
+                      key={party.index}
+                      party={party}
+                      minItemLevel={raid.minItemLevel}
+                      minItemLevelRequired={raid.minItemLevelRequired}
+                      showItemLevel={showMemberItemLevels}
+                      benchPriority={raid.benchPriority || null}
+                      showBenchPriorityMarkers={showBenchPriorityMarkers}
+                    />
+                  ))}
+                </div>
+                <div className="raid-party-column">
+                  {evenParties.map((party) => (
+                    <PartyCard
+                      key={party.index}
+                      party={party}
+                      minItemLevel={raid.minItemLevel}
+                      minItemLevelRequired={raid.minItemLevelRequired}
+                      showItemLevel={showMemberItemLevels}
+                      benchPriority={raid.benchPriority || null}
+                      showBenchPriorityMarkers={showBenchPriorityMarkers}
+                    />
+                  ))}
+                </div>
+              </div>
+              <BenchCard
+                members={bench.members}
                 minItemLevel={raid.minItemLevel}
                 minItemLevelRequired={raid.minItemLevelRequired}
                 showItemLevel={showMemberItemLevels}
                 benchPriority={raid.benchPriority || null}
                 showBenchPriorityMarkers={showBenchPriorityMarkers}
               />
-            ))}
-            <BenchCard
-              members={bench.members}
-              minItemLevel={raid.minItemLevel}
-              minItemLevelRequired={raid.minItemLevelRequired}
-              showItemLevel={showMemberItemLevels}
-              benchPriority={raid.benchPriority || null}
-              showBenchPriorityMarkers={showBenchPriorityMarkers}
-            />
+            </div>
           </div>
         </>
       ) : (

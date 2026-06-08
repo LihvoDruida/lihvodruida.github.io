@@ -20266,3 +20266,80 @@ main.container {
     height: 38px !important;
   }
 }
+
+
+/* Raid party layout polish: odd/even columns + full-width bench with 3 cards per row */
+.raid-party-grid {
+  display: block !important;
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.raid-party-layout {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.raid-party-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.raid-party-column {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+
+.raid-party-column > .raid-party-card,
+.raid-bench-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.raid-bench-card {
+  grid-column: 1 / -1;
+}
+
+.raid-bench-members {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.raid-bench-members .raid-party-row {
+  margin: 0 !important;
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .raid-party-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .raid-bench-members {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .raid-party-grid {
+    margin-left: 4px;
+  }
+
+  .raid-party-layout,
+  .raid-party-columns,
+  .raid-party-column {
+    gap: 10px;
+  }
+
+  .raid-bench-members {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./profile.css";
@@ -110,6 +111,37 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body>
+        <Script id="dashboard-extension-noise-guard" strategy="beforeInteractive">
+          {`
+            (() => {
+              const isIgnorable = (value) => {
+                const text = String(value && (value.message || value.reason || value) || "");
+                return /Could not establish connection\. Receiving end does not exist/i.test(text) ||
+                  /A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received/i.test(text) ||
+                  /The message port closed before a response was received/i.test(text) ||
+                  /Unchecked runtime\.lastError/i.test(text) ||
+                  /Extension context invalidated/i.test(text) ||
+                  /(?:chrome|moz|safari-web)-extension:\/\//i.test(text);
+              };
+
+              window.addEventListener(
+                "unhandledrejection",
+                (event) => {
+                  if (isIgnorable(event.reason)) event.preventDefault();
+                },
+                true,
+              );
+
+              window.addEventListener(
+                "error",
+                (event) => {
+                  if (isIgnorable(event.error || event.message || event.filename)) event.preventDefault();
+                },
+                true,
+              );
+            })();
+          `}
+        </Script>
         <ClientErrorReporter />
         <ClientAuthGuard />
         <DashboardFormEnhancer />
