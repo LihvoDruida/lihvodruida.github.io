@@ -1210,8 +1210,12 @@ function scheduleSelectOptionsWithDefaults(days: RaidPollDay[], draft: RaidPollV
 }
 
 function scheduleDaySelectOptions(day: RaidPollDay, draft: RaidPollVoteDraft) {
+  // У приватному Discord-пульті кожен день винесений в окремий select.
+  // Discord показує в закритому select тільки label вибраного option, а не placeholder,
+  // тому без префікса дня користувач бачив два однакові рядки «з 20:00».
+  // Формат має бути самодостатнім: «Пн · з 20:00», «Вт · Не можу».
   return RAID_POLL_AVAILABILITY_OPTIONS.map((availability) => ({
-    label: raidPollAvailabilityLabel(availability).slice(0, 100),
+    label: `${dayLabel(day)} · ${raidPollAvailabilityLabel(availability)}`.slice(0, 100),
     value: `${day}:${availability}`,
     description: scheduleOptionDescription(day, availability).slice(0, 100),
     default: isScheduleOptionDefault(draft.schedule, day, availability),
