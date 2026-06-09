@@ -31,7 +31,7 @@ export default async function PollDetailsPage({ params }: { params: Promise<{ po
 
   const { pollId } = await params;
   const poll = await getRaidPoll(pollId).catch(() => null);
-  const relatedPolls = poll ? await listRaidPolls(120).catch(() => [poll]) : [];
+  const relatedPolls = poll ? (await listRaidPolls(120).catch(() => [poll])).filter((item) => item.channelId && item.messageId) : [];
   const canManage = canManageRaids(user);
 
   return (

@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import RaidPollCreateClientForm from "@/components/RaidPollCreateClientForm";
 import RaidPollDeleteButton from "@/components/RaidPollDeleteButton";
+import RaidPollRecalculateButton from "@/components/RaidPollRecalculateButton";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import type { DashboardSession } from "@/lib/auth";
@@ -320,6 +321,7 @@ export function RaidPollResults({ poll, canManage = false, relatedPolls = [poll]
         <a className="btn subtle" href="/polls">До списку пулів</a>
         {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Відкрити Discord</a> : null}
         {canManage ? <a className="btn subtle" href={`/polls/${encodeURIComponent(poll.id)}/edit`}>Редагувати</a> : null}
+        {canManage ? <RaidPollRecalculateButton /> : null}
         {canManage && poll.status === "open" ? (
           <form action={`/api/polls/${encodeURIComponent(poll.id)}/close`} method="post" data-confirm-message="Закрити рейд-пул зараз?">
             <button className="btn danger" type="submit">Закрити голосування</button>

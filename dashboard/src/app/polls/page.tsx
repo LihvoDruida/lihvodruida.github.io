@@ -5,6 +5,7 @@ import { getOwnProfilePath } from "@/lib/profiles";
 import { hasDiscordEmbedConfig } from "@/lib/discordAdmin";
 import { hasRaidPollStorage, listRaidPolls } from "@/lib/raidPolls";
 import { RaidPollListCard, RaidPollPageShell } from "@/components/RaidPollViews";
+import RaidPollRecalculateButton from "@/components/RaidPollRecalculateButton";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const runtime = "nodejs";
@@ -30,6 +31,7 @@ export default async function PollsPage() {
   const polls = await listRaidPolls(120).catch(() => []);
   const openPolls = polls.filter((poll) => poll.status === "open");
   const closedPolls = polls.filter((poll) => poll.status === "closed");
+  const publishedPolls = polls.filter((poll) => poll.channelId && poll.messageId);
 
   return (
     <RaidPollPageShell
@@ -46,7 +48,10 @@ export default async function PollsPage() {
           <strong>Вузол синхронізації Discord Live Active</strong>
           <p>Worker готовий приймати interactions, Firebase зберігає голоси, сайт показує актуальні результати без ручного оновлення.</p>
         </div>
-        <div className="raid-poll-command-log" aria-label="Системний статус">dashboardRaidPolls</div>
+        <div className="raid-poll-command-actions">
+          {canManage ? <RaidPollRecalculateButton /> : null}
+          <div className="raid-poll-command-log" aria-label="Системний статус">dashboardRaidPolls</div>
+        </div>
       </section>
 
       <section className="panel raid-list-page-panel raid-poll-list-section raid-poll-list-section--active">
@@ -64,7 +69,7 @@ export default async function PollsPage() {
           {canManage ? <a className="btn primary raid-poll-create-button" href="/polls/new">＋ Створити рейд-пул</a> : null}
         </div>
         <div className="raid-manager-list raid-poll-card-grid">
-          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={openPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
+          {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={publishedPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
         </div>
       </section>
 
@@ -77,7 +82,7 @@ export default async function PollsPage() {
           </div>
         </div>
         <div className="raid-manager-list raid-manager-list--archive raid-poll-card-grid raid-poll-card-grid--archive">
-          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={[poll]} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
+          {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={publishedPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
         </div>
       </section>
     </RaidPollPageShell>

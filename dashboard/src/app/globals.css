@@ -17960,6 +17960,20 @@ a.is-submitting[aria-busy="true"] {
   line-height: 1.45;
 }
 
+
+.raid-poll-command-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.raid-poll-recalculate-button {
+  white-space: nowrap;
+}
+
 .raid-poll-command-log {
   min-width: 0;
   border: 1px solid rgba(34, 197, 94, 0.12);
@@ -18340,6 +18354,10 @@ a.is-submitting[aria-busy="true"] {
   .raid-poll-list-card__actions,
   .raid-poll-card-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .raid-poll-command-actions {
+    justify-content: flex-start;
   }
 
   .raid-poll-command-log {
