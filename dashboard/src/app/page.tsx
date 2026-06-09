@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import HomeDashboardLiveSync from "@/components/HomeDashboardLiveSync";
+import { HomeLocalTime } from "@/components/HomeLocalTime";
+import HomeUpcomingRaidList, { type HomeUpcomingRaid } from "@/components/HomeUpcomingRaidList";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
-import { absoluteDashboardUrl, buildPageMetadata, dashboardBaseUrl } from "@/lib/seo";
+import { absoluteDashboardUrl, buildPageMetadata } from "@/lib/seo";
 import {
   isRaidClosed,
   listRaids,
@@ -34,7 +36,6 @@ export const revalidate = 0;
 
 const RAID_TIME_ZONE = process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv";
 const MONTH_LABEL = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: RAID_TIME_ZONE });
-const DATE_LABEL = new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeZone: RAID_TIME_ZONE });
 const DATE_TIME_LABEL = new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short", timeZone: RAID_TIME_ZONE });
 
 const WEEKDAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
@@ -69,11 +70,49 @@ function dateKey(date: Date) {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
-function parseRaidDate(raid: Pick<RaidItem, "date" | "time">) {
-  const [year, month, day] = String(raid.date || "").split("-").map(Number);
+function timeZoneOffsetMs(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const asUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second),
+  );
+  return asUtc - date.getTime();
+}
+
+function zonedRaidDateToUtc(dateValue: string, timeValue: string, timeZone = RAID_TIME_ZONE) {
+  const [year, month, day] = String(dateValue || "").split("-").map(Number);
   if (!year || !month || !day) return null;
-  const [hour = 20, minute = 0] = String(raid.time || "20:00").split(":").map(Number);
-  return new Date(Date.UTC(year, month - 1, day, Number.isFinite(hour) ? hour : 20, Number.isFinite(minute) ? minute : 0));
+
+  const [rawHour = 20, rawMinute = 0] = String(timeValue || "20:00").split(":").map(Number);
+  const hour = Number.isFinite(rawHour) ? rawHour : 20;
+  const minute = Number.isFinite(rawMinute) ? rawMinute : 0;
+  const localAsUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
+
+  let offset = timeZoneOffsetMs(new Date(localAsUtc), timeZone);
+  let utc = localAsUtc - offset;
+  const correctedOffset = timeZoneOffsetMs(new Date(utc), timeZone);
+  if (correctedOffset !== offset) utc = localAsUtc - correctedOffset;
+
+  return new Date(utc);
+}
+
+function parseRaidDate(raid: Pick<RaidItem, "date" | "time">) {
+  return zonedRaidDateToUtc(String(raid.date || ""), String(raid.time || "20:00"));
 }
 
 function buildCalendarDays(month: Date, raids: RaidItem[]): CalendarDay[] {
@@ -126,7 +165,9 @@ function eventStatusLabel(raid: RaidItem) {
 }
 
 function upcomingRaidSort(a: RaidItem, b: RaidItem) {
-  return `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`);
+  const aDate = parseRaidDate(a)?.getTime() || 0;
+  const bDate = parseRaidDate(b)?.getTime() || 0;
+  return aDate - bDate;
 }
 
 function homeRevision(raids: RaidItem[], polls: RaidPollItem[]) {
@@ -143,9 +184,10 @@ function googleCalendarUrl() {
 
 function RaidCalendarEvent({ raid }: { raid: RaidItem }) {
   const roster = raidActiveRosterSize(raid);
+  const startsAt = parseRaidDate(raid);
   return (
     <a className={`home-calendar-event home-calendar-event--${raid.difficulty} home-calendar-event--${raid.status}`} href={`/raids/${encodeURIComponent(raid.id)}`}>
-      <strong>{raid.time}</strong>
+      <strong><HomeLocalTime value={startsAt?.toISOString()} fallback={raid.time || "20:00"} mode="time" /></strong>
       <span>{raid.title}</span>
       <em>{raidDifficultyLabel(raid.difficulty)} • {roster} запис.</em>
     </a>
@@ -170,11 +212,11 @@ function PollResultCard({ poll, relatedPolls }: { poll: RaidPollItem; relatedPol
         <dl className="home-poll-metrics">
           <div>
             <dt>Старт</dt>
-            <dd>{formatDateTime(poll.createdAt)}</dd>
+            <dd><HomeLocalTime value={poll.createdAt} fallback={formatDateTime(poll.createdAt)} mode="compact" /></dd>
           </div>
           <div>
             <dt>{poll.status === "open" ? "Закриття" : "Завершено"}</dt>
-            <dd>{poll.status === "open" ? formatDateTime(poll.closesAtMs) : formatDateTime(poll.closedAt || poll.closesAtMs)}</dd>
+            <dd><HomeLocalTime value={poll.status === "open" ? poll.closesAtMs : poll.closedAt || poll.closesAtMs} fallback={poll.status === "open" ? formatDateTime(poll.closesAtMs) : formatDateTime(poll.closedAt || poll.closesAtMs)} mode="compact" /></dd>
           </div>
           <div>
             <dt>Голосів</dt>
@@ -224,7 +266,25 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       return date ? date.getTime() >= now - 6 * 60 * 60 * 1000 : false;
     })
     .sort(upcomingRaidSort)
-    .slice(0, 4);
+    .slice(0, 8);
+  const upcomingRaidItems: HomeUpcomingRaid[] = upcomingRaids
+    .map((raid) => {
+      const startsAt = parseRaidDate(raid);
+      if (!startsAt) return null;
+      return {
+        id: raid.id,
+        href: `/raids/${encodeURIComponent(raid.id)}`,
+        title: raidTitle(raid),
+        difficulty: raid.difficulty,
+        difficultyLabel: raidDifficultyLabel(raid.difficulty),
+        statusLabel: eventStatusLabel(raid),
+        startsAtIso: startsAt.toISOString(),
+        sourceTime: raid.time || "20:00",
+        sourceDate: raid.date || "",
+        roster: raidActiveRosterSize(raid),
+      };
+    })
+    .filter(Boolean) as HomeUpcomingRaid[];
   const openPolls = polls.filter((poll) => poll.status === "open");
   const publishedPolls = polls.filter((poll) => poll.channelId && poll.messageId);
   const spotlightPolls = [...openPolls, ...polls.filter((poll) => poll.status === "closed")].slice(0, 6);
@@ -316,18 +376,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <section className="panel home-upcoming-card" aria-label="Найближчі рейди">
               <span className="home-kicker">Найближче</span>
               <h2>Рейди</h2>
-              <div className="home-upcoming-list">
-                {upcomingRaids.length ? upcomingRaids.map((raid) => {
-                  const raidDate = parseRaidDate(raid);
-                  return (
-                    <a className={`home-upcoming-item home-upcoming-item--${raid.difficulty}`} href={`/raids/${encodeURIComponent(raid.id)}`} key={raid.id}>
-                      <span>{raidDate ? DATE_LABEL.format(raidDate) : raid.date}</span>
-                      <strong>{raidTitle(raid)}</strong>
-                      <em>{raid.time} • {eventStatusLabel(raid)} • {raidActiveRosterSize(raid)} запис.</em>
-                    </a>
-                  );
-                }) : <p className="home-empty-text">Найближчих рейдів поки немає.</p>}
-              </div>
+              <HomeUpcomingRaidList raids={upcomingRaidItems} initialNow={now} />
             </section>
           </aside>
         </section>
