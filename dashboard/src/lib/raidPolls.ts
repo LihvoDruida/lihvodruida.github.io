@@ -775,9 +775,10 @@ export type RaidPollUniqueDayRecommendation = RaidPollSlotRecommendation & {
   pollTitle: string;
 };
 
-type RaidPollRecommendationContext = Pick<RaidPollItem, "id" | "title" | "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty" | "status" | "createdAt" | "closesAtMs">>;
+type RaidPollRecommendationContext = Pick<RaidPollItem, "id" | "title" | "days" | "votes"> & Partial<Pick<RaidPollItem, "difficulty" | "status" | "createdAt" | "closesAtMs" | "channelId" | "messageId">>;
 
 const RAID_POLL_MAX_SLOT_RECOMMENDATIONS = RAID_POLL_DAYS.length * RAID_POLL_TIMES.length;
+const RAID_POLL_WEEKEND_DAYS = new Set<RaidPollDay>(["sat", "sun"]);
 
 function raidPollDayIndex(day: RaidPollDay) {
   return RAID_POLL_DAYS.findIndex((item) => item.value === day);
@@ -994,6 +995,38 @@ function comparePollCandidate(a: { pollOrder: number; candidate: RaidPollUniqueD
   return compareRaidPollSlotRecommendations(a.candidate, b.candidate) || a.pollOrder - b.pollOrder || a.candidate.pollTitle.localeCompare(b.candidate.pollTitle, "uk");
 }
 
+function isRaidPollWeekendDay(day: RaidPollDay) {
+  return RAID_POLL_WEEKEND_DAYS.has(day);
+}
+
+function raidPollWeekendCandidateMakesSense(
+  candidate: RaidPollSlotRecommendation,
+  best: RaidPollSlotRecommendation | null | undefined,
+) {
+  if (!isRaidPollWeekendDay(candidate.day)) return false;
+  if (!candidate.coreReady) return false;
+  const bestTotal = Math.max(0, Math.floor(Number(best?.total || 0)));
+  const minimumMeaningfulTotal = Math.max(5, Math.ceil(bestTotal * 0.65));
+  return candidate.total >= minimumMeaningfulTotal;
+}
+
+function assignPollRecommendationCandidate(
+  plan: Record<string, RaidPollUniqueDayRecommendation[]>,
+  usedDays: Set<RaidPollDay>,
+  pollId: string,
+  candidate: RaidPollUniqueDayRecommendation,
+  limit: number,
+) {
+  const assigned = plan[pollId] || [];
+  if (assigned.length >= limit) return false;
+  if (usedDays.has(candidate.day)) return false;
+  if (assigned.some((slot) => slot.day === candidate.day)) return false;
+  assigned.push(candidate);
+  plan[pollId] = assigned;
+  usedDays.add(candidate.day);
+  return true;
+}
+
 export function raidPollUniqueDayRecommendationPlan(polls: RaidPollRecommendationContext[], limitPerPoll = 2): Record<string, RaidPollUniqueDayRecommendation[]> {
   const normalized = polls.map(normalizePollRecommendationContext).filter((poll) => poll.status !== "closed");
   const perPollLimit = Math.max(1, Math.min(RAID_POLL_DAYS.length, Math.floor(limitPerPoll)));
@@ -1017,6 +1050,20 @@ export function raidPollUniqueDayRecommendationPlan(polls: RaidPollRecommendatio
 
   for (const item of orderedPolls) plan[item.poll.id] = [];
 
+  // Спершу намагаємось дати кожному опублікованому Discord-пулу один вихідний день,
+  // але тільки якщо там є реальний склад: ядро готове і кількість гравців не просідає
+  // нижче 65% від найкращого дня цього ж рейду. Дні все одно лишаються унікальними.
+  const weekendCandidates: Array<{ pollId: string; pollOrder: number; candidate: RaidPollUniqueDayRecommendation }> = [];
+  orderedPolls.forEach((item, pollOrder) => {
+    const candidates = candidatesByPoll.get(item.poll.id) || [];
+    const weekend = candidates.find((candidate) => raidPollWeekendCandidateMakesSense(candidate, item.best));
+    if (weekend) weekendCandidates.push({ pollId: item.poll.id, pollOrder, candidate: weekend });
+  });
+  weekendCandidates.sort(comparePollCandidate);
+  for (const row of weekendCandidates) {
+    assignPollRecommendationCandidate(plan, usedDays, row.pollId, row.candidate, perPollLimit);
+  }
+
   for (let round = 0; round < perPollLimit; round += 1) {
     const roundCandidates: Array<{ pollId: string; pollOrder: number; candidate: RaidPollUniqueDayRecommendation }> = [];
     orderedPolls.forEach((item, pollOrder) => {
@@ -1034,14 +1081,15 @@ export function raidPollUniqueDayRecommendationPlan(polls: RaidPollRecommendatio
     for (const row of roundCandidates) {
       const assigned = plan[row.pollId] || [];
       if (assigned.length > round || assigned.length >= perPollLimit) continue;
-      if (usedDays.has(row.candidate.day)) continue;
-      if (assigned.some((slot) => slot.day === row.candidate.day)) continue;
-      assigned.push(row.candidate);
-      plan[row.pollId] = assigned;
-      usedDays.add(row.candidate.day);
-      changed = true;
+      if (assignPollRecommendationCandidate(plan, usedDays, row.pollId, row.candidate, perPollLimit)) {
+        changed = true;
+      }
     }
     if (!changed) break;
+  }
+
+  for (const pollId of Object.keys(plan)) {
+    plan[pollId] = plan[pollId].sort(compareRaidPollSlotRecommendations);
   }
 
   return plan;
@@ -1205,6 +1253,12 @@ function formatDiscordTimestamp(ms: number) {
   return `<t:${stamp}:f> • <t:${stamp}:R>`;
 }
 
+function isRaidPollPublishedToDiscordContext(poll: RaidPollRecommendationContext, currentId?: string | null) {
+  const id = cleanString(poll.id, 80);
+  if (currentId && id === currentId) return true;
+  return Boolean(cleanSnowflake(poll.channelId) && cleanSnowflake(poll.messageId));
+}
+
 function activeRecommendationPolls(current: RaidPollItem, relatedPolls: RaidPollRecommendationContext[] = [current]) {
   if (current.status === "closed" || current.closesAtMs <= Date.now()) return [current];
 
@@ -1215,6 +1269,7 @@ function activeRecommendationPolls(current: RaidPollItem, relatedPolls: RaidPoll
     if (!id) continue;
     if (id !== current.id && poll.status === "closed") continue;
     if (id !== current.id && Number(poll.closesAtMs || 0) > 0 && Number(poll.closesAtMs || 0) <= nowMs) continue;
+    if (!isRaidPollPublishedToDiscordContext(poll, current.id)) continue;
     byId.set(id, { ...poll, id });
   }
   byId.set(current.id, current);
@@ -1564,6 +1619,7 @@ async function loadOpenRaidPollsForRecommendations(current?: RaidPollItem | null
     for (const poll of polls) {
       if (poll.status !== "open") continue;
       if (poll.closesAtMs <= nowMs) continue;
+      if (!cleanSnowflake(poll.channelId) || !cleanSnowflake(poll.messageId)) continue;
       byId.set(poll.id, poll);
     }
   } catch (error) {

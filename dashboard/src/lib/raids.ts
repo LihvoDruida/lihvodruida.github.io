@@ -4431,7 +4431,7 @@ async function editCurrentRaidDiscordMessage(
   raid: RaidItem,
   messageRef?: DiscordMessageRefInput | null,
 ) {
-  if (raid.status !== "published") return false;
+  if (raid.status === "draft") return false;
 
   // Важливо: під час вибору персонажа Discord надсилає ref на приватне ephemeral-повідомлення
   // з select-menu, а не на основний публічний embed рейду. Якщо редагувати цей ref першим,
@@ -4451,11 +4451,12 @@ async function editCurrentRaidDiscordMessage(
     return false;
   }
 
+  const closed = isRaidClosed(raid);
   const payload = buildRaidDiscordPayload(raid);
   const components = buildRaidAttendanceComponents(raid.id, {
-    disabled: false,
-    full: isRaidRegistrationFull(raid),
-    registrationLocked: isRaidRegistrationLocked(raid),
+    disabled: closed,
+    full: !closed && isRaidRegistrationFull(raid),
+    registrationLocked: !closed && isRaidRegistrationLocked(raid),
     signed: false,
     personalized: false,
   });
@@ -4466,7 +4467,7 @@ async function editCurrentRaidDiscordMessage(
     embed: payload.embed,
     components,
     mentionRoleIds: payload.mentionRoleIds,
-    auditReason: `Raid signup changed: ${raid.id}`,
+    auditReason: closed ? `Raid buttons disabled after close: ${raid.id}` : `Raid signup changed: ${raid.id}`,
   });
 
   return true;
@@ -4620,9 +4621,13 @@ export async function handleRaidDiscordAction(params: {
   const raid = await getRaid(params.raidId);
   if (!raid)
     return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
-  await syncRaidLifecycleAfterRead(raid).catch(() => undefined);
-  if (isRaidClosed(raid))
-    return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
+  const lifecycle = await syncRaidLifecycleAfterRead(raid).catch(() => null);
+  if (lifecycle?.status === "closed" || isRaidClosed(raid))
+    return {
+      ok: false,
+      content: "🔒 Рейд уже закритий, запис вимкнено.",
+      components: buildRaidAttendanceComponents(raid.id, { disabled: true }),
+    };
   if (raid.status !== "published")
     return {
       ok: false,
@@ -4827,7 +4832,8 @@ export async function handleRaidSessionAction(params: {
   const raid = await getRaid(params.raidId);
   if (!raid)
     return { ok: false, content: "❌ Рейд не знайдено або він уже видалений." };
-  if (isRaidClosed(raid))
+  const lifecycle = await syncRaidLifecycleAfterRead(raid).catch(() => null);
+  if (lifecycle?.status === "closed" || isRaidClosed(raid))
     return { ok: false, content: "🔒 Рейд уже закритий, запис вимкнено." };
   if (raid.status !== "published")
     return {
