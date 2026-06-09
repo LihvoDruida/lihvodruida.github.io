@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/profiles/orphan-cleanup/apply",
+      "schedule": "0 4 * * *"
+    }
+  ]
+}

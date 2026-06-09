@@ -12,6 +12,7 @@ function compactProfileCleanupResult(result: Awaited<ReturnType<typeof cleanupDa
   const compact = { ...result } as Partial<typeof result>;
   delete compact.targets;
   delete compact.activePreview;
+  delete compact.rosterProtectedPreview;
   return compact;
 }
 
@@ -30,31 +31,39 @@ export async function POST(request: NextRequest) {
     });
 
     const banHint = result.banCheckError ? " Бан-лист не вдалося прочитати, але відсутність учасників перевірено через список сервера." : "";
+    const rosterHint = result.rosterSafetyBlocked
+      ? " Очищення заблоковано: збережений склад гільдії порожній або недоступний."
+      : ` Склад гільдії перевірено: ${result.checkedRosterCharacters}; захищено по roster: ${result.rosterProtectedTotal}.`;
     const summary = apply
-      ? `Перевірено профілів: ${result.checkedDiscordProfiles}; кандидатів на видалення: ${result.targetProfilesTotal}; видалено профілів з Firebase: ${result.deletedProfilesTotal}; помилок: ${result.failed}.${banHint}`
-      : `Перевірено профілів: ${result.checkedDiscordProfiles}; не на сервері: ${result.missingMemberTotal}; у бані: ${result.bannedTotal}; кандидатів на видалення: ${result.targetProfilesTotal}.${banHint}`;
+      ? `Перевірено профілів: ${result.checkedDiscordProfiles}; кандидатів: ${result.targetProfilesTotal}; видалено профілів: ${result.deletedProfilesTotal}; прибрано рейдових записів: ${result.removedRaidSignupsTotal}; оновлено рейдів: ${result.updatedRaidsTotal}; помилок: ${result.failed}.${rosterHint}${banHint}`
+      : `Перевірено профілів: ${result.checkedDiscordProfiles}; не на сервері: ${result.missingMemberTotal}; у бані: ${result.bannedTotal}; кандидатів: ${result.targetProfilesTotal}; потенційно рейдових записів до видалення: ${result.raidCleanupPreview?.removedSignups || 0}.${rosterHint}${banHint}`;
 
     await auditDiscordAdmin(apply ? "discord.profiles.cleanup_apply" : "discord.profiles.cleanup_inspect", guard.session, {
       ...compactProfileCleanupResult(result),
-      status: result.failed ? "warning" : result.targetProfilesTotal ? "warning" : "success",
+      status: result.failed || result.rosterSafetyBlocked ? "warning" : result.targetProfilesTotal ? "warning" : "success",
       summary,
       checkedProfiles: result.checkedProfiles,
       checkedDiscordProfiles: result.checkedDiscordProfiles,
       checkedDiscordMembers: result.checkedDiscordMembers,
       checkedBans: result.checkedBans,
+      checkedRosterCharacters: result.checkedRosterCharacters,
+      rosterProtectedTotal: result.rosterProtectedTotal,
+      rosterSafetyBlocked: result.rosterSafetyBlocked,
       targetProfilesTotal: result.targetProfilesTotal,
       targetDiscordUsersTotal: result.targetDiscordUsersTotal,
       bannedTotal: result.bannedTotal,
       missingMemberTotal: result.missingMemberTotal,
       deletedProfilesTotal: result.deletedProfilesTotal,
+      removedRaidSignupsTotal: result.removedRaidSignupsTotal,
+      updatedRaidsTotal: result.updatedRaidsTotal,
       changed: result.changed,
     });
 
     return adminDiscordResponse(request, {
       ok: true,
       tone: apply
-        ? result.failed ? "warning" : result.deletedProfilesTotal ? "success" : "info"
-        : result.targetProfilesTotal ? "warning" : "success",
+        ? result.failed || result.rosterSafetyBlocked ? "warning" : result.deletedProfilesTotal ? "success" : "info"
+        : result.rosterSafetyBlocked || result.targetProfilesTotal ? "warning" : "success",
       title: apply ? "Очищення Firebase-профілів завершено" : "Перевірку профілів завершено",
       message: summary,
       ttl: apply ? 16000 : 11000,

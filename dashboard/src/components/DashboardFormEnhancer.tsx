@@ -218,9 +218,9 @@ function actionText(action: string) {
   if (action.includes("/api/admin/discord/profiles/cleanup"))
     return {
       label: "Перевіряємо...",
-      title: "Перевіряємо Discord-профілі",
+      title: "Перевіряємо акаунти",
       message:
-        "Звіряємо Firebase-профілі зі списком учасників Discord і бан-листом.",
+        "Звіряємо Firebase-профілі зі складом гільдії, Discord-сервером і рейдовими записами.",
     };
   if (
     action.includes("/api/admin/discord/roles/add") ||

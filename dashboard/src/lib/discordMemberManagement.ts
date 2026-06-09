@@ -21,6 +21,7 @@ import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNick
 import { loadStoredGuildRosterData, type GuildRosterMember } from "@/lib/guildRoster";
 import { deleteDashboardProfilesByDiscordUserId, listAllDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
+import { removeRaidSignupsForAccounts } from "@/lib/raids";
 
 function snowflake(value: unknown) {
   const text = String(value || "").trim();
@@ -685,6 +686,17 @@ type DiscordProfileMembershipPreview = {
   updatedAt?: string | null;
 };
 
+type DiscordProfileRosterProtectedPreview = {
+  profileId: string;
+  userId: string;
+  name: string;
+  characters: number;
+  matchedRosterCharacters: string[];
+  reason: string;
+  lastLoginAt?: string | null;
+  updatedAt?: string | null;
+};
+
 function isDiscordApiNotFound(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || "");
   return /^Discord API 404:/i.test(message) || /Unknown Member|Unknown Ban/i.test(message);
@@ -708,6 +720,49 @@ function discordProfileCleanupPreview(profile: DashboardProfile, status: Exclude
     reason,
     banReason: banReason || null,
     characters: Array.isArray(profile.characters) ? profile.characters.length : 0,
+    lastLoginAt: profile.lastLoginAt || null,
+    updatedAt: profile.updatedAt || null,
+  };
+}
+
+function rosterMemberLabel(member: GuildRosterMember) {
+  const name = member.name || member.key || "Персонаж";
+  const realm = member.realmName || member.realmSlug || "";
+  const status = member.guildStatusLabel || member.guildStatus || "";
+  return [name, realm, status].filter(Boolean).join(" • ");
+}
+
+function buildStoredGuildRosterCharacterMap(members: GuildRosterMember[]) {
+  const map = new Map<string, string>();
+  for (const member of members) {
+    const label = rosterMemberLabel(member);
+    const keys = rosterMemberRankLookupKeys(member);
+    for (const key of keys) {
+      if (!map.has(key)) map.set(key, label);
+    }
+  }
+  return map;
+}
+
+function guildRosterCharacterMatchesForProfile(profile: DashboardProfile, rosterKeys: Map<string, string>) {
+  const matches = new Set<string>();
+  for (const character of profile.characters || []) {
+    for (const key of profileCharacterRankLookupKeys(character)) {
+      const label = rosterKeys.get(key);
+      if (label) matches.add(label);
+    }
+  }
+  return Array.from(matches).slice(0, 20);
+}
+
+function discordProfileRosterProtectedPreview(profile: DashboardProfile, matchedRosterCharacters: string[]): DiscordProfileRosterProtectedPreview {
+  return {
+    profileId: profile.profileId,
+    userId: profileDiscordId(profile),
+    name: profileCleanupDisplayName(profile),
+    characters: Array.isArray(profile.characters) ? profile.characters.length : 0,
+    matchedRosterCharacters,
+    reason: "Акаунт не видаляється: щонайменше один персонаж цього Discord-акаунту ще є у збереженому складі гільдії.",
     lastLoginAt: profile.lastLoginAt || null,
     updatedAt: profile.updatedAt || null,
   };
@@ -768,9 +823,10 @@ export async function inspectDashboardProfilesDiscordMembership(limit: unknown =
     ? Math.min(50_000, Math.floor(parsedLimit))
     : 50_000;
 
-  const [profiles, discordMembers] = await Promise.all([
+  const [profiles, discordMembers, storedRoster] = await Promise.all([
     listAllDashboardProfilesForDiscordSync(profileLimit),
     fetchDiscordGuildMembers(0),
+    loadStoredGuildRosterData(),
   ]);
 
   let bans: Awaited<ReturnType<typeof fetchDiscordGuildBans>> = [];
@@ -782,13 +838,16 @@ export async function inspectDashboardProfilesDiscordMembership(limit: unknown =
   }
 
   const discordMemberMap = new Map(discordMembers.map((member) => [member.userId, member]));
-  const discordMemberIds = new Set(discordMemberMap.keys());
   const banMap = new Map(bans.map((ban) => [ban.userId, ban]));
+  const rosterAvailable = storedRoster.members.length > 0;
+  const rosterKeyMap = rosterAvailable ? buildStoredGuildRosterCharacterMap(storedRoster.members) : new Map<string, string>();
   const discordProfiles = profiles.filter((profile) => profile.provider === "discord" || Boolean(profileDiscordId(profile)));
   const activeMembers: Array<{ profileId: string; userId: string; name: string; serverNickname: string | null }> = [];
   const invalidProfiles: Array<{ profileId: string; name: string; provider: string; providerUserId: string }> = [];
+  const rosterProtectedProfiles: DiscordProfileRosterProtectedPreview[] = [];
   const targets: DiscordProfileMembershipPreview[] = [];
 
+  const profilesByDiscordUser = new Map<string, DashboardProfile[]>();
   for (const profile of discordProfiles) {
     const userId = profileDiscordId(profile);
     if (!userId) {
@@ -801,36 +860,56 @@ export async function inspectDashboardProfilesDiscordMembership(limit: unknown =
       continue;
     }
 
-    const ban = banMap.get(userId);
-    if (ban) {
-      targets.push(discordProfileCleanupPreview(
-        profile,
-        "banned",
-        ban.reason ? `Discord-акаунт у бані сервера: ${ban.reason}` : "Discord-акаунт у бані сервера.",
-        ban.reason,
-      ));
-      continue;
-    }
+    const bucket = profilesByDiscordUser.get(userId) || [];
+    bucket.push(profile);
+    profilesByDiscordUser.set(userId, bucket);
+  }
 
-    const member = discordMemberMap.get(userId) || null;
-    if (!member) {
-      targets.push(discordProfileCleanupPreview(
-        profile,
-        "not_member",
-        banCheckError
-          ? "Discord-акаунта немає серед учасників сервера. Бан-лист не вдалося прочитати, тому статус бану не уточнено."
-          : "Discord-акаунта немає серед учасників сервера.",
-        null,
-      ));
-      continue;
-    }
+  if (rosterAvailable) {
+    for (const [userId, userProfiles] of profilesByDiscordUser.entries()) {
+      const rosterMatches = Array.from(new Set(userProfiles.flatMap((profile) => guildRosterCharacterMatchesForProfile(profile, rosterKeyMap))));
+      if (rosterMatches.length) {
+        for (const profile of userProfiles) {
+          rosterProtectedProfiles.push(discordProfileRosterProtectedPreview(profile, rosterMatches));
+        }
+        continue;
+      }
 
-    activeMembers.push({
-      profileId: profile.profileId,
-      userId,
-      name: profileCleanupDisplayName(profile),
-      serverNickname: member?.nick || null,
-    });
+      const member = discordMemberMap.get(userId) || null;
+      if (member) {
+        for (const profile of userProfiles) {
+          activeMembers.push({
+            profileId: profile.profileId,
+            userId,
+            name: profileCleanupDisplayName(profile),
+            serverNickname: member.nick || null,
+          });
+        }
+        continue;
+      }
+
+      const ban = banMap.get(userId);
+      for (const profile of userProfiles) {
+        if (ban) {
+          targets.push(discordProfileCleanupPreview(
+            profile,
+            "banned",
+            ban.reason ? `Discord-акаунт у бані сервера: ${ban.reason}` : "Discord-акаунт у бані сервера.",
+            ban.reason,
+          ));
+          continue;
+        }
+
+        targets.push(discordProfileCleanupPreview(
+          profile,
+          "not_member",
+          banCheckError
+            ? "Discord-акаунта немає серед учасників сервера. Бан-лист не вдалося прочитати, тому статус бану не уточнено."
+            : "Discord-акаунта немає серед учасників сервера.",
+          null,
+        ));
+      }
+    }
   }
 
   const bannedTotal = targets.filter((item) => item.status === "banned").length;
@@ -840,8 +919,14 @@ export async function inspectDashboardProfilesDiscordMembership(limit: unknown =
     checkedDiscordProfiles: discordProfiles.length,
     checkedDiscordMembers: discordMembers.length,
     checkedBans: bans.length,
+    checkedRosterCharacters: storedRoster.members.length,
+    storedRosterSource: storedRoster.source,
+    storedRosterError: storedRoster.error || null,
+    rosterAvailable,
+    rosterSafetyBlocked: !rosterAvailable,
     banCheckError,
     activeMemberTotal: activeMembers.length,
+    rosterProtectedTotal: rosterProtectedProfiles.length,
     invalidDiscordProfileTotal: invalidProfiles.length,
     invalidProfiles: invalidProfiles.slice(0, 100),
     targetProfilesTotal: targets.length,
@@ -850,6 +935,7 @@ export async function inspectDashboardProfilesDiscordMembership(limit: unknown =
     missingMemberTotal,
     targets,
     preview: targets.slice(0, 200),
+    rosterProtectedPreview: rosterProtectedProfiles.slice(0, 100),
     activePreview: activeMembers.slice(0, 50),
   };
 }
@@ -860,13 +946,36 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
   reason?: string;
 }) {
   const inspection = await inspectDashboardProfilesDiscordMembership(input.limit || 0);
-  if (input.dryRun) {
+  const allProfiles = await listAllDashboardProfilesForDiscordSync(input.limit || 0);
+  const targetProfileIds = new Set(inspection.targets.map((target) => target.profileId));
+  const targetProfiles = allProfiles.filter((profile) => targetProfileIds.has(profile.profileId));
+
+  const raidPreview = await removeRaidSignupsForAccounts({
+    profiles: targetProfiles,
+    discordUserIds: inspection.targets.map((target) => target.userId),
+    dryRun: true,
+    syncDiscord: false,
+  }).catch((error) => ({
+    dryRun: true,
+    scannedRaids: 0,
+    changedRaids: 0,
+    removedSignups: 0,
+    discordSynced: 0,
+    discordFailed: 0,
+    changedItems: [],
+    error: safeErrorText(error, "Не вдалося порахувати рейдові записи для очищення."),
+  }));
+
+  if (input.dryRun || inspection.rosterSafetyBlocked) {
     return {
       dryRun: true,
       ...inspection,
       changed: 0,
       deletedProfilesTotal: 0,
       deletedDiscordUsersTotal: 0,
+      removedRaidSignupsTotal: 0,
+      updatedRaidsTotal: 0,
+      raidCleanupPreview: raidPreview,
       skippedFreshMember: 0,
       skippedNotFound: 0,
       failed: 0,
@@ -874,11 +983,19 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
       changedItemsTotal: 0,
       skippedItems: [],
       skippedItemsTotal: 0,
-      errors: [],
-      errorsTotal: 0,
+      errors: inspection.rosterSafetyBlocked
+        ? [{
+            userId: "",
+            name: "Guild roster safety",
+            profileIds: [],
+            error: "Очищення заблоковано: збережений склад гільдії порожній або недоступний. Спочатку онови склад гільдії.",
+          }]
+        : [],
+      errorsTotal: inspection.rosterSafetyBlocked ? 1 : 0,
     };
   }
 
+  const profilesById = new Map(targetProfiles.map((profile) => [profile.profileId, profile]));
   const byDiscordUser = new Map<string, DiscordProfileMembershipPreview[]>();
   for (const target of inspection.targets) {
     if (!target.userId) continue;
@@ -887,7 +1004,6 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
     byDiscordUser.set(target.userId, bucket);
   }
 
-  const policy = await getGuildNicknamePolicy();
   const { results, meta } = await mapConcurrentSettled(
     Array.from(byDiscordUser.entries()).map(([userId, profilesForUser]) => ({ userId, profilesForUser })),
     async (target) => {
@@ -899,14 +1015,24 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
           name: fresh.member?.displayName || firstProfile?.name || target.userId,
           status: fresh.status,
           skipped: true,
-          skipReason: "Перед видаленням акаунт повторно знайдено на Discord-сервері; профіль не чіпали.",
+          skipReason: "Перед видаленням акаунт повторно знайдено на Discord-сервері; профіль і рейдові записи не чіпали.",
           profileIds: target.profilesForUser.map((item) => item.profileId),
           deletedProfileIds: [] as string[],
           deletedProfiles: 0,
+          raidCleanup: null as Awaited<ReturnType<typeof removeRaidSignupsForAccounts>> | null,
           banReason: null as string | null,
           banCheckError: null as string | null,
         };
       }
+
+      const profilesForUser = target.profilesForUser.map((item) => profilesById.get(item.profileId)).filter(Boolean) as DashboardProfile[];
+      const raidCleanup = await removeRaidSignupsForAccounts({
+        profiles: profilesForUser,
+        discordUserIds: [target.userId],
+        dryRun: false,
+        syncDiscord: true,
+        reason: input.reason || "Mistblossom account cleanup",
+      });
 
       const deleted = await deleteDashboardProfilesByDiscordUserId(target.userId);
       const skipped = deleted.deleted <= 0;
@@ -919,6 +1045,7 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
         profileIds: target.profilesForUser.map((item) => item.profileId),
         deletedProfileIds: deleted.profileIds,
         deletedProfiles: deleted.deleted,
+        raidCleanup,
         banReason: fresh.ban?.reason || null,
         banCheckError: fresh.banCheckError || null,
         reason: fresh.reason,
@@ -926,9 +1053,9 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
     },
     {
       profile: "external-api",
-      concurrency: policy.nicknameCleanupConcurrency || undefined,
+      concurrency: 1,
       min: 1,
-      max: policy.nicknameCleanupMaxConcurrency || 1,
+      max: 1,
     },
   );
 
@@ -937,6 +1064,9 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
   const changedItems = okItems.filter((item) => !item.value.skipped && item.value.deletedProfiles > 0).map((item) => item.value);
   const skippedItems = okItems.filter((item) => item.value.skipped).map((item) => item.value);
   const deletedProfilesTotal = changedItems.reduce((sum, item) => sum + item.deletedProfiles, 0);
+  const deletedDiscordUsersTotal = changedItems.length;
+  const removedRaidSignupsTotal = changedItems.reduce((sum, item) => sum + (item.raidCleanup?.removedSignups || 0), 0);
+  const updatedRaidsTotal = changedItems.reduce((sum, item) => sum + (item.raidCleanup?.changedRaids || 0), 0);
   const skippedFreshMember = skippedItems.filter((item) => item.status === "member").length;
   const skippedNotFound = skippedItems.filter((item) => item.status !== "member").length;
 
@@ -945,7 +1075,10 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
     ...inspection,
     changed: changedItems.length,
     deletedProfilesTotal,
-    deletedDiscordUsersTotal: changedItems.length,
+    deletedDiscordUsersTotal,
+    removedRaidSignupsTotal,
+    updatedRaidsTotal,
+    raidCleanupPreview: raidPreview,
     skippedFreshMember,
     skippedNotFound,
     skippedItems: skippedItems.slice(0, 100),

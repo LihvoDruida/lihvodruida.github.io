@@ -274,25 +274,26 @@ export default async function AdminDiscordPage() {
               <div className="profile-card-head profile-card-head--inline">
                 <div>
                   <span className="eyebrow">Firebase-профілі</span>
-                  <h2>Перевірити Discord-стан профілів</h2>
+                  <h2>Глобальне очищення акаунтів</h2>
                 </div>
-                <span className="status-pill warning">Без ручної видачі ролей</span>
+                <span className="status-pill warning">Roster + Discord</span>
               </div>
               <div className="discord-management-card__body">
-                <p className="profile-card-lead">Прохід по Firebase-профілях зі звіркою Discord ID проти учасників сервера та бан-листа. Видаляються лише профілі, де акаунт уже не є учасником сервера або перебуває в бані.</p>
+                <p className="profile-card-lead">Прохід по Firebase-профілях зі звіркою проти збереженого складу гільдії та Discord-сервера. Видаляються лише акаунти, які одночасно не мають персонажів у складі гільдії і вже не є учасниками Discord. Перед видаленням прибираються всі записи цього акаунта з рейдів.</p>
                 <label className="field-label discord-management-limit-field">Скільки профілів перевірити
                   <input className="input" name="limit" type="number" min="0" max="50000" defaultValue="0" />
                   <small>0 = пройти всі профілі посторінково, без обмеження першими 5/10 записами.</small>
                 </label>
                 <div className="discord-officer-sync-summary" aria-label="Що перевіряється перед очищенням профілів">
                   <InfoChip title="Firebase" text="dashboardProfiles" />
+                  <InfoChip title="Roster" text="Склад гільдії" />
                   <InfoChip title="Discord" text="Учасники сервера" />
-                  <InfoChip title="Бани" text="Guild bans" />
+                  <InfoChip title="Рейди" text="Чистка записів" />
                   <InfoChip title="Повторно" text="Перед delete" />
                 </div>
                 <div className="form-actions form-actions--split">
                   <button className="btn subtle" name="mode" value="inspect" type="submit">Тільки перевірити</button>
-                  <button className="btn danger" name="mode" value="apply" type="submit" data-confirm-message="Ця дія повторно перевірить кожного кандидата через Discord і видалить з Firebase профілі, де акаунт не є учасником сервера або перебуває в бані. Профілі активних учасників не чіпаються. Продовжити?">Видалити неактуальні профілі</button>
+                  <button className="btn danger" name="mode" value="apply" type="submit" data-confirm-message="Ця дія видалить Firebase-профілі тільки якщо акаунт одночасно відсутній у складі гільдії та не є учасником Discord-сервера. Усі записи цього акаунта з рейдів також будуть прибрані. Якщо roster порожній або недоступний — дія заблокується. Продовжити?">Видалити неактуальні профілі</button>
                 </div>
               </div>
             </form>

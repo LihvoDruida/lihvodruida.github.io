@@ -38,6 +38,7 @@ import {
   type ProfileGrammaticalGender,
 } from "@/lib/profiles";
 import {
+  buildBattleNetCharacterKey,
   normalizeCharacterKey,
   pickWowAvatarImageUrl,
 } from "@/lib/wowCharacters";
@@ -2435,6 +2436,223 @@ export async function syncRaidSignupGenderForProfile(
   }
 
   return { updatedRaids, updatedSignups };
+}
+
+
+export type RaidSignupAccountCleanupTarget = Pick<
+  DashboardProfile,
+  "profileId" | "provider" | "providerUserId" | "characters"
+>;
+
+function cleanupDiscordIdsFromTargets(targets: RaidSignupAccountCleanupTarget[], extraDiscordUserIds: Iterable<unknown> = []) {
+  const ids = new Set<string>();
+  for (const value of extraDiscordUserIds) {
+    const id = String(value || "").trim();
+    if (/^\d{16,25}$/.test(id)) ids.add(id);
+  }
+  for (const profile of targets) {
+    const id = String(profile.providerUserId || "").trim();
+    if (profile.provider === "discord" && /^\d{16,25}$/.test(id)) ids.add(id);
+  }
+  return ids;
+}
+
+function cleanupProfileIdsFromTargets(targets: RaidSignupAccountCleanupTarget[]) {
+  return new Set(
+    targets
+      .map((profile) => String(profile.profileId || "").trim())
+      .filter((profileId) => /^id[a-f0-9]{16,40}$/.test(profileId)),
+  );
+}
+
+function cleanupCharacterKeysFromTargets(targets: RaidSignupAccountCleanupTarget[]) {
+  const keys = new Set<string>();
+  for (const profile of targets) {
+    for (const character of profile.characters || []) {
+      const direct = normalizeCharacterKey(character.key);
+      if (direct) keys.add(direct);
+
+      const region = character.region || "eu";
+      const realmValues = [character.realmSlug, character.realmName].filter(Boolean);
+      const nameValues = [character.normalizedName, character.name].filter(Boolean);
+      for (const realm of realmValues) {
+        for (const name of nameValues) {
+          const key = buildBattleNetCharacterKey(region, realm, name);
+          if (key) keys.add(key);
+        }
+      }
+    }
+  }
+  return keys;
+}
+
+function signupMatchesAccountCleanupTarget(
+  signup: RaidSignup,
+  filters: { profileIds: Set<string>; discordUserIds: Set<string>; characterKeys: Set<string> },
+) {
+  const profileId = String(signup.profileId || "").trim();
+  if (profileId && filters.profileIds.has(profileId)) return true;
+
+  const discordId = String(signup.discordId || "").trim();
+  if (discordId && filters.discordUserIds.has(discordId)) return true;
+
+  const characterKey = normalizeCharacterKey(signup.characterKey);
+  if (characterKey && filters.characterKeys.has(characterKey)) return true;
+
+  return false;
+}
+
+export async function removeRaidSignupsForAccounts(input: {
+  profiles?: RaidSignupAccountCleanupTarget[];
+  discordUserIds?: Iterable<unknown>;
+  limit?: unknown;
+  dryRun?: boolean;
+  syncDiscord?: boolean;
+  reason?: string;
+}) {
+  const profiles = Array.isArray(input.profiles) ? input.profiles : [];
+  const filters = {
+    profileIds: cleanupProfileIdsFromTargets(profiles),
+    discordUserIds: cleanupDiscordIdsFromTargets(profiles, input.discordUserIds || []),
+    characterKeys: cleanupCharacterKeysFromTargets(profiles),
+  };
+
+  if (!filters.profileIds.size && !filters.discordUserIds.size && !filters.characterKeys.size) {
+    return {
+      dryRun: Boolean(input.dryRun),
+      scannedRaids: 0,
+      changedRaids: 0,
+      removedSignups: 0,
+      discordSynced: 0,
+      discordFailed: 0,
+      changedItems: [] as Array<{ raidId: string; title: string; removed: number; remaining: number }>,
+    };
+  }
+
+  if (!hasRaidStorage()) {
+    return {
+      dryRun: Boolean(input.dryRun),
+      scannedRaids: 0,
+      changedRaids: 0,
+      removedSignups: 0,
+      discordSynced: 0,
+      discordFailed: 0,
+      changedItems: [] as Array<{ raidId: string; title: string; removed: number; remaining: number }>,
+    };
+  }
+
+  const parsedLimit = Number(input.limit);
+  const safeLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+    ? Math.min(500, Math.floor(parsedLimit))
+    : Math.max(80, Math.min(300, Number(process.env.RAID_ACCOUNT_CLEANUP_SCAN_LIMIT || 250) || 250));
+
+  const db = getFirebaseAdminDb();
+  let snapshot: any;
+  try {
+    snapshot = await db.collection(RAID_COLLECTION).orderBy("date", "desc").limit(safeLimit).get();
+  } catch {
+    snapshot = await db.collection(RAID_COLLECTION).limit(safeLimit).get();
+  }
+
+  const changed: Array<{ ref: any; raid: RaidItem; nextSignups: RaidSignup[]; removed: RaidSignup[] }> = [];
+  for (const doc of snapshot.docs as Array<{ id: string; ref: any; data: () => Record<string, unknown> | undefined }>) {
+    const raid = normalizeRaid(doc.id, doc.data() || {});
+    if (!raid.signups.length) continue;
+
+    const removed = raid.signups.filter((signup) => signupMatchesAccountCleanupTarget(signup, filters));
+    if (!removed.length) continue;
+
+    changed.push({
+      ref: doc.ref,
+      raid,
+      removed,
+      nextSignups: normalizeRaidSignupNumbers(
+        raid.signups.filter((signup) => !signupMatchesAccountCleanupTarget(signup, filters)),
+      ),
+    });
+  }
+
+  const changedItems = changed.map((item) => ({
+    raidId: item.raid.id,
+    title: raidTitle(item.raid),
+    removed: item.removed.length,
+    remaining: item.nextSignups.length,
+  }));
+  const removedSignups = changed.reduce((sum, item) => sum + item.removed.length, 0);
+
+  if (input.dryRun || !changed.length) {
+    return {
+      dryRun: Boolean(input.dryRun),
+      scannedRaids: snapshot.docs.length,
+      changedRaids: changed.length,
+      removedSignups,
+      discordSynced: 0,
+      discordFailed: 0,
+      changedItems: changedItems.slice(0, 200),
+    };
+  }
+
+  await firebaseWrite(
+    "raid",
+    `raids:account-cleanup:${Array.from(filters.discordUserIds).join(",") || Array.from(filters.profileIds).join(",")}`,
+    async () => {
+      for (let index = 0; index < changed.length; index += 350) {
+        const batch = db.batch();
+        for (const item of changed.slice(index, index + 350)) {
+          batch.set(
+            item.ref,
+            {
+              signups: item.nextSignups,
+              updatedAt: FieldValue.serverTimestamp(),
+              accountCleanup: {
+                reason: input.reason || "account_cleanup",
+                removedSignups: item.removed.length,
+                updatedAt: FieldValue.serverTimestamp(),
+              },
+            },
+            { merge: true },
+          );
+        }
+        await batch.commit();
+      }
+      for (const item of changed) clearRaidRuntimeCaches(item.raid.id);
+    },
+    {
+      timeoutMs: 20_000,
+      logEvent: "raids.account_cleanup_write_failed",
+      fallback: () => undefined,
+    },
+  );
+
+  let discordSynced = 0;
+  let discordFailed = 0;
+  if (input.syncDiscord !== false) {
+    const discordSyncLimit = Math.max(0, Math.min(50, Number(process.env.RAID_ACCOUNT_CLEANUP_DISCORD_SYNC_LIMIT || 20) || 20));
+    for (const item of changed.slice(0, discordSyncLimit)) {
+      const nextRaid = { ...item.raid, signups: item.nextSignups, updatedAt: new Date().toISOString() };
+      if (!nextRaid.channelId || !nextRaid.messageId || nextRaid.discordDeletedAt) continue;
+      try {
+        await publishOrUpdateRaid(nextRaid, nextRaid.channelId);
+        discordSynced += 1;
+      } catch (error) {
+        discordFailed += 1;
+        console.warn("[raids] Discord sync after account cleanup failed", {
+          raidId: nextRaid.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
+  return {
+    dryRun: false,
+    scannedRaids: snapshot.docs.length,
+    changedRaids: changed.length,
+    removedSignups,
+    discordSynced,
+    discordFailed,
+    changedItems: changedItems.slice(0, 200),
+  };
 }
 
 function cleanRaidId(value: unknown) {
