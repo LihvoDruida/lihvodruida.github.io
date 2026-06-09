@@ -21,10 +21,10 @@ import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 
 export default async function DashboardIdentity({
   user,
-  activeSection = "applications",
+  activeSection = "home",
 }: {
   user: DashboardSession | null;
-  activeSection?: "admin" | "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
+  activeSection?: "home" | "admin" | "applications" | "content" | "discord" | "guild" | "profile" | "profiles" | "raids" | "rules";
 }) {
   const [guild, nicknamePolicy] = await Promise.all([
     getGuildBranding(),
@@ -44,8 +44,9 @@ export default async function DashboardIdentity({
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
   const navItems = user
     ? [
+        { href: "/", section: "home" as const, icon: "⌂", label: "Головна", desktopLabel: "Головна" },
         canUseApplications
-          ? { href: "/", section: "applications" as const, icon: "✉", label: "Заявки", desktopLabel: "Заявки" }
+          ? { href: "/applications", section: "applications" as const, icon: "✉", label: "Заявки", desktopLabel: "Заявки" }
           : null,
         canUseRaids
           ? { href: "/raids", section: "raids" as const, icon: "⚔", label: "Рейди", desktopLabel: canCreateRaids ? "Рейди" : "Мої рейди" }

@@ -585,3 +585,574 @@ body::before {
   }
 }
 
+
+/* Homepage raid calendar + live poll dashboard */
+.home-page {
+  --home-calendar-cell-min: 132px;
+}
+
+.home-shell {
+  gap: var(--dash-section-gap) !important;
+}
+
+.home-hero {
+  min-height: 0;
+  border-color: var(--color-border) !important;
+  background:
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--color-info) 12%, transparent), transparent 32%),
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--theme-bg-canvas) 94%, transparent), color-mix(in srgb, var(--theme-bg-canvas-2) 96%, transparent)) !important;
+}
+
+.home-hero-actions,
+.home-calendar-actions,
+.home-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.home-hero-actions {
+  margin-top: 20px;
+}
+
+.home-live-sync {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface-raised) 74%, transparent);
+  color: var(--color-text-soft);
+  font-size: var(--ui-font-md);
+  font-weight: 850;
+}
+
+.home-live-sync > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-info);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-info) 55%, transparent);
+}
+
+.home-live-sync--syncing > span {
+  background: var(--color-warning);
+}
+
+.home-live-sync--updated > span {
+  background: var(--color-success);
+}
+
+.home-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-xs);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-kicker::before {
+  content: "✦";
+  color: var(--color-success);
+}
+
+.home-calendar-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px !important;
+}
+
+.home-calendar-toolbar h2,
+.home-import-card h2,
+.home-upcoming-card h2,
+.home-section-head h2 {
+  margin: 6px 0 0;
+  color: var(--color-text);
+  font-size: clamp(1.35rem, 3vw, 2.05rem);
+  line-height: 1.08;
+}
+
+.home-calendar-toolbar p,
+.home-import-card p,
+.home-section-head p,
+.home-empty-text {
+  margin: 8px 0 0;
+  color: var(--color-text-soft);
+  line-height: 1.55;
+}
+
+.home-calendar-nav {
+  width: 44px;
+  min-width: 44px;
+  padding-inline: 0 !important;
+  font-size: 1.55rem !important;
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+  gap: var(--dash-section-gap);
+  align-items: start;
+}
+
+.home-calendar-panel {
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.home-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--color-border-subtle);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent),
+    color-mix(in srgb, var(--color-surface-raised) 88%, transparent);
+}
+
+.home-calendar-weekdays span {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-sm);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.home-calendar-day {
+  min-height: var(--home-calendar-cell-min);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border-right: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent 42%),
+    color-mix(in srgb, var(--color-surface) 82%, transparent);
+}
+
+.home-calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.home-calendar-day.is-muted {
+  opacity: 0.48;
+  background: color-mix(in srgb, var(--color-surface) 52%, transparent);
+}
+
+.home-calendar-day.is-today {
+  background:
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 54%),
+    color-mix(in srgb, var(--color-surface-raised) 88%, transparent);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.home-calendar-day header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.home-calendar-day time {
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--color-text);
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-calendar-day.is-today time {
+  color: var(--color-text-on-accent);
+  background: var(--color-accent-strong);
+}
+
+.home-calendar-day header span {
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-xs);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.home-calendar-events {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.home-calendar-event,
+.home-calendar-more,
+.home-upcoming-item {
+  min-width: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-left-width: 3px;
+  border-radius: 11px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent),
+    color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+  padding: 8px 9px;
+}
+
+.home-calendar-event {
+  display: grid;
+  gap: 2px;
+  color: var(--color-text);
+}
+
+.home-calendar-event strong,
+.home-calendar-event span,
+.home-upcoming-item strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-calendar-event strong {
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-calendar-event span {
+  color: var(--color-text);
+  font-size: var(--ui-font-sm);
+  font-weight: 900;
+}
+
+.home-calendar-event em,
+.home-upcoming-item em,
+.home-upcoming-item span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--ui-font-xs);
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-calendar-event--normal,
+.home-upcoming-item--normal {
+  border-left-color: var(--color-info);
+}
+
+.home-calendar-event--heroic,
+.home-upcoming-item--heroic {
+  border-left-color: var(--color-accent-strong);
+}
+
+.home-calendar-event--mythic,
+.home-upcoming-item--mythic {
+  border-left-color: var(--color-danger);
+}
+
+.home-calendar-event--closed {
+  opacity: 0.72;
+}
+
+.home-calendar-more {
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-xs);
+  font-weight: 900;
+  text-align: center;
+}
+
+.home-side-stack {
+  display: grid;
+  gap: var(--dash-section-gap);
+}
+
+.home-import-card,
+.home-upcoming-card {
+  padding: 18px !important;
+}
+
+.home-import-actions {
+  margin-top: 14px;
+}
+
+.home-import-card code {
+  display: block;
+  max-width: 100%;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--theme-bg-deep-solid) 72%, transparent);
+  padding: 10px 12px;
+  color: var(--color-text-muted);
+  font-size: var(--ui-font-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-upcoming-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.home-upcoming-item {
+  display: grid;
+  gap: 4px;
+}
+
+.home-upcoming-item span {
+  color: var(--color-accent-strong);
+  font-weight: 900;
+}
+
+.home-polls-section {
+  padding: 20px !important;
+}
+
+.home-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.home-section-head > div {
+  min-width: 0;
+}
+
+.home-polls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-poll-card {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 34%),
+    color-mix(in srgb, var(--color-surface) 82%, transparent);
+  padding: 16px;
+}
+
+.home-poll-card--open {
+  border-color: var(--color-border);
+}
+
+.home-poll-card__status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.home-poll-card__status span,
+.home-difficulty {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+  padding: 5px 9px;
+  color: var(--color-text-soft);
+  font-size: var(--ui-font-xs);
+  font-weight: 950;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.home-poll-card__status strong {
+  color: var(--color-accent-strong);
+  font-size: var(--ui-font-sm);
+}
+
+.home-poll-card__body header {
+  display: grid;
+  gap: 8px;
+}
+
+.home-poll-card h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  line-height: 1.18;
+}
+
+.home-poll-card p {
+  margin: 0;
+  color: var(--color-text-soft);
+}
+
+.home-difficulty--normal {
+  border-color: var(--difficulty-normal-border);
+  background: var(--difficulty-normal-bg);
+  color: var(--difficulty-normal-text);
+}
+
+.home-difficulty--heroic {
+  border-color: var(--difficulty-heroic-border);
+  background: var(--difficulty-heroic-bg);
+  color: var(--difficulty-heroic-text);
+}
+
+.home-difficulty--mythic {
+  border-color: var(--difficulty-mythic-border);
+  background: var(--difficulty-mythic-bg);
+  color: var(--difficulty-mythic-text);
+}
+
+.home-poll-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.home-poll-metrics div {
+  min-width: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--theme-bg-deep-solid) 62%, transparent);
+  padding: 9px;
+}
+
+.home-poll-metrics dt {
+  margin: 0 0 3px;
+  color: var(--color-text-muted);
+  font-size: var(--ui-font-xs);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.home-poll-metrics dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-poll-slots {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.home-poll-slots span,
+.home-poll-slots em {
+  min-width: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+  padding: 9px 10px;
+  color: var(--color-text-soft);
+  font-size: var(--ui-font-sm);
+  line-height: 1.45;
+}
+
+.home-poll-slots b {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 7px;
+  border-radius: 999px;
+  background: var(--color-accent-strong);
+  color: var(--color-text-on-accent);
+  font-size: var(--ui-font-xs);
+}
+
+.home-poll-card footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 1120px) {
+  .home-layout,
+  .home-polls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .home-calendar-toolbar,
+  .home-section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .home-calendar-panel {
+    overflow-x: auto;
+  }
+
+  .home-calendar-weekdays,
+  .home-calendar-grid {
+    min-width: 760px;
+  }
+
+  .home-calendar-day {
+    min-height: 118px;
+  }
+
+  .home-calendar-actions,
+  .home-section-head .btn {
+    width: 100%;
+  }
+
+  .home-calendar-actions .btn:not(.home-calendar-nav),
+  .home-section-head .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .home-page {
+    --home-calendar-cell-min: 104px;
+  }
+
+  .home-hero-actions,
+  .home-import-actions,
+  .home-poll-card footer {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .home-calendar-toolbar,
+  .home-import-card,
+  .home-upcoming-card,
+  .home-polls-section,
+  .home-poll-card {
+    padding: 14px !important;
+  }
+
+  .home-poll-metrics {
+    grid-template-columns: 1fr;
+  }
+}
