@@ -50,14 +50,14 @@ export default async function PollsPage() {
         </div>
         <div className="raid-poll-command-actions">
           {canManage ? <RaidPollRecalculateButton /> : null}
-          <div className="raid-poll-command-log" aria-label="Системний статус">dashboardRaidPolls</div>
+          <div className="raid-poll-command-log" aria-label="Системний статус">Discord • Firebase • Web</div>
         </div>
       </section>
 
       <section className="panel raid-list-page-panel raid-poll-list-section raid-poll-list-section--active">
         <div className="raid-list-page-head raid-poll-list-head">
           <div>
-            <span className="raid-poll-section-kicker">Live polls</span>
+            <span className="raid-poll-section-kicker">Активні</span>
             <h2>Активні голосування</h2>
             <p>Відкриті рейд-пули, де учасники ще можуть змінювати день, час, персонажа або поставити «Не можу».</p>
             <div className="raid-list-summary raid-poll-list-summary" aria-label="Статистика рейд-пулів">
@@ -76,7 +76,7 @@ export default async function PollsPage() {
       <section className="panel raid-list-page-panel raid-list-page-panel--archive raid-poll-list-section raid-poll-list-section--archive">
         <div className="raid-list-page-head raid-list-page-head--archive raid-poll-list-head">
           <div>
-            <span className="raid-poll-section-kicker">Archive</span>
+            <span className="raid-poll-section-kicker">Архів</span>
             <h2>Архівні голосування</h2>
             <p>Закриті рейд-пули з фінальними результатами, персонажами та історією відповідей.</p>
           </div>

@@ -72,8 +72,8 @@ export function RaidPollPageShell({ user, title, description, children }: { user
               { label: "DISCORD", value: "Vote UI", note: "Бот лише публікує та приймає голоси" },
             ]}
             stats={[
-              { label: "DAYS", value: "7" },
-              { label: "TIME", value: "19-21" },
+              { label: "ДНІ", value: "7" },
+              { label: "ЧАС", value: "19–21" },
               { label: "LIVE", value: "SYNC" },
             ]}
           />
@@ -219,7 +219,7 @@ export function RaidPollResults({ poll, canManage = false, relatedPolls = [poll]
 
       <section className="raid-poll-recommendation-card" aria-label="Рекомендований день та час рейду">
         <div>
-          <span className="eyebrow">Smart priority</span>
+          <span className="eyebrow">Розумний пріоритет</span>
           <h3>2 рекомендовані слоти</h3>
           <p>Розрахунок враховує найраніший зручний час: якщо гравець вказав 19:00, він рахується доступним і на всі пізніші слоти цього дня. Додатково активні голосування розводяться по різних днях: один і той самий день не пропонується різним рейд-пулам. Пріоритет: валідне ядро ролей → мінімум 1 танк і ціль 2 танки → більшість хілів за формулою 1 хіл на 4–5 ДД → максимум ДД → баланс melee/ranged ~40/60 → utility checklist.</p>
         </div>

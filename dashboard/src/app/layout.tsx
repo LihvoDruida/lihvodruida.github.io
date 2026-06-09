@@ -3,6 +3,7 @@ import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./profile.css";
+import "./theme.css";
 import DashboardFormEnhancer from "@/components/DashboardFormEnhancer";
 import GlobalToasts from "@/components/GlobalToasts";
 import AppFooter from "@/components/AppFooter";
@@ -22,7 +23,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#020817",
+  themeColor: "#07101a",
 };
 
 export const metadata: Metadata = {
