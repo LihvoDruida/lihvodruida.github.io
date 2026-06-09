@@ -87,7 +87,7 @@ export default function HomeUpcomingRaidList({ raids, initialNow }: { raids: Hom
             <span className="home-upcoming-event__main">
               <strong>{raid.title}</strong>
               <small>{state.label}</small>
-              <em>{raid.difficultyLabel} • {raid.statusLabel} • {raid.roster} запис.</em>
+              <em><b>{raid.difficultyLabel}</b> • {raid.statusLabel} • {raid.roster} запис.</em>
             </span>
             <span className="home-upcoming-event__meta">
               <time dateTime={startsAt.toISOString()}>{formatLocalDate(startsAt, "time")}</time>

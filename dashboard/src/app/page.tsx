@@ -187,9 +187,12 @@ function RaidCalendarEvent({ raid }: { raid: RaidItem }) {
   const startsAt = parseRaidDate(raid);
   return (
     <a className={`home-calendar-event home-calendar-event--${raid.difficulty} home-calendar-event--${raid.status}`} href={`/raids/${encodeURIComponent(raid.id)}`}>
-      <strong><HomeLocalTime value={startsAt?.toISOString()} fallback={raid.time || "20:00"} mode="time" /></strong>
-      <span>{raid.title}</span>
-      <em>{raidDifficultyLabel(raid.difficulty)} • {roster} запис.</em>
+      <span className="home-calendar-event__time"><HomeLocalTime value={startsAt?.toISOString()} fallback={raid.time || "20:00"} mode="time" /></span>
+      <span className="home-calendar-event__title">{raid.title}</span>
+      <span className="home-calendar-event__details">
+        <b>{raidDifficultyLabel(raid.difficulty)}</b>
+        <em>{roster} запис.</em>
+      </span>
     </a>
   );
 }
