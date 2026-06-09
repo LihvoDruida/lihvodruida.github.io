@@ -2,7 +2,7 @@
 
 ## Що робить
 
-Система видаляє dashboard-профілі тільки коли виконані обидві умови:
+Перед перевіркою система автоматично оновлює склад гільдії в базі через `refreshGuildRosterApiBatch({ forceRoster: true, bypassCache: true })`. Після цього вона видаляє dashboard-профілі тільки коли виконані обидві умови:
 
 1. Discord-акаунта немає серед учасників Discord-сервера гільдії.
 2. Жоден персонаж цього Discord-акаунта не знайдений у збереженому складі гільдії.
@@ -33,7 +33,7 @@ GET /api/admin/profiles/orphan-cleanup/apply?force=1
 Authorization: Bearer <CRON_SECRET або ACCOUNT_CLEANUP_SECRET>
 ```
 
-Без `apply=1` endpoint працює як dry-run, якщо не задано `ACCOUNT_CLEANUP_AUTO_APPLY=1`.
+Для ручної перевірки без видалення використовується `GET /api/admin/profiles/orphan-cleanup` — він працює як dry-run, якщо не задано `ACCOUNT_CLEANUP_AUTO_APPLY=1`.
 
 ## Env
 
@@ -41,5 +41,7 @@ Authorization: Bearer <CRON_SECRET або ACCOUNT_CLEANUP_SECRET>
 - `ACCOUNT_CLEANUP_AUTO_APPLY=1` — дозволити автоматичне застосування без `apply=1`.
 - `ACCOUNT_CLEANUP_MIN_INTERVAL_MS` — cooldown між запусками.
 - `ACCOUNT_CLEANUP_PROFILE_LIMIT` — максимум профілів для перевірки.
+- `ACCOUNT_CLEANUP_REFRESH_ROSTER=0` — вимкнути автооновлення roster перед cleanup.
+- `ACCOUNT_CLEANUP_ROSTER_REFRESH_STEPS` — кількість batch-кроків roster sync перед cleanup; за замовчуванням `1`, цього достатньо для оновлення списку персонажів складу.
 - `RAID_ACCOUNT_CLEANUP_SCAN_LIMIT` — скільки рейдів сканувати для видалення записів.
 - `RAID_ACCOUNT_CLEANUP_DISCORD_SYNC_LIMIT` — максимум Discord-повідомлень рейдів для оновлення за один запуск.

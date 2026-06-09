@@ -279,14 +279,14 @@ export default async function AdminDiscordPage() {
                 <span className="status-pill warning">Roster + Discord</span>
               </div>
               <div className="discord-management-card__body">
-                <p className="profile-card-lead">Прохід по Firebase-профілях зі звіркою проти збереженого складу гільдії та Discord-сервера. Видаляються лише акаунти, які одночасно не мають персонажів у складі гільдії і вже не є учасниками Discord. Перед видаленням прибираються всі записи цього акаунта з рейдів.</p>
+                <p className="profile-card-lead">Перед перевіркою система автоматично оновлює склад гільдії в базі, а потім проходить по Firebase-профілях зі звіркою проти актуального складу та Discord-сервера. Видаляються лише акаунти, які одночасно не мають персонажів у складі гільдії і вже не є учасниками Discord. Перед видаленням прибираються всі записи цього акаунта з рейдів.</p>
                 <label className="field-label discord-management-limit-field">Скільки профілів перевірити
                   <input className="input" name="limit" type="number" min="0" max="50000" defaultValue="0" />
                   <small>0 = пройти всі профілі посторінково, без обмеження першими 5/10 записами.</small>
                 </label>
                 <div className="discord-officer-sync-summary" aria-label="Що перевіряється перед очищенням профілів">
                   <InfoChip title="Firebase" text="dashboardProfiles" />
-                  <InfoChip title="Roster" text="Склад гільдії" />
+                  <InfoChip title="Roster" text="Автооновлення" />
                   <InfoChip title="Discord" text="Учасники сервера" />
                   <InfoChip title="Рейди" text="Чистка записів" />
                   <InfoChip title="Повторно" text="Перед delete" />

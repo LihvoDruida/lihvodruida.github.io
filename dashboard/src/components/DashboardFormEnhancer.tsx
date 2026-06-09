@@ -220,7 +220,7 @@ function actionText(action: string) {
       label: "Перевіряємо...",
       title: "Перевіряємо акаунти",
       message:
-        "Звіряємо Firebase-профілі зі складом гільдії, Discord-сервером і рейдовими записами.",
+        "Оновлюємо склад гільдії в базі, потім звіряємо Firebase-профілі з roster, Discord-сервером і рейдовими записами.",
     };
   if (
     action.includes("/api/admin/discord/roles/add") ||

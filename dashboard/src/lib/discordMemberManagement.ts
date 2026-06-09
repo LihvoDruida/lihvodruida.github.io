@@ -18,7 +18,7 @@ import {
   type DiscordGuildMemberSnapshot,
 } from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy, nicknameMatchesTemplate } from "@/lib/guildNicknamePolicy";
-import { loadStoredGuildRosterData, type GuildRosterMember } from "@/lib/guildRoster";
+import { refreshGuildRosterApiBatch, loadStoredGuildRosterData, type GuildRosterMember } from "@/lib/guildRoster";
 import { deleteDashboardProfilesByDiscordUserId, listAllDashboardProfilesForDiscordSync, getProfilePublicName, type DashboardProfile, type ProfileCharacter } from "@/lib/profiles";
 import { buildBattleNetCharacterKey, normalizeBattleNetNameSlug, normalizeBattleNetRealmSlug, normalizeCharacterKey } from "@/lib/wowCharacters";
 import { removeRaidSignupsForAccounts } from "@/lib/raids";
@@ -672,6 +672,102 @@ export async function removeRolesFromMembersWithInvalidNicknames(input: {
 
 
 
+type AccountCleanupRosterRefreshResult = {
+  attempted: boolean;
+  skipped: boolean;
+  refreshed: boolean;
+  failed: boolean;
+  memberCount: number;
+  source: string | null;
+  syncStatus: string | null;
+  syncPhase: string | null;
+  syncProcessed: { roster: number; battleNet: number; raiderIo: number } | null;
+  error: string | null;
+};
+
+function accountCleanupFlag(name: string, fallback = true) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === null || raw === "") return fallback;
+  return ["1", "true", "yes", "on"].includes(String(raw).trim().toLowerCase());
+}
+
+function accountCleanupRosterRefreshSteps() {
+  const value = Number(process.env.ACCOUNT_CLEANUP_ROSTER_REFRESH_STEPS || 1);
+  if (!Number.isFinite(value)) return 1;
+  return Math.max(1, Math.min(Math.floor(value), 8));
+}
+
+async function refreshGuildRosterBeforeAccountCleanup(): Promise<AccountCleanupRosterRefreshResult> {
+  if (!accountCleanupFlag("ACCOUNT_CLEANUP_REFRESH_ROSTER", true)) {
+    return {
+      attempted: false,
+      skipped: true,
+      refreshed: false,
+      failed: false,
+      memberCount: 0,
+      source: null,
+      syncStatus: null,
+      syncPhase: null,
+      syncProcessed: null,
+      error: null,
+    };
+  }
+
+  try {
+    let latest: Awaited<ReturnType<typeof refreshGuildRosterApiBatch>> | null = null;
+    const steps = accountCleanupRosterRefreshSteps();
+    for (let step = 0; step < steps; step += 1) {
+      latest = await refreshGuildRosterApiBatch({
+        forceRoster: step === 0,
+        continueSync: step > 0,
+        softSync: true,
+        bypassCache: true,
+      });
+
+      // The first forced step refreshes and writes the authoritative guild roster list.
+      // Extra steps only enrich Battle.net/Raider.IO fields and are controlled by env.
+      if (step === 0 && steps === 1) break;
+      if (latest.refresh.sync.status !== "running") break;
+    }
+
+    const sync = latest?.refresh.sync || null;
+    const failed = Boolean(
+      !latest ||
+        sync?.status === "failed" ||
+        latest.refresh.roster.source === "Battle.net roster unavailable" ||
+        /unavailable|failed|помилка/i.test(String(latest.error || "")),
+    );
+
+    return {
+      attempted: true,
+      skipped: false,
+      refreshed: Boolean(latest?.refresh.roster.refreshed),
+      failed,
+      memberCount: latest?.members.length || 0,
+      source: latest?.source || latest?.refresh.roster.source || null,
+      syncStatus: sync?.status || null,
+      syncPhase: sync?.phase || null,
+      syncProcessed: sync?.processed || null,
+      error: failed
+        ? latest?.error || latest?.refresh.sync.errors?.at(-1) || "Не вдалося оновити склад гільдії перед очищенням."
+        : null,
+    };
+  } catch (error) {
+    return {
+      attempted: true,
+      skipped: false,
+      refreshed: false,
+      failed: true,
+      memberCount: 0,
+      source: null,
+      syncStatus: "failed",
+      syncPhase: "failed",
+      syncProcessed: null,
+      error: safeErrorText(error, "Не вдалося оновити склад гільдії перед очищенням."),
+    };
+  }
+}
+
 type DiscordProfileMembershipCleanupStatus = "member" | "not_member" | "banned";
 
 type DiscordProfileMembershipPreview = {
@@ -945,6 +1041,7 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
   dryRun?: boolean;
   reason?: string;
 }) {
+  const rosterRefresh = await refreshGuildRosterBeforeAccountCleanup();
   const inspection = await inspectDashboardProfilesDiscordMembership(input.limit || 0);
   const allProfiles = await listAllDashboardProfilesForDiscordSync(input.limit || 0);
   const targetProfileIds = new Set(inspection.targets.map((target) => target.profileId));
@@ -966,10 +1063,13 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
     error: safeErrorText(error, "Не вдалося порахувати рейдові записи для очищення."),
   }));
 
-  if (input.dryRun || inspection.rosterSafetyBlocked) {
+  const rosterRefreshBlocked = Boolean(rosterRefresh.attempted && rosterRefresh.failed);
+
+  if (input.dryRun || inspection.rosterSafetyBlocked || rosterRefreshBlocked) {
     return {
       dryRun: true,
       ...inspection,
+      rosterRefresh,
       changed: 0,
       deletedProfilesTotal: 0,
       deletedDiscordUsersTotal: 0,
@@ -983,15 +1083,25 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
       changedItemsTotal: 0,
       skippedItems: [],
       skippedItemsTotal: 0,
-      errors: inspection.rosterSafetyBlocked
-        ? [{
-            userId: "",
-            name: "Guild roster safety",
-            profileIds: [],
-            error: "Очищення заблоковано: збережений склад гільдії порожній або недоступний. Спочатку онови склад гільдії.",
-          }]
-        : [],
-      errorsTotal: inspection.rosterSafetyBlocked ? 1 : 0,
+      errors: [
+        ...(inspection.rosterSafetyBlocked
+          ? [{
+              userId: "",
+              name: "Guild roster safety",
+              profileIds: [],
+              error: "Очищення заблоковано: збережений склад гільдії порожній. Спочатку онови склад гільдії.",
+            }]
+          : []),
+        ...(rosterRefreshBlocked
+          ? [{
+              userId: "",
+              name: "Guild roster refresh",
+              profileIds: [],
+              error: rosterRefresh.error || "Очищення заблоковано: склад гільдії не оновився перед cleanup.",
+            }]
+          : []),
+      ],
+      errorsTotal: (inspection.rosterSafetyBlocked ? 1 : 0) + (rosterRefreshBlocked ? 1 : 0),
     };
   }
 
@@ -1073,6 +1183,7 @@ export async function cleanupDashboardProfilesDiscordMembership(input: {
   return {
     dryRun: false,
     ...inspection,
+    rosterRefresh,
     changed: changedItems.length,
     deletedProfilesTotal,
     deletedDiscordUsersTotal,

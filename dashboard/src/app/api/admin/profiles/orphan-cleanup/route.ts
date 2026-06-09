@@ -119,6 +119,7 @@ async function run(request: NextRequest) {
       checkedDiscordProfiles: result.checkedDiscordProfiles,
       checkedDiscordMembers: result.checkedDiscordMembers,
       checkedRosterCharacters: result.checkedRosterCharacters,
+      rosterRefresh: result.rosterRefresh,
       rosterSafetyBlocked: result.rosterSafetyBlocked,
       rosterProtectedTotal: result.rosterProtectedTotal,
       targetProfilesTotal: result.targetProfilesTotal,
