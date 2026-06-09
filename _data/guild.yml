@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-08 21:51:25'
+  updated_at: '2026-06-09 03:37:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14046
-      region: 6135
-      realm: 50
+      world: 14060
+      region: 6140
+      realm: 51
     mythic:
-      world: 7062
+      world: 7063
       region: 3016
       realm: 20
   sporefall:
@@ -1509,13 +1509,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/47/185041455-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Ragnarosh
-    item_level_equipped: 278
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3128.1
+        score: 3139
         color: '#3e6ae0'
       dps:
-        score: 3044.8
+        score: 3055.6
         color: '#2175d8'
       healer:
         score: 1446.1
@@ -1530,7 +1530,7 @@ members:
         score: 567
         color: '#e9ffdf'
       spec_2:
-        score: 3044.8
+        score: 3055.6
         color: '#2175d8'
       spec_3:
         score: 0
@@ -2961,11 +2961,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Vengeance
-      role: TANK
+      name: Havoc
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/117/188087925-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Demhunt
-    item_level_equipped: 122
+    item_level_equipped: 141
     mythic_plus_scores:
       all:
         score: 0
@@ -6193,7 +6193,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3188
@@ -7125,8 +7125,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/grom/173/263141293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/grom/Лилая
     item_level_equipped: 269
@@ -7291,8 +7291,8 @@ members:
         score: 2092.1
         color: '#62ff46'
       dps:
-        score: 1003.6
-        color: '#c9ffb5'
+        score: 1182
+        color: '#bcffa5'
       healer:
         score: 0
         color: '#ffffff'
@@ -7306,7 +7306,7 @@ members:
         score: 1978.4
         color: '#6fff53'
       spec_2:
-        score: 0
+        score: 178.3
         color: '#ffffff'
       spec_3:
         score: 0
@@ -7437,18 +7437,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/49/265229361-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Грекулес
-    item_level_equipped: 259
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
-        score: 1563.5
-        color: '#9cff81'
+        score: 1599.4
+        color: '#9aff7f'
       dps:
-        score: 1563.5
-        color: '#9cff81'
+        score: 1599.4
+        color: '#9aff7f'
       healer:
         score: 0
         color: '#ffffff'
@@ -7456,8 +7456,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1563.5
-        color: '#9cff81'
+        score: 1599.4
+        color: '#9aff7f'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -8041,7 +8041,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2885.6

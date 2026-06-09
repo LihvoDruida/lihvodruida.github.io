@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-08 21:51:25'
+  updated_at: '2026-06-09 03:37:27'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1517,7 +1517,7 @@ characters:
         learned_points: 96
         max_points: 100
       - name: Midnight Mining
-        learned_points: 94
+        learned_points: 95
         max_points: 100
     secondaries:
     - name: Archaeology
