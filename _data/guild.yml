@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 18:08:25'
+  updated_at: '2026-06-09 21:49:18'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14076
-      region: 6149
+      world: 14079
+      region: 6151
       realm: 51
     mythic:
-      world: 7069
-      region: 3019
+      world: 7073
+      region: 3021
       realm: 20
   sporefall:
     normal:
@@ -3513,7 +3513,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 286
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3044.3
@@ -3620,10 +3620,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3265.7
+        score: 3272.3
         color: '#7e54e7'
       dps:
-        score: 3265.7
+        score: 3272.3
         color: '#7e54e7'
       healer:
         score: 0
@@ -3632,7 +3632,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3265.7
+        score: 3272.3
         color: '#7e54e7'
       spec_1:
         score: 0
@@ -3776,20 +3776,20 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3128.4
-        color: '#3e6ae0'
+        score: 3171.2
+        color: '#5864e2'
       dps:
-        score: 1971.8
-        color: '#72ff56'
+        score: 2140.7
+        color: '#5aff3f'
       healer:
-        score: 3128.4
-        color: '#3e6ae0'
+        score: 3171.2
+        color: '#5864e2'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1971.8
-        color: '#72ff56'
+        score: 2140.7
+        color: '#5aff3f'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -3797,8 +3797,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 3128.4
-        color: '#3e6ae0'
+        score: 3171.2
+        color: '#5864e2'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -4789,7 +4789,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3043.7
@@ -5257,14 +5257,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 258
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1650.9
-        color: '#93ff77'
+        score: 1996.2
+        color: '#6fff53'
       dps:
-        score: 990
-        color: '#cbffb8'
+        score: 1335.4
+        color: '#b0ff97'
       healer:
         score: 0
         color: '#ffffff'
@@ -5272,8 +5272,8 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 990
-        color: '#cbffb8'
+        score: 1335.4
+        color: '#b0ff97'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -6973,7 +6973,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 259
+    item_level_equipped: 261
     mythic_plus_scores:
       all:
         score: 1705.4
@@ -8148,26 +8148,26 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3049.5
-        color: '#2175d8'
+        score: 3079
+        color: '#0070dd'
       dps:
-        score: 2996.9
-        color: '#3a7fce'
+        score: 3026.4
+        color: '#2175d8'
       healer:
-        score: 2386.6
-        color: '#1eff00'
+        score: 2454.4
+        color: '#42ef40'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2386.6
-        color: '#1eff00'
+        score: 2454.4
+        color: '#42ef40'
       spec_1:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2996.9
-        color: '#3a7fce'
+        score: 3026.4
+        color: '#2175d8'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8197,11 +8197,11 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3095.5
-        color: '#0070dd'
+        score: 3111.4
+        color: '#2a6dde'
       dps:
         score: 1402.7
         color: '#aaff90'
@@ -8209,8 +8209,8 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3095.5
-        color: '#0070dd'
+        score: 3111.4
+        color: '#2a6dde'
       spec_0:
         score: 1036.2
         color: '#c7ffb3'
@@ -8218,8 +8218,8 @@ members:
         score: 366.5
         color: '#f6fff1'
       spec_2:
-        score: 3095.5
-        color: '#0070dd'
+        score: 3111.4
+        color: '#2a6dde'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8401,11 +8401,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Vengeance
-      role: TANK
+      name: Devourer
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/28/266083356-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Мистип
-    item_level_equipped: 280
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 2828.4

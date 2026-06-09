@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 18:08:25'
+  updated_at: '2026-06-09 21:49:18'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7923,7 +7923,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 20
+        learned_points: 21
         max_points: 100
     secondaries: []
 - name: Бабайяй
