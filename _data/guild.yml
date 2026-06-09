@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 07:51:53'
+  updated_at: '2026-06-09 11:17:55'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14062
-      region: 6141
+      world: 14065
+      region: 6143
       realm: 51
     mythic:
-      world: 7066
-      region: 3016
+      world: 7067
+      region: 3017
       realm: 20
   sporefall:
     normal:
@@ -5257,13 +5257,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 1
+    item_level_equipped: 258
     mythic_plus_scores:
       all:
-        score: 1644.2
-        color: '#95ff7a'
+        score: 1650.9
+        color: '#93ff77'
       dps:
-        score: 983.4
+        score: 990
         color: '#cbffb8'
       healer:
         score: 0
@@ -5272,7 +5272,7 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 983.4
+        score: 990
         color: '#cbffb8'
       spec_1:
         score: 0
@@ -5676,8 +5676,8 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3455.9
-        color: '#ae39e2'
+        score: 3471.5
+        color: '#b33add'
       dps:
         score: 1894.4
         color: '#7bff5f'
@@ -5685,11 +5685,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3455.9
-        color: '#ae39e2'
+        score: 3471.5
+        color: '#b33add'
       spec_0:
-        score: 3455.9
-        color: '#ae39e2'
+        score: 3471.5
+        color: '#b33add'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -7080,11 +7080,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3458.7
-        color: '#ae39e2'
+        score: 3474.3
+        color: '#b33add'
       dps:
-        score: 3458.7
-        color: '#ae39e2'
+        score: 3474.3
+        color: '#b33add'
       healer:
         score: 0
         color: '#ffffff'
@@ -7098,8 +7098,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3458.7
-        color: '#ae39e2'
+        score: 3474.3
+        color: '#b33add'
       spec_3:
         score: 0
         color: '#ffffff'
