@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 14:55:18'
+  updated_at: '2026-06-09 18:08:25'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14073
-      region: 6147
+      world: 14076
+      region: 6149
       realm: 51
     mythic:
-      world: 7067
-      region: 3017
+      world: 7069
+      region: 3019
       realm: 20
   sporefall:
     normal:
@@ -3513,7 +3513,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3044.3
@@ -4685,7 +4685,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3033.9
@@ -6107,7 +6107,7 @@ members:
         score: 3293.3
         color: '#864fe9'
       spec_1:
-        score: 2568.3
+        score: 2573.6
         color: '#59d56c'
       spec_2:
         score: 165.8
@@ -6973,17 +6973,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 258
+    item_level_equipped: 259
     mythic_plus_scores:
       all:
-        score: 1292.8
-        color: '#b4ff9c'
+        score: 1705.4
+        color: '#8eff72'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1292.8
-        color: '#b4ff9c'
+        score: 1705.4
+        color: '#8eff72'
       tank:
         score: 0
         color: '#ffffff'
@@ -6991,8 +6991,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1292.8
-        color: '#b4ff9c'
+        score: 1705.4
+        color: '#8eff72'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7545,7 +7545,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3025.7
@@ -8041,7 +8041,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 2885.6
@@ -8197,7 +8197,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 288
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3095.5
