@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-10 08:10:15'
+  updated_at: '2026-06-10 15:41:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14096
+      world: 14098
       region: 6156
       realm: 51
     mythic:
-      world: 7088
-      region: 3021
+      world: 7091
+      region: 3022
       realm: 20
   sporefall:
     normal:
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 285
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3246.7
@@ -1053,11 +1053,11 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 458.9
-        color: '#efffe8'
+        score: 555.6
+        color: '#e9ffdf'
       spec_0:
-        score: 458.9
-        color: '#efffe8'
+        score: 555.6
+        color: '#e9ffdf'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -2133,10 +2133,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/186745288-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Es
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 3007.8
+        score: 3015.4
         color: '#307ad3'
       dps:
         score: 0
@@ -2145,7 +2145,7 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3007.8
+        score: 3015.4
         color: '#307ad3'
       spec_0:
         score: 0
@@ -2154,7 +2154,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3007.8
+        score: 3015.4
         color: '#307ad3'
       spec_3:
         score: 0
@@ -3617,7 +3617,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3272.3
@@ -3769,8 +3769,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 290
@@ -4737,14 +4737,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 284
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3073.5
-        color: '#2175d8'
+        score: 3190.8
+        color: '#5864e2'
       dps:
-        score: 3073.5
-        color: '#2175d8'
+        score: 3190.8
+        color: '#5864e2'
       healer:
         score: 0
         color: '#ffffff'
@@ -4758,8 +4758,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3073.5
-        color: '#2175d8'
+        score: 3190.8
+        color: '#5864e2'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5205,7 +5205,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 267
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
         score: 2298.6
@@ -5617,11 +5617,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Windwalker
-      role: DPS
+      name: Brewmaster
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3471.5
@@ -7025,7 +7025,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3474.3
@@ -7385,18 +7385,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Elemental
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/49/265229361-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Грекулес
-    item_level_equipped: 264
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 1661.9
-        color: '#93ff77'
+        score: 1696.1
+        color: '#90ff74'
       dps:
-        score: 1661.9
-        color: '#93ff77'
+        score: 1696.1
+        color: '#90ff74'
       healer:
         score: 0
         color: '#ffffff'
@@ -7404,8 +7404,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 1661.9
-        color: '#93ff77'
+        score: 1696.1
+        color: '#90ff74'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -8453,8 +8453,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
     item_level_equipped: 286
