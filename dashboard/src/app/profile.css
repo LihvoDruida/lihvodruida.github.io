@@ -1428,11 +1428,29 @@
 
 .profile-directory-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   margin-top: 14px;
   padding: 14px;
+}
+
+.profile-directory-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.profile-directory-manual-cleanup-form {
+  display: flex;
+  justify-content: flex-end;
+  min-width: max-content;
+}
+
+.profile-directory-manual-cleanup-button {
+  white-space: nowrap;
 }
 
 .profile-directory-toolbar .input {
@@ -1666,7 +1684,8 @@
   .profile-character-showcase,
   .profile-raid-card,
   .profile-raid-card__meta,
-  .profile-directory-toolbar {
+  .profile-directory-toolbar,
+  .profile-directory-search-form {
     grid-template-columns: 1fr;
   }
 
@@ -1688,6 +1707,8 @@
   .profile-bnet-cta,
   .profile-directory-toolbar .btn,
   .profile-directory-toolbar .input,
+  .profile-directory-search-form,
+  .profile-directory-manual-cleanup-form,
   .profile-nick-sync-button,
   .profile-nick-sync-button--copy {
     width: 100%;

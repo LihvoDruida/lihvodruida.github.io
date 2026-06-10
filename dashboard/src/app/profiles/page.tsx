@@ -1,7 +1,7 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
 import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
-import { canViewProfiles, guildStatusLabel } from "@/lib/permissions";
+import { canManageDiscordMembers, canViewProfiles, guildStatusLabel } from "@/lib/permissions";
 import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
 import { redirect } from "next/navigation";
 import { pickWowAvatarImageUrl } from "@/lib/wowCharacters";
@@ -96,6 +96,7 @@ export default async function ProfilesPage({
   const params = await searchParams;
   const query = String(params.q || "").trim();
   const profiles = await listDashboardProfiles({ viewer: user, query, limit: 200 });
+  const canRunManualCleanup = canManageDiscordMembers(user);
 
   return (
     <main className="container">
@@ -121,11 +122,33 @@ export default async function ProfilesPage({
             ]}
           />
         </header>
-      <form className="toolbar panel profile-directory-toolbar">
-        <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
-        <button className="btn primary" type="submit">Знайти</button>
-        {query ? <a className="btn subtle" href="/profiles">Скинути</a> : null}
-      </form>
+      <section className="toolbar panel profile-directory-toolbar" aria-label="Пошук і ручні дії з профілями">
+        <form className="profile-directory-search-form" action="/profiles" method="get">
+          <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
+          <button className="btn primary" type="submit">Знайти</button>
+          {query ? <a className="btn subtle" href="/profiles">Скинути</a> : null}
+        </form>
+
+        {canRunManualCleanup ? (
+          <form
+            className="profile-directory-manual-cleanup-form"
+            action="/api/admin/discord/profiles/cleanup"
+            method="post"
+            data-dashboard-action-form="true"
+            data-dashboard-live-submit="true"
+          >
+            <input type="hidden" name="mode" value="apply" />
+            <input type="hidden" name="limit" value="0" />
+            <button
+              className="btn danger profile-directory-manual-cleanup-button"
+              type="submit"
+              data-confirm-message="Запустити ручне глобальне очищення акаунтів? Перед видаленням система оновить склад гільдії в базі, перевірить Discord membership, прибере записи акаунтів з рейдів і видалить тільки тих, кого немає ні в roster, ні в Discord."
+            >
+              Ручне очищення
+            </button>
+          </form>
+        ) : null}
+      </section>
 
       <section className="profile-directory-grid" aria-label="Список доступних профілів">
         {profiles.length ? profiles.map((profile) => <ProfileCard key={profile.profileId} profile={profile} />) : (
