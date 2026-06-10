@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-10 03:52:27'
+  updated_at: '2026-06-10 08:10:15'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14094
+      world: 14096
       region: 6156
       realm: 51
     mythic:
-      world: 7083
+      world: 7088
       region: 3021
       realm: 20
   sporefall:
@@ -2240,13 +2240,13 @@ members:
     item_level_equipped: 283
     mythic_plus_scores:
       all:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
       tank:
         score: 0
@@ -2261,7 +2261,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
     sources:
       roster: blizzard
@@ -2812,10 +2812,10 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
       dps:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
       healer:
         score: 0
@@ -2830,7 +2830,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3011.5
+        score: 3014.4
         color: '#307ad3'
       spec_3:
         score: 0
@@ -5205,7 +5205,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 265
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
         score: 2298.6
@@ -7985,11 +7985,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2885.6
@@ -8457,7 +8457,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 280
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2746.4
