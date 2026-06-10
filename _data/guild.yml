@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-10 18:32:01'
+  updated_at: '2026-06-10 22:04:16'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14102
-      region: 6158
+      world: 14103
+      region: 6159
       realm: 51
     mythic:
-      world: 7099
-      region: 3027
+      world: 7110
+      region: 3038
       realm: 20
   sporefall:
     normal:
@@ -264,10 +264,10 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3748.2
+        score: 3758.5
         color: '#da519e'
       dps:
-        score: 3748.2
+        score: 3758.5
         color: '#da519e'
       healer:
         score: 0
@@ -282,7 +282,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3748.2
+        score: 3758.5
         color: '#da519e'
       spec_3:
         score: 0
@@ -1053,10 +1053,10 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 555.6
+        score: 565.2
         color: '#e9ffdf'
       spec_0:
-        score: 555.6
+        score: 565.2
         color: '#e9ffdf'
       spec_1:
         score: 0
@@ -3617,13 +3617,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3272.3
+        score: 3284.1
         color: '#7e54e7'
       dps:
-        score: 3272.3
+        score: 3284.1
         color: '#7e54e7'
       healer:
         score: 0
@@ -3632,7 +3632,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3272.3
+        score: 3284.1
         color: '#7e54e7'
       spec_1:
         score: 0
@@ -6141,14 +6141,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3210.7
-        color: '#6361e4'
+        score: 3224.1
+        color: '#6d5de5'
       dps:
-        score: 3210.7
-        color: '#6361e4'
+        score: 3224.1
+        color: '#6d5de5'
       healer:
         score: 0
         color: '#ffffff'
@@ -6159,8 +6159,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3210.7
-        color: '#6361e4'
+        score: 3224.1
+        color: '#6d5de5'
       spec_2:
         score: 854.6
         color: '#d4ffc3'
@@ -6921,7 +6921,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 261
+    item_level_equipped: 264
     mythic_plus_scores:
       all:
         score: 1861.6
@@ -7389,13 +7389,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/49/265229361-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Грекулес
-    item_level_equipped: 268
+    item_level_equipped: 271
     mythic_plus_scores:
       all:
-        score: 2031.1
+        score: 2032
         color: '#69ff4d'
       dps:
-        score: 2031.1
+        score: 2032
         color: '#69ff4d'
       healer:
         score: 0
@@ -7404,7 +7404,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2031.1
+        score: 2032
         color: '#69ff4d'
       spec_1:
         score: 0
