@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 21:49:18'
+  updated_at: '2026-06-10 03:52:27'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 163
+  member_count: 162
 characters:
 - name: Бреинор
   region: eu
@@ -4399,32 +4399,6 @@ characters:
       - name: Midnight Fishing
         learned_points: 6
         max_points: 300
-- name: Коксбульдог
-  region: eu
-  realm: howling-fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-  professions:
-    primaries:
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 100
-        max_points: 100
-    - name: Tailoring
-      id: 197
-      tiers:
-      - name: Classic Tailoring
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Tailoring
-        learned_points: 60
-        max_points: 100
-    secondaries: []
 - name: Пандашоманко
   region: eu
   realm: eversong

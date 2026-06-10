@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-09 21:49:18'
+  updated_at: '2026-06-10 03:52:27'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 163
+  member_count: 162
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14079
-      region: 6151
+      world: 14094
+      region: 6156
       realm: 51
     mythic:
-      world: 7073
+      world: 7083
       region: 3021
       realm: 20
   sporefall:
@@ -2895,7 +2895,7 @@ members:
   character:
     name: Zanziholic
     id: 188053560
-    level: 80
+    level: 81
     realm:
       id: 1306
       slug: tarren-mill
@@ -4663,58 +4663,6 @@ members:
       roster: blizzard
       enrichment: raider.io
       professions: blizzard
-- rank: 4
-  character:
-    name: Коксбульдог
-    id: 196008407
-    level: 90
-    realm:
-      id: 1615
-      slug: howling-fjord
-    playable_class:
-      id: 2
-      name: Paladin
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Retribution
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/215/196008407-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/howling-fjord/Коксбульдог
-    item_level_equipped: 288
-    mythic_plus_scores:
-      all:
-        score: 3033.9
-        color: '#2175d8'
-      dps:
-        score: 3033.9
-        color: '#2175d8'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3033.9
-        color: '#2175d8'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
 - rank: 3
   character:
     name: Пандашоманко
@@ -4792,10 +4740,10 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3043.7
+        score: 3073.5
         color: '#2175d8'
       dps:
-        score: 3043.7
+        score: 3073.5
         color: '#2175d8'
       healer:
         score: 0
@@ -4810,7 +4758,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3043.7
+        score: 3073.5
         color: '#2175d8'
       spec_3:
         score: 0
@@ -5260,11 +5208,11 @@ members:
     item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1996.2
-        color: '#6fff53'
+        score: 2298.6
+        color: '#3eff25'
       dps:
-        score: 1335.4
-        color: '#b0ff97'
+        score: 1637.8
+        color: '#95ff7a'
       healer:
         score: 0
         color: '#ffffff'
@@ -5272,8 +5220,8 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 1335.4
-        color: '#b0ff97'
+        score: 1637.8
+        color: '#95ff7a'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5673,14 +5621,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3471.5
         color: '#b33add'
       dps:
-        score: 1894.4
-        color: '#7bff5f'
+        score: 2229.4
+        color: '#49ff2f'
       healer:
         score: 0
         color: '#ffffff'
@@ -5694,8 +5642,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1894.4
-        color: '#7bff5f'
+        score: 2229.4
+        color: '#49ff2f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6196,11 +6144,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3188
-        color: '#5864e2'
+        score: 3210.7
+        color: '#6361e4'
       dps:
-        score: 3188
-        color: '#5864e2'
+        score: 3210.7
+        color: '#6361e4'
       healer:
         score: 0
         color: '#ffffff'
@@ -6211,8 +6159,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3188
-        color: '#5864e2'
+        score: 3210.7
+        color: '#6361e4'
       spec_2:
         score: 854.6
         color: '#d4ffc3'
@@ -6976,14 +6924,14 @@ members:
     item_level_equipped: 261
     mythic_plus_scores:
       all:
-        score: 1705.4
-        color: '#8eff72'
+        score: 1861.6
+        color: '#7eff62'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1705.4
-        color: '#8eff72'
+        score: 1861.6
+        color: '#7eff62'
       tank:
         score: 0
         color: '#ffffff'
@@ -6991,8 +6939,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1705.4
-        color: '#8eff72'
+        score: 1861.6
+        color: '#7eff62'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7545,7 +7493,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3025.7
@@ -8301,7 +8249,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/7/266007559-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Душа
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3021.1
