@@ -20986,3 +20986,97 @@ main.container {
       0 14px 24px rgba(188, 127, 31, 0.3) !important;
   }
 }
+
+/* v64: fully dynamic desktop navbar — width-aware overflow, always-visible active item, modern adaptive topbar. */
+.dashboard-nav-measure {
+  position: fixed !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+}
+
+.dashboard-nav-measure__item,
+.dashboard-nav-measure__more {
+  min-height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 16px !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  font-size: 0.9rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.dashboard-nav-measure__more {
+  gap: 10px !important;
+}
+
+.dashboard-nav-measure__count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(228px, max-content) minmax(0, 1fr) minmax(290px, max-content) !important;
+    align-items: center !important;
+  }
+
+  .dashboard-topbar > * {
+    min-width: 0 !important;
+  }
+
+  .dashboard-brand {
+    max-width: 100% !important;
+  }
+
+  .dashboard-nav.dashboard-nav--desktop {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  .dashboard-nav.dashboard-nav--desktop > a,
+  .dashboard-nav-more {
+    flex: 0 0 auto !important;
+  }
+
+  .dashboard-nav.dashboard-nav--desktop[data-overflow="true"] {
+    padding-right: 6px !important;
+  }
+
+  .dashboard-user {
+    justify-self: end !important;
+    width: min(100%, 420px) !important;
+    min-width: 290px !important;
+    max-width: 420px !important;
+  }
+
+  .dashboard-user__profile-link {
+    min-width: 0 !important;
+  }
+
+  .dashboard-user__profile-link > div:last-child {
+    min-width: 0 !important;
+  }
+
+  .dashboard-user__profile-link strong,
+  .dashboard-user__profile-link span {
+    max-width: 100% !important;
+  }
+}

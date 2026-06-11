@@ -69,9 +69,6 @@ export default async function DashboardIdentity({
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];
-  const maxDesktopPrimaryItems = 4;
-  const primaryNavItems = navItems.slice(0, maxDesktopPrimaryItems);
-  const secondaryNavItems = navItems.slice(maxDesktopPrimaryItems);
   const hasMobileNav = navItems.length > 0;
 
   return (
@@ -88,8 +85,7 @@ export default async function DashboardIdentity({
         {user ? (
           <>
             <DashboardDesktopNav
-              primaryNavItems={primaryNavItems}
-              secondaryNavItems={secondaryNavItems}
+              items={navItems}
               activeSection={activeSection}
             />
 
