@@ -16,6 +16,7 @@ import {
 } from "@/lib/permissions";
 import LogoutButton from "@/components/LogoutButton";
 import MobileNavSafeAreaSync from "@/components/MobileNavSafeAreaSync";
+import DashboardDesktopNav from "@/components/DashboardDesktopNav";
 import { getProfileById, getProfilePublicName } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 
@@ -71,7 +72,6 @@ export default async function DashboardIdentity({
   const maxDesktopPrimaryItems = 4;
   const primaryNavItems = navItems.slice(0, maxDesktopPrimaryItems);
   const secondaryNavItems = navItems.slice(maxDesktopPrimaryItems);
-  const activeSecondaryItem = secondaryNavItems.find((item) => activeSection === item.section);
   const hasMobileNav = navItems.length > 0;
 
   return (
@@ -87,48 +87,11 @@ export default async function DashboardIdentity({
 
         {user ? (
           <>
-            <nav
-              className="dashboard-nav"
-              aria-label="Панель керування"
-              data-items={navItems.length}
-              style={{ "--dashboard-nav-items": navItems.length } as CSSProperties}
-            >
-              {primaryNavItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={activeSection === item.section ? "is-active" : undefined}
-                  aria-current={activeSection === item.section ? "page" : undefined}
-                  title={item.desktopLabel}
-                >
-                  {item.desktopLabel}
-                </a>
-              ))}
-              {secondaryNavItems.length > 0 ? (
-                <details className="dashboard-nav-more">
-                  <summary
-                    className={activeSecondaryItem ? "is-active" : undefined}
-                    title={activeSecondaryItem ? `Поточний розділ: ${activeSecondaryItem.desktopLabel}` : "Додаткові розділи"}
-                  >
-                    <span>{activeSecondaryItem?.desktopLabel || "Ще"}</span>
-                  </summary>
-                  <div className="dashboard-nav-more__menu">
-                    {secondaryNavItems.map((item) => (
-                      <a
-                        key={item.href}
-                        href={item.href}
-                        className={activeSection === item.section ? "is-active" : undefined}
-                        aria-current={activeSection === item.section ? "page" : undefined}
-                        title={item.desktopLabel}
-                      >
-                        <span aria-hidden="true">{item.icon}</span>
-                        <strong>{item.desktopLabel}</strong>
-                      </a>
-                    ))}
-                  </div>
-                </details>
-              ) : null}
-            </nav>
+            <DashboardDesktopNav
+              primaryNavItems={primaryNavItems}
+              secondaryNavItems={secondaryNavItems}
+              activeSection={activeSection}
+            />
 
             <div className="dashboard-user">
               <a
