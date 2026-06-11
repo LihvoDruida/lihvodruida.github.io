@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-06-11 18:48:37'
+  updated_at: '2026-06-11 22:04:45'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-06-08T21:17:16.000Z'
+  raider_io_last_crawled_at: '2026-06-11T21:30:13.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -5030,7 +5030,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Alchemy
-        learned_points: 93
+        learned_points: 94
         max_points: 100
     secondaries:
     - name: Fishing
@@ -6599,7 +6599,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 50
+        learned_points: 53
         max_points: 100
     secondaries:
     - name: Archaeology

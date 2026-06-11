@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-06-11 18:48:37'
+  updated_at: '2026-06-11 22:04:45'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-06-08T21:17:16.000Z'
+  raider_io_last_crawled_at: '2026-06-11T21:30:13.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -62,13 +62,13 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14127
-      region: 6167
-      realm: 51
+      world: 14139
+      region: 6176
+      realm: 52
     mythic:
-      world: 7138
-      region: 3047
-      realm: 20
+      world: 7146
+      region: 3053
+      realm: 21
   sporefall:
     normal:
       world: 0
@@ -209,14 +209,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/ravencrest/4/172225796-avatar.jpg?alt=/wow/static/images/2d/avatar/52-1.jpg
     profile_url: https://raider.io/characters/eu/ravencrest/Auroliana
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3484.3
-        color: '#b33add'
+        score: 3501.1
+        color: '#b73cd7'
       dps:
-        score: 3484.3
-        color: '#b33add'
+        score: 3501.1
+        color: '#b73cd7'
       healer:
         score: 0
         color: '#ffffff'
@@ -230,8 +230,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3484.3
-        color: '#b33add'
+        score: 3501.1
+        color: '#b73cd7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3288.3
@@ -2809,7 +2809,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -3017,7 +3017,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/229/188176101-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Mavika
-    item_level_equipped: 274
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 0
@@ -3669,13 +3669,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/55/188974647-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/draenor/Otito
-    item_level_equipped: 281
+    item_level_equipped: 282
     mythic_plus_scores:
       all:
-        score: 3024.7
+        score: 3044.1
         color: '#2175d8'
       dps:
-        score: 3024.7
+        score: 3044.1
         color: '#2175d8'
       healer:
         score: 0
@@ -3690,7 +3690,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3024.7
+        score: 3044.1
         color: '#2175d8'
       spec_3:
         score: 0
@@ -4137,7 +4137,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/200/189224904-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokuha
-    item_level_equipped: 272
+    item_level_equipped: 273
     mythic_plus_scores:
       all:
         score: 2146.2
@@ -4789,7 +4789,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/149/211631253-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Inika
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 2795.3
@@ -5617,11 +5617,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3471.5
@@ -6033,11 +6033,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Enhancement
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3293.3
@@ -6189,11 +6189,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Frost
+      name: Unholy
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 291
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3371
@@ -6921,7 +6921,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 265
+    item_level_equipped: 266
     mythic_plus_scores:
       all:
         score: 1979.4
@@ -7881,11 +7881,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Guardian
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 289
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8457,7 +8457,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 2831.2
