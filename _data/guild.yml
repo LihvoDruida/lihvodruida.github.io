@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-11 04:05:19'
+  updated_at: '2026-06-11 12:12:21'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14112
-      region: 6160
+      world: 14123
+      region: 6164
       realm: 51
     mythic:
-      world: 7125
-      region: 3040
+      world: 7129
+      region: 3041
       realm: 20
   sporefall:
     normal:
@@ -6545,47 +6545,23 @@ members:
       slug: gordunni
     playable_class:
       id: 6
-      name: Death Knight
+      name: null
     playable_race:
       id: 1
-      name: Human
+      name: null
     faction:
       type: ALLIANCE
-    gender: male
+    gender: null
     active_spec:
-      name: Blood
-      role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/164/243140772-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Базрог
-    item_level_equipped: 273
-    mythic_plus_scores:
-      all:
-        score: 2647.6
-        color: '#5ec580'
-      dps:
-        score: 242
-        color: '#fdfffd'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 2647.6
-        color: '#5ec580'
-      spec_0:
-        score: 2647.6
-        color: '#5ec580'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 242
-        color: '#fdfffd'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 4
   character:
