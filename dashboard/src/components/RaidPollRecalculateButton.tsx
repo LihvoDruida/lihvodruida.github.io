@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { dashboardErrorMessage, dispatchDashboardToast } from "@/lib/clientToasts";
+import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
 function errorFromPayload(data: unknown, fallback: string) {
   if (!data || typeof data !== "object") return fallback;
@@ -50,7 +51,12 @@ export default function RaidPollRecalculateButton() {
           : `Оновлено ${updated} Discord-повідомлень без перетину рекомендованих днів.`,
         ttl: 7200,
       });
-      window.dispatchEvent(new CustomEvent("dashboard:raid-poll-updated", { detail: { source: "site-recalculate" } }));
+      notifyDashboardDataChanged({
+        scope: "raids",
+        kind: "raid-poll",
+        source: "site-recalculate",
+        action: "recalculate-raid-poll-recommendations",
+      });
       router.refresh();
     } catch (error) {
       dispatchDashboardToast({

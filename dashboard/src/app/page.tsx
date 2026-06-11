@@ -103,7 +103,7 @@ function zonedRaidDateToUtc(dateValue: string, timeValue: string, timeZone = RAI
   const minute = Number.isFinite(rawMinute) ? rawMinute : 0;
   const localAsUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
 
-  let offset = timeZoneOffsetMs(new Date(localAsUtc), timeZone);
+  const offset = timeZoneOffsetMs(new Date(localAsUtc), timeZone);
   let utc = localAsUtc - offset;
   const correctedOffset = timeZoneOffsetMs(new Date(utc), timeZone);
   if (correctedOffset !== offset) utc = localAsUtc - correctedOffset;
@@ -113,6 +113,10 @@ function zonedRaidDateToUtc(dateValue: string, timeValue: string, timeZone = RAI
 
 function parseRaidDate(raid: Pick<RaidItem, "date" | "time">) {
   return zonedRaidDateToUtc(String(raid.date || ""), String(raid.time || "20:00"));
+}
+
+function dashboardNowMs() {
+  return Date.now();
 }
 
 function buildCalendarDays(month: Date, raids: RaidItem[]): CalendarDay[] {
@@ -262,7 +266,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   const visibleRaids = raids.filter((raid) => raid.status !== "draft");
   const monthDays = buildCalendarDays(selectedMonth, visibleRaids);
-  const now = Date.now();
+  const now = dashboardNowMs();
   const upcomingRaids = visibleRaids
     .filter((raid) => {
       const date = parseRaidDate(raid);

@@ -20381,3 +20381,203 @@ main.container {
     grid-template-columns: 1fr;
   }
 }
+
+/* --------------------------------------------------------------------------
+   UI safety pass: text readability, no hidden labels, no overlap.
+   This block intentionally sits at the end because the file has multiple
+   historical override passes. Keep it last unless the layout is redesigned.
+---------------------------------------------------------------------------- */
+:where(
+  .dashboard-shell,
+  .dashboard-topbar,
+  .dashboard-brand,
+  .dashboard-user,
+  .dashboard-nav,
+  .content-shell,
+  .content-row,
+  .content-row-title,
+  .content-form-section,
+  .content-form-section-head,
+  .panel,
+  .hero,
+  .discord-builder-shell,
+  .discord-builder-shell--site,
+  .discord-builder-panel,
+  .discord-preview-panel,
+  .discord-message-preview,
+  .raid-page,
+  .raid-poll-page,
+  .raid-poll-list,
+  .raid-poll-list-card,
+  .raid-poll-results,
+  .raid-poll-table-card,
+  .raid-poll-day-card,
+  .raid-poll-recommendation-card,
+  .raid-party-layout,
+  .raid-party-columns,
+  .raid-party-column,
+  .raid-bench-members
+) {
+  min-width: 0 !important;
+}
+
+:where(
+  .dashboard-brand strong,
+  .dashboard-brand span,
+  .dashboard-user strong,
+  .dashboard-user span,
+  .content-row-title strong,
+  .content-row-title small,
+  .content-form-section-head strong,
+  .content-form-section-head small,
+  .discord-rules-row-title strong,
+  .discord-rules-row-title small,
+  .raid-poll-id-chip,
+  .raid-poll-card-metrics dd,
+  .raid-poll-list-card p,
+  .raid-poll-day-card,
+  .raid-poll-recommendation-card,
+  .raid-poll-table-card,
+  .raid-signup-copy,
+  .raid-roster-member-copy
+) {
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+}
+
+.dashboard-nav {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  justify-content: flex-start !important;
+  scrollbar-width: thin;
+}
+
+.dashboard-nav a,
+.dashboard-nav button {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.dashboard-topbar {
+  align-items: start !important;
+}
+
+.discord-builder-shell--site .content-form-section-head small {
+  display: block !important;
+}
+
+.discord-message-preview,
+.raid-poll-create-panel,
+.raid-poll-help-card,
+.raid-poll-list-card {
+  overflow: visible !important;
+}
+
+.raid-poll-list-card {
+  grid-template-rows: auto auto !important;
+  gap: 14px !important;
+  min-height: 0 !important;
+}
+
+.raid-poll-list-card__status {
+  position: static !important;
+  justify-self: start !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  margin: 0 0 2px !important;
+  border-radius: 999px !important;
+}
+
+.raid-poll-list-card__body {
+  padding-right: 0 !important;
+}
+
+.raid-poll-list-card p {
+  display: block !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+}
+
+.raid-poll-card-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.raid-poll-card-metrics dd {
+  overflow: visible !important;
+}
+
+.raid-poll-list-card__actions {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+}
+
+.raid-poll-list-card__actions form,
+.raid-poll-list-card__actions .btn,
+.raid-poll-list-card__actions button {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.raid-poll-detail-head,
+.raid-poll-toolbar,
+.raid-poll-header-actions,
+.content-form-section-head,
+.content-row-actions {
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: flex-start !important;
+}
+
+.raid-poll-day-card,
+.raid-poll-recommendation-card,
+.raid-poll-table-card,
+.raid-poll-voter,
+.raid-poll-recent-vote,
+.raid-poll-live-sync,
+.raid-live-sync,
+.home-live-sync {
+  max-width: 100% !important;
+}
+
+.raid-poll-table-card {
+  overflow-x: auto !important;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid rgba(125, 211, 156, 0.88) !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 820px) {
+  .dashboard-topbar {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .dashboard-user,
+  .dashboard-brand {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .raid-poll-summary-grid,
+  .raid-poll-summary-grid--smart,
+  .raid-poll-day-matrix,
+  .raid-poll-results-grid,
+  .raid-poll-card-metrics,
+  .raid-poll-list-card__actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content-row,
+  .raid-poll-voter,
+  .raid-poll-recent-vote {
+    grid-template-columns: 1fr !important;
+  }
+}

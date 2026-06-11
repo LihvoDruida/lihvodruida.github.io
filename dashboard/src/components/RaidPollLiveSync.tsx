@@ -117,7 +117,6 @@ export default function RaidPollLiveSync({ pollId, initialRevision }: { pollId: 
     function onPollUpdated(event: Event) {
       const detail = (event as PollUpdatedEvent).detail || {};
       if (detail.pollId && detail.pollId !== pollId) return;
-      if (detail.revision) revisionRef.current = detail.revision;
       void tick("raid-poll-updated", true);
     }
 
@@ -134,7 +133,17 @@ export default function RaidPollLiveSync({ pollId, initialRevision }: { pollId: 
   }, [pollId, refreshPoll, resource.status]);
 
   const state = resource.status as LiveState;
-  const label = state === "checking" ? "Синхронізація" : state === "updated" ? "Оновлено" : state === "error" ? "Sync retry" : "Live sync";
+  const label = state === "checking"
+    ? "Синхронізація"
+    : state === "updated"
+      ? "Оновлено"
+      : state === "offline"
+        ? "Офлайн"
+        : state === "error"
+          ? "Повтор синхронізації"
+          : state === "skipped"
+            ? "Очікує"
+            : "Live sync";
   return (
     <div className={`raid-poll-live-sync raid-poll-live-sync--${state}`} role="status" aria-live="polite">
       <span aria-hidden="true" />

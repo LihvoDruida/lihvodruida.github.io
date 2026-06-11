@@ -151,7 +151,15 @@ export default function RaidAttendanceClient({
         const revision = data && typeof data === "object" && "revision" in data
           ? String((data as { revision?: unknown }).revision || "")
           : "";
-        notifyDashboardDataChanged({ scope: "raids", resourceId: raidId, revision, source: "raid-attendance", action });
+        notifyDashboardDataChanged({
+          scope: "raids",
+          kind: "raid",
+          resourceId: raidId,
+          raidId,
+          revision,
+          source: "raid-attendance",
+          action,
+        });
       }
     } catch {
       dispatchDashboardToast({

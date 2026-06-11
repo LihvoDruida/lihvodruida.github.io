@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
 import {
   notifyDashboardDataChanged,
+  type DashboardDataMutationKind,
   type DashboardDataScope,
 } from "@/lib/dashboardLiveRefresh";
 
@@ -431,16 +432,68 @@ function mutationScopeFromAction(action: string): DashboardDataScope {
 }
 
 
-function mutationResourceIdFromResponse(data: unknown) {
-  if (!data || typeof data !== "object") return undefined;
-  const record = data as Record<string, unknown>;
-  const direct = record.raidId || record.pollId || record.resourceId || record.id;
-  if (typeof direct === "string" && direct.trim()) return direct.trim();
-  const raid = record.raid && typeof record.raid === "object" ? record.raid as Record<string, unknown> : null;
-  if (typeof raid?.id === "string" && raid.id.trim()) return raid.id.trim();
-  const poll = record.poll && typeof record.poll === "object" ? record.poll as Record<string, unknown> : null;
-  if (typeof poll?.id === "string" && poll.id.trim()) return poll.id.trim();
+function mutationKindFromAction(action: string): DashboardDataMutationKind {
+  if (action.includes("/api/admin/background-api/settings")) return "integration";
+  if (action.includes("/applications/")) return "application";
+  if (action.includes("/content/")) return "content";
+  if (action.includes("/discord/")) return "discord";
+  if (action.includes("/guild/")) return "guild";
+  if (action.includes("/profile/")) return "profile";
+  if (action.includes("/polls") || action.includes("raid-poll")) return "raid-poll";
+  if (action.includes("/raids")) return "raid";
+  if (action.includes("/auth/")) return "session";
+  return "unknown";
+}
+
+function cleanMutationId(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function objectRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
+function nestedRecord(record: Record<string, unknown>, key: string) {
+  return objectRecord(record[key]);
+}
+
+function idFromActionPath(action: string, marker: "raids" | "polls") {
+  try {
+    const url = new URL(action, typeof window !== "undefined" ? window.location.href : "https://dashboard.local");
+    const parts = url.pathname.split("/").filter(Boolean);
+    const index = parts.indexOf(marker);
+    if (index >= 0 && parts[index + 1]) return decodeURIComponent(parts[index + 1]);
+  } catch {
+    const match = action.match(new RegExp(`/${marker}/([^/?#]+)`));
+    if (match?.[1]) return decodeURIComponent(match[1]);
+  }
   return undefined;
+}
+
+function mutationEntityIdsFromResponse(data: unknown, action: string) {
+  const record = objectRecord(data);
+  const raid = record ? nestedRecord(record, "raid") : null;
+  const poll = record ? nestedRecord(record, "poll") : null;
+  const kind = mutationKindFromAction(action);
+
+  const raidId = cleanMutationId(record?.raidId)
+    || cleanMutationId(raid?.id)
+    || (kind === "raid" ? cleanMutationId(record?.resourceId) || cleanMutationId(record?.id) : undefined)
+    || cleanMutationId(idFromActionPath(action, "raids"));
+
+  const pollId = cleanMutationId(record?.pollId)
+    || cleanMutationId(poll?.id)
+    || (kind === "raid-poll" ? cleanMutationId(record?.resourceId) || cleanMutationId(record?.id) : undefined)
+    || cleanMutationId(idFromActionPath(action, "polls"));
+
+  const resourceId = cleanMutationId(record?.resourceId)
+    || (kind === "raid" ? raidId : undefined)
+    || (kind === "raid-poll" ? pollId : undefined)
+    || cleanMutationId(record?.id)
+    || raidId
+    || pollId;
+
+  return { resourceId, raidId, pollId };
 }
 
 function mutationRevisionFromResponse(data: unknown) {
@@ -558,9 +611,13 @@ export default function DashboardFormEnhancer() {
               }),
             );
           }
+          const mutationIds = mutationEntityIdsFromResponse(data, action);
           notifyDashboardDataChanged({
             scope: mutationScopeFromAction(action),
-            resourceId: mutationResourceIdFromResponse(data),
+            kind: mutationKindFromAction(action),
+            resourceId: mutationIds.resourceId,
+            raidId: mutationIds.raidId,
+            pollId: mutationIds.pollId,
             revision: mutationRevisionFromResponse(data),
             action,
             source: "form-enhancer",

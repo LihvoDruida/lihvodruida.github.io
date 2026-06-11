@@ -80,7 +80,6 @@ export default function RaidLiveSync({ raidId, initialRevision }: { raidId: stri
     function onRaidUpdated(event: Event) {
       const detail = (event as RaidUpdatedEvent).detail || {};
       if (detail.raidId && detail.raidId !== raidId) return;
-      if (detail.revision) revisionRef.current = detail.revision;
       void refreshRaid("raid-updated", { force: true });
     }
 
