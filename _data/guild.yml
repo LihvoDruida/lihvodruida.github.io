@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-10 22:04:16'
+  updated_at: '2026-06-11 04:05:19'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14103
-      region: 6159
+      world: 14112
+      region: 6160
       realm: 51
     mythic:
-      world: 7110
-      region: 3038
+      world: 7125
+      region: 3040
       realm: 20
   sporefall:
     normal:
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1609,8 +1609,8 @@ members:
       type: HORDE
     gender: male
     active_spec:
-      name: Vengeance
-      role: TANK
+      name: Havoc
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/draenor/229/185333989-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/draenor/Illidonson
     item_level_equipped: 279
@@ -2185,7 +2185,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3510.1
@@ -4740,11 +4740,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3227.3
-        color: '#6d5de5'
+        score: 3282
+        color: '#7e54e7'
       dps:
-        score: 3227.3
-        color: '#6d5de5'
+        score: 3282
+        color: '#7e54e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -4758,8 +4758,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3227.3
-        color: '#6d5de5'
+        score: 3282
+        color: '#7e54e7'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6189,7 +6189,7 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Unholy
+      name: Frost
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
@@ -6921,17 +6921,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 264
+    item_level_equipped: 265
     mythic_plus_scores:
       all:
-        score: 1861.6
-        color: '#7eff62'
+        score: 1979.4
+        color: '#6fff53'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1861.6
-        color: '#7eff62'
+        score: 1979.4
+        color: '#6fff53'
       tank:
         score: 0
         color: '#ffffff'
@@ -6939,8 +6939,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1861.6
-        color: '#7eff62'
+        score: 1979.4
+        color: '#6fff53'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -6973,7 +6973,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3400.7
@@ -7025,7 +7025,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3474.3
@@ -7985,11 +7985,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Balance
-      role: DPS
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 2885.6

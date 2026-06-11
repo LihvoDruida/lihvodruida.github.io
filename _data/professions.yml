@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-10 22:04:16'
+  updated_at: '2026-06-11 04:05:19'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6602,6 +6602,9 @@ characters:
         learned_points: 50
         max_points: 100
     secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
     - name: Cooking
       id: 185
       tiers:
