@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-11 22:04:45'
+  updated_at: '2026-06-12 04:05:51'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7578,6 +7578,9 @@ characters:
     - name: Herbalism
       id: 182
       tiers:
+      - name: Draenor Herbalism
+        learned_points: 2
+        max_points: 100
       - name: Classic Herbalism
         learned_points: 1
         max_points: 300
@@ -7590,6 +7593,9 @@ characters:
     - name: Inscription
       id: 773
       tiers:
+      - name: Draenor Inscription
+        learned_points: 1
+        max_points: 100
       - name: Classic Inscription
         learned_points: 1
         max_points: 300
@@ -7618,9 +7624,33 @@ characters:
     - name: Fishing
       id: 356
       tiers:
+      - name: Kul Tiran Fishing
+        learned_points: 1
+        max_points: 175
+      - name: Legion Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Draenor Fishing
+        learned_points: 1
+        max_points: 100
+      - name: Pandaria Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Cataclysm Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Northrend Fishing
+        learned_points: 1
+        max_points: 75
+      - name: Outland Fishing
+        learned_points: 1
+        max_points: 75
       - name: Classic Fishing
         learned_points: 1
         max_points: 300
+      - name: Shadowlands Fishing
+        learned_points: 1
+        max_points: 200
       - name: Midnight Fishing
         learned_points: 300
         max_points: 300
@@ -7934,7 +7964,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Tailoring
-        learned_points: 50
+        learned_points: 71
         max_points: 100
     secondaries:
     - name: Cooking
