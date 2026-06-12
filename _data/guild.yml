@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 18:08:55'
+  updated_at: '2026-06-12 21:46:38'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,8 +62,8 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14161
-      region: 6183
+      world: 14167
+      region: 6187
       realm: 52
     mythic:
       world: 7159
@@ -3207,7 +3207,7 @@ members:
   character:
     name: Zanzimond
     id: 188363527
-    level: 81
+    level: 82
     realm:
       id: 1306
       slug: tarren-mill
@@ -3721,14 +3721,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
-        score: 2539.6
-        color: '#52df5d'
+        score: 2543.1
+        color: '#56da64'
       dps:
-        score: 2539.6
-        color: '#52df5d'
+        score: 2543.1
+        color: '#56da64'
       healer:
         score: 0
         color: '#ffffff'
@@ -3742,8 +3742,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2539.6
-        color: '#52df5d'
+        score: 2543.1
+        color: '#56da64'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4740,11 +4740,11 @@ members:
     item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 3282
-        color: '#7e54e7'
+        score: 3321.4
+        color: '#8e4aea'
       dps:
-        score: 3282
-        color: '#7e54e7'
+        score: 3321.4
+        color: '#8e4aea'
       healer:
         score: 0
         color: '#ffffff'
@@ -4758,8 +4758,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3282
-        color: '#7e54e7'
+        score: 3321.4
+        color: '#8e4aea'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5208,10 +5208,10 @@ members:
     item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2298.6
+        score: 2299.4
         color: '#3eff25'
       dps:
-        score: 1637.8
+        score: 1638.6
         color: '#95ff7a'
       healer:
         score: 0
@@ -5220,7 +5220,7 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 1637.8
+        score: 1638.6
         color: '#95ff7a'
       spec_1:
         score: 0
@@ -5416,14 +5416,14 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3330.2
-        color: '#8e4aea'
+        score: 3354.5
+        color: '#9544eb'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3330.2
-        color: '#8e4aea'
+        score: 3354.5
+        color: '#9544eb'
       tank:
         score: 0
         color: '#ffffff'
@@ -5434,8 +5434,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3330.2
-        color: '#8e4aea'
+        score: 3354.5
+        color: '#9544eb'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -7989,17 +7989,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 284
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
-        score: 2885.6
-        color: '#5292b9'
+        score: 2926.9
+        color: '#4888c3'
       dps:
         score: 327.7
         color: '#f7fff4'
       healer:
-        score: 2885.6
-        color: '#5292b9'
+        score: 2926.9
+        color: '#4888c3'
       tank:
         score: 0
         color: '#ffffff'
@@ -8013,8 +8013,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_3:
-        score: 2885.6
-        color: '#5292b9'
+        score: 2926.9
+        color: '#4888c3'
     sources:
       roster: blizzard
       enrichment: raider.io
@@ -8457,17 +8457,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 2909.4
-        color: '#4d8dbe'
+        score: 2946.8
+        color: '#4888c3'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2909.4
-        color: '#4d8dbe'
+        score: 2946.8
+        color: '#4888c3'
       tank:
         score: 0
         color: '#ffffff'
@@ -8478,8 +8478,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2909.4
-        color: '#4d8dbe'
+        score: 2946.8
+        color: '#4888c3'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8509,14 +8509,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 269
+    item_level_equipped: 268
     mythic_plus_scores:
       all:
-        score: 2420.5
-        color: '#39f434'
+        score: 2540.3
+        color: '#56da64'
       dps:
-        score: 2420.5
-        color: '#39f434'
+        score: 2540.3
+        color: '#56da64'
       healer:
         score: 0
         color: '#ffffff'
@@ -8530,8 +8530,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1415.3
-        color: '#aaff90'
+        score: 1861.3
+        color: '#7eff62'
       spec_3:
         score: 0
         color: '#ffffff'

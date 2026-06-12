@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 18:08:55'
+  updated_at: '2026-06-12 21:46:38'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -5677,7 +5677,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Jewelcrafting
-        learned_points: 99
+        learned_points: 100
         max_points: 100
     secondaries:
     - name: Cooking
