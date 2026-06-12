@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 15:17:46'
+  updated_at: '2026-06-12 18:08:55'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 162
+  member_count: 163
 characters:
 - name: Бреинор
   region: eu
@@ -7806,9 +7806,12 @@ characters:
         learned_points: 16
         max_points: 100
       - name: Midnight Tailoring
-        learned_points: 96
+        learned_points: 98
         max_points: 100
     secondaries:
+    - name: Archaeology
+      id: 794
+      tiers: []
     - name: Fishing
       id: 356
       tiers:
@@ -7828,6 +7831,9 @@ characters:
     - name: Skinning
       id: 393
       tiers:
+      - name: Northrend Skinning
+        learned_points: 2
+        max_points: 75
       - name: Classic Skinning
         learned_points: 1
         max_points: 300
@@ -7973,3 +7979,29 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
+- name: Синижёпая
+  region: eu
+  realm: howling-fjord
+  realm_slug: howling-fjord
+  profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 16
+        max_points: 100
+    secondaries: []

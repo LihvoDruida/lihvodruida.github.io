@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 15:17:46'
+  updated_at: '2026-06-12 18:08:55'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 162
+  member_count: 163
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14158
-      region: 6182
+      world: 14161
+      region: 6183
       realm: 52
     mythic:
-      world: 7157
-      region: 3055
+      world: 7159
+      region: 3057
       realm: 21
   sporefall:
     normal:
@@ -5416,13 +5416,13 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3321.8
+        score: 3330.2
         color: '#8e4aea'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3321.8
+        score: 3330.2
         color: '#8e4aea'
       tank:
         score: 0
@@ -5434,7 +5434,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3321.8
+        score: 3330.2
         color: '#8e4aea'
       spec_3:
         score: 0
@@ -6768,11 +6768,11 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3348.8
-        color: '#9544eb'
+        score: 3364.3
+        color: '#9c3ded'
       dps:
-        score: 3348.8
-        color: '#9544eb'
+        score: 3364.3
+        color: '#9c3ded'
       healer:
         score: 0
         color: '#ffffff'
@@ -6783,8 +6783,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3348.8
-        color: '#9544eb'
+        score: 3364.3
+        color: '#9c3ded'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -8460,14 +8460,14 @@ members:
     item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 2892
-        color: '#5292b9'
+        score: 2909.4
+        color: '#4d8dbe'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2892
-        color: '#5292b9'
+        score: 2909.4
+        color: '#4d8dbe'
       tank:
         score: 0
         color: '#ffffff'
@@ -8478,8 +8478,60 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2892
-        color: '#5292b9'
+        score: 2909.4
+        color: '#4d8dbe'
+      spec_3:
+        score: 0
+        color: '#ffffff'
+    sources:
+      roster: blizzard
+      enrichment: raider.io
+      professions: blizzard
+- rank: 2
+  character:
+    name: Синижёпая
+    id: 183468144
+    level: 90
+    realm:
+      id: 1615
+      slug: howling-fjord
+    playable_class:
+      id: 3
+      name: Hunter
+    playable_race:
+      id: 27
+      name: Nightborne
+    faction:
+      type: HORDE
+    gender: female
+    active_spec:
+      name: Survival
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
+    profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
+    item_level_equipped: 269
+    mythic_plus_scores:
+      all:
+        score: 2420.5
+        color: '#39f434'
+      dps:
+        score: 2420.5
+        color: '#39f434'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 1332.3
+        color: '#b0ff97'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 1415.3
+        color: '#aaff90'
       spec_3:
         score: 0
         color: '#ffffff'
