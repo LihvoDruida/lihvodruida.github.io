@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 04:05:51'
+  updated_at: '2026-06-12 11:45:01'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14149
-      region: 6179
+      world: 14156
+      region: 6181
       realm: 52
     mythic:
-      world: 7154
-      region: 3054
+      world: 7157
+      region: 3055
       realm: 21
   sporefall:
     normal:
@@ -1301,7 +1301,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 267
+    item_level_equipped: 270
     mythic_plus_scores:
       all:
         score: 0
@@ -1353,7 +1353,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/208/184963280-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Regin
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 0
@@ -1512,11 +1512,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 3139
-        color: '#3e6ae0'
+        score: 3181
+        color: '#5864e2'
       dps:
-        score: 3055.6
-        color: '#2175d8'
+        score: 3097.7
+        color: '#0070dd'
       healer:
         score: 1446.1
         color: '#a7ff8d'
@@ -1530,8 +1530,8 @@ members:
         score: 567
         color: '#e9ffdf'
       spec_2:
-        score: 3055.6
-        color: '#2175d8'
+        score: 3097.7
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2185,7 +2185,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/252/186824700-avatar.jpg?alt=/wow/static/images/2d/avatar/11-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Marmozetroly
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3510.1
@@ -5413,7 +5413,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/37/217713189-avatar.jpg?alt=/wow/static/images/2d/avatar/35-1.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Teasick
-    item_level_equipped: 283
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3321.8
@@ -6196,11 +6196,11 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3371
-        color: '#9c3ded'
+        score: 3400.3
+        color: '#a335ee'
       dps:
-        score: 3371
-        color: '#9c3ded'
+        score: 3400.3
+        color: '#a335ee'
       healer:
         score: 0
         color: '#ffffff'
@@ -6214,8 +6214,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3371
-        color: '#9c3ded'
+        score: 3400.3
+        color: '#a335ee'
       spec_3:
         score: 0
         color: '#ffffff'
