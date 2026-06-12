@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 11:45:01'
+  updated_at: '2026-06-12 15:17:46'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3351,7 +3351,7 @@ characters:
         learned_points: 4
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 83
+        learned_points: 84
         max_points: 100
     - name: Leatherworking
       id: 165

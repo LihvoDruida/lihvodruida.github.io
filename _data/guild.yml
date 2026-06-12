@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 11:45:01'
+  updated_at: '2026-06-12 15:17:46'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,8 +62,8 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14156
-      region: 6181
+      world: 14158
+      region: 6182
       realm: 52
     mythic:
       world: 7157
@@ -264,11 +264,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3758.5
-        color: '#da519e'
+        score: 3773.7
+        color: '#dd5399'
       dps:
-        score: 3758.5
-        color: '#da519e'
+        score: 3773.7
+        color: '#dd5399'
       healer:
         score: 0
         color: '#ffffff'
@@ -282,8 +282,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3758.5
-        color: '#da519e'
+        score: 3773.7
+        color: '#dd5399'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8457,17 +8457,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 2831.2
-        color: '#589cae'
+        score: 2892
+        color: '#5292b9'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2831.2
-        color: '#589cae'
+        score: 2892
+        color: '#5292b9'
       tank:
         score: 0
         color: '#ffffff'
@@ -8478,8 +8478,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2831.2
-        color: '#589cae'
+        score: 2892
+        color: '#5292b9'
       spec_3:
         score: 0
         color: '#ffffff'
