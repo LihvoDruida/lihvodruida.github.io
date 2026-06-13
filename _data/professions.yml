@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-12 21:46:38'
+  updated_at: '2026-06-13 03:53:53'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -1038,7 +1038,7 @@ characters:
   region: eu
   realm: doomhammer
   realm_slug: doomhammer
-  profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+  profile_url: null
   professions:
     primaries:
     - name: Enchanting
