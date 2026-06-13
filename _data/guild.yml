@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 17:25:13'
+  updated_at: '2026-06-13 21:18:52'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14185
-      region: 6192
+      world: 14188
+      region: 6194
       realm: 52
     mythic:
-      world: 7166
-      region: 3057
+      world: 7171
+      region: 3059
       realm: 21
   sporefall:
     normal:
@@ -3773,7 +3773,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2570.3
@@ -4789,14 +4789,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 286
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3321.4
-        color: '#884ee9'
+        score: 3346.4
+        color: '#8f49ea'
       dps:
-        score: 3321.4
-        color: '#884ee9'
+        score: 3346.4
+        color: '#8f49ea'
       healer:
         score: 0
         color: '#ffffff'
@@ -4810,8 +4810,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3321.4
-        color: '#884ee9'
+        score: 3346.4
+        color: '#8f49ea'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6193,7 +6193,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/kazzak/68/224646724-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/kazzak/Panharanir
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3271.1
@@ -6817,13 +6817,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
-        score: 3394.1
+        score: 3413.9
         color: '#9d3ded'
       dps:
-        score: 3394.1
+        score: 3413.9
         color: '#9d3ded'
       healer:
         score: 0
@@ -6835,7 +6835,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3394.1
+        score: 3413.9
         color: '#9d3ded'
       spec_2:
         score: 0
@@ -7025,7 +7025,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3400.7
@@ -7077,7 +7077,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3474.3
@@ -7933,11 +7933,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Guardian
-      role: TANK
+      name: Restoration
+      role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 287
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8509,7 +8509,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 287
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 2946.8

@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 17:25:13'
+  updated_at: '2026-06-13 21:18:52'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6390,6 +6390,9 @@ characters:
       - name: Kul Tiran Skinning
         learned_points: 175
         max_points: 175
+      - name: Legion Skinning
+        learned_points: 1
+        max_points: 100
       - name: Draenor Skinning
         learned_points: 100
         max_points: 100
@@ -6426,6 +6429,9 @@ characters:
       - name: Kul Tiran Leatherworking
         learned_points: 77
         max_points: 175
+      - name: Legion Leatherworking
+        learned_points: 1
+        max_points: 100
       - name: Draenor Leatherworking
         learned_points: 54
         max_points: 100
