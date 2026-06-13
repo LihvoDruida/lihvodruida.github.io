@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 07:51:26'
+  updated_at: '2026-06-13 10:31:50'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -967,6 +967,32 @@ characters:
         max_points: 100
       - name: Midnight Mining
         learned_points: 97
+        max_points: 100
+    secondaries: []
+- name: Синижёпая
+  region: eu
+  realm: howling-fjord
+  realm_slug: howling-fjord
+  profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
+  professions:
+    primaries:
+    - name: Skinning
+      id: 393
+      tiers:
+      - name: Classic Skinning
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Skinning
+        learned_points: 100
+        max_points: 100
+    - name: Enchanting
+      id: 333
+      tiers:
+      - name: Classic Enchanting
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Enchanting
+        learned_points: 16
         max_points: 100
     secondaries: []
 - name: Krekor
@@ -6257,7 +6283,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Зермонг
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
@@ -6980,7 +7006,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
+  profile_url: null
   professions:
     primaries:
     - name: Mining
@@ -7979,29 +8005,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Синижёпая
-  region: eu
-  realm: howling-fjord
-  realm_slug: howling-fjord
-  profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-  professions:
-    primaries:
-    - name: Skinning
-      id: 393
-      tiers:
-      - name: Classic Skinning
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Skinning
-        learned_points: 100
-        max_points: 100
-    - name: Enchanting
-      id: 333
-      tiers:
-      - name: Classic Enchanting
-        learned_points: 1
-        max_points: 300
-      - name: Midnight Enchanting
-        learned_points: 16
-        max_points: 100
-    secondaries: []
