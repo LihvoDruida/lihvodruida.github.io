@@ -2,25 +2,25 @@ name: Update Project Data
 
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: "0 */4 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: project-data-update
+  group: project-data-update-live
   cancel-in-progress: false
 
 jobs:
-
   update:
-    name: Update Data
+    name: Update ${{ matrix.task.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
 
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         task:
           - name: mods
@@ -43,72 +43,50 @@ jobs:
       BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
 
     steps:
-      - name: Checkout
+      - name: Checkout live branch
         uses: actions/checkout@v4
+        with:
+          ref: live
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
 
-      - name: Save file hashes (before)
+      - name: Sync with remote live
+        run: git pull --rebase origin live
+
+      - name: Run updater with API retry
         run: |
-          mkdir -p hashes
-          for f in ${{ matrix.task.files }}; do
-            if [ -f "$f" ]; then
-              sha256sum "$f" > hashes/$(basename $f).before
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if python "${{ matrix.task.script }}"; then
+              exit 0
             fi
+            echo "Retry attempt ${attempt}/3..."
+            sleep $((attempt * 10))
           done
+          exit 1
 
-      - name: Run script (retry API)
+      - name: Commit changed data
         run: |
-          for i in 1 2 3; do
-            python ${{ matrix.task.script }} && break
-            echo "Retry attempt $i..."
-            sleep 5
-          done
-
-      - name: Save file hashes (after)
-        run: |
-          for f in ${{ matrix.task.files }}; do
-            if [ -f "$f" ]; then
-              sha256sum "$f" > hashes/$(basename $f).after
-            fi
-          done
-
-      - name: Detect changes
-        id: diff
-        run: |
-          changed=false
-
-          for f in ${{ matrix.task.files }}; do
-            name=$(basename $f)
-
-            if ! diff hashes/$name.before hashes/$name.after >/dev/null 2>&1; then
-              changed=true
-            fi
-          done
-
-          echo "changed=$changed" >> $GITHUB_OUTPUT
-
-      - name: Commit changes
-        if: steps.diff.outputs.changed == 'true'
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add ${{ matrix.task.files }}
+          if git diff --cached --quiet; then
+            echo "No changes for ${{ matrix.task.name }}" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
           git commit -m "${{ matrix.task.message }}"
-          git pull --rebase
-          git push
-
-          echo "✔ ${{ matrix.task.name }} updated" >> $GITHUB_STEP_SUMMARY
-
-      - name: No changes
-        if: steps.diff.outputs.changed != 'true'
-        run: |
-          echo "No changes for ${{ matrix.task.name }}" >> $GITHUB_STEP_SUMMARY
+          git pull --rebase origin live
+          git push origin HEAD:live
+          echo "✔ ${{ matrix.task.name }} updated" >> "$GITHUB_STEP_SUMMARY"

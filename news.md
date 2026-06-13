@@ -5,6 +5,8 @@ permalink: /news/
 description: "Останні новини по World of Warcraft, гільдії Mistblossom Vanguard, оновлення сайту та важливі події спільноти."
 image: /assets/img/og-image-default.webp
 tags: [World of Warcraft, WoW, новини, гільдія, Mistblossom Vanguard, оновлення]
+extra_css:
+  - /assets/css/news.css
 ---
 
 {% assign news_list = site.news | sort: 'date' | reverse %}

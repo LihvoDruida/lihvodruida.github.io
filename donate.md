@@ -5,6 +5,8 @@ permalink: /donate/
 description: "Сторінка підтримки Лігва Себаса: Monobank, Donatello та інші способи допомогти розвитку сайту, стрімів і нового контенту."
 image: /assets/img/og-image-default.webp
 tags: [підтримка, донат, Monobank, Donatello, стріми, контент]
+extra_css:
+  - /assets/css/donate.css
 ---
 
 <section class="donate-section">

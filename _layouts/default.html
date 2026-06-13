@@ -56,10 +56,18 @@
   <meta name="msapplication-TileImage" content="{{ '/assets/favicon/ms-icon-144x144.png' | relative_url }}">
 
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="preconnect" href="https://wow.zamimg.com" crossorigin>
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+  {% if page.wowhead_tooltips %}
+  <link rel="preconnect" href="https://wow.zamimg.com" crossorigin>
   <link rel="dns-prefetch" href="//wow.zamimg.com">
+  {% endif %}
+  <link rel="preload" href="{{ '/assets/css/base/variables.css' | relative_url }}" as="style">
   <link rel="preload" href="{{ '/assets/css/style.css' | relative_url }}" as="style">
+  {% if page.extra_css %}
+    {% for stylesheet in page.extra_css %}
+  <link rel="preload" href="{{ stylesheet | relative_url }}" as="style">
+    {% endfor %}
+  {% endif %}
 
   {% seo title=false %}
   {% feed_meta %}
@@ -81,6 +89,7 @@
   }
   </script>
 
+  {% if page.wowhead_tooltips %}
   <script>
     const whTooltips = {
       colorLinks: true,
@@ -91,8 +100,11 @@
   </script>
   <script src="https://wow.zamimg.com/js/tooltips.js" defer></script>
   <script src="{{ '/assets/js/wowhead-tooltips.js' | relative_url }}" defer></script>
+  {% endif %}
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+  <link rel="stylesheet" href="{{ '/assets/css/base/variables.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% if page.extra_css %}
     {% for stylesheet in page.extra_css %}

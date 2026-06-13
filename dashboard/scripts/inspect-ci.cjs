@@ -81,8 +81,19 @@ if (exists('package-lock.json')) {
   }
 }
 
+function hasOnlyVercelCrons() {
+  if (!exists('vercel.json')) return false;
+  try {
+    const parsed = JSON.parse(read('vercel.json'));
+    const keys = Object.keys(parsed);
+    return keys.length === 1 && Array.isArray(parsed.crons);
+  } catch {
+    return false;
+  }
+}
+
 const packageJsonText = read('package.json');
-warn(!exists('vercel.json'), 'vercel.json should be absent so Vercel auto-detects Next.js framework, install command, build command, and output directory.');
+warn(!exists('vercel.json') || hasOnlyVercelCrons(), 'vercel.json should contain only crons; keep framework/build/output auto-detected by Vercel.');
 warn(!exists('.nvmrc') && !exists('.node-version'), 'Node version should be selected in Vercel Project Settings, not pinned by .nvmrc or .node-version.');
 warn(!/"engines"\s*:/.test(packageJsonText), 'package.json should not pin engines when the project intentionally follows Vercel Project Settings Node.js version.');
 warn(!/"packageManager"\s*:/.test(packageJsonText), 'package.json should not pin packageManager when Vercel should auto-select npm from package-lock.json.');

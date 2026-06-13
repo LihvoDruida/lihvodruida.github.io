@@ -5,7 +5,7 @@ permalink: /guild/applications/
 description: "Закритий список заявок до Mistblossom Vanguard зі статусами, пошуком, фільтрами за класом і сортуванням."
 robots: noindex, nofollow, noarchive
 sitemap: false
-image: /assets/img/guild-finder-apply.png
+image: /assets/img/guild-finder-apply.webp
 tags: [Mistblossom Vanguard, список заявок, статус заявок, World of Warcraft]
 extra_css:
   - /assets/css/apply.css

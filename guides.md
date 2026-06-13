@@ -5,6 +5,8 @@ permalink: /guides/
 description: "Корисні гайди по World of Warcraft: рейди, Mythic+, професії, Android/Winlator, налаштування та практичні поради українською."
 image: /assets/img/og-image-default.webp
 tags: [World of Warcraft, WoW, гайди, Mythic+, рейди, професії]
+extra_css:
+  - /assets/css/news.css
 ---
 
 {% assign guides_list = site.guides | sort: 'date' | reverse %}

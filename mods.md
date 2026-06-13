@@ -5,6 +5,9 @@ permalink: /mods/
 description: "Каталог моїх адонів і модифікацій для World of Warcraft та інших ігор з актуальними версіями, описами й посиланнями на CurseForge."
 image: /assets/img/og-image-default.webp
 tags: [CurseForge, адони, World of Warcraft, WoW, моди, Lihvo_Druida]
+extra_css:
+  - /assets/css/guild.css
+  - /assets/css/mods.css
 ---
 
 <div class="guild-page-container">

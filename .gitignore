@@ -1,6 +1,39 @@
-_site
-_site/*
-*.pyc
+# Jekyll / GitHub Pages
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Dependencies
+node_modules/
+vendor/bundle/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node / Next.js dashboard
+.next/
+out/
+dashboard/.next/
+dashboard/out/
+dashboard/node_modules/
+dashboard/tsconfig*.tsbuildinfo
+
+# Local env and secrets
+.env
+.env.*
+!.env.example
+!.dev.vars.example
+*.local
+*.secret
+
+# Build artifacts / temp
 *.zip
-*.example
+*.bak
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
 /workers/guild-applications-worker/guild-applications

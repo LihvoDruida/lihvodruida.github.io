@@ -86,6 +86,8 @@ defaults:
       layout: news
       categories: ["новини"]
       comments: true
+      extra_css:
+        - /assets/css/news.css
       seo:
         type: NewsArticle
 
@@ -96,6 +98,9 @@ defaults:
       layout: guides
       categories: ["гайди"]
       toc: true
+      extra_css:
+        - /assets/css/news.css
+      wowhead_tooltips: true
       seo:
         type: Article
 
@@ -116,5 +121,19 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
+  - dashboard/
+  - workers/
+  - scripts/
+  - src/
+  - public/
+  - docs/
+  - .github/
+  - .env
+  - .env.*
   - README.md
   - LICENSE
+  - "*.zip"
+  - "*.bak"
+  - "*.tmp"
+  - "*.tsbuildinfo"
+  - "__pycache__/"

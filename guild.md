@@ -5,6 +5,8 @@ permalink: /guild/
 description: "Сторінка гільдії Mistblossom Vanguard: склад, ранги, Raider.IO профілі, рейдовий прогрес, статистика ролей та професії учасників."
 image: /assets/img/og-image-default.webp
 tags: [Mistblossom Vanguard, Raider.IO, гільдія, World of Warcraft, рейди, професії]
+extra_css:
+  - /assets/css/guild.css
 ---
 
 {% assign guild_root = site.data.guild %}

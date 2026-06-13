@@ -5,7 +5,7 @@
     {% for char in site.data.characters %}
       <a href="{{ char.link }}" class="character class-{{ char.class | slugify }}">
         <div class="char-avatar-container">
-           <img src="{{ char.avatar }}" alt="{{ char.class }}" class="char-avatar">
+           <img src="{{ char.avatar }}" alt="{{ char.name }} — {{ char.class }}" class="char-avatar" loading="lazy" decoding="async" referrerpolicy="no-referrer">
         </div>
         
         <div class="char-details">
