@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 03:53:53'
+  updated_at: '2026-06-13 07:51:26'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14174
-      region: 6187
+      world: 14179
+      region: 6189
       realm: 52
     mythic:
-      world: 7164
+      world: 7165
       region: 3057
       realm: 21
   sporefall:
@@ -1081,23 +1081,47 @@ members:
       slug: doomhammer
     playable_class:
       id: 9
-      name: null
+      name: Warlock
     playable_race:
       id: 5
-      name: null
+      name: Undead
     faction:
       type: HORDE
-    gender: null
+    gender: male
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Affliction
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/225/183698913-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
+    profile_url: https://raider.io/characters/eu/doomhammer/Hopeblood
+    item_level_equipped: 279
+    mythic_plus_scores:
+      all:
+        score: 2279.5
+        color: '#3eff25'
+      dps:
+        score: 2279.5
+        color: '#3eff25'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2258
+        color: '#44ff2a'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 297.7
+        color: '#fafff8'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
