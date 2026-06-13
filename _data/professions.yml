@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 10:31:50'
+  updated_at: '2026-06-13 14:02:27'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6283,7 +6283,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Зермонг
   professions:
     primaries:
     - name: Herbalism
@@ -7006,7 +7006,7 @@ characters:
   region: eu
   realm: gordunni
   realm_slug: gordunni
-  profile_url: null
+  profile_url: https://raider.io/characters/eu/gordunni/Поливалочки
   professions:
     primaries:
     - name: Mining
