@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 14:02:27'
+  updated_at: '2026-06-13 17:25:13'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3442,8 +3442,26 @@ characters:
   realm_slug: doomhammer
   profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
   professions:
-    primaries: []
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Engineering
+        learned_points: 1
+        max_points: 100
     secondaries:
+    - name: Cooking
+      id: 185
+      tiers:
+      - name: Classic Cooking
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Cooking
+        learned_points: 23
+        max_points: 100
     - name: Fishing
       id: 356
       tiers:
@@ -3451,7 +3469,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Fishing
-        learned_points: 1
+        learned_points: 45
         max_points: 300
 - name: Khayen
   region: eu

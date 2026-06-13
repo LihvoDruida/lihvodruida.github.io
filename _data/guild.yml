@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 14:02:27'
+  updated_at: '2026-06-13 17:25:13'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14183
-      region: 6190
+      world: 14185
+      region: 6192
       realm: 52
     mythic:
-      world: 7165
+      world: 7166
       region: 3057
       realm: 21
   sporefall:
@@ -3565,13 +3565,13 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/141/188808077-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Mafik
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
-        score: 3044.3
+        score: 3055.6
         color: '#2275d8'
       dps:
-        score: 3044.3
+        score: 3055.6
         color: '#2275d8'
       healer:
         score: 0
@@ -3586,7 +3586,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3044.3
+        score: 3055.6
         color: '#2275d8'
       spec_3:
         score: 0
@@ -3773,7 +3773,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/205/189015501-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Twigsnapper
-    item_level_equipped: 275
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2570.3
@@ -5468,13 +5468,13 @@ members:
     item_level_equipped: 284
     mythic_plus_scores:
       all:
-        score: 3408.5
+        score: 3420
         color: '#9d3ded'
       dps:
         score: 335
         color: '#f7fff4'
       healer:
-        score: 3408.5
+        score: 3420
         color: '#9d3ded'
       tank:
         score: 0
@@ -5486,7 +5486,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3408.5
+        score: 3420
         color: '#9d3ded'
       spec_3:
         score: 0
@@ -6085,8 +6085,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Elemental
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
     item_level_equipped: 289
@@ -6196,11 +6196,11 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3241
-        color: '#715be5'
+        score: 3271.1
+        color: '#7957e7'
       dps:
-        score: 3241
-        color: '#715be5'
+        score: 3271.1
+        color: '#7957e7'
       healer:
         score: 0
         color: '#ffffff'
@@ -6211,8 +6211,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3241
-        color: '#715be5'
+        score: 3271.1
+        color: '#7957e7'
       spec_2:
         score: 854.6
         color: '#d5ffc4'
@@ -6820,11 +6820,11 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3364.3
-        color: '#9643ec'
+        score: 3394.1
+        color: '#9d3ded'
       dps:
-        score: 3364.3
-        color: '#9643ec'
+        score: 3394.1
+        color: '#9d3ded'
       healer:
         score: 0
         color: '#ffffff'
@@ -6835,8 +6835,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 3364.3
-        color: '#9643ec'
+        score: 3394.1
+        color: '#9d3ded'
       spec_2:
         score: 0
         color: '#ffffff'
