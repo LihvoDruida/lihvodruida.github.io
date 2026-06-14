@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-14 10:51:03'
+  updated_at: '2026-06-14 14:06:15'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14207
+      world: 14210
       region: 6194
       realm: 52
     mythic:
-      world: 7176
+      world: 7179
       region: 3060
       realm: 21
   sporefall:
@@ -1356,11 +1356,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 660
-        color: '#e2ffd6'
+        score: 1422.9
+        color: '#abff91'
       dps:
-        score: 660
-        color: '#e2ffd6'
+        score: 1422.9
+        color: '#abff91'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 660
-        color: '#e2ffd6'
+        score: 1422.9
+        color: '#abff91'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -3776,10 +3776,10 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2570.3
+        score: 2580.4
         color: '#57d966'
       dps:
-        score: 2570.3
+        score: 2580.4
         color: '#57d966'
       healer:
         score: 0
@@ -3794,7 +3794,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2570.3
+        score: 2580.4
         color: '#57d966'
       spec_3:
         score: 0
@@ -3821,8 +3821,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/153/189029529-avatar.jpg?alt=/wow/static/images/2d/avatar/86-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Khayen
     item_level_equipped: 290
@@ -6973,17 +6973,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 266
+    item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 1979.4
-        color: '#72ff56'
+        score: 2070.8
+        color: '#68ff4c'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 1979.4
-        color: '#72ff56'
+        score: 2070.8
+        color: '#68ff4c'
       tank:
         score: 0
         color: '#ffffff'
@@ -6991,8 +6991,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 1979.4
-        color: '#72ff56'
+        score: 2070.8
+        color: '#68ff4c'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7285,7 +7285,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/264134744-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Сумраки
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2092.1
