@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-14 04:12:40'
+  updated_at: '2026-06-14 10:51:03'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14202
+      world: 14207
       region: 6194
       realm: 52
     mythic:
-      world: 7174
+      world: 7176
       region: 3060
       realm: 21
   sporefall:
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 274
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2865.4
@@ -1353,14 +1353,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 270
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 0
-        color: '#ffffff'
+        score: 660
+        color: '#e2ffd6'
       dps:
-        score: 0
-        color: '#ffffff'
+        score: 660
+        color: '#e2ffd6'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 0
-        color: '#ffffff'
+        score: 660
+        color: '#e2ffd6'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4792,10 +4792,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3405.3
+        score: 3417
         color: '#9d3ded'
       dps:
-        score: 3405.3
+        score: 3417
         color: '#9d3ded'
       healer:
         score: 0
@@ -4810,7 +4810,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3405.3
+        score: 3417
         color: '#9d3ded'
       spec_3:
         score: 0
@@ -5676,7 +5676,7 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3471.5
+        score: 3475
         color: '#ae39e2'
       dps:
         score: 2229.4
@@ -5685,10 +5685,10 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3471.5
+        score: 3475
         color: '#ae39e2'
       spec_0:
-        score: 3471.5
+        score: 3475
         color: '#ae39e2'
       spec_1:
         score: 0
@@ -7080,10 +7080,10 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3474.3
+        score: 3477.8
         color: '#ae39e2'
       dps:
-        score: 3474.3
+        score: 3477.8
         color: '#ae39e2'
       healer:
         score: 0
@@ -7098,7 +7098,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3474.3
+        score: 3477.8
         color: '#ae39e2'
       spec_3:
         score: 0
@@ -8512,14 +8512,14 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3066.7
-        color: '#2275d8'
+        score: 3082.8
+        color: '#0070dd'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3066.7
-        color: '#2275d8'
+        score: 3082.8
+        color: '#0070dd'
       tank:
         score: 0
         color: '#ffffff'
@@ -8530,8 +8530,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3066.7
-        color: '#2275d8'
+        score: 3082.8
+        color: '#0070dd'
       spec_3:
         score: 0
         color: '#ffffff'
