@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-14 17:23:02'
+  updated_at: '2026-06-14 21:15:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -58,16 +58,16 @@ raid_progression:
 raid_rankings:
   tier-mn-1:
     normal:
-      world: 13849
-      region: 6162
+      world: 13850
+      region: 6163
       realm: 56
     heroic:
-      world: 14212
-      region: 6195
-      realm: 52
+      world: 14219
+      region: 6201
+      realm: 53
     mythic:
-      world: 7180
-      region: 3061
+      world: 7188
+      region: 3068
       realm: 21
   sporefall:
     normal:
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1356,11 +1356,11 @@ members:
     item_level_equipped: 276
     mythic_plus_scores:
       all:
-        score: 1422.9
-        color: '#abff91'
+        score: 2042
+        color: '#6cff50'
       dps:
-        score: 1422.9
-        color: '#abff91'
+        score: 2042
+        color: '#6cff50'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 1422.9
-        color: '#abff91'
+        score: 2042
+        color: '#6cff50'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -4241,7 +4241,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 287
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3225.1
@@ -4792,10 +4792,10 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3429.5
+        score: 3446.1
         color: '#a335ee'
       dps:
-        score: 3429.5
+        score: 3446.1
         color: '#a335ee'
       healer:
         score: 0
@@ -4810,7 +4810,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3429.5
+        score: 3446.1
         color: '#a335ee'
       spec_3:
         score: 0
@@ -5257,14 +5257,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 268
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
-        score: 2299.4
-        color: '#43ff2a'
+        score: 2326.6
+        color: '#38ff1f'
       dps:
-        score: 1638.6
-        color: '#97ff7b'
+        score: 1665.7
+        color: '#94ff79'
       healer:
         score: 0
         color: '#ffffff'
@@ -5272,8 +5272,8 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 1638.6
-        color: '#97ff7b'
+        score: 1665.7
+        color: '#94ff79'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5673,7 +5673,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3475
@@ -6241,7 +6241,7 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Unholy
+      name: Frost
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
@@ -7545,7 +7545,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3025.7
@@ -8141,8 +8141,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Discipline
-      role: HEALING
+      name: Shadow
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Марлая
     item_level_equipped: 286
@@ -8197,7 +8197,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3156.7
@@ -8503,13 +8503,13 @@ members:
       name: Dark Iron Dwarf
     faction:
       type: ALLIANCE
-    gender: female
+    gender: male
     active_spec:
       name: Restoration
       role: HEALING
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-1.jpg
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3082.8
