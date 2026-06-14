@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-13 21:18:52'
+  updated_at: '2026-06-14 04:12:40'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14188
+      world: 14202
       region: 6194
       realm: 52
     mythic:
-      world: 7171
-      region: 3059
+      world: 7174
+      region: 3060
       realm: 21
   sporefall:
     normal:
@@ -4792,11 +4792,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3346.4
-        color: '#8f49ea'
+        score: 3405.3
+        color: '#9d3ded'
       dps:
-        score: 3346.4
-        color: '#8f49ea'
+        score: 3405.3
+        color: '#9d3ded'
       healer:
         score: 0
         color: '#ffffff'
@@ -4810,8 +4810,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3346.4
-        color: '#8f49ea'
+        score: 3405.3
+        color: '#9d3ded'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8512,14 +8512,14 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 2946.8
-        color: '#4989c2'
+        score: 3066.7
+        color: '#2275d8'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2946.8
-        color: '#4989c2'
+        score: 3066.7
+        color: '#2275d8'
       tank:
         score: 0
         color: '#ffffff'
@@ -8530,8 +8530,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2946.8
-        color: '#4989c2'
+        score: 3066.7
+        color: '#2275d8'
       spec_3:
         score: 0
         color: '#ffffff'
