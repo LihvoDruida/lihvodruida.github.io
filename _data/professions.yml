@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-14 14:06:15'
+  updated_at: '2026-06-14 17:23:02'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7979,6 +7979,15 @@ characters:
   profile_url: https://raider.io/characters/eu/gordunni/Мистип
   professions:
     primaries:
+    - name: Blacksmithing
+      id: 164
+      tiers:
+      - name: Classic Blacksmithing
+        learned_points: 1
+        max_points: 300
+      - name: Midnight Blacksmithing
+        learned_points: 1
+        max_points: 100
     - name: Enchanting
       id: 333
       tiers:
@@ -7986,7 +7995,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Midnight Enchanting
-        learned_points: 21
+        learned_points: 23
         max_points: 100
     secondaries: []
 - name: Бабайяй

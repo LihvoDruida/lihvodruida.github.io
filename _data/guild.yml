@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-14 14:06:15'
+  updated_at: '2026-06-14 17:23:02'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6162
       realm: 56
     heroic:
-      world: 14210
-      region: 6194
+      world: 14212
+      region: 6195
       realm: 52
     mythic:
-      world: 7179
-      region: 3060
+      world: 7180
+      region: 3061
       realm: 21
   sporefall:
     normal:
@@ -4792,11 +4792,11 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3417
-        color: '#9d3ded'
+        score: 3429.5
+        color: '#a335ee'
       dps:
-        score: 3417
-        color: '#9d3ded'
+        score: 3429.5
+        color: '#a335ee'
       healer:
         score: 0
         color: '#ffffff'
@@ -4810,8 +4810,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3417
-        color: '#9d3ded'
+        score: 3429.5
+        color: '#a335ee'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -6976,14 +6976,14 @@ members:
     item_level_equipped: 267
     mythic_plus_scores:
       all:
-        score: 2070.8
-        color: '#68ff4c'
+        score: 2156.8
+        color: '#5aff3f'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2070.8
-        color: '#68ff4c'
+        score: 2156.8
+        color: '#5aff3f'
       tank:
         score: 0
         color: '#ffffff'
@@ -6991,8 +6991,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2070.8
-        color: '#68ff4c'
+        score: 2156.8
+        color: '#5aff3f'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7285,7 +7285,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/264134744-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/eversong/Сумраки
-    item_level_equipped: 277
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2092.1
