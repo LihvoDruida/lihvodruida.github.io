@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-15 19:50:17'
+  updated_at: '2026-06-15 22:21:23'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -7555,7 +7555,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Herbalism
-        learned_points: 6
+        learned_points: 7
         max_points: 100
       - name: Midnight Herbalism
         learned_points: 100

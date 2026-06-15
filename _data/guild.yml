@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-15 19:50:17'
+  updated_at: '2026-06-15 22:21:23'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14247
-      region: 6212
+      world: 14250
+      region: 6214
       realm: 53
     mythic:
-      world: 7200
-      region: 3072
+      world: 7203
+      region: 3075
       realm: 21
   sporefall:
     normal:
@@ -212,10 +212,10 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3501.1
+        score: 3518.2
         color: '#b33bdc'
       dps:
-        score: 3501.1
+        score: 3518.2
         color: '#b33bdc'
       healer:
         score: 0
@@ -230,7 +230,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3501.1
+        score: 3518.2
         color: '#b33bdc'
       spec_3:
         score: 0
@@ -5673,10 +5673,10 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3475
+        score: 3484.9
         color: '#ae39e2'
       dps:
         score: 2229.4
@@ -5685,10 +5685,10 @@ members:
         score: 0
         color: '#ffffff'
       tank:
-        score: 3475
+        score: 3484.9
         color: '#ae39e2'
       spec_0:
-        score: 3475
+        score: 3484.9
         color: '#ae39e2'
       spec_1:
         score: 0
@@ -6085,18 +6085,18 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Elemental
+      name: Enhancement
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/114/224379506-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Hexxoffender
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3293.3
-        color: '#8153e8'
+        score: 3404.7
+        color: '#9d3ded'
       dps:
-        score: 3293.3
-        color: '#8153e8'
+        score: 3404.7
+        color: '#9d3ded'
       healer:
         score: 165.8
         color: '#ffffff'
@@ -6104,10 +6104,10 @@ members:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 3293.3
-        color: '#8153e8'
+        score: 3404.7
+        color: '#9d3ded'
       spec_1:
-        score: 2573.6
+        score: 2575.7
         color: '#57d966'
       spec_2:
         score: 165.8
@@ -6248,10 +6248,10 @@ members:
     item_level_equipped: 290
     mythic_plus_scores:
       all:
-        score: 3400.3
+        score: 3404.8
         color: '#9d3ded'
       dps:
-        score: 3400.3
+        score: 3404.8
         color: '#9d3ded'
       healer:
         score: 0
@@ -6266,7 +6266,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3400.3
+        score: 3404.8
         color: '#9d3ded'
       spec_3:
         score: 0
@@ -7080,10 +7080,10 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 3477.8
+        score: 3487.6
         color: '#ae39e2'
       dps:
-        score: 3477.8
+        score: 3487.6
         color: '#ae39e2'
       healer:
         score: 0
@@ -7098,7 +7098,7 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3477.8
+        score: 3487.6
         color: '#ae39e2'
       spec_3:
         score: 0
