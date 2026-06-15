@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-15 13:58:20'
+  updated_at: '2026-06-15 19:50:17'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14239
-      region: 6207
+      world: 14247
+      region: 6212
       realm: 53
     mythic:
-      world: 7196
-      region: 3070
+      world: 7200
+      region: 3072
       realm: 21
   sporefall:
     normal:
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 276
+    item_level_equipped: 275
     mythic_plus_scores:
       all:
         score: 2865.4
@@ -3865,23 +3865,47 @@ members:
       slug: terokkar
     playable_class:
       id: 11
-      name: null
+      name: Druid
     playable_race:
       id: 86
-      name: null
+      name: Haranir
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Guardian
+      role: TANK
+    avatar: https://render.worldofwarcraft.com/eu/character/terokkar/225/189076961-avatar.jpg?alt=/wow/static/images/2d/avatar/86-1.jpg
+    profile_url: https://raider.io/characters/eu/terokkar/Travka
+    item_level_equipped: 273
+    mythic_plus_scores:
+      all:
+        score: 2633.8
+        color: '#5cce75'
+      dps:
+        score: 0
+        color: '#ffffff'
+      healer:
+        score: 0
+        color: '#ffffff'
+      tank:
+        score: 2633.8
+        color: '#5cce75'
+      spec_0:
+        score: 0
+        color: '#ffffff'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 2633.8
+        color: '#5cce75'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 4
   character:
@@ -5645,8 +5669,8 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Windwalker
-      role: DPS
+      name: Brewmaster
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
     item_level_equipped: 289
@@ -5964,11 +5988,11 @@ members:
     item_level_equipped: 289
     mythic_plus_scores:
       all:
-        score: 2907.7
-        color: '#4e8ebd'
+        score: 2947.1
+        color: '#4989c2'
       dps:
-        score: 2907.7
-        color: '#4e8ebd'
+        score: 2947.1
+        color: '#4989c2'
       healer:
         score: 0
         color: '#ffffff'
@@ -5979,8 +6003,8 @@ members:
         score: 1870.8
         color: '#80ff64'
       spec_1:
-        score: 2787.6
-        color: '#5da9a1'
+        score: 2826.9
+        color: '#5ba3a6'
       spec_2:
         score: 0
         color: '#ffffff'
@@ -7241,58 +7265,6 @@ members:
       professions: blizzard
 - rank: 4
   character:
-    name: Сумраки
-    id: 264134744
-    level: 90
-    realm:
-      id: 1925
-      slug: eversong
-    playable_class:
-      id: 12
-      name: Demon Hunter
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Devourer
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/eversong/88/264134744-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
-    profile_url: https://raider.io/characters/eu/eversong/Сумраки
-    item_level_equipped: 276
-    mythic_plus_scores:
-      all:
-        score: 2092.1
-        color: '#65ff49'
-      dps:
-        score: 1182
-        color: '#bdffa6'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 1978.4
-        color: '#72ff56'
-      spec_0:
-        score: 1003.6
-        color: '#caffb6'
-      spec_1:
-        score: 1978.4
-        color: '#72ff56'
-      spec_2:
-        score: 178.3
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
     name: Бафометище
     id: 264527551
     level: 80
@@ -7569,8 +7541,8 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Unholy
-      role: DPS
+      name: Blood
+      role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/255/265480191-avatar.jpg?alt=/wow/static/images/2d/avatar/29-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Тузольд
     item_level_equipped: 285
@@ -8514,4 +8486,32 @@ members:
     sources:
       roster: blizzard
       enrichment: raider.io
+      professions: blizzard
+- rank: 4
+  character:
+    name: Trypoid
+    id: 225445214
+    level: 24
+    realm:
+      id: 549
+      slug: silvermoon
+    playable_class:
+      id: 4
+      name: null
+    playable_race:
+      id: 4
+      name: null
+    faction:
+      type: ALLIANCE
+    gender: null
+    active_spec:
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
+    sources:
+      roster: blizzard
+      enrichment: null
       professions: blizzard
