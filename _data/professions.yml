@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-15 04:23:45'
+  updated_at: '2026-06-15 13:58:20'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3552,7 +3552,7 @@ characters:
   region: eu
   realm: terokkar
   realm_slug: terokkar
-  profile_url: https://raider.io/characters/eu/terokkar/Travka
+  profile_url: null
   professions:
     primaries:
     - name: Herbalism
