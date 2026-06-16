@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-16 04:17:59'
+  updated_at: '2026-06-16 19:38:47'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -6020,6 +6020,29 @@ characters:
         learned_points: 32
         max_points: 100
     secondaries: []
+- name: Trypoid
+  region: eu
+  realm: silvermoon
+  realm_slug: silvermoon
+  profile_url: null
+  professions:
+    primaries:
+    - name: Engineering
+      id: 202
+      tiers:
+      - name: Classic Engineering
+        learned_points: 1
+        max_points: 300
+      - name: Dragon Isles Engineering
+        learned_points: 1
+        max_points: 100
+    - name: Mining
+      id: 186
+      tiers:
+      - name: Classic Mining
+        learned_points: 1
+        max_points: 300
+    secondaries: []
 - name: Нежнаяпулька
   region: eu
   realm: eversong
@@ -7558,7 +7581,7 @@ characters:
         learned_points: 1
         max_points: 300
       - name: Dragon Isles Herbalism
-        learned_points: 7
+        learned_points: 8
         max_points: 100
       - name: Midnight Herbalism
         learned_points: 100
@@ -7961,26 +7984,3 @@ characters:
       - name: Classic Cooking
         learned_points: 1
         max_points: 300
-- name: Trypoid
-  region: eu
-  realm: silvermoon
-  realm_slug: silvermoon
-  profile_url: null
-  professions:
-    primaries:
-    - name: Engineering
-      id: 202
-      tiers:
-      - name: Classic Engineering
-        learned_points: 1
-        max_points: 300
-      - name: Dragon Isles Engineering
-        learned_points: 1
-        max_points: 100
-    - name: Mining
-      id: 186
-      tiers:
-      - name: Classic Mining
-        learned_points: 1
-        max_points: 300
-    secondaries: []
