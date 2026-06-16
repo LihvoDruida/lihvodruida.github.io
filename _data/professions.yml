@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-15 22:21:23'
+  updated_at: '2026-06-16 04:17:59'
   source: Blizzard Character Professions API
   region: eu
   locale: en_US
@@ -3732,6 +3732,9 @@ characters:
         learned_points: 1
         max_points: 100
       - name: Khaz Algar Cooking
+        learned_points: 1
+        max_points: 100
+      - name: Midnight Cooking
         learned_points: 1
         max_points: 100
     - name: Fishing
