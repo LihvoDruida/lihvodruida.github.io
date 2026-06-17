@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-17 12:18:25'
+  updated_at: '2026-06-17 18:20:28'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14278
-      region: 6226
+      world: 14280
+      region: 6227
       realm: 54
     mythic:
-      world: 7220
+      world: 7222
       region: 3079
       realm: 21
   sporefall:
@@ -79,9 +79,9 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 0
-      region: 0
-      realm: 0
+      world: 1821
+      region: 535
+      realm: 5
   blackrock-depths:
     normal:
       world: 0
@@ -677,7 +677,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/228/176857060-avatar.jpg?alt=/wow/static/images/2d/avatar/5-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Rozbiynik
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3160.2
@@ -1353,7 +1353,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 2042
@@ -1769,7 +1769,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3109.1
@@ -2861,7 +2861,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 277
+    item_level_equipped: 278
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -3669,7 +3669,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3284.1
@@ -6845,7 +6845,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3413.9
@@ -7053,7 +7053,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3400.7
@@ -7105,7 +7105,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3487.6
@@ -7913,7 +7913,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 289
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8017,7 +8017,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/241/265784049-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Дарадуда
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 2926.9
@@ -8485,7 +8485,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 287
+    item_level_equipped: 283
     mythic_plus_scores:
       all:
         score: 3082.8
