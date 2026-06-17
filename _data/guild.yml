@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-16 22:14:30'
+  updated_at: '2026-06-17 04:14:29'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14268
-      region: 6224
+      world: 14275
+      region: 6226
       realm: 54
     mythic:
-      world: 7213
+      world: 7218
       region: 3079
       realm: 21
   sporefall:
@@ -1093,7 +1093,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/152/183530392-avatar.jpg?alt=/wow/static/images/2d/avatar/35-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Krekor
-    item_level_equipped: 288
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3318.3
@@ -7001,17 +7001,17 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/189/260267965-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Монэлушка
-    item_level_equipped: 271
+    item_level_equipped: 272
     mythic_plus_scores:
       all:
-        score: 2277.3
-        color: '#43ff2a'
+        score: 2317.7
+        color: '#3eff25'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 2277.3
-        color: '#43ff2a'
+        score: 2317.7
+        color: '#3eff25'
       tank:
         score: 0
         color: '#ffffff'
@@ -7019,8 +7019,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_1:
-        score: 2277.3
-        color: '#43ff2a'
+        score: 2317.7
+        color: '#3eff25'
       spec_2:
         score: 0
         color: '#ffffff'
