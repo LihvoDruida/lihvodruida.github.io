@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-17 18:20:28'
+  updated_at: '2026-06-17 22:03:46'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 163
+  member_count: 162
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14280
-      region: 6227
+      world: 14283
+      region: 6230
       realm: 54
     mythic:
-      world: 7222
+      world: 7223
       region: 3079
       realm: 21
   sporefall:
@@ -79,9 +79,9 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 1821
-      region: 535
-      realm: 5
+      world: 2581
+      region: 1374
+      realm: 12
   blackrock-depths:
     normal:
       world: 0
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2881.4
@@ -1356,11 +1356,11 @@ members:
     item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2042
-        color: '#6cff50'
+        score: 2074.1
+        color: '#68ff4c'
       dps:
-        score: 2042
-        color: '#6cff50'
+        score: 2074.1
+        color: '#68ff4c'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2042
-        color: '#6cff50'
+        score: 2074.1
+        color: '#68ff4c'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2289,7 +2289,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -4241,7 +4241,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3225.1
@@ -5673,7 +5673,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3484.9
@@ -6825,58 +6825,6 @@ members:
       professions: blizzard
 - rank: 3
   character:
-    name: Графдекот
-    id: 257485583
-    level: 90
-    realm:
-      id: 1602
-      slug: gordunni
-    playable_class:
-      id: 11
-      name: Druid
-    playable_race:
-      id: 4
-      name: Night Elf
-    faction:
-      type: ALLIANCE
-    gender: male
-    active_spec:
-      name: Feral
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/15/257485583-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Графдекот
-    item_level_equipped: 291
-    mythic_plus_scores:
-      all:
-        score: 3413.9
-        color: '#9d3ded'
-      dps:
-        score: 3413.9
-        color: '#9d3ded'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 0
-        color: '#ffffff'
-      spec_1:
-        score: 3413.9
-        color: '#9d3ded'
-      spec_2:
-        score: 0
-        color: '#ffffff'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 3
-  character:
     name: Кеенди
     id: 258695967
     level: 90
@@ -7105,7 +7053,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3487.6
@@ -7517,11 +7465,11 @@ members:
       type: ALLIANCE
     gender: female
     active_spec:
-      name: Restoration
-      role: HEALING
+      name: Balance
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/105/265353321-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Пизнайка
-    item_level_equipped: 287
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3025.7
@@ -7913,7 +7861,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 291
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8109,47 +8057,23 @@ members:
       slug: gordunni
     playable_class:
       id: 5
-      name: Priest
+      name: null
     playable_race:
       id: 11
-      name: Draenei
+      name: null
     faction:
       type: ALLIANCE
-    gender: female
+    gender: null
     active_spec:
-      name: Shadow
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
-    profile_url: https://raider.io/characters/eu/gordunni/Марлая
-    item_level_equipped: 286
-    mythic_plus_scores:
-      all:
-        score: 3079
-        color: '#0070dd'
-      dps:
-        score: 3026.4
-        color: '#2275d8'
-      healer:
-        score: 2454.4
-        color: '#3af435'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 2454.4
-        color: '#3af435'
-      spec_1:
-        score: 0
-        color: '#ffffff'
-      spec_2:
-        score: 3026.4
-        color: '#2275d8'
-      spec_3:
-        score: 0
-        color: '#ffffff'
+      name: null
+      role: null
+    avatar: null
+    profile_url: null
+    item_level_equipped: 0
+    mythic_plus_scores: {}
     sources:
       roster: blizzard
-      enrichment: raider.io
+      enrichment: null
       professions: blizzard
 - rank: 3
   character:
@@ -8173,7 +8097,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3156.7
@@ -8485,7 +8409,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/123/266200699-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Шриладо
-    item_level_equipped: 283
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3082.8
