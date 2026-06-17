@@ -106,6 +106,7 @@ function raidSignupStatusLabel(
 ) {
   if (status === "going")
     return profileGenderedText(gender, "Підписаний", "Підписана", "Підписали");
+  if (status === "tentative") return "50/50";
   if (status === "late") return "Затримаюсь";
   if (status === "skipped") return "Пропускає";
   return "Невідомо";
@@ -119,7 +120,7 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
     .filter(Boolean)
     .join(" • ");
   const activeRoster = item.raid.signups.filter(
-    (signup) => signup.status === "going" || signup.status === "late",
+    (signup) => signup.status === "going" || signup.status === "tentative" || signup.status === "late",
   ).length;
   const composition = `${activeRoster} / ${raidDisplayCapacity(item.raid)} • ${raidAutoCompositionLabel(item.raid)}`;
 
@@ -177,7 +178,7 @@ function ProfileRaidSignupCard({ item }: { item: ProfileRaidSignup }) {
 
 function ProfileRaidSignups({ items }: { items: ProfileRaidSignup[] }) {
   const active = items.filter(
-    (item) => item.signup.status === "going" || item.signup.status === "late",
+    (item) => item.signup.status === "going" || item.signup.status === "tentative" || item.signup.status === "late",
   );
   const skipped = items.filter((item) => item.signup.status === "skipped");
 

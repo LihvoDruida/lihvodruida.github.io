@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { dispatchDashboardToast } from "@/lib/clientToasts";
 import { notifyDashboardDataChanged } from "@/lib/dashboardLiveRefresh";
 
-type RaidSignupStatus = "going" | "late" | "skipped";
+type RaidSignupStatus = "going" | "tentative" | "late" | "skipped";
 type ToastPayload = {
   tone?: "info" | "success" | "warning" | "error";
   title?: string;
@@ -55,6 +55,7 @@ function toastFromResponse(data: unknown, responseOk: boolean): ToastPayload {
 function actionLabel(action: RaidSignupStatus, busyAction: RaidSignupStatus | null, full: boolean, viewerAlreadyActive: boolean) {
   if (busyAction === action) return "Оновлюємо...";
   if (action === "going") return full && !viewerAlreadyActive ? "✓ У лаву запасних" : viewerAlreadyActive ? "✓ Змінити персонажа" : "✓ Підписатися";
+  if (action === "tentative") return "❓ 50/50";
   if (action === "late") return "🕒 Затримаюсь";
   return "↩ Пропустити";
 }
@@ -93,10 +94,10 @@ export default function RaidAttendanceClient({
 
   async function submitAttendance(action: RaidSignupStatus) {
     if (busyAction) return;
-    if ((action === "going" || action === "late") && activeDisabled) return;
+    if ((action === "going" || action === "tentative" || action === "late") && activeDisabled) return;
     if (action === "skipped" && skipDisabled) return;
 
-    if ((action === "going" || action === "late") && needsCharacterChoice && !selectedCharacter) {
+    if ((action === "going" || action === "tentative" || action === "late") && needsCharacterChoice && !selectedCharacter) {
       dispatchDashboardToast({
         tone: "warning",
         title: "Вибери персонажа",
@@ -220,6 +221,15 @@ export default function RaidAttendanceClient({
           onClick={() => submitAttendance("going")}
         >
           {actionLabel("going", busyAction, full, viewerAlreadyActive)}
+        </button>
+        <button
+          className="raid-action raid-action--maybe"
+          type="button"
+          disabled={activeDisabled || Boolean(busyAction)}
+          title={title}
+          onClick={() => submitAttendance("tentative")}
+        >
+          {actionLabel("tentative", busyAction, full, viewerAlreadyActive)}
         </button>
         <button
           className="raid-action raid-action--skip"

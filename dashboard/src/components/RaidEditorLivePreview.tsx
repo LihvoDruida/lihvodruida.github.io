@@ -151,13 +151,13 @@ function raidStatusLabel(raid: Pick<RaidItem, "status">) {
 
 function activeSignups(raid: Pick<RaidItem, "signups">) {
   return raid.signups.filter(
-    (item) => item.status === "going" || item.status === "late",
+    (item) => item.status === "going" || item.status === "late" || item.status === "tentative",
   );
 }
 
 function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
   const active = signups.filter(
-    (item) => item.status === "going" || item.status === "late",
+    (item) => item.status === "going" || item.status === "late" || item.status === "tentative",
   );
   return {
     tanks: active.filter((item) => item.role === "tank").length,
@@ -291,10 +291,12 @@ function previewRegistrationLockSummary(
 
 function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
   const going = raid.signups.filter((item) => item.status === "going");
+  const tentative = raid.signups.filter((item) => item.status === "tentative");
   const late = raid.signups.filter((item) => item.status === "late");
-  const active = [...going, ...late];
+  const active = [...going, ...tentative, ...late];
   return {
     going: going.length,
+    tentative: tentative.length,
     late: late.length,
     skipped: raid.signups.filter((item) => item.status === "skipped").length,
     roster: active.length,
@@ -327,6 +329,7 @@ function signupMarkers(item?: RaidSignup | null, hasItemLevelIssue = false) {
   if (!item) return "";
   return [
     hasItemLevelIssue ? "⚠️" : null,
+    item.status === "tentative" ? "❓" : null,
     item.status === "late" ? "🕒" : null,
     item.verifiedGuild === false ? "🤝" : null,
   ]
@@ -497,6 +500,10 @@ function signupSort(a: RaidSignup, b: RaidSignup) {
   );
 }
 
+function signupStatusBenchWeight(signup: RaidSignup) {
+  return signup.status === "tentative" ? 1 : 0;
+}
+
 function signupRosterOrder(a: RaidSignup, b: RaidSignup) {
   const aNumber = cleanSignupNumber(a.signupNumber) || Number.MAX_SAFE_INTEGER;
   const bNumber = cleanSignupNumber(b.signupNumber) || Number.MAX_SAFE_INTEGER;
@@ -508,6 +515,7 @@ function signupRosterOrder(a: RaidSignup, b: RaidSignup) {
     (Number.isFinite(aSigned) ? aSigned : Number.MAX_SAFE_INTEGER) -
     (Number.isFinite(bSigned) ? bSigned : Number.MAX_SAFE_INTEGER);
   return (
+    signupStatusBenchWeight(a) - signupStatusBenchWeight(b) ||
     aPriority - bPriority ||
     aNumber - bNumber ||
     signedDelta ||
@@ -557,7 +565,14 @@ function pickBuffProvider(
   pool: RaidSignup[],
   match: (item: RaidSignup) => boolean,
 ) {
-  const index = pool.findIndex(match);
+  const matchingWeights = pool
+    .filter(match)
+    .map((item) => signupStatusBenchWeight(item));
+  if (!matchingWeights.length) return null;
+  const bestWeight = Math.min(...matchingWeights);
+  const index = pool.findIndex(
+    (item) => match(item) && signupStatusBenchWeight(item) === bestWeight,
+  );
   if (index < 0) return null;
   const [picked] = pool.splice(index, 1);
   return picked || null;
@@ -838,7 +853,9 @@ function buildPreviewLayout(
       placeFlexMember(parties, member),
     );
   const bench = benchEnabled
-    ? [...surplusTanks, ...surplusHealers, ...surplusDps].sort(signupSort)
+    ? [...surplusTanks, ...surplusHealers, ...surplusDps].sort(
+        (a, b) => signupStatusBenchWeight(b) - signupStatusBenchWeight(a) || signupSort(a, b),
+      )
     : [];
   const dpsSlotsFilled = selectedDps.length;
   const missingBuffs = missingCriticalBuffs(selectedMembers);
@@ -1206,6 +1223,7 @@ export default function RaidEditorLivePreview({
         aria-hidden="true"
       >
         <span className="raid-action raid-action--go">✓ Підписатися</span>
+        <span className="raid-action raid-action--maybe">❓ 50/50</span>
         <span className="raid-action raid-action--skip">↩ Пропустити</span>
         <span className="raid-action raid-action--late">🕒 Затримаюсь</span>
       </div>

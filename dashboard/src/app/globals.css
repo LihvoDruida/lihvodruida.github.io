@@ -7091,7 +7091,7 @@ body {
 
 .raid-preview-buttons {
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, minmax(112px, 1fr));
   gap: 12px;
   margin: 8px 0 18px 8px;
 }
@@ -7115,6 +7115,14 @@ body {
     rgba(21, 84, 22, 0.9)
   );
   color: #eaffdf;
+}
+.raid-action--maybe {
+  background: linear-gradient(
+    180deg,
+    rgba(67, 92, 145, 0.92),
+    rgba(35, 50, 94, 0.9)
+  );
+  color: #e7efff;
 }
 .raid-action--skip {
   background: linear-gradient(
@@ -16153,7 +16161,7 @@ a.is-submitting[aria-busy="true"] {
 
 .raid-page .raid-preview-buttons,
 .raid-page .raid-preview-buttons--interactive {
-  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 10px;
   margin: 10px 0 18px 4px;
 }
@@ -16168,6 +16176,12 @@ a.is-submitting[aria-busy="true"] {
   color: #eafff0;
   border-color: rgba(49, 200, 106, 0.42);
   background: linear-gradient(180deg, rgba(36, 166, 86, 0.98), rgba(21, 111, 59, 0.98));
+}
+
+.raid-page .raid-action--maybe {
+  color: #edf3ff;
+  border-color: rgba(119, 149, 216, 0.42);
+  background: linear-gradient(180deg, rgba(72, 103, 174, 0.98), rgba(36, 54, 112, 0.98));
 }
 
 .raid-page .raid-action--skip {
@@ -16997,7 +17011,7 @@ a.is-submitting[aria-busy="true"] {
 
 .raid-page .raid-preview-buttons,
 .raid-page .raid-preview-buttons--interactive {
-  grid-template-columns: repeat(3, minmax(120px, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(120px, 1fr)) !important;
   gap: 9px !important;
   margin: 10px 0 14px !important;
 }

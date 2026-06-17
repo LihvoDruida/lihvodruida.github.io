@@ -57,6 +57,8 @@ export function attendanceStatusLabel(action?: string) {
   if (action === "skipped") return "Позначено, що ти пропускаєш рейд.";
   if (action === "late")
     return "Записано: ти затримаєшся. Склад рейду оновлено.";
+  if (action === "tentative")
+    return "Записано 50/50. За потреби цей запис піде в лаву запасних після сірого списку.";
   if (action === "going") return "Тебе записали на рейд. Склад рейду оновлено.";
   return "Дію виконано.";
 }
@@ -77,6 +79,7 @@ function signupMarkers(
   return [
     options?.isBenchPriority ? "❌" : null,
     options?.hasItemLevelIssue ? "⚠️" : null,
+    item.status === "tentative" ? "❓" : null,
     item.status === "late" ? "🕒" : null,
     item.verifiedGuild === false ? "🤝" : null,
   ]
@@ -496,6 +499,7 @@ export function RosterSideList({
     dps: raid.signups.filter(
       (item) => item.status !== "skipped" && item.role === "dps",
     ),
+    tentative: raid.signups.filter((item) => item.status === "tentative"),
     late: raid.signups.filter((item) => item.status === "late"),
     skipped: raid.signups.filter((item) => item.status === "skipped"),
   };
@@ -531,6 +535,16 @@ export function RosterSideList({
       <RosterBlock
         title={`ДД (${grouped.dps.length}/${composition.dps})`}
         items={grouped.dps}
+        showItemLevel={showItemLevel}
+        minItemLevel={raid.minItemLevel}
+        minItemLevelRequired={raid.minItemLevelRequired}
+        benchPriority={raid.benchPriority || null}
+        showBenchPriorityMarkers={showBenchPriorityMarkers}
+      />
+      <RosterBlock
+        title={`50/50 / невпевнені (${grouped.tentative.length})`}
+        items={grouped.tentative}
+        empty="—"
         showItemLevel={showItemLevel}
         minItemLevel={raid.minItemLevel}
         minItemLevelRequired={raid.minItemLevelRequired}
@@ -613,7 +627,9 @@ export function RaidAttendanceActions({
     ? raid.signups.find((item) => item.discordId === viewerDiscordId)
     : null;
   const viewerAlreadyActive =
-    viewerSignup?.status === "going" || viewerSignup?.status === "late";
+    viewerSignup?.status === "going" ||
+    viewerSignup?.status === "tentative" ||
+    viewerSignup?.status === "late";
   const allCharacters = profile?.characters || [];
   const characterOptions = allCharacters
     .filter((character) => !isRaidSubjectBlockedByMinItemLevel(raid, character))
@@ -904,6 +920,7 @@ export function RaidAnnouncementPreview({
           aria-hidden="true"
         >
           <span className="raid-action raid-action--go">✓ Підписатися</span>
+          <span className="raid-action raid-action--maybe">❓ 50/50</span>
           <span className="raid-action raid-action--skip">↩ Пропустити</span>
           <span className="raid-action raid-action--late">🕒 Затримаюсь</span>
         </div>
@@ -966,7 +983,7 @@ export function RaidAnnouncementPreview({
         <div className="raid-member-roster-note">
           <strong>Склад формують офіцери</strong>
           <span>
-            Ти можеш записатися, пропустити рейд або позначити запізнення.
+            Ти можеш записатися, обрати 50/50, пропустити рейд або позначити запізнення.
             Детальний розподіл паті видно офіцерам.
           </span>
         </div>

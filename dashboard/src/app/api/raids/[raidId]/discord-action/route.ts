@@ -26,7 +26,11 @@ const INTERNAL_RAID_ACTION_TOKENS = [
 ];
 
 function cleanAction(value: unknown): RaidSignupStatus {
-  return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
+  const action = String(value || "").trim().toLowerCase();
+  if (action === "late") return "late";
+  if (["tentative", "maybe", "50/50", "5050", "half"].includes(action)) return "tentative";
+  if (action === "skipped" || action === "skip") return "skipped";
+  return "going";
 }
 
 function cleanSignupRole(value: unknown): RaidCharacterRole | null {

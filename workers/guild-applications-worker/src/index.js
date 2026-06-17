@@ -3616,15 +3616,15 @@ async function handleApplicationInteraction(interaction, env, customId) {
 
 function decodeRaidAttendanceCustomId(customId) {
   const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
+  const match = value.match(/^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|tentative|late|skipped)$/);
   if (!match) return null;
   return { raidId: match[1], action: match[2], characterKey: "" };
 }
 
 function decodeRaidCharacterSelectCustomId(customId, values) {
   const value = String(customId || "").trim();
-  const legacyMatch = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/);
-  const panelMatch = value.match(/^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|late):(tank|healer|dps)$/);
+  const legacyMatch = value.match(/^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|tentative|late|skipped)$/);
+  const panelMatch = value.match(/^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|tentative|late):(tank|healer|dps)$/);
   const match = legacyMatch || panelMatch;
   if (!match) return null;
   const selected = Array.isArray(values) ? String(values[0] || "").trim() : "";
@@ -3648,8 +3648,8 @@ function cleanRaidSignupRole(value) {
 
 function decodeRaidRoleSelectCustomId(customId, values) {
   const value = String(customId || "").trim();
-  const panelMatch = value.match(/^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
-  const legacyMatch = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/);
+  const panelMatch = value.match(/^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64})$/);
+  const legacyMatch = value.match(/^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64})$/);
   const match = panelMatch || legacyMatch;
   if (!match) return null;
   const selected = Array.isArray(values) ? cleanRaidSignupRole(values[0]) : "";
@@ -3665,7 +3665,7 @@ function decodeRaidRoleSelectCustomId(customId, values) {
 
 function decodeRaidSignupSubmitCustomId(customId) {
   const value = String(customId || "").trim();
-  const match = value.match(/^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/);
+  const match = value.match(/^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/);
   if (!match) return null;
   return {
     raidId: match[1],

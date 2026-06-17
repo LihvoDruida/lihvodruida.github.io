@@ -72,7 +72,7 @@ export type RaidLootMode =
   | "free-roll"
   | "soft-reserve"
   | "loot-council";
-export type RaidSignupStatus = "going" | "late" | "skipped";
+export type RaidSignupStatus = "going" | "tentative" | "late" | "skipped";
 export type RaidCharacterRole = "tank" | "healer" | "dps";
 
 export type RaidComposition = {
@@ -165,6 +165,7 @@ export type RaidBench = {
   healers: RaidSignup[];
   dps: RaidSignup[];
   late: RaidSignup[];
+  tentative: RaidSignup[];
 };
 
 export type RaidBenchPrioritySettings = {
@@ -202,6 +203,7 @@ export type RaidLayoutCounts = {
   healers: number;
   dps: number;
   late: number;
+  tentative: number;
 };
 
 const RAID_COLLECTION = "dashboardRaids";
@@ -391,6 +393,7 @@ function cleanLootMode(value: unknown): RaidLootMode {
 function cleanSignupStatus(value: unknown): RaidSignupStatus {
   const key = cleanString(value, 20).toLowerCase();
   if (key === "late") return "late";
+  if (["tentative", "maybe", "50/50", "5050", "half", "maybe-going"].includes(key)) return "tentative";
   if (key === "skipped" || key === "skip") return "skipped";
   return "going";
 }
@@ -784,7 +787,18 @@ function raidBenchPriorityWeight(
   signup: RaidSignup,
   settings?: RaidBenchPrioritySettings | null,
 ) {
-  return raidBenchPriorityMatch(signup, settings).matched ? 1 : 0;
+  return raidBenchPriorityMatch(signup, settings).matched ? 2 : 0;
+}
+
+function raidTentativeBenchWeight(signup: Pick<RaidSignup, "status">) {
+  return signup.status === "tentative" ? 1 : 0;
+}
+
+function raidBenchSelectionWeight(
+  signup: RaidSignup,
+  settings?: RaidBenchPrioritySettings | null,
+) {
+  return Math.max(raidBenchPriorityWeight(signup, settings), raidTentativeBenchWeight(signup));
 }
 
 function raidBenchPriorityActiveCount(
@@ -1183,7 +1197,7 @@ type RaidAutoInput = Pick<
 
 export function raidActiveRosterSize(raid: Pick<RaidItem, "signups">) {
   return raid.signups.filter(
-    (item) => item.status === "going" || item.status === "late",
+    (item) => isActiveSignupStatus(item.status),
   ).length;
 }
 
@@ -1197,7 +1211,7 @@ function compositionCapacity(composition: RaidComposition) {
 
 function activeRoleDemand(signups: RaidSignup[]): RaidComposition {
   const active = signups.filter(
-    (item) => item.status === "going" || item.status === "late",
+    (item) => isActiveSignupStatus(item.status),
   );
   return {
     tanks: active.filter((item) => item.role === "tank").length,
@@ -1370,7 +1384,7 @@ function raidRegistrationLockBlockMessage(
 }
 
 function isActiveSignupStatus(status?: RaidSignupStatus | string | null) {
-  return status === "going" || status === "late";
+  return status === "going" || status === "late" || status === "tentative";
 }
 
 function hasActiveSignupForDiscord(
@@ -1456,23 +1470,25 @@ export function raidAutoCompositionLabel(raid: RaidAutoInput) {
 
 export function raidRosterCounts(raid: Pick<RaidItem, "signups">) {
   const going = raid.signups.filter((item) => item.status === "going");
+  const tentative = raid.signups.filter((item) => item.status === "tentative");
   const late = raid.signups.filter((item) => item.status === "late");
   const skipped = raid.signups.filter((item) => item.status === "skipped");
+  const active = [...going, ...tentative, ...late];
   return {
     going: going.length,
+    tentative: tentative.length,
     late: late.length,
     skipped: skipped.length,
-    roster: going.length + late.length,
-    tanks: [...going, ...late].filter((item) => item.role === "tank").length,
-    healers: [...going, ...late].filter((item) => item.role === "healer")
-      .length,
-    dps: [...going, ...late].filter((item) => item.role === "dps").length,
+    roster: active.length,
+    tanks: active.filter((item) => item.role === "tank").length,
+    healers: active.filter((item) => item.role === "healer").length,
+    dps: active.filter((item) => item.role === "dps").length,
   };
 }
 
 export function raidAverageItemLevel(raid: Pick<RaidItem, "signups">) {
   const values = raid.signups
-    .filter((item) => item.status === "going" || item.status === "late")
+    .filter((item) => isActiveSignupStatus(item.status))
     .map((item) => Number(item.itemLevel || 0))
     .filter((value) => Number.isFinite(value) && value > 0);
 
@@ -2854,9 +2870,10 @@ function signupName(item?: RaidSignup | null) {
   const name = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` • ${item.activeSpecName}` : "";
   const ilvl = item.itemLevel ? ` • ${item.itemLevel} ilvl` : "";
+  const tentative = item.status === "tentative" ? " ❓" : "";
   const late = item.status === "late" ? " 🕒" : "";
   const number = raidSignupNumberLabel(item);
-  return `${number ? `${number} — ` : ""}${name}${spec}${ilvl}${late}`;
+  return `${number ? `${number} — ` : ""}${name}${spec}${ilvl}${tentative}${late}`;
 }
 
 function truncateDiscordField(value: string, max = 1024) {
@@ -2889,13 +2906,14 @@ function signupSort(a: RaidSignup, b: RaidSignup) {
 
 function rosterForGroups(raid: Pick<RaidItem, "signups">) {
   const active = raid.signups
-    .filter((item) => item.status === "going" || item.status === "late")
+    .filter((item) => isActiveSignupStatus(item.status))
     .sort(signupSort);
   return {
     tanks: active.filter((item) => item.role === "tank"),
     healers: active.filter((item) => item.role === "healer"),
     dps: active.filter((item) => item.role === "dps"),
     late: active.filter((item) => item.status === "late"),
+    tentative: active.filter((item) => item.status === "tentative"),
     active,
   };
 }
@@ -3003,8 +3021,13 @@ const RAID_CRITICAL_BUFFS: Array<{
 function pickBuffProvider(
   pool: RaidSignup[],
   match: (item: RaidSignup) => boolean,
+  settings?: RaidBenchPrioritySettings | null,
 ) {
-  const index = pool.findIndex(match);
+  if (!pool.length) return null;
+  const bestWeight = Math.min(...pool.map((item) => raidBenchSelectionWeight(item, settings)));
+  const index = pool.findIndex(
+    (item) => raidBenchSelectionWeight(item, settings) === bestWeight && match(item),
+  );
   if (index < 0) return null;
   const [picked] = pool.splice(index, 1);
   return picked || null;
@@ -3020,7 +3043,7 @@ function selectDpsForComposition(
 
   for (const buff of RAID_CRITICAL_BUFFS) {
     if (selected.length >= limit) break;
-    const picked = pickBuffProvider(pool, buff.match);
+    const picked = pickBuffProvider(pool, buff.match, settings);
     if (picked) selected.push(picked);
   }
 
@@ -3041,8 +3064,8 @@ function selectDpsForComposition(
       const aRangePenalty = dpsRangeType(a) === preferredRange ? 0 : 1;
       const bRangePenalty = dpsRangeType(b) === preferredRange ? 0 : 1;
       return (
-        raidBenchPriorityWeight(a, settings) -
-          raidBenchPriorityWeight(b, settings) ||
+        raidBenchSelectionWeight(a, settings) -
+          raidBenchSelectionWeight(b, settings) ||
         aRangePenalty - bRangePenalty ||
         raidAlgorithmMemberUtilityWeight(b, selected) - raidAlgorithmMemberUtilityWeight(a, selected) ||
         (classCounts.get(signupClassKey(a)) || 0) -
@@ -3094,8 +3117,8 @@ function signupCompositionOrder(
   settings?: RaidBenchPrioritySettings | null,
 ) {
   return (
-    raidBenchPriorityWeight(a, settings) -
-      raidBenchPriorityWeight(b, settings) || signupRosterOrder(a, b)
+    raidBenchSelectionWeight(a, settings) -
+      raidBenchSelectionWeight(b, settings) || signupRosterOrder(a, b)
   );
 }
 
@@ -3111,8 +3134,8 @@ function takeClassBalanced(
   while (selected.length < limit && pool.length) {
     pool.sort(
       (a, b) =>
-        raidBenchPriorityWeight(a, settings) -
-          raidBenchPriorityWeight(b, settings) ||
+        raidBenchSelectionWeight(a, settings) -
+          raidBenchSelectionWeight(b, settings) ||
         (classCounts.get(signupClassKey(a)) || 0) -
           (classCounts.get(signupClassKey(b)) || 0) ||
         signupRosterOrder(a, b),
@@ -3138,8 +3161,8 @@ function createEmptyRaidBench(
 ): RaidBench {
   const sortedMembers = [...members].sort(
     (a, b) =>
-      raidBenchPriorityWeight(b, settings) -
-        raidBenchPriorityWeight(a, settings) || signupSort(a, b),
+      raidBenchSelectionWeight(b, settings) -
+        raidBenchSelectionWeight(a, settings) || signupSort(a, b),
   );
   return {
     members: sortedMembers,
@@ -3147,6 +3170,7 @@ function createEmptyRaidBench(
     healers: sortedMembers.filter((item) => item.role === "healer"),
     dps: sortedMembers.filter((item) => item.role === "dps"),
     late: sortedMembers.filter((item) => item.status === "late"),
+    tentative: sortedMembers.filter((item) => item.status === "tentative"),
   };
 }
 
@@ -3253,6 +3277,7 @@ export function raidGroupLayoutSlotCounts(
     healers,
     dps,
     late: members.filter((item) => item.status === "late").length,
+    tentative: members.filter((item) => item.status === "tentative").length,
   };
 }
 
@@ -3266,6 +3291,7 @@ export function raidGroupLayoutRoleCounts(
     healers: members.filter((item) => item.role === "healer").length,
     dps: members.filter((item) => item.role === "dps").length,
     late: members.filter((item) => item.status === "late").length,
+    tentative: members.filter((item) => item.status === "tentative").length,
   };
 }
 
@@ -3389,6 +3415,7 @@ function compactSignupName(item?: RaidSignup | null, max = 42) {
   const base = item.characterName || item.discordName || "Гравець";
   const spec = item.activeSpecName ? ` ${item.activeSpecName}` : "";
   const markers = [
+    item.status === "tentative" ? "❓" : null,
     item.status === "late" ? "🕒" : null,
     item.verifiedGuild === false ? "🤝" : null,
   ].filter(Boolean);
@@ -3430,6 +3457,7 @@ function discordSignupMarkers(
   if (!item) return "";
   const markers = [
     isSignupBelowRaidMinimum(item, raid) ? "⚠️" : null,
+    item.status === "tentative" ? "❓" : null,
     item.status === "late" ? "🕒" : null,
     isSignupNonGuildCharacter(item) ? "🤝" : null,
   ].filter(Boolean);
@@ -3738,7 +3766,7 @@ export function buildRaidAttendanceCustomId(
 export function decodeRaidAttendanceCustomId(customId: string) {
   const value = cleanString(customId, 120);
   const match = value.match(
-    /^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/,
+    /^mbv1:raid:([A-Za-z0-9_-]{8,80}):(going|tentative|late|skipped)$/,
   );
   if (!match) return null;
   return { raidId: match[1], action: cleanSignupStatus(match[2]) };
@@ -3750,10 +3778,10 @@ export function decodeRaidCharacterSelectCustomId(
 ) {
   const value = cleanString(customId, 120);
   const legacyMatch = value.match(
-    /^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|late|skipped)$/,
+    /^mbv1:rc:([A-Za-z0-9_-]{8,80}):(going|tentative|late|skipped)$/,
   );
   const panelMatch = value.match(
-    /^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|late):(tank|healer|dps)$/,
+    /^mbv1:rsc:([A-Za-z0-9_-]{8,80}):(going|tentative|late):(tank|healer|dps)$/,
   );
   const match = legacyMatch || panelMatch;
   if (!match) return null;
@@ -3796,10 +3824,10 @@ export function decodeRaidRoleSelectCustomId(
 ) {
   const value = cleanString(customId, 120);
   const panelMatch = value.match(
-    /^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/,
+    /^mbv1:rsr:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64})$/,
   );
   const legacyMatch = value.match(
-    /^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64})$/,
+    /^mbv1:rr:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64})$/,
   );
   const match = panelMatch || legacyMatch;
   if (!match) return null;
@@ -3836,7 +3864,7 @@ export function buildRaidSignupSubmitCustomId(
 export function decodeRaidSignupSubmitCustomId(customId: string) {
   const value = cleanString(customId, 120);
   const match = value.match(
-    /^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/,
+    /^mbv1:rss:([A-Za-z0-9_-]{8,80}):(going|tentative|late):([A-Za-z0-9._-]{1,64}):(tank|healer|dps)$/,
   );
   if (!match) return null;
   return {
@@ -3895,6 +3923,14 @@ export function buildRaidAttendanceComponents(
           label: signupLabel,
           emoji: { name: "✅" },
           custom_id: buildRaidAttendanceCustomId(raidId, "going"),
+          disabled: activeJoinDisabled,
+        },
+        {
+          type: 2,
+          style: 2,
+          label: "50/50",
+          emoji: { name: "❓" },
+          custom_id: buildRaidAttendanceCustomId(raidId, "tentative"),
           disabled: activeJoinDisabled,
         },
         {
@@ -4178,7 +4214,7 @@ export function buildRaidSignupPanelComponents(
       {
         type: 2,
         style: canSubmit ? 3 : 2,
-        label: action === "late" ? "Записатися із запізненням" : "Записатися",
+        label: action === "late" ? "Записатися із запізненням" : action === "tentative" ? "Записатися 50/50" : "Записатися",
         custom_id: canSubmit
           ? buildRaidSignupSubmitCustomId(
               raidId,
@@ -4213,7 +4249,7 @@ export function buildRaidSignupSuccessComponents(
           type: 2,
           style: 2,
           label:
-            action === "late" ? "Змінити запис" : "Змінити персонажа / роль",
+            action === "late" ? "Змінити запис" : action === "tentative" ? "Змінити 50/50 запис" : "Змінити персонажа / роль",
           custom_id: buildRaidAttendanceCustomId(raidId, action),
         },
         {
@@ -4821,7 +4857,9 @@ function attendanceSuccessText(
   const base =
     action === "late"
       ? `🕒 Записано: ти затримаєшся на ${raidTitle(raid)}${characterText}.${signupNumberText} ${syncText}`
-      : `✅ ${signedText} на ${raidTitle(raid)}${characterText}.${signupNumberText} ${syncText}`;
+      : action === "tentative"
+        ? `❓ ${signedText} 50/50 на ${raidTitle(raid)}${characterText}.${signupNumberText} Якщо основний склад заповниться, цей запис піде в лаву запасних після сірого списку. ${syncText}`
+        : `✅ ${signedText} на ${raidTitle(raid)}${characterText}.${signupNumberText} ${syncText}`;
   return warning ? `${base}\n\n${warning}` : base;
 }
 

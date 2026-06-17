@@ -517,6 +517,14 @@ function toastFromAttendance(value: string | null): Toast | null {
       message: "Позначено, що ти затримаєшся. Склад оновлено.",
       ttl: 6200,
     };
+  if (action === "tentative")
+    return {
+      id: createId("attendance"),
+      tone: "success",
+      title: "Запис оновлено",
+      message: "Тебе записали 50/50. За потреби запис піде в лаву запасних після сірого списку.",
+      ttl: 7200,
+    };
   if (action === "skipped")
     return {
       id: createId("attendance"),

@@ -40,7 +40,11 @@ function jsonToast(payload: { ok: boolean; status?: number; tone?: "info" | "suc
 }
 
 function cleanAction(value: unknown): RaidSignupStatus {
-  return value === "late" ? "late" : value === "skipped" || value === "skip" ? "skipped" : "going";
+  const action = String(value || "").trim().toLowerCase();
+  if (action === "late") return "late";
+  if (["tentative", "maybe", "50/50", "5050", "half"].includes(action)) return "tentative";
+  if (action === "skipped" || action === "skip") return "skipped";
+  return "going";
 }
 
 async function readAttendanceInput(request: NextRequest): Promise<{ action: RaidSignupStatus; characterKey: string | null }> {
@@ -96,9 +100,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ra
 
     const successMessage = result.content || (action === "going"
       ? "Тебе записано на рейд. Склад оновлюється."
-      : action === "late"
-        ? "Позначено, що ти затримаєшся. Склад оновлюється."
-        : "Позначено, що ти пропускаєш рейд.");
+      : action === "tentative"
+        ? "Тебе записано 50/50. Якщо треба звільнити місце, запис піде в лаву запасних після сірого списку."
+        : action === "late"
+          ? "Позначено, що ти затримаєшся. Склад оновлюється."
+          : "Позначено, що ти пропускаєш рейд.");
 
     const tone = successMessage.includes("⚠️") ? "warning" : "success";
     if (jsonMode) {
