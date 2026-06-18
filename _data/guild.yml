@@ -1,9 +1,9 @@
 metadata:
-  updated_at: '2026-06-18 04:06:17'
+  updated_at: '2026-06-18 11:52:45'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
-  raider_io_last_crawled_at: '2026-06-17T06:00:34.000Z'
+  raider_io_last_crawled_at: '2026-06-18T11:08:29.000Z'
 guild:
   name: Mistblossom Vanguard
   id: 75441613
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14289
-      region: 6231
+      world: 14293
+      region: 6235
       realm: 54
     mythic:
-      world: 7227
+      world: 7231
       region: 3080
       realm: 21
   sporefall:
@@ -79,8 +79,8 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 3198
-      region: 1530
+      world: 3312
+      region: 1555
       realm: 13
   blackrock-depths:
     normal:
@@ -157,7 +157,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/galakrond/251/152007675-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/galakrond/Бреинор
-    item_level_equipped: 268
+    item_level_equipped: 269
     mythic_plus_scores:
       all:
         score: 410.8
@@ -1356,11 +1356,11 @@ members:
     item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2156.7
-        color: '#5aff3f'
+        score: 2244.2
+        color: '#4dff33'
       dps:
-        score: 2156.7
-        color: '#5aff3f'
+        score: 2244.2
+        color: '#4dff33'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2156.7
-        color: '#5aff3f'
+        score: 2244.2
+        color: '#4dff33'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1509,7 +1509,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/5/185040389-avatar.jpg?alt=/wow/static/images/2d/avatar/29-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Umbramind
-    item_level_equipped: 159
+    item_level_equipped: 163
     mythic_plus_scores:
       all:
         score: 0
@@ -1769,7 +1769,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/63/185570879-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Sangvyn
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3109.1
@@ -2289,7 +2289,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 285
+    item_level_equipped: 284
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -3669,7 +3669,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3284.1
@@ -4137,7 +4137,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/162/189215394-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Umbrak
-    item_level_equipped: 228
+    item_level_equipped: 229
     mythic_plus_scores:
       all:
         score: 0
@@ -4241,7 +4241,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 287
+    item_level_equipped: 286
     mythic_plus_scores:
       all:
         score: 3225.1
@@ -4789,7 +4789,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 288
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3446.1
@@ -6241,11 +6241,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Unholy
+      name: Frost
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/60/224651580-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Freddiedredd
-    item_level_equipped: 290
+    item_level_equipped: 291
     mythic_plus_scores:
       all:
         score: 3404.8
@@ -7001,7 +7001,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3400.7
@@ -7053,7 +7053,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/224/261438688-avatar.jpg?alt=/wow/static/images/2d/avatar/10-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Булкрит
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3487.6
@@ -7861,7 +7861,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8121,7 +8121,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3156.7
