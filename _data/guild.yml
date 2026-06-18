@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-18 11:52:45'
+  updated_at: '2026-06-18 15:28:46'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,11 +62,11 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14293
+      world: 14294
       region: 6235
       realm: 54
     mythic:
-      world: 7231
+      world: 7233
       region: 3080
       realm: 21
   sporefall:
@@ -79,8 +79,8 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 3312
-      region: 1555
+      world: 3461
+      region: 1561
       realm: 13
   blackrock-depths:
     normal:
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 276
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
         score: 2881.4
@@ -7861,7 +7861,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/blackscar/197/265764293-avatar.jpg?alt=/wow/static/images/2d/avatar/4-1.jpg
     profile_url: https://raider.io/characters/eu/blackscar/Древесная
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3194.6
@@ -8078,13 +8078,13 @@ members:
         score: 3026.4
         color: '#2275d8'
       healer:
-        score: 2454.4
+        score: 2455.3
         color: '#3af435'
       tank:
         score: 0
         color: '#ffffff'
       spec_0:
-        score: 2454.4
+        score: 2455.3
         color: '#3af435'
       spec_1:
         score: 0
@@ -8121,7 +8121,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3156.7
