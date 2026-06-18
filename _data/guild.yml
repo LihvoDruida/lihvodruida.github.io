@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-17 22:03:46'
+  updated_at: '2026-06-18 04:06:17'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14283
-      region: 6230
+      world: 14289
+      region: 6231
       realm: 54
     mythic:
-      world: 7223
-      region: 3079
+      world: 7227
+      region: 3080
       realm: 21
   sporefall:
     normal:
@@ -79,9 +79,9 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 2581
-      region: 1374
-      realm: 12
+      world: 3198
+      region: 1530
+      realm: 13
   blackrock-depths:
     normal:
       world: 0
@@ -1041,7 +1041,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/howling-fjord/112/183468144-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/howling-fjord/Синижёпая
-    item_level_equipped: 277
+    item_level_equipped: 276
     mythic_plus_scores:
       all:
         score: 2881.4
@@ -1353,14 +1353,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 280
+    item_level_equipped: 279
     mythic_plus_scores:
       all:
-        score: 2074.1
-        color: '#68ff4c'
+        score: 2156.7
+        color: '#5aff3f'
       dps:
-        score: 2074.1
-        color: '#68ff4c'
+        score: 2156.7
+        color: '#5aff3f'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2074.1
-        color: '#68ff4c'
+        score: 2156.7
+        color: '#5aff3f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -5669,11 +5669,11 @@ members:
       type: ALLIANCE
     gender: male
     active_spec:
-      name: Brewmaster
-      role: TANK
+      name: Windwalker
+      role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/29/222519325-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Forchun
-    item_level_equipped: 289
+    item_level_equipped: 288
     mythic_plus_scores:
       all:
         score: 3484.9
@@ -8057,23 +8057,47 @@ members:
       slug: gordunni
     playable_class:
       id: 5
-      name: null
+      name: Priest
     playable_race:
       id: 11
-      name: null
+      name: Draenei
     faction:
       type: ALLIANCE
-    gender: null
+    gender: female
     active_spec:
-      name: null
-      role: null
-    avatar: null
-    profile_url: null
-    item_level_equipped: 0
-    mythic_plus_scores: {}
+      name: Shadow
+      role: DPS
+    avatar: https://render.worldofwarcraft.com/eu/character/gordunni/135/265853063-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
+    profile_url: https://raider.io/characters/eu/gordunni/Марлая
+    item_level_equipped: 286
+    mythic_plus_scores:
+      all:
+        score: 3079
+        color: '#0070dd'
+      dps:
+        score: 3026.4
+        color: '#2275d8'
+      healer:
+        score: 2454.4
+        color: '#3af435'
+      tank:
+        score: 0
+        color: '#ffffff'
+      spec_0:
+        score: 2454.4
+        color: '#3af435'
+      spec_1:
+        score: 0
+        color: '#ffffff'
+      spec_2:
+        score: 3026.4
+        color: '#2275d8'
+      spec_3:
+        score: 0
+        color: '#ffffff'
     sources:
       roster: blizzard
-      enrichment: null
+      enrichment: raider.io
       professions: blizzard
 - rank: 3
   character:
