@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-18 18:28:28'
+  updated_at: '2026-06-18 22:11:04'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -15,7 +15,7 @@ guild:
     type: ALLIANCE
     name: Alliance
   profile_url: https://raider.io/guilds/eu/terokkar/Mistblossom%20Vanguard
-  member_count: 162
+  member_count: 161
   achievement_points: 590
   created_timestamp: 1764795965000
 raid_progression:
@@ -62,12 +62,12 @@ raid_rankings:
       region: 6163
       realm: 56
     heroic:
-      world: 14294
-      region: 6235
+      world: 14300
+      region: 6240
       realm: 54
     mythic:
-      world: 7234
-      region: 3081
+      world: 7236
+      region: 3083
       realm: 21
   sporefall:
     normal:
@@ -79,9 +79,9 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 3854
-      region: 1893
-      realm: 15
+      world: 4330
+      region: 2299
+      realm: 18
   blackrock-depths:
     normal:
       world: 0
@@ -1044,11 +1044,11 @@ members:
     item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2881.4
-        color: '#5394b7'
+        score: 2929
+        color: '#4989c2'
       dps:
-        score: 2881.4
-        color: '#5394b7'
+        score: 2929
+        color: '#4989c2'
       healer:
         score: 0
         color: '#ffffff'
@@ -1062,8 +1062,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2536.1
-        color: '#4fe456'
+        score: 2583.6
+        color: '#57d966'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -1353,14 +1353,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/doomhammer/154/184935322-avatar.jpg?alt=/wow/static/images/2d/avatar/11-1.jpg
     profile_url: https://raider.io/characters/eu/doomhammer/Sandora
-    item_level_equipped: 279
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
-        score: 2244.2
-        color: '#4dff33'
+        score: 2256.3
+        color: '#48ff2f'
       dps:
-        score: 2244.2
-        color: '#4dff33'
+        score: 2256.3
+        color: '#48ff2f'
       healer:
         score: 0
         color: '#ffffff'
@@ -1374,8 +1374,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 2244.2
-        color: '#4dff33'
+        score: 2256.3
+        color: '#48ff2f'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -2861,7 +2861,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 280
+    item_level_equipped: 281
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -4789,7 +4789,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/217/210978265-avatar.jpg?alt=/wow/static/images/2d/avatar/34-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Bloemfontain
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3446.1
@@ -5257,14 +5257,14 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/132/216855428-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
     profile_url: https://raider.io/characters/eu/silvermoon/Thortun
-    item_level_equipped: 270
+    item_level_equipped: 277
     mythic_plus_scores:
       all:
-        score: 2326.6
-        color: '#38ff1f'
+        score: 2370.8
+        color: '#31ff18'
       dps:
-        score: 1994.7
-        color: '#72ff56'
+        score: 2042.2
+        color: '#6cff50'
       healer:
         score: 0
         color: '#ffffff'
@@ -5272,8 +5272,8 @@ members:
         score: 660.8
         color: '#e2ffd6'
       spec_0:
-        score: 1994.7
-        color: '#72ff56'
+        score: 2042.2
+        color: '#6cff50'
       spec_1:
         score: 0
         color: '#ffffff'
@@ -5956,58 +5956,6 @@ members:
       spec_2:
         score: 3324.4
         color: '#884ee9'
-      spec_3:
-        score: 0
-        color: '#ffffff'
-    sources:
-      roster: blizzard
-      enrichment: raider.io
-      professions: blizzard
-- rank: 4
-  character:
-    name: Hlorygole
-    id: 224350672
-    level: 90
-    realm:
-      id: 549
-      slug: silvermoon
-    playable_class:
-      id: 9
-      name: Warlock
-    playable_race:
-      id: 1
-      name: Human
-    faction:
-      type: ALLIANCE
-    gender: female
-    active_spec:
-      name: Demonology
-      role: DPS
-    avatar: https://render.worldofwarcraft.com/eu/character/silvermoon/208/224350672-avatar.jpg?alt=/wow/static/images/2d/avatar/1-1.jpg
-    profile_url: https://raider.io/characters/eu/silvermoon/Hlorygole
-    item_level_equipped: 289
-    mythic_plus_scores:
-      all:
-        score: 2947.1
-        color: '#4989c2'
-      dps:
-        score: 2947.1
-        color: '#4989c2'
-      healer:
-        score: 0
-        color: '#ffffff'
-      tank:
-        score: 0
-        color: '#ffffff'
-      spec_0:
-        score: 1870.8
-        color: '#80ff64'
-      spec_1:
-        score: 2826.9
-        color: '#5ba3a6'
-      spec_2:
-        score: 0
-        color: '#ffffff'
       spec_3:
         score: 0
         color: '#ffffff'
@@ -8112,16 +8060,16 @@ members:
       name: Warrior
     playable_race:
       id: 22
-      name: Human
+      name: Worgen
     faction:
       type: ALLIANCE
     gender: male
     active_spec:
       name: Protection
       role: TANK
-    avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/1-0.jpg
+    avatar: https://render.worldofwarcraft.com/eu/character/lich-king/9/265879817-avatar.jpg?alt=/wow/static/images/2d/avatar/22-0.jpg
     profile_url: https://raider.io/characters/eu/lich-king/Кхаарн
-    item_level_equipped: 290
+    item_level_equipped: 289
     mythic_plus_scores:
       all:
         score: 3156.7
@@ -8436,14 +8384,14 @@ members:
     item_level_equipped: 288
     mythic_plus_scores:
       all:
-        score: 3082.8
-        color: '#0070dd'
+        score: 3127.7
+        color: '#3b6bdf'
       dps:
         score: 0
         color: '#ffffff'
       healer:
-        score: 3082.8
-        color: '#0070dd'
+        score: 3127.7
+        color: '#3b6bdf'
       tank:
         score: 0
         color: '#ffffff'
@@ -8454,8 +8402,8 @@ members:
         score: 0
         color: '#ffffff'
       spec_2:
-        score: 3082.8
-        color: '#0070dd'
+        score: 3127.7
+        color: '#3b6bdf'
       spec_3:
         score: 0
         color: '#ffffff'
