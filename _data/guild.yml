@@ -1,5 +1,5 @@
 metadata:
-  updated_at: '2026-06-18 15:28:46'
+  updated_at: '2026-06-18 18:28:28'
   source: Blizzard Guild Roster API + Raider.IO Guild/Character API + Blizzard Professions API
   region: eu
   locale: en_US
@@ -66,8 +66,8 @@ raid_rankings:
       region: 6235
       realm: 54
     mythic:
-      world: 7233
-      region: 3080
+      world: 7234
+      region: 3081
       realm: 21
   sporefall:
     normal:
@@ -79,9 +79,9 @@ raid_rankings:
       region: 0
       realm: 0
     mythic:
-      world: 3461
-      region: 1561
-      realm: 13
+      world: 3854
+      region: 1893
+      realm: 15
   blackrock-depths:
     normal:
       world: 0
@@ -2289,7 +2289,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/204/187026124-avatar.jpg?alt=/wow/static/images/2d/avatar/28-0.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Blackdaddy
-    item_level_equipped: 284
+    item_level_equipped: 285
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -2861,7 +2861,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/tarren-mill/209/188008401-avatar.jpg?alt=/wow/static/images/2d/avatar/27-1.jpg
     profile_url: https://raider.io/characters/eu/tarren-mill/Icebloomi
-    item_level_equipped: 278
+    item_level_equipped: 280
     mythic_plus_scores:
       all:
         score: 3014.4
@@ -3669,7 +3669,7 @@ members:
       role: DPS
     avatar: https://render.worldofwarcraft.com/eu/character/turalyon/66/188842818-avatar.jpg?alt=/wow/static/images/2d/avatar/3-0.jpg
     profile_url: https://raider.io/characters/eu/turalyon/Skirvir
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3284.1
@@ -4241,7 +4241,7 @@ members:
       role: HEALING
     avatar: https://render.worldofwarcraft.com/eu/character/terokkar/197/189317829-avatar.jpg?alt=/wow/static/images/2d/avatar/22-1.jpg
     profile_url: https://raider.io/characters/eu/terokkar/Yokum
-    item_level_equipped: 286
+    item_level_equipped: 287
     mythic_plus_scores:
       all:
         score: 3225.1
@@ -7001,7 +7001,7 @@ members:
       role: TANK
     avatar: https://render.worldofwarcraft.com/eu/character/gordunni/107/261329003-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
     profile_url: https://raider.io/characters/eu/gordunni/Моннал
-    item_level_equipped: 289
+    item_level_equipped: 290
     mythic_plus_scores:
       all:
         score: 3400.7
@@ -8111,7 +8111,7 @@ members:
       id: 1
       name: Warrior
     playable_race:
-      id: 1
+      id: 22
       name: Human
     faction:
       type: ALLIANCE
