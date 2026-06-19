@@ -113,20 +113,18 @@ function getInteractionUserName(interaction: any) {
 }
 
 function getInteractionRulesTokenUser(interaction: any, guildId: string) {
+  // Discord URL buttons have a hard 512-character URL limit. The token must stay compact,
+  // otherwise Discord rejects the interaction response and shows “Дія не вдалася”.
+  // The site can fetch the fresh member snapshot by userId, so only stable identity fields
+  // are embedded here; full role lists/avatar URLs are intentionally not included.
   const user = interaction?.member?.user || interaction?.user || {};
-  const avatar = typeof user?.avatar === "string" && user.avatar && user.id
-    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-    : "";
-  const memberRoles = Array.isArray(interaction?.member?.roles)
-    ? interaction.member.roles.map((roleId: unknown) => String(roleId || "")).filter((roleId: string) => /^\d{16,25}$/.test(roleId))
-    : [];
   return {
     discordGuildId: guildId,
-    discordUsername: typeof user?.username === "string" ? user.username : "",
-    discordGlobalName: typeof user?.global_name === "string" ? user.global_name : "",
-    discordDisplayName: getInteractionUserName(interaction),
-    discordAvatarUrl: avatar,
-    memberRoleIds: memberRoles,
+    discordUsername: typeof user?.username === "string" ? user.username.slice(0, 32) : "",
+    discordGlobalName: typeof user?.global_name === "string" ? user.global_name.slice(0, 32) : "",
+    discordDisplayName: getInteractionUserName(interaction).slice(0, 32),
+    discordAvatarUrl: "",
+    memberRoleIds: [],
   };
 }
 

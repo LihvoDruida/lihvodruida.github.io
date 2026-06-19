@@ -33,8 +33,6 @@ SITE_BASE_URL="https://lihvodruida.pp.ua"
 PUBLIC_SITE_URL="https://lihvodruida.pp.ua"
 DASHBOARD_URL="https://admin.lihvodruida.pp.ua"
 ADMIN_DASHBOARD_URL="https://admin.lihvodruida.pp.ua"
-# Must match dashboard DASHBOARD_RULES_TOKEN_SECRET. If empty, code tries DISCORD_BOT_TOKEN as a shared fallback, then session/auth secrets.
-DASHBOARD_RULES_TOKEN_SECRET=""
 
 # -----------------------------------------------------------------------------
 # Discord Application / Bot
@@ -120,6 +118,11 @@ CLOUDFLARE_ACCESS_CLIENT_SECRET=""
 DISCORD_RULES_STATS_TOKEN=""
 # Optional alias if this Worker already uses a generic stats token.
 WORKER_STATS_TOKEN=""
+
+# Must match the dashboard value. Used to sign /rules/accept?rt=... links created from Discord interactions.
+DASHBOARD_RULES_TOKEN_SECRET="replace_with_same_value_as_dashboard"
+# Optional legacy alias accepted by both Worker and Dashboard.
+RULES_TOKEN_SECRET=""
 
 # -----------------------------------------------------------------------------
 # Debug / behavior
