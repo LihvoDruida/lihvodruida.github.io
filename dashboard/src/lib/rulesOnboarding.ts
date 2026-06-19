@@ -42,8 +42,13 @@ function secret() {
 }
 
 function cleanRoleIds(roleIds: unknown) {
-  const values = Array.isArray(roleIds) ? roleIds : String(roleIds || "").split(/[,.\s;]+/g);
+  const values = Array.isArray(roleIds) ? roleIds : String(roleIds || "").split(/[,\.\s;]+/g);
   return Array.from(new Set(values.map((item) => String(item || "").trim()).filter((item) => /^\d{16,25}$/.test(item)))).slice(0, 10);
+}
+
+function cleanDiscordUserId(value: unknown) {
+  const userId = String(value || "").trim();
+  return /^\d{16,25}$/.test(userId) ? userId : "";
 }
 
 function base64UrlJson(value: unknown) {
@@ -65,32 +70,64 @@ function verifySignature(payload: string, signature: string) {
   }
 }
 
-export function createRulesRoleToken(roleIdsInput: string[]) {
+export function createRulesRoleToken(
+  roleIdsInput: string[],
+  options: { discordUserId?: string | null } = {},
+) {
   const roleIds = cleanRoleIds(roleIdsInput);
   if (!roleIds.length) throw new Error("Для правил потрібно вибрати роль, яка буде видана після реєстрації.");
-  const payload = base64UrlJson({ v: TOKEN_VERSION, r: roleIds });
+  const discordUserId = cleanDiscordUserId(options.discordUserId);
+  const payload = base64UrlJson({
+    v: TOKEN_VERSION,
+    r: roleIds,
+    ...(discordUserId ? { u: discordUserId } : {}),
+  });
   return `${payload}.${signPayload(payload)}`;
 }
 
-export function parseRulesRoleToken(tokenInput: unknown) {
+export type ParsedRulesRoleToken = {
+  roleIds: string[];
+  discordUserId: string | null;
+};
+
+export function parseRulesRoleTokenDetails(tokenInput: unknown): ParsedRulesRoleToken {
   const token = String(tokenInput || "").trim();
   const [payload, signature, extra] = token.split(".");
-  if (!payload || !signature || extra || !verifySignature(payload, signature)) return [] as string[];
+  if (!payload || !signature || extra || !verifySignature(payload, signature)) {
+    return { roleIds: [], discordUserId: null };
+  }
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    if (Number(parsed?.v) !== TOKEN_VERSION) return [] as string[];
-    return cleanRoleIds(parsed?.r);
+    if (Number(parsed?.v) !== TOKEN_VERSION) {
+      return { roleIds: [], discordUserId: null };
+    }
+    return {
+      roleIds: cleanRoleIds(parsed?.r),
+      discordUserId: cleanDiscordUserId(parsed?.u) || null,
+    };
   } catch {
-    return [] as string[];
+    return { roleIds: [], discordUserId: null };
   }
+}
+
+export function parseRulesRoleToken(tokenInput: unknown) {
+  return parseRulesRoleTokenDetails(tokenInput).roleIds;
 }
 
 export function rulesAcceptPath(roleIds: string[]) {
   return `/rules/accept?rt=${encodeURIComponent(createRulesRoleToken(roleIds))}`;
 }
 
+export function rulesAcceptPathForDiscordUser(roleIds: string[], discordUserId: string) {
+  return `/rules/accept?rt=${encodeURIComponent(createRulesRoleToken(roleIds, { discordUserId }))}`;
+}
+
 export function rulesAcceptUrl(roleIds: string[]) {
   return `${getDashboardUrl()}${rulesAcceptPath(roleIds)}`;
+}
+
+export function rulesAcceptUrlForDiscordUser(roleIds: string[], discordUserId: string) {
+  return `${getDashboardUrl()}${rulesAcceptPathForDiscordUser(roleIds, discordUserId)}`;
 }
 
 export function rulesLoginPath(roleToken: string) {

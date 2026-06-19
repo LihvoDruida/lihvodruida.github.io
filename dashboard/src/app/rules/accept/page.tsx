@@ -7,7 +7,11 @@ import ProfileNameControls from "@/components/ProfileNameControls";
 import { getSession, type DashboardSession } from "@/lib/auth";
 import { getEnabledBattleNetRegions } from "@/lib/battlenet";
 import { getDashboardApiSettings } from "@/lib/dashboardApiSettings";
-import { fetchDiscordRoles, hasDiscordEmbedConfig } from "@/lib/discordAdmin";
+import {
+  fetchDiscordGuildMemberSnapshot,
+  fetchDiscordRoles,
+  hasDiscordEmbedConfig,
+} from "@/lib/discordAdmin";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 import {
   buildProfileDiscordNickname,
@@ -23,7 +27,7 @@ import {
   type ProfileGrammaticalGender,
 } from "@/lib/profiles";
 import {
-  parseRulesRoleToken,
+  parseRulesRoleTokenDetails,
   rulesLoginPath,
   rulesOnboardingStatus,
 } from "@/lib/rulesOnboarding";
@@ -118,6 +122,11 @@ function statusNotice(status?: string | null) {
       tone: "ok",
       text: "✅ Реєстрацію завершено. Discord-роль видано, серверний нік оновлено.",
     };
+  if (status === "completed_public")
+    return {
+      tone: "ok",
+      text: "✅ Правила прийнято. Discord-роль видано без обовʼязкового входу на сайт.",
+    };
   if (status === "completed_owner_nickname_manual")
     return {
       tone: "warning",
@@ -147,6 +156,16 @@ function statusNotice(status?: string | null) {
     return {
       tone: "error",
       text: "Discord-видача ролей тимчасово не налаштована. Звернись до офіцера.",
+    };
+  if (status === "discord_user_missing")
+    return {
+      tone: "warning",
+      text: "Сторінка відкрита без Discord-підтвердження користувача. Натисни кнопку правил у Discord або увійди через Discord на сайті.",
+    };
+  if (status === "discord_member_missing")
+    return {
+      tone: "warning",
+      text: "Discord-користувача не знайдено на сервері гільдії. Роль не видано.",
     };
   if (status === "geo_blocked")
     return {
@@ -880,6 +899,102 @@ function RegistrationEditPanel({
   );
 }
 
+
+function AuthBenefitsList() {
+  return (
+    <ul className="rules-onboarding-benefits" aria-label="Переваги входу через Discord">
+      <li>автоматичне звʼязування профілю з Discord;</li>
+      <li>редагування імені, звертання, мейна та Battle.net-персонажів;</li>
+      <li>оновлення серверного ніку за шаблоном гільдії.</li>
+    </ul>
+  );
+}
+
+function RegistrationLockedPanel({ loginHref }: { loginHref: string }) {
+  return (
+    <section
+      className="rules-registration-editor rules-registration-editor--locked"
+      aria-label="Вхід для редагування реєстраційних даних"
+    >
+      <div className="profile-card-head profile-card-head--inline">
+        <div>
+          <span className="eyebrow">Опційно після прийняття правил</span>
+          <h2>Реєстраційні дані приховано</h2>
+          <p className="profile-card-lead">
+            Без Discord-входу сторінка не показує профіль, Battle.net-персонажів,
+            мейна, звертання та налаштування серверного ніку. Це приватні дані,
+            тому для редагування потрібна авторизація через Discord.
+          </p>
+        </div>
+      </div>
+      <div className="rules-registration-locked-card">
+        <span className="rules-registration-locked-card__icon" aria-hidden="true">🔒</span>
+        <span>
+          <strong>Увійти через Discord</strong>
+          <small>
+            Після входу відкриється повний редактор реєстрації. Видача ролі через
+            Discord-кнопку може працювати й без цього входу.
+          </small>
+        </span>
+        <a className="btn primary" href={loginHref}>
+          Увійти через Discord
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function PublicRulesAction({
+  token,
+  canAcceptPublicly,
+  loginHref,
+}: {
+  token: string;
+  canAcceptPublicly: boolean;
+  loginHref: string;
+}) {
+  return (
+    <section
+      className={`rules-onboarding-final-action${canAcceptPublicly ? " is-ready" : " is-pending"}`}
+      aria-label="Фінальна дія прийняття правил"
+    >
+      <span className="rules-onboarding-final-action__copy">
+        <strong>
+          {canAcceptPublicly
+            ? "Можна прийняти правила без входу"
+            : "Потрібне Discord-підтвердження"}
+        </strong>
+        <small>
+          {canAcceptPublicly
+            ? "Discord-кнопка вже передала сайту підписаний userId. Натисни кнопку — бот видасть ту ж роль без перевірок профільного редактора."
+            : "Відкрий цю сторінку з кнопки правил у Discord або увійди через Discord, інакше сайт не знає, кому видавати роль."}
+        </small>
+      </span>
+
+      {canAcceptPublicly ? (
+        <form
+          action="/api/rules/accept/complete"
+          method="post"
+          data-dashboard-action="/api/rules/accept/complete"
+        >
+          <input type="hidden" name="rt" value={token} />
+          <button
+            className="btn primary rules-onboarding-primary-action"
+            type="submit"
+            data-loading-label="Видаємо роль..."
+          >
+            Прийняти правила й отримати роль
+          </button>
+        </form>
+      ) : (
+        <a className="btn primary rules-onboarding-primary-action" href={loginHref}>
+          Увійти через Discord
+        </a>
+      )}
+    </section>
+  );
+}
+
 export default async function RulesAcceptPage({
   searchParams,
 }: {
@@ -889,7 +1004,9 @@ export default async function RulesAcceptPage({
   const token = String(
     Array.isArray(params.rt) ? params.rt[0] : params.rt || "",
   ).trim();
-  const roleIds = parseRulesRoleToken(token);
+  const parsedToken = parseRulesRoleTokenDetails(token);
+  const roleIds = parsedToken.roleIds;
+  const publicDiscordUserId = parsedToken.discordUserId;
   const notice = statusNotice(
     String(
       Array.isArray(params.status) ? params.status[0] : params.status || "",
@@ -910,12 +1027,32 @@ export default async function RulesAcceptPage({
   const profile = session?.profileId
     ? await getProfileById(session.profileId).catch(() => null)
     : null;
+  const isDiscordAuthorized = Boolean(
+    session?.provider === "discord" &&
+      profile?.provider === "discord" &&
+      /^\d{16,25}$/.test(profile.providerUserId),
+  );
   const status = rulesOnboardingStatus(profile, nicknamePolicy.template);
   const completedSteps = status.steps.filter((step) => step.complete).length;
   const nextMissingStep = status.missing[0] || null;
   const roles = roleIds.length ? await fetchDiscordRoles().catch(() => []) : [];
   const primaryRegion = getEnabledBattleNetRegions()[0] || "eu";
   const returnTo = rulesReturnPath(token);
+  const loginHref = rulesLoginPath(token);
+  const publicDiscordMember =
+    !isDiscordAuthorized && publicDiscordUserId && hasDiscordEmbedConfig()
+      ? await fetchDiscordGuildMemberSnapshot(publicDiscordUserId).catch(
+          () => null,
+        )
+      : null;
+  const publicDiscordLabel = publicDiscordMember?.displayName
+    ? publicDiscordMember.displayName
+    : publicDiscordUserId
+      ? `Discord ID ${publicDiscordUserId.slice(-6)}`
+      : "Не визначено";
+  const canAcceptPublicly = Boolean(
+    !isDiscordAuthorized && roleIds.length && publicDiscordUserId,
+  );
   const canSyncDiscordNickname = Boolean(
     profile?.provider === "discord" &&
       /^\d{16,25}$/.test(profile.providerUserId) &&
@@ -937,41 +1074,45 @@ export default async function RulesAcceptPage({
         <header className="hero panel dashboard-hero rules-onboarding-hero">
           <div className="hero-copy dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Правила</div>
-            <h1>Завершення реєстрації</h1>
+            <h1>Прийняття правил</h1>
             <span className="hero-accent" aria-hidden="true" />
             <p className="lead">
-              Кнопка в Discord більше не видає роль одразу. Спочатку потрібно
-              увійти, заповнити дані на цій сторінці, підключити персонажів і
-              підтвердити серверний нік.
+              Сторінка доступна без обовʼязкового входу. Якщо вона відкрита з
+              Discord-кнопки, бот уже має безпечне підтвердження твого Discord
+              ID і може видати роль. Вхід через Discord потрібен тільки для
+              повного профілю та автоматизації даних.
             </p>
+            <AuthBenefitsList />
           </div>
           <HeroSidePanel
-            ariaLabel="Огляд завершення реєстрації"
+            ariaLabel="Огляд прийняття правил"
             summary={[
               {
-                label: "СТАН",
-                value: status.complete ? "Готово" : "Потрібно доповнити",
-                note: session
-                  ? "Discord-профіль знайдено"
-                  : "Потрібен вхід через Discord",
+                label: "ДОСТУП",
+                value: isDiscordAuthorized ? "Discord-вхід" : "Публічна сторінка",
+                note: isDiscordAuthorized
+                  ? "Повний профіль і перевірки доступні"
+                  : "Інші сторінки панелі лишаються закритими",
               },
               {
-                label: "РОЛЬ",
-                value: roleIds.length
-                  ? roleName(roleIds[0], roles)
-                  : "Не задано",
-                note:
-                  roleIds.length > 1
-                    ? `+${roleIds.length - 1} ролей`
-                    : `Регіон Battle.net: ${primaryRegion.toUpperCase()}`,
+                label: "DISCORD",
+                value: isDiscordAuthorized
+                  ? profile?.displayName || session?.name || "Авторизовано"
+                  : publicDiscordLabel,
+                note: publicDiscordUserId
+                  ? "Користувач підтверджений Discord-кнопкою"
+                  : "Для видачі ролі без входу потрібен клік у Discord",
               },
             ]}
             stats={[
               {
-                label: "КРОКИ",
-                value: `${completedSteps}/${status.steps.length}`,
+                label: "РОЛІ",
+                value: roleIds.length.toLocaleString("uk-UA"),
               },
-              { label: "РОЛІ", value: roleIds.length.toLocaleString("uk-UA") },
+              {
+                label: "ПРОФІЛЬ",
+                value: isDiscordAuthorized ? "Відкрито" : "Приховано",
+              },
               {
                 label: "B.NET",
                 value: profile?.battlenet?.linked ? "OK" : "—",
@@ -982,7 +1123,7 @@ export default async function RulesAcceptPage({
 
         <section
           className="panel rules-onboarding-card"
-          aria-label="Стан реєстрації"
+          aria-label="Стан прийняття правил"
         >
           {notice ? (
             <div
@@ -1000,33 +1141,56 @@ export default async function RulesAcceptPage({
               {actionNotice.text}
             </div>
           ) : null}
-          <div className="profile-card-head profile-card-head--inline">
-            <div>
-              <span className="eyebrow">Обовʼязково</span>
-              <h2>
-                {status.complete
-                  ? "Профіль готовий"
-                  : "Дані неповні або некоректні"}
-              </h2>
-            </div>
-            <span
-              className={`profile-count-pill${status.complete ? " is-ok" : " is-warning"}`}
-            >
-              {completedSteps}/{status.steps.length}
-            </span>
-          </div>
-          <ProgressBar complete={completedSteps} total={status.steps.length} />
 
-          {!session ? (
-            <div className="rules-onboarding-login">
-              <p>
-                Увійди через Discord, щоб система могла звʼязати профіль із
-                сервером. Після входу повернешся на цю сторінку.
-              </p>
-              <a className="btn primary" href={rulesLoginPath(token)}>
-                Увійти через Discord
-              </a>
-            </div>
+          {!isDiscordAuthorized ? (
+            <>
+              <div className="profile-card-head profile-card-head--inline">
+                <div>
+                  <span className="eyebrow">Без обовʼязкової авторизації</span>
+                  <h2>Швидке прийняття правил</h2>
+                  <p className="profile-card-lead">
+                    Для неавторизованого користувача профільний редактор не
+                    використовується. Якщо Discord ID прийшов із підписаного
+                    токена кнопки, фінальна кнопка тільки видає вибрану роль.
+                  </p>
+                </div>
+                <span
+                  className={`profile-count-pill${canAcceptPublicly ? " is-ok" : " is-warning"}`}
+                >
+                  {canAcceptPublicly ? "Готово" : "Потрібен Discord"}
+                </span>
+              </div>
+
+              {!roleIds.length ? (
+                <div className="login-alert profile-storage-warning" role="status">
+                  Посилання правил не містить підтвердженої ролі. Натисни
+                  актуальну кнопку “Прийняти правила” в Discord або попроси
+                  офіцера оновити embed правил.
+                </div>
+              ) : null}
+
+              <div className="rules-onboarding-role-box">
+                <strong>Роль після прийняття</strong>
+                <span>
+                  {roleIds.length
+                    ? roleIds.map((roleId) => roleName(roleId, roles)).join(", ")
+                    : "Не задано"}
+                </span>
+                <small>
+                  Discord-користувач: {publicDiscordLabel}. Дані отримуються
+                  через Discord interaction і bot API без прямої OAuth-авторизації,
+                  коли це можливо.
+                </small>
+              </div>
+
+              <PublicRulesAction
+                token={token}
+                canAcceptPublicly={canAcceptPublicly}
+                loginHref={loginHref}
+              />
+
+              <RegistrationLockedPanel loginHref={loginHref} />
+            </>
           ) : !roleIds.length ? (
             <div className="login-alert profile-storage-warning" role="status">
               Посилання правил не містить підтвердженої ролі. Натисни актуальну
@@ -1035,6 +1199,22 @@ export default async function RulesAcceptPage({
             </div>
           ) : profile ? (
             <>
+              <div className="profile-card-head profile-card-head--inline">
+                <div>
+                  <span className="eyebrow">Обовʼязково для повного профілю</span>
+                  <h2>
+                    {status.complete
+                      ? "Профіль готовий"
+                      : "Дані неповні або некоректні"}
+                  </h2>
+                </div>
+                <span
+                  className={`profile-count-pill${status.complete ? " is-ok" : " is-warning"}`}
+                >
+                  {completedSteps}/{status.steps.length}
+                </span>
+              </div>
+              <ProgressBar complete={completedSteps} total={status.steps.length} />
               <ProfileSummary
                 profile={profile}
                 nicknameTemplate={nicknamePolicy.template}

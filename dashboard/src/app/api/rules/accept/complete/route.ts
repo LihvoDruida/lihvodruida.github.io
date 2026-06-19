@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import {
   addGuildMemberRoles,
+  fetchDiscordGuildMemberSnapshot,
   fetchDiscordGuildSnapshot,
   getDiscordGuildId,
   updateGuildMemberNickname,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/profiles";
 import {
   markRulesOnboardingCompleted,
-  parseRulesRoleToken,
+  parseRulesRoleTokenDetails,
   rulesOnboardingStatus,
 } from "@/lib/rulesOnboarding";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
@@ -60,54 +61,28 @@ function rulesTokenFromReferrer(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  if (!verifyTrustedOrigin(request)) return forbiddenResponse();
-  const tooLarge = assertRequestBodySize(request, 4096);
-  if (tooLarge) {
-    const fallbackToken =
-      new URL(request.url).searchParams.get("rt") ||
-      rulesTokenFromReferrer(request);
-    return redirectToToken(request, fallbackToken, "request_too_large");
-  }
-
-  const form = await request.formData();
-  const token = String(form.get("rt") || "").trim();
-
-  const geoDecision = await checkGeoAccess(request, "auth");
-  if (geoDecision.blocked) {
-    logDashboardEvent("warn", "rules.onboarding.geo_blocked", request, {
-      country: geoDecision.country || null,
-      reason: geoDecision.reason,
-    });
-    return redirectToToken(request, token, "geo_blocked");
-  }
-
-  const session = await getSession();
-  if (!session?.profileId)
-    return NextResponse.redirect(
-      new URL("/login?error=session_required", request.url),
-      303,
-    );
-
-  const ip = getClientIp(request);
+async function completeAuthenticatedRulesOnboarding(params: {
+  request: NextRequest;
+  token: string;
+  profileId: string;
+  roleIds: string[];
+  ip: string;
+}) {
+  const { request, token, profileId, roleIds, ip } = params;
   const limit = checkRateLimit(
-    `rules-accept-complete:${session.profileId}:${ip}`,
+    `rules-accept-complete:${profileId}:${ip}`,
     10,
     10 * 60 * 1000,
   );
   if (!limit.ok) return redirectToToken(request, token, "rate_limit");
 
-  const roleIds = parseRulesRoleToken(token);
-  if (!roleIds.length)
-    return redirectToToken(request, token, "missing_role_token");
-
   try {
-    const profile = await getProfileById(session.profileId);
+    const profile = await getProfileById(profileId);
     const nicknamePolicy = await getGuildNicknamePolicy();
     const onboarding = rulesOnboardingStatus(profile, nicknamePolicy.template);
     if (!profile || !onboarding.complete) {
       logDashboardEvent("warn", "rules.onboarding.incomplete", request, {
-        profileId: session.profileId,
+        profileId,
         missing: onboarding.missing.map((step) => step.key),
       });
       return redirectToToken(request, token, "incomplete");
@@ -188,9 +163,116 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logDashboardEvent("error", "rules.onboarding.complete_failed", request, {
-      profileId: session.profileId,
+      profileId,
       message: safeErrorMessage(error),
     });
     return redirectToToken(request, token, "failed");
   }
+}
+
+async function completePublicRulesAcceptance(params: {
+  request: NextRequest;
+  token: string;
+  discordUserId: string;
+  roleIds: string[];
+  ip: string;
+}) {
+  const { request, token, discordUserId, roleIds, ip } = params;
+  const limit = checkRateLimit(
+    `rules-accept-public:${discordUserId}:${ip}`,
+    8,
+    10 * 60 * 1000,
+  );
+  if (!limit.ok) return redirectToToken(request, token, "rate_limit");
+
+  const guildId = getDiscordGuildId();
+  if (!guildId) return redirectToToken(request, token, "discord_not_configured");
+
+  try {
+    const member = await fetchDiscordGuildMemberSnapshot(discordUserId, guildId).catch(
+      () => null,
+    );
+    if (!member) {
+      logDashboardEvent("warn", "rules.public.member_missing", request, {
+        userId: discordUserId,
+        roles: roleIds.length,
+      });
+      return redirectToToken(request, token, "discord_member_missing");
+    }
+
+    await addGuildMemberRoles({
+      guildId,
+      userId: discordUserId,
+      roleIds,
+      reason: `Rules accepted without dashboard auth by ${member.displayName || discordUserId}`,
+    });
+
+    logDashboardEvent("info", "rules.public.completed", request, {
+      userId: discordUserId,
+      roles: roleIds.length,
+      memberName: member.displayName || null,
+    });
+    return redirectToToken(request, token, "completed_public");
+  } catch (error) {
+    logDashboardEvent("error", "rules.public.complete_failed", request, {
+      userId: discordUserId,
+      roles: roleIds.length,
+      message: safeErrorMessage(error),
+    });
+    return redirectToToken(request, token, "failed");
+  }
+}
+
+export async function POST(request: NextRequest) {
+  if (!verifyTrustedOrigin(request)) return forbiddenResponse();
+  const tooLarge = assertRequestBodySize(request, 4096);
+  if (tooLarge) {
+    const fallbackToken =
+      new URL(request.url).searchParams.get("rt") ||
+      rulesTokenFromReferrer(request);
+    return redirectToToken(request, fallbackToken, "request_too_large");
+  }
+
+  const form = await request.formData();
+  const token = String(form.get("rt") || "").trim();
+  const parsedToken = parseRulesRoleTokenDetails(token);
+  const roleIds = parsedToken.roleIds;
+
+  const geoDecision = await checkGeoAccess(request, "auth");
+  if (geoDecision.blocked) {
+    logDashboardEvent("warn", "rules.onboarding.geo_blocked", request, {
+      country: geoDecision.country || null,
+      reason: geoDecision.reason,
+    });
+    return redirectToToken(request, token, "geo_blocked");
+  }
+
+  if (!roleIds.length) return redirectToToken(request, token, "missing_role_token");
+
+  const ip = getClientIp(request);
+  const session = await getSession().catch(() => null);
+  if (session?.profileId) {
+    return completeAuthenticatedRulesOnboarding({
+      request,
+      token,
+      profileId: session.profileId,
+      roleIds,
+      ip,
+    });
+  }
+
+  if (parsedToken.discordUserId) {
+    return completePublicRulesAcceptance({
+      request,
+      token,
+      discordUserId: parsedToken.discordUserId,
+      roleIds,
+      ip,
+    });
+  }
+
+  logDashboardEvent("warn", "rules.public.discord_user_missing", request, {
+    roles: roleIds.length,
+  });
+  return redirectToToken(request, token, "discord_user_missing");
 }

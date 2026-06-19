@@ -25,7 +25,7 @@ function hasDashboardSessionCookie(request: NextRequest) {
 
 function isProtectedPagePath(pathname: string) {
   if (pathname === "/") return true;
-  return /^\/(?:admin|guild|profile|profiles|raids|discord|content|rules\/accept)(?:\/|$)/.test(
+  return /^\/(?:admin|guild|profile|profiles|raids|discord|content)(?:\/|$)/.test(
     pathname,
   );
 }
@@ -35,7 +35,8 @@ function isPublicApiPath(pathname: string) {
     pathname.startsWith("/api/auth/") ||
     pathname === "/api/client-errors" ||
     pathname === "/api/background/settings" ||
-    pathname === "/api/discord/interactions"
+    pathname === "/api/discord/interactions" ||
+    pathname === "/api/rules/accept/complete"
   );
 }
 

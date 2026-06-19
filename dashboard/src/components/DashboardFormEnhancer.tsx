@@ -255,8 +255,8 @@ function actionText(action: string) {
   if (action.includes("/api/rules/accept/complete"))
     return {
       label: "Видаємо роль...",
-      title: "Завершуємо реєстрацію",
-      message: "Фінально перевіряємо профіль, Discord-роль і серверний нік.",
+      title: "Приймаємо правила",
+      message: "Перевіряємо підписаний Discord-токен або профіль і видаємо вибрану роль.",
     };
   if (action.includes("/api/raids/publish"))
     return {

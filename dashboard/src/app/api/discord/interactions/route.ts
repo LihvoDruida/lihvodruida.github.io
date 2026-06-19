@@ -7,7 +7,7 @@ import {
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
-import { rulesLoginUrl } from "@/lib/rulesOnboarding";
+import { rulesAcceptUrlForDiscordUser } from "@/lib/rulesOnboarding";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, decodeRaidRoleSelectCustomId, decodeRaidSignupSubmitCustomId, handleRaidDiscordAction, raidActionHelpComponents, type RaidCharacterRole } from "@/lib/raids";
 import { handleRaidPollDiscordVote } from "@/lib/raidPolls";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
@@ -292,22 +292,22 @@ export async function POST(request: NextRequest) {
 
   try {
     if (effectiveParsed.action === "accept") {
-      const loginUrl = rulesLoginUrl(effectiveParsed.roleIds);
-      logDashboardEvent("info", "discord.rules.accept_redirect_required", request, {
+      const acceptUrl = rulesAcceptUrlForDiscordUser(effectiveParsed.roleIds, userId);
+      logDashboardEvent("info", "discord.rules.accept_public_link_created", request, {
         guildId,
         userId,
         roles: effectiveParsed.roleIds.length,
       });
 
-      return finishDecision(interaction, "🌸 Щоб прийняти правила, відкрий реєстрацію. Якщо ти ще не увійшов через Discord, сайт одразу проведе через вхід і поверне назад до завершення профілю.", [
+      return finishDecision(interaction, "🌸 Відкрий сторінку прийняття правил. Discord вже підтвердив твій акаунт через цю кнопку, тому роль можна видати без окремого входу на сайт. Авторизація через Discord на сторінці залишається опційною для профілю, персонажів і серверного ніку.", [
         {
           type: 1,
           components: [
             {
               type: 2,
               style: 5,
-              label: "Увійти / завершити",
-              url: loginUrl,
+              label: "Прийняти правила",
+              url: acceptUrl,
             },
           ],
         },
