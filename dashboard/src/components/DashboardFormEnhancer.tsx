@@ -252,6 +252,12 @@ function actionText(action: string) {
       title: "Дія в Discord виконується",
       message: "Передаємо зміни в Discord.",
     };
+  if (action.includes("/api/admin/rules/acceptance-settings"))
+    return {
+      label: "Зберігаємо...",
+      title: "Оновлюємо тест кнопки правил",
+      message: "Зберігаємо режим повторного натискання Discord-кнопки правил.",
+    };
   if (action.includes("/api/rules/accept/complete"))
     return {
       label: "Видаємо роль...",

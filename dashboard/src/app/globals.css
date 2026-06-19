@@ -21179,3 +21179,51 @@ main.container {
     width: 100%;
   }
 }
+
+.discord-rules-test-panel {
+  padding: clamp(14px, 2vw, 20px);
+  border-color: rgba(129, 178, 255, 0.2);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(129, 178, 255, 0.11), transparent 26rem),
+    linear-gradient(180deg, rgba(12, 20, 38, 0.95), rgba(7, 11, 20, 0.92));
+}
+
+.discord-rules-test-form {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(246, 239, 226, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+}
+
+.settings-toggle-row input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #81b2ff;
+}
+
+.settings-toggle-row span {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-toggle-row strong {
+  color: #f6efe2;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+.settings-toggle-row small {
+  color: rgba(246, 239, 226, 0.64);
+  font-size: 12.5px;
+  line-height: 1.45;
+}

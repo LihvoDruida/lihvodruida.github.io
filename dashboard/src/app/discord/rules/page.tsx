@@ -20,6 +20,7 @@ import {
 import { buildPageMetadata } from "@/lib/seo";
 import { getOwnProfilePath } from "@/lib/profiles";
 import { canManageRulesEmbeds, canViewRulesStats } from "@/lib/permissions";
+import { getRulesAcceptanceSettings, type RulesAcceptanceSettings } from "@/lib/rulesAcceptanceSettings";
 
 export const metadata = buildPageMetadata({
   title: "Правила Discord",
@@ -258,6 +259,45 @@ function RulesRoleBadges({ roleIds, roles }: { roleIds: string[]; roles: Discord
   );
 }
 
+
+function RulesAcceptanceTestingPanel({ settings }: { settings: RulesAcceptanceSettings }) {
+  return (
+    <section className="panel discord-rules-test-panel" aria-label="Тестування кнопки прийняття правил">
+      <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
+        <div>
+          <span className="eyebrow">Тест кнопки</span>
+          <h2>Повторне натискання “Прийняти правила”</h2>
+          <p>
+            Коли режим увімкнений, бот не зупиняє тебе повідомленням “правила вже прийнято”,
+            якщо потрібна роль уже є. Це потрібно тільки для перевірки Discord-кнопки зараз і в майбутньому.
+          </p>
+        </div>
+        <span className={`discord-rules-status-pill${settings.allowRepeatedAcceptForTesting ? "" : " discord-rules-status-pill--error"}`}>
+          {settings.allowRepeatedAcceptForTesting ? "Тест увімкнено" : "Захист увімкнено"}
+        </span>
+      </div>
+
+      <form action="/api/admin/rules/acceptance-settings" method="post" data-dashboard-action-form="true" data-dashboard-live-submit="true" className="discord-rules-test-form">
+        <label className="settings-toggle-row">
+          <input
+            type="checkbox"
+            name="allowRepeatedAcceptForTesting"
+            value="on"
+            defaultChecked={settings.allowRepeatedAcceptForTesting}
+          />
+          <span>
+            <strong>Дозволити повторне тестування кнопки правил</strong>
+            <small>Вимикає відповідь “✅ Правила вже прийнято…” і дозволяє прогнати кнопку повторно без зняття ролі.</small>
+          </span>
+        </label>
+        <div className="content-toolbar-actions">
+          <button className="btn primary" type="submit">Зберегти режим</button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
 function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: DiscordRoleOption[] }) {
   const stateLabel = message.editedAt ? "Оновлено" : "Створено";
   const isRaidRules = message.rulesType === "raid";
@@ -352,15 +392,17 @@ export default async function DiscordRulesPage({
   let stats: DiscordRulesStats = { rulesType: "guild", accepted: 0, declined: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
   let raidStats: DiscordRaidRulesStats = { rulesType: "raid", signed: 0, total: 0, updatedAt: null, configured: false, source: "unconfigured" };
   let raidSignups: DiscordRaidRulesSignupsResponse = { rulesType: "raid", configured: false, total: 0, updatedAt: null, source: "unconfigured", signups: [] };
+  let acceptanceSettings: RulesAcceptanceSettings = { allowRepeatedAcceptForTesting: false, updatedAt: null, updatedBy: null };
 
   if (hasDiscordEmbedConfig()) {
     try {
-      const [channelData, roleData, statsData, raidStatsData, raidSignupsData] = await Promise.all([
+      const [channelData, roleData, statsData, raidStatsData, raidSignupsData, acceptanceSettingsData] = await Promise.all([
         fetchDiscordTextChannels(),
         canEditRules ? fetchDiscordRoles() : Promise.resolve([] as DiscordRoleOption[]),
         fetchDiscordRulesStats(),
         fetchDiscordRaidRulesStats(),
         fetchDiscordRaidRulesSignups(),
+        canEditRules ? getRulesAcceptanceSettings() : Promise.resolve(acceptanceSettings),
       ]);
       const suggestedRulesChannelId = channelData.suggestedRulesChannelId || channelData.channels[0]?.id || "";
       const rulesChannels = channelData.channels.filter((channel) => isLikelyRulesChannel(channel, suggestedRulesChannelId)).slice(0, 4);
@@ -371,6 +413,7 @@ export default async function DiscordRulesPage({
       stats = statsData;
       raidStats = raidStatsData;
       raidSignups = raidSignupsData;
+      acceptanceSettings = acceptanceSettingsData;
       rulesChannelName = channelsToRead.length > 1
         ? `#${channelsToRead[0].name} +${channelsToRead.length - 1}`
         : channelsToRead[0]?.name ? `#${channelsToRead[0].name}` : "#rules";
@@ -442,6 +485,8 @@ export default async function DiscordRulesPage({
             channelLabel={rulesChannelName}
           />
           <RaidRulesSignupsPanel signups={raidSignups} />
+
+          {canEditRules ? <RulesAcceptanceTestingPanel settings={acceptanceSettings} /> : null}
 
           {canEditRules ? <div className="discord-rules-library-split" aria-label="Бібліотека правил">
             <RulesMessagesPanel
