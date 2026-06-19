@@ -51,10 +51,6 @@ function normalizeRefreshMinMs(value?: number) {
   return Math.max(DASHBOARD_BACKGROUND_REFRESH_MIN_MS, clean);
 }
 
-export const DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT = "dashboard:background-api-settings-updated";
-
-type BackgroundApiSettingsUpdatedEvent = CustomEvent<{ backgroundRefreshMinSeconds?: number }>;
-
 export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMinMsInput }: Props) {
   const [state, setState] = useState<RefreshState>("idle");
   const [refreshMinMs, setRefreshMinMs] = useState(() => normalizeRefreshMinMs(refreshMinMsInput));
@@ -63,19 +59,6 @@ export default function DashboardBackgroundApiRefresh({ refreshMinMs: refreshMin
   useEffect(() => {
     setRefreshMinMs(normalizeRefreshMinMs(refreshMinMsInput));
   }, [refreshMinMsInput]);
-
-  useEffect(() => {
-    function onBackgroundApiSettingsUpdated(event: Event) {
-      const detail = (event as BackgroundApiSettingsUpdatedEvent).detail || {};
-      const nextSeconds = Number(detail.backgroundRefreshMinSeconds);
-      if (Number.isFinite(nextSeconds)) setRefreshMinMs(normalizeRefreshMinMs(nextSeconds * 1000));
-    }
-
-    window.addEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
-    return () => {
-      window.removeEventListener(DASHBOARD_BACKGROUND_API_SETTINGS_UPDATED_EVENT, onBackgroundApiSettingsUpdated);
-    };
-  }, []);
 
   useEffect(() => {
     function onUnhandledRejection(event: PromiseRejectionEvent) {

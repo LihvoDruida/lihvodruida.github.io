@@ -16,6 +16,7 @@ import {
   buildRaidGroupLayout,
   raidGroupLayoutSlotCounts,
   isRaidClosed,
+  isRaidRegistrationFull,
   raidAutoComposition,
   raidAutoCompositionLabel,
   raidAverageItemLevel,
@@ -619,6 +620,7 @@ export function RaidAttendanceActions({
   const mainRosterFull = Boolean(
     raidRegistrationLimit(raid) && attendanceCounts.roster >= attendanceCapacity,
   );
+  const newSignupWouldStartOnBench = isRaidRegistrationFull(raid);
   const registrationLocked = isRaidRegistrationLocked(raid);
   const registrationLock = raidRegistrationLockSummary(raid);
   const viewerDiscordId =
@@ -670,7 +672,7 @@ export function RaidAttendanceActions({
             ? `Немає персонажа з мінімальним item level ${raid.minItemLevel}. Персонажі нижче порогу приховані.`
             : needsCharacter
               ? "Спочатку додай хоча б одного персонажа Battle.net у профілі."
-              : mainRosterFull && !viewerAlreadyActive
+              : newSignupWouldStartOnBench && !viewerAlreadyActive
                 ? "Основний склад заповнений. Новий запис піде в лаву запасних, якщо місця в основі не звільняться."
                 : undefined;
   const showRequirement = needsLogin || needsDiscordLogin || needsCharacter;
@@ -690,7 +692,7 @@ export function RaidAttendanceActions({
     <RaidAttendanceClient
       raidId={raid.id}
       closed={closed}
-      full={false}
+      full={newSignupWouldStartOnBench}
       viewerAlreadyActive={Boolean(viewerAlreadyActive)}
       activeJoinDisabled={activeJoinDisabled}
       skipDisabled={skipDisabled}

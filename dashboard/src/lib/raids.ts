@@ -801,15 +801,14 @@ function raidBenchSelectionWeight(
   return Math.max(raidBenchPriorityWeight(signup, settings), raidTentativeBenchWeight(signup));
 }
 
-function raidBenchPriorityActiveCount(
+function raidReplaceableActiveCount(
   raid: Pick<RaidItem, "signups" | "benchPriority">,
 ) {
   const settings = raid.benchPriority || null;
-  if (!raidBenchPriorityHasRules(settings)) return 0;
   return raid.signups.filter(
     (item) =>
       isActiveSignupStatus(item.status) &&
-      raidBenchPriorityMatch(item, settings).matched,
+      raidBenchSelectionWeight(item, settings) > 0,
   ).length;
 }
 
@@ -819,7 +818,7 @@ function raidRegistrationAvailableSlots(
   const limit = raidRegistrationLimit(raid);
   if (limit === null) return null;
   const activeCount = raidActiveRosterSize(raid);
-  const replaceableCount = raidBenchPriorityActiveCount(raid);
+  const replaceableCount = raidReplaceableActiveCount(raid);
   return Math.max(0, limit - activeCount + replaceableCount);
 }
 

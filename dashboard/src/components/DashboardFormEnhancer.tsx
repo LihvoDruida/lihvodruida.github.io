@@ -203,13 +203,6 @@ function actionText(action: string) {
       title: "Зберігаємо геообмеження",
       message: "Оновлюємо правила доступу для заявок і авторизації.",
     };
-  if (action.includes("/api/admin/background-api/settings"))
-    return {
-      label: "Зберігаємо...",
-      title: "Зберігаємо API-налаштування",
-      message:
-        "Оновлюємо інтервали, batch-ліміти, паралельність і кеші API.",
-    };
   if (action.includes("/api/admin/discord/nickname"))
     return {
       label: "Змінюємо...",
@@ -419,8 +412,6 @@ function resetWorking(form: HTMLFormElement, buttons: HTMLButtonElement[]) {
 }
 
 function mutationScopeFromAction(action: string): DashboardDataScope {
-  if (action.includes("/api/admin/background-api/settings"))
-    return "integrations";
   if (action.includes("/applications/")) return "applications";
   if (action.includes("/content/")) return "content";
   if (action.includes("/discord/")) return "discord";
@@ -433,7 +424,6 @@ function mutationScopeFromAction(action: string): DashboardDataScope {
 
 
 function mutationKindFromAction(action: string): DashboardDataMutationKind {
-  if (action.includes("/api/admin/background-api/settings")) return "integration";
   if (action.includes("/applications/")) return "application";
   if (action.includes("/content/")) return "content";
   if (action.includes("/discord/")) return "discord";
@@ -592,25 +582,6 @@ export default function DashboardFormEnhancer() {
         }
 
         if (response.ok) {
-          if (
-            action.includes("/api/admin/background-api/settings") &&
-            data &&
-            typeof data === "object" &&
-            "settings" in data
-          ) {
-            const settings = (
-              data as { settings?: { backgroundRefreshMinSeconds?: unknown } }
-            ).settings;
-            window.dispatchEvent(
-              new CustomEvent("dashboard:background-api-settings-updated", {
-                detail: {
-                  backgroundRefreshMinSeconds: Number(
-                    settings?.backgroundRefreshMinSeconds,
-                  ),
-                },
-              }),
-            );
-          }
           const mutationIds = mutationEntityIdsFromResponse(data, action);
           notifyDashboardDataChanged({
             scope: mutationScopeFromAction(action),
