@@ -1,5 +1,5 @@
 import { mapConcurrent } from "@/lib/concurrency";
-import { parseRulesRoleIdsFromUrl, rulesLoginUrl } from "@/lib/rulesOnboarding";
+import { parseRulesRoleIdsFromUrl } from "@/lib/rulesOnboarding";
 import { logDashboardEvent } from "@/lib/security";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
@@ -1375,9 +1375,9 @@ export function buildRulesComponents(roleIds: string[], rulesType: DiscordRulesT
       components: [
         {
           type: 2,
-          style: 5,
+          style: 3,
           label: "Прийняти правила",
-          url: rulesLoginUrl(roleIds),
+          custom_id: buildRulesAcceptCustomId(roleIds),
         },
         {
           type: 2,

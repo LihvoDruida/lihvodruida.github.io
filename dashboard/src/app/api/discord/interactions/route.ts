@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  addGuildMemberRoles,
   buildRulesDeclineCustomId,
   decodeRulesCustomId,
+  fetchDiscordGuildMemberSnapshot,
   getDiscordGuildId,
   kickGuildMember,
   verifyDiscordInteractionSignature,
@@ -110,6 +112,31 @@ function getInteractionUserName(interaction: any) {
     "unknown"
   ).slice(0, 80);
 }
+
+function interactionMemberHasAllRoles(interaction: any, roleIds: string[]) {
+  const wanted = Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter((roleId) => /^\d{16,25}$/.test(roleId))));
+  const roles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map((roleId: unknown) => String(roleId || ""))
+    : [];
+  return wanted.length > 0 && wanted.every((roleId) => roles.includes(roleId));
+}
+
+function rulesPublicLinkComponents(acceptUrl: string) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: "Відкрити сторінку правил",
+          url: acceptUrl,
+        },
+      ],
+    },
+  ];
+}
+
 
 function getInteractionMessageRef(interaction: any) {
   // Ephemeral interaction messages are private follow-ups/select menus, not the public raid embed.
@@ -293,25 +320,52 @@ export async function POST(request: NextRequest) {
   try {
     if (effectiveParsed.action === "accept") {
       const acceptUrl = rulesAcceptUrlForDiscordUser(effectiveParsed.roleIds, userId);
-      logDashboardEvent("info", "discord.rules.accept_public_link_created", request, {
+      const member = await fetchDiscordGuildMemberSnapshot(userId, guildId).catch(() => null);
+      if (!member) {
+        logDashboardEvent("warn", "discord.rules.member_missing", request, {
+          guildId,
+          userId,
+          roles: effectiveParsed.roleIds.length,
+        });
+        return finishDecision(
+          interaction,
+          "❌ Не вдалося видати роль: Discord не підтвердив, що ти є на сервері гільдії. Натисни кнопку ще раз або звернись до офіцера.",
+          rulesPublicLinkComponents(acceptUrl),
+        );
+      }
+
+      if (interactionMemberHasAllRoles(interaction, effectiveParsed.roleIds)) {
+        logDashboardEvent("info", "discord.rules.already_accepted", request, {
+          guildId,
+          userId,
+          roles: effectiveParsed.roleIds.length,
+        });
+        return finishDecision(
+          interaction,
+          "✅ Правила вже прийнято. Потрібна роль уже є, авторизація на сайті не потрібна.",
+          rulesPublicLinkComponents(acceptUrl),
+        );
+      }
+
+      await addGuildMemberRoles({
+        guildId,
+        userId,
+        roleIds: effectiveParsed.roleIds,
+        reason: `Rules accepted from Discord button by ${userName}`,
+      });
+
+      logDashboardEvent("info", "discord.rules.accepted_direct", request, {
         guildId,
         userId,
         roles: effectiveParsed.roleIds.length,
+        memberName: member.displayName || null,
       });
 
-      return finishDecision(interaction, "🌸 Відкрий сторінку прийняття правил. Discord вже підтвердив твій акаунт через цю кнопку, тому роль можна видати без окремого входу на сайт. Авторизація через Discord на сторінці залишається опційною для профілю, персонажів і серверного ніку.", [
-        {
-          type: 1,
-          components: [
-            {
-              type: 2,
-              style: 5,
-              label: "Прийняти правила",
-              url: acceptUrl,
-            },
-          ],
-        },
-      ]);
+      return finishDecision(
+        interaction,
+        "✅ Правила прийнято. Роль видано напряму з Discord-кнопки без входу на сайт. Вхід через Discord на сторінці лишається тільки для профілю, персонажів і серверного ніку.",
+        rulesPublicLinkComponents(acceptUrl),
+      );
     }
 
     await kickGuildMember({
