@@ -3373,6 +3373,71 @@ function buildRulesDirectDecisionComponents(roleIds) {
   ];
 }
 
+const RULES_ROLE_TOKEN_VERSION = 1;
+
+function rulesRoleTokenSecret(env) {
+  return String(
+    env?.DASHBOARD_RULES_TOKEN_SECRET ||
+    env?.DASHBOARD_SESSION_SECRET ||
+    env?.SESSION_SECRET ||
+    env?.NEXTAUTH_SECRET ||
+    env?.AUTH_SECRET ||
+    "mistblossom-rules-onboarding-dev-secret"
+  );
+}
+
+function cleanRulesRoleIds(roleIds) {
+  return Array.from(new Set((roleIds || []).map(snowflake).filter(Boolean))).slice(0, 10);
+}
+
+async function signRulesRolePayload(env, payload) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(rulesRoleTokenSecret(env)),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return base64UrlEncodeBytes(new Uint8Array(signature));
+}
+
+async function createRulesRoleToken(env, roleIdsInput, options = {}) {
+  const roleIds = cleanRulesRoleIds(roleIdsInput);
+  if (!roleIds.length) throw new Error("Для правил не налаштовано роль видачі.");
+
+  const discordUserId = snowflake(options.discordUserId);
+  const payload = base64UrlEncodeString(JSON.stringify({
+    v: RULES_ROLE_TOKEN_VERSION,
+    r: roleIds,
+    ...(discordUserId ? { u: discordUserId } : {}),
+  }));
+  return `${payload}.${await signRulesRolePayload(env, payload)}`;
+}
+
+async function rulesAcceptUrlForDiscordUser(env, roleIds, discordUserId) {
+  const token = await createRulesRoleToken(env, roleIds, { discordUserId });
+  const url = new URL("/rules/accept", dashboardAuthUrl(env));
+  url.searchParams.set("rt", token);
+  return url.toString();
+}
+
+function rulesPublicLinkComponents(acceptUrl) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: "Відкрити сайт і прийняти правила",
+          url: acceptUrl,
+        },
+      ],
+    },
+  ];
+}
+
 function rulesConfirmationResponse(rulesAction) {
   const isDecline = rulesAction.action === "confirm_decline";
   const isRaidSignup = rulesAction.action === "confirm_raid_signup";
@@ -3415,7 +3480,7 @@ function rulesConfirmationResponse(rulesAction) {
         ? "🐉 Підтверди підпис на правила рейду. Бот перевірить твою авторизацію в панелі та main-персонажа."
         : isDecline
           ? "⚠️ Підтверди відмову від правил. Після підтвердження бот видалить тебе із сервера."
-          : "🌸 Натисни “Прийняти правила” ще раз. Звичайні правила гільдії видають роль одразу, без додаткового підтвердження.",
+          : "🌸 Натисни “Прийняти правила” ще раз. Бот сформує персональне посилання на сайт із твоїм Discord ID без OAuth.",
       components,
     },
   });
@@ -3538,22 +3603,28 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
 
   try {
     if (effectiveRulesAction.action === "accept") {
-      if (memberHasAllRoles(interaction, rulesAction.roleIds)) {
-        await recordRulesDecision(env, guildId, userId, "accepted").catch(() => null);
-        return finishRulesDecision(interaction, "✅ Ти вже прийняв правила. Роль уже є, повторно нічого робити не потрібно.");
+      if (!/^\d{16,25}$/.test(userId)) {
+        logWorkerEvent("warn", "rules.accept.user_missing", { guildId, roles: rulesAction.roleIds?.length || 0 });
+        return finishRulesDecision(interaction, "❌ Discord не передав підтверджений userId. Натисни актуальну кнопку правил ще раз або звернись до офіцера.");
       }
 
-      await addGuildMemberRoles(
-        env,
+      const acceptUrl = await rulesAcceptUrlForDiscordUser(env, rulesAction.roleIds, userId);
+      const alreadyAccepted = memberHasAllRoles(interaction, rulesAction.roleIds);
+
+      logWorkerEvent("info", "rules.accept.site_link_created", {
         guildId,
         userId,
-        rulesAction.roleIds,
-        `Rules accepted by ${userLabel}`
-      );
-      await recordRulesDecision(env, guildId, userId, "accepted").catch((error) => logWorkerEvent("warn", "rules.stats.record_failed", { action: "accepted", guildId, userId, message: error?.message }));
-      logWorkerEvent("info", "rules.accepted", { guildId, userId, roles: rulesAction.roleIds.length });
+        roles: rulesAction.roleIds.length,
+        alreadyAccepted,
+      });
 
-      return finishRulesDecision(interaction, "✅ Правила прийнято. Роль видано. Для тебе ця дія вже завершена.");
+      return finishRulesDecision(
+        interaction,
+        alreadyAccepted
+          ? "✅ Discord підтвердив твою особу. Роль уже є, але сайт можна відкрити для тесту кнопки й перевірки профілю без Discord OAuth."
+          : "✅ Discord підтвердив твою особу. Відкрий сайт за кнопкою нижче — посилання персональне й передає твій Discord ID без OAuth. Роль буде видана після підтвердження на сайті.",
+        rulesPublicLinkComponents(acceptUrl)
+      );
     }
 
     await kickGuildMember(env, guildId, userId, `Rules declined by ${userLabel}`);

@@ -35,6 +35,7 @@ function secret() {
   return String(
     process.env.DASHBOARD_RULES_TOKEN_SECRET ||
     process.env.DASHBOARD_SESSION_SECRET ||
+    process.env.SESSION_SECRET ||
     process.env.NEXTAUTH_SECRET ||
     process.env.AUTH_SECRET ||
     "mistblossom-rules-onboarding-dev-secret"
