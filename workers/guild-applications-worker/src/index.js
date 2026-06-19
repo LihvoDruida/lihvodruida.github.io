@@ -3375,19 +3375,72 @@ function buildRulesDirectDecisionComponents(roleIds) {
 
 const RULES_ROLE_TOKEN_VERSION = 1;
 
+const DEFAULT_RULES_TOKEN_SECRET = "mistblossom-rules-onboarding-dev-secret";
+
+function cleanTokenSecret(value) {
+  const text = String(value || "").trim();
+  return text.length >= 16 ? text : "";
+}
+
 function rulesRoleTokenSecret(env) {
-  return String(
-    env?.DASHBOARD_RULES_TOKEN_SECRET ||
-    env?.DASHBOARD_SESSION_SECRET ||
-    env?.SESSION_SECRET ||
-    env?.NEXTAUTH_SECRET ||
-    env?.AUTH_SECRET ||
-    "mistblossom-rules-onboarding-dev-secret"
+  return (
+    cleanTokenSecret(env?.DASHBOARD_RULES_TOKEN_SECRET) ||
+    cleanTokenSecret(env?.RULES_TOKEN_SECRET) ||
+    cleanTokenSecret(env?.DASHBOARD_WORKER_SHARED_SECRET) ||
+    cleanTokenSecret(env?.WORKER_SHARED_SECRET) ||
+    cleanTokenSecret(env?.DISCORD_INTERACTIONS_SHARED_SECRET) ||
+    cleanTokenSecret(env?.DISCORD_INTERACTION_SECRET) ||
+    cleanTokenSecret(env?.DISCORD_BOT_TOKEN) ||
+    cleanTokenSecret(env?.DASHBOARD_SESSION_SECRET) ||
+    cleanTokenSecret(env?.SESSION_SECRET) ||
+    cleanTokenSecret(env?.NEXTAUTH_SECRET) ||
+    cleanTokenSecret(env?.AUTH_SECRET) ||
+    DEFAULT_RULES_TOKEN_SECRET
   );
 }
 
 function cleanRulesRoleIds(roleIds) {
   return Array.from(new Set((roleIds || []).map(snowflake).filter(Boolean))).slice(0, 10);
+}
+
+function cleanRulesTokenText(value, maxLength = 80) {
+  return String(value || "")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function cleanRulesTokenUrl(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  try {
+    const url = new URL(text);
+    return url.protocol === "https:" ? url.toString().slice(0, 300) : "";
+  } catch {
+    return "";
+  }
+}
+
+function discordAvatarUrl(user) {
+  const userId = snowflake(user?.id);
+  const avatar = cleanRulesTokenText(user?.avatar, 120);
+  return userId && avatar ? `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png` : "";
+}
+
+function rulesTokenUserOptions(interaction, guildId) {
+  const user = interaction?.member?.user || interaction?.user || {};
+  const memberRoles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map(snowflake).filter(Boolean)
+    : [];
+  return {
+    discordGuildId: snowflake(guildId),
+    discordUsername: cleanRulesTokenText(user?.username, 80),
+    discordGlobalName: cleanRulesTokenText(user?.global_name, 80),
+    discordDisplayName: cleanRulesTokenText(interaction?.member?.nick || user?.global_name || user?.username, 80),
+    discordAvatarUrl: cleanRulesTokenUrl(discordAvatarUrl(user)),
+    memberRoleIds: memberRoles,
+  };
 }
 
 async function signRulesRolePayload(env, payload) {
@@ -3407,16 +3460,30 @@ async function createRulesRoleToken(env, roleIdsInput, options = {}) {
   if (!roleIds.length) throw new Error("Для правил не налаштовано роль видачі.");
 
   const discordUserId = snowflake(options.discordUserId);
+  const discordGuildId = snowflake(options.discordGuildId);
+  const memberRoleIds = cleanRulesRoleIds(options.memberRoleIds || []);
+  const discordUsername = cleanRulesTokenText(options.discordUsername, 80);
+  const discordGlobalName = cleanRulesTokenText(options.discordGlobalName, 80);
+  const discordDisplayName = cleanRulesTokenText(options.discordDisplayName, 80);
+  const discordAvatar = cleanRulesTokenUrl(options.discordAvatarUrl);
+
   const payload = base64UrlEncodeString(JSON.stringify({
     v: RULES_ROLE_TOKEN_VERSION,
+    iat: Math.floor(Date.now() / 1000),
     r: roleIds,
     ...(discordUserId ? { u: discordUserId } : {}),
+    ...(discordGuildId ? { g: discordGuildId } : {}),
+    ...(discordUsername ? { un: discordUsername } : {}),
+    ...(discordGlobalName ? { gn: discordGlobalName } : {}),
+    ...(discordDisplayName ? { dn: discordDisplayName } : {}),
+    ...(discordAvatar ? { av: discordAvatar } : {}),
+    ...(memberRoleIds.length ? { mr: memberRoleIds } : {}),
   }));
   return `${payload}.${await signRulesRolePayload(env, payload)}`;
 }
 
-async function rulesAcceptUrlForDiscordUser(env, roleIds, discordUserId) {
-  const token = await createRulesRoleToken(env, roleIds, { discordUserId });
+async function rulesAcceptUrlForDiscordUser(env, roleIds, discordUserId, options = {}) {
+  const token = await createRulesRoleToken(env, roleIds, { ...options, discordUserId });
   const url = new URL("/rules/accept", dashboardAuthUrl(env));
   url.searchParams.set("rt", token);
   return url.toString();
@@ -3608,7 +3675,12 @@ async function handleRulesInteraction(interaction, env, rulesAction) {
         return finishRulesDecision(interaction, "❌ Discord не передав підтверджений userId. Натисни актуальну кнопку правил ще раз або звернись до офіцера.");
       }
 
-      const acceptUrl = await rulesAcceptUrlForDiscordUser(env, rulesAction.roleIds, userId);
+      const acceptUrl = await rulesAcceptUrlForDiscordUser(
+        env,
+        rulesAction.roleIds,
+        userId,
+        rulesTokenUserOptions(interaction, guildId)
+      );
       const alreadyAccepted = memberHasAllRoles(interaction, rulesAction.roleIds);
 
       logWorkerEvent("info", "rules.accept.site_link_created", {

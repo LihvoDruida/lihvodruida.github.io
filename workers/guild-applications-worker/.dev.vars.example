@@ -33,7 +33,7 @@ SITE_BASE_URL="https://lihvodruida.pp.ua"
 PUBLIC_SITE_URL="https://lihvodruida.pp.ua"
 DASHBOARD_URL="https://admin.lihvodruida.pp.ua"
 ADMIN_DASHBOARD_URL="https://admin.lihvodruida.pp.ua"
-# Must match dashboard DASHBOARD_RULES_TOKEN_SECRET. If empty, both sides fall back to their session/auth secret.
+# Must match dashboard DASHBOARD_RULES_TOKEN_SECRET. If empty, code tries DISCORD_BOT_TOKEN as a shared fallback, then session/auth secrets.
 DASHBOARD_RULES_TOKEN_SECRET=""
 
 # -----------------------------------------------------------------------------

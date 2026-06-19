@@ -1045,11 +1045,18 @@ export default async function RulesAcceptPage({
           () => null,
         )
       : null;
+  const tokenDiscordUser = parsedToken.discordUser;
   const publicDiscordLabel = publicDiscordMember?.displayName
     ? publicDiscordMember.displayName
-    : publicDiscordUserId
-      ? `Discord ID ${publicDiscordUserId.slice(-6)}`
-      : "Не визначено";
+    : tokenDiscordUser?.displayName ||
+        tokenDiscordUser?.globalName ||
+        tokenDiscordUser?.username ||
+        (publicDiscordUserId ? `Discord ID ${publicDiscordUserId.slice(-6)}` : "Не визначено");
+  const publicDiscordSource = publicDiscordMember
+    ? "Discord bot API"
+    : tokenDiscordUser
+      ? "підписаний Discord token"
+      : "немає підтверджених даних";
   const canAcceptPublicly = Boolean(
     !isDiscordAuthorized && roleIds.length && publicDiscordUserId,
   );
@@ -1100,7 +1107,7 @@ export default async function RulesAcceptPage({
                   ? profile?.displayName || session?.name || "Авторизовано"
                   : publicDiscordLabel,
                 note: publicDiscordUserId
-                  ? "Користувач підтверджений Discord-кнопкою"
+                  ? `Користувач підтверджений: ${publicDiscordSource}`
                   : "Для видачі ролі без входу потрібен клік у Discord",
               },
             ]}
@@ -1177,9 +1184,9 @@ export default async function RulesAcceptPage({
                     : "Не задано"}
                 </span>
                 <small>
-                  Discord-користувач: {publicDiscordLabel}. Дані отримуються
-                  через Discord interaction і bot API без прямої OAuth-авторизації,
-                  коли це можливо.
+                  Discord-користувач: {publicDiscordLabel}. Джерело: {publicDiscordSource}.
+                  Дані передаються з Discord interaction у підписаному токені та,
+                  коли доступно, доповнюються через bot API без прямої OAuth-авторизації.
                 </small>
               </div>
 

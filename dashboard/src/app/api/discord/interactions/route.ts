@@ -102,6 +102,7 @@ function getInteractionUserId(interaction: any) {
 
 function getInteractionUserName(interaction: any) {
   return String(
+    interaction?.member?.nick ||
     interaction?.member?.user?.global_name ||
     interaction?.member?.user?.username ||
     interaction?.user?.global_name ||
@@ -109,6 +110,24 @@ function getInteractionUserName(interaction: any) {
     getInteractionUserId(interaction) ||
     "unknown"
   ).slice(0, 80);
+}
+
+function getInteractionRulesTokenUser(interaction: any, guildId: string) {
+  const user = interaction?.member?.user || interaction?.user || {};
+  const avatar = typeof user?.avatar === "string" && user.avatar && user.id
+    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+    : "";
+  const memberRoles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map((roleId: unknown) => String(roleId || "")).filter((roleId: string) => /^\d{16,25}$/.test(roleId))
+    : [];
+  return {
+    discordGuildId: guildId,
+    discordUsername: typeof user?.username === "string" ? user.username : "",
+    discordGlobalName: typeof user?.global_name === "string" ? user.global_name : "",
+    discordDisplayName: getInteractionUserName(interaction),
+    discordAvatarUrl: avatar,
+    memberRoleIds: memberRoles,
+  };
 }
 
 function interactionMemberHasAllRoles(interaction: any, roleIds: string[]) {
@@ -322,7 +341,11 @@ export async function POST(request: NextRequest) {
         return finishDecision(interaction, "❌ Discord не передав підтверджений userId для цієї кнопки. Натисни актуальну кнопку правил ще раз або звернись до офіцера.");
       }
 
-      const acceptUrl = rulesAcceptUrlForDiscordUser(effectiveParsed.roleIds, userId);
+      const acceptUrl = rulesAcceptUrlForDiscordUser(
+        effectiveParsed.roleIds,
+        userId,
+        getInteractionRulesTokenUser(interaction, guildId),
+      );
       const alreadyAccepted = interactionMemberHasAllRoles(interaction, effectiveParsed.roleIds);
 
       logDashboardEvent("info", "discord.rules.accept_site_link_created", request, {
