@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  addGuildMemberRoles,
   buildRulesDeclineCustomId,
   decodeRulesCustomId,
-  fetchDiscordGuildMemberSnapshot,
   getDiscordGuildId,
   kickGuildMember,
   verifyDiscordInteractionSignature,
 } from "@/lib/discordAdmin";
 import { getMainCharacter, getProfileByDiscordUserId } from "@/lib/profiles";
 import { rulesAcceptUrlForDiscordUser } from "@/lib/rulesOnboarding";
-import { getRulesAcceptanceSettings } from "@/lib/rulesAcceptanceSettings";
 import { dashboardProfileUrl, dashboardRaidRulesUrl, decodeRaidAttendanceCustomId, decodeRaidCharacterSelectCustomId, decodeRaidRoleSelectCustomId, decodeRaidSignupSubmitCustomId, handleRaidDiscordAction, raidActionHelpComponents, type RaidCharacterRole } from "@/lib/raids";
 import { handleRaidPollDiscordVote } from "@/lib/raidPolls";
 import { logDashboardEvent, noStoreHeaders, safeErrorMessage } from "@/lib/security";
@@ -114,16 +111,12 @@ function getInteractionUserName(interaction: any) {
   ).slice(0, 80);
 }
 
-function hasAllRoles(currentRoleIds: unknown, roleIds: string[]) {
-  const wanted = Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter((roleId) => /^\d{16,25}$/.test(roleId))));
-  const current = Array.isArray(currentRoleIds)
-    ? currentRoleIds.map((roleId: unknown) => String(roleId || ""))
-    : [];
-  return wanted.length > 0 && wanted.every((roleId) => current.includes(roleId));
-}
-
 function interactionMemberHasAllRoles(interaction: any, roleIds: string[]) {
-  return hasAllRoles(interaction?.member?.roles, roleIds);
+  const wanted = Array.from(new Set(roleIds.map((roleId) => String(roleId || "").trim()).filter((roleId) => /^\d{16,25}$/.test(roleId))));
+  const roles = Array.isArray(interaction?.member?.roles)
+    ? interaction.member.roles.map((roleId: unknown) => String(roleId || ""))
+    : [];
+  return wanted.length > 0 && wanted.every((roleId) => roles.includes(roleId));
 }
 
 function rulesPublicLinkComponents(acceptUrl: string) {
@@ -134,7 +127,7 @@ function rulesPublicLinkComponents(acceptUrl: string) {
         {
           type: 2,
           style: 5,
-          label: "Відкрити сторінку правил",
+          label: "Відкрити сайт і прийняти правила",
           url: acceptUrl,
         },
       ],
@@ -324,59 +317,26 @@ export async function POST(request: NextRequest) {
 
   try {
     if (effectiveParsed.action === "accept") {
+      if (!/^\d{16,25}$/.test(userId)) {
+        logDashboardEvent("warn", "discord.rules.user_missing", request, { guildId, roles: effectiveParsed.roleIds.length });
+        return finishDecision(interaction, "❌ Discord не передав підтверджений userId для цієї кнопки. Натисни актуальну кнопку правил ще раз або звернись до офіцера.");
+      }
+
       const acceptUrl = rulesAcceptUrlForDiscordUser(effectiveParsed.roleIds, userId);
-      const member = await fetchDiscordGuildMemberSnapshot(userId, guildId).catch(() => null);
-      if (!member) {
-        logDashboardEvent("warn", "discord.rules.member_missing", request, {
-          guildId,
-          userId,
-          roles: effectiveParsed.roleIds.length,
-        });
-        return finishDecision(
-          interaction,
-          "❌ Не вдалося видати роль: Discord не підтвердив, що ти є на сервері гільдії. Натисни кнопку ще раз або звернись до офіцера.",
-          rulesPublicLinkComponents(acceptUrl),
-        );
-      }
+      const alreadyAccepted = interactionMemberHasAllRoles(interaction, effectiveParsed.roleIds);
 
-      const settings = await getRulesAcceptanceSettings().catch(() => ({ allowRepeatedAcceptForTesting: false }));
-      const alreadyHasRulesRole = interactionMemberHasAllRoles(interaction, effectiveParsed.roleIds) || hasAllRoles(member.roleIds, effectiveParsed.roleIds);
-
-      if (alreadyHasRulesRole && !settings.allowRepeatedAcceptForTesting) {
-        logDashboardEvent("info", "discord.rules.already_accepted", request, {
-          guildId,
-          userId,
-          roles: effectiveParsed.roleIds.length,
-        });
-        return finishDecision(
-          interaction,
-          "✅ Правила вже прийнято. Потрібна роль уже є, авторизація на сайті не потрібна.",
-          rulesPublicLinkComponents(acceptUrl),
-        );
-      }
-
-      await addGuildMemberRoles({
-        guildId,
-        userId,
-        roleIds: effectiveParsed.roleIds,
-        reason: alreadyHasRulesRole
-          ? `Rules accept button test by ${userName}`
-          : `Rules accepted from Discord button by ${userName}`,
-      });
-
-      logDashboardEvent(alreadyHasRulesRole ? "debug" : "info", alreadyHasRulesRole ? "discord.rules.accept_test_replayed" : "discord.rules.accepted_direct", request, {
+      logDashboardEvent("info", "discord.rules.accept_site_link_created", request, {
         guildId,
         userId,
         roles: effectiveParsed.roleIds.length,
-        memberName: member.displayName || null,
-        allowRepeatedAcceptForTesting: Boolean(settings.allowRepeatedAcceptForTesting),
+        alreadyAccepted,
       });
 
       return finishDecision(
         interaction,
-        alreadyHasRulesRole
-          ? "🧪 Тест кнопки правил виконано. Роль уже була на користувачі, але тестовий режим у панелі дозволив повторну перевірку кнопки."
-          : "✅ Правила прийнято. Роль видано напряму з Discord-кнопки без входу на сайт. Вхід через Discord на сторінці лишається тільки для профілю, персонажів і серверного ніку.",
+        alreadyAccepted
+          ? "✅ Discord підтвердив твою особу. Потрібна роль уже є, але сторінку правил можна відкрити для перевірки кнопки й профілю без повторної авторизації."
+          : "✅ Discord підтвердив твою особу. Натисни кнопку нижче — сайт відкриється з персональним підписаним посиланням і зможе видати роль без Discord OAuth. У публічному повідомленні ці дані не показуються.",
         rulesPublicLinkComponents(acceptUrl),
       );
     }
