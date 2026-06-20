@@ -1769,3 +1769,243 @@ body::before {
     justify-content: flex-start;
   }
 }
+
+/* Home KD calendar — Raider.IO period based layout */
+.home-kd-panel {
+  padding: 0 !important;
+  border-color: var(--color-border) !important;
+  background:
+    radial-gradient(circle at 8% 0, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-raised-solid) 92%, transparent), color-mix(in srgb, var(--theme-bg-deep-solid) 96%, transparent)) !important;
+}
+
+.home-kd-panel__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.home-kd-panel__head h2 {
+  margin: 7px 0 0;
+  color: var(--color-text);
+  font-size: clamp(1.22rem, 2.35vw, 1.72rem);
+  line-height: 1.08;
+}
+
+.home-kd-panel__head p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: var(--ui-font-base);
+  line-height: 1.45;
+}
+
+.home-kd-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 14px;
+}
+
+.home-kd-card {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 42%),
+    color-mix(in srgb, var(--theme-bg-deep-solid) 76%, transparent);
+  padding: 14px;
+}
+
+.home-kd-card--current {
+  border-color: color-mix(in srgb, var(--color-accent-strong) 50%, var(--color-border));
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 48%),
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-raised-solid) 88%, transparent), color-mix(in srgb, var(--theme-bg-deep-solid) 90%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent-strong) 16%, transparent);
+}
+
+.home-kd-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.home-kd-card__eyebrow,
+.home-kd-card__count {
+  color: var(--color-text-muted);
+  font-size: var(--ui-font-xs);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-kd-card--current .home-kd-card__eyebrow {
+  color: var(--color-accent-strong);
+}
+
+.home-kd-card__head h3 {
+  margin: 5px 0 0;
+  color: var(--color-text);
+  font-size: 1.24rem;
+  line-height: 1.1;
+}
+
+.home-kd-card__count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: color-mix(in srgb, var(--color-surface-raised) 70%, transparent);
+  white-space: nowrap;
+}
+
+.home-kd-card__range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.home-kd-card__range > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+  padding: 9px 10px;
+}
+
+.home-kd-card__range b {
+  color: var(--color-text-muted);
+  font-size: var(--ui-font-xs);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.home-kd-card__range time {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-soft);
+  font-size: var(--ui-font-sm);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-kd-progress {
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+}
+
+.home-kd-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-strong));
+}
+
+.home-kd-card__events {
+  gap: 8px;
+}
+
+.home-kd-card__events .home-empty-text {
+  margin: 0;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.home-calendar-event__time time {
+  color: var(--color-info);
+  font-size: var(--ui-font-xs);
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-calendar-event__title {
+  line-height: 1.18;
+}
+
+.home-calendar-event__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.home-calendar-event__details b,
+.home-calendar-event__details em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  border-radius: 999px;
+  padding: 3px 6px;
+  font-size: var(--ui-font-xs);
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.home-calendar-event__details b {
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+}
+
+.home-calendar-event__details em {
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-surface) 68%, transparent);
+}
+
+.home-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 1320px) {
+  .home-kd-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .home-kd-panel__head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .home-kd-panel__head p {
+    max-width: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .home-kd-grid,
+  .home-kd-panel__head {
+    padding: 12px;
+  }
+
+  .home-kd-card {
+    border-radius: 15px;
+    padding: 12px;
+  }
+
+  .home-kd-card__range {
+    grid-template-columns: 1fr;
+  }
+}

@@ -5,6 +5,7 @@ import HomeDashboardLiveSync from "@/components/HomeDashboardLiveSync";
 import { HomeLocalTime } from "@/components/HomeLocalTime";
 import HomeUpcomingRaidList, { type HomeUpcomingRaid } from "@/components/HomeUpcomingRaidList";
 import { getSessionUser, isAuthenticated } from "@/lib/auth";
+import { fetchRaiderIoRegionPeriods, type RaiderIoPeriodWindow, type RaiderIoRegionPeriods } from "@/lib/raiderIo";
 import { absoluteDashboardUrl, buildPageMetadata } from "@/lib/seo";
 import {
   isRaidClosed,
@@ -26,49 +27,34 @@ import { RAID_POLL_DAYS, type RaidPollDay, type RaidPollItem } from "@/lib/raidP
 
 export const metadata = buildPageMetadata({
   title: "Головна",
-  description: "Гільдійний календар рейдів Mistblossom Vanguard, швидкий імпорт у Google Calendar та live-результати рейд-голосувань.",
+  description: "КД-календар Mistblossom Vanguard з Raider.IO periods, локальним часом користувача, рейдами та live-результатами голосувань.",
   path: "/",
-  keywords: ["календар рейдів", "WoW raid calendar", "рейд голосування", "Google Calendar"],
+  keywords: ["КД календар", "Raider.IO periods", "WoW raid calendar", "рейд голосування", "Google Calendar"],
 });
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const RAID_TIME_ZONE = process.env.RAID_TIME_ZONE || process.env.NEXT_PUBLIC_RAID_TIME_ZONE || "Europe/Kyiv";
-const MONTH_LABEL = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: RAID_TIME_ZONE });
 const DATE_TIME_LABEL = new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short", timeZone: RAID_TIME_ZONE });
+const DATE_LABEL = new Intl.DateTimeFormat("uk-UA", { weekday: "short", day: "2-digit", month: "short", timeZone: RAID_TIME_ZONE });
 
-const WEEKDAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
+const KD_REGION = "eu";
+const RAID_DURATION_MS = 4 * 60 * 60 * 1000;
 
-type CalendarDay = {
-  date: Date;
+type KdPeriodKind = "previous" | "current" | "next";
+
+type KdCalendarPeriod = {
   key: string;
-  dayNumber: number;
-  inMonth: boolean;
-  isToday: boolean;
+  kind: KdPeriodKind;
+  title: string;
+  period: number;
+  startIso: string;
+  endIso: string;
+  fallbackStart: string;
+  fallbackEnd: string;
   raids: RaidItem[];
 };
-
-function parseMonth(value?: string | null) {
-  const now = new Date();
-  const fallback = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  if (!value || !/^\d{4}-\d{2}$/.test(value)) return fallback;
-  const [year, month] = value.split("-").map(Number);
-  if (!Number.isFinite(year) || !Number.isFinite(month) || month < 1 || month > 12) return fallback;
-  return new Date(Date.UTC(year, month - 1, 1));
-}
-
-function monthParam(date: Date) {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
-function addMonths(date: Date, amount: number) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + amount, 1));
-}
-
-function dateKey(date: Date) {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
-}
 
 function timeZoneOffsetMs(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -119,37 +105,6 @@ function dashboardNowMs() {
   return Date.now();
 }
 
-function buildCalendarDays(month: Date, raids: RaidItem[]): CalendarDay[] {
-  const raidMap = new Map<string, RaidItem[]>();
-  for (const raid of raids) {
-    if (!raid.date) continue;
-    const list = raidMap.get(raid.date) || [];
-    list.push(raid);
-    raidMap.set(raid.date, list);
-  }
-
-  const firstDay = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
-  const firstWeekday = (firstDay.getUTCDay() + 6) % 7;
-  const gridStart = new Date(firstDay);
-  gridStart.setUTCDate(firstDay.getUTCDate() - firstWeekday);
-  const todayKey = dateKey(new Date());
-
-  return Array.from({ length: 42 }, (_, index) => {
-    const date = new Date(gridStart);
-    date.setUTCDate(gridStart.getUTCDate() + index);
-    const key = dateKey(date);
-    const dayRaids = (raidMap.get(key) || []).slice().sort((a, b) => String(a.time).localeCompare(String(b.time)));
-    return {
-      date,
-      key,
-      dayNumber: date.getUTCDate(),
-      inMonth: date.getUTCMonth() === month.getUTCMonth(),
-      isToday: key === todayKey,
-      raids: dayRaids,
-    };
-  });
-}
-
 function formatDateTime(value?: string | number | null) {
   if (!value) return "—";
   const date = typeof value === "number" ? new Date(value) : new Date(value);
@@ -174,10 +129,11 @@ function upcomingRaidSort(a: RaidItem, b: RaidItem) {
   return aDate - bDate;
 }
 
-function homeRevision(raids: RaidItem[], polls: RaidPollItem[]) {
+function homeRevision(raids: RaidItem[], polls: RaidPollItem[], periods: KdCalendarPeriod[]) {
   const raidPart = raids.map((raid) => `${raid.id}:${raid.status}:${raid.updatedAt || raid.closedAt || raid.publishedAt || ""}:${raid.signups.length}`).join("|");
   const pollPart = polls.map((poll) => `${poll.id}:${poll.status}:${poll.updatedAt || poll.closedAt || ""}:${poll.votes.length}`).join("|");
-  return `${raidPart}::${pollPart}`;
+  const periodPart = periods.map((period) => `${period.kind}:${period.period}:${period.startIso}:${period.endIso}:${period.raids.length}`).join("|");
+  return `${raidPart}::${pollPart}::${periodPart}`;
 }
 
 function googleCalendarUrl() {
@@ -186,18 +142,123 @@ function googleCalendarUrl() {
   return `https://calendar.google.com/calendar/render?${new URLSearchParams({ cid: webcalUrl }).toString()}`;
 }
 
+function periodKindTitle(kind: KdPeriodKind) {
+  if (kind === "current") return "Поточне КД";
+  if (kind === "previous") return "Минуле КД";
+  return "Наступне КД";
+}
+
+function buildFallbackEuPeriods(now = new Date()): RaiderIoRegionPeriods {
+  const day = now.getUTCDay();
+  const daysFromWednesday = (day + 4) % 7;
+  const currentStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysFromWednesday, 4, 0, 0));
+  if (now.getTime() < currentStart.getTime()) currentStart.setUTCDate(currentStart.getUTCDate() - 7);
+  const previousStart = new Date(currentStart);
+  previousStart.setUTCDate(currentStart.getUTCDate() - 7);
+  const nextStart = new Date(currentStart);
+  nextStart.setUTCDate(currentStart.getUTCDate() + 7);
+  const nextEnd = new Date(nextStart);
+  nextEnd.setUTCDate(nextStart.getUTCDate() + 7);
+  const seedPeriod = Math.floor(currentStart.getTime() / (7 * 24 * 60 * 60 * 1000));
+
+  return {
+    region: KD_REGION,
+    previous: { period: seedPeriod - 1, start: previousStart.toISOString(), end: currentStart.toISOString() },
+    current: { period: seedPeriod, start: currentStart.toISOString(), end: nextStart.toISOString() },
+    next: { period: seedPeriod + 1, start: nextStart.toISOString(), end: nextEnd.toISOString() },
+    updatedAt: now.toISOString(),
+  };
+}
+
+function raidsInPeriod(raids: RaidItem[], period: RaiderIoPeriodWindow) {
+  const start = new Date(period.start).getTime();
+  const end = new Date(period.end).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return [];
+
+  return raids
+    .filter((raid) => {
+      const startsAt = parseRaidDate(raid)?.getTime();
+      return startsAt ? startsAt >= start && startsAt < end : false;
+    })
+    .sort(upcomingRaidSort);
+}
+
+function buildKdPeriods(periods: RaiderIoRegionPeriods, raids: RaidItem[]): KdCalendarPeriod[] {
+  const entries: Array<[KdPeriodKind, RaiderIoPeriodWindow]> = [
+    ["previous", periods.previous],
+    ["current", periods.current],
+    ["next", periods.next],
+  ];
+
+  return entries.map(([kind, period]) => ({
+    key: `${kind}-${period.period}`,
+    kind,
+    title: periodKindTitle(kind),
+    period: period.period,
+    startIso: period.start,
+    endIso: period.end,
+    fallbackStart: formatDateTime(period.start),
+    fallbackEnd: formatDateTime(period.end),
+    raids: raidsInPeriod(raids, period),
+  }));
+}
+
+function periodProgress(period: KdCalendarPeriod, now: number) {
+  const start = new Date(period.startIso).getTime();
+  const end = new Date(period.endIso).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+  return Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100));
+}
+
 function RaidCalendarEvent({ raid }: { raid: RaidItem }) {
   const roster = raidActiveRosterSize(raid);
   const startsAt = parseRaidDate(raid);
   return (
     <a className={`home-calendar-event home-calendar-event--${raid.difficulty} home-calendar-event--${raid.status}`} href={`/raids/${encodeURIComponent(raid.id)}`}>
-      <span className="home-calendar-event__time"><HomeLocalTime value={startsAt?.toISOString()} fallback={raid.time || "20:00"} mode="time" /></span>
+      <span className="home-calendar-event__time"><HomeLocalTime value={startsAt?.toISOString()} fallback={`${raid.date || "—"} ${raid.time || "20:00"}`} mode="compact" /></span>
       <span className="home-calendar-event__title">{raid.title}</span>
       <span className="home-calendar-event__details">
         <b>{raidDifficultyLabel(raid.difficulty)}</b>
+        <em>{eventStatusLabel(raid)}</em>
         <em>{roster} запис.</em>
       </span>
     </a>
+  );
+}
+
+function KdPeriodCard({ period, now }: { period: KdCalendarPeriod; now: number }) {
+  const progress = periodProgress(period, now);
+  return (
+    <article className={`home-kd-card home-kd-card--${period.kind}`}>
+      <header className="home-kd-card__head">
+        <div>
+          <span className="home-kd-card__eyebrow">{period.title}</span>
+          <h3>КД #{period.period}</h3>
+        </div>
+        <span className="home-kd-card__count">{period.raids.length} рейд.</span>
+      </header>
+
+      <div className="home-kd-card__range" aria-label="Період КД">
+        <span>
+          <b>Старт</b>
+          <HomeLocalTime value={period.startIso} fallback={period.fallbackStart} mode="compact" />
+        </span>
+        <span>
+          <b>Кінець</b>
+          <HomeLocalTime value={period.endIso} fallback={period.fallbackEnd} mode="compact" />
+        </span>
+      </div>
+
+      {period.kind === "current" ? (
+        <div className="home-kd-progress" aria-label="Прогрес поточного КД">
+          <span style={{ width: `${progress}%` }} />
+        </div>
+      ) : null}
+
+      <div className="home-calendar-events home-kd-card__events">
+        {period.raids.length ? period.raids.map((raid) => <RaidCalendarEvent key={raid.id} raid={raid} />) : <p className="home-empty-text">Немає рейдів у цьому КД.</p>}
+      </div>
+    </article>
   );
 }
 
@@ -246,7 +307,7 @@ function PollResultCard({ poll, relatedPolls }: { poll: RaidPollItem; relatedPol
   );
 }
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function HomePage() {
   if (!(await isAuthenticated())) {
     redirect("/login");
     throw new Error("Login required");
@@ -257,20 +318,20 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     throw new Error("Login required");
   }
 
-  const params = await searchParams;
-  const selectedMonth = parseMonth(params.month);
-  const [raids, polls] = await Promise.all([
-    listRaids(160).catch(() => []),
+  const [raids, polls, raiderIoPeriods] = await Promise.all([
+    listRaids(180).catch(() => []),
     listRaidPolls(120).catch(() => []),
+    fetchRaiderIoRegionPeriods(KD_REGION).catch(() => null),
   ]);
 
   const visibleRaids = raids.filter((raid) => raid.status !== "draft");
-  const monthDays = buildCalendarDays(selectedMonth, visibleRaids);
   const now = dashboardNowMs();
+  const periods = buildKdPeriods(raiderIoPeriods || buildFallbackEuPeriods(new Date(now)), visibleRaids);
+  const currentPeriod = periods.find((period) => period.kind === "current") || periods[1];
   const upcomingRaids = visibleRaids
     .filter((raid) => {
       const date = parseRaidDate(raid);
-      return date ? date.getTime() >= now - 6 * 60 * 60 * 1000 : false;
+      return date ? date.getTime() >= now - RAID_DURATION_MS : false;
     })
     .sort(upcomingRaidSort)
     .slice(0, 8);
@@ -295,8 +356,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const openPolls = polls.filter((poll) => poll.status === "open");
   const publishedPolls = polls.filter((poll) => poll.channelId && poll.messageId);
   const spotlightPolls = [...openPolls, ...polls.filter((poll) => poll.status === "closed")].slice(0, 6);
-  const currentMonthRaidCount = monthDays.filter((day) => day.inMonth).reduce((sum, day) => sum + day.raids.length, 0);
   const calendarFeedUrl = absoluteDashboardUrl("/api/calendar/raids.ics");
+  const rioSourceLabel = raiderIoPeriods ? "Raider.IO EU" : "Fallback EU";
 
   return (
     <main className="container home-page">
@@ -307,64 +368,59 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="hero-copy dashboard-hero__copy guild-hero__copy">
             <div className="eyebrow">Mistblossom Vanguard • Рейдовий центр</div>
             <div className="content-hero-status-row">
-              <span className="content-mode-pill content-mode-pill--library">World of Warcraft</span>
-              <span className="content-hero-path">Календар • Google Calendar • Live голосування</span>
+              <span className="content-mode-pill content-mode-pill--library">КД #{currentPeriod?.period || "—"}</span>
+              <span className="content-hero-path">{rioSourceLabel} • локальний час користувача</span>
             </div>
-            <h1>Гільдійний календар</h1>
+            <h1>КД-календар рейдів</h1>
             <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Єдина стартова сторінка після входу: майбутні рейди, календар місяця, імпорт у Google Calendar і живі результати рейд-голосувань.</p>
+            <p className="lead">Тиждень рахується як КД за EU periods з Raider.IO: старт у середу, кінець наступної середи. Усі години на сторінці автоматично показуються в локальній часовій зоні того, хто відкрив dashboard.</p>
             <div className="home-hero-actions">
               <a className="btn primary" href="/raids">Відкрити рейди</a>
               <a className="btn subtle" href="/polls">Голосування</a>
             </div>
           </div>
           <HeroSidePanel
-            ariaLabel="Огляд рейдового календаря"
+            ariaLabel="Огляд КД-календаря"
             summary={[
-              { label: "РЕЙДИ", value: `${visibleRaids.length} подій`, note: "Опубліковані та закриті рейди" },
+              { label: "ПОТОЧНЕ КД", value: `#${currentPeriod?.period || "—"}`, note: `${currentPeriod?.raids.length || 0} рейд. у поточному КД` },
               { label: "ГОЛОСУВАННЯ", value: `${openPolls.length} live`, note: "Автооновлення без перезавантаження" },
             ]}
             stats={[
-              { label: "МІСЯЦЬ", value: currentMonthRaidCount.toLocaleString("uk-UA") },
-              { label: "ІМПОРТ", value: "ICS" },
-              { label: "SYNC", value: "LIVE" },
+              { label: "REGION", value: KD_REGION.toUpperCase() },
+              { label: "TIME", value: "LOCAL" },
+              { label: "SYNC", value: raiderIoPeriods ? "RIO" : "SAFE" },
             ]}
           />
         </header>
 
-        <HomeDashboardLiveSync initialRevision={homeRevision(visibleRaids, polls)} />
+        <HomeDashboardLiveSync initialRevision={homeRevision(visibleRaids, polls, periods)} />
 
-        <section className="home-calendar-toolbar panel" aria-label="Керування календарем">
+        <section className="home-calendar-toolbar panel" aria-label="Керування КД-календарем">
           <div>
-            <span className="home-kicker">Онлайн календар</span>
-            <h2>{MONTH_LABEL.format(selectedMonth)}</h2>
-            <p>Календар побудований з опублікованих рейдів. Закриті рейди лишаються в історії місяця.</p>
+            <span className="home-kicker">Raider.IO periods</span>
+            <h2>КД #{currentPeriod?.period || "—"}</h2>
+            <p>
+              Поточне КД: <HomeLocalTime value={currentPeriod?.startIso} fallback={currentPeriod?.fallbackStart || "—"} mode="compact" /> — <HomeLocalTime value={currentPeriod?.endIso} fallback={currentPeriod?.fallbackEnd || "—"} mode="compact" />.
+            </p>
           </div>
           <div className="home-calendar-actions">
-            <a className="btn subtle" href={`/?month=${monthParam(new Date())}`}>Сьогодні</a>
-            <a className="btn subtle home-calendar-nav" href={`/?month=${monthParam(addMonths(selectedMonth, -1))}`} aria-label="Попередній місяць">‹</a>
-            <a className="btn subtle home-calendar-nav" href={`/?month=${monthParam(addMonths(selectedMonth, 1))}`} aria-label="Наступний місяць">›</a>
+            <a className="btn primary" href="/raids/new">Створити рейд</a>
+            <a className="btn subtle" href="/polls/new">Нове голосування</a>
+            <a className="btn subtle" href="/raids">Усі рейди</a>
           </div>
         </section>
 
         <section className="home-layout">
-          <section className="panel home-calendar-panel" aria-label="Календар рейдів">
-            <div className="home-calendar-weekdays" aria-hidden="true">
-              {WEEKDAY_LABELS.map((day) => <span key={day}>{day}</span>)}
+          <section className="panel home-calendar-panel home-kd-panel" aria-label="КД-календар рейдів">
+            <div className="home-kd-panel__head">
+              <div>
+                <span className="home-kicker">КД календар</span>
+                <h2>Рейди за тижнями Raider.IO</h2>
+              </div>
+              <p>Старт КД береться з Raider.IO, а рейди потрапляють у КД за реальним UTC-часом старту.</p>
             </div>
-            <div className="home-calendar-grid">
-              {monthDays.map((day) => (
-                <article className={`home-calendar-day${day.inMonth ? "" : " is-muted"}${day.isToday ? " is-today" : ""}`} key={day.key}>
-                  <header>
-                    <time dateTime={day.key}>{day.dayNumber}</time>
-                    {day.isToday ? <span>сьогодні</span> : null}
-                  </header>
-                  <div className="home-calendar-events">
-                    {day.raids.length ? day.raids.slice(0, 3).map((raid) => <RaidCalendarEvent key={raid.id} raid={raid} />) : null}
-                    {day.raids.length > 3 ? <a className="home-calendar-more" href={`/raids?date=${encodeURIComponent(day.key)}`}>+{day.raids.length - 3} ще</a> : null}
-                  </div>
-                </article>
-              ))}
+            <div className="home-kd-grid">
+              {periods.map((period) => <KdPeriodCard key={period.key} period={period} now={now} />)}
             </div>
           </section>
 
@@ -372,12 +428,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <section className="panel home-import-card" aria-label="Імпорт календаря">
               <span className="home-kicker">Google Calendar</span>
               <h2>Імпорт рейдів</h2>
-              <p>Додай рейдовий календар у Google Calendar або завантаж `.ics` файл для ручного імпорту.</p>
+              <p>Додай рейдовий фід у Google Calendar або відкрий `.ics` напряму. Сире посилання прибрано з екрана, щоб не забивати інтерфейс.</p>
               <div className="home-import-actions">
                 <a className="btn primary" href={googleCalendarUrl()} target="_blank" rel="noreferrer">Додати в Google</a>
                 <a className="btn subtle" href="/api/calendar/raids.ics" download="mistblossom-raids.ics">Завантажити .ics</a>
+                <a className="btn subtle" href={calendarFeedUrl} target="_blank" rel="noreferrer">Відкрити фід</a>
               </div>
-              <code>{calendarFeedUrl}</code>
             </section>
 
             <section className="panel home-upcoming-card" aria-label="Найближчі рейди">
@@ -393,7 +449,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div>
               <span className="home-kicker">Live raid polls</span>
               <h2>Динамічні результати голосувань</h2>
-              <p>Показуємо назву, дати, статус, кількість голосів і рекомендовані слоти з моменту створення голосування. Сторінка сама підтягує оновлення.</p>
+              <p>Показуємо назву, дати, статус, кількість голосів і рекомендовані слоти. Сторінка сама підтягує оновлення.</p>
             </div>
             <a className="btn subtle" href="/polls">Усі голосування</a>
           </div>

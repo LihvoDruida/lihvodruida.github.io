@@ -124,6 +124,24 @@ if (exists('src/proxy.ts')) {
 }
 
 
+
+
+if (exists('src/lib/raiderIo.ts')) {
+  const raiderIoText = read('src/lib/raiderIo.ts');
+  assert(raiderIoText.includes('https://raider.io/api/v1/periods'), 'Raider.IO periods endpoint must stay wired for KD calendar data.');
+  assert(/fetchRaiderIoRegionPeriods\(region = "eu"\)/.test(raiderIoText), 'KD calendar must fetch EU Raider.IO periods by default.');
+  assert(/RAIDERIO_PERIODS_CACHE_TTL_MS/.test(raiderIoText), 'Raider.IO periods must be cached briefly to avoid wasteful repeated external calls.');
+}
+
+if (exists('src/app/page.tsx')) {
+  const homeText = read('src/app/page.tsx');
+  assert(homeText.includes('fetchRaiderIoRegionPeriods'), 'Home calendar must use Raider.IO periods for KD logic.');
+  assert(homeText.includes('КД') && homeText.includes('Raider.IO periods'), 'Home calendar must present raids as KD weeks backed by Raider.IO periods.');
+  assert(!homeText.includes('home-calendar-weekdays'), 'Home page should not use the old month-grid weekday calendar after KD calendar redesign.');
+  assert(/<HomeLocalTime value=\{period\.startIso\}/.test(homeText) && /<HomeLocalTime value=\{period\.endIso\}/.test(homeText), 'KD period start/end must render through HomeLocalTime so client timezone correction is preserved.');
+  assert(!homeText.includes('<code>{calendarFeedUrl}</code>'), 'Home page must not show the raw calendar feed URL as noisy UI text.');
+}
+
 if (exists('src/components/HomeUpcomingRaidList.tsx')) {
   const upcomingText = read('src/components/HomeUpcomingRaidList.tsx');
   assert(/const \[mounted, setMounted\] = useState\(false\)/.test(upcomingText), 'HomeUpcomingRaidList must render server-stable fallback date/time until hydration completes.');
