@@ -104,6 +104,25 @@ warn(exists('scripts/next-build.cjs'), 'scripts/next-build.cjs should exist beca
 warn(!/"build:vercel"\s*:/.test(packageJsonText), 'build:vercel should be removed; Vercel should use the default npm run build script.');
 warn(/"build:ci"\s*:\s*"npm run typecheck && npm run inspect:ci && npm run build"/.test(packageJsonText), 'build:ci should keep full local/CI gates without changing the Vercel default build path.');
 warn(/"typecheck"\s*:\s*"node scripts\/typecheck\.cjs"/.test(read('package.json')), 'Typecheck should use scripts/typecheck.cjs for progress and timeout diagnostics.');
+
+if (exists('src/proxy.ts')) {
+  const proxyText = read('src/proxy.ts');
+  const requiredInternalBearerPaths = [
+    '/api/profile/discord-lookup',
+    '/api/admin/profiles/refresh-external-data',
+    '/api/admin/profiles/orphan-cleanup',
+    '/api/admin/profiles/orphan-cleanup/apply',
+    '/api/raids/lifecycle',
+    '/api/polls/close-due',
+  ];
+  for (const routePath of requiredInternalBearerPaths) {
+    assert(proxyText.includes(routePath), `Proxy must allow internal Bearer access before session checks: ${routePath}.`);
+  }
+  assert(/\^\\\/api\\\/raids\\\/\[\^\/\]\+\\\/discord-action\$/.test(proxyText), 'Proxy must allow internal Bearer access to /api/raids/[raidId]/discord-action.');
+  assert(/\^\\\/api\\\/polls\\\/\[\^\/\]\+\\\/vote\$/.test(proxyText), 'Proxy must allow internal Bearer access to /api/polls/[pollId]/vote.');
+  assert(proxyText.includes('/api/calendar/raids.ics'), 'Public calendar feed /api/calendar/raids.ics must bypass session checks so Google Calendar/webcal imports work.');
+}
+
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');

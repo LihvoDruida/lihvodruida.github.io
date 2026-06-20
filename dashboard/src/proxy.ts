@@ -35,6 +35,7 @@ function isPublicApiPath(pathname: string) {
     pathname.startsWith("/api/auth/") ||
     pathname === "/api/client-errors" ||
     pathname === "/api/background/settings" ||
+    pathname === "/api/calendar/raids.ics" ||
     pathname === "/api/discord/interactions" ||
     pathname === "/api/rules/accept/complete"
   );
@@ -44,6 +45,8 @@ function isInternalBearerApiPath(pathname: string) {
   return (
     pathname === "/api/profile/discord-lookup" ||
     pathname === "/api/admin/profiles/refresh-external-data" ||
+    pathname === "/api/admin/profiles/orphan-cleanup" ||
+    pathname === "/api/admin/profiles/orphan-cleanup/apply" ||
     pathname === "/api/raids/lifecycle" ||
     pathname === "/api/polls/close-due" ||
     /^\/api\/raids\/[^/]+\/discord-action$/.test(pathname) ||
