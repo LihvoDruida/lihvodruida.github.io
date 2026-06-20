@@ -57,10 +57,12 @@ function difficultyIcon(difficulty: HomeUpcomingRaid["difficulty"]) {
 }
 
 export default function HomeUpcomingRaidList({ raids, initialNow }: { raids: HomeUpcomingRaid[]; initialNow?: number }) {
+  const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(() => initialNow || Date.now());
   const [zone, setZone] = useState("локальний час");
 
   useEffect(() => {
+    setMounted(true);
     setZone(localTimeZoneName());
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
     return () => window.clearInterval(timer);
@@ -90,8 +92,8 @@ export default function HomeUpcomingRaidList({ raids, initialNow }: { raids: Hom
               <em><b>{raid.difficultyLabel}</b> • {raid.statusLabel} • {raid.roster} запис.</em>
             </span>
             <span className="home-upcoming-event__meta">
-              <time dateTime={startsAt.toISOString()}>{formatLocalDate(startsAt, "time")}</time>
-              <span>{formatLocalDate(startsAt, "date")}</span>
+              <time dateTime={startsAt.toISOString()}>{mounted ? formatLocalDate(startsAt, "time") : raid.sourceTime}</time>
+              <span>{mounted ? formatLocalDate(startsAt, "date") : raid.sourceDate}</span>
             </span>
           </a>
         );

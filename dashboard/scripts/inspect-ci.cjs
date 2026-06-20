@@ -123,6 +123,14 @@ if (exists('src/proxy.ts')) {
   assert(proxyText.includes('/api/calendar/raids.ics'), 'Public calendar feed /api/calendar/raids.ics must bypass session checks so Google Calendar/webcal imports work.');
 }
 
+
+if (exists('src/components/HomeUpcomingRaidList.tsx')) {
+  const upcomingText = read('src/components/HomeUpcomingRaidList.tsx');
+  assert(/const \[mounted, setMounted\] = useState\(false\)/.test(upcomingText), 'HomeUpcomingRaidList must render server-stable fallback date/time until hydration completes.');
+  assert(/mounted \? formatLocalDate\(startsAt, "time"\) : raid\.sourceTime/.test(upcomingText), 'HomeUpcomingRaidList time label must not use browser locale during the initial hydration render.');
+  assert(/mounted \? formatLocalDate\(startsAt, "date"\) : raid\.sourceDate/.test(upcomingText), 'HomeUpcomingRaidList date label must not use browser locale during the initial hydration render.');
+}
+
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');
