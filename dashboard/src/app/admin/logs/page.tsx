@@ -179,9 +179,9 @@ export default async function AdminLogsPage({
           </form>
         </section>
 
-        <section className="admin-log-list" aria-label="Останні дії">
+        <section className="admin-log-list dashboard-list" aria-label="Останні дії">
           {logs.length ? logs.map((item) => (
-            <article className={`panel admin-log-row admin-log-row--${item.status}`} key={item.id}>
+            <article className={`panel admin-log-row dashboard-list-row admin-log-row--${item.status}`} key={item.id}>
               <div className="admin-log-row__head">
                 <span className={`admin-log-status admin-log-status--${item.status}`}>{statusLabel(item.status)}</span>
                 <strong>{item.action}</strong>
@@ -211,7 +211,7 @@ export default async function AdminLogsPage({
               </details>
             </article>
           )) : (
-            <article className="panel admin-log-row admin-log-row--info">
+            <article className="panel admin-log-row dashboard-list-row admin-log-row--info">
               <strong>Журнал порожній</strong>
               <p>Записи зʼявляться після першої дії, яку бот опублікує в Discord-канал журналу.</p>
             </article>

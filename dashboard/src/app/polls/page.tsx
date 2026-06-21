@@ -54,13 +54,13 @@ export default async function PollsPage() {
         </div>
       </section>
 
-      <section className="panel raid-list-page-panel raid-poll-list-section raid-poll-list-section--active">
-        <div className="raid-list-page-head raid-poll-list-head">
+      <section className="panel raid-list-page-panel raid-poll-list-section raid-poll-list-section--active dashboard-list-panel">
+        <div className="raid-list-page-head raid-poll-list-head dashboard-list-head">
           <div>
             <span className="raid-poll-section-kicker">Активні</span>
             <h2>Активні голосування</h2>
             <p>Відкриті рейд-пули, де учасники ще можуть змінювати день, час, персонажа або поставити «Не можу».</p>
-            <div className="raid-list-summary raid-poll-list-summary" aria-label="Статистика рейд-пулів">
+            <div className="raid-list-summary raid-poll-list-summary dashboard-list-summary" aria-label="Статистика рейд-пулів">
               <span>Активні: {openPolls.length}</span>
               <span>Архів: {closedPolls.length}</span>
               <span>Усього: {polls.length}</span>
@@ -68,20 +68,20 @@ export default async function PollsPage() {
           </div>
           {canManage ? <a className="btn primary raid-poll-create-button" href="/polls/new">＋ Створити рейд-пул</a> : null}
         </div>
-        <div className="raid-manager-list raid-poll-card-grid">
+        <div className="raid-manager-list raid-poll-card-grid dashboard-list">
           {openPolls.length ? openPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={publishedPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Активних рейд-пулів поки немає.</p>}
         </div>
       </section>
 
-      <section className="panel raid-list-page-panel raid-list-page-panel--archive raid-poll-list-section raid-poll-list-section--archive">
-        <div className="raid-list-page-head raid-list-page-head--archive raid-poll-list-head">
+      <section className="panel raid-list-page-panel raid-list-page-panel--archive raid-poll-list-section raid-poll-list-section--archive dashboard-list-panel dashboard-list-panel--archive">
+        <div className="raid-list-page-head raid-list-page-head--archive raid-poll-list-head dashboard-list-head">
           <div>
             <span className="raid-poll-section-kicker">Архів</span>
             <h2>Архівні голосування</h2>
             <p>Закриті рейд-пули з фінальними результатами, персонажами та історією відповідей.</p>
           </div>
         </div>
-        <div className="raid-manager-list raid-manager-list--archive raid-poll-card-grid raid-poll-card-grid--archive">
+        <div className="raid-manager-list raid-manager-list--archive raid-poll-card-grid raid-poll-card-grid--archive dashboard-list dashboard-list--archive">
           {closedPolls.length ? closedPolls.map((poll) => <RaidPollListCard key={poll.id} poll={poll} relatedPolls={publishedPolls} canManage={canManage} />) : <p className="raid-empty raid-poll-empty">Архів порожній.</p>}
         </div>
       </section>

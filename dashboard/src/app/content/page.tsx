@@ -290,11 +290,11 @@ function ContentLibraryGroup({
       {items.length === 0 ? (
         <p className="content-empty content-empty--compact">Поки що немає матеріалів у цьому розділі.</p>
       ) : (
-        <div className="content-table" role="list">
+        <div className="content-table dashboard-list" role="list">
           {items.map((item) => {
             const active = selectedPath === item.path;
             return (
-              <article className={`content-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
+              <article className={`content-row dashboard-list-row${active ? " is-active" : ""}`} key={item.path} role="listitem">
                 <a className="content-row-main" href={editHref(item.path)} aria-current={active ? "page" : undefined}>
                   <span className="content-row-thumb" aria-hidden="true">
                     {item.image ? <img src={publicAssetUrl(item.image)} alt="" /> : <span>{contentTypeLabel(item.kind).slice(0, 1)}</span>}
@@ -309,7 +309,7 @@ function ContentLibraryGroup({
                   </span>
                 </a>
 
-                <div className="content-row-actions">
+                <div className="content-row-actions dashboard-list-actions">
                   <a className="btn subtle" href={contentPublicHref(item)} target="_blank" rel="noreferrer">Превʼю</a>
                   <form method="post" action="/api/content/delete">
                     <input type="hidden" name="path" value={item.path} />
@@ -412,8 +412,8 @@ export default async function ContentPage({
           ) : null}
 
           {!showEditor ? (
-            <section className="content-list panel content-list--page" aria-label="Список матеріалів сайту">
-              <div className="content-section-head content-section-head--toolbar">
+            <section className="content-list panel content-list--page dashboard-list-panel" aria-label="Список матеріалів сайту">
+              <div className="content-section-head content-section-head--toolbar dashboard-list-head">
                 <div>
                   <span className="eyebrow">Бібліотека матеріалів</span>
                   <h2>Список матеріалів</h2>

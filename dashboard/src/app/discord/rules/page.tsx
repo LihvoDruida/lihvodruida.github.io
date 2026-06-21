@@ -184,7 +184,7 @@ function RaidRulesSignupsPanel({ signups }: { signups: DiscordRaidRulesSignupsRe
 
   return (
     <section className="panel discord-raid-signups-panel" aria-label="Підписанти правил рейду">
-      <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
+      <div className="content-section-head content-section-head--toolbar discord-rules-section-head dashboard-list-head">
         <div>
           <span className="eyebrow">Правила рейду</span>
           <h2>Хто підписався на правила рейду</h2>
@@ -263,7 +263,7 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
   const isRaidRules = message.rulesType === "raid";
 
   return (
-    <article className={`discord-rules-row${isRaidRules ? " discord-rules-row--raid" : ""}`} role="listitem">
+    <article className={`discord-rules-row dashboard-list-row${isRaidRules ? " discord-rules-row--raid" : ""}`} role="listitem">
       <div className="discord-rules-row-main">
         <span className="discord-rules-row-icon" aria-hidden="true">{isRaidRules ? "🐉" : "🌸"}</span>
         <span className="discord-rules-row-title">
@@ -279,7 +279,7 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
           {isRaidRules ? <span className="discord-rules-role-empty">Підпис на правила рейду</span> : <RulesRoleBadges roleIds={message.roleIds} roles={roles} />}
         </span>
       </div>
-      <div className="discord-rules-row-actions">
+      <div className="discord-rules-row-actions dashboard-list-actions">
         <a className="btn subtle" href={message.url} target="_blank" rel="noreferrer">Discord</a>
         <a className="btn primary" href={`/discord/rules/edit?message=${encodeURIComponent(message.url)}`}>Редагувати</a>
       </div>
@@ -289,8 +289,8 @@ function RulesRow({ message, roles }: { message: DiscordEditableMessage; roles: 
 
 function RulesMessagesPanel({ title, eyebrow, description, messages, roles, createHref, emptyText, canEditRules }: { title: string; eyebrow: string; description: string; messages: DiscordEditableMessage[]; roles: DiscordRoleOption[]; createHref: string; emptyText: string; canEditRules: boolean }) {
   return (
-    <section className="panel discord-rules-list-panel" aria-label={title}>
-      <div className="content-section-head content-section-head--toolbar discord-rules-section-head">
+    <section className="panel discord-rules-list-panel dashboard-list-panel" aria-label={title}>
+      <div className="content-section-head content-section-head--toolbar discord-rules-section-head dashboard-list-head">
         <div>
           <span className="eyebrow">{eyebrow}</span>
           <h2>{title}</h2>
@@ -308,7 +308,7 @@ function RulesMessagesPanel({ title, eyebrow, description, messages, roles, crea
           {canEditRules ? <a className="btn primary" href={createHref}>Створити повідомлення</a> : null}
         </div>
       ) : (
-        <div className="discord-rules-table" role="list">
+        <div className="discord-rules-table dashboard-list" role="list">
           {messages.map((message) => <RulesRow key={message.id} message={message} roles={roles} />)}
         </div>
       )}

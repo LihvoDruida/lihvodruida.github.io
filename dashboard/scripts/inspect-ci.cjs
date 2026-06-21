@@ -149,6 +149,28 @@ if (exists('src/components/HomeUpcomingRaidList.tsx')) {
   assert(/mounted \? formatLocalDate\(startsAt, "date"\) : raid\.sourceDate/.test(upcomingText), 'HomeUpcomingRaidList date label must not use browser locale during the initial hydration render.');
 }
 
+
+const listStyleText = exists('src/app/globals.css') ? read('src/app/globals.css') : '';
+assert(/dashboard-list-panel/.test(listStyleText) && /dashboard-list-row/.test(listStyleText), 'Global dashboard list styles must stay centralized in globals.css.');
+const listUnifiedFiles = {
+  'src/components/GuildRosterExplorer.tsx': ['dashboard-list', 'dashboard-list-row', 'dashboard-list-head'],
+  'src/components/RaidViews.tsx': ['dashboard-list-row', 'dashboard-list-actions'],
+  'src/components/RaidPollViews.tsx': ['dashboard-list-row', 'dashboard-list-actions'],
+  'src/app/raids/page.tsx': ['dashboard-list-panel', 'dashboard-list-head', 'dashboard-list'],
+  'src/app/polls/page.tsx': ['dashboard-list-panel', 'dashboard-list-head', 'dashboard-list'],
+  'src/app/content/page.tsx': ['dashboard-list-panel', 'dashboard-list-row', 'dashboard-list-actions'],
+  'src/app/discord/rules/page.tsx': ['dashboard-list-panel', 'dashboard-list-row', 'dashboard-list-actions'],
+  'src/app/profiles/page.tsx': ['dashboard-list', 'dashboard-list-row'],
+  'src/app/admin/logs/page.tsx': ['dashboard-list', 'dashboard-list-row'],
+};
+for (const [file, requiredClasses] of Object.entries(listUnifiedFiles)) {
+  if (!exists(file)) continue;
+  const fileText = read(file);
+  for (const requiredClass of requiredClasses) {
+    assert(fileText.includes(requiredClass), `${file} must use the unified dashboard list class: ${requiredClass}.`);
+  }
+}
+
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');

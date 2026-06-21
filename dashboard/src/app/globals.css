@@ -21179,3 +21179,322 @@ main.container {
     width: 100%;
   }
 }
+
+/* Unified dashboard list system: shared structure for roster, raids, polls, content, Discord rules, profiles and logs. */
+:root {
+  --dash-list-gap: clamp(8px, 1.1vw, 12px);
+  --dash-list-panel-pad: clamp(14px, 1.8vw, 18px);
+  --dash-list-row-pad: clamp(12px, 1.45vw, 16px);
+  --dash-list-radius: 16px;
+  --dash-list-row-radius: 13px;
+  --dash-list-border: var(--theme-border-soft);
+  --dash-list-border-active: var(--theme-border-strong);
+  --dash-list-bg: color-mix(in srgb, var(--theme-surface-base-solid) 78%, transparent);
+  --dash-list-bg-strong: color-mix(in srgb, var(--theme-surface-raised-solid) 84%, transparent);
+  --dash-list-bg-hover: color-mix(in srgb, var(--theme-accent) 9%, var(--theme-surface-raised-solid));
+  --dash-list-text: var(--theme-text-card-title);
+  --dash-list-muted: var(--theme-text-muted);
+}
+
+:where(.dashboard-list-panel) {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: var(--dash-list-gap);
+  padding: var(--dash-list-panel-pad);
+  overflow: hidden;
+  border-radius: var(--dash-list-radius) !important;
+}
+
+:where(.dashboard-list-head) {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dash-list-gap);
+}
+
+:where(.dashboard-list-head > div) {
+  min-width: 0;
+}
+
+:where(.dashboard-list-head h2, .dashboard-list-head h3) {
+  margin: 0;
+  color: var(--theme-text-heading);
+  font-size: clamp(1.08rem, 1.55vw, 1.34rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+:where(.dashboard-list-head p) {
+  max-width: 72ch;
+  margin: 0.35rem 0 0;
+  color: var(--dash-list-muted);
+  font-size: var(--ui-font-md, 0.88rem);
+  line-height: 1.42;
+}
+
+:where(.dashboard-list-toolbar) {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dash-list-gap);
+  padding: clamp(9px, 1.25vw, 12px);
+  border-radius: var(--dash-list-radius) !important;
+}
+
+:where(.dashboard-list-summary) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+:where(.dashboard-list-summary span, .dashboard-list-head small, .content-toolbar-actions small) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border: 1px solid var(--dash-list-border);
+  border-radius: 999px;
+  background: var(--dash-list-bg);
+  color: var(--dash-list-muted);
+  font-size: var(--ui-font-sm, 0.78rem);
+  font-weight: 850;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+:where(.dashboard-list) {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: var(--dash-list-gap);
+}
+
+:where(.dashboard-list-row) {
+  min-width: 0;
+  border: 1px solid var(--dash-list-border) !important;
+  border-radius: var(--dash-list-row-radius) !important;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-white) 4.5%, transparent), color-mix(in srgb, var(--theme-white) 1.7%, transparent)),
+    var(--dash-list-bg) !important;
+  box-shadow:
+    0 10px 24px color-mix(in srgb, var(--theme-black) 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--theme-white) 5%, transparent) !important;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+:where(.dashboard-list-row:hover, .dashboard-list-row:focus-within, .dashboard-list-row.is-active) {
+  border-color: var(--dash-list-border-active) !important;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-white) 5.5%, transparent), color-mix(in srgb, var(--theme-white) 2%, transparent)),
+    var(--dash-list-bg-hover) !important;
+  box-shadow:
+    0 14px 34px color-mix(in srgb, var(--theme-black) 24%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--theme-white) 7%, transparent) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(.dashboard-list-row:hover) {
+    transform: translateY(-1px);
+  }
+}
+
+:where(.dashboard-list-row strong, .dashboard-list-row h3, .dashboard-list-row h3 a) {
+  color: var(--dash-list-text);
+}
+
+:where(.dashboard-list-row small, .dashboard-list-row p, .dashboard-list-row time) {
+  color: var(--dash-list-muted);
+}
+
+:where(.dashboard-list-actions) {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+:where(.dashboard-list-actions form) {
+  display: contents;
+}
+
+:where(.dashboard-list-actions .btn, .dashboard-list-actions button) {
+  min-height: 32px;
+  border-radius: 999px !important;
+  white-space: nowrap;
+}
+
+:where(.guild-member-list.dashboard-list, .raid-manager-list.dashboard-list, .raid-poll-card-grid.dashboard-list, .profile-directory-grid.dashboard-list, .content-table.dashboard-list, .discord-rules-table.dashboard-list, .admin-log-list.dashboard-list) {
+  gap: var(--dash-list-gap) !important;
+}
+
+:where(.guild-member-card.dashboard-list-row) {
+  grid-template-columns: 72px minmax(0, 1fr) minmax(190px, auto) !important;
+  min-height: 116px !important;
+  padding: var(--dash-list-row-pad) !important;
+}
+
+:where(.guild-member-leading) {
+  gap: 8px !important;
+}
+
+:where(.guild-member-rank) {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  font-size: var(--ui-font-sm, 0.78rem) !important;
+}
+
+:where(.guild-member-avatar) {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 13px !important;
+}
+
+:where(.guild-member-title h3) {
+  font-size: 1rem !important;
+  line-height: 1.16 !important;
+}
+
+:where(.guild-member-score-block) {
+  min-width: 112px !important;
+  min-height: 54px !important;
+  padding: 8px 10px !important;
+  border-radius: 13px !important;
+}
+
+:where(.guild-member-score-block strong) {
+  font-size: clamp(1.25rem, 2vw, 1.55rem) !important;
+}
+
+:where(.raid-list-item.dashboard-list-row) {
+  padding: var(--dash-list-row-pad) !important;
+}
+
+:where(.raid-list-main-link) {
+  min-width: 0;
+}
+
+:where(.raid-list-main-link > img, .raid-list-fallback) {
+  width: 62px !important;
+  height: 62px !important;
+  border-radius: 13px !important;
+}
+
+:where(.raid-list-title-row, .raid-list-facts) {
+  min-width: 0;
+}
+
+:where(.raid-list-facts) {
+  gap: 7px !important;
+}
+
+:where(.raid-list-facts small, .raid-list-archive-note) {
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid var(--dash-list-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-white) 3.5%, transparent);
+}
+
+:where(.raid-poll-list-card.dashboard-list-row) {
+  overflow: hidden;
+}
+
+:where(.raid-poll-list-card__body) {
+  min-width: 0;
+}
+
+:where(.raid-poll-card-metrics) {
+  gap: 8px !important;
+}
+
+:where(.content-table.dashboard-list, .discord-rules-table.dashboard-list) {
+  overflow: hidden;
+}
+
+:where(.content-row.dashboard-list-row, .discord-rules-row.dashboard-list-row) {
+  padding: 10px 12px !important;
+}
+
+:where(.content-row-main, .discord-rules-row-main) {
+  min-width: 0;
+}
+
+:where(.profile-directory-grid.dashboard-list) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)) !important;
+}
+
+:where(.profile-directory-card.dashboard-list-row) {
+  padding: var(--dash-list-row-pad) !important;
+}
+
+:where(.admin-log-list.dashboard-list) {
+  margin-top: var(--dash-section-gap, 14px);
+}
+
+:where(.admin-log-row.dashboard-list-row) {
+  padding: var(--dash-list-row-pad) !important;
+}
+
+@media (max-width: 920px) {
+  :where(.dashboard-list-head) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(.dashboard-list-actions) {
+    justify-content: flex-start;
+  }
+
+  :where(.guild-member-card.dashboard-list-row) {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+
+  :where(.guild-member-side) {
+    grid-column: 2 !important;
+    justify-items: start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --dash-list-gap: 8px;
+    --dash-list-panel-pad: 12px;
+    --dash-list-row-pad: 11px;
+    --dash-list-radius: 14px;
+    --dash-list-row-radius: 12px;
+  }
+
+  :where(.dashboard-list-toolbar, .dashboard-list-actions, .dashboard-list-actions .btn, .dashboard-list-actions button) {
+    width: 100%;
+  }
+
+  :where(.dashboard-list-actions .btn, .dashboard-list-actions button) {
+    justify-content: center;
+  }
+
+  :where(.raid-list-main-link > img, .raid-list-fallback, .guild-member-avatar) {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  :where(.guild-member-rank) {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  :where(.raid-list-facts small, .raid-list-archive-note) {
+    white-space: normal;
+  }
+}

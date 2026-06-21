@@ -1009,7 +1009,7 @@ export function RaidListCard({
   const closed = isRaidClosed(raid);
   const registrationLock = raidRegistrationLockSummary(raid);
   return (
-    <article className={`raid-list-item raid-list-item--${statusClass}`}>
+    <article className={`raid-list-item dashboard-list-row raid-list-item--${statusClass}`}>
       <a
         className="raid-list-main-link"
         href={`/raids/${encodeURIComponent(raid.id)}`}
@@ -1071,7 +1071,7 @@ export function RaidListCard({
         </span>
       </a>
       <div
-        className="raid-list-actions"
+        className="raid-list-actions dashboard-list-actions"
         aria-label={canManage ? "Керування рейдом" : "Дії рейду"}
       >
         <a

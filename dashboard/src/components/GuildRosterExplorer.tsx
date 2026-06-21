@@ -377,7 +377,7 @@ function StatDonut({
   }>;
 }) {
   return (
-    <article className="guild-stat-card panel">
+    <article className="guild-stat-card panel dashboard-list-panel">
       <div className="guild-stat-card__head">
         <h2>{title}</h2>
         <p>{subtitle}</p>
@@ -809,10 +809,10 @@ export default function GuildRosterExplorer({
 
       <section className="guild-roster-layout">
         <aside
-          className={`guild-filter-panel panel ${filtersOpen ? "is-open" : "is-collapsed"}`}
+          className={`guild-filter-panel panel dashboard-list-panel ${filtersOpen ? "is-open" : "is-collapsed"}`}
           aria-label="Фільтри складу гільдії"
         >
-          <div className="guild-filter-head">
+          <div className="guild-filter-head dashboard-list-head">
             <div>
               <span className="eyebrow">Фільтри</span>
               <h2>Пошук по складу</h2>
@@ -939,7 +939,7 @@ export default function GuildRosterExplorer({
           className="guild-roster-main"
           aria-label="Список персонажів гільдії"
         >
-          <div className="guild-segment-tabs panel">
+          <div className="guild-segment-tabs panel dashboard-list-toolbar">
             {(["all", "dps", "healer", "tank"] as GuildScoreSegment[]).map(
               (item) => (
                 <button
@@ -955,7 +955,7 @@ export default function GuildRosterExplorer({
             )}
           </div>
 
-          <div className="guild-roster-summary panel">
+          <div className="guild-roster-summary panel dashboard-list-head">
             <div>
               <span className="eyebrow">Склад гільдії</span>
               <strong>
@@ -973,7 +973,7 @@ export default function GuildRosterExplorer({
             </div>
           </div>
 
-          <div className="guild-member-list">
+          <div className="guild-member-list dashboard-list">
             {filteredMembers.length ? (
               filteredMembers.map((member, index) => {
                 const score = member.scores[segment] || 0;
@@ -982,7 +982,7 @@ export default function GuildRosterExplorer({
                   : null;
                 return (
                   <article
-                    className={`guild-member-card panel guild-member-card--${member.role}${ownerProfileHref ? " guild-member-card--clickable" : ""}`}
+                    className={`guild-member-card panel dashboard-list-row guild-member-card--${member.role}${ownerProfileHref ? " guild-member-card--clickable" : ""}`}
                     key={member.key}
                     role={ownerProfileHref ? "link" : undefined}
                     tabIndex={ownerProfileHref ? 0 : undefined}

@@ -98,8 +98,8 @@ export default async function RaidsListPage({
         </div>
       ) : null}
 
-      <section className="panel raid-list-page-panel">
-        <div className="raid-list-page-head">
+      <section className="panel raid-list-page-panel dashboard-list-panel">
+        <div className="raid-list-page-head dashboard-list-head">
           <div>
             <h2>{canManage ? "Поточні рейди" : "Доступні рейди"}</h2>
             <p>
@@ -108,7 +108,7 @@ export default async function RaidsListPage({
                 : "Тут видно рейди, на які можна записатися або переглянути свій статус."}
             </p>
             <div
-              className="raid-list-summary"
+              className="raid-list-summary dashboard-list-summary"
               aria-label="Коротка статистика рейдів"
             >
               <span>Усього: {visibleTotal}</span>
@@ -128,7 +128,7 @@ export default async function RaidsListPage({
             </div>
           ) : null}
         </div>
-        <div className="raid-manager-list">
+        <div className="raid-manager-list dashboard-list">
           {currentRaids.length ? (
             currentRaids.map((raid) => (
               <RaidListCard key={raid.id} raid={raid} canManage={canManage} />
@@ -139,8 +139,8 @@ export default async function RaidsListPage({
         </div>
       </section>
 
-      <section className="panel raid-list-page-panel raid-list-page-panel--archive">
-        <div className="raid-list-page-head raid-list-page-head--archive">
+      <section className="panel raid-list-page-panel raid-list-page-panel--archive dashboard-list-panel dashboard-list-panel--archive">
+        <div className="raid-list-page-head raid-list-page-head--archive dashboard-list-head">
           <div>
             <h2>Минулі рейди</h2>
             <p>
@@ -149,7 +149,7 @@ export default async function RaidsListPage({
                 : "Завершені рейди залишаються доступними для перегляду."}
             </p>
             <div
-              className="raid-list-summary"
+              className="raid-list-summary dashboard-list-summary"
               aria-label="Статистика архіву рейдів"
             >
               <span>Закрито: {closedRaids.length}</span>
@@ -163,7 +163,7 @@ export default async function RaidsListPage({
             ))}
           </RaidArchiveLoadMore>
         ) : (
-          <div className="raid-manager-list raid-manager-list--archive">
+          <div className="raid-manager-list raid-manager-list--archive dashboard-list dashboard-list--archive">
             <p className="raid-empty">
               Минулі рейди з’являться тут після завершення.
             </p>

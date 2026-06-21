@@ -112,7 +112,7 @@ export function RaidPollListCard({ poll, canManage = false, relatedPolls = [poll
   const activeDays = pollDays(poll);
   const canClose = canManage && poll.status === "open";
   return (
-    <article className={`raid-poll-list-card raid-poll-list-card--${poll.status}`}>
+    <article className={`raid-poll-list-card dashboard-list-row raid-poll-list-card--${poll.status}`}>
       <div className="raid-poll-list-card__status" aria-label={`Статус: ${raidPollStatusLabel(poll)}`}>
         {poll.status === "open" ? "Активний" : "Архівний"}
       </div>
@@ -152,7 +152,7 @@ export function RaidPollListCard({ poll, canManage = false, relatedPolls = [poll
         </dl>
       </div>
 
-      <footer className="raid-poll-list-card__actions">
+      <footer className="raid-poll-list-card__actions dashboard-list-actions">
         <a className="btn subtle raid-poll-primary-action" href={`/polls/${encodeURIComponent(poll.id)}`}>Переглянути результати</a>
         {poll.messageUrl ? <a className="btn subtle" href={poll.messageUrl} target="_blank" rel="noreferrer">Discord</a> : null}
         {canManage ? <a className="btn subtle" href={`/polls/${encodeURIComponent(poll.id)}/edit`}>Редагувати</a> : null}

@@ -50,7 +50,7 @@ function ProfileCard({ profile }: { profile: DashboardProfile }) {
   const mainLabel = main ? `${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : "мейн не вибрано";
 
   return (
-    <a className="panel profile-directory-card profile-directory-card--clickable" href={href} aria-label={`Відкрити профіль: ${displayName}`}>
+    <a className="panel profile-directory-card profile-directory-card--clickable dashboard-list-row" href={href} aria-label={`Відкрити профіль: ${displayName}`}>
       <div className="profile-directory-card__main">
         {avatar ? (
           <img className="profile-directory-card__avatar" src={avatar} alt="" width={64} height={64} loading="lazy" referrerPolicy="no-referrer" />
@@ -122,7 +122,7 @@ export default async function ProfilesPage({
             ]}
           />
         </header>
-      <section className="toolbar panel profile-directory-toolbar" aria-label="Пошук і ручні дії з профілями">
+      <section className="toolbar panel profile-directory-toolbar dashboard-list-toolbar" aria-label="Пошук і ручні дії з профілями">
         <form className="profile-directory-search-form" action="/profiles" method="get">
           <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
           <button className="btn primary" type="submit">Знайти</button>
@@ -150,7 +150,7 @@ export default async function ProfilesPage({
         ) : null}
       </section>
 
-      <section className="profile-directory-grid" aria-label="Список доступних профілів">
+      <section className="profile-directory-grid dashboard-list" aria-label="Список доступних профілів">
         {profiles.length ? profiles.map((profile) => <ProfileCard key={profile.profileId} profile={profile} />) : (
           <article className="content-empty content-empty--profiles panel" aria-live="polite">
             <span className="content-empty__icon" aria-hidden="true">🌿</span>
