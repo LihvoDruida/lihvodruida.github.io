@@ -2674,3 +2674,256 @@ select:focus,
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* Overflow fix layer: raid cards and overflow nav must never hide core labels. */
+.dashboard-nav-more__menu {
+  width: min(380px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  overflow: visible !important;
+}
+
+.dashboard-nav-more__menu-list {
+  gap: 8px !important;
+}
+
+.dashboard-nav-more__menu-list a,
+.dashboard-nav-more__menu a {
+  min-height: 50px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+}
+
+.dashboard-nav-more__menu a strong {
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.25 !important;
+}
+
+.dashboard-nav-more__menu a small {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.raid-page .raid-manager-list,
+.raid-page .raid-manager-list--archive,
+.raid-manager-list.dashboard-list,
+.raid-manager-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(min(100%, 420px), 1fr)) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+}
+
+.raid-page .raid-manager-list .raid-list-item,
+.raid-manager-list .raid-list-item,
+.raid-list-item {
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.raid-page .raid-manager-list .raid-list-main-link,
+.raid-manager-list .raid-list-main-link,
+.raid-list-main-link {
+  grid-template-columns: 68px minmax(0, 1fr) !important;
+  min-height: 0 !important;
+  align-items: start !important;
+  gap: 12px !important;
+  padding: 12px !important;
+  overflow: visible !important;
+}
+
+.raid-page .raid-manager-list .raid-list-main-link > img,
+.raid-page .raid-manager-list .raid-list-fallback,
+.raid-manager-list .raid-list-main-link > img,
+.raid-manager-list .raid-list-fallback,
+.raid-list-main-link > img,
+.raid-list-fallback {
+  width: 68px !important;
+  height: 68px !important;
+  align-self: start !important;
+}
+
+.raid-list-copy,
+.raid-list-title-row,
+.raid-list-facts {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.raid-list-title-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 6px 10px !important;
+}
+
+.raid-list-title-row strong,
+.raid-manager-list .raid-list-title-row strong,
+.raid-page .raid-manager-list .raid-list-title-row strong {
+  flex: 1 1 220px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.24 !important;
+}
+
+.raid-list-title-row .raid-state,
+.raid-manager-list .raid-list-title-row .raid-state,
+.raid-page .raid-manager-list .raid-list-title-row .raid-state {
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+}
+
+.raid-list-facts,
+.raid-manager-list .raid-list-facts,
+.raid-page .raid-manager-list .raid-list-facts {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.raid-list-facts small,
+.raid-manager-list .raid-list-facts small,
+.raid-page .raid-manager-list .raid-list-facts small {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 26px !important;
+  padding: 4px 8px !important;
+  border: 1px solid var(--ui-line-soft) !important;
+  border-radius: 999px !important;
+  color: var(--ui-text-soft) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.2 !important;
+}
+
+.raid-list-progress,
+.raid-manager-list .raid-list-progress,
+.raid-page .raid-manager-list .raid-list-progress {
+  width: 100% !important;
+  margin-top: 2px !important;
+}
+
+.raid-list-actions,
+.raid-manager-list .raid-list-actions,
+.raid-page .raid-manager-list .raid-list-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+  padding: 0 12px 12px !important;
+}
+
+.raid-list-actions .btn,
+.raid-list-actions button,
+.raid-list-actions form,
+.raid-manager-list .raid-list-actions .btn,
+.raid-manager-list .raid-list-actions button,
+.raid-manager-list .raid-list-actions form,
+.raid-page .raid-manager-list .raid-list-actions .btn,
+.raid-page .raid-manager-list .raid-list-actions button,
+.raid-page .raid-manager-list .raid-list-actions form {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.raid-list-actions .btn,
+.raid-list-actions button,
+.raid-manager-list .raid-list-actions .btn,
+.raid-manager-list .raid-list-actions button,
+.raid-page .raid-manager-list .raid-list-actions .btn,
+.raid-page .raid-manager-list .raid-list-actions button {
+  min-height: 38px !important;
+  padding: 8px 10px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  line-height: 1.15 !important;
+}
+
+.raid-list-archive-note {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 38px !important;
+  padding: 8px 10px !important;
+  border: 1px solid var(--ui-line-soft) !important;
+  color: var(--ui-text-muted) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  text-align: center !important;
+}
+
+.raid-poll-card-grid.dashboard-list,
+.raid-poll-card-grid {
+  grid-template-columns: repeat(2, minmax(min(100%, 420px), 1fr)) !important;
+}
+
+.raid-poll-list-card h3,
+.raid-poll-list-card h3 a,
+.raid-poll-list-card p,
+.raid-poll-card-metrics dd,
+.raid-poll-day-chips span {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.raid-poll-list-card p {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+}
+
+@media (max-width: 1100px) {
+  .raid-page .raid-manager-list,
+  .raid-page .raid-manager-list--archive,
+  .raid-manager-list.dashboard-list,
+  .raid-manager-list,
+  .raid-poll-card-grid.dashboard-list,
+  .raid-poll-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .raid-page .raid-manager-list .raid-list-main-link,
+  .raid-manager-list .raid-list-main-link,
+  .raid-list-main-link {
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .raid-page .raid-manager-list .raid-list-main-link > img,
+  .raid-page .raid-manager-list .raid-list-fallback,
+  .raid-manager-list .raid-list-main-link > img,
+  .raid-manager-list .raid-list-fallback,
+  .raid-list-main-link > img,
+  .raid-list-fallback {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .raid-list-actions,
+  .raid-manager-list .raid-list-actions,
+  .raid-page .raid-manager-list .raid-list-actions {
+    grid-template-columns: 1fr !important;
+  }
+}

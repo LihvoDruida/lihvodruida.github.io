@@ -190,6 +190,16 @@ assert(!exists('src/components/SectionIcon.tsx'), 'SectionIcon registry must be 
 assert(!exists('public/ui-icons'), 'Generated SVG dashboard icons must be removed from public assets.');
 assert(!/SectionIcon|dashboard-section-icon|ui-icons/.test(runtimeCombined), 'Icon-system references detected after iconless UI rebuild.');
 
+
+if (exists('src/app/theme.css')) {
+  const themeText = read('src/app/theme.css');
+  assert(/\.raid-page \.raid-manager-list[\s\S]{0,220}repeat\(2, minmax/.test(themeText), 'Raid list must stay forced to two desktop columns.');
+  assert(/\.raid-list-title-row strong[\s\S]{0,260}white-space: normal/.test(themeText), 'Raid card titles must wrap instead of truncating with ellipsis.');
+  assert(/\.raid-list-facts small[\s\S]{0,380}overflow: visible/.test(themeText), 'Raid fact chips must not clip or ellipsize core data.');
+  assert(/\.dashboard-nav-more__menu a strong[\s\S]{0,260}white-space: normal/.test(themeText), 'Overflow menu item titles must wrap instead of being clipped.');
+}
+
+
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');
