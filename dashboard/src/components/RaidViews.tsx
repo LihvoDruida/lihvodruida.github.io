@@ -1033,30 +1033,13 @@ export function RaidListCard({
             </em>
           </span>
           <span className="raid-list-facts">
-            <small>📅 {formatRaidDateTime(raid.date, raid.time)}</small>
-            <small>
-              👤 {raid.createdByName}
-              {raid.createdByMain ? ` • ${raid.createdByMain}` : ""}
-            </small>
-            {raid.raidLeaderName ? (
-              <small>🧭 РЛ: {raid.raidLeaderName}</small>
-            ) : null}
-            <small>
-              👥 {layoutCounts.roster} / {capacity}
-              {canManage ? ` • ${raidAutoCompositionLabel(raid)}` : ""}
-            </small>
-            {raid.minItemLevel ? (
-              <small>👙 Мін. ilvl: {raid.minItemLevel}</small>
-            ) : null}
-            {registrationLock.enabled ? (
-              <small>🔐 {registrationLock.label}</small>
-            ) : null}
-            {averageItemLevel ? (
-              <small>📊 Середній ilvl: {averageItemLevel}</small>
-            ) : null}
-            {raid.discordDeletedAt ? (
-              <small>🧹 Discord-повідомлення прибрано</small>
-            ) : null}
+            <small>Дата: {formatRaidDateTime(raid.date, raid.time)}</small>
+            <small>Склад: {layoutCounts.roster} / {capacity}</small>
+            <small>Тип: {raidAutoCompositionLabel(raid)}</small>
+            {raid.raidLeaderName ? <small>РЛ: {raid.raidLeaderName}</small> : null}
+            {raid.minItemLevel ? <small>Мін. ilvl: {raid.minItemLevel}</small> : null}
+            {averageItemLevel ? <small>Сер. ilvl: {averageItemLevel}</small> : null}
+            {registrationLock.enabled ? <small>Запис: {registrationLock.label}</small> : null}
           </span>
           <span
             className="raid-list-progress"

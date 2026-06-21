@@ -186,27 +186,9 @@ if (exists('src/app/profiles/page.tsx')) {
 }
 
 
-if (exists('src/components/SectionIcon.tsx')) {
-  const iconText = read('src/components/SectionIcon.tsx');
-  assert(/type SectionIconName/.test(iconText), 'SectionIcon component must define the shared dashboard icon registry.');
-  assert(iconText.includes('home') && iconText.includes('guild') && iconText.includes('raids'), 'SectionIcon registry must cover the core dashboard sections.');
-}
-
-const requiredIconAssets = [
-  'public/ui-icons/home.svg',
-  'public/ui-icons/applications.svg',
-  'public/ui-icons/raids.svg',
-  'public/ui-icons/guild.svg',
-  'public/ui-icons/discord.svg',
-  'public/ui-icons/profiles.svg',
-  'public/ui-icons/content.svg',
-  'public/ui-icons/admin.svg',
-  'public/ui-icons/terms.svg',
-  'public/ui-icons/privacy.svg',
-];
-for (const asset of requiredIconAssets) {
-  assert(exists(asset), `Missing generated SVG dashboard icon: ${asset}.`);
-}
+assert(!exists('src/components/SectionIcon.tsx'), 'SectionIcon registry must be removed: the dashboard is intentionally iconless.');
+assert(!exists('public/ui-icons'), 'Generated SVG dashboard icons must be removed from public assets.');
+assert(!/SectionIcon|dashboard-section-icon|ui-icons/.test(runtimeCombined), 'Icon-system references detected after iconless UI rebuild.');
 
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {

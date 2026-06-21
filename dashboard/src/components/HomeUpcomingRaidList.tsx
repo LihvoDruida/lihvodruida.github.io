@@ -50,12 +50,6 @@ function raidState(startsAt: Date, now: number) {
   };
 }
 
-function difficultyIcon(difficulty: HomeUpcomingRaid["difficulty"]) {
-  if (difficulty === "mythic") return "◆";
-  if (difficulty === "heroic") return "◇";
-  return "✦";
-}
-
 export default function HomeUpcomingRaidList({ raids, initialNow }: { raids: HomeUpcomingRaid[]; initialNow?: number }) {
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(() => initialNow || Date.now());
@@ -85,7 +79,6 @@ export default function HomeUpcomingRaidList({ raids, initialNow }: { raids: Hom
         const state = raidState(startsAt, now);
         return (
           <a className={`home-upcoming-event home-upcoming-event--${raid.difficulty} home-upcoming-event--${state.tone}`} href={raid.href} key={raid.id}>
-            <span className="home-upcoming-event__icon" aria-hidden="true">{difficultyIcon(raid.difficulty)}</span>
             <span className="home-upcoming-event__main">
               <strong>{raid.title}</strong>
               <small>{state.label}</small>

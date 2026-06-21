@@ -17,7 +17,6 @@ import {
 import LogoutButton from "@/components/LogoutButton";
 import MobileNavSafeAreaSync from "@/components/MobileNavSafeAreaSync";
 import DashboardDesktopNav from "@/components/DashboardDesktopNav";
-import SectionIcon, { type SectionIconName } from "@/components/SectionIcon";
 import { getProfileById, getProfilePublicName } from "@/lib/profiles";
 import { getGuildNicknamePolicy } from "@/lib/guildNicknamePolicy";
 
@@ -46,27 +45,27 @@ export default async function DashboardIdentity({
   const profileHref = user?.profileId ? `/profile/${user.profileId}` : "/profile";
   const navItems = user
     ? [
-        { href: "/", section: "home" as const, icon: "home" as SectionIconName, label: "Головна", desktopLabel: "Головна" },
+        { href: "/", section: "home" as const, label: "Головна", desktopLabel: "Головна" },
         canUseApplications
-          ? { href: "/applications", section: "applications" as const, icon: "applications" as SectionIconName, label: "Заявки", desktopLabel: "Заявки" }
+          ? { href: "/applications", section: "applications" as const, label: "Заявки", desktopLabel: "Заявки" }
           : null,
         canUseRaids
-          ? { href: "/raids", section: "raids" as const, icon: "raids" as SectionIconName, label: "Рейди", desktopLabel: canCreateRaids ? "Рейди" : "Мої рейди" }
+          ? { href: "/raids", section: "raids" as const, label: "Рейди", desktopLabel: canCreateRaids ? "Рейди" : "Мої рейди" }
           : null,
         canUseGuildRoster
-          ? { href: "/guild", section: "guild" as const, icon: "guild" as SectionIconName, label: "Склад", desktopLabel: "Склад гільдії" }
+          ? { href: "/guild", section: "guild" as const, label: "Склад", desktopLabel: "Склад гільдії" }
           : null,
         canUseDiscord
-          ? { href: "/discord", section: "discord" as const, icon: "discord" as SectionIconName, label: "Discord", desktopLabel: "Discord" }
+          ? { href: "/discord", section: "discord" as const, label: "Discord", desktopLabel: "Discord" }
           : null,
         canUseProfiles
-          ? { href: "/profiles", section: "profiles" as const, icon: "profiles" as SectionIconName, label: "Профілі", desktopLabel: "Профілі" }
+          ? { href: "/profiles", section: "profiles" as const, label: "Профілі", desktopLabel: "Профілі" }
           : null,
         canUseContent
-          ? { href: "/content", section: "content" as const, icon: "content" as SectionIconName, label: "Новини", desktopLabel: "Новини / гайди" }
+          ? { href: "/content", section: "content" as const, label: "Новини", desktopLabel: "Новини / гайди" }
           : null,
         canUseAdmin
-          ? { href: "/admin", section: "admin" as const, icon: "admin" as SectionIconName, label: "Керування", desktopLabel: "Керування" }
+          ? { href: "/admin", section: "admin" as const, label: "Керування", desktopLabel: "Керування" }
           : null,
       ].filter((item): item is NonNullable<typeof item> => Boolean(item))
     : [];
@@ -76,9 +75,6 @@ export default async function DashboardIdentity({
     <>
       <header className="dashboard-topbar">
         <div className="dashboard-brand">
-          <div className="dashboard-brand__crest" aria-hidden="true">
-            <SectionIcon name="guild" className="dashboard-section-icon dashboard-section-icon--brand" />
-          </div>
           <img className="guild-mark" src={guild.iconUrl} alt="" width={44} height={44} loading="eager" referrerPolicy="no-referrer" />
           <div>
             <strong>{guild.name}</strong>
@@ -135,7 +131,6 @@ export default async function DashboardIdentity({
                   className={activeSection === item.section ? "is-active" : undefined}
                   aria-current={activeSection === item.section ? "page" : undefined}
                 >
-                  <span className="dashboard-mobile-nav__icon" aria-hidden="true"><SectionIcon name={item.icon} className="dashboard-section-icon" /></span>
                   <strong>{item.label}</strong>
                 </a>
               ))}
