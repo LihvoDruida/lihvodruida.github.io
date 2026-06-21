@@ -171,6 +171,43 @@ for (const [file, requiredClasses] of Object.entries(listUnifiedFiles)) {
   }
 }
 
+if (exists('src/components/GuildRosterExplorer.tsx')) {
+  const rosterText = read('src/components/GuildRosterExplorer.tsx');
+  assert(rosterText.includes('dashboard-table-card--roster'), 'Guild roster must use the compact dashboard table layout.');
+  assert(/const rosterPageSize = 20/.test(rosterText), 'Guild roster must keep 20 characters per page.');
+  assert(rosterText.includes('pagedMembers'), 'Guild roster must paginate filtered members before rendering rows.');
+}
+
+if (exists('src/app/profiles/page.tsx')) {
+  const profilesText = read('src/app/profiles/page.tsx');
+  assert(profilesText.includes('dashboard-table-card--profiles'), 'Profiles page must use the compact dashboard table layout.');
+  assert(/const PROFILE_PAGE_SIZE = 20/.test(profilesText), 'Profiles page must keep 20 profiles per page.');
+  assert(profilesText.includes('buildProfilesHref'), 'Profiles page must preserve pagination links with active search query.');
+}
+
+
+if (exists('src/components/SectionIcon.tsx')) {
+  const iconText = read('src/components/SectionIcon.tsx');
+  assert(/type SectionIconName/.test(iconText), 'SectionIcon component must define the shared dashboard icon registry.');
+  assert(iconText.includes('home') && iconText.includes('guild') && iconText.includes('raids'), 'SectionIcon registry must cover the core dashboard sections.');
+}
+
+const requiredIconAssets = [
+  'public/ui-icons/home.svg',
+  'public/ui-icons/applications.svg',
+  'public/ui-icons/raids.svg',
+  'public/ui-icons/guild.svg',
+  'public/ui-icons/discord.svg',
+  'public/ui-icons/profiles.svg',
+  'public/ui-icons/content.svg',
+  'public/ui-icons/admin.svg',
+  'public/ui-icons/terms.svg',
+  'public/ui-icons/privacy.svg',
+];
+for (const asset of requiredIconAssets) {
+  assert(exists(asset), `Missing generated SVG dashboard icon: ${asset}.`);
+}
+
 assert(exists('tsconfig.typecheck.json'), 'Missing tsconfig.typecheck.json. Typecheck must avoid generated/cache directories.');
 if (exists('tsconfig.typecheck.json')) {
   const typecheckConfig = read('tsconfig.typecheck.json');

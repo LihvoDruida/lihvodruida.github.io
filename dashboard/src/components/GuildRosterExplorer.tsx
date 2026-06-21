@@ -716,6 +716,21 @@ export default function GuildRosterExplorer({
     );
   }, [liveMembers]);
 
+  const rosterPageSize = 20;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(filteredMembers.length / rosterPageSize));
+  const safePage = Math.min(page, pageCount);
+  const pageStart = (safePage - 1) * rosterPageSize;
+  const pagedMembers = filteredMembers.slice(pageStart, pageStart + rosterPageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [segment, query, classFilter, specFilter, roleFilter, factionFilter, rioMin, rioMax, itemLevelMin, itemLevelMax, sort]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+
   function resetFilters() {
     setQuery("");
     setClassFilter("Усі класи");
@@ -772,320 +787,239 @@ export default function GuildRosterExplorer({
 
   return (
     <>
-      <section className="guild-stat-grid" aria-label="Статистика гільдії">
-        <StatDonut
-          title="Тип броні"
-          subtitle="Яку броню носять гравці гільдії"
-          center={formatNumber(liveStats.averageItemLevel)}
-          caption="СЕР. ILVL"
-          segments={statData.armorCounts.map((item) => ({
-            value: item.count,
-            color: item.color,
-          }))}
-          legend={statData.armorCounts.map((item) => ({
-            label: item.label,
-            value: `${percent(item.count, liveMembers.length)}%`,
-            detail: `${item.count} гравців`,
-            color: item.color,
-          }))}
-        />
-        <StatDonut
-          title="Середній RIO гільдії"
-          subtitle="У центрі — середній Mythic+ рейтинг, по колу — співвідношення ролей"
-          center={formatNumber(liveStats.averageRioAll)}
-          caption="СЕР. RIO"
-          segments={statData.roleCounts.map((item) => ({
-            value: item.count,
-            color: item.color,
-          }))}
-          legend={statData.roleCounts.map((item) => ({
-            label: ROLE_LABELS[item.role] || item.role,
-            value: `${percent(item.count, liveMembers.length)}%`,
-            detail: `${item.count} гравців • сер. RIO ${formatNumber(item.averageRio)}`,
-            color: item.color,
-          }))}
-        />
-      </section>
-
-      <section className="guild-roster-layout">
-        <aside
-          className={`guild-filter-panel panel dashboard-list-panel ${filtersOpen ? "is-open" : "is-collapsed"}`}
-          aria-label="Фільтри складу гільдії"
-        >
-          <div className="guild-filter-head dashboard-list-head">
-            <div>
-              <span className="eyebrow">Фільтри</span>
-              <h2>Пошук по складу</h2>
-            </div>
-            <div className="guild-filter-head__actions">
+      <section className="dashboard-table-card dashboard-list-panel dashboard-table-card--roster panel" aria-label="Компактний склад гільдії">
+        <div className="dashboard-table-titlebar dashboard-list-head">
+          <div>
+            <span className="eyebrow">Склад</span>
+            <h2>Ростер гільдії</h2>
+          </div>
+          <div className="dashboard-table-controls" aria-label="Пошук і швидкі фільтри складу">
+            <label className="dashboard-table-search" htmlFor="guild-roster-search">
+              <span className="sr-only">Пошук персонажа</span>
+              <input
+                id="guild-roster-search"
+                name="guild_roster_search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Пошук персонажа"
+                autoComplete="off"
+              />
+            </label>
+            {(["all", "dps", "healer", "tank"] as GuildScoreSegment[]).map((item) => (
               <button
                 type="button"
-                className="guild-filter-toggle"
-                onClick={() => setFiltersOpen((value) => !value)}
-                aria-expanded={filtersOpen}
+                key={item}
+                className={`dashboard-table-filter${segment === item ? " is-active" : ""}`}
+                onClick={() => setSegment(item)}
+                title={`${SEGMENT_LABELS[item]}: ${segmentCounts[item]} персонажів з RIO`}
               >
-                {filtersOpen ? "Згорнути" : "Показати"}
+                {SEGMENT_LABELS[item] === "ALL" ? "Всі" : SEGMENT_LABELS[item]}
               </button>
-              <button
-                type="button"
-                className="guild-filter-reset"
-                onClick={resetFilters}
+            ))}
+            <button
+              type="button"
+              className={`dashboard-table-filter dashboard-table-filter--muted${filtersOpen ? " is-active" : ""}`}
+              onClick={() => setFiltersOpen((value) => !value)}
+              aria-expanded={filtersOpen}
+            >
+              Фільтри
+            </button>
+          </div>
+        </div>
+
+        <div className="dashboard-table-stats" aria-label="Показники складу">
+          <div>
+            <span>Учасників</span>
+            <strong>{formatNumber(liveStats.memberCount || liveMembers.length)}</strong>
+          </div>
+          <div>
+            <span>Показано</span>
+            <strong>{formatNumber(filteredMembers.length)}</strong>
+          </div>
+          <div>
+            <span>M+ профілів</span>
+            <strong>{formatNumber(segmentCounts.all)}</strong>
+          </div>
+          <div>
+            <span>Сер. ilvl</span>
+            <strong>{formatNumber(liveStats.averageItemLevel)}</strong>
+          </div>
+          <div>
+            <span>Топ M+</span>
+            <strong>{formatNumber(liveStats.maxRioAll, 1)}</strong>
+          </div>
+          <div>
+            <span>Макс. ilvl</span>
+            <strong>{formatNumber(liveStats.maxItemLevel)}</strong>
+          </div>
+        </div>
+
+        {filtersOpen ? (
+          <div className="dashboard-table-advanced panel" aria-label="Розширені фільтри складу">
+            <RangeFilter
+              idBase="guild-roster-rio"
+              nameBase="guild_roster_rio"
+              label="RIO"
+              minValue={rioMin}
+              maxValue={rioMax}
+              absoluteMin={0}
+              absoluteMax={maxRio}
+              onMinChange={setRioMin}
+              onMaxChange={setRioMax}
+            />
+            <RangeFilter
+              idBase="guild-roster-item-level"
+              nameBase="guild_roster_item_level"
+              label="Item level"
+              minValue={itemLevelMin}
+              maxValue={itemLevelMax}
+              absoluteMin={0}
+              absoluteMax={maxItemLevel}
+              onMinChange={setItemLevelMin}
+              onMaxChange={setItemLevelMax}
+            />
+            <FilterSelect
+              id="guild-roster-class"
+              name="guild_roster_class"
+              label="Клас"
+              value={classFilter}
+              options={options.classes}
+              onChange={setClassFilter}
+            />
+            <FilterSelect
+              id="guild-roster-spec"
+              name="guild_roster_spec"
+              label="Спек"
+              value={specFilter}
+              options={options.specs}
+              onChange={setSpecFilter}
+            />
+            <FilterSelect
+              id="guild-roster-role"
+              name="guild_roster_role"
+              label="Роль"
+              value={roleFilter}
+              options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]}
+              onChange={setRoleFilter}
+            />
+            <FilterSelect
+              id="guild-roster-faction"
+              name="guild_roster_faction"
+              label="Фракція"
+              value={factionFilter}
+              options={options.factions}
+              onChange={setFactionFilter}
+            />
+            <label className="guild-filter-field" htmlFor="guild-roster-sort">
+              <span>Сортування</span>
+              <select
+                id="guild-roster-sort"
+                name="guild_roster_sort"
+                value={sort}
+                onChange={(event) => setSort(event.target.value as SortKey)}
               >
+                <option value="rio-desc">RIO: від більшого</option>
+                <option value="rio-asc">RIO: від меншого</option>
+                <option value="ilvl-desc">Item level: від більшого</option>
+                <option value="name-asc">Ім’я: А–Я</option>
+                <option value="rank-asc">Гільдійний ранг</option>
+              </select>
+            </label>
+            <div className="dashboard-table-advanced__actions">
+              <button type="button" className="btn subtle" onClick={resetFilters}>
                 Скинути
               </button>
+              <small>
+                {liveStats.updatedAt ? `Оновлено: ${formatRosterDate(liveStats.updatedAt)}` : "Дані складу оновлюються фоново"}
+              </small>
             </div>
           </div>
+        ) : null}
 
-          {filtersOpen ? (
-            <div className="guild-filter-body">
-              <label
-                className="guild-filter-field guild-filter-field--wide"
-                htmlFor="guild-roster-search"
-              >
-                <span>Пошук</span>
-                <input
-                  id="guild-roster-search"
-                  name="guild_roster_search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Нік, клас, спек, реалм…"
-                  autoComplete="off"
-                />
-              </label>
-
-              <RangeFilter
-                idBase="guild-roster-rio"
-                nameBase="guild_roster_rio"
-                label="RIO"
-                minValue={rioMin}
-                maxValue={rioMax}
-                absoluteMin={0}
-                absoluteMax={maxRio}
-                onMinChange={setRioMin}
-                onMaxChange={setRioMax}
-              />
-
-              <RangeFilter
-                idBase="guild-roster-item-level"
-                nameBase="guild_roster_item_level"
-                label="Item level"
-                minValue={itemLevelMin}
-                maxValue={itemLevelMax}
-                absoluteMin={0}
-                absoluteMax={maxItemLevel}
-                onMinChange={setItemLevelMin}
-                onMaxChange={setItemLevelMax}
-              />
-
-              <FilterSelect
-                id="guild-roster-class"
-                name="guild_roster_class"
-                label="Клас"
-                value={classFilter}
-                options={options.classes}
-                onChange={setClassFilter}
-              />
-              <FilterSelect
-                id="guild-roster-spec"
-                name="guild_roster_spec"
-                label="Спек"
-                value={specFilter}
-                options={options.specs}
-                onChange={setSpecFilter}
-              />
-              <FilterSelect
-                id="guild-roster-role"
-                name="guild_roster_role"
-                label="Роль"
-                value={roleFilter}
-                options={["Усі ролі", "Танк", "Хіл", "DPS", "Без ролі"]}
-                onChange={setRoleFilter}
-              />
-              <FilterSelect
-                id="guild-roster-faction"
-                name="guild_roster_faction"
-                label="Фракція"
-                value={factionFilter}
-                options={options.factions}
-                onChange={setFactionFilter}
-              />
-              <label className="guild-filter-field" htmlFor="guild-roster-sort">
-                <span>Сортування</span>
-                <select
-                  id="guild-roster-sort"
-                  name="guild_roster_sort"
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value as SortKey)}
-                >
-                  <option value="rio-desc">RIO: від більшого</option>
-                  <option value="rio-asc">RIO: від меншого</option>
-                  <option value="ilvl-desc">Item level: від більшого</option>
-                  <option value="name-asc">Ім’я: А–Я</option>
-                  <option value="rank-asc">Гільдійний ранг</option>
-                </select>
-              </label>
-
-              <div className="guild-filter-source">
-                <span>Дані складу оновлюються фоново.</span>
-                {liveStats.updatedAt ? (
-                  <span>Останнє оновлення: {formatRosterDate(liveStats.updatedAt)}</span>
-                ) : null}
-              </div>
+        <div className="dashboard-table-scroll">
+          <div className="dashboard-table dashboard-list dashboard-table--guild" role="table" aria-label="Список персонажів гільдії">
+            <div className="dashboard-table-head" role="row">
+              <span role="columnheader">Персонаж</span>
+              <span role="columnheader">Клас / спек</span>
+              <span role="columnheader">Роль</span>
+              <span role="columnheader">ILVL</span>
+              <span role="columnheader">M+ ↓</span>
+              <span role="columnheader">ГІ ранг</span>
+              <span role="columnheader">Профіль</span>
+              <span role="columnheader">Raider.IO</span>
             </div>
-          ) : null}
-        </aside>
-
-        <section
-          className="guild-roster-main"
-          aria-label="Список персонажів гільдії"
-        >
-          <div className="guild-segment-tabs panel dashboard-list-toolbar">
-            {(["all", "dps", "healer", "tank"] as GuildScoreSegment[]).map(
-              (item) => (
-                <button
-                  type="button"
-                  key={item}
-                  className={segment === item ? "is-active" : undefined}
-                  onClick={() => setSegment(item)}
-                >
-                  <strong>{SEGMENT_LABELS[item]}</strong>
-                  <span>{segmentCounts[item]} з RIO</span>
-                </button>
-              ),
-            )}
-          </div>
-
-          <div className="guild-roster-summary panel dashboard-list-head">
-            <div>
-              <span className="eyebrow">Склад гільдії</span>
-              <strong>
-                {filteredMembers.length} / {liveMembers.length}
-              </strong>
-              <small>показано після фільтрів</small>
-            </div>
-            <div>
-              <span>Макс. RIO ALL</span>
-              <strong>{formatNumber(liveStats.maxRioAll, 1)}</strong>
-            </div>
-            <div>
-              <span>Макс. ilvl</span>
-              <strong>{formatNumber(liveStats.maxItemLevel)}</strong>
-            </div>
-          </div>
-
-          <div className="guild-member-list dashboard-list">
-            {filteredMembers.length ? (
-              filteredMembers.map((member, index) => {
+            {pagedMembers.length ? (
+              pagedMembers.map((member, index) => {
                 const score = member.scores[segment] || 0;
                 const ownerProfileHref = member.ownerProfileId
                   ? `/profile/${encodeURIComponent(member.ownerProfileId)}`
                   : null;
                 return (
                   <article
-                    className={`guild-member-card panel dashboard-list-row guild-member-card--${member.role}${ownerProfileHref ? " guild-member-card--clickable" : ""}`}
+                    className={`dashboard-table-row dashboard-list-row dashboard-table-row--clickable guild-table-row guild-table-row--${member.role}`}
                     key={member.key}
-                    role={ownerProfileHref ? "link" : undefined}
+                    role="row"
                     tabIndex={ownerProfileHref ? 0 : undefined}
                     data-profile-href={ownerProfileHref || undefined}
-                    title={
-                      ownerProfileHref
-                        ? `Відкрити профіль: ${member.ownerDisplayName || member.name}`
-                        : undefined
-                    }
-                    onClick={(event) =>
-                      openProfileCard(event, ownerProfileHref)
-                    }
-                    onKeyDown={(event) =>
-                      openProfileCardWithKeyboard(event, ownerProfileHref)
-                    }
+                    title={ownerProfileHref ? `Відкрити профіль: ${member.ownerDisplayName || member.name}` : undefined}
+                    onClick={(event) => openProfileCard(event, ownerProfileHref)}
+                    onKeyDown={(event) => openProfileCardWithKeyboard(event, ownerProfileHref)}
                   >
-                    <div className="guild-member-leading">
-                      <CharacterAvatar member={member} />
-                      <div className="guild-member-rank">#{index + 1}</div>
+                    <div className="dashboard-table-primary" role="cell">
+                      <strong style={{ color: classColor(member.className) }}>{member.name}</strong>
+                      <small>{member.realmName || member.realmSlug}</small>
                     </div>
-                    <div className="guild-member-main">
-                      <div className="guild-member-title">
-                        <h3 style={{ color: classColor(member.className) }}>
-                          {member.name}
-                        </h3>
-                        <span>
-                          {member.region}-{member.realmName}
-                        </span>
-                      </div>
-                      <p>
-                        {member.specName} {member.className} • {member.raceName}
-                      </p>
-                      <div className="guild-member-score">
-                        <div className="guild-member-score-block guild-member-score-block--rio">
-                          <small>RAIDER.IO M+</small>
-                          <strong>{formatNumber(score, 1)}</strong>
-                        </div>
-                        <div className="guild-member-score-block guild-member-score-block--ilvl">
-                          <small>ITEM LEVEL</small>
-                          <strong>{member.itemLevel || "—"}</strong>
-                        </div>
-                      </div>
+                    <div role="cell">
+                      <strong>{member.className || "—"}</strong>
+                      <small>{member.specName || "—"}</small>
                     </div>
-                    <div className="guild-member-side">
-                      <div className="guild-member-tags">
-                        <span
-                          className={`guild-role-tag guild-role-tag--${member.role}`}
-                        >
-                          {roleShort(member.role)}
-                        </span>
-                        {member.guildStatusLabel ? (
-                          <span
-                            className={`guild-status-tag guild-status-tag--${member.guildStatus || "member"}`}
-                          >
-                            {member.guildStatusLabel}
-                          </span>
-                        ) : null}
-                        <span
-                          className={`guild-faction-tag guild-faction-tag--${member.faction.toLowerCase()}`}
-                        >
-                          {member.faction}
-                        </span>
-                      </div>
-                      <SegmentBadges member={member} activeSegment={segment} />
-                      <div className="guild-member-links">
-                        {ownerProfileHref ? (
-                          <a
-                            className="guild-profile-link"
-                            href={ownerProfileHref}
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            Профіль
-                          </a>
-                        ) : (
-                          <span className="guild-no-link">
-                            Профіль не привʼязано
-                          </span>
-                        )}
-                        {member.profileUrl ? (
-                          <a
-                            href={member.profileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            Raider.IO
-                          </a>
-                        ) : (
-                          <span className="guild-no-link">Без Raider.IO</span>
-                        )}
-                      </div>
+                    <div role="cell"><span className={`dashboard-table-pill dashboard-table-pill--${member.role}`}>{roleShort(member.role)}</span></div>
+                    <div role="cell">{member.itemLevel || "—"}</div>
+                    <div role="cell" className="dashboard-table-score"><strong>{formatNumber(score, 1)}</strong><small>{SEGMENT_LABELS[segment]}</small></div>
+                    <div role="cell">{member.rank === null || member.rank === undefined ? "—" : `#${member.rank}`}</div>
+                    <div role="cell">
+                      {ownerProfileHref ? (
+                        <a href={ownerProfileHref} onClick={(event) => event.stopPropagation()}>
+                          Профіль
+                        </a>
+                      ) : (
+                        <span className="dashboard-table-muted">—</span>
+                      )}
+                    </div>
+                    <div role="cell">
+                      {member.profileUrl ? (
+                        <a href={member.profileUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>
+                          RIO
+                        </a>
+                      ) : (
+                        <span className="dashboard-table-muted">—</span>
+                      )}
                     </div>
                   </article>
                 );
               })
             ) : (
-              <div className="guild-roster-empty panel">
-                <h2>Нікого не знайдено</h2>
-                <p>Зміни фільтри або скинь їх.</p>
+              <div className="dashboard-table-empty" role="row">
+                <strong>Нікого не знайдено</strong>
+                <span>Зміни фільтри або скинь їх.</span>
               </div>
             )}
           </div>
-        </section>
+        </div>
+
+        <div className="dashboard-table-footer">
+          <small>
+            Сторінка {safePage} / {pageCount} • {rosterPageSize} персонажів на сторінку
+          </small>
+          <div className="dashboard-table-pagination" aria-label="Навігація сторінками складу">
+            <button type="button" className="btn subtle" disabled={safePage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>
+              Назад
+            </button>
+            <button type="button" className="btn subtle" disabled={safePage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>
+              Далі
+            </button>
+          </div>
+        </div>
       </section>
     </>
   );

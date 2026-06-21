@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="frame-raids" x1="2" x2="22" y1="2" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f0c97a"/>
+      <stop offset="1" stop-color="#72d2a8"/>
+    </linearGradient>
+    <linearGradient id="shine-raids" x1="4" x2="20" y1="4" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff7de" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#ffe6aa" stop-opacity=".18"/>
+    </linearGradient>
+  </defs>
+  <rect x="2.35" y="2.35" width="19.3" height="19.3" rx="6" fill="#0a1220" stroke="url(#frame-raids)" stroke-width="1.3"/>
+  <path d="M4.2 6.1c2.8-3.45 6.75-3.25 7.8-2.85 2.5.95 4.5 1 7.8-.15" stroke="url(#shine-raids)" stroke-opacity=".5" stroke-width="1" stroke-linecap="round"/>
+  <g stroke="url(#frame-raids)" stroke-width="1.72" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m7.1 5.1 3.25 3.25-2.6 2.6-3.25-3.25 2.6-2.6Zm9.8 9.8 3.25 3.25-2.6 2.6-3.25-3.25 2.6-2.6Z"/>
+    <path d="m14.7 5.1 2.6 2.6-9.8 9.8-2.6-2.6 9.8-9.8Z"/>
+    <path d="M12 3.6v3.1M12 17.3v3.1M3.6 12h3.1M17.3 12h3.1"/>
+  </g>
+</svg>

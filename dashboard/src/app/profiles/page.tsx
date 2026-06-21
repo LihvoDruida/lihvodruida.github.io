@@ -1,21 +1,32 @@
 import DashboardIdentity from "@/components/DashboardIdentity";
-import HeroSidePanel from "@/components/HeroSidePanel";
 import { getSession } from "@/lib/auth";
-import { canManageDiscordMembers, canViewProfiles, guildStatusLabel } from "@/lib/permissions";
-import { getMainCharacter, getOwnProfilePath, getProfilePublicName, listDashboardProfiles, type DashboardProfile } from "@/lib/profiles";
+import {
+  canManageDiscordMembers,
+  canViewProfiles,
+  guildStatusLabel,
+} from "@/lib/permissions";
+import {
+  getMainCharacter,
+  getOwnProfilePath,
+  getProfilePublicName,
+  listDashboardProfiles,
+  type DashboardProfile,
+} from "@/lib/profiles";
 import { redirect } from "next/navigation";
-import { pickWowAvatarImageUrl } from "@/lib/wowCharacters";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
   title: "Профілі учасників",
-  description: "Список профілів Mistblossom Vanguard з персонажами, ролями, мейнами та доступними діями за правами користувача.",
+  description:
+    "Список профілів Mistblossom Vanguard з персонажами, ролями, мейнами та доступними діями за правами користувача.",
   path: "/profiles",
   keywords: ["профілі учасників", "персонажі WoW", "Battle.net"],
 });
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const PROFILE_PAGE_SIZE = 20;
 
 function parseDate(value?: string | null) {
   if (!value) return null;
@@ -26,149 +37,269 @@ function parseDate(value?: string | null) {
 function formatDate(value?: string | null) {
   const date = parseDate(value);
   if (!date) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("uk-UA", {
+    day: "2-digit",
+    month: "short",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Kyiv",
+  }).format(date);
 }
 
-function formatCompactDate(value?: string | null) {
-  const date = parseDate(value);
-  if (!date) return "—";
-  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "2-digit" }).format(date);
+function formatNumber(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  return new Intl.NumberFormat("uk-UA", { maximumFractionDigits: 0 }).format(
+    value,
+  );
 }
 
-function profileDirectoryAvatarUrl(profile: DashboardProfile) {
+function parsePage(value?: string) {
+  const page = Number(value || "1");
+  return Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+}
+
+function buildProfilesHref(query: string, page: number) {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (page > 1) params.set("page", String(page));
+  const suffix = params.toString();
+  return suffix ? `/profiles?${suffix}` : "/profiles";
+}
+
+function mainCharacterLabel(profile: DashboardProfile) {
   const main = getMainCharacter(profile);
-  return profile.avatarUrl || pickWowAvatarImageUrl(main?.avatarUrl, main?.renderUrl, main?.mediaUrl) || null;
+  if (!main) return { title: "Мейн не вибрано", subtitle: "—" };
+  const title = `${main.name}${main.realmName ? ` • ${main.realmName}` : ""}`;
+  const subtitle = [main.className, main.activeSpecName]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(" / ");
+  return { title, subtitle: subtitle || "—" };
 }
 
-function ProfileCard({ profile }: { profile: DashboardProfile }) {
-  const main = getMainCharacter(profile);
+function battleNetStatus(profile: DashboardProfile) {
+  if (!profile.battlenet?.linked) return "Ні";
+  const synced = profile.battlenet.lastSyncAt || profile.battlenet.lastConnectedAt;
+  return synced ? formatDate(synced) : "Так";
+}
+
+function ProfileRow({ profile }: { profile: DashboardProfile }) {
   const displayName = getProfilePublicName(profile);
-  const avatar = profileDirectoryAvatarUrl(profile);
   const guildStatus = profile.groupName || guildStatusLabel(profile.role);
   const href = `/profile/${profile.profileId}`;
   const activityDate = profile.lastLoginAt || profile.updatedAt;
-  const mainLabel = main ? `${main.name}${main.realmName ? `, ${main.realmName}` : ""}` : "мейн не вибрано";
+  const main = mainCharacterLabel(profile);
 
   return (
-    <a className="panel profile-directory-card profile-directory-card--clickable dashboard-list-row" href={href} aria-label={`Відкрити профіль: ${displayName}`}>
-      <div className="profile-directory-card__main">
-        {avatar ? (
-          <img className="profile-directory-card__avatar" src={avatar} alt="" width={64} height={64} loading="lazy" referrerPolicy="no-referrer" />
-        ) : (
-          <span className="profile-directory-card__avatar profile-directory-card__avatar--fallback" aria-hidden="true">
-            {(displayName || "?").charAt(0)}
-          </span>
-        )}
-        <div className="profile-directory-card__content">
-          <h2 title={displayName}>{displayName}</h2>
-          <p className="profile-directory-card__meta" title={`${guildStatus} • ${mainLabel}`}>
-            <span>{guildStatus}</span>
-            <span aria-hidden="true">•</span>
-            <span>{mainLabel}</span>
-          </p>
-        </div>
+    <a
+      className="dashboard-table-row dashboard-list-row dashboard-table-row--clickable profile-table-row"
+      href={href}
+      role="row"
+      aria-label={`Відкрити профіль: ${displayName}`}
+    >
+      <div className="dashboard-table-primary" role="cell">
+        <strong>{displayName}</strong>
+        <small>{profile.login || profile.providerUserId}</small>
       </div>
-
-      <div className="profile-directory-card__stats" aria-label="Короткі дані профілю">
-        <span>
-          <small>Персонажі</small>
-          <strong>{profile.characters.length}</strong>
+      <div role="cell">
+        <strong>{guildStatus}</strong>
+        <small>{profile.role}</small>
+      </div>
+      <div role="cell">
+        <strong>{main.title}</strong>
+        <small>{main.subtitle}</small>
+      </div>
+      <div role="cell" className="dashboard-table-score">
+        <strong>{formatNumber(profile.characters.length)}</strong>
+        <small>персонажів</small>
+      </div>
+      <div role="cell">
+        <span
+          className={`dashboard-table-pill ${profile.battlenet?.linked ? "dashboard-table-pill--ok" : "dashboard-table-pill--muted"}`}
+        >
+          {profile.battlenet?.linked ? "Так" : "Ні"}
         </span>
-        <span>
-          <small>Battle.net</small>
-          <strong>{profile.battlenet?.linked ? "Так" : "Ні"}</strong>
-        </span>
-        <span className="profile-directory-card__stat--date" title={formatDate(activityDate)}>
-          <small>Активність</small>
-          <strong>{formatCompactDate(activityDate)}</strong>
-        </span>
+        <small>{battleNetStatus(profile)}</small>
+      </div>
+      <div role="cell">{formatDate(activityDate)}</div>
+      <div role="cell">
+        <span className="dashboard-table-link">Відкрити</span>
       </div>
     </a>
   );
 }
 
 export default async function ProfilesPage({
-  searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const user = await getSession();
-  if (!user) { redirect("/login"); throw new Error("Login required"); }
+  if (!user) {
+    redirect("/login");
+    throw new Error("Login required");
+  }
   if (!canViewProfiles(user)) redirect(await getOwnProfilePath(user));
 
   const params = await searchParams;
   const query = String(params.q || "").trim();
-  const profiles = await listDashboardProfiles({ viewer: user, query, limit: 200 });
+  const requestedPage = parsePage(params.page);
+  const allProfiles = await listDashboardProfiles({
+    viewer: user,
+    query,
+    limit: 500,
+  });
+  const pageCount = Math.max(1, Math.ceil(allProfiles.length / PROFILE_PAGE_SIZE));
+  const page = Math.min(requestedPage, pageCount);
+  const pageStart = (page - 1) * PROFILE_PAGE_SIZE;
+  const profiles = allProfiles.slice(pageStart, pageStart + PROFILE_PAGE_SIZE);
   const canRunManualCleanup = canManageDiscordMembers(user);
+  const linkedBattleNetCount = allProfiles.filter(
+    (profile) => profile.battlenet?.linked,
+  ).length;
+  const characterCount = allProfiles.reduce(
+    (sum, profile) => sum + profile.characters.length,
+    0,
+  );
 
   return (
     <main className="container">
-      <section className="dashboard-shell content-shell profile-directory-shell" aria-label="Профілі учасників Mistblossom Vanguard">
+      <section
+        className="dashboard-shell content-shell profile-directory-shell"
+        aria-label="Профілі учасників Mistblossom Vanguard"
+      >
         <DashboardIdentity user={user} activeSection="profiles" />
-        <header className="hero panel dashboard-hero content-dashboard-hero profile-directory-hero">
-          <div className="hero-copy dashboard-hero__copy content-dashboard-hero__copy guild-hero__copy">
-            <div className="eyebrow">Mistblossom Vanguard • Профілі</div>
-            <h1>Профілі учасників</h1>
-            <span className="hero-accent" aria-hidden="true" />
-            <p className="lead">Перегляд профілів, Discord-ролей, мейн-персонажів і Battle.net-стану. Нижчі ролі не бачать профілі з вищим доступом.</p>
+
+        <section
+          className="dashboard-table-card dashboard-list-panel dashboard-table-card--profiles panel"
+          aria-label="Компактний список профілів"
+        >
+          <div className="dashboard-table-titlebar dashboard-list-head">
+            <div>
+              <span className="eyebrow">Користувачі</span>
+              <h1>Профілі учасників</h1>
+            </div>
+            <div className="dashboard-table-controls" aria-label="Пошук і ручні дії з профілями">
+              <form className="dashboard-table-search-form" action="/profiles" method="get">
+                <label className="dashboard-table-search" htmlFor="profile-directory-search">
+                  <span className="sr-only">Пошук користувача</span>
+                  <input
+                    id="profile-directory-search"
+                    name="q"
+                    placeholder="Пошук користувача"
+                    defaultValue={query}
+                  />
+                </label>
+                <button className="dashboard-table-filter is-active" type="submit">
+                  Знайти
+                </button>
+                {query ? (
+                  <a className="dashboard-table-filter dashboard-table-filter--muted" href="/profiles">
+                    Скинути
+                  </a>
+                ) : null}
+              </form>
+
+              {canRunManualCleanup ? (
+                <form
+                  className="dashboard-table-action-form"
+                  action="/api/admin/discord/profiles/cleanup"
+                  method="post"
+                  data-dashboard-action-form="true"
+                  data-dashboard-live-submit="true"
+                >
+                  <input type="hidden" name="mode" value="apply" />
+                  <input type="hidden" name="limit" value="0" />
+                  <button
+                    className="dashboard-table-filter dashboard-table-filter--danger"
+                    type="submit"
+                    data-confirm-message="Запустити ручне глобальне очищення акаунтів? Перед видаленням система оновить склад гільдії в базі, перевірить Discord membership, прибере записи акаунтів з рейдів і видалить тільки тих, кого немає ні в roster, ні в Discord."
+                  >
+                    Очищення
+                  </button>
+                </form>
+              ) : null}
+            </div>
           </div>
-          <HeroSidePanel
-            ariaLabel="Огляд профілів"
-            summary={[
-              { label: "ДОСТУП", value: user.groupName || guildStatusLabel(user.role), note: "Фільтр за правами поточного користувача" },
-              { label: "ПОШУК", value: query || "Усі доступні", note: query ? "Активний фільтр" : "Без фільтра" },
-            ]}
-            stats={[
-              { label: "ПРОФІЛІ", value: profiles.length.toLocaleString("uk-UA") },
-              { label: "ЛІМІТ", value: "200" },
-              { label: "B.NET", value: profiles.filter((profile) => profile.battlenet?.linked).length.toLocaleString("uk-UA") },
-            ]}
-          />
-        </header>
-      <section className="toolbar panel profile-directory-toolbar dashboard-list-toolbar" aria-label="Пошук і ручні дії з профілями">
-        <form className="profile-directory-search-form" action="/profiles" method="get">
-          <input className="input" name="q" placeholder="Пошук: Discord, персонаж, реалм..." defaultValue={query} />
-          <button className="btn primary" type="submit">Знайти</button>
-          {query ? <a className="btn subtle" href="/profiles">Скинути</a> : null}
-        </form>
 
-        {canRunManualCleanup ? (
-          <form
-            className="profile-directory-manual-cleanup-form"
-            action="/api/admin/discord/profiles/cleanup"
-            method="post"
-            data-dashboard-action-form="true"
-            data-dashboard-live-submit="true"
-          >
-            <input type="hidden" name="mode" value="apply" />
-            <input type="hidden" name="limit" value="0" />
-            <button
-              className="btn danger profile-directory-manual-cleanup-button"
-              type="submit"
-              data-confirm-message="Запустити ручне глобальне очищення акаунтів? Перед видаленням система оновить склад гільдії в базі, перевірить Discord membership, прибере записи акаунтів з рейдів і видалить тільки тих, кого немає ні в roster, ні в Discord."
-            >
-              Ручне очищення
-            </button>
-          </form>
-        ) : null}
-      </section>
+          <div className="dashboard-table-stats" aria-label="Показники профілів">
+            <div>
+              <span>Профілів</span>
+              <strong>{formatNumber(allProfiles.length)}</strong>
+            </div>
+            <div>
+              <span>Показано</span>
+              <strong>{formatNumber(profiles.length)}</strong>
+            </div>
+            <div>
+              <span>Персонажів</span>
+              <strong>{formatNumber(characterCount)}</strong>
+            </div>
+            <div>
+              <span>Battle.net</span>
+              <strong>{formatNumber(linkedBattleNetCount)}</strong>
+            </div>
+            <div>
+              <span>Доступ</span>
+              <strong>{user.groupName || guildStatusLabel(user.role)}</strong>
+            </div>
+            <div>
+              <span>На сторінці</span>
+              <strong>{PROFILE_PAGE_SIZE}</strong>
+            </div>
+          </div>
 
-      <section className="profile-directory-grid dashboard-list" aria-label="Список доступних профілів">
-        {profiles.length ? profiles.map((profile) => <ProfileCard key={profile.profileId} profile={profile} />) : (
-          <article className="content-empty content-empty--profiles panel" aria-live="polite">
-            <span className="content-empty__icon" aria-hidden="true">🌿</span>
-            <div className="content-empty__copy">
-              <strong>{query ? "За цим пошуком профілів немає" : "Профілі ще не доступні"}</strong>
-              <span>
-                {query
-                  ? "Перевір Discord-нік, імʼя персонажа або реалм. Нижчі групи доступу не бачать профілі з вищими правами."
-                  : "Профіль зʼявиться після входу учасника через Discord і проходження перевірки доступу."}
-              </span>
+          <div className="dashboard-table-scroll">
+            <div className="dashboard-table dashboard-list dashboard-table--profiles" role="table" aria-label="Список доступних профілів">
+              <div className="dashboard-table-head" role="row">
+                <span role="columnheader">Користувач</span>
+                <span role="columnheader">Група / роль</span>
+                <span role="columnheader">Мейн</span>
+                <span role="columnheader">Персонажі</span>
+                <span role="columnheader">Battle.net</span>
+                <span role="columnheader">Активність</span>
+                <span role="columnheader">Дія</span>
+              </div>
+              {profiles.length ? (
+                profiles.map((profile) => (
+                  <ProfileRow key={profile.profileId} profile={profile} />
+                ))
+              ) : (
+                <div className="dashboard-table-empty" role="row">
+                  <strong>{query ? "За цим пошуком профілів немає" : "Профілі ще не доступні"}</strong>
+                  <span>
+                    {query
+                      ? "Перевір Discord-нік, імʼя персонажа або реалм."
+                      : "Профіль зʼявиться після входу учасника через Discord."}
+                  </span>
+                </div>
+              )}
             </div>
-            <div className="content-empty__actions">
-              {query ? <a className="btn subtle" href="/profiles">Скинути пошук</a> : null}
-              <a className="btn subtle" href="/discord">Перевірити Discord</a>
+          </div>
+
+          <div className="dashboard-table-footer">
+            <small>
+              Сторінка {page} / {pageCount} • {PROFILE_PAGE_SIZE} профілів на сторінку
+            </small>
+            <div className="dashboard-table-pagination" aria-label="Навігація сторінками профілів">
+              <a
+                className={`btn subtle${page <= 1 ? " is-disabled" : ""}`}
+                aria-disabled={page <= 1}
+                href={page <= 1 ? buildProfilesHref(query, 1) : buildProfilesHref(query, page - 1)}
+              >
+                Назад
+              </a>
+              <a
+                className={`btn subtle${page >= pageCount ? " is-disabled" : ""}`}
+                aria-disabled={page >= pageCount}
+                href={page >= pageCount ? buildProfilesHref(query, pageCount) : buildProfilesHref(query, page + 1)}
+              >
+                Далі
+              </a>
             </div>
-          </article>
-        )}
-      </section>
+          </div>
+        </section>
       </section>
     </main>
   );

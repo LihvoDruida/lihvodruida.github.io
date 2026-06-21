@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import SectionIcon, { type SectionIconName } from "@/components/SectionIcon";
 
 type DashboardNavItem = {
   href: string;
   section: string;
-  icon: string;
+  icon: SectionIconName;
   label: string;
   desktopLabel: string;
 };
@@ -167,7 +168,7 @@ export default function DashboardDesktopNav({
             aria-current={activeSection === item.section ? "page" : undefined}
             title={item.desktopLabel}
           >
-            <span>{item.desktopLabel}</span>
+            <span className="dashboard-nav__icon" aria-hidden="true"><SectionIcon name={item.icon} className="dashboard-section-icon" /></span><span>{item.desktopLabel}</span>
           </a>
         ))}
 
@@ -203,7 +204,7 @@ export default function DashboardDesktopNav({
                     title={item.desktopLabel}
                     onClick={() => setOpen(false)}
                   >
-                    <span aria-hidden="true">{item.icon}</span>
+                    <span className="dashboard-nav-more__icon" aria-hidden="true"><SectionIcon name={item.icon} className="dashboard-section-icon" /></span>
                     <strong>{item.desktopLabel}</strong>
                     <small>{activeSection === item.section ? "Відкрито" : "Перейти"}</small>
                   </a>
@@ -223,6 +224,7 @@ export default function DashboardDesktopNav({
             }}
             className="dashboard-nav-measure__item"
           >
+            <span className="dashboard-nav__icon" aria-hidden="true"><SectionIcon name={item.icon} className="dashboard-section-icon" /></span>
             <span>{item.desktopLabel}</span>
           </a>
         ))}
