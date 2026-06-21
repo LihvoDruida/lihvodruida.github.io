@@ -185,6 +185,15 @@ if (exists('src/app/profiles/page.tsx')) {
   assert(profilesText.includes('buildProfilesHref'), 'Profiles page must preserve pagination links with active search query.');
 }
 
+if (exists('src/components/RaidViews.tsx')) {
+  const raidViewsText = read('src/components/RaidViews.tsx');
+  assert(raidViewsText.includes('raid-list-action-open'), 'Raid cards must keep a full-width open action at the top of the action column.');
+  assert(raidViewsText.includes('raid-list-action-tools'), 'Raid cards must group edit/delete actions in one compact row.');
+  assert(raidViewsText.includes('raid-list-icon-action--edit') && raidViewsText.includes('aria-label={`Редагувати рейд'), 'Raid edit action must be icon-only visually but accessible by aria-label.');
+  assert(raidViewsText.includes('raid-list-icon-action--delete') && raidViewsText.includes('aria-label={raid.status === "draft"'), 'Raid delete action must be icon-only visually but accessible by aria-label.');
+  assert(raidViewsText.includes('raid-list-archive-note'), 'Raid cards must keep the archive/draft/state note below action buttons.');
+}
+
 
 assert(!exists('src/components/SectionIcon.tsx'), 'SectionIcon registry must be removed: the dashboard is intentionally iconless.');
 assert(!exists('public/ui-icons'), 'Generated SVG dashboard icons must be removed from public assets.');
@@ -197,6 +206,11 @@ if (exists('src/app/theme.css')) {
   assert(/\.raid-list-title-row strong[\s\S]{0,260}white-space: normal/.test(themeText), 'Raid card titles must wrap instead of truncating with ellipsis.');
   assert(/\.raid-list-facts small[\s\S]{0,380}overflow: visible/.test(themeText), 'Raid fact chips must not clip or ellipsize core data.');
   assert(/\.dashboard-nav-more__menu a strong[\s\S]{0,260}white-space: normal/.test(themeText), 'Overflow menu item titles must wrap instead of being clipped.');
+  assert(/\.raid-list-actions[\s\S]{0,260}grid-template-columns:\s*1fr/.test(themeText), 'Raid card actions must use a single fixed action column to avoid button overlap.');
+  assert(/\.raid-list-action-tools[\s\S]{0,220}repeat\(2, minmax\(0, 1fr\)\)/.test(themeText), 'Edit/delete raid actions must share one row below the open button.');
+  assert(/\.raid-list-icon-action--edit[\s\S]{0,220}rgba\(187, 137, 44/.test(themeText), 'Edit raid action must keep the muted matte yellow treatment.');
+  assert(/\.raid-list-icon-action--delete[\s\S]{0,220}rgba\(160, 48, 43/.test(themeText), 'Delete raid action must keep the muted matte red treatment.');
+  assert(/\.raid-list-archive-note[\s\S]{0,260}text-transform:\s*uppercase/.test(themeText), 'Archive marker must stay as a full-width bottom note.');
 }
 
 

@@ -1058,46 +1058,56 @@ export function RaidListCard({
         aria-label={canManage ? "Керування рейдом" : "Дії рейду"}
       >
         <a
-          className="btn subtle btn-sm"
+          className="btn subtle btn-sm raid-list-action-open"
           href={`/raids/${encodeURIComponent(raid.id)}`}
         >
           Відкрити
         </a>
         {canManage ? (
           <>
-            <a
-              className="btn subtle btn-sm"
-              href={`/raids/${encodeURIComponent(raid.id)}/edit`}
-            >
-              Редагувати
-            </a>
+            <div className="raid-list-action-tools" aria-label="Швидкі дії рейду">
+              <a
+                className="btn subtle btn-sm raid-list-icon-action raid-list-icon-action--edit"
+                href={`/raids/${encodeURIComponent(raid.id)}/edit`}
+                aria-label={`Редагувати рейд ${raidTitle(raid)}`}
+                title="Редагувати"
+              >
+                <span aria-hidden="true">✎</span>
+              </a>
+              <form
+                action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
+                method="post"
+                data-confirm-message={
+                  raid.status === "draft"
+                    ? "Видалити чернетку рейду?"
+                    : "Видалити рейд із панелі? Повʼязане Discord-повідомлення також буде прибране, якщо це можливо."
+                }
+              >
+                <button
+                  className="btn danger btn-sm raid-list-icon-action raid-list-icon-action--delete"
+                  type="submit"
+                  aria-label={raid.status === "draft" ? `Видалити чернетку ${raidTitle(raid)}` : `Видалити рейд ${raidTitle(raid)}`}
+                  title="Видалити"
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </form>
+            </div>
             {!closed && raid.status !== "draft" ? (
               <form
+                className="raid-list-action-state-form"
                 action={`/api/raids/${encodeURIComponent(raid.id)}/close`}
                 method="post"
               >
-                <button className="btn warning btn-sm" type="submit">
+                <button className="btn warning btn-sm raid-list-action-state" type="submit">
                   Закрити
                 </button>
               </form>
             ) : closed ? (
               <span className="raid-list-archive-note">Архів</span>
-            ) : null}
-            <form
-              action={`/api/raids/${encodeURIComponent(raid.id)}/delete`}
-              method="post"
-              data-confirm-message={
-                raid.status === "draft"
-                  ? "Видалити чернетку рейду?"
-                  : "Видалити рейд із панелі? Повʼязане Discord-повідомлення також буде прибране, якщо це можливо."
-              }
-            >
-              <button className="btn danger btn-sm" type="submit">
-                {raid.status === "draft"
-                  ? "Видалити чернетку"
-                  : "Видалити рейд"}
-              </button>
-            </form>
+            ) : (
+              <span className="raid-list-archive-note raid-list-archive-note--draft">Чернетка</span>
+            )}
           </>
         ) : closed ? (
           <span className="raid-list-archive-note">Архів</span>
