@@ -7,82 +7,90 @@ image: /assets/img/og-image-default.webp
 tags: [підтримка, донат, Monobank, Donatello, стріми, контент]
 extra_css:
   - /assets/css/donate.css
+extra_js:
+  - /assets/js/donatello.js
 ---
 
+<script>
+  window.LD_DONATELLO_CONFIG = {
+    workerUrl: "{{ site.donatello_worker_url | default: '' }}",
+    donateUrl: "https://donatello.to/lihvo_druida",
+    limit: 12,
+    refreshMs: 180000
+  };
+</script>
+
 <section class="donate-section">
-  <!-- HEADER -->
   <header class="donate-header">
+    <span class="donate-eyebrow">Підтримка</span>
     <h1>Підтримати проєкт</h1>
-    <p>Підтримка допомагає розвивати сайт, стріми, гайди та нові інструменти для спільноти.</p>
+    <p>Донати допомагають розвивати сайт, стріми, гайди, адони та інструменти для української WoW-спільноти.</p>
   </header>
 
-  <!-- SUBTITLE -->
   <h2 class="donate-subtitle">Оберіть спосіб підтримки</h2>
 
-  <!-- GRID OF DONATION METHODS -->
   <div class="methods-grid">
-    <!-- FEATURED METHOD -->
-    <a href="https://send.monobank.ua/jar/36G5vBXMkK" rel="noopener noreferrer" target="_blank"  class="card method-card featured">
+    <a href="https://send.monobank.ua/jar/36G5vBXMkK" rel="noopener noreferrer" target="_blank" class="card method-card featured">
       <div class="featured-badge">★ Рекомендовано</div>
-      <div class="method-icon"><img src="{{ '/assets/img/monobank-logo.webp' | relative_url }}" alt="Monobank" loading="lazy" decoding="async"></div>
-      <h3>Monobank</h3>
-      <p>Миттєва підтримка карткою українського банку</p>
+      <div>
+        <div class="method-icon"><img src="{{ '/assets/img/monobank-logo.webp' | relative_url }}" alt="Monobank" loading="lazy" decoding="async"></div>
+        <h3>Monobank</h3>
+        <p>Миттєва підтримка карткою українського банку.</p>
+      </div>
       <div class="method-features">
-        <span>✔ Швидко</span>
-        <span>✔ Безпечно</span>
+        <span>Швидко</span>
+        <span>Безпечно</span>
+        <span>Україна</span>
       </div>
     </a>
 
-   <a href="https://donatello.to/lihvo_druida" rel="noopener noreferrer" target="_blank"  class="card method-card">
-      <div class="method-icon"><img src="{{ '/assets/img/donatello-logo.webp' | relative_url }}" alt="Donatello" loading="lazy" decoding="async"></div>
-      <h3>Donatello</h3>
-      <p>Швидкі донати з України та інших країн</p>
+    <a href="https://donatello.to/lihvo_druida" rel="noopener noreferrer" target="_blank" class="card method-card">
+      <div>
+        <div class="method-icon"><img src="{{ '/assets/img/donatello-logo.webp' | relative_url }}" alt="Donatello" loading="lazy" decoding="async"></div>
+        <h3>Donatello</h3>
+        <p>Донати з повідомленням для стріму та публічною історією підтримки після підключення Worker.</p>
+      </div>
       <div class="method-features">
-        <span>✔ Анонімно</span>
-        <span>✔ Миттєво</span>
-        <span>✔ Голосові повідомлення</span>
+        <span>Повідомлення</span>
+        <span>Анонімно</span>
+        <span>Стрім</span>
       </div>
     </a>
   </div>
 
-  <!-- ALTERNATIVE METHODS
-  <div class="alternative-section">
-    <button class="toggle-alternatives">Інші способи підтримки ↓</button>
-    <div class="alternative-methods">
-      <div class="card method-card">
-        <h3>PayPal</h3>
-        <p>Міжнародна платіжна система</p>
-        <div class="method-features">
-          <span>✔ Швидко</span>
-          <span>✔ Безпечно</span>
-        </div>
-      </div>
-      <div class="card method-card">
-        <h3>Portmone</h3>
-        <p>Оплата з банківських карток</p>
-        <div class="method-features">
-          <span>✔ Українські банки</span>
-          <span>✔ Простий процес</span>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-  <!-- INFO / CREDITS -->
   <div class="credits-info">
     <h4>Дякую за підтримку!</h4>
     <p>
-      Кожен донат допомагає мені покращувати трансляції, купувати обладнання та створювати більше контенту для вас.
-      Ви також можете залишати повідомлення під час донату, щоб я бачив вашу підтримку на стрімі.
+      Кожен донат допомагає покращувати трансляції, купувати обладнання та створювати більше матеріалів для спільноти.
+      Повідомлення з Donatello можна виводити на стрімі, а історію підтримки — показувати на цій сторінці через Worker.
     </p>
   </div>
 
-  <!-- DONATION HISTORY -->
-  <div class="history-card">
-    <h2>Iсторія підтримки</h2>
-    <div class="empty-state">
-      <p>Тут з’явиться стрічка подяк і важливих оновлень для тих, хто підтримує проєкт.</p>
-      <span>Історія підтримки з’явиться тут</span>
+  <section class="donatello-live-card" aria-labelledby="donatello-live-title">
+    <div class="donatello-live-header">
+      <div>
+        <h2 id="donatello-live-title">Останні підтримки Donatello</h2>
+        <p>Блок автоматично читає дані з Cloudflare Worker, якщо URL вказано в <code>_config.yml</code>.</p>
+      </div>
+      <span id="donatello-status" class="donatello-status" data-tone="loading">Підготовка…</span>
     </div>
-  </div>
+
+    <div class="donatello-stats" aria-label="Статистика підтримки">
+      <div class="donatello-stat">
+        <span>Сума</span>
+        <strong id="total-amount">—</strong>
+      </div>
+      <div class="donatello-stat">
+        <span>Донатів</span>
+        <strong id="total-count">—</strong>
+      </div>
+    </div>
+
+    <div id="patrons-grid" class="patrons-grid">
+      <div class="donatello-loading">
+        <strong>Завантаження історії…</strong>
+        <span>Якщо Worker не налаштовано, тут буде показано безпечний fallback.</span>
+      </div>
+    </div>
+  </section>
 </section>

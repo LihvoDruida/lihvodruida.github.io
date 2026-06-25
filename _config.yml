@@ -33,6 +33,9 @@ github_repo_owner: "LihvoDruida"
 github_repo_name: "lihvodruida.github.io"
 guild_applications_api_url: "https://guild-applications.melles-android.workers.dev/api/guild-applications"
 guild_applications_label: "guild-application"
+# Optional: Cloudflare Worker that returns Donatello donations JSON.
+# Supported shapes: { stats: {...}, list: { content: [...] } }, { content: [...] }, { donations: [...] }.
+donatello_worker_url: ""
 default_keywords:
   - World of Warcraft
   - WoW

@@ -1,0 +1,266 @@
+/* =========================================================
+   Site polish + safe shared components
+   ========================================================= */
+
+:root {
+  --site-bg-0: #07090f;
+  --site-bg-1: #100d14;
+  --site-bg-2: #1a120c;
+  --panel-strong: rgba(18, 14, 11, 0.88);
+  --panel-glass: rgba(23, 19, 16, 0.72);
+  --panel-glass-soft: rgba(34, 27, 21, 0.66);
+  --border-soft: rgba(255, 255, 255, 0.075);
+  --border-gold: rgba(200, 155, 60, 0.28);
+  --shadow-soft: 0 18px 55px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  background: var(--site-bg-0);
+}
+
+body {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(200, 155, 60, 0.16), transparent 34rem),
+    radial-gradient(circle at 84% 14%, rgba(102, 86, 255, 0.10), transparent 32rem),
+    linear-gradient(180deg, var(--site-bg-0), var(--site-bg-1) 45%, var(--site-bg-2));
+}
+
+body.has-starfield {
+  background: var(--site-bg-0);
+}
+
+body.has-starfield::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 4%, rgba(200, 155, 60, 0.18), transparent 34rem),
+    radial-gradient(circle at 80% 10%, rgba(92, 119, 255, 0.12), transparent 30rem),
+    linear-gradient(180deg, rgba(7, 9, 15, 0.7), rgba(20, 14, 10, 0.74));
+}
+
+#site-starfield {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.82;
+}
+
+body.has-starfield .layout,
+body.has-starfield .skip-link {
+  position: relative;
+  z-index: 1;
+}
+
+body.has-starfield .top-nav {
+  background: rgba(9, 10, 15, 0.78);
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+}
+
+.card,
+.news-card,
+.visual-news-card,
+.featured-article,
+#characters .character {
+  border: 1px solid var(--border-soft);
+  background: var(--panel-glass);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.card:hover,
+.news-card:hover,
+.visual-news-card:hover,
+.featured-article:hover,
+#characters .character:hover {
+  border-color: var(--border-gold);
+}
+
+/* =========================================================
+   Home character cards + Raider.IO chips
+   Fixes oversized role SVGs when guild.css is not loaded.
+   ========================================================= */
+
+#characters {
+  align-items: stretch;
+}
+
+#characters .character {
+  min-height: 0;
+  align-items: flex-start;
+  overflow: visible;
+  isolation: isolate;
+}
+
+#characters .character:hover {
+  background: rgba(200, 155, 60, 0.09);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36), inset 0 0 0 1px rgba(200, 155, 60, 0.22);
+}
+
+.char-avatar-container,
+.avatar-wrapper {
+  flex: 0 0 auto;
+}
+
+.char-details,
+.char-info {
+  min-width: 0;
+}
+
+.char-info strong,
+.stats,
+.guild {
+  overflow-wrap: anywhere;
+}
+
+.member-chip,
+.rio-pill.member-chip {
+  min-height: 30px;
+  min-width: 54px;
+  width: auto;
+  max-width: none;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.055);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.member-chip .chip-value,
+.rio-pill.member-chip .chip-value {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rio-scores,
+.home-rio-scores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#characters .home-rio-scores {
+  margin-top: 10px;
+}
+
+.rio-pill {
+  position: relative;
+  overflow: visible;
+  cursor: help;
+}
+
+.rio-pill .role-icon {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  flex: 0 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.rio-pill .role-icon svg,
+.rio-pill svg {
+  width: 14px !important;
+  height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  display: block;
+}
+
+.rio-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  z-index: 50;
+  width: max-content;
+  min-width: 110px;
+  max-width: 210px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(12, 14, 19, 0.96);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.55);
+  color: var(--text);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+}
+
+.rio-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(12, 14, 19, 0.96) transparent transparent transparent;
+}
+
+.rio-pill:hover .rio-tooltip,
+.rio-pill:focus-within .rio-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.rio-tooltip .tooltip-header {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rio-tooltip .tooltip-text {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  #characters .character {
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .member-chip,
+  .rio-pill.member-chip {
+    min-height: 28px;
+    min-width: 48px;
+    padding: 0 8px;
+  }
+
+  .rio-pill .role-icon,
+  .rio-pill .role-icon svg,
+  .rio-pill svg {
+    width: 12px !important;
+    height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+  }
+}
