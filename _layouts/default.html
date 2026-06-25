@@ -115,6 +115,7 @@
   {% endif %}
 
   <script src="{{ '/assets/js/mobile-menu.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/sidebar-scroll.js' | relative_url }}" defer></script>
   {% unless page.disable_starfield %}
   <script src="{{ '/assets/js/starfield.js' | relative_url }}" defer></script>
   {% endunless %}
@@ -125,8 +126,6 @@
   {% endif %}
 </head>
 <body class="{% if page.layout %}layout-{{ page.layout }}{% endif %}">
-  <a class="skip-link" href="#main-content">Перейти до вмісту</a>
-
   <div class="layout">
     <aside class="sidebar">
       {% include sidebar.html %}
