@@ -2276,3 +2276,194 @@
     content: " · ILVL " attr(data-ilvl);
   }
 }
+/* =========================================================
+   RAID SEASONS — перемикач поточного та минулих сезонів
+   ========================================================= */
+
+.season-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.season-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted, #9c948a);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.season-tab:hover {
+  color: #f0e9e1;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.season-tab.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255, 155, 85, 0.9), rgba(214, 111, 46, 0.9));
+  box-shadow: 0 8px 22px -12px rgba(255, 155, 85, 0.9);
+}
+
+.season-tab-flag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.season-panel[hidden] {
+  display: none;
+}
+
+/* --- Підсумок сезону --- */
+.season-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.season-summary-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.season-summary-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f0e9e1;
+}
+
+.season-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted, #9c948a);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.season-badge.is-current {
+  color: #ffc08a;
+  background: rgba(255, 155, 85, 0.12);
+  border-color: rgba(255, 155, 85, 0.32);
+}
+
+.season-summary-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.season-stat {
+  padding: 5px 11px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted, #9c948a);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-variant-numeric: tabular-nums;
+}
+
+.season-stat b {
+  font-weight: 800;
+}
+
+.season-stat.is-mythic { color: #d3a3ff; border-color: rgba(180, 120, 255, 0.24); }
+.season-stat.is-heroic { color: #7fb3ff; border-color: rgba(90, 140, 255, 0.24); }
+.season-stat.is-normal { color: #74d69a; border-color: rgba(76, 175, 110, 0.24); }
+
+/* --- Порожній стан --- */
+.raid-card.placeholder-card {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 40px 24px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-subtle, rgba(255, 255, 255, 0.1));
+}
+
+.placeholder-icon {
+  font-size: 2.6rem;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+.raid-card.placeholder-card .raid-title {
+  color: var(--text-grey, #9c948a);
+}
+
+.placeholder-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-grey, #9c948a);
+  opacity: 0.75;
+}
+
+@media (max-width: 600px) {
+  .season-switcher {
+    width: 100%;
+    border-radius: 16px;
+    gap: 6px;
+  }
+
+  .season-tab {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .season-summary {
+    padding: 12px 14px;
+  }
+
+  .season-summary-stats {
+    width: 100%;
+  }
+
+  .season-stat {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+}

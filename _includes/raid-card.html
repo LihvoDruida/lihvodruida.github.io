@@ -1,0 +1,107 @@
+{% assign raid_slug = include.slug %}
+{% assign stats = include.stats %}
+{% assign rankings = include.rankings %}
+{% assign raid_name = site.data.raids.names[raid_slug] %}
+
+{% assign raid_title = raid_name.title | default: raid_slug | replace: '-', ' ' | capitalize %}
+{% assign raid_subtitle = raid_name.subtitle | default: include.fallback_subtitle | default: "Прогрес рейду" %}
+
+{% assign world_rank = '-' %}
+{% assign region_rank = '-' %}
+{% assign realm_rank = '-' %}
+
+{% if rankings.mythic.world and rankings.mythic.world > 0 %}
+  {% assign world_rank = rankings.mythic.world %}
+{% elsif rankings.heroic.world and rankings.heroic.world > 0 %}
+  {% assign world_rank = rankings.heroic.world %}
+{% elsif rankings.normal.world and rankings.normal.world > 0 %}
+  {% assign world_rank = rankings.normal.world %}
+{% endif %}
+
+{% if rankings.mythic.region and rankings.mythic.region > 0 %}
+  {% assign region_rank = rankings.mythic.region %}
+{% elsif rankings.heroic.region and rankings.heroic.region > 0 %}
+  {% assign region_rank = rankings.heroic.region %}
+{% elsif rankings.normal.region and rankings.normal.region > 0 %}
+  {% assign region_rank = rankings.normal.region %}
+{% endif %}
+
+{% if rankings.mythic.realm and rankings.mythic.realm > 0 %}
+  {% assign realm_rank = rankings.mythic.realm %}
+{% elsif rankings.heroic.realm and rankings.heroic.realm > 0 %}
+  {% assign realm_rank = rankings.heroic.realm %}
+{% elsif rankings.normal.realm and rankings.normal.realm > 0 %}
+  {% assign realm_rank = rankings.normal.realm %}
+{% endif %}
+
+{% assign has_ranks = false %}
+{% if world_rank != '-' or region_rank != '-' or realm_rank != '-' %}{% assign has_ranks = true %}{% endif %}
+
+<div class="raid-card">
+  <div class="raid-card-header">
+    <div class="raid-heading">
+      <h3 class="raid-title">{{ raid_title }}</h3>
+      <span class="raid-subtitle">{{ raid_subtitle }}</span>
+    </div>
+    <div class="raid-score">{{ stats.summary }}</div>
+  </div>
+
+  {% if has_ranks %}
+  <div class="rank-stats">
+    <div class="rank-item" title="Світовий ранг">
+      <span class="rank-icon">🌍</span>
+      <span class="rank-label">Світ</span>
+      <span class="rank-val">{% if world_rank == '-' %}—{% else %}#{{ world_rank }}{% endif %}</span>
+    </div>
+    <div class="rank-item" title="Ранг у регіоні (EU)">
+      <span class="rank-icon">🇪🇺</span>
+      <span class="rank-label">Європа</span>
+      <span class="rank-val">{% if region_rank == '-' %}—{% else %}#{{ region_rank }}{% endif %}</span>
+    </div>
+    <div class="rank-item" title="Ранг на сервері">
+      <span class="rank-icon">🏰</span>
+      <span class="rank-label">Сервер</span>
+      <span class="rank-val">{% if realm_rank == '-' %}—{% else %}#{{ realm_rank }}{% endif %}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="raid-bars">
+    <div class="progress-row">
+      <span class="diff-badge mythic">M</span>
+      <div class="progress-meta">
+        <div class="progress-top">
+          <span class="progress-name">Mythic</span>
+          <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-row">
+      <span class="diff-badge heroic">H</span>
+      <div class="progress-meta">
+        <div class="progress-top">
+          <span class="progress-name">Heroic</span>
+          <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-row">
+      <span class="diff-badge normal">N</span>
+      <div class="progress-meta">
+        <div class="progress-top">
+          <span class="progress-name">Normal</span>
+          <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

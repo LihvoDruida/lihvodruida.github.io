@@ -1,0 +1,65 @@
+# Довідник рейдів і сезонів.
+#
+# Raider.IO віддає raid_progression як плаский словник {slug: {...}} без жодної
+# інформації про сезон, тому прив'язку робимо тут вручну.
+#
+# Як додати новий сезон (наприклад, коли вийде Midnight Season 2):
+#   1. Дізнатися slug нового тиру — він з'явиться сам у _data/guild.yml
+#      після наступної синхронізації (напр. "tier-mn-2").
+#   2. Додати сезон у початок списку seasons.
+#   3. Перевести current_season на його id.
+# Рейди з невідомим slug не зникають — вони автоматично потрапляють
+# у групу «Інші рейди» наприкінці списку.
+
+current_season: midnight-1
+
+seasons:
+  - id: midnight-1
+    expansion: Midnight
+    label: "Midnight · Сезон 1"
+    short: "Сезон 1"
+    raids:
+      - tier-mn-1
+      - sporefall
+
+  - id: tww-3
+    expansion: The War Within
+    label: "The War Within · Сезон 3"
+    short: "TWW S3"
+    raids:
+      - manaforge-omega
+
+  - id: tww-2
+    expansion: The War Within
+    label: "The War Within · Сезон 2"
+    short: "TWW S2"
+    raids:
+      - liberation-of-undermine
+
+  - id: tww-1
+    expansion: The War Within
+    label: "The War Within · Сезон 1"
+    short: "TWW S1"
+    raids:
+      - nerubar-palace
+      - blackrock-depths
+
+names:
+  tier-mn-1:
+    title: "Стартові рейди Midnight"
+    subtitle: "Voidspire · Dreamrift · March on Quel'Danas"
+  sporefall:
+    title: "Sporefall"
+    subtitle: "Rotmire — рейд на одного боса, патч 12.0.7"
+  manaforge-omega:
+    title: "Manaforge Omega"
+    subtitle: "Фінальний рейд The War Within"
+  liberation-of-undermine:
+    title: "Liberation of Undermine"
+    subtitle: "Рейд другого сезону The War Within"
+  nerubar-palace:
+    title: "Nerub-ar Palace"
+    subtitle: "Стартовий рейд The War Within"
+  blackrock-depths:
+    title: "Blackrock Depths"
+    subtitle: "Ювілейний рейд, патч 11.0.5"

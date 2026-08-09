@@ -101,134 +101,170 @@ extra_css:
         </div>
         <div class="title-wrapper">
           <h2 class="section-title">Рейдовий Прогрес</h2>
-          <span class="subtitle">Статистика та ранги</span>
+          <span class="subtitle">Поточний і минулі сезони</span>
         </div>
       </div>
       <div class="header-line"></div>
     </div>
 
-    <div class="raid-grid">
-      {% if guild_root.raid_progression and guild_root.raid_progression.size > 0 %}
-        {% assign has_active_raids = false %}
-        {% for raid in guild_root.raid_progression %}
-          {% assign raid_slug = raid[0] %}
-          {% assign stats = raid[1] %}
-          {% assign rankings = guild_root.raid_rankings[raid_slug] %}
-          {% assign total_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
-          {% if stats.total_bosses > 0 and total_kills > 0 %}
-            {% assign has_active_raids = true %}
-            <div class="raid-card">
-              <div class="raid-card-header">
-                <div class="raid-heading">
-                  <h3 class="raid-title">{{ raid_slug | replace: '-', ' ' | capitalize }}</h3>
-                  <span class="raid-subtitle">Актуальний прогрес рейду</span>
-                </div>
-                <div class="raid-score">{{ stats.summary }}</div>
-              </div>
+    {% assign raid_meta = site.data.raids %}
+    {% assign progression = guild_root.raid_progression %}
+    {% assign current_season_id = raid_meta.current_season %}
 
-              {% assign world_rank = '-' %}
-              {% assign region_rank = '-' %}
-              {% assign realm_rank = '-' %}
+    {% comment %} Які сезони мають хоч один вбитий бос — щоб не малювати порожні вкладки {% endcomment %}
+    {% capture seasons_with_data %}{% for season in raid_meta.seasons %}{% assign season_kills = 0 %}{% for slug in season.raids %}{% assign st = progression[slug] %}{% if st %}{% assign k = st.normal_bosses_killed | plus: st.heroic_bosses_killed | plus: st.mythic_bosses_killed %}{% assign season_kills = season_kills | plus: k %}{% endif %}{% endfor %}{% if season_kills > 0 %}|{{ season.id }}|{% endif %}{% endfor %}{% endcapture %}
 
-              {% if rankings.mythic.world and rankings.mythic.world > 0 %}
-                {% assign world_rank = rankings.mythic.world %}
-              {% elsif rankings.heroic.world and rankings.heroic.world > 0 %}
-                {% assign world_rank = rankings.heroic.world %}
-              {% elsif rankings.normal.world and rankings.normal.world > 0 %}
-                {% assign world_rank = rankings.normal.world %}
-              {% endif %}
+    {% comment %} Слаги, які вже розписані по сезонах у _data/raids.yml {% endcomment %}
+    {% capture known_slugs %}{% for season in raid_meta.seasons %}{% for slug in season.raids %}|{{ slug }}|{% endfor %}{% endfor %}{% endcapture %}
 
-              {% if rankings.mythic.region and rankings.mythic.region > 0 %}
-                {% assign region_rank = rankings.mythic.region %}
-              {% elsif rankings.heroic.region and rankings.heroic.region > 0 %}
-                {% assign region_rank = rankings.heroic.region %}
-              {% elsif rankings.normal.region and rankings.normal.region > 0 %}
-                {% assign region_rank = rankings.normal.region %}
-              {% endif %}
+    {% comment %} Рейди з нових тирів, яких ще немає в довіднику {% endcomment %}
+    {% assign orphan_kills = 0 %}
+    {% for raid in progression %}
+      {% capture needle %}|{{ raid[0] }}|{% endcapture %}
+      {% unless known_slugs contains needle %}
+        {% assign ok = raid[1].normal_bosses_killed | plus: raid[1].heroic_bosses_killed | plus: raid[1].mythic_bosses_killed %}
+        {% assign orphan_kills = orphan_kills | plus: ok %}
+      {% endunless %}
+    {% endfor %}
 
-              {% if rankings.mythic.realm and rankings.mythic.realm > 0 %}
-                {% assign realm_rank = rankings.mythic.realm %}
-              {% elsif rankings.heroic.realm and rankings.heroic.realm > 0 %}
-                {% assign realm_rank = rankings.heroic.realm %}
-              {% elsif rankings.normal.realm and rankings.normal.realm > 0 %}
-                {% assign realm_rank = rankings.normal.realm %}
-              {% endif %}
+    {% capture current_needle %}|{{ current_season_id }}|{% endcapture %}
 
-              <div class="rank-stats">
-                <div class="rank-item" title="Світовий ранг">
-                  <span class="rank-icon">🌍</span>
-                  <span class="rank-label">Світ</span>
-                  <span class="rank-val">{% if world_rank == '-' %}-{% else %}#{{ world_rank }}{% endif %}</span>
-                </div>
-                <div class="rank-item" title="Ранг у регіоні (EU)">
-                  <span class="rank-icon">🇪🇺</span>
-                  <span class="rank-label">Європа</span>
-                  <span class="rank-val">{% if region_rank == '-' %}-{% else %}#{{ region_rank }}{% endif %}</span>
-                </div>
-                <div class="rank-item" title="Ранг на сервері">
-                  <span class="rank-icon">🏰</span>
-                  <span class="rank-label">Сервер</span>
-                  <span class="rank-val">{% if realm_rank == '-' %}-{% else %}#{{ realm_rank }}{% endif %}</span>
-                </div>
-              </div>
+    {% assign visible_seasons = 0 %}
+    {% for season in raid_meta.seasons %}
+      {% capture season_needle %}|{{ season.id }}|{% endcapture %}
+      {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+        {% assign visible_seasons = visible_seasons | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+    {% if orphan_kills > 0 %}{% assign visible_seasons = visible_seasons | plus: 1 %}{% endif %}
 
-              <div class="raid-bars">
-                <div class="progress-row">
-                  <span class="diff-badge mythic">M</span>
-                  <div class="progress-meta">
-                    <div class="progress-top">
-                      <span class="progress-name">Mythic</span>
-                      <span class="boss-count">{{ stats.mythic_bosses_killed }}/{{ stats.total_bosses }}</span>
-                    </div>
-                    <div class="progress-track">
-                      <div class="progress-fill mythic-fill" style="width: {{ stats.mythic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="progress-row">
-                  <span class="diff-badge heroic">H</span>
-                  <div class="progress-meta">
-                    <div class="progress-top">
-                      <span class="progress-name">Heroic</span>
-                      <span class="boss-count">{{ stats.heroic_bosses_killed }}/{{ stats.total_bosses }}</span>
-                    </div>
-                    <div class="progress-track">
-                      <div class="progress-fill heroic-fill" style="width: {{ stats.heroic_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="progress-row">
-                  <span class="diff-badge normal">N</span>
-                  <div class="progress-meta">
-                    <div class="progress-top">
-                      <span class="progress-name">Normal</span>
-                      <span class="boss-count">{{ stats.normal_bosses_killed }}/{{ stats.total_bosses }}</span>
-                    </div>
-                    <div class="progress-track">
-                      <div class="progress-fill normal-fill" style="width: {{ stats.normal_bosses_killed | times: 100 | divided_by: stats.total_bosses }}%;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+    {% if progression and progression.size > 0 %}
+    <div class="raid-seasons" id="raid-seasons">
+      {% if visible_seasons > 1 %}
+      <div class="season-switcher" role="tablist" aria-label="Перемикач сезонів">
+        {% for season in raid_meta.seasons %}
+          {% capture season_needle %}|{{ season.id }}|{% endcapture %}
+          {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+            {% assign is_current = false %}
+            {% if season.id == current_season_id %}{% assign is_current = true %}{% endif %}
+            <button type="button"
+                    class="season-tab{% if is_current %} is-active{% endif %}"
+                    id="season-tab-{{ season.id }}"
+                    data-season-tab="{{ season.id }}"
+                    role="tab"
+                    aria-selected="{% if is_current %}true{% else %}false{% endif %}"
+                    aria-controls="season-panel-{{ season.id }}">
+              <span class="season-tab-label">{{ season.label }}</span>
+              {% if is_current %}<span class="season-tab-flag">Актуальний</span>{% endif %}
+            </button>
           {% endif %}
         {% endfor %}
+        {% if orphan_kills > 0 %}
+          <button type="button" class="season-tab" id="season-tab-other" data-season-tab="other" role="tab" aria-selected="false" aria-controls="season-panel-other">
+            <span class="season-tab-label">Інші рейди</span>
+          </button>
+        {% endif %}
+      </div>
+      {% endif %}
 
-        {% unless has_active_raids %}
-        <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
-          <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">💤</div>
-          <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">Немає активних рейдів</h3>
-          <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Гільдія ще не має прогресу в поточному контенті.</p>
+      {% for season in raid_meta.seasons %}
+        {% capture season_needle %}|{{ season.id }}|{% endcapture %}
+        {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+
+          {% assign is_current = false %}
+          {% if season.id == current_season_id %}{% assign is_current = true %}{% endif %}
+
+          {% assign s_total = 0 %}
+          {% assign s_mythic = 0 %}
+          {% assign s_heroic = 0 %}
+          {% assign s_normal = 0 %}
+          {% assign s_raids = 0 %}
+          {% for slug in season.raids %}
+            {% assign st = progression[slug] %}
+            {% if st and st.total_bosses > 0 %}
+              {% assign st_kills = st.normal_bosses_killed | plus: st.heroic_bosses_killed | plus: st.mythic_bosses_killed %}
+              {% if st_kills > 0 %}
+                {% assign s_raids = s_raids | plus: 1 %}
+                {% assign s_total = s_total | plus: st.total_bosses %}
+                {% assign s_mythic = s_mythic | plus: st.mythic_bosses_killed %}
+                {% assign s_heroic = s_heroic | plus: st.heroic_bosses_killed %}
+                {% assign s_normal = s_normal | plus: st.normal_bosses_killed %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          <div class="season-panel{% if is_current %} is-active{% endif %}"
+               id="season-panel-{{ season.id }}"
+               data-season-panel="{{ season.id }}"
+               role="tabpanel"
+               aria-labelledby="season-tab-{{ season.id }}"
+               {% unless is_current %}hidden{% endunless %}>
+
+            {% if s_raids > 0 %}
+            <div class="season-summary">
+              <div class="season-summary-head">
+                <span class="season-summary-title">{{ season.label }}</span>
+                {% if is_current %}<span class="season-badge is-current">Актуальний сезон</span>{% else %}<span class="season-badge">Завершений сезон</span>{% endif %}
+              </div>
+              <div class="season-summary-stats">
+                <span class="season-stat is-mythic"><b>{{ s_mythic }}/{{ s_total }}</b> M</span>
+                <span class="season-stat is-heroic"><b>{{ s_heroic }}/{{ s_total }}</b> H</span>
+                <span class="season-stat is-normal"><b>{{ s_normal }}/{{ s_total }}</b> N</span>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="raid-grid">
+              {% for slug in season.raids %}
+                {% assign stats = progression[slug] %}
+                {% if stats and stats.total_bosses > 0 %}
+                  {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
+                  {% if raid_kills > 0 %}
+                    {% include raid-card.html slug=slug stats=stats rankings=guild_root.raid_rankings[slug] %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+
+              {% if s_raids == 0 %}
+              <div class="raid-card placeholder-card">
+                <div class="placeholder-icon">💤</div>
+                <h3 class="raid-title">Прогресу в цьому сезоні ще немає</h3>
+                <p class="placeholder-text">{% if is_current %}Гільдія ще не має вбитих босів у поточному сезоні.{% else %}За цей сезон дані не збереглися.{% endif %}</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if orphan_kills > 0 %}
+      <div class="season-panel" id="season-panel-other" data-season-panel="other" role="tabpanel" aria-labelledby="season-tab-other" hidden>
+        <div class="raid-grid">
+          {% for raid in progression %}
+            {% capture needle %}|{{ raid[0] }}|{% endcapture %}
+            {% unless known_slugs contains needle %}
+              {% assign stats = raid[1] %}
+              {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
+              {% if stats.total_bosses > 0 and raid_kills > 0 %}
+                {% include raid-card.html slug=raid[0] stats=stats rankings=guild_root.raid_rankings[raid[0]] fallback_subtitle="Сезон ще не вказано в _data/raids.yml" %}
+              {% endif %}
+            {% endunless %}
+          {% endfor %}
         </div>
-        {% endunless %}
-      {% else %}
-      <div class="raid-card placeholder-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle);">
-        <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;">📜</div>
-        <h3 class="raid-title" style="color: var(--text-grey); margin-bottom: 5px;">Рейдовий прогрес з’явиться трохи пізніше</h3>
-        <p style="color: var(--text-grey); font-size: 0.9rem; margin: 0; opacity: 0.7;">Щойно з’являться свіжі дані, тут буде видно актуальний прогрес по рейдах.</p>
       </div>
       {% endif %}
     </div>
+    {% else %}
+    <div class="raid-grid">
+      <div class="raid-card placeholder-card">
+        <div class="placeholder-icon">📜</div>
+        <h3 class="raid-title">Рейдовий прогрес з’явиться трохи пізніше</h3>
+        <p class="placeholder-text">Щойно з’являться свіжі дані, тут буде видно прогрес по рейдах.</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <script src="{{ '/assets/js/raid-seasons.js' | relative_url }}" defer></script>
   </section>
 
   <section class="guild-section guild-stats-section">
