@@ -2,18 +2,21 @@
 layout: default
 title: Головна
 permalink: /
-description: "Лігво Себаса — україномовний WoW-хаб із гайдами, новинами, адонами, персонажами та сторінкою гільдії Mistblossom Vanguard."
+description: "Лігво Себаса — україномовний ігровий хаб: гайди, новини, адони та гільдії Mistblossom Vanguard у World of Warcraft і VARTA в Aion."
 image: /assets/img/og-image-default.webp
 tags: [World of Warcraft, WoW, Raider.IO, гільдія, адони, гайди]
 keywords: [Лігво Себаса, World of Warcraft, WoW, Raider.IO, гільдія, гайди, адони, Mythic+, рейди]
 extra_css:
   - /assets/css/news.css
+  - /assets/css/guilds.css
 ---
 
 <section id="profile" class="ui-blocks">
 {% include community.html %}
 {% include support_project.html %}
 </section>
+
+{% include guilds.html %}
 
 {% include characters.html %}
 

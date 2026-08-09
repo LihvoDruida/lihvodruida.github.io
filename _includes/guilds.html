@@ -1,0 +1,68 @@
+{%- assign guilds = site.data.guilds -%}
+{%- if guilds and guilds.size > 0 -%}
+
+{%- capture icon_discord -%}<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M19.6 5.6a16.4 16.4 0 0 0-4.1-1.3l-.2.5c1.4.3 2.6.8 3.7 1.5a13.8 13.8 0 0 0-11.9 0c1.1-.7 2.3-1.2 3.7-1.5l-.2-.5a16.4 16.4 0 0 0-4.1 1.3C3.7 9.3 3 12.9 3.4 16.5c1.6 1.2 3.1 1.9 4.6 2.4l1-1.6c-.8-.3-1.5-.7-2.1-1.1l.5-.4a12.3 12.3 0 0 0 9.3 0l.5.4c-.6.4-1.3.8-2.1 1.1l1 1.6c1.5-.5 3-1.2 4.6-2.4.5-4.2-.7-7.8-2.1-10.9zM9.3 14.3c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8c0 1-.7 1.8-1.6 1.8zm5.4 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8c0 1-.7 1.8-1.6 1.8z"/></svg>{%- endcapture -%}
+{%- capture icon_site -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8"/><path d="M12 3.6a13 13 0 0 1 0 16.8 13 13 0 0 1 0-16.8"/></svg>{%- endcapture -%}
+{%- capture icon_arrow -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h13"/><path d="m12.5 6 6 6-6 6"/></svg>{%- endcapture -%}
+
+<section id="guilds" class="area section guilds-section" aria-labelledby="guilds-title">
+  <div class="area-content">
+    <div class="section-header section-header--split">
+      <div>
+        <span class="section-tag">Де мене знайти в грі</span>
+        <h2 id="guilds-title">Мої гільдії</h2>
+        <p class="section-subtitle">Дві спільноти, у яких я граю щодня. Заходь до будь-якої — українською тут говорять усі.</p>
+      </div>
+    </div>
+
+    <div class="guild-cards">
+      {%- for guild in guilds -%}
+      <article class="guild-promo guild-promo--{{ guild.id }}">
+        <div class="guild-promo__head">
+          <span class="guild-promo__logo">
+            <img src="{{ guild.logo | default: guild.logo_fallback | relative_url }}"
+                 alt="Логотип гільдії {{ guild.name }}"
+                 width="72" height="72" loading="lazy" decoding="async">
+          </span>
+          <div class="guild-promo__title">
+            <span class="guild-promo__game">{{ guild.game }}</span>
+            <h3 class="guild-promo__name">{{ guild.name }}</h3>
+          </div>
+        </div>
+
+        {%- if guild.description -%}
+        <p class="guild-promo__text">{{ guild.description }}</p>
+        {%- endif -%}
+
+        {%- if guild.details and guild.details.size > 0 -%}
+        <dl class="guild-promo__meta">
+          {%- for item in guild.details -%}
+          <div class="guild-promo__meta-item">
+            <dt>{{ item.label }}</dt>
+            <dd>{{ item.value }}</dd>
+          </div>
+          {%- endfor -%}
+        </dl>
+        {%- endif -%}
+
+        <div class="guild-promo__actions">
+          {%- if guild.page and guild.page != "" -%}
+          <a class="guild-promo__cta" href="{{ guild.page | relative_url }}">
+            <span>Сторінка гільдії</span>{{ icon_arrow }}
+          </a>
+          {%- endif -%}
+
+          {%- for link in guild.links -%}
+          <a class="guild-promo__link is-{{ link.type }}"
+             href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+            {%- if link.type == 'discord' -%}{{ icon_discord }}{%- else -%}{{ icon_site }}{%- endif -%}
+            <span>{{ link.label }}</span>
+          </a>
+          {%- endfor -%}
+        </div>
+      </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}

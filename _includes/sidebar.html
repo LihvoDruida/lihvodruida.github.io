@@ -1,5 +1,10 @@
 {%- assign current_url = page.url | default: '/' -%}
-{%- assign discord_url = site.data.socials.discord | default: 'https://discord.gg/SR8JsQBCxn' -%}
+{%- comment -%}
+  Дропдаун живе під чипом гільдії, тому й Discord тут гільдійний,
+  а не загальний зі socials.yml. Джерело — _data/guilds.yml.
+{%- endcomment -%}
+{%- assign wow_guild = site.data.guilds | where: "id", "mistblossom" | first -%}
+{%- assign discord_url = wow_guild.discord | default: site.data.socials.discord -%}
 
 {%- capture icon_home -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.6 12 3.4l9 7.2"/><path d="M5.4 9.4V20h13.2V9.4"/><path d="M9.8 20v-5.4h4.4V20"/></svg>{%- endcapture -%}
 {%- capture icon_news -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h13v14H5.6A1.6 1.6 0 0 1 4 17.4z"/><path d="M17 8.5h3v8.9a1.6 1.6 0 0 1-3 0z"/><path d="M7 8.6h7M7 12h7M7 15.4h4.5"/></svg>{%- endcapture -%}

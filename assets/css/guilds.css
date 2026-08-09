@@ -1,0 +1,277 @@
+/* =========================================================
+   КАРТКИ ГІЛЬДІЙ НА ГОЛОВНІЙ
+   Кольори — виключно з base/variables.css.
+   ========================================================= */
+
+.guild-cards {
+  display: grid;
+  /* min() рятує від переповнення на вузьких контейнерах: 320px мінімум
+     діє тільки поки він менший за доступну ширину */
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 20px;
+  margin-top: 22px;
+}
+
+.guild-promo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  /* .area-content на головній центрує текст — у картці це недоречно */
+  text-align: left;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+
+/* Кольоровий відблиск угорі — у кожної гільдії свій */
+.guild-promo::before {
+  content: "";
+  position: absolute;
+  inset: -40% 30% auto -10%;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--guild-glow, var(--accent-soft)), transparent 70%);
+  opacity: 0.75;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.guild-promo > * {
+  position: relative;
+  z-index: 1;
+}
+
+.guild-promo:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.guild-promo:hover::before {
+  opacity: 1;
+}
+
+.guild-promo--mistblossom {
+  --guild-glow: rgba(255, 155, 85, 0.22);
+}
+
+/* VARTA — синьо-жовтий логотип, тому відблиск нейтрально-золотий,
+   щоб не сперечатися з бурштином сайту */
+.guild-promo--varta {
+  --guild-glow: rgba(200, 155, 60, 0.2);
+}
+
+/* ---------- Шапка картки ---------- */
+.guild-promo__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.guild-promo__logo {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+
+.guild-promo:hover .guild-promo__logo {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+.guild-promo__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* щоб alt-текст не розпирав рамку, поки картинка вантажиться */
+  overflow: hidden;
+  font-size: 9px;
+  color: var(--text-faint);
+}
+
+.guild-promo__title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.guild-promo__game {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-accent-300);
+}
+
+.guild-promo__name {
+  margin: 0;
+  padding-top: 0;
+  text-align: left;
+  letter-spacing: 0.02em;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--text-strong);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.guild-promo__text {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+/* ---------- Характеристики ---------- */
+.guild-promo__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.guild-promo__meta-item {
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.guild-promo__meta dt {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.guild-promo__meta dd {
+  margin: 3px 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+/* ---------- Дії ---------- */
+.guild-promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.guild-promo__cta,
+.guild-promo__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  min-width: 0;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+
+.guild-promo__cta svg,
+.guild-promo__link svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+.guild-promo__cta {
+  border: 1px solid transparent;
+  background: var(--accent-gradient);
+  color: #1c1208;
+}
+
+.guild-promo__cta svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.guild-promo__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -12px var(--accent-ring);
+}
+
+.guild-promo__cta:hover svg {
+  transform: translateX(3px);
+}
+
+.guild-promo__link {
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-soft);
+}
+
+.guild-promo__link:hover {
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.guild-promo__link.is-discord:hover {
+  color: #d6daff;
+  border-color: color-mix(in srgb, var(--c-discord) 45%, transparent);
+  background: color-mix(in srgb, var(--c-discord) 16%, transparent);
+}
+
+/* ---------- Адаптив ---------- */
+@media (max-width: 560px) {
+  .guild-promo {
+    padding: 20px 18px;
+  }
+
+  .guild-promo__logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .guild-promo__name {
+    font-size: 1.12rem;
+  }
+
+  .guild-promo__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .guild-promo__cta,
+  .guild-promo__link {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guild-promo:hover,
+  .guild-promo:hover .guild-promo__logo,
+  .guild-promo__cta:hover,
+  .guild-promo__link:hover {
+    transform: none;
+  }
+}

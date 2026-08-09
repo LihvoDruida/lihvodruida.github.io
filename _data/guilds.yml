@@ -1,0 +1,47 @@
+# Гільдії, у яких грає власник сайту.
+#
+# Звідси беруться картки на головній і посилання на Discord у навігації.
+# Discord-посилання гільдії тримається ТІЛЬКИ тут — не дублюй його по шаблонах,
+# інакше при зміні інвайту доведеться шукати по всьому репозиторію.
+
+- id: mistblossom
+  name: Mistblossom Vanguard
+  game: World of Warcraft
+  game_short: WoW
+  logo: /assets/img/guild-logo.webp
+  logo_fallback: /assets/img/guild-logo.png
+  # Внутрішня сторінка гільдії. Якщо порожньо — картка не є посиланням.
+  page: /guild/
+  discord: https://discord.gg/stNeSaVkhM
+  description: Українська гільдія в World of Warcraft — рейди, Mythic+ і спільна гра без токсичності.
+  details:
+    - label: Реалм
+      value: EU · Terokkar
+    - label: Фракція
+      value: Horde
+  links:
+    - label: Discord
+      url: https://discord.gg/stNeSaVkhM
+      type: discord
+
+- id: varta
+  name: VARTA
+  game: Aion
+  game_short: Aion
+  logo: /assets/img/varta-logo.webp
+  logo_fallback: /assets/img/varta-logo.png
+  page: ""
+  discord: https://discord.gg/B7JxeZEyaE
+  description: Українська легіон-спільнота в Aion на приватному сервері RiftShade.
+  details:
+    - label: Сервер
+      value: RiftShade
+    - label: Фракція
+      value: Asmodian
+  links:
+    - label: Сайт сервера
+      url: https://aionriftshade.com/
+      type: site
+    - label: Discord
+      url: https://discord.gg/B7JxeZEyaE
+      type: discord

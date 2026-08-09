@@ -13,6 +13,11 @@ extra_js:
   - /assets/js/guild-applications.js
 ---
 
+{%- comment -%} Discord гільдії тримається в _data/guilds.yml, не в socials.yml {%- endcomment -%}
+{%- assign wow_guild = site.data.guilds | where: "id", "mistblossom" | first -%}
+{%- assign guild_discord = wow_guild.discord -%}
+
+
 {% assign guild_root = site.data.guild %}
 {% assign guild_meta = guild_root.metadata | default: empty %}
 {% assign guild_info = guild_root.guild | default: empty %}
@@ -62,7 +67,7 @@ extra_js:
         <div class="toolbar-links hero-actions">
           <a href="#guild-application-form" class="application-primary-link">Подати заявку</a>
           <a href="{{ '/guild/applications/' | relative_url }}" class="btn-secondary-hero">Переглянути статус</a>
-          <a href="{{ site.data.socials.discord }}" target="_blank" rel="noopener noreferrer" class="btn-secondary-hero btn-secondary-hero--discord">
+          <a href="{{ guild_discord }}" target="_blank" rel="noopener noreferrer" class="btn-secondary-hero btn-secondary-hero--discord">
             <i class="fab fa-discord" aria-hidden="true"></i>
             <span>Discord</span>
           </a>
