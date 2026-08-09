@@ -10,8 +10,7 @@
 /* Мінімальний touch target */
 button,
 a,
-.btn-social,
-.dropdown-toggle {
+.btn-social {
     min-height: 44px;
     min-width: 44px;
 }
@@ -58,9 +57,6 @@ select {
     --orange-light: #ffb26a;
     --orange-main:  #ff9b55;
     --orange-dark:  #ff7a2f;
-
-    --nav-bg-start: rgba(20,14,10,.85);
-    --nav-bg-end:   rgba(20,14,10,.65);
 
     --transition-fast:   all .25s ease;
     --transition-medium: all .35s ease;
@@ -120,7 +116,7 @@ a {
 }
 
 :target {
-    scroll-margin-top: 90px;
+    scroll-margin-top: calc(var(--nav-space, 86px) + 12px);
 }
 
 /* Focus accessibility */
@@ -200,244 +196,6 @@ h3 {
     font-weight: 700;
     padding-bottom: 10px;
     opacity: 0.9;
-}
-
-/* =========================================
-   6. NAVIGATION
-   ========================================= */
-.top-nav {
-    position: sticky;
-    top: 0;
-    height: 64px;
-    z-index: var(--z-navbar);
-    background: linear-gradient(to bottom, var(--nav-bg-start), var(--nav-bg-end));
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,.06);
-}
-
-.nav-container {
-    max-width: 1200px;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.nav-left {
-    display: flex;
-    gap: 26px;
-    align-items: center;
-}
-
-/* Стилі посилань меню */
-.nav-left > a,
-.dropdown-toggle {
-    color: #e6e1db;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    position: relative;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px 4px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: color 0.25s ease;
-}
-
-.nav-left > a:hover,
-.dropdown-toggle:hover {
-    color: var(--orange-light);
-}
-
-/* Анімація підкреслення */
-.nav-left > a::after,
-.dropdown-toggle::after {
-    content: "";
-    position: absolute;
-    left: 0; bottom: -6px;
-    width: 100%; height: 2px;
-    background: linear-gradient(90deg, var(--orange-main), var(--orange-dark));
-    opacity: 0;
-    transform: scaleX(0.6);
-    transition: var(--transition-fast);
-}
-
-.nav-left > a:hover::after,
-.dropdown-toggle:hover::after {
-    opacity: 1;
-    transform: scaleX(1);
-}
-
-/* =========================================
-   COMPONENT: DROPDOWN MENU
-   ========================================= */
-
-/* --- Container & Trigger --- */
-.nav-dropdown {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.arrow {
-    font-size: 0.75em; /* Використовуємо em для масштабування */
-    margin-left: 6px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавніша крива Безьє */
-    will-change: transform;
-}
-
-/* Rotate arrow on hover */
-.nav-dropdown:hover .arrow,
-.nav-dropdown:focus-within .arrow {
-    transform: rotate(180deg);
-}
-
-/* --- Dropdown Panel --- */
-.dropdown-menu {
-    /* 1. Positioning */
-    position: absolute;
-    top: calc(100% + 8px); /* Трохи більше повітря */
-    right: 0;              /* Вирівнювання по правому краю */
-    left: auto;
-    z-index: var(--z-dropdown, 1000);
-
-    /* 2. Box Model */
-    min-width: 260px;
-    padding: 12px;
-    
-    /* 3. Visual Styling (Glassmorphism & Depth) */
-    background: rgba(25, 20, 15, 0.95); /* Глибокий темний фон */
-    backdrop-filter: blur(16px);        /* Сильне розмиття фону */
-    -webkit-backdrop-filter: blur(16px);
-    
-    border-radius: var(--control-radius);
-    border: 1px solid rgba(255, 190, 120, 0.08); /* Тонкий акцент */
-    
-    /* Складна тінь для глибини */
-    box-shadow: 
-        0 10px 40px -10px rgba(0, 0, 0, 0.8),
-        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-
-    /* 4. Initial State (Hidden) */
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-8px) scale(0.96);
-    transform-origin: top right;
-    
-    /* 5. Transitions */
-    transition: 
-        opacity 0.2s ease,
-        transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), /* Ефект пружини */
-        visibility 0.2s;
-        
-    will-change: opacity, transform;
-}
-
-/* --- Interaction Bridge (UX Fix) --- */
-/* Створює невидиму зону, щоб курсор не "губив" меню при переході */
-.dropdown-menu::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    width: 100%;
-    height: 20px; /* Зона перекриття */
-    pointer-events: auto;
-}
-
-/* --- Active State --- */
-.nav-dropdown:hover .dropdown-menu,
-.nav-dropdown:focus-within .dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-    
-    /* Затримка зникнення розмиття, якщо потрібно */
-    transition-duration: 0.3s; 
-}
-
-/* --- Dropdown Items (Optional Polish) --- */
-.dropdown-menu a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.dropdown-menu a:hover {
-    background: rgba(255, 155, 85, 0.08);
-    color: #fff;
-    transform: translateX(4px);
-}
-
-/* Іконки всередині меню */
-.dropdown-menu .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    opacity: 0.8;
-}
-
-/* Елементи Dropdown */
-.dropdown-menu a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    color: #e8e1da;
-    text-decoration: none;
-    font-size: 14.5px;
-    font-weight: 500;
-    margin-top: 4px; 
-    transition: var(--transition-fast);
-}
-
-.dropdown-menu a:first-child { margin-top: 0; }
-
-.dropdown-menu a:hover {
-    background: linear-gradient(90deg, rgba(255,155,85,.22), rgba(255,155,85,.05));
-    color: #ffcc9a;
-    transform: translateX(4px);
-}
-
-/* Індикатор (світіння) зліва при наведенні */
-.dropdown-menu a::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 50%;
-    width: 3px; height: 0;
-    background: linear-gradient(to bottom, var(--orange-light), var(--orange-dark));
-    border-radius: 4px;
-    transform: translateY(-50%);
-    transition: height .25s ease;
-    opacity: .9;
-}
-
-.dropdown-menu a:hover::before { height: 70%; }
-
-.dropdown-menu .icon {
-    width: 22px;
-    text-align: center;
-    font-size: 16px;
-    opacity: .85;
 }
 
 /* =========================================
@@ -721,7 +479,6 @@ footer {
 .btn-social:active,
 .donate a:active,
 .btn-primary-hero:active,
-.dropdown-toggle:active,
 button:active,
 a.button:active {
     transform: scale(0.96); /* Легке зменшення при кліку */
@@ -738,131 +495,6 @@ code,
     -webkit-overflow-scrolling: touch; /* Магія iOS для плавності */
     overscroll-behavior-x: contain; /* Запобігає скролу сторінки */
 }
-
-/* =========================================
-   MOBILE MENU & NAVIGATION (Full Bundle)
-   ========================================= */
-    /* --- 2. HAMBURGER BUTTON (Анімація хрестика) --- */
-    .hamburger {
-        display: none;
-        position: relative;
-        z-index: 10001; /* Найвищий шар, щоб бути поверх меню */
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 15px;
-        -webkit-tap-highlight-color: transparent;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .menu-button {
-        position: relative;
-        width: 30px;
-        height: 4px;
-        background-color: #e6e1db;
-        border-radius: 2px;
-        transition: all 400ms cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .menu-button::before,
-    .menu-button::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        width: 30px;
-        height: 4px;
-        background-color: #e6e1db;
-        border-radius: 2px;
-        transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1), 
-                    margin 400ms cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .menu-button::before { margin-top: -8px; }
-    .menu-button::after  { margin-top: 8px; }
-
-    /* Стан .is-active (Хрестик) */
-    .hamburger.is-active .menu-button { background-color: transparent; }
-    .hamburger.is-active .menu-button::before { margin-top: 0; transform: rotate(45deg); }
-    .hamburger.is-active .menu-button::after  { margin-top: 0; transform: rotate(-45deg); }
-
-
-    /* --- 3. MOBILE OVERLAY (Твій код) --- */
-    .mobile-menu {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100vh;
-        
-        /* Стиль фону */
-        background: rgba(20, 14, 10, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        
-        z-index: 10000; /* Менше кнопки (10001), більше контенту */
-        padding-top: 80px;
-        
-        /* Анімація появи */
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-20px);
-        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    }
-
-    .mobile-menu.is-open {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    /* --- 4. CONTENT & LINKS --- */
-    .mobile-menu-inner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        height: 100%;
-        overflow-y: auto;
-        padding-bottom: 40px;
-        /* Safe Area знизу */
-        padding-bottom: calc(40px + env(safe-area-inset-bottom));
-    }
-
-    .mobile-link {
-        font-family: var(--font-display);
-        font-size: 20px;
-        font-weight: 600;
-        color: #e6e1db;
-        text-decoration: none;
-        padding: 12px 24px;
-        width: 100%;
-        text-align: center;
-        transition: color 0.2s ease;
-    }
-
-    .mobile-link:active {
-        color: var(--orange-main);
-        transform: scale(0.96);
-    }
-
-    .mobile-link .icon {
-        margin-right: 8px;
-        opacity: 0.8;
-    }
-
-    .mobile-divider {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: var(--orange-dark);
-        opacity: 0.6;
-        margin-top: 10px;
-        margin-bottom: 5px;
-        width: 80%;
-        text-align: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        line-height: 0.1em;
-    }
-
 
 /* --- Empty State (Compact & Optimized) --- */
 .empty-state-wow {
@@ -967,9 +599,6 @@ code,
 
 /* Laptops (max-width: 1024px) */
 @media (max-width: 1024px) {
-    .nav-container { padding: 0 15px; }
-    .nav-left { gap: 15px; }
-    .dropdown-menu a { font-size: 14px; }
 }
 
 /* Tablets Landscape (max-width: 992px) */
@@ -1000,21 +629,8 @@ code,
         padding-right: env(safe-area-inset-right);
     }
 
-    .top-nav { 
-        height: 56px; 
-        padding-top: env(safe-area-inset-top);
-        height: calc(56px + env(safe-area-inset-top));
-    }
-
     main { padding: 20px 15px; }
     
-    /* -- 2. Navigation -- */
-    .hamburger { display: flex; }
-    .mobile-menu { display: block; }
-    .nav-left { display: none; }
-    .nav-container { justify-content: flex-end; }
-    .nav-container nav { gap: 15px; }
-
     /* -- 3. Grids to 1 Column -- */
     .ui-blocks, #characters, .news-grid {
         grid-template-columns: 1fr;
@@ -1083,9 +699,6 @@ code,
     .section-header h1 { font-size: 24px; }
     .section-tag { font-size: 0.75rem; }
     
-    .nav-container nav { gap: 10px; }
-    .nav-container nav a { font-size: 13px; }
-    
     /* -- Article Compact -- */
     .article-header h1 { font-size: 1.4rem; }
     .article-description { font-size: 1rem; }
@@ -1129,36 +742,6 @@ body.nav-open {
     width: 100%;
 }
 
-.nav-brand {
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 1.05rem;
-    color: #fff;
-    text-transform: uppercase;
-    margin-right: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    letter-spacing: 0.08em;
-}
-
-.nav-brand-mark {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--orange-light), var(--orange-dark));
-    box-shadow: 0 0 0 5px rgba(255, 155, 85, 0.12);
-    flex: 0 0 auto;
-}
-
-.nav-brand-text {
-    white-space: nowrap;
-}
-
-.top-nav .dropdown-toggle {
-    cursor: pointer;
-}
-
 .article-body,
 .article-header,
 .article-footer {
@@ -1166,28 +749,6 @@ body.nav-open {
 }
 
 @media (max-width: 768px) {
-    .nav-brand {
-        font-size: 0.95rem;
-        gap: 8px;
-    }
-
-    .nav-brand-mark {
-        width: 8px;
-        height: 8px;
-        box-shadow: 0 0 0 4px rgba(255, 155, 85, 0.12);
-    }
-
-    .mobile-menu-inner {
-        align-items: stretch;
-        gap: 14px;
-        padding-inline: 16px;
-    }
-
-    .mobile-link {
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 14px;
-        background: rgba(255,255,255,0.03);
-    }
 }
 
 /* =========================================
@@ -1233,22 +794,6 @@ body.nav-open {
     h3 {
         font-size: clamp(1.26rem, 1.18rem + 0.28vw, 1.45rem);
         line-height: 1.24;
-    }
-
-    .top-nav {
-        height: 68px;
-    }
-
-    .nav-brand {
-        font-size: 1rem;
-        letter-spacing: 0.08em;
-    }
-
-    .nav-left > a,
-    .dropdown-toggle,
-    .dropdown-menu a,
-    .nav-container nav a {
-        font-size: 0.96rem;
     }
 
     .section-header h1 {
@@ -1449,11 +994,6 @@ body.nav-open {
     h3 {
         font-size: clamp(1.08rem, 1.02rem + 0.3vw, 1.18rem);
         line-height: 1.25;
-    }
-
-    .nav-brand {
-        font-size: 0.92rem;
-        letter-spacing: 0.06em;
     }
 
     .section-header h1 {

@@ -1,0 +1,574 @@
+/* =========================================================
+   NAVIGATION — floating pill bar
+   Самодостатній модуль: усі стилі шапки живуть тільки тут.
+   ========================================================= */
+
+:root {
+  /* Геометрія */
+  --nav-h: 54px;
+  --nav-inset: 16px;
+  --nav-space: calc(var(--nav-h) + var(--nav-inset) * 2);
+
+  /* Палітра (холодний нічний синій, як на референсі) */
+  --nav-surface: rgba(12, 17, 26, 0.82);
+  --nav-surface-solid: rgba(9, 13, 21, 0.94);
+  --nav-panel: rgba(10, 14, 22, 0.97);
+  --nav-line: rgba(150, 178, 216, 0.14);
+  --nav-line-soft: rgba(180, 205, 240, 0.10);
+
+  --nav-ink: #e9eff8;
+  --nav-muted: #8996ab;
+  --nav-dim: #64748b;
+  --nav-accent: #ffb26a;
+
+  --nav-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.95), 0 2px 12px rgba(0, 0, 0, 0.35);
+  --nav-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --nav-font-brand: "Cinzel", "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+/* Обгортка <aside> не бере участі в лейауті */
+.sidebar {
+  display: contents;
+}
+
+.layout {
+  padding-top: var(--nav-space);
+}
+
+:target {
+  scroll-margin-top: calc(var(--nav-space) + 12px);
+}
+
+/* ---------- Оболонка ---------- */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--nav-inset) + env(safe-area-inset-top)) 16px 0;
+  pointer-events: none;
+}
+
+.site-nav__shell {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--nav-h);
+  max-width: 100%;
+  padding: 0 8px 0 22px;
+  border-radius: 999px;
+  background: var(--nav-surface);
+  border: 1px solid var(--nav-line);
+  box-shadow: var(--nav-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Щільніший фон під час скролу */
+.sidebar.is-scrolled .site-nav__shell {
+  background: var(--nav-surface-solid);
+  border-color: rgba(160, 190, 230, 0.18);
+  box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* ---------- Бренд ---------- */
+.site-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding-right: 2px;
+  color: var(--nav-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.site-nav__brand-text {
+  font-family: var(--nav-font-brand);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.site-nav__brand:hover {
+  color: #fff;
+}
+
+/* ---------- Розділювач ---------- */
+.site-nav__rule {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 22px;
+  margin: 0 12px;
+  background: linear-gradient(180deg, transparent, var(--nav-line-soft) 25%, var(--nav-line-soft) 75%, transparent);
+}
+
+/* ---------- Пункти меню ---------- */
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  min-height: 38px;
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--nav-muted);
+  text-decoration: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-item svg {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  opacity: 0.68;
+  transition: opacity 0.2s ease, transform 0.2s var(--nav-ease);
+}
+
+.nav-item:hover,
+.nav-item:focus-visible {
+  color: var(--nav-ink);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.nav-item:hover svg,
+.nav-item:focus-visible svg {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.nav-item[aria-current="page"] {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.nav-item[aria-current="page"] svg {
+  opacity: 1;
+  color: var(--nav-accent);
+}
+
+.nav-item[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: var(--nav-accent);
+  box-shadow: 0 0 10px rgba(255, 178, 106, 0.65);
+}
+
+/* ---------- Блок гільдії (аватар + меню) ---------- */
+.nav-account {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.nav-account__btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 42px;
+  min-height: 42px;
+  min-width: 0;
+  padding: 0 6px 0 4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav-account__btn:hover,
+.nav-account.is-open .nav-account__btn {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-account__avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 178, 106, 0.09);
+}
+
+.nav-account__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.nav-account__name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f2f6fc;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.nav-account__sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--nav-dim);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav-account__chev {
+  display: inline-flex;
+  color: var(--nav-muted);
+  transition: transform 0.25s var(--nav-ease);
+}
+
+.nav-account__chev svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nav-account.is-open .nav-account__chev {
+  transform: rotate(180deg);
+}
+
+/* Випадна панель */
+.nav-account__menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  min-width: 248px;
+  padding: 8px;
+  border-radius: 18px;
+  background: var(--nav-panel);
+  border: 1px solid var(--nav-line);
+  box-shadow: 0 28px 60px -22px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
+  transform-origin: top right;
+  transition: opacity 0.18s ease, transform 0.25s var(--nav-ease), visibility 0.18s;
+}
+
+.nav-account.is-open .nav-account__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.nav-account__group {
+  margin: 0;
+  padding: 10px 12px 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nav-dim);
+}
+
+.nav-account__menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #cdd7e6;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s var(--nav-ease);
+}
+
+.nav-account__menu a svg {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  opacity: 0.6;
+  transition: opacity 0.18s ease;
+}
+
+.nav-account__menu a:hover,
+.nav-account__menu a:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.nav-account__menu a:hover svg {
+  opacity: 1;
+}
+
+.nav-account__menu a.is-discord:hover {
+  background: rgba(88, 101, 242, 0.16);
+  color: #cdd3ff;
+}
+
+/* ---------- Бургер ---------- */
+.nav-burger {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.nav-burger:hover,
+.nav-burger.is-active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-burger__bars,
+.nav-burger__bars::before,
+.nav-burger__bars::after {
+  position: absolute;
+  width: 18px;
+  height: 1.8px;
+  border-radius: 2px;
+  background: var(--nav-ink);
+  transition: transform 0.35s var(--nav-ease), background-color 0.2s ease;
+}
+
+.nav-burger__bars::before,
+.nav-burger__bars::after {
+  content: "";
+  left: 0;
+}
+
+.nav-burger__bars::before { transform: translateY(-6px); }
+.nav-burger__bars::after  { transform: translateY(6px); }
+
+.nav-burger.is-active .nav-burger__bars { background: transparent; }
+.nav-burger.is-active .nav-burger__bars::before { transform: rotate(45deg); }
+.nav-burger.is-active .nav-burger__bars::after  { transform: rotate(-45deg); }
+
+/* ---------- Мобільна панель ---------- */
+.nav-sheet {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  padding: calc(var(--nav-space) + 8px) 16px calc(32px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(8, 11, 18, 0.94);
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.28s ease, transform 0.32s var(--nav-ease), visibility 0.28s;
+}
+
+.nav-sheet.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.nav-sheet__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(100%, 460px);
+  margin: 0 auto;
+}
+
+.nav-sheet__group {
+  margin: 14px 0 4px;
+  padding-left: 16px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nav-dim);
+}
+
+.nav-sheet__group:first-child { margin-top: 0; }
+
+.nav-sheet__link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 1px solid var(--nav-line-soft);
+  background: rgba(255, 255, 255, 0.028);
+  color: #d5dde9;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.nav-sheet__link svg {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  opacity: 0.6;
+}
+
+.nav-sheet__link:active {
+  transform: scale(0.985);
+}
+
+.nav-sheet__link[aria-current="page"] {
+  color: #fff;
+  border-color: rgba(255, 178, 106, 0.32);
+  background: rgba(255, 178, 106, 0.09);
+}
+
+.nav-sheet__link[aria-current="page"] svg {
+  opacity: 1;
+  color: var(--nav-accent);
+}
+
+.nav-sheet__link.is-discord svg { opacity: 0.75; }
+
+/* Блокування скролу під час відкритого меню */
+body.nav-open {
+  overflow: hidden;
+  touch-action: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+/* ---------- Адаптив ---------- */
+@media (max-width: 1240px) {
+  .site-nav__brand-text { letter-spacing: 0.12em; }
+  .site-nav__rule { margin: 0 9px; }
+  .nav-item { padding: 0 10px; gap: 7px; letter-spacing: 0.1em; }
+}
+
+@media (max-width: 1100px) {
+  .site-nav__brand-text { font-size: 13px; letter-spacing: 0.1em; }
+  .site-nav__rule { margin: 0 7px; }
+
+  .nav-item {
+    gap: 6px;
+    padding: 0 8px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-item svg { width: 15px; height: 15px; }
+
+  .nav-account__sub { display: none; }
+  .nav-account__avatar { width: 28px; height: 28px; }
+  .nav-account__btn { gap: 8px; }
+}
+
+@media (max-width: 1000px) {
+  :root {
+    --nav-h: 52px;
+    --nav-inset: 12px;
+  }
+
+  .site-nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .site-nav__shell {
+    width: 100%;
+    gap: 6px;
+    padding: 0 8px 0 20px;
+    border-radius: 20px;
+  }
+
+  .site-nav__links,
+  .site-nav__rule,
+  .nav-account__meta,
+  .nav-account__chev {
+    display: none;
+  }
+
+  .nav-account {
+    margin-left: auto;
+  }
+
+  .nav-account__btn {
+    padding: 0;
+    margin-right: 4px;
+    pointer-events: none;
+  }
+
+  .nav-account__menu { display: none; }
+
+  .nav-burger { display: inline-flex; }
+  .nav-sheet { display: block; }
+}
+
+@media (max-width: 420px) {
+  .site-nav__shell { padding-left: 16px; }
+  .site-nav__brand-text { font-size: 12.5px; letter-spacing: 0.1em; }
+  .nav-account__avatar { width: 28px; height: 28px; }
+}
+
+/* ---------- Доступність ---------- */
+.site-nav :focus-visible,
+.nav-sheet :focus-visible {
+  outline: 2px solid var(--nav-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__shell,
+  .nav-item,
+  .nav-item svg,
+  .nav-account__menu,
+  .nav-account__chev,
+  .nav-sheet,
+  .nav-burger__bars,
+  .nav-burger__bars::before,
+  .nav-burger__bars::after {
+    transition: none;
+  }
+}

@@ -1,52 +1,80 @@
-<header class="top-nav">
-  <div class="nav-container">
-    {% assign current_url = page.url | default: '/' %}
+{%- assign current_url = page.url | default: '/' -%}
+{%- assign discord_url = site.data.socials.discord | default: 'https://discord.gg/SR8JsQBCxn' -%}
 
-    <a href="{{ '/' | relative_url }}" class="nav-brand" aria-label="На головну">
-      <span class="nav-brand-mark"></span>
-      <span class="nav-brand-text">Лігво Себаса</span>
+{%- capture icon_home -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.6 12 3.4l9 7.2"/><path d="M5.4 9.4V20h13.2V9.4"/><path d="M9.8 20v-5.4h4.4V20"/></svg>{%- endcapture -%}
+{%- capture icon_news -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h13v14H5.6A1.6 1.6 0 0 1 4 17.4z"/><path d="M17 8.5h3v8.9a1.6 1.6 0 0 1-3 0z"/><path d="M7 8.6h7M7 12h7M7 15.4h4.5"/></svg>{%- endcapture -%}
+{%- capture icon_guild -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.2 19 6v5.4c0 4.4-2.9 7.6-7 9.4-4.1-1.8-7-5-7-9.4V6z"/><path d="M12 8.2v6.4M9.4 11h5.2"/></svg>{%- endcapture -%}
+{%- capture icon_guides -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.4 5.1A2.1 2.1 0 0 1 6.5 3H19v14.6H6.5a2.1 2.1 0 0 0-2.1 2.1z"/><path d="M4.4 19.7A2.1 2.1 0 0 1 6.5 17.6H19V21H6.5a2.1 2.1 0 0 1-2.1-1.3z"/><path d="M8.2 7.4h6.4"/></svg>{%- endcapture -%}
+{%- capture icon_mods -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.6 7.9 12 3 3.4 7.9v8.2L12 21l8.6-4.9z"/><path d="m3.4 7.9 8.6 5 8.6-5"/><path d="M12 12.9V21"/></svg>{%- endcapture -%}
+{%- capture icon_donate -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2S3.8 15.6 3.8 9.9a4.3 4.3 0 0 1 8.2-1.8 4.3 4.3 0 0 1 8.2 1.8c0 5.7-8.2 10.3-8.2 10.3z"/></svg>{%- endcapture -%}
+{%- capture icon_apply -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.6 20v-1.7a3.4 3.4 0 0 0-3.4-3.4H6.8A3.4 3.4 0 0 0 3.4 18.3V20"/><circle cx="9" cy="7.6" r="3.4"/><path d="M18.4 8.2v5.2M21 10.8h-5.2"/></svg>{%- endcapture -%}
+{%- capture icon_list -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 4.4h1.9A1.9 1.9 0 0 1 18.8 6.3v12.2a1.9 1.9 0 0 1-1.9 1.9H7.1a1.9 1.9 0 0 1-1.9-1.9V6.3a1.9 1.9 0 0 1 1.9-1.9H9"/><rect x="9" y="2.6" width="6" height="3.6" rx="1.2"/><path d="M8.8 11.4h6.4M8.8 15.4h4.2"/></svg>{%- endcapture -%}
+{%- capture icon_discord -%}<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M19.6 5.6a16.4 16.4 0 0 0-4.1-1.3l-.2.5c1.4.3 2.6.8 3.7 1.5a13.8 13.8 0 0 0-11.9 0c1.1-.7 2.3-1.2 3.7-1.5l-.2-.5a16.4 16.4 0 0 0-4.1 1.3C3.7 9.3 3 12.9 3.4 16.5c1.6 1.2 3.1 1.9 4.6 2.4l1-1.6c-.8-.3-1.5-.7-2.1-1.1l.5-.4a12.3 12.3 0 0 0 9.3 0l.5.4c-.6.4-1.3.8-2.1 1.1l1 1.6c1.5-.5 3-1.2 4.6-2.4.5-4.2-.7-7.8-2.1-10.9zM9.3 14.3c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8c0 1-.7 1.8-1.6 1.8zm5.4 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8c0 1-.7 1.8-1.6 1.8z"/></svg>{%- endcapture -%}
+{%- capture icon_chevron -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>{%- endcapture -%}
+
+<header class="site-nav" aria-label="Головна навігація">
+  <div class="site-nav__shell">
+
+    <a href="{{ '/' | relative_url }}" class="site-nav__brand" aria-label="{{ site.title }} — на головну">
+      <span class="site-nav__brand-text">{{ site.title }}</span>
     </a>
 
-    <nav class="nav-left" aria-label="Основна навігація">
-      <a href="{{ '/' | relative_url }}"{% if current_url == '/' %} aria-current="page"{% endif %}>Головна</a>
-      <a href="{{ '/news/' | relative_url }}"{% if current_url == '/news/' %} aria-current="page"{% endif %}>Новини</a>
-      <a href="{{ '/guild/' | relative_url }}"{% if current_url == '/guild/' %} aria-current="page"{% endif %}>Гільдія</a>
-      <a href="{{ '/guild/apply/' | relative_url }}"{% if current_url == '/guild/apply/' %} aria-current="page"{% endif %}>Подати заявку</a>
-      <a href="{{ '/guild/applications/' | relative_url }}"{% if current_url == '/guild/applications/' %} aria-current="page"{% endif %}>Усі заявки</a>
+    <span class="site-nav__rule" aria-hidden="true"></span>
 
-      <div class="nav-dropdown">
-        <button class="dropdown-toggle" type="button" aria-expanded="false" aria-haspopup="true">
-          Ресурси <span class="arrow">▾</span>
-        </button>
-
-        <div class="dropdown-menu">
-          <a href="{{ '/mods/' | relative_url }}"><span class="icon">🛠️</span> Мої адони</a>
-          <a href="{{ '/guides/' | relative_url }}"><span class="icon">📚</span> Гайди</a>
-          <a href="{{ '/donate/' | relative_url }}"><span class="icon">💛</span> Підтримка</a>
-          <a href="{{ '/404.html' | relative_url }}"><span class="icon">🗺️</span> 404</a>
-        </div>
-      </div>
+    <nav class="site-nav__links" aria-label="Основна навігація">
+      <a class="nav-item" href="{{ '/' | relative_url }}"{% if current_url == '/' %} aria-current="page"{% endif %}>{{ icon_home }}<span>Головна</span></a>
+      <a class="nav-item" href="{{ '/news/' | relative_url }}"{% if current_url contains '/news' %} aria-current="page"{% endif %}>{{ icon_news }}<span>Новини</span></a>
+      <a class="nav-item" href="{{ '/guild/' | relative_url }}"{% if current_url == '/guild/' %} aria-current="page"{% endif %}>{{ icon_guild }}<span>Гільдія</span></a>
+      <a class="nav-item" href="{{ '/guides/' | relative_url }}"{% if current_url contains '/guides' %} aria-current="page"{% endif %}>{{ icon_guides }}<span>Гайди</span></a>
+      <a class="nav-item" href="{{ '/mods/' | relative_url }}"{% if current_url contains '/mods' %} aria-current="page"{% endif %}>{{ icon_mods }}<span>Адони</span></a>
+      <a class="nav-item" href="{{ '/donate/' | relative_url }}"{% if current_url contains '/donate' %} aria-current="page"{% endif %}>{{ icon_donate }}<span>Підтримка</span></a>
     </nav>
 
-    <button class="hamburger" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">
-      <div class="menu-button"></div>
-    </button>
-  </div>
+    <span class="site-nav__rule" aria-hidden="true"></span>
 
-  <div class="mobile-menu" id="mobile-menu">
-    <div class="mobile-menu-inner">
-      <a href="{{ '/' | relative_url }}" class="mobile-link">Головна</a>
-      <a href="{{ '/news/' | relative_url }}" class="mobile-link">Новини</a>
-      <a href="{{ '/guild/' | relative_url }}" class="mobile-link">Гільдія</a>
-      <a href="{{ '/guild/apply/' | relative_url }}" class="mobile-link">Подати заявку</a>
-      <a href="{{ '/guild/applications/' | relative_url }}" class="mobile-link">Усі заявки</a>
+    <div class="nav-account">
+      <button class="nav-account__btn" type="button" aria-expanded="false" aria-controls="nav-account-menu">
+        <img class="nav-account__avatar"
+             src="{{ '/assets/img/guild-logo.webp' | relative_url }}"
+             alt="" width="32" height="32" decoding="async">
+        <span class="nav-account__meta">
+          <span class="nav-account__name">Mistblossom</span>
+          <span class="nav-account__sub">Vanguard · UA</span>
+        </span>
+        <span class="nav-account__chev">{{ icon_chevron }}</span>
+      </button>
 
-      <div class="mobile-divider">Ресурси</div>
-
-      <a href="{{ '/mods/' | relative_url }}" class="mobile-link"><span class="icon">🛠️</span> Адони</a>
-      <a href="{{ '/guides/' | relative_url }}" class="mobile-link"><span class="icon">📚</span> Гайди</a>
-      <a href="{{ '/donate/' | relative_url }}" class="mobile-link"><span class="icon">💛</span> Підтримка</a>
-      <a href="{{ '/404.html' | relative_url }}" class="mobile-link"><span class="icon">🗺️</span> 404</a>
+      <nav class="nav-account__menu" id="nav-account-menu" aria-label="Гільдія та спільнота">
+        <p class="nav-account__group">Гільдія</p>
+        <a href="{{ '/guild/apply/' | relative_url }}">{{ icon_apply }}<span>Подати заявку</span></a>
+        <a href="{{ '/guild/applications/' | relative_url }}">{{ icon_list }}<span>Усі заявки</span></a>
+        <p class="nav-account__group">Спільнота</p>
+        <a class="is-discord" href="{{ discord_url }}" target="_blank" rel="noopener">{{ icon_discord }}<span>Discord сервер</span></a>
+      </nav>
     </div>
+
+    <button class="nav-burger" type="button" aria-label="Відкрити меню" aria-expanded="false" aria-controls="nav-sheet">
+      <span class="nav-burger__bars" aria-hidden="true"></span>
+    </button>
+
   </div>
 </header>
+
+<div class="nav-sheet" id="nav-sheet" aria-hidden="true">
+  <nav class="nav-sheet__inner" aria-label="Мобільна навігація">
+    <p class="nav-sheet__group">Навігація</p>
+    <a class="nav-sheet__link" href="{{ '/' | relative_url }}"{% if current_url == '/' %} aria-current="page"{% endif %}>{{ icon_home }}<span>Головна</span></a>
+    <a class="nav-sheet__link" href="{{ '/news/' | relative_url }}"{% if current_url contains '/news' %} aria-current="page"{% endif %}>{{ icon_news }}<span>Новини</span></a>
+    <a class="nav-sheet__link" href="{{ '/guild/' | relative_url }}"{% if current_url == '/guild/' %} aria-current="page"{% endif %}>{{ icon_guild }}<span>Гільдія</span></a>
+    <a class="nav-sheet__link" href="{{ '/guides/' | relative_url }}"{% if current_url contains '/guides' %} aria-current="page"{% endif %}>{{ icon_guides }}<span>Гайди</span></a>
+    <a class="nav-sheet__link" href="{{ '/mods/' | relative_url }}"{% if current_url contains '/mods' %} aria-current="page"{% endif %}>{{ icon_mods }}<span>Адони</span></a>
+    <a class="nav-sheet__link" href="{{ '/donate/' | relative_url }}"{% if current_url contains '/donate' %} aria-current="page"{% endif %}>{{ icon_donate }}<span>Підтримка</span></a>
+
+    <p class="nav-sheet__group">Заявки</p>
+    <a class="nav-sheet__link" href="{{ '/guild/apply/' | relative_url }}"{% if current_url == '/guild/apply/' %} aria-current="page"{% endif %}>{{ icon_apply }}<span>Подати заявку</span></a>
+    <a class="nav-sheet__link" href="{{ '/guild/applications/' | relative_url }}"{% if current_url == '/guild/applications/' %} aria-current="page"{% endif %}>{{ icon_list }}<span>Усі заявки</span></a>
+
+    <p class="nav-sheet__group">Спільнота</p>
+    <a class="nav-sheet__link is-discord" href="{{ discord_url }}" target="_blank" rel="noopener">{{ icon_discord }}<span>Discord сервер</span></a>
+  </nav>
+</div>
